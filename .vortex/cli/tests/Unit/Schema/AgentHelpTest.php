@@ -29,7 +29,7 @@ class AgentHelpTest extends UnitTestCase {
   }
 
   public static function dataProviderRenderContainsSections(): \Iterator {
-    yield 'title' => ['# Vortex Installer - AI Agent Instructions'];
+    yield 'title' => ['# Vortex CLI - AI Agent Instructions'];
     yield 'workflow section' => ['## Workflow'];
     yield 'commands section' => ['## Commands'];
     yield 'schema format section' => ['## Schema Format'];

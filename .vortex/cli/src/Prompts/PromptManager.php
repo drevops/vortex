@@ -104,7 +104,7 @@ class PromptManager {
    * PromptManager constructor.
    *
    * @param \DrevOps\VortexCli\Utils\Config $config
-   *   The installer config.
+   *   The install config.
    */
   public function __construct(
     protected Config $config,
@@ -273,7 +273,7 @@ class PromptManager {
       $responses[DatabaseFetchSource::id()] = DatabaseFetchSource::NONE;
     }
 
-    // Handle Starter when the installer is running in update mode.
+    // Handle Starter when the install is running in update mode.
     if ($this->config->isVortexProject() && !isset($responses[Starter::id()])) {
       $responses[Starter::id()] = Starter::LOAD_DATABASE_DEMO;
     }
@@ -439,7 +439,7 @@ class PromptManager {
       );
     }
 
-    // Kill-switch to not proceed with install. If FALSE, the installer will not
+    // Kill-switch to not proceed with install. If FALSE, the install will not
     // proceed despite the answer received above.
     if (!$this->config->get(Config::PROCEED)) {
       $proceed = FALSE;

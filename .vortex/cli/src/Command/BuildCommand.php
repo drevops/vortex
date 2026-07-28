@@ -79,7 +79,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
 
           return $command_runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
         },
-        failure: 'Missing requirements. Run: ./installer.php check-requirements',
+        failure: 'Missing requirements. Run: ./vortex.phar check-requirements',
         streaming: TRUE,
       );
 

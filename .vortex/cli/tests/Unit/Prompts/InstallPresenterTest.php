@@ -7,7 +7,7 @@ namespace DrevOps\VortexCli\Tests\Unit\Prompts;
 use DrevOps\VortexCli\Downloader\Artifact;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
 use DrevOps\VortexCli\Prompts\Handlers\Starter;
-use DrevOps\VortexCli\Prompts\InstallerPresenter;
+use DrevOps\VortexCli\Prompts\InstallPresenter;
 use DrevOps\VortexCli\Prompts\PromptManager;
 use DrevOps\VortexCli\Tests\Unit\UnitTestCase;
 use DrevOps\VortexCli\Utils\Config;
@@ -17,10 +17,10 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
- * Tests for the InstallerPresenter class.
+ * Tests for the InstallPresenter class.
  */
-#[CoversClass(InstallerPresenter::class)]
-class InstallerPresenterTest extends UnitTestCase {
+#[CoversClass(InstallPresenter::class)]
+class InstallPresenterTest extends UnitTestCase {
 
   protected BufferedOutput $output;
 
@@ -33,14 +33,14 @@ class InstallerPresenterTest extends UnitTestCase {
 
   public function testConstructor(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
-    $this->assertInstanceOf(InstallerPresenter::class, $presenter);
+    $this->assertInstanceOf(InstallPresenter::class, $presenter);
   }
 
   public function testSetPromptManager(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
     $presenter->setPromptManager($mock_pm);
@@ -54,7 +54,7 @@ class InstallerPresenterTest extends UnitTestCase {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $config->set(Config::IS_VORTEX_PROJECT, $is_vortex_project);
     $config->setNoInteraction($no_interaction);
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $artifact = Artifact::fromUri(NULL);
     $presenter->header($artifact, '1.0.0');
@@ -74,7 +74,7 @@ class InstallerPresenterTest extends UnitTestCase {
 
   public function testHeaderWithDevelopmentArtifact(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $artifact = Artifact::fromUri(RepositoryDownloader::DEFAULT_REPO . '#' . RepositoryDownloader::REF_HEAD);
     $presenter->header($artifact, '1.0.0');
@@ -85,7 +85,7 @@ class InstallerPresenterTest extends UnitTestCase {
 
   public function testHeaderWithCustomArtifact(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $artifact = Artifact::fromUri('https://github.com/drevops/vortex.git#abc123');
     $presenter->header($artifact, '1.0.0');
@@ -97,20 +97,20 @@ class InstallerPresenterTest extends UnitTestCase {
 
   public function testHeaderVersionPlaceholderReplacement(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $artifact = Artifact::fromUri(NULL);
-    $presenter->header($artifact, '@vortex-installer-version@');
+    $presenter->header($artifact, '@vortex-cli-version@');
 
     $output = $this->output->fetch();
     $this->assertStringContainsString('development', $output);
-    $this->assertStringNotContainsString('@vortex-installer-version@', $output);
+    $this->assertStringNotContainsString('@vortex-cli-version@', $output);
   }
 
   public function testHeaderInteractiveShowsControls(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $config->setNoInteraction(FALSE);
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $artifact = Artifact::fromUri(NULL);
     $presenter->header($artifact, '1.0.0');
@@ -123,7 +123,7 @@ class InstallerPresenterTest extends UnitTestCase {
   public function testHeaderNonInteractiveHidesControls(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $config->setNoInteraction(TRUE);
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $artifact = Artifact::fromUri(NULL);
     $presenter->header($artifact, '1.0.0');
@@ -137,7 +137,7 @@ class InstallerPresenterTest extends UnitTestCase {
   public function testHeaderExistingVortexProject(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $config->set(Config::IS_VORTEX_PROJECT, TRUE);
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $artifact = Artifact::fromUri(NULL);
     $presenter->header($artifact, '1.0.0');
@@ -149,7 +149,7 @@ class InstallerPresenterTest extends UnitTestCase {
   public function testFooterNewProject(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $config->set(Config::IS_VORTEX_PROJECT, FALSE);
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $presenter->footer();
 
@@ -162,7 +162,7 @@ class InstallerPresenterTest extends UnitTestCase {
   public function testFooterExistingProject(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $config->set(Config::IS_VORTEX_PROJECT, TRUE);
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $presenter->footer();
 
@@ -174,11 +174,11 @@ class InstallerPresenterTest extends UnitTestCase {
 
   public function testFooterBuildSucceeded(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
     $mock_pm->method('runPostBuild')
-      ->with(InstallerPresenter::BUILD_RESULT_SUCCESS)
+      ->with(InstallPresenter::BUILD_RESULT_SUCCESS)
       ->willReturn('');
     $presenter->setPromptManager($mock_pm);
 
@@ -192,11 +192,11 @@ class InstallerPresenterTest extends UnitTestCase {
 
   public function testFooterBuildSucceededWithHandlerOutput(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
     $mock_pm->method('runPostBuild')
-      ->with(InstallerPresenter::BUILD_RESULT_SUCCESS)
+      ->with(InstallPresenter::BUILD_RESULT_SUCCESS)
       ->willReturn('Setup GitHub Actions: ...');
     $presenter->setPromptManager($mock_pm);
 
@@ -209,12 +209,12 @@ class InstallerPresenterTest extends UnitTestCase {
   #[DataProvider('dataProviderFooterBuildSkipped')]
   public function testFooterBuildSkipped(string $starter, bool $expect_profile_command, bool $expect_export_db): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
     $mock_pm->method('getResponses')->willReturn([Starter::id() => $starter]);
     $mock_pm->method('runPostBuild')
-      ->with(InstallerPresenter::BUILD_RESULT_SKIPPED)
+      ->with(InstallPresenter::BUILD_RESULT_SKIPPED)
       ->willReturn('');
     $presenter->setPromptManager($mock_pm);
 
@@ -259,7 +259,7 @@ class InstallerPresenterTest extends UnitTestCase {
 
   public function testFooterBuildSkippedDefaultsToDemo(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
     $mock_pm->method('getResponses')->willReturn([]);
@@ -275,11 +275,11 @@ class InstallerPresenterTest extends UnitTestCase {
 
   public function testFooterBuildFailed(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
     $mock_pm->method('runPostBuild')
-      ->with(InstallerPresenter::BUILD_RESULT_FAILED)
+      ->with(InstallPresenter::BUILD_RESULT_FAILED)
       ->willReturn('');
     $presenter->setPromptManager($mock_pm);
 
@@ -296,11 +296,11 @@ class InstallerPresenterTest extends UnitTestCase {
 
   public function testFooterBuildFailedWithHandlerOutput(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
-    $presenter = new InstallerPresenter($config);
+    $presenter = new InstallPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
     $mock_pm->method('runPostBuild')
-      ->with(InstallerPresenter::BUILD_RESULT_FAILED)
+      ->with(InstallPresenter::BUILD_RESULT_FAILED)
       ->willReturn('Check hosting config');
     $presenter->setPromptManager($mock_pm);
 
@@ -316,9 +316,9 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public static function dataProviderBuildResultConstants(): \Iterator {
-    yield 'success' => [InstallerPresenter::BUILD_RESULT_SUCCESS, 'success'];
-    yield 'skipped' => [InstallerPresenter::BUILD_RESULT_SKIPPED, 'skipped'];
-    yield 'failed' => [InstallerPresenter::BUILD_RESULT_FAILED, 'failed'];
+    yield 'success' => [InstallPresenter::BUILD_RESULT_SUCCESS, 'success'];
+    yield 'skipped' => [InstallPresenter::BUILD_RESULT_SKIPPED, 'skipped'];
+    yield 'failed' => [InstallPresenter::BUILD_RESULT_FAILED, 'failed'];
   }
 
 }

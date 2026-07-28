@@ -11,11 +11,11 @@ use DrevOps\VortexCli\Utils\Strings;
 use DrevOps\VortexCli\Utils\Tui;
 
 /**
- * Presents installer headers, footers, and post-build messages.
+ * Presents install headers, footers, and post-build messages.
  *
  * @package DrevOps\VortexCli\Prompts
  */
-class InstallerPresenter {
+class InstallPresenter {
 
   const BUILD_RESULT_SUCCESS = 'success';
 
@@ -68,20 +68,20 @@ EOT;
     $logo = Tui::center($logo, Tui::terminalWidth($max_header_width), '─');
     $logo = Tui::cyan($logo);
 
-    // Depending on how the installer is run, the version may be set to
+    // Depending on how the CLI is run, the version may be set to
     // the placeholder value or actual version (PHAR packager will replace
     // the placeholder with the actual version).
     // We need to fence the replacement below only if the version is still set
     // to the placeholder value.
-    if (str_contains($version, 'vortex-installer-version')) {
-      $version = str_replace('@vortex-installer-version@', 'development', $version);
+    if (str_contains($version, 'vortex-cli-version')) {
+      $version = str_replace('@vortex-cli-version@', 'development', $version);
     }
 
-    $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('Installer version: %s', $version), Tui::terminalWidth($max_header_width) - 2, ' ', STR_PAD_LEFT));
+    $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('CLI version: %s', $version), Tui::terminalWidth($max_header_width) - 2, ' ', STR_PAD_LEFT));
 
     Tui::note($logo);
 
-    $title = 'Welcome to the Vortex interactive installer';
+    $title = 'Welcome to the Vortex CLI interactive install';
     $content = '';
 
     if ($artifact->isStable()) {
@@ -102,11 +102,11 @@ EOT;
     }
 
     if ($this->config->getNoInteraction()) {
-      $content .= 'Vortex installer will try to discover the settings from the environment and will install configuration relevant to your site.' . PHP_EOL;
+      $content .= 'Vortex CLI will try to discover the settings from the environment and will install configuration relevant to your site.' . PHP_EOL;
       $content .= PHP_EOL;
       $content .= 'Existing committed files may be modified. You may need to resolve some of the changes manually.' . PHP_EOL;
 
-      $title = 'Welcome to the Vortex non-interactive installer';
+      $title = 'Welcome to the Vortex CLI non-interactive install';
     }
     else {
       $content .= 'You will be asked a few questions to tailor the configuration to your site.' . PHP_EOL;
@@ -118,7 +118,7 @@ EOT;
         $content .= PHP_EOL;
       }
 
-      $content .= 'Press ' . Tui::yellow('Ctrl+C') . ' at any time to exit the installer.' . PHP_EOL;
+      $content .= 'Press ' . Tui::yellow('Ctrl+C') . ' at any time to exit the install.' . PHP_EOL;
       $content .= 'Press ' . Tui::yellow('Ctrl+U') . ' at any time to go back to the previous step.' . PHP_EOL;
     }
 

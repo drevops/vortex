@@ -185,7 +185,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
 
     $release_url = sprintf('https://api.github.com/repos/%s/releases', $path);
 
-    $headers = ['User-Agent' => 'Vortex-Installer', 'Accept' => 'application/vnd.github.v3+json'];
+    $headers = ['User-Agent' => 'Vortex-CLI', 'Accept' => 'application/vnd.github.v3+json'];
 
     $github_token = Env::get('GITHUB_TOKEN');
     if ($github_token) {
@@ -237,7 +237,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       throw new \RuntimeException('Unable to create temporary file for archive download.');
     }
 
-    $headers = ['User-Agent' => 'Vortex-Installer'];
+    $headers = ['User-Agent' => 'Vortex-CLI'];
 
     $github_token = Env::get('GITHUB_TOKEN');
     if ($github_token) {
@@ -305,7 +305,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   If the repository is not accessible.
    */
   protected function validateRemoteRepositoryExists(string $repo_url): void {
-    $headers = ['User-Agent' => 'Vortex-Installer'];
+    $headers = ['User-Agent' => 'Vortex-CLI'];
 
     $github_token = Env::get('GITHUB_TOKEN');
     if ($github_token) {
@@ -339,7 +339,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    */
   protected function validateRemoteRefExists(string $repo_url, string $ref): void {
     $archive_url = sprintf('%s/archive/%s.tar.gz', $repo_url, $ref);
-    $headers = ['User-Agent' => 'Vortex-Installer'];
+    $headers = ['User-Agent' => 'Vortex-CLI'];
 
     $github_token = Env::get('GITHUB_TOKEN');
     if ($github_token) {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Schema;
 
 /**
- * Renders AI agent instructions for the installer.
+ * Renders AI agent instructions for the CLI.
  *
  * @package DrevOps\VortexCli\Schema
  */
@@ -19,10 +19,10 @@ class AgentHelp {
    */
   public static function render(): string {
     return <<<'AGENT_HELP'
-# Vortex Installer - AI Agent Instructions
+# Vortex CLI - AI Agent Instructions
 
-You are interacting with the Vortex installer, a CLI tool that sets up Drupal
-projects from the Vortex template. This guide explains how to use the installer
+You are interacting with the Vortex CLI, a tool that sets up Drupal projects
+from the Vortex template. This guide explains how to use its install command
 programmatically.
 
 ## Workflow
@@ -46,23 +46,23 @@ programmatically.
 
 ```bash
 # Get the prompt schema
-php installer.php --schema
+php vortex.phar --schema
 
 # Validate prompt answers (JSON string)
-php installer.php --validate --prompts='{"name":"My Project","hosting_provider":"lagoon"}'
+php vortex.phar --validate --prompts='{"name":"My Project","hosting_provider":"lagoon"}'
 
 # Validate prompt answers (JSON file)
-php installer.php --validate --prompts=prompts.json
+php vortex.phar --validate --prompts=prompts.json
 
 # Install non-interactively
-php installer.php --no-interaction --prompts='<json>' --destination=./my-project
+php vortex.phar --no-interaction --prompts='<json>' --destination=./my-project
 ```
 
 ## Options
 
 - `--prompts` (`-p`): JSON object of prompt answers, keyed by prompt ID.
   Accepts a JSON string or a path to a JSON file.
-- `--config` (`-c`): JSON object of installer configuration (repository, ref,
+- `--config` (`-c`): JSON object of install configuration (repository, ref,
   and other internal settings). Not for prompt answers.
 - `--destination`: Target directory for installation.
 - `--no-interaction` (`-n`): Non-interactive mode. Prompts without answers in

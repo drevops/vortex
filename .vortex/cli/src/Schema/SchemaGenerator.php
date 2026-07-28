@@ -9,7 +9,7 @@ use DrevOps\VortexCli\Prompts\Handlers\Internal;
 use DrevOps\VortexCli\Utils\Normalizer;
 
 /**
- * Generates a JSON schema of all installer prompts.
+ * Generates a JSON schema of all install prompts.
  *
  * @package DrevOps\VortexCli\Schema
  */

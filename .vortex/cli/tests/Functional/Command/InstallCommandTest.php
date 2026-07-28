@@ -9,7 +9,7 @@ use DrevOps\VortexCli\Command\BuildCommand;
 use DrevOps\VortexCli\Command\CheckRequirementsCommand;
 use DrevOps\VortexCli\Command\InstallCommand;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
-use DrevOps\VortexCli\Prompts\InstallerPresenter;
+use DrevOps\VortexCli\Prompts\InstallPresenter;
 use DrevOps\VortexCli\Runner\ProcessRunner;
 use DrevOps\VortexCli\Runner\RunnerInterface;
 use DrevOps\VortexCli\Schema\AgentHelp;
@@ -29,7 +29,7 @@ use Symfony\Component\Process\ExecutableFinder;
  * Functional tests for InstallCommand.
  */
 #[CoversClass(InstallCommand::class)]
-#[CoversClass(InstallerPresenter::class)]
+#[CoversClass(InstallPresenter::class)]
 #[CoversClass(OptionsResolver::class)]
 #[CoversClass(FileManager::class)]
 #[CoversClass(AgentHelp::class)]

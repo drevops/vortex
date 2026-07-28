@@ -7,7 +7,7 @@ namespace DrevOps\VortexCli\Utils;
 /**
  * Installer configuration.
  *
- * Installer config is a config of this installer script.
+ * Install config is a config of the install command.
  *
  * @package DrevOps\VortexCli
  */

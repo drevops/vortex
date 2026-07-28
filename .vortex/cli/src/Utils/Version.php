@@ -7,10 +7,10 @@ namespace DrevOps\VortexCli\Utils;
 /**
  * Helpers for reasoning about Vortex major versions.
  *
- * A single installer build serves one major line (for example, the 1.x build
+ * A single CLI build serves one major line (for example, the 1.x build
  * resolves the latest 1.x release, the 2.x build resolves the latest 2.x
- * release). These helpers derive the major from the installer's own stamped
- * version and from an installed project, so the installer can both target the
+ * release). These helpers derive the major from the CLI's own stamped
+ * version and from an installed project, so the CLI can both target the
  * right major and refuse cross-major operations.
  */
 class Version {
@@ -21,7 +21,7 @@ class Version {
    * @param string|null $version
    *   A version string such as "1.40.0", "v2.0.0", "2.x-dev" or
    *   "1.0.0+2025.11.0". Unstamped or development values (for example
-   *   "develop" or "@vortex-installer-version@") have no derivable major.
+   *   "develop" or "@vortex-cli-version@") have no derivable major.
    *
    * @return int|null
    *   The major version number, or NULL when it cannot be determined.

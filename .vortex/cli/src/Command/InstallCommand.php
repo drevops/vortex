@@ -8,7 +8,7 @@ use DrevOps\VortexCli\Downloader\Artifact;
 use DrevOps\VortexCli\Downloader\Downloader;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
 use DrevOps\VortexCli\Prompts\Handlers\Starter;
-use DrevOps\VortexCli\Prompts\InstallerPresenter;
+use DrevOps\VortexCli\Prompts\InstallPresenter;
 use DrevOps\VortexCli\Prompts\PromptManager;
 use DrevOps\VortexCli\Runner\CommandRunnerAwareInterface;
 use DrevOps\VortexCli\Runner\CommandRunnerAwareTrait;
@@ -85,9 +85,9 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
   protected PromptManager $promptManager;
 
   /**
-   * The installer presenter.
+   * The install presenter.
    */
-  protected InstallerPresenter $presenter;
+  protected InstallPresenter $presenter;
 
   /**
    * The file manager.
@@ -117,25 +117,25 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
     $this->setDescription('Install Vortex from remote or local repository.');
     $this->setHelp(<<<EOF
   <info>Interactively install Vortex from the latest stable release into the current directory:</info>
-  php installer.php --destination=.
+  php vortex.phar --destination=.
 
   <info>Non-interactively install Vortex from the latest stable release into the specified directory:</info>
-  php installer.php --no-interaction --destination=path/to/destination
+  php vortex.phar --no-interaction --destination=path/to/destination
 
   <info>Install from the latest auto-discovered stable release (default behavior if --uri is specified):</info>
-  php installer.php --uri=https://github.com/drevops/vortex.git
-  php installer.php --uri=https://github.com/drevops/vortex.git#stable
+  php vortex.phar --uri=https://github.com/drevops/vortex.git
+  php vortex.phar --uri=https://github.com/drevops/vortex.git#stable
 
   <info>Install using repository URL with specific git ref after #:</info>
-  php installer.php --uri=https://github.com/drevops/vortex.git#25.11.0
-  php installer.php --uri=https://github.com/drevops/vortex.git#v1.2.3
-  php installer.php --uri=https://github.com/drevops/vortex.git#main
+  php vortex.phar --uri=https://github.com/drevops/vortex.git#25.11.0
+  php vortex.phar --uri=https://github.com/drevops/vortex.git#v1.2.3
+  php vortex.phar --uri=https://github.com/drevops/vortex.git#main
 
   <info>Copy GitHub URL directly from your browser:</info>
-  php installer.php --uri=https://github.com/drevops/vortex/releases/tag/25.11.0
-  php installer.php --uri=https://github.com/drevops/vortex/tree/1.2.3
-  php installer.php --uri=https://github.com/drevops/vortex/tree/main
-  php installer.php --uri=https://github.com/drevops/vortex/commit/abcd123
+  php vortex.phar --uri=https://github.com/drevops/vortex/releases/tag/25.11.0
+  php vortex.phar --uri=https://github.com/drevops/vortex/tree/1.2.3
+  php vortex.phar --uri=https://github.com/drevops/vortex/tree/main
+  php vortex.phar --uri=https://github.com/drevops/vortex/commit/abcd123
 EOF
     );
     $this->addOption(static::OPTION_DESTINATION, NULL, InputOption::VALUE_REQUIRED, 'Destination directory. Defaults to the current directory.');
@@ -143,12 +143,12 @@ EOF
     $this->addOption(static::OPTION_NO_INTERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
     $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options or a path to a JSON file.');
     $this->addOption(static::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
-    $this->addOption(static::OPTION_NO_CLEANUP, NULL, InputOption::VALUE_NONE, 'Do not remove installer after successful installation.');
+    $this->addOption(static::OPTION_NO_CLEANUP, NULL, InputOption::VALUE_NONE, 'Do not remove the CLI after successful installation.');
     $this->addOption(static::OPTION_BUILD, 'b', InputOption::VALUE_NONE, 'Run auto-build after installation without prompting.');
     $this->addOption(static::OPTION_PROMPTS, 'p', InputOption::VALUE_REQUIRED, 'A JSON string with prompt answers or a path to a JSON file. Keys are prompt IDs from --schema.');
     $this->addOption(static::OPTION_SCHEMA, NULL, InputOption::VALUE_NONE, 'Output prompt schema as JSON.');
     $this->addOption(static::OPTION_VALIDATE, NULL, InputOption::VALUE_NONE, 'Validate config without installing.');
-    $this->addOption(static::OPTION_AGENT_HELP, NULL, InputOption::VALUE_NONE, 'Output instructions for AI agents on how to use the installer.');
+    $this->addOption(static::OPTION_AGENT_HELP, NULL, InputOption::VALUE_NONE, 'Output instructions for AI agents on how to use the CLI.');
   }
 
   /**
@@ -181,7 +181,7 @@ EOF
 
       Tui::init($output, !$this->config->getNoInteraction());
       $this->promptManager = new PromptManager($this->config);
-      $this->presenter = new InstallerPresenter($this->config);
+      $this->presenter = new InstallPresenter($this->config);
       $this->presenter->setPromptManager($this->promptManager);
       $this->fileManager = new FileManager($this->config);
 
@@ -305,7 +305,7 @@ EOF
     }
 
     // Cleanup should take place only in case of the successful installation.
-    // Otherwise, the user should be able to re-run the installer.
+    // Otherwise, the user should be able to re-run the install.
     register_shutdown_function([$this, 'cleanup']);
 
     return Command::SUCCESS;
@@ -363,7 +363,7 @@ EOF
   /**
    * Handle --agent-help option.
    *
-   * Outputs instructions for AI agents on how to use the installer
+   * Outputs instructions for AI agents on how to use the CLI
    * programmatically via --schema and --validate.
    */
   protected function handleAgentHelp(OutputInterface $output): int {
@@ -400,32 +400,32 @@ EOF
   /**
    * Refuse to operate across major versions.
    *
-   * Each installer build serves a single major line. Updating an existing
+   * Each CLI build serves a single major line. Updating an existing
    * project of a different major would cross a breaking boundary, so stop and
-   * point the user at the matching installer instead. Fresh installs and
+   * point the user at the matching CLI instead. Fresh installs and
    * projects whose major cannot be determined are treated as compatible.
    *
    * @throws \RuntimeException
-   *   When the destination project's major differs from this installer's major.
+   *   When the destination project's major differs from this CLI's major.
    */
   protected function assertMajorCompatibility(): void {
     if (!$this->config->isVortexProject()) {
       return;
     }
 
-    $installer_major = Version::major($this->getApplication()->getVersion());
-    if ($installer_major === NULL) {
+    $cli_major = Version::major($this->getApplication()->getVersion());
+    if ($cli_major === NULL) {
       return;
     }
 
     $project_major = Version::detectProjectMajor((string) $this->config->getDst());
-    if ($project_major === NULL || $project_major === $installer_major) {
+    if ($project_major === NULL || $project_major === $cli_major) {
       return;
     }
 
     throw new \RuntimeException(sprintf(
-      'This installer targets Vortex %1$d.x, but the destination is a Vortex %2$d.x project. Update it with the %2$d.x installer instead: https://www.vortextemplate.com/v%2$d/install',
-      $installer_major,
+      'This Vortex CLI targets Vortex %1$d.x, but the destination is a Vortex %2$d.x project. Update it with the %2$d.x CLI instead: https://www.vortextemplate.com/v%2$d/install',
+      $cli_major,
       $project_major,
     ));
   }
@@ -440,7 +440,7 @@ EOF
   }
 
   /**
-   * Clean up installer artifacts.
+   * Clean up CLI artifacts.
    */
   public function cleanup(): void {
     // Skip cleanup if the no-cleanup flag is set.
