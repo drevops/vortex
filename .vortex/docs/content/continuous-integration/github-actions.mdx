@@ -77,6 +77,9 @@ in the job configuration. Note that this may affect your GitHub billing:
 runs-on: ubuntu-latest-4-cores  # Options: ubuntu-latest, ubuntu-latest-4-cores, etc.
 ```
 
+Larger runners also come with more disk, which matters for projects whose
+provisioning is disk-heavy. See [Runner disk space](/docs/continuous-integration#runner-disk-space).
+
 ### Change test parallelism
 
 To speed up test execution, you can increase the number of parallel runners in
