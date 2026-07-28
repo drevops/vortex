@@ -64,8 +64,39 @@ abstract class AbstractInstallCommand extends Command {
       ->addOption('uri', 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional ref after "#".')
       ->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options or a path to a JSON file.')
       ->addOption('prompts', 'p', InputOption::VALUE_REQUIRED, 'Answers as a JSON string or a path to a JSON file.')
-      ->addOption('no-cleanup', NULL, InputOption::VALUE_NONE, 'Do not remove the installer after installation.')
+      ->addOption('schema', NULL, InputOption::VALUE_NONE, 'Print the question schema as JSON and exit.')
+      ->addOption('agent-help', NULL, InputOption::VALUE_NONE, 'Print instructions for driving the form non-interactively.')
+      ->addOption('no-cleanup', NULL, InputOption::VALUE_NONE, 'Do not remove the Vortex CLI after installation.')
       ->addOption('build', 'b', InputOption::VALUE_NONE, 'Run the site build after installation.');
+  }
+
+  /**
+   * Print the form metadata an agent needs to drive the questions, if asked.
+   *
+   * The questions are declared by this build, so they can be described without
+   * a destination, a template download or any of the install machinery.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *   The input.
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *   The output.
+   *
+   * @return bool
+   *   TRUE when metadata was printed and the command should stop.
+   */
+  protected function describeForm(InputInterface $input, OutputInterface $output): bool {
+    $schema = (bool) $input->getOption('schema');
+    $agent_help = (bool) $input->getOption('agent-help');
+
+    if (!$schema && !$agent_help) {
+      return FALSE;
+    }
+
+    $tui = new Tui(VortexForm::create(new Config()), [static::HANDLER_NAMESPACE]);
+
+    $output->writeln($schema ? (string) json_encode($tui->schema()) : $tui->agentHelp());
+
+    return TRUE;
   }
 
   /**
@@ -80,6 +111,10 @@ abstract class AbstractInstallCommand extends Command {
    *   The command exit code.
    */
   protected function doInstall(InputInterface $input, OutputInterface $output): int {
+    if ($this->describeForm($input, $output)) {
+      return Command::SUCCESS;
+    }
+
     try {
       OptionsResolver::checkRequirements(new ExecutableFinder());
       [$config, $artifact] = OptionsResolver::resolve($input->getOptions());

@@ -558,7 +558,7 @@ html[data-theme='dark'] .vtx-home .btn-primary:hover {
   flex: none;
 }
 
-/* Hero media: installer video in a clean window. */
+/* Hero media: install video in a clean window. */
 .vtx-home .media-frame {
   border-radius: var(--radius);
   background: var(--surface);
@@ -1288,7 +1288,7 @@ html[data-theme='dark'] .vtx-home .step-num {
 }
 
 /* ============================================================
-   HOMEPAGE: installer video - click-to-expand player modal
+   HOMEPAGE: install video - click-to-expand player modal
    ============================================================ */
 .vtx-home .media-play {
   display: block;

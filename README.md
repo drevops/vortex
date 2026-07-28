@@ -23,7 +23,7 @@
 
 **Vortex** is a unified Drupal project template - one tested foundation your team installs once, picks features from, and pulls upstream updates into for as long as the project lives.
 
-The outcome: every site in your portfolio looks, builds, tests, and deploys the same way. New hires onboard against a familiar stack. CI and hosting integrations come pre-wired. When **Vortex** releases each month, your project can adopt the upstream changes through the same installer that set it up.
+The outcome: every site in your portfolio looks, builds, tests, and deploys the same way. New hires onboard against a familiar stack. CI and hosting integrations come pre-wired. When **Vortex** releases each month, your project can adopt the upstream changes through the same CLI that set it up.
 
 <div align="center">
   <picture>
@@ -40,7 +40,7 @@ You need every Drupal project in your portfolio to look, build, and ship the sam
 
 ### For Drupal practice leads and agency principals
 
-Each new client engagement starts with weeks of setup before any billable feature work begins. **Vortex** turns that setup into a known cost: one installer, an opinionated baseline your delivery team already knows, and a feature set you choose at install time, so every engagement starts at the same quality floor.
+Each new client engagement starts with weeks of setup before any billable feature work begins. **Vortex** turns that setup into a known cost: one command, an opinionated baseline your delivery team already knows, and a feature set you choose at install time, so every engagement starts at the same quality floor.
 
 ### For tech leads and engineering managers
 
@@ -60,7 +60,7 @@ You need local, continuous integration, and hosting to behave identically and de
 
 - 📦 **Template** - the pre-configured Drupal project: containerized local environment (Docker Compose + Ahoy), GitHub Actions and CircleCI pipelines, Acquia and Lagoon hosting integrations, code quality tooling (PHPCS, PHPStan, Rector, Twig CS Fixer, ESLint), and a testing harness (PHPUnit, Behat with screenshot capture).
 - 📖 **Documentation** - centralized guidance at [vortextemplate.com](https://www.vortextemplate.com), a scaffold for your project-specific docs, and an onboarding checklist for new team members.
-- 🎛️ **Installer** - a standalone CLI that adds only the features you select, renames boilerplate to your project, and upgrades existing installations to newer **Vortex** versions.
+- 🎛️ **CLI** - a standalone binary that adds only the features you select, renames boilerplate to your project, and upgrades existing installations to newer **Vortex** versions.
 
 ➡️ See the full [feature list](https://www.vortextemplate.com/docs/features) and the [architecture overview](https://www.vortextemplate.com/docs/architecture).
 
@@ -68,17 +68,17 @@ You need local, continuous integration, and hosting to behave identically and de
 
 **Vortex** is built for the whole life of your project, not just the first commit.
 
-- 🚀 **Day 1** - Run the installer, pick features, and you have a Drupal site building locally, running in CI, and ready to deploy to staging.
+- 🚀 **Day 1** - Run the CLI, pick features, and you have a Drupal site building locally, running in CI, and ready to deploy to staging.
 - 🔧 **Month 6** - Renovate keeps dependencies current. The provisioning script runs the same way for every developer. New hires onboard against pre-wired tooling instead of tribal knowledge.
-- 🛟 **Year 3** - Monthly **Vortex** releases bring upstream tooling, PHP, and Drupal updates. The installer applies them to your project, so it stays current instead of drifting.
+- 🛟 **Year 3** - Monthly **Vortex** releases bring upstream tooling, PHP, and Drupal updates. The CLI applies them to your project, so it stays current instead of drifting.
 
 ## Quick start
 
 ```bash
-curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
+curl -SsL https://www.vortextemplate.com/install > vortex.phar && php vortex.phar
 ```
 
-<img src=".vortex/docs/static/img/installer.svg" alt="Vortex installer screenshot" />
+<img src=".vortex/docs/static/img/install.svg" alt="Vortex CLI screenshot" />
 
 Alternatively, clone this repository and edit out the sections you do not need.
 
@@ -86,18 +86,18 @@ Alternatively, clone this repository and edit out the sections you do not need.
 
 ### Installing with an AI coding agent
 
-The installer ships built-in support for AI coding agents. Run with `--agent-help` to get full instructions for programmatic installation:
+The CLI ships built-in support for AI coding agents. Run with `--agent-help` to get full instructions for programmatic installation:
 
 ```bash
-curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php --agent-help
+curl -SsL https://www.vortextemplate.com/install > vortex.phar && php vortex.phar --agent-help
 ```
 
 ### Development version
 
-The latest development build of the installer from the `develop` branch is at https://vortex-docs.netlify.app/install:
+The latest development build of the CLI from the `develop` branch is at https://vortex-docs.netlify.app/install:
 
 ```bash
-curl -SsL https://vortex-docs.netlify.app/install > installer.php && php installer.php
+curl -SsL https://vortex-docs.netlify.app/install > vortex.phar && php vortex.phar
 ```
 
 ## See Vortex in production

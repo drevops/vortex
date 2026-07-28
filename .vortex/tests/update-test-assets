@@ -49,7 +49,7 @@ $valid_modes = ['demo-dump', 'demo-image', 'test-dump', 'test-image', 'destinati
 [$mode, $tag] = parse_args($argv ?? [], $valid_modes);
 
 $root_dir = dirname(__DIR__, 2);
-$installer = $root_dir . '/.vortex/installer/installer.php';
+$cli = $root_dir . '/.vortex/cli/vortex';
 
 step(sprintf('Mode: %s', $mode));
 step(sprintf('Tag: %s', $tag));
@@ -62,7 +62,7 @@ require_command('curl');
 require_command('sed');
 require_command('php');
 
-run_mode($mode, $root_dir, $installer, $tag);
+run_mode($mode, $root_dir, $cli, $tag);
 
 step('Done');
 
@@ -70,16 +70,16 @@ step('Done');
 // Mode dispatcher.
 // =============================================================================
 
-function run_mode(string $mode, string $root_dir, string $installer, string $tag): void {
+function run_mode(string $mode, string $root_dir, string $cli, string $tag): void {
   step(sprintf('--- Running mode: %s ---', $mode));
 
   match ($mode) {
     'demo-dump' => mode_demo_dump($root_dir),
     'demo-image' => mode_demo_image($root_dir, $tag),
-    'test-dump' => mode_test_dump($root_dir, $installer),
-    'test-image' => mode_test_image($root_dir, $installer, $tag),
+    'test-dump' => mode_test_dump($root_dir, $cli),
+    'test-image' => mode_test_image($root_dir, $cli, $tag),
     'destination-images' => mode_destination_images($tag),
-    'all' => mode_all($root_dir, $installer, $tag),
+    'all' => mode_all($root_dir, $cli, $tag),
   };
 }
 
@@ -109,10 +109,10 @@ function mode_demo_image(string $root_dir, string $tag): void {
   seed_image($root_dir, 'db.demo_image.sql', $image);
 }
 
-function mode_test_dump(string $root_dir, string $installer): void {
+function mode_test_dump(string $root_dir, string $cli): void {
   $body = body_test_dump();
 
-  reset_sut($root_dir, $installer);
+  reset_sut($root_dir, $cli);
   build_in($root_dir, SUT_DIR);
   set_node_content(SUT_DIR, 'Welcome to the test site!', $body);
   finalise_content(SUT_DIR);
@@ -120,11 +120,11 @@ function mode_test_dump(string $root_dir, string $installer): void {
   print_dump_followup(SUT_DIR, 'db.test.sql', 'db_d11.test.sql');
 }
 
-function mode_test_image(string $root_dir, string $installer, string $tag): void {
+function mode_test_image(string $root_dir, string $cli, string $tag): void {
   $image = sprintf('%s:%s', IMAGE_TEST, $tag);
   $body = body_test_image();
 
-  reset_sut($root_dir, $installer);
+  reset_sut($root_dir, $cli);
   build_in($root_dir, SUT_DIR);
   set_node_content(SUT_DIR, 'Welcome to the test site!', $body);
   finalise_content(SUT_DIR);
@@ -155,7 +155,7 @@ function mode_destination_images(string $tag): void {
  * the image variant before exporting and pushing the image. This reuses the
  * provisioned stack and skips two 'ahoy build' invocations.
  */
-function mode_all(string $root_dir, string $installer, string $tag): void {
+function mode_all(string $root_dir, string $cli, string $tag): void {
   // Demo phase: one stack build, two exports.
   step('=== Demo phase (single stack build) ===');
   build_demo_in_place($root_dir);
@@ -175,7 +175,7 @@ function mode_all(string $root_dir, string $installer, string $tag): void {
 
   // Test phase: one stack build, two exports.
   step('=== Test phase (single stack build) ===');
-  reset_sut($root_dir, $installer);
+  reset_sut($root_dir, $cli);
   build_in($root_dir, SUT_DIR);
 
   $test_dump_body = body_test_dump();
@@ -225,14 +225,14 @@ function print_dump_followup(string $cwd, string $filename, string $asset_name):
 // Shared subroutines.
 // =============================================================================
 
-function reset_sut(string $root_dir, string $installer): void {
+function reset_sut(string $root_dir, string $cli): void {
   step(sprintf('Reset SUT directory %s', SUT_DIR));
 
   // Drupal stages public files inside containers running as 'www-data'
   // (uid 33). When those bind-mounts surface on the host, plain 'rm -rf'
   // by the current user fails with "Permission denied". Clear the contents
   // via an ephemeral root-privileged container so file ownership doesn't
-  // matter, then leave the dir itself in place for the installer.
+  // matter, then leave the dir itself in place for the CLI.
   run(sprintf('mkdir -p %s', escapeshellarg(SUT_DIR)));
   run(sprintf(
     'docker run --rm -v %s:/sut alpine find /sut -mindepth 1 -delete',
@@ -240,10 +240,11 @@ function reset_sut(string $root_dir, string $installer): void {
   ));
 
   step('Install Vortex into SUT');
+  run(sprintf('composer --working-dir=%s install', escapeshellarg(dirname($cli))), $root_dir);
   run(sprintf(
-    'VORTEX_INSTALLER_TEMPLATE_REPO=%s php %s --no-interaction --destination=%s',
+    'VORTEX_INSTALLER_TEMPLATE_REPO=%s php %s install --no-interaction --destination=%s',
     escapeshellarg($root_dir),
-    escapeshellarg($installer),
+    escapeshellarg($cli),
     escapeshellarg(SUT_DIR)
   ), $root_dir);
 }

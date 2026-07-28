@@ -1,6 +1,6 @@
 ## [VERSION] — [SHORT TITLE]
 
-[Very short summary, 1–3 sentences. E.g. “This release updates the base template to Drupal X.Y, improves the installer UX, and expands documentation for local dev.”]
+[Very short summary, 1–3 sentences. E.g. “This release updates the base template to Drupal X.Y, improves the CLI UX, and expands documentation for local dev.”]
 
 ---
 
@@ -36,16 +36,16 @@
 
 ---
 
-### 🎛 Installer
+### 🎛 CLI
 
 - ✨ **New**
-  - [New installer options, flows, flags]
+  - [New CLI options, flows, flags]
 
 - 🛠 **Changed**
   - [Improved UX, default choices, messages]
 
 - 🐞 **Fixed**
-  - [Installer bugs, edge cases]
+  - [CLI bugs, edge cases]
 
 ---
 

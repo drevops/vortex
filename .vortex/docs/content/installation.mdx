@@ -9,21 +9,21 @@ import TabItem from '@theme/TabItem';
 # Installation
 
 These steps take you from an empty directory to a deployed site. The interactive
-installer scaffolds your codebase; the remaining steps connect it to your hosting
+CLI scaffolds your codebase; the remaining steps connect it to your hosting
 platform and continuous integration provider. Follow them in order.
 
 ## Installing Vortex into a new project
 
 ### 1. Install Vortex
 
-Create a new directory for your project, navigate into it, and run the installer:
+Create a new directory for your project, navigate into it, and run the CLI:
 
 ```shell title="Install using interactive prompts"
-curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
+curl -SsL https://www.vortextemplate.com/install > vortex.phar && php vortex.phar
 ```
 
 <AsciinemaPlayer
-  src="/img/installer.json"
+  src="/img/install.json"
   poster="npt:0:1"
   autoPlay={false}
   loop={false}
@@ -35,11 +35,11 @@ curl -SsL https://www.vortextemplate.com/install > installer.php && php installe
 
 :::tip Installing with an AI agent
 
-The installer has built-in support for AI agents. Run it with `--agent-help` to
+The CLI has built-in support for AI agents. Run it with `--agent-help` to
 get instructions for a non-interactive, programmatic installation:
 
 ```shell
-curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php --agent-help
+curl -SsL https://www.vortextemplate.com/install > vortex.phar && php vortex.phar --agent-help
 ```
 
 :::
@@ -209,7 +209,7 @@ runs the tests, and deploys according to your configuration.
 
 ## Installing Vortex into an existing project
 
-The installer cannot predict the state of your project, so initialize **Vortex**
+The CLI cannot predict the state of your project, so initialize **Vortex**
 into a new directory and merge your existing project into it.
 
 :::warning
@@ -222,7 +222,7 @@ Back up your project before proceeding.
 
 2. In your existing project, create a new branch and remove all files except the `.git` directory.
 
-3. Run the installer ([step 1](#1-install-vortex)) to produce a clean **Vortex** installation, then commit it.
+3. Run the CLI ([step 1](#1-install-vortex)) to produce a clean **Vortex** installation, then commit it.
 
 4. Copy your files back from the temporary directory, overriding the installed ones. Review the diff and selectively keep changes - merge `composer.json` by hand (preserving **all** of **Vortex's** entries) and regenerate `composer.lock` with `composer install`.
 

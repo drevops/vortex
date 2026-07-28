@@ -9,5 +9,5 @@
 /.vortex/CLAUDE.md    export-ignore
 /.vortex/README.md    export-ignore
 /.vortex/docs         export-ignore
-/.vortex/installer    export-ignore
+/.vortex/cli          export-ignore
 /.vortex/tests        export-ignore

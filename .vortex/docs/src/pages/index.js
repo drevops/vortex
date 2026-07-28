@@ -4,7 +4,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
 const INSTALL_COMMAND =
-  'curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php';
+  'curl -SsL https://www.vortextemplate.com/install > vortex.phar && php vortex.phar';
 
 function copyToClipboard(text) {
   if (
@@ -136,9 +136,9 @@ function InstallSnippet() {
       <div className="snippet-code">
         <span className="pr">$</span> <span className="cm">curl</span>{' '}
         <span className="fl">-SsL</span> https://www.vortextemplate.com/install{' '}
-        <span className="op">&gt;</span> installer.php{' '}
+        <span className="op">&gt;</span> vortex.phar{' '}
         <span className="op">&amp;&amp;</span> <span className="cm">php</span>{' '}
-        installer.php
+        vortex.phar
       </div>
       <CopyButton command={INSTALL_COMMAND} />
     </div>
@@ -179,8 +179,8 @@ function useReveals() {
 }
 
 export default function Home() {
-  const installerVideo = useBaseUrl('/img/installer.svg');
-  const installerCast = useBaseUrl('/img/installer.json');
+  const installVideo = useBaseUrl('/img/install.svg');
+  const installCast = useBaseUrl('/img/install.json');
   const [playerOpen, setPlayerOpen] = useState(false);
   const triggerRef = useRef(null);
   const closeRef = useRef(null);
@@ -302,7 +302,7 @@ export default function Home() {
                         <span className="y" />
                         <span className="g" />
                       </span>
-                      <span className="media-cap">vortex installer</span>
+                      <span className="media-cap">vortex install</span>
                       <span className="media-live">
                         <span className="d" /> demo
                       </span>
@@ -312,11 +312,11 @@ export default function Home() {
                       className="media-screen media-play"
                       onClick={() => setPlayerOpen(true)}
                       ref={triggerRef}
-                      aria-label="Play the installer demo with playback controls"
+                      aria-label="Play the install demo with playback controls"
                     >
                       <img
-                        src={installerVideo}
-                        alt="Animated demo of the Vortex installer scaffolding a new project from a single command"
+                        src={installVideo}
+                        alt="Animated demo of the Vortex CLI scaffolding a new project from a single command"
                         loading="lazy"
                         decoding="async"
                         width="1280"
@@ -340,7 +340,7 @@ export default function Home() {
                     >
                       <path d="m9 18 6-6-6-6" />
                     </svg>{' '}
-                    The installer scaffolds your whole project - structure,
+                    The CLI scaffolds your whole project - structure,
                     tooling, CI, and hosting - in one run.
                   </p>
                 </div>
@@ -776,7 +776,7 @@ export default function Home() {
               <div className="section-head center reveal">
                 <span className="eyebrow">How it fits together</span>
                 <h2 className="section-title">
-                  Template + Documentation + Installer
+                  Template + Documentation + CLI
                 </h2>
                 <p className="section-lead">
                   Three parts that keep every Vortex project consistent - and
@@ -837,7 +837,7 @@ export default function Home() {
                       <path d="M7 6l.5 1.2 1.2.5-1.2.5L7 9.4l-.5-1.2L5.3 7.7l1.2-.5L7 6z" />
                     </svg>
                   </span>
-                  <h3>Installer</h3>
+                  <h3>CLI</h3>
                   <p>
                     A standalone CLI that scaffolds your project and updates it
                     to the latest Vortex version.
@@ -929,9 +929,9 @@ export default function Home() {
               <div className="steps stagger">
                 <article className="step">
                   <div className="step-num">1</div>
-                  <h3>Run the installer</h3>
+                  <h3>Run the CLI</h3>
                   <p>
-                    Pull and run the installer with a single command - no global
+                    Pull and run the CLI with a single command - no global
                     tooling required.
                   </p>
                   <div className="step-code">
@@ -1224,7 +1224,7 @@ export default function Home() {
             className="vtx-modal"
             role="dialog"
             aria-modal="true"
-            aria-label="Vortex installer demo"
+            aria-label="Vortex install demo"
             onClick={closeOnBackdrop}
           >
             <div className="vtx-modal-panel" ref={modalRef}>
@@ -1235,7 +1235,7 @@ export default function Home() {
                   <span className="g" />
                 </span>
                 <span className="vtx-modal-title">
-                  vortex installer - full demo
+                  vortex install - full demo
                 </span>
                 <button
                   type="button"
@@ -1258,7 +1258,7 @@ export default function Home() {
               </div>
               <div className="vtx-modal-body">
                 <AsciinemaPlayer
-                  src={installerCast}
+                  src={installCast}
                   poster="npt:0:1"
                   autoPlay
                   loop={false}

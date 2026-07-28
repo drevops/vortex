@@ -8,8 +8,8 @@
 ```text
 vortex/
 ├── .vortex/                    # Test harness (removed on install)
+│   ├── cli/                    # 'drevops/vortex-cli' Composer package
 │   ├── docs/                   # Documentation website
-│   ├── installer/              # Template installer
 │   ├── tests/                  # Template tests (PHPUnit)
 │   └── tooling/                # 'drevops/vortex-tooling' Composer package
 │       ├── src/                # Shipped PHP scripts
@@ -25,15 +25,15 @@ test harness.
 
 | System       | Technology               | Purpose                       |
 |--------------|--------------------------|-------------------------------|
+| `cli/`       | Symfony Console, PHPUnit | 'drevops/vortex-cli' pkg      |
 | `docs/`      | Docusaurus, Jest         | vortextemplate.com            |
-| `installer/` | Symfony Console, PHPUnit | Template customization        |
 | `tests/`     | PHPUnit                  | Template integration testing  |
 | `tooling/`   | PHP, PHPUnit             | 'drevops/vortex-tooling' pkg  |
 
 Each subsystem has its own CLAUDE.md - read it when working there:
 
+- `.vortex/cli/CLAUDE.md` - CLI application, commands, handlers
 - `.vortex/docs/CLAUDE.md` - Documentation system, videos
-- `.vortex/installer/CLAUDE.md` - Installer, fixtures, tokens
 - `.vortex/tests/CLAUDE.md` - PHPUnit integration tests
 
 `tooling/` has no CLAUDE.md - it is published to consumer projects, so any notes
@@ -97,7 +97,7 @@ subscripts remain Bash.
 template's root `composer.json` requires
 `"drevops/vortex-tooling": "^2.0@alpha"` and the path repository pins
 `"versions": {"drevops/vortex-tooling": "2.0.0-alpha1"}` so the in-repo copy
-resolves during development. The installer strips that path repository from
+resolves during development. The CLI strips that path repository from
 consumer sites; until a `2.0` pre-release is published to Packagist, scaffolded
 sites cannot resolve the tooling - acceptable during 2.x pre-release
 development. Once a `2.0` release is published, switch the constraint to a plain
@@ -110,8 +110,10 @@ cd .vortex
 ahoy install          # Install all dependencies
 ahoy update-snapshots # Update fixtures (see Snapshots below)
 ahoy lint-scripts     # Lint Bash scripts
+ahoy lint-cli         # Lint the PHP CLI package
 ahoy lint-tooling     # Lint the PHP tooling package
 ahoy test-tooling     # Run PHPUnit tests for the tooling package
+ahoy build-cli        # Build the CLI PHAR
 ahoy update-docs      # Regenerate docs variables from scripts
 ahoy lint-markdown    # Lint markdown files
 ```
@@ -119,7 +121,7 @@ ahoy lint-markdown    # Lint markdown files
 ## Snapshots
 
 `ahoy update-snapshots` (run from `.vortex/`) is the **only** way to regenerate
-fixtures. It wraps the `tests/` and `installer/` snapshot runs together with the
+fixtures. It wraps the `tests/` and `cli/` snapshot runs together with the
 required `XDEBUG_MODE=off` and parallel jobs. Never call
 `composer update-snapshots` directly and never set `UPDATE_SNAPSHOTS` by hand -
 both bypass part of the workflow and produce partial, inconsistent fixtures.
@@ -153,21 +155,21 @@ When updating template files (settings, configs, Dockerfiles, etc.):
 2. **Commit.**
 3. Run `ahoy update-snapshots` and commit the regenerated fixtures.
 
-When the installer prompt flow changes (any change under
-`.vortex/installer/src/Prompts/` - new or removed handler, reordered or reworded
-prompt, `TOTAL_RESPONSES` bump), also run `ahoy update-videos installer` to
-re-record the demo, since the video records the live prompt flow.
+When the CLI question flow changes (any change under `.vortex/cli/src/Form/` or
+`.vortex/cli/src/Handler/` - new or removed handler, reordered or reworded
+question, changed panel layout), also run `ahoy update-videos install` to
+re-record the demo, since the video records the live question flow.
 `update-snapshots` commits automatically; `update-videos` does not - stage and
 commit its output manually. Run both after the code change is committed.
 
 ## Documentation videos
 
-Six terminal demo videos live in `.vortex/docs/static/img/` (`installer.*`,
+Six terminal demo videos live in `.vortex/docs/static/img/` (`install.*`,
 `build.*`, `provision.*`, `lint.*`, `test.*`, `test-bdd.*`). Regenerate from
 `.vortex/` with `ahoy update-videos [names]`. A video goes stale when the
 command it records changes behavior:
 
-- `installer` - any prompt flow change.
+- `install` - any question flow change.
 - `build`, `provision` - changes to `.ahoy.yml` build/provision targets or
   `scripts/vortex/provision*`.
 - `lint`, `test`, `test-bdd` - changes to the linter or test-runner setup.
@@ -185,8 +187,8 @@ and commit manually. See `.vortex/docs/CLAUDE.md` for the pipeline internals
 
 ## AI Assistant Guidelines
 
-- **NEVER** modify `.vortex/installer/tests/Fixtures/` directly - change the root
-  template files, then run `ahoy update-snapshots`.
+- **NEVER** modify `.vortex/cli/tests/phpunit/Fixtures/` directly - change the
+  root template files, then run `ahoy update-snapshots`.
 - American English spelling in documentation; sentence case for headings
   (capitalize proper nouns only).
 - **Code**: single lines preferred, no character limit. Multi-line only for many
