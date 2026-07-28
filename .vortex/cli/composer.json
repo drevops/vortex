@@ -1,6 +1,6 @@
 {
-    "name": "drevops/vortex-installer",
-    "description": "Installer for Vortex.",
+    "name": "drevops/vortex-cli",
+    "description": "CLI for Vortex.",
     "license": "GPL-2.0-or-later",
     "type": "project",
     "authors": [
@@ -30,6 +30,7 @@
         "sebastian/diff": "^6.0.2",
         "symfony/console": "^7.4.14",
         "symfony/filesystem": "^7.4.11",
+        "symfony/process": "^7.4.13",
         "symfony/yaml": "^7.4.14"
     },
     "require-dev": {
@@ -61,7 +62,7 @@
         ]
     },
     "bin": [
-        "installer.php"
+        "vortex"
     ],
     "config": {
         "allow-plugins": {

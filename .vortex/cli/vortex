@@ -3,7 +3,7 @@
 
 /**
  * @file
- * Vortex Installer entry point.
+ * Vortex CLI entry point.
  */
 
 declare(strict_types=1);
@@ -15,7 +15,7 @@ use Symfony\Component\Console\Application;
 
 require_once $GLOBALS['_composer_autoload_path'] ?? __DIR__ . '/vendor/autoload.php';
 
-$application = new Application('Vortex Installer', getenv('VORTEX_INSTALLER_VERSION') ?: '@vortex-installer-version@');
+$application = new Application('Vortex Installer', getenv('VORTEX_INSTALLER_VERSION') ?: '@vortex-cli-version@');
 
 $application->add(new InstallCommand());
 $application->add(new CheckRequirementsCommand());

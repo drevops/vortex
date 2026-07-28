@@ -9,7 +9,7 @@ parameters:
   phpVersion: 80229
 
   paths:
-    - installer.php
+    - vortex
     - src
     - tests/Unit
     - tests/Functional

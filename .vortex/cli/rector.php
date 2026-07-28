@@ -36,7 +36,7 @@ use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return RectorConfig::configure()
   ->withPaths([
-    __DIR__ . '/installer.php',
+    __DIR__ . '/vortex',
     __DIR__ . '/src',
     __DIR__ . '/tests/Functional',
     __DIR__ . '/tests/Unit',

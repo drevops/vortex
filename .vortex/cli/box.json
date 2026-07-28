@@ -1,13 +1,13 @@
 {
-    "output": "build/installer.phar",
+    "output": ".build/vortex.phar",
     "banner": [
         "@file",
-        "Vortex CLI Installer.",
+        "Vortex CLI.",
         "",
         "<!-- -->",
-        "CLI Installer for <a href=\"https://github.com/drevops/vortex\">Vortex</a> project.<br/>",
+        "CLI for <a href=\"https://github.com/drevops/vortex\">Vortex</a> project.<br/>",
         "Run in your terminal:<br/>",
-        "<code>curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php</code><br/>",
+        "<code>curl -SsL https://www.vortextemplate.com/install > vortex.phar && php vortex.phar</code><br/>",
         "More details: <a href=\"https://www.vortextemplate.com\">https://www.vortextemplate.com</a>",
         "<!--"
     ],
@@ -27,6 +27,6 @@
         "phpstan.neon"
     ],
     "replacements": {
-        "vortex-installer-version": "development"
+        "vortex-cli-version": "development"
     }
 }

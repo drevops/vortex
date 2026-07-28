@@ -21,7 +21,7 @@
     <arg value="p"/>
     <arg name="colors"/>
 
-    <file>installer.php</file>
+    <file>vortex</file>
     <file>src</file>
     <file>tests/Unit</file>
     <file>tests/Functional</file>

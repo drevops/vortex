@@ -30,7 +30,7 @@ class PharTest extends FunctionalTestCase {
   public static function setUpBeforeClass(): void {
     parent::setUpBeforeClass();
 
-    static::buildPhar('build/installer.phar');
+    static::buildPhar('.build/vortex.phar');
   }
 
   protected function setUp(): void {
@@ -41,8 +41,8 @@ class PharTest extends FunctionalTestCase {
     static::$sut = static::locationsMkdir(static::$workspace . DIRECTORY_SEPARATOR . 'star_wars');
 
     // Copy the PHAR file to the SUT directory.
-    $this->pharFile = static::$sut . DIRECTORY_SEPARATOR . 'installer';
-    File::copy(getcwd() . '/build/installer.phar', $this->pharFile);
+    $this->pharFile = static::$sut . DIRECTORY_SEPARATOR . 'vortex';
+    File::copy(getcwd() . '/.build/vortex.phar', $this->pharFile);
 
     // Change the current working directory to the 'system under test'.
     chdir(static::$sut);
@@ -83,7 +83,7 @@ class PharTest extends FunctionalTestCase {
   }
 
   protected static function buildPhar(string $dst): void {
-    fwrite(STDERR, 'Building installer PHAR file...');
+    fwrite(STDERR, 'Building CLI PHAR file...');
     if (!file_exists('vendor')) {
       $exit_code = 0;
       passthru('composer install --no-dev --optimize-autoloader >/dev/null 2>&1 ', $exit_code);
