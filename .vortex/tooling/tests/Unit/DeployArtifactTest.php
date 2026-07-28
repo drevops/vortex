@@ -239,7 +239,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock git-artifact download failure.
     $this->mockRequest(
-      'https://github.com/drevops/git-artifact/releases/download/1.4.0/git-artifact',
+      'https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact',
       ['method' => 'GET'],
       ['ok' => FALSE, 'status' => 404, 'body' => 'Not Found'],
     );
@@ -378,6 +378,97 @@ class DeployArtifactTest extends UnitTestCase {
     $this->assertStringContainsString('Finished artifact deployment.', $output);
   }
 
+  public function testCleanupPatternEnablesCleanup(): void {
+    $this->envSet('VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN', 'feature/*,bugfix/*');
+
+    // Mock shell_exec for git config checks.
+    $this->mockShellExecMultiple([
+      ['value' => 'Existing User'],
+      ['value' => 'existing@example.com'],
+    ]);
+
+    // Mock setup-ssh.
+    $this->mockPassthru([
+      'cmd' => $this->getSetupSshPath(),
+      'output' => 'SSH setup complete',
+      'result_code' => 0,
+    ]);
+
+    // Mock git-artifact download.
+    $this->mockGitArtifactDownload();
+
+    // Mock git-artifact command with the cleanup flags and the default age.
+    $git_artifact_cmd = sprintf(
+      '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s --cleanup-stale --cleanup-pattern=%s --cleanup-age=%s -vvv',
+      escapeshellarg($this->getGitArtifactBinPath()),
+      escapeshellarg('git@github.com:org/repo.git'),
+      escapeshellarg(self::$tmp . '/root'),
+      escapeshellarg(self::$tmp . '/src'),
+      escapeshellarg('[branch]'),
+      escapeshellarg(self::$tmp . '/src/.gitignore.artifact'),
+      escapeshellarg(self::$tmp . '/root/deployment_log.txt'),
+      escapeshellarg('feature/*,bugfix/*'),
+      escapeshellarg('7')
+    );
+
+    $this->mockPassthru([
+      'cmd' => $git_artifact_cmd,
+      'output' => 'Artifact deployed',
+      'result_code' => 0,
+    ]);
+
+    $output = $this->runScript('src/vortex-deploy-artifact');
+
+    $this->assertStringContainsString('Finished artifact deployment.', $output);
+  }
+
+  public function testCleanupAgeOverride(): void {
+    $this->envSetMultiple([
+      'VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN' => '/^feature\/.+$/',
+      'VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE' => '30',
+    ]);
+
+    // Mock shell_exec for git config checks.
+    $this->mockShellExecMultiple([
+      ['value' => 'Existing User'],
+      ['value' => 'existing@example.com'],
+    ]);
+
+    // Mock setup-ssh.
+    $this->mockPassthru([
+      'cmd' => $this->getSetupSshPath(),
+      'output' => 'SSH setup complete',
+      'result_code' => 0,
+    ]);
+
+    // Mock git-artifact download.
+    $this->mockGitArtifactDownload();
+
+    // Mock git-artifact command with the overridden age.
+    $git_artifact_cmd = sprintf(
+      '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s --cleanup-stale --cleanup-pattern=%s --cleanup-age=%s -vvv',
+      escapeshellarg($this->getGitArtifactBinPath()),
+      escapeshellarg('git@github.com:org/repo.git'),
+      escapeshellarg(self::$tmp . '/root'),
+      escapeshellarg(self::$tmp . '/src'),
+      escapeshellarg('[branch]'),
+      escapeshellarg(self::$tmp . '/src/.gitignore.artifact'),
+      escapeshellarg(self::$tmp . '/root/deployment_log.txt'),
+      escapeshellarg('/^feature\/.+$/'),
+      escapeshellarg('30')
+    );
+
+    $this->mockPassthru([
+      'cmd' => $git_artifact_cmd,
+      'output' => 'Artifact deployed',
+      'result_code' => 0,
+    ]);
+
+    $output = $this->runScript('src/vortex-deploy-artifact');
+
+    $this->assertStringContainsString('Finished artifact deployment.', $output);
+  }
+
   protected function getSetupSshPath(): string {
     return dirname(__DIR__, 2) . '/src/vortex-setup-ssh';
   }
@@ -403,7 +494,7 @@ class DeployArtifactTest extends UnitTestCase {
    */
   protected function mockGitArtifactDownload(): void {
     $this->mockRequest(
-      'https://github.com/drevops/git-artifact/releases/download/1.4.0/git-artifact',
+      'https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact',
       ['method' => 'GET'],
       ['ok' => TRUE, 'status' => 200, 'body' => ''],
     );
