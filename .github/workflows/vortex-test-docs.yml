@@ -3,19 +3,19 @@ name: Vortex - Test docs
 
 on:
   workflow_run:
-    workflows: ['Vortex - Test installer']
+    workflows: ['Vortex - Test CLI']
     types:
       - completed
 
 jobs:
   vortex-test-docs:
     runs-on: ubuntu-latest
-    # Only run if installer workflow succeeded
+    # Only run if the CLI workflow succeeded
     if: github.event.workflow_run.conclusion == 'success'
 
     permissions:
       contents: read # Checkout the repository at the triggering commit.
-      actions: read # Download the installer artifact from the test-installer workflow run.
+      actions: read # Download the CLI artifact from the test-cli workflow run.
       statuses: write # Post pending/final commit statuses via 'gh api repos/.../statuses/...'.
       pull-requests: write # Post the Netlify preview link comment on the originating PR.
 
@@ -55,18 +55,18 @@ jobs:
         with:
           php-version: 8.3
 
-      - name: Download installer artifact
+      - name: Download CLI artifact
         uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
         with:
-          workflow: vortex-test-installer.yml
-          name: vortex-installer
+          workflow: vortex-test-cli.yml
+          name: vortex-cli
           path: .vortex/docs/static
           if_no_artifact_found: fail
           allow_forks: true
 
-      - name: Copy installer to docs
+      - name: Copy the CLI to docs
         run: |
-          mv .vortex/docs/static/installer.phar .vortex/docs/static/install
+          mv .vortex/docs/static/vortex.phar .vortex/docs/static/install
           php .vortex/docs/static/install --version
 
       - name: Check docs up-to-date
@@ -107,12 +107,13 @@ jobs:
           git -C "${{ github.workspace }}" checkout "origin/${OTHER_MAJOR}.x" -- .vortex/docs/content || { echo "Failed to check out content from ${OTHER_MAJOR}.x."; exit 1; }
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
-      # On the main deploy, publish both installers to match the multi-version
+      # On the main deploy, publish both majors to match the multi-version
       # docs: '/v1/install' and '/v2/install' are the stable per-major pins and
       # the bare '/install' is a copy of the current major's pin (the
-      # 'VORTEX_CURRENT_MAJOR' repository variable, default 1). The downloaded
-      # installer above is the current major (built from 'main'); the other
-      # major is built from its '{N}.x' branch. Mirrors 'vortex-release.yml'.
+      # 'VORTEX_CURRENT_MAJOR' repository variable, default 1). The artifact
+      # downloaded above is the current major (built from 'main'); the other
+      # major is built from its '{N}.x' branch, where it still ships the
+      # installer rather than the CLI. Mirrors 'vortex-release.yml'.
       - name: Checkout v${{ env.OTHER_MAJOR }} branch
         if: github.event.workflow_run.head_branch == 'main'
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7

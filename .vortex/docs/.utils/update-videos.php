@@ -36,25 +36,15 @@ const COMPOSE_PROJECT = 'vortex_videos';
 /**
  * Per-video configuration.
  *
- * - command:   the command executed inside the recording. NULL means the
- *              installer expect script is used instead.
+ * - command:   the command executed inside the recording.
  * - speed:     playback speed multiplier. 1.0 = recorded speed, 2.0 = 2x faster.
  * - cols/rows: terminal dimensions passed to asciinema and used for renders.
  * - poster_ms: cast timestamp (ms) at which the PNG poster frame is taken.
  *              NULL means use the last frame of the cast.
  * - typer:     wrap the command with the simulated-typing intro from
- *              type-and-run.php. Installer is FALSE because the expect
- *              script handles its own prompt-driven flow.
+ *              type-and-run.php.
  */
 const VIDEOS = [
-  'installer' => [
-    'command' => NULL,
-    'speed' => 1.0,
-    'cols' => 140,
-    'rows' => 42,
-    'poster_ms' => 2000,
-    'typer' => FALSE,
-  ],
   'build' => [
     'command' => 'ahoy build',
     'speed' => 1.0,
@@ -103,7 +93,7 @@ function usage(): void {
   fwrite(STDERR, "  Default: all videos\n");
   fwrite(STDERR, "\n");
   fwrite(STDERR, "Default mode wipes '.artifacts/tmp/videos-workspace/' (via 'ahoy reset'\n");
-  fwrite(STDERR, "+ rm) and bootstraps from scratch (install installer.phar, run installer,\n");
+  fwrite(STDERR, "+ rm) and bootstraps from scratch (build vortex.phar, install a project,\n");
   fwrite(STDERR, "ahoy build).\n");
   fwrite(STDERR, "\n");
   fwrite(STDERR, "--keep reuses the existing workspace and skips the bootstrap. Requires the\n");
@@ -112,152 +102,13 @@ function usage(): void {
   fwrite(STDERR, "Video names may be space or comma separated (lint test = lint,test).\n");
 }
 
-function build_installer_expect_script(int|float $prompt_delay, string $uri): string {
-  $body = <<<'EXPECT'
-#!/usr/bin/env expect
-
-set timeout 60
-log_user 1
-
-set prompt_delay {{PROMPT_DELAY}}
-set installer_uri "{{URI}}"
-
-proc safe_send {s} {
-    if {[exp_pid] > 0} {
-        send -- $s
-    } else {
-        puts "child process already ended; skipping send <$s>"
-    }
-}
-
-proc wait_for_quiet {{secs 1}} {
-    set old $::timeout
-    set ::timeout $secs
-    expect {
-        -re {.+} { exp_continue }
-        timeout { }
-    }
-    set ::timeout $old
-}
-
-proc clear_field {} {
-    for {set i 0} {$i < 50} {incr i} {
-        safe_send "\b"
-    }
-    after 150
-}
-
-proc type_text {text} {
-    wait_for_quiet 0.1
-    set send_human {.1 .3 1 .05 2 .1 .2 0 .4 0 .6 0 .8 0 1}
-    send -h $text
-}
-
-proc wait_and_enter {} {
-    global prompt_delay
-    wait_for_quiet 0.25
-    sleep $prompt_delay
-    safe_send "\r"
-}
-
-set env(VORTEX_INSTALLER_PROMPT_BUILD_NOW) 0
-spawn php installer.php --destination=star_wars --uri=$installer_uri
-
-expect {
-  "Press any key to continue" {
-    after 3000
-    safe_send "\r"
-  }
-  timeout {
-    puts "Timeout waiting for welcome screen or first prompt"
-    exit 1
-  }
-}
-
-expect {
-  "Site name" {
-    clear_field
-    type_text "Star Wars"
-    wait_and_enter
-  }
-  timeout {
-    puts "Timeout waiting for welcome screen or first prompt"
-    exit 1
-  }
-}
-
-expect {
-  "Site machine name" {
-    wait_and_enter
-  }
-}
-
-expect {
-  "Organization name" {
-    clear_field
-    type_text "Rebellion"
-    wait_and_enter
-  }
-}
-
-while {1} {
-  expect {
-    "Proceed with installing Vortex?" {
-      after 2000
-      safe_send "\r"
-    }
-    "Vortex will be installed into your project" {
-      after 2000
-      safe_send "\r"
-    }
-    "Finished installing Vortex" {
-      break
-    }
-    "─┘" {
-      wait_and_enter
-    }
-    timeout {
-      puts "Timeout during installation"
-      break
-    }
-    eof {
-      puts "End of file reached"
-      break
-    }
-  }
-}
-
-expect {
-  "Run the site build now?" {
-    after 2000
-    safe_send "\r"
-  }
-  timeout {
-    puts "Timeout waiting for build prompt"
-  }
-  eof {
-    puts "End of file before build prompt"
-  }
-}
-
-expect eof
-EXPECT;
-
-  return str_replace(
-    ['{{PROMPT_DELAY}}', '{{URI}}'],
-    [(string) $prompt_delay, $uri],
-    $body,
-  );
-}
-
 function render_video(VideoRecorder $recorder, string $name, string $workspace, string $docs_static_dir): void {
   $cfg = VIDEOS[$name];
   $cast = $docs_static_dir . "/$name.json";
 
-  // The installer's expect script makes asciinema echo a spawn line as the
-  // first event; for command videos using type-and-run.php there is no such
-  // echo and the first event is the typed prompt that we want to keep.
-  $recorder->postprocessCast($cast, $workspace, strip_first_event: $name === 'installer');
+  // For command videos using type-and-run.php the first event is the typed
+  // prompt, which is the part worth keeping.
+  $recorder->postprocessCast($cast, $workspace, strip_first_event: FALSE);
 
   if ((float) $cfg['speed'] !== 1.0) {
     $recorder->applyTimeScale($cast, 1.0 / (float) $cfg['speed']);
@@ -265,31 +116,6 @@ function render_video(VideoRecorder $recorder, string $name, string $workspace, 
 
   $recorder->renderSvg($cast, $docs_static_dir . "/$name.svg");
   $recorder->renderPng($cast, $docs_static_dir . "/$name.png", $cfg['poster_ms'] === NULL ? NULL : (int) $cfg['poster_ms']);
-}
-
-function record_installer(VideoRecorder $recorder, string $workspace, string $project_root, string $docs_static_dir): void {
-  $cfg = VIDEOS['installer'];
-
-  $recorder->info("===== Recording 'installer' =====");
-
-  $expect_script = "$workspace/installer.exp";
-  if (file_put_contents($expect_script, build_installer_expect_script(PROMPT_DELAY, $project_root)) === FALSE) {
-    throw new RuntimeException("Failed to write expect script: $expect_script");
-  }
-  if (!chmod($expect_script, 0o755)) {
-    throw new RuntimeException("Failed to chmod expect script: $expect_script");
-  }
-
-  $recorder->recordSession(
-    cwd: $workspace,
-    cast_path: $docs_static_dir . '/installer.json',
-    command: $expect_script,
-    title: 'Vortex Installer Demo',
-    cols: (int) $cfg['cols'],
-    rows: (int) $cfg['rows'],
-  );
-
-  render_video($recorder, 'installer', $workspace, $docs_static_dir);
 }
 
 function record_command_video(VideoRecorder $recorder, string $name, string $project_dir, string $workspace, string $type_and_run, string $docs_static_dir): void {
@@ -388,11 +214,6 @@ function main(array $argv): int {
       $recorder->note('Rerun without --keep to bootstrap fresh.');
       return 1;
     }
-    if (in_array('installer', $requested, TRUE)) {
-      $recorder->fail("Cannot record 'installer' with --keep (it would wipe the kept project)");
-      $recorder->note('Run without --keep to re-record installer.');
-      return 1;
-    }
     $recorder->info("Reusing workspace: $workspace");
   }
   else {
@@ -405,14 +226,9 @@ function main(array $argv): int {
     }
     $recorder->info("Created fresh workspace: $workspace");
 
-    $recorder->buildInstallerPhar("$workspace/installer.php");
+    $recorder->buildCliPhar("$workspace/vortex.phar");
 
-    if (in_array('installer', $requested, TRUE)) {
-      record_installer($recorder, $workspace, $project_root, $docs_static_dir);
-    }
-    else {
-      $recorder->runInstaller($workspace, $project_root);
-    }
+    $recorder->runInstall($workspace, $project_root);
 
     if (!is_dir($project_dir)) {
       $recorder->fail("Installation did not create project at $project_dir");
