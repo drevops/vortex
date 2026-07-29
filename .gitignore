@@ -34,7 +34,9 @@ web/sites/simpletest
 # Composer installs contrib recipes into 'recipes/', next to custom recipes,
 # so recipes stay an allow list: un-ignore custom recipes explicitly.
 recipes/*
+#;< CONTENT_MODEL
 !recipes/page
+#;> CONTENT_MODEL
 
 #;< AI_CODE_INSTRUCTIONS
 # Ignore all Claude files by default. Custom files should be added explicitly.
