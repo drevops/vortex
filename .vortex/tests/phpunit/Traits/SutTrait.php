@@ -561,6 +561,7 @@ trait SutTrait {
     $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.deploy.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.info.yml');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.module');
+    $this->assertFileExists($webroot . '/modules/custom/sw_base/src/Plugin/DeployStep/CreateContentModelDeployStep.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/src/Plugin/DeployStep/EnableDevelopmentModulesDeployStep.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Functional/ExampleTest.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Functional/SwBaseFunctionalTestBase.php');
@@ -568,6 +569,10 @@ trait SutTrait {
     $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Kernel/SwBaseKernelTestBase.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Unit/ExampleTest.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Unit/SwBaseUnitTestBase.php');
+
+    // Starter content model recipe applied by the base module's deploy step.
+    $this->assertFileExists('recipes/page/recipe.yml');
+    $this->assertFileContainsString('.gitignore', '!recipes/page');
 
     // Site search module created.
     $this->assertDirectoryExists($webroot . '/modules/custom/sw_search');

@@ -116,7 +116,6 @@ DOC;
   public function process(): void {
     $selected = $this->getResponseAsArray();
     $t = $this->tmpDir;
-    $w = $this->webroot;
 
     // Safety net: if search was selected but Solr service was not, force-remove
     // search module since it cannot function without Solr.
@@ -130,16 +129,7 @@ DOC;
     if (!in_array(self::BASE, $selected)) {
       File::removeTokenAsync('CUSTOM_MODULE_BASE');
 
-      $locations = [
-        $t . sprintf('/%s/modules/custom/*_base', $w),
-        $t . sprintf('/%s/sites/all/modules/custom/*_base', $w),
-        $t . sprintf('/%s/profiles/*/modules/*_base', $w),
-        $t . sprintf('/%s/profiles/*/modules/custom/*_base', $w),
-        $t . sprintf('/%s/profiles/custom/*/modules/*_base', $w),
-        $t . sprintf('/%s/profiles/custom/*/modules/custom/*_base', $w),
-      ];
-
-      $path = File::findMatchingPath($locations);
+      $path = File::findMatchingPath($this->moduleLocations('base'));
       if ($path) {
         File::remove($path);
       }
@@ -148,16 +138,7 @@ DOC;
     if (!in_array(self::DEMO, $selected)) {
       File::removeTokenAsync('CUSTOM_MODULE_DEMO');
 
-      $locations = [
-        $t . sprintf('/%s/modules/custom/*_demo', $w),
-        $t . sprintf('/%s/sites/all/modules/custom/*_demo', $w),
-        $t . sprintf('/%s/profiles/*/modules/*_demo', $w),
-        $t . sprintf('/%s/profiles/*/modules/custom/*_demo', $w),
-        $t . sprintf('/%s/profiles/custom/*/modules/*_demo', $w),
-        $t . sprintf('/%s/profiles/custom/*/modules/custom/*_demo', $w),
-      ];
-
-      $path = File::findMatchingPath($locations);
+      $path = File::findMatchingPath($this->moduleLocations('demo'));
       if ($path) {
         File::remove($path);
       }
@@ -168,20 +149,50 @@ DOC;
     if (!in_array(self::SEARCH, $selected)) {
       File::removeTokenAsync('CUSTOM_MODULE_SEARCH');
 
-      $locations = [
-        $t . sprintf('/%s/modules/custom/*_search', $w),
-        $t . sprintf('/%s/sites/all/modules/custom/*_search', $w),
-        $t . sprintf('/%s/profiles/*/modules/*_search', $w),
-        $t . sprintf('/%s/profiles/*/modules/custom/*_search', $w),
-        $t . sprintf('/%s/profiles/custom/*/modules/*_search', $w),
-        $t . sprintf('/%s/profiles/custom/*/modules/custom/*_search', $w),
-      ];
-
-      $path = File::findMatchingPath($locations);
+      $path = File::findMatchingPath($this->moduleLocations('search'));
       if ($path) {
         File::remove($path);
       }
     }
+
+    // The 'page' content model is the bundle that both the demo content and the
+    // search example content are built on, so it only becomes dead weight once
+    // neither of those modules is selected. Runs after the base module removal
+    // above so the deploy step is already gone with its module when base was
+    // deselected.
+    if (!in_array(self::DEMO, $selected) && !in_array(self::SEARCH, $selected)) {
+      File::removeTokenAsync('CONTENT_MODEL');
+
+      File::remove($t . '/recipes/page');
+
+      $path = File::findMatchingPath($this->moduleLocations('base'));
+      if ($path) {
+        File::remove($path . '/src/Plugin/DeployStep/CreateContentModelDeployStep.php');
+      }
+    }
+  }
+
+  /**
+   * Get the locations a custom module with the given suffix can live in.
+   *
+   * @param string $suffix
+   *   The module name suffix, without the leading underscore.
+   *
+   * @return array<int, string>
+   *   Array of glob patterns, ordered from the most to the least common.
+   */
+  protected function moduleLocations(string $suffix): array {
+    $t = $this->tmpDir;
+    $w = $this->webroot;
+
+    return [
+      $t . sprintf('/%s/modules/custom/*_%s', $w, $suffix),
+      $t . sprintf('/%s/sites/all/modules/custom/*_%s', $w, $suffix),
+      $t . sprintf('/%s/profiles/*/modules/*_%s', $w, $suffix),
+      $t . sprintf('/%s/profiles/*/modules/custom/*_%s', $w, $suffix),
+      $t . sprintf('/%s/profiles/custom/*/modules/*_%s', $w, $suffix),
+      $t . sprintf('/%s/profiles/custom/*/modules/custom/*_%s', $w, $suffix),
+    ];
   }
 
   /**
