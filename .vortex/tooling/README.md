@@ -61,8 +61,7 @@ your-project/
 │   ├── provision-10-enable-dev-modules.sh  # shipped - development modules
 │   ├── provision-20-migration.sh           # shipped - migration, if enabled
 │   ├── provision-30-search-index.sh        # shipped - indexing, if Solr used
-│   ├── provision-40-example.sh             # shipped example - copy or remove
-│   └── provision-50-custom.sh              # your own hook script
+│   └── provision-40-example.sh             # shipped example - copy or remove
 ├── vendor/
 │   └── bin/vortex-provision   # runs each provision-*.sh in order
 ├── web/                          # Drupal web root
