@@ -1,9 +1,9 @@
 # GitHub Actions visual regression testing workflow.
 #
 # Runs a Diffy visual regression comparison after a deployment lands.
-# Triggered automatically by 'notify-diffy' (via repository_dispatch)
-# when the deployed PR has the configured label, or manually via
-# 'workflow_dispatch' against any URL.
+# Triggered automatically by 'notify-diffy' (via repository_dispatch) when
+# the deployed PR has the configured label or the deployed branch is opted
+# in, or manually via 'workflow_dispatch' against any URL.
 name: Test - Visual regression
 
 on:
@@ -44,9 +44,11 @@ env:
   DIFFY_MAX_WAIT: ${{ vars.VR_DIFFY_MAX_WAIT || '2700' }}
   DIFFY_PR_LABEL: ${{ vars.VR_DIFFY_PR_LABEL || 'VR' }}
   DIFFY_AUTO_BRANCHES: ${{ vars.VR_DIFFY_AUTO_BRANCHES || 'deps/*' }}
+  DIFFY_NON_PR_BRANCHES: ${{ vars.VR_DIFFY_NON_PR_BRANCHES }}
   DIFFY_POLL_INTERVAL: ${{ vars.VR_DIFFY_POLL_INTERVAL || '30' }}
   SOURCE_ENV: ${{ github.event.client_payload.source_env || inputs.source_env || 'production' }}
   TARGET_URL: ${{ github.event.client_payload.target_url || inputs.target_url }}
+  BRANCH: ${{ github.event.client_payload.branch }}
   LABEL: ${{ github.event.client_payload.label || inputs.label || 'manual' }}
 
 jobs:
@@ -74,18 +76,18 @@ jobs:
 
           # Hosting providers expose PR environments via URLs that contain
           # a 'pr-<number>' segment (e.g. 'app.pr-123.example.lagoon.cloud').
-          # Extract the number from the URL; if no match, this is not a PR
-          # deployment and visual regression should not run.
+          # Extract the number from the URL; a URL without one is not a PR
+          # deployment and is gated on the deployed branch instead.
           pr_number="$(printf '%s' "${TARGET_URL}" | sed -n 's|.*pr-\([0-9]\{1,\}\).*|\1|p')"
 
           if [ -n "${pr_number}" ]; then
             echo "PR #${pr_number} resolved from target URL ${TARGET_URL}."
           else
-            echo "::notice::No PR pattern found in target URL ${TARGET_URL}. Visual regression will not run."
+            echo "No PR pattern found in target URL ${TARGET_URL}."
           fi
           echo "pr_number=${pr_number}" >> "$GITHUB_OUTPUT"
 
-      - name: Gate run on PR label (or skip for non-PR contexts on dispatch)
+      - name: Gate run on PR label or opted-in branch
         id: gate
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -95,6 +97,39 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Matches a git ref against a comma-separated list of glob
+          # patterns. Returns 0 on the first match; 1 when the ref or the
+          # list is empty, or when nothing matches.
+          ref_matches() {
+            local ref="${1}"
+            local list="${2}"
+            local pattern
+            local patterns
+
+            if [ -z "${ref}" ] || [ -z "${list}" ]; then
+              return 1
+            fi
+
+            IFS=',' read -ra patterns <<<"${list}"
+
+            for pattern in "${patterns[@]}"; do
+              # Trim surrounding whitespace.
+              pattern="${pattern# }"
+              pattern="${pattern% }"
+
+              if [ -z "${pattern}" ]; then
+                continue
+              fi
+
+              # shellcheck disable=SC2254
+              case "${ref}" in
+                ${pattern}) return 0 ;;
+              esac
+            done
+
+            return 1
+          }
+
           # Manual workflow_dispatch always proceeds - the operator
           # explicitly asked for a comparison.
           if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
@@ -103,36 +138,39 @@ jobs:
             exit 0
           fi
 
-          # repository_dispatch with no PR resolved - nothing to gate on.
+          # No PR resolved - the deployment targets a permanent environment
+          # such as a release branch, 'develop', 'dev' or 'stage'. Those run
+          # only when the deployed branch is explicitly opted in.
           if [ -z "${PR_NUMBER}" ]; then
-            echo "::notice::No PR associated with this deployment, skipping visual regression."
+            if ref_matches "${BRANCH}" "${DIFFY_NON_PR_BRANCHES}"; then
+              echo "Deployed branch '${BRANCH}' matches VR_DIFFY_NON_PR_BRANCHES, proceeding."
+              echo "skipped=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            echo "::notice::No PR associated with this deployment and branch '${BRANCH}' does not match VR_DIFFY_NON_PR_BRANCHES, skipping visual regression."
             echo "skipped=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # PR resolved - fetch labels and head branch in one call.
-          pr_data="$(gh pr view "${PR_NUMBER}" --repo "${GITHUB_REPOSITORY}" --json labels,headRefName)"
+          # PR resolved - fetch labels and head branch in one call. A failed
+          # lookup means the 'pr-<number>' segment in the URL did not come
+          # from a pull request in this repository.
+          if ! pr_data="$(gh pr view "${PR_NUMBER}" --repo "${GITHUB_REPOSITORY}" --json labels,headRefName)"; then
+            echo "::notice::PR #${PR_NUMBER} could not be read, skipping visual regression."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           head_ref="$(printf '%s' "${pr_data}" | jq -r '.headRefName')"
           labels_lower="$(printf '%s' "${pr_data}" | jq -r '.labels[].name' | tr '[:upper:]' '[:lower:]')"
 
           # Auto-run bypass: PRs from configured branches (e.g. Renovate's
           # `deps/*`) skip the label check.
-          if [ -n "${DIFFY_AUTO_BRANCHES}" ]; then
-            IFS=',' read -ra patterns <<<"${DIFFY_AUTO_BRANCHES}"
-            for pattern in "${patterns[@]}"; do
-              # Trim surrounding whitespace.
-              pattern="${pattern# }"
-              pattern="${pattern% }"
-              [ -z "${pattern}" ] && continue
-              # shellcheck disable=SC2254
-              case "${head_ref}" in
-                ${pattern})
-                  echo "PR #${PR_NUMBER} head branch '${head_ref}' matches auto-run pattern '${pattern}', proceeding."
-                  echo "skipped=false" >> "$GITHUB_OUTPUT"
-                  exit 0
-                  ;;
-              esac
-            done
+          if ref_matches "${head_ref}" "${DIFFY_AUTO_BRANCHES}"; then
+            echo "PR #${PR_NUMBER} head branch '${head_ref}' matches VR_DIFFY_AUTO_BRANCHES, proceeding."
+            echo "skipped=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
           # Label check (case-insensitive).
