@@ -1,0 +1,142 @@
+---
+sidebar_position: 4
+---
+
+# CLI
+
+The **Vortex** CLI is a single self-contained binary that scaffolds a new project from the template and updates an existing one. It ships as a PHAR, so it needs nothing installed beyond PHP.
+
+```shell title="Download and run"
+curl -SsL https://www.vortextemplate.com/install > vortex.phar && php vortex.phar
+```
+
+For the step-by-step walkthrough of setting up a new project, see [Installation](./installation).
+
+## Commands
+
+| Command              | Purpose                                              |
+|----------------------|------------------------------------------------------|
+| `install`            | Install **Vortex** from a remote or local repository |
+| `check-requirements` | Check that the required tools are installed          |
+| `build`              | Build the site using `ahoy build`                    |
+
+`install` is the default command, so `php vortex.phar` and `php vortex.phar install` do the same thing.
+
+```shell title="List every command and option"
+php vortex.phar list
+php vortex.phar install --help
+```
+
+### install
+
+Downloads the template, asks the configuration questions, and writes the result into the destination directory. Run it in an existing **Vortex** project to update that project instead.
+
+| Option                | Short | Description                                                                     |
+|-----------------------|-------|---------------------------------------------------------------------------------|
+| `--destination`       |       | Destination directory. Defaults to the current directory                        |
+| `--root`              |       | Path used to resolve relative paths. Defaults to the current directory          |
+| `--uri`               | `-l`  | Remote or local repository URI, with an optional git ref after `#`              |
+| `--no-interaction`    | `-n`  | Do not ask any interactive question                                             |
+| `--config`            | `-c`  | JSON string, or path to a JSON file, of CLI configuration                       |
+| `--prompts`           | `-p`  | JSON string, or path to a JSON file, of prompt answers keyed by prompt ID       |
+| `--schema`            |       | Output the prompt schema as JSON and exit                                       |
+| `--validate`          |       | Validate the supplied answers without installing                                |
+| `--build`             | `-b`  | Run the build after installing, without prompting                               |
+| `--no-cleanup`        |       | Do not remove the CLI after a successful installation                           |
+| `--agent-help`        |       | Output instructions for AI agents and exit                                      |
+
+The `--uri` option accepts a git ref after `#`, which selects what to install:
+
+```shell title="Choosing what to install"
+php vortex.phar install --uri=https://github.com/drevops/vortex.git
+php vortex.phar install --uri=https://github.com/drevops/vortex.git#stable
+php vortex.phar install --uri=https://github.com/drevops/vortex.git#1.2.3
+```
+
+### check-requirements
+
+Checks for the tools a **Vortex** project needs: Docker, Docker Compose, Ahoy and Pygmy.
+
+| Option         | Short | Description                                            |
+|----------------|-------|--------------------------------------------------------|
+| `--only`       | `-o`  | Comma-separated subset of requirements to check         |
+| `--no-summary` |       | Hide the summary listing tool versions                  |
+
+### build
+
+Builds the site by running `ahoy build` in the project directory.
+
+| Option                     | Short | Description                                          |
+|----------------------------|-------|------------------------------------------------------|
+| `--profile`                | `-p`  | Build from the install profile instead of a database |
+| `--skip-requirements-check`|       | Skip checking for the required tools                  |
+
+## Non-interactive use
+
+Every question can be answered up front, which is what makes the CLI usable from a script or a pipeline. Ask for the schema, build an answers object from it, optionally validate, then install:
+
+```shell title="Discover the available prompts"
+php vortex.phar install --schema
+```
+
+```shell title="Validate answers without installing"
+php vortex.phar install --validate --prompts='{"name":"My Project","hosting_provider":"lagoon"}'
+```
+
+```shell title="Install non-interactively"
+php vortex.phar install --no-interaction --prompts=prompts.json --destination=./my-project
+```
+
+`--prompts` keys are the prompt IDs from `--schema`. `--config` is separate: it carries CLI configuration such as the repository and ref, not prompt answers.
+
+:::tip Using an AI agent
+
+`--agent-help` prints the whole workflow above as instructions written for an AI coding agent:
+
+```shell
+php vortex.phar install --agent-help
+```
+
+:::
+
+## Environment variables
+
+Variables are scoped by what they configure. Settings that belong to the CLI itself use the `VORTEX_CLI_` prefix; settings that belong to the `install` command use `VORTEX_CLI_INSTALL_`.
+
+| Variable                           | Purpose                                       |
+|------------------------------------|-----------------------------------------------|
+| `VORTEX_CLI_VERSION`               | Override the version stamped into the binary  |
+| `VORTEX_CLI_URL`                   | Where `ahoy update-vortex` downloads the PHAR |
+| `VORTEX_CLI_PATH`                  | Local PHAR path; overrides the URL            |
+| `VORTEX_CLI_URL_CACHE_BUST`        | Cache-busting parameter for the URL           |
+| `VORTEX_CLI_INSTALL_TMP_DIR`       | Working directory for the downloaded source   |
+| `VORTEX_CLI_INSTALL_TEMPLATE_REPO` | Template repository to install from           |
+| `VORTEX_CLI_INSTALL_PROMPT_<ID>`   | Answer for a single prompt, by prompt ID       |
+
+:::note Superseded variable names
+
+These variables were previously prefixed with `VORTEX_INSTALLER_`. The old names still work: when the current name is unset, the matching legacy name supplies the value and the run prints a notice naming its replacement. The fallback exists to ease migration and will be removed in a future major version.
+
+:::
+
+## Distribution
+
+The CLI is published to three stable paths, each served with no file extension:
+
+| Path                                        | Contents                |
+|---------------------------------------------|-------------------------|
+| `https://www.vortextemplate.com/install`    | The current major       |
+| `https://www.vortextemplate.com/v1/install` | The `1.x` line          |
+| `https://www.vortextemplate.com/v2/install` | The `2.x` line          |
+
+The bare `/install` path always serves the current major. Each per-major path is built from that major's own branch, so pinning to `/v1/install` or `/v2/install` keeps you on that line.
+
+A build refuses to run against a project from a different major version and points you at the matching path instead, so an accidental cross-major update cannot happen silently.
+
+## Updating an existing project
+
+Inside a **Vortex** project, `ahoy update-vortex` downloads the CLI and runs it for you - you do not need to fetch the binary yourself. See [Updating Vortex](./updating-vortex).
+
+## Maintaining the CLI
+
+For how the CLI is developed, tested and released, see [Maintenance / CLI](./contributing/maintenance/cli).
