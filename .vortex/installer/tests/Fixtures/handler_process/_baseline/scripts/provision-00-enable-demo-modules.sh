@@ -42,8 +42,10 @@ task "Creating the content model."
 # Guard against environments where the Drupal CLI is not available.
 if [ -x ./vendor/bin/dr ]; then
   ./vendor/bin/dr recipe "$(pwd)/recipes/page" --no-interaction
+  pass "Created the content model."
+else
+  note "Skipped creating the content model: Drupal CLI is not available."
 fi
-pass "Created the content model."
 
 task "Setting site name."
 drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'star wars')->save();"

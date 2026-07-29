@@ -1,4 +1,4 @@
-@@ -84,8 +84,6 @@
+@@ -86,8 +86,6 @@
  task "Installing custom site modules."
  drush pm:install sw_base
  
