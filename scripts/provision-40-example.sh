@@ -17,20 +17,25 @@ set -eu
 
 # ------------------------------------------------------------------------------
 
+# @formatter:off
 info() { printf "   ==> %s\n" "${1}"; }
 note() { printf "       %s\n" "${1}"; }
 task() { printf "     > %s\n" "${1}"; }
 pass() { printf "     < %s\n" "${1}"; }
+fail() { printf "     ! %s\n" "${1}"; }
+# @formatter:on
 
 drush() { ./vendor/bin/drush -y "$@"; }
 
+# ------------------------------------------------------------------------------
+
 info "Started example operations."
 
-# 👇 Get the current environment from Drupal settings.
+# Get the current environment from Drupal settings.
 environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
 note "Environment: ${environment}"
 
-# 👇 Stop early in the environments the operations should not run in.
+# Perform operations based on the current environment.
 if ! echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then
   note "Skipped example operations in production environment."
   exit 0
@@ -38,12 +43,11 @@ fi
 
 note "Running example operations in non-production environment."
 
-# 👇 Place your commands here.
 task "Performing an example operation."
 note "Replace this with your own commands."
 pass "Performed an example operation."
 
-# 👇 Conditionally perform an action if this is a "fresh" database.
+# Conditionally perform an action if this is a "fresh" database.
 if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
   note "Fresh database detected. Performing additional example operations."
 else

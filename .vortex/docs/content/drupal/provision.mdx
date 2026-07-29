@@ -233,11 +233,21 @@ specific order.
 
 To run custom scripts, create a new file in the `scripts` directory with the
 `provision-` prefix and the `.sh` extension, and make it executable with
-`chmod +x scripts/provision-10-example.sh`. The script will be automatically
+`chmod +x scripts/provision-50-custom.sh`. The script will be automatically
 discovered and executed.
 
 It is recommended to use a 2-digit suffix to control the order of execution:
-e.g., `provision-10-example.sh`, `provision-20-another-example.sh`.
+e.g., `provision-50-custom.sh`, `provision-60-another-custom.sh`.
+
+**Vortex** ships the following scripts:
+
+| Script                                | Purpose                                                  |
+|---------------------------------------|----------------------------------------------------------|
+| `provision-00-enable-demo-modules.sh` | Enables the modules and content model the demo site uses |
+| `provision-10-enable-dev-modules.sh`  | Enables the development modules                          |
+| `provision-20-migration.sh`           | Runs the content migration                               |
+| `provision-30-search-index.sh`        | Rebuilds the search index                                |
+| `provision-40-example.sh`             | A runnable example that performs no operations           |
 
 ### Conditional execution
 
@@ -279,6 +289,30 @@ import ProvisionScriptExample from '!!raw-loader!./provision-example.sh';
 <CodeBlock language="bash">{ProvisionScriptExample}</CodeBlock>
 
 </details>
+
+### Demo modules
+
+**Vortex** ships a `scripts/provision-00-enable-demo-modules.sh` custom script
+that stands up the demo site: it creates the content model, sets the site name,
+switches the administration interface to the core Navigation module, and installs
+the contrib, service and custom site modules before running their deployment
+hooks.
+
+It runs first so that the content model exists before the modules that depend on
+it are installed. Replace its operations with your own once the site stops
+relying on the demo content.
+
+### Development modules
+
+**Vortex** ships a `scripts/provision-10-enable-dev-modules.sh` custom script that
+installs the development modules - [Devel](https://www.drupal.org/project/devel)
+and [SDC Devel](https://www.drupal.org/project/sdc_devel).
+
+Development modules live in their own script so that they stay enabled after the
+demo and example scripts are adapted or removed.
+
+Both scripts run only in the `local`, `ci`, `dev` and `stage` environments. To
+opt out of either set of modules, remove the corresponding script.
 
 ### Search indexing
 

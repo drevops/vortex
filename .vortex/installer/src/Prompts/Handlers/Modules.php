@@ -11,6 +11,13 @@ use DrevOps\VortexInstaller\Utils\JsonManipulator;
 class Modules extends AbstractHandler {
 
   /**
+   * Modules installed by the dedicated development modules provision script.
+   *
+   * @var string[]
+   */
+  protected const DEV_MODULES = ['devel', 'sdc_devel'];
+
+  /**
    * {@inheritdoc}
    */
   public function label(): string {
@@ -83,8 +90,8 @@ class Modules extends AbstractHandler {
         // Remove module from settings file.
         File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.' . $module_name . '.php');
 
-        // Remove module from the provision example file.
-        File::replaceContentInFile($t . '/scripts/provision-10-example.sh', Replacement::create('module', function (string $content) use ($module_name): string {
+        // Remove module from the provision demo modules file.
+        File::replaceContentInFile($t . '/scripts/provision-00-enable-demo-modules.sh', Replacement::create('module', function (string $content) use ($module_name): string {
           $pattern = '/^(\s*)(drush\s+pm:install.*\b' . preg_quote($module_name, '/') . '\b.*)$/m';
           $content = preg_replace_callback($pattern, function (array $matches) use ($module_name): string {
             $indent = $matches[1];
@@ -106,6 +113,12 @@ class Modules extends AbstractHandler {
         // Remove module tokens.
         File::removeTokenAsync('MODULE_' . strtoupper($module_name));
       }
+    }
+
+    // Without any development modules left to install, the script has no
+    // operations to perform, so remove it rather than shipping an empty shell.
+    if (count(array_intersect(static::DEV_MODULES, $selected_modules)) === 0) {
+      File::remove($t . '/scripts/provision-10-enable-dev-modules.sh');
     }
 
     if (count($selected_modules) === 0) {
