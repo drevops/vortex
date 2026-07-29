@@ -108,7 +108,7 @@ GitHub branch protection rules.
 ```text
 ┌─ GitHub ────────────────────────────────────┐
 │                                             │
-│      PR opened with `VR` label              │
+│   PR with `VR` label, or opted-in branch    │
 │                  │                          │
 │                  ▼                          │
 │           build-test-deploy.yml             │
@@ -142,11 +142,20 @@ GitHub branch protection rules.
 │                  ▼                          │
 │      vr-compare: parse PR from URL, gate    │
 │                  │                          │
+│         ┌────────┴────────┐                 │
+│         ▼                 ▼                 │
+│   PR deployment      no PR resolved         │
+│         │                 │                 │
+│         ▼                 ▼                 │
+│    VR label or        branch in             │
+│    auto-branch       non-PR list            │
+│         │                 │                 │
+│         └────────┬────────┘                 │
 │                  ▼                          │
 │        Report in workflow run summary       │
 │                  │                          │
 │                  ▼                          │
-│                vr-report                    │
+│             vr-report (PR only)             │
 │                  │                          │
 │                  ▼                          │
 │        PR comment + Diffy report link       │
@@ -347,7 +356,8 @@ entry point.
 
 1. Posts the same report as a sticky comment on the PR, with a link to
    the Diffy report. Re-deploys edit the same comment rather than
-   stacking.
+   stacking. The job runs only when a PR was resolved - manual runs and
+   opted-in branch deployments report through the run summary alone.
 
 ## Making it blocking
 
