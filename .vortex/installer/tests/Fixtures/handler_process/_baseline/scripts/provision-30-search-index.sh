@@ -37,16 +37,22 @@ if [ "${DRUPAL_SEARCH_INDEX_SKIP}" = "1" ]; then
   exit 0
 fi
 
-if echo "${environment}" | grep -q -e local -e ci -e dev -e stage; then
-  task "Resetting search index tracker."
-  drush search-api:reset-tracker
-  pass "Reset search index tracker."
+# Names are matched exactly: an environment called "devops" is not a
+# development environment.
+case "${environment}" in
+  local | ci | dev | stage)
+    task "Resetting search index tracker."
+    drush search-api:reset-tracker
+    pass "Reset search index tracker."
 
-  task "Running search indexing."
-  drush search-api:index
-  pass "Completed search indexing."
-else
-  note "Skipped search indexing in non-development environment."
-fi
+    task "Running search indexing."
+    drush search-api:index
+    pass "Completed search indexing."
+    ;;
+
+  *)
+    note "Skipped search indexing in non-development environment."
+    ;;
+esac
 
 info "Finished search indexing operations."
