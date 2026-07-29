@@ -29,6 +29,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
             'phpunit',
             'behat',
             'gherkinlint',
+            'dclint',
             'bdd',
             '/\blint-be:/',
             '/\blint-be-fix:/',
@@ -48,6 +49,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
           $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
           $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
+          $test->assertFileDoesNotExist(static::$sut . '/.dclintrc');
+          $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'hadolint');
 
           $test->assertSutContains([
             '/\blint-fe:/',
@@ -150,6 +153,94 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         'twig-cs-fixer',
         'vincentlanglet/twig-cs-fixer',
       ])),
+    ];
+    yield 'tools_no_dclint' => [
+      static::cw(function ($test): void {
+          $tools = array_keys(Tools::getToolDefinitions('tools'));
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::DCLINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertSutNotContains(['dclint']);
+          $test->assertFileDoesNotExist(static::$sut . '/.dclintrc');
+          $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'VORTEX_CI_DCLINT_IGNORE_FAILURE');
+          $test->assertFileContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'hadolint');
+      }),
+    ];
+    yield 'tools_no_dclint_circleci' => [
+      static::cw(function ($test): void {
+          $tools = array_keys(Tools::getToolDefinitions('tools'));
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::DCLINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertSutNotContains(['dclint']);
+          $test->assertFileDoesNotExist(static::$sut . '/.dclintrc');
+          $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', 'VORTEX_CI_DCLINT_IGNORE_FAILURE');
+          $test->assertFileContainsString(static::$sut . '/.circleci/config.yml', 'hadolint');
+      }),
+    ];
+    yield 'tools_no_hadolint' => [
+      static::cw(function ($test): void {
+          $tools = array_keys(Tools::getToolDefinitions('tools'));
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::HADOLINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $ci = static::$sut . '/.github/workflows/build-test-deploy.yml';
+          $test->assertFileNotContainsString($ci, 'hadolint');
+          $test->assertFileNotContainsString($ci, 'VORTEX_CI_HADOLINT_IGNORE_FAILURE');
+          $test->assertFileContainsString($ci, 'dclint');
+          $test->assertFileExists(static::$sut . '/.dclintrc');
+          // Dockerfile directives are inert comments that remain useful when
+          // the tool is run by hand, so they survive deselection.
+          $test->assertFileContainsString(static::$sut . '/.docker/cli.dockerfile', '# hadolint global ignore=');
+      }),
+    ];
+    yield 'tools_no_hadolint_circleci' => [
+      static::cw(function ($test): void {
+          $tools = array_keys(Tools::getToolDefinitions('tools'));
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::HADOLINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $ci = static::$sut . '/.circleci/config.yml';
+          $test->assertFileNotContainsString($ci, 'hadolint');
+          $test->assertFileNotContainsString($ci, 'VORTEX_CI_HADOLINT_IGNORE_FAILURE');
+          $test->assertFileContainsString($ci, 'dclint');
+          $test->assertFileExists(static::$sut . '/.dclintrc');
+          $test->assertFileContainsString(static::$sut . '/.docker/cli.dockerfile', '# hadolint global ignore=');
+      }),
+    ];
+    yield 'tools_no_docker_linters' => [
+      static::cw(function ($test): void {
+          $tools = array_keys(Tools::getToolDefinitions('tools'));
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::DCLINT, Tools::HADOLINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $ci = static::$sut . '/.github/workflows/build-test-deploy.yml';
+          $test->assertSutNotContains(['dclint']);
+          $test->assertFileDoesNotExist(static::$sut . '/.dclintrc');
+          $test->assertFileNotContainsString($ci, 'hadolint');
+          $test->assertFileNotContainsString($ci, 'VORTEX_CI_HADOLINT_IGNORE_FAILURE');
+          $test->assertFileNotContainsString($ci, 'VORTEX_CI_DCLINT_IGNORE_FAILURE');
+      }),
+    ];
+    yield 'tools_no_docker_linters_circleci' => [
+      static::cw(function ($test): void {
+          $tools = array_keys(Tools::getToolDefinitions('tools'));
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::DCLINT, Tools::HADOLINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $ci = static::$sut . '/.circleci/config.yml';
+          $test->assertSutNotContains(['dclint']);
+          $test->assertFileDoesNotExist(static::$sut . '/.dclintrc');
+          $test->assertFileNotContainsString($ci, 'hadolint');
+          $test->assertFileNotContainsString($ci, 'VORTEX_CI_HADOLINT_IGNORE_FAILURE');
+          $test->assertFileNotContainsString($ci, 'VORTEX_CI_DCLINT_IGNORE_FAILURE');
+      }),
     ];
     yield 'tools_no_eslint' => [
       static::cw(function ($test): void {
