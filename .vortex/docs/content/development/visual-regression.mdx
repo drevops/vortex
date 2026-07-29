@@ -75,8 +75,8 @@ the site. In Cloudflare, add an IP Access Rule for that address with the
 | `VR_DIFFY_MAX_WAIT` | `2700` | Maximum seconds to wait for a comparison to complete (45 minutes) |
 | `VR_DIFFY_POLL_INTERVAL` | `30` | Polling interval in seconds |
 | `VR_DIFFY_PR_LABEL` | `VR` | PR label that opts a deployment into visual regression. Case-insensitive |
-| `VR_DIFFY_AUTO_BRANCHES` | `deps/*` | Comma-separated glob list of PR head branches that bypass the label gate (matches Renovate's `branchPrefix`). Set to empty to require the label on every PR. |
-| `VR_DIFFY_NON_PR_BRANCHES` | (empty) | Comma-separated glob list of deployed branches that run visual regression when the deployment is *not* a PR environment (for example `release/*`). Empty means non-PR deployments never run. |
+| `VR_DIFFY_PR_SKIP_BRANCHES` | `deps/*` | Comma-separated glob list of PR head branches that skip the label gate (matches Renovate's `branchPrefix`). Set to empty to require the label on every PR. |
+| `VR_DIFFY_BRANCHES` | (empty) | Comma-separated glob list of deployed branches that run visual regression when the deployment has no pull request (for example `release/*`). Empty means such deployments never run. |
 | `VR_DIFFY_SOURCE_ENV` | `production` | Default Diffy source environment for comparisons |
 
 Add these under *Settings > Secrets and variables > Actions > Repository
@@ -148,7 +148,7 @@ GitHub branch protection rules.
 │         │                 │                 │
 │         ▼                 ▼                 │
 │    VR label or        branch in             │
-│    auto-branch       non-PR list            │
+│   PR skip list       branch list            │
 │         │                 │                 │
 │         └────────┬────────┘                 │
 │                  ▼                          │
@@ -230,8 +230,8 @@ be the sole gate.
 PRs raised by Renovate (or any other automated dependency-update bot)
 typically do not carry the `VR` label - they carry their own bot label
 (e.g. `Dependencies`). To still run visual regression on them, the
-workflow consults `VR_DIFFY_AUTO_BRANCHES`: a comma-separated glob list
-of PR head branches that bypass the `VR` label gate.
+workflow consults `VR_DIFFY_PR_SKIP_BRANCHES`: a comma-separated glob
+list of PR head branches that skip the `VR` label gate.
 
 The default value is `deps/*`, matching **Vortex**'s Renovate `branchPrefix`
 configuration. Other common values:
@@ -243,13 +243,12 @@ configuration. Other common values:
 | Dependabot | `dependabot/` | `dependabot/*` |
 
 Multiple patterns can be combined with commas:
-`VR_DIFFY_AUTO_BRANCHES=deps/*,dependabot/*`. Set the variable to empty
-to disable the bypass entirely (every PR, including bot PRs, then needs
-the label).
+`VR_DIFFY_PR_SKIP_BRANCHES=deps/*,dependabot/*`. Set the variable to
+empty to require the label on every PR, including bot PRs.
 
 ### Default behavior out of the box
 
-With `VR_DIFFY_AUTO_BRANCHES=deps/*` (default) and
+With `VR_DIFFY_PR_SKIP_BRANCHES=deps/*` (default) and
 `VR_DIFFY_PR_LABEL=VR` (default):
 
 | PR head branch | Has `VR` label? | Runs? |
@@ -260,8 +259,8 @@ With `VR_DIFFY_AUTO_BRANCHES=deps/*` (default) and
 | `deps/drupal-core-11.2` | yes | yes (matches `deps/*`, label irrelevant) |
 
 Consumers using Dependabot just append:
-`VR_DIFFY_AUTO_BRANCHES=deps/*,dependabot/*`. Consumers who want the
-label as the only gate (no auto-bypass) set the variable to empty.
+`VR_DIFFY_PR_SKIP_BRANCHES=deps/*,dependabot/*`. Consumers who want the
+label as the only gate set the variable to empty.
 
 ## Release and other non-PR deployments
 
@@ -270,16 +269,16 @@ integration branch such as `develop`, or a permanent `dev`/`stage`
 environment - has no pull request to carry the `VR` label, so it is skipped
 by default.
 
-Set `VR_DIFFY_NON_PR_BRANCHES` to a comma-separated glob list of deployed
-branch names to compare them automatically:
+Set `VR_DIFFY_BRANCHES` to a comma-separated glob list of deployed branch
+names to compare them automatically:
 
 ```ini
-VR_DIFFY_NON_PR_BRANCHES=release/*
+VR_DIFFY_BRANCHES=release/*
 ```
 
-| Deployment | `VR_DIFFY_NON_PR_BRANCHES` | Runs? |
+| Deployment | `VR_DIFFY_BRANCHES` | Runs? |
 |---|---|---|
-| PR environment (`pr-123` in the URL) | any value | gated by the `VR` label and `VR_DIFFY_AUTO_BRANCHES` as usual |
+| PR environment (`pr-123` in the URL) | any value | gated by the `VR` label and `VR_DIFFY_PR_SKIP_BRANCHES` as usual |
 | Branch `release/1.2.3` | (empty) | no |
 | Branch `release/1.2.3` | `release/*` | **yes** |
 | Branch `develop` | `release/*` | no |
@@ -324,7 +323,7 @@ This means:
 If the target URL has no `pr-<number>` segment (for example, a deploy to
 a named environment like `dev`/`test`/`prod`), the workflow treats it as
 "not a PR deployment" and runs only when the deployed branch matches
-`VR_DIFFY_NON_PR_BRANCHES`.
+`VR_DIFFY_BRANCHES`.
 
 ## Missed-window behavior
 
@@ -379,10 +378,10 @@ be posted, which is not a merge-blocker.
 Diffy bills per screenshot set. **Vortex**'s default gating (`VR` label on
 PRs only, plus the `deps/*` auto-branch list, with non-PR deployments off
 entirely) keeps the run rate low. Adjust `VR_DIFFY_PR_LABEL`,
-`VR_DIFFY_AUTO_BRANCHES`, `VR_DIFFY_NON_PR_BRANCHES`, and
+`VR_DIFFY_PR_SKIP_BRANCHES`, `VR_DIFFY_BRANCHES`, and
 `VORTEX_NOTIFY_DIFFY_BRANCHES` to suit the team's review rhythm.
 
-Scope `VR_DIFFY_NON_PR_BRANCHES` as narrowly as the workflow allows: `*`
+Scope `VR_DIFFY_BRANCHES` as narrowly as the workflow allows: `*`
 compares on every deployment to every permanent environment, which on a
 busy integration branch consumes quota quickly.
 

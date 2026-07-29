@@ -43,8 +43,8 @@ env:
   DIFFY_CLI_VERSION: ${{ vars.VR_DIFFY_CLI_VERSION || '0.1.53' }}
   DIFFY_MAX_WAIT: ${{ vars.VR_DIFFY_MAX_WAIT || '2700' }}
   DIFFY_PR_LABEL: ${{ vars.VR_DIFFY_PR_LABEL || 'VR' }}
-  DIFFY_AUTO_BRANCHES: ${{ vars.VR_DIFFY_AUTO_BRANCHES || 'deps/*' }}
-  DIFFY_NON_PR_BRANCHES: ${{ vars.VR_DIFFY_NON_PR_BRANCHES }}
+  DIFFY_PR_SKIP_BRANCHES: ${{ vars.VR_DIFFY_PR_SKIP_BRANCHES || 'deps/*' }}
+  DIFFY_BRANCHES: ${{ vars.VR_DIFFY_BRANCHES }}
   DIFFY_POLL_INTERVAL: ${{ vars.VR_DIFFY_POLL_INTERVAL || '30' }}
   SOURCE_ENV: ${{ github.event.client_payload.source_env || inputs.source_env || 'production' }}
   TARGET_URL: ${{ github.event.client_payload.target_url || inputs.target_url }}
@@ -97,93 +97,50 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Matches a git ref against a comma-separated list of glob
-          # patterns. Returns 0 on the first match; 1 when the ref or the
-          # list is empty, or when nothing matches.
+          # Matches a git ref against a comma-separated glob list. Splitting
+          # on whitespace as well as commas absorbs padding around each
+          # pattern.
           ref_matches() {
-            local ref="${1}"
-            local list="${2}"
-            local pattern
-            local patterns
-
-            if [ -z "${ref}" ] || [ -z "${list}" ]; then
-              return 1
-            fi
-
-            IFS=',' read -ra patterns <<<"${list}"
-
+            local ref="${1}" pattern patterns
+            [ -n "${ref}" ] || return 1
+            [ -n "${2}" ] || return 1
+            IFS=$', \t' read -ra patterns <<<"${2}"
             for pattern in "${patterns[@]}"; do
-              # Trim surrounding whitespace.
-              pattern="${pattern#"${pattern%%[![:space:]]*}"}"
-              pattern="${pattern%"${pattern##*[![:space:]]}"}"
-
-              if [ -z "${pattern}" ]; then
-                continue
-              fi
-
               # shellcheck disable=SC2254
-              case "${ref}" in
-                ${pattern}) return 0 ;;
-              esac
+              case "${ref}" in ${pattern}) return 0 ;; esac
             done
-
             return 1
           }
 
-          # Records the gate decision and ends the step.
-          proceed() {
-            echo "${1}"
-            echo "skipped=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          }
+          # Record the gate decision and end the step.
+          proceed() { echo "${1}"; echo "skipped=false" >> "$GITHUB_OUTPUT"; exit 0; }
+          skip() { echo "::notice::${1}"; echo "skipped=true" >> "$GITHUB_OUTPUT"; exit 0; }
 
-          skip() {
-            echo "::notice::${1}"
-            echo "skipped=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          }
-
-          # Manual workflow_dispatch always proceeds - the operator
-          # explicitly asked for a comparison.
-          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
-            proceed "Manual dispatch."
-          fi
+          # The operator explicitly asked for a comparison.
+          [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && proceed "Manual dispatch."
 
           # No PR resolved - the deployment targets a permanent environment
           # such as a release branch, 'develop', 'dev' or 'stage'. Those run
           # only when the deployed branch is explicitly opted in.
           if [ -z "${PR_NUMBER}" ]; then
-            if ref_matches "${BRANCH}" "${DIFFY_NON_PR_BRANCHES}"; then
-              proceed "Deployed branch '${BRANCH}' matches VR_DIFFY_NON_PR_BRANCHES."
-            fi
-
-            skip "No PR associated with this deployment and branch '${BRANCH}' does not match VR_DIFFY_NON_PR_BRANCHES, skipping visual regression."
+            ref_matches "${BRANCH}" "${DIFFY_BRANCHES}" && proceed "Deployed branch '${BRANCH}' matches VR_DIFFY_BRANCHES."
+            skip "No PR associated with this deployment and branch '${BRANCH}' does not match VR_DIFFY_BRANCHES, skipping visual regression."
           fi
 
-          # PR resolved - fetch labels and head branch in one call. A failed
-          # lookup means the 'pr-<number>' segment in the URL did not come
-          # from a pull request in this repository.
-          if ! pr_data="$(gh pr view "${PR_NUMBER}" --repo "${GITHUB_REPOSITORY}" --json labels,headRefName)"; then
-            skip "PR #${PR_NUMBER} could not be read, skipping visual regression."
-          fi
+          # A failed lookup means the 'pr-<number>' segment in the URL did
+          # not come from a pull request in this repository.
+          pr_data="$(gh pr view "${PR_NUMBER}" --repo "${GITHUB_REPOSITORY}" --json labels,headRefName)" || skip "PR #${PR_NUMBER} could not be read, skipping visual regression."
 
           head_ref="$(printf '%s' "${pr_data}" | jq -r '.headRefName')"
-          labels_lower="$(printf '%s' "${pr_data}" | jq -r '.labels[].name' | tr '[:upper:]' '[:lower:]')"
+          labels="$(printf '%s' "${pr_data}" | jq -r '.labels[].name')"
 
-          # Auto-run bypass: PRs from configured branches (e.g. Renovate's
-          # `deps/*`) skip the label check.
-          if ref_matches "${head_ref}" "${DIFFY_AUTO_BRANCHES}"; then
-            proceed "PR #${PR_NUMBER} head branch '${head_ref}' matches VR_DIFFY_AUTO_BRANCHES."
-          fi
+          # PRs from configured branches (e.g. Renovate's `deps/*`) skip the
+          # label check.
+          ref_matches "${head_ref}" "${DIFFY_PR_SKIP_BRANCHES}" && proceed "PR #${PR_NUMBER} head branch '${head_ref}' matches VR_DIFFY_PR_SKIP_BRANCHES."
 
-          # Label check (case-insensitive).
-          needle="$(printf '%s' "${DIFFY_PR_LABEL}" | tr '[:upper:]' '[:lower:]')"
+          echo "${labels}" | grep -qixF "${DIFFY_PR_LABEL}" && proceed "PR #${PR_NUMBER} has the '${DIFFY_PR_LABEL}' label."
 
-          if echo "${labels_lower}" | grep -qx "${needle}"; then
-            proceed "PR #${PR_NUMBER} has the '${DIFFY_PR_LABEL}' label."
-          fi
-
-          skip "PR #${PR_NUMBER} does not have the '${DIFFY_PR_LABEL}' label and head branch '${head_ref}' does not match VR_DIFFY_AUTO_BRANCHES, skipping visual regression."
+          skip "PR #${PR_NUMBER} does not have the '${DIFFY_PR_LABEL}' label and head branch '${head_ref}' does not match VR_DIFFY_PR_SKIP_BRANCHES, skipping visual regression."
 
       - name: Validate target URL
         if: steps.gate.outputs.skipped != 'true'
