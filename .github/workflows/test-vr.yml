@@ -130,12 +130,23 @@ jobs:
             return 1
           }
 
+          # Records the gate decision and ends the step.
+          proceed() {
+            echo "${1}"
+            echo "skipped=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+
+          skip() {
+            echo "::notice::${1}"
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+
           # Manual workflow_dispatch always proceeds - the operator
           # explicitly asked for a comparison.
           if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
-            echo "Manual dispatch, proceeding."
-            echo "skipped=false" >> "$GITHUB_OUTPUT"
-            exit 0
+            proceed "Manual dispatch."
           fi
 
           # No PR resolved - the deployment targets a permanent environment
@@ -143,23 +154,17 @@ jobs:
           # only when the deployed branch is explicitly opted in.
           if [ -z "${PR_NUMBER}" ]; then
             if ref_matches "${BRANCH}" "${DIFFY_NON_PR_BRANCHES}"; then
-              echo "Deployed branch '${BRANCH}' matches VR_DIFFY_NON_PR_BRANCHES, proceeding."
-              echo "skipped=false" >> "$GITHUB_OUTPUT"
-              exit 0
+              proceed "Deployed branch '${BRANCH}' matches VR_DIFFY_NON_PR_BRANCHES."
             fi
 
-            echo "::notice::No PR associated with this deployment and branch '${BRANCH}' does not match VR_DIFFY_NON_PR_BRANCHES, skipping visual regression."
-            echo "skipped=true" >> "$GITHUB_OUTPUT"
-            exit 0
+            skip "No PR associated with this deployment and branch '${BRANCH}' does not match VR_DIFFY_NON_PR_BRANCHES, skipping visual regression."
           fi
 
           # PR resolved - fetch labels and head branch in one call. A failed
           # lookup means the 'pr-<number>' segment in the URL did not come
           # from a pull request in this repository.
           if ! pr_data="$(gh pr view "${PR_NUMBER}" --repo "${GITHUB_REPOSITORY}" --json labels,headRefName)"; then
-            echo "::notice::PR #${PR_NUMBER} could not be read, skipping visual regression."
-            echo "skipped=true" >> "$GITHUB_OUTPUT"
-            exit 0
+            skip "PR #${PR_NUMBER} could not be read, skipping visual regression."
           fi
 
           head_ref="$(printf '%s' "${pr_data}" | jq -r '.headRefName')"
@@ -168,20 +173,17 @@ jobs:
           # Auto-run bypass: PRs from configured branches (e.g. Renovate's
           # `deps/*`) skip the label check.
           if ref_matches "${head_ref}" "${DIFFY_AUTO_BRANCHES}"; then
-            echo "PR #${PR_NUMBER} head branch '${head_ref}' matches VR_DIFFY_AUTO_BRANCHES, proceeding."
-            echo "skipped=false" >> "$GITHUB_OUTPUT"
-            exit 0
+            proceed "PR #${PR_NUMBER} head branch '${head_ref}' matches VR_DIFFY_AUTO_BRANCHES."
           fi
 
           # Label check (case-insensitive).
           needle="$(printf '%s' "${DIFFY_PR_LABEL}" | tr '[:upper:]' '[:lower:]')"
+
           if echo "${labels_lower}" | grep -qx "${needle}"; then
-            echo "PR #${PR_NUMBER} has the '${DIFFY_PR_LABEL}' label, proceeding."
-            echo "skipped=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "::notice::PR #${PR_NUMBER} does not have the '${DIFFY_PR_LABEL}' label and head branch '${head_ref}' does not match VR_DIFFY_AUTO_BRANCHES, skipping visual regression."
-            echo "skipped=true" >> "$GITHUB_OUTPUT"
+            proceed "PR #${PR_NUMBER} has the '${DIFFY_PR_LABEL}' label."
           fi
+
+          skip "PR #${PR_NUMBER} does not have the '${DIFFY_PR_LABEL}' label and head branch '${head_ref}' does not match VR_DIFFY_AUTO_BRANCHES, skipping visual regression."
 
       - name: Validate target URL
         if: steps.gate.outputs.skipped != 'true'
