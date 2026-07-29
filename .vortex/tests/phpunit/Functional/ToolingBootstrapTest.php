@@ -71,12 +71,14 @@ class ToolingBootstrapTest extends FunctionalTestCase {
     // process output, so the default verbosity is restored here - otherwise
     // the assertions below would hold regardless of the script's behaviour.
     $short_circuits = $package_present && $binaries_present;
-    $expected_output = [
-      $short_circuits ? '! Installing Vortex tooling' : '* Installing Vortex tooling',
-      '! No composer.lock file present',
-      '! Loading composer repositories',
-      '! Generating autoload files',
-    ];
+    $expected_output = $short_circuits
+      ? ['! Installing Vortex tooling']
+      : [
+        '* Installing Vortex tooling',
+        '! No composer.lock file present',
+        '! Loading composer repositories',
+        '! Generating autoload files',
+      ];
 
     $this->cmd('bash scripts/vortex-tooling.sh', $expected_output, txt: 'Bootstrap must succeed regardless of the pre-existing vendor state', env: ['SHELL_VERBOSITY' => 0]);
 
