@@ -422,7 +422,7 @@ describe('AsciinemaPlayer Component', () => {
     test('renders with production-like configuration', () => {
       const { container } = render(
         <AsciinemaPlayer
-          src="/img/installer.json"
+          src="/img/cli-install.json"
           poster="npt:0:01"
           autoPlay={false}
           loop={false}
