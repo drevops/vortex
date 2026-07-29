@@ -31,8 +31,7 @@ info "Started example operations."
 environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
 note "Environment: ${environment}"
 
-# 👇 Perform operations based on the current environment. The '-x' flag anchors
-# the match to the whole name, so add your own environment names to the list.
+# 👇 Perform operations based on the current environment.
 if echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then
   note "Running example operations in non-production environment."
 

@@ -37,8 +37,6 @@ if [ "${DRUPAL_SEARCH_INDEX_SKIP}" = "1" ]; then
   exit 0
 fi
 
-# The '-x' flag anchors the match to the whole name, so an environment named
-# "devops" is not "dev".
 if echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then
   task "Resetting search index tracker."
   drush search-api:reset-tracker

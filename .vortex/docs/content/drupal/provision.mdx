@@ -256,8 +256,6 @@ else
 fi
 ```
 
-The `-x` flag anchors the match to the whole environment name and `-F` treats the patterns as plain text rather than regular expressions. Without `-x`, the match is a substring match: an environment named `devops` or `stage-uat` would be treated as `dev` or `stage`. Add your own environment names to the list explicitly.
-
 You may also conditionally perform an action based on whether the database is
 freshly imported or not:
 
