@@ -114,8 +114,8 @@ jobs:
 
             for pattern in "${patterns[@]}"; do
               # Trim surrounding whitespace.
-              pattern="${pattern# }"
-              pattern="${pattern% }"
+              pattern="${pattern#"${pattern%%[![:space:]]*}"}"
+              pattern="${pattern%"${pattern##*[![:space:]]}"}"
 
               if [ -z "${pattern}" ]; then
                 continue
