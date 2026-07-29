@@ -37,7 +37,7 @@ if [ "${DRUPAL_SEARCH_INDEX_SKIP}" = "1" ]; then
   exit 0
 fi
 
-if echo "${environment}" | grep -q -e local -e ci -e dev -e stage; then
+if echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then
   task "Resetting search index tracker."
   drush search-api:reset-tracker
   pass "Reset search index tracker."

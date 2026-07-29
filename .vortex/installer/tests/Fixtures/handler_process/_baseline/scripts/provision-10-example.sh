@@ -33,7 +33,7 @@ environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environmen
 note "Environment: ${environment}"
 
 # Perform operations based on the current environment.
-if echo "${environment}" | grep -q -e dev -e stage -e ci -e local; then
+if echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then
   note "Running example operations in non-production environment."
 
   # The demo site modules attach behaviour to the 'page' content type, so it
