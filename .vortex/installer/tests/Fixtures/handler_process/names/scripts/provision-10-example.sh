@@ -1,4 +1,4 @@
-@@ -47,7 +47,7 @@
+@@ -46,7 +46,7 @@
    pass "Created the content model."
  
    task "Setting site name."
@@ -7,7 +7,7 @@
    pass "Set site name."
  
    # Use the core Navigation module as the administration interface and remove
-@@ -91,11 +91,11 @@
+@@ -90,11 +90,11 @@
    # Note that deployment hooks for already enabled modules have run in the
    # parent "provision.sh" script.
    task "Installing custom site modules."
