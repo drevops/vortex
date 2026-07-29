@@ -66,21 +66,18 @@ class ToolingBootstrapTest extends FunctionalTestCase {
       File::dump($stale_bin, "pre-existing binary\n");
     }
 
-    // The bootstrap must not leak Composer's progress output. The harness
-    // silences Composer through 'SHELL_VERBOSITY' when it does not stream
-    // process output, so the default verbosity is restored here - otherwise
-    // the assertions below would hold regardless of the script's behaviour.
+    // The harness silences Composer through 'SHELL_VERBOSITY' when it does not
+    // stream process output, so the default verbosity is restored here -
+    // otherwise the output assertions below would hold regardless of the
+    // script's behaviour.
     $short_circuits = $package_present && $binaries_present;
-    $expected_output = $short_circuits
-      ? ['! Installing Vortex tooling']
-      : [
-        '* Installing Vortex tooling',
-        '! No composer.lock file present',
-        '! Loading composer repositories',
-        '! Generating autoload files',
-      ];
+    $process = $this->cmd('bash scripts/vortex-tooling.sh', txt: 'Bootstrap must succeed regardless of the pre-existing vendor state', env: ['SHELL_VERBOSITY' => 0]);
 
-    $this->cmd('bash scripts/vortex-tooling.sh', $expected_output, txt: 'Bootstrap must succeed regardless of the pre-existing vendor state', env: ['SHELL_VERBOSITY' => 0]);
+    // Both streams are matched in full rather than probed for known Composer
+    // strings: only an exact match proves the bootstrap stays silent, since
+    // unanticipated output would slip past a list of negative substrings.
+    $this->assertSame($short_circuits ? '' : '[INFO] Installing Vortex tooling.', trim($process->getOutput()), 'Only the announcement is written to stdout.');
+    $this->assertSame('', trim($process->getErrorOutput()), 'Nothing is written to stderr.');
 
     $this->assertDirectoryDoesNotExist($project_dir . '/vendor-temp', 'The throwaway Composer project is removed.');
 
@@ -106,7 +103,9 @@ class ToolingBootstrapTest extends FunctionalTestCase {
     $this->logSubstep('Assert a repeated run short-circuits without reinstalling');
     $canary = $project_dir . '/vendor/drevops/vortex-tooling/canary.txt';
     File::dump($canary, "canary\n");
-    $this->cmd('bash scripts/vortex-tooling.sh', ['! Installing Vortex tooling'], txt: 'Repeated bootstrap run must exit early and print nothing', env: ['SHELL_VERBOSITY' => 0]);
+    $process = $this->cmd('bash scripts/vortex-tooling.sh', txt: 'Repeated bootstrap run must exit early and print nothing', env: ['SHELL_VERBOSITY' => 0]);
+    $this->assertSame('', trim($process->getOutput()), 'The repeated run writes nothing to stdout.');
+    $this->assertSame('', trim($process->getErrorOutput()), 'The repeated run writes nothing to stderr.');
     $this->assertFileExists($canary, 'The repeated run does not reinstall the package.');
 
     $this->logStepFinish();
