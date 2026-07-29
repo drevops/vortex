@@ -10,9 +10,9 @@ declare(strict_types=1);
  *   php reroot-patch.php <source.patch> <target.patch> <upstream-prefix> <fork-prefix>
  *
  * Example:
- *   php .vortex/installer/patches/reroot-patch.php \
+ *   php .vortex/cli/patches/reroot-patch.php \
  *     /tmp/raw.patch \
- *     .vortex/installer/patches/laravel-prompts-fork-parity.patch \
+ *     .vortex/cli/patches/laravel-prompts.patch \
  *     /tmp/prompts-upstream/ \
  *     /tmp/prompts-fork/
  *

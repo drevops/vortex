@@ -27,7 +27,7 @@ class VersionTest extends UnitTestCase {
     yield 'null' => [NULL, NULL];
     yield 'empty' => ['', NULL];
     yield 'develop' => ['develop', NULL];
-    yield 'unstamped token' => ['@vortex-installer-version@', NULL];
+    yield 'unstamped token' => ['@vortex-cli-version@', NULL];
     yield 'semver 1.x' => ['1.40.0', 1];
     yield 'semver with v prefix' => ['v1.2.3', 1];
     yield 'semver 2.x' => ['2.0.0', 2];
