@@ -9,8 +9,10 @@ import TabItem from '@theme/TabItem';
 # Installation
 
 These steps take you from an empty directory to a deployed site. The **Vortex**
-CLI scaffolds your codebase; the remaining steps connect it to your hosting
-platform and continuous integration provider. Follow them in order.
+CLI install command scaffolds your codebase; the remaining steps connect it to
+your hosting platform and continuous integration provider. Follow them in order.
+
+For the full command, option and environment-variable reference, see [CLI](./cli).
 
 ## Installing Vortex into a new project
 
@@ -41,6 +43,8 @@ get instructions for a non-interactive, programmatic installation:
 ```shell
 curl -SsL https://www.vortextemplate.com/install > vortex.phar && php vortex.phar --agent-help
 ```
+
+See [CLI](./cli#non-interactive-use) for the schema, validation and answer-file workflow.
 
 :::
 
@@ -209,7 +213,7 @@ runs the tests, and deploys according to your configuration.
 
 ## Installing Vortex into an existing project
 
-The CLI cannot predict the state of your project, so initialize **Vortex**
+The CLI install command cannot predict the state of your project, so initialize **Vortex**
 into a new directory and merge your existing project into it.
 
 :::warning
@@ -222,7 +226,7 @@ Back up your project before proceeding.
 
 2. In your existing project, create a new branch and remove all files except the `.git` directory.
 
-3. Run the CLI ([step 1](#1-install-vortex)) to produce a clean **Vortex** installation, then commit it.
+3. Run the install command ([step 1](#1-install-vortex)) to produce a clean **Vortex** installation, then commit it.
 
 4. Copy your files back from the temporary directory, overriding the installed ones. Review the diff and selectively keep changes - merge `composer.json` by hand (preserving **all** of **Vortex's** entries) and regenerate `composer.lock` with `composer install`.
 

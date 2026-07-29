@@ -97,7 +97,7 @@ subscripts remain Bash.
 template's root `composer.json` requires
 `"drevops/vortex-tooling": "^2.0@alpha"` and the path repository pins
 `"versions": {"drevops/vortex-tooling": "2.0.0-alpha1"}` so the in-repo copy
-resolves during development. The CLI strips that path repository from
+resolves during development. The CLI install command strips that path repository from
 consumer sites; until a `2.0` pre-release is published to Packagist, scaffolded
 sites cannot resolve the tooling - acceptable during 2.x pre-release
 development. Once a `2.0` release is published, switch the constraint to a plain

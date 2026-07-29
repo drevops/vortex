@@ -34,8 +34,8 @@ class FunctionalTestCase extends UnitTestCase {
     self::locationsInit(File::cwd() . '/../..');
 
     // We use 'Star Wars'-themed test assertions, so we need to create a named
-    // SUT directory for the CLI to gather the answers from the directory
-    // name.
+    // SUT directory for the install command to gather the answers from the
+    // directory name.
     static::$sut = static::locationsMkdir(static::$workspace . '/star_wars');
 
     // Export the current codebase to a fixture remote repository.

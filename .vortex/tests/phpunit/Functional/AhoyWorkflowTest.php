@@ -407,7 +407,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertFileContainsString('web/themes/custom/star_wars/.eslintrc.json', '# Update 2 to Vortex in .eslintrc.json', 'Theme .eslintrc.json should contain update 2 changes');
 
     $this->logSubstep('Assert that legacy scripts/vortex/ was removed');
-    $this->assertDirectoryDoesNotExist('scripts/vortex', 'Legacy scripts/vortex/ directory was removed by the CLI.');
+    $this->assertDirectoryDoesNotExist('scripts/vortex', 'Legacy scripts/vortex/ directory was removed by the CLI install command.');
 
     $this->logSubstep('Assert that new changes need to be manually resolved');
     $this->gitAssertNotClean(static::$sut, 'Git working tree should not be clean after Vortex update');

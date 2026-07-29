@@ -83,7 +83,7 @@ COPY composer.json composer.* patches.lock.* .env* auth* /app/
 #;< VORTEX_DEV
 # Copy the in-tree drevops/vortex-tooling package so the path repository
 # declared in composer.json can resolve during the build. Consumer sites
-# get the package from packagist; the Vortex CLI strips this block.
+# get the package from packagist; the CLI install command strips this block.
 COPY .vortex/tooling /app/.vortex/tooling
 #;> VORTEX_DEV
 

@@ -11,9 +11,7 @@ use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 
 /**
- * Class InstallerDotEnvTest.
- *
- * InstallerDotEnvTest fixture class.
+ * Tests for the Env class.
  */
 #[CoversClass(Env::class)]
 #[RunTestsInSeparateProcesses]

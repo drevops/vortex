@@ -12,9 +12,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
- * Abstract base class for installer tests.
+ * Abstract base class for install tests.
  *
- * Provides common test logic for all installer test scenarios.
+ * Provides common test logic for all install test scenarios.
  * Run `ahoy update-snapshots` from `.vortex/` to update test snapshots.
  */
 abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {

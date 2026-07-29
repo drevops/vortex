@@ -71,7 +71,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
     }
 
     // Skip the database fetch in demo mode as it is not needed for the
-    // installer's tests.
+    // CLI's tests.
     Env::put(Config::IS_DEMO_DB_FETCH_SKIP, '1');
 
     $this->applicationRun($args, [], $expect_fail);

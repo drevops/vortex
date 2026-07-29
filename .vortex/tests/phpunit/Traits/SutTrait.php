@@ -93,16 +93,16 @@ trait SutTrait {
   /**
    * Inject a path repository for drevops/vortex-tooling into the SUT.
    *
-   * The CLI strips '.vortex/tooling' and the path repository from the
-   * SUT's composer.json so consumer sites resolve drevops/vortex-tooling
-   * from packagist. Until the package is published, the SUT cannot resolve
-   * it, so the workflow tests would fail at the Dockerfile's composer
-   * install step. This method copies the in-tree tooling into the SUT at
-   * '.tooling-source' (deliberately outside '.vortex/' so the SUT keeps no
-   * '.vortex/' directory at runtime), re-injects the path repository into
-   * composer.json, re-injects the COPY into cli.dockerfile, and adjusts
-   * '.dockerignore' and '.gitignore.artifact' so the tooling source enters
-   * the build context but never the deployment artifact.
+   * The CLI install command strips '.vortex/tooling' and the path repository
+   * from the SUT's composer.json so consumer sites resolve
+   * drevops/vortex-tooling from packagist. Until the package is published, the
+   * SUT cannot resolve it, so the workflow tests would fail at the
+   * Dockerfile's composer install step. This method copies the in-tree tooling
+   * into the SUT at '.tooling-source' (deliberately outside '.vortex/' so the
+   * SUT keeps no '.vortex/' directory at runtime), re-injects the path
+   * repository into composer.json, re-injects the COPY into cli.dockerfile,
+   * and adjusts '.dockerignore' and '.gitignore.artifact' so the tooling
+   * source enters the build context but never the deployment artifact.
    *
    * @todo Remove once drevops/vortex-tooling is published to packagist.
    */

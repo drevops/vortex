@@ -601,7 +601,7 @@ class InstallCommandTest extends FunctionalTestCase {
       TRUE,
       'Failed to download Vortex.',
     ];
-    yield 'unstamped installer skips gate' => [
+    yield 'unstamped CLI skips gate' => [
       NULL,
       '{"require": {"drevops/vortex-tooling": "^2.0.0"}}',
       TRUE,
