@@ -9,7 +9,7 @@
 vortex/
 ├── .vortex/                    # Test harness (removed on install)
 │   ├── docs/                   # Documentation website
-│   ├── installer/              # Template installer
+│   ├── cli/                    # Template CLI
 │   ├── tests/                  # Template tests (PHPUnit)
 │   └── tooling/                # 'drevops/vortex-tooling' Composer package
 │       ├── src/                # Shipped PHP scripts
@@ -26,14 +26,14 @@ test harness.
 | System       | Technology               | Purpose                       |
 |--------------|--------------------------|-------------------------------|
 | `docs/`      | Docusaurus, Jest         | vortextemplate.com            |
-| `installer/` | Symfony Console, PHPUnit | Template customization        |
+| `cli/`       | Symfony Console, PHPUnit | Template customization        |
 | `tests/`     | PHPUnit                  | Template integration testing  |
 | `tooling/`   | PHP, PHPUnit             | 'drevops/vortex-tooling' pkg  |
 
 Each subsystem has its own CLAUDE.md - read it when working there:
 
 - `.vortex/docs/CLAUDE.md` - Documentation system, videos
-- `.vortex/installer/CLAUDE.md` - Installer, fixtures, tokens
+- `.vortex/cli/CLAUDE.md` - CLI, fixtures, tokens
 - `.vortex/tests/CLAUDE.md` - PHPUnit integration tests
 
 `tooling/` has no CLAUDE.md - it is published to consumer projects, so any notes
@@ -97,7 +97,7 @@ subscripts remain Bash.
 template's root `composer.json` requires
 `"drevops/vortex-tooling": "^2.0@alpha"` and the path repository pins
 `"versions": {"drevops/vortex-tooling": "2.0.0-alpha1"}` so the in-repo copy
-resolves during development. The installer strips that path repository from
+resolves during development. The CLI strips that path repository from
 consumer sites; until a `2.0` pre-release is published to Packagist, scaffolded
 sites cannot resolve the tooling - acceptable during 2.x pre-release
 development. Once a `2.0` release is published, switch the constraint to a plain
@@ -119,7 +119,7 @@ ahoy lint-markdown    # Lint markdown files
 ## Snapshots
 
 `ahoy update-snapshots` (run from `.vortex/`) is the **only** way to regenerate
-fixtures. It wraps the `tests/` and `installer/` snapshot runs together with the
+fixtures. It wraps the `tests/` and `cli/` snapshot runs together with the
 required `XDEBUG_MODE=off` and parallel jobs. Never call
 `composer update-snapshots` directly and never set `UPDATE_SNAPSHOTS` by hand -
 both bypass part of the workflow and produce partial, inconsistent fixtures.
@@ -153,21 +153,21 @@ When updating template files (settings, configs, Dockerfiles, etc.):
 2. **Commit.**
 3. Run `ahoy update-snapshots` and commit the regenerated fixtures.
 
-When the installer prompt flow changes (any change under
-`.vortex/installer/src/Prompts/` - new or removed handler, reordered or reworded
-prompt, `TOTAL_RESPONSES` bump), also run `ahoy update-videos installer` to
+When the prompt flow changes (any change under
+`.vortex/cli/src/Prompts/` - new or removed handler, reordered or reworded
+prompt, `TOTAL_RESPONSES` bump), also run `ahoy update-videos cli-install` to
 re-record the demo, since the video records the live prompt flow.
 `update-snapshots` commits automatically; `update-videos` does not - stage and
 commit its output manually. Run both after the code change is committed.
 
 ## Documentation videos
 
-Six terminal demo videos live in `.vortex/docs/static/img/` (`installer.*`,
+Six terminal demo videos live in `.vortex/docs/static/img/` (`cli-install.*`,
 `build.*`, `provision.*`, `lint.*`, `test.*`, `test-bdd.*`). Regenerate from
 `.vortex/` with `ahoy update-videos [names]`. A video goes stale when the
 command it records changes behavior:
 
-- `installer` - any prompt flow change.
+- `cli-install` - any prompt flow change.
 - `build`, `provision` - changes to `.ahoy.yml` build/provision targets or
   `scripts/vortex/provision*`.
 - `lint`, `test`, `test-bdd` - changes to the linter or test-runner setup.
@@ -185,7 +185,7 @@ and commit manually. See `.vortex/docs/CLAUDE.md` for the pipeline internals
 
 ## AI Assistant Guidelines
 
-- **NEVER** modify `.vortex/installer/tests/Fixtures/` directly - change the root
+- **NEVER** modify `.vortex/cli/tests/Fixtures/` directly - change the root
   template files, then run `ahoy update-snapshots`.
 - American English spelling in documentation; sentence case for headings
   (capitalize proper nouns only).

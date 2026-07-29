@@ -4,16 +4,16 @@ sidebar_position: 3
 
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
-# Installer
+# CLI
 
-The **Vortex** installer is a self-contained Symfony Console application that
+The **Vortex** CLI is a self-contained Symfony Console application that
 customizes the template based on user selections. It lives inside the same
-repository as the template at `.vortex/installer/`, which allows changes to the
-template and installer to be combined within a single pull request — ensuring
-that template modifications and the corresponding installer logic stay in sync.
+repository as the template at `.vortex/cli/`, which allows changes to the
+template and the CLI to be combined within a single pull request — ensuring
+that template modifications and the corresponding CLI logic stay in sync.
 
 <AsciinemaPlayer
-  src="/img/installer.json"
+  src="/img/cli-install.json"
   poster="npt:0:1"
   autoPlay={false}
   loop={false}
@@ -25,34 +25,37 @@ that template modifications and the corresponding installer logic stay in sync.
 
 ## Architecture
 
-The installer is a PHP application rather than a shell script because it
+The CLI is a PHP application rather than a shell script because it
 touches many different parts of the template and requires complex management of
-different permutations of the template variants. Using PHP allows the installer
+different permutations of the template variants. Using PHP allows the CLI
 to provide a **terminal UI experience** via
 [Laravel Prompts](https://github.com/laravel/prompts), where users are guided
 through a series of questions to customize their project. At the same time,
-the installer supports **non-interactive installs** (via the `--no-interaction`
+the CLI supports **non-interactive installs** (via the `--no-interaction`
 flag) for both new and existing projects, as well as updates — making it
 suitable for automated pipelines and CI environments.
+
+The binary is `vortex` and it exposes three commands: `install` (the default),
+`check-requirements` and `build`.
 
 Prompt answers can be provided from multiple sources, resolved in the following
 priority order:
 
 1. **Configuration file** — a JSON file passed via the `--config` option.
-2. **Environment variables** — using the `VORTEX_INSTALLER_PROMPT_<handler_id>`
-   naming convention.
+2. **Environment variables** — using the
+   `VORTEX_CLI_INSTALL_PROMPT_<handler_id>` naming convention.
 3. **Discovery** — auto-detection from existing project files (e.g.,
    `composer.json`, `.env`, hosting-specific files like `.lagoon.yml`).
 4. **Handler defaults** — fallback values defined by each handler.
 
-This means the installer can be driven entirely by a config file or environment
+This means the CLI can be driven entirely by a config file or environment
 variables without any user interaction, which is essential for reproducible
 installations and automated testing.
 
 The core flow is:
 
-1. User downloads the installer PHAR from https://www.vortextemplate.com/install
-   and runs it with `php installer.php`.
+1. User downloads the PHAR from https://www.vortextemplate.com/install
+   and runs it with `php vortex.phar`.
 2. `InstallCommand` orchestrates the installation process.
 3. `PromptManager` collects user choices via interactive prompts.
 4. Handlers queue file operations based on selections — each handler is
@@ -65,12 +68,12 @@ The core flow is:
 ### Conditional token system
 
 In addition to string substitution for handling simple replacements and
-additions, the installer uses a token system to conditionally exclude entire
+additions, the CLI uses a token system to conditionally exclude entire
 blocks of content from template files. This simplifies the management of
 optional features — rather than requiring complex logic to surgically remove
 lines from configuration files, scripts, or documentation, maintainers simply
 wrap the relevant content in token markers. When a feature is not selected
-during installation, the installer removes everything between the markers.
+during installation, the CLI removes everything between the markers.
 
 **Markdown**:
 
@@ -88,9 +91,51 @@ Content removed if feature not selected
 #;> TOKEN_NAME
 ```
 
+## Distribution
+
+The PHAR is published to three stable, extensionless paths:
+
+| Path                                        | Contents                |
+|---------------------------------------------|-------------------------|
+| `https://www.vortextemplate.com/install`    | The current major's pin |
+| `https://www.vortextemplate.com/v1/install` | The `1.x` line          |
+| `https://www.vortextemplate.com/v2/install` | The `2.x` line          |
+
+The bare `/install` path is a copy of the current major's pin, selected by the
+`VORTEX_CURRENT_MAJOR` repository variable. Each per-major path is always built
+from that major's own branch, so `1.x` continues to publish the installer it
+ships while `2.x` publishes this CLI.
+
+The documented download filename is `vortex.phar`:
+
+```shell
+curl -SsL https://www.vortextemplate.com/install > vortex.phar && php vortex.phar
+```
+
+## Environment variables
+
+Variables are scoped by what they configure. CLI-level settings use the
+`VORTEX_CLI_` prefix; settings that belong to the `install` command use
+`VORTEX_CLI_INSTALL_`.
+
+| Variable                           | Purpose                                     |
+|------------------------------------|---------------------------------------------|
+| `VORTEX_CLI_VERSION`               | Overrides the stamped version               |
+| `VORTEX_CLI_URL`                   | Where `vortex-update` downloads the PHAR    |
+| `VORTEX_CLI_PATH`                  | Local PHAR path, overrides the URL          |
+| `VORTEX_CLI_URL_CACHE_BUST`        | Cache-busting parameter for the URL         |
+| `VORTEX_CLI_INSTALL_TMP_DIR`       | Working directory for the downloaded source |
+| `VORTEX_CLI_INSTALL_TEMPLATE_REPO` | Template repository to install from         |
+| `VORTEX_CLI_INSTALL_PROMPT_<ID>`   | Answer for a single prompt                  |
+
+The superseded `VORTEX_INSTALLER_*` names still resolve: when a current name is
+unset, the matching legacy name supplies the value and the run prints a
+deprecation notice naming its replacement. The fallback is a migration aid and
+will be removed in a future major.
+
 ## Testing
 
-The installer uses a multi-layered testing approach with unit tests for
+The CLI uses a multi-layered testing approach with unit tests for
 individual components and functional tests for full installation scenarios.
 
 ### Unit testing
@@ -102,7 +147,7 @@ is tested in isolation with mocks provided by
 
 ### Functional testing with snapshots
 
-For every test permutation, the installer *initiates a fresh project* from the
+For every test permutation, the CLI *initiates a fresh project* from the
 Vortex template with a specific combination of user selections and runs
 assertions against the resulting files. Because a single template change can
 affect a hundred plus installation permutations, snapshot testing makes it easy to
@@ -125,11 +170,11 @@ library for snapshot-based testing. The snapshot system works on a
   baseline.
 
 When a test runs, the snapshot library applies the scenario's diffs on top of
-the baseline and compares the result against the actual installer output. This
+the baseline and compares the result against the actual output. This
 approach keeps the fixture files maintainable — instead of duplicating the
 entire template for each scenario, only the differences are stored.
 
-The fixture directories in `.vortex/installer/tests/Fixtures/handler_process/`
+The fixture directories in `.vortex/cli/tests/Fixtures/handler_process/`
 cover scenarios like:
 
 - **CI providers**: GitHub Actions, CircleCI
@@ -142,7 +187,7 @@ cover scenarios like:
 ### Running tests
 
 ```shell
-cd .vortex/installer
+cd .vortex/cli
 
 # Install Composer dependencies.
 composer install
@@ -159,7 +204,7 @@ composer test
 
 ### Updating snapshots
 
-Fixture files should never be modified directly. When the template or installer
+Fixture files should never be modified directly. When the template or CLI
 logic changes, update the snapshots:
 
 ```shell
@@ -167,46 +212,47 @@ logic changes, update the snapshots:
 ahoy update-snapshots
 
 # Manual (for debugging specific scenarios).
-cd .vortex/installer
+cd .vortex/cli
 UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
 ```
 
-When `UPDATE_SNAPSHOTS` is set, the installer *runs for every permutation*,
+When `UPDATE_SNAPSHOTS` is set, the CLI *runs for every permutation*,
 initiates a fresh project for each scenario, and automatically updates the
 fixture files to match the current output. The resulting changes appear as
 diffs in version control, making it straightforward to review exactly how a
-template or installer change affects each scenario.
+template or CLI change affects each scenario.
 
 ## Releasing
 
-The installer is packaged as a PHAR archive using
+The CLI is packaged as a PHAR archive using
 [Box](https://github.com/box-project/box). It is released on each **GitHub
 release** of the Vortex template and deployed to
-https://www.vortextemplate.com/install. Additionally, the installer is
-published for every branch containing `release-docs` or `release-installer`
-in its name, which allows testing installer changes before a formal release.
+https://www.vortextemplate.com/install. Additionally, it is
+published for every branch containing `release-docs` or `release-cli`
+in its name, which allows testing CLI changes before a formal release.
 
-## Installer video
+## Install demo video
 
-The documentation includes an interactive recording of the installer captured
-with [asciinema](https://asciinema.org/). The recording is produced by a script
-at `.vortex/docs/.utils/update-installer-video.sh` which:
+The documentation includes an interactive recording of the install flow captured
+with [asciinema](https://asciinema.org/). The recording is produced by
+`.vortex/docs/.utils/update-videos.php` which:
 
-1. Builds the installer PHAR from source.
+1. Builds the PHAR from source.
 2. Generates an [Expect](https://en.wikipedia.org/wiki/Expect) script that
-   automates the installer interaction, simulating human-like typing with
+   automates the interaction, simulating human-like typing with
    delays.
 3. Records the session with `asciinema rec` into a JSON cast file.
 4. Post-processes the recording (sanitizes paths, removes spawn lines).
 5. Converts the cast file to SVG and PNG using a custom
    `svg-term-render.js` script, and optionally to GIF using `agg`.
 
-The output files are stored in `.vortex/docs/static/img/` and embedded in the
-documentation using a custom `AsciinemaPlayer` React component.
+The output files are stored in `.vortex/docs/static/img/` as `cli-install.*`
+and embedded in the documentation using a custom `AsciinemaPlayer` React
+component.
 
 To update the video:
 
 ```shell
 cd .vortex
-ahoy update-videos installer
+ahoy update-videos cli-install
 ```

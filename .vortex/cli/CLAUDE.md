@@ -1,4 +1,4 @@
-# Installer System Guide
+# CLI System Guide
 
 ## Overview
 
@@ -10,7 +10,7 @@ selections.
 ## Commands
 
 ```bash
-cd .vortex/installer
+cd .vortex/cli
 
 composer install      # Install dependencies
 composer lint         # Run phpcs, phpstan, rector --dry-run
@@ -46,20 +46,20 @@ template files, then regenerate the fixtures.
 See `.vortex/CLAUDE.md` for the snapshot update process (always
 `ahoy update-snapshots` from `.vortex/`, never composer directly).
 
-### Updating the Installer Video
+### Updating the install demo video
 
-**Whenever the installer prompt flow changes** (new handler added, prompt
-renamed, section reordered, prompt removed), the installer video shown in the
-documentation goes stale and must be regenerated.
+**Whenever the prompt flow changes** (new handler added, prompt
+renamed, section reordered, prompt removed), the install demo video shown in
+the documentation goes stale and must be regenerated.
 
 ```bash
 # From .vortex/ directory
-ahoy update-videos installer
+ahoy update-videos cli-install
 ```
 
 Requires `asciinema`, `expect`, `php`, `composer`, `npx` on PATH. Produces
-`installer.json` (asciicast), `installer.svg`, `installer.png`, and
-`installer.gif` under `.vortex/docs/static/img/`. Requires explicit user
+`cli-install.json` (asciicast), `cli-install.svg`, `cli-install.png`, and
+`cli-install.gif` under `.vortex/docs/static/img/`. Requires explicit user
 permission before running.
 
 Triggers that require re-recording:
@@ -80,7 +80,7 @@ within a file that survives the install regardless of the choice. Use them
   conditionally while the rest of the file stays.
 - The choice can flip independently of any other selection.
 
-**Do not** wrap an entire file in fences if the installer removes the whole
+**Do not** wrap an entire file in fences if the CLI removes the whole
 file via `File::remove($t . '/path/to/file')` based on the same selection.
 The file removal is the conditional behaviour - the fences are dead noise and
 add visual clutter to the shipped file. Examples:
@@ -125,7 +125,7 @@ Content removed if feature not selected
 
 ### Handler Locations
 
-`.vortex/installer/src/Prompts/Handlers/`:
+`.vortex/cli/src/Prompts/Handlers/`:
 
 - `CiProvider.php`, `HostingProvider.php`, `Services.php`, `Theme.php`
 
@@ -164,7 +164,7 @@ Structure: Test methods → Data providers → Helper methods
 
 ## Patches
 
-The installer applies a single patch to `laravel/prompts` via
+The CLI applies a single patch to `laravel/prompts` via
 `cweagans/composer-patches` v2 to add three behaviors it depends on.
 
 ### Patch location
@@ -192,7 +192,7 @@ The installer applies a single patch to `laravel/prompts` via
 
 The patch also includes a small `Concerns/TypedValue.php` tweak
 (`strlen($default) > 0` → truthy check); not exercised directly by the
-installer.
+CLI.
 
 ### Re-roll procedure
 
@@ -202,13 +202,13 @@ description trait touches renderers that frequently change between
 releases.
 
 ```bash
-# 1. After bumping the version in .vortex/installer/composer.json, try the
+# 1. After bumping the version in .vortex/cli/composer.json, try the
 #    existing patch first.
-composer --working-dir .vortex/installer update laravel/prompts --with-dependencies
+composer --working-dir .vortex/cli update laravel/prompts --with-dependencies
 rm -f ~/Library/Caches/composer/patches/*.patch  # macOS cache path
 rm -f ~/.cache/composer/patches/*.patch          # Linux cache path
-composer --working-dir .vortex/installer patches-relock
-composer --working-dir .vortex/installer patches-repatch
+composer --working-dir .vortex/cli patches-relock
+composer --working-dir .vortex/cli patches-repatch
 ```
 
 If `patches-repatch` succeeds, jump to the verify step.
@@ -223,7 +223,7 @@ git -C /tmp/prompts-upstream checkout v<NEW_TAG>
 cp -R /tmp/prompts-upstream/src /tmp/upstream-pristine-src
 
 # 3. Apply the three changes to /tmp/prompts-upstream/src using
-#    .vortex/installer/patches/laravel-prompts.patch as reference:
+#    .vortex/cli/patches/laravel-prompts.patch as reference:
 #    a) Re-introduce the RendersDescription trait and thread `description`
 #       through every Prompt constructor + matching renderer.
 #    b) Update Prompt::validateUsing() signature to `?Closure $callback`.
@@ -235,22 +235,22 @@ diff -ruN /tmp/upstream-pristine-src /tmp/prompts-upstream/src > /tmp/raw.patch
 
 # 5. Re-root paths to `a/src/...` / `b/src/...` and strip timestamps using
 #    the committed helper.
-php .vortex/installer/patches/reroot-patch.php \
+php .vortex/cli/patches/reroot-patch.php \
   /tmp/raw.patch \
-  .vortex/installer/patches/laravel-prompts.patch \
+  .vortex/cli/patches/laravel-prompts.patch \
   /tmp/upstream-pristine-src/ \
   /tmp/prompts-upstream/src/
 
 # 6. Refresh the lockfile and re-apply.
 rm -f ~/Library/Caches/composer/patches/*.patch
 rm -f ~/.cache/composer/patches/*.patch
-composer --working-dir .vortex/installer patches-relock
-composer --working-dir .vortex/installer patches-repatch
+composer --working-dir .vortex/cli patches-relock
+composer --working-dir .vortex/cli patches-repatch
 ```
 
 Verify:
 
 ```bash
-composer --working-dir .vortex/installer test
-composer --working-dir .vortex/installer lint
+composer --working-dir .vortex/cli test
+composer --working-dir .vortex/cli lint
 ```
