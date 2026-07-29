@@ -80,6 +80,39 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Provision search index: environment name containing a development name skip" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  rm ./.env && touch ./.env
+
+  unset DRUPAL_SEARCH_INDEX_SKIP
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -a STEPS=(
+    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # devops"
+
+    "Started search indexing operations."
+    "Environment: devops"
+    "Search indexing skip: 0"
+    "Skipped search indexing in non-development environment."
+    "Finished search indexing operations."
+
+    "- Resetting search index tracker."
+    "- Running search indexing."
+    "- Completed search indexing."
+  )
+
+  mocks="$(run_steps "setup")"
+
+  run ./scripts/provision-30-search-index.sh
+  assert_success
+
+  run_steps "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Provision search index: non-development environment skip" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
