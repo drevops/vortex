@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Utils;
 
 /**
- * Installer configuration.
+ * Install configuration.
  *
  * Install config is a config of the install command.
  *

@@ -37,7 +37,7 @@ class PharTest extends FunctionalTestCase {
     parent::setUp();
 
     // We use 'Star Wars' theme for the tests, so setting up SUT directory
-    // so that the installer can gather the answers from the directory name.
+    // so that the CLI can gather the answers from the directory name.
     static::$sut = static::locationsMkdir(static::$workspace . DIRECTORY_SEPARATOR . 'star_wars');
 
     // Copy the PHAR file to the SUT directory.
@@ -111,7 +111,7 @@ class PharTest extends FunctionalTestCase {
     ];
     $options += $defaults;
 
-    // The interactive mode is not supported in the tests as installer
+    // The interactive mode is not supported in the tests as the CLI
     // uses Laravel\Prompts which require a real TTY or a series of fallback
     // callbacks to be defined. These callbacks are not implemented yet, so
     // we enforce the non-interactive mode for the tests.

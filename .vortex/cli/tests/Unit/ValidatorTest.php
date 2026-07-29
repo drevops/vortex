@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use DrevOps\VortexCli\Utils\Validator;
 
 /**
- * Class InstallerHelpersTest.
+ * Tests for the Validator class.
  */
 #[CoversClass(Validator::class)]
 class ValidatorTest extends UnitTestCase {
