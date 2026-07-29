@@ -66,11 +66,23 @@ class ToolingBootstrapTest extends FunctionalTestCase {
       File::dump($stale_bin, "pre-existing binary\n");
     }
 
-    $this->cmd('bash scripts/vortex-tooling.sh', txt: 'Bootstrap must succeed regardless of the pre-existing vendor state');
+    // The bootstrap must not leak Composer's progress output. The harness
+    // silences Composer through 'SHELL_VERBOSITY' when it does not stream
+    // process output, so the default verbosity is restored here - otherwise
+    // the assertions below would hold regardless of the script's behaviour.
+    $short_circuits = $package_present && $binaries_present;
+    $expected_output = [
+      $short_circuits ? '! Installing Vortex tooling' : '* Installing Vortex tooling',
+      '! No composer.lock file present',
+      '! Loading composer repositories',
+      '! Generating autoload files',
+    ];
+
+    $this->cmd('bash scripts/vortex-tooling.sh', $expected_output, txt: 'Bootstrap must succeed regardless of the pre-existing vendor state', env: ['SHELL_VERBOSITY' => 0]);
 
     $this->assertDirectoryDoesNotExist($project_dir . '/vendor-temp', 'The throwaway Composer project is removed.');
 
-    if ($package_present && $binaries_present) {
+    if ($short_circuits) {
       $this->logSubstep('Assert the bootstrap short-circuited and did not touch the existing state');
       $this->assertFileExists($package_marker, 'The existing package copy is left untouched.');
       $this->assertFileContainsString($stale_bin, 'pre-existing binary', 'The existing binary is left untouched.');
@@ -92,8 +104,26 @@ class ToolingBootstrapTest extends FunctionalTestCase {
     $this->logSubstep('Assert a repeated run short-circuits without reinstalling');
     $canary = $project_dir . '/vendor/drevops/vortex-tooling/canary.txt';
     File::dump($canary, "canary\n");
-    $this->cmd('bash scripts/vortex-tooling.sh', txt: 'Repeated bootstrap run must exit early');
+    $this->cmd('bash scripts/vortex-tooling.sh', ['! Installing Vortex tooling'], txt: 'Repeated bootstrap run must exit early and print nothing', env: ['SHELL_VERBOSITY' => 0]);
     $this->assertFileExists($canary, 'The repeated run does not reinstall the package.');
+
+    $this->logStepFinish();
+  }
+
+  #[Group('p1')]
+  public function testBootstrapReplaysComposerOutputOnFailure(): void {
+    $this->logStepStart();
+
+    // A constraint that no repository can satisfy makes Composer fail during
+    // dependency resolution, which is the failure mode the suppression must
+    // not hide: the bootstrap runs from the ahoy entrypoint, so a silent
+    // failure there would block every command with no explanation.
+    $project_dir = $this->prepareProject(minimal_composer_json: TRUE, tooling_constraint: '999.999.999');
+    chdir($project_dir);
+
+    $this->cmdFail('bash scripts/vortex-tooling.sh', ['* Your requirements could not be resolved'], txt: 'A failing bootstrap replays the suppressed Composer output', env: ['SHELL_VERBOSITY' => 0]);
+
+    $this->assertDirectoryDoesNotExist($project_dir . '/vendor-temp', 'The throwaway Composer project is removed after a failure.');
 
     $this->logStepFinish();
   }
@@ -130,7 +160,7 @@ class ToolingBootstrapTest extends FunctionalTestCase {
     $this->logStepFinish();
   }
 
-  protected function prepareProject(bool $minimal_composer_json = FALSE): string {
+  protected function prepareProject(bool $minimal_composer_json = FALSE, ?string $tooling_constraint = NULL): string {
     $root = static::locationsRoot();
     $project_dir = static::$tmp . '/project';
 
@@ -166,6 +196,8 @@ class ToolingBootstrapTest extends FunctionalTestCase {
     if (!is_string($constraint)) {
       throw new \RuntimeException('The template composer.json does not require the tooling package.');
     }
+
+    $constraint = $tooling_constraint ?? $constraint;
 
     $path_repository = NULL;
     $repositories = $template['repositories'] ?? [];

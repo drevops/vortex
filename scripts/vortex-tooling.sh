@@ -21,10 +21,36 @@
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# Run Composer without exposing its progress output, which is an internal detail
+# of this bootstrap rather than something that was asked for. The captured
+# output is replayed on stderr when the command fails, so failures remain
+# diagnosable. Debug mode streams the output as it happens.
+composer_run() {
+  if [ "${VORTEX_DEBUG-}" = "1" ]; then
+    composer "$@"
+    return
+  fi
+
+  local output status=0
+  output=$(composer "$@" 2>&1) || status=$?
+
+  if [ "${status}" -ne 0 ]; then
+    if [ -n "${output}" ]; then
+      printf "%s\n" "${output}" >&2
+    fi
+
+    return "${status}"
+  fi
+}
+
 # Already installed and its binaries linked - nothing to do.
 if [ -d ./vendor/drevops/vortex-tooling ] && ls ./vendor/bin/vortex-* >/dev/null 2>&1; then
   exit 0
 fi
+
+# The install runs before any other output and takes a noticeable amount of
+# time, so announce it rather than leaving the terminal blank.
+printf "[INFO] Installing Vortex tooling.\n"
 
 mkdir -p vendor-temp vendor/drevops
 
@@ -51,27 +77,27 @@ echo "{\"require\":{\"drevops/vortex-tooling\":\"${version}\"}}" >vendor-temp/co
 # In dev mode the package is not yet on Packagist, so add a path repository
 # pointing at the in-tree copy. The installer strips this VORTEX_DEV-fenced
 # block from consumer sites.
-composer --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"1.3.0"}}}'
+composer_run --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"1.3.0"}}}'
 #;> VORTEX_DEV
 
 # Carry over inline patches declared for our package, if any.
 patches=$(composer config extra.patches.drevops/vortex-tooling --json 2>/dev/null) || patches=
 if [ -n "${patches}" ] && [ "${patches}" != "[]" ] && [ "${patches}" != "{}" ]; then
-  composer --working-dir=vendor-temp config extra.patches.drevops/vortex-tooling --json "${patches}"
+  composer_run --working-dir=vendor-temp config extra.patches.drevops/vortex-tooling --json "${patches}"
 fi
 
 # Carry over the patches-file pointer, if defined. Prefix with '..' so the
 # path resolves from inside 'vendor-temp/' back to the project root.
 patches_file=$(composer config extra.patches-file 2>/dev/null) || patches_file=
 if [ -n "${patches_file}" ]; then
-  composer --working-dir=vendor-temp config extra.patches-file "../${patches_file}"
+  composer_run --working-dir=vendor-temp config extra.patches-file "../${patches_file}"
 fi
 
 # When any patches were registered, pull in the composer-patches plugin and
 # allow it to run during install.
 if [ -n "${patches}" ] || [ -n "${patches_file}" ]; then
-  composer --working-dir=vendor-temp require --no-update cweagans/composer-patches:^2
-  composer --working-dir=vendor-temp config allow-plugins.cweagans/composer-patches true
+  composer_run --working-dir=vendor-temp require --no-update cweagans/composer-patches:^2
+  composer_run --working-dir=vendor-temp config allow-plugins.cweagans/composer-patches true
   # Inline 'extra.patches' paths (and paths inside a 'patches-file') are
   # relative to the project root. Copy the project 'patches/' directory into
   # the throwaway project so those paths resolve from inside 'vendor-temp/'.
@@ -80,7 +106,7 @@ if [ -n "${patches}" ] || [ -n "${patches_file}" ]; then
   fi
 fi
 
-composer --working-dir=vendor-temp install --no-dev --no-interaction
+composer_run --working-dir=vendor-temp install --no-dev --no-interaction
 
 # The target directory may already be occupied by a package copy without the
 # 'vendor/bin/vortex-*' proxies (e.g. an older tooling version mid-way through
