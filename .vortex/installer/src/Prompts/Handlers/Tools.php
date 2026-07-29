@@ -475,7 +475,7 @@ class Tools extends AbstractHandler {
           File::contains($this->dstDir . '/.github/workflows/build-test-deploy.yml', 'dclint') ||
           File::contains($this->dstDir . '/.circleci/config.yml', 'dclint'),
         'files' => ['.dclintrc'],
-        'strings' => ['/^.*dclint.*\n?/mi'],
+        'strings' => ['/^.*dclint.*\n?/m'],
       ],
 
       // Hadolint ships no configuration file, so the CI step is the only signal
