@@ -1,20 +1,20 @@
-@@ -76,10 +76,6 @@
-     drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
-     pass "Installed and configured ClamAV."
+@@ -74,10 +74,6 @@
+   drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
+   pass "Installed and configured ClamAV."
  
--    task "Installing Solr search modules."
--    drush pm:install search_api search_api_solr
--    pass "Installed Solr search modules."
+-  task "Installing Solr search modules."
+-  drush pm:install search_api search_api_solr
+-  pass "Installed Solr search modules."
 -
-     task "Installing Single Directory Component development tools."
-     drush pm:install sdc_devel || true
-     pass "Installed Single Directory Component development tools."
-@@ -94,8 +90,6 @@
-     # parent "provision.sh" script.
-     task "Installing custom site modules."
-     drush pm:install sw_base
+   task "Installing Single Directory Component development tools."
+   drush pm:install sdc_devel || true
+   pass "Installed Single Directory Component development tools."
+@@ -92,8 +88,6 @@
+   # parent "provision.sh" script.
+   task "Installing custom site modules."
+   drush pm:install sw_base
 -
--    drush pm:install sw_search
+-  drush pm:install sw_search
  
-     drush pm:install sw_demo
-     pass "Installed custom site modules."
+   drush pm:install sw_demo
+   pass "Installed custom site modules."

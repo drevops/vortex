@@ -1,8 +1,8 @@
-@@ -97,7 +97,6 @@
+@@ -95,7 +95,6 @@
  
-     drush pm:install sw_search
+   drush pm:install sw_search
  
--    drush pm:install sw_demo
-     pass "Installed custom site modules."
+-  drush pm:install sw_demo
+   pass "Installed custom site modules."
  
-     task "Running deployment hooks."
+   task "Running deployment hooks."
