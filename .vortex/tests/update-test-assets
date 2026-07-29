@@ -232,7 +232,7 @@ function reset_sut(string $root_dir, string $cli): void {
   // (uid 33). When those bind-mounts surface on the host, plain 'rm -rf'
   // by the current user fails with "Permission denied". Clear the contents
   // via an ephemeral root-privileged container so file ownership doesn't
-  // matter, then leave the dir itself in place for the CLI.
+  // matter, then leave the dir itself in place for the install command.
   run(sprintf('mkdir -p %s', escapeshellarg(SUT_DIR)));
   run(sprintf(
     'docker run --rm -v %s:/sut alpine find /sut -mindepth 1 -delete',

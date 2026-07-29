@@ -589,13 +589,13 @@ class InstallCommandTest extends FunctionalTestCase {
    *   Test data.
    */
   public static function dataProviderInstallCommandMajorGate(): \Iterator {
-    yield 'v1 CLI refuses v2 project' => [
+    yield 'v1 installer refuses v2 project' => [
       '1.40.0',
       '{"require": {"drevops/vortex-tooling": "^2.0.0"}}',
       FALSE,
       'https://www.vortextemplate.com/v2/install',
     ];
-    yield 'v1 CLI accepts v1 project' => [
+    yield 'v1 installer accepts v1 project' => [
       '1.40.0',
       '{"require": {"drevops/vortex-tooling": "^1.1.0"}}',
       TRUE,

@@ -80,7 +80,7 @@ within a file that survives the install regardless of the choice. Use them
   conditionally while the rest of the file stays.
 - The choice can flip independently of any other selection.
 
-**Do not** wrap an entire file in fences if the CLI removes the whole
+**Do not** wrap an entire file in fences if the install command removes the whole
 file via `File::remove($t . '/path/to/file')` based on the same selection.
 The file removal is the conditional behaviour - the fences are dead noise and
 add visual clutter to the shipped file. Examples:

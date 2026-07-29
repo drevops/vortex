@@ -316,7 +316,7 @@ export default function Home() {
                     >
                       <img
                         src={installVideo}
-                        alt="Animated demo of the Vortex CLI scaffolding a new project from a single command"
+                        alt="Animated demo of the Vortex CLI install command scaffolding a new project from a single command"
                         loading="lazy"
                         decoding="async"
                         width="1280"
@@ -340,8 +340,8 @@ export default function Home() {
                     >
                       <path d="m9 18 6-6-6-6" />
                     </svg>{' '}
-                    The CLI scaffolds your whole project - structure, tooling,
-                    CI, and hosting - in one run.
+                    The install command scaffolds your whole project -
+                    structure, tooling, CI, and hosting - in one run.
                   </p>
                 </div>
               </div>

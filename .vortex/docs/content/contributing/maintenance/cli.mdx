@@ -68,12 +68,12 @@ The core flow is:
 ### Conditional token system
 
 In addition to string substitution for handling simple replacements and
-additions, the CLI uses a token system to conditionally exclude entire
+additions, the install command uses a token system to conditionally exclude entire
 blocks of content from template files. This simplifies the management of
 optional features — rather than requiring complex logic to surgically remove
 lines from configuration files, scripts, or documentation, maintainers simply
 wrap the relevant content in token markers. When a feature is not selected
-during installation, the CLI removes everything between the markers.
+during installation, the install command removes everything between the markers.
 
 **Markdown**:
 
@@ -147,7 +147,7 @@ is tested in isolation with mocks provided by
 
 ### Functional testing with snapshots
 
-For every test permutation, the CLI *initiates a fresh project* from the
+For every test permutation, the install command *initiates a fresh project* from the
 Vortex template with a specific combination of user selections and runs
 assertions against the resulting files. Because a single template change can
 affect a hundred plus installation permutations, snapshot testing makes it easy to
@@ -216,7 +216,7 @@ cd .vortex/cli
 UPDATE_SNAPSHOTS=1 ./vendor/bin/phpunit --filter "testHandlerProcess.*baseline"
 ```
 
-When `UPDATE_SNAPSHOTS` is set, the CLI *runs for every permutation*,
+When `UPDATE_SNAPSHOTS` is set, the install command *runs for every permutation*,
 initiates a fresh project for each scenario, and automatically updates the
 fixture files to match the current output. The resulting changes appear as
 diffs in version control, making it straightforward to review exactly how a

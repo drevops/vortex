@@ -37,7 +37,8 @@ class PharTest extends FunctionalTestCase {
     parent::setUp();
 
     // We use 'Star Wars' theme for the tests, so setting up SUT directory
-    // so that the CLI can gather the answers from the directory name.
+    // so that the install command can gather the answers from the directory
+    // name.
     static::$sut = static::locationsMkdir(static::$workspace . DIRECTORY_SEPARATOR . 'star_wars');
 
     // Copy the PHAR file to the SUT directory.

@@ -691,8 +691,8 @@ echo PHP_EOL;
 
 // Enable the deploy_steps runner and the always-on site modules before deploy
 // hooks, so their deploy step plugins and run-once deploy hooks run on this
-// provision. Site module names are project-specific (the Vortex CLI renames
-// them), so resolve them by glob. Idempotent in every environment.
+// provision. Site module names are project-specific (the CLI install command
+// renames them), so resolve them by glob. Idempotent in every environment.
 TASK('Enabling site modules.', 'Enabled site modules.', function () use ($webroot): void {
   drush('pm:install deploy_steps');
   $module_paths = array_merge((array) glob($webroot . '/modules/custom/*_base', GLOB_ONLYDIR), (array) glob($webroot . '/modules/custom/*_migrate', GLOB_ONLYDIR));
