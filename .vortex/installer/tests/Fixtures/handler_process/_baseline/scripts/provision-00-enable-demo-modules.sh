@@ -36,8 +36,8 @@ if ! echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then
   exit 0
 fi
 
-# The demo site modules attach behaviour to the 'page' content type, so it
-# must exist before those modules are installed and their deploy hooks run.
+# Site modules attach behaviour to the 'page' content type, so it must exist
+# before those modules are installed and their deploy hooks run.
 task "Creating the content model."
 # Guard against environments where the Drupal CLI is not available.
 if [ -x ./vendor/bin/dr ]; then
