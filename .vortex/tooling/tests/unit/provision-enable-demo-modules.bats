@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for provision-40-example.sh
+# Unit tests for provision-00-enable-demo-modules.sh
 #
 # The environment-matching branch is covered end-to-end by 'provision.bats';
 # this file covers the boundary that those scenarios do not reach.
@@ -9,7 +9,7 @@
 
 load ../_helper.bash
 
-@test "Provision example: environment name containing a development name skip" {
+@test "Provision demo modules: environment name containing a development name skip" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   create_global_command_wrapper "vendor/bin/drush"
@@ -19,19 +19,20 @@ load ../_helper.bash
     "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # devops"
 
     # Expected output.
-    "Started example operations."
+    "Started demo modules operations."
     "Environment: devops"
-    "Skipped example operations in production environment."
+    "Skipped demo modules operations in production environment."
 
     # Not expected.
-    "- Running example operations in non-production environment."
-    "- Performing an example operation."
-    "- Finished example operations."
+    "- Creating the content model."
+    "- Installing contrib modules."
+    "- Installing custom site modules."
+    "- Finished demo modules operations."
   )
 
   mocks="$(run_steps "setup")"
 
-  run ./scripts/provision-40-example.sh
+  run ./scripts/provision-00-enable-demo-modules.sh
   assert_success
 
   run_steps "assert" "${mocks[@]}"

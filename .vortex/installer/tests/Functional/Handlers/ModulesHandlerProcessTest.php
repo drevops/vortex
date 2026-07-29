@@ -130,6 +130,15 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
         'stage_file_proxy',
       ])),
     ];
+    yield 'modules_no_devel_sdc_devel' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept(['devel', 'sdc_devel']);
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertSutNotContains(['drupal/devel', 'drupal/sdc_devel']);
+        $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
+      }),
+    ];
     yield 'modules_none' => [
       static::cw(fn($test): array => $test->prompts[Modules::id()] = []),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
