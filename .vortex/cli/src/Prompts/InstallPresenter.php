@@ -68,15 +68,6 @@ EOT;
     $logo = Tui::center($logo, Tui::terminalWidth($max_header_width), '─');
     $logo = Tui::cyan($logo);
 
-    // Depending on how the CLI is run, the version may be set to
-    // the placeholder value or actual version (PHAR packager will replace
-    // the placeholder with the actual version).
-    // We need to fence the replacement below only if the version is still set
-    // to the placeholder value.
-    if (str_contains($version, 'vortex-cli-version')) {
-      $version = str_replace('@vortex-cli-version@', 'development', $version);
-    }
-
     $logo .= PHP_EOL . Tui::dim(str_pad(sprintf('CLI version: %s', $version), Tui::terminalWidth($max_header_width) - 2, ' ', STR_PAD_LEFT));
 
     Tui::note($logo);

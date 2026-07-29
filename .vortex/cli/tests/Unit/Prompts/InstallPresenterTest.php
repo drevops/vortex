@@ -95,16 +95,15 @@ class InstallPresenterTest extends UnitTestCase {
     $this->assertStringContainsString('abc123', $output);
   }
 
-  public function testHeaderVersionPlaceholderReplacement(): void {
+  public function testHeaderRendersVersionAsGiven(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $presenter = new InstallPresenter($config);
 
     $artifact = Artifact::fromUri(NULL);
-    $presenter->header($artifact, '@vortex-cli-version@');
+    $presenter->header($artifact, 'development');
 
     $output = $this->output->fetch();
-    $this->assertStringContainsString('development', $output);
-    $this->assertStringNotContainsString('@vortex-cli-version@', $output);
+    $this->assertStringContainsString('CLI version: development', $output);
   }
 
   public function testHeaderInteractiveShowsControls(): void {
