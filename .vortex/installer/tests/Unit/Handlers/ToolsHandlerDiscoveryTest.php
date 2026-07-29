@@ -282,6 +282,22 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
         File::dump(static::$sut . '/.circleci/config.yml', 'docker run --rm -i hadolint/hadolint');
       },
     ];
+    yield 'tools - discovery - hadolint, alt2' => [
+      [],
+      [Tools::id() => [Tools::HADOLINT]] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/.hadolint.yaml');
+      },
+    ];
+    yield 'tools - discovery - hadolint, alt3' => [
+      [],
+      [Tools::id() => [Tools::HADOLINT]] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/.hadolint.yml');
+      },
+    ];
   }
 
 }
