@@ -59,7 +59,8 @@ your-project/
 ├── scripts/
 │   ├── provision-00-enable-demo-modules.sh # shipped - demo site modules
 │   ├── provision-10-enable-dev-modules.sh  # shipped - development modules
-│   ├── provision-20-migration.sh           # shipped example - copy or remove
+│   ├── provision-20-migration.sh           # shipped - migration, if enabled
+│   ├── provision-30-search-index.sh        # shipped - indexing, if Solr used
 │   ├── provision-40-example.sh             # shipped example - copy or remove
 │   └── provision-50-custom.sh              # your own hook script
 ├── vendor/
@@ -69,18 +70,20 @@ your-project/
 └── ...
 ```
 
-The template ships runnable examples you can copy or remove -
 [`scripts/provision-40-example.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-40-example.sh)
-and
-[`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh).
+is a runnable example that performs no operations - copy it as a starting point
+for your own scripts, or remove it.
 
-It also ships two scripts that are not examples and that do real work in
-non-production environments:
+The remaining shipped scripts do real work and are not examples:
 [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh)
-enables the modules and the content model the demo site is built from, and
+enables the modules and the content model the demo site is built from,
 [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh)
-enables the development modules. Keep them until you manage those modules
-yourself.
+enables the development modules,
+[`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh)
+runs the content migration, and
+[`scripts/provision-30-search-index.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-30-search-index.sh)
+rebuilds the search index. The last two ship only when migration and the Solr
+service are selected.
 
 See the
 [provisioning documentation](https://www.vortextemplate.com/docs/drupal/provision#running-custom-scripts)
