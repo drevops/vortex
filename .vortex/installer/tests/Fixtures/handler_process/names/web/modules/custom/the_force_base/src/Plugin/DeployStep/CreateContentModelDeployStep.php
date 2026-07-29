@@ -14,13 +14,12 @@ use Drupal\deploy_steps\EnvironmentTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Creates the demo content model on non-production deploys.
+ * Creates the starter content model on non-production deploys.
  *
  * Applies the project 'page' recipe so the Basic page content type, its body
- * field and displays exist before the demo modules that attach behaviour to
- * that type are installed. Runs ahead of EnableDevelopmentModulesDeployStep in
- * the PRE phase (lower weight) for that reason. Idempotent - the step skips
- * once the content type exists - so it is safe on every deploy.
+ * field and displays exist before any module that attaches behaviour to that
+ * type is installed - hence the lowest weight in the PRE phase. Idempotent -
+ * the step skips once the content type exists - so it is safe on every deploy.
  *
  * @codeCoverageIgnore
  */
