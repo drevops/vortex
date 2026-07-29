@@ -12,8 +12,8 @@ commands:
       yarn --cwd=tests install --frozen-lockfile
       [ -d ./tooling/vendor ] && rm -rf ./tooling/vendor
       composer --working-dir tooling install
-      [ -d ./installer/vendor ] && rm -rf ./installer/vendor
-      composer --working-dir installer install
+      [ -d ./cli/vendor ] && rm -rf ./cli/vendor
+      composer --working-dir cli install
       [ -d ./docs/node_modules ] && rm -rf ./docs/node_modules
       yarn --cwd=docs install --frozen-lockfile
 
@@ -35,16 +35,16 @@ commands:
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
       yarn --cwd=docs run build
 
-  build-installer:
-    name: Build documentation.
+  build-cli:
+    name: Build the Vortex CLI PHAR.
     cmd: |
-      [ ! -d ./installer/vendor ] && composer --working-dir installer install
-      composer --working-dir installer build
+      [ ! -d ./cli/vendor ] && composer --working-dir cli install
+      composer --working-dir cli build
 
   lint:
     name: Lint Vortex project.
     cmd: |
-      ahoy lint-installer
+      ahoy lint-cli
       ahoy lint-tests
       ahoy lint-tooling
       ahoy lint-scripts
@@ -56,7 +56,7 @@ commands:
   lint-fix:
     name: Fix linting issues in Vortex project.
     cmd: |
-      ahoy lint-installer-fix
+      ahoy lint-cli-fix
       ahoy lint-tests-fix
       ahoy lint-tooling-fix
       ahoy lint-docs-fix
@@ -69,11 +69,11 @@ commands:
   lint-ci-fix:
     cmd: ./tests/lint.ci.sh --fix
 
-  lint-installer:
-    cmd: composer --working-dir installer lint
+  lint-cli:
+    cmd: composer --working-dir cli lint
 
-  lint-installer-fix:
-    cmd: composer --working-dir installer lint-fix
+  lint-cli-fix:
+    cmd: composer --working-dir cli lint-fix
 
   lint-tests:
     cmd: composer --working-dir tests lint
@@ -130,7 +130,7 @@ commands:
     cmd: |
       export XDEBUG_MODE=off
       composer --working-dir=tests update-snapshots
-      composer --working-dir=installer update-snapshots -- --jobs=8
+      composer --working-dir=cli update-snapshots -- --jobs=8
 
   update-snapshots-install:
     aliases: [usi]
@@ -143,7 +143,7 @@ commands:
     cmd: yarn --cwd=docs run update-variables
 
   update-videos:
-    usage: Update documentation videos. Pass names to record a subset (installer, build, provision, lint, test, test-bdd); default is all six.
+    usage: Update documentation videos. Pass names to record a subset (cli-install, build, provision, lint, test, test-bdd); default is all six.
     cmd: php docs/.utils/update-videos.php "$@"
 
 entrypoint:

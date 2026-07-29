@@ -21,11 +21,11 @@ class UpdateVortexTest extends UnitTestCase {
     parent::setUp();
 
     $this->envSetMultiple([
-      'VORTEX_INSTALLER_TEMPLATE_REPO' => 'https://github.com/drevops/vortex.git#stable',
-      'VORTEX_INSTALLER_URL' => 'https://www.vortextemplate.com/install',
-      'VORTEX_INSTALLER_URL_CACHE_BUST' => '1234567890',
-      'VORTEX_INSTALLER_PATH' => '',
-      'VORTEX_INSTALLER_INTERACTIVE' => '0',
+      'VORTEX_CLI_INSTALL_TEMPLATE_REPO' => 'https://github.com/drevops/vortex.git#stable',
+      'VORTEX_CLI_URL' => 'https://www.vortextemplate.com/install',
+      'VORTEX_CLI_URL_CACHE_BUST' => '1234567890',
+      'VORTEX_CLI_PATH' => '',
+      'VORTEX_CLI_INSTALL_INTERACTIVE' => '0',
     ]);
   }
 
@@ -93,7 +93,7 @@ class UpdateVortexTest extends UnitTestCase {
   }
 
   public static function dataProviderUpdateVortex(): array {
-    $download_request = fn(bool $ok = TRUE): array => ['request' => ['url' => 'https://www.vortextemplate.com/install?1234567890', 'method' => 'GET', 'response' => $ok ? ['body' => '<?php echo "installer";'] : ['ok' => FALSE, 'status' => 500, 'body' => '']]];
+    $download_request = fn(bool $ok = TRUE): array => ['request' => ['url' => 'https://www.vortextemplate.com/install?1234567890', 'method' => 'GET', 'response' => $ok ? ['body' => '<?php echo "vortex";'] : ['ok' => FALSE, 'status' => 500, 'body' => '']]];
     $default_repo = 'https://github.com/drevops/vortex.git#stable';
 
     return [
@@ -101,33 +101,48 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'installer.php' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 0],
         ],
         [
-          '* Using installer script from URL: https://www.vortextemplate.com/install',
-          '* Downloading installer to installer.php',
-          '! Using installer script from local path',
+          '* Using Vortex CLI from URL: https://www.vortextemplate.com/install',
+          '* Downloading Vortex CLI to vortex.phar',
+          '! Using Vortex CLI from local path',
         ],
       ],
 
-      'local installer path' => [
-        ['VORTEX_INSTALLER_PATH' => '__TMP__/my-installer.php'],
+      'local CLI path' => [
+        ['VORTEX_CLI_PATH' => '__TMP__/my-vortex.phar'],
         [
-          ['cmd' => "php '__TMP__/my-installer.php' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 0],
+          ['cmd' => "php '__TMP__/my-vortex.phar' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 0],
         ],
         [
-          '* Using installer script from local path: __TMP__/my-installer.php',
-          '! Downloading installer',
+          '* Using Vortex CLI from local path: __TMP__/my-vortex.phar',
+          '! Downloading Vortex CLI',
         ],
         NULL,
         FALSE,
-        ['__TMP__/my-installer.php' => '<?php echo "installed";'],
+        ['__TMP__/my-vortex.phar' => '<?php echo "installed";'],
       ],
 
-      'local installer not found' => [
-        ['VORTEX_INSTALLER_PATH' => '/nonexistent/installer.php'],
+      'superseded local CLI path still resolves and warns' => [
+        ['VORTEX_CLI_PATH' => '', 'VORTEX_INSTALLER_PATH' => '__TMP__/my-vortex.phar'],
+        [
+          ['cmd' => "php '__TMP__/my-vortex.phar' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 0],
+        ],
+        [
+          '* VORTEX_INSTALLER_PATH is deprecated and will be removed in a future release. Use VORTEX_CLI_PATH instead.',
+          '* Using Vortex CLI from local path: __TMP__/my-vortex.phar',
+          '! Downloading Vortex CLI',
+        ],
+        NULL,
+        FALSE,
+        ['__TMP__/my-vortex.phar' => '<?php echo "installed";'],
+      ],
+
+      'local CLI not found' => [
+        ['VORTEX_CLI_PATH' => '/nonexistent/vortex.phar'],
         [],
-        ['* [FAIL] Installer script not found at /nonexistent/installer.php'],
+        ['* [FAIL] Vortex CLI not found at /nonexistent/vortex.phar'],
         NULL,
         TRUE,
       ],
@@ -137,20 +152,20 @@ class UpdateVortexTest extends UnitTestCase {
         [
           $download_request(FALSE),
         ],
-        ['* [FAIL] Failed to download installer from https://www.vortextemplate.com/install'],
+        ['* [FAIL] Failed to download Vortex CLI from https://www.vortextemplate.com/install'],
         NULL,
         TRUE,
       ],
 
       'interactive mode' => [
-        ['VORTEX_INSTALLER_INTERACTIVE' => '1'],
+        ['VORTEX_CLI_INSTALL_INTERACTIVE' => '1'],
         [
           $download_request(),
-          ['cmd' => "php 'installer.php' --uri='" . $default_repo . "'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' --uri='" . $default_repo . "'", 'result_code' => 0],
         ],
         [
-          '* Using installer script from URL:',
-          '* Downloading installer to installer.php',
+          '* Using Vortex CLI from URL:',
+          '* Downloading Vortex CLI to vortex.phar',
         ],
       ],
 
@@ -158,11 +173,11 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'installer.php' --uri='" . $default_repo . "'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' --uri='" . $default_repo . "'", 'result_code' => 0],
         ],
         [
-          '* Using installer script from URL:',
-          '* Downloading installer to installer.php',
+          '* Using Vortex CLI from URL:',
+          '* Downloading Vortex CLI to vortex.phar',
         ],
         ['update-vortex', '--interactive'],
       ],
@@ -171,11 +186,11 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'installer.php' --no-interaction --uri='file:///local/path/to/vortex.git#1.2.3'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' --no-interaction --uri='file:///local/path/to/vortex.git#1.2.3'", 'result_code' => 0],
         ],
         [
-          '* Using installer script from URL:',
-          '* Downloading installer to installer.php',
+          '* Using Vortex CLI from URL:',
+          '* Downloading Vortex CLI to vortex.phar',
         ],
         ['update-vortex', 'file:///local/path/to/vortex.git#1.2.3'],
       ],
@@ -184,11 +199,11 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'installer.php' --no-interaction --uri='/local/path/to/vortex#stable'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' --no-interaction --uri='/local/path/to/vortex#stable'", 'result_code' => 0],
         ],
         [
-          '* Using installer script from URL:',
-          '* Downloading installer to installer.php',
+          '* Using Vortex CLI from URL:',
+          '* Downloading Vortex CLI to vortex.phar',
         ],
         ['update-vortex', '/local/path/to/vortex#stable'],
       ],
@@ -197,11 +212,11 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'installer.php' --no-interaction --uri='git@github.com:drevops/vortex.git#v1.2.3'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' --no-interaction --uri='git@github.com:drevops/vortex.git#v1.2.3'", 'result_code' => 0],
         ],
         [
-          '* Using installer script from URL:',
-          '* Downloading installer to installer.php',
+          '* Using Vortex CLI from URL:',
+          '* Downloading Vortex CLI to vortex.phar',
         ],
         ['update-vortex', 'git@github.com:drevops/vortex.git#v1.2.3'],
       ],
@@ -210,20 +225,20 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'installer.php' --uri='https://github.com/custom/repo.git#main'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' --uri='https://github.com/custom/repo.git#main'", 'result_code' => 0],
         ],
         [
-          '* Using installer script from URL:',
-          '* Downloading installer to installer.php',
+          '* Using Vortex CLI from URL:',
+          '* Downloading Vortex CLI to vortex.phar',
         ],
         ['update-vortex', '--interactive', 'https://github.com/custom/repo.git#main'],
       ],
 
-      'installer fails' => [
+      'CLI fails' => [
         [],
         [
           $download_request(),
-          ['cmd' => "php 'installer.php' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 1],
+          ['cmd' => "php 'vortex.phar' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 1],
         ],
         [],
         NULL,

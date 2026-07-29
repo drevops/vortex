@@ -1,0 +1,36 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Vortex CLI entry point.
+ */
+
+declare(strict_types=1);
+
+use DrevOps\VortexCli\Command\BuildCommand;
+use DrevOps\VortexCli\Command\CheckRequirementsCommand;
+use DrevOps\VortexCli\Command\InstallCommand;
+use DrevOps\VortexCli\Utils\Config;
+use DrevOps\VortexCli\Utils\Env;
+use Symfony\Component\Console\Application;
+
+require_once $GLOBALS['_composer_autoload_path'] ?? __DIR__ . '/vendor/autoload.php';
+
+// Read through Env so the superseded variable name resolves through the same
+// fallback every other configuration variable uses.
+$version = (string) Env::get(Config::VERSION, '@vortex-cli-version@');
+
+// Box replaces the placeholder when packaging the PHAR, so a version still
+// carrying it means the CLI is running straight from source.
+$version = str_contains($version, 'vortex-cli-version') ? 'development' : $version;
+
+$application = new Application('Vortex CLI', $version);
+
+$application->add(new InstallCommand());
+$application->add(new CheckRequirementsCommand());
+$application->add(new BuildCommand());
+
+$application->setDefaultCommand('install');
+
+$application->run();

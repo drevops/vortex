@@ -261,7 +261,7 @@ jobs:
       - name: Check GitHub Actions security with Zizmor
         uses: zizmorcore/zizmor-action@6fc4b006235f201fdab3722e17240ab420d580e5 # v0.6.1
         with:
-          # Audit only the template's own workflows. The installer test fixtures
+          # Audit only the template's own workflows. The CLI test fixtures
           # carry generated workflow snapshots whose action SHAs are normalized
           # to placeholders, which are not real pin targets.
           inputs: .github/workflows/

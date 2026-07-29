@@ -19,17 +19,22 @@ trait SutTrait {
   use FileAssertionsTrait;
 
   /**
+   * The Vortex CLI binary, relative to the template repository root.
+   */
+  const CLI_BIN = '.vortex/cli/vortex';
+
+  /**
    * URL to the test demo database.
    *
    * Tests use demo database and 'ahoy fetch-db' command, so we need
    * to set the CURL DB to test DB.
    */
-  const VORTEX_INSTALLER_DEMO_DB_TEST = 'https://github.com/drevops/vortex/releases/download/1.40.0/db.test.sql';
+  const DEMO_DB_TEST = 'https://github.com/drevops/vortex/releases/download/1.40.0/db.test.sql';
 
   /**
    * URL for the migration source demo database used in tests.
    */
-  const VORTEX_INSTALLER_DEMO_DB2_SOURCE_TEST = 'https://github.com/drevops/vortex/releases/download/25.4.0/db_d11.demo_source.sql';
+  const DEMO_DB2_SOURCE_TEST = 'https://github.com/drevops/vortex/releases/download/25.4.0/db_d11.demo_source.sql';
 
   /**
    * Image name for the test database.
@@ -37,11 +42,11 @@ trait SutTrait {
   const VORTEX_DB_IMAGE_TEST = 'drevops/vortex-dev-mariadb-drupal-data-test-11.x:1.40.0';
 
   /**
-   * Environment variables to set when running the installer.
+   * Environment variables to set when running the Vortex CLI.
    *
    * @var array <string, string|int|float|bool>
    */
-  protected static $sutInstallerEnv = [];
+  protected static $sutEnv = [];
 
   /**
    * Prompt values to pass via --prompts option.
@@ -50,7 +55,7 @@ trait SutTrait {
    *
    * @var array<string, mixed>
    */
-  protected static array $sutInstallerPrompts = [];
+  protected static array $sutPrompts = [];
 
   protected function prepareSut(string $webroot = 'web'): void {
     $this->logStepStart();
@@ -64,8 +69,8 @@ trait SutTrait {
     $this->logSubstep('Assert that SUT does not have common files before installation');
     $this->assertCommonFilesAbsent($webroot);
 
-    $this->logSubstep('Run the installer to initialise the project with the default settings');
-    $this->runInstaller();
+    $this->logSubstep('Run the Vortex CLI to initialise the project with the default settings');
+    $this->runInstall();
 
     $this->logSubstep('Assert that SUT has common files after installation');
     $this->assertCommonFilesPresent($webroot);
@@ -88,7 +93,7 @@ trait SutTrait {
   /**
    * Inject a path repository for drevops/vortex-tooling into the SUT.
    *
-   * The installer strips '.vortex/tooling' and the path repository from the
+   * The CLI strips '.vortex/tooling' and the path repository from the
    * SUT's composer.json so consumer sites resolve drevops/vortex-tooling
    * from packagist. Until the package is published, the SUT cannot resolve
    * it, so the workflow tests would fail at the Dockerfile's composer
@@ -215,36 +220,32 @@ trait SutTrait {
     }
   }
 
-  protected function runInstaller(array $arguments = []): void {
+  protected function runInstall(array $arguments = []): void {
     $this->logNote('Switch to the project root directory');
     chdir(static::locationsRoot());
 
-    if (!is_dir(static::$root . '/.vortex/installer/vendor')) {
-      $this->logNote('Installing dependencies of the Vortex installer');
-      $this->cmd('composer --working-dir=' . escapeshellarg(static::$root . '/.vortex/installer') . ' install --no-interaction --no-progress');
-    }
+    $this->installCliDependencies();
 
     // @todo Convert options to $arguments once
     // ProcessTrait::processParseCommand() is fixed.
-    $cmd = sprintf('php .vortex/installer/installer.php --no-interaction --destination=%s', escapeshellarg(static::locationsSut()));
+    $cmd = sprintf('php %s install --no-interaction --destination=%s', static::CLI_BIN, escapeshellarg(static::locationsSut()));
 
-    if (!empty(static::$sutInstallerPrompts)) {
-      $cmd .= ' --prompts=' . escapeshellarg((string) json_encode(static::$sutInstallerPrompts));
+    if (!empty(static::$sutPrompts)) {
+      $cmd .= ' --prompts=' . escapeshellarg((string) json_encode(static::$sutPrompts));
     }
 
-    $this->logNote('Run the installer script');
+    $this->logNote('Run the Vortex CLI to install the project');
     $this->cmd(
       $cmd,
       arg: $arguments,
-      env: static::$sutInstallerEnv + [
-        // Use a unique temporary directory for each installer run.
-        // This is where the installer script downloads the Vortex codebase
-        // for processing.
-        'VORTEX_INSTALLER_TMP_DIR' => static::locationsTmp(),
-        // Point the installer to the local template repository as the source
-        // of the Vortex codebase. During development, ensure any pending
-        // changes are committed to the template repository.
-        'VORTEX_INSTALLER_TEMPLATE_REPO' => static::locationsRoot(),
+      env: static::$sutEnv + [
+        // Use a unique temporary directory for each run. This is where the
+        // Vortex codebase is downloaded for processing.
+        'VORTEX_CLI_INSTALL_TMP_DIR' => static::locationsTmp(),
+        // Point the CLI to the local template repository as the source of the
+        // Vortex codebase. During development, ensure any pending changes are
+        // committed to the template repository.
+        'VORTEX_CLI_INSTALL_TEMPLATE_REPO' => static::locationsRoot(),
         // Tests use the demo database and the 'ahoy fetch-db' command,
         // so we need to point CURL to the test database instead.
         //
@@ -252,19 +253,19 @@ trait SutTrait {
         // which is required for running test assertions ("star wars")
         // against an expected data set.
         //
-        // The installer will load this environment variable, and it will
+        // The CLI will load this environment variable, and it will
         // take precedence over the value in the .env file.
-        'VORTEX_FETCH_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
+        'VORTEX_FETCH_DB_URL' => static::DEMO_DB_TEST,
       ],
-      txt: 'Run the installer'
+      txt: 'Run the Vortex CLI'
     );
 
-    $this->logNote('Switch back to the SUT directory after the installer has run');
+    $this->logNote('Switch back to the SUT directory after the installation has run');
     chdir(static::locationsSut());
 
     $this->adjustCodebaseForUnmountedVolumes();
 
-    $this->logNote('Smoke test the installer processing');
+    $this->logNote('Smoke test the installation processing');
     $this->assertDirectoryNotContainsString('.', 'your_site');
     $this->assertDirectoryNotContainsString('.', 'ys_base');
     $this->assertDirectoryNotContainsString('.', 'ys_demo');
@@ -281,23 +282,34 @@ trait SutTrait {
     $this->assertDirectoryNotContainsString('.', '#;>');
   }
 
-  protected function buildInstaller(): string {
-    $installer_dir = static::$root . '/.vortex/installer';
-    $installer_phar = $installer_dir . '/build/installer.phar';
+  /**
+   * Install the Vortex CLI's own dependencies, once per run.
+   */
+  protected function installCliDependencies(): void {
+    $cli_dir = static::$root . '/.vortex/cli';
 
-    if (!is_dir($installer_dir)) {
-      $this->logNote('Installing dependencies of the Vortex installer');
-      $this->cmd('composer --working-dir=' . escapeshellarg($installer_dir) . ' install --no-interaction --no-progress');
-      $this->assertDirectoryExists($installer_dir . '/vendor', 'Vortex installer vendor directory should exist after installing dependencies');
+    if (is_dir($cli_dir . '/vendor')) {
+      return;
     }
 
-    $this->cmd('composer --working-dir=' . escapeshellarg($installer_dir) . ' build', env: ['SHELL_VERBOSITY' => -1], txt: 'Build the Vortex installer PHAR');
-    $this->assertFileExists($installer_phar, 'Installer PHAR should be built');
+    $this->logNote('Installing dependencies of the Vortex CLI');
+    $this->cmd('composer --working-dir=' . escapeshellarg($cli_dir) . ' install --no-interaction --no-progress');
+    $this->assertDirectoryExists($cli_dir . '/vendor', 'Vortex CLI vendor directory should exist after installing dependencies');
+  }
 
-    $this->cmd('php ' . escapeshellarg($installer_phar) . ' --version');
-    $this->logNote('Built Vortex installer: ' . trim($this->processGet()->getOutput()));
+  protected function buildCli(): string {
+    $cli_dir = static::$root . '/.vortex/cli';
+    $cli_phar = $cli_dir . '/.build/vortex.phar';
 
-    return $installer_phar;
+    $this->installCliDependencies();
+
+    $this->cmd('composer --working-dir=' . escapeshellarg($cli_dir) . ' build', env: ['SHELL_VERBOSITY' => -1], txt: 'Build the Vortex CLI PHAR');
+    $this->assertFileExists($cli_phar, 'Vortex CLI PHAR should be built');
+
+    $this->cmd('php ' . escapeshellarg($cli_phar) . ' --version');
+    $this->logNote('Built Vortex CLI: ' . trim($this->processGet()->getOutput()));
+
+    return $cli_phar;
   }
 
   protected function fetchDatabase(bool $copy_to_container = FALSE): void {
@@ -308,8 +320,8 @@ trait SutTrait {
 
     $this->cmd(
       './vendor/bin/vortex-fetch-db',
-      env: ['VORTEX_FETCH_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST],
-      txt: 'Demo database fetched from ' . static::VORTEX_INSTALLER_DEMO_DB_TEST,
+      env: ['VORTEX_FETCH_DB_URL' => static::DEMO_DB_TEST],
+      txt: 'Demo database fetched from ' . static::DEMO_DB_TEST,
     );
 
     $this->assertFileExists('.data/db.sql', 'File .data/db.sql should exist after fetching the database.');
@@ -532,7 +544,7 @@ trait SutTrait {
     $this->assertFileDoesNotExist('.github/workflows/vortex-release.yml');
     $this->assertFileDoesNotExist('.github/workflows/vortex-test-docs.yml');
     $this->assertFileDoesNotExist('.github/workflows/vortex-test-common.yml');
-    $this->assertFileDoesNotExist('.github/workflows/vortex-test-installer.yml');
+    $this->assertFileDoesNotExist('.github/workflows/vortex-test-cli.yml');
 
     if (file_exists('.circleci/config.yml')) {
       $this->assertFileNotContainsString('.circleci/config.yml', 'vortex-dev', 'CircleCI config should not contain development Vortex references');

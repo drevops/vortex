@@ -16,7 +16,7 @@ final class VideoRecorder {
 
   public const TERMINAL_HEIGHT = 42;
 
-  /** Poster timestamp for the installer recording (captures the welcome banner). */
+  /** Poster timestamp for the install recording (captures the welcome banner). */
   public const POSTER_TIMESTAMP_MS = 2000;
 
   /** Poster timestamp for command videos that spend their first seconds bootstrapping inside Docker. */
@@ -66,60 +66,60 @@ final class VideoRecorder {
   }
 
   /**
-   * Build installer.phar from .vortex/installer and copy it to $dest.
+   * Build vortex.phar from .vortex/cli and copy it to $dest.
    */
-  public function buildInstallerPhar(string $dest): void {
-    $source_dir = $this->project_root . '/.vortex/installer';
-    $built_phar = $source_dir . '/build/installer.phar';
+  public function buildCliPhar(string $dest): void {
+    $source_dir = $this->project_root . '/.vortex/cli';
+    $built_phar = $source_dir . '/.build/vortex.phar';
 
     if (!is_dir($source_dir)) {
-      throw new RuntimeException("Installer source not found: $source_dir");
+      throw new RuntimeException("Vortex CLI source not found: $source_dir");
     }
 
-    $this->info('Building installer.phar from source');
+    $this->info('Building vortex.phar from source');
     $this->note("Source: $source_dir");
 
     $this->run(['composer', 'install'], $source_dir);
     $this->run(['composer', 'build'], $source_dir);
 
     if (!is_file($built_phar)) {
-      throw new RuntimeException("Build completed but installer.phar not found at $built_phar");
+      throw new RuntimeException("Build completed but vortex.phar not found at $built_phar");
     }
 
     if (!copy($built_phar, $dest)) {
-      throw new RuntimeException("Failed to copy installer.phar to $dest");
+      throw new RuntimeException("Failed to copy vortex.phar to $dest");
     }
 
-    $this->pass("installer.phar built and copied to $dest");
+    $this->pass("vortex.phar built and copied to $dest");
   }
 
   /**
-   * Run the installer non-interactively into `$workspace/star_wars`.
+   * Run the install non-interactively into `$workspace/star_wars`.
    *
    * @param string $uri
-   *   `--uri` value for the installer (typically the project_root so that
+   *   `--uri` value for the CLI (typically the project_root so that
    *   the in-development template is used as the source).
    *
    * @return string
    *   Path to the installed project directory ($workspace/star_wars).
    */
-  public function runInstaller(string $workspace, string $uri): string {
-    $installer = "$workspace/installer.php";
-    if (!is_file($installer)) {
-      throw new RuntimeException("Installer not found in workspace: $installer");
+  public function runInstall(string $workspace, string $uri): string {
+    $cli = "$workspace/vortex.phar";
+    if (!is_file($cli)) {
+      throw new RuntimeException("Vortex CLI not found in workspace: $cli");
     }
 
-    $this->info('Running installer non-interactively');
+    $this->info('Running the install non-interactively');
     $this->note("URI: $uri");
 
     $env = [
-      'VORTEX_INSTALLER_PROMPT_BUILD_NOW' => '0',
-      'VORTEX_INSTALLER_PROMPT_NAME' => 'Star Wars',
-      'VORTEX_INSTALLER_PROMPT_ORG' => 'Rebellion',
+      'VORTEX_CLI_INSTALL_PROMPT_BUILD_NOW' => '0',
+      'VORTEX_CLI_INSTALL_PROMPT_NAME' => 'Star Wars',
+      'VORTEX_CLI_INSTALL_PROMPT_ORG' => 'Rebellion',
     ];
 
     $this->run([
-      'php', 'installer.php',
+      'php', 'vortex.phar', 'install',
       '--no-interaction',
       '--destination=star_wars',
       "--uri=$uri",
@@ -127,10 +127,10 @@ final class VideoRecorder {
 
     $project_dir = "$workspace/star_wars";
     if (!is_dir($project_dir)) {
-      throw new RuntimeException("Installer did not produce project at $project_dir");
+      throw new RuntimeException("The install did not produce a project at $project_dir");
     }
 
-    $this->pass("Installer completed; project at $project_dir");
+    $this->pass("Install completed; project at $project_dir");
 
     return $project_dir;
   }
@@ -252,7 +252,7 @@ final class VideoRecorder {
   /**
    * Post-process a recorded cast:
    *   - When $strip_first_event is TRUE, drop the first event line (used for
-   *     the installer's expect script where asciinema echoes the spawn
+   *     the install expect script where asciinema echoes the spawn
    *     command on event 1).
    *   - Replace the workspace path with /home/user/demo.
    *   - Replace the project root path with /home/user/vortex.

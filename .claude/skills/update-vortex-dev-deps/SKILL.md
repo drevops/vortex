@@ -1,6 +1,6 @@
 ---
 name: update-vortex-dev-deps
-description: Use when refreshing Composer and Yarn dev dependencies across the three '.vortex/' subsystems (docs, installer, tests). Runs in-range lock-file refreshes, lints each updated subsystem locally (with auto-fix where the subsystem supports it), produces a 'majors-available' report, makes a single bulk commit covering both lock and lint-fix fallout, and opens a PR. Triggers on phrases like 'update vortex dev deps', 'refresh .vortex dependencies', 'bump .vortex lock files', '/update-vortex-dev-deps'.
+description: Use when refreshing Composer and Yarn dev dependencies across the three '.vortex/' subsystems (docs, cli, tests). Runs in-range lock-file refreshes, lints each updated subsystem locally (with auto-fix where the subsystem supports it), produces a 'majors-available' report, makes a single bulk commit covering both lock and lint-fix fallout, and opens a PR. Triggers on phrases like 'update vortex dev deps', 'refresh .vortex dependencies', 'bump .vortex lock files', '/update-vortex-dev-deps'.
 user-invocable: true
 ---
 
@@ -24,7 +24,7 @@ Do NOT use for:
 This skill touches files under exactly three `.vortex/` subsystems:
 
 - `.vortex/docs/` (Yarn)
-- `.vortex/installer/` (Composer, plus `vendor-bin/box/` sub-composer)
+- `.vortex/cli/` (Composer, plus `vendor-bin/box/` sub-composer)
 - `.vortex/tests/` (Composer + Yarn)
 
 `.vortex/tooling/` is explicitly out of scope - see the "Do NOT use for" list above.
@@ -60,10 +60,10 @@ Process in fixed order. Smallest blast radius first. Lint commands run from the 
 | # | Subsystem (`.vortex/...`) | Composer manifest(s)                              | Yarn manifest    | `patches.lock.json` | Lint commands                                                                          | Lint-fix command                                          |
 |---|---------------------------|---------------------------------------------------|------------------|---------------------|----------------------------------------------------------------------------------------|-----------------------------------------------------------|
 | 1 | `docs`                    | -                                                 | `package.json`   | -                   | `yarn --cwd .vortex/docs run lint` + `yarn --cwd .vortex/docs run spellcheck`          | `yarn --cwd .vortex/docs run lint-fix`                    |
-| 2 | `installer`               | `composer.json` + `vendor-bin/box/composer.json`  | -                | yes                 | `composer --working-dir .vortex/installer lint`                                        | `composer --working-dir .vortex/installer lint-fix`       |
+| 2 | `cli`                     | `composer.json` + `vendor-bin/box/composer.json`  | -                | yes                 | `composer --working-dir .vortex/cli lint`                                        | `composer --working-dir .vortex/cli lint-fix`       |
 | 3 | `tests`                   | `composer.json`                                   | `package.json`   | yes                 | `composer --working-dir .vortex/tests lint`                                            | `composer --working-dir .vortex/tests lint-fix`           |
 
-Confirm the lint and lint-fix command names against `.vortex/.ahoy.yml` (search for `lint-installer`, `lint-tests`, `lint-docs` and their `-fix` counterparts) before relying on the matrix. If a subsystem's lint or lint-fix command name changes upstream, this matrix is stale.
+Confirm the lint and lint-fix command names against `.vortex/.ahoy.yml` (search for `lint-cli`, `lint-tests`, `lint-docs` and their `-fix` counterparts) before relying on the matrix. If a subsystem's lint or lint-fix command name changes upstream, this matrix is stale.
 
 ## Workflow
 
@@ -119,14 +119,14 @@ Process the matrix in order. For each row, run the applicable commands below fro
 yarn --cwd .vortex/docs upgrade
 ```
 
-**3.2 - installer (Composer, plus sub-composer):**
+**3.2 - cli (Composer, plus sub-composer):**
 
 ```bash
-composer --working-dir .vortex/installer update
+composer --working-dir .vortex/cli update
 ```
 
 ```bash
-composer --working-dir .vortex/installer/vendor-bin/box update
+composer --working-dir .vortex/cli/vendor-bin/box update
 ```
 
 **3.3 - tests (Composer + Yarn):**
@@ -170,7 +170,7 @@ Format:
 |---------|-----------|--------|
 | @docusaurus/core | 3.4.0 | 4.0.1 |
 
-## `.vortex/installer` (Composer)
+## `.vortex/cli` (Composer)
 
 | Package | Installed | Latest |
 |---------|-----------|--------|
@@ -199,10 +199,10 @@ yarn --cwd .vortex/docs run lint
 yarn --cwd .vortex/docs run spellcheck
 ```
 
-**5.2 - installer:**
+**5.2 - cli:**
 
 ```bash
-composer --working-dir .vortex/installer lint
+composer --working-dir .vortex/cli lint
 ```
 
 **5.3 - tests:**
@@ -218,7 +218,7 @@ A dependency refresh frequently surfaces lint violations because a code-style to
 For the failing subsystem, run its lint-fix command from the matrix:
 
 - **docs**: `yarn --cwd .vortex/docs run lint-fix`
-- **installer**: `composer --working-dir .vortex/installer lint-fix`
+- **cli**: `composer --working-dir .vortex/cli lint-fix`
 - **tests**: `composer --working-dir .vortex/tests lint-fix`
 
 Then re-run the lint command(s) from the matrix for that subsystem (Step 5.1 / 5.2 / 5.3). Expected outcomes:
@@ -237,19 +237,19 @@ git add .vortex/docs/yarn.lock
 ```
 
 ```bash
-git add .vortex/installer/composer.json
+git add .vortex/cli/composer.json
 ```
 
 ```bash
-git add .vortex/installer/composer.lock
+git add .vortex/cli/composer.lock
 ```
 
 ```bash
-git add .vortex/installer/patches.lock.json
+git add .vortex/cli/patches.lock.json
 ```
 
 ```bash
-git add .vortex/installer/vendor-bin/box/composer.json
+git add .vortex/cli/vendor-bin/box/composer.json
 ```
 
 ```bash
@@ -268,7 +268,7 @@ git add .vortex/tests/patches.lock.json
 git add .vortex/tests/yarn.lock
 ```
 
-Note that `.vortex/installer/vendor-bin/box/composer.lock` is gitignored (the whole `vendor-bin/` directory is excluded). Do not try to force-add it.
+Note that `.vortex/cli/vendor-bin/box/composer.lock` is gitignored (the whole `vendor-bin/` directory is excluded). Do not try to force-add it.
 
 #### Stage auto-fix changes (if any)
 
@@ -279,14 +279,14 @@ git diff --name-only .vortex/docs/src .vortex/docs/tests
 ```
 
 ```bash
-git diff --name-only .vortex/installer/src .vortex/installer/tests
+git diff --name-only .vortex/cli/src .vortex/cli/tests
 ```
 
 ```bash
 git diff --name-only .vortex/tests
 ```
 
-Stage each path the diff prints (one `git add <path>` per file - do not glob `.` or use `-A`). Restrict the discovery to in-scope subsystems (`.vortex/docs/`, `.vortex/installer/`, `.vortex/tests/`); anything under `.vortex/tooling/` MUST stay unstaged.
+Stage each path the diff prints (one `git add <path>` per file - do not glob `.` or use `-A`). Restrict the discovery to in-scope subsystems (`.vortex/docs/`, `.vortex/cli/`, `.vortex/tests/`); anything under `.vortex/tooling/` MUST stay unstaged.
 
 #### Verify staging
 
@@ -308,9 +308,9 @@ git commit -m "Refreshed '.vortex/' dev dependencies and lint-fix fallout for {S
 
 Invoke the `/open-pr` skill. The PR description must include:
 
-1. **Scope statement** - one sentence: "Refreshes lock files under `.vortex/` for `docs` / `installer` / `tests`. No manifest constraint changes. `.vortex/tooling/` is out of scope."
+1. **Scope statement** - one sentence: "Refreshes lock files under `.vortex/` for `docs` / `cli` / `tests`. No manifest constraint changes. `.vortex/tooling/` is out of scope."
 2. **Subsystems touched** - bullet list of the three subsystems with a yes/no marker for Composer and Yarn changes (read from `git diff --stat`).
-3. **Lint status** - one sentence confirming local lint passed for each updated subsystem (this is the gate for opening the PR at all). If Step 5 needed auto-fix, list briefly which subsystem(s) the lint-fix touched and roughly what was fixed (e.g. "phpcs array-indentation in installer, applied by `composer lint-fix`") so reviewers see source-code changes are deliberate.
+3. **Lint status** - one sentence confirming local lint passed for each updated subsystem (this is the gate for opening the PR at all). If Step 5 needed auto-fix, list briefly which subsystem(s) the lint-fix touched and roughly what was fixed (e.g. "phpcs array-indentation in cli, applied by `composer lint-fix`") so reviewers see source-code changes are deliberate.
 4. **Majors report** - paste the report content generated in Step 4 inline (the body of `majors.md` or the "No major versions available" line), so reviewers see what is available outside the constraints in the same place as the diff. Do NOT reference the `.artifacts/` path - those files are not staged and will not exist in the PR branch.
 
 The full Composer / Yarn output stays in `.artifacts/vortex-dev-deps-{slug}/update-log.txt` for local debugging only. Do not reference this path from the PR description and do not paste the log into the PR body.

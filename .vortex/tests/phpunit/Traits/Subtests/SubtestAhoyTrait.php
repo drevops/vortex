@@ -925,7 +925,7 @@ trait SubtestAhoyTrait {
   protected function subtestAhoyMigrationFetchDb(): void {
     $this->logStepStart();
 
-    $this->fileAddVar('.env', 'VORTEX_FETCH_DB2_URL', static::VORTEX_INSTALLER_DEMO_DB2_SOURCE_TEST);
+    $this->fileAddVar('.env', 'VORTEX_FETCH_DB2_URL', static::DEMO_DB2_SOURCE_TEST);
     $this->cmd('ahoy fetch-db2', txt: 'Fetch migration database');
     $this->assertFileExists('.data/db2.sql', 'Migration database file should exist after fetch');
 

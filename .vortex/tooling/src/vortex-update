@@ -24,70 +24,84 @@ require_once __DIR__ . '/helpers.php';
 // https://github.com/drevops/vortex.git#1.2.3    # Specific release from remote.
 // file:///local/path/to/vortex.git               # Latest stable tag from local.
 // /local/path/to/vortex.git#1.2.3                # Specific release from local.
-$installer_template_repo = getenv_default('VORTEX_INSTALLER_TEMPLATE_REPO', 'https://github.com/drevops/vortex.git#stable');
+$template_repo = getenv_default('VORTEX_CLI_INSTALL_TEMPLATE_REPO', 'VORTEX_INSTALLER_TEMPLATE_REPO', 'https://github.com/drevops/vortex.git#stable');
 
-// The URL of the installer script.
-$installer_url = getenv_default('VORTEX_INSTALLER_URL', 'https://www.vortextemplate.com/v1/install');
+// The URL of the Vortex CLI.
+$cli_url = getenv_default('VORTEX_CLI_URL', 'VORTEX_INSTALLER_URL', 'https://www.vortextemplate.com/v1/install');
 
-// Cache busting parameter for the installer URL.
-$installer_url_cache_bust = getenv_default('VORTEX_INSTALLER_URL_CACHE_BUST', (string) time());
+// Cache busting parameter for the CLI URL.
+$cli_url_cache_bust = getenv_default('VORTEX_CLI_URL_CACHE_BUST', 'VORTEX_INSTALLER_URL_CACHE_BUST', (string) time());
 
-// The path to the installer script.
+// The path to the Vortex CLI.
 //
-// If set, this will override the VORTEX_INSTALLER_URL.
-$installer_path = getenv_default('VORTEX_INSTALLER_PATH', '');
+// If set, this will override the VORTEX_CLI_URL.
+$cli_path = getenv_default('VORTEX_CLI_PATH', 'VORTEX_INSTALLER_PATH', '');
 
-// Run installer in interactive mode.
-$installer_interactive = getenv_default('VORTEX_INSTALLER_INTERACTIVE', '0');
+// Run the CLI in interactive mode.
+$interactive = getenv_default('VORTEX_CLI_INSTALL_INTERACTIVE', 'VORTEX_INSTALLER_INTERACTIVE', '0');
 
 // -----------------------------------------------------------------------------
 
 command_must_exist('php');
 
+// The superseded names above still resolve through the fallback, so warn when
+// one of them is what actually supplied a value.
+foreach ([
+  'VORTEX_INSTALLER_TEMPLATE_REPO' => 'VORTEX_CLI_INSTALL_TEMPLATE_REPO',
+  'VORTEX_INSTALLER_URL' => 'VORTEX_CLI_URL',
+  'VORTEX_INSTALLER_URL_CACHE_BUST' => 'VORTEX_CLI_URL_CACHE_BUST',
+  'VORTEX_INSTALLER_PATH' => 'VORTEX_CLI_PATH',
+  'VORTEX_INSTALLER_INTERACTIVE' => 'VORTEX_CLI_INSTALL_INTERACTIVE',
+] as $legacy => $current) {
+  if (getenv_default($current, '') === '' && getenv_default($legacy, '') !== '') {
+    NOTE('%s is deprecated and will be removed in a future release. Use %s instead.', $legacy, $current);
+  }
+}
+
 // Parse arguments.
 foreach (array_slice($GLOBALS['argv'] ?? [], 1) as $arg) {
   if ($arg === '--interactive') {
-    $installer_interactive = '1';
+    $interactive = '1';
   }
   else {
-    $installer_template_repo = $arg;
+    $template_repo = $arg;
   }
 }
 
-if ($installer_path !== '') {
-  NOTE('Using installer script from local path: %s', $installer_path);
-  if (!file_exists($installer_path)) {
-    FAIL('Installer script not found at %s', $installer_path);
+if ($cli_path !== '') {
+  NOTE('Using Vortex CLI from local path: %s', $cli_path);
+  if (!file_exists($cli_path)) {
+    FAIL('Vortex CLI not found at %s', $cli_path);
   }
 }
 else {
-  NOTE('Using installer script from URL: %s', $installer_url);
-  $installer_path = 'installer.php';
+  NOTE('Using Vortex CLI from URL: %s', $cli_url);
+  $cli_path = 'vortex.phar';
 
-  TASK(sprintf('Downloading installer to %s.', $installer_path), sprintf('Downloaded installer to %s.', $installer_path), function () use ($installer_url, $installer_url_cache_bust, $installer_path): void {
-    $separator = str_contains($installer_url, '?') ? '&' : '?';
-    $response = request($installer_url . $separator . $installer_url_cache_bust, ['method' => 'GET', 'save_to' => $installer_path, 'timeout' => 30]);
+  TASK(sprintf('Downloading Vortex CLI to %s.', $cli_path), sprintf('Downloaded Vortex CLI to %s.', $cli_path), function () use ($cli_url, $cli_url_cache_bust, $cli_path): void {
+    $separator = str_contains($cli_url, '?') ? '&' : '?';
+    $response = request($cli_url . $separator . $cli_url_cache_bust, ['method' => 'GET', 'save_to' => $cli_path, 'timeout' => 30]);
 
     if (!$response['ok']) {
-      throw new \RuntimeException(sprintf('Failed to download installer from %s', $installer_url));
+      throw new \RuntimeException(sprintf('Failed to download Vortex CLI from %s', $cli_url));
     }
   });
 }
 
 // Capture the exit code by reference and quit after the task returns, so the
-// task line is closed and the installer's exit code is still propagated.
-$installer_exit_code = 0;
-TASK('Running the installer.', 'Finished running the installer.', function () use ($installer_interactive, $installer_path, $installer_template_repo, &$installer_exit_code): void {
-  if ($installer_interactive === '0') {
-    passthru(sprintf('php %s --no-interaction --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $installer_exit_code);
+// task line is closed and the CLI's exit code is still propagated.
+$exit_code = 0;
+TASK('Running the Vortex CLI.', 'Finished running the Vortex CLI.', function () use ($interactive, $cli_path, $template_repo, &$exit_code): void {
+  if ($interactive === '0') {
+    passthru(sprintf('php %s --no-interaction --uri=%s', escapeshellarg($cli_path), escapeshellarg($template_repo)), $exit_code);
   }
   else {
-    passthru(sprintf('php %s --uri=%s', escapeshellarg($installer_path), escapeshellarg($installer_template_repo)), $installer_exit_code);
+    passthru(sprintf('php %s --uri=%s', escapeshellarg($cli_path), escapeshellarg($template_repo)), $exit_code);
   }
 
-  if ($installer_exit_code !== 0) {
-    throw new \RuntimeException('The installer run failed.');
+  if ($exit_code !== 0) {
+    throw new \RuntimeException('The Vortex CLI run failed.');
   }
 }, fatal: FALSE);
 
-quit($installer_exit_code);
+quit($exit_code);

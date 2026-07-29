@@ -37,17 +37,17 @@ const COMPOSE_PROJECT = 'vortex_videos';
  * Per-video configuration.
  *
  * - command:   the command executed inside the recording. NULL means the
- *              installer expect script is used instead.
+ *              install expect script is used instead.
  * - speed:     playback speed multiplier. 1.0 = recorded speed, 2.0 = 2x faster.
  * - cols/rows: terminal dimensions passed to asciinema and used for renders.
  * - poster_ms: cast timestamp (ms) at which the PNG poster frame is taken.
  *              NULL means use the last frame of the cast.
  * - typer:     wrap the command with the simulated-typing intro from
- *              type-and-run.php. Installer is FALSE because the expect
+ *              type-and-run.php. The install demo is FALSE because the expect
  *              script handles its own prompt-driven flow.
  */
 const VIDEOS = [
-  'installer' => [
+  'cli-install' => [
     'command' => NULL,
     'speed' => 1.0,
     'cols' => 80,
@@ -103,7 +103,7 @@ function usage(): void {
   fwrite(STDERR, "  Default: all videos\n");
   fwrite(STDERR, "\n");
   fwrite(STDERR, "Default mode wipes '.artifacts/tmp/videos-workspace/' (via 'ahoy reset'\n");
-  fwrite(STDERR, "+ rm) and bootstraps from scratch (install installer.phar, run installer,\n");
+  fwrite(STDERR, "+ rm) and bootstraps from scratch (fetch vortex.phar, run the install,\n");
   fwrite(STDERR, "ahoy build).\n");
   fwrite(STDERR, "\n");
   fwrite(STDERR, "--keep reuses the existing workspace and skips the bootstrap. Requires the\n");
@@ -112,7 +112,7 @@ function usage(): void {
   fwrite(STDERR, "Video names may be space or comma separated (lint test = lint,test).\n");
 }
 
-function build_installer_expect_script(int|float $prompt_delay, string $uri): string {
+function build_install_expect_script(int|float $prompt_delay, string $uri): string {
   $body = <<<'EXPECT'
 #!/usr/bin/env expect
 
@@ -120,7 +120,7 @@ set timeout 60
 log_user 1
 
 set prompt_delay {{PROMPT_DELAY}}
-set installer_uri "{{URI}}"
+set cli_uri "{{URI}}"
 
 proc safe_send {s} {
     if {[exp_pid] > 0} {
@@ -160,8 +160,8 @@ proc wait_and_enter {} {
     safe_send "\r"
 }
 
-set env(VORTEX_INSTALLER_PROMPT_BUILD_NOW) 0
-spawn php installer.php --destination=star_wars --uri=$installer_uri
+set env(VORTEX_CLI_INSTALL_PROMPT_BUILD_NOW) 0
+spawn php vortex.phar install --destination=star_wars --uri=$cli_uri
 
 expect {
   "Press any key to continue" {
@@ -254,10 +254,10 @@ function render_video(VideoRecorder $recorder, string $name, string $workspace, 
   $cfg = VIDEOS[$name];
   $cast = $docs_static_dir . "/$name.json";
 
-  // The installer's expect script makes asciinema echo a spawn line as the
+  // The install expect script makes asciinema echo a spawn line as the
   // first event; for command videos using type-and-run.php there is no such
   // echo and the first event is the typed prompt that we want to keep.
-  $recorder->postprocessCast($cast, $workspace, strip_first_event: $name === 'installer');
+  $recorder->postprocessCast($cast, $workspace, strip_first_event: $name === 'cli-install');
 
   if ((float) $cfg['speed'] !== 1.0) {
     $recorder->applyTimeScale($cast, 1.0 / (float) $cfg['speed']);
@@ -267,13 +267,13 @@ function render_video(VideoRecorder $recorder, string $name, string $workspace, 
   $recorder->renderPng($cast, $docs_static_dir . "/$name.png", $cfg['poster_ms'] === NULL ? NULL : (int) $cfg['poster_ms']);
 }
 
-function record_installer(VideoRecorder $recorder, string $workspace, string $project_root, string $docs_static_dir): void {
-  $cfg = VIDEOS['installer'];
+function record_install(VideoRecorder $recorder, string $workspace, string $project_root, string $docs_static_dir): void {
+  $cfg = VIDEOS['cli-install'];
 
-  $recorder->info("===== Recording 'installer' =====");
+  $recorder->info("===== Recording 'cli-install' =====");
 
-  $expect_script = "$workspace/installer.exp";
-  if (file_put_contents($expect_script, build_installer_expect_script(PROMPT_DELAY, $project_root)) === FALSE) {
+  $expect_script = "$workspace/cli-install.exp";
+  if (file_put_contents($expect_script, build_install_expect_script(PROMPT_DELAY, $project_root)) === FALSE) {
     throw new RuntimeException("Failed to write expect script: $expect_script");
   }
   if (!chmod($expect_script, 0o755)) {
@@ -282,14 +282,14 @@ function record_installer(VideoRecorder $recorder, string $workspace, string $pr
 
   $recorder->recordSession(
     cwd: $workspace,
-    cast_path: $docs_static_dir . '/installer.json',
+    cast_path: $docs_static_dir . '/cli-install.json',
     command: $expect_script,
-    title: 'Vortex Installer Demo',
+    title: 'Vortex CLI install demo',
     cols: (int) $cfg['cols'],
     rows: (int) $cfg['rows'],
   );
 
-  render_video($recorder, 'installer', $workspace, $docs_static_dir);
+  render_video($recorder, 'cli-install', $workspace, $docs_static_dir);
 }
 
 function record_command_video(VideoRecorder $recorder, string $name, string $project_dir, string $workspace, string $type_and_run, string $docs_static_dir): void {
@@ -388,9 +388,9 @@ function main(array $argv): int {
       $recorder->note('Rerun without --keep to bootstrap fresh.');
       return 1;
     }
-    if (in_array('installer', $requested, TRUE)) {
-      $recorder->fail("Cannot record 'installer' with --keep (it would wipe the kept project)");
-      $recorder->note('Run without --keep to re-record installer.');
+    if (in_array('cli-install', $requested, TRUE)) {
+      $recorder->fail("Cannot record 'cli-install' with --keep (it would wipe the kept project)");
+      $recorder->note('Run without --keep to re-record cli-install.');
       return 1;
     }
     $recorder->info("Reusing workspace: $workspace");
@@ -405,13 +405,13 @@ function main(array $argv): int {
     }
     $recorder->info("Created fresh workspace: $workspace");
 
-    $recorder->buildInstallerPhar("$workspace/installer.php");
+    $recorder->buildCliPhar("$workspace/vortex.phar");
 
-    if (in_array('installer', $requested, TRUE)) {
-      record_installer($recorder, $workspace, $project_root, $docs_static_dir);
+    if (in_array('cli-install', $requested, TRUE)) {
+      record_install($recorder, $workspace, $project_root, $docs_static_dir);
     }
     else {
-      $recorder->runInstaller($workspace, $project_root);
+      $recorder->runInstall($workspace, $project_root);
     }
 
     if (!is_dir($project_dir)) {
