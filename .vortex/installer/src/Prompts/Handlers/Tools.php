@@ -478,10 +478,10 @@ class Tools extends AbstractHandler {
         'strings' => ['/^.*dclint.*\n?/m'],
       ],
 
-      // Hadolint ships no configuration file, so the CI step is the only signal
-      // that a project uses it. The 'hadolint ignore=' directives in Dockerfiles
-      // are deliberately not a signal: they survive deselection, so treating
-      // them as one would make the choice impossible to reverse.
+      // Hadolint ships no configuration file, so the CI step is the only
+      // signal that a project uses it. The 'hadolint ignore=' directives in
+      // Dockerfiles are deliberately not a signal: they survive deselection,
+      // so treating them as one would make the choice impossible to reverse.
       self::HADOLINT => [
         'title' => 'Hadolint',
         'present' => fn(): mixed => File::contains($this->dstDir . '/.github/workflows/build-test-deploy.yml', 'hadolint') ||
