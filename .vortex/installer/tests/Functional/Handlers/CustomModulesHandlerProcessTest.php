@@ -29,6 +29,7 @@ class CustomModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertSutNotContains('_demo');
           $test->assertSutNotContains('counter_block');
+          $test->assertDirectoryExists(static::$sut . '/recipes/page');
       }),
     ];
     yield 'custom_modules_no_search' => [
@@ -36,7 +37,10 @@ class CustomModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[CustomModules::id()] = [CustomModules::BASE, CustomModules::DEMO];
           $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('_search')),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertSutNotContains('_search');
+          $test->assertDirectoryExists(static::$sut . '/recipes/page');
+      }),
     ];
     yield 'custom_modules_none' => [
       static::cw(fn($test): array => $test->prompts[CustomModules::id()] = []),
@@ -44,6 +48,7 @@ class CustomModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertSutNotContains('_base');
           $test->assertSutNotContains('_demo');
           $test->assertSutNotContains('_search');
+          $test->assertDirectoryDoesNotExist(static::$sut . '/recipes/page');
       }),
     ];
     yield 'custom_modules_search_without_solr' => [
@@ -54,7 +59,10 @@ class CustomModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[Services::id()] = [Services::CLAMAV, Services::REDIS];
           $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('_search')),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertSutNotContains('_search');
+          $test->assertDirectoryExists(static::$sut . '/recipes/page');
+      }),
     ];
   }
 
