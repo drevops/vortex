@@ -248,21 +248,15 @@ the [Drupal settings file](settings#environment-type-detection)):
 ```shell
 environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
 
-case "${environment}" in
-  local | ci | dev | stage)
-    echo "> Running custom script for local, ci, dev or stage environment."
-    # Place your commands here.
-    ;;
-
-  *)
-    echo "> Skipping custom script for ${environment} environment."
-    ;;
-esac
+if echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then
+  echo "> Running custom script for local, ci, dev or stage environment."
+  # Place your commands here.
+else
+  echo "> Skipping custom script for ${environment} environment."
+fi
 ```
 
-Environment names are matched exactly, so every environment that should run the
-script has to be listed. An environment named `devops` or `stage-uat` will not
-match `dev` or `stage` - add it to the list explicitly.
+The `-x` flag anchors the match to the whole environment name and `-F` treats the patterns as plain text rather than regular expressions. Without `-x`, the match is a substring match: an environment named `devops` or `stage-uat` would be treated as `dev` or `stage`. Add your own environment names to the list explicitly.
 
 You may also conditionally perform an action based on whether the database is
 freshly imported or not:

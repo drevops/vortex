@@ -32,107 +32,102 @@ info "Started example operations."
 environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
 note "Environment: ${environment}"
 
-# Perform operations based on the current environment. Names are matched
-# exactly: an environment called "devops" is not a development environment.
-case "${environment}" in
-  local | ci | dev | stage)
-    note "Running example operations in non-production environment."
+# Perform operations based on the current environment. The '-x' flag anchors
+# the match to the whole name, so an environment named "devops" is not "dev".
+if echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then
+  note "Running example operations in non-production environment."
 
-    # The demo site modules attach behaviour to the 'page' content type, so it
-    # must exist before those modules are installed and their deploy hooks run.
-    task "Creating the content model."
-    # Guard against environments where the Drupal CLI is not available.
-    if [ -x ./vendor/bin/dr ]; then
-      ./vendor/bin/dr recipe "$(pwd)/recipes/page" --no-interaction
-    fi
-    pass "Created the content model."
+  # The demo site modules attach behaviour to the 'page' content type, so it
+  # must exist before those modules are installed and their deploy hooks run.
+  task "Creating the content model."
+  # Guard against environments where the Drupal CLI is not available.
+  if [ -x ./vendor/bin/dr ]; then
+    ./vendor/bin/dr recipe "$(pwd)/recipes/page" --no-interaction
+  fi
+  pass "Created the content model."
 
-    task "Setting site name."
-    drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
-    pass "Set site name."
+  task "Setting site name."
+  drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+  pass "Set site name."
 
-    # Use the core Navigation module as the administration interface and
-    # remove the classic Toolbar so the two admin systems never run at once.
-    # Uninstall only when Toolbar is actually enabled (it is absent on
-    # re-provision or a navigation-based database); a genuine uninstall
-    # failure must still abort.
-    task "Setting up the administration navigation."
-    drush pm:install navigation
-    if [ "$(drush php:eval "print \Drupal::moduleHandler()->moduleExists('toolbar');")" = "1" ]; then
-      drush pm:uninstall toolbar
-    fi
-    pass "Set up the administration navigation."
+  # Use the core Navigation module as the administration interface and remove
+  # the classic Toolbar so the two admin systems never run at once. Uninstall
+  # only when Toolbar is actually enabled (it is absent on re-provision or a
+  # navigation-based database); a genuine uninstall failure must still abort.
+  task "Setting up the administration navigation."
+  drush pm:install navigation
+  if [ "$(drush php:eval "print \Drupal::moduleHandler()->moduleExists('toolbar');")" = "1" ]; then
+    drush pm:uninstall toolbar
+  fi
+  pass "Set up the administration navigation."
 
-    #;< MODULES
-    task "Installing contrib modules."
-    drush pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap
-    pass "Installed contrib modules."
-    #;> MODULES
+  #;< MODULES
+  task "Installing contrib modules."
+  drush pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap
+  pass "Installed contrib modules."
+  #;> MODULES
 
-    #;< SERVICE_REDIS
-    task "Installing Redis module."
-    drush pm:install redis || true
-    pass "Installed Redis module."
-    #;> SERVICE_REDIS
+  #;< SERVICE_REDIS
+  task "Installing Redis module."
+  drush pm:install redis || true
+  pass "Installed Redis module."
+  #;> SERVICE_REDIS
 
-    #;< SERVICE_CLAMAV
-    task "Installing and configuring ClamAV."
-    drush pm:install clamav
-    drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
-    pass "Installed and configured ClamAV."
-    #;> SERVICE_CLAMAV
+  #;< SERVICE_CLAMAV
+  task "Installing and configuring ClamAV."
+  drush pm:install clamav
+  drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
+  pass "Installed and configured ClamAV."
+  #;> SERVICE_CLAMAV
 
-    #;< SERVICE_SOLR
-    task "Installing Solr search modules."
-    drush pm:install search_api search_api_solr
-    pass "Installed Solr search modules."
-    #;> SERVICE_SOLR
+  #;< SERVICE_SOLR
+  task "Installing Solr search modules."
+  drush pm:install search_api search_api_solr
+  pass "Installed Solr search modules."
+  #;> SERVICE_SOLR
 
-    #;< MODULE_SDC_DEVEL
-    task "Installing Single Directory Component development tools."
-    drush pm:install sdc_devel || true
-    pass "Installed Single Directory Component development tools."
-    #;> MODULE_SDC_DEVEL
+  #;< MODULE_SDC_DEVEL
+  task "Installing Single Directory Component development tools."
+  drush pm:install sdc_devel || true
+  pass "Installed Single Directory Component development tools."
+  #;> MODULE_SDC_DEVEL
 
-    #;< MODULE_DEVEL
-    task "Installing Devel module."
-    drush pm:install devel || true
-    pass "Installed Devel module."
-    #;> MODULE_DEVEL
+  #;< MODULE_DEVEL
+  task "Installing Devel module."
+  drush pm:install devel || true
+  pass "Installed Devel module."
+  #;> MODULE_DEVEL
 
-    # Enable custom site module and run its deployment hooks.
-    #
-    # Note that deployment hooks for already enabled modules have run in the
-    # parent "provision.sh" script.
-    task "Installing custom site modules."
-    #;< CUSTOM_MODULE_BASE
-    drush pm:install ys_base
-    #;> CUSTOM_MODULE_BASE
+  # Enable custom site module and run its deployment hooks.
+  #
+  # Note that deployment hooks for already enabled modules have run in the
+  # parent "provision.sh" script.
+  task "Installing custom site modules."
+  #;< CUSTOM_MODULE_BASE
+  drush pm:install ys_base
+  #;> CUSTOM_MODULE_BASE
 
-    #;< CUSTOM_MODULE_SEARCH
-    drush pm:install ys_search
-    #;> CUSTOM_MODULE_SEARCH
+  #;< CUSTOM_MODULE_SEARCH
+  drush pm:install ys_search
+  #;> CUSTOM_MODULE_SEARCH
 
-    #;< CUSTOM_MODULE_DEMO
-    drush pm:install ys_demo
-    #;> CUSTOM_MODULE_DEMO
-    pass "Installed custom site modules."
+  #;< CUSTOM_MODULE_DEMO
+  drush pm:install ys_demo
+  #;> CUSTOM_MODULE_DEMO
+  pass "Installed custom site modules."
 
-    task "Running deployment hooks."
-    drush deploy:hook
-    pass "Ran deployment hooks."
+  task "Running deployment hooks."
+  drush deploy:hook
+  pass "Ran deployment hooks."
 
-    # Conditionally perform an action if this is a "fresh" database.
-    if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
-      note "Fresh database detected. Performing additional example operations."
-    else
-      note "Existing database detected. Performing additional example operations."
-    fi
-    ;;
-
-  *)
-    note "Skipped example operations in production environment."
-    ;;
-esac
+  # Conditionally perform an action if this is a "fresh" database.
+  if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
+    note "Fresh database detected. Performing additional example operations."
+  else
+    note "Existing database detected. Performing additional example operations."
+  fi
+else
+  note "Skipped example operations in production environment."
+fi
 
 info "Finished example operations."
