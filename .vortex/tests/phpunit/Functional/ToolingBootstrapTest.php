@@ -20,6 +20,16 @@ use PHPUnit\Framework\Attributes\Group;
 class ToolingBootstrapTest extends FunctionalTestCase {
 
   /**
+   * Environment that makes the bootstrap output reproducible.
+   *
+   * The harness silences Composer through 'SHELL_VERBOSITY' when it does not
+   * stream process output, which would make the output assertions hold
+   * regardless of the script's behaviour, and the progress helpers emit ANSI
+   * colour whenever the terminal reports support for it.
+   */
+  protected const OUTPUT_ENV = ['SHELL_VERBOSITY' => 0, 'TERM' => 'dumb'];
+
+  /**
    * The working directory before the test chdir'd into the fixture project.
    */
   protected string $originalCwd = '';
@@ -66,17 +76,14 @@ class ToolingBootstrapTest extends FunctionalTestCase {
       File::dump($stale_bin, "pre-existing binary\n");
     }
 
-    // The harness silences Composer through 'SHELL_VERBOSITY' when it does not
-    // stream process output, so the default verbosity is restored here -
-    // otherwise the output assertions below would hold regardless of the
-    // script's behaviour.
     $short_circuits = $package_present && $binaries_present;
-    $process = $this->cmd('bash scripts/vortex-tooling.sh', txt: 'Bootstrap must succeed regardless of the pre-existing vendor state', env: ['SHELL_VERBOSITY' => 0]);
+    $process = $this->cmd('bash scripts/vortex-tooling.sh', txt: 'Bootstrap must succeed regardless of the pre-existing vendor state', env: static::OUTPUT_ENV);
 
     // Both streams are matched in full rather than probed for known Composer
     // strings: only an exact match proves the bootstrap stays silent, since
     // unanticipated output would slip past a list of negative substrings.
-    $this->assertSame($short_circuits ? '' : '[INFO] Installing Vortex tooling.', trim($process->getOutput()), 'Only the announcement is written to stdout.');
+    $expected_output = $short_circuits ? '' : "[INFO] Started Vortex tooling installation.\n[ OK ] Finished Vortex tooling installation.";
+    $this->assertSame($expected_output, trim($process->getOutput()), 'Only the progress messages are written to stdout.');
     $this->assertSame('', trim($process->getErrorOutput()), 'Nothing is written to stderr.');
 
     $this->assertDirectoryDoesNotExist($project_dir . '/vendor-temp', 'The throwaway Composer project is removed.');
@@ -103,7 +110,7 @@ class ToolingBootstrapTest extends FunctionalTestCase {
     $this->logSubstep('Assert a repeated run short-circuits without reinstalling');
     $canary = $project_dir . '/vendor/drevops/vortex-tooling/canary.txt';
     File::dump($canary, "canary\n");
-    $process = $this->cmd('bash scripts/vortex-tooling.sh', txt: 'Repeated bootstrap run must exit early and print nothing', env: ['SHELL_VERBOSITY' => 0]);
+    $process = $this->cmd('bash scripts/vortex-tooling.sh', txt: 'Repeated bootstrap run must exit early and print nothing', env: static::OUTPUT_ENV);
     $this->assertSame('', trim($process->getOutput()), 'The repeated run writes nothing to stdout.');
     $this->assertSame('', trim($process->getErrorOutput()), 'The repeated run writes nothing to stderr.');
     $this->assertFileExists($canary, 'The repeated run does not reinstall the package.');
@@ -122,7 +129,7 @@ class ToolingBootstrapTest extends FunctionalTestCase {
     $project_dir = $this->prepareProject(minimal_composer_json: TRUE, tooling_constraint: '999.999.999');
     chdir($project_dir);
 
-    $this->cmdFail('bash scripts/vortex-tooling.sh', ['* Your requirements could not be resolved'], txt: 'A failing bootstrap replays the suppressed Composer output', env: ['SHELL_VERBOSITY' => 0]);
+    $this->cmdFail('bash scripts/vortex-tooling.sh', ['* [FAIL] Composer command failed.', '* Your requirements could not be resolved'], txt: 'A failing bootstrap reports the failure and replays the suppressed Composer output', env: static::OUTPUT_ENV);
 
     $this->assertDirectoryDoesNotExist($project_dir . '/vendor-temp', 'The throwaway Composer project is removed after a failure.');
 

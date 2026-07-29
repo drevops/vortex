@@ -21,6 +21,16 @@
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+# @formatter:on
+
 # Run Composer without exposing its progress output, which is an internal detail
 # of this bootstrap rather than something that was asked for. The captured
 # output is replayed on stderr when the command fails, so failures remain
@@ -35,6 +45,8 @@ composer_run() {
   output=$(composer "$@" 2>&1) || status=$?
 
   if [ "${status}" -ne 0 ]; then
+    fail "Composer command failed."
+
     if [ -n "${output}" ]; then
       printf "%s\n" "${output}" >&2
     fi
@@ -48,9 +60,7 @@ if [ -d ./vendor/drevops/vortex-tooling ] && ls ./vendor/bin/vortex-* >/dev/null
   exit 0
 fi
 
-# The install runs before any other output and takes a noticeable amount of
-# time, so announce it rather than leaving the terminal blank.
-printf "[INFO] Installing Vortex tooling.\n"
+info "Started Vortex tooling installation."
 
 mkdir -p vendor-temp vendor/drevops
 
@@ -127,3 +137,5 @@ if [ -d vendor-temp/vendor/bin ]; then
     [ -e "${bin}" ] && mv "${bin}" vendor/bin/
   done
 fi
+
+pass "Finished Vortex tooling installation."
