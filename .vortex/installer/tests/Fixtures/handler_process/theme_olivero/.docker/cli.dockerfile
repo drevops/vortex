@@ -1,4 +1,4 @@
-@@ -39,7 +39,7 @@
+@@ -40,7 +40,7 @@
  ARG DRUPAL_TEMPORARY_FILES="${TMP:-/tmp}"
  ENV DRUPAL_TEMPORARY_FILES=${DRUPAL_TEMPORARY_FILES}
  
@@ -7,7 +7,7 @@
  ENV DRUPAL_THEME=${DRUPAL_THEME}
  
  ARG VORTEX_FRONTEND_BUILD_SKIP="0"
-@@ -96,12 +96,5 @@
+@@ -97,12 +97,5 @@
  
  # Create file directories and set correct permissions.
  RUN mkdir -p -m 2775 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
