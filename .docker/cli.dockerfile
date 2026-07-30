@@ -4,10 +4,12 @@
 # All CLI operations performed in this container.
 #
 # The `PACKAGE_TOKEN` argument below is flagged by name by the
-# `SecretsUsedInArgOrEnv` build check, but the token is passed as a build
-# secret and never written to an image layer, so that check is skipped.
+# `SecretsUsedInArgOrEnv` build check and by its Hadolint equivalent DL3064,
+# but the token is passed as a build secret and never written to an image
+# layer, so both checks are skipped. DL3064 also matches
+# `DRUPAL_PRIVATE_FILES`, which holds a file system path rather than a secret.
 #
-# hadolint global ignore=DL3018,SC2174
+# hadolint global ignore=DL3018,DL3064,SC2174
 #
 # @see https://hub.docker.com/r/uselagoon/php-8.4-cli-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-cli-drupal

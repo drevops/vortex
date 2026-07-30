@@ -5,7 +5,11 @@
 # Allow running ClamAV in rootless mode.
 # @see https://github.com/Cisco-Talos/clamav/issues/478
 #
-# hadolint global ignore=DL3008,DL3018
+# The `USER` names below are defined by the base images. Their numeric ids are
+# an implementation detail of those images and would break on a base image
+# bump, so DL3066 is skipped.
+#
+# hadolint global ignore=DL3008,DL3018,DL3066
 #
 # @see https://hub.docker.com/r/uselagoon/commons/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/commons
