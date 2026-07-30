@@ -1,6 +1,10 @@
 # Solr container.
 #
-# hadolint global ignore=DL3018
+# The `USER` names below are defined by the base image. Their numeric ids are
+# an implementation detail of that image and would break on a base image bump,
+# so DL3066 is skipped.
+#
+# hadolint global ignore=DL3018,DL3066
 #
 # @see https://hub.docker.com/r/uselagoon/solr-9-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/blob/main/images/solr-drupal/9.Dockerfile
