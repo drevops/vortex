@@ -64,6 +64,7 @@ jobs:
       shared_url: ${{ steps.result.outputs.shared_url }}
       pages_changed: ${{ steps.result.outputs.pages_changed }}
       pages_total: ${{ steps.result.outputs.pages_total }}
+      summary: ${{ steps.summary.outputs.summary }}
 
     steps:
       - name: Resolve PR number from target URL
@@ -253,7 +254,7 @@ jobs:
           result_json="$(/tmp/diffy.phar diff:get-result "${diff_id}" --format=json)"
 
           shared_url="$(printf '%s' "${result_json}" | jq -r '.diffSharedUrl // empty')"
-          pages_changed="$(printf '%s' "${result_json}" | jq -r '[.diffs | to_entries[] | select(.value | to_entries | map(.value.percentageChanges // 0) | add > 0)] | length')"
+          pages_changed="$(printf '%s' "${result_json}" | jq -r '[.diffs[] | select([.[].percentageChanges | tonumber? // 0] | add > 0)] | length')"
           pages_total="$(printf '%s' "${result_json}" | jq -r '.diffs | length')"
 
           {
@@ -267,6 +268,39 @@ jobs:
           echo "Report URL: ${shared_url}"
         env:
           STEPS_COMPARE_OUTPUTS_DIFF_ID: ${{ steps.compare.outputs.diff_id }}
+
+      - name: Write run summary
+        id: summary
+        if: steps.gate.outputs.skipped != 'true'
+        run: |
+          set -euo pipefail
+
+          summary="$(printf '%s\n' \
+            "### Visual regression report" \
+            "" \
+            "**${PAGES_CHANGED} of ${PAGES_TOTAL}** pages changed, **${CHANGES_PERCENT}%** overall difference." \
+            "" \
+            "| Setting | Value |" \
+            "| --- | --- |" \
+            "| Source environment | \`${SOURCE_ENV}\` |" \
+            "| Target environment | \`${TARGET_URL}\` |" \
+            "| Diff ID | \`${DIFF_ID}\` |" \
+            "" \
+            "[View full Diffy report](${SHARED_URL})")"
+
+          printf '%s\n' "${summary}" >> "$GITHUB_STEP_SUMMARY"
+
+          {
+            echo "summary<<VR_SUMMARY_EOF"
+            printf '%s\n' "${summary}"
+            echo "VR_SUMMARY_EOF"
+          } >> "$GITHUB_OUTPUT"
+        env:
+          CHANGES_PERCENT: ${{ steps.result.outputs.changes_percent }}
+          SHARED_URL: ${{ steps.result.outputs.shared_url }}
+          PAGES_CHANGED: ${{ steps.result.outputs.pages_changed }}
+          PAGES_TOTAL: ${{ steps.result.outputs.pages_total }}
+          DIFF_ID: ${{ steps.compare.outputs.diff_id }}
 
   vr-report:
     runs-on: ubuntu-latest
@@ -282,13 +316,5 @@ jobs:
         with:
           number: ${{ needs.vr-compare.outputs.pr_number }}
           header: vr-diffy
-          message: |
-            ### Visual regression report
-
-            - **Pages changed**: ${{ needs.vr-compare.outputs.pages_changed }} of ${{ needs.vr-compare.outputs.pages_total }}
-            - **Overall difference**: ${{ needs.vr-compare.outputs.changes_percent }}%
-            - **Target environment**: ${{ env.TARGET_URL }}
-            - **Source environment**: ${{ env.SOURCE_ENV }}
-
-            [View full Diffy report](${{ needs.vr-compare.outputs.shared_url }})
+          message: ${{ needs.vr-compare.outputs.summary }}
           hide_and_recreate: true

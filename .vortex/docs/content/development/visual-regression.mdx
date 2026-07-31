@@ -141,6 +141,9 @@ GitHub branch protection rules.
 │      vr-compare: parse PR from URL, gate    │
 │                  │                          │
 │                  ▼                          │
+│        Report in workflow run summary       │
+│                  │                          │
+│                  ▼                          │
 │                vr-report                    │
 │                  │                          │
 │                  ▼                          │
@@ -179,7 +182,7 @@ them do.
 │              vr-compare job                 │
 │                  │                          │
 │                  ▼                          │
-│              vr-report job                  │
+│        Report in workflow run summary       │
 │                                             │
 └────────────────────┬────────────────────────┘
                      │
@@ -192,8 +195,8 @@ them do.
 ```
 
 Use this entry point for ad-hoc comparisons against a known environment
-URL. No PR is involved, so the result is visible only in the Diffy UI
-(and in the workflow run log).
+URL. No PR is involved, so there is no comment to post - the result is
+shown in the workflow run summary and in the Diffy UI.
 
 ## Limiting which branches dispatch
 
@@ -293,11 +296,14 @@ entry point.
    `VR_DIFFY_POLL_INTERVAL` seconds.
 5. Fetches the diff result and exposes the diff ID, PR number, change
    percentage, page counts, and shared report URL as job outputs.
+6. Renders the report into the workflow run summary, so the result is
+   readable in the GitHub Actions UI without opening the job log.
 
 `vr-report`:
 
-1. Posts a sticky comment on the PR with the summary and a link to the
-   Diffy report. Re-deploys edit the same comment rather than stacking.
+1. Posts the same report as a sticky comment on the PR, with a link to
+   the Diffy report. Re-deploys edit the same comment rather than
+   stacking.
 
 ## Making it blocking
 
