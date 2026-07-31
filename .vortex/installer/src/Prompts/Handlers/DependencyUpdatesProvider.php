@@ -79,12 +79,12 @@ class DependencyUpdatesProvider extends AbstractHandler {
     if ($v === self::RENOVATEBOT_CI) {
       File::removeTokenAsync('!DEPS_UPDATE_PROVIDER_CI');
       File::removeTokenAsync('DEPS_UPDATE_PROVIDER_APP');
-      $this->removeTemplateOnlyConfig();
+      File::replaceContentInFile($t . '/renovate.json', '/\s*"ignorePaths":\s*\[\s*"[^"]*"\s*\],?\n/s', "\n");
     }
     elseif ($v === self::RENOVATEBOT_APP) {
       File::removeTokenAsync('!DEPS_UPDATE_PROVIDER_APP');
       File::removeTokenAsync('DEPS_UPDATE_PROVIDER_CI');
-      $this->removeTemplateOnlyConfig();
+      File::replaceContentInFile($t . '/renovate.json', '/\s*"ignorePaths":\s*\[\s*"[^"]*"\s*\],?\n/s', "\n");
       File::remove($t . '/.github/workflows/update-dependencies.yml');
       File::remove($t . '/.circleci/update-dependencies.yml');
     }
@@ -95,20 +95,6 @@ class DependencyUpdatesProvider extends AbstractHandler {
       File::remove($t . '/renovate.json');
       File::remove($t . '/.circleci/update-dependencies.yml');
     }
-  }
-
-  /**
-   * Remove Renovate config entries that only apply to the template repository.
-   *
-   * The '.vortex' directory is not present in an installed project, so the
-   * paths ignored under it and the custom manager tracking a file within it
-   * can never match anything.
-   */
-  protected function removeTemplateOnlyConfig(): void {
-    $file = $this->tmpDir . '/renovate.json';
-
-    File::replaceContentInFile($file, '/\s*"ignorePaths":\s*\[[^\]]*\],?\n/s', "\n");
-    File::replaceContentInFile($file, '/,\s*\{[^{}]*\.vortex[^{}]*\}/s', '');
   }
 
 }

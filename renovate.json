@@ -18,11 +18,7 @@
     "timezone": "UTC",
     "configMigration": true,
     "ignorePaths": [
-        ".vortex/docs/**",
-        ".vortex/installer/**",
-        ".vortex/tooling/**",
-        ".vortex/tests/composer.json",
-        ".vortex/tests/package.json"
+        ".vortex/**"
     ],
     "enabledManagers": [
         "composer",
@@ -226,16 +222,6 @@
             ],
             "datasourceTemplate": "docker",
             "versioningTemplate": "docker"
-        },
-        {
-            "customType": "regex",
-            "managerFilePatterns": [
-                "/^\\.vortex/tests/update-test-assets$/"
-            ],
-            "matchStrings": [
-                "https://github\\.com/(?<depName>[^/]+/[^/]+)/releases/download/(?<currentValue>[^/]+)/"
-            ],
-            "datasourceTemplate": "github-releases"
         }
     ]
 }
