@@ -50,6 +50,7 @@ When creating a new release, determine the version based on the changes:
 Promoting a new major version is a single action: set the `VORTEX_CURRENT_MAJOR` repository variable to its number. The documentation default and the bare `/install` URL both follow it, while the per-major docs and `/v{N}/install` pins are always published.
 
 When `main` advances to a new major version:
+
 1. The upcoming major's branch (for example `2.x`) is merged into `main`
 2. The superseded major continues on its own branch (for example `1.x`) for maintenance
 
@@ -80,9 +81,11 @@ The following rules apply to every release:
 Follow the steps below to release a new version of the Vortex:
 
 1. Run renovate bot locally to update all dependencies outside of the schedule:
-```
-renovate --schedule= --force-cli=true drevops/vortex
-```
+
+   ```shell
+   renovate --schedule= --force-cli=true drevops/vortex
+   ```
+
 2. Update container images to the latest versions and check that `@see` links are working.
    - After bumping the `uselagoon/solr-9-drupal` image, update `solr.luceneMatchVersion` in `.docker/config/solr/config-set/solrcore.properties` to match the Lucene version bundled in that image (shown by the `lucene-core-*.jar` filename inside the image). The value in `search_api_solr`'s jump-start config-set lags the image, so it must not be copied verbatim.
 3. Update PHP version in `composer.json` for `config.platform`.
