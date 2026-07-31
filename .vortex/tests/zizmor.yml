@@ -17,9 +17,9 @@ rules:
     #   needs a write token on fork PRs and never checks out PR code.
     # - label-merge-conflict: labels PRs with merge-conflict status via
     #   'eps1lon/actions-label-merge-conflict'; never checks out PR code.
-    # - vortex-test-docs: chained run after 'Vortex - Test installer'; the
-    #   'head_sha' interpolation has been moved into 'env:' to remove the
-    #   injection surface.
+    # - vortex-test-docs: chained run after a per-major test workflow; the
+    #   'head_sha' interpolation lives in 'env:' to remove the injection
+    #   surface.
     ignore:
       - assign-author.yml
       - label-merge-conflict.yml
