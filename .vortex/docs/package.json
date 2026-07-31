@@ -11,7 +11,7 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-    "spellcheck": "cspell content/*.mdx content/**/*.mdx",
+    "spellcheck": "cspell \"content/**/*.mdx\"",
     "update-variables": "./.utils/update-docs.sh",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -20,8 +20,8 @@
     "lint-fix": "yarn lint-js-fix && yarn lint-docs-fix",
     "lint-js": "eslint src/ tests/ && prettier --check src/ tests/",
     "lint-js-fix": "eslint src/ tests/ --fix && prettier --write src/ tests/",
-    "lint-docs": "markdownlint-cli2 content/**/*.mdx",
-    "lint-docs-fix": "markdownlint-cli2 content/**/*.mdx --fix"
+    "lint-docs": "markdownlint-cli2 \"content/**/*.mdx\"",
+    "lint-docs-fix": "markdownlint-cli2 \"content/**/*.mdx\" --fix"
   },
   "dependencies": {
     "@docusaurus/core": "^3.5",
