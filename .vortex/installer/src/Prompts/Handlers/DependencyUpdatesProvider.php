@@ -108,7 +108,7 @@ class DependencyUpdatesProvider extends AbstractHandler {
     $file = $this->tmpDir . '/renovate.json';
 
     File::replaceContentInFile($file, '/\s*"ignorePaths":\s*\[[^\]]*\],?\n/s', "\n");
-    File::replaceContentInFile($file, '/,\s*\{[^{}]*\.vortex[^{}]*\}(?=\s*\n\s*\])/s', '');
+    File::replaceContentInFile($file, '/,\s*\{[^{}]*\.vortex[^{}]*\}/s', '');
   }
 
 }
