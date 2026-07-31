@@ -3,11 +3,7 @@
 #
 # All CLI operations performed in this container.
 #
-# The `PACKAGE_TOKEN` argument below is flagged by name by the
-# `SecretsUsedInArgOrEnv` build check, but the token is passed as a build
-# secret and never written to an image layer, so that check is skipped.
-#
-# hadolint global ignore=DL3018,SC2174
+# The check skipped above is BuildKit's twin of DL3064, ignored inline below.
 #
 # @see https://hub.docker.com/r/uselagoon/php-8.4-cli-drupal/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/php-cli-drupal
@@ -26,15 +22,15 @@ ENV WEBROOT=${WEBROOT}
 
 # Token is used to access private repositories. Not exposed as an environment
 # variable within an image to avoid baking it into the image.
-# hadolint ignore=DL3064
+# hadolint ignore=DL3064 # empty here, the value comes from a build secret
 ARG PACKAGE_TOKEN=""
 
 ARG DRUPAL_PUBLIC_FILES="sites/default/files"
 ENV DRUPAL_PUBLIC_FILES=${DRUPAL_PUBLIC_FILES}
 
-# hadolint ignore=DL3064
+# hadolint ignore=DL3064 # a path, not a secret
 ARG DRUPAL_PRIVATE_FILES="sites/default/files/private"
-# hadolint ignore=DL3064
+# hadolint ignore=DL3064 # a path, not a secret
 ENV DRUPAL_PRIVATE_FILES=${DRUPAL_PRIVATE_FILES}
 
 ARG DRUPAL_TEMPORARY_FILES="${TMP:-/tmp}"
@@ -64,6 +60,7 @@ ENV PHP_INI_SCAN_DIR="${PHP_INI_SCAN_DIR}:/app/drush/php-ini"
 # earlier in the build process (near the top of this file).
 
 # Add more tools.
+# hadolint ignore=DL3018 # the package set tracks the pinned base image
 RUN apk add --no-cache ncurses pv tzdata autoconf g++ make && \
     pecl install pcov && \
     docker-php-ext-enable pcov && \
@@ -85,7 +82,6 @@ COPY composer.json composer.* patches.lock.* .env* auth* /app/
 
 # Install PHP dependencies without development packages to avoid exposing
 # potential security vulnerabilities in the production environment.
-# hadolint ignore=SC2155
 RUN --mount=type=secret,id=package_token \
     token=$(if [ -s /run/secrets/package_token ]; then cat /run/secrets/package_token; else echo "${PACKAGE_TOKEN}"; fi) && \
     if [ -n "${token}" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"${token}\"}}"; fi && \
@@ -96,6 +92,7 @@ RUN --mount=type=secret,id=package_token \
 COPY . /app
 
 # Create file directories and set correct permissions.
+# hadolint ignore=SC2174 # only the leaf directory needs the mode
 RUN mkdir -p -m 2775 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
 
 RUN if [ "${VORTEX_FRONTEND_BUILD_SKIP}" != "1" ]; then \
