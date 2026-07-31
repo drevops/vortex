@@ -66,7 +66,7 @@ Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of w
     # @formatter:on
     ```
 
-7. SHOULD include variable values checks with errors and early exist, i.e.:
+7. SHOULD include variable values checks with errors and early exit, i.e.:
 
     ```shell
     [ -z "${VORTEX_NOTIFY_REF}" ] && fail "Missing required value for VORTEX_NOTIFY_REF." && exit 1
