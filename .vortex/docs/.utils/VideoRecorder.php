@@ -470,7 +470,8 @@ final class VideoRecorder {
     ]);
 
     $this->run([
-      'npx', 'sharp-cli',
+      // 'sharp-cli' installs its executable as 'sharp'.
+      'npx', 'sharp',
       '-i', $frame_svg,
       '-o', $png_path,
       '-f', 'png',
