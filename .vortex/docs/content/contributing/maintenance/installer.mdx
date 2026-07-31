@@ -210,3 +210,14 @@ To update the video:
 cd .vortex
 ahoy update-videos installer
 ```
+
+`sharp-cli`, which renders the PNG posters, is a declared dependency of
+`.vortex/docs`, so it is pinned by `yarn.lock` and installed by the existing
+`yarn install --frozen-lockfile`.
+
+`asciinema` is downloaded rather than installed from a lockfile, so the
+workflows that regenerate the video in CI pin it explicitly:
+`.github/workflows/vortex-release.yml` and
+`.github/workflows/vortex-test-installer.yml` each set `ASCIINEMA_VERSION` and
+`ASCIINEMA_SHA256`. Bump both workflows together, so the release and the
+installer test always generate assets with identical tooling.
