@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Tests\Unit\Handlers;
 
+use DrevOps\VortexCli\Prompts\Handlers\CiProvider;
 use DrevOps\VortexCli\Prompts\Handlers\Tools;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\File;
@@ -18,11 +19,14 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_installed = static::getExpectedInstalled();
     yield 'tools - prompt - defaults' => [
       [Tools::id() => Key::ENTER],
-      [Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT, Tools::TWIG_CS_FIXER]] + $expected_defaults,
+      [Tools::id() => [Tools::BEHAT, Tools::DCLINT, Tools::ESLINT, Tools::HADOLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT, Tools::TWIG_CS_FIXER]] + $expected_defaults,
     ];
     yield 'tools - discovery - all tools' => [
       [],
-      [Tools::id() => [Tools::BEHAT, Tools::ESLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT, Tools::TWIG_CS_FIXER]] + $expected_installed,
+      [
+        Tools::id() => [Tools::BEHAT, Tools::DCLINT, Tools::ESLINT, Tools::HADOLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT, Tools::TWIG_CS_FIXER],
+        CiProvider::id() => CiProvider::CIRCLECI,
+      ] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $dependencies = [
@@ -35,6 +39,8 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
         ];
         $test->stubComposerJsonDependencies($dependencies, TRUE);
         file_put_contents(static::$sut . '/package.json', json_encode(['devDependencies' => ['eslint' => '*', 'jest' => '*', 'stylelint' => '*']], JSON_PRETTY_PRINT));
+        File::dump(static::$sut . '/.dclintrc');
+        File::dump(static::$sut . '/.circleci/config.yml', 'docker run --rm -i hadolint/hadolint');
       },
     ];
     yield 'tools - discovery - none' => [
@@ -233,6 +239,63 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         File::dump(static::$sut . '/.twig-cs-fixer.php');
+      },
+    ];
+    yield 'tools - discovery - dclint' => [
+      [],
+      [Tools::id() => [Tools::DCLINT]] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/.dclintrc');
+      },
+    ];
+    yield 'tools - discovery - dclint, alt' => [
+      [],
+      [
+        Tools::id() => [Tools::DCLINT],
+        CiProvider::id() => CiProvider::GITHUB_ACTIONS,
+      ] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/.github/workflows/build-test-deploy.yml', 'docker run --rm -v "${PWD}":/app zavoloklom/dclint:3.1.0 .');
+      },
+    ];
+    yield 'tools - discovery - hadolint' => [
+      [],
+      [
+        Tools::id() => [Tools::HADOLINT],
+        CiProvider::id() => CiProvider::GITHUB_ACTIONS,
+      ] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/.github/workflows/build-test-deploy.yml', 'docker run --rm -i hadolint/hadolint');
+      },
+    ];
+    yield 'tools - discovery - hadolint, alt' => [
+      [],
+      [
+        Tools::id() => [Tools::HADOLINT],
+        CiProvider::id() => CiProvider::CIRCLECI,
+      ] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/.circleci/config.yml', 'docker run --rm -i hadolint/hadolint');
+      },
+    ];
+    yield 'tools - discovery - hadolint, alt2' => [
+      [],
+      [Tools::id() => [Tools::HADOLINT]] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/.hadolint.yaml');
+      },
+    ];
+    yield 'tools - discovery - hadolint, alt3' => [
+      [],
+      [Tools::id() => [Tools::HADOLINT]] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/.hadolint.yml');
       },
     ];
   }
