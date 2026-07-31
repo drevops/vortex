@@ -20,6 +20,40 @@
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+# @formatter:on
+
+# Run Composer without exposing its progress output, which is an internal detail
+# of this bootstrap rather than something that was asked for. The captured
+# output is replayed on stderr when the command fails, so failures remain
+# diagnosable. Debug mode streams the output as it happens.
+composer_run() {
+  if [ "${VORTEX_DEBUG-}" = "1" ]; then
+    composer "$@"
+    return
+  fi
+
+  local output status=0
+  output=$(composer "$@" 2>&1) || status=$?
+
+  if [ "${status}" -ne 0 ]; then
+    fail "Composer command failed."
+
+    if [ -n "${output}" ]; then
+      printf "%s\n" "${output}" >&2
+    fi
+
+    return "${status}"
+  fi
+}
+
 # Already installed - nothing to do. If the package is present but its
 # 'vendor/bin/' proxies are missing (a workspace bootstrapped before the
 # binaries were surfaced), remove it so the install below re-creates both.
@@ -29,6 +63,8 @@ if [ -d ./vendor/drevops/vortex-tooling ]; then
   fi
   rm -rf ./vendor/drevops/vortex-tooling
 fi
+
+info "Started Vortex tooling installation."
 
 mkdir -p vendor-temp vendor/drevops
 
@@ -55,27 +91,27 @@ echo "{\"require\":{\"drevops/vortex-tooling\":\"${version}\"}}" >vendor-temp/co
 # In dev mode the package is not yet on Packagist, so add a path repository
 # pointing at the in-tree copy. The CLI install command strips this VORTEX_DEV-fenced
 # block from consumer sites.
-composer --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"2.0.0-alpha1"}}}'
+composer_run --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"2.0.0-alpha1"}}}'
 #;> VORTEX_DEV
 
 # Carry over inline patches declared for our package, if any.
 patches=$(composer config extra.patches.drevops/vortex-tooling --json 2>/dev/null) || patches=
 if [ -n "${patches}" ] && [ "${patches}" != "[]" ] && [ "${patches}" != "{}" ]; then
-  composer --working-dir=vendor-temp config extra.patches.drevops/vortex-tooling --json "${patches}"
+  composer_run --working-dir=vendor-temp config extra.patches.drevops/vortex-tooling --json "${patches}"
 fi
 
 # Carry over the patches-file pointer, if defined. Prefix with '..' so the
 # path resolves from inside 'vendor-temp/' back to the project root.
 patches_file=$(composer config extra.patches-file 2>/dev/null) || patches_file=
 if [ -n "${patches_file}" ]; then
-  composer --working-dir=vendor-temp config extra.patches-file "../${patches_file}"
+  composer_run --working-dir=vendor-temp config extra.patches-file "../${patches_file}"
 fi
 
 # When any patches were registered, pull in the composer-patches plugin and
 # allow it to run during install.
 if [ -n "${patches}" ] || [ -n "${patches_file}" ]; then
-  composer --working-dir=vendor-temp require --no-update cweagans/composer-patches:^2
-  composer --working-dir=vendor-temp config allow-plugins.cweagans/composer-patches true
+  composer_run --working-dir=vendor-temp require --no-update cweagans/composer-patches:^2
+  composer_run --working-dir=vendor-temp config allow-plugins.cweagans/composer-patches true
   # Inline 'extra.patches' paths (and paths inside a 'patches-file') are
   # relative to the project root. Copy the project 'patches/' directory into
   # the throwaway project so those paths resolve from inside 'vendor-temp/'.
@@ -84,7 +120,7 @@ if [ -n "${patches}" ] || [ -n "${patches_file}" ]; then
   fi
 fi
 
-composer --working-dir=vendor-temp install --no-dev --no-interaction
+composer_run --working-dir=vendor-temp install --no-dev --no-interaction
 
 #;< VORTEX_DEV
 # The 2.x tooling marks itself as "Vortex 2.x tooling" in its composer.json
@@ -108,3 +144,5 @@ if [ -d vendor-temp/vendor/bin ]; then
     [ -e "${bin}" ] && mv "${bin}" vendor/bin/
   done
 fi
+
+pass "Finished Vortex tooling installation."
