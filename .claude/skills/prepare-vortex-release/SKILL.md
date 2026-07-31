@@ -62,6 +62,17 @@ Work through each checklist item from the release process doc:
 
 1. **Dependencies** - Skip Renovate (user must run manually). Note as unchecked.
 2. **Container images** - Check current versions in CI configs, verify if latest.
+   - **CI tool images** - `hadolint`, `dclint`, `gitleaks` and `actionlint` are
+     invoked as `docker run <image>:<tag>` inside `.github/workflows/**` and
+     `.circleci/config.yml`. The `customManagers` regex in `renovate.json`
+     tracks them, so this is a verification step, not a manual bump: confirm
+     no open Renovate PR is bumping them and that both CI providers carry the
+     same tag for the same tool. Bump by hand only when Renovate has not
+     picked a release up, and in that case pin the identical tag in
+     `.vortex/tests/lint.dockerfiles.sh` so a local run matches CI.
+   - An untagged image reference is a release blocker regardless of Renovate:
+     it resolves to `latest` and lets an upstream release break a default
+     branch on a commit that changed nothing.
 3. **PHP version** - Run `docker compose run --rm cli php -r "echo PHP_VERSION;"` and
    `docker compose run --rm cli php -r "echo PHP_VERSION_ID;"` to get the container
    PHP version. Update `composer.json` (`config.platform.php`), `phpstan.neon`
