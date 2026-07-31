@@ -42,7 +42,6 @@ declare(strict_types=1);
 const SUT_DIR = '/tmp/star-wars';
 const SEED_URL = 'https://github.com/drevops/mariadb-drupal-data/releases/download/26.7.0/seed.sh';
 const SEED_SHA256 = 'd97c184b2b76111b39b3cba96a624c22ed3f3408d781345770ea2b17beaba91e';
-const ALPINE_IMAGE = 'alpine:3.24';
 const IMAGE_DEMO = 'drevops/vortex-dev-mariadb-drupal-data-demo-11.x';
 const IMAGE_TEST = 'drevops/vortex-dev-mariadb-drupal-data-test-11.x';
 const IMAGE_DEST = 'drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x';
@@ -237,9 +236,8 @@ function reset_sut(string $root_dir, string $installer): void {
   // matter, then leave the dir itself in place for the installer.
   run(sprintf('mkdir -p %s', escapeshellarg(SUT_DIR)));
   run(sprintf(
-    'docker run --rm -v %s:/sut %s find /sut -mindepth 1 -delete',
-    escapeshellarg(SUT_DIR),
-    escapeshellarg(ALPINE_IMAGE)
+    'docker run --rm -v %s:/sut alpine find /sut -mindepth 1 -delete',
+    escapeshellarg(SUT_DIR)
   ));
 
   step('Install Vortex into SUT');

@@ -272,8 +272,7 @@ Without arguments, runs `all` for a full refresh. Default tag is `latest`.
 
 - `docker`, `ahoy`, `curl`, `sed`, `php` available on `PATH`.
 - A Docker Hub session with push permission to `drevops/` for any image mode.
-- The `demo-image`, `test-image` and `all` modes download `seed.sh` from a pinned `drevops/mariadb-drupal-data` release and verify it against a recorded SHA-256 checksum.
-- External versions are pinned as constants in the script and bumped by hand: `SEED_URL` together with `SEED_SHA256`, and `ALPINE_IMAGE` for the container that clears the SUT directory.
+- The `demo-image`, `test-image` and `all` modes download `seed.sh` from a pinned `drevops/mariadb-drupal-data` release and verify it against a recorded SHA-256 checksum. Adopting a newer release is a manual step: update `SEED_URL` and `SEED_SHA256` together.
 
 ### Caveats
 
