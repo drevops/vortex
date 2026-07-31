@@ -173,7 +173,9 @@
             "groupName": "Container images - All - Major, minor and patch",
             "groupSlug": "container-images-all-major-minor-patch",
             "matchFileNames": [
-                ".docker/**"
+                ".docker/**",
+                ".circleci/**",
+                ".github/workflows/**"
             ],
             "schedule": [
                 "before 3am"
@@ -205,6 +207,18 @@
             ],
             "matchStrings": [
                 "IMAGE:\\s*\"?\\${(?:.*):-(?<depName>.*?):(?<currentValue>.*?)(?:\\@sha256:.*)?}\"?"
+            ],
+            "datasourceTemplate": "docker",
+            "versioningTemplate": "docker"
+        },
+        {
+            "customType": "regex",
+            "managerFilePatterns": [
+                "/^\\.circleci/config\\.yml$/",
+                "/^\\.github/workflows/.+\\.yml$/"
+            ],
+            "matchStrings": [
+                "docker run[^\\n]*?\\s(?<depName>[a-z0-9][a-z0-9._\\-]*(?:/[a-z0-9._\\-]+)+):(?<currentValue>v?[0-9][\\w.\\-]*)"
             ],
             "datasourceTemplate": "docker",
             "versioningTemplate": "docker"

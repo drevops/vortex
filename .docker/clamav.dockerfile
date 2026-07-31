@@ -5,8 +5,6 @@
 # Allow running ClamAV in rootless mode.
 # @see https://github.com/Cisco-Talos/clamav/issues/478
 #
-# hadolint global ignore=DL3008,DL3018
-#
 # @see https://hub.docker.com/r/uselagoon/commons/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/commons
 
@@ -17,6 +15,7 @@ FROM clamav/clamav-debian:1.5.3
 COPY --from=commons /lagoon /lagoon
 COPY --from=commons /bin/fix-permissions /bin/ep /bin/docker-sleep /bin/wait-for /bin/
 
+# hadolint ignore=DL3008 # the package set tracks the pinned base image
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -30,10 +29,12 @@ RUN cat /tmp/clamav.conf >> /etc/clamav/clamd.conf && \
     sed -i "s/^UpdateLogFile /# UpdateLogFile /g" /etc/clamav/freshclam.conf && \
     sed -i "s/^#LogSyslog /LogSyslog /g" /etc/clamav/freshclam.conf
 
+# hadolint ignore=DL3066 # named account provided by the base image
 USER root
 
 RUN fix-permissions /var/lib/clamav
 
+# hadolint ignore=DL3066 # named account provided by the base image
 USER clamav
 
 ENTRYPOINT [ "/init-unprivileged" ]

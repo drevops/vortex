@@ -194,7 +194,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileExists(static::$sut . '/.dclintrc');
           // Dockerfile directives are inert comments that remain useful when
           // the tool is run by hand, so they survive deselection.
-          $test->assertFileContainsString(static::$sut . '/.docker/cli.dockerfile', '# hadolint global ignore=');
+          $test->assertFileContainsString(static::$sut . '/.docker/cli.dockerfile', '# hadolint ignore=');
       }),
     ];
     yield 'tools_no_hadolint_circleci' => [
@@ -209,7 +209,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileNotContainsString($ci, 'VORTEX_CI_HADOLINT_IGNORE_FAILURE');
           $test->assertFileContainsString($ci, 'dclint');
           $test->assertFileExists(static::$sut . '/.dclintrc');
-          $test->assertFileContainsString(static::$sut . '/.docker/cli.dockerfile', '# hadolint global ignore=');
+          $test->assertFileContainsString(static::$sut . '/.docker/cli.dockerfile', '# hadolint ignore=');
       }),
     ];
     yield 'tools_no_docker_linters' => [
