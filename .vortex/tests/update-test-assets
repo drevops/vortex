@@ -40,7 +40,7 @@ declare(strict_types=1);
  */
 
 const SUT_DIR = '/tmp/star-wars';
-const SEED_URL = 'https://github.com/drevops/mariadb-drupal-data/releases/latest/download/seed.sh';
+const SEED_URL = 'https://github.com/drevops/mariadb-drupal-data/releases/download/26.7.0/seed.sh';
 const IMAGE_DEMO = 'drevops/vortex-dev-mariadb-drupal-data-demo-11.x';
 const IMAGE_TEST = 'drevops/vortex-dev-mariadb-drupal-data-test-11.x';
 const IMAGE_DEST = 'drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x';

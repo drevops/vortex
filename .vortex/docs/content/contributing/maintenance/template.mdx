@@ -272,6 +272,7 @@ Without arguments, runs `all` for a full refresh. Default tag is `latest`.
 
 - `docker`, `ahoy`, `curl`, `sed`, `php` available on `PATH`.
 - A Docker Hub session with push permission to `drevops/` for any image mode.
+- Image modes download `seed.sh` from a pinned `drevops/mariadb-drupal-data` release. Renovate raises a pull request when a newer release is published, so the seeding behaviour only changes when that pull request is merged.
 
 ### Caveats
 
