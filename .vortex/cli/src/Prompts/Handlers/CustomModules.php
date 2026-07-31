@@ -182,6 +182,14 @@ DOC;
         File::remove($path);
       }
     }
+
+    // The 'page' content model is shared: the demo module attaches behaviour to
+    // the content type and the search tests index content of that type. It is
+    // only removed once neither of them remains.
+    if (!in_array(self::DEMO, $selected) && !in_array(self::SEARCH, $selected)) {
+      File::removeTokenAsync('CONTENT_MODEL');
+      File::remove($t . '/recipes/page');
+    }
   }
 
   /**
