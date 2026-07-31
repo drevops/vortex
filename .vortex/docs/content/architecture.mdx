@@ -88,7 +88,7 @@ caches, and content files. Two sections stay as small allow lists because a deny
 rule cannot express them:
 
 - `recipes/` - Composer installs contributed recipes next to your custom ones,
-  so custom recipes are un-ignored explicitly (`!recipes/page`).
+  so each custom recipe is un-ignored explicitly.
 - `.claude/` - only `.claude/settings.json` is tracked by default.
 
 The other two ignore files apply the same deny-list model to different targets:
