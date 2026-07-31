@@ -1,27 +1,32 @@
 # This action is used for Vortex maintenance. It will not be used in the scaffolded project.
 name: Vortex - Test docs
 
+# Each major ships its own binary from its own workflow, so listen to both:
+# 'workflow_run' is registered from the default branch only, making this the
+# single definition that has to serve branches of either major.
 on:
   workflow_run:
-    workflows: ['Vortex - Test CLI']
+    workflows: ['Vortex - Test installer', 'Vortex - Test CLI']
     types:
       - completed
 
 jobs:
   vortex-test-docs:
     runs-on: ubuntu-latest
-    # Only run if the CLI workflow succeeded
+    # Only run if the triggering workflow succeeded
     if: github.event.workflow_run.conclusion == 'success'
 
     permissions:
       contents: read # Checkout the repository at the triggering commit.
-      actions: read # Download the CLI artifact from the test-cli workflow run.
+      actions: read # Download the binary artifact from the triggering workflow run.
       statuses: write # Post pending/final commit statuses via 'gh api repos/.../statuses/...'.
       pull-requests: write # Post the Netlify preview link comment on the originating PR.
 
     env:
       CURRENT_MAJOR: ${{ vars.VORTEX_CURRENT_MAJOR || '1' }}
       OTHER_MAJOR: ${{ (vars.VORTEX_CURRENT_MAJOR || '1') == '1' && '2' || '1' }}
+      BINARY_ARTIFACT: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && 'vortex-cli' || 'vortex-installer' }}
+      BINARY_FILE: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && 'vortex.phar' || 'installer.phar' }}
 
     steps:
       # Post pending status to the PR commit.
@@ -55,18 +60,21 @@ jobs:
         with:
           php-version: 8.3
 
-      - name: Download CLI artifact
+      # Pin the download to the triggering run rather than a workflow name:
+      # searching by name returns the most recent successful run across all
+      # branches, which would pull a binary built from a different commit.
+      - name: Download the binary artifact
         uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
         with:
-          workflow: vortex-test-cli.yml
-          name: vortex-cli
+          run_id: ${{ github.event.workflow_run.id }}
+          name: ${{ env.BINARY_ARTIFACT }}
           path: .vortex/docs/static
           if_no_artifact_found: fail
           allow_forks: true
 
-      - name: Copy the CLI to docs
+      - name: Copy the binary to docs
         run: |
-          mv .vortex/docs/static/vortex.phar .vortex/docs/static/install
+          mv ".vortex/docs/static/${BINARY_FILE}" .vortex/docs/static/install
           php .vortex/docs/static/install --version
 
       - name: Check docs up-to-date
