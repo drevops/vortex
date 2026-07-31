@@ -210,3 +210,10 @@ To update the video:
 cd .vortex
 ahoy update-videos installer
 ```
+
+The workflows that regenerate the video in CI pin the tools they install:
+`.github/workflows/vortex-release.yml` and
+`.github/workflows/vortex-test-installer.yml` each set `ASCIINEMA_VERSION`,
+`ASCIINEMA_SHA256` and `SHARP_CLI_VERSION`. Bump both workflows together, so
+the release and the installer test always generate assets with identical
+tooling.

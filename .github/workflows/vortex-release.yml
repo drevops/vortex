@@ -234,11 +234,17 @@ jobs:
           VORTEX_CURRENT_MAJOR: ${{ env.CURRENT_MAJOR }}
 
       - name: Generate video for installer (not used in the final artifact)
+        env:
+          ASCIINEMA_VERSION: v3.2.1
+          ASCIINEMA_SHA256: 1b405bbda565b33c3c4718de67fedc3535580603c0694b1ff3fb04f363430a20
+          SHARP_CLI_VERSION: 5.2.0
         run: |
           sudo apt-get update
           sudo apt install expect
-          sudo curl -sSL https://github.com/asciinema/asciinema/releases/latest/download/asciinema-x86_64-unknown-linux-gnu -o /usr/local/bin/asciinema && sudo chmod +x /usr/local/bin/asciinema
-          npm i -g sharp-cli
+          sudo curl -sSL "https://github.com/asciinema/asciinema/releases/download/${ASCIINEMA_VERSION}/asciinema-x86_64-unknown-linux-gnu" -o /usr/local/bin/asciinema
+          echo "${ASCIINEMA_SHA256}  /usr/local/bin/asciinema" | sha256sum --check --strict
+          sudo chmod +x /usr/local/bin/asciinema
+          npm i -g "sharp-cli@${SHARP_CLI_VERSION}"
           yarn install --frozen-lockfile
           php .utils/update-videos.php installer
         working-directory: .vortex/docs
