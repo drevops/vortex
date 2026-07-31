@@ -121,7 +121,7 @@ jobs:
       - name: Lint Dockerfiles with Hadolint
         run: |
           find .docker \( -name 'Dockerfile' -o -name '*.dockerfile' \) | while read -r file; do
-            echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint
+            echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint:v2.15.0
           done
         continue-on-error: ${{ vars.VORTEX_CI_HADOLINT_IGNORE_FAILURE == '1' }}
       #;> TOOL_HADOLINT
