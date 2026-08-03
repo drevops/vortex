@@ -79,7 +79,7 @@ load ../_helper.bash
     '@curl * # {"id": 1}'
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   export CIRCLE_PULL_REQUEST="https://github.com/myorg/myrepo/pull/123"
   export GITHUB_TOKEN="token12345"
@@ -89,7 +89,7 @@ load ../_helper.bash
   run .circleci/post-coverage-comment.sh .logs/coverage/phpunit/coverage.txt
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -109,7 +109,7 @@ load ../_helper.bash
     '@curl * # {"id": 2}'
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   export CIRCLE_PULL_REQUEST="https://github.com/myorg/myrepo/pull/456"
   export GITHUB_TOKEN="token12345"
@@ -119,7 +119,7 @@ load ../_helper.bash
   run .circleci/post-coverage-comment.sh .logs/coverage/phpunit/coverage.txt
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }

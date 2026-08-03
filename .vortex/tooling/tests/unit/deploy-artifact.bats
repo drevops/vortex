@@ -95,12 +95,12 @@ load ../_helper.bash
     "SHA256 checksum verification failed for git-artifact binary."
     "- Finished artifact deployment."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-artifact
   assert_failure
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -153,7 +153,7 @@ load ../_helper.bash
     "Running artifact builder."
     "Finished artifact deployment."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-artifact
   assert_success
@@ -162,7 +162,7 @@ load ../_helper.bash
   assert_output_not_contains "--cleanup-pattern"
   assert_output_not_contains "--cleanup-age"
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
   assert_equal "2" "$(mock_get_call_num "${mock_realpath}" 1)"
 
   popd >/dev/null
@@ -204,7 +204,7 @@ load ../_helper.bash
     "Running artifact builder."
     "Finished artifact deployment."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-artifact
   assert_success
@@ -213,7 +213,7 @@ load ../_helper.bash
   assert_output_contains "--cleanup-pattern=feature/*,bugfix/*"
   assert_output_contains "--cleanup-age=3"
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }

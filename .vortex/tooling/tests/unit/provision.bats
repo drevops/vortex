@@ -203,12 +203,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_provision_info 0 0 0 1 0 0 0
 
@@ -363,12 +363,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_provision_info 0 0 0 1 0 0 1
 
@@ -532,12 +532,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_provision_info 0 1 0 1 0 0 1
 
@@ -716,12 +716,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_provision_info 0 0 0 1 0 1 0
 
@@ -784,12 +784,12 @@ assert_provision_info() {
     "- Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_failure
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -951,12 +951,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_provision_info 1 0 0 1 0 0 0
 
@@ -1114,12 +1114,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_provision_info 1 0 0 1 0 0 1
 
@@ -1284,12 +1284,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_provision_info 1 1 0 1 0 0 1
 
@@ -1422,12 +1422,12 @@ assert_provision_info() {
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_provision_info 0 0 0 1 0 0 0
 
@@ -1472,12 +1472,12 @@ assert_provision_info() {
     "- Imported database from the dump file."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_failure
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -1637,12 +1637,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -1804,12 +1804,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -1868,12 +1868,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -1933,12 +1933,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -2091,12 +2091,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -2276,12 +2276,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -2324,12 +2324,12 @@ assert_provision_info() {
     "- Installed a site from the profile."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_failure
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -2513,12 +2513,12 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_provision_info 0 0 0 1 0 1 0
   assert_output_contains "Verify config after update     : Yes"
@@ -2605,12 +2605,12 @@ assert_provision_info() {
     "- Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_failure
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -2837,14 +2837,14 @@ assert_provision_info() {
     "Finished site provisioning"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-provision
   assert_success
   console_output="${output}"
 
   # The re-dispatch streams the full run to the console (asserted here)...
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   # ...and captures the identical output to the owner-only log file.
   assert_file_exists "${VORTEX_NOTIFY_LOG_DIR}/provision.log"

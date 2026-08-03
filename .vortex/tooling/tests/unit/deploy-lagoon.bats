@@ -83,11 +83,11 @@ load ../_helper.bash
     "Finished Lagoon deployment."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -123,11 +123,11 @@ load ../_helper.bash
     "Finished Lagoon deployment."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -173,13 +173,13 @@ load ../_helper.bash
     "Finished Lagoon deployment."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   # Mock commands are handled by the steps
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -212,13 +212,13 @@ load ../_helper.bash
     "Finished Lagoon deployment."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   # Mock commands are handled by the steps
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -257,13 +257,13 @@ load ../_helper.bash
     "Finished Lagoon deployment."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   # Mock commands are handled by the steps
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -312,12 +312,12 @@ load ../_helper.bash
     "Finished Lagoon deployment."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   # Mock commands are handled by the steps
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -345,13 +345,13 @@ load ../_helper.bash
     "Finished Lagoon deployment."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   # Mock commands are handled by the steps
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -387,11 +387,11 @@ load ../_helper.bash
     "Finished Lagoon deployment."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -427,11 +427,11 @@ load ../_helper.bash
     "would exceed the configured limit"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_failure
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -470,11 +470,11 @@ load ../_helper.bash
     "Finished Lagoon deployment."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -499,11 +499,11 @@ load ../_helper.bash
     "Finished Lagoon deployment."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -531,11 +531,11 @@ load ../_helper.bash
     "[FAIL] Lagoon deployment completed with errors."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_failure
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -564,11 +564,11 @@ load ../_helper.bash
     "Error: deployment rejected by policy."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_failure
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -604,11 +604,11 @@ load ../_helper.bash
     "Error: deployment rejected by policy."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_failure
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -631,11 +631,11 @@ load ../_helper.bash
     "[FAIL] Lagoon deployment completed with errors."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_failure
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -660,11 +660,11 @@ load ../_helper.bash
     "Finished Lagoon deployment."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-deploy-lagoon
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }

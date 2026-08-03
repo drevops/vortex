@@ -30,12 +30,12 @@ load ../_helper.bash
     "- Finished demo modules operations."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-00-enable-demo-modules.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }

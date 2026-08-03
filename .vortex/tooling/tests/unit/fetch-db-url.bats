@@ -40,7 +40,7 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-fetch-db-url
   assert_success
   # curl writes into custom_data, resolved via the plain VORTEX_DB_DIR fallback.
-  assert_contains "custom_data/" "$(mock_get_call_args "${mock_curl}" 1)"
+  assert_string_contains "$(mock_get_call_args "${mock_curl}" 1)" "custom_data/"
 
   popd >/dev/null
 }
@@ -60,7 +60,7 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-fetch-db-url
   assert_success
   # curl writes custom.sql, resolved via the plain VORTEX_DB_FILE fallback.
-  assert_contains "/custom.sql" "$(mock_get_call_args "${mock_curl}" 1)"
+  assert_string_contains "$(mock_get_call_args "${mock_curl}" 1)" "/custom.sql"
 
   popd >/dev/null
 }
@@ -161,7 +161,7 @@ load ../_helper.bash
   assert_success
   # The -f flag makes curl exit non-zero on HTTP 4xx/5xx instead of writing
   # the error body into the dump file and reporting success.
-  assert_contains "-fLs" "$(mock_get_call_args "${mock_curl}" 1)"
+  assert_string_contains "$(mock_get_call_args "${mock_curl}" 1)" "-fLs"
 
   popd >/dev/null
 }

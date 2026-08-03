@@ -66,10 +66,10 @@ load ../_helper.bash
   assert_output_contains "Creating a deployment notification"
 
   # Verify the call structure without checking exact revision value
-  assert_contains "-X POST https://api.newrelic.com/v2/applications/9876543210/deployments.json" "${actual_curl_call}"
-  assert_contains "-H Api-Key: key1234" "${actual_curl_call}"
-  assert_contains '"revision":' "${actual_curl_call}"
-  assert_contains '"user": "Deployment robot"' "${actual_curl_call}"
+  assert_string_contains "${actual_curl_call}" "-X POST https://api.newrelic.com/v2/applications/9876543210/deployments.json"
+  assert_string_contains "${actual_curl_call}" "-H Api-Key: key1234"
+  assert_string_contains "${actual_curl_call}" '"revision":'
+  assert_string_contains "${actual_curl_call}" '"user": "Deployment robot"'
 
   assert_output_contains "Finished New Relic notification."
 

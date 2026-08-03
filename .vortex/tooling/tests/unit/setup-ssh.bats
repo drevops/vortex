@@ -80,11 +80,11 @@ load ../_helper.bash
     "- Removing all keys from the SSH agent."
     "- Disabling strict host key checking."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-setup-ssh
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -114,10 +114,10 @@ load ../_helper.bash
     "- Disabling strict host key checking."
     "Finished SSH setup"
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-setup-ssh
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -169,11 +169,11 @@ load ../_helper.bash
     "- Removing all keys from the SSH agent."
     "- Disabling strict host key checking."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-setup-ssh
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -209,11 +209,11 @@ load ../_helper.bash
     "Disabling strict host key checking."
     "Finished SSH setup."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-setup-ssh
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -243,11 +243,11 @@ load ../_helper.bash
     "Pinning SSH host keys to known_hosts."
     "- Disabling strict host key checking."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-setup-ssh
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   run cat "${HOME}/.ssh/known_hosts"
   assert_output_contains "example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITESTKEY"
@@ -281,11 +281,11 @@ load ../_helper.bash
     "Pinning SSH host keys to known_hosts."
     "- Disabling strict host key checking."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-setup-ssh
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -319,11 +319,11 @@ load ../_helper.bash
     "Pinning SSH host keys to known_hosts."
     "- Disabling strict host key checking."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-setup-ssh
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   run cat "${HOME}/.ssh/known_hosts"
   assert_output_contains "example.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITESTKEY"
@@ -367,11 +367,11 @@ load ../_helper.bash
     "- Disabling strict host key checking."
     "Finished SSH setup."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-setup-ssh
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -403,11 +403,11 @@ load ../_helper.bash
     "- Removing all keys from the SSH agent."
     "- Disabling strict host key checking."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-setup-ssh
   assert_failure
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -443,11 +443,11 @@ load ../_helper.bash
     "- Removing all keys from the SSH agent."
     "- Disabling strict host key checking."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-setup-ssh
   assert_failure
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }

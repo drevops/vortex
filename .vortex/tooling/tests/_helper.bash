@@ -42,14 +42,14 @@ setup() {
   bats_load_library bats-helpers
 
   # Setup command mocking.
-  setup_mock
+  mock_setup
 
   # Isolate the SSH agent from tests. Scripts under test call `ssh-add`, which
   # reaches the agent via the inherited SSH_AUTH_SOCK - a socket the HOME
   # override does not sandbox. Stub `ssh-add` (the only agent-mutating command)
   # so a test can never read, pollute or, with VORTEX_SSH_REMOVE_ALL_KEYS=1,
   # wipe the real agent of the developer running the suite. Tests that assert
-  # specific `ssh-add` calls override this with their own mock via run_steps.
+  # specific `ssh-add` calls override this with their own mock via steps_run.
   mock_command "ssh-add" >/dev/null
 
   ##
@@ -333,7 +333,7 @@ git_init() {
   local allow_receive_update="${1:-0}"
   local dir="${2:-$(pwd)}"
 
-  assert_not_git_repo "${dir}"
+  assert_git_not_repo "${dir}"
   git --work-tree="${dir}" --git-dir="${dir}/.git" init >/dev/null
 
   if [ "${allow_receive_update:-}" -eq 1 ]; then

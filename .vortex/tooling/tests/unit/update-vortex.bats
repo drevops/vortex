@@ -24,9 +24,9 @@ load ../_helper.bash
     "Downloading installer to installer.php"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run "${ROOT_DIR}/.vortex/tooling/src/vortex-update"
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -48,9 +48,9 @@ load ../_helper.bash
     "Downloading installer to installer.php"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run "${ROOT_DIR}/.vortex/tooling/src/vortex-update" "https://github.com/custom/repo.git#main"
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -74,9 +74,9 @@ load ../_helper.bash
     "Using installer script from local path: ${test_installer}"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run "${ROOT_DIR}/.vortex/tooling/src/vortex-update"
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -99,9 +99,9 @@ load ../_helper.bash
     "[FAIL] Installer script not found at /nonexistent/path/installer.php"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run "${ROOT_DIR}/.vortex/tooling/src/vortex-update"
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -123,9 +123,9 @@ load ../_helper.bash
     "Downloading installer to installer.php"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run "${ROOT_DIR}/.vortex/tooling/src/vortex-update" "file:///local/path/to/vortex"
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -147,9 +147,9 @@ load ../_helper.bash
     "Downloading installer to installer.php"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run "${ROOT_DIR}/.vortex/tooling/src/vortex-update" "/local/path/to/vortex#stable"
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -171,9 +171,9 @@ load ../_helper.bash
     "Downloading installer to installer.php"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run "${ROOT_DIR}/.vortex/tooling/src/vortex-update" "git@github.com:drevops/vortex.git#v1.2.3"
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -195,9 +195,9 @@ load ../_helper.bash
     "Downloading installer to installer.php"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run "${ROOT_DIR}/.vortex/tooling/src/vortex-update"
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -219,9 +219,9 @@ load ../_helper.bash
     "Downloading installer to installer.php"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run "${ROOT_DIR}/.vortex/tooling/src/vortex-update" --interactive
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -243,9 +243,9 @@ load ../_helper.bash
     "Downloading installer to installer.php"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run "${ROOT_DIR}/.vortex/tooling/src/vortex-update" --interactive https://github.com/custom/repo.git#main
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 

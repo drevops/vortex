@@ -97,11 +97,11 @@ setup_robo_fixture() {
     "Finished container registry push."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-push-container-registry
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -128,11 +128,11 @@ setup_robo_fixture() {
     'Service "service1" is not running.'
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-push-container-registry
   assert_failure
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -217,11 +217,11 @@ setup_robo_fixture() {
     "Finished container registry push."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-push-container-registry
   assert_success
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -246,7 +246,7 @@ setup_robo_fixture() {
     "@docker push registry.example.com/image1:test_latest"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./.vortex/tooling/src/vortex-push-container-registry
   assert_success

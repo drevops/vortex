@@ -75,10 +75,10 @@ load ../_helper.bash
     'Logging in to registry "https://www.example.com".'
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-login-container-registry
   assert_success
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   popd >/dev/null
 }
@@ -98,7 +98,7 @@ load ../_helper.bash
     "@docker login --username test_user --password-stdin https://www.example.com # 0 # Login Succeeded"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-login-container-registry
   assert_success
   assert_output_not_contains "supersecretpass"
