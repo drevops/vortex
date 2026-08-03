@@ -4,7 +4,7 @@
 
 "bats-helpers@github:drevops/bats-helpers#main":
   version "1.6.0"
-  resolved "https://codeload.github.com/drevops/bats-helpers/tar.gz/1a9668363e377bb60ccc8472ec2cbca5de7c5851"
+  resolved "https://codeload.github.com/drevops/bats-helpers/tar.gz/6dbd48363106eb06dcd903ba641cfe3ee8ad1aeb"
   dependencies:
     bats "^1.10"
 
