@@ -37,8 +37,8 @@ setup() {
   export BATS_LIB_PATH="${ROOT_DIR}/.vortex/tooling/node_modules"
 
   # Load 'bats-helpers' library.
-  ASSERT_DIR_EXCLUDE=("vortex" ".data")
-  export ASSERT_DIR_EXCLUDE
+  BATS_HELPERS_ASSERT_DIR_EXCLUDE=("vortex" ".data")
+  export BATS_HELPERS_ASSERT_DIR_EXCLUDE
   bats_load_library bats-helpers
 
   # Setup command mocking.
@@ -175,7 +175,7 @@ setup() {
   if [ "${BATS_VERBOSE_RUN:-}" = "1" ] || [ "${TEST_VORTEX_DEBUG:-}" = "1" ]; then
     echo "Verbose run enabled." >&3
     echo "BUILD_DIR: ${BUILD_DIR}" >&3
-    export RUN_STEPS_DEBUG=1
+    export BATS_HELPERS_STEPS_DEBUG=1
   fi
 
   # Change directory to the current project directory for each test. Tests
@@ -201,7 +201,7 @@ fixture_local_repo() {
 
   if [ "${do_copy_code:-}" -eq 1 ]; then
     fixture_prepare_dir "${dir}"
-    export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
+    export BATS_HELPERS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
     fixture_export_codebase "${dir}" "${ROOT_DIR}"
   fi
 
