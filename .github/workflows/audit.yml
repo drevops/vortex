@@ -94,10 +94,11 @@ jobs:
       #;> CI_GITLEAKS
 
       #;< VORTEX_DEV
-      #; Vortex does not track 'composer.lock', so the audit below has nothing
-      #; to read until the dependencies are resolved.
+      #; Vortex does not track 'composer.lock', so resolve dependencies to give
+      #; the audit below something to read. Nothing is installed, so the runner
+      #; does not need to provide the platform extensions Drupal requires.
       - name: Create Composer lock file
-        run: composer update --no-install --no-audit
+        run: composer update --no-install --no-audit --ignore-platform-reqs
       #;> VORTEX_DEV
 
       - name: Audit Composer packages
