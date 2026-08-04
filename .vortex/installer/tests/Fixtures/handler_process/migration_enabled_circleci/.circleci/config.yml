@@ -132,10 +132,6 @@ jobs:
           command: docker run --rm -v "${PWD}":/app zavoloklom/dclint:__VERSION__ . || [ "${VORTEX_CI_DCLINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
-          name: Scan for committed secrets with Gitleaks
-          command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
           name: Build stack
           command: docker compose up --no-deps --detach cli
 
@@ -146,10 +142,6 @@ jobs:
               if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
-
-      - run:
-          name: Audit Composer packages
-          command: docker compose exec -T cli composer audit || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Validate Composer configuration is normalized
@@ -184,6 +176,23 @@ jobs:
           command: |
             [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
             docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+  # Audit job runs in its own workflow, independently of the commit workflow.
+  audit:
+    <<: *runner_config
+    steps:
+      - checkout
+      - *load_variables_from_dotenv
+
+      - *step_setup_remote_docker
+
+      - run:
+          name: Scan for committed secrets with Gitleaks
+          command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Audit Composer packages
+          command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
   # Database handling is a first step of the build.
   # - $VORTEX_CI_DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump
@@ -584,6 +593,15 @@ workflows:
               # - __VERSION__, __VERSION__ (per https://semver.org/)
               # - 2023-04-17, 2023-04-17.123 (date-based)
               only: /^[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+
+  # Security audit workflow. Runs for every commit push to the remote repository,
+  # independently of the commit workflow.
+  audit:
+    jobs:
+      - audit:
+          filters:
+            tags:
+              only: /.*/
 
   # Nightly database workflow runs overnight to capture fresh database and cache it.
   nightly-db:
