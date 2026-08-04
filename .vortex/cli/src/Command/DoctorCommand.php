@@ -18,9 +18,13 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Check requirements command.
+ * Doctor command.
+ *
+ * Diagnoses the local environment: reports which tools a Vortex project needs,
+ * whether each is installed and running, and how to install the ones that are
+ * not. Read-only - it never changes the project.
  */
-class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInterface, ExecutableFinderAwareInterface {
+class DoctorCommand extends Command implements ProcessRunnerAwareInterface, ExecutableFinderAwareInterface {
 
   use ProcessRunnerAwareTrait;
   use ExecutableFinderAwareTrait;
@@ -50,7 +54,7 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
    *
    * @var string
    */
-  public static $defaultName = 'check-requirements';
+  public static $defaultName = 'doctor';
 
   /**
    * Present tools.
@@ -75,9 +79,9 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
    * {@inheritdoc}
    */
   protected function configure(): void {
-    $this->setName('check-requirements');
-    $this->setDescription('Check if required tools are installed and running.');
-    $this->setHelp('Checks for Docker, Docker Compose, Ahoy, and Pygmy.');
+    $this->setName('doctor');
+    $this->setDescription('Diagnose the local environment for common problems.');
+    $this->setHelp('Checks that Docker, Docker Compose, Ahoy and Pygmy are installed and running, and reports how to install the ones that are missing.');
     $this->addDestinationOption();
     $this->addOption(static::OPTION_ONLY, 'o', InputOption::VALUE_REQUIRED, sprintf('Comma-separated list of requirements to check. Available: %s.', implode(', ', static::REQUIREMENTS)));
     $this->addOption(static::OPTION_NO_SUMMARY, NULL, InputOption::VALUE_NONE, 'Hide summary with tool versions.');

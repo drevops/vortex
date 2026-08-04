@@ -23,33 +23,33 @@ class TuiOutput {
 
   const BUILD_PROVISION_TYPE_PROFILE = '[INFO] Provisioning site from the profile.';
 
-  const CHECK_REQUIREMENTS_CHECKING_DOCKER = 'Checking Docker';
+  const DOCTOR_CHECKING_DOCKER = 'Checking Docker';
 
-  const CHECK_REQUIREMENTS_CHECKING_DOCKER_COMPOSE = 'Checking Docker Compose';
+  const DOCTOR_CHECKING_DOCKER_COMPOSE = 'Checking Docker Compose';
 
-  const CHECK_REQUIREMENTS_CHECKING_AHOY = 'Checking Ahoy';
+  const DOCTOR_CHECKING_AHOY = 'Checking Ahoy';
 
-  const CHECK_REQUIREMENTS_CHECKING_PYGMY = 'Checking Pygmy';
+  const DOCTOR_CHECKING_PYGMY = 'Checking Pygmy';
 
-  const CHECK_REQUIREMENTS_DOCKER_AVAILABLE = 'Docker is available';
+  const DOCTOR_DOCKER_AVAILABLE = 'Docker is available';
 
-  const CHECK_REQUIREMENTS_DOCKER_MISSING = 'Docker is missing';
+  const DOCTOR_DOCKER_MISSING = 'Docker is missing';
 
-  const CHECK_REQUIREMENTS_DOCKER_COMPOSE_AVAILABLE = 'Docker Compose is available';
+  const DOCTOR_DOCKER_COMPOSE_AVAILABLE = 'Docker Compose is available';
 
-  const CHECK_REQUIREMENTS_DOCKER_COMPOSE_MISSING = 'Docker Compose is missing';
+  const DOCTOR_DOCKER_COMPOSE_MISSING = 'Docker Compose is missing';
 
-  const CHECK_REQUIREMENTS_AHOY_AVAILABLE = 'Ahoy is available';
+  const DOCTOR_AHOY_AVAILABLE = 'Ahoy is available';
 
-  const CHECK_REQUIREMENTS_AHOY_MISSING = 'Ahoy is missing';
+  const DOCTOR_AHOY_MISSING = 'Ahoy is missing';
 
-  const CHECK_REQUIREMENTS_PYGMY_RUNNING = 'Pygmy is running';
+  const DOCTOR_PYGMY_RUNNING = 'Pygmy is running';
 
-  const CHECK_REQUIREMENTS_PYGMY_NOT_RUNNING = 'Pygmy is not running';
+  const DOCTOR_PYGMY_NOT_RUNNING = 'Pygmy is not running';
 
-  const CHECK_REQUIREMENTS_ALL_MET = 'All requirements met';
+  const DOCTOR_ALL_MET = 'All requirements met';
 
-  const CHECK_REQUIREMENTS_MISSING = 'Missing requirements';
+  const DOCTOR_MISSING = 'Missing requirements';
 
   const INSTALL_STARTING = 'Starting project installation';
 
@@ -149,13 +149,13 @@ class TuiOutput {
   const BUILD_REVIEW_DOCS = 'Review hosting/provisioning docs';
 
   // Check requirements labels.
-  const CHECK_REQUIREMENTS_PRESENT_LABEL = 'Present:';
+  const DOCTOR_PRESENT_LABEL = 'Present:';
 
-  const CHECK_REQUIREMENTS_MISSING_LABEL = 'Missing:';
+  const DOCTOR_MISSING_LABEL = 'Missing:';
 
-  const CHECK_REQUIREMENTS_UNKNOWN = 'Unknown requirements:';
+  const DOCTOR_UNKNOWN = 'Unknown requirements:';
 
-  const CHECK_REQUIREMENTS_AVAILABLE = 'Available: docker, docker-compose, ahoy, pygmy';
+  const DOCTOR_AVAILABLE = 'Available: docker, docker-compose, ahoy, pygmy';
 
   const DESTINATION_NOT_EXIST = 'Destination directory does not exist:';
 
@@ -273,18 +273,18 @@ class TuiOutput {
    * @return \Closure
    *   Closure that echoes requirements check output and returns success.
    */
-  public static function checkRequirementsSuccess(): \Closure {
+  public static function doctorSuccess(): \Closure {
     return function (string $command): int {
       self::echo([
-        self::CHECK_REQUIREMENTS_CHECKING_DOCKER,
-        self::CHECK_REQUIREMENTS_DOCKER_AVAILABLE,
-        self::CHECK_REQUIREMENTS_CHECKING_DOCKER_COMPOSE,
-        self::CHECK_REQUIREMENTS_DOCKER_COMPOSE_AVAILABLE,
-        self::CHECK_REQUIREMENTS_CHECKING_AHOY,
-        self::CHECK_REQUIREMENTS_AHOY_AVAILABLE,
-        self::CHECK_REQUIREMENTS_CHECKING_PYGMY,
-        self::CHECK_REQUIREMENTS_PYGMY_RUNNING,
-        self::CHECK_REQUIREMENTS_ALL_MET,
+        self::DOCTOR_CHECKING_DOCKER,
+        self::DOCTOR_DOCKER_AVAILABLE,
+        self::DOCTOR_CHECKING_DOCKER_COMPOSE,
+        self::DOCTOR_DOCKER_COMPOSE_AVAILABLE,
+        self::DOCTOR_CHECKING_AHOY,
+        self::DOCTOR_AHOY_AVAILABLE,
+        self::DOCTOR_CHECKING_PYGMY,
+        self::DOCTOR_PYGMY_RUNNING,
+        self::DOCTOR_ALL_MET,
       ]);
       return RunnerInterface::EXIT_SUCCESS;
     };
@@ -298,14 +298,14 @@ class TuiOutput {
    * @return \Closure
    *   Closure that echoes requirements check output and returns failure.
    */
-  public static function checkRequirementsFailure(): \Closure {
+  public static function doctorFailure(): \Closure {
     return function (string $command): int {
       self::echo([
-        self::CHECK_REQUIREMENTS_CHECKING_DOCKER,
-        self::CHECK_REQUIREMENTS_DOCKER_AVAILABLE,
-        self::CHECK_REQUIREMENTS_CHECKING_DOCKER_COMPOSE,
-        self::CHECK_REQUIREMENTS_DOCKER_COMPOSE_MISSING,
-        self::CHECK_REQUIREMENTS_MISSING,
+        self::DOCTOR_CHECKING_DOCKER,
+        self::DOCTOR_DOCKER_AVAILABLE,
+        self::DOCTOR_CHECKING_DOCKER_COMPOSE,
+        self::DOCTOR_DOCKER_COMPOSE_MISSING,
+        self::DOCTOR_MISSING,
       ]);
       return RunnerInterface::EXIT_FAILURE;
     };

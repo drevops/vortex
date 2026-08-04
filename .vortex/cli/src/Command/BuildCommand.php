@@ -75,11 +75,11 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
         label: 'Checking requirements',
         action: function (): bool {
           $command_runner = $this->getCommandRunner()->disableLog();
-          $command_runner->run('check-requirements', [], ['--no-summary' => '1']);
+          $command_runner->run('doctor', [], ['--no-summary' => '1']);
 
           return $command_runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
         },
-        failure: 'Missing requirements. Run: ./vortex.phar check-requirements',
+        failure: 'Missing requirements. Run: ./vortex.phar doctor',
         streaming: TRUE,
       );
 

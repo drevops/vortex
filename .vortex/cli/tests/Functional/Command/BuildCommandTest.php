@@ -6,7 +6,7 @@ namespace DrevOps\VortexCli\Tests\Functional\Command;
 
 use AlexSkrypnyk\File\File;
 use DrevOps\VortexCli\Command\BuildCommand;
-use DrevOps\VortexCli\Command\CheckRequirementsCommand;
+use DrevOps\VortexCli\Command\DoctorCommand;
 use DrevOps\VortexCli\Logger\FileLoggerInterface;
 use DrevOps\VortexCli\Runner\ProcessRunner;
 use DrevOps\VortexCli\Runner\RunnerInterface;
@@ -91,7 +91,7 @@ class BuildCommandTest extends FunctionalTestCase {
     // Mock setCwd to return runner for method chaining.
     $build_process_runner->method('setCwd')->willReturn($build_process_runner);
 
-    // Always register CheckRequirementsCommand with mocked runner and finder.
+    // Always register DoctorCommand with mocked runner and finder.
     // Mock ExecutableFinder.
     $requirements_finder = $this->createMock(ExecutableFinder::class);
     $final_finder_callback = $requirements_finder_callback ?? fn(string $name): string => '/usr/bin/' . $name;
@@ -128,13 +128,13 @@ class BuildCommandTest extends FunctionalTestCase {
         return $final_requirements_callback($current_requirements_command);
       });
 
-    // Mock ExecutableFinder for CheckRequirementsCommand's ProcessRunner.
+    // Mock ExecutableFinder for DoctorCommand's ProcessRunner.
     $requirements_runner->method('getExecutableFinder')->willReturn($requirements_finder);
 
-    $check_command = new CheckRequirementsCommand();
-    $check_command->setExecutableFinder($requirements_finder);
-    $check_command->setProcessRunner($requirements_runner);
-    $this->applicationGet()->add($check_command);
+    $doctor_command = new DoctorCommand();
+    $doctor_command->setExecutableFinder($requirements_finder);
+    $doctor_command->setProcessRunner($requirements_runner);
+    $this->applicationGet()->add($doctor_command);
 
     // Run build with provided inputs.
     $this->applicationRun($command_inputs, [], $expect_failure);
@@ -177,7 +177,7 @@ class BuildCommandTest extends FunctionalTestCase {
       'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_CHECKING_REQUIREMENTS,
-            TuiOutput::CHECK_REQUIREMENTS_MISSING,
+            TuiOutput::DOCTOR_MISSING,
           ]),
           TuiOutput::absent([
             TuiOutput::BUILD_BUILDING_SITE,
@@ -194,7 +194,7 @@ class BuildCommandTest extends FunctionalTestCase {
       'output_assertions' => array_merge(
           TuiOutput::present([
             TuiOutput::BUILD_CHECKING_REQUIREMENTS,
-            TuiOutput::CHECK_REQUIREMENTS_MISSING,
+            TuiOutput::DOCTOR_MISSING,
           ]),
           TuiOutput::absent([
             TuiOutput::BUILD_BUILDING_SITE,

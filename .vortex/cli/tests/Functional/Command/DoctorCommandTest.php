@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Tests\Functional\Command;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\VortexCli\Command\CheckRequirementsCommand;
+use DrevOps\VortexCli\Command\DoctorCommand;
 use DrevOps\VortexCli\Runner\ProcessRunner;
 use DrevOps\VortexCli\Runner\RunnerInterface;
 use DrevOps\VortexCli\Tests\Functional\FunctionalTestCase;
@@ -16,16 +16,16 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Process\ExecutableFinder;
 
 /**
- * Functional tests for CheckRequirementsCommand.
+ * Functional tests for DoctorCommand.
  */
-#[CoversClass(CheckRequirementsCommand::class)]
-class CheckRequirementsCommandTest extends FunctionalTestCase {
+#[CoversClass(DoctorCommand::class)]
+class DoctorCommandTest extends FunctionalTestCase {
 
   /**
-   * Test check requirements with mocked runner.
+   * Test diagnostics with mocked runner.
    */
-  #[DataProvider('dataProviderCheckRequirementsCommand')]
-  public function testCheckRequirementsCommand(
+  #[DataProvider('dataProviderDoctorCommand')]
+  public function testDoctorCommand(
     \Closure $executable_finder_callback,
     \Closure $exit_code_callback,
     array $command_inputs,
@@ -61,7 +61,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       });
 
     // Create command and inject mocks using setters.
-    $command = new CheckRequirementsCommand();
+    $command = new DoctorCommand();
     $command->setExecutableFinder($mock_finder);
     $command->setProcessRunner($mock_runner);
 
@@ -77,11 +77,11 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
   }
 
   /**
-   * Data provider for testCheckRequirementsCommand.
+   * Data provider for testDoctorCommand.
    *
    * @return \Iterator<string, array{executable_finder_callback: \Closure, exit_code_callback: \Closure, command_inputs: array<string, mixed>, expect_failure: bool, output_assertions: array<string>, before?: (\Closure | null)}>
    */
-  public static function dataProviderCheckRequirementsCommand(): \Iterator {
+  public static function dataProviderDoctorCommand(): \Iterator {
     yield 'Check all requirements' => [
       'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
       'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
@@ -89,8 +89,8 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => FALSE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
+            TuiOutput::DOCTOR_ALL_MET,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
           [
             '* Docker: version 1.0.0',
@@ -107,8 +107,8 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => TRUE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_MISSING,
-            TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
+            TuiOutput::DOCTOR_MISSING,
+            TuiOutput::DOCTOR_MISSING_LABEL,
           ]),
           [
             '* Docker:',
@@ -117,8 +117,8 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
             '* Pygmy:',
           ],
           TuiOutput::absent([
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
-            TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
+            TuiOutput::DOCTOR_ALL_MET,
           ]),
       ),
     ];
@@ -129,8 +129,8 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => FALSE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
+            TuiOutput::DOCTOR_ALL_MET,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
           ['* Docker: version 1.0.0'],
           ['! Ahoy:', '! Pygmy:'],
@@ -143,8 +143,8 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => FALSE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
+            TuiOutput::DOCTOR_ALL_MET,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
           [
             '* Docker: version 1.0.0',
@@ -160,11 +160,11 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => FALSE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
+            TuiOutput::DOCTOR_ALL_MET,
           ]),
           TuiOutput::absent([
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
-            TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
+            TuiOutput::DOCTOR_MISSING_LABEL,
           ]),
       ),
     ];
@@ -175,13 +175,13 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => TRUE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_MISSING,
-            TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
+            TuiOutput::DOCTOR_MISSING,
+            TuiOutput::DOCTOR_MISSING_LABEL,
           ]),
           ['* Docker:'],
           TuiOutput::absent([
-            TuiOutput::CHECK_REQUIREMENTS_DOCKER_AVAILABLE,
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
+            TuiOutput::DOCTOR_DOCKER_AVAILABLE,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
       ),
     ];
@@ -192,13 +192,13 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => TRUE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_MISSING,
-            TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
+            TuiOutput::DOCTOR_MISSING,
+            TuiOutput::DOCTOR_MISSING_LABEL,
           ]),
           ['* Ahoy:'],
           TuiOutput::absent([
-            TuiOutput::CHECK_REQUIREMENTS_AHOY_AVAILABLE,
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
+            TuiOutput::DOCTOR_AHOY_AVAILABLE,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
       ),
     ];
@@ -209,13 +209,13 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => TRUE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_MISSING,
-            TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
+            TuiOutput::DOCTOR_MISSING,
+            TuiOutput::DOCTOR_MISSING_LABEL,
           ]),
           ['* Pygmy:'],
           TuiOutput::absent([
-            TuiOutput::CHECK_REQUIREMENTS_PYGMY_RUNNING,
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
+            TuiOutput::DOCTOR_PYGMY_RUNNING,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
       ),
     ];
@@ -226,12 +226,12 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => FALSE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
+            TuiOutput::DOCTOR_ALL_MET,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
           ['* Pygmy: version 1.0.0'],
           TuiOutput::absent([
-            TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
+            TuiOutput::DOCTOR_MISSING_LABEL,
           ]),
       ),
     ];
@@ -248,12 +248,12 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => FALSE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
+            TuiOutput::DOCTOR_ALL_MET,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
           ['* Pygmy: version 1.0.0'],
           TuiOutput::absent([
-            TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
+            TuiOutput::DOCTOR_MISSING_LABEL,
           ]),
       ),
     ];
@@ -274,13 +274,13 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => TRUE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_MISSING,
-            TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
+            TuiOutput::DOCTOR_MISSING,
+            TuiOutput::DOCTOR_MISSING_LABEL,
           ]),
           ['* Pygmy:'],
           TuiOutput::absent([
-            TuiOutput::CHECK_REQUIREMENTS_PYGMY_RUNNING,
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
+            TuiOutput::DOCTOR_PYGMY_RUNNING,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
       ),
     ];
@@ -291,12 +291,12 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => FALSE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
+            TuiOutput::DOCTOR_ALL_MET,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
           ['* Docker Compose: version 1.0.0'],
           TuiOutput::absent([
-            TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
+            TuiOutput::DOCTOR_MISSING_LABEL,
           ]),
       ),
     ];
@@ -313,12 +313,12 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => FALSE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
+            TuiOutput::DOCTOR_ALL_MET,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
           ['* Docker Compose: version 1.0.0'],
           TuiOutput::absent([
-            TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
+            TuiOutput::DOCTOR_MISSING_LABEL,
           ]),
       ),
     ];
@@ -335,13 +335,13 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'expect_failure' => TRUE,
       'output_assertions' => array_merge(
           TuiOutput::present([
-            TuiOutput::CHECK_REQUIREMENTS_MISSING,
-            TuiOutput::CHECK_REQUIREMENTS_MISSING_LABEL,
+            TuiOutput::DOCTOR_MISSING,
+            TuiOutput::DOCTOR_MISSING_LABEL,
           ]),
           ['* Docker Compose:'],
           TuiOutput::absent([
-            TuiOutput::CHECK_REQUIREMENTS_DOCKER_COMPOSE_AVAILABLE,
-            TuiOutput::CHECK_REQUIREMENTS_PRESENT_LABEL,
+            TuiOutput::DOCTOR_DOCKER_COMPOSE_AVAILABLE,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
       ),
     ];
@@ -351,7 +351,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'command_inputs' => ['--only' => 'invalid'],
       'expect_failure' => TRUE,
       'output_assertions' => [
-        '* ' . TuiOutput::CHECK_REQUIREMENTS_UNKNOWN . ' invalid',
+        '* ' . TuiOutput::DOCTOR_UNKNOWN . ' invalid',
         '* Available: docker, docker-compose, ahoy',
       ],
     ];
@@ -361,7 +361,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'command_inputs' => ['--only' => 'docker,invalid'],
       'expect_failure' => TRUE,
       'output_assertions' => [
-        '* ' . TuiOutput::CHECK_REQUIREMENTS_UNKNOWN . ' invalid',
+        '* ' . TuiOutput::DOCTOR_UNKNOWN . ' invalid',
         '* Available: docker, docker-compose, ahoy',
       ],
     ];
@@ -370,7 +370,7 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
       'command_inputs' => [],
       'expect_failure' => FALSE,
-      'output_assertions' => TuiOutput::present([TuiOutput::CHECK_REQUIREMENTS_ALL_MET]),
+      'output_assertions' => TuiOutput::present([TuiOutput::DOCTOR_ALL_MET]),
       'before' => function (array $inputs, string $tmp): array {
           $dir = $tmp . '/valid_dest_' . uniqid();
           File::mkdir($dir);
@@ -402,6 +402,74 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
           return $inputs;
       },
     ];
+  }
+
+  /**
+   * Every checked tool reports an install instruction when it is absent.
+   *
+   * Pins the reported surface so the diagnostics cannot quietly shrink to a
+   * bare present/absent list.
+   */
+  public function testReportsInstallInstructionsForEveryMissingTool(): void {
+    $command = $this->doctorCommand(fn(string $name): ?string => NULL, fn(string $command): int => RunnerInterface::EXIT_COMMAND_NOT_FOUND);
+
+    static::applicationInitFromCommand($command);
+    $this->applicationRun([], [], TRUE);
+
+    $this->assertSame([], $command->getPresent(), 'No tool should be reported as present when none are installed');
+
+    $missing = $command->getMissing();
+    $this->assertSame(['Docker', 'Docker Compose', 'Ahoy', 'Pygmy'], array_keys($missing), 'Every checked tool should be reported as missing');
+
+    foreach ($missing as $tool => $instruction) {
+      $this->assertNotEmpty($instruction, sprintf('Tool "%s" should report an install instruction', $tool));
+    }
+  }
+
+  /**
+   * A tool that is installed but not running is reported as missing.
+   *
+   * Being on PATH is not the same as being usable, and conflating the two
+   * would hide the most common local failure.
+   */
+  public function testDistinguishesInstalledFromRunning(): void {
+    $command = $this->doctorCommand(
+      fn(string $name): string => '/usr/bin/' . $name,
+      fn(string $command): int => str_contains($command, 'pygmy status') || str_contains($command, 'amazeeio') ? RunnerInterface::EXIT_FAILURE : RunnerInterface::EXIT_SUCCESS,
+    );
+
+    static::applicationInitFromCommand($command);
+    $this->applicationRun(['--only' => 'pygmy'], [], TRUE);
+
+    $this->assertArrayNotHasKey('Pygmy', $command->getPresent(), 'Pygmy on PATH but not running should not be reported as present');
+    $this->assertSame(['Pygmy' => 'Run: pygmy up'], $command->getMissing(), 'Pygmy on PATH but not running should be reported as missing');
+  }
+
+  /**
+   * Build a command with the executable finder and process runner mocked.
+   */
+  protected function doctorCommand(\Closure $executable_finder_callback, \Closure $exit_code_callback): DoctorCommand {
+    $mock_finder = $this->createMock(ExecutableFinder::class);
+    $mock_finder->method('find')->willReturnCallback(fn(string $name) => $executable_finder_callback($name));
+
+    $mock_runner = $this->createMock(ProcessRunner::class);
+    $current_command = '';
+    $mock_runner->method('run')->willReturnCallback(function (string $command) use ($mock_runner, &$current_command): MockObject {
+      $current_command = $command;
+      return $mock_runner;
+    });
+    $mock_runner->method('getOutput')->willReturn('version 1.0.0');
+    // Bound by reference so each assertion sees the command being run, not the
+    // empty string the runner started with.
+    $mock_runner->method('getExitCode')->willReturnCallback(function () use ($exit_code_callback, &$current_command) {
+      return $exit_code_callback($current_command);
+    });
+
+    $command = new DoctorCommand();
+    $command->setExecutableFinder($mock_finder);
+    $command->setProcessRunner($mock_runner);
+
+    return $command;
   }
 
 }
