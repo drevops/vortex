@@ -11,6 +11,7 @@ declare(strict_types=1);
 use DrevOps\VortexCli\Command\BuildCommand;
 use DrevOps\VortexCli\Command\DoctorCommand;
 use DrevOps\VortexCli\Command\InstallCommand;
+use DrevOps\VortexCli\Command\UpdateCommand;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Env;
 use Symfony\Component\Console\Application;
@@ -28,6 +29,7 @@ $version = str_contains($version, 'vortex-cli-version') ? 'development' : $versi
 $application = new Application('Vortex CLI', $version);
 
 $application->add(new InstallCommand());
+$application->add(new UpdateCommand());
 $application->add(new DoctorCommand());
 $application->add(new BuildCommand());
 
