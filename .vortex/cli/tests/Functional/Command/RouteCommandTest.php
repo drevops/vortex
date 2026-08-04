@@ -8,10 +8,12 @@ use AlexSkrypnyk\File\File as UpstreamFile;
 use DrevOps\VortexCli\Command\ConfigureCommand;
 use DrevOps\VortexCli\Command\InstallCommand;
 use DrevOps\VortexCli\Command\RouteCommand;
+use DrevOps\VortexCli\Downloader\RepositoryDownloader;
 use DrevOps\VortexCli\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexCli\Utils\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Component\Process\ExecutableFinder;
 
 /**
  * Functional tests for RouteCommand.
@@ -104,13 +106,40 @@ class RouteCommandTest extends FunctionalTestCase {
   }
 
   /**
+   * A destination without a project is routed to the install verb.
+   */
+  public function testRoutesToInstallForEmptyDirectory(): void {
+    // The download is stubbed to fail: reaching it at all is what proves the
+    // install verb was selected, without paying for a real download.
+    $downloader = $this->createMock(RepositoryDownloader::class);
+    $downloader->method('download')->willThrowException(new \RuntimeException('Failed to download Vortex.'));
+
+    $executable_finder = $this->createMock(ExecutableFinder::class);
+    $executable_finder->method('find')->willReturnCallback(fn(string $command): string => '/usr/bin/' . $command);
+
+    $install = new InstallCommand();
+    $install->setRepositoryDownloader($downloader);
+    $install->setExecutableFinder($executable_finder);
+
+    $this->runRouted([
+      '--destination' => self::$sut,
+      '--no-interaction' => TRUE,
+    ], TRUE, $install);
+
+    $this->assertApplicationAnyOutputContainsOrNot([
+      '* Welcome to the Vortex CLI non-interactive install',
+      '* Failed to download Vortex.',
+    ]);
+  }
+
+  /**
    * Run the application with the route command as the default.
    */
-  protected function runRouted(array $options, bool $expect_failure = FALSE): string {
+  protected function runRouted(array $options, bool $expect_failure = FALSE, ?InstallCommand $install = NULL): string {
     static::applicationInitFromCommand(new RouteCommand(), FALSE);
 
     $application = $this->applicationGet();
-    $application->add(new InstallCommand());
+    $application->add($install ?? new InstallCommand());
     $application->add(new ConfigureCommand());
     $application->setDefaultCommand('route');
 

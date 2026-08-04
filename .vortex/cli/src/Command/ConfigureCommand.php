@@ -88,6 +88,11 @@ EOF
 
     Tui::init($output);
 
+    // Declared up front so the reporting below cannot depend on how far the
+    // block underneath got before an exception.
+    $apply = FALSE;
+    $interactive = FALSE;
+
     try {
       $config = $this->resolveConfig($input);
       $interactive = !$config->getNoInteraction();
@@ -95,6 +100,7 @@ EOF
       Tui::init($output, $interactive);
 
       $apply = (bool) $input->getOption(static::OPTION_APPLY);
+
       if ($apply) {
         $this->assertVortexProject($config);
       }

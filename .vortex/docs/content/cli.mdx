@@ -103,10 +103,11 @@ php vortex.phar configure --apply --prompts=current.json
 
 Checks for the tools a **Vortex** project needs: Docker, Docker Compose, Ahoy and Pygmy. It reports whether each is installed *and* running, the version of each one present, and how to install the ones that are missing. It only reports - it never changes the project.
 
-| Option         | Short | Description                                            |
-|----------------|-------|--------------------------------------------------------|
-| `--only`       | `-o`  | Comma-separated subset of requirements to check         |
-| `--no-summary` |       | Hide the summary listing tool versions                  |
+| Option          | Short | Description                                            |
+|-----------------|-------|--------------------------------------------------------|
+| `--destination` | `-d`  | Directory to run the checks in. Defaults to the current directory |
+| `--only`        | `-o`  | Comma-separated subset of requirements to check         |
+| `--no-summary`  |       | Hide the summary listing tool versions                  |
 
 This is the host-level check that runs before a project exists. Once a project is built, [`ahoy doctor`](./tools/doctor) goes further and inspects the running stack itself - ports, containers, the web server and the site bootstrap.
 

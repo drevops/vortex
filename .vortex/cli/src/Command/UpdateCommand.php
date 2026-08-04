@@ -54,7 +54,7 @@ class UpdateCommand extends AbstractInstallCommand {
 EOF
     );
     $this->addCommonOptions();
-    $this->addOption(static::OPTION_TO, NULL, InputOption::VALUE_REQUIRED, 'The template version to update to. Defaults to the latest release of this major.');
+    $this->addOption(static::OPTION_TO, NULL, InputOption::VALUE_REQUIRED, 'The template version to update to, resolved against the official repository. Defaults to the latest release of this major. Use --uri to update from a fork.');
   }
 
   /**

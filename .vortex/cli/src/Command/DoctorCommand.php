@@ -98,7 +98,11 @@ class DoctorCommand extends Command implements ProcessRunnerAwareInterface, Exec
     $only = $input->getOption(static::OPTION_ONLY);
     $requirements = $this->validateRequirements($only ? array_map(trim(...), explode(',', (string) $only)) : NULL);
 
-    $this->processRunner ??= $this->getProcessRunner()->setCwd($this->cwd);
+    // Assigned before the working directory is applied so an injected runner
+    // is configured too, rather than being left pointing elsewhere.
+    $this->processRunner = $this->getProcessRunner();
+    $this->processRunner->setCwd($this->cwd);
+
     $this->present = [];
     $this->missing = [];
 
@@ -254,14 +258,17 @@ class DoctorCommand extends Command implements ProcessRunnerAwareInterface, Exec
    * Check if Docker Compose is available.
    */
   protected function checkDockerCompose(): bool {
-    $result = $this->dockerComposeExists();
-    if ($result) {
-      $this->present['Docker Compose'] = $this->getCommandVersion('docker compose version');
-    }
-    else {
+    $command = $this->dockerComposeVersionCommand();
+
+    if ($command === NULL) {
       $this->missing['Docker Compose'] = 'https://docs.docker.com/compose/install/';
+
+      return FALSE;
     }
-    return $result;
+
+    $this->present['Docker Compose'] = $this->getCommandVersion($command);
+
+    return TRUE;
   }
 
   /**
@@ -295,9 +302,10 @@ class DoctorCommand extends Command implements ProcessRunnerAwareInterface, Exec
       return TRUE;
     }
 
-    $this->processRunner->run('docker ps --format "{{.Names}}" | grep -q amazeeio');
-    // @phpstan-ignore-next-line notIdentical.alwaysFalse
-    if ($this->processRunner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {
+    // Pygmy's own containers can be running while its status command is not
+    // usable, so the container list is the second opinion. Commands run without
+    // a shell, so the match is made here rather than piped into grep.
+    if ($this->hasAmazeeioContainers()) {
       $this->present['Pygmy'] = $version;
       return TRUE;
     }
@@ -308,6 +316,21 @@ class DoctorCommand extends Command implements ProcessRunnerAwareInterface, Exec
   }
 
   /**
+   * Whether any running container belongs to Pygmy.
+   */
+  protected function hasAmazeeioContainers(): bool {
+    $this->processRunner->run('docker', ['ps', '--format', '{{.Names}}']);
+
+    if ($this->processRunner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
+      return FALSE;
+    }
+
+    $output = $this->processRunner->getOutput();
+
+    return str_contains(is_string($output) ? $output : implode(PHP_EOL, $output), 'amazeeio');
+  }
+
+  /**
    * Check if a command exists.
    */
   protected function commandExists(string $command): bool {
@@ -315,15 +338,21 @@ class DoctorCommand extends Command implements ProcessRunnerAwareInterface, Exec
   }
 
   /**
-   * Check if Docker Compose exists.
+   * The command reporting the available Docker Compose version.
+   *
+   * Which form is present decides which command can report a version, so the
+   * two are resolved together rather than assuming the modern subcommand.
+   *
+   * @return string|null
+   *   The version command, or NULL when neither form is available.
    */
-  protected function dockerComposeExists(): bool {
+  protected function dockerComposeVersionCommand(): ?string {
     $this->processRunner->run('docker compose version');
     if ($this->processRunner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {
-      return TRUE;
+      return 'docker compose version';
     }
 
-    return $this->commandExists('docker-compose');
+    return $this->commandExists('docker-compose') ? 'docker-compose --version' : NULL;
   }
 
   /**

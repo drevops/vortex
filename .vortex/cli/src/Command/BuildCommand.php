@@ -75,7 +75,9 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
         label: 'Checking requirements',
         action: function (): bool {
           $command_runner = $this->getCommandRunner()->disableLog();
-          $command_runner->run('doctor', [], ['--no-summary' => '1']);
+          // Checks run against the directory being built, not whichever one
+          // the CLI happens to have been started from.
+          $command_runner->run('doctor', [], ['--no-summary' => '1', '--destination' => $this->cwd]);
 
           return $command_runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
         },

@@ -32,38 +32,13 @@ class DoctorCommandTest extends FunctionalTestCase {
     bool $expect_failure,
     array $output_assertions,
     ?\Closure $before = NULL,
+    ?\Closure $output_callback = NULL,
   ): void {
     if ($before instanceof \Closure) {
       $command_inputs = $before($command_inputs, self::$tmp);
     }
-    // Create a mock ExecutableFinder.
-    $mock_finder = $this->createMock(ExecutableFinder::class);
-    $mock_finder->method('find')
-      ->willReturnCallback(fn(string $name) => $executable_finder_callback($name));
 
-    // Create a mock ProcessRunner.
-    $mock_runner = $this->createMock(ProcessRunner::class);
-
-    // Set up common default behaviors.
-    $current_command = '';
-    $mock_runner->method('run')
-      ->willReturnCallback(function (string $command) use ($mock_runner, &$current_command): MockObject {
-        $current_command = $command;
-        return $mock_runner;
-      });
-
-    $mock_runner->method('getOutput')->willReturn('version 1.0.0');
-
-    // Set up getExitCode using the provided callback.
-    $mock_runner->method('getExitCode')
-      ->willReturnCallback(function () use ($exit_code_callback, &$current_command) {
-        return $exit_code_callback($current_command);
-      });
-
-    // Create command and inject mocks using setters.
-    $command = new DoctorCommand();
-    $command->setExecutableFinder($mock_finder);
-    $command->setProcessRunner($mock_runner);
+    $command = $this->doctorCommand($executable_finder_callback, $exit_code_callback, $output_callback);
 
     // Initialize application with our command.
     static::applicationInitFromCommand($command);
@@ -256,16 +231,16 @@ class DoctorCommandTest extends FunctionalTestCase {
             TuiOutput::DOCTOR_MISSING_LABEL,
           ]),
       ),
+      'before' => NULL,
+      // The container list is read, so a running Pygmy shows up in its output
+      // rather than in an exit code.
+      'output_callback' => fn(string $current_command): string => str_contains($current_command, 'docker') ? 'amazeeio-haproxy' : 'version 1.0.0',
     ];
     yield 'Pygmy status fails and no amazeeio containers' => [
       'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
       'exit_code_callback' => function (string $current_command): int {
           // Pygmy status fails.
         if (str_contains($current_command, 'pygmy status')) {
-          return RunnerInterface::EXIT_FAILURE;
-        }
-          // No amazeeio containers.
-        if (str_contains($current_command, 'docker ps') && str_contains($current_command, 'amazeeio')) {
           return RunnerInterface::EXIT_FAILURE;
         }
           return RunnerInterface::EXIT_SUCCESS;
@@ -283,6 +258,9 @@ class DoctorCommandTest extends FunctionalTestCase {
             TuiOutput::DOCTOR_PRESENT_LABEL,
           ]),
       ),
+      'before' => NULL,
+      // Containers are running, but none of them belong to Pygmy.
+      'output_callback' => fn(string $current_command): string => str_contains($current_command, 'docker') ? 'some-other-container' : 'version 1.0.0',
     ];
     yield 'Docker Compose via modern syntax' => [
       'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
@@ -352,7 +330,7 @@ class DoctorCommandTest extends FunctionalTestCase {
       'expect_failure' => TRUE,
       'output_assertions' => [
         '* ' . TuiOutput::DOCTOR_UNKNOWN . ' invalid',
-        '* Available: docker, docker-compose, ahoy',
+        '* ' . TuiOutput::DOCTOR_AVAILABLE,
       ],
     ];
     yield 'Mixed valid and invalid requirements' => [
@@ -362,7 +340,7 @@ class DoctorCommandTest extends FunctionalTestCase {
       'expect_failure' => TRUE,
       'output_assertions' => [
         '* ' . TuiOutput::DOCTOR_UNKNOWN . ' invalid',
-        '* Available: docker, docker-compose, ahoy',
+        '* ' . TuiOutput::DOCTOR_AVAILABLE,
       ],
     ];
     yield 'Valid destination directory' => [
@@ -448,7 +426,7 @@ class DoctorCommandTest extends FunctionalTestCase {
   /**
    * Build a command with the executable finder and process runner mocked.
    */
-  protected function doctorCommand(\Closure $executable_finder_callback, \Closure $exit_code_callback): DoctorCommand {
+  protected function doctorCommand(\Closure $executable_finder_callback, \Closure $exit_code_callback, ?\Closure $output_callback = NULL): DoctorCommand {
     $mock_finder = $this->createMock(ExecutableFinder::class);
     $mock_finder->method('find')->willReturnCallback(fn(string $name) => $executable_finder_callback($name));
 
@@ -458,9 +436,11 @@ class DoctorCommandTest extends FunctionalTestCase {
       $current_command = $command;
       return $mock_runner;
     });
-    $mock_runner->method('getOutput')->willReturn('version 1.0.0');
-    // Bound by reference so each assertion sees the command being run, not the
-    // empty string the runner started with.
+    // Bound by reference so each stub sees the command being run, not the empty
+    // string the runner started with.
+    $mock_runner->method('getOutput')->willReturnCallback(function () use ($output_callback, &$current_command): string {
+      return $output_callback instanceof \Closure ? $output_callback($current_command) : 'version 1.0.0';
+    });
     $mock_runner->method('getExitCode')->willReturnCallback(function () use ($exit_code_callback, &$current_command) {
       return $exit_code_callback($current_command);
     });
