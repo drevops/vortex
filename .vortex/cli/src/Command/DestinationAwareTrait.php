@@ -12,12 +12,14 @@ use Symfony\Component\Console\Input\InputOption;
  */
 trait DestinationAwareTrait {
 
+  const OPTION_DESTINATION = 'destination';
+
   /**
    * Add the destination option to the command.
    */
   protected function addDestinationOption(): void {
     $this->addOption(
-      'destination',
+      static::OPTION_DESTINATION,
       'd',
       InputOption::VALUE_REQUIRED,
       'Target directory for the operation. Defaults to current directory.'
@@ -37,7 +39,7 @@ trait DestinationAwareTrait {
    *   If the destination directory does not exist.
    */
   protected function getDestination(InputInterface $input): string {
-    $destination = $input->getOption('destination');
+    $destination = $input->getOption(static::OPTION_DESTINATION);
 
     if ($destination === NULL || $destination === '') {
       return getcwd() ?: '.';
