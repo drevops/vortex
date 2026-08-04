@@ -9,6 +9,7 @@ use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait;
 use DrevOps\VortexCli\Command\InstallCommand;
 use DrevOps\VortexCli\Utils\File;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Test PHAR cleanup functionality.
@@ -77,10 +78,54 @@ class PharTest extends FunctionalTestCase {
     $this->runInstallationWithPhar($this->pharFile, ['help' => TRUE]);
 
     $this->assertProcessSuccessful();
-    $this->assertProcessOutputContains('Install Vortex from remote or local repository');
+    // A bare invocation is resolved by the target directory, so its help
+    // describes that rather than any one verb.
+    $this->assertProcessOutputContains('Install into a new directory, or reconfigure an existing Vortex project.');
     $this->assertProcessOutputNotContains('Welcome to the Vortex CLI non-interactive install');
     $this->assertFileDoesNotExist(static::$sut . DIRECTORY_SEPARATOR . 'composer.json', 'Composer file should NOT be created when --help flag is used');
     $this->assertFileExists($this->pharFile, 'PHAR file should NOT be removed when --help option is used');
+  }
+
+  /**
+   * Every verb runs from the built PHAR.
+   */
+  #[DataProvider('dataProviderPharRunsVerb')]
+  public function testPharRunsVerb(string $verb, string $expected): void {
+    $this->processRun('php', [$this->pharFile, $verb, '--help']);
+
+    $this->assertProcessSuccessful();
+    $this->assertProcessOutputContains($expected);
+  }
+
+  /**
+   * Data provider for testPharRunsVerb().
+   *
+   * @return \Iterator<string, array{string, string}>
+   *   Test data.
+   */
+  public static function dataProviderPharRunsVerb(): \Iterator {
+    yield 'install' => ['install', 'Install Vortex from remote or local repository.'];
+    yield 'update' => ['update', 'Update the project to a template version, re-applying your answers.'];
+    yield 'configure' => ['configure', 'Reconfigure an existing project in place.'];
+    yield 'doctor' => ['doctor', 'Diagnose the local environment for common problems.'];
+    yield 'build' => ['build', 'Build the site using ahoy build.'];
+  }
+
+  /**
+   * The command list advertises every verb and hides the router.
+   */
+  public function testPharListsVerbs(): void {
+    $this->processRun('php', [$this->pharFile, 'list']);
+
+    $this->assertProcessSuccessful();
+
+    foreach (['install', 'update', 'configure', 'doctor', 'build'] as $verb) {
+      $this->assertProcessOutputContains($verb);
+    }
+
+    // The router is reached by typing nothing, never by name, so its own
+    // description should not appear among the listed commands.
+    $this->assertProcessOutputNotContains('Install into a new directory, or reconfigure an existing Vortex project.');
   }
 
   protected static function buildPhar(string $dst): void {

@@ -12,6 +12,7 @@ use DrevOps\VortexCli\Command\BuildCommand;
 use DrevOps\VortexCli\Command\ConfigureCommand;
 use DrevOps\VortexCli\Command\DoctorCommand;
 use DrevOps\VortexCli\Command\InstallCommand;
+use DrevOps\VortexCli\Command\RouteCommand;
 use DrevOps\VortexCli\Command\UpdateCommand;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Env;
@@ -34,7 +35,8 @@ $application->add(new UpdateCommand());
 $application->add(new ConfigureCommand());
 $application->add(new DoctorCommand());
 $application->add(new BuildCommand());
+$application->add(new RouteCommand());
 
-$application->setDefaultCommand('install');
+$application->setDefaultCommand('route');
 
 $application->run();
