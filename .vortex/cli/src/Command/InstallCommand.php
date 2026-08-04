@@ -15,9 +15,6 @@ use DrevOps\VortexCli\Runner\CommandRunnerAwareTrait;
 use DrevOps\VortexCli\Runner\ExecutableFinderAwareInterface;
 use DrevOps\VortexCli\Runner\ExecutableFinderAwareTrait;
 use DrevOps\VortexCli\Runner\RunnerInterface;
-use DrevOps\VortexCli\Schema\AgentHelp;
-use DrevOps\VortexCli\Schema\SchemaGenerator;
-use DrevOps\VortexCli\Schema\SchemaValidator;
 use DrevOps\VortexCli\Task\Task;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Env;
@@ -42,6 +39,7 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
 
   use CommandRunnerAwareTrait;
   use ExecutableFinderAwareTrait;
+  use AgentSurfaceTrait;
 
   const OPTION_DESTINATION = 'destination';
 
@@ -58,14 +56,6 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
   const OPTION_NO_CLEANUP = 'no-cleanup';
 
   const OPTION_BUILD = 'build';
-
-  const OPTION_SCHEMA = 'schema';
-
-  const OPTION_VALIDATE = 'validate';
-
-  const OPTION_PROMPTS = 'prompts';
-
-  const OPTION_AGENT_HELP = 'agent-help';
 
   /**
    * Defines default command name.
@@ -145,10 +135,7 @@ EOF
     $this->addOption(static::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
     $this->addOption(static::OPTION_NO_CLEANUP, NULL, InputOption::VALUE_NONE, 'Do not remove the CLI after successful installation.');
     $this->addOption(static::OPTION_BUILD, 'b', InputOption::VALUE_NONE, 'Run auto-build after installation without prompting.');
-    $this->addOption(static::OPTION_PROMPTS, 'p', InputOption::VALUE_REQUIRED, 'A JSON string with prompt answers or a path to a JSON file. Keys are prompt IDs from --schema.');
-    $this->addOption(static::OPTION_SCHEMA, NULL, InputOption::VALUE_NONE, 'Output prompt schema as JSON.');
-    $this->addOption(static::OPTION_VALIDATE, NULL, InputOption::VALUE_NONE, 'Validate config without installing.');
-    $this->addOption(static::OPTION_AGENT_HELP, NULL, InputOption::VALUE_NONE, 'Output instructions for AI agents on how to use the CLI.');
+    $this->addAgentSurfaceOptions();
   }
 
   /**
@@ -161,16 +148,9 @@ EOF
       return Command::SUCCESS;
     }
 
-    if ($input->getOption(static::OPTION_AGENT_HELP)) {
-      return $this->handleAgentHelp($output);
-    }
-
-    if ($input->getOption(static::OPTION_SCHEMA)) {
-      return $this->handleSchema($input, $output);
-    }
-
-    if ($input->getOption(static::OPTION_VALIDATE)) {
-      return $this->handleValidate($input, $output);
+    $agent_surface = $this->handleAgentSurface($input, $output);
+    if ($agent_surface !== NULL) {
+      return $agent_surface;
     }
 
     Tui::init($output);
@@ -307,67 +287,6 @@ EOF
     // Cleanup should take place only in case of the successful installation.
     // Otherwise, the user should be able to re-run the install.
     register_shutdown_function([$this, 'cleanup']);
-
-    return Command::SUCCESS;
-  }
-
-  /**
-   * Handle --schema option.
-   */
-  protected function handleSchema(InputInterface $input, OutputInterface $output): int {
-    $config = Config::fromString('{}');
-    $prompt_manager = new PromptManager($config);
-
-    $generator = new SchemaGenerator($prompt_manager->getHandlers());
-    $schema = $generator->generate();
-
-    $output->write((string) json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-
-    return Command::SUCCESS;
-  }
-
-  /**
-   * Handle --validate option.
-   */
-  protected function handleValidate(InputInterface $input, OutputInterface $output): int {
-    $prompts_option = $input->getOption(static::OPTION_PROMPTS);
-
-    if (empty($prompts_option) || !is_string($prompts_option)) {
-      $output->writeln('The --validate option requires --prompts.');
-
-      return Command::FAILURE;
-    }
-
-    $prompts_json = is_file($prompts_option) ? (string) file_get_contents($prompts_option) : $prompts_option;
-    $decoded = json_decode($prompts_json);
-
-    if (!$decoded instanceof \stdClass) {
-      $output->writeln('Invalid JSON in --prompts. Expected a JSON object.');
-
-      return Command::FAILURE;
-    }
-
-    $user_config = json_decode($prompts_json, TRUE);
-
-    $config = Config::fromString('{}');
-    $prompt_manager = new PromptManager($config);
-
-    $validator = new SchemaValidator($prompt_manager->getHandlers());
-    $result = $validator->validate($user_config);
-
-    $output->write((string) json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-
-    return $result['valid'] ? Command::SUCCESS : Command::FAILURE;
-  }
-
-  /**
-   * Handle --agent-help option.
-   *
-   * Outputs instructions for AI agents on how to use the CLI
-   * programmatically via --schema and --validate.
-   */
-  protected function handleAgentHelp(OutputInterface $output): int {
-    $output->write(AgentHelp::render());
 
     return Command::SUCCESS;
   }
