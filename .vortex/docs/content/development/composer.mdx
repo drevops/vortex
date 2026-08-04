@@ -453,4 +453,4 @@ Check your dependencies for security issues manually:
 
 **Vortex** runs `composer audit --locked` in the [security audit workflow](/docs/continuous-integration#security-audit), so the audited set is exactly what `composer.lock` pins. Because `advisories.audit` is `fail`, the audit reports vulnerabilities and the workflow fails when any are found - even though installs and updates are not blocked.
 
-By default that failure gates the build. Set the repository variable `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` to make the audit step run and report without failing the build - useful as a one-off bypass while a known advisory is being addressed.
+That failure is reported by the audit workflow, which runs independently of the build. Set the repository variable `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` to make the audit step run and report without failing that workflow - useful as a one-off bypass while a known advisory is being addressed.
