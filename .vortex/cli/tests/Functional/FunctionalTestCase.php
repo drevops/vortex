@@ -39,6 +39,15 @@ abstract class FunctionalTestCase extends UnitTestCase {
   protected function tearDown(): void {
     static::tuiTearDown();
 
+    // Running the CLI loads the destination's .env into the process, so the
+    // variables it defines are cleared here rather than being left to resolve
+    // in whichever test runs next.
+    static::envUnsetPrefix('VORTEX_');
+    static::envUnsetPrefix('DRUPAL_');
+    static::envUnsetPrefix('LAGOON_');
+    static::envUnset('WEBROOT');
+    static::envUnset('TZ');
+
     if (empty(static::$fixtures)) {
       throw new \RuntimeException('Fixtures directory is not set.');
     }

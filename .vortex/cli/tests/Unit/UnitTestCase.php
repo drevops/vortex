@@ -29,6 +29,15 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   use EnvTrait;
 
   /**
+   * The working directory the suite was started from.
+   *
+   * Locations are derived from the working directory, so a test that leaves it
+   * somewhere else would resolve every later test's paths against the wrong
+   * root.
+   */
+  protected static ?string $originalCwd = NULL;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
@@ -36,6 +45,8 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     if ($cwd === FALSE) {
       throw new \RuntimeException('Failed to determine current working directory.');
     }
+
+    static::$originalCwd ??= $cwd;
 
     // Run tests from the root of the repo.
     self::locationsInit($cwd . '/../../');
@@ -45,6 +56,10 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
    * {@inheritdoc}
    */
   protected function tearDown(): void {
+    if (static::$originalCwd !== NULL) {
+      chdir(static::$originalCwd);
+    }
+
     static::envReset();
     parent::tearDown();
   }
