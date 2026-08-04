@@ -19,10 +19,10 @@
 -        run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
 -        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 -
-   security:
+   database:
      runs-on: ubuntu-latest
-     if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
-@@ -415,7 +405,6 @@
+     if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
+@@ -380,7 +370,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -30,7 +30,7 @@
  
        - name: Provision site
          run: |
-@@ -429,11 +418,6 @@
+@@ -394,11 +383,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -42,7 +42,7 @@
        - name: Test with PHPUnit
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: docker compose exec -T cli vendor/bin/phpunit
-@@ -493,18 +477,6 @@
+@@ -458,18 +442,6 @@
            fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}

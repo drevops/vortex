@@ -53,7 +53,7 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -415,7 +379,6 @@
+@@ -380,7 +344,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -61,7 +61,7 @@
  
        - name: Provision site
          run: |
-@@ -429,71 +392,6 @@
+@@ -394,71 +357,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -133,7 +133,7 @@
        - name: Validate Single Directory Components
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: |
-@@ -506,20 +404,6 @@
+@@ -471,20 +369,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -154,7 +154,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -536,16 +420,6 @@
+@@ -501,16 +385,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

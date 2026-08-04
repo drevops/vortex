@@ -177,8 +177,8 @@ jobs:
             [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
             docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
-  # Security job runs in parallel with lint, database and build jobs.
-  security:
+  # Audit job runs in its own workflow, independently of the commit workflow.
+  audit:
     <<: *runner_config
     steps:
       - checkout
@@ -480,13 +480,18 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - security:
-          filters:
-            tags:
-              only: /.*/
       - build:
           requires:
             - database
+          filters:
+            tags:
+              only: /.*/
+
+  # Security audit workflow. Runs for every commit push to the remote repository,
+  # independently of the commit workflow.
+  audit:
+    jobs:
+      - audit:
           filters:
             tags:
               only: /.*/
