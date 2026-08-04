@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # CLI
 
-The **Vortex** CLI is a single self-contained binary that scaffolds a new project from the template and updates an existing one. It ships as a PHAR, so it needs nothing installed beyond PHP.
+The **Vortex** CLI is a single self-contained binary that scaffolds a new project from the template, updates an existing one, reconfigures it, and reports on the local tooling. It ships as a PHAR, so it needs nothing installed beyond PHP.
 
 ```shell title="Download and run"
 curl -SsL https://www.vortextemplate.com/install > vortex.phar && php vortex.phar
@@ -14,13 +14,15 @@ For the step-by-step walkthrough of setting up a new project, see [Installation]
 
 ## Commands
 
-| Command              | Purpose                                              |
-|----------------------|------------------------------------------------------|
-| `install`            | Install **Vortex** from a remote or local repository |
-| `check-requirements` | Check that the required tools are installed          |
-| `build`              | Build the site using `ahoy build`                    |
+| Command     | Purpose                                                         |
+|-------------|-----------------------------------------------------------------|
+| `install`   | Install **Vortex** from a remote or local repository             |
+| `update`    | Update an existing project to a template version                 |
+| `configure` | Reconfigure an existing project in place, without downloading    |
+| `doctor`    | Report which required tools are installed and running            |
+| `build`     | Build the site using `ahoy build`                                |
 
-`install` is the default command, so `php vortex.phar` and `php vortex.phar install` do the same thing.
+Run without a command and the CLI resolves by the state of the target directory: an existing **Vortex** project is reconfigured, anything else gets a fresh install. So `php vortex.phar` in an empty directory installs, and the same command inside a project reconfigures it.
 
 ```shell title="List every command and option"
 php vortex.phar list
@@ -29,7 +31,7 @@ php vortex.phar install --help
 
 ### install
 
-Downloads the template, asks the configuration questions, and writes the result into the destination directory. Run it in an existing **Vortex** project to update that project instead.
+Downloads the template, asks the configuration questions, and writes the result into the destination directory.
 
 | Option                | Short | Description                                                                     |
 |-----------------------|-------|---------------------------------------------------------------------------------|
@@ -53,14 +55,60 @@ php vortex.phar install --uri=https://github.com/drevops/vortex.git#stable
 php vortex.phar install --uri=https://github.com/drevops/vortex.git#1.2.3
 ```
 
-### check-requirements
+### update
 
-Checks for the tools a **Vortex** project needs: Docker, Docker Compose, Ahoy and Pygmy.
+Updates an existing project to a template version, re-applying the answers discovered from the project. It takes every `install` option, plus:
+
+| Option   | Short | Description                                                              |
+|----------|-------|--------------------------------------------------------------------------|
+| `--to`   |       | The template version to update to. Defaults to the latest of this major  |
+
+```shell title="Updating a project"
+php vortex.phar update
+php vortex.phar update --to=1.2.3
+php vortex.phar update --no-interaction --destination=./my-project
+```
+
+An explicit `--uri` names both the repository and the ref, so it takes precedence over `--to`. A project of a different major version is refused, with a pointer to the release that can update it.
+
+### configure
+
+Reconfigures an existing project in place. Nothing is downloaded: the project is both the source the answers are read from and the tree they are written to.
+
+| Option             | Short | Description                                                               |
+|--------------------|-------|---------------------------------------------------------------------------|
+| `--destination`    | `-d`  | Project directory. Defaults to the current directory                      |
+| `--apply`          | `-a`  | Write the collected answers to the project                                |
+| `--no-interaction` | `-n`  | Do not ask any interactive question                                       |
+| `--config`         | `-c`  | JSON string, or path to a JSON file, of CLI configuration                 |
+| `--prompts`        | `-p`  | JSON string, or path to a JSON file, of prompt answers keyed by prompt ID |
+| `--schema`         |       | Output the prompt schema as JSON and exit                                 |
+| `--validate`       |       | Validate the supplied answers without changing anything                   |
+| `--agent-help`     |       | Output instructions for AI agents and exit                                |
+
+Without `--apply` nothing on disk changes: the run collects answers and reports them, which is how you read a project's current configuration. A non-interactive run writes them to stdout as JSON.
+
+```shell title="Reading and then writing a configuration"
+php vortex.phar configure --no-interaction > current.json
+php vortex.phar configure --apply --prompts=current.json
+```
+
+:::note What `configure` can change
+
+`configure` re-runs the same processing an install performs, against the project instead of a freshly downloaded template. Answers whose effect is to remove something - a service, a CI provider's files, the AI agent instructions - take effect. Answers that fill in template placeholders, such as the site name, do not: the placeholders were consumed at install time and are no longer in the project. Use `update` to bring template changes back in.
+
+:::
+
+### doctor
+
+Checks for the tools a **Vortex** project needs: Docker, Docker Compose, Ahoy and Pygmy. It reports whether each is installed *and* running, the version of each one present, and how to install the ones that are missing. It only reports - it never changes the project.
 
 | Option         | Short | Description                                            |
 |----------------|-------|--------------------------------------------------------|
 | `--only`       | `-o`  | Comma-separated subset of requirements to check         |
 | `--no-summary` |       | Hide the summary listing tool versions                  |
+
+This is the host-level check that runs before a project exists. Once a project is built, [`ahoy doctor`](./tools/doctor) goes further and inspects the running stack itself - ports, containers, the web server and the site bootstrap.
 
 ### build
 
@@ -89,12 +137,20 @@ php vortex.phar install --no-interaction --prompts=prompts.json --destination=./
 
 `--prompts` keys are the prompt IDs from `--schema`. `--config` is separate: it carries CLI configuration such as the repository and ref, not prompt answers.
 
+`--schema`, `--validate` and `--agent-help` are available on `install`, `update` and `configure`, and answer identically on each: the questions belong to the build, not to a verb. They also answer without a command name, so a freshly downloaded binary can describe its own questions before anything exists on disk:
+
+```shell title="Describe the questions with nothing installed yet"
+php vortex.phar --schema
+```
+
+Closing guidance is suppressed on any non-interactive run, so a script's stdout carries only the output it asked for.
+
 :::tip Using an AI agent
 
 `--agent-help` prints the whole workflow above as instructions written for an AI coding agent:
 
 ```shell
-php vortex.phar install --agent-help
+php vortex.phar --agent-help
 ```
 
 :::

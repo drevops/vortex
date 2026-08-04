@@ -35,8 +35,10 @@ the CLI supports **non-interactive installs** (via the `--no-interaction`
 flag) for both new and existing projects, as well as updates — making it
 suitable for automated pipelines and CI environments.
 
-The binary is `vortex` and it exposes three commands: `install` (the default),
-`check-requirements` and `build`.
+The binary is `vortex` and it exposes five commands: `install`, `update`,
+`configure`, `doctor` and `build`. Running it without a command resolves by the
+state of the target directory — an existing **Vortex** project is reconfigured,
+anything else gets a fresh install.
 
 Prompt answers can be provided from multiple sources, resolved in the following
 priority order:
