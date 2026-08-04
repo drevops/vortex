@@ -33,19 +33,12 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Runs all code linters: PHPCS, PHPStan, Rector, Twig CS Fixer, Gherkin Lint, ESLint, Stylelint
 - Checks that Composer configuration is normalized
 
-### 2. Security
-
-- Runs in parallel with other jobs (no dependencies)
-- Needs no application containers and no installed project dependencies
-- Scans the codebase for committed secrets with Gitleaks
-- Audits the locked Composer packages against known security advisories
-
-### 3. Database
+### 2. Database
 
 - Fetches the latest DB version based on a caching strategy
 - Caches database dumps to speed up the follow-up runs
 
-### 4. Build
+### 3. Build
 
 - Runs after the `database` job
 - Uses Docker Compose to set up the full environment
@@ -57,12 +50,34 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Runs BDD tests (distributed across all instances)
 - Collects and stores test results and artifacts
 
-### 5. Deployment
+### 4. Deployment
 
-- Runs after successful completion of the `build`, `lint` and `security` jobs
+- Runs after successful completion of both `build` and `lint` jobs
 - Uses the built codebase without development dependencies from the `build` step
 - Adds required secrets and environment variables
 - Triggers a deployment using a router script
+
+## Security audit
+
+Security checks run in their own workflow, separate from the pipeline above, so that a failing audit is never confused with a failing linter and can be re-run on its own:
+
+| Provider | Location |
+|----------|----------|
+| GitHub Actions | The `Security audit` workflow in `.github/workflows/audit.yml` |
+| CircleCI | The `audit` workflow in `.circleci/config.yml` |
+
+The workflow runs the same two checks in both providers, and needs neither the application containers nor installed dependencies:
+
+- [Gitleaks](/docs/tools/gitleaks) scans the codebase for committed secrets
+- `composer audit --locked` checks the packages pinned in `composer.lock` against published security advisories
+
+It is triggered by the same pushes, pull requests and tags as the main pipeline, and can also be started on demand - in GitHub Actions from **Actions → Security audit → Run workflow**, and in CircleCI by re-running the `audit` workflow from the pipeline view.
+
+:::note
+
+Because the audit is a separate workflow, it is not a dependency of the `deploy` job - a failing audit does not by itself stop a deployment. To block merges and deployments on it, add its check to the repository's branch protection rules as a required status check.
+
+:::
 
 ## Caching strategy
 
@@ -129,8 +144,8 @@ The build job runs across multiple parallel containers (2 by default) to speed
 up test execution. Since each container runs the full build and provision
 steps, the test workload is distributed to make the best use of each container.
 
-Code linting and security checks run in the separate `lint` and `security` jobs
-and are not affected by test parallelism settings.
+Code linting runs in a separate `lint` job and is not affected by test
+parallelism settings.
 
 ### What runs where
 

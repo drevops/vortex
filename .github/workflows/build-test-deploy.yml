@@ -200,52 +200,6 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
       #;> DRUPAL_THEME
 
-  security:
-    runs-on: ubuntu-latest
-    #;< !PROVISION_TYPE_PROFILE
-    if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
-    #;> !PROVISION_TYPE_PROFILE
-
-    container:
-      # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:26.7.0@sha256:6f917acfc2903e77e1bd9a2a32f3633ff49538553474fe43df3033352e0059b0
-      env:
-        TZ: ${{ vars.TZ || 'UTC' }}
-        TERM: xterm-256color
-        VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
-
-    steps:
-      - name: Preserve $HOME set in the container
-        run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
-
-      - name: Check out code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          persist-credentials: false
-
-      - name: Fix Git ownership permissions
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - name: Load environment variables from .env
-        run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
-
-      #;< CI_GITLEAKS
-      - name: Scan for committed secrets with Gitleaks
-        run: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 dir . --no-banner
-        continue-on-error: ${{ vars.VORTEX_CI_GITLEAKS_IGNORE_FAILURE == '1' }}
-      #;> CI_GITLEAKS
-
-      #;< VORTEX_DEV
-      #; Vortex does not track 'composer.lock', so the audit below has nothing to
-      #; read until the dependencies are resolved.
-      - name: Create Composer lock file
-        run: composer update --no-install --no-audit
-      #;> VORTEX_DEV
-
-      - name: Audit Composer packages
-        run: composer audit --locked
-        continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}
-
   #;< !PROVISION_TYPE_PROFILE
   database:
     runs-on: ubuntu-latest
@@ -663,7 +617,7 @@ jobs:
   #;< DEPLOYMENT
   deploy:
     runs-on: ubuntu-latest
-    needs: [build, lint, security]
+    needs: [build, lint]
     #;< !PROVISION_TYPE_PROFILE
     if: ${{ !cancelled() && (inputs.deploy_target || (success() && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
     #;> !PROVISION_TYPE_PROFILE

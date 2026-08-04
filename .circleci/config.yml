@@ -208,8 +208,8 @@ jobs:
             docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> DRUPAL_THEME
 
-  # Security job runs in parallel with lint, database and build jobs.
-  security:
+  # Audit job runs in its own workflow, independently of the commit workflow.
+  audit:
     <<: *runner_config
     steps:
       - checkout
@@ -676,10 +676,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - security:
-          filters:
-            tags:
-              only: /.*/
       - build:
           #;< !PROVISION_TYPE_PROFILE
           requires:
@@ -693,7 +689,6 @@ workflows:
           requires:
             - build
             - lint
-            - security
           filters:
             branches:
               # Allowed branches:
@@ -713,7 +708,6 @@ workflows:
           requires:
             - build
             - lint
-            - security
           filters:
             branches:
               ignore: /.*/
@@ -741,6 +735,15 @@ workflows:
               only: /.*/
   #=============================================================================
   #;> VORTEX_DEV
+
+  # Security audit workflow. Runs for every commit push to the remote repository,
+  # independently of the commit workflow.
+  audit:
+    jobs:
+      - audit:
+          filters:
+            tags:
+              only: /.*/
 
   #;< !PROVISION_TYPE_PROFILE
   # Nightly database workflow runs overnight to capture fresh database and cache it.

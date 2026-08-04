@@ -57,6 +57,15 @@ pull requests, not on direct pushes.
 To add or remove branches, update the `push` and `pull_request` sections
 in the workflow file.
 
+### Security audit workflow
+
+Security checks live in a second workflow, `.github/workflows/audit.yml`, which
+triggers on the same branches and tags as the main workflow and can also be
+started on demand from **Actions → Security audit → Run workflow**.
+
+See [Security audit](/docs/continuous-integration#security-audit) for what it
+runs and how to make it block merges and deployments.
+
 ### Update nightly database schedule
 
 The nightly database job caches a fresh database dump for faster builds the next

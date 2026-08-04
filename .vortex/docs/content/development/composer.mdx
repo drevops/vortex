@@ -387,7 +387,7 @@ Each section accepts `block` (refuse affected versions during `composer update`/
 
 ### Why advisories do not block installation
 
-Coupling installation to advisory publication makes builds non-deterministic: a newly published advisory against an already-installed dependency can fail every build - including work unrelated to security - until the advisory is assessed and ignored. **Vortex** decouples the two by setting `advisories.block` to `false` while keeping `advisories.audit` at `fail`, so installs and updates remain reproducible while vulnerabilities are still surfaced by `composer audit` and the CI security job.
+Coupling installation to advisory publication makes builds non-deterministic: a newly published advisory against an already-installed dependency can fail every build - including work unrelated to security - until the advisory is assessed and ignored. **Vortex** decouples the two by setting `advisories.block` to `false` while keeping `advisories.audit` at `fail`, so installs and updates remain reproducible while vulnerabilities are still surfaced by `composer audit` and the CI security audit workflow.
 
 If your project requires installation to hard-stop on advisories - for example, a production site with strict supply-chain controls - set `advisories.block` to `true`.
 
@@ -451,6 +451,6 @@ Check your dependencies for security issues manually:
 
 ### CI/CD integration
 
-**Vortex** runs `composer audit --locked` as part of the CI security job, so the audited set is exactly what `composer.lock` pins. Because `advisories.audit` is `fail`, the audit reports vulnerabilities and the security job fails when any are found - even though installs and updates are not blocked.
+**Vortex** runs `composer audit --locked` in the [security audit workflow](/docs/continuous-integration#security-audit), so the audited set is exactly what `composer.lock` pins. Because `advisories.audit` is `fail`, the audit reports vulnerabilities and the workflow fails when any are found - even though installs and updates are not blocked.
 
 By default that failure gates the build. Set the repository variable `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` to make the audit step run and report without failing the build - useful as a one-off bypass while a known advisory is being addressed.

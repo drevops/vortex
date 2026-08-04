@@ -42,16 +42,16 @@
 │  │    Gherkin Lint       │  │  Website setup                                         │   │
 │  │          ▼            │  │  Import cached DB ──► drush deploy ──► Custom scripts  │   │
 │  │  ESLint / Stylelint   │  │                          │                             │   │
-│  └─┬─────────────────────┘  │                          ▼                             │   │
-│    │                        │  Testing                                               │   │
-│    │  ┌─ Security Job ───┐  │  PHPUnit tests ──► Behat tests                         │   │
-│    │  │     Gitleaks     │  │                                                        │   │
-│    │  │        ▼         │  └────────────────────────────┬───────────────────────────┘   │
-│    │  │  Composer audit  │                               │                               │
-│    │  └────────┬─────────┘                               │                               │
-│    │           │                                         │                               │
-│    └─────┬─────┘                                         │                               │
-│          ▼                                               ▼                               │
+│  │                       │  │                          ▼                             │   │
+│  │                       │  │  Testing                                               │   │
+│  │                       │  │  PHPUnit tests ──► Behat tests                         │   │
+│  │                       │  │                                                        │   │
+│  │                       │  └────────────────────────────┬───────────────────────────┘   │
+│  └──────────┬────────────┘                               │                               │
+│             │                                            │                               │
+│             │                                            │                               │
+│             │                                            │                               │
+│             ▼                                            ▼                               │
 │  ┌─ Deployment Job ─────────────────────────────────────────────────────────────────┐    │
 │  │                                                                                  │    │
 │  │  Webhook     Artifact            Lagoon              Docker                      │    │
@@ -74,4 +74,13 @@
  ═════════════════════════════════════════════════════════════════════════════════════════
         ┊ PR Environment ┊    Dev             Staging          Production
         ┊ (auto-removed) ┊    develop branch  main branch      production branch or tag
+
+
+                                  Security Audit Workflow
+ ═════════════════════════════════════════════════════════════════════════════════════════
+   Push, pull request or manual run ──► Gitleaks secret scan ──► Composer advisory audit
+                                        (committed secrets)      (composer audit --locked)
+
+   Runs as its own workflow, independently of the pipeline above, and does not gate
+   deployment.
 ```

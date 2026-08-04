@@ -258,7 +258,7 @@ Provided that your stack is already running:
 
 ## What should I do when `composer audit` reports a security vulnerability?
 
-**Vortex** does not block installation on security advisories by default, so `composer install` and `composer update` keep working. Advisories are surfaced by `composer audit`, which runs locally and in the CI security job. When one appears:
+**Vortex** does not block installation on security advisories by default, so `composer install` and `composer update` keep working. Advisories are surfaced by `composer audit`, which runs locally and in the CI security audit workflow. When one appears:
 
 1. **Update the affected package**: try a newer version that resolves the advisory: `composer update vendor/package-name`.
 2. **Review the advisory**: run `composer audit` for details and assess whether it affects your project.
