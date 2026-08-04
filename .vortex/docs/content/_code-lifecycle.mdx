@@ -43,14 +43,14 @@
 │  │          ▼            │  │  Import cached DB ──► drush deploy ──► Custom scripts  │   │
 │  │  ESLint / Stylelint   │  │                          │                             │   │
 │  └─┬─────────────────────┘  │                          ▼                             │   │
-│    │  ┌─ Security Job ───┐  │  Testing                                               │   │
-│    │  │     Gitleaks     │  │  PHPUnit tests ──► Behat tests                         │   │
-│    │  │        ▼         │  │                                                        │   │
-│    │  │  Composer audit  │  └────────────────────────────┬───────────────────────────┘   │
+│    │                        │  Testing                                               │   │
+│    │  ┌─ Security Job ───┐  │  PHPUnit tests ──► Behat tests                         │   │
+│    │  │     Gitleaks     │  │                                                        │   │
+│    │  │        ▼         │  └────────────────────────────┬───────────────────────────┘   │
+│    │  │  Composer audit  │                               │                               │
 │    │  └────────┬─────────┘                               │                               │
 │    │           │                                         │                               │
 │    └─────┬─────┘                                         │                               │
-│          │                                               │                               │
 │          ▼                                               ▼                               │
 │  ┌─ Deployment Job ─────────────────────────────────────────────────────────────────┐    │
 │  │                                                                                  │    │
