@@ -25,33 +25,33 @@
 │  │          ▼            │  │    exists?                                              │  │
 │  │  Composer validate    │  │       │ No                                              │  │
 │  │          ▼            │  │       ▼                                                 │  │
-│  │   Composer audit      │  │  Download    ──►   Sanitize    ──►    Store database    │  │
+│  │  Composer normalize   │  │  Download    ──►   Sanitize    ──►    Store database    │  │
 │  │          ▼            │  │  production        database           cache             │  │
-│  │  Composer normalize   │  │  database          Remove                               │  │
+│  │      Hadolint         │  │  database          Remove                               │  │
 │  │          ▼            │  │                    sensitive data                       │  │
-│  │      Hadolint         │  │                                                         │  │
+│  │       DCLint          │  │                                                         │  │
 │  │          ▼            │  └───────────────────────────┬─────────────────────────────┘  │
-│  │       DCLint          │                              │                                │
+│  │       PHPCS           │                              │                                │
 │  │          ▼            │                              ▼                                │
-│  │       PHPCS           │  ┌─ Build Job ────────────────────────────────────────────┐   │
+│  │      PHPStan          │  ┌─ Build Job ────────────────────────────────────────────┐   │
 │  │          ▼            │  │                                                        │   │
-│  │      PHPStan          │  │  Code assembly                                         │   │
+│  │       Rector          │  │  Code assembly                                         │   │
 │  │          ▼            │  │  Build Docker ──► Composer deps ──► NPM deps ──► Assets│   │
-│  │       Rector          │  │                          │                             │   │
+│  │    Twig CS Fixer      │  │                          │                             │   │
 │  │          ▼            │  │                          ▼                             │   │
-│  │    Twig CS Fixer      │  │  Website setup                                         │   │
+│  │    Gherkin Lint       │  │  Website setup                                         │   │
 │  │          ▼            │  │  Import cached DB ──► drush deploy ──► Custom scripts  │   │
-│  │    Gherkin Lint       │  │                          │                             │   │
-│  │          ▼            │  │                          ▼                             │   │
-│  │  ESLint / Stylelint   │  │  Testing                                               │   │
-│  │                       │  │  PHPUnit tests ──► Behat tests                         │   │
-│  │                       │  │                                                        │   │
-│  │                       │  └────────────────────────────┬───────────────────────────┘   │
-│  └──────────┬────────────┘                               │                               │
-│             │                                            │                               │
-│             │                                            │                               │
-│             │                                            │                               │
-│             ▼                                            ▼                               │
+│  │  ESLint / Stylelint   │  │                          │                             │   │
+│  └─┬─────────────────────┘  │                          ▼                             │   │
+│    │  ┌─ Security Job ───┐  │  Testing                                               │   │
+│    │  │     Gitleaks     │  │  PHPUnit tests ──► Behat tests                         │   │
+│    │  │        ▼         │  │                                                        │   │
+│    │  │  Composer audit  │  └────────────────────────────┬───────────────────────────┘   │
+│    │  └────────┬─────────┘                               │                               │
+│    │           │                                         │                               │
+│    └─────┬─────┘                                         │                               │
+│          │                                               │                               │
+│          ▼                                               ▼                               │
 │  ┌─ Deployment Job ─────────────────────────────────────────────────────────────────┐    │
 │  │                                                                                  │    │
 │  │  Webhook     Artifact            Lagoon              Docker                      │    │

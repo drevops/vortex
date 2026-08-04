@@ -31,14 +31,21 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Lints Dockerfiles and Docker Compose files
 - Installs development dependencies
 - Runs all code linters: PHPCS, PHPStan, Rector, Twig CS Fixer, Gherkin Lint, ESLint, Stylelint
-- Audits and normalizes Composer packages
+- Checks that Composer configuration is normalized
 
-### 2. Database
+### 2. Security
+
+- Runs in parallel with other jobs (no dependencies)
+- Needs no containers and no installed dependencies
+- Scans the codebase for committed secrets with Gitleaks
+- Audits the locked Composer packages against known security advisories
+
+### 3. Database
 
 - Fetches the latest DB version based on a caching strategy
 - Caches database dumps to speed up the follow-up runs
 
-### 3. Build
+### 4. Build
 
 - Runs after the `database` job
 - Uses Docker Compose to set up the full environment
@@ -50,9 +57,9 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Runs BDD tests (distributed across all instances)
 - Collects and stores test results and artifacts
 
-### 4. Deployment
+### 5. Deployment
 
-- Runs after successful completion of both `build` and `lint` jobs
+- Runs after successful completion of the `build`, `lint` and `security` jobs
 - Uses the built codebase without development dependencies from the `build` step
 - Adds required secrets and environment variables
 - Triggers a deployment using a router script
@@ -122,8 +129,8 @@ The build job runs across multiple parallel containers (2 by default) to speed
 up test execution. Since each container runs the full build and provision
 steps, the test workload is distributed to make the best use of each container.
 
-Code linting runs in a separate `lint` job and is not affected by test
-parallelism settings.
+Code linting and security checks run in the separate `lint` and `security` jobs
+and are not affected by test parallelism settings.
 
 ### What runs where
 
