@@ -165,6 +165,12 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::INSTALL_PREPARING_DESTINATION,
           TuiOutput::INSTALL_COPYING_FILES,
           TuiOutput::INSTALL_PREPARING_DEMO,
+        ]),
+        // Guidance belongs to the person who answered the questions, so a
+        // non-interactive run leaves the caller's stdout alone.
+        ...TuiOutput::absent([
+          TuiOutput::INSTALL_BUILDING,
+          TuiOutput::FOOTER_SITE_READY,
           TuiOutput::FOOTER_FINISHED_INSTALLING,
           TuiOutput::FOOTER_GIT_ADD,
           TuiOutput::FOOTER_GIT_COMMIT,
@@ -172,10 +178,6 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::FOOTER_BUILD_THE_SITE,
           TuiOutput::FOOTER_AHOY_BUILD,
           TuiOutput::POSTBUILD_SETUP_GHA,
-        ]),
-        ...TuiOutput::absent([
-          TuiOutput::INSTALL_BUILDING,
-          TuiOutput::FOOTER_SITE_READY,
         ]),
       ],
     ];
@@ -392,19 +394,20 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::INSTALL_PREPARING_DEMO,
           TuiOutput::INSTALL_BUILDING,
           TuiOutput::INSTALL_BUILD_SUCCESS,
+          // Reported by the build command's own summary, not by the guidance.
+          TuiOutput::INSTALL_LOGIN,
+          TuiOutput::FOOTER_AHOY_LOGIN,
+        ]),
+        ...TuiOutput::absent([
+          TuiOutput::FOOTER_READY_TO_BUILD,
+          TuiOutput::FOOTER_BUILD_ERRORS,
           TuiOutput::FOOTER_FINISHED_INSTALLING,
           TuiOutput::FOOTER_GIT_ADD,
           TuiOutput::FOOTER_GIT_COMMIT,
           TuiOutput::FOOTER_SITE_READY,
           TuiOutput::FOOTER_GET_SITE_INFO,
           TuiOutput::FOOTER_AHOY_INFO,
-          TuiOutput::INSTALL_LOGIN,
-          TuiOutput::FOOTER_AHOY_LOGIN,
           TuiOutput::POSTBUILD_SETUP_GHA,
-        ]),
-        ...TuiOutput::absent([
-          TuiOutput::FOOTER_READY_TO_BUILD,
-          TuiOutput::FOOTER_BUILD_ERRORS,
         ]),
       ],
     ];
@@ -454,15 +457,9 @@ class InstallCommandTest extends FunctionalTestCase {
           // Final install output - should be present.
         ...TuiOutput::present([
           TuiOutput::INSTALL_BUILD_SUCCESS,
-          TuiOutput::FOOTER_FINISHED_INSTALLING,
-          TuiOutput::FOOTER_GIT_ADD,
-          TuiOutput::FOOTER_GIT_COMMIT,
-          TuiOutput::FOOTER_SITE_READY,
-          TuiOutput::FOOTER_GET_SITE_INFO,
-          TuiOutput::FOOTER_AHOY_INFO,
+          // Reported by the build command's own summary, not by the guidance.
           TuiOutput::INSTALL_LOGIN,
           TuiOutput::FOOTER_AHOY_LOGIN,
-          TuiOutput::POSTBUILD_SETUP_GHA,
         ]),
           // Negative assertions - should be absent.
         ...TuiOutput::absent([
@@ -476,6 +473,13 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::DOCTOR_PYGMY_NOT_RUNNING,
           TuiOutput::FOOTER_READY_TO_BUILD,
           TuiOutput::FOOTER_BUILD_ERRORS,
+          TuiOutput::FOOTER_FINISHED_INSTALLING,
+          TuiOutput::FOOTER_GIT_ADD,
+          TuiOutput::FOOTER_GIT_COMMIT,
+          TuiOutput::FOOTER_SITE_READY,
+          TuiOutput::FOOTER_GET_SITE_INFO,
+          TuiOutput::FOOTER_AHOY_INFO,
+          TuiOutput::POSTBUILD_SETUP_GHA,
         ]),
       ],
     ];
@@ -498,9 +502,8 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::INSTALL_PREPARING_DEMO,
           TuiOutput::INSTALL_BUILDING,
           TuiOutput::INSTALL_BUILD_FAILED,
-          TuiOutput::FOOTER_FINISHED_INSTALLING,
-          TuiOutput::FOOTER_GIT_ADD,
-          TuiOutput::FOOTER_GIT_COMMIT,
+          // Failure output explains a non-zero exit code, so it is printed on
+          // every path - a scripted caller needs it as much as a person does.
           TuiOutput::FOOTER_BUILD_ERRORS,
           TuiOutput::FOOTER_BUILD_FAILED_MESSAGE,
           TuiOutput::FOOTER_TROUBLESHOOTING,
@@ -512,6 +515,9 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::INSTALL_BUILD_SUCCESS,
           TuiOutput::FOOTER_SITE_READY,
           TuiOutput::FOOTER_READY_TO_BUILD,
+          TuiOutput::FOOTER_FINISHED_INSTALLING,
+          TuiOutput::FOOTER_GIT_ADD,
+          TuiOutput::FOOTER_GIT_COMMIT,
         ]),
       ],
     ];

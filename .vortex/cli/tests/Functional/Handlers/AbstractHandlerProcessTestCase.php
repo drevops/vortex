@@ -71,7 +71,9 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
 
     $this->runNonInteractiveInstall(options: $this->installOptions);
 
-    $expected = empty($expected) ? ['Welcome to the Vortex CLI non-interactive install'] : $expected;
+    // The header names the operation, which follows the destination state, so
+    // the smoke check stops at the part every scenario shares.
+    $expected = empty($expected) ? ['Welcome to the Vortex CLI non-interactive'] : $expected;
     $this->assertApplicationOutputContains($expected);
 
     $baseline = File::dir(static::$fixtures . '/../' . self::BASELINE_DIR);
