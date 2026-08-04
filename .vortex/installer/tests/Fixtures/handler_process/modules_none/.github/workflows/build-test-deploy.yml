@@ -1,4 +1,4 @@
-@@ -467,18 +467,6 @@
+@@ -494,18 +494,6 @@
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
  

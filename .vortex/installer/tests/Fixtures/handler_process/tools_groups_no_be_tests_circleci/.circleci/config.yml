@@ -132,10 +132,6 @@ jobs:
           command: docker run --rm -v "${PWD}":/app zavoloklom/dclint:__VERSION__ . || [ "${VORTEX_CI_DCLINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
-          name: Scan for committed secrets with Gitleaks
-          command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
           name: Build stack
           command: docker compose up --no-deps --detach cli
 
@@ -146,10 +142,6 @@ jobs:
               if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
-
-      - run:
-          name: Audit Composer packages
-          command: docker compose exec -T cli composer audit || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Validate Composer configuration is normalized
@@ -180,6 +172,23 @@ jobs:
           command: |
             [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
             docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+  # Security job runs in parallel with lint, database and build jobs.
+  security:
+    <<: *runner_config
+    steps:
+      - checkout
+      - *load_variables_from_dotenv
+
+      - *step_setup_remote_docker
+
+      - run:
+          name: Scan for committed secrets with Gitleaks
+          command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Audit Composer packages
+          command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
   # Database handling is a first step of the build.
   # - $VORTEX_CI_DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump
@@ -483,6 +492,10 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - security:
+          filters:
+            tags:
+              only: /.*/
       - build:
           requires:
             - database
@@ -493,6 +506,7 @@ workflows:
           requires:
             - build
             - lint
+            - security
           filters:
             branches:
               # Allowed branches:
@@ -512,6 +526,7 @@ workflows:
           requires:
             - build
             - lint
+            - security
           filters:
             branches:
               ignore: /.*/
