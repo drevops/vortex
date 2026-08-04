@@ -31,7 +31,7 @@ class CliTest extends FunctionalTestCase {
   }
 
   #[Group('p4')]
-  public function testInstallFromLatest(): void {
+  public function testUpdateFromLatest(): void {
     $this->logSubstep('Add custom files to SUT');
     File::dump('test1.txt', 'test content');
     // File resides in directory that is included in Vortex when initialised.
@@ -67,12 +67,12 @@ class CliTest extends FunctionalTestCase {
 
     static::$sutEnv = [
       // Unset the environment variable that forces using the remote repository
-      // in runInstall().
+      // in runCli().
       'VORTEX_CLI_INSTALL_TEMPLATE_REPO' => FALSE,
       // Do not suppress the CLI output so it could be used in assertions.
       'SHELL_VERBOSITY' => FALSE,
     ];
-    $this->runInstall([sprintf('--uri=%s#%s', static::$repo, 'stable')]);
+    $this->runUpdate([sprintf('--uri=%s#%s', static::$repo, 'stable')]);
     $this->assertProcessOutputContains(static::$repo);
     $this->assertProcessOutputNotContains($latest_commit1);
     $this->assertProcessOutputNotContains($latest_commit2);
@@ -91,7 +91,7 @@ class CliTest extends FunctionalTestCase {
   }
 
   #[Group('p3')]
-  public function testInstallFromRef(): void {
+  public function testUpdateFromRef(): void {
     $this->logSubstep('Add custom files to SUT');
     File::dump('test1.txt', 'test content');
     // File resides in directory that is included in Vortex when initialised.
@@ -127,12 +127,12 @@ class CliTest extends FunctionalTestCase {
 
     static::$sutEnv = [
       // Unset the environment variable that forces using the remote repository
-      // in runInstall().
+      // in runCli().
       'VORTEX_CLI_INSTALL_TEMPLATE_REPO' => FALSE,
       // Do not suppress the CLI output so it could be used in assertions.
       'SHELL_VERBOSITY' => FALSE,
     ];
-    $this->runInstall([sprintf('--uri=%s#%s', static::$repo, $latest_commit1)]);
+    $this->runUpdate([sprintf('--uri=%s#%s', static::$repo, $latest_commit1)]);
     $this->assertProcessOutputContains(static::$repo);
     $this->assertProcessOutputContains($latest_commit1);
     $this->gitAssertIsRepository(static::$sut);

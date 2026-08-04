@@ -221,6 +221,14 @@ trait SutTrait {
   }
 
   protected function runInstall(array $arguments = []): void {
+    $this->runCli('install', $arguments);
+  }
+
+  protected function runUpdate(array $arguments = []): void {
+    $this->runCli('update', $arguments);
+  }
+
+  protected function runCli(string $verb, array $arguments = []): void {
     $this->logNote('Switch to the project root directory');
     chdir(static::locationsRoot());
 
@@ -228,13 +236,13 @@ trait SutTrait {
 
     // @todo Convert options to $arguments once
     // ProcessTrait::processParseCommand() is fixed.
-    $cmd = sprintf('php %s install --no-interaction --destination=%s', static::CLI_BIN, escapeshellarg(static::locationsSut()));
+    $cmd = sprintf('php %s %s --no-interaction --destination=%s', static::CLI_BIN, $verb, escapeshellarg(static::locationsSut()));
 
     if (!empty(static::$sutPrompts)) {
       $cmd .= ' --prompts=' . escapeshellarg((string) json_encode(static::$sutPrompts));
     }
 
-    $this->logNote('Run the Vortex CLI to install the project');
+    $this->logNote(sprintf('Run the Vortex CLI to %s the project', $verb));
     $this->cmd(
       $cmd,
       arg: $arguments,
@@ -260,7 +268,7 @@ trait SutTrait {
       txt: 'Run the Vortex CLI'
     );
 
-    $this->logNote('Switch back to the SUT directory after the installation has run');
+    $this->logNote('Switch back to the SUT directory after the CLI has run');
     chdir(static::locationsSut());
 
     $this->adjustCodebaseForUnmountedVolumes();

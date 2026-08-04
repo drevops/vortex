@@ -93,10 +93,10 @@ else {
 $exit_code = 0;
 TASK('Running the Vortex CLI.', 'Finished running the Vortex CLI.', function () use ($interactive, $cli_path, $template_repo, &$exit_code): void {
   if ($interactive === '0') {
-    passthru(sprintf('php %s --no-interaction --uri=%s', escapeshellarg($cli_path), escapeshellarg($template_repo)), $exit_code);
+    passthru(sprintf('php %s update --no-interaction --uri=%s', escapeshellarg($cli_path), escapeshellarg($template_repo)), $exit_code);
   }
   else {
-    passthru(sprintf('php %s --uri=%s', escapeshellarg($cli_path), escapeshellarg($template_repo)), $exit_code);
+    passthru(sprintf('php %s update --uri=%s', escapeshellarg($cli_path), escapeshellarg($template_repo)), $exit_code);
   }
 
   if ($exit_code !== 0) {

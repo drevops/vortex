@@ -101,7 +101,7 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'vortex.phar' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' update --no-interaction --uri='" . $default_repo . "'", 'result_code' => 0],
         ],
         [
           '* Using Vortex CLI from URL: https://www.vortextemplate.com/install',
@@ -113,7 +113,7 @@ class UpdateVortexTest extends UnitTestCase {
       'local CLI path' => [
         ['VORTEX_CLI_PATH' => '__TMP__/my-vortex.phar'],
         [
-          ['cmd' => "php '__TMP__/my-vortex.phar' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 0],
+          ['cmd' => "php '__TMP__/my-vortex.phar' update --no-interaction --uri='" . $default_repo . "'", 'result_code' => 0],
         ],
         [
           '* Using Vortex CLI from local path: __TMP__/my-vortex.phar',
@@ -127,7 +127,7 @@ class UpdateVortexTest extends UnitTestCase {
       'superseded local CLI path still resolves and warns' => [
         ['VORTEX_CLI_PATH' => '', 'VORTEX_INSTALLER_PATH' => '__TMP__/my-vortex.phar'],
         [
-          ['cmd' => "php '__TMP__/my-vortex.phar' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 0],
+          ['cmd' => "php '__TMP__/my-vortex.phar' update --no-interaction --uri='" . $default_repo . "'", 'result_code' => 0],
         ],
         [
           '* VORTEX_INSTALLER_PATH is deprecated and will be removed in a future release. Use VORTEX_CLI_PATH instead.',
@@ -161,7 +161,7 @@ class UpdateVortexTest extends UnitTestCase {
         ['VORTEX_CLI_INSTALL_INTERACTIVE' => '1'],
         [
           $download_request(),
-          ['cmd' => "php 'vortex.phar' --uri='" . $default_repo . "'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' update --uri='" . $default_repo . "'", 'result_code' => 0],
         ],
         [
           '* Using Vortex CLI from URL:',
@@ -173,7 +173,7 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'vortex.phar' --uri='" . $default_repo . "'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' update --uri='" . $default_repo . "'", 'result_code' => 0],
         ],
         [
           '* Using Vortex CLI from URL:',
@@ -186,7 +186,7 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'vortex.phar' --no-interaction --uri='file:///local/path/to/vortex.git#1.2.3'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' update --no-interaction --uri='file:///local/path/to/vortex.git#1.2.3'", 'result_code' => 0],
         ],
         [
           '* Using Vortex CLI from URL:',
@@ -199,7 +199,7 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'vortex.phar' --no-interaction --uri='/local/path/to/vortex#stable'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' update --no-interaction --uri='/local/path/to/vortex#stable'", 'result_code' => 0],
         ],
         [
           '* Using Vortex CLI from URL:',
@@ -212,7 +212,7 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'vortex.phar' --no-interaction --uri='git@github.com:drevops/vortex.git#v1.2.3'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' update --no-interaction --uri='git@github.com:drevops/vortex.git#v1.2.3'", 'result_code' => 0],
         ],
         [
           '* Using Vortex CLI from URL:',
@@ -225,7 +225,7 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'vortex.phar' --uri='https://github.com/custom/repo.git#main'", 'result_code' => 0],
+          ['cmd' => "php 'vortex.phar' update --uri='https://github.com/custom/repo.git#main'", 'result_code' => 0],
         ],
         [
           '* Using Vortex CLI from URL:',
@@ -238,7 +238,7 @@ class UpdateVortexTest extends UnitTestCase {
         [],
         [
           $download_request(),
-          ['cmd' => "php 'vortex.phar' --no-interaction --uri='" . $default_repo . "'", 'result_code' => 1],
+          ['cmd' => "php 'vortex.phar' update --no-interaction --uri='" . $default_repo . "'", 'result_code' => 1],
         ],
         [],
         NULL,
