@@ -262,6 +262,37 @@ class DoctorCommandTest extends FunctionalTestCase {
       // Containers are running, but none of them belong to Pygmy.
       'output_callback' => fn(string $current_command): string => str_contains($current_command, 'docker') ? 'some-other-container' : 'version 1.0.0',
     ];
+    // The runner refuses to execute a command it cannot resolve, so a probe
+    // that assumed Docker was present would abort the whole report.
+    yield 'Docker Compose legacy form with Docker absent' => [
+      'executable_finder_callback' => fn(string $name): ?string => $name === 'docker' ? NULL : '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--only' => 'docker-compose'],
+      'expect_failure' => FALSE,
+      'output_assertions' => array_merge(
+          TuiOutput::present([
+            TuiOutput::DOCTOR_ALL_MET,
+            TuiOutput::DOCTOR_PRESENT_LABEL,
+          ]),
+          ['* Docker Compose: version 1.0.0'],
+      ),
+    ];
+    yield 'Pygmy container fallback with Docker absent' => [
+      'executable_finder_callback' => fn(string $name): ?string => $name === 'docker' ? NULL : '/usr/bin/' . $name,
+      'exit_code_callback' => fn(string $current_command): int => str_contains($current_command, 'pygmy status') ? RunnerInterface::EXIT_FAILURE : RunnerInterface::EXIT_SUCCESS,
+      'command_inputs' => ['--only' => 'pygmy'],
+      'expect_failure' => TRUE,
+      'output_assertions' => array_merge(
+          TuiOutput::present([
+            TuiOutput::DOCTOR_MISSING,
+            TuiOutput::DOCTOR_MISSING_LABEL,
+          ]),
+          ['* Pygmy:'],
+          TuiOutput::absent([
+            TuiOutput::DOCTOR_PYGMY_RUNNING,
+          ]),
+      ),
+    ];
     yield 'Docker Compose via modern syntax' => [
       'executable_finder_callback' => fn(string $name): string => '/usr/bin/' . $name,
       'exit_code_callback' => fn(string $current_command): int => RunnerInterface::EXIT_SUCCESS,

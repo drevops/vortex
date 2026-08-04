@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Command;
 
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
+use DrevOps\VortexCli\Utils\Tui;
+use DrevOps\VortexCli\Utils\Version;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -61,13 +64,63 @@ EOF
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $uri = $this->targetUri($input->getOption(static::OPTION_TO), $input->getOption(static::OPTION_URI));
+    $to = $input->getOption(static::OPTION_TO);
+
+    try {
+      $this->assertTargetMajor($to);
+    }
+    catch (\RuntimeException $runtime_exception) {
+      Tui::init($output);
+      Tui::error('Update failed with an error: ' . $runtime_exception->getMessage());
+
+      return Command::FAILURE;
+    }
+
+    $uri = $this->targetUri($to, $input->getOption(static::OPTION_URI));
 
     if ($uri !== NULL) {
       $input->setOption(static::OPTION_URI, $uri);
     }
 
     return $this->doInstall($input, $output);
+  }
+
+  /**
+   * Refuse a target version from another major line.
+   *
+   * The destination gate compares the project against this build, which says
+   * nothing about the version being asked for. A named version is resolved
+   * straight to an archive, so without this a build could pull a template from
+   * across a breaking boundary into a project it considers compatible.
+   *
+   * @param mixed $to
+   *   The target version, if any.
+   *
+   * @throws \RuntimeException
+   *   When the target version's major differs from this build's major.
+   */
+  protected function assertTargetMajor(mixed $to): void {
+    if (!is_string($to) || $to === '') {
+      return;
+    }
+
+    // A branch, tag alias or commit carries no major to compare.
+    $target_major = Version::major($to);
+    if ($target_major === NULL) {
+      return;
+    }
+
+    $cli_major = Version::major((string) $this->getApplication()?->getVersion());
+    if ($cli_major === NULL || $cli_major === $target_major) {
+      return;
+    }
+
+    throw new \RuntimeException(sprintf(
+      'This Vortex CLI targets Vortex %1$d.x, but "%2$s" is a Vortex %3$d.x version. Update to it with the %3$d.x CLI instead: https://www.vortextemplate.com/v%3$d/install',
+      $cli_major,
+      $to,
+      $target_major,
+    ));
   }
 
   /**

@@ -96,7 +96,17 @@ trait AgentSurfaceTrait {
       return Command::FAILURE;
     }
 
+    if (is_file($prompts_option) && !is_readable($prompts_option)) {
+      $output->writeln(sprintf('Cannot read --prompts file: %s.', $prompts_option));
+
+      return Command::FAILURE;
+    }
+
     $prompts_json = is_file($prompts_option) ? (string) file_get_contents($prompts_option) : $prompts_option;
+
+    // Decoded twice on purpose: an associative decode renders both '{}' and
+    // '[]' as an empty array, so the object shape can only be established from
+    // the untyped decode.
     $decoded = json_decode($prompts_json);
 
     if (!$decoded instanceof \stdClass) {

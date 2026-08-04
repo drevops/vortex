@@ -116,6 +116,65 @@ class UpdateCommandTest extends FunctionalTestCase {
   }
 
   /**
+   * A target version from another major line is refused.
+   *
+   * The destination gate compares the project against this build and says
+   * nothing about the version being asked for, so the request is checked too.
+   */
+  #[DataProvider('dataProviderTargetMajorGate')]
+  public function testTargetMajorGate(string $version, string $to, bool $expect_failure, array $assertions): void {
+    $command = $this->updateCommand();
+
+    $downloader = $this->createMock(RepositoryDownloader::class);
+    $downloader->method('download')->willThrowException(new \RuntimeException('Failed to download Vortex.'));
+    $command->setRepositoryDownloader($downloader);
+
+    static::applicationInitFromCommand($command);
+    $this->applicationGet()->setVersion($version);
+
+    $this->applicationRun([
+      '--' . UpdateCommand::OPTION_NO_INTERACTION => TRUE,
+      '--' . UpdateCommand::OPTION_TO => $to,
+      '--' . UpdateCommand::OPTION_DESTINATION => self::$sut,
+    ], [], $expect_failure);
+
+    $this->assertApplicationAnyOutputContainsOrNot($assertions);
+  }
+
+  /**
+   * Data provider for testTargetMajorGate().
+   *
+   * @return \Iterator<string, array{string, string, bool, array<string>}>
+   *   Test data.
+   */
+  public static function dataProviderTargetMajorGate(): \Iterator {
+    yield 'foreign major refused' => [
+      '1.40.0',
+      '2.0.0',
+      TRUE,
+      ['* https://www.vortextemplate.com/v2/install', '! Failed to download Vortex.'],
+    ];
+    yield 'same major allowed' => [
+      '1.40.0',
+      '1.2.3',
+      TRUE,
+      ['* Failed to download Vortex.'],
+    ];
+    yield 'branch carries no major' => [
+      '1.40.0',
+      'main',
+      TRUE,
+      ['* Failed to download Vortex.'],
+    ];
+    yield 'unstamped build skips the gate' => [
+      'UNKNOWN',
+      '2.0.0',
+      TRUE,
+      ['* Failed to download Vortex.'],
+    ];
+  }
+
+  /**
    * The agent surface answers on the update verb as well.
    */
   public function testUpdateExposesAgentSurface(): void {
@@ -124,6 +183,29 @@ class UpdateCommandTest extends FunctionalTestCase {
     static::applicationInitFromCommand($command);
 
     $this->assertJson($this->applicationRun(['--' . UpdateCommand::OPTION_SCHEMA => TRUE]));
+  }
+
+  /**
+   * An unreadable answers file is reported as such, not as broken JSON.
+   */
+  public function testUnreadablePromptsFileIsReported(): void {
+    $path = self::$tmp . '/unreadable_' . uniqid() . '.json';
+    $this->assertNotFalse(file_put_contents($path, '{"name":"Star Wars"}'));
+    chmod($path, 0000);
+
+    static::applicationInitFromCommand($this->updateCommand());
+
+    $this->applicationRun([
+      '--' . UpdateCommand::OPTION_VALIDATE => TRUE,
+      '--' . UpdateCommand::OPTION_PROMPTS => $path,
+    ], [], TRUE);
+
+    chmod($path, 0644);
+
+    $this->assertApplicationAnyOutputContainsOrNot([
+      '* Cannot read --prompts file:',
+      '! Invalid JSON in --prompts.',
+    ]);
   }
 
   /**

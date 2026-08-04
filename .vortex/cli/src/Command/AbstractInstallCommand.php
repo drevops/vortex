@@ -220,7 +220,7 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
     }
     catch (\Exception $exception) {
       Tui::output()->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
-      Tui::error('Installation failed with an error: ' . $exception->getMessage());
+      Tui::error(sprintf('%s failed with an error: %s', $this->operationName(), $exception->getMessage()));
 
       return Command::FAILURE;
     }
@@ -274,6 +274,20 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
     register_shutdown_function([$this, 'cleanup']);
 
     return Command::SUCCESS;
+  }
+
+  /**
+   * The operation being performed, for reporting.
+   *
+   * Follows the destination the same way the header does, so a run cannot
+   * announce itself as one operation and fail as another. A destination that
+   * was never resolved has not been inspected yet, so it reads as an install.
+   *
+   * @return string
+   *   The capitalised operation name.
+   */
+  protected function operationName(): string {
+    return isset($this->config) && $this->config->isVortexProject() ? 'Update' : 'Installation';
   }
 
   /**

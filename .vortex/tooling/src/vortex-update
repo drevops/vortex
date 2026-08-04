@@ -27,7 +27,12 @@ require_once __DIR__ . '/helpers.php';
 $template_repo = getenv_default('VORTEX_CLI_INSTALL_TEMPLATE_REPO', 'VORTEX_INSTALLER_TEMPLATE_REPO', 'https://github.com/drevops/vortex.git#stable');
 
 // The URL of the Vortex CLI.
-$cli_url = getenv_default('VORTEX_CLI_URL', 'VORTEX_INSTALLER_URL', 'https://www.vortextemplate.com/v1/install');
+//
+// Pinned to the major-specific path so an existing project always updates
+// within its own major line, and so the downloaded build is one that carries
+// the commands this script calls. The bare '/install' tracks the active major
+// and would jump a project across a major boundary.
+$cli_url = getenv_default('VORTEX_CLI_URL', 'VORTEX_INSTALLER_URL', 'https://www.vortextemplate.com/v2/install');
 
 // Cache busting parameter for the CLI URL.
 $cli_url_cache_bust = getenv_default('VORTEX_CLI_URL_CACHE_BUST', 'VORTEX_INSTALLER_URL_CACHE_BUST', (string) time());

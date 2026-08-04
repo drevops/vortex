@@ -319,6 +319,10 @@ class DoctorCommand extends Command implements ProcessRunnerAwareInterface, Exec
    * Whether any running container belongs to Pygmy.
    */
   protected function hasAmazeeioContainers(): bool {
+    if (!$this->commandExists('docker')) {
+      return FALSE;
+    }
+
     $this->processRunner->run('docker', ['ps', '--format', '{{.Names}}']);
 
     if ($this->processRunner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
@@ -347,9 +351,14 @@ class DoctorCommand extends Command implements ProcessRunnerAwareInterface, Exec
    *   The version command, or NULL when neither form is available.
    */
   protected function dockerComposeVersionCommand(): ?string {
-    $this->processRunner->run('docker compose version');
-    if ($this->processRunner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {
-      return 'docker compose version';
+    // Probed only when Docker is on PATH: the runner refuses to execute a
+    // command it cannot resolve, and a missing tool is what this reports on.
+    if ($this->commandExists('docker')) {
+      $this->processRunner->run('docker compose version');
+
+      if ($this->processRunner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {
+        return 'docker compose version';
+      }
     }
 
     return $this->commandExists('docker-compose') ? 'docker-compose --version' : NULL;

@@ -144,7 +144,7 @@ php vortex.phar install --no-interaction --prompts=prompts.json --destination=./
 php vortex.phar --schema
 ```
 
-Closing guidance is suppressed on any non-interactive run, so a script's stdout carries only the output it asked for.
+A non-interactive run suppresses the closing guidance - the boxes telling you what to do next. Progress and status output is still reported, so a scripted `install` remains readable in a log. Only `configure` reduces its stdout to a single JSON document.
 
 :::tip Using an AI agent
 
