@@ -5,11 +5,13 @@
 (function starWarsBehaviors(Drupal) {
   Drupal.behaviors.starWars = {
     attach(context) {
-      const body = context.querySelector
-        ? context.querySelector('body')
+      // The context is the document on load and an element on AJAX, and that
+      // element may be the body itself, so resolve through the owning document.
+      const body = context.ownerDocument
+        ? context.ownerDocument.body
         : document.body;
 
-      if (!body || body.classList.contains('star-wars-theme-processed')) {
+      if (body.classList.contains('star-wars-theme-processed')) {
         return;
       }
 
