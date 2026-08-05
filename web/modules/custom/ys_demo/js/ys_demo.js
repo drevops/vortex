@@ -27,7 +27,9 @@
 
         block.classList.add('ys-demo-counter-processed');
 
-        const valueElement = block.querySelector('[data-ys-demo-counter-value]');
+        const valueElement = block.querySelector(
+          '[data-ys-demo-counter-value]',
+        );
         const buttons = block.querySelectorAll('[data-ys-demo-counter-action]');
 
         // Load saved value from localStorage.

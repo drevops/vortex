@@ -2,7 +2,7 @@
  * @file Global theme behaviors.
  */
 
-((Drupal) => {
+(function yourSiteThemeBehaviors(Drupal) {
   Drupal.behaviors.yourSiteTheme = {
     attach(context) {
       const body = context.querySelector
