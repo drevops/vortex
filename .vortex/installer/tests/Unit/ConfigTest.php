@@ -51,15 +51,15 @@ class ConfigTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderFromStringValid')]
-  public function testFromStringValid(string $json, array $expectedValues): void {
+  public function testFromStringValid(string $json, array $expected_values): void {
     $config = Config::fromString($json);
 
-    if (empty($expectedValues)) {
+    if (empty($expected_values)) {
       // For empty JSON, just assert that config was created successfully.
       $this->assertInstanceOf(Config::class, $config);
     }
     else {
-      foreach ($expectedValues as $key => $value) {
+      foreach ($expected_values as $key => $value) {
         $this->assertEquals($value, $config->get($key));
       }
     }
@@ -93,9 +93,9 @@ class ConfigTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderFromStringInvalid')]
-  public function testFromStringInvalid(string $json, string $expectedError): void {
+  public function testFromStringInvalid(string $json, string $expected_error): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($expectedError);
+    $this->expectExceptionMessage($expected_error);
 
     Config::fromString($json);
   }

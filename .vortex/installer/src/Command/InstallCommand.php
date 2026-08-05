@@ -456,11 +456,11 @@ EOF
   /**
    * Set the repository downloader.
    *
-   * @param \DrevOps\VortexInstaller\Downloader\RepositoryDownloader $repositoryDownloader
+   * @param \DrevOps\VortexInstaller\Downloader\RepositoryDownloader $repository_downloader
    *   The repository downloader.
    */
-  public function setRepositoryDownloader(RepositoryDownloader $repositoryDownloader): void {
-    $this->repositoryDownloader = $repositoryDownloader;
+  public function setRepositoryDownloader(RepositoryDownloader $repository_downloader): void {
+    $this->repositoryDownloader = $repository_downloader;
   }
 
   /**
@@ -479,11 +479,11 @@ EOF
   /**
    * Set the file downloader.
    *
-   * @param \DrevOps\VortexInstaller\Downloader\Downloader $fileDownloader
+   * @param \DrevOps\VortexInstaller\Downloader\Downloader $file_downloader
    *   The file downloader.
    */
-  public function setFileDownloader(Downloader $fileDownloader): void {
-    $this->fileDownloader = $fileDownloader;
+  public function setFileDownloader(Downloader $file_downloader): void {
+    $this->fileDownloader = $file_downloader;
   }
 
 }

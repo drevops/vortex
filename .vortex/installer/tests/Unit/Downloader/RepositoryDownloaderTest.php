@@ -108,11 +108,11 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderDiscoverLatestReleaseRemote')]
-  public function testDiscoverLatestReleaseRemote(string $repo, mixed $releaseData, bool $throwException, bool $skipMockSetup, ?string $expectedVersion, ?string $expectedException, ?string $expectedMessage): void {
+  public function testDiscoverLatestReleaseRemote(string $repo, mixed $release_data, bool $throw_exception, bool $skip_mock_setup, ?string $expected_version, ?string $expected_exception, ?string $expected_message): void {
     $mock_http_client = $this->createMock(ClientInterface::class);
 
-    if (!$skipMockSetup) {
-      if ($throwException) {
+    if (!$skip_mock_setup) {
+      if ($throw_exception) {
         $mock_http_client->method('request')->willThrowException(new RequestException('API error', $this->createMock(RequestInterface::class)));
       }
       else {
@@ -120,7 +120,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
         $mock_body = $this->createMock(StreamInterface::class);
         $mock_response->method('getBody')->willReturn($mock_body);
 
-        $release_json = is_array($releaseData) ? json_encode($releaseData) : $releaseData;
+        $release_json = is_array($release_data) ? json_encode($release_data) : $release_data;
 
         $mock_body->method('getContents')->willReturn($release_json);
         $mock_response->method('getStatusCode')->willReturn(200);
@@ -135,22 +135,22 @@ class RepositoryDownloaderTest extends UnitTestCase {
     $destination = self::$tmp . '/destination_' . uniqid();
     File::mkdir($destination);
 
-    if ($expectedVersion !== NULL) {
+    if ($expected_version !== NULL) {
       File::dump($destination . '/composer.json', '{}');
     }
 
     $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
 
-    if ($expectedException !== NULL) {
-      /** @var class-string<\Throwable> $expectedException */
-      $this->expectException($expectedException);
-      $this->expectExceptionMessage($expectedMessage);
+    if ($expected_exception !== NULL) {
+      /** @var class-string<\Throwable> $expected_exception */
+      $this->expectException($expected_exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $version = $downloader->download(Artifact::create($repo, 'stable'), $destination);
 
-    if ($expectedVersion !== NULL) {
-      $this->assertEquals($expectedVersion, $version);
+    if ($expected_version !== NULL) {
+      $this->assertEquals($expected_version, $version);
     }
   }
 
@@ -224,15 +224,15 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderDownloadWithNullDestination')]
-  public function testDownloadWithNullDestination(string $repo, string $expectedMessage): void {
+  public function testDownloadWithNullDestination(string $repo, string $expected_message): void {
     $downloader = new RepositoryDownloader();
     $this->expectException(\InvalidArgumentException::class);
-    $this->expectExceptionMessage($expectedMessage);
+    $this->expectExceptionMessage($expected_message);
     $downloader->download(Artifact::create($repo, 'HEAD'));
   }
 
   #[DataProvider('dataProviderDownloadFromLocal')]
-  public function testDownloadFromLocal(string $ref, string $expectedVersion): void {
+  public function testDownloadFromLocal(string $ref, string $expected_version): void {
     $temp_repo_dir = $this->createGitRepo();
     $destination = self::$tmp . '/dest_' . uniqid();
     File::mkdir($destination);
@@ -244,14 +244,14 @@ class RepositoryDownloaderTest extends UnitTestCase {
       $commit_hash = trim($output);
       $this->assertNotEmpty($commit_hash, 'Git rev-parse returned empty output');
       $ref = substr($commit_hash, 0, 7);
-      $expectedVersion = $ref;
+      $expected_version = $ref;
     }
 
     /** @var \PHPUnit\Framework\MockObject\MockObject&\DrevOps\VortexInstaller\Downloader\ArchiverInterface $mock_archiver */
     $mock_archiver = $this->createMockArchiverWithExtract();
     $downloader = new RepositoryDownloader(NULL, $mock_archiver);
     $version = $downloader->download(Artifact::create($temp_repo_dir, $ref), $destination);
-    $this->assertEquals($expectedVersion, $version);
+    $this->assertEquals($expected_version, $version);
     $this->removeGitRepo($temp_repo_dir);
   }
 
@@ -339,112 +339,112 @@ class RepositoryDownloaderTest extends UnitTestCase {
   public static function dataProviderDiscoverLatestReleaseRemote(): \Iterator {
     yield 'valid releases' => [
       'repo' => 'https://github.com/user/repo',
-      'releaseData' => [
+      'release_data' => [
         ['tag_name' => 'v2.0.0', 'draft' => FALSE],
         ['tag_name' => 'v1.0.0', 'draft' => FALSE],
       ],
-      'throwException' => FALSE,
-      'skipMockSetup' => FALSE,
-      'expectedVersion' => 'v2.0.0',
-      'expectedException' => NULL,
-      'expectedMessage' => NULL,
+      'throw_exception' => FALSE,
+      'skip_mock_setup' => FALSE,
+      'expected_version' => 'v2.0.0',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
     ];
     yield 'skips drafts' => [
       'repo' => 'https://github.com/user/repo',
-      'releaseData' => [
+      'release_data' => [
         ['tag_name' => 'v3.0.0', 'draft' => TRUE],
         ['tag_name' => 'v2.0.0', 'draft' => FALSE],
       ],
-      'throwException' => FALSE,
-      'skipMockSetup' => FALSE,
-      'expectedVersion' => 'v2.0.0',
-      'expectedException' => NULL,
-      'expectedMessage' => NULL,
+      'throw_exception' => FALSE,
+      'skip_mock_setup' => FALSE,
+      'expected_version' => 'v2.0.0',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
     ];
     yield 'no releases' => [
       'repo' => 'https://github.com/user/repo',
-      'releaseData' => [],
-      'throwException' => FALSE,
-      'skipMockSetup' => FALSE,
-      'expectedVersion' => NULL,
-      'expectedException' => \RuntimeException::class,
-      'expectedMessage' => 'Unable to discover the latest release',
+      'release_data' => [],
+      'throw_exception' => FALSE,
+      'skip_mock_setup' => FALSE,
+      'expected_version' => NULL,
+      'expected_exception' => \RuntimeException::class,
+      'expected_message' => 'Unable to discover the latest release',
     ];
     yield 'request exception' => [
       'repo' => 'https://github.com/user/repo',
-      'releaseData' => NULL,
-      'throwException' => TRUE,
-      'skipMockSetup' => FALSE,
-      'expectedVersion' => NULL,
-      'expectedException' => \RuntimeException::class,
-      'expectedMessage' => 'Unable to access repository',
+      'release_data' => NULL,
+      'throw_exception' => TRUE,
+      'skip_mock_setup' => FALSE,
+      'expected_version' => NULL,
+      'expected_exception' => \RuntimeException::class,
+      'expected_message' => 'Unable to access repository',
     ];
     yield 'empty response' => [
       'repo' => 'https://github.com/user/repo',
-      'releaseData' => '',
-      'throwException' => FALSE,
-      'skipMockSetup' => FALSE,
-      'expectedVersion' => NULL,
-      'expectedException' => \RuntimeException::class,
-      'expectedMessage' => 'Unable to download release information from',
+      'release_data' => '',
+      'throw_exception' => FALSE,
+      'skip_mock_setup' => FALSE,
+      'expected_version' => NULL,
+      'expected_exception' => \RuntimeException::class,
+      'expected_message' => 'Unable to download release information from',
     ];
     yield 'invalid url' => [
       'repo' => 'https://',
-      'releaseData' => NULL,
-      'throwException' => FALSE,
-      'skipMockSetup' => TRUE,
-      'expectedVersion' => NULL,
-      'expectedException' => \RuntimeException::class,
-      'expectedMessage' => 'Local repository path does not exist',
+      'release_data' => NULL,
+      'throw_exception' => FALSE,
+      'skip_mock_setup' => TRUE,
+      'expected_version' => NULL,
+      'expected_exception' => \RuntimeException::class,
+      'expected_message' => 'Local repository path does not exist',
     ];
     yield 'SemVer+CalVer format - single release' => [
       'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
-      'releaseData' => [
+      'release_data' => [
         ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
       ],
-      'throwException' => FALSE,
-      'skipMockSetup' => FALSE,
-      'expectedVersion' => '1.0.0+2025.11.0',
-      'expectedException' => NULL,
-      'expectedMessage' => NULL,
+      'throw_exception' => FALSE,
+      'skip_mock_setup' => FALSE,
+      'expected_version' => '1.0.0+2025.11.0',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
     ];
     yield 'SemVer+CalVer format - multiple releases' => [
       'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
-      'releaseData' => [
+      'release_data' => [
         ['tag_name' => '1.2.0+2025.12.0', 'draft' => FALSE],
         ['tag_name' => '1.1.0+2025.11.0', 'draft' => FALSE],
         ['tag_name' => '1.0.0+2025.10.0', 'draft' => FALSE],
       ],
-      'throwException' => FALSE,
-      'skipMockSetup' => FALSE,
-      'expectedVersion' => '1.2.0+2025.12.0',
-      'expectedException' => NULL,
-      'expectedMessage' => NULL,
+      'throw_exception' => FALSE,
+      'skip_mock_setup' => FALSE,
+      'expected_version' => '1.2.0+2025.12.0',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
     ];
     yield 'SemVer+CalVer format - skip draft' => [
       'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
-      'releaseData' => [
+      'release_data' => [
         ['tag_name' => '2.0.0+2026.01.0', 'draft' => TRUE],
         ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
       ],
-      'throwException' => FALSE,
-      'skipMockSetup' => FALSE,
-      'expectedVersion' => '1.0.0+2025.11.0',
-      'expectedException' => NULL,
-      'expectedMessage' => NULL,
+      'throw_exception' => FALSE,
+      'skip_mock_setup' => FALSE,
+      'expected_version' => '1.0.0+2025.11.0',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
     ];
     yield 'Mixed format - SemVer+CalVer and CalVer' => [
       'repo' => str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO),
-      'releaseData' => [
+      'release_data' => [
         ['tag_name' => '1.0.0+2025.11.0', 'draft' => FALSE],
         ['tag_name' => '25.10.0', 'draft' => FALSE],
         ['tag_name' => '25.9.0', 'draft' => FALSE],
       ],
-      'throwException' => FALSE,
-      'skipMockSetup' => FALSE,
-      'expectedVersion' => '1.0.0+2025.11.0',
-      'expectedException' => NULL,
-      'expectedMessage' => NULL,
+      'throw_exception' => FALSE,
+      'skip_mock_setup' => FALSE,
+      'expected_version' => '1.0.0+2025.11.0',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
     ];
   }
 
@@ -457,11 +457,11 @@ class RepositoryDownloaderTest extends UnitTestCase {
   public static function dataProviderDownloadWithNullDestination(): \Iterator {
     yield 'remote repository' => [
       'repo' => 'https://github.com/user/repo',
-      'expectedMessage' => 'Destination cannot be null for remote downloads',
+      'expected_message' => 'Destination cannot be null for remote downloads',
     ];
     yield 'local repository' => [
       'repo' => '/path/to/repo',
-      'expectedMessage' => 'Destination cannot be null for local downloads',
+      'expected_message' => 'Destination cannot be null for local downloads',
     ];
   }
 
@@ -474,25 +474,25 @@ class RepositoryDownloaderTest extends UnitTestCase {
   public static function dataProviderDownloadFromLocal(): \Iterator {
     yield 'HEAD ref' => [
       'ref' => 'HEAD',
-      'expectedVersion' => 'develop',
+      'expected_version' => 'develop',
     ];
     yield 'stable ref' => [
       'ref' => 'stable',
-      'expectedVersion' => 'develop',
+      'expected_version' => 'develop',
     ];
     yield 'commit hash' => [
       'ref' => 'COMMIT_HASH',
-      'expectedVersion' => 'COMMIT_HASH',
+      'expected_version' => 'COMMIT_HASH',
     ];
   }
 
-  protected function createMockHttpClient(int $statusCode = 200, string $bodyContent = 'mock content'): ClientInterface {
+  protected function createMockHttpClient(int $status_code = 200, string $body_content = 'mock content'): ClientInterface {
     $mock_client = $this->createMock(ClientInterface::class);
     $mock_response = $this->createMock(ResponseInterface::class);
     $mock_body = $this->createMock(StreamInterface::class);
     $mock_response->method('getBody')->willReturn($mock_body);
-    $mock_body->method('getContents')->willReturn($bodyContent);
-    $mock_response->method('getStatusCode')->willReturn($statusCode);
+    $mock_body->method('getContents')->willReturn($body_content);
+    $mock_response->method('getStatusCode')->willReturn($status_code);
     $mock_client->method('request')->willReturn($mock_response);
     return $mock_client;
   }
