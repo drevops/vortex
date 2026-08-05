@@ -39,7 +39,7 @@
          },
          "bump-after-update": true,
          "discard-changes": true,
-@@ -162,6 +169,19 @@
+@@ -162,6 +169,17 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },
@@ -54,9 +54,7 @@
 +            "merge-scripts": false,
 +            "recurse": true,
 +            "replace": true,
-+            "require": [
-+                "vendor/drupal/cms/composer.json"
-+            ]
++            "require": ["vendor/drupal/cms/composer.json"]
 +        }
      }
  }
