@@ -39,7 +39,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   If not provided, a default Downloader will be created.
    */
   public function __construct(
-    protected ?ClientInterface $httpClient = new Client(['timeout' => 30, 'connect_timeout' => 10]),
+    protected ?ClientInterface $httpClient = new Client(Downloader::CLIENT_OPTIONS),
     protected ?ArchiverInterface $archiver = new Archiver(),
     protected ?Git $git = NULL,
     protected ?Downloader $fileDownloader = new Downloader(),
@@ -185,12 +185,8 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
 
     $release_url = sprintf('https://api.github.com/repos/%s/releases', $path);
 
-    $headers = ['User-Agent' => 'Vortex-Installer', 'Accept' => 'application/vnd.github.v3+json'];
-
+    $headers = self::requestHeaders(['Accept' => 'application/vnd.github.v3+json']);
     $github_token = Env::get('GITHUB_TOKEN');
-    if ($github_token) {
-      $headers['Authorization'] = sprintf('Bearer %s', $github_token);
-    }
 
     try {
       $response = $this->httpClient->request('GET', $release_url, ['headers' => $headers]);
@@ -237,15 +233,8 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       throw new \RuntimeException('Unable to create temporary file for archive download.');
     }
 
-    $headers = ['User-Agent' => 'Vortex-Installer'];
-
-    $github_token = Env::get('GITHUB_TOKEN');
-    if ($github_token) {
-      $headers['Authorization'] = sprintf('Bearer %s', $github_token);
-    }
-
     try {
-      $this->fileDownloader->download($url, $temp_file, $headers);
+      $this->fileDownloader->download($url, $temp_file, self::requestHeaders());
     }
     catch (\RuntimeException $e) {
       if (file_exists($temp_file)) {
@@ -305,16 +294,11 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   If the repository is not accessible.
    */
   protected function validateRemoteRepositoryExists(string $repo_url): void {
-    $headers = ['User-Agent' => 'Vortex-Installer'];
-
-    $github_token = Env::get('GITHUB_TOKEN');
-    if ($github_token) {
-      $headers['Authorization'] = sprintf('Bearer %s', $github_token);
-    }
+    $options = ['headers' => self::requestHeaders(), 'http_errors' => FALSE];
 
     try {
       // Try to access the repository root to verify it exists.
-      $response = $this->httpClient->request('HEAD', $repo_url, ['headers' => $headers, 'http_errors' => FALSE]);
+      $response = $this->httpClient->request('HEAD', $repo_url, $options);
       $status_code = $response->getStatusCode();
 
       if ($status_code >= 400) {
@@ -339,17 +323,12 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    */
   protected function validateRemoteRefExists(string $repo_url, string $ref): void {
     $archive_url = sprintf('%s/archive/%s.tar.gz', $repo_url, $ref);
-    $headers = ['User-Agent' => 'Vortex-Installer'];
-
-    $github_token = Env::get('GITHUB_TOKEN');
-    if ($github_token) {
-      $headers['Authorization'] = sprintf('Bearer %s', $github_token);
-    }
+    $options = ['headers' => self::requestHeaders(), 'http_errors' => FALSE];
 
     try {
       // Use HEAD request to check if the archive URL exists without
       // downloading.
-      $response = $this->httpClient->request('HEAD', $archive_url, ['headers' => $headers, 'http_errors' => FALSE]);
+      $response = $this->httpClient->request('HEAD', $archive_url, $options);
       $status_code = $response->getStatusCode();
 
       if ($status_code === 404) {
@@ -410,6 +389,26 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     catch (\Exception $e) {
       throw new \RuntimeException(sprintf('Reference "%s" not found in local repository "%s"', $ref, $repo), $e->getCode(), $e);
     }
+  }
+
+  /**
+   * Build the headers sent with every request to the repository host.
+   *
+   * @param array<string, string> $headers
+   *   Additional headers to include.
+   *
+   * @return array<string, string>
+   *   The headers, authorised when a token is available.
+   */
+  protected static function requestHeaders(array $headers = []): array {
+    $headers['User-Agent'] = 'Vortex-Installer';
+
+    $github_token = Env::get('GITHUB_TOKEN');
+    if ($github_token) {
+      $headers['Authorization'] = sprintf('Bearer %s', $github_token);
+    }
+
+    return $headers;
   }
 
 }

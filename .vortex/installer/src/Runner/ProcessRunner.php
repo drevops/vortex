@@ -55,13 +55,7 @@ class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInter
 
     $logger->close();
 
-    $exit_code = $process->getExitCode();
-
-    if ($exit_code < 0 || $exit_code > 255) {
-      throw new \RuntimeException('Command exited with invalid exit code: ' . $exit_code);
-    }
-
-    $this->exitCode = $exit_code;
+    $this->setExitCode($process->getExitCode());
 
     return $this;
   }

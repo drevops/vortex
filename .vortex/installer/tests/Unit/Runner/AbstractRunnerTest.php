@@ -354,7 +354,7 @@ class AbstractRunnerTest extends UnitTestCase {
 
     $runner->setCommand('test-command');
     $runner->setOutput('test output');
-    $runner->setExitCode(1);
+    $runner->setExitCodePublic(1);
 
     $this->assertEquals('test-command', $runner->getCommand());
     $this->assertEquals('test output', $runner->getOutput());
@@ -683,14 +683,10 @@ class ConcreteRunner extends AbstractRunner {
   }
 
   /**
-   * Public setter for exitCode (for testing).
+   * Public wrapper for setExitCode.
    */
-  public function setExitCode(int $exit_code): void {
-    if ($exit_code < 0 || $exit_code > 255) {
-      throw new \RuntimeException('Exit code is out of valid range (0-255).');
-    }
-
-    $this->exitCode = $exit_code;
+  public function setExitCodePublic(int $exit_code): void {
+    $this->setExitCode($exit_code);
   }
 
   /**

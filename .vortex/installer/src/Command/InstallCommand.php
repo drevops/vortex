@@ -306,10 +306,7 @@ EOF
    * Handle --schema option.
    */
   protected function handleSchema(InputInterface $input, OutputInterface $output): int {
-    $config = Config::fromString('{}');
-    $prompt_manager = new PromptManager($config);
-
-    $generator = new SchemaGenerator($prompt_manager->getHandlers());
+    $generator = new SchemaGenerator(self::handlerDefinitions());
     $schema = $generator->generate();
 
     $output->write((string) json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
@@ -340,15 +337,22 @@ EOF
 
     $user_config = json_decode($prompts_json, TRUE);
 
-    $config = Config::fromString('{}');
-    $prompt_manager = new PromptManager($config);
-
-    $validator = new SchemaValidator($prompt_manager->getHandlers());
+    $validator = new SchemaValidator(self::handlerDefinitions());
     $result = $validator->validate($user_config);
 
     $output->write((string) json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     return $result['valid'] ? Command::SUCCESS : Command::FAILURE;
+  }
+
+  /**
+   * Get the handler definitions without a destination to install into.
+   *
+   * @return array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
+   *   An associative array of handler instances keyed by handler ID.
+   */
+  protected static function handlerDefinitions(): array {
+    return (new PromptManager(Config::fromString('{}')))->getHandlers();
   }
 
   /**
@@ -373,12 +377,8 @@ EOF
    *   TRUE if the build command succeeded, FALSE otherwise.
    */
   protected function runBuildCommand(OutputInterface $output): bool {
-    $responses = $this->promptManager->getResponses();
-    $starter = $responses[Starter::id()] ?? Starter::LOAD_DATABASE_DEMO;
-    $is_profile = in_array($starter, [Starter::INSTALL_PROFILE_CORE, Starter::INSTALL_PROFILE_DRUPALCMS], TRUE);
-
     $args = ['--destination' => $this->config->getDestination()];
-    if ($is_profile) {
+    if (Starter::isProfileInstall($this->promptManager->getResponses())) {
       $args['--profile'] = '1';
     }
 

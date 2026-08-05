@@ -67,6 +67,19 @@ class ModulePrefix extends AbstractHandler {
       $this->destinationDir . sprintf('/%s/profiles/custom/*/modules/custom/*_core', $this->webroot),
     ];
 
+    return self::resolveFromLocations($locations);
+  }
+
+  /**
+   * Resolve a module prefix from the first matching module directory.
+   *
+   * @param array<int, string> $locations
+   *   Glob patterns of candidate module directories.
+   *
+   * @return string|null
+   *   The prefix, or NULL when no directory matches.
+   */
+  public static function resolveFromLocations(array $locations): ?string {
     $path = File::findMatchingPath($locations);
 
     return empty($path) ? NULL : str_replace(['_base', '_core'], '', basename($path));

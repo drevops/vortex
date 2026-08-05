@@ -101,6 +101,21 @@ DOC;
   }
 
   /**
+   * Check whether the responses select a site built from an install profile.
+   *
+   * @param array<string, mixed> $responses
+   *   The collected responses.
+   *
+   * @return bool
+   *   TRUE if the site is built from an install profile.
+   */
+  public static function isProfileInstall(array $responses): bool {
+    $starter = $responses[self::id()] ?? self::LOAD_DATABASE_DEMO;
+
+    return in_array($starter, [self::INSTALL_PROFILE_CORE, self::INSTALL_PROFILE_DRUPALCMS], TRUE);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function process(): void {

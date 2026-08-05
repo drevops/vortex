@@ -143,11 +143,24 @@ abstract class AbstractRunner implements RunnerInterface {
    *   The exit code.
    */
   public function getExitCode(): int {
-    if ($this->exitCode < 0 || $this->exitCode > 255) {
-      throw new \RuntimeException(sprintf('Exit code %d is out of valid range (0-255).', $this->exitCode));
+    return $this->exitCode;
+  }
+
+  /**
+   * Store the exit code of a completed run.
+   *
+   * @param int $exit_code
+   *   The exit code reported by the command.
+   *
+   * @throws \RuntimeException
+   *   If the exit code falls outside the range a process can report.
+   */
+  protected function setExitCode(int $exit_code): void {
+    if ($exit_code < 0 || $exit_code > 255) {
+      throw new \RuntimeException('Command exited with invalid exit code: ' . $exit_code);
     }
 
-    return $this->exitCode;
+    $this->exitCode = $exit_code;
   }
 
   /**

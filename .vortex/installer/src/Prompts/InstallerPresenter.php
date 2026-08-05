@@ -178,9 +178,7 @@ EOT;
     $output = '';
     $prefix = '  ';
 
-    $responses = $this->promptManager->getResponses();
-    $starter = $responses[Starter::id()] ?? Starter::LOAD_DATABASE_DEMO;
-    $is_profile = in_array($starter, [Starter::INSTALL_PROFILE_CORE, Starter::INSTALL_PROFILE_DRUPALCMS], TRUE);
+    $is_profile = Starter::isProfileInstall($this->promptManager->getResponses());
 
     $output .= 'Build the site:' . PHP_EOL;
     if ($is_profile) {

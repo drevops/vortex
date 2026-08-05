@@ -138,7 +138,7 @@ class PromptManager {
 
       ->intro('Drupal')
       ->addIf(
-          fn(array $r): bool => $this->handlers[Starter::id()]->shouldRun($r),
+          fn(array $r): bool => $this->handler(Starter::id())->shouldRun($r),
           fn(array $r, $pr, $n): mixed => $this->prompt(Starter::class, $r),
           Starter::id()
         )
@@ -147,7 +147,7 @@ class PromptManager {
           Profile::id()
         )
         ->addIf(
-            fn(array $r): bool => $this->handlers[ProfileCustom::id()]->shouldRun($r),
+            fn(array $r): bool => $this->handler(ProfileCustom::id())->shouldRun($r),
             fn($r, $pr, $n): mixed => $this->prompt(ProfileCustom::class),
             ProfileCustom::id()
           )
@@ -159,12 +159,12 @@ class PromptManager {
           Theme::id()
         )
         ->addIf(
-            fn(array $r): bool => $this->handlers[ThemeCustom::id()]->shouldRun($r),
+            fn(array $r): bool => $this->handler(ThemeCustom::id())->shouldRun($r),
             fn(array $r, $pr, $n): mixed => $this->prompt(ThemeCustom::class, $r),
             ThemeCustom::id()
           )
         ->addIf(
-            fn(array $r): bool => $this->handlers[FrontendBuild::id()]->shouldRun($r),
+            fn(array $r): bool => $this->handler(FrontendBuild::id())->shouldRun($r),
             fn(array $r, $pr, $n): mixed => $this->prompt(FrontendBuild::class, $r),
             FrontendBuild::id()
           )
@@ -181,7 +181,7 @@ class PromptManager {
       ->intro('Hosting')
       ->add(fn($r, $pr, $n): mixed => $this->prompt(HostingProvider::class), HostingProvider::id())
       ->addIf(
-          fn(array $r): bool => $this->handlers[HostingProjectName::id()]->shouldRun($r),
+          fn(array $r): bool => $this->handler(HostingProjectName::id())->shouldRun($r),
           fn(array $r, $pr, $n): mixed => $this->prompt(HostingProjectName::class, $r),
           HostingProjectName::id()
         )
@@ -196,23 +196,23 @@ class PromptManager {
       ->intro('Workflow')
       ->add(fn($r, $pr, $n): mixed => $this->prompt(ProvisionType::class), ProvisionType::id())
       ->addIf(
-          fn(array $r): bool => $this->handlers[DatabaseFetchSource::id()]->shouldRun($r),
+          fn(array $r): bool => $this->handler(DatabaseFetchSource::id())->shouldRun($r),
           fn(array $r, $pr, $n): mixed => $this->prompt(DatabaseFetchSource::class, $r),
           DatabaseFetchSource::id()
         )
         ->addIf(
-            fn(array $r): bool => $this->handlers[DatabaseImage::id()]->shouldRun($r),
+            fn(array $r): bool => $this->handler(DatabaseImage::id())->shouldRun($r),
             fn(array $r, $pr, $n): mixed => $this->prompt(DatabaseImage::class, $r),
             DatabaseImage::id()
           )
       ->add(fn($r, $pr, $n): mixed => $this->prompt(Migration::class), Migration::id())
       ->addIf(
-          fn(array $r): bool => $this->handlers[MigrationFetchSource::id()]->shouldRun($r),
+          fn(array $r): bool => $this->handler(MigrationFetchSource::id())->shouldRun($r),
           fn(array $r, $pr, $n): mixed => $this->prompt(MigrationFetchSource::class, $r),
           MigrationFetchSource::id()
         )
         ->addIf(
-            fn(array $r): bool => $this->handlers[MigrationImage::id()]->shouldRun($r),
+            fn(array $r): bool => $this->handler(MigrationImage::id())->shouldRun($r),
             fn(array $r, $pr, $n): mixed => $this->prompt(MigrationImage::class, $r),
             MigrationImage::id()
           )
@@ -347,11 +347,7 @@ class PromptManager {
     ];
 
     foreach ($ids as $id) {
-      if (!array_key_exists($id, $this->handlers)) {
-        throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
-      }
-
-      $this->handlers[$id]->setResponses($this->responses)->process();
+      $this->handler($id)->setResponses($this->responses)->process();
     }
   }
 
@@ -374,11 +370,7 @@ class PromptManager {
     ];
 
     foreach ($ids as $id) {
-      if (!array_key_exists($id, $this->handlers)) {
-        throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
-      }
-
-      $handler_output = $this->handlers[$id]->postBuild($result);
+      $handler_output = $this->handler($id)->postBuild($result);
 
       if (is_string($handler_output) && !empty($handler_output)) {
         $output .= $handler_output;
@@ -620,8 +612,7 @@ class PromptManager {
    *   The prompt result.
    */
   protected function prompt(string $handler_class, array $responses = []): mixed {
-    $handler = $this->handlers[$handler_class::id()];
-    $fn = $handler->type()->promptFunction();
+    $fn = $this->handler($handler_class::id())->type()->promptFunction();
 
     return $fn(...$this->args($handler_class, NULL, $responses));
   }
@@ -644,12 +635,7 @@ class PromptManager {
    */
   protected function args(string $handler_class, mixed $default_override = NULL, array $responses = []): array {
     $id = $handler_class::id();
-
-    if (!array_key_exists($id, $this->handlers)) {
-      throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
-    }
-
-    $handler = $this->handlers[$handler_class::id()];
+    $handler = $this->handler($id);
 
     $args = [
       'label' => $this->label($handler->label()),
@@ -679,7 +665,7 @@ class PromptManager {
     // Get from prompt overrides (--prompts CLI option).
     $default_from_prompts = $this->promptOverrides[$id] ?? NULL;
     // Get from discovery.
-    $default_from_discovery = $this->handlers[$id]->discover();
+    $default_from_discovery = $handler->discover();
 
     if ($default_from_prompts !== NULL) {
       $default = $default_from_prompts;
@@ -719,7 +705,7 @@ class PromptManager {
    *   The resolved value.
    */
   protected function resolveOrPrompt(string $handler_id, array $r, callable $prompt): string {
-    $handler = $this->handlers[$handler_id];
+    $handler = $this->handler($handler_id);
     $resolved = $handler->resolvedValue($r);
 
     if (is_string($resolved)) {
@@ -733,6 +719,26 @@ class PromptManager {
     }
 
     return (string) $prompt();
+  }
+
+  /**
+   * Get a registered handler.
+   *
+   * @param string $id
+   *   The handler ID.
+   *
+   * @return \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface
+   *   The handler instance.
+   *
+   * @throws \RuntimeException
+   *   If no handler is registered for the ID.
+   */
+  protected function handler(string $id): HandlerInterface {
+    if (!array_key_exists($id, $this->handlers)) {
+      throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
+    }
+
+    return $this->handlers[$id];
   }
 
 }

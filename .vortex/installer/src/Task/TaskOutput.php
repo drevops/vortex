@@ -29,10 +29,7 @@ class TaskOutput implements OutputInterface {
    *   Write options.
    */
   public function write(string|iterable $messages, bool $newline = FALSE, int $options = 0): void {
-    $dimmed = is_iterable($messages)
-      ? array_map(Tui::dim(...), (array) $messages)
-      : Tui::dim($messages);
-    $this->wrapped->write($dimmed, $newline, $options);
+    $this->wrapped->write($this->dim($messages), $newline, $options);
   }
 
   /**
@@ -44,10 +41,20 @@ class TaskOutput implements OutputInterface {
    *   Write options.
    */
   public function writeln(string|iterable $messages, int $options = 0): void {
-    $dimmed = is_iterable($messages)
-      ? array_map(Tui::dim(...), (array) $messages)
-      : Tui::dim($messages);
-    $this->wrapped->writeln($dimmed, $options);
+    $this->wrapped->writeln($this->dim($messages), $options);
+  }
+
+  /**
+   * Dim a message or every message in a list.
+   *
+   * @param string|iterable<int,string> $messages
+   *   The message or messages to dim.
+   *
+   * @return string|array<int,string>
+   *   The dimmed message or messages.
+   */
+  protected function dim(string|iterable $messages): string|array {
+    return is_iterable($messages) ? array_map(Tui::dim(...), (array) $messages) : Tui::dim($messages);
   }
 
   /**

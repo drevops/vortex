@@ -14,6 +14,11 @@ use GuzzleHttp\Exception\RequestException;
 class Downloader {
 
   /**
+   * Options applied to every HTTP client the installer creates.
+   */
+  const CLIENT_OPTIONS = ['timeout' => 30, 'connect_timeout' => 10];
+
+  /**
    * Constructs a new Downloader instance.
    *
    * @param \GuzzleHttp\ClientInterface|null $httpClient
@@ -21,7 +26,7 @@ class Downloader {
    *   client will be created.
    */
   public function __construct(
-    protected ?ClientInterface $httpClient = new Client(['timeout' => 30, 'connect_timeout' => 10]),
+    protected ?ClientInterface $httpClient = new Client(self::CLIENT_OPTIONS),
   ) {
   }
 

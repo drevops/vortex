@@ -11,8 +11,7 @@ class Strings {
   }
 
   public static function strlenPlain(string $text): int {
-    $clean_text = preg_replace('/\e\[[0-9;]*m/', '', $text);
-    return mb_strwidth((string) $clean_text, 'UTF-8');
+    return mb_strwidth(self::stripAnsiColors($text), 'UTF-8');
   }
 
   public static function stripAnsiColors(string $text): string {
