@@ -63,7 +63,7 @@ class Profile extends AbstractHandler {
   public function discover(): null|string|bool|array {
     $value = $this->discoverName();
 
-    if (!is_null($value)) {
+    if ($value !== NULL) {
       return in_array($value, [self::STANDARD, self::MINIMAL, self::DEMO_UMAMI], TRUE) ? $value : self::CUSTOM;
     }
 
@@ -76,7 +76,7 @@ class Profile extends AbstractHandler {
   public function resolvedValue(array $responses): null|string|bool|array {
     $discovered = $this->discover();
 
-    if (!is_null($discovered)) {
+    if ($discovered !== NULL) {
       return $discovered;
     }
 

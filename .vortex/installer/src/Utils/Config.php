@@ -87,7 +87,7 @@ final class Config {
       $value = Env::get($name, $value);
     }
 
-    if (!is_null($value)) {
+    if ($value !== NULL) {
       $this->store[$name] = $value;
     }
 

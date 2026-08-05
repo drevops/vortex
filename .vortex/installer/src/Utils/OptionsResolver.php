@@ -115,7 +115,7 @@ class OptionsResolver {
 
     // Internal flag to enforce DEMO mode. If not set, the demo mode will be
     // discovered automatically.
-    if (!is_null(Env::get(Config::IS_DEMO))) {
+    if (Env::get(Config::IS_DEMO) !== NULL) {
       $config->set(Config::IS_DEMO, (bool) Env::get(Config::IS_DEMO));
     }
 

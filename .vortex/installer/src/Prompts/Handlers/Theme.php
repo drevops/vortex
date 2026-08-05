@@ -64,7 +64,7 @@ class Theme extends AbstractHandler {
   public function discover(): null|string|bool|array {
     $value = $this->discoverName();
 
-    if (!is_null($value)) {
+    if ($value !== NULL) {
       return in_array($value, [self::OLIVERO, self::CLARO, self::STARK], TRUE) ? $value : self::CUSTOM;
     }
 
@@ -75,13 +75,7 @@ class Theme extends AbstractHandler {
    * {@inheritdoc}
    */
   public function resolvedValue(array $responses): null|string|bool|array {
-    $discovered = $this->discover();
-
-    if (!is_null($discovered)) {
-      return $discovered;
-    }
-
-    return NULL;
+    return $this->discover();
   }
 
   /**

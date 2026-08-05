@@ -106,7 +106,7 @@ class Webroot extends AbstractHandler {
   public function resolvedValue(array $responses): null|string|bool|array {
     $discovered = $this->discover();
 
-    if (!is_null($discovered)) {
+    if ($discovered !== NULL) {
       return $discovered;
     }
 

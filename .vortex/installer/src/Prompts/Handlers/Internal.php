@@ -138,7 +138,7 @@ class Internal extends AbstractHandler {
   protected function processDemoMode(array $responses, string $dir): void {
     $is_demo = $this->config->get(Config::IS_DEMO);
 
-    if (is_null($is_demo)) {
+    if ($is_demo === NULL) {
       if ($responses[Starter::id()] !== Starter::LOAD_DATABASE_DEMO) {
         $is_demo = FALSE;
       }

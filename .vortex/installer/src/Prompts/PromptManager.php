@@ -489,10 +489,10 @@ class PromptManager {
     $values['Workflow'] = Tui::LIST_SECTION_TITLE;
     $values['Provision type'] = $responses[ProvisionType::id()];
 
-    if ($responses[ProvisionType::id()] == ProvisionType::DATABASE) {
+    if ($responses[ProvisionType::id()] === ProvisionType::DATABASE) {
       $values['Database source'] = $responses[DatabaseFetchSource::id()];
 
-      if ($responses[DatabaseFetchSource::id()] == DatabaseFetchSource::CONTAINER_REGISTRY) {
+      if ($responses[DatabaseFetchSource::id()] === DatabaseFetchSource::CONTAINER_REGISTRY) {
         $values['Database container image'] = $responses[DatabaseImage::id()];
       }
     }
@@ -502,7 +502,7 @@ class PromptManager {
       if ($responses[Migration::id()] === TRUE && isset($responses[MigrationFetchSource::id()])) {
         $values['Migration database source'] = $responses[MigrationFetchSource::id()];
 
-        if ($responses[MigrationFetchSource::id()] == MigrationFetchSource::CONTAINER_REGISTRY && isset($responses[MigrationImage::id()])) {
+        if ($responses[MigrationFetchSource::id()] === MigrationFetchSource::CONTAINER_REGISTRY && isset($responses[MigrationImage::id()])) {
           $values['Migration database container image'] = $responses[MigrationImage::id()];
         }
       }
@@ -559,7 +559,7 @@ class PromptManager {
    *   The formatted label text.
    */
   protected function label(string $text, ?string $suffix = NULL): string {
-    if (is_null($suffix)) {
+    if ($suffix === NULL) {
       $this->currentResponseIndex++;
     }
 
@@ -693,7 +693,7 @@ class PromptManager {
     ];
 
     $description = $handler->description($responses);
-    if (!is_null($description)) {
+    if ($description !== NULL) {
       $args['description'] = PHP_EOL . $description . PHP_EOL;
     }
 
@@ -714,20 +714,20 @@ class PromptManager {
     // Get from discovery.
     $default_from_discovery = $this->handlers[$id]->discover();
 
-    if (!is_null($default_from_prompts)) {
+    if ($default_from_prompts !== NULL) {
       $default = $default_from_prompts;
     }
-    elseif (!is_null($default_from_discovery)) {
+    elseif ($default_from_discovery !== NULL) {
       $default = $default_from_discovery;
     }
-    elseif (!is_null($default_override)) {
+    elseif ($default_override !== NULL) {
       $default = $default_override;
     }
     else {
       $default = $default_from_handler;
     }
 
-    if (!is_null($default) && $default !== '') {
+    if ($default !== NULL && $default !== '') {
       $args['default'] = $default;
     }
 

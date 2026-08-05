@@ -28,7 +28,7 @@ class Env {
   public static function getFromDotenv(string $name, string $dir): ?string {
     // Environment variables always take precedence.
     $env_value = self::get($name);
-    if (!is_null($env_value)) {
+    if ($env_value !== NULL) {
       return $env_value;
     }
 
