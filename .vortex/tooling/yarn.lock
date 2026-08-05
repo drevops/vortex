@@ -4,11 +4,11 @@
 
 "bats-helpers@github:drevops/bats-helpers#main":
   version "1.6.0"
-  resolved "https://codeload.github.com/drevops/bats-helpers/tar.gz/20e96def540ba1ac2b5d2cb8487b64ee7b5f310e"
+  resolved "https://codeload.github.com/drevops/bats-helpers/tar.gz/66a9ad8b33b50bd9917f105fd5f859643492fe5b"
   dependencies:
-    bats "^1.10"
+    bats "^1.13"
 
-bats@^1.10:
+bats@^1.13:
   version "1.13.0"
   resolved "https://registry.yarnpkg.com/bats/-/bats-1.13.0.tgz#b90aa4434832fc80458ade07ebdeecee0925d8ae"
   integrity sha512-giSYKGTOcPZyJDbfbTtzAedLcNWdjCLbXYU3/MwPnjyvDXzu6Dgw8d2M+8jHhZXSmsCMSQqCp+YBsJ603UO4vQ==

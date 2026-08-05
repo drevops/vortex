@@ -10,13 +10,12 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_docker=$(mock_command "docker")
-  # First call to image inspect fails (image not found), second succeeds (after load/pull)
+  # The image is absent from the host, so the inspect is followed by a registry
+  # login and a pull. The login script is invoked by its own path rather than
+  # through PATH, so it runs for real and its own 'docker login' is call 2.
   mock_set_side_effect "${mock_docker}" "exit 1" 1
-  mock_set_side_effect "${mock_docker}" "echo 'image loaded'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
   mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
-
-  # Mock the login script
-  mock_set_side_effect "$(mock_command "./.vortex/tooling/src/vortex-login-container-registry")" "echo 'logged in'" 1
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
@@ -72,10 +71,8 @@ load ../_helper.bash
 
   mock_docker=$(mock_command "docker")
   mock_set_side_effect "${mock_docker}" "exit 1" 1
-  mock_set_side_effect "${mock_docker}" "echo 'pulled base image'" 2
-
-  # Mock the login script
-  mock_set_side_effect "$(mock_command "./.vortex/tooling/src/vortex-login-container-registry")" "echo 'logged in'" 1
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'pulled base image'" 3
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="myorg/base"
@@ -98,8 +95,11 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_docker=$(mock_command "docker")
-  # First call to image inspect succeeds (image found on host)
+  # The image is found on the host, but the fetch is not skipped: without an
+  # expanded archive the script still logs in and pulls.
   mock_set_side_effect "${mock_docker}" "echo 'image exists'" 1
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
@@ -121,10 +121,8 @@ load ../_helper.bash
 
   mock_docker=$(mock_command "docker")
   mock_set_side_effect "${mock_docker}" "exit 1" 1
-  mock_set_side_effect "${mock_docker}" "echo 'pulled from docker.io'" 2
-
-  # Mock the login script
-  mock_set_side_effect "$(mock_command "./.vortex/tooling/src/vortex-login-container-registry")" "echo 'logged in'" 1
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'pulled from docker.io'" 3
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   # Don't set VORTEX_FETCH_DB_CONTAINER_REGISTRY to test default
@@ -147,10 +145,8 @@ load ../_helper.bash
 
   mock_docker=$(mock_command "docker")
   mock_set_side_effect "${mock_docker}" "exit 1" 1
-  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 2
-
-  # Mock the login script.
-  mock_set_side_effect "$(mock_command "./.vortex/tooling/src/vortex-login-container-registry")" "echo 'logged in'" 1
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
 
   # Set database index as used in CI: VORTEX_DB_INDEX=2.
   export VORTEX_DB_INDEX="2"

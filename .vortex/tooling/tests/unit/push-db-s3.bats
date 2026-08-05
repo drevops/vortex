@@ -252,10 +252,16 @@ load ../_helper.bash
   mkdir -p .data
   echo "CREATE TABLE test (id INT);" >.data/db.sql
 
+  # The script reads the status from the last line of the response, so the mock
+  # has to answer with a body above it. A step cannot carry that response: the
+  # step string is split with 'read', which stops at the first newline.
+  mock_curl="$(mock_command "curl")"
+  mock_set_output "${mock_curl}" $'AccessDenied\n403' 1
+
   declare -a STEPS=(
     "[INFO] Started database dump push to S3."
 
-    "@curl * # 0 # AccessDenied\n403"
+    "@curl *"
 
     "ERROR: S3 push failed with HTTP status 403."
     "- [ OK ] Finished database dump push to S3."
@@ -271,7 +277,7 @@ load ../_helper.bash
   export VORTEX_PUSH_DB_S3_DB_DIR=".data"
   export VORTEX_PUSH_DB_S3_DB_FILE="db.sql"
 
-  mocks="$(steps_run "setup")"
+  mocks="$(steps_run "setup" "curl=${mock_curl}")"
   run .vortex/tooling/src/vortex-push-db-s3
   steps_run "assert" "${mocks}"
 
