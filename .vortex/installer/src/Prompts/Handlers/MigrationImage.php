@@ -98,12 +98,14 @@ class MigrationImage extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    if (!empty($this->response)) {
-      $v = $this->getResponseAsString();
-      $t = $this->tmpDir;
-
-      Env::writeValueDotenv('VORTEX_DB2_IMAGE', $v, $t . '/.env');
+    if (empty($this->response)) {
+      return;
     }
+
+    $v = $this->getResponseAsString();
+    $t = $this->tmpDir;
+
+    Env::writeValueDotenv('VORTEX_DB2_IMAGE', $v, $t . '/.env');
   }
 
 }

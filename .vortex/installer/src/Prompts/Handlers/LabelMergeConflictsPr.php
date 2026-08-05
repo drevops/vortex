@@ -33,7 +33,11 @@ class LabelMergeConflictsPr extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    return $this->isInstalled() ? file_exists($this->destinationDir . '/.github/workflows/label-merge-conflict.yml') : NULL;
+    if (!$this->isInstalled()) {
+      return NULL;
+    }
+
+    return file_exists($this->destinationDir . '/.github/workflows/label-merge-conflict.yml');
   }
 
   /**
