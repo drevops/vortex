@@ -27,74 +27,6 @@ class ArchiverTest extends UnitTestCase {
     $this->assertEquals($expected, $format);
   }
 
-  public function testDetectFormatInvalidFile(): void {
-    $temp_file = self::$tmp . '/test_invalid.txt';
-    File::dump($temp_file, 'This is not an archive');
-    $format = $this->archiver->detectFormat($temp_file);
-    $this->assertNull($format);
-  }
-
-  public function testDetectFormatNonExistentFile(): void {
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Unable to read archive file');
-    $this->archiver->detectFormat('/non/existent/file.tar.gz');
-  }
-
-  #[DataProvider('dataProviderValidateValidArchive')]
-  public function testValidateValidArchive(string $creator): void {
-    $archive_path = $this->$creator();
-    $this->archiver->validate($archive_path);
-    $this->expectNotToPerformAssertions();
-  }
-
-  #[DataProvider('dataProviderValidateInvalid')]
-  public function testValidateInvalid(?string $path, ?string $content, string $expected_message): void {
-    if ($path === NULL) {
-      $path = self::$tmp . '/test_invalid_' . uniqid() . '.txt';
-      if ($content !== NULL) {
-        File::dump($path, $content);
-      }
-    }
-
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($expected_message);
-    $this->archiver->validate($path);
-  }
-
-  #[DataProvider('dataProviderExtract')]
-  public function testExtract(string $creator, bool $strip, string $expected_path): void {
-    $archive_path = $this->$creator();
-    $destination = self::$tmp . '/test_extract_' . uniqid();
-    File::mkdir($destination);
-
-    $this->archiver->extract($archive_path, $destination, $strip);
-
-    $this->assertFileExists($destination . $expected_path);
-    $this->assertEquals('Test content', file_get_contents($destination . $expected_path));
-
-    if ($strip) {
-      $this->assertFileDoesNotExist($destination . '/test_archive');
-    }
-  }
-
-  #[DataProvider('dataProviderExtractErrors')]
-  public function testExtractErrors(?string $extension, ?string $content, bool $strip, ?string $creator, string $expected_message): void {
-    if ($creator !== NULL) {
-      $archive_path = $this->$creator();
-    }
-    else {
-      $archive_path = self::$tmp . '/test_invalid_' . uniqid() . $extension;
-      File::dump($archive_path, $content);
-    }
-
-    $destination = self::$tmp . '/test_extract_' . uniqid();
-    File::mkdir($destination);
-
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($expected_message);
-    $this->archiver->extract($archive_path, $destination, $strip);
-  }
-
   /**
    * Data provider for testDetectFormat().
    *
@@ -116,6 +48,26 @@ class ArchiverTest extends UnitTestCase {
     ];
   }
 
+  public function testDetectFormatInvalidFile(): void {
+    $temp_file = self::$tmp . '/test_invalid.txt';
+    File::dump($temp_file, 'This is not an archive');
+    $format = $this->archiver->detectFormat($temp_file);
+    $this->assertNull($format);
+  }
+
+  public function testDetectFormatNonExistentFile(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Unable to read archive file');
+    $this->archiver->detectFormat('/non/existent/file.tar.gz');
+  }
+
+  #[DataProvider('dataProviderValidateValidArchive')]
+  public function testValidateValidArchive(string $creator): void {
+    $archive_path = $this->$creator();
+    $this->archiver->validate($archive_path);
+    $this->expectNotToPerformAssertions();
+  }
+
   /**
    * Data provider for testValidateValidArchive().
    *
@@ -129,6 +81,20 @@ class ArchiverTest extends UnitTestCase {
     yield 'zip' => [
       'creator' => 'createTestZip',
     ];
+  }
+
+  #[DataProvider('dataProviderValidateInvalid')]
+  public function testValidateInvalid(?string $path, ?string $content, string $expected_message): void {
+    if ($path === NULL) {
+      $path = self::$tmp . '/test_invalid_' . uniqid() . '.txt';
+      if ($content !== NULL) {
+        File::dump($path, $content);
+      }
+    }
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage($expected_message);
+    $this->archiver->validate($path);
   }
 
   /**
@@ -153,6 +119,22 @@ class ArchiverTest extends UnitTestCase {
       'content' => 'This is not an archive',
       'expected_message' => 'File does not appear to be a valid archive',
     ];
+  }
+
+  #[DataProvider('dataProviderExtract')]
+  public function testExtract(string $creator, bool $strip, string $expected_path): void {
+    $archive_path = $this->$creator();
+    $destination = self::$tmp . '/test_extract_' . uniqid();
+    File::mkdir($destination);
+
+    $this->archiver->extract($archive_path, $destination, $strip);
+
+    $this->assertFileExists($destination . $expected_path);
+    $this->assertEquals('Test content', file_get_contents($destination . $expected_path));
+
+    if ($strip) {
+      $this->assertFileDoesNotExist($destination . '/test_archive');
+    }
   }
 
   /**
@@ -182,6 +164,24 @@ class ArchiverTest extends UnitTestCase {
       'strip' => TRUE,
       'expected_path' => '/test_file.txt',
     ];
+  }
+
+  #[DataProvider('dataProviderExtractErrors')]
+  public function testExtractErrors(?string $extension, ?string $content, bool $strip, ?string $creator, string $expected_message): void {
+    if ($creator !== NULL) {
+      $archive_path = $this->$creator();
+    }
+    else {
+      $archive_path = self::$tmp . '/test_invalid_' . uniqid() . $extension;
+      File::dump($archive_path, $content);
+    }
+
+    $destination = self::$tmp . '/test_extract_' . uniqid();
+    File::mkdir($destination);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage($expected_message);
+    $this->archiver->extract($archive_path, $destination, $strip);
   }
 
   /**

@@ -1,27 +1,21 @@
 /**
  * @file Global theme behaviors.
- * @param $
- * @param Drupal
- * @global Drupal,  JQuery.
  */
 
-/**
- * Global theme behaviors.
- *
- * @param {jQuery} $       The jQuery object.
- * @param {Drupal} Drupal  The Drupal object.
- */
-(function LightsaberBehaviors($, Drupal) {
+(function lightsaberBehaviors(Drupal) {
   Drupal.behaviors.lightsaber = {
     attach(context) {
-      // give me example code here that would be using context with body
-      $(context)
-        .find('body')
-        .once('the-new-hope-theme')
-        .each(function iterateBody() {
-          // Example: Add a class to the body element.
-          $(this).addClass('the-new-hope-theme-processed');
-        });
+      // The context is the document on load and an element on AJAX, and that
+      // element may be the body itself, so resolve through the owning document.
+      const body = context.ownerDocument
+        ? context.ownerDocument.body
+        : document.body;
+
+      if (body.classList.contains('the-new-hope-theme-processed')) {
+        return;
+      }
+
+      body.classList.add('the-new-hope-theme-processed');
     },
   };
-})(jQuery, Drupal);
+})(Drupal);

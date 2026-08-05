@@ -206,9 +206,7 @@ DOC;
       $this->destinationDir . sprintf('/%s/sites/all/modules/custom/*_core', $this->webroot),
     ];
 
-    $path = File::findMatchingPath($locations);
-
-    return empty($path) ? NULL : str_replace(['_base', '_core'], '', basename($path));
+    return ModulePrefix::resolveFromLocations($locations);
   }
 
   /**

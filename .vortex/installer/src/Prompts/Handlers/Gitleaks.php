@@ -40,7 +40,11 @@ class Gitleaks extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    return $this->isInstalled() ? file_exists($this->destinationDir . '/.gitleaks.toml') : NULL;
+    if (!$this->isInstalled()) {
+      return NULL;
+    }
+
+    return file_exists($this->destinationDir . '/.gitleaks.toml');
   }
 
   /**

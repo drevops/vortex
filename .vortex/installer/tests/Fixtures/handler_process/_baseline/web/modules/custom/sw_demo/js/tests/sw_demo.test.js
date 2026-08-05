@@ -22,17 +22,17 @@ describe('Drupal.behaviors.ysDemo', () => {
   function createCounterBlockHtml() {
     return `
       <div data-sw-demo-counter>
-        <span data-counter-value>0</span>
-        <button data-counter-action="increment">+</button>
-        <button data-counter-action="decrement">-</button>
-        <button data-counter-action="reset">Reset</button>
+        <span data-sw-demo-counter-value>0</span>
+        <button data-sw-demo-counter-action="increment">+</button>
+        <button data-sw-demo-counter-action="decrement">-</button>
+        <button data-sw-demo-counter-action="reset">Reset</button>
       </div>
     `;
   }
 
   describe('storageKey', () => {
     it('should have the expected storage key', () => {
-      expect(Drupal.behaviors.ysDemo.storageKey).toBe('ys_counter_value');
+      expect(Drupal.behaviors.ysDemo.storageKey).toBe('sw_demo_counter_value');
     });
   });
 
@@ -42,17 +42,17 @@ describe('Drupal.behaviors.ysDemo', () => {
     });
 
     it('should return the stored value from localStorage', () => {
-      localStorage.setItem('ys_counter_value', '42');
+      localStorage.setItem('sw_demo_counter_value', '42');
       expect(Drupal.behaviors.ysDemo.getCounterValue()).toBe(42);
     });
 
     it('should return 0 for non-numeric localStorage values', () => {
-      localStorage.setItem('ys_counter_value', 'invalid');
+      localStorage.setItem('sw_demo_counter_value', 'invalid');
       expect(Drupal.behaviors.ysDemo.getCounterValue()).toBe(0);
     });
 
     it('should return negative values correctly', () => {
-      localStorage.setItem('ys_counter_value', '-5');
+      localStorage.setItem('sw_demo_counter_value', '-5');
       expect(Drupal.behaviors.ysDemo.getCounterValue()).toBe(-5);
     });
   });
@@ -114,16 +114,16 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const value = document.querySelector('[data-counter-value]');
+      const value = document.querySelector('[data-sw-demo-counter-value]');
       expect(value.textContent).toBe('0');
     });
 
     it('should initialize with saved localStorage value', () => {
-      localStorage.setItem('ys_counter_value', '15');
+      localStorage.setItem('sw_demo_counter_value', '15');
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const value = document.querySelector('[data-counter-value]');
+      const value = document.querySelector('[data-sw-demo-counter-value]');
       expect(value.textContent).toBe('15');
     });
 
@@ -140,7 +140,7 @@ describe('Drupal.behaviors.ysDemo', () => {
       const block = document.querySelector('[data-sw-demo-counter]');
       block.classList.add('sw-demo-counter-processed');
 
-      const value = document.querySelector('[data-counter-value]');
+      const value = document.querySelector('[data-sw-demo-counter-value]');
       value.textContent = 'original';
 
       Drupal.behaviors.ysDemo.initCounterBlock(document);
@@ -153,11 +153,11 @@ describe('Drupal.behaviors.ysDemo', () => {
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
       const incrementBtn = document.querySelector(
-        '[data-counter-action="increment"]',
+        '[data-sw-demo-counter-action="increment"]',
       );
       incrementBtn.click();
 
-      const value = document.querySelector('[data-counter-value]');
+      const value = document.querySelector('[data-sw-demo-counter-value]');
       expect(value.textContent).toBe('1');
     });
 
@@ -166,11 +166,11 @@ describe('Drupal.behaviors.ysDemo', () => {
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
       const decrementBtn = document.querySelector(
-        '[data-counter-action="decrement"]',
+        '[data-sw-demo-counter-action="decrement"]',
       );
       decrementBtn.click();
 
-      const value = document.querySelector('[data-counter-value]');
+      const value = document.querySelector('[data-sw-demo-counter-value]');
       expect(value.textContent).toBe('-1');
     });
 
@@ -179,16 +179,18 @@ describe('Drupal.behaviors.ysDemo', () => {
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
       const incrementBtn = document.querySelector(
-        '[data-counter-action="increment"]',
+        '[data-sw-demo-counter-action="increment"]',
       );
       incrementBtn.click();
       incrementBtn.click();
       incrementBtn.click();
 
-      const resetBtn = document.querySelector('[data-counter-action="reset"]');
+      const resetBtn = document.querySelector(
+        '[data-sw-demo-counter-action="reset"]',
+      );
       resetBtn.click();
 
-      const value = document.querySelector('[data-counter-value]');
+      const value = document.querySelector('[data-sw-demo-counter-value]');
       expect(value.textContent).toBe('0');
     });
 
@@ -197,12 +199,12 @@ describe('Drupal.behaviors.ysDemo', () => {
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
       const incrementBtn = document.querySelector(
-        '[data-counter-action="increment"]',
+        '[data-sw-demo-counter-action="increment"]',
       );
       incrementBtn.click();
       incrementBtn.click();
 
-      expect(localStorage.getItem('ys_counter_value')).toBe('2');
+      expect(localStorage.getItem('sw_demo_counter_value')).toBe('2');
     });
 
     it('should add updated class on click for visual feedback', () => {
@@ -211,11 +213,11 @@ describe('Drupal.behaviors.ysDemo', () => {
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
       const incrementBtn = document.querySelector(
-        '[data-counter-action="increment"]',
+        '[data-sw-demo-counter-action="increment"]',
       );
       incrementBtn.click();
 
-      const value = document.querySelector('[data-counter-value]');
+      const value = document.querySelector('[data-sw-demo-counter-value]');
       expect(value.classList.contains('updated')).toBe(true);
 
       jest.advanceTimersByTime(300);
@@ -226,12 +228,12 @@ describe('Drupal.behaviors.ysDemo', () => {
     it('should handle multiple counter blocks', () => {
       document.body.innerHTML = `
         <div data-sw-demo-counter>
-          <span data-counter-value>0</span>
-          <button data-counter-action="increment">+</button>
+          <span data-sw-demo-counter-value>0</span>
+          <button data-sw-demo-counter-action="increment">+</button>
         </div>
         <div data-sw-demo-counter>
-          <span data-counter-value>0</span>
-          <button data-counter-action="increment">+</button>
+          <span data-sw-demo-counter-value>0</span>
+          <button data-sw-demo-counter-action="increment">+</button>
         </div>
       `;
       Drupal.behaviors.ysDemo.initCounterBlock(document);
@@ -262,13 +264,13 @@ describe('Drupal.behaviors.ysDemo', () => {
       Drupal.behaviors.ysDemo.attach(document);
 
       const incrementBtn = document.querySelector(
-        '[data-counter-action="increment"]',
+        '[data-sw-demo-counter-action="increment"]',
       );
       incrementBtn.click();
 
-      const value = document.querySelector('[data-counter-value]');
+      const value = document.querySelector('[data-sw-demo-counter-value]');
       expect(value.textContent).toBe('1');
-      expect(localStorage.getItem('ys_counter_value')).toBe('1');
+      expect(localStorage.getItem('sw_demo_counter_value')).toBe('1');
     });
   });
 });

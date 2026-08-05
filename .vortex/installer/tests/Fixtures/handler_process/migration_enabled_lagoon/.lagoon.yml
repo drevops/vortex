@@ -15,7 +15,7 @@ environment_variables:
 tasks:
   post-rollout:
     - run:
-        name: Show Vortex variables.
+        name: Show Vortex variables
         command: |
           [ "${VORTEX_DEBUG-}" = "1" ] && env -0  | sort -z | tr '\0' '\n' | grep ^VORTEX_ || true
         service: cli
@@ -44,6 +44,7 @@ tasks:
             VORTEX_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./vendor/bin/vortex-export-db
           fi
         service: cli
+        shell: bash
 
     - run:
         name: Fetch database in non-production environments
@@ -56,6 +57,7 @@ tasks:
             ./vendor/bin/vortex-fetch-db
           fi
         service: cli
+        shell: bash
 
     - run:
         name: Fetch migration database
@@ -64,6 +66,7 @@ tasks:
           export VORTEX_DB_DIR=/tmp/data
           VORTEX_DB_INDEX=2 ./vendor/bin/vortex-fetch-db
         service: cli
+        shell: bash
 
     - run:
         name: Provision site

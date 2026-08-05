@@ -118,6 +118,13 @@ class ToolingBootstrapTest extends FunctionalTestCase {
     $this->logStepFinish();
   }
 
+  public static function dataProviderBootstrap(): \Iterator {
+    yield 'fresh vendor' => [FALSE, FALSE];
+    yield 'package present, binaries missing' => [TRUE, FALSE];
+    yield 'binaries present, package missing' => [FALSE, TRUE];
+    yield 'package and binaries present' => [TRUE, TRUE];
+  }
+
   #[Group('p1')]
   public function testBootstrapReplaysComposerOutputOnFailure(): void {
     $this->logStepStart();
@@ -134,13 +141,6 @@ class ToolingBootstrapTest extends FunctionalTestCase {
     $this->assertDirectoryDoesNotExist($project_dir . '/vendor-temp', 'The throwaway Composer project is removed after a failure.');
 
     $this->logStepFinish();
-  }
-
-  public static function dataProviderBootstrap(): \Iterator {
-    yield 'fresh vendor' => [FALSE, FALSE];
-    yield 'package present, binaries missing' => [TRUE, FALSE];
-    yield 'binaries present, package missing' => [FALSE, TRUE];
-    yield 'package and binaries present' => [TRUE, TRUE];
   }
 
   #[Group('p2')]

@@ -171,6 +171,7 @@ class Theme extends AbstractHandler {
 
     File::replaceContentAsync([
       'your_site_theme' => $v,
+      'yourSiteTheme' => Converter::camel($v),
       'YourSiteTheme' => Converter::pascal($v),
     ]);
 

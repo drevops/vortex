@@ -49,7 +49,6 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 # The argument is declared so the reference resolves cleanly; when the base
 # image does not set it, the value stays empty and the leading colon appends
 # to the default scan directories.
-# @see https://github.com/drevops/vortex/issues/1913
 ARG PHP_INI_SCAN_DIR=""
 ENV PHP_INI_SCAN_DIR="${PHP_INI_SCAN_DIR}:/app/drush/php-ini"
 

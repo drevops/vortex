@@ -8,6 +8,7 @@ use AlexSkrypnyk\File\ContentFile\ContentFile;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Yaml;
 
@@ -114,25 +115,48 @@ class Internal extends AbstractHandler {
     // Also remove the path repository that points at the in-tree
     // .vortex/tooling package - consumer sites get drevops/vortex-tooling
     // from packagist instead.
-    $composer_json_path = $t . '/composer.json';
-    if (file_exists($composer_json_path)) {
-      $content = file_get_contents($composer_json_path);
-      $composer_json = json_decode((string) $content, FALSE);
-      if ($composer_json !== NULL) {
-        if (isset($composer_json->require->{'drevops/generic-private-package'})) {
-          unset($composer_json->require->{'drevops/generic-private-package'});
-        }
+    JsonManipulator::updateFile($t . '/composer.json', function (JsonManipulator $cj): void {
+      $cj->removeSubNode('require', 'drevops/generic-private-package');
 
-        if (isset($composer_json->repositories)) {
-          $composer_json->repositories = array_values(array_filter($composer_json->repositories, fn($repo): bool => (!isset($repo->url) || !str_contains($repo->url, 'drevops/generic-private-package')) && (!isset($repo->type) || $repo->type !== 'path' || !isset($repo->url) || $repo->url !== '.vortex/tooling')));
-        }
-
-        file_put_contents($composer_json_path, json_encode($composer_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+      $repositories = $cj->getProperty('repositories');
+      if (!is_array($repositories)) {
+        return;
       }
+
+      // Removing an item shifts the indexes of the ones that follow it.
+      foreach (array_reverse(array_keys($repositories)) as $index) {
+        if (self::isInternalRepository($repositories[$index])) {
+          $cj->removeListItem('repositories', (int) $index);
+        }
+      }
+    });
+
+  }
+
+  /**
+   * Check whether a composer.json repository entry is internal to Vortex.
+   *
+   * @param mixed $repository
+   *   The decoded repository entry.
+   *
+   * @return bool
+   *   TRUE if the entry must not be shipped to a consumer site.
+   */
+  protected static function isInternalRepository(mixed $repository): bool {
+    if (!is_array($repository)) {
+      return FALSE;
     }
 
-    // Execute all queued batch tasks from all handlers.
-    File::runDirectoryTasks($this->config->get(Config::TMP));
+    $url = $repository['url'] ?? '';
+    if (!is_string($url)) {
+      return FALSE;
+    }
+
+    if (str_contains($url, 'drevops/generic-private-package')) {
+      return TRUE;
+    }
+
+    return ($repository['type'] ?? '') === 'path' && $url === '.vortex/tooling';
   }
 
   protected function processDemoMode(array $responses, string $dir): void {

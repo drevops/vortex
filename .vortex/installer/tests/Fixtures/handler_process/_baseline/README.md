@@ -17,7 +17,7 @@ Drupal 11 implementation of star wars for star wars Org
 
 [//]: # (DO NOT REMOVE THE BADGE BELOW. IT IS USED BY VORTEX TO TRACK INTEGRATION)
 
-[![Vortex](https://img.shields.io/badge/Vortex-develop-65ACBC.svg)](https://github.com/drevops/vortex/tree/develop)
+[![Vortex](https://img.shields.io/badge/Vortex-__VERSION__-65ACBC.svg)](https://github.com/drevops/vortex/tree/__VERSION__)
 
 </div>
 

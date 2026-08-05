@@ -15,29 +15,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversClass(PromptType::class)]
 class PromptTypeTest extends UnitTestCase {
 
-  #[DataProvider('dataProviderAllCasesHavePromptFunction')]
-  public function testAllCasesHavePromptFunction(PromptType $case): void {
-    $this->assertNotEmpty($case->promptFunction());
+  #[DataProvider('dataProviderPromptFunctionResolvesToNamedHelper')]
+  public function testPromptFunctionResolvesToNamedHelper(PromptType $case): void {
+    $reflection = new \ReflectionFunction($case->promptFunction());
+
+    $this->assertSame('Laravel\Prompts\\' . $case->value, $reflection->getName());
   }
 
   /**
-   * Data provider for testAllCasesHavePromptFunction.
+   * Data provider for testPromptFunctionResolvesToNamedHelper.
    */
-  public static function dataProviderAllCasesHavePromptFunction(): \Iterator {
-    foreach (PromptType::cases() as $case) {
-      yield $case->name => [$case];
-    }
-  }
-
-  #[DataProvider('dataProviderPromptFunctionMatchesCaseValue')]
-  public function testPromptFunctionMatchesCaseValue(PromptType $case): void {
-    $this->assertSame($case->value, $case->promptFunction());
-  }
-
-  /**
-   * Data provider for testPromptFunctionMatchesCaseValue.
-   */
-  public static function dataProviderPromptFunctionMatchesCaseValue(): \Iterator {
+  public static function dataProviderPromptFunctionResolvesToNamedHelper(): \Iterator {
     foreach (PromptType::cases() as $case) {
       yield $case->name => [$case];
     }

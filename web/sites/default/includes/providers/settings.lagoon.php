@@ -63,9 +63,12 @@ if (!empty(getenv('LAGOON_KUBERNETES'))) {
   // Lagoon routes.
   $lagoon_routes = getenv('LAGOON_ROUTES');
   if ($lagoon_routes) {
-    $patterns = str_replace(['.', 'https://', 'http://', ','], [
-      '\.', '', '', '|',
-    ], $lagoon_routes);
-    $settings['trusted_host_patterns'][] = '^' . $patterns . '$';
+    $lagoon_route_urls = array_map(trim(...), explode(',', $lagoon_routes));
+    foreach ($lagoon_route_urls as $lagoon_route_url) {
+      $lagoon_route_host = strtolower(str_replace(['https://', 'http://'], '', $lagoon_route_url));
+      if (!empty($lagoon_route_host)) {
+        $settings['trusted_host_patterns'][] = '^' . preg_quote($lagoon_route_host, '/') . '$';
+      }
+    }
   }
 }

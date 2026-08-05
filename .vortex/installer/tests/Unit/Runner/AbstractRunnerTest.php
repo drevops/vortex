@@ -66,32 +66,16 @@ class AbstractRunnerTest extends UnitTestCase {
   }
 
   /**
-   * Test enableLog calls logger's enable.
+   * Test setLogger replaces the lazily created logger.
    */
-  public function testEnableLog(): void {
+  public function testSetLoggerReplacesInstance(): void {
     $runner = new ConcreteRunner();
-    $logger = $runner->getLogger();
+    $this->assertInstanceOf(FileLogger::class, $runner->getLogger());
 
-    $logger->disable();
-    $this->assertFalse($logger->isEnabled());
+    $logger = new FileLogger();
+    $runner->setLogger($logger);
 
-    $result = $runner->enableLog();
-    $this->assertTrue($logger->isEnabled());
-    $this->assertInstanceOf(AbstractRunner::class, $result, 'enableLog() should return self for method chaining');
-  }
-
-  /**
-   * Test disableLog calls logger's disable.
-   */
-  public function testDisableLog(): void {
-    $runner = new ConcreteRunner();
-    $logger = $runner->getLogger();
-
-    $this->assertTrue($logger->isEnabled());
-
-    $result = $runner->disableLog();
-    $this->assertFalse($logger->isEnabled());
-    $this->assertInstanceOf(AbstractRunner::class, $result, 'disableLog() should return self for method chaining');
+    $this->assertSame($logger, $runner->getLogger());
   }
 
   /**
@@ -370,7 +354,7 @@ class AbstractRunnerTest extends UnitTestCase {
 
     $runner->setCommand('test-command');
     $runner->setOutput('test output');
-    $runner->setExitCode(1);
+    $runner->setExitCodePublic(1);
 
     $this->assertEquals('test-command', $runner->getCommand());
     $this->assertEquals('test output', $runner->getOutput());
@@ -699,14 +683,10 @@ class ConcreteRunner extends AbstractRunner {
   }
 
   /**
-   * Public setter for exitCode (for testing).
+   * Public wrapper for setExitCode.
    */
-  public function setExitCode(int $exit_code): void {
-    if ($exit_code < 0 || $exit_code > 255) {
-      throw new \RuntimeException('Exit code is out of valid range (0-255).');
-    }
-
-    $this->exitCode = $exit_code;
+  public function setExitCodePublic(int $exit_code): void {
+    $this->setExitCode($exit_code);
   }
 
   /**

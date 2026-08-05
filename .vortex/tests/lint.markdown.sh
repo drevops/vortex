@@ -16,10 +16,10 @@ ROOT_DIR="$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)")"
 # Parse arguments to check for --fix flag
 MARKDOWNLINT_ARGS=()
 for arg in "$@"; do
-  if [[ "$arg" == "--fix" ]]; then
+  if [ "${arg}" = "--fix" ]; then
     MARKDOWNLINT_ARGS+=("--fix")
   else
-    MARKDOWNLINT_ARGS+=("$arg")
+    MARKDOWNLINT_ARGS+=("${arg}")
   fi
 done
 

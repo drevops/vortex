@@ -332,8 +332,9 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
    */
   protected function getCommandVersion(string $command, int $lines = 1): string {
     $this->processRunner->run($command);
-    $raw_output = $this->processRunner->getOutput(FALSE, $lines);
-    $output = trim(is_string($raw_output) ? $raw_output : implode(PHP_EOL, $raw_output));
+    $raw_output = $this->processRunner->getOutput(as_array: TRUE, lines: $lines);
+    $output = trim(is_array($raw_output) ? implode(PHP_EOL, $raw_output) : $raw_output);
+
     return empty($output) ? 'Available' : $output;
   }
 
@@ -341,7 +342,14 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
    * {@inheritdoc}
    */
   public function getProcessRunner(): ProcessRunner {
-    return $this->processRunner ?? (new ProcessRunner())->disableLog()->disableStreaming();
+    if ($this->processRunner instanceof ProcessRunner) {
+      return $this->processRunner;
+    }
+
+    $runner = new ProcessRunner();
+    $runner->getLogger()->disable();
+
+    return $runner->disableStreaming();
   }
 
 }

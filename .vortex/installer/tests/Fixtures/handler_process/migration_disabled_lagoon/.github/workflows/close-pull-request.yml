@@ -25,4 +25,4 @@ jobs:
             --data-binary @- \
             "${LAGOON_WEBHOOK_ENDPOINT:-https://hooks.lagoon.amazeeio.cloud/}"
         env:
-          LAGOON_WEBHOOK_ENDPOINT: ${{ env.LAGOON_WEBHOOK_ENDPOINT }}
+          LAGOON_WEBHOOK_ENDPOINT: ${{ vars.LAGOON_WEBHOOK_ENDPOINT }}

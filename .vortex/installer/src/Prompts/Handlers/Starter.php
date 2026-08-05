@@ -101,15 +101,29 @@ DOC;
   }
 
   /**
+   * Check whether the responses select a site built from an install profile.
+   *
+   * @param array<string, mixed> $responses
+   *   The collected responses.
+   *
+   * @return bool
+   *   TRUE if the site is built from an install profile.
+   */
+  public static function isProfileInstall(array $responses): bool {
+    $starter = $responses[self::id()] ?? self::LOAD_DATABASE_DEMO;
+
+    return in_array($starter, [self::INSTALL_PROFILE_CORE, self::INSTALL_PROFILE_DRUPALCMS], TRUE);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function process(): void {
-    $v = $this->getResponseAsString();
-    $t = $this->tmpDir;
+    if ($this->getResponseAsString() !== self::INSTALL_PROFILE_DRUPALCMS) {
+      return;
+    }
 
-    if ($v === self::INSTALL_PROFILE_DRUPALCMS) {
-      $cj = JsonManipulator::fromFile($t . '/composer.json');
-
+    JsonManipulator::updateFile($this->tmpDir . '/composer.json', function (JsonManipulator $cj): void {
       $cj->addLink('require', 'drupal/cms', '^1.2', TRUE);
       $cj->addLink('require', 'wikimedia/composer-merge-plugin', '^2.1', TRUE);
       $cj->addLink('require', 'symfony/http-client', '^6.4 || ^7.0', TRUE);
@@ -133,10 +147,7 @@ DOC;
       $cj->addProperty('extra.merge-plugin.recurse', TRUE);
       $cj->addProperty('extra.merge-plugin.replace', TRUE);
       $cj->addProperty('extra.merge-plugin.require', ['vendor/drupal/cms/composer.json']);
-
-      $c = $cj->getContents();
-      file_put_contents($t . '/composer.json', $c);
-    }
+    });
   }
 
 }

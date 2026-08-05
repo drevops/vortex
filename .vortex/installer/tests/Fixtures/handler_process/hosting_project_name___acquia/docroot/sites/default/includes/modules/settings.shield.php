@@ -25,7 +25,7 @@ if ($settings['environment'] !== ENVIRONMENT_PROD) {
   $config['shield.settings']['shield_enable'] = TRUE;
 
   // But bypass Shield for CI and local environments.
-  if ($settings['environment'] === ENVIRONMENT_CI || $settings['environment'] === ENVIRONMENT_LOCAL) {
+  if ($settings['environment'] === ENVIRONMENT_LOCAL || $settings['environment'] === ENVIRONMENT_CI) {
     $config['shield.settings']['shield_enable'] = FALSE;
   }
 }

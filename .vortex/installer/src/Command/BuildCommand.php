@@ -72,8 +72,9 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
       $requirements_ok = Task::action(
         label: 'Checking requirements',
         action: function (): bool {
-          $command_runner = $this->getCommandRunner()->disableLog();
-          $command_runner->run('check-requirements', [], ['--no-summary' => '1']);
+          $command_runner = $this->getCommandRunner();
+          $command_runner->getLogger()->disable();
+          $command_runner->run('check-requirements', inputs: ['--no-summary' => '1']);
 
           return $command_runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
         },
@@ -128,14 +129,11 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
    */
   protected function getLocalDevUrl(): ?string {
     $runner = $this->getProcessRunner()->setCwd($this->destination);
-    $runner->run('docker', ['compose', 'config', '--format', 'json'], output: new NullOutput());
+    $runner->run('docker', args: ['compose', 'config', '--format', 'json'], output: new NullOutput());
 
     if ($runner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {
-      $output = $runner->getOutput();
-
-      if (!is_string($output)) {
-        $output = implode("\n", $output);
-      }
+      $raw_output = $runner->getOutput(as_array: TRUE);
+      $output = is_array($raw_output) ? implode(PHP_EOL, $raw_output) : $raw_output;
 
       $config = json_decode($output, TRUE);
 

@@ -199,7 +199,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
-@@ -360,6 +547,252 @@
+@@ -360,6 +547,256 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',
@@ -264,7 +264,8 @@
 +      '^localhost$',
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
-+      '^example1\.com|example2/com$',
++      '^example1\.com$',
++      '^example2\/com$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -326,7 +327,8 @@
 +      '^localhost$',
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
-+      '^example1\.com|example2/com$',
++      '^example1\.com$',
++      '^example2\/com$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -388,7 +390,8 @@
 +      '^localhost$',
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
-+      '^example1\.com|example2/com$',
++      '^example1\.com$',
++      '^example2\/com$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -448,7 +451,8 @@
 +      '^localhost$',
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
-+      '^example1\.com|example2/com$',
++      '^example1\.com$',
++      '^example2\/com$',
      ];
      $this->assertSettings($settings);
    }

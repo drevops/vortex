@@ -4,7 +4,7 @@
 
 ((Drupal) => {
   Drupal.behaviors.ysDemo = {
-    storageKey: 'ys_counter_value',
+    storageKey: 'sw_demo_counter_value',
 
     attach(context) {
       this.initCounterBlock(context);
@@ -27,8 +27,10 @@
 
         block.classList.add('sw-demo-counter-processed');
 
-        const valueElement = block.querySelector('[data-counter-value]');
-        const buttons = block.querySelectorAll('[data-counter-action]');
+        const valueElement = block.querySelector(
+          '[data-sw-demo-counter-value]',
+        );
+        const buttons = block.querySelectorAll('[data-sw-demo-counter-action]');
 
         // Load saved value from localStorage.
         let currentValue = this.getCounterValue();
@@ -37,7 +39,7 @@
         // Add event listeners to buttons.
         buttons.forEach((button) => {
           button.addEventListener('click', () => {
-            const action = button.getAttribute('data-counter-action');
+            const action = button.getAttribute('data-sw-demo-counter-action');
             currentValue = this.applyAction(currentValue, action);
 
             // Update display.

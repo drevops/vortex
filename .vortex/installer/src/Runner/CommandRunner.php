@@ -51,11 +51,7 @@ class CommandRunner extends AbstractRunner {
 
     $exit_code = $symfony_command->run($input, $composite_output);
 
-    if ($exit_code < 0 || $exit_code > 255) {
-      throw new \RuntimeException('Command exited with invalid exit code: ' . $exit_code);
-    }
-
-    $this->exitCode = $exit_code;
+    $this->setExitCode($exit_code);
     $this->output = $buffered_output->fetch();
 
     $logger->close();

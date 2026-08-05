@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Runner;
 
-use DrevOps\VortexInstaller\Logger\FileLogger;
 use DrevOps\VortexInstaller\Logger\FileLoggerInterface;
+use DrevOps\VortexInstaller\Logger\LoggerAwareTrait;
 use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -13,6 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Abstract base class for runners.
  */
 abstract class AbstractRunner implements RunnerInterface {
+
+  use LoggerAwareTrait;
 
   /**
    * The last command that was run.
@@ -37,23 +39,9 @@ abstract class AbstractRunner implements RunnerInterface {
   protected string $cwd = '';
 
   /**
-   * The logger instance.
-   */
-  protected FileLoggerInterface $logger;
-
-  /**
    * Whether to stream output to console.
    */
   protected bool $shouldStream = TRUE;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getLogger(): FileLoggerInterface {
-    $this->logger ??= new FileLogger();
-
-    return $this->logger;
-  }
 
   /**
    * Initialize the logger for a command execution.
@@ -116,24 +104,6 @@ abstract class AbstractRunner implements RunnerInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function enableLog(): static {
-    $this->getLogger()->enable();
-
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function disableLog(): static {
-    $this->getLogger()->disable();
-
-    return $this;
-  }
-
-  /**
    * Enable streaming output to console.
    *
    * @return static
@@ -173,11 +143,24 @@ abstract class AbstractRunner implements RunnerInterface {
    *   The exit code.
    */
   public function getExitCode(): int {
-    if ($this->exitCode < 0 || $this->exitCode > 255) {
-      throw new \RuntimeException(sprintf('Exit code %d is out of valid range (0-255).', $this->exitCode));
+    return $this->exitCode;
+  }
+
+  /**
+   * Store the exit code of a completed run.
+   *
+   * @param int $exit_code
+   *   The exit code reported by the command.
+   *
+   * @throws \RuntimeException
+   *   If the exit code falls outside the range a process can report.
+   */
+  protected function setExitCode(int $exit_code): void {
+    if ($exit_code < 0 || $exit_code > 255) {
+      throw new \RuntimeException('Command exited with invalid exit code: ' . $exit_code);
     }
 
-    return $this->exitCode;
+    $this->exitCode = $exit_code;
   }
 
   /**

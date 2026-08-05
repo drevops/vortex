@@ -18,7 +18,8 @@ if ($localdev_url) {
   $_ENV['BROWSERTEST_OUTPUT_BASE_URL'] = $base_url;
 }
 
-// @see https://www.drupal.org/project/drupal/issues/2992069
+// Drupal core does not create the browser output directory, so browser tests
+// fail to write their HTML output unless it already exists.
 $browser_output_dir = dirname(__DIR__, 2) . '/web/sites/simpletest/browser_output';
 if (!is_dir($browser_output_dir)) {
   mkdir($browser_output_dir, 0775, TRUE);

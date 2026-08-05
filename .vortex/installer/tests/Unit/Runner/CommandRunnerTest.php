@@ -90,6 +90,20 @@ class CommandRunnerTest extends UnitTestCase {
   }
 
   /**
+   * Data provider for streaming modes.
+   */
+  public static function dataProviderRunWithStreaming(): \Iterator {
+    yield 'streaming enabled' => [
+      'streaming_enabled' => TRUE,
+      'should_have_output' => TRUE,
+    ];
+    yield 'streaming disabled' => [
+      'streaming_enabled' => FALSE,
+      'should_have_output' => FALSE,
+    ];
+  }
+
+  /**
    * Test createCompositeOutput method using reflection.
    */
   public function testCreateCompositeOutput(): void {
@@ -191,20 +205,6 @@ class CommandRunnerTest extends UnitTestCase {
     $runner->run('test:error');
 
     $this->assertEquals(1, $runner->getExitCode());
-  }
-
-  /**
-   * Data provider for streaming modes.
-   */
-  public static function dataProviderRunWithStreaming(): \Iterator {
-    yield 'streaming enabled' => [
-      'streaming_enabled' => TRUE,
-      'should_have_output' => TRUE,
-    ];
-    yield 'streaming disabled' => [
-      'streaming_enabled' => FALSE,
-      'should_have_output' => FALSE,
-    ];
   }
 
 }

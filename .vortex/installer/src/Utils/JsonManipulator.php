@@ -41,6 +41,33 @@ class JsonManipulator extends ComposerJsonManipulator {
   }
 
   /**
+   * Apply changes to a JSON file in place.
+   *
+   * @param string $file
+   *   Path to the JSON file.
+   * @param callable $callback
+   *   Callback receiving the manipulator for the file.
+   *
+   * @throws \RuntimeException
+   *   If the file cannot be read, does not contain valid JSON, or cannot be
+   *   written back.
+   */
+  public static function updateFile(string $file, callable $callback): void {
+    $instance = self::fromFile($file);
+
+    if (!$instance instanceof self) {
+      throw new \RuntimeException(sprintf('Unable to read a JSON file at "%s".', $file));
+    }
+
+    $callback($instance);
+
+    $contents = $instance->getContents();
+    if (file_put_contents($file, $contents) !== strlen($contents)) {
+      throw new \RuntimeException(sprintf('Unable to write a JSON file at "%s".', $file));
+    }
+  }
+
+  /**
    * Get the value of a composer.json key.
    *
    * @param string $name

@@ -301,7 +301,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['skip_permissions_hardening'] = TRUE;
     $settings['trusted_host_patterns'] = [
       '^localhost$',
-      '^example-site\.docker\.amazee\.io$',
+      '^example\-site\.docker\.amazee\.io$',
       '^nginx$',
     ];
     $this->assertSettings($settings);
