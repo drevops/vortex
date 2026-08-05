@@ -82,7 +82,7 @@ class PharTest extends FunctionalTestCase {
     $this->assertFileExists($this->pharFile, 'PHAR file should NOT be removed when --help option is used');
   }
 
-  protected static function buildPhar(string $dst): void {
+  protected static function buildPhar(string $destination): void {
     fwrite(STDERR, 'Building installer PHAR file...');
     if (!file_exists('vendor')) {
       $exit_code = 0;

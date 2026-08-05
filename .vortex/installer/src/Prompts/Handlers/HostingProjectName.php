@@ -72,7 +72,7 @@ class HostingProjectName extends AbstractHandler {
    */
   public function discover(): null|string|bool|array {
     // Try Acquia.
-    $v = Env::getFromDotenv('VORTEX_ACQUIA_APP_NAME', $this->dstDir);
+    $v = Env::getFromDotenv('VORTEX_ACQUIA_APP_NAME', $this->destinationDir);
     if (!empty($v)) {
       return $v;
     }
@@ -81,7 +81,7 @@ class HostingProjectName extends AbstractHandler {
     // new settings.acquia.php uses AH_SITE_GROUP environment variable instead
     // of a hardcoded project name. Kept for backward compatibility with older
     // installations.
-    $acquia_settings_file = $this->dstDir . sprintf('/%s/sites/default/includes/providers/settings.acquia.php', $this->webroot);
+    $acquia_settings_file = $this->destinationDir . sprintf('/%s/sites/default/includes/providers/settings.acquia.php', $this->webroot);
     if (file_exists($acquia_settings_file)) {
       $content = file_get_contents($acquia_settings_file);
       // Require '/var/www/site-php/your_site/your_site-settings.inc';.
@@ -91,13 +91,13 @@ class HostingProjectName extends AbstractHandler {
     }
 
     // Try Lagoon.
-    $v = Env::getFromDotenv('LAGOON_PROJECT', $this->dstDir);
+    $v = Env::getFromDotenv('LAGOON_PROJECT', $this->destinationDir);
     if (!empty($v)) {
       return $v;
     }
 
     // Try to discover from drush/sites/lagoon.site.yml.
-    $lagoon_site_file = $this->dstDir . '/drush/sites/lagoon.site.yml';
+    $lagoon_site_file = $this->destinationDir . '/drush/sites/lagoon.site.yml';
     if (file_exists($lagoon_site_file)) {
       $content = file_get_contents($lagoon_site_file);
       if ($content !== FALSE && preg_match('/user:\s*([a-z0-9_]+)-/', $content, $matches) && (!empty($matches[1]) && $matches[1] !== 'your_site')) {

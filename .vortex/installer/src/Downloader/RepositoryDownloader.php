@@ -46,15 +46,15 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
   ) {
   }
 
-  public function download(Artifact $artifact, ?string $dst = NULL, ?string $release_prefix = NULL): string {
+  public function download(Artifact $artifact, ?string $destination = NULL, ?string $release_prefix = NULL): string {
     if ($artifact->isRemote()) {
-      $version = $this->downloadFromRemote($artifact, $dst, $release_prefix);
+      $version = $this->downloadFromRemote($artifact, $destination, $release_prefix);
     }
     else {
-      $version = $this->downloadFromLocal($artifact, $dst);
+      $version = $this->downloadFromLocal($artifact, $destination);
     }
 
-    if (!is_readable($dst . DIRECTORY_SEPARATOR . 'composer.json')) {
+    if (!is_readable($destination . DIRECTORY_SEPARATOR . 'composer.json')) {
       throw new \RuntimeException('The downloaded repository does not contain a composer.json file.');
     }
 

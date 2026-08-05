@@ -75,7 +75,7 @@ class DeployTypes extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $types = Env::getFromDotenv('VORTEX_DEPLOY_TYPES', $this->dstDir);
+    $types = Env::getFromDotenv('VORTEX_DEPLOY_TYPES', $this->destinationDir);
 
     if (!empty($types)) {
       $types = Converter::fromList($types);

@@ -13,7 +13,7 @@ abstract class AbstractHandler implements HandlerInterface {
   /**
    * The destination directory.
    */
-  protected string $dstDir;
+  protected string $destinationDir;
 
   /**
    * The temporary directory.
@@ -43,7 +43,7 @@ abstract class AbstractHandler implements HandlerInterface {
   public function __construct(
     protected Config $config,
   ) {
-    $this->dstDir = $this->config->getDst();
+    $this->destinationDir = $this->config->getDestination();
     $this->tmpDir = $this->config->get(Config::TMP);
   }
 

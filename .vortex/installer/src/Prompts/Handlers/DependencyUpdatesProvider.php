@@ -54,15 +54,15 @@ class DependencyUpdatesProvider extends AbstractHandler {
       return NULL;
     }
 
-    if (!is_readable($this->dstDir . '/renovate.json')) {
+    if (!is_readable($this->destinationDir . '/renovate.json')) {
       return self::NONE;
     }
 
-    if (file_exists($this->dstDir . '/.github/workflows/update-dependencies.yml')) {
+    if (file_exists($this->destinationDir . '/.github/workflows/update-dependencies.yml')) {
       return self::RENOVATEBOT_CI;
     }
 
-    if (File::contains($this->dstDir . '/.circleci/config.yml', 'update-dependencies')) {
+    if (File::contains($this->destinationDir . '/.circleci/config.yml', 'update-dependencies')) {
       return self::RENOVATEBOT_CI;
     }
 

@@ -431,7 +431,7 @@ class PromptManager {
     $proceed = TRUE;
 
     if (!$this->config->getNoInteraction()) {
-      Tui::line(sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDst()));
+      Tui::line(sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDestination()));
       $proceed = confirm(
         label: 'Proceed with installing Vortex?',
       );
@@ -530,7 +530,7 @@ class PromptManager {
 
     $values['Locations'] = Tui::LIST_SECTION_TITLE;
     $values['Current directory'] = $this->config->getRoot();
-    $values['Destination directory'] = $this->config->getDst();
+    $values['Destination directory'] = $this->config->getDestination();
     $values['Vortex repository'] = $this->config->get(Config::REPO);
     $values['Vortex reference'] = $this->config->get(Config::REF);
 

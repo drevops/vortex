@@ -100,12 +100,12 @@ class OptionsResolverTest extends UnitTestCase {
   }
 
   public function testResolveSetsDestination(): void {
-    $dst = self::$sut;
-    $options = self::defaultOptions(['destination' => $dst]);
+    $destination = self::$sut;
+    $options = self::defaultOptions(['destination' => $destination]);
 
     [$config] = OptionsResolver::resolve($options);
 
-    $this->assertEquals($dst, $config->getDst());
+    $this->assertEquals($destination, $config->getDestination());
   }
 
   public function testResolveSetsRoot(): void {
@@ -229,15 +229,15 @@ class OptionsResolverTest extends UnitTestCase {
 
   public function testResolveDestinationPriority(): void {
     // Option takes priority over root.
-    $dst = self::$sut;
+    $destination = self::$sut;
     $options = self::defaultOptions([
-      'destination' => $dst,
+      'destination' => $destination,
       'root' => '/some/other/root',
     ]);
 
     [$config] = OptionsResolver::resolve($options);
 
-    $this->assertEquals($dst, $config->getDst());
+    $this->assertEquals($destination, $config->getDestination());
   }
 
   /**

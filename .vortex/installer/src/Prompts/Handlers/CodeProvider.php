@@ -54,11 +54,11 @@ class CodeProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    if (file_exists($this->dstDir . '/.github')) {
+    if (file_exists($this->destinationDir . '/.github')) {
       return self::GITHUB;
     }
 
-    return $this->isInstalled() && file_exists($this->dstDir . '/.git') ? self::OTHER : NULL;
+    return $this->isInstalled() && file_exists($this->destinationDir . '/.git') ? self::OTHER : NULL;
   }
 
   /**

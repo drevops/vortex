@@ -47,7 +47,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
   /**
    * The working directory for the build.
    */
-  protected string $cwd;
+  protected string $destination;
 
   /**
    * {@inheritdoc}
@@ -68,7 +68,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
     Tui::init($output);
 
     $this->isProfile = (bool) $input->getOption(static::OPTION_PROFILE);
-    $this->cwd = $this->getDestination($input);
+    $this->destination = $this->getDestination($input);
 
     if (!$input->getOption(static::OPTION_SKIP_REQUIREMENTS_CHECK)) {
       $requirements_ok = Task::action(
@@ -100,7 +100,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
           $env['VORTEX_PROVISION_TYPE'] = 'profile';
         }
 
-        $this->processRunner = $this->getProcessRunner()->setCwd($this->cwd);
+        $this->processRunner = $this->getProcessRunner()->setCwd($this->destination);
         $this->processRunner->run('ahoy build', env: $env);
 
         return $this->processRunner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
@@ -123,7 +123,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
    * Get the project machine name from .env.
    */
   protected function getProjectMachineName(): string {
-    $env_file = $this->cwd . '/.env';
+    $env_file = $this->destination . '/.env';
 
     if (file_exists($env_file)) {
       $content = file_get_contents($env_file);
@@ -132,7 +132,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
       }
     }
 
-    return basename($this->cwd);
+    return basename($this->destination);
   }
 
   /**
@@ -145,7 +145,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
    *   The local development URL, or NULL if it cannot be determined.
    */
   protected function getLocalDevUrl(): ?string {
-    $runner = $this->getProcessRunner()->setCwd($this->cwd);
+    $runner = $this->getProcessRunner()->setCwd($this->destination);
     $runner->run('docker', ['compose', 'config', '--format', 'json'], output: new NullOutput());
 
     if ($runner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {

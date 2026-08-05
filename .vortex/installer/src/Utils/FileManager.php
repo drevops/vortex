@@ -24,18 +24,18 @@ class FileManager {
   public function prepareDestination(): array {
     $messages = [];
 
-    $dst = $this->config->getDst();
-    if (!is_dir($dst)) {
-      $dst = File::mkdir($dst);
-      $messages[] = sprintf('Created directory "%s".', $dst);
+    $destination = $this->config->getDestination();
+    if (!is_dir($destination)) {
+      $destination = File::mkdir($destination);
+      $messages[] = sprintf('Created directory "%s".', $destination);
     }
 
-    if (!is_readable($dst . '/.git')) {
-      $messages[] = sprintf('Initialising a new Git repository in directory "%s".', $dst);
-      passthru(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
+    if (!is_readable($destination . '/.git')) {
+      $messages[] = sprintf('Initialising a new Git repository in directory "%s".', $destination);
+      passthru(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $destination, $destination));
 
-      if (!File::exists($dst . '/.git')) {
-        throw new \RuntimeException(sprintf('Unable to initialise Git repository in directory "%s".', $dst));
+      if (!File::exists($destination . '/.git')) {
+        throw new \RuntimeException(sprintf('Unable to initialise Git repository in directory "%s".', $destination));
       }
     }
 
@@ -44,7 +44,7 @@ class FileManager {
 
   public function copyFiles(): void {
     $src = $this->config->get(Config::TMP);
-    $dst = $this->config->getDst();
+    $destination = $this->config->getDestination();
 
     // Due to the way symlinks can be ordered, we cannot copy files one-by-one
     // into destination directory. Instead, we are removing all ignored files
@@ -76,14 +76,14 @@ class FileManager {
       File::rmdirIfEmpty($dir);
     }
 
-    // Src directory is now "clean" - copy it to dst directory.
+    // Src directory is now "clean" - copy it to destination directory.
     if (is_dir($src) && !File::dirIsEmpty($src)) {
-      File::copy($src, $dst);
+      File::copy($src, $destination);
     }
 
     // Special case for .env.local as it may exist.
-    if (!file_exists($dst . '/.env.local') && file_exists($dst . '/.env.local.example')) {
-      File::copy($dst . '/.env.local.example', $dst . '/.env.local');
+    if (!file_exists($destination . '/.env.local') && file_exists($destination . '/.env.local.example')) {
+      File::copy($destination . '/.env.local.example', $destination . '/.env.local');
     }
 
     $this->removeObsoletePaths();
@@ -97,7 +97,7 @@ class FileManager {
    * artifacts do not linger across upgrades.
    */
   public function removeObsoletePaths(): void {
-    $dst = $this->config->getDst();
+    $destination = $this->config->getDestination();
 
     // 'scripts/vortex/' was the location of shipped Vortex scripts before
     // they were extracted into the 'drevops/vortex-tooling' Composer package.
@@ -107,7 +107,7 @@ class FileManager {
     ];
 
     foreach ($obsolete as $relative) {
-      $path = $dst . DIRECTORY_SEPARATOR . $relative;
+      $path = $destination . DIRECTORY_SEPARATOR . $relative;
       if (file_exists($path)) {
         File::remove($path);
       }
@@ -133,14 +133,14 @@ class FileManager {
     }
 
     // Reload variables from destination's .env.
-    Env::putFromDotenv($this->config->getDst() . '/.env');
+    Env::putFromDotenv($this->config->getDestination() . '/.env');
 
     $url = Env::get('VORTEX_FETCH_DB_URL');
     if (empty($url)) {
       return 'No database fetch URL provided. Skipping demo database fetch.';
     }
 
-    $data_dir = $this->config->getDst() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
+    $data_dir = $this->config->getDestination() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
     $db_file = Env::get('VORTEX_DB_FILE', 'db.sql');
 
     if (file_exists($data_dir . DIRECTORY_SEPARATOR . $db_file)) {

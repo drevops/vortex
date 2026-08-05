@@ -82,7 +82,7 @@ DOC;
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $scheme = Env::getFromDotenv('VORTEX_RELEASE_VERSION_SCHEME', $this->dstDir);
+    $scheme = Env::getFromDotenv('VORTEX_RELEASE_VERSION_SCHEME', $this->destinationDir);
 
     if (in_array($scheme, [self::CALVER, self::SEMVER, self::OTHER], TRUE)) {
       return $scheme;

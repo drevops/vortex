@@ -69,7 +69,7 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
   /**
    * The working directory for checks.
    */
-  protected string $cwd;
+  protected string $destination;
 
   /**
    * {@inheritdoc}
@@ -89,12 +89,12 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
   protected function execute(InputInterface $input, OutputInterface $output): int {
     Tui::init($output);
 
-    $this->cwd = $this->getDestination($input);
+    $this->destination = $this->getDestination($input);
 
     $only = $input->getOption(static::OPTION_ONLY);
     $requirements = $this->validateRequirements($only ? array_map(trim(...), explode(',', (string) $only)) : NULL);
 
-    $this->processRunner ??= $this->getProcessRunner()->setCwd($this->cwd);
+    $this->processRunner ??= $this->getProcessRunner()->setCwd($this->destination);
     $this->present = [];
     $this->missing = [];
 

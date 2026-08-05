@@ -78,7 +78,7 @@ class DatabaseImage extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    return Env::getFromDotenv('VORTEX_DB_IMAGE', $this->dstDir);
+    return Env::getFromDotenv('VORTEX_DB_IMAGE', $this->destinationDir);
   }
 
   /**

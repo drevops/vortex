@@ -103,13 +103,13 @@ class Theme extends AbstractHandler {
    */
   public function discoverName(): null|string|bool|array {
     if ($this->isInstalled()) {
-      $value = Env::getFromDotenv('DRUPAL_THEME', $this->dstDir);
+      $value = Env::getFromDotenv('DRUPAL_THEME', $this->destinationDir);
       if (!empty($value)) {
         return $value;
       }
     }
 
-    $path = static::findThemeFile($this->dstDir, $this->webroot);
+    $path = static::findThemeFile($this->destinationDir, $this->webroot);
 
     if (empty($path)) {
       return NULL;
@@ -156,7 +156,7 @@ class Theme extends AbstractHandler {
     Env::writeValueDotenv('DRUPAL_MAINTENANCE_THEME', $v, $t . '/.env');
 
     // Find the theme file in the destination directory.
-    $file_dst = static::findThemeFile($this->dstDir, $w, $v);
+    $file_dst = static::findThemeFile($this->destinationDir, $w, $v);
 
     // Remove the theme-related files from the template if not found OR
     // if found, but the theme is not from Vortex.

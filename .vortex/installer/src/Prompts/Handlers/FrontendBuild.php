@@ -59,7 +59,7 @@ class FrontendBuild extends AbstractHandler {
     }
 
     // Build in the container unless the project explicitly opted out.
-    return Env::getFromDotenv('VORTEX_FRONTEND_BUILD_SKIP', $this->dstDir) !== '1';
+    return Env::getFromDotenv('VORTEX_FRONTEND_BUILD_SKIP', $this->destinationDir) !== '1';
   }
 
   /**

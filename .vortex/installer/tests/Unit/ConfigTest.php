@@ -26,19 +26,19 @@ class ConfigTest extends UnitTestCase {
     $config = new Config();
 
     $this->assertEquals(File::cwd(), $config->getRoot());
-    $this->assertEquals(File::cwd(), $config->getDst());
+    $this->assertEquals(File::cwd(), $config->getDestination());
     $this->assertNotNull($config->get(Config::TMP));
   }
 
   public function testConstructorWithParameters(): void {
     $root = '/custom/root';
-    $dst = '/custom/dst';
+    $destination = '/custom/dst';
     $tmp = '/custom/tmp';
 
-    $config = new Config($root, $dst, $tmp);
+    $config = new Config($root, $destination, $tmp);
 
     $this->assertEquals($root, $config->getRoot());
-    $this->assertEquals($dst, $config->getDst());
+    $this->assertEquals($destination, $config->getDestination());
     $this->assertEquals($tmp, $config->get(Config::TMP));
   }
 
@@ -46,7 +46,7 @@ class ConfigTest extends UnitTestCase {
     $config = new Config();
 
     $this->assertEquals(File::cwd(), $config->getRoot());
-    $this->assertEquals(File::cwd(), $config->getDst());
+    $this->assertEquals(File::cwd(), $config->getDestination());
     $this->assertNotNull($config->get(Config::TMP));
   }
 
@@ -191,12 +191,12 @@ class ConfigTest extends UnitTestCase {
     $this->assertEquals($root, $config->get(Config::ROOT));
   }
 
-  public function testGetDst(): void {
-    $dst = '/test/dst';
-    $config = new Config(NULL, $dst);
+  public function testGetDestination(): void {
+    $destination = '/test/dst';
+    $config = new Config(NULL, $destination);
 
-    $this->assertEquals($dst, $config->getDst());
-    $this->assertEquals($dst, $config->get(Config::DST));
+    $this->assertEquals($destination, $config->getDestination());
+    $this->assertEquals($destination, $config->get(Config::DESTINATION));
   }
 
   #[DataProvider('dataProviderIsQuiet')]
@@ -294,7 +294,7 @@ class ConfigTest extends UnitTestCase {
   public function testConstants(): void {
     // Test that all constants are defined and have expected values.
     $this->assertEquals('VORTEX_INSTALLER_ROOT_DIR', Config::ROOT);
-    $this->assertEquals('VORTEX_INSTALLER_DST_DIR', Config::DST);
+    $this->assertEquals('VORTEX_INSTALLER_DST_DIR', Config::DESTINATION);
     $this->assertEquals('VORTEX_INSTALLER_TMP_DIR', Config::TMP);
     $this->assertEquals('VORTEX_INSTALLER_TEMPLATE_REPO', Config::REPO);
     $this->assertEquals('VORTEX_INSTALLER_TEMPLATE_REF', Config::REF);
@@ -313,7 +313,7 @@ class ConfigTest extends UnitTestCase {
     // Set environment variables.
     static::envSetMultiple([
       Config::ROOT => '/env/root',
-      Config::DST => '/env/dst',
+      Config::DESTINATION => '/env/dst',
       Config::TMP => '/env/tmp',
     ]);
 
@@ -321,8 +321,8 @@ class ConfigTest extends UnitTestCase {
 
     // Environment variables should take precedence for ROOT and TMP.
     $this->assertEquals('/env/root', $config->getRoot());
-    // DST is set with skip_env=TRUE in constructor, so param value is used.
-    $this->assertEquals('/param/dst', $config->getDst());
+    // DESTINATION is set with skip_env=TRUE, so the param value wins.
+    $this->assertEquals('/param/dst', $config->getDestination());
     $this->assertEquals('/env/tmp', $config->get(Config::TMP));
   }
 

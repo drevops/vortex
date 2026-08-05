@@ -146,7 +146,7 @@ class Internal extends AbstractHandler {
       // download source.
       elseif ($responses[ProvisionType::id()] === ProvisionType::DATABASE) {
         $db_file_exists = file_exists(Env::get('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_FILE', 'db.sql'));
-        $has_comment = File::contains($this->dstDir . '/.env', 'Override project-specific values for demonstration purposes');
+        $has_comment = File::contains($this->destinationDir . '/.env', 'Override project-specific values for demonstration purposes');
 
         // Demo mode can only be used if the user selected a URL or a container
         // registry download source. This is because the demo mode would not
@@ -192,7 +192,7 @@ class Internal extends AbstractHandler {
     if (!$this->isInstalled()) {
       $output .= PHP_EOL;
       $output .= 'Add and commit all files:' . PHP_EOL;
-      $output .= '  cd ' . $this->config->getDst() . PHP_EOL;
+      $output .= '  cd ' . $this->config->getDestination() . PHP_EOL;
       $output .= '  git add -A' . PHP_EOL;
       $output .= '  git commit -m "Initial commit."' . PHP_EOL;
       $output .= PHP_EOL;

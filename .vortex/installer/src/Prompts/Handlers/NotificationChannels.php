@@ -82,7 +82,7 @@ class NotificationChannels extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $channels = Env::getFromDotenv('VORTEX_NOTIFY_CHANNELS', $this->dstDir);
+    $channels = Env::getFromDotenv('VORTEX_NOTIFY_CHANNELS', $this->destinationDir);
 
     if (!empty($channels)) {
       $channels = Converter::fromList($channels);

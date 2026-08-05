@@ -13,7 +13,7 @@ final class Config {
 
   const ROOT = 'VORTEX_INSTALLER_ROOT_DIR';
 
-  const DST = 'VORTEX_INSTALLER_DST_DIR';
+  const DESTINATION = 'VORTEX_INSTALLER_DST_DIR';
 
   const TMP = 'VORTEX_INSTALLER_TMP_DIR';
 
@@ -48,9 +48,9 @@ final class Config {
    */
   protected array $store = [];
 
-  public function __construct(?string $root = NULL, ?string $dst = NULL, ?string $tmp = NULL) {
+  public function __construct(?string $root = NULL, ?string $destination = NULL, ?string $tmp = NULL) {
     $this->set(self::ROOT, $root ?: File::cwd());
-    $this->set(self::DST, $dst ?: $this->get(self::ROOT), TRUE);
+    $this->set(self::DESTINATION, $destination ?: $this->get(self::ROOT), TRUE);
     $this->set(self::TMP, $tmp ?: File::tmpdir());
   }
 
@@ -98,8 +98,8 @@ final class Config {
     return $this->get(self::ROOT);
   }
 
-  public function getDst(): ?string {
-    return $this->get(self::DST);
+  public function getDestination(): ?string {
+    return $this->get(self::DESTINATION);
   }
 
   /**

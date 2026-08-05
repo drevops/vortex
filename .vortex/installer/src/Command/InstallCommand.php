@@ -379,7 +379,7 @@ EOF
     $starter = $responses[Starter::id()] ?? Starter::LOAD_DATABASE_DEMO;
     $is_profile = in_array($starter, [Starter::INSTALL_PROFILE_CORE, Starter::INSTALL_PROFILE_DRUPALCMS], TRUE);
 
-    $args = ['--destination' => $this->config->getDst()];
+    $args = ['--destination' => $this->config->getDestination()];
     if ($is_profile) {
       $args['--profile'] = '1';
     }
@@ -411,7 +411,7 @@ EOF
       return;
     }
 
-    $project_major = Version::detectProjectMajor((string) $this->config->getDst());
+    $project_major = Version::detectProjectMajor((string) $this->config->getDestination());
     if ($project_major === NULL || $project_major === $installer_major) {
       return;
     }

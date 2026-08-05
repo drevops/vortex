@@ -80,7 +80,7 @@ class Services extends AbstractHandler {
     }
 
     try {
-      $dc = Yaml::parseFile($this->dstDir . '/docker-compose.yml');
+      $dc = Yaml::parseFile($this->destinationDir . '/docker-compose.yml');
     }
     catch (\Exception) {
       return NULL;

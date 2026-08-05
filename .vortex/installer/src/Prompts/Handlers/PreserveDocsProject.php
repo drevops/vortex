@@ -33,7 +33,7 @@ class PreserveDocsProject extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    return $this->isInstalled() ? file_exists($this->dstDir . '/docs/README.md') : NULL;
+    return $this->isInstalled() ? file_exists($this->destinationDir . '/docs/README.md') : NULL;
   }
 
   /**

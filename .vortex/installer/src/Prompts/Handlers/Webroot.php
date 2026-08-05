@@ -63,16 +63,16 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $v = Env::getFromDotenv('WEBROOT', $this->dstDir);
+    $v = Env::getFromDotenv('WEBROOT', $this->destinationDir);
 
     if (!empty($v)) {
       return $v;
     }
 
-    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('extra.drupal-scaffold.locations.web-root');
+    $v = JsonManipulator::fromFile($this->destinationDir . '/composer.json')?->getProperty('extra.drupal-scaffold.locations.web-root');
     if (!empty($v)) {
       try {
-        $v = File::toRelative($v, $this->dstDir);
+        $v = File::toRelative($v, $this->destinationDir);
       }
       catch (\Exception) {
         $v = NULL;

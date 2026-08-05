@@ -54,7 +54,7 @@ class Modules extends AbstractHandler {
       return NULL;
     }
 
-    $composer_file = $this->dstDir . '/composer.json';
+    $composer_file = $this->destinationDir . '/composer.json';
     $discovered_modules = $this->getModulesFromComposerFile($composer_file);
 
     if ($discovered_modules === NULL) {
