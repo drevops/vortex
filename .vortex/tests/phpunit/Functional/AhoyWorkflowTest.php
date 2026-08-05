@@ -540,7 +540,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
         '! Running deployment hooks',
       ],
       'Provision with fallback should complete successfully',
-      tio: 15 * 60,
+      tio: 900,
     );
 
     $this->logSubstep('Assert that Shield module is enabled');

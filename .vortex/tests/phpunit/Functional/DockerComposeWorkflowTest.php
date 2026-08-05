@@ -43,23 +43,23 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->subtestDockerComposeSolr();
 
     $this->logSubstep('Installing development dependencies');
-    $this->cmd('docker compose exec -T cli composer install --prefer-dist', txt: 'Install development dependencies with Composer', tio: 10 * 60);
-    $this->cmd('docker compose exec -T cli bash -cl "yarn install --frozen-lockfile"', txt: 'Install development dependencies with Yarn', tio: 10 * 60);
+    $this->cmd('docker compose exec -T cli composer install --prefer-dist', txt: 'Install development dependencies with Composer', tio: 600);
+    $this->cmd('docker compose exec -T cli bash -cl "yarn install --frozen-lockfile"', txt: 'Install development dependencies with Yarn', tio: 600);
 
     $this->logSubstep('Linting backend code');
-    $this->cmd('docker compose exec -T cli vendor/bin/phpcs', txt: 'Lint code with PHPCS', tio: 10 * 60);
-    $this->cmd('docker compose exec -T cli vendor/bin/phpstan', txt: 'Lint code with PHPStan', tio: 10 * 60);
-    $this->cmd('docker compose exec -T cli vendor/bin/rector', txt: 'Lint code with Rector', tio: 10 * 60);
+    $this->cmd('docker compose exec -T cli vendor/bin/phpcs', txt: 'Lint code with PHPCS', tio: 600);
+    $this->cmd('docker compose exec -T cli vendor/bin/phpstan', txt: 'Lint code with PHPStan', tio: 600);
+    $this->cmd('docker compose exec -T cli vendor/bin/rector', txt: 'Lint code with Rector', tio: 600);
 
     $this->logSubstep('Linting front-end code');
-    $this->cmd('docker compose exec -T cli vendor/bin/twig-cs-fixer lint', txt: 'Lint code with TwigCS', tio: 10 * 60);
-    $this->cmd('docker compose exec -T cli yarn run lint', txt: 'Lint code with module linters', tio: 10 * 60);
-    $this->cmd('docker compose exec -T cli bash -cl "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"', txt: 'Lint code with theme linters', tio: 10 * 60);
+    $this->cmd('docker compose exec -T cli vendor/bin/twig-cs-fixer lint', txt: 'Lint code with TwigCS', tio: 600);
+    $this->cmd('docker compose exec -T cli yarn run lint', txt: 'Lint code with module linters', tio: 600);
+    $this->cmd('docker compose exec -T cli bash -cl "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"', txt: 'Lint code with theme linters', tio: 600);
 
     $this->fetchDatabase(TRUE);
 
     $this->logSubstep('Provisioning with direct script execution');
-    $this->cmd('docker compose exec -T cli ./vendor/bin/vortex-provision', txt: 'Run ./vendor/bin/vortex-provision in container', tio: 10 * 60);
+    $this->cmd('docker compose exec -T cli ./vendor/bin/vortex-provision', txt: 'Run ./vendor/bin/vortex-provision in container', tio: 600);
 
     $this->logSubstep('Run tests');
     $this->cmd('docker compose exec -T cli vendor/bin/phpunit', txt: 'Run PHPUnit tests');
@@ -75,22 +75,22 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->subtestDockerComposeBuild(build_theme: FALSE);
 
     $this->logSubstep('Installing development dependencies');
-    $this->cmd('docker compose exec -T cli composer install --prefer-dist', txt: 'Install development dependencies with Composer', tio: 10 * 60);
-    $this->cmd('docker compose exec -T cli bash -cl "yarn install --frozen-lockfile"', txt: 'Install development dependencies with Yarn', tio: 10 * 60);
+    $this->cmd('docker compose exec -T cli composer install --prefer-dist', txt: 'Install development dependencies with Composer', tio: 600);
+    $this->cmd('docker compose exec -T cli bash -cl "yarn install --frozen-lockfile"', txt: 'Install development dependencies with Yarn', tio: 600);
 
     $this->logSubstep('Linting backend code');
-    $this->cmd('docker compose exec -T cli vendor/bin/phpcs', txt: 'Lint code with PHPCS', tio: 10 * 60);
-    $this->cmd('docker compose exec -T cli vendor/bin/phpstan', txt: 'Lint code with PHPStan', tio: 10 * 60);
-    $this->cmd('docker compose exec -T cli vendor/bin/rector', txt: 'Lint code with Rector', tio: 10 * 60);
+    $this->cmd('docker compose exec -T cli vendor/bin/phpcs', txt: 'Lint code with PHPCS', tio: 600);
+    $this->cmd('docker compose exec -T cli vendor/bin/phpstan', txt: 'Lint code with PHPStan', tio: 600);
+    $this->cmd('docker compose exec -T cli vendor/bin/rector', txt: 'Lint code with Rector', tio: 600);
 
     $this->logSubstep('Linting front-end code');
-    $this->cmd('docker compose exec -T cli vendor/bin/twig-cs-fixer lint', txt: 'Lint code with TwigCS', tio: 10 * 60);
-    $this->cmd('docker compose exec -T cli yarn run lint', txt: 'Lint code with module linters', tio: 10 * 60);
+    $this->cmd('docker compose exec -T cli vendor/bin/twig-cs-fixer lint', txt: 'Lint code with TwigCS', tio: 600);
+    $this->cmd('docker compose exec -T cli yarn run lint', txt: 'Lint code with module linters', tio: 600);
 
     $this->fetchDatabase(TRUE);
 
     $this->logSubstep('Provisioning with direct script execution');
-    $this->cmd('docker compose exec -T cli ./vendor/bin/vortex-provision', txt: 'Run ./vendor/bin/vortex-provision in container', tio: 10 * 60);
+    $this->cmd('docker compose exec -T cli ./vendor/bin/vortex-provision', txt: 'Run ./vendor/bin/vortex-provision in container', tio: 600);
 
     $this->logSubstep('Run tests');
     $this->cmd('docker compose exec -T cli vendor/bin/phpunit', txt: 'Run PHPUnit tests');
@@ -127,10 +127,10 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     File::remove('composer.lock');
 
     $this->logSubstep('Building without PACKAGE_TOKEN - should fail');
-    $this->cmdFail('docker compose build cli --no-cache', out: '* did not complete successfully', txt: 'Build stack images without token should fail', env: ['PACKAGE_TOKEN' => FALSE], tio: 15 * 60);
+    $this->cmdFail('docker compose build cli --no-cache', '* did not complete successfully', txt: 'Build stack images without token should fail', env: ['PACKAGE_TOKEN' => FALSE], tio: 900);
 
     $this->logSubstep('Building with PACKAGE_TOKEN - should succeed');
-    $this->cmd('docker compose build cli --no-cache', txt: 'Build stack images with token should succeed', env: ['PACKAGE_TOKEN' => $package_token], tio: 15 * 60);
+    $this->cmd('docker compose build cli --no-cache', txt: 'Build stack images with token should succeed', env: ['PACKAGE_TOKEN' => $package_token], tio: 900);
   }
 
 }

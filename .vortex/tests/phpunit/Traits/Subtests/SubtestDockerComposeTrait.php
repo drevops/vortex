@@ -33,7 +33,7 @@ trait SubtestDockerComposeTrait {
     $this->logNote('Database file exists before build: ' . ($db_file_present ? 'Yes' : 'No'));
 
     $this->logSubstep('Starting Docker Compose build');
-    $this->cmd('docker compose up -d --force-recreate --build --renew-anon-volumes', env: $env, tio: 15 * 60, txt: 'Stack images should be built and stack should start successfully');
+    $this->cmd('docker compose up -d --force-recreate --build --renew-anon-volumes', env: $env, tio: 900, txt: 'Stack images should be built and stack should start successfully');
     $this->syncToHost();
 
     $this->logSubstep('Assert lock files presence/absence after build');
