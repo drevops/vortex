@@ -139,13 +139,13 @@ Handlers **queue** operations, PromptManager **executes**:
 File::replaceContentAsync('old', 'new');
 File::replaceTokenAsync('TOKEN');
 
-// In PromptManager - execute all
-File::runTaskDirectory($this->config->get(Config::TMP));
+// In PromptManager::runProcessors() - execute all, after every handler has run
+File::runDirectoryTasks($this->config->get(Config::TMP));
 ```
 
 ### Common Pitfalls
 
-1. Don't call `File::runTaskDirectory()` in handlers
+1. Don't call `File::runDirectoryTasks()` in handlers
 2. Use `AlexSkrypnyk\File\Internal\ExtendedSplFileInfo`
 3. Preserve complex logic in callbacks
 

@@ -50,6 +50,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Schema\SchemaValidator;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\form;
@@ -349,6 +350,9 @@ class PromptManager {
     foreach ($ids as $id) {
       $this->handler($id)->setResponses($this->responses)->process();
     }
+
+    // Handlers only queue file operations; this is where they are applied.
+    File::runDirectoryTasks($this->config->get(Config::TMP));
   }
 
   /**

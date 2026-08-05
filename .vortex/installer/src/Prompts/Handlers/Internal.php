@@ -131,8 +131,6 @@ class Internal extends AbstractHandler {
       }
     });
 
-    // Execute all queued batch tasks from all handlers.
-    File::runDirectoryTasks($this->config->get(Config::TMP));
   }
 
   /**
