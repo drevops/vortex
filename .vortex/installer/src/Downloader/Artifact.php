@@ -15,16 +15,16 @@ use DrevOps\VortexInstaller\Utils\Validator;
 final readonly class Artifact {
 
   /**
-   * Private constructor - use factory method instead.
+   * Constructor - use a factory method instead.
    *
    * @param string $repo
    *   The repository URL or local path.
    * @param string $ref
    *   The git reference (tag, branch, commit, or special refs).
    */
-  private function __construct(
-    private string $repo,
-    private string $ref,
+  protected function __construct(
+    protected string $repo,
+    protected string $ref,
   ) {}
 
   /**

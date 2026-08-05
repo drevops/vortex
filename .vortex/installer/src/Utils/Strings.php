@@ -90,7 +90,7 @@ class Strings {
     );
   }
 
-  private static function processDocblock(array $matches): string {
+  protected static function processDocblock(array $matches): string {
     $full_match = $matches[0];
     $leading_whitespace = $matches[1];
     $comment_content = $matches[2];

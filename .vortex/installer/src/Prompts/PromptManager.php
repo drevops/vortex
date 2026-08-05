@@ -619,7 +619,7 @@ class PromptManager {
    * @throws \RuntimeException
    *   If any prompt value is invalid.
    */
-  private function resolvePromptOverrides(): void {
+  protected function resolvePromptOverrides(): void {
     $raw = $this->config->get(Config::PROMPTS);
 
     if (!is_array($raw) || empty($raw)) {
@@ -653,7 +653,7 @@ class PromptManager {
    * @return mixed
    *   The prompt result.
    */
-  private function prompt(string $handler_class, array $responses = []): mixed {
+  protected function prompt(string $handler_class, array $responses = []): mixed {
     $handler = $this->handlers[$handler_class::id()];
     $fn = '\\Laravel\\Prompts\\' . $handler->type()->promptFunction();
 
@@ -677,7 +677,7 @@ class PromptManager {
    * @return array
    *   Array of prompt arguments suitable for Laravel prompts.
    */
-  private function args(string $handler_class, mixed $default_override = NULL, array $responses = []): array {
+  protected function args(string $handler_class, mixed $default_override = NULL, array $responses = []): array {
     $id = $handler_class::id();
 
     if (!array_key_exists($id, $this->handlers)) {
