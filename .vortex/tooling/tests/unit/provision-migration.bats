@@ -61,12 +61,12 @@ load ../_helper.bash
     "- Migration source database file not found."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-20-migration.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -94,12 +94,12 @@ load ../_helper.bash
     "- Finished migration operations."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-20-migration.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -124,12 +124,12 @@ load ../_helper.bash
     "- Finished migration operations."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-20-migration.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -169,12 +169,12 @@ load ../_helper.bash
     "- Migration source database is corrupted or empty."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-20-migration.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -221,12 +221,12 @@ load ../_helper.bash
     "- Using existing migration source database."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-20-migration.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -253,12 +253,12 @@ load ../_helper.bash
     "- Finished migration operations."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-20-migration.sh
   assert_failure
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -298,12 +298,12 @@ load ../_helper.bash
     "- Finished migration operations."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-20-migration.sh
   assert_failure
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -344,12 +344,12 @@ load ../_helper.bash
     "- Skipped rollback of all migrations."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-20-migration.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }

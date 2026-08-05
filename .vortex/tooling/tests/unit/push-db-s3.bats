@@ -36,9 +36,9 @@ load ../_helper.bash
   export VORTEX_PUSH_DB_S3_DB_DIR=".data"
   export VORTEX_PUSH_DB_S3_DB_FILE="db.sql"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -75,9 +75,9 @@ load ../_helper.bash
   # Don't set VORTEX_PUSH_DB_S3_DB_DIR and VORTEX_PUSH_DB_S3_DB_FILE to test defaults.
   unset VORTEX_PUSH_DB_S3_DB_DIR VORTEX_PUSH_DB_S3_DB_FILE
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -118,9 +118,9 @@ load ../_helper.bash
   export VORTEX_PUSH_DB_S3_DB_DIR=".data"
   export VORTEX_PUSH_DB_S3_DB_FILE="db.sql"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -156,9 +156,9 @@ load ../_helper.bash
   export VORTEX_PUSH_DB_S3_DB_FILE="db.sql"
   export VORTEX_PUSH_DB_S3_REMOTE_FILE="backup/db_latest.sql"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -195,9 +195,9 @@ load ../_helper.bash
   export VORTEX_PUSH_DB_S3_DB_DIR=".data"
   export VORTEX_PUSH_DB_S3_DB_FILE="db.sql"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -235,9 +235,9 @@ load ../_helper.bash
   export VORTEX_PUSH_DB_S3_DB_DIR=".data"
   export VORTEX_PUSH_DB_S3_DB_FILE="db.sql"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -271,9 +271,9 @@ load ../_helper.bash
   export VORTEX_PUSH_DB_S3_DB_DIR=".data"
   export VORTEX_PUSH_DB_S3_DB_FILE="db.sql"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_failure
 
@@ -298,9 +298,9 @@ load ../_helper.bash
   export VORTEX_PUSH_DB_S3_BUCKET="test-bucket"
   export VORTEX_PUSH_DB_S3_REGION="ap-southeast-2"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_failure
 
@@ -323,9 +323,9 @@ load ../_helper.bash
   export VORTEX_PUSH_DB_S3_BUCKET="test-bucket"
   export VORTEX_PUSH_DB_S3_REGION="ap-southeast-2"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_failure
 
@@ -348,9 +348,9 @@ load ../_helper.bash
   export VORTEX_PUSH_DB_S3_BUCKET=""
   export VORTEX_PUSH_DB_S3_REGION="ap-southeast-2"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_failure
 
@@ -373,9 +373,9 @@ load ../_helper.bash
   export VORTEX_PUSH_DB_S3_BUCKET="test-bucket"
   export VORTEX_PUSH_DB_S3_REGION=""
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_failure
 
@@ -403,9 +403,9 @@ load ../_helper.bash
   export VORTEX_PUSH_DB_S3_DB_DIR=".data"
   export VORTEX_PUSH_DB_S3_DB_FILE="db.sql"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_failure
 

@@ -2,14 +2,14 @@
 # yarn lockfile v1
 
 
-"bats-helpers@npm:@drevops/bats-helpers@^1.5.1":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@drevops/bats-helpers/-/bats-helpers-1.6.0.tgz#0f157bd80ef232995a835a3662c28ac448938b01"
-  integrity sha512-/42f8udsjX6zPdOS1XzZrVKBj/Ixin777n0kePYwxPGqoE78+nh7aHwSNlQ4iR8DeFVz22fDe+gEUDYBT25UaQ==
+"bats-helpers@npm:@drevops/bats-helpers@^2.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@drevops/bats-helpers/-/bats-helpers-2.0.0.tgz#29cc602da7b0d1c237107216e809b466c55509c9"
+  integrity sha512-2oxr9SXOnogwBd+pB7sRP0LviP9Y7ReeRRlEa0cI9PHprhbd9Vm9Rv1NTdL2i8IxvktuQFtvCi25PkzihNxa7w==
   dependencies:
-    bats "^1"
+    bats "^1.13"
 
-bats@^1:
+bats@^1.13:
   version "1.13.0"
   resolved "https://registry.yarnpkg.com/bats/-/bats-1.13.0.tgz#b90aa4434832fc80458ade07ebdeecee0925d8ae"
   integrity sha512-giSYKGTOcPZyJDbfbTtzAedLcNWdjCLbXYU3/MwPnjyvDXzu6Dgw8d2M+8jHhZXSmsCMSQqCp+YBsJ603UO4vQ==

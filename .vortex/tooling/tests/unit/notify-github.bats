@@ -20,7 +20,7 @@ load ../_helper.bash
     "Finished dispatching notifications."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   export VORTEX_NOTIFY_CHANNELS="github"
   export VORTEX_NOTIFY_EVENT="pre_deployment"
@@ -33,7 +33,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -52,7 +52,7 @@ load ../_helper.bash
     "Finished dispatching notifications."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   export VORTEX_NOTIFY_CHANNELS="github"
   export VORTEX_NOTIFY_EVENT="pre_deployment"
@@ -66,7 +66,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -85,7 +85,7 @@ load ../_helper.bash
     "Finished dispatching notifications."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   export VORTEX_NOTIFY_CHANNELS="github"
   export VORTEX_NOTIFY_EVENT="pre_deployment"
@@ -98,7 +98,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -115,7 +115,7 @@ load ../_helper.bash
     "-Marked deployment as finished."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   export VORTEX_NOTIFY_CHANNELS="github"
   export VORTEX_NOTIFY_EVENT="pre_deployment"
@@ -128,7 +128,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_failure
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -148,7 +148,7 @@ load ../_helper.bash
     "Finished GitHub notification for post_deployment event."
     "Finished dispatching notifications."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   export VORTEX_NOTIFY_CHANNELS="github"
   export VORTEX_NOTIFY_EVENT="post_deployment"
@@ -161,7 +161,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -181,7 +181,7 @@ load ../_helper.bash
     "Finished GitHub notification for post_deployment event."
     "Finished dispatching notifications."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   export VORTEX_NOTIFY_CHANNELS="github"
   export VORTEX_NOTIFY_EVENT="post_deployment"
@@ -194,7 +194,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -212,7 +212,7 @@ load ../_helper.bash
     "Check that a pre_deployment notification was dispatched."
     "-Marked deployment as finished."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   export VORTEX_NOTIFY_CHANNELS="github"
   export VORTEX_NOTIFY_EVENT="post_deployment"
@@ -225,7 +225,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_failure
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -313,7 +313,7 @@ load ../_helper.bash
     "Previous deployment was found, but was unable to update the deployment status. Payload:"
     "-Marked deployment as finished."
   )
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   export VORTEX_NOTIFY_CHANNELS="github"
   export VORTEX_NOTIFY_EVENT="post_deployment"
@@ -326,7 +326,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_failure
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }

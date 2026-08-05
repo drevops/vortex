@@ -37,19 +37,19 @@ setup() {
   export BATS_LIB_PATH="${ROOT_DIR}/.vortex/tooling/node_modules"
 
   # Load 'bats-helpers' library.
-  ASSERT_DIR_EXCLUDE=("vortex" ".data")
-  export ASSERT_DIR_EXCLUDE
+  BATS_HELPERS_ASSERT_DIR_EXCLUDE=("vortex" ".data")
+  export BATS_HELPERS_ASSERT_DIR_EXCLUDE
   bats_load_library bats-helpers
 
   # Setup command mocking.
-  setup_mock
+  mock_setup
 
   # Isolate the SSH agent from tests. Scripts under test call `ssh-add`, which
   # reaches the agent via the inherited SSH_AUTH_SOCK - a socket the HOME
   # override does not sandbox. Stub `ssh-add` (the only agent-mutating command)
   # so a test can never read, pollute or, with VORTEX_SSH_REMOVE_ALL_KEYS=1,
   # wipe the real agent of the developer running the suite. Tests that assert
-  # specific `ssh-add` calls override this with their own mock via run_steps.
+  # specific `ssh-add` calls override this with their own mock via steps_run.
   mock_command "ssh-add" >/dev/null
 
   ##
@@ -175,7 +175,7 @@ setup() {
   if [ "${BATS_VERBOSE_RUN:-}" = "1" ] || [ "${TEST_VORTEX_DEBUG:-}" = "1" ]; then
     echo "Verbose run enabled." >&3
     echo "BUILD_DIR: ${BUILD_DIR}" >&3
-    export RUN_STEPS_DEBUG=1
+    export BATS_HELPERS_STEPS_DEBUG=1
   fi
 
   # Change directory to the current project directory for each test. Tests
@@ -201,7 +201,7 @@ fixture_local_repo() {
 
   if [ "${do_copy_code:-}" -eq 1 ]; then
     fixture_prepare_dir "${dir}"
-    export BATS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
+    export BATS_HELPERS_FIXTURE_EXPORT_CODEBASE_ENABLED=1
     fixture_export_codebase "${dir}" "${ROOT_DIR}"
   fi
 
@@ -333,7 +333,7 @@ git_init() {
   local allow_receive_update="${1:-0}"
   local dir="${2:-$(pwd)}"
 
-  assert_not_git_repo "${dir}"
+  assert_git_not_repo "${dir}"
   git --work-tree="${dir}" --git-dir="${dir}/.git" init >/dev/null
 
   if [ "${allow_receive_update:-}" -eq 1 ]; then

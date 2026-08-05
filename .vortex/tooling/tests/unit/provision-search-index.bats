@@ -38,12 +38,12 @@ load ../_helper.bash
     "- Skipped search indexing in non-development environment."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-30-search-index.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -70,12 +70,12 @@ load ../_helper.bash
     "- Finished search indexing operations."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-30-search-index.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -103,12 +103,12 @@ load ../_helper.bash
     "- Completed search indexing."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-30-search-index.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -136,12 +136,12 @@ load ../_helper.bash
     "- Completed search indexing."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-30-search-index.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }

@@ -26,25 +26,25 @@ load ../_helper.bash
 
   [ "${ROOT_DIR}" != "" ]
   echo "     > Current dir:        ${ROOT_DIR}" >&3
-  assert_not_contains "//" "${ROOT_DIR}"
+  assert_string_not_contains "${ROOT_DIR}" "//"
 
   [ "${BUILD_DIR}" != "" ]
   echo "     > Build dir:          ${BUILD_DIR}" >&3
-  assert_not_contains "//" "${BUILD_DIR}"
+  assert_string_not_contains "${BUILD_DIR}" "//"
 
   [ "${CURRENT_PROJECT_DIR}" != "" ]
   echo "     > Project dir:        ${CURRENT_PROJECT_DIR}" >&3
-  assert_not_contains "//" "${CURRENT_PROJECT_DIR}"
+  assert_string_not_contains "${CURRENT_PROJECT_DIR}" "//"
 
   [ "${DST_PROJECT_DIR}" != "" ]
   echo "     > DST dir:            ${DST_PROJECT_DIR}" >&3
-  assert_not_contains "//" "${DST_PROJECT_DIR}"
+  assert_string_not_contains "${DST_PROJECT_DIR}" "//"
 
   [ "${LOCAL_REPO_DIR}" != "" ]
   echo "     > Local repo dir:     ${LOCAL_REPO_DIR}" >&3
-  assert_not_contains "//" "${LOCAL_REPO_DIR}"
+  assert_string_not_contains "${LOCAL_REPO_DIR}" "//"
 
   [ "${APP_TMP_DIR}" != "" ]
   echo "     > App temp dir:       ${APP_TMP_DIR}" >&3
-  assert_not_contains "//" "${APP_TMP_DIR}"
+  assert_string_not_contains "${APP_TMP_DIR}" "//"
 }

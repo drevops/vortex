@@ -37,7 +37,7 @@ load ../_helper.bash
     '@curl -s -X PUT -H Authorization: Basic am9obi5kb2VAZXhhbXBsZS5jb206dG9rZW4xMjM0NQ== -H Content-Type: application/json --url https://jira.atlassian.com/rest/api/3/issue/proj-1234/assignee --data { "accountId": "987654321c20165700ede21g"} # '
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   export VORTEX_NOTIFY_CHANNELS="jira"
   export VORTEX_NOTIFY_JIRA_USER_EMAIL="john.doe@example.com"
@@ -53,7 +53,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }
@@ -140,7 +140,7 @@ load ../_helper.bash
     "@curl * # {\"id\": \"${comment_id}\", \"othervar\": \"54321\"}"
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   # Attempt shell injection through project name with PHP code that would create a file
   export VORTEX_NOTIFY_CHANNELS="jira"
@@ -164,7 +164,7 @@ load ../_helper.bash
   # Verify the malicious string is treated as literal text
   assert_output_contains "test'); file_put_contents('/tmp/injected_jira_test', 'HACKED'); //"
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }

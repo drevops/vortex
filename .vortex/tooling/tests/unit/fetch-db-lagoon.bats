@@ -42,10 +42,10 @@ load ../_helper.bash
   export VORTEX_SSH_PREFIX="TEST"
   export VORTEX_FETCH_DB_SSH_FILE=false
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-fetch-db-lagoon
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -95,9 +95,9 @@ load ../_helper.bash
   export VORTEX_SSH_PREFIX="TEST"
   export VORTEX_FETCH_DB_SSH_FILE=false
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-lagoon
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -148,9 +148,9 @@ load ../_helper.bash
   export VORTEX_SSH_PREFIX="TEST"
   export VORTEX_FETCH_DB_SSH_FILE=false
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-lagoon
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 

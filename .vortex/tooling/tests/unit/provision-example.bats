@@ -29,12 +29,12 @@ load ../_helper.bash
     "- Finished example operations."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run ./scripts/provision-40-example.sh
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null || exit 1
 }

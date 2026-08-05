@@ -35,9 +35,9 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_S3_DB_DIR=".data"
   export VORTEX_FETCH_DB_S3_DB_FILE="db.sql"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -78,9 +78,9 @@ load ../_helper.bash
   # Don't set VORTEX_FETCH_DB_S3_DB_DIR and VORTEX_FETCH_DB_S3_DB_FILE to test defaults.
   unset VORTEX_FETCH_DB_S3_DB_DIR VORTEX_FETCH_DB_S3_DB_FILE
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -121,9 +121,9 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_S3_DB_DIR=".data"
   export VORTEX_FETCH_DB_S3_DB_FILE="db.sql"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -160,9 +160,9 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_S3_DB_DIR=".data"
   export VORTEX_FETCH_DB_S3_DB_FILE="db.sql"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -200,9 +200,9 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_S3_DB_DIR=".data"
   export VORTEX_FETCH_DB_S3_DB_FILE="db.sql"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_success
 
@@ -227,9 +227,9 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_S3_BUCKET="test-bucket"
   export VORTEX_FETCH_DB_S3_REGION="ap-southeast-2"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_failure
 
@@ -252,9 +252,9 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_S3_BUCKET="test-bucket"
   export VORTEX_FETCH_DB_S3_REGION="ap-southeast-2"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_failure
 
@@ -277,9 +277,9 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_S3_BUCKET=""
   export VORTEX_FETCH_DB_S3_REGION="ap-southeast-2"
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_failure
 
@@ -302,9 +302,9 @@ load ../_helper.bash
   export VORTEX_FETCH_DB_S3_BUCKET="test-bucket"
   export VORTEX_FETCH_DB_S3_REGION=""
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-s3
-  run_steps "assert" "${mocks}"
+  steps_run "assert" "${mocks}"
 
   assert_failure
 

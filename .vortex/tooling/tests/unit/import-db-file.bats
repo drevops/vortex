@@ -23,12 +23,12 @@ load ../_helper.bash
     "- Unable to import database from file."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-import-db-file .data/db_custom.sql
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
@@ -53,12 +53,12 @@ load ../_helper.bash
     "Finished database file import."
   )
 
-  mocks="$(run_steps "setup")"
+  mocks="$(steps_run "setup")"
 
   run .vortex/tooling/src/vortex-import-db-file
   assert_success
 
-  run_steps "assert" "${mocks[@]}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }
