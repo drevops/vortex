@@ -167,7 +167,7 @@ if ! command -v lagoon >/dev/null || [ -n "${VORTEX_DEPLOY_LAGOON_LAGOONCLI_FORC
   pass "Installed Lagoon CLI."
 fi
 
-for cmd in lagoon curl; do command -v "${cmd}" >/dev/null || {
+for cmd in lagoon curl jq; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available."
   exit 1
 }; done
