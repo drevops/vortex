@@ -66,12 +66,10 @@ class Migration extends AbstractHandler {
       File::remove($t . '/scripts/provision-20-migration.sh');
       File::remove($t . '/' . $w . '/modules/custom/ys_migrate');
 
-      $cj = JsonManipulator::fromFile($t . '/composer.json');
-      if ($cj instanceof JsonManipulator) {
+      JsonManipulator::updateFile($t . '/composer.json', function (JsonManipulator $cj): void {
         $cj->removeSubNode('require', 'drupal/migrate_plus');
         $cj->removeSubNode('require', 'drupal/migrate_tools');
-        file_put_contents($t . '/composer.json', $cj->getContents());
-      }
+      });
     }
   }
 

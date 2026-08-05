@@ -95,9 +95,9 @@ class HostingProvider extends AbstractHandler {
 
       File::remove(sprintf('%s/%s/.htaccess', $t, $w));
 
-      $cj = JsonManipulator::fromFile($t . '/composer.json');
-      $cj->addLink('require', 'drupal/lagoon_logs', '^3', TRUE);
-      file_put_contents($t . '/composer.json', $cj->getContents());
+      JsonManipulator::updateFile($t . '/composer.json', function (JsonManipulator $cj): void {
+        $cj->addLink('require', 'drupal/lagoon_logs', '^3', TRUE);
+      });
     }
     else {
       $this->removeAcquia();

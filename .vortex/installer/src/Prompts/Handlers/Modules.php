@@ -80,12 +80,12 @@ class Modules extends AbstractHandler {
     $t = $this->tmpDir;
     $w = $this->webroot;
 
+    $removed_packages = [];
+
     // Process each module that was NOT selected (remove them).
     foreach (array_keys($all_modules) as $module_name) {
       if (!in_array($module_name, $selected_modules)) {
-        // Remove from composer.json.
-        $pattern = '/\s*"drupal\/' . preg_quote($module_name, '/') . '":\s*"[^\"]+",?\n/';
-        File::replaceContentInFile($t . '/composer.json', $pattern, "\n");
+        $removed_packages[] = 'drupal/' . $module_name;
 
         // Remove module from settings file.
         File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.' . $module_name . '.php');
@@ -113,6 +113,14 @@ class Modules extends AbstractHandler {
         // Remove module tokens.
         File::removeTokenAsync('MODULE_' . strtoupper($module_name));
       }
+    }
+
+    if ($removed_packages !== []) {
+      JsonManipulator::updateFile($t . '/composer.json', function (JsonManipulator $cj) use ($removed_packages): void {
+        foreach ($removed_packages as $removed_package) {
+          $cj->removeSubNode('require', $removed_package);
+        }
+      });
     }
 
     // Without any development modules left to install, the script has no

@@ -153,22 +153,12 @@ class Tools extends AbstractHandler {
 
     // Remove dependencies from composer.json.
     if (isset($tool['composer.json']) && is_callable($tool['composer.json'])) {
-      $composer_path = $this->tmpDir . '/composer.json';
-      $cj = JsonManipulator::fromFile($composer_path);
-      if ($cj instanceof JsonManipulator) {
-        $tool['composer.json']($cj);
-        file_put_contents($composer_path, $cj->getContents());
-      }
+      JsonManipulator::updateFile($this->tmpDir . '/composer.json', $tool['composer.json']);
     }
 
     // Remove dependencies from package.json.
     if (isset($tool['package.json']) && is_callable($tool['package.json'])) {
-      $package_path = $this->tmpDir . '/package.json';
-      $pj = JsonManipulator::fromFile($package_path);
-      if ($pj instanceof JsonManipulator) {
-        $tool['package.json']($pj);
-        file_put_contents($package_path, $pj->getContents());
-      }
+      JsonManipulator::updateFile($this->tmpDir . '/package.json', $tool['package.json']);
     }
 
     // Remove command definitions from Ahoy.

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Utils\File;
+use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use DrevOps\VortexInstaller\Utils\Yaml;
 
 class Services extends AbstractHandler {
@@ -140,7 +141,9 @@ class Services extends AbstractHandler {
       File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.clamav.php');
       File::remove($t . '/tests/behat/features/clamav.feature');
       File::replaceContentInFile($t . '/docker-compose.yml', 'clamav:3310', '');
-      File::replaceContentInFile($t . '/composer.json', '/\s*"drupal\/clamav":\s*"[^\"]+",?\n/', "\n");
+      JsonManipulator::updateFile($t . '/composer.json', function (JsonManipulator $cj): void {
+        $cj->removeSubNode('require', 'drupal/clamav');
+      });
     }
 
     if (!in_array(self::SOLR, $v)) {
@@ -149,8 +152,10 @@ class Services extends AbstractHandler {
       File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.solr.php');
       File::remove($t . '/tests/behat/features/search.feature');
       File::remove($t . '/scripts/provision-30-search-index.sh');
-      File::replaceContentInFile($t . '/composer.json', '/\s*"drupal\/solr":\s*"[^\"]+",?\n/', "\n");
-      File::replaceContentInFile($t . '/composer.json', '/\s*"drupal\/search_api_solr":\s*"[^\"]+",?\n/', "\n");
+      JsonManipulator::updateFile($t . '/composer.json', function (JsonManipulator $cj): void {
+        $cj->removeSubNode('require', 'drupal/solr');
+        $cj->removeSubNode('require', 'drupal/search_api_solr');
+      });
     }
 
     if (!in_array(self::REDIS, $v)) {
@@ -158,7 +163,9 @@ class Services extends AbstractHandler {
       File::remove($t . '/.docker/redis.dockerfile');
       File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.redis.php');
       File::replaceContentInFile($t . '/docker-compose.yml', 'redis:6379', '');
-      File::replaceContentInFile($t . '/composer.json', '/\s*"drupal\/redis":\s*"[^\"]+",?\n/', "\n");
+      JsonManipulator::updateFile($t . '/composer.json', function (JsonManipulator $cj): void {
+        $cj->removeSubNode('require', 'drupal/redis');
+      });
       File::remove($t . '/tests/behat/features/redis.feature');
     }
   }
