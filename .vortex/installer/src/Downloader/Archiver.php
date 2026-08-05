@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Downloader;
 
+use DrevOps\VortexInstaller\Runner\ProcessRunner;
+use DrevOps\VortexInstaller\Runner\RunnerInterface;
 use DrevOps\VortexInstaller\Utils\File;
 use PhpZip\ZipFile;
+use Symfony\Component\Console\Output\NullOutput;
 
 /**
  * Handles archive operations (detection, validation, extraction).
@@ -105,16 +108,13 @@ class Archiver implements ArchiverInterface {
       $temp_dir = $strip_first_level ? File::tmpdir() : $destination;
 
       // Use tar command to preserve symlinks (PharData doesn't preserve them).
-      $command = sprintf(
-        'tar -xf %s -C %s 2>&1',
-        escapeshellarg($archive_path),
-        escapeshellarg($temp_dir)
-      );
+      $runner = new ProcessRunner();
+      $runner->getLogger()->disable();
+      $runner->run('tar', args: ['-xf', $archive_path, '-C', $temp_dir], output: new NullOutput());
 
-      exec($command, $output, $return_code);
-
-      if ($return_code !== 0) {
-        throw new \RuntimeException(sprintf('tar command failed: %s', implode("\n", $output)));
+      if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
+        $output = $runner->getOutput(as_array: TRUE);
+        throw new \RuntimeException(sprintf('tar command failed: %s', is_array($output) ? implode(PHP_EOL, $output) : $output));
       }
 
       if ($strip_first_level) {

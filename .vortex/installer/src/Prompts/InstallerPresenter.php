@@ -9,6 +9,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Tui;
+use Symfony\Component\Process\ExecutableFinder;
 
 /**
  * Presents installer headers, footers, and post-build messages.
@@ -252,14 +253,10 @@ EOT;
     ];
 
     $missing = [];
+    $finder = new ExecutableFinder();
 
     foreach ($tools as $tool) {
-      // Use exec with output capture to avoid output to console.
-      $output = [];
-      $return_code = 0;
-      exec(sprintf('command -v %s 2>/dev/null', $tool['command']), $output, $return_code);
-
-      if ($return_code !== 0) {
+      if ($finder->find($tool['command']) === NULL) {
         $missing[$tool['name']] = $tool['instructions'];
       }
     }

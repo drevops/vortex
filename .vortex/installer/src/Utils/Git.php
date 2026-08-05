@@ -7,6 +7,9 @@ namespace DrevOps\VortexInstaller\Utils;
 use CzProject\GitPhp\Git as GitWrapper;
 use CzProject\GitPhp\GitRepository;
 use CzProject\GitPhp\RunnerResult;
+use DrevOps\VortexInstaller\Runner\ProcessRunner;
+use DrevOps\VortexInstaller\Runner\RunnerInterface;
+use Symfony\Component\Console\Output\NullOutput;
 
 class Git extends GitRepository {
 
@@ -91,22 +94,20 @@ class Git extends GitRepository {
       throw new \RuntimeException('The directory is not a Git repository.');
     }
 
-    $tracked_files = [];
-    $output = [];
-    $code = 0;
-    $command = sprintf('cd %s && git ls-files', escapeshellarg($dir));
-    exec($command, $output, $code);
-    if ($code !== 0) {
+    $runner = new ProcessRunner();
+    $runner->getLogger()->disable();
+    $runner->setCwd($dir)->run('git ls-files', output: new NullOutput());
+
+    if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException('Failed to retrieve tracked files using git ls-files.');
       // @codeCoverageIgnoreEnd
     }
 
-    foreach ($output as $file) {
-      $tracked_files[] = $dir . '/' . $file;
-    }
+    $output = $runner->getOutput(as_array: TRUE);
+    $files = array_filter(is_array($output) ? $output : explode(PHP_EOL, $output));
 
-    return $tracked_files;
+    return array_map(fn(string $file): string => $dir . '/' . $file, array_values($files));
   }
 
   public function getLastShortCommitId(): string {

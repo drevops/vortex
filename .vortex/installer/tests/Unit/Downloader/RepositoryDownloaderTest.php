@@ -9,6 +9,7 @@ use DrevOps\VortexInstaller\Downloader\Artifact;
 use DrevOps\VortexInstaller\Downloader\ArchiverInterface;
 use DrevOps\VortexInstaller\Downloader\Downloader;
 use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
+use DrevOps\VortexInstaller\Runner\ProcessRunner;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
@@ -18,6 +19,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Symfony\Component\Console\Output\NullOutput;
 
 #[CoversClass(RepositoryDownloader::class)]
 class RepositoryDownloaderTest extends UnitTestCase {
@@ -239,7 +241,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
 
     // Handle the special case where we need to get the actual commit hash.
     if ($ref === 'COMMIT_HASH') {
-      $output = shell_exec('cd ' . escapeshellarg($temp_repo_dir) . ' && git rev-parse HEAD');
+      $output = self::gitRunner($temp_repo_dir)->run('git rev-parse HEAD', output: new NullOutput())->getOutput();
       $this->assertIsString($output, 'Failed to get commit hash from git repository');
       $commit_hash = trim($output);
       $this->assertNotEmpty($commit_hash, 'Git rev-parse returned empty output');
@@ -256,27 +258,16 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   public function testArchiveFromLocalHandlesGitFailure(): void {
-    $temp_repo_dir = self::$tmp . '/test_git_repo_' . uniqid();
+    $temp_repo_dir = $this->createGitRepo(with_composer_json: FALSE);
     $temp_dest_dir = self::$tmp . '/test_dest_' . uniqid();
-    File::mkdir($temp_repo_dir);
     File::mkdir($temp_dest_dir);
-    $original_dir = (string) getcwd();
-    chdir($temp_repo_dir);
-    exec('git init 2>&1');
-    exec('git config user.email "test@example.com" 2>&1');
-    exec('git config user.name "Test User" 2>&1');
-    File::dump($temp_repo_dir . '/test.txt', 'test content');
-    exec('git add . 2>&1');
-    exec('git commit -m "Initial commit" 2>&1');
+
     $downloader = new RepositoryDownloader();
+
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('Reference "nonexistent-ref" not found in local repository');
-    try {
-      $downloader->download(Artifact::create($temp_repo_dir, 'nonexistent-ref'), $temp_dest_dir);
-    }
-    finally {
-      chdir($original_dir);
-    }
+
+    $downloader->download(Artifact::create($temp_repo_dir, 'nonexistent-ref'), $temp_dest_dir);
   }
 
   public function testDiscoverLatestReleaseRemoteWithGithubToken(): void {
@@ -501,22 +492,36 @@ class RepositoryDownloaderTest extends UnitTestCase {
     return $this->createMock(ArchiverInterface::class);
   }
 
-  protected function createGitRepo(): string {
+  protected function createGitRepo(bool $with_composer_json = TRUE): string {
     $temp_repo_dir = self::$tmp . '/test_git_repo_' . uniqid();
     File::mkdir($temp_repo_dir);
-    $original_dir = (string) getcwd();
-    chdir($temp_repo_dir);
-    exec('git init 2>&1');
-    exec('git config user.email "test@example.com" 2>&1');
-    exec('git config user.name "Test User" 2>&1');
+
+    $runner = self::gitRunner($temp_repo_dir);
+    $runner->run('git init', output: new NullOutput());
+    $runner->run('git', args: ['config', 'user.email', 'test@example.com'], output: new NullOutput());
+    $runner->run('git', args: ['config', 'user.name', 'Test User'], output: new NullOutput());
+
     File::dump($temp_repo_dir . '/test.txt', 'test content');
-    exec('git add . 2>&1');
-    exec('git commit -m "Initial commit" 2>&1');
-    File::dump($temp_repo_dir . '/composer.json', '{}');
-    exec('git add composer.json 2>&1');
-    exec('git commit -m "Add composer.json" 2>&1');
-    chdir($original_dir);
+    $runner->run('git add .', output: new NullOutput());
+    $runner->run('git', args: ['commit', '-m', 'Initial commit'], output: new NullOutput());
+
+    if ($with_composer_json) {
+      File::dump($temp_repo_dir . '/composer.json', '{}');
+      $runner->run('git add composer.json', output: new NullOutput());
+      $runner->run('git', args: ['commit', '-m', 'Add composer.json'], output: new NullOutput());
+    }
+
     return $temp_repo_dir;
+  }
+
+  /**
+   * Create a runner that operates on a repository without writing a log.
+   */
+  protected static function gitRunner(string $repo_dir): ProcessRunner {
+    $runner = new ProcessRunner();
+    $runner->getLogger()->disable();
+
+    return $runner->setCwd($repo_dir);
   }
 
   protected function removeGitRepo(string $repo_dir): void {
