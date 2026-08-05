@@ -33,6 +33,6 @@ for file in "${targets[@]}"; do
 
   if [ -f "${file}" ]; then
     echo "Checking file ${file}"
-    docker run --rm -i hadolint/hadolint:v2.15.0 <"${file}"
+    docker run --rm -i hadolint/hadolint:v2.15.1 <"${file}"
   fi
 done
