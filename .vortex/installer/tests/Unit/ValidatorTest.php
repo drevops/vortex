@@ -14,12 +14,12 @@ use DrevOps\VortexInstaller\Utils\Validator;
 #[CoversClass(Validator::class)]
 class ValidatorTest extends UnitTestCase {
 
-  #[DataProvider('dataProviderContainerImage')]
-  public function testContainerImage(string $input, bool $expected): void {
-    $this->assertSame($expected, Validator::containerImage($input));
+  #[DataProvider('dataProviderIsContainerImage')]
+  public function testIsContainerImage(string $input, bool $expected): void {
+    $this->assertSame($expected, Validator::isContainerImage($input));
   }
 
-  public static function dataProviderContainerImage(): \Iterator {
+  public static function dataProviderIsContainerImage(): \Iterator {
     yield ['myregistryhost:5000/fedora/httpd:version', TRUE];
     yield ['fedora/httpd:version1.0.test', TRUE];
     yield ['fedora/httpd:version1.0', TRUE];
@@ -37,12 +37,12 @@ class ValidatorTest extends UnitTestCase {
     yield ['test:super-long-tag-that-exceeds-128-characters-aaaaaaaaaabbbbbbbbbbbbccccccccccddddddddddeeeeeeeeeeaaaaaaaaaabbbbbbbbbbbbccccccccccddddddddddeeeeeeeeee', FALSE];
   }
 
-  #[DataProvider('dataProviderDomain')]
-  public function testDomain(string $domain, bool $expected): void {
-    $this->assertSame($expected, Validator::domain($domain));
+  #[DataProvider('dataProviderIsDomain')]
+  public function testIsDomain(string $domain, bool $expected): void {
+    $this->assertSame($expected, Validator::isDomain($domain));
   }
 
-  public static function dataProviderDomain(): \Iterator {
+  public static function dataProviderIsDomain(): \Iterator {
     yield 'valid domain with TLD' => ['example.com', TRUE];
     yield 'valid subdomain' => ['sub.example.com', TRUE];
     yield 'valid domain with multiple dots' => ['example.co.uk', TRUE];
@@ -55,12 +55,12 @@ class ValidatorTest extends UnitTestCase {
     yield 'invalid domain with spaces' => ['example .com', FALSE];
   }
 
-  #[DataProvider('dataProviderGithubProject')]
-  public function testGithubProject(string $value, bool $expected): void {
-    $this->assertSame($expected, Validator::githubProject($value));
+  #[DataProvider('dataProviderIsGithubProject')]
+  public function testIsGithubProject(string $value, bool $expected): void {
+    $this->assertSame($expected, Validator::isGithubProject($value));
   }
 
-  public static function dataProviderGithubProject(): \Iterator {
+  public static function dataProviderIsGithubProject(): \Iterator {
     yield 'valid project' => ['user/repo', TRUE];
     yield 'valid project with numbers' => ['user123/repo456', TRUE];
     yield 'valid project with hyphens and underscores' => ['user-name/repo_name', TRUE];
@@ -74,12 +74,12 @@ class ValidatorTest extends UnitTestCase {
     yield 'invalid special characters' => ['user!@#/repo$', FALSE];
   }
 
-  #[DataProvider('dataProviderDirname')]
-  public function testDirname(string $input, bool $expected): void {
-    $this->assertSame($expected, Validator::dirname($input));
+  #[DataProvider('dataProviderIsDirname')]
+  public function testIsDirname(string $input, bool $expected): void {
+    $this->assertSame($expected, Validator::isDirname($input));
   }
 
-  public static function dataProviderDirname(): \Iterator {
+  public static function dataProviderIsDirname(): \Iterator {
     yield 'valid folder name' => ['valid_folder', TRUE];
     yield 'valid with hyphen' => ['my-folder', TRUE];
     yield 'valid with dot' => ['another.folder', TRUE];
@@ -97,12 +97,12 @@ class ValidatorTest extends UnitTestCase {
     yield 'invalid double dot' => ['..', FALSE];
   }
 
-  #[DataProvider('dataProviderGitCommitSha')]
-  public function testGitCommitSha(string $sha, bool $expected): void {
-    $this->assertSame($expected, Validator::gitCommitSha($sha));
+  #[DataProvider('dataProviderIsGitCommitSha')]
+  public function testIsGitCommitSha(string $sha, bool $expected): void {
+    $this->assertSame($expected, Validator::isGitCommitSha($sha));
   }
 
-  public static function dataProviderGitCommitSha(): \Iterator {
+  public static function dataProviderIsGitCommitSha(): \Iterator {
     // Valid SHA-1 hashes (40 hexadecimal characters)
     yield 'valid lowercase SHA' => ['a1b2c3d4e5f6789012345678901234567890abcd', TRUE];
     yield 'valid uppercase SHA' => ['A1B2C3D4E5F6789012345678901234567890ABCD', TRUE];
@@ -122,12 +122,12 @@ class ValidatorTest extends UnitTestCase {
     yield 'invalid null characters' => ["a1b2c3d4e5f6789012345678901234567890abc\0", FALSE];
   }
 
-  #[DataProvider('dataProviderGitCommitShaShort')]
-  public function testGitCommitShaShort(string $sha_short, bool $expected): void {
-    $this->assertSame($expected, Validator::gitCommitShaShort($sha_short));
+  #[DataProvider('dataProviderIsGitCommitShaShort')]
+  public function testIsGitCommitShaShort(string $sha_short, bool $expected): void {
+    $this->assertSame($expected, Validator::isGitCommitShaShort($sha_short));
   }
 
-  public static function dataProviderGitCommitShaShort(): \Iterator {
+  public static function dataProviderIsGitCommitShaShort(): \Iterator {
     // Valid short SHA-1 hashes (7 hexadecimal characters)
     yield 'valid lowercase short SHA' => ['a1b2c3d', TRUE];
     yield 'valid uppercase short SHA' => ['A1B2C3D', TRUE];
@@ -153,12 +153,12 @@ class ValidatorTest extends UnitTestCase {
     yield 'invalid null characters' => ["a1b2c3\0", FALSE];
   }
 
-  #[DataProvider('dataProviderGitRef')]
-  public function testGitRef(string $ref, bool $expected): void {
-    $this->assertSame($expected, Validator::gitRef($ref));
+  #[DataProvider('dataProviderIsGitRef')]
+  public function testIsGitRef(string $ref, bool $expected): void {
+    $this->assertSame($expected, Validator::isGitRef($ref));
   }
 
-  public static function dataProviderGitRef(): \Iterator {
+  public static function dataProviderIsGitRef(): \Iterator {
     // Special keywords.
     yield 'special keyword stable' => ['stable', TRUE];
     yield 'special keyword HEAD' => ['HEAD', TRUE];

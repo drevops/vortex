@@ -67,7 +67,7 @@ class Domain extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn($v): ?string => Validator::domain($v) ? NULL : 'Please enter a valid domain name.';
+    return fn($v): ?string => Validator::isDomain($v) ? NULL : 'Please enter a valid domain name.';
   }
 
   /**

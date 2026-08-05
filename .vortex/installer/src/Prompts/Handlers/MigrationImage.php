@@ -84,7 +84,7 @@ class MigrationImage extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn($v): ?string => Validator::containerImage($v) ? NULL : 'Please enter a valid container image name with an optional tag.';
+    return fn($v): ?string => Validator::isContainerImage($v) ? NULL : 'Please enter a valid container image name with an optional tag.';
   }
 
   /**

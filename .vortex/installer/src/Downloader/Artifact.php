@@ -66,7 +66,7 @@ final readonly class Artifact {
    */
   public static function create(string $repo, string $ref): self {
     // Validate ref syntax.
-    if (!Validator::gitRef($ref)) {
+    if (!Validator::isGitRef($ref)) {
       throw new \RuntimeException(sprintf('Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.', $ref));
     }
     return new self($repo, $ref);
@@ -176,7 +176,7 @@ final readonly class Artifact {
       [$repo, $ref] = $github_pattern;
 
       // Validate the extracted ref.
-      if (!Validator::gitRef($ref)) {
+      if (!Validator::isGitRef($ref)) {
         throw new \RuntimeException(sprintf('Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.', $ref));
       }
 
@@ -220,7 +220,7 @@ final readonly class Artifact {
       $ref = $matches[2] ?? RepositoryDownloader::REF_HEAD;
     }
 
-    if (!Validator::gitRef($ref)) {
+    if (!Validator::isGitRef($ref)) {
       throw new \RuntimeException(sprintf('Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.', $ref));
     }
 
