@@ -72,7 +72,8 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
       $requirements_ok = Task::action(
         label: 'Checking requirements',
         action: function (): bool {
-          $command_runner = $this->getCommandRunner()->disableLog();
+          $command_runner = $this->getCommandRunner();
+          $command_runner->getLogger()->disable();
           $command_runner->run('check-requirements', inputs: ['--no-summary' => '1']);
 
           return $command_runner->getExitCode() === RunnerInterface::EXIT_SUCCESS;

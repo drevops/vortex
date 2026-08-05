@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Runner;
 
-use DrevOps\VortexInstaller\Logger\LoggableInterface;
+use DrevOps\VortexInstaller\Logger\LoggerAwareInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Interface for command and process runners.
  */
-interface RunnerInterface extends LoggableInterface {
+interface RunnerInterface extends LoggerAwareInterface {
 
   // @see https://tldp.org/LDP/abs/html/exitcodes.html
   public const EXIT_SUCCESS = 0;

@@ -342,7 +342,14 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
    * {@inheritdoc}
    */
   public function getProcessRunner(): ProcessRunner {
-    return $this->processRunner ?? (new ProcessRunner())->disableLog()->disableStreaming();
+    if ($this->processRunner instanceof ProcessRunner) {
+      return $this->processRunner;
+    }
+
+    $runner = new ProcessRunner();
+    $runner->getLogger()->disable();
+
+    return $runner->disableStreaming();
   }
 
 }
