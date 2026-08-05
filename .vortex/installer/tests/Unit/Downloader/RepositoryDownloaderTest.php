@@ -156,171 +156,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
     }
   }
 
-  public function testDownloadFromRemoteWithGitSuffix(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_response = $this->createMock(ResponseInterface::class);
-    $mock_response->method('getStatusCode')->willReturn(200);
-    $mock_http_client->method('request')->willReturn($mock_response);
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    $mock_file_downloader = $this->createMockFileDownloader();
-    $destination = self::$tmp . '/destination';
-    File::mkdir($destination);
-    File::dump($destination . '/composer.json', '{}');
-    $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
-    $version = $downloader->download(Artifact::create('https://github.com/user/repo.git', 'HEAD'), $destination);
-    $this->assertEquals('develop', $version);
-  }
-
-  public function testDownloadStableWithReleasePrefixSelectsMajor(): void {
-    $release_json = (string) json_encode([
-      ['tag_name' => '2.0.0', 'draft' => FALSE],
-      ['tag_name' => '1.40.0', 'draft' => FALSE],
-      ['tag_name' => '1.39.0', 'draft' => FALSE],
-    ]);
-
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_http_client->method('request')->willReturnCallback(function (string $method, string $url) use ($release_json): ResponseInterface {
-      $response = $this->createMock(ResponseInterface::class);
-      $response->method('getStatusCode')->willReturn(200);
-      $body = $this->createMock(StreamInterface::class);
-      $body->method('getContents')->willReturn(str_contains($url, '/releases') ? $release_json : 'ok');
-      $response->method('getBody')->willReturn($body);
-      return $response;
-    });
-
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    $mock_file_downloader = $this->createMockFileDownloader();
-    $destination = self::$tmp . '/destination_' . uniqid();
-    File::mkdir($destination);
-    File::dump($destination . '/composer.json', '{}');
-
-    $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
-    $version = $downloader->download(Artifact::create('https://github.com/user/repo', 'stable'), $destination, '1.');
-    $this->assertEquals('1.40.0', $version);
-  }
-
-  public function testDownloadStableWithReleasePrefixFallsBackToBranch(): void {
-    $release_json = (string) json_encode([
-      ['tag_name' => '1.40.0', 'draft' => FALSE],
-    ]);
-
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_http_client->method('request')->willReturnCallback(function (string $method, string $url) use ($release_json): ResponseInterface {
-      $response = $this->createMock(ResponseInterface::class);
-      $response->method('getStatusCode')->willReturn(200);
-      $body = $this->createMock(StreamInterface::class);
-      $body->method('getContents')->willReturn(str_contains($url, '/releases') ? $release_json : 'ok');
-      $response->method('getBody')->willReturn($body);
-      return $response;
-    });
-
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    $mock_file_downloader = $this->createMockFileDownloader();
-    $destination = self::$tmp . '/destination_' . uniqid();
-    File::mkdir($destination);
-    File::dump($destination . '/composer.json', '{}');
-
-    $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
-    $version = $downloader->download(Artifact::create('https://github.com/user/repo', 'stable'), $destination, '2.');
-    $this->assertEquals('2.x', $version);
-  }
-
-  #[DataProvider('dataProviderDownloadWithNullDestination')]
-  public function testDownloadWithNullDestination(string $repo, string $expected_message): void {
-    $downloader = new RepositoryDownloader();
-    $this->expectException(\InvalidArgumentException::class);
-    $this->expectExceptionMessage($expected_message);
-    $downloader->download(Artifact::create($repo, 'HEAD'));
-  }
-
-  #[DataProvider('dataProviderDownloadFromLocal')]
-  public function testDownloadFromLocal(string $ref, string $expected_version): void {
-    $temp_repo_dir = $this->createGitRepo();
-    $destination = self::$tmp . '/dest_' . uniqid();
-    File::mkdir($destination);
-
-    // Handle the special case where we need to get the actual commit hash.
-    if ($ref === 'COMMIT_HASH') {
-      $output = self::gitRunner($temp_repo_dir)->run('git rev-parse HEAD', output: new NullOutput())->getOutput();
-      $this->assertIsString($output, 'Failed to get commit hash from git repository');
-      $commit_hash = trim($output);
-      $this->assertNotEmpty($commit_hash, 'Git rev-parse returned empty output');
-      $ref = substr($commit_hash, 0, 7);
-      $expected_version = $ref;
-    }
-
-    /** @var \PHPUnit\Framework\MockObject\MockObject&\DrevOps\VortexInstaller\Downloader\ArchiverInterface $mock_archiver */
-    $mock_archiver = $this->createMockArchiverWithExtract();
-    $downloader = new RepositoryDownloader(NULL, $mock_archiver);
-    $version = $downloader->download(Artifact::create($temp_repo_dir, $ref), $destination);
-    $this->assertEquals($expected_version, $version);
-    $this->removeGitRepo($temp_repo_dir);
-  }
-
-  public function testArchiveFromLocalHandlesGitFailure(): void {
-    $temp_repo_dir = $this->createGitRepo(with_composer_json: FALSE);
-    $temp_dest_dir = self::$tmp . '/test_dest_' . uniqid();
-    File::mkdir($temp_dest_dir);
-
-    $downloader = new RepositoryDownloader();
-
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Reference "nonexistent-ref" not found in local repository');
-
-    $downloader->download(Artifact::create($temp_repo_dir, 'nonexistent-ref'), $temp_dest_dir);
-  }
-
-  public function testDiscoverLatestReleaseRemoteWithGithubToken(): void {
-    static::envSet('GITHUB_TOKEN', 'test_token_12345');
-    $release_json = json_encode([
-      ['tag_name' => 'v1.5.0', 'draft' => FALSE],
-    ]);
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_response = $this->createMock(ResponseInterface::class);
-    $mock_body = $this->createMock(StreamInterface::class);
-    $mock_response->method('getBody')->willReturn($mock_body);
-    $mock_body->method('getContents')->willReturn($release_json);
-    $mock_response->method('getStatusCode')->willReturn(200);
-    // Two calls: HEAD for repo validation, GET for releases API.
-    $mock_http_client->expects($this->exactly(2))->method('request')->willReturnCallback(function ($method, $url, array|\ArrayAccess $options) use ($mock_response): ResponseInterface {
-      $this->assertArrayHasKey('headers', $options);
-      $this->assertArrayHasKey('Authorization', $options['headers']);
-      $this->assertEquals('Bearer test_token_12345', $options['headers']['Authorization']);
-      return $mock_response;
-    });
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    // File downloader should receive the token in headers.
-    $mock_file_downloader = $this->createMock(Downloader::class);
-    $mock_file_downloader->expects($this->once())->method('download')->willReturnCallback(function ($url, $dest, array $headers): void {
-      $this->assertArrayHasKey('Authorization', $headers);
-      $this->assertEquals('Bearer test_token_12345', $headers['Authorization']);
-    });
-    $destination = self::$tmp . '/destination';
-    File::mkdir($destination);
-    File::dump($destination . '/composer.json', '{}');
-    $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
-    $version = $downloader->download(Artifact::create('https://github.com/user/repo', 'stable'), $destination);
-    $this->assertEquals('v1.5.0', $version);
-  }
-
-  public function testDownloadArchiveWithGithubToken(): void {
-    static::envSet('GITHUB_TOKEN', 'test_token_67890');
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    // File downloader should receive the token in headers.
-    $mock_file_downloader = $this->createMock(Downloader::class);
-    $mock_file_downloader->expects($this->once())->method('download')->willReturnCallback(function ($url, $dest, array $headers): void {
-      $this->assertArrayHasKey('Authorization', $headers);
-      $this->assertEquals('Bearer test_token_67890', $headers['Authorization']);
-    });
-    $destination = self::$tmp . '/destination';
-    File::mkdir($destination);
-    File::dump($destination . '/composer.json', '{}');
-    $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
-    $version = $downloader->download(Artifact::create('https://github.com/user/repo', 'HEAD'), $destination);
-    $this->assertEquals('develop', $version);
-  }
-
   /**
    * Data provider for testDiscoverLatestReleaseRemote().
    *
@@ -439,6 +274,83 @@ class RepositoryDownloaderTest extends UnitTestCase {
     ];
   }
 
+  public function testDownloadFromRemoteWithGitSuffix(): void {
+    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_response = $this->createMock(ResponseInterface::class);
+    $mock_response->method('getStatusCode')->willReturn(200);
+    $mock_http_client->method('request')->willReturn($mock_response);
+    $mock_archiver = $this->createMock(ArchiverInterface::class);
+    $mock_file_downloader = $this->createMockFileDownloader();
+    $destination = self::$tmp . '/destination';
+    File::mkdir($destination);
+    File::dump($destination . '/composer.json', '{}');
+    $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
+    $version = $downloader->download(Artifact::create('https://github.com/user/repo.git', 'HEAD'), $destination);
+    $this->assertEquals('develop', $version);
+  }
+
+  public function testDownloadStableWithReleasePrefixSelectsMajor(): void {
+    $release_json = (string) json_encode([
+      ['tag_name' => '2.0.0', 'draft' => FALSE],
+      ['tag_name' => '1.40.0', 'draft' => FALSE],
+      ['tag_name' => '1.39.0', 'draft' => FALSE],
+    ]);
+
+    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_http_client->method('request')->willReturnCallback(function (string $method, string $url) use ($release_json): ResponseInterface {
+      $response = $this->createMock(ResponseInterface::class);
+      $response->method('getStatusCode')->willReturn(200);
+      $body = $this->createMock(StreamInterface::class);
+      $body->method('getContents')->willReturn(str_contains($url, '/releases') ? $release_json : 'ok');
+      $response->method('getBody')->willReturn($body);
+      return $response;
+    });
+
+    $mock_archiver = $this->createMock(ArchiverInterface::class);
+    $mock_file_downloader = $this->createMockFileDownloader();
+    $destination = self::$tmp . '/destination_' . uniqid();
+    File::mkdir($destination);
+    File::dump($destination . '/composer.json', '{}');
+
+    $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
+    $version = $downloader->download(Artifact::create('https://github.com/user/repo', 'stable'), $destination, '1.');
+    $this->assertEquals('1.40.0', $version);
+  }
+
+  public function testDownloadStableWithReleasePrefixFallsBackToBranch(): void {
+    $release_json = (string) json_encode([
+      ['tag_name' => '1.40.0', 'draft' => FALSE],
+    ]);
+
+    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_http_client->method('request')->willReturnCallback(function (string $method, string $url) use ($release_json): ResponseInterface {
+      $response = $this->createMock(ResponseInterface::class);
+      $response->method('getStatusCode')->willReturn(200);
+      $body = $this->createMock(StreamInterface::class);
+      $body->method('getContents')->willReturn(str_contains($url, '/releases') ? $release_json : 'ok');
+      $response->method('getBody')->willReturn($body);
+      return $response;
+    });
+
+    $mock_archiver = $this->createMock(ArchiverInterface::class);
+    $mock_file_downloader = $this->createMockFileDownloader();
+    $destination = self::$tmp . '/destination_' . uniqid();
+    File::mkdir($destination);
+    File::dump($destination . '/composer.json', '{}');
+
+    $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
+    $version = $downloader->download(Artifact::create('https://github.com/user/repo', 'stable'), $destination, '2.');
+    $this->assertEquals('2.x', $version);
+  }
+
+  #[DataProvider('dataProviderDownloadWithNullDestination')]
+  public function testDownloadWithNullDestination(string $repo, string $expected_message): void {
+    $downloader = new RepositoryDownloader();
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage($expected_message);
+    $downloader->download(Artifact::create($repo, 'HEAD'));
+  }
+
   /**
    * Data provider for testDownloadWithNullDestination().
    *
@@ -454,6 +366,30 @@ class RepositoryDownloaderTest extends UnitTestCase {
       'repo' => '/path/to/repo',
       'expected_message' => 'Destination cannot be null for local downloads',
     ];
+  }
+
+  #[DataProvider('dataProviderDownloadFromLocal')]
+  public function testDownloadFromLocal(string $ref, string $expected_version): void {
+    $temp_repo_dir = $this->createGitRepo();
+    $destination = self::$tmp . '/dest_' . uniqid();
+    File::mkdir($destination);
+
+    // Handle the special case where we need to get the actual commit hash.
+    if ($ref === 'COMMIT_HASH') {
+      $output = self::gitRunner($temp_repo_dir)->run('git rev-parse HEAD', output: new NullOutput())->getOutput();
+      $this->assertIsString($output, 'Failed to get commit hash from git repository');
+      $commit_hash = trim($output);
+      $this->assertNotEmpty($commit_hash, 'Git rev-parse returned empty output');
+      $ref = substr($commit_hash, 0, 7);
+      $expected_version = $ref;
+    }
+
+    /** @var \PHPUnit\Framework\MockObject\MockObject&\DrevOps\VortexInstaller\Downloader\ArchiverInterface $mock_archiver */
+    $mock_archiver = $this->createMockArchiverWithExtract();
+    $downloader = new RepositoryDownloader(NULL, $mock_archiver);
+    $version = $downloader->download(Artifact::create($temp_repo_dir, $ref), $destination);
+    $this->assertEquals($expected_version, $version);
+    $this->removeGitRepo($temp_repo_dir);
   }
 
   /**
@@ -475,6 +411,70 @@ class RepositoryDownloaderTest extends UnitTestCase {
       'ref' => 'COMMIT_HASH',
       'expected_version' => 'COMMIT_HASH',
     ];
+  }
+
+  public function testArchiveFromLocalHandlesGitFailure(): void {
+    $temp_repo_dir = $this->createGitRepo(with_composer_json: FALSE);
+    $temp_dest_dir = self::$tmp . '/test_dest_' . uniqid();
+    File::mkdir($temp_dest_dir);
+
+    $downloader = new RepositoryDownloader();
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Reference "nonexistent-ref" not found in local repository');
+
+    $downloader->download(Artifact::create($temp_repo_dir, 'nonexistent-ref'), $temp_dest_dir);
+  }
+
+  public function testDiscoverLatestReleaseRemoteWithGithubToken(): void {
+    static::envSet('GITHUB_TOKEN', 'test_token_12345');
+    $release_json = json_encode([
+      ['tag_name' => 'v1.5.0', 'draft' => FALSE],
+    ]);
+    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_response = $this->createMock(ResponseInterface::class);
+    $mock_body = $this->createMock(StreamInterface::class);
+    $mock_response->method('getBody')->willReturn($mock_body);
+    $mock_body->method('getContents')->willReturn($release_json);
+    $mock_response->method('getStatusCode')->willReturn(200);
+    // Two calls: HEAD for repo validation, GET for releases API.
+    $mock_http_client->expects($this->exactly(2))->method('request')->willReturnCallback(function ($method, $url, array|\ArrayAccess $options) use ($mock_response): ResponseInterface {
+      $this->assertArrayHasKey('headers', $options);
+      $this->assertArrayHasKey('Authorization', $options['headers']);
+      $this->assertEquals('Bearer test_token_12345', $options['headers']['Authorization']);
+      return $mock_response;
+    });
+    $mock_archiver = $this->createMock(ArchiverInterface::class);
+    // File downloader should receive the token in headers.
+    $mock_file_downloader = $this->createMock(Downloader::class);
+    $mock_file_downloader->expects($this->once())->method('download')->willReturnCallback(function ($url, $dest, array $headers): void {
+      $this->assertArrayHasKey('Authorization', $headers);
+      $this->assertEquals('Bearer test_token_12345', $headers['Authorization']);
+    });
+    $destination = self::$tmp . '/destination';
+    File::mkdir($destination);
+    File::dump($destination . '/composer.json', '{}');
+    $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
+    $version = $downloader->download(Artifact::create('https://github.com/user/repo', 'stable'), $destination);
+    $this->assertEquals('v1.5.0', $version);
+  }
+
+  public function testDownloadArchiveWithGithubToken(): void {
+    static::envSet('GITHUB_TOKEN', 'test_token_67890');
+    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_archiver = $this->createMock(ArchiverInterface::class);
+    // File downloader should receive the token in headers.
+    $mock_file_downloader = $this->createMock(Downloader::class);
+    $mock_file_downloader->expects($this->once())->method('download')->willReturnCallback(function ($url, $dest, array $headers): void {
+      $this->assertArrayHasKey('Authorization', $headers);
+      $this->assertEquals('Bearer test_token_67890', $headers['Authorization']);
+    });
+    $destination = self::$tmp . '/destination';
+    File::mkdir($destination);
+    File::dump($destination . '/composer.json', '{}');
+    $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
+    $version = $downloader->download(Artifact::create('https://github.com/user/repo', 'HEAD'), $destination);
+    $this->assertEquals('develop', $version);
   }
 
   protected function createMockHttpClient(int $status_code = 200, string $body_content = 'mock content'): ClientInterface {

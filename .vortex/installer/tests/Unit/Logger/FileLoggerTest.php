@@ -39,6 +39,22 @@ class FileLoggerTest extends UnitTestCase {
   }
 
   /**
+   * Data provider for enable/disable tests.
+   */
+  public static function dataProviderEnableDisable(): \Iterator {
+    yield 'initially enabled' => [
+      'initial_state' => TRUE,
+      'after_enable' => TRUE,
+      'after_disable' => FALSE,
+    ];
+    yield 'initially disabled' => [
+      'initial_state' => FALSE,
+      'after_enable' => TRUE,
+      'after_disable' => FALSE,
+    ];
+  }
+
+  /**
    * Test setDir and getDir methods.
    */
   #[DataProvider('dataProviderDirectoryManagement')]
@@ -58,6 +74,24 @@ class FileLoggerTest extends UnitTestCase {
       // Test getDir returns the set directory.
       $this->assertEquals($dir, $logger->getDir());
     }
+  }
+
+  /**
+   * Data provider for directory paths.
+   */
+  public static function dataProviderDirectoryManagement(): \Iterator {
+    yield 'default directory (cwd)' => [
+      'dir' => '',
+      'test_default' => TRUE,
+    ];
+    yield 'absolute path' => [
+      'dir' => '/tmp/test-dir',
+      'test_default' => FALSE,
+    ];
+    yield 'relative path' => [
+      'dir' => './test-dir',
+      'test_default' => FALSE,
+    ];
   }
 
   /**
@@ -106,6 +140,52 @@ class FileLoggerTest extends UnitTestCase {
   }
 
   /**
+   * Data provider for open scenarios.
+   */
+  public static function dataProviderOpen(): \Iterator {
+    yield 'simple command, enabled' => [
+      'command' => 'test-command',
+      'args' => [],
+      'enabled' => TRUE,
+      'expected_pattern' => '/test-command-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with positional args' => [
+      'command' => 'install',
+      'args' => ['project', 'arg2'],
+      'enabled' => TRUE,
+      'expected_pattern' => '/install-project-arg2-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with option args (filtered)' => [
+      'command' => 'test',
+      'args' => ['positional', '--option=value', '-f'],
+      'enabled' => TRUE,
+      'expected_pattern' => '/test-positional-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'command with special characters' => [
+      'command' => 'test:command',
+      'args' => ['arg/with/slashes', 'arg with spaces'],
+      'enabled' => TRUE,
+      'expected_pattern' => '/test-command-arg-with-slashes-arg-with-spaces-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+    yield 'disabled logger' => [
+      'command' => 'test-disabled',
+      'args' => [],
+      'enabled' => FALSE,
+      'expected_pattern' => NULL,
+      'expected_exception' => NULL,
+      'expected_message' => NULL,
+    ];
+  }
+
+  /**
    * Test write method.
    */
   #[DataProvider('dataProviderWrite')]
@@ -141,6 +221,37 @@ class FileLoggerTest extends UnitTestCase {
       // @phpstan-ignore-next-line
       $this->assertTrue(TRUE, 'write() should not throw error when logger is not open');
     }
+  }
+
+  /**
+   * Data provider for write content.
+   */
+  public static function dataProviderWrite(): \Iterator {
+    yield 'single write, logger open' => [
+      'content' => 'Test log entry',
+      'is_open' => TRUE,
+      'expected_writes' => 1,
+    ];
+    yield 'multiple writes, logger open' => [
+      'content' => 'Line of text',
+      'is_open' => TRUE,
+      'expected_writes' => 3,
+    ];
+    yield 'empty content, logger open' => [
+      'content' => '',
+      'is_open' => TRUE,
+      'expected_writes' => 1,
+    ];
+    yield 'multiline content, logger open' => [
+      'content' => "Line 1\nLine 2\nLine 3\n",
+      'is_open' => TRUE,
+      'expected_writes' => 1,
+    ];
+    yield 'write when logger not open (no-op)' => [
+      'content' => 'Should not be written',
+      'is_open' => FALSE,
+      'expected_writes' => 1,
+    ];
   }
 
   /**
@@ -228,117 +339,6 @@ class FileLoggerTest extends UnitTestCase {
       $logger->close();
       File::remove($path);
     }
-  }
-
-  /**
-   * Data provider for enable/disable tests.
-   */
-  public static function dataProviderEnableDisable(): \Iterator {
-    yield 'initially enabled' => [
-      'initial_state' => TRUE,
-      'after_enable' => TRUE,
-      'after_disable' => FALSE,
-    ];
-    yield 'initially disabled' => [
-      'initial_state' => FALSE,
-      'after_enable' => TRUE,
-      'after_disable' => FALSE,
-    ];
-  }
-
-  /**
-   * Data provider for directory paths.
-   */
-  public static function dataProviderDirectoryManagement(): \Iterator {
-    yield 'default directory (cwd)' => [
-      'dir' => '',
-      'test_default' => TRUE,
-    ];
-    yield 'absolute path' => [
-      'dir' => '/tmp/test-dir',
-      'test_default' => FALSE,
-    ];
-    yield 'relative path' => [
-      'dir' => './test-dir',
-      'test_default' => FALSE,
-    ];
-  }
-
-  /**
-   * Data provider for open scenarios.
-   */
-  public static function dataProviderOpen(): \Iterator {
-    yield 'simple command, enabled' => [
-      'command' => 'test-command',
-      'args' => [],
-      'enabled' => TRUE,
-      'expected_pattern' => '/test-command-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
-      'expected_exception' => NULL,
-      'expected_message' => NULL,
-    ];
-    yield 'command with positional args' => [
-      'command' => 'install',
-      'args' => ['project', 'arg2'],
-      'enabled' => TRUE,
-      'expected_pattern' => '/install-project-arg2-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
-      'expected_exception' => NULL,
-      'expected_message' => NULL,
-    ];
-    yield 'command with option args (filtered)' => [
-      'command' => 'test',
-      'args' => ['positional', '--option=value', '-f'],
-      'enabled' => TRUE,
-      'expected_pattern' => '/test-positional-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
-      'expected_exception' => NULL,
-      'expected_message' => NULL,
-    ];
-    yield 'command with special characters' => [
-      'command' => 'test:command',
-      'args' => ['arg/with/slashes', 'arg with spaces'],
-      'enabled' => TRUE,
-      'expected_pattern' => '/test-command-arg-with-slashes-arg-with-spaces-\d{4}-\d{2}-\d{2}-\d{6}\.log$/',
-      'expected_exception' => NULL,
-      'expected_message' => NULL,
-    ];
-    yield 'disabled logger' => [
-      'command' => 'test-disabled',
-      'args' => [],
-      'enabled' => FALSE,
-      'expected_pattern' => NULL,
-      'expected_exception' => NULL,
-      'expected_message' => NULL,
-    ];
-  }
-
-  /**
-   * Data provider for write content.
-   */
-  public static function dataProviderWrite(): \Iterator {
-    yield 'single write, logger open' => [
-      'content' => 'Test log entry',
-      'is_open' => TRUE,
-      'expected_writes' => 1,
-    ];
-    yield 'multiple writes, logger open' => [
-      'content' => 'Line of text',
-      'is_open' => TRUE,
-      'expected_writes' => 3,
-    ];
-    yield 'empty content, logger open' => [
-      'content' => '',
-      'is_open' => TRUE,
-      'expected_writes' => 1,
-    ];
-    yield 'multiline content, logger open' => [
-      'content' => "Line 1\nLine 2\nLine 3\n",
-      'is_open' => TRUE,
-      'expected_writes' => 1,
-    ];
-    yield 'write when logger not open (no-op)' => [
-      'content' => 'Should not be written',
-      'is_open' => FALSE,
-      'expected_writes' => 1,
-    ];
   }
 
   /**

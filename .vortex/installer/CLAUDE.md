@@ -159,7 +159,8 @@ Each handler has dedicated test class extending
 ./vendor/bin/phpunit --filter "HandlerNameInstallTest.*scenario"
 ```
 
-Structure: Test methods → Data providers → Helper methods
+Structure: each `dataProvider*` sits immediately after the test it feeds;
+helper methods go last.
 
 ## Patches
 
