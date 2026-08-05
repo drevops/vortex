@@ -72,7 +72,12 @@ EOT;
 
     Tui::note($logo);
 
-    $title = 'Welcome to the Vortex CLI interactive install';
+    // A destination that already holds Vortex is being updated, whichever verb
+    // was used to get here, so the framing follows the destination rather than
+    // the command name.
+    $operation = $this->config->isVortexProject() ? 'update' : 'install';
+
+    $title = sprintf('Welcome to the Vortex CLI interactive %s', $operation);
     $content = '';
 
     if ($artifact->isStable()) {
@@ -97,7 +102,7 @@ EOT;
       $content .= PHP_EOL;
       $content .= 'Existing committed files may be modified. You may need to resolve some of the changes manually.' . PHP_EOL;
 
-      $title = 'Welcome to the Vortex CLI non-interactive install';
+      $title = sprintf('Welcome to the Vortex CLI non-interactive %s', $operation);
     }
     else {
       $content .= 'You will be asked a few questions to tailor the configuration to your site.' . PHP_EOL;

@@ -62,8 +62,10 @@ class OptionsResolver {
 
     $config = Config::fromString($config_json);
 
-    $config->setQuiet($options['quiet']);
-    $config->setNoInteraction($options['no-interaction']);
+    // Verbs define only the options they offer, so every lookup below tolerates
+    // an absent key rather than assuming the install command's full set.
+    $config->setQuiet((bool) ($options['quiet'] ?? FALSE));
+    $config->setNoInteraction((bool) ($options['no-interaction'] ?? FALSE));
 
     // Set root directory to resolve relative paths.
     $root = !empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : NULL;
@@ -109,7 +111,7 @@ class OptionsResolver {
     }
 
     // Check if the project is a Vortex project.
-    $config->set(Config::IS_VORTEX_PROJECT, File::contains($config->getDst() . DIRECTORY_SEPARATOR . 'README.md', '/badge\/Vortex-/'));
+    $config->set(Config::IS_VORTEX_PROJECT, Project::isVortex((string) $config->getDst()));
 
     // Flag to proceed with installation. If FALSE - the installation will only
     // print resolved values and will not proceed.
@@ -148,10 +150,10 @@ class OptionsResolver {
     }
 
     // Set no-cleanup flag.
-    $config->set(Config::NO_CLEANUP, (bool) $options['no-cleanup']);
+    $config->set(Config::NO_CLEANUP, (bool) ($options['no-cleanup'] ?? FALSE));
 
     // Set build-now flag.
-    $config->set(Config::BUILD_NOW, (bool) $options['build']);
+    $config->set(Config::BUILD_NOW, (bool) ($options['build'] ?? FALSE));
 
     return [$config, $artifact];
   }

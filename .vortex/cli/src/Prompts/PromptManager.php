@@ -421,21 +421,26 @@ class PromptManager {
   }
 
   /**
-   * Check if the installation should proceed.
+   * Check if the operation should proceed.
    *
    * This method checks the configuration for the no-interaction mode and
    * prompts the user for confirmation if not in no-interaction mode.
    *
+   * @param string|null $message
+   *   The line shown above the confirmation. Defaults to install wording.
+   * @param string|null $label
+   *   The confirmation label. Defaults to install wording.
+   *
    * @return bool
-   *   TRUE if the installation should proceed, FALSE otherwise.
+   *   TRUE if the operation should proceed, FALSE otherwise.
    */
-  public function shouldProceed(): bool {
+  public function shouldProceed(?string $message = NULL, ?string $label = NULL): bool {
     $proceed = TRUE;
 
     if (!$this->config->getNoInteraction()) {
-      Tui::line(sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDst()));
+      Tui::line($message ?? sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDst()));
       $proceed = confirm(
-        label: 'Proceed with installing Vortex?',
+        label: $label ?? 'Proceed with installing Vortex?',
       );
     }
 

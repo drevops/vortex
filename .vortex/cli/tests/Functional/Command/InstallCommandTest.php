@@ -6,7 +6,7 @@ namespace DrevOps\VortexCli\Tests\Functional\Command;
 
 use DrevOps\VortexCli\Logger\FileLoggerInterface;
 use DrevOps\VortexCli\Command\BuildCommand;
-use DrevOps\VortexCli\Command\CheckRequirementsCommand;
+use DrevOps\VortexCli\Command\DoctorCommand;
 use DrevOps\VortexCli\Command\InstallCommand;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
 use DrevOps\VortexCli\Prompts\InstallPresenter;
@@ -86,7 +86,7 @@ class InstallCommandTest extends FunctionalTestCase {
     // Mock ExecutableFinder for BuildCommand's ProcessRunner.
     $build_runner->method('getExecutableFinder')->willReturn($executable_finder);
 
-    // 3. Mock ProcessRunner for CheckRequirementsCommand.
+    // 3. Mock ProcessRunner for DoctorCommand.
     $check_requirements_runner = $this->createMock(ProcessRunner::class);
     $check_requirements_runner_command = '';
     $check_requirements_runner->method('run')
@@ -99,7 +99,7 @@ class InstallCommandTest extends FunctionalTestCase {
       ->willReturnCallback(function () use ($check_requirements_runner_exit_callback, &$check_requirements_runner_command) {
         return $check_requirements_runner_exit_callback($check_requirements_runner_command);
       });
-    // Mock ExecutableFinder for CheckRequirementsCommand's ProcessRunner.
+    // Mock ExecutableFinder for DoctorCommand's ProcessRunner.
     $check_requirements_runner->method('getExecutableFinder')->willReturn($executable_finder);
 
     // Create and configure InstallCommand.
@@ -121,10 +121,10 @@ class InstallCommandTest extends FunctionalTestCase {
     // Initialize application and register mocked commands.
     static::applicationInitFromCommand($install_command);
 
-    $check_command = new CheckRequirementsCommand();
-    $check_command->setExecutableFinder($executable_finder);
-    $check_command->setProcessRunner($check_requirements_runner);
-    $this->applicationGet()->add($check_command);
+    $doctor_command = new DoctorCommand();
+    $doctor_command->setExecutableFinder($executable_finder);
+    $doctor_command->setProcessRunner($check_requirements_runner);
+    $this->applicationGet()->add($doctor_command);
 
     $build_command = new BuildCommand();
     $build_command->setProcessRunner($build_runner);
@@ -165,6 +165,12 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::INSTALL_PREPARING_DESTINATION,
           TuiOutput::INSTALL_COPYING_FILES,
           TuiOutput::INSTALL_PREPARING_DEMO,
+        ]),
+        // Guidance belongs to the person who answered the questions, so a
+        // non-interactive run leaves the caller's stdout alone.
+        ...TuiOutput::absent([
+          TuiOutput::INSTALL_BUILDING,
+          TuiOutput::FOOTER_SITE_READY,
           TuiOutput::FOOTER_FINISHED_INSTALLING,
           TuiOutput::FOOTER_GIT_ADD,
           TuiOutput::FOOTER_GIT_COMMIT,
@@ -172,10 +178,6 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::FOOTER_BUILD_THE_SITE,
           TuiOutput::FOOTER_AHOY_BUILD,
           TuiOutput::POSTBUILD_SETUP_GHA,
-        ]),
-        ...TuiOutput::absent([
-          TuiOutput::INSTALL_BUILDING,
-          TuiOutput::FOOTER_SITE_READY,
         ]),
       ],
     ];
@@ -371,7 +373,7 @@ class InstallCommandTest extends FunctionalTestCase {
       'download_should_fail' => TRUE,
     ];
     // -----------------------------------------------------------------------
-    // Sub-commands: build with check-requirements.
+    // Sub-commands: build with doctor.
     // -----------------------------------------------------------------------
     yield 'Install with build flag succeeds' => [
       'command_inputs' => self::tuiOptions([
@@ -380,7 +382,7 @@ class InstallCommandTest extends FunctionalTestCase {
       ]),
       'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
       'build_runner_exit_callback' => TuiOutput::buildRunnerSuccess(),
-      'check_requirements_runner_exit_callback' => TuiOutput::checkRequirementsSuccess(),
+      'check_requirements_runner_exit_callback' => TuiOutput::doctorSuccess(),
       'expect_failure' => FALSE,
       'output_assertions' => [
         ...TuiOutput::present([
@@ -392,19 +394,20 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::INSTALL_PREPARING_DEMO,
           TuiOutput::INSTALL_BUILDING,
           TuiOutput::INSTALL_BUILD_SUCCESS,
+          // Reported by the build command's own summary, not by the guidance.
+          TuiOutput::INSTALL_LOGIN,
+          TuiOutput::FOOTER_AHOY_LOGIN,
+        ]),
+        ...TuiOutput::absent([
+          TuiOutput::FOOTER_READY_TO_BUILD,
+          TuiOutput::FOOTER_BUILD_ERRORS,
           TuiOutput::FOOTER_FINISHED_INSTALLING,
           TuiOutput::FOOTER_GIT_ADD,
           TuiOutput::FOOTER_GIT_COMMIT,
           TuiOutput::FOOTER_SITE_READY,
           TuiOutput::FOOTER_GET_SITE_INFO,
           TuiOutput::FOOTER_AHOY_INFO,
-          TuiOutput::INSTALL_LOGIN,
-          TuiOutput::FOOTER_AHOY_LOGIN,
           TuiOutput::POSTBUILD_SETUP_GHA,
-        ]),
-        ...TuiOutput::absent([
-          TuiOutput::FOOTER_READY_TO_BUILD,
-          TuiOutput::FOOTER_BUILD_ERRORS,
         ]),
       ],
     ];
@@ -416,7 +419,7 @@ class InstallCommandTest extends FunctionalTestCase {
       ]),
       'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
       'build_runner_exit_callback' => TuiOutput::buildRunnerSuccessProfile(),
-      'check_requirements_runner_exit_callback' => TuiOutput::checkRequirementsSuccess(),
+      'check_requirements_runner_exit_callback' => TuiOutput::doctorSuccess(),
       'expect_failure' => FALSE,
       'output_assertions' => [
           // Install command output - should be present.
@@ -431,15 +434,15 @@ class InstallCommandTest extends FunctionalTestCase {
         ]),
           // Check requirements output - should be present.
         ...TuiOutput::present([
-          TuiOutput::CHECK_REQUIREMENTS_CHECKING_DOCKER,
-          TuiOutput::CHECK_REQUIREMENTS_CHECKING_DOCKER_COMPOSE,
-          TuiOutput::CHECK_REQUIREMENTS_CHECKING_AHOY,
-          TuiOutput::CHECK_REQUIREMENTS_CHECKING_PYGMY,
-          TuiOutput::CHECK_REQUIREMENTS_DOCKER_AVAILABLE,
-          TuiOutput::CHECK_REQUIREMENTS_DOCKER_COMPOSE_AVAILABLE,
-          TuiOutput::CHECK_REQUIREMENTS_AHOY_AVAILABLE,
-          TuiOutput::CHECK_REQUIREMENTS_PYGMY_RUNNING,
-          TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
+          TuiOutput::DOCTOR_CHECKING_DOCKER,
+          TuiOutput::DOCTOR_CHECKING_DOCKER_COMPOSE,
+          TuiOutput::DOCTOR_CHECKING_AHOY,
+          TuiOutput::DOCTOR_CHECKING_PYGMY,
+          TuiOutput::DOCTOR_DOCKER_AVAILABLE,
+          TuiOutput::DOCTOR_DOCKER_COMPOSE_AVAILABLE,
+          TuiOutput::DOCTOR_AHOY_AVAILABLE,
+          TuiOutput::DOCTOR_PYGMY_RUNNING,
+          TuiOutput::DOCTOR_ALL_MET,
         ]),
           // Build output (profile) - should be present.
         ...TuiOutput::present([
@@ -454,28 +457,29 @@ class InstallCommandTest extends FunctionalTestCase {
           // Final install output - should be present.
         ...TuiOutput::present([
           TuiOutput::INSTALL_BUILD_SUCCESS,
-          TuiOutput::FOOTER_FINISHED_INSTALLING,
-          TuiOutput::FOOTER_GIT_ADD,
-          TuiOutput::FOOTER_GIT_COMMIT,
-          TuiOutput::FOOTER_SITE_READY,
-          TuiOutput::FOOTER_GET_SITE_INFO,
-          TuiOutput::FOOTER_AHOY_INFO,
+          // Reported by the build command's own summary, not by the guidance.
           TuiOutput::INSTALL_LOGIN,
           TuiOutput::FOOTER_AHOY_LOGIN,
-          TuiOutput::POSTBUILD_SETUP_GHA,
         ]),
           // Negative assertions - should be absent.
         ...TuiOutput::absent([
           TuiOutput::BUILD_PROVISION_TYPE_DB,
           TuiOutput::INSTALL_BUILD_FAILED,
           TuiOutput::INSTALL_EXIT_CODE,
-          TuiOutput::CHECK_REQUIREMENTS_MISSING,
-          TuiOutput::CHECK_REQUIREMENTS_DOCKER_MISSING,
-          TuiOutput::CHECK_REQUIREMENTS_DOCKER_COMPOSE_MISSING,
-          TuiOutput::CHECK_REQUIREMENTS_AHOY_MISSING,
-          TuiOutput::CHECK_REQUIREMENTS_PYGMY_NOT_RUNNING,
+          TuiOutput::DOCTOR_MISSING,
+          TuiOutput::DOCTOR_DOCKER_MISSING,
+          TuiOutput::DOCTOR_DOCKER_COMPOSE_MISSING,
+          TuiOutput::DOCTOR_AHOY_MISSING,
+          TuiOutput::DOCTOR_PYGMY_NOT_RUNNING,
           TuiOutput::FOOTER_READY_TO_BUILD,
           TuiOutput::FOOTER_BUILD_ERRORS,
+          TuiOutput::FOOTER_FINISHED_INSTALLING,
+          TuiOutput::FOOTER_GIT_ADD,
+          TuiOutput::FOOTER_GIT_COMMIT,
+          TuiOutput::FOOTER_SITE_READY,
+          TuiOutput::FOOTER_GET_SITE_INFO,
+          TuiOutput::FOOTER_AHOY_INFO,
+          TuiOutput::POSTBUILD_SETUP_GHA,
         ]),
       ],
     ];
@@ -486,7 +490,7 @@ class InstallCommandTest extends FunctionalTestCase {
       ]),
       'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
       'build_runner_exit_callback' => TuiOutput::buildRunnerFailure(),
-      'check_requirements_runner_exit_callback' => TuiOutput::checkRequirementsSuccess(),
+      'check_requirements_runner_exit_callback' => TuiOutput::doctorSuccess(),
       'expect_failure' => TRUE,
       'output_assertions' => [
         ...TuiOutput::present([
@@ -498,9 +502,8 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::INSTALL_PREPARING_DEMO,
           TuiOutput::INSTALL_BUILDING,
           TuiOutput::INSTALL_BUILD_FAILED,
-          TuiOutput::FOOTER_FINISHED_INSTALLING,
-          TuiOutput::FOOTER_GIT_ADD,
-          TuiOutput::FOOTER_GIT_COMMIT,
+          // Failure output explains a non-zero exit code, so it is printed on
+          // every path - a scripted caller needs it as much as a person does.
           TuiOutput::FOOTER_BUILD_ERRORS,
           TuiOutput::FOOTER_BUILD_FAILED_MESSAGE,
           TuiOutput::FOOTER_TROUBLESHOOTING,
@@ -512,17 +515,20 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::INSTALL_BUILD_SUCCESS,
           TuiOutput::FOOTER_SITE_READY,
           TuiOutput::FOOTER_READY_TO_BUILD,
+          TuiOutput::FOOTER_FINISHED_INSTALLING,
+          TuiOutput::FOOTER_GIT_ADD,
+          TuiOutput::FOOTER_GIT_COMMIT,
         ]),
       ],
     ];
-    yield 'Install with build flag and requirements of check-requirements command check fails' => [
+    yield 'Install with build flag and requirements of doctor command check fails' => [
       'command_inputs' => self::tuiOptions([
         InstallCommand::OPTION_NO_INTERACTION => TRUE,
         InstallCommand::OPTION_BUILD => TRUE,
       ]),
       'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
       'build_runner_exit_callback' => TuiOutput::buildRunnerSuccess(),
-      'check_requirements_runner_exit_callback' => TuiOutput::checkRequirementsFailure(),
+      'check_requirements_runner_exit_callback' => TuiOutput::doctorFailure(),
       'expect_failure' => TRUE,
       'output_assertions' => [
         ...TuiOutput::present([
@@ -534,10 +540,10 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::INSTALL_PREPARING_DEMO,
           TuiOutput::INSTALL_BUILDING,
           TuiOutput::BUILD_CHECKING_REQUIREMENTS,
-          TuiOutput::CHECK_REQUIREMENTS_MISSING,
+          TuiOutput::DOCTOR_MISSING,
         ]),
         ...TuiOutput::absent([
-          TuiOutput::CHECK_REQUIREMENTS_ALL_MET,
+          TuiOutput::DOCTOR_ALL_MET,
           TuiOutput::INSTALL_BUILD_SUCCESS,
         ]),
       ],

@@ -22,8 +22,23 @@ class AgentHelp {
 # Vortex CLI - AI Agent Instructions
 
 You are interacting with the Vortex CLI, a tool that sets up Drupal projects
-from the Vortex template. This guide explains how to use its install command
-programmatically.
+from the Vortex template. This guide explains how to use it programmatically.
+
+## Verbs
+
+- `install`: download the template and write a new project.
+- `update`: update an existing project to a template version, re-applying the
+  answers discovered from it. `--to` names the target version.
+- `configure`: reconfigure an existing project in place, without downloading a
+  template. Collects answers; writes them only with `--apply`.
+- `doctor`: report which local tools are installed and running.
+- `build`: build the site with `ahoy build`.
+
+Running the CLI with no verb resolves by the state of the target directory: an
+existing Vortex project is reconfigured, anything else gets a fresh install.
+`--schema`, `--validate` and `--agent-help` answer the same way whichever verb
+applies, so a downloaded binary run with no arguments can always describe its
+own questions.
 
 ## Workflow
 
@@ -55,18 +70,37 @@ php vortex.phar --validate --prompts='{"name":"My Project","hosting_provider":"l
 php vortex.phar --validate --prompts=prompts.json
 
 # Install non-interactively
-php vortex.phar --no-interaction --prompts='<json>' --destination=./my-project
+php vortex.phar install --no-interaction --prompts='<json>' --destination=./my-project
+
+# Update an existing project to a named template version
+php vortex.phar update --no-interaction --to=1.2.3 --destination=./my-project
+
+# Read the answers of an existing project without changing it
+php vortex.phar configure --no-interaction --destination=./my-project
+
+# Reconfigure an existing project in place
+php vortex.phar configure --no-interaction --apply --prompts='<json>' --destination=./my-project
+
+# Check the local tooling
+php vortex.phar doctor
 ```
 
 ## Options
 
 - `--prompts` (`-p`): JSON object of prompt answers, keyed by prompt ID.
   Accepts a JSON string or a path to a JSON file.
-- `--config` (`-c`): JSON object of install configuration (repository, ref,
+- `--config` (`-c`): JSON object of CLI configuration (repository, ref,
   and other internal settings). Not for prompt answers.
-- `--destination`: Target directory for installation.
+- `--destination`: Target directory for the operation.
 - `--no-interaction` (`-n`): Non-interactive mode. Prompts without answers in
-  `--prompts` use discovered or default values.
+  `--prompts` use discovered or default values. Closing guidance is suppressed,
+  so stdout carries only the command's own output.
+- `--to`: `update` only. The template version to update to.
+- `--apply` (`-a`): `configure` only. Write the collected answers to the
+  project. Without it nothing on disk changes.
+
+A non-interactive `configure` writes the collected answers to stdout as JSON,
+which is the machine-readable form of the project's current configuration.
 
 ## Schema Format
 
@@ -121,6 +155,8 @@ The `--validate` output contains:
 - Use `--validate` to check your prompt answers before installing.
 - The `resolved` field in validation output shows the complete config that
   would be used, including defaults.
+- Run `configure` without `--apply` first to read a project's current answers,
+  then re-run with `--apply` once the answer set is right.
 AGENT_HELP;
   }
 
