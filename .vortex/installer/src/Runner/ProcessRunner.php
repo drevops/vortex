@@ -45,8 +45,10 @@ class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInter
     $process->setTimeout(NULL);
     $process->setIdleTimeout(NULL);
 
+    // Symfony invokes this callback once per read chunk, so the buffer holds a
+    // fragment of the output rather than all of it.
     $process->run(function ($type, string $buffer) use ($logger, $output): void {
-      $this->output = $buffer;
+      $this->output .= $buffer;
       if ($this->shouldStream) {
         $output->write($buffer);
       }
