@@ -512,7 +512,7 @@ jobs:
             </details>
           hide_and_recreate: true
 
-      #;< TOOL_CODECOV
+      #;< CODE_COVERAGE_PROVIDER_CODECOV
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
         if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.CODECOV_TOKEN != '' }}
@@ -523,7 +523,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      #;> TOOL_CODECOV
+      #;> CODE_COVERAGE_PROVIDER_CODECOV
 
       - name: Check code coverage threshold
         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}

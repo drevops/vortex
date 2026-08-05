@@ -215,13 +215,13 @@ jobs:
       - checkout
       - *load_variables_from_dotenv
 
-      #;< TOOL_GITLEAKS
+      #;< CI_GITLEAKS
       - *step_setup_remote_docker
 
       - run:
           name: Scan for committed secrets with Gitleaks
           command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
-      #;> TOOL_GITLEAKS
+      #;> CI_GITLEAKS
 
       #;< VORTEX_DEV
       #; Vortex does not track 'composer.lock', so resolve dependencies to give
@@ -475,7 +475,7 @@ jobs:
             [ "${VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP:-0}" = "1" ] && exit 0
             .circleci/post-coverage-comment.sh /tmp/artifacts/coverage/phpunit/coverage.txt
 
-      #;< TOOL_CODECOV
+      #;< CODE_COVERAGE_PROVIDER_CODECOV
       - run:
           name: Upload code coverage reports to Codecov
           command: |
@@ -483,7 +483,7 @@ jobs:
             if [ -n "${CODECOV_TOKEN}" ] && [ -d /tmp/artifacts/coverage ] && ! echo "${CIRCLE_BRANCH}" | grep -q '^deps/'; then
               codecov -Z -s /tmp/artifacts/coverage;
             fi
-      #;> TOOL_CODECOV
+      #;> CODE_COVERAGE_PROVIDER_CODECOV
 
       - run:
           name: Check code coverage threshold

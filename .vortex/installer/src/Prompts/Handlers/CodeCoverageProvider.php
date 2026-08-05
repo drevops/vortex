@@ -73,10 +73,10 @@ class CodeCoverageProvider extends AbstractHandler {
     $v = $this->getResponseAsString();
 
     if ($v === self::CODECOV) {
-      File::removeTokenAsync('!TOOL_CODECOV');
+      File::removeTokenAsync('!CODE_COVERAGE_PROVIDER_CODECOV');
     }
     else {
-      File::removeTokenAsync('TOOL_CODECOV');
+      File::removeTokenAsync('CODE_COVERAGE_PROVIDER_CODECOV');
     }
   }
 
