@@ -8,8 +8,6 @@ use DrevOps\VortexInstaller\Downloader\Downloader;
 
 /**
  * File operations for the installation process.
- *
- * @package DrevOps\VortexInstaller\Utils
  */
 class FileManager {
 

@@ -60,8 +60,6 @@ use function Laravel\Prompts\info;
  * PromptManager.
  *
  * Centralised place for providing prompts and their processing.
- *
- * @package DrevOps\VortexInstaller
  */
 class PromptManager {
 

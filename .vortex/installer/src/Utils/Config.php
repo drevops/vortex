@@ -8,8 +8,6 @@ namespace DrevOps\VortexInstaller\Utils;
  * Installer configuration.
  *
  * Installer config is a config of this installer script.
- *
- * @package DrevOps\VortexInstaller
  */
 final class Config {
 

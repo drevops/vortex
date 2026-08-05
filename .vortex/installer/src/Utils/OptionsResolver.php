@@ -9,8 +9,6 @@ use Symfony\Component\Process\ExecutableFinder;
 
 /**
  * Resolves CLI options and environment variables into Config and Artifact.
- *
- * @package DrevOps\VortexInstaller\Utils
  */
 class OptionsResolver {
 

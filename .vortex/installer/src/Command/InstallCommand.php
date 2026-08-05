@@ -35,8 +35,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Run command.
  *
  * Install command.
- *
- * @package DrevOps\VortexInstaller\Command
  */
 class InstallCommand extends Command implements CommandRunnerAwareInterface, ExecutableFinderAwareInterface {
 

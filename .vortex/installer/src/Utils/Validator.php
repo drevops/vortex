@@ -8,8 +8,6 @@ namespace DrevOps\VortexInstaller\Utils;
  * Converter.
  *
  * Convert strings to different formats.
- *
- * @package DrevOps\VortexInstaller
  */
 class Validator {
 

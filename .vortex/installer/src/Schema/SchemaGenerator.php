@@ -10,8 +10,6 @@ use DrevOps\VortexInstaller\Utils\Normalizer;
 
 /**
  * Generates a JSON schema of all installer prompts.
- *
- * @package DrevOps\VortexInstaller\Schema
  */
 class SchemaGenerator {
 

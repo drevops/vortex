@@ -12,8 +12,6 @@ use DrevOps\VortexInstaller\Utils\Tui;
 
 /**
  * Presents installer headers, footers, and post-build messages.
- *
- * @package DrevOps\VortexInstaller\Prompts
  */
 class InstallerPresenter {
 
