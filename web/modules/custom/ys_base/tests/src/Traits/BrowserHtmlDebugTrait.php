@@ -21,8 +21,6 @@ trait BrowserHtmlDebugTrait {
    *
    * @param string $suffix
    *   Optional suffix to append to the filename. Defaults to a timestamp.
-   *
-   * @see https://www.drupal.org/project/drupal/issues/2992069
    */
   protected function takeScreenshot(string $suffix = ''): void {
     $directory = getenv('BROWSERTEST_OUTPUT_DIRECTORY') ?: DRUPAL_ROOT . '/sites/simpletest/browser_output';
