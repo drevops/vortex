@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits;
 
 use AlexSkrypnyk\File\File;
-use AlexSkrypnyk\File\Testing\DirectoryAssertionsTrait;
-use AlexSkrypnyk\File\Testing\FileAssertionsTrait;
 
 /**
  * Generic methods for setting up and testing SUT.
@@ -14,9 +12,6 @@ use AlexSkrypnyk\File\Testing\FileAssertionsTrait;
  * Workflow-specific methods live in the Subtests\Subtest*Trait traits.
  */
 trait SutTrait {
-
-  use DirectoryAssertionsTrait;
-  use FileAssertionsTrait;
 
   /**
    * URL to the test demo database.
