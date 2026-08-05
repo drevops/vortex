@@ -563,7 +563,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['skip_permissions_hardening'] = TRUE;
     $settings['trusted_host_patterns'] = [
       '^localhost$',
-      '^example-site\.docker\.amazee\.io$',
+      '^example\-site\.docker\.amazee\.io$',
       '^nginx$',
     ];
     $this->assertSettings($settings);
@@ -1121,7 +1121,8 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^localhost$',
       '^nginx\-php$',
       '^.+\.amazee\.io$',
-      '^example1\.com|example2/com$',
+      '^example1\.com$',
+      '^example2\/com$',
     ];
     $this->assertSettings($settings);
   }
@@ -1189,7 +1190,8 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^localhost$',
       '^nginx\-php$',
       '^.+\.amazee\.io$',
-      '^example1\.com|example2/com$',
+      '^example1\.com$',
+      '^example2\/com$',
     ];
     $this->assertSettings($settings);
   }
@@ -1257,7 +1259,8 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^localhost$',
       '^nginx\-php$',
       '^.+\.amazee\.io$',
-      '^example1\.com|example2/com$',
+      '^example1\.com$',
+      '^example2\/com$',
     ];
     $this->assertSettings($settings);
   }
@@ -1323,7 +1326,8 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^localhost$',
       '^nginx\-php$',
       '^.+\.amazee\.io$',
-      '^example1\.com|example2/com$',
+      '^example1\.com$',
+      '^example2\/com$',
     ];
     $this->assertSettings($settings);
   }
