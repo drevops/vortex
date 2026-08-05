@@ -109,16 +109,20 @@ final class Config {
     return (bool) $this->get(self::QUIET, FALSE);
   }
 
-  public function setQuiet(bool $value = TRUE): void {
+  public function setQuiet(bool $value = TRUE): static {
     $this->set(self::QUIET, $value);
+
+    return $this;
   }
 
   public function getNoInteraction(): bool {
     return (bool) $this->get(self::NO_INTERACTION, FALSE);
   }
 
-  public function setNoInteraction(bool $value = TRUE): void {
+  public function setNoInteraction(bool $value = TRUE): static {
     $this->set(self::NO_INTERACTION, $value);
+
+    return $this;
   }
 
   public function isVortexProject(): bool {
