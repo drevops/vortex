@@ -55,7 +55,7 @@ class Tools extends AbstractHandler {
    */
   public function options(array $responses): ?array {
     $options = [];
-    foreach (static::getToolDefinitions('tools') as $tool => $config) {
+    foreach (self::getToolDefinitions('tools') as $tool => $config) {
       $options[$tool] = $config['title'];
     }
     return $options;
@@ -90,7 +90,7 @@ class Tools extends AbstractHandler {
 
     $tools = [];
 
-    foreach (static::getToolDefinitions('tools') as $tool => $config) {
+    foreach (self::getToolDefinitions('tools') as $tool => $config) {
       if (isset($config['present']) && $config['present'] instanceof \Closure && $config['present']->bindTo($this)()) {
         $tools[] = $tool;
       }
@@ -107,8 +107,8 @@ class Tools extends AbstractHandler {
   public function process(): void {
     $selected_tools = $this->getResponseAsArray();
 
-    $tools = static::getToolDefinitions('tools');
-    $groups = static::getToolDefinitions('groups');
+    $tools = self::getToolDefinitions('tools');
+    $groups = self::getToolDefinitions('groups');
 
     $missing_tools = array_diff_key($tools, array_flip($selected_tools));
 
@@ -136,7 +136,7 @@ class Tools extends AbstractHandler {
   }
 
   protected function processTool(string $name): void {
-    $tool = static::getToolDefinitions('tools')[$name];
+    $tool = self::getToolDefinitions('tools')[$name];
 
     // Remove associated files.
     if (isset($tool['files'])) {
@@ -217,7 +217,7 @@ class Tools extends AbstractHandler {
   }
 
   protected function processGroup(string $name): void {
-    $config = static::getToolDefinitions('groups')[$name];
+    $config = self::getToolDefinitions('groups')[$name];
     $selected_tools = $this->getResponseAsArray();
 
     if (!isset($config['tools']) || array_intersect($config['tools'], $selected_tools)) {

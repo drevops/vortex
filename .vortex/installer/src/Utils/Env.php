@@ -27,7 +27,7 @@ class Env {
 
   public static function getFromDotenv(string $name, string $dir): ?string {
     // Environment variables always take precedence.
-    $env_value = static::get($name);
+    $env_value = self::get($name);
     if (!is_null($env_value)) {
       return $env_value;
     }
@@ -37,7 +37,7 @@ class Env {
       return NULL;
     }
 
-    $parsed = static::parseDotenv($file);
+    $parsed = self::parseDotenv($file);
 
     return $parsed !== [] ? ($parsed[$name] ?? NULL) : NULL;
   }
@@ -51,10 +51,10 @@ class Env {
    *   Override existing values.
    */
   public static function putFromDotenv(string $filename = '.env', bool $override_existing = FALSE): void {
-    $values = static::parseDotenv($filename);
+    $values = self::parseDotenv($filename);
 
     foreach ($values as $var => $value) {
-      if (!static::get($var) || $override_existing) {
+      if (!self::get($var) || $override_existing) {
         putenv($var . '=' . $value);
       }
     }
@@ -174,7 +174,7 @@ class Env {
     }
     else {
       // Format the new value with proper quoting.
-      $new_value = static::formatValueForDotenv($value);
+      $new_value = self::formatValueForDotenv($value);
       $prefix = $enabled ? '' : '# ';
       $replacement = $prefix . '$1=' . $new_value;
 
@@ -198,7 +198,7 @@ class Env {
     }
 
     // Return parsed values after modification.
-    return static::parseDotenv($filename);
+    return self::parseDotenv($filename);
   }
 
   /**
@@ -229,15 +229,15 @@ class Env {
       return (int) $value;
     }
 
-    if ($value === static::TRUE) {
+    if ($value === self::TRUE) {
       return TRUE;
     }
 
-    if ($value === static::FALSE) {
+    if ($value === self::FALSE) {
       return FALSE;
     }
 
-    if ($value === static::NULL) {
+    if ($value === self::NULL) {
       return NULL;
     }
 

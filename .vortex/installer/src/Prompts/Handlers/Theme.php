@@ -109,7 +109,7 @@ class Theme extends AbstractHandler {
       }
     }
 
-    $path = static::findThemeFile($this->destinationDir, $this->webroot);
+    $path = self::findThemeFile($this->destinationDir, $this->webroot);
 
     if (empty($path)) {
       return NULL;
@@ -135,7 +135,7 @@ class Theme extends AbstractHandler {
     // Handle core themes (no custom theme files needed)
     if (in_array($v, [self::OLIVERO, self::CLARO, self::STARK])) {
       // Remove custom theme files if they exist.
-      $file_tmpl = static::findThemeFile($t, $w);
+      $file_tmpl = self::findThemeFile($t, $w);
       if (!empty($file_tmpl) && is_readable($file_tmpl)) {
         File::remove(dirname($file_tmpl));
         File::rmdirIfEmpty(dirname($file_tmpl));
@@ -156,7 +156,7 @@ class Theme extends AbstractHandler {
     Env::writeValueDotenv('DRUPAL_MAINTENANCE_THEME', $v, $t . '/.env');
 
     // Find the theme file in the destination directory.
-    $file_dst = static::findThemeFile($this->destinationDir, $w, $v);
+    $file_dst = self::findThemeFile($this->destinationDir, $w, $v);
 
     // Remove the theme-related files from the template if not found OR
     // if found, but the theme is not from Vortex.
@@ -166,10 +166,10 @@ class Theme extends AbstractHandler {
       (
         empty($file_dst)
         ||
-        !static::isVortexTheme(dirname($file_dst))
+        !self::isVortexTheme(dirname($file_dst))
       )
     ) {
-      $file_tmpl = static::findThemeFile($t, $w);
+      $file_tmpl = self::findThemeFile($t, $w);
       if (!empty($file_tmpl) && is_readable($file_tmpl)) {
         File::remove(dirname($file_tmpl));
       }

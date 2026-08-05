@@ -57,8 +57,8 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
     $this->setDescription('Build the site using ahoy build.');
     $this->setHelp('Checks requirements and runs ahoy build to set up the local site.');
     $this->addDestinationOption();
-    $this->addOption(static::OPTION_PROFILE, 'p', InputOption::VALUE_NONE, 'Build from install profile instead of loading database.');
-    $this->addOption(static::OPTION_SKIP_REQUIREMENTS_CHECK, NULL, InputOption::VALUE_NONE, 'Skip checking for required tools.');
+    $this->addOption(self::OPTION_PROFILE, 'p', InputOption::VALUE_NONE, 'Build from install profile instead of loading database.');
+    $this->addOption(self::OPTION_SKIP_REQUIREMENTS_CHECK, NULL, InputOption::VALUE_NONE, 'Skip checking for required tools.');
   }
 
   /**
@@ -67,10 +67,10 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
   protected function execute(InputInterface $input, OutputInterface $output): int {
     Tui::init($output);
 
-    $this->isProfile = (bool) $input->getOption(static::OPTION_PROFILE);
+    $this->isProfile = (bool) $input->getOption(self::OPTION_PROFILE);
     $this->destination = $this->getDestination($input);
 
-    if (!$input->getOption(static::OPTION_SKIP_REQUIREMENTS_CHECK)) {
+    if (!$input->getOption(self::OPTION_SKIP_REQUIREMENTS_CHECK)) {
       $requirements_ok = Task::action(
         label: 'Checking requirements',
         action: function (): bool {

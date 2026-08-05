@@ -23,8 +23,8 @@ class Tui {
   protected static bool $isInteractive = TRUE;
 
   public static function init(OutputInterface $output, bool $is_interactive = TRUE): void {
-    static::$output = $output;
-    static::$isInteractive = $is_interactive;
+    self::$output = $output;
+    self::$isInteractive = $is_interactive;
 
     // We cannot use any Symfony console styles here, because Laravel Prompts
     // does not correctly calculate the length of strings with style tags, which
@@ -38,14 +38,14 @@ class Tui {
   }
 
   public static function output(): OutputInterface {
-    if (!isset(static::$output)) {
+    if (!isset(self::$output)) {
       throw new \RuntimeException('Output not set. Call Tui::init() first.');
     }
-    return static::$output;
+    return self::$output;
   }
 
   public static function setOutput(OutputInterface $output): void {
-    static::$output = $output;
+    self::$output = $output;
     Prompt::setOutput($output);
   }
 
@@ -66,7 +66,7 @@ class Tui {
   }
 
   public static function confirm(string $label, bool $default = TRUE, ?string $hint = NULL): bool {
-    if (!static::$isInteractive) {
+    if (!self::$isInteractive) {
       return $default;
     }
 
@@ -78,49 +78,49 @@ class Tui {
   }
 
   public static function line(string $message, int $padding = 1): void {
-    static::$output->writeln(str_repeat(' ', max(0, $padding)) . $message);
+    self::$output->writeln(str_repeat(' ', max(0, $padding)) . $message);
   }
 
   public static function green(string $text): string {
-    return static::escapeMultiline($text, 32);
+    return self::escapeMultiline($text, 32);
   }
 
   public static function blue(string $text): string {
-    return static::escapeMultiline($text, 34);
+    return self::escapeMultiline($text, 34);
   }
 
   public static function purple(string $text): string {
-    return static::escapeMultiline($text, 35);
+    return self::escapeMultiline($text, 35);
   }
 
   public static function yellow(string $text): string {
-    return static::escapeMultiline($text, 33);
+    return self::escapeMultiline($text, 33);
   }
 
   public static function cyan(string $text): string {
-    return static::escapeMultiline($text, 36);
+    return self::escapeMultiline($text, 36);
   }
 
   public static function bold(string $text): string {
-    return static::escapeMultiline($text, 1, 22);
+    return self::escapeMultiline($text, 1, 22);
   }
 
   public static function underscore(string $text): string {
-    return static::escapeMultiline($text, 4, 0);
+    return self::escapeMultiline($text, 4, 0);
   }
 
   public static function dim(string $text): string {
     // Replace reset codes with reset+dim to maintain dim through color resets.
     $text = str_replace("\033[0m", "\033[0m\033[2m", $text);
-    return static::escapeMultiline($text, 2, 22);
+    return self::escapeMultiline($text, 2, 22);
   }
 
   public static function undim(string $text): string {
-    return static::escapeMultiline($text, 22, 22);
+    return self::escapeMultiline($text, 22, 22);
   }
 
   public static function getChar(): string {
-    if (!static::$isInteractive) {
+    if (!self::$isInteractive) {
       return '';
     }
 
@@ -168,7 +168,7 @@ class Tui {
       }
     }
 
-    $terminal_width = static::terminalWidth();
+    $terminal_width = self::terminalWidth();
 
     // (margin + 2 x border + 2 x padding) x 2 - 1 collapse divider width.
     $column_width = max(1, (int) floor(($terminal_width - (1 + (1 + 1) * 2) * 2 - 1) / 2));
@@ -177,27 +177,27 @@ class Tui {
     $rows = [];
     foreach ($values as $key => $value) {
       if ($value === self::LIST_SECTION_TITLE) {
-        $rows[] = [Tui::cyan(Tui::bold(static::normalizeText($key)))];
+        $rows[] = [Tui::cyan(Tui::bold(self::normalizeText($key)))];
         continue;
       }
 
-      $key = static::normalizeText($key);
-      $value = static::normalizeText($value);
+      $key = self::normalizeText($key);
+      $value = self::normalizeText($value);
 
-      $key = '  ' . wordwrap(static::normalizeText($key), $column_width + 2, PHP_EOL . '  ', TRUE);
-      $value = wordwrap(static::normalizeText($value), $column_width, PHP_EOL, TRUE);
+      $key = '  ' . wordwrap(self::normalizeText($key), $column_width + 2, PHP_EOL . '  ', TRUE);
+      $value = wordwrap(self::normalizeText($value), $column_width, PHP_EOL, TRUE);
 
       $rows[] = [$key, $value];
     }
 
-    intro(PHP_EOL . static::normalizeText($title) . PHP_EOL);
+    intro(PHP_EOL . self::normalizeText($title) . PHP_EOL);
     table($header, $rows);
   }
 
   public static function box(string $content, ?string $title = NULL, ?int $width = NULL): void {
     $rows = [];
 
-    $width ??= static::terminalWidth();
+    $width ??= self::terminalWidth();
 
     // 1 margin + 1 border + 1 padding + 1 padding + 1 border + 1 margin.
     $offset = 6;
@@ -206,8 +206,8 @@ class Tui {
 
     if ($title) {
       $title = wordwrap($title, $width - $offset, PHP_EOL, FALSE);
-      $rows[] = [static::green($title)];
-      $rows[] = [static::green(str_repeat('─', Strings::strlenPlain(explode(PHP_EOL, static::normalizeText($title))[0]))) . PHP_EOL];
+      $rows[] = [self::green($title)];
+      $rows[] = [self::green(str_repeat('─', Strings::strlenPlain(explode(PHP_EOL, self::normalizeText($title))[0]))) . PHP_EOL];
     }
 
     $rows[] = [$content];
@@ -258,7 +258,7 @@ class Tui {
     preg_match_all('/\X/u', (string) $text, $matches);
 
     $utf8_chars = $matches[0];
-    $utf8_chars = array_map(fn(string $char): string => Strings::isAsciiStart($char) ? $char : $char . static::utfPadding($char), $utf8_chars);
+    $utf8_chars = array_map(fn(string $char): string => Strings::isAsciiStart($char) ? $char : $char . self::utfPadding($char), $utf8_chars);
 
     return implode('', $utf8_chars);
   }

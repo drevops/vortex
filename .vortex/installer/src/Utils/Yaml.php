@@ -15,11 +15,11 @@ class Yaml extends SymfonyYaml {
       throw new \InvalidArgumentException('File does not exist or is not readable: ' . $path);
     }
 
-    static::parseFile($path);
+    self::parseFile($path);
   }
 
   public static function validate(string $content): void {
-    static::parse($content);
+    self::parse($content);
   }
 
   public static function collapseEmptyLinesInLiteralBlock(string $content): string {

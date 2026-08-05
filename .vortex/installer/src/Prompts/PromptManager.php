@@ -565,7 +565,7 @@ class PromptManager {
 
     $suffix = $suffix !== NULL ? $this->currentResponseIndex . '.' . $suffix : $this->currentResponseIndex;
 
-    return $text . ' ' . Tui::dim('(' . $suffix . '/' . static::TOTAL_RESPONSES . ')');
+    return $text . ' ' . Tui::dim('(' . $suffix . '/' . self::TOTAL_RESPONSES . ')');
   }
 
   /**

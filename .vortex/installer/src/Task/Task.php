@@ -35,7 +35,7 @@ class Task {
 
       $task_output = new TaskOutput($original_output);
 
-      static::start($label);
+      self::start($label);
 
       Tui::setOutput($task_output);
 
@@ -61,7 +61,7 @@ class Task {
     }
     else {
       $success = $success && is_callable($success) ? $success($return) : $success;
-      static::ok($success ? Tui::normalizeText($success) : 'OK');
+      self::ok($success ? Tui::normalizeText($success) : 'OK');
     }
 
     return $return;
@@ -74,14 +74,14 @@ class Task {
     $message = '✦ ' . $message;
     $message = Tui::normalizeText($message);
 
-    static::$message = Tui::blue(wordwrap($message, $width - $right_offset, PHP_EOL));
-    static::$hint = $hint ? wordwrap(Tui::normalizeText($hint), $width - $right_offset, PHP_EOL) : NULL;
+    self::$message = Tui::blue(wordwrap($message, $width - $right_offset, PHP_EOL));
+    self::$hint = $hint ? wordwrap(Tui::normalizeText($hint), $width - $right_offset, PHP_EOL) : NULL;
 
-    Tui::note(static::$message);
+    Tui::note(self::$message);
     Tui::note(str_repeat(Tui::caretUp(), 5));
 
-    if (static::$hint) {
-      Tui::note(str_repeat(' ', $sublist_indent) . Tui::dim(static::$hint));
+    if (self::$hint) {
+      Tui::note(str_repeat(' ', $sublist_indent) . Tui::dim(self::$hint));
       Tui::note(str_repeat(Tui::caretUp(), 5));
     }
 

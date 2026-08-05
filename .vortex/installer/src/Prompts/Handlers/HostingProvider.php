@@ -81,13 +81,13 @@ class HostingProvider extends AbstractHandler {
     $t = $this->tmpDir;
     $w = $this->webroot;
 
-    if ($v === static::ACQUIA) {
+    if ($v === self::ACQUIA) {
       File::removeTokenAsync('!HOSTING_ACQUIA');
       File::removeTokenAsync('!SETTINGS_PROVIDER_ACQUIA');
 
       $this->removeLagoon();
     }
-    elseif ($v === static::LAGOON) {
+    elseif ($v === self::LAGOON) {
       File::removeTokenAsync('!HOSTING_LAGOON');
       File::removeTokenAsync('!SETTINGS_PROVIDER_LAGOON');
 

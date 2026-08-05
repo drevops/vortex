@@ -85,7 +85,7 @@ DOC;
 
     Env::writeValueDotenv('VORTEX_PROVISION_TYPE', $v, $t . '/.env');
 
-    if ($v === static::PROFILE) {
+    if ($v === self::PROFILE) {
       File::removeTokenAsync('!PROVISION_TYPE_PROFILE');
     }
     else {

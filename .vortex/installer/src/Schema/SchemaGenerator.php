@@ -34,7 +34,7 @@ class SchemaGenerator {
     $prompts = [];
 
     foreach ($this->handlers as $id => $handler) {
-      if (in_array($id, static::getExcludedHandlers(), TRUE)) {
+      if (in_array($id, self::getExcludedHandlers(), TRUE)) {
         continue;
       }
 

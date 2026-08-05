@@ -162,7 +162,7 @@ DOC;
         File::remove($path);
       }
 
-      static::removeDemoBehatFeatures($t);
+      self::removeDemoBehatFeatures($t);
     }
 
     if (!in_array(self::SEARCH, $selected)) {

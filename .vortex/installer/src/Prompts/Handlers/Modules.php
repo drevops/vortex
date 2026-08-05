@@ -35,7 +35,7 @@ class Modules extends AbstractHandler {
    * {@inheritdoc}
    */
   public function options(array $responses): ?array {
-    return static::getAvailableModules();
+    return self::getAvailableModules();
   }
 
   /**
@@ -43,7 +43,7 @@ class Modules extends AbstractHandler {
    */
   public function default(array $responses): null|string|bool|array {
     // Default to all modules selected (meaning none will be removed).
-    return array_keys(static::getAvailableModules());
+    return array_keys(self::getAvailableModules());
   }
 
   /**
@@ -62,7 +62,7 @@ class Modules extends AbstractHandler {
     }
 
     // Filter discovered modules to only include those in our available list.
-    $available_modules = array_keys(static::getAvailableModules());
+    $available_modules = array_keys(self::getAvailableModules());
     $modules = array_intersect($discovered_modules, $available_modules);
 
     sort($modules);
@@ -75,7 +75,7 @@ class Modules extends AbstractHandler {
    */
   public function process(): void {
     $selected_modules = $this->getResponseAsArray();
-    $all_modules = static::getAvailableModules();
+    $all_modules = self::getAvailableModules();
 
     $t = $this->tmpDir;
     $w = $this->webroot;
@@ -117,7 +117,7 @@ class Modules extends AbstractHandler {
 
     // Without any development modules left to install, the script has no
     // operations to perform, so remove it rather than shipping an empty shell.
-    if (count(array_intersect(static::DEV_MODULES, $selected_modules)) === 0) {
+    if (count(array_intersect(self::DEV_MODULES, $selected_modules)) === 0) {
       File::remove($t . '/scripts/provision-10-enable-dev-modules.sh');
     }
 
