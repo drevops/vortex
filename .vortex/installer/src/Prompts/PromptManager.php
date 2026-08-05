@@ -358,34 +358,6 @@ class PromptManager {
   }
 
   /**
-   * Run all post-install processors.
-   */
-  public function runPostInstall(): string {
-    $output = '';
-
-    $ids = [
-      Starter::id(),
-      HostingProvider::id(),
-      CiProvider::id(),
-      Internal::id(),
-    ];
-
-    foreach ($ids as $id) {
-      if (!array_key_exists($id, $this->handlers)) {
-        throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
-      }
-
-      $handler_output = $this->handlers[$id]->postInstall();
-
-      if (is_string($handler_output) && !empty($handler_output)) {
-        $output .= $handler_output;
-      }
-    }
-
-    return $output;
-  }
-
-  /**
    * Run all post-build processors.
    *
    * @param string $result

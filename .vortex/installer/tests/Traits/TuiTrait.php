@@ -10,8 +10,6 @@ use Laravel\Prompts\Prompt;
 
 trait TuiTrait {
 
-  const TUI_MAX_QUESTIONS = 25;
-
   protected static function tuiSetUp(): void {
     Tui::init((new BufferedConsoleOutput()), FALSE);
 

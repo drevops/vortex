@@ -49,8 +49,6 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
 
   const OPTION_CONFIG = 'config';
 
-  const OPTION_QUIET = 'quiet';
-
   const OPTION_URI = 'uri';
 
   const OPTION_NO_CLEANUP = 'no-cleanup';

@@ -30,8 +30,6 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
 
   const OPTION_SKIP_REQUIREMENTS_CHECK = 'skip-requirements-check';
 
-  const TROUBLESHOOTING_URL = 'https://vortex.drevops.com/troubleshooting';
-
   /**
    * Defines default command name.
    *
@@ -117,22 +115,6 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
 
     $this->showFailureSummary();
     return Command::FAILURE;
-  }
-
-  /**
-   * Get the project machine name from .env.
-   */
-  protected function getProjectMachineName(): string {
-    $env_file = $this->destination . '/.env';
-
-    if (file_exists($env_file)) {
-      $content = file_get_contents($env_file);
-      if ($content !== FALSE && preg_match('/^VORTEX_PROJECT=(.+)$/m', $content, $matches)) {
-        return trim($matches[1]);
-      }
-    }
-
-    return basename($this->destination);
   }
 
   /**

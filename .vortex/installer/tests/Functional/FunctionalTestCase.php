@@ -77,10 +77,6 @@ abstract class FunctionalTestCase extends UnitTestCase {
     $this->applicationRun($args, [], $expect_fail);
   }
 
-  protected function runInteractiveInstall(array $answers = [], ?string $destination = NULL, array $options = [], bool $expect_fail = FALSE): void {
-    $this->runNonInteractiveInstall($destination, $options + [InstallCommand::OPTION_NO_INTERACTION => FALSE], $expect_fail);
-  }
-
   protected function assertSutContains(string|array $needles): void {
     $needles = is_array($needles) ? $needles : [$needles];
 
