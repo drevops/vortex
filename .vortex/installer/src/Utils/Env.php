@@ -32,7 +32,7 @@ class Env {
       return $env_value;
     }
 
-    $file = $dir . DIRECTORY_SEPARATOR . '.env';
+    $file = $dir . '/.env';
     if (!is_readable($file)) {
       return NULL;
     }

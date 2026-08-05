@@ -107,7 +107,7 @@ class FileManager {
     ];
 
     foreach ($obsolete as $relative) {
-      $path = $destination . DIRECTORY_SEPARATOR . $relative;
+      $path = $destination . '/' . $relative;
       if (file_exists($path)) {
         File::remove($path);
       }
@@ -140,10 +140,10 @@ class FileManager {
       return 'No database fetch URL provided. Skipping demo database fetch.';
     }
 
-    $data_dir = $this->config->getDestination() . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_DIR', './.data');
+    $data_dir = $this->config->getDestination() . '/' . Env::get('VORTEX_DB_DIR', './.data');
     $db_file = Env::get('VORTEX_DB_FILE', 'db.sql');
 
-    if (file_exists($data_dir . DIRECTORY_SEPARATOR . $db_file)) {
+    if (file_exists($data_dir . '/' . $db_file)) {
       return 'Database dump file already exists. Skipping demo database fetch.';
     }
 
@@ -153,7 +153,7 @@ class FileManager {
       $messages[] = sprintf('Created data directory "%s".', $data_dir);
     }
 
-    $destination = $data_dir . DIRECTORY_SEPARATOR . $db_file;
+    $destination = $data_dir . '/' . $db_file;
     $downloader->download($url, $destination);
 
     $messages[] = sprintf('No database dump file was found in "%s" directory.', $data_dir);

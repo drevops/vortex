@@ -193,7 +193,7 @@ class Archiver implements ArchiverInterface {
     }
 
     $top_dir = reset($entries);
-    $source_path = $source . DIRECTORY_SEPARATOR . $top_dir;
+    $source_path = $source . '/' . $top_dir;
 
     File::copy($source_path, $destination);
   }

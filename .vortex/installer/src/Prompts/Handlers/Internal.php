@@ -80,19 +80,19 @@ class Internal extends AbstractHandler {
       return $content;
     });
 
-    if (file_exists($t . DIRECTORY_SEPARATOR . 'README.dist.md')) {
-      rename($t . DIRECTORY_SEPARATOR . 'README.dist.md', $t . DIRECTORY_SEPARATOR . 'README.md');
+    if (file_exists($t . '/README.dist.md')) {
+      rename($t . '/README.dist.md', $t . '/README.md');
     }
 
     // Remove Vortex internal files.
-    File::remove($t . DIRECTORY_SEPARATOR . '.vortex');
-    File::remove($t . DIRECTORY_SEPARATOR . '.claude' . DIRECTORY_SEPARATOR . 'skills');
+    File::remove($t . '/.vortex');
+    File::remove($t . '/.claude/skills');
 
     File::remove($t . '/.github/FUNDING.yml');
-    File::remove($t . 'CODE_OF_CONDUCT.md');
-    File::remove($t . 'CONTRIBUTING.md');
-    File::remove($t . 'LICENSE');
-    File::remove($t . 'SECURITY.md');
+    File::remove($t . '/CODE_OF_CONDUCT.md');
+    File::remove($t . '/CONTRIBUTING.md');
+    File::remove($t . '/LICENSE');
+    File::remove($t . '/SECURITY.md');
 
     // Remove Vortex internal CircleCI configs.
     $files = glob($t . '/.circleci/vortex-*.yml');
@@ -114,7 +114,7 @@ class Internal extends AbstractHandler {
     // Also remove the path repository that points at the in-tree
     // .vortex/tooling package - consumer sites get drevops/vortex-tooling
     // from packagist instead.
-    $composer_json_path = $t . DIRECTORY_SEPARATOR . 'composer.json';
+    $composer_json_path = $t . '/composer.json';
     if (file_exists($composer_json_path)) {
       $content = file_get_contents($composer_json_path);
       $composer_json = json_decode((string) $content, FALSE);
@@ -145,7 +145,7 @@ class Internal extends AbstractHandler {
       // Check if it should be enabled based on the provision type and database
       // download source.
       elseif ($responses[ProvisionType::id()] === ProvisionType::DATABASE) {
-        $db_file_exists = file_exists(Env::get('VORTEX_DB_DIR', './.data') . DIRECTORY_SEPARATOR . Env::get('VORTEX_DB_FILE', 'db.sql'));
+        $db_file_exists = file_exists(Env::get('VORTEX_DB_DIR', './.data') . '/' . Env::get('VORTEX_DB_FILE', 'db.sql'));
         $has_comment = File::contains($this->destinationDir . '/.env', 'Override project-specific values for demonstration purposes');
 
         // Demo mode can only be used if the user selected a URL or a container

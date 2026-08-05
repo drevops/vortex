@@ -151,7 +151,7 @@ class Webroot extends AbstractHandler {
 
     File::replaceContentAsync(fn(string $content): string => preg_replace('/=' . preg_quote($webroot, '/') . '\b/', '=' . $v, $content) ?? $content);
 
-    rename($t . DIRECTORY_SEPARATOR . $webroot, $t . DIRECTORY_SEPARATOR . $v);
+    rename($t . '/' . $webroot, $t . '/' . $v);
   }
 
 }

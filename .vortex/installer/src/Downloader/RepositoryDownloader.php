@@ -54,7 +54,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $version = $this->downloadFromLocal($artifact, $destination);
     }
 
-    if (!is_readable($destination . DIRECTORY_SEPARATOR . 'composer.json')) {
+    if (!is_readable($destination . '/composer.json')) {
       throw new \RuntimeException('The downloaded repository does not contain a composer.json file.');
     }
 

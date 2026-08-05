@@ -107,7 +107,7 @@ class OptionsResolver {
     }
 
     // Check if the project is a Vortex project.
-    $config->set(Config::IS_VORTEX_PROJECT, File::contains($config->getDestination() . DIRECTORY_SEPARATOR . 'README.md', '/badge\/Vortex-/'));
+    $config->set(Config::IS_VORTEX_PROJECT, File::contains($config->getDestination() . '/README.md', '/badge\/Vortex-/'));
 
     // Flag to proceed with installation. If FALSE - the installation will only
     // print resolved values and will not proceed.

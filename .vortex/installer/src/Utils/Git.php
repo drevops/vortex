@@ -103,7 +103,7 @@ class Git extends GitRepository {
     }
 
     foreach ($output as $file) {
-      $tracked_files[] = $dir . DIRECTORY_SEPARATOR . $file;
+      $tracked_files[] = $dir . '/' . $file;
     }
 
     return $tracked_files;
