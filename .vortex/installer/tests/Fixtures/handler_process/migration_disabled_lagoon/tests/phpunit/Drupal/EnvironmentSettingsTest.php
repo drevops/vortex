@@ -185,7 +185,7 @@
    }
  
    /**
-@@ -360,6 +540,252 @@
+@@ -360,6 +540,256 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',
@@ -250,7 +250,8 @@
 +      '^localhost$',
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
-+      '^example1\.com|example2/com$',
++      '^example1\.com$',
++      '^example2\/com$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -312,7 +313,8 @@
 +      '^localhost$',
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
-+      '^example1\.com|example2/com$',
++      '^example1\.com$',
++      '^example2\/com$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -374,7 +376,8 @@
 +      '^localhost$',
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
-+      '^example1\.com|example2/com$',
++      '^example1\.com$',
++      '^example2\/com$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -434,7 +437,8 @@
 +      '^localhost$',
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
-+      '^example1\.com|example2/com$',
++      '^example1\.com$',
++      '^example2\/com$',
      ];
      $this->assertSettings($settings);
    }
