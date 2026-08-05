@@ -24,7 +24,7 @@ class ProvisionType extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public static function description(array $responses): string {
+  public static function description(array $responses): ?string {
     $label1 = Tui::bold('Import from database dump');
     $label2 = Tui::bold('Install from profile');
 

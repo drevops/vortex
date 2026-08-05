@@ -69,7 +69,7 @@ class FrontendBuild extends AbstractHandler {
     // Only persist an explicit boolean answer; a non-boolean response means
     // the prompt was not shown.
     if (is_bool($this->response)) {
-      Env::writeValueDotenv('VORTEX_FRONTEND_BUILD_SKIP', $this->response ? '0' : '1', $this->tmpDir . '/.env');
+      Env::writeValueDotenv('VORTEX_FRONTEND_BUILD_SKIP', $this->getResponseAsBool() ? '0' : '1', $this->tmpDir . '/.env');
     }
   }
 

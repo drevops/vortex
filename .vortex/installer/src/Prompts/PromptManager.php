@@ -692,7 +692,7 @@ class PromptManager {
       'validate' => $handler->validate(),
     ];
 
-    $description = $handler->description($responses);
+    $description = $handler::description($responses);
     if ($description !== NULL) {
       $args['description'] = PHP_EOL . $description . PHP_EOL;
     }

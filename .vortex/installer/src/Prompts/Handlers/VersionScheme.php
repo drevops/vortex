@@ -26,7 +26,7 @@ class VersionScheme extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public static function description(array $responses): string {
+  public static function description(array $responses): ?string {
     $label1 = Tui::bold('Calendar Versioning (CalVer)');
     $label11 = Tui::underscore('year.month.patch');
     $label12 = Tui::underscore('24.1.0');

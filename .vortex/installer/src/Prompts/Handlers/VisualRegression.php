@@ -26,7 +26,7 @@ class VisualRegression extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public static function description(array $responses): string {
+  public static function description(array $responses): ?string {
     return <<<DOC
 Diffy-powered visual regression workflow to compare deployed environments.
 

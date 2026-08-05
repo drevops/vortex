@@ -123,13 +123,6 @@ class CiProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function postInstall(): ?string {
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function postBuild(string $result): ?string {
     if ($this->isInstalled()) {
       return NULL;
