@@ -185,7 +185,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
 
     $release_url = sprintf('https://api.github.com/repos/%s/releases', $path);
 
-    $headers = self::requestHeaders(['Accept' => 'application/vnd.github.v3+json']);
+    $headers = self::requestHeaders($release_url, ['Accept' => 'application/vnd.github.v3+json']);
     $github_token = Env::get('GITHUB_TOKEN');
 
     try {
@@ -234,7 +234,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     }
 
     try {
-      $this->fileDownloader->download($url, $temp_file, self::requestHeaders());
+      $this->fileDownloader->download($url, $temp_file, self::requestHeaders($url));
     }
     catch (\RuntimeException $e) {
       if (file_exists($temp_file)) {
@@ -294,7 +294,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   If the repository is not accessible.
    */
   protected function validateRemoteRepositoryExists(string $repo_url): void {
-    $options = ['headers' => self::requestHeaders(), 'http_errors' => FALSE];
+    $options = ['headers' => self::requestHeaders($repo_url), 'http_errors' => FALSE];
 
     try {
       // Try to access the repository root to verify it exists.
@@ -323,7 +323,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    */
   protected function validateRemoteRefExists(string $repo_url, string $ref): void {
     $archive_url = sprintf('%s/archive/%s.tar.gz', $repo_url, $ref);
-    $options = ['headers' => self::requestHeaders(), 'http_errors' => FALSE];
+    $options = ['headers' => self::requestHeaders($archive_url), 'http_errors' => FALSE];
 
     try {
       // Use HEAD request to check if the archive URL exists without
@@ -392,16 +392,24 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
   }
 
   /**
-   * Build the headers sent with every request to the repository host.
+   * Build the headers sent with a request to the repository host.
    *
+   * @param string $url
+   *   The destination the request is sent to.
    * @param array<string, string> $headers
    *   Additional headers to include.
    *
    * @return array<string, string>
    *   The headers, authorised when a token is available.
    */
-  protected static function requestHeaders(array $headers = []): array {
+  protected static function requestHeaders(string $url, array $headers = []): array {
     $headers['User-Agent'] = 'Vortex-Installer';
+
+    // The repository URL is supplied by the caller and may be plain HTTP, so
+    // the token is withheld rather than sent in the clear.
+    if (!str_starts_with(strtolower($url), 'https://')) {
+      return $headers;
+    }
 
     $github_token = Env::get('GITHUB_TOKEN');
     if ($github_token) {

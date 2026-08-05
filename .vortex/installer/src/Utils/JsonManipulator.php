@@ -49,7 +49,8 @@ class JsonManipulator extends ComposerJsonManipulator {
    *   Callback receiving the manipulator for the file.
    *
    * @throws \RuntimeException
-   *   If the file cannot be read or does not contain valid JSON.
+   *   If the file cannot be read, does not contain valid JSON, or cannot be
+   *   written back.
    */
   public static function updateFile(string $file, callable $callback): void {
     $instance = self::fromFile($file);
@@ -60,7 +61,10 @@ class JsonManipulator extends ComposerJsonManipulator {
 
     $callback($instance);
 
-    file_put_contents($file, $instance->getContents());
+    $contents = $instance->getContents();
+    if (file_put_contents($file, $contents) !== strlen($contents)) {
+      throw new \RuntimeException(sprintf('Unable to write a JSON file at "%s".', $file));
+    }
   }
 
   /**

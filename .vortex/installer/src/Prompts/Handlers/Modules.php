@@ -118,7 +118,9 @@ class Modules extends AbstractHandler {
     if ($removed_packages !== []) {
       JsonManipulator::updateFile($t . '/composer.json', function (JsonManipulator $cj) use ($removed_packages): void {
         foreach ($removed_packages as $removed_package) {
+          // Discovery reads both sections, so removal has to cover both.
           $cj->removeSubNode('require', $removed_package);
+          $cj->removeSubNode('require-dev', $removed_package);
         }
       });
     }

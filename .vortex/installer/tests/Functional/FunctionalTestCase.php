@@ -110,7 +110,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
       ->addReplacement(Replacement::create('phpstan_version', '/(phpVersion:\s)\d{5,6}/', '${1}' . Replacement::VERSION))
       // The Vortex badge carries the checked-out ref, so every fixture churns
       // on a tagged checkout unless it is masked like any other version stamp.
-      ->addReplacement(Replacement::create('vortex_badge', '#(badge/Vortex-)[^-]+(-65ACBC\.svg)#', '${1}' . Replacement::VERSION . '${2}'))
+      ->addReplacement(Replacement::create('vortex_badge', '#(badge/Vortex-)[^)]*?(-65ACBC\.svg)#', '${1}' . Replacement::VERSION . '${2}'))
       ->addReplacement(Replacement::create('vortex_badge_url', '#(github\.com/drevops/vortex/tree/)\S+?(\))#', '${1}' . Replacement::VERSION . '${2}'))
       ->addExclusions(['127.0.0.1'])
       // Increase max replacements to handle large files with many version
