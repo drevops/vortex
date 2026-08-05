@@ -558,17 +558,25 @@ workflows:
             - lint
           filters:
             branches:
-              # Allowed branches:
-              # - production, main, master, develop, ci, cisomething
-              # - project/description
-              # - deps/*
-              # - feature/description, feature/123-description
-              # - bugfix/description, bugfix/123-description
-              # - release/__VERSION__, release/__VERSION__ (per https://semver.org/)
-              # - release/2023-04-17, release/2023-04-17.123 (date-based)
-              # - hotfix/__VERSION__, hotfix/__VERSION__ (per https://semver.org/)
-              # - hotfix/2023-04-17, hotfix/2023-04-17.123 (date-based)
-              only: /^(production|main|master|develop)$|^project\/[a-zA-Z0-9\-\.]+|^(feature|bugfix)\/[a-zA-Z0-9\-\.\,_]+$|^ci.*|^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$|^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+              # A branch is deployed when it matches any of the patterns below.
+              only:
+                # production, main, master, develop
+                - /^(production|main|master|develop)$/
+                # project/description
+                - /^project\/[a-zA-Z0-9\-\.]+/
+                # feature/description, feature/123-description
+                # bugfix/description, bugfix/123-description
+                - /^(feature|bugfix)\/[a-zA-Z0-9\-\.\,_]+$/
+                # ci, cisomething
+                - /^ci.*/
+                # release/__VERSION__, release/__VERSION__ (per https://semver.org/)
+                # hotfix/__VERSION__, hotfix/__VERSION__ (per https://semver.org/)
+                - /^(release|hotfix)\/[0-9]+(\.[0-9]+){2}(-rc\.[0-9]+)?$/
+                # release/2023-04-17, release/2023-04-17.123 (date-based)
+                # hotfix/2023-04-17, hotfix/2023-04-17.123 (date-based)
+                - /^(release|hotfix)\/[0-9]{4}-[0-9]{2}-[0-9]{2}(\.[0-9]+)?$/
+                # 1.x, 2.x
+                - /^[0-9]+\.x$/
             tags:
               ignore: /.*/
       - deploy-tags:
