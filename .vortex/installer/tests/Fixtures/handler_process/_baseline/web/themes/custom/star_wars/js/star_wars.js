@@ -2,7 +2,7 @@
  * @file Global theme behaviors.
  */
 
-((Drupal) => {
+(function starWarsBehaviors(Drupal) {
   Drupal.behaviors.starWars = {
     attach(context) {
       const body = context.querySelector

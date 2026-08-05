@@ -185,7 +185,9 @@ describe('Drupal.behaviors.ysDemo', () => {
       incrementBtn.click();
       incrementBtn.click();
 
-      const resetBtn = document.querySelector('[data-sw-demo-counter-action="reset"]');
+      const resetBtn = document.querySelector(
+        '[data-sw-demo-counter-action="reset"]',
+      );
       resetBtn.click();
 
       const value = document.querySelector('[data-sw-demo-counter-value]');

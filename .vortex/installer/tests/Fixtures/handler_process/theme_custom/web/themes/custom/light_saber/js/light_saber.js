@@ -2,7 +2,7 @@
  * @file Global theme behaviors.
  */
 
-((Drupal) => {
+(function lightSaberBehaviors(Drupal) {
   Drupal.behaviors.lightSaber = {
     attach(context) {
       const body = context.querySelector
