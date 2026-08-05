@@ -621,9 +621,8 @@ class PromptManager {
    */
   protected function prompt(string $handler_class, array $responses = []): mixed {
     $handler = $this->handlers[$handler_class::id()];
-    $fn = '\\Laravel\\Prompts\\' . $handler->type()->promptFunction();
+    $fn = $handler->type()->promptFunction();
 
-    // @phpstan-ignore callable.nonCallable
     return $fn(...$this->args($handler_class, NULL, $responses));
   }
 
