@@ -13,7 +13,6 @@ pushd "/var/www/html/${site}.${target_env}" >/dev/null || exit 1
 
 # Allow custom PHP runtime configuration for Drush CLI commands.
 # The leading colon appends to the default scan directories.
-# @see https://github.com/drevops/vortex/issues/1913
 PHP_INI_SCAN_DIR="${PHP_INI_SCAN_DIR:-}:$(pwd)/drush/php-ini"
 export PHP_INI_SCAN_DIR
 

@@ -83,7 +83,7 @@ aliases:
     run:
       name: Process codebase to run in CI
       command: |
-        find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
+        find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
         mkdir -p /tmp/workspace/code
 
   - &load_variables_from_dotenv
@@ -240,7 +240,7 @@ jobs:
       # Note that configuration changes and the DB updates are not applied, so
       # the database will be cached in the same state as fetched.
       - run:
-          name: Export DB after fetch
+          name: Export DB
           command: |
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
             ./vendor/bin/vortex-login-container-registry

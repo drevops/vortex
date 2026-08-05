@@ -53,7 +53,7 @@ jobs:
           RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
           VARS_RENOVATE_GIT_AUTHOR: ${{ vars.RENOVATE_GIT_AUTHOR }}
 
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@__HASH__ # __VERSION__
         with:
           persist-credentials: false
