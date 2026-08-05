@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\VortexInstaller\Tests\Unit;
+namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
+use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -123,7 +124,7 @@ class EnvTest extends UnitTestCase {
   }
 
   public function testWriteValueDotenv(): void {
-    $fixture_dir = __DIR__ . '/Fixtures/env';
+    $fixture_dir = dirname(__DIR__) . '/Fixtures/env';
     $actual_file = static::$sut . '/.env';
     copy($fixture_dir . '/_baseline/.env', $actual_file);
 

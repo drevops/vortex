@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\VortexInstaller\Tests\Unit;
+namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
+use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Tui;
 use PHPUnit\Framework\Attributes\CoversClass;
