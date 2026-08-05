@@ -15,7 +15,7 @@ environment_variables:
 tasks:
   post-rollout:
     - run:
-        name: Show Vortex variables.
+        name: Show Vortex variables
         command: |
           [ "${VORTEX_DEBUG-}" = "1" ] && env -0  | sort -z | tr '\0' '\n' | grep ^VORTEX_ || true
         service: cli
@@ -46,6 +46,7 @@ tasks:
             VORTEX_DB_DIR=/app/web/sites/default/files/private/pre_deployment_backups ./vendor/bin/vortex-export-db
           fi
         service: cli
+        shell: bash
     #;< !PROVISION_TYPE_PROFILE
 
     - run:
@@ -59,6 +60,7 @@ tasks:
             ./vendor/bin/vortex-fetch-db
           fi
         service: cli
+        shell: bash
     #;> !PROVISION_TYPE_PROFILE
 
     #;< MIGRATION
@@ -69,6 +71,7 @@ tasks:
           export VORTEX_DB_DIR=/tmp/data
           VORTEX_DB_INDEX=2 ./vendor/bin/vortex-fetch-db
         service: cli
+        shell: bash
     #;> MIGRATION
 
     - run:
@@ -76,8 +79,8 @@ tasks:
         command: |
           #;< PROVISION_TYPE_PROFILE
           if [ "${VORTEX_PROVISION_TYPE}" = "profile" ]; then
-            # Explicitly set DB overwrite flag to the value from .env file for deployments from the profile.
-            # https://github.com/uselagoon/lagoon/issues/1922
+            # Lagoon does not pass .env values through to task containers, so the
+            # flag has to be read out of the file directly.
             export VORTEX_PROVISION_OVERRIDE_DB="$(cat .env | grep ^VORTEX_PROVISION_OVERRIDE_DB | cut -c31-)"
           fi
           #;> PROVISION_TYPE_PROFILE
