@@ -1,27 +1,19 @@
 /**
  * @file Global theme behaviors.
- * @param $
- * @param Drupal
- * @global Drupal,  JQuery.
  */
 
-/**
- * Global theme behaviors.
- *
- * @param {jQuery} $       The jQuery object.
- * @param {Drupal} Drupal  The Drupal object.
- */
-(function StarWarsBehaviors($, Drupal) {
-  Drupal.behaviors.star_wars = {
+((Drupal) => {
+  Drupal.behaviors.starWars = {
     attach(context) {
-      // give me example code here that would be using context with body
-      $(context)
-        .find('body')
-        .once('star-wars-theme')
-        .each(function iterateBody() {
-          // Example: Add a class to the body element.
-          $(this).addClass('star-wars-theme-processed');
-        });
+      const body = context.querySelector
+        ? context.querySelector('body')
+        : document.body;
+
+      if (!body || body.classList.contains('star-wars-theme-processed')) {
+        return;
+      }
+
+      body.classList.add('star-wars-theme-processed');
     },
   };
-})(jQuery, Drupal);
+})(Drupal);

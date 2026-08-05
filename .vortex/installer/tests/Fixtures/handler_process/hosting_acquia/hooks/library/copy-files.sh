@@ -5,7 +5,7 @@
 # Environment variables must be set in Acquia UI globally or for each environment.
 
 set -e
-[ -n "${VORTEX_DEBUG}" ] && set -x
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 site="${1}"
 target_env="${2}"

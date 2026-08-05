@@ -46,7 +46,7 @@ class CounterBlockTest extends WebDriverTestBase {
     $block = $this->assertSession()->waitForElement('css', '[data-sw-demo-counter]');
     $this->assertNotNull($block, 'Counter block is present on the page.');
 
-    $value = $this->assertSession()->elementExists('css', '[data-counter-value]');
+    $value = $this->assertSession()->elementExists('css', '[data-sw-demo-counter-value]');
     $this->assertEquals('0', $value->getText());
   }
 
@@ -58,10 +58,10 @@ class CounterBlockTest extends WebDriverTestBase {
 
     $this->assertSession()->waitForElement('css', '[data-sw-demo-counter]');
 
-    $this->click('[data-counter-action="increment"]');
+    $this->click('[data-sw-demo-counter-action="increment"]');
     $this->assertCounterValue('1');
 
-    $this->click('[data-counter-action="increment"]');
+    $this->click('[data-sw-demo-counter-action="increment"]');
     $this->assertCounterValue('2');
   }
 
@@ -73,7 +73,7 @@ class CounterBlockTest extends WebDriverTestBase {
 
     $this->assertSession()->waitForElement('css', '[data-sw-demo-counter]');
 
-    $this->click('[data-counter-action="decrement"]');
+    $this->click('[data-sw-demo-counter-action="decrement"]');
     $this->assertCounterValue('-1');
   }
 
@@ -86,13 +86,13 @@ class CounterBlockTest extends WebDriverTestBase {
     $this->assertSession()->waitForElement('css', '[data-sw-demo-counter]');
 
     // Increment a few times.
-    $this->click('[data-counter-action="increment"]');
-    $this->click('[data-counter-action="increment"]');
-    $this->click('[data-counter-action="increment"]');
+    $this->click('[data-sw-demo-counter-action="increment"]');
+    $this->click('[data-sw-demo-counter-action="increment"]');
+    $this->click('[data-sw-demo-counter-action="increment"]');
     $this->assertCounterValue('3');
 
     // Reset.
-    $this->click('[data-counter-action="reset"]');
+    $this->click('[data-sw-demo-counter-action="reset"]');
     $this->assertCounterValue('0');
   }
 
@@ -103,7 +103,7 @@ class CounterBlockTest extends WebDriverTestBase {
    *   The expected counter value text.
    */
   protected function assertCounterValue(string $expected): void {
-    $result = $this->assertSession()->waitForElementVisible('css', '[data-counter-value]');
+    $result = $this->assertSession()->waitForElementVisible('css', '[data-sw-demo-counter-value]');
     $this->assertNotNull($result);
     $this->assertEquals($expected, $result->getText());
   }
