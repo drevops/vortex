@@ -91,7 +91,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "fetch-db-container-registry: Skip fetch when image already exists on host" {
+@test "fetch-db-container-registry: Fetch image when it exists on host and no archive exists" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_docker=$(mock_command "docker")
@@ -111,6 +111,7 @@ load ../_helper.bash
   assert_success
   assert_output_contains "[INFO] Started database data container image fetch."
   assert_output_contains "Found myorg/myapp image on host."
+  assert_output_contains "Fetching myorg/myapp image from the registry."
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
   popd >/dev/null
@@ -135,6 +136,9 @@ load ../_helper.bash
   assert_success
   assert_output_contains "[INFO] Started database data container image fetch."
   assert_output_contains "Fetching myorg/myapp image from the registry."
+  # The registry reaches the pull target but never the output, so only the
+  # recorded arguments show that it defaulted to docker.io.
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "pull docker.io/myorg/myapp"
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
   popd >/dev/null
