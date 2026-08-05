@@ -29,7 +29,7 @@ class YamlTest extends UnitTestCase {
   }
 
   public function testValidateFileNonExistent(): void {
-    $this->expectException(\InvalidArgumentException::class);
+    $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('File does not exist or is not readable');
 
     $non_existent_file = sys_get_temp_dir() . '/non_existent_file.yml';

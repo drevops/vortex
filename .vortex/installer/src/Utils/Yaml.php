@@ -12,7 +12,7 @@ class Yaml extends SymfonyYaml {
   public static function validateFile(string $path): void {
     // Check if the file exists and is readable.
     if (!file_exists($path) || !is_readable($path)) {
-      throw new \InvalidArgumentException('File does not exist or is not readable: ' . $path);
+      throw new \RuntimeException('File does not exist or is not readable: ' . $path);
     }
 
     self::parseFile($path);
