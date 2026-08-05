@@ -89,7 +89,8 @@ trait CircleCiTrait {
         continue;
       }
 
-      if (($item['job_number'] ?? '') == $current_job_number) {
+      $job_number = $item['job_number'] ?? '';
+      if (is_numeric($job_number) && (int) $job_number === $current_job_number) {
         $dependencies_job_ids = is_array($item['dependencies'] ?? []) ? $item['dependencies'] : [];
         break;
       }
