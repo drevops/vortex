@@ -82,14 +82,10 @@ abstract class FunctionalTestCase extends UnitTestCase {
 
     foreach ($needles as $needle) {
       if (Strings::isRegex($needle)) {
-        $this->assertDirectoryContainsString(static::$sut, $needle, [
-          'scripts/vortex',
-        ]);
+        $this->assertDirectoryContainsString(static::$sut, $needle);
       }
       else {
-        $this->assertDirectoryContainsWord(static::$sut, $needle, [
-          'scripts/vortex',
-        ]);
+        $this->assertDirectoryContainsWord(static::$sut, $needle);
       }
     }
   }
@@ -99,14 +95,10 @@ abstract class FunctionalTestCase extends UnitTestCase {
 
     foreach ($needles as $needle) {
       if (Strings::isRegex($needle)) {
-        $this->assertDirectoryNotContainsString(static::$sut, $needle, [
-          'scripts/vortex',
-        ]);
+        $this->assertDirectoryNotContainsString(static::$sut, $needle);
       }
       else {
-        $this->assertDirectoryNotContainsWord(static::$sut, $needle, [
-          'scripts/vortex',
-        ]);
+        $this->assertDirectoryNotContainsWord(static::$sut, $needle);
       }
     }
   }
@@ -121,7 +113,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
       // strings (GHA workflows, lock files, etc). This value was empirically
       // derived through repeated trials.
       ->setMaxReplacements(5)
-      ->replaceInDir($dir, ['scripts/vortex']);
+      ->replaceInDir($dir);
   }
 
 }
