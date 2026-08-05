@@ -56,7 +56,7 @@ class Gitleaks extends AbstractHandler {
 
     if (!$v) {
       File::remove($t . '/.gitleaks.toml');
-      File::removeTokenAsync('CI_GITLEAKS');
+      File::removeTokenAsync('TOOL_GITLEAKS');
     }
   }
 

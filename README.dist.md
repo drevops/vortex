@@ -27,11 +27,11 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 ![Drupal 11](https://img.shields.io/badge/Drupal-11-0678BE?logo=drupal&logoColor=white)
 
-[//]: # (#;< CODE_COVERAGE_PROVIDER_CODECOV)
+[//]: # (#;< TOOL_CODECOV)
 
 [![codecov](https://codecov.io/gh/your_org/your_site/graph/badge.svg)](https://codecov.io/gh/your_org/your_site)
 
-[//]: # (#;> CODE_COVERAGE_PROVIDER_CODECOV)
+[//]: # (#;> TOOL_CODECOV)
 
 [//]: # (#;< DEPS_UPDATE_PROVIDER)
 
