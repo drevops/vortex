@@ -191,7 +191,7 @@ jobs:
 
             This preview is rebuilt on every commit and is not the production documentation site.
 
-      - name: Upload coverage reports as an artifact
+      - name: Upload coverage report as an artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: ${{github.job}}-docs-coverage-report

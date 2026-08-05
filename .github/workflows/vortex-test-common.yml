@@ -52,7 +52,7 @@ jobs:
         run: git config --global safe.directory '*'
 
       - name: Process codebase to run in CI
-        run: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e ''/###/d'' {} && sed -i -e ''s/##//'' {}"
+        run: find . -name "docker-compose.yml" -print0 | xargs -0 -I {} sh -c "sed -i -e '/###/d' {} && sed -i -e 's/##//' {}"
 
       - name: Install Vortex tooling
         run: ./scripts/vortex-tooling.sh
@@ -98,7 +98,7 @@ jobs:
       - name: Install Ahoy
         run: |
           version=2.4.0 && \
-          set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
+          curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
           chmod +x /usr/local/bin/ahoy && \
           ahoy --version
 
@@ -188,7 +188,7 @@ jobs:
       - name: Install Ahoy
         run: |
           version=2.4.0 && \
-          set -x && curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
+          curl -L -o "/usr/local/bin/ahoy" "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-$(uname -s)-amd64" && \
           chmod +x /usr/local/bin/ahoy && \
           ahoy --version
 
