@@ -88,17 +88,17 @@ class Git extends GitRepository {
    */
   public static function getTrackedFiles(string $dir): array {
     if (!is_dir($dir . '/.git')) {
-      throw new \RuntimeException("The directory is not a Git repository.");
+      throw new \RuntimeException('The directory is not a Git repository.');
     }
 
     $tracked_files = [];
     $output = [];
     $code = 0;
-    $command = sprintf("cd %s && git ls-files", escapeshellarg($dir));
+    $command = sprintf('cd %s && git ls-files', escapeshellarg($dir));
     exec($command, $output, $code);
     if ($code !== 0) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException("Failed to retrieve tracked files using git ls-files.");
+      throw new \RuntimeException('Failed to retrieve tracked files using git ls-files.');
       // @codeCoverageIgnoreEnd
     }
 

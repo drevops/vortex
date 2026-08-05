@@ -34,7 +34,7 @@ class Archiver implements ArchiverInterface {
 
     if (strlen($header) >= 512) {
       $tar_magic = substr($header, 257, 5);
-      if ($tar_magic === "ustar" || $tar_magic === "00000") {
+      if ($tar_magic === 'ustar' || $tar_magic === '00000') {
         return 'tar';
       }
     }
