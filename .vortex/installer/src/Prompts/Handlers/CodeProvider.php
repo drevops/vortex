@@ -69,9 +69,7 @@ class CodeProvider extends AbstractHandler {
     $t = $this->tmpDir;
 
     if ($v === self::GITHUB) {
-      if (file_exists($t . '/.github/PULL_REQUEST_TEMPLATE.md')) {
-        File::remove($t . '/.github/PULL_REQUEST_TEMPLATE.md');
-      }
+      File::remove($t . '/.github/PULL_REQUEST_TEMPLATE.md');
 
       if (file_exists($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md')) {
         rename($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md', $t . '/.github/PULL_REQUEST_TEMPLATE.md');

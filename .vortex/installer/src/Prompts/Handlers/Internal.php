@@ -98,7 +98,7 @@ class Internal extends AbstractHandler {
     $files = glob($t . '/.circleci/vortex-*.yml');
     if ($files) {
       foreach ($files as $file) {
-        @unlink($file);
+        File::remove($file);
       }
     }
 
