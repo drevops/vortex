@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Functional;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\Vortex\Tests\Traits\Subtests\SubtestAhoyTrait;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests Installer.
  */
 class InstallerTest extends FunctionalTestCase {
-
-  use SubtestAhoyTrait;
 
   protected function setUp(): void {
     parent::setUp();

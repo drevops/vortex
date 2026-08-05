@@ -24,7 +24,7 @@ class ProvisionType extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public static function description(array $responses): string {
+  public static function description(array $responses): ?string {
     $label1 = Tui::bold('Import from database dump');
     $label2 = Tui::bold('Install from profile');
 
@@ -71,7 +71,7 @@ DOC;
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $type = Env::getFromDotenv('VORTEX_PROVISION_TYPE', $this->dstDir);
+    $type = Env::getFromDotenv('VORTEX_PROVISION_TYPE', $this->destinationDir);
 
     return $type && in_array($type, [self::DATABASE, self::PROFILE], TRUE) ? $type : NULL;
   }
@@ -85,7 +85,7 @@ DOC;
 
     Env::writeValueDotenv('VORTEX_PROVISION_TYPE', $v, $t . '/.env');
 
-    if ($v === static::PROFILE) {
+    if ($v === self::PROFILE) {
       File::removeTokenAsync('!PROVISION_TYPE_PROFILE');
     }
     else {

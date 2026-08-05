@@ -54,13 +54,13 @@ class MachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $v = Env::getFromDotenv('VORTEX_PROJECT', $this->dstDir);
+    $v = Env::getFromDotenv('VORTEX_PROJECT', $this->destinationDir);
 
     if (!empty($v)) {
       return $v;
     }
 
-    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('name');
+    $v = JsonManipulator::fromFile($this->destinationDir . '/composer.json')?->getProperty('name');
     if ($v && preg_match('/([^\/]+)\/(.+)/', (string) $v, $matches) && !empty($matches[2])) {
       return trim($matches[2]);
     }

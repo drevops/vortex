@@ -97,7 +97,7 @@ class DatabaseFetchSource extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    return Env::getFromDotenv('VORTEX_FETCH_DB_SOURCE', $this->dstDir);
+    return Env::getFromDotenv('VORTEX_FETCH_DB_SOURCE', $this->destinationDir);
   }
 
   /**

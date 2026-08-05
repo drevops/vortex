@@ -62,11 +62,11 @@ class HostingProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    if (is_readable($this->dstDir . '/hooks') || Env::getFromDotenv('VORTEX_FETCH_DB_SOURCE', $this->dstDir) === DatabaseFetchSource::ACQUIA) {
+    if (is_readable($this->destinationDir . '/hooks') || Env::getFromDotenv('VORTEX_FETCH_DB_SOURCE', $this->destinationDir) === DatabaseFetchSource::ACQUIA) {
       return self::ACQUIA;
     }
 
-    if (is_readable($this->dstDir . '/.lagoon.yml')) {
+    if (is_readable($this->destinationDir . '/.lagoon.yml')) {
       return self::LAGOON;
     }
 
@@ -81,13 +81,13 @@ class HostingProvider extends AbstractHandler {
     $t = $this->tmpDir;
     $w = $this->webroot;
 
-    if ($v === static::ACQUIA) {
+    if ($v === self::ACQUIA) {
       File::removeTokenAsync('!HOSTING_ACQUIA');
       File::removeTokenAsync('!SETTINGS_PROVIDER_ACQUIA');
 
       $this->removeLagoon();
     }
-    elseif ($v === static::LAGOON) {
+    elseif ($v === self::LAGOON) {
       File::removeTokenAsync('!HOSTING_LAGOON');
       File::removeTokenAsync('!SETTINGS_PROVIDER_LAGOON');
 
@@ -125,13 +125,6 @@ class HostingProvider extends AbstractHandler {
 
     File::removeTokenAsync('HOSTING_LAGOON');
     File::removeTokenAsync('SETTINGS_PROVIDER_LAGOON');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function postInstall(): ?string {
-    return NULL;
   }
 
   /**

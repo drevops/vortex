@@ -10,8 +10,6 @@ use DrevOps\VortexInstaller\Prompts\PromptType;
  * Interface HandlerInterface.
  *
  * The interface for the prompt handlers.
- *
- * @package DrevOps\VortexInstaller\Prompts\Handlers
  */
 interface HandlerInterface {
 

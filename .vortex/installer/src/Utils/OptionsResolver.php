@@ -9,8 +9,6 @@ use Symfony\Component\Process\ExecutableFinder;
 
 /**
  * Resolves CLI options and environment variables into Config and Artifact.
- *
- * @package DrevOps\VortexInstaller\Utils
  */
 class OptionsResolver {
 
@@ -72,17 +70,17 @@ class OptionsResolver {
     }
 
     // Set destination directory.
-    $dst_from_option = !empty($options['destination']) && is_scalar($options['destination']) ? strval($options['destination']) : NULL;
-    $dst_from_env = Env::get(Config::DST);
-    $dst_from_config = $config->get(Config::DST);
-    $dst_from_root = $config->get(Config::ROOT);
+    $destination_from_option = !empty($options['destination']) && is_scalar($options['destination']) ? strval($options['destination']) : NULL;
+    $destination_from_env = Env::get(Config::DESTINATION);
+    $destination_from_config = $config->get(Config::DESTINATION);
+    $destination_from_root = $config->get(Config::ROOT);
 
-    $dst = $dst_from_option ?: ($dst_from_env ?: ($dst_from_config ?: $dst_from_root));
-    $dst = File::realpath($dst);
-    $config->set(Config::DST, $dst, TRUE);
+    $destination = $destination_from_option ?: ($destination_from_env ?: ($destination_from_config ?: $destination_from_root));
+    $destination = File::realpath($destination);
+    $config->set(Config::DESTINATION, $destination, TRUE);
 
     // Load values from the destination .env file, if it exists.
-    $dest_env_file = $config->getDst() . '/.env';
+    $dest_env_file = $config->getDestination() . '/.env';
 
     if (File::exists($dest_env_file)) {
       Env::putFromDotenv($dest_env_file);
@@ -109,7 +107,7 @@ class OptionsResolver {
     }
 
     // Check if the project is a Vortex project.
-    $config->set(Config::IS_VORTEX_PROJECT, File::contains($config->getDst() . DIRECTORY_SEPARATOR . 'README.md', '/badge\/Vortex-/'));
+    $config->set(Config::IS_VORTEX_PROJECT, File::contains($config->getDestination() . '/README.md', '/badge\/Vortex-/'));
 
     // Flag to proceed with installation. If FALSE - the installation will only
     // print resolved values and will not proceed.
@@ -117,7 +115,7 @@ class OptionsResolver {
 
     // Internal flag to enforce DEMO mode. If not set, the demo mode will be
     // discovered automatically.
-    if (!is_null(Env::get(Config::IS_DEMO))) {
+    if (Env::get(Config::IS_DEMO) !== NULL) {
       $config->set(Config::IS_DEMO, (bool) Env::get(Config::IS_DEMO));
     }
 

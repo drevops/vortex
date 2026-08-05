@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Traits;
 
 use AlexSkrypnyk\File\File;
-use AlexSkrypnyk\File\Testing\DirectoryAssertionsTrait;
-use AlexSkrypnyk\File\Testing\FileAssertionsTrait;
 
 /**
  * Helper methods for functional tests.
@@ -15,11 +13,8 @@ use AlexSkrypnyk\File\Testing\FileAssertionsTrait;
  */
 trait HelpersTrait {
 
-  use DirectoryAssertionsTrait;
-  use FileAssertionsTrait;
-
   public function volumesMounted(): bool {
-    return getenv('VORTEX_DEV_VOLUMES_SKIP_MOUNT') != 1;
+    return getenv('VORTEX_DEV_VOLUMES_SKIP_MOUNT') !== '1';
   }
 
   public function forceVolumesUnmounted(): void {

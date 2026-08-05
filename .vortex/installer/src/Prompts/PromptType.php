@@ -6,8 +6,6 @@ namespace DrevOps\VortexInstaller\Prompts;
 
 /**
  * Prompt input types covering all Laravel Prompts input types.
- *
- * @package DrevOps\VortexInstaller\Prompts
  */
 enum PromptType: string {
 

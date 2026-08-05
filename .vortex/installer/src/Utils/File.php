@@ -16,7 +16,7 @@ class File extends UpstreamFile {
    *   Array of paths to ignore.
    */
   public static function ignoredPaths(array $paths = []): array {
-    return array_merge(parent::ignoredPaths($paths), static::internalPaths());
+    return array_merge(parent::ignoredPaths($paths), self::internalPaths());
   }
 
   /**
@@ -27,7 +27,7 @@ class File extends UpstreamFile {
       $path = DIRECTORY_SEPARATOR . substr($path, 2);
     }
 
-    return in_array($path, static::internalPaths());
+    return in_array($path, self::internalPaths());
   }
 
   /**
@@ -57,7 +57,7 @@ class File extends UpstreamFile {
    *   value for the search string.
    */
   public static function replaceContentAsync(callable|array|string $replacements, ?string $replace = NULL): void {
-    static::addDirectoryTask(function (ContentFile $file) use ($replacements, $replace): ContentFile {
+    self::addDirectoryTask(function (ContentFile $file) use ($replacements, $replace): ContentFile {
       $content = $file->getContent();
 
       if (is_callable($replacements)) {
@@ -73,7 +73,7 @@ class File extends UpstreamFile {
         }
 
         foreach ($replacements as $search => $replace_value) {
-          $content = static::replaceContent($content, $search, $replace_value);
+          $content = self::replaceContent($content, $search, $replace_value);
         }
       }
 
@@ -91,9 +91,9 @@ class File extends UpstreamFile {
    *   If TRUE, remove content between the start and end tokens.
    */
   public static function removeTokenAsync(string $token, bool $with_content = TRUE): void {
-    static::addDirectoryTask(function (ContentFile $file) use ($token, $with_content): ContentFile {
+    self::addDirectoryTask(function (ContentFile $file) use ($token, $with_content): ContentFile {
       $content = $file->getContent();
-      $content = static::removeToken($content, '#;< ' . $token, '#;> ' . $token, $with_content);
+      $content = self::removeToken($content, '#;< ' . $token, '#;> ' . $token, $with_content);
       $file->setContent($content);
       return $file;
     });
@@ -113,7 +113,7 @@ class File extends UpstreamFile {
    */
   public static function toRelative(string $path, ?string $base = NULL): string {
     $base ??= (string) getcwd();
-    $absolute = static::absolute($path, $base);
+    $absolute = self::absolute($path, $base);
 
     return str_replace($base . DIRECTORY_SEPARATOR, '', $absolute);
   }

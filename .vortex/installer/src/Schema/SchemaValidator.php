@@ -9,8 +9,6 @@ use DrevOps\VortexInstaller\Prompts\PromptType;
 
 /**
  * Validates prompt values against handler definitions.
- *
- * @package DrevOps\VortexInstaller\Schema
  */
 class SchemaValidator {
 

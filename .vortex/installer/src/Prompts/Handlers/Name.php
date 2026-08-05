@@ -43,14 +43,14 @@ class Name extends AbstractHandler {
    */
   public function default(array $responses): null|string|bool|array {
     // Discover the name from the project directory.
-    return Converter::label(basename((string) $this->config->getDst()));
+    return Converter::label(basename((string) $this->config->getDestination()));
   }
 
   /**
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('description');
+    $v = JsonManipulator::fromFile($this->destinationDir . '/composer.json')?->getProperty('description');
 
     if ($v && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+)(\s?\.|for)/', (string) $v, $matches) && !empty($matches[1])) {
       return trim($matches[1]);

@@ -47,7 +47,7 @@ class FileLogger implements FileLoggerInterface {
     }
 
     $name = $this->buildFilename($command, $args);
-    $this->path = $this->getDir() . '/' . static::LOG_DIR . '/' . $name . '-' . date('Y-m-d-His') . '.log';
+    $this->path = $this->getDir() . '/' . self::LOG_DIR . '/' . $name . '-' . date('Y-m-d-His') . '.log';
 
     $log_dir = dirname($this->path);
     if (!is_dir($log_dir)) {

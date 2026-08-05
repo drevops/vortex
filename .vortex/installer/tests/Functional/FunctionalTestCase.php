@@ -55,13 +55,13 @@ abstract class FunctionalTestCase extends UnitTestCase {
     $this->replaceVersions($actual);
   }
 
-  protected function runNonInteractiveInstall(?string $dst = NULL, array $options = [], bool $expect_fail = FALSE): void {
-    $dst ??= static::$sut;
+  protected function runNonInteractiveInstall(?string $destination = NULL, array $options = [], bool $expect_fail = FALSE): void {
+    $destination ??= static::$sut;
 
     $defaults = [
       InstallCommand::OPTION_NO_INTERACTION => TRUE,
       InstallCommand::OPTION_URI => File::dir(static::$root),
-      InstallCommand::OPTION_DESTINATION => $dst,
+      InstallCommand::OPTION_DESTINATION => $destination,
     ];
 
     $options += $defaults;
@@ -75,10 +75,6 @@ abstract class FunctionalTestCase extends UnitTestCase {
     Env::put(Config::IS_DEMO_DB_FETCH_SKIP, '1');
 
     $this->applicationRun($args, [], $expect_fail);
-  }
-
-  protected function runInteractiveInstall(array $answers = [], ?string $dst = NULL, array $options = [], bool $expect_fail = FALSE): void {
-    $this->runNonInteractiveInstall($dst, $options + [InstallCommand::OPTION_NO_INTERACTION => FALSE], $expect_fail);
   }
 
   protected function assertSutContains(string|array $needles): void {

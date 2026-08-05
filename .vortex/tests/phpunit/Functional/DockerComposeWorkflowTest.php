@@ -40,7 +40,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
 
     $this->subtestDockerComposeDrushPhpIni();
 
-    $this->subtestSolr();
+    $this->subtestDockerComposeSolr();
 
     $this->logSubstep('Installing development dependencies');
     $this->cmd('docker compose exec -T cli composer install --prefer-dist', txt: 'Install development dependencies with Composer', tio: 10 * 60);

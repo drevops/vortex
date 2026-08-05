@@ -644,7 +644,7 @@ class Timezone extends AbstractHandler {
   public function discover(): null|string|bool|array {
     $value = NULL;
 
-    $from_env = Env::getFromDotenv('TZ', $this->dstDir);
+    $from_env = Env::getFromDotenv('TZ', $this->destinationDir);
     if ($from_env) {
       $value = $from_env;
     }

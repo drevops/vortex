@@ -63,16 +63,16 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $v = Env::getFromDotenv('WEBROOT', $this->dstDir);
+    $v = Env::getFromDotenv('WEBROOT', $this->destinationDir);
 
     if (!empty($v)) {
       return $v;
     }
 
-    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('extra.drupal-scaffold.locations.web-root');
+    $v = JsonManipulator::fromFile($this->destinationDir . '/composer.json')?->getProperty('extra.drupal-scaffold.locations.web-root');
     if (!empty($v)) {
       try {
-        $v = File::toRelative($v, $this->dstDir);
+        $v = File::toRelative($v, $this->destinationDir);
       }
       catch (\Exception) {
         $v = NULL;
@@ -90,7 +90,7 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn($v): ?string => Validator::dirname($v) ? NULL : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.';
+    return fn($v): ?string => Validator::isDirname($v) ? NULL : 'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.';
   }
 
   /**
@@ -106,7 +106,7 @@ class Webroot extends AbstractHandler {
   public function resolvedValue(array $responses): null|string|bool|array {
     $discovered = $this->discover();
 
-    if (!is_null($discovered)) {
+    if ($discovered !== NULL) {
       return $discovered;
     }
 
@@ -151,7 +151,7 @@ class Webroot extends AbstractHandler {
 
     File::replaceContentAsync(fn(string $content): string => preg_replace('/=' . preg_quote($webroot, '/') . '\b/', '=' . $v, $content) ?? $content);
 
-    rename($t . DIRECTORY_SEPARATOR . $webroot, $t . DIRECTORY_SEPARATOR . $v);
+    rename($t . '/' . $webroot, $t . '/' . $v);
   }
 
 }

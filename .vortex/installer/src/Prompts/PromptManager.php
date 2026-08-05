@@ -60,8 +60,6 @@ use function Laravel\Prompts\info;
  * PromptManager.
  *
  * Centralised place for providing prompts and their processing.
- *
- * @package DrevOps\VortexInstaller
  */
 class PromptManager {
 
@@ -360,34 +358,6 @@ class PromptManager {
   }
 
   /**
-   * Run all post-install processors.
-   */
-  public function runPostInstall(): string {
-    $output = '';
-
-    $ids = [
-      Starter::id(),
-      HostingProvider::id(),
-      CiProvider::id(),
-      Internal::id(),
-    ];
-
-    foreach ($ids as $id) {
-      if (!array_key_exists($id, $this->handlers)) {
-        throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
-      }
-
-      $handler_output = $this->handlers[$id]->postInstall();
-
-      if (is_string($handler_output) && !empty($handler_output)) {
-        $output .= $handler_output;
-      }
-    }
-
-    return $output;
-  }
-
-  /**
    * Run all post-build processors.
    *
    * @param string $result
@@ -433,7 +403,7 @@ class PromptManager {
     $proceed = TRUE;
 
     if (!$this->config->getNoInteraction()) {
-      Tui::line(sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDst()));
+      Tui::line(sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDestination()));
       $proceed = confirm(
         label: 'Proceed with installing Vortex?',
       );
@@ -491,10 +461,10 @@ class PromptManager {
     $values['Workflow'] = Tui::LIST_SECTION_TITLE;
     $values['Provision type'] = $responses[ProvisionType::id()];
 
-    if ($responses[ProvisionType::id()] == ProvisionType::DATABASE) {
+    if ($responses[ProvisionType::id()] === ProvisionType::DATABASE) {
       $values['Database source'] = $responses[DatabaseFetchSource::id()];
 
-      if ($responses[DatabaseFetchSource::id()] == DatabaseFetchSource::CONTAINER_REGISTRY) {
+      if ($responses[DatabaseFetchSource::id()] === DatabaseFetchSource::CONTAINER_REGISTRY) {
         $values['Database container image'] = $responses[DatabaseImage::id()];
       }
     }
@@ -504,7 +474,7 @@ class PromptManager {
       if ($responses[Migration::id()] === TRUE && isset($responses[MigrationFetchSource::id()])) {
         $values['Migration database source'] = $responses[MigrationFetchSource::id()];
 
-        if ($responses[MigrationFetchSource::id()] == MigrationFetchSource::CONTAINER_REGISTRY && isset($responses[MigrationImage::id()])) {
+        if ($responses[MigrationFetchSource::id()] === MigrationFetchSource::CONTAINER_REGISTRY && isset($responses[MigrationImage::id()])) {
           $values['Migration database container image'] = $responses[MigrationImage::id()];
         }
       }
@@ -532,7 +502,7 @@ class PromptManager {
 
     $values['Locations'] = Tui::LIST_SECTION_TITLE;
     $values['Current directory'] = $this->config->getRoot();
-    $values['Destination directory'] = $this->config->getDst();
+    $values['Destination directory'] = $this->config->getDestination();
     $values['Vortex repository'] = $this->config->get(Config::REPO);
     $values['Vortex reference'] = $this->config->get(Config::REF);
 
@@ -561,13 +531,13 @@ class PromptManager {
    *   The formatted label text.
    */
   protected function label(string $text, ?string $suffix = NULL): string {
-    if (is_null($suffix)) {
+    if ($suffix === NULL) {
       $this->currentResponseIndex++;
     }
 
     $suffix = $suffix !== NULL ? $this->currentResponseIndex . '.' . $suffix : $this->currentResponseIndex;
 
-    return $text . ' ' . Tui::dim('(' . $suffix . '/' . static::TOTAL_RESPONSES . ')');
+    return $text . ' ' . Tui::dim('(' . $suffix . '/' . self::TOTAL_RESPONSES . ')');
   }
 
   /**
@@ -619,7 +589,7 @@ class PromptManager {
    * @throws \RuntimeException
    *   If any prompt value is invalid.
    */
-  private function resolvePromptOverrides(): void {
+  protected function resolvePromptOverrides(): void {
     $raw = $this->config->get(Config::PROMPTS);
 
     if (!is_array($raw) || empty($raw)) {
@@ -653,7 +623,7 @@ class PromptManager {
    * @return mixed
    *   The prompt result.
    */
-  private function prompt(string $handler_class, array $responses = []): mixed {
+  protected function prompt(string $handler_class, array $responses = []): mixed {
     $handler = $this->handlers[$handler_class::id()];
     $fn = '\\Laravel\\Prompts\\' . $handler->type()->promptFunction();
 
@@ -677,7 +647,7 @@ class PromptManager {
    * @return array
    *   Array of prompt arguments suitable for Laravel prompts.
    */
-  private function args(string $handler_class, mixed $default_override = NULL, array $responses = []): array {
+  protected function args(string $handler_class, mixed $default_override = NULL, array $responses = []): array {
     $id = $handler_class::id();
 
     if (!array_key_exists($id, $this->handlers)) {
@@ -694,8 +664,8 @@ class PromptManager {
       'validate' => $handler->validate(),
     ];
 
-    $description = $handler->description($responses);
-    if (!is_null($description)) {
+    $description = $handler::description($responses);
+    if ($description !== NULL) {
       $args['description'] = PHP_EOL . $description . PHP_EOL;
     }
 
@@ -716,20 +686,20 @@ class PromptManager {
     // Get from discovery.
     $default_from_discovery = $this->handlers[$id]->discover();
 
-    if (!is_null($default_from_prompts)) {
+    if ($default_from_prompts !== NULL) {
       $default = $default_from_prompts;
     }
-    elseif (!is_null($default_from_discovery)) {
+    elseif ($default_from_discovery !== NULL) {
       $default = $default_from_discovery;
     }
-    elseif (!is_null($default_override)) {
+    elseif ($default_override !== NULL) {
       $default = $default_override;
     }
     else {
       $default = $default_from_handler;
     }
 
-    if (!is_null($default) && $default !== '') {
+    if ($default !== NULL && $default !== '') {
       $args['default'] = $default;
     }
 

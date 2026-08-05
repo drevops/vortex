@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit;
 
 use DrevOps\VortexInstaller\Utils\Strings;
+use DrevOps\VortexInstaller\Utils\Tui;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use DrevOps\VortexInstaller\Utils\Tui;
-
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
@@ -69,9 +68,9 @@ class TuiTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderColorMethods')]
-  public function testColorMethods(string $method, string $input, string $expectedAnsi): void {
+  public function testColorMethods(string $method, string $input, string $expected_ansi): void {
     $result = Tui::$method($input);
-    $this->assertStringContainsString($expectedAnsi, $result);
+    $this->assertStringContainsString($expected_ansi, $result);
     $this->assertStringContainsString($input, $result);
   }
 

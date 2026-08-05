@@ -6,8 +6,6 @@ namespace DrevOps\VortexInstaller\Schema;
 
 /**
  * Renders AI agent instructions for the installer.
- *
- * @package DrevOps\VortexInstaller\Schema
  */
 class AgentHelp {
 

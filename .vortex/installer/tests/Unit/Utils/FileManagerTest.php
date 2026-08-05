@@ -35,10 +35,10 @@ class FileManagerTest extends UnitTestCase {
    * Tests for prepareDestination().
    */
   public function testPrepareDestinationExistingDirWithGit(): void {
-    $dst = self::$sut;
-    mkdir($dst . '/.git', 0777, TRUE);
+    $destination = self::$sut;
+    mkdir($destination . '/.git', 0777, TRUE);
 
-    $config = new Config('/tmp/root', $dst, '/tmp/tmp');
+    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
     $fm = new FileManager($config);
 
     $messages = $fm->prepareDestination();
@@ -47,28 +47,28 @@ class FileManagerTest extends UnitTestCase {
   }
 
   public function testPrepareDestinationExistingDirWithoutGit(): void {
-    $dst = self::$sut;
+    $destination = self::$sut;
 
-    $config = new Config('/tmp/root', $dst, '/tmp/tmp');
+    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
     $fm = new FileManager($config);
 
     $messages = $fm->prepareDestination();
 
     $this->assertNotEmpty($messages);
-    $this->assertDirectoryExists($dst . '/.git');
+    $this->assertDirectoryExists($destination . '/.git');
     $this->assertStringContainsString('Initialising a new Git repository', $messages[0]);
   }
 
   public function testPrepareDestinationCreatesNewDir(): void {
-    $dst = self::$sut . '/new_subdir';
+    $destination = self::$sut . '/new_subdir';
 
-    $config = new Config('/tmp/root', $dst, '/tmp/tmp');
+    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
     $fm = new FileManager($config);
 
     $messages = $fm->prepareDestination();
 
-    $this->assertDirectoryExists($dst);
-    $this->assertDirectoryExists($dst . '/.git');
+    $this->assertDirectoryExists($destination);
+    $this->assertDirectoryExists($destination . '/.git');
 
     $has_created_msg = FALSE;
     $has_git_msg = FALSE;
@@ -89,34 +89,34 @@ class FileManagerTest extends UnitTestCase {
    */
   public function testCopyFilesCopiesToDestination(): void {
     $src = self::$sut . '/src_copy';
-    $dst = self::$sut . '/dst_copy';
+    $destination = self::$sut . '/dst_copy';
     mkdir($src, 0777, TRUE);
-    mkdir($dst, 0777, TRUE);
+    mkdir($destination, 0777, TRUE);
     file_put_contents($src . '/test.txt', 'content');
 
-    $config = new Config('/tmp/root', $dst, $src);
+    $config = new Config('/tmp/root', $destination, $src);
     $fm = new FileManager($config);
 
     $fm->copyFiles();
 
-    $this->assertFileExists($dst . '/test.txt');
-    $this->assertEquals('content', file_get_contents($dst . '/test.txt'));
+    $this->assertFileExists($destination . '/test.txt');
+    $this->assertEquals('content', file_get_contents($destination . '/test.txt'));
   }
 
   public function testCopyFilesCreatesEnvLocal(): void {
     $src = self::$sut . '/src_envlocal';
-    $dst = self::$sut . '/dst_envlocal';
+    $destination = self::$sut . '/dst_envlocal';
     mkdir($src, 0777, TRUE);
-    mkdir($dst, 0777, TRUE);
+    mkdir($destination, 0777, TRUE);
     file_put_contents($src . '/test.txt', 'content');
 
-    $config = new Config('/tmp/root', $dst, $src);
+    $config = new Config('/tmp/root', $destination, $src);
     $fm = new FileManager($config);
 
     $fm->copyFiles();
 
     // Create the .env.local.example after copy.
-    file_put_contents($dst . '/.env.local.example', 'EXAMPLE=1');
+    file_put_contents($destination . '/.env.local.example', 'EXAMPLE=1');
 
     // Re-run to trigger the .env.local creation.
     // Recreate src for the second run.
@@ -124,34 +124,34 @@ class FileManagerTest extends UnitTestCase {
     file_put_contents($src . '/dummy.txt', 'dummy');
     $fm->copyFiles();
 
-    $this->assertFileExists($dst . '/.env.local');
-    $this->assertEquals('EXAMPLE=1', file_get_contents($dst . '/.env.local'));
+    $this->assertFileExists($destination . '/.env.local');
+    $this->assertEquals('EXAMPLE=1', file_get_contents($destination . '/.env.local'));
   }
 
   public function testCopyFilesSkipsEnvLocalIfExists(): void {
     $src = self::$sut . '/src_envexist';
-    $dst = self::$sut . '/dst_envexist';
+    $destination = self::$sut . '/dst_envexist';
     mkdir($src, 0777, TRUE);
-    mkdir($dst, 0777, TRUE);
+    mkdir($destination, 0777, TRUE);
     file_put_contents($src . '/test.txt', 'content');
-    file_put_contents($dst . '/.env.local', 'EXISTING=1');
-    file_put_contents($dst . '/.env.local.example', 'EXAMPLE=1');
+    file_put_contents($destination . '/.env.local', 'EXISTING=1');
+    file_put_contents($destination . '/.env.local.example', 'EXAMPLE=1');
 
-    $config = new Config('/tmp/root', $dst, $src);
+    $config = new Config('/tmp/root', $destination, $src);
     $fm = new FileManager($config);
 
     $fm->copyFiles();
 
-    $this->assertEquals('EXISTING=1', file_get_contents($dst . '/.env.local'));
+    $this->assertEquals('EXISTING=1', file_get_contents($destination . '/.env.local'));
   }
 
   public function testCopyFilesHandlesEmptySrc(): void {
     $src = self::$sut . '/src_empty';
-    $dst = self::$sut . '/dst_empty';
+    $destination = self::$sut . '/dst_empty';
     mkdir($src, 0777, TRUE);
-    mkdir($dst, 0777, TRUE);
+    mkdir($destination, 0777, TRUE);
 
-    $config = new Config('/tmp/root', $dst, $src);
+    $config = new Config('/tmp/root', $destination, $src);
     $fm = new FileManager($config);
 
     // Should not throw.
@@ -166,28 +166,28 @@ class FileManagerTest extends UnitTestCase {
     // 'drevops/vortex-tooling' Composer package. The legacy directory must
     // be removed from the destination after the copy.
     $src = self::$sut . '/src_obsolete';
-    $dst = self::$sut . '/dst_obsolete';
+    $destination = self::$sut . '/dst_obsolete';
     mkdir($src, 0777, TRUE);
-    mkdir($dst . '/scripts/vortex', 0777, TRUE);
+    mkdir($destination . '/scripts/vortex', 0777, TRUE);
     file_put_contents($src . '/test.txt', 'new');
-    file_put_contents($dst . '/scripts/vortex/legacy.sh', 'legacy');
-    file_put_contents($dst . '/scripts/keep.sh', 'custom');
+    file_put_contents($destination . '/scripts/vortex/legacy.sh', 'legacy');
+    file_put_contents($destination . '/scripts/keep.sh', 'custom');
 
-    $config = new Config('/tmp/root', $dst, $src);
+    $config = new Config('/tmp/root', $destination, $src);
     $fm = new FileManager($config);
 
     $fm->copyFiles();
 
-    $this->assertDirectoryDoesNotExist($dst . '/scripts/vortex', 'Legacy scripts/vortex/ directory removed after copy.');
-    $this->assertFileExists($dst . '/scripts/keep.sh', 'Sibling custom scripts/ entries preserved.');
-    $this->assertFileExists($dst . '/test.txt', 'New files copied from source.');
+    $this->assertDirectoryDoesNotExist($destination . '/scripts/vortex', 'Legacy scripts/vortex/ directory removed after copy.');
+    $this->assertFileExists($destination . '/scripts/keep.sh', 'Sibling custom scripts/ entries preserved.');
+    $this->assertFileExists($destination . '/test.txt', 'New files copied from source.');
   }
 
   public function testRemoveObsoletePathsSilentOnMissing(): void {
-    $dst = self::$sut . '/dst_no_obsolete';
-    mkdir($dst, 0777, TRUE);
+    $destination = self::$sut . '/dst_no_obsolete';
+    mkdir($destination, 0777, TRUE);
 
-    $config = new Config('/tmp/root', $dst, '/tmp/tmp');
+    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
     $fm = new FileManager($config);
 
     // Should not throw when there is nothing to remove.
@@ -223,10 +223,10 @@ class FileManagerTest extends UnitTestCase {
   }
 
   public function testPrepareDemoNoUrl(): void {
-    $dst = self::$sut;
-    file_put_contents($dst . '/.env', '');
+    $destination = self::$sut;
+    file_put_contents($destination . '/.env', '');
 
-    $config = new Config('/tmp/root', $dst, '/tmp/tmp');
+    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
     $config->set(Config::IS_DEMO, TRUE);
     $fm = new FileManager($config);
 
@@ -238,13 +238,13 @@ class FileManagerTest extends UnitTestCase {
   }
 
   public function testPrepareDemoExistingDatabaseFile(): void {
-    $dst = self::$sut;
-    $data_dir = $dst . '/.data';
+    $destination = self::$sut;
+    $data_dir = $destination . '/.data';
     mkdir($data_dir, 0777, TRUE);
     file_put_contents($data_dir . '/db.sql', 'existing');
-    file_put_contents($dst . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
+    file_put_contents($destination . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
 
-    $config = new Config('/tmp/root', $dst, '/tmp/tmp');
+    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
     $config->set(Config::IS_DEMO, TRUE);
     $fm = new FileManager($config);
 
@@ -256,10 +256,10 @@ class FileManagerTest extends UnitTestCase {
   }
 
   public function testPrepareDemoFetchesDatabase(): void {
-    $dst = self::$sut;
-    file_put_contents($dst . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
+    $destination = self::$sut;
+    file_put_contents($destination . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
 
-    $config = new Config('/tmp/root', $dst, '/tmp/tmp');
+    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
     $config->set(Config::IS_DEMO, TRUE);
     $fm = new FileManager($config);
 
@@ -283,10 +283,10 @@ class FileManagerTest extends UnitTestCase {
   }
 
   public function testPrepareDemoCreatesDataDir(): void {
-    $dst = self::$sut;
-    file_put_contents($dst . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
+    $destination = self::$sut;
+    file_put_contents($destination . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
 
-    $config = new Config('/tmp/root', $dst, '/tmp/tmp');
+    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
     $config->set(Config::IS_DEMO, TRUE);
     $fm = new FileManager($config);
 
@@ -294,7 +294,7 @@ class FileManagerTest extends UnitTestCase {
     $result = $fm->prepareDemo($downloader);
 
     $this->assertIsArray($result);
-    $this->assertDirectoryExists($dst . '/.data');
+    $this->assertDirectoryExists($destination . '/.data');
 
     $has_created_msg = FALSE;
     foreach ($result as $msg) {

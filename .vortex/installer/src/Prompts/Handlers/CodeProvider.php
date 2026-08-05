@@ -22,7 +22,7 @@ class CodeProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public static function description(array $responses): string {
+  public static function description(array $responses): ?string {
     return 'Vortex offers full automation with GitHub, while support for other providers is limited.';
   }
 
@@ -54,11 +54,11 @@ class CodeProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    if (file_exists($this->dstDir . '/.github')) {
+    if (file_exists($this->destinationDir . '/.github')) {
       return self::GITHUB;
     }
 
-    return $this->isInstalled() && file_exists($this->dstDir . '/.git') ? self::OTHER : NULL;
+    return $this->isInstalled() && file_exists($this->destinationDir . '/.git') ? self::OTHER : NULL;
   }
 
   /**
@@ -69,9 +69,7 @@ class CodeProvider extends AbstractHandler {
     $t = $this->tmpDir;
 
     if ($v === self::GITHUB) {
-      if (file_exists($t . '/.github/PULL_REQUEST_TEMPLATE.md')) {
-        File::remove($t . '/.github/PULL_REQUEST_TEMPLATE.md');
-      }
+      File::remove($t . '/.github/PULL_REQUEST_TEMPLATE.md');
 
       if (file_exists($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md')) {
         rename($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md', $t . '/.github/PULL_REQUEST_TEMPLATE.md');

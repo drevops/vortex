@@ -69,7 +69,7 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
   /**
    * The working directory for checks.
    */
-  protected string $cwd;
+  protected string $destination;
 
   /**
    * {@inheritdoc}
@@ -79,8 +79,8 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
     $this->setDescription('Check if required tools are installed and running.');
     $this->setHelp('Checks for Docker, Docker Compose, Ahoy, and Pygmy.');
     $this->addDestinationOption();
-    $this->addOption(static::OPTION_ONLY, 'o', InputOption::VALUE_REQUIRED, sprintf('Comma-separated list of requirements to check. Available: %s.', implode(', ', static::REQUIREMENTS)));
-    $this->addOption(static::OPTION_NO_SUMMARY, NULL, InputOption::VALUE_NONE, 'Hide summary with tool versions.');
+    $this->addOption(self::OPTION_ONLY, 'o', InputOption::VALUE_REQUIRED, sprintf('Comma-separated list of requirements to check. Available: %s.', implode(', ', self::REQUIREMENTS)));
+    $this->addOption(self::OPTION_NO_SUMMARY, NULL, InputOption::VALUE_NONE, 'Hide summary with tool versions.');
   }
 
   /**
@@ -89,16 +89,16 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
   protected function execute(InputInterface $input, OutputInterface $output): int {
     Tui::init($output);
 
-    $this->cwd = $this->getDestination($input);
+    $this->destination = $this->getDestination($input);
 
-    $only = $input->getOption(static::OPTION_ONLY);
+    $only = $input->getOption(self::OPTION_ONLY);
     $requirements = $this->validateRequirements($only ? array_map(trim(...), explode(',', (string) $only)) : NULL);
 
-    $this->processRunner ??= $this->getProcessRunner()->setCwd($this->cwd);
+    $this->processRunner ??= $this->getProcessRunner()->setCwd($this->destination);
     $this->present = [];
     $this->missing = [];
 
-    if (in_array(static::REQ_DOCKER, $requirements, TRUE)) {
+    if (in_array(self::REQ_DOCKER, $requirements, TRUE)) {
       Task::action(
         label: 'Checking Docker',
         action: fn(): bool => $this->checkDocker(),
@@ -106,7 +106,7 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
       );
     }
 
-    if (in_array(static::REQ_DOCKER_COMPOSE, $requirements, TRUE)) {
+    if (in_array(self::REQ_DOCKER_COMPOSE, $requirements, TRUE)) {
       Task::action(
         label: 'Checking Docker Compose',
         action: fn(): bool => $this->checkDockerCompose(),
@@ -114,7 +114,7 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
       );
     }
 
-    if (in_array(static::REQ_AHOY, $requirements, TRUE)) {
+    if (in_array(self::REQ_AHOY, $requirements, TRUE)) {
       Task::action(
         label: 'Checking Ahoy',
         action: fn(): bool => $this->checkAhoy(),
@@ -122,7 +122,7 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
       );
     }
 
-    if (in_array(static::REQ_PYGMY, $requirements, TRUE)) {
+    if (in_array(self::REQ_PYGMY, $requirements, TRUE)) {
       Task::action(
         label: 'Checking Pygmy',
         action: fn(): bool => $this->checkPygmy(),
@@ -130,7 +130,7 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
       );
     }
 
-    if (!$input->getOption(static::OPTION_NO_SUMMARY)) {
+    if (!$input->getOption(self::OPTION_NO_SUMMARY)) {
       $summary = $this->getResultsSummary();
       Tui::box($summary['content'], $summary['title']);
     }
@@ -155,13 +155,13 @@ class CheckRequirementsCommand extends Command implements ProcessRunnerAwareInte
    */
   protected function validateRequirements(?array $only): array {
     if ($only !== NULL) {
-      $unknown = array_diff($only, static::REQUIREMENTS);
+      $unknown = array_diff($only, self::REQUIREMENTS);
       if (!empty($unknown)) {
-        throw new \InvalidArgumentException(sprintf("Unknown requirements: %s.\nAvailable: %s.", implode(', ', $unknown), implode(', ', static::REQUIREMENTS)));
+        throw new \InvalidArgumentException(sprintf("Unknown requirements: %s.\nAvailable: %s.", implode(', ', $unknown), implode(', ', self::REQUIREMENTS)));
       }
     }
 
-    return $only ?? static::REQUIREMENTS;
+    return $only ?? self::REQUIREMENTS;
   }
 
   /**

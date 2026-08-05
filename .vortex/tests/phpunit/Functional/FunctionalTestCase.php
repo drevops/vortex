@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Functional;
 
 use AlexSkrypnyk\File\File;
+use AlexSkrypnyk\File\Testing\DirectoryAssertionsTrait;
+use AlexSkrypnyk\File\Testing\FileAssertionsTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\AssertArrayTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\EnvTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\LocationsTrait;
@@ -22,7 +24,9 @@ use PHPUnit\Framework\TestStatus\Failure;
 class FunctionalTestCase extends UnitTestCase {
 
   use AssertArrayTrait;
+  use DirectoryAssertionsTrait;
   use EnvTrait;
+  use FileAssertionsTrait;
   use GitTrait;
   use LocationsTrait;
   use ProcessTrait;
@@ -174,7 +178,7 @@ class FunctionalTestCase extends UnitTestCase {
   }
 
   public function dockerCleanup(): void {
-    shell_exec('docker compose -p star_wars down --remove-orphans --volumes --timeout 1 > /dev/null 2>&1');
+    shell_exec(sprintf('docker compose -p %s down --remove-orphans --volumes --timeout 1 > /dev/null 2>&1', escapeshellarg(basename(static::$sut))));
   }
 
 }

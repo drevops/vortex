@@ -53,7 +53,7 @@ class Org extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('description');
+    $v = JsonManipulator::fromFile($this->destinationDir . '/composer.json')?->getProperty('description');
 
     if ($v && preg_match('/Drupal \d+ .* of ([0-9a-zA-Z\- ]+) for ([0-9a-zA-Z\- ]+)/', (string) $v, $matches) && !empty($matches[2])) {
       return $matches[2];

@@ -23,8 +23,8 @@ class Dotenv extends AbstractHandler {
   public function process(): void {
     $t = $this->tmpDir;
 
-    if (is_readable($this->dstDir . '/.env')) {
-      $variables = Env::parseDotenv($this->dstDir . '/.env');
+    if (is_readable($this->destinationDir . '/.env')) {
+      $variables = Env::parseDotenv($this->destinationDir . '/.env');
       foreach ($variables as $name => $value) {
         Env::writeValueDotenv($name, $value, $t . '/.env');
       }

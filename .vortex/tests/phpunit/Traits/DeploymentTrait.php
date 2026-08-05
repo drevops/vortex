@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace DrevOps\Vortex\Tests\Traits\Subtests;
+namespace DrevOps\Vortex\Tests\Traits;
 
 use AlexSkrypnyk\File\File;
 
 /**
  * Steps and assertions for testing deployment workflows.
  */
-trait SubtestDeploymentTrait {
+trait DeploymentTrait {
 
   /**
    * Prepare deployment source directory.

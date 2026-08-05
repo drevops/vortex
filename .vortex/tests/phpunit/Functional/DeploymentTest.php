@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\Vortex\Tests\Functional;
 
 use AlexSkrypnyk\File\File;
+use DrevOps\Vortex\Tests\Traits\DeploymentTrait;
 use DrevOps\Vortex\Tests\Traits\Subtests\SubtestAhoyTrait;
-use DrevOps\Vortex\Tests\Traits\Subtests\SubtestDeploymentTrait;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
@@ -14,8 +14,8 @@ use PHPUnit\Framework\Attributes\Group;
  */
 class DeploymentTest extends FunctionalTestCase {
 
+  use DeploymentTrait;
   use SubtestAhoyTrait;
-  use SubtestDeploymentTrait;
 
   protected function setUp(): void {
     parent::setUp();

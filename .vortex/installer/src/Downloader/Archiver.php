@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Downloader;
 
-use AlexSkrypnyk\File\File;
+use DrevOps\VortexInstaller\Utils\File;
 use PhpZip\ZipFile;
 
 /**
@@ -34,7 +34,7 @@ class Archiver implements ArchiverInterface {
 
     if (strlen($header) >= 512) {
       $tar_magic = substr($header, 257, 5);
-      if ($tar_magic === "ustar" || $tar_magic === "00000") {
+      if ($tar_magic === 'ustar' || $tar_magic === '00000') {
         return 'tar';
       }
     }
@@ -102,11 +102,7 @@ class Archiver implements ArchiverInterface {
   protected function extractTar(string $archive_path, string $destination, bool $strip_first_level): void {
     $temp_dir = NULL;
     try {
-      $temp_dir = $strip_first_level ? sys_get_temp_dir() . '/vortex_extract_' . uniqid() : $destination;
-
-      if ($strip_first_level) {
-        mkdir($temp_dir);
-      }
+      $temp_dir = $strip_first_level ? File::tmpdir() : $destination;
 
       // Use tar command to preserve symlinks (PharData doesn't preserve them).
       $command = sprintf(
@@ -155,8 +151,7 @@ class Archiver implements ArchiverInterface {
       $zip->openFile($archive_path);
 
       if ($strip_first_level) {
-        $temp_dir = sys_get_temp_dir() . '/vortex_extract_' . uniqid();
-        mkdir($temp_dir);
+        $temp_dir = File::tmpdir();
 
         $zip->extractTo($temp_dir);
 
@@ -198,7 +193,7 @@ class Archiver implements ArchiverInterface {
     }
 
     $top_dir = reset($entries);
-    $source_path = $source . DIRECTORY_SEPARATOR . $top_dir;
+    $source_path = $source . '/' . $top_dir;
 
     File::copy($source_path, $destination);
   }

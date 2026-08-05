@@ -80,10 +80,10 @@ class CommandRunner extends AbstractRunner {
     $composite_output = new class($buffered_output, $output, $logger, $this->shouldStream) extends BufferedOutput {
 
       public function __construct(
-        private readonly BufferedOutput $bufferedOutput,
-        private readonly OutputInterface $output,
-        private readonly LoggerInterface $logger,
-        private readonly bool $shouldStream,
+        protected readonly BufferedOutput $bufferedOutput,
+        protected readonly OutputInterface $output,
+        protected readonly LoggerInterface $logger,
+        protected readonly bool $shouldStream,
       ) {
         parent::__construct();
       }

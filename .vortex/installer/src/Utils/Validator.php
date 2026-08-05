@@ -8,36 +8,34 @@ namespace DrevOps\VortexInstaller\Utils;
  * Converter.
  *
  * Convert strings to different formats.
- *
- * @package DrevOps\VortexInstaller
  */
 class Validator {
 
-  public static function containerImage(string $value): bool {
+  public static function isContainerImage(string $value): bool {
     $regex = '/^(?:[a-z0-9.\-]+(?::\d+)?\/)?[a-z0-9]+(?:[._\-][a-z0-9]+)*(?:\/[a-z0-9]+(?:[._\-][a-z0-9]+)*)*(?::[a-zA-Z0-9][a-zA-Z0-9._\-]{0,127})?$/x';
 
     return (bool) preg_match($regex, $value);
   }
 
-  public static function domain(string $value): bool {
+  public static function isDomain(string $value): bool {
     return !filter_var($value, FILTER_VALIDATE_IP)
       && filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
       && str_contains($value, '.');
   }
 
-  public static function githubProject(string $value): bool {
+  public static function isGithubProject(string $value): bool {
     return (bool) preg_match('/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/', $value);
   }
 
-  public static function dirname(string $value): bool {
+  public static function isDirname(string $value): bool {
     return (bool) preg_match('/^(?!^(?:\.{1,2}|CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$)[\w\-.]+$/i', $value);
   }
 
-  public static function gitCommitSha(string $value): bool {
+  public static function isGitCommitSha(string $value): bool {
     return (bool) preg_match('/^[0-9a-f]{40}$/i', $value);
   }
 
-  public static function gitCommitShaShort(string $value): bool {
+  public static function isGitCommitShaShort(string $value): bool {
     return (bool) preg_match('/^[0-9a-f]{7}$/i', $value);
   }
 
@@ -66,14 +64,14 @@ class Validator {
    *
    * @see https://git-scm.com/docs/git-check-ref-format
    */
-  public static function gitRef(string $value): bool {
+  public static function isGitRef(string $value): bool {
     // Reserved keywords have special meaning.
     if (in_array($value, ['stable', 'HEAD'], TRUE)) {
       return TRUE;
     }
 
     // Already supported: commit hashes.
-    if (self::gitCommitSha($value) || self::gitCommitShaShort($value)) {
+    if (self::isGitCommitSha($value) || self::isGitCommitShaShort($value)) {
       return TRUE;
     }
 

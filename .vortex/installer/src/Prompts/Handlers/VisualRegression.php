@@ -26,7 +26,7 @@ class VisualRegression extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public static function description(array $responses): string {
+  public static function description(array $responses): ?string {
     return <<<DOC
 Diffy-powered visual regression workflow to compare deployed environments.
 
@@ -56,7 +56,7 @@ DOC;
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    return $this->isInstalled() ? file_exists($this->dstDir . '/.github/workflows/test-vr.yml') : NULL;
+    return $this->isInstalled() ? file_exists($this->destinationDir . '/.github/workflows/test-vr.yml') : NULL;
   }
 
   /**

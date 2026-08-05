@@ -30,8 +30,6 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
 
   const OPTION_SKIP_REQUIREMENTS_CHECK = 'skip-requirements-check';
 
-  const TROUBLESHOOTING_URL = 'https://vortex.drevops.com/troubleshooting';
-
   /**
    * Defines default command name.
    *
@@ -47,7 +45,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
   /**
    * The working directory for the build.
    */
-  protected string $cwd;
+  protected string $destination;
 
   /**
    * {@inheritdoc}
@@ -57,8 +55,8 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
     $this->setDescription('Build the site using ahoy build.');
     $this->setHelp('Checks requirements and runs ahoy build to set up the local site.');
     $this->addDestinationOption();
-    $this->addOption(static::OPTION_PROFILE, 'p', InputOption::VALUE_NONE, 'Build from install profile instead of loading database.');
-    $this->addOption(static::OPTION_SKIP_REQUIREMENTS_CHECK, NULL, InputOption::VALUE_NONE, 'Skip checking for required tools.');
+    $this->addOption(self::OPTION_PROFILE, 'p', InputOption::VALUE_NONE, 'Build from install profile instead of loading database.');
+    $this->addOption(self::OPTION_SKIP_REQUIREMENTS_CHECK, NULL, InputOption::VALUE_NONE, 'Skip checking for required tools.');
   }
 
   /**
@@ -67,10 +65,10 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
   protected function execute(InputInterface $input, OutputInterface $output): int {
     Tui::init($output);
 
-    $this->isProfile = (bool) $input->getOption(static::OPTION_PROFILE);
-    $this->cwd = $this->getDestination($input);
+    $this->isProfile = (bool) $input->getOption(self::OPTION_PROFILE);
+    $this->destination = $this->getDestination($input);
 
-    if (!$input->getOption(static::OPTION_SKIP_REQUIREMENTS_CHECK)) {
+    if (!$input->getOption(self::OPTION_SKIP_REQUIREMENTS_CHECK)) {
       $requirements_ok = Task::action(
         label: 'Checking requirements',
         action: function (): bool {
@@ -100,7 +98,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
           $env['VORTEX_PROVISION_TYPE'] = 'profile';
         }
 
-        $this->processRunner = $this->getProcessRunner()->setCwd($this->cwd);
+        $this->processRunner = $this->getProcessRunner()->setCwd($this->destination);
         $this->processRunner->run('ahoy build', env: $env);
 
         return $this->processRunner->getExitCode() === RunnerInterface::EXIT_SUCCESS;
@@ -120,22 +118,6 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
   }
 
   /**
-   * Get the project machine name from .env.
-   */
-  protected function getProjectMachineName(): string {
-    $env_file = $this->cwd . '/.env';
-
-    if (file_exists($env_file)) {
-      $content = file_get_contents($env_file);
-      if ($content !== FALSE && preg_match('/^VORTEX_PROJECT=(.+)$/m', $content, $matches)) {
-        return trim($matches[1]);
-      }
-    }
-
-    return basename($this->cwd);
-  }
-
-  /**
    * Get the local development URL from Docker Compose configuration.
    *
    * Runs `docker compose config --format json` to get the resolved
@@ -145,7 +127,7 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
    *   The local development URL, or NULL if it cannot be determined.
    */
   protected function getLocalDevUrl(): ?string {
-    $runner = $this->getProcessRunner()->setCwd($this->cwd);
+    $runner = $this->getProcessRunner()->setCwd($this->destination);
     $runner->run('docker', ['compose', 'config', '--format', 'json'], output: new NullOutput());
 
     if ($runner->getExitCode() === RunnerInterface::EXIT_SUCCESS) {

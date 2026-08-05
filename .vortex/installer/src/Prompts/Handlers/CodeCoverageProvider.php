@@ -51,14 +51,14 @@ class CodeCoverageProvider extends AbstractHandler {
       return NULL;
     }
 
-    $gha_files = glob($this->dstDir . '/.github/workflows/*.{yml,yaml}', GLOB_BRACE) ?: [];
+    $gha_files = glob($this->destinationDir . '/.github/workflows/*.{yml,yaml}', GLOB_BRACE) ?: [];
     foreach ($gha_files as $gha_file) {
       if (is_readable($gha_file) && File::contains($gha_file, 'codecov/codecov-action')) {
         return self::CODECOV;
       }
     }
 
-    $circle = $this->dstDir . '/.circleci/config.yml';
+    $circle = $this->destinationDir . '/.circleci/config.yml';
     if (is_readable($circle) && File::contains($circle, 'codecov -Z -s')) {
       return self::CODECOV;
     }

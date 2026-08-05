@@ -37,7 +37,7 @@ class AiCodeInstructions extends AbstractHandler {
       return NULL;
     }
 
-    return File::exists($this->dstDir . '/AGENTS.md') || File::exists($this->dstDir . '/CLAUDE.md') || File::exists($this->dstDir . '/.claude/settings.json');
+    return File::exists($this->destinationDir . '/AGENTS.md') || File::exists($this->destinationDir . '/CLAUDE.md') || File::exists($this->destinationDir . '/.claude/settings.json');
   }
 
   /**

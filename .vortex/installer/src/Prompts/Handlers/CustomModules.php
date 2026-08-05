@@ -91,7 +91,7 @@ DOC;
 
     $modules = [];
 
-    $module_dir = $this->dstDir . '/' . $this->webroot . '/modules/custom';
+    $module_dir = $this->destinationDir . '/' . $this->webroot . '/modules/custom';
 
     if (is_dir($module_dir . '/' . $prefix . '_base')) {
       $modules[] = self::BASE;
@@ -162,7 +162,7 @@ DOC;
         File::remove($path);
       }
 
-      static::removeDemoBehatFeatures($t);
+      self::removeDemoBehatFeatures($t);
     }
 
     if (!in_array(self::SEARCH, $selected)) {
@@ -200,10 +200,10 @@ DOC;
    */
   protected function discoverModulePrefix(): ?string {
     $locations = [
-      $this->dstDir . sprintf('/%s/modules/custom/*_base', $this->webroot),
-      $this->dstDir . sprintf('/%s/modules/custom/*_core', $this->webroot),
-      $this->dstDir . sprintf('/%s/sites/all/modules/custom/*_base', $this->webroot),
-      $this->dstDir . sprintf('/%s/sites/all/modules/custom/*_core', $this->webroot),
+      $this->destinationDir . sprintf('/%s/modules/custom/*_base', $this->webroot),
+      $this->destinationDir . sprintf('/%s/modules/custom/*_core', $this->webroot),
+      $this->destinationDir . sprintf('/%s/sites/all/modules/custom/*_base', $this->webroot),
+      $this->destinationDir . sprintf('/%s/sites/all/modules/custom/*_core', $this->webroot),
     ];
 
     $path = File::findMatchingPath($locations);

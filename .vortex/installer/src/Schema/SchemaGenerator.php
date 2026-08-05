@@ -10,8 +10,6 @@ use DrevOps\VortexInstaller\Utils\Normalizer;
 
 /**
  * Generates a JSON schema of all installer prompts.
- *
- * @package DrevOps\VortexInstaller\Schema
  */
 class SchemaGenerator {
 
@@ -36,7 +34,7 @@ class SchemaGenerator {
     $prompts = [];
 
     foreach ($this->handlers as $id => $handler) {
-      if (in_array($id, static::getExcludedHandlers(), TRUE)) {
+      if (in_array($id, self::getExcludedHandlers(), TRUE)) {
         continue;
       }
 

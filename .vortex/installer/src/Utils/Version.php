@@ -83,7 +83,7 @@ class Version {
    *   The project's major, or NULL when it cannot be determined.
    */
   public static function detectProjectMajor(string $dir): ?int {
-    $composer_json = $dir . DIRECTORY_SEPARATOR . 'composer.json';
+    $composer_json = $dir . '/composer.json';
 
     if (!is_file($composer_json)) {
       return NULL;

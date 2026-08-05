@@ -701,12 +701,12 @@ class ConcreteRunner extends AbstractRunner {
   /**
    * Public setter for exitCode (for testing).
    */
-  public function setExitCode(int $exitCode): void {
-    if ($exitCode < 0 || $exitCode > 255) {
+  public function setExitCode(int $exit_code): void {
+    if ($exit_code < 0 || $exit_code > 255) {
       throw new \RuntimeException('Exit code is out of valid range (0-255).');
     }
 
-    $this->exitCode = $exitCode;
+    $this->exitCode = $exit_code;
   }
 
   /**

@@ -14,7 +14,7 @@ interface RepositoryDownloaderInterface {
    *
    * @param \DrevOps\VortexInstaller\Downloader\Artifact $artifact
    *   The artifact to download (contains repository and reference).
-   * @param string|null $dst
+   * @param string|null $destination
    *   The destination directory. If NULL, a temporary directory will be used
    *   for local repositories.
    * @param string|null $release_prefix
@@ -30,6 +30,6 @@ interface RepositoryDownloaderInterface {
    * @throws \InvalidArgumentException
    *   If the destination is null for remote downloads.
    */
-  public function download(Artifact $artifact, ?string $dst = NULL, ?string $release_prefix = NULL): string;
+  public function download(Artifact $artifact, ?string $destination = NULL, ?string $release_prefix = NULL): string;
 
 }

@@ -16,7 +16,7 @@ class JsonManipulatorTest extends UnitTestCase {
   /**
    * Sample JSON content for testing.
    */
-  private const SAMPLE_JSON = '{
+  protected const SAMPLE_JSON = '{
     "name": "test/package",
     "description": "A test package",
     "version": "1.0.0",
@@ -40,7 +40,7 @@ class JsonManipulatorTest extends UnitTestCase {
   /**
    * Invalid JSON content for testing error cases.
    */
-  private const INVALID_JSON = '{
+  protected const INVALID_JSON = '{
     "name": "test/package",
     "description": "A test package"
     "invalid": missing comma
@@ -49,7 +49,7 @@ class JsonManipulatorTest extends UnitTestCase {
   /**
    * Create a temporary JSON file for testing.
    */
-  private function createTempJsonFile(string $content): string {
+  protected function createTempJsonFile(string $content): string {
     $temp_file = tempnam(sys_get_temp_dir(), 'json_test_');
     file_put_contents($temp_file, $content);
     return $temp_file;

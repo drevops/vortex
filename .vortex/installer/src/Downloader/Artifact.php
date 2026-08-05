@@ -15,16 +15,16 @@ use DrevOps\VortexInstaller\Utils\Validator;
 final readonly class Artifact {
 
   /**
-   * Private constructor - use factory method instead.
+   * Constructor - use a factory method instead.
    *
    * @param string $repo
    *   The repository URL or local path.
    * @param string $ref
    *   The git reference (tag, branch, commit, or special refs).
    */
-  private function __construct(
-    private string $repo,
-    private string $ref,
+  protected function __construct(
+    protected string $repo,
+    protected string $ref,
   ) {}
 
   /**
@@ -66,7 +66,7 @@ final readonly class Artifact {
    */
   public static function create(string $repo, string $ref): self {
     // Validate ref syntax.
-    if (!Validator::gitRef($ref)) {
+    if (!Validator::isGitRef($ref)) {
       throw new \RuntimeException(sprintf('Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.', $ref));
     }
     return new self($repo, $ref);
@@ -176,7 +176,7 @@ final readonly class Artifact {
       [$repo, $ref] = $github_pattern;
 
       // Validate the extracted ref.
-      if (!Validator::gitRef($ref)) {
+      if (!Validator::isGitRef($ref)) {
         throw new \RuntimeException(sprintf('Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.', $ref));
       }
 
@@ -220,7 +220,7 @@ final readonly class Artifact {
       $ref = $matches[2] ?? RepositoryDownloader::REF_HEAD;
     }
 
-    if (!Validator::gitRef($ref)) {
+    if (!Validator::isGitRef($ref)) {
       throw new \RuntimeException(sprintf('Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.', $ref));
     }
 

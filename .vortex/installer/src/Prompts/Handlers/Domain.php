@@ -54,7 +54,7 @@ class Domain extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $origin = Env::getFromDotenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN', $this->dstDir);
+    $origin = Env::getFromDotenv('DRUPAL_STAGE_FILE_PROXY_ORIGIN', $this->destinationDir);
 
     if ($origin) {
       return Converter::domain($origin);
@@ -67,7 +67,7 @@ class Domain extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn($v): ?string => Validator::domain($v) ? NULL : 'Please enter a valid domain name.';
+    return fn($v): ?string => Validator::isDomain($v) ? NULL : 'Please enter a valid domain name.';
   }
 
   /**

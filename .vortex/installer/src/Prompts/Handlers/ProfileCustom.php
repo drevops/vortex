@@ -18,13 +18,6 @@ class ProfileCustom extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
-  public function hint(array $responses): ?string {
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function placeholder(array $responses): ?string {
     return 'E.g. my_profile';
   }

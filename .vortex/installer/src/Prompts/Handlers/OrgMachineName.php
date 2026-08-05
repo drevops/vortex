@@ -53,7 +53,7 @@ class OrgMachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $v = JsonManipulator::fromFile($this->dstDir . '/composer.json')?->getProperty('name');
+    $v = JsonManipulator::fromFile($this->destinationDir . '/composer.json')?->getProperty('name');
 
     if ($v && preg_match('/([^\/]+)\/(.+)/', (string) $v, $matches) && !empty($matches[1])) {
       return $matches[1];

@@ -322,7 +322,7 @@ trait SubtestDockerComposeTrait {
     $this->logStepFinish();
   }
 
-  protected function subtestSolr(): void {
+  protected function subtestDockerComposeSolr(): void {
     $this->logStepStart();
 
     $this->cmd(

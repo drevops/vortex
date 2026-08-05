@@ -50,9 +50,7 @@ abstract class AbstractRunner implements RunnerInterface {
    * {@inheritdoc}
    */
   public function getLogger(): FileLoggerInterface {
-    if (!isset($this->logger)) {
-      $this->logger = new FileLogger();
-    }
+    $this->logger ??= new FileLogger();
 
     return $this->logger;
   }

@@ -35,8 +35,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Run command.
  *
  * Install command.
- *
- * @package DrevOps\VortexInstaller\Command
  */
 class InstallCommand extends Command implements CommandRunnerAwareInterface, ExecutableFinderAwareInterface {
 
@@ -50,8 +48,6 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
   const OPTION_NO_INTERACTION = 'no-interaction';
 
   const OPTION_CONFIG = 'config';
-
-  const OPTION_QUIET = 'quiet';
 
   const OPTION_URI = 'uri';
 
@@ -138,17 +134,17 @@ class InstallCommand extends Command implements CommandRunnerAwareInterface, Exe
   php installer.php --uri=https://github.com/drevops/vortex/commit/abcd123
 EOF
     );
-    $this->addOption(static::OPTION_DESTINATION, NULL, InputOption::VALUE_REQUIRED, 'Destination directory. Defaults to the current directory.');
-    $this->addOption(static::OPTION_ROOT, NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
-    $this->addOption(static::OPTION_NO_INTERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
-    $this->addOption(static::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options or a path to a JSON file.');
-    $this->addOption(static::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
-    $this->addOption(static::OPTION_NO_CLEANUP, NULL, InputOption::VALUE_NONE, 'Do not remove installer after successful installation.');
-    $this->addOption(static::OPTION_BUILD, 'b', InputOption::VALUE_NONE, 'Run auto-build after installation without prompting.');
-    $this->addOption(static::OPTION_PROMPTS, 'p', InputOption::VALUE_REQUIRED, 'A JSON string with prompt answers or a path to a JSON file. Keys are prompt IDs from --schema.');
-    $this->addOption(static::OPTION_SCHEMA, NULL, InputOption::VALUE_NONE, 'Output prompt schema as JSON.');
-    $this->addOption(static::OPTION_VALIDATE, NULL, InputOption::VALUE_NONE, 'Validate config without installing.');
-    $this->addOption(static::OPTION_AGENT_HELP, NULL, InputOption::VALUE_NONE, 'Output instructions for AI agents on how to use the installer.');
+    $this->addOption(self::OPTION_DESTINATION, NULL, InputOption::VALUE_REQUIRED, 'Destination directory. Defaults to the current directory.');
+    $this->addOption(self::OPTION_ROOT, NULL, InputOption::VALUE_REQUIRED, 'Path to the root for file path resolution. If not specified, current directory is used.');
+    $this->addOption(self::OPTION_NO_INTERACTION, 'n', InputOption::VALUE_NONE, 'Do not ask any interactive question.');
+    $this->addOption(self::OPTION_CONFIG, 'c', InputOption::VALUE_REQUIRED, 'A JSON string with options or a path to a JSON file.');
+    $this->addOption(self::OPTION_URI, 'l', InputOption::VALUE_REQUIRED, 'Remote or local repository URI with an optional git ref set after @.');
+    $this->addOption(self::OPTION_NO_CLEANUP, NULL, InputOption::VALUE_NONE, 'Do not remove installer after successful installation.');
+    $this->addOption(self::OPTION_BUILD, 'b', InputOption::VALUE_NONE, 'Run auto-build after installation without prompting.');
+    $this->addOption(self::OPTION_PROMPTS, 'p', InputOption::VALUE_REQUIRED, 'A JSON string with prompt answers or a path to a JSON file. Keys are prompt IDs from --schema.');
+    $this->addOption(self::OPTION_SCHEMA, NULL, InputOption::VALUE_NONE, 'Output prompt schema as JSON.');
+    $this->addOption(self::OPTION_VALIDATE, NULL, InputOption::VALUE_NONE, 'Validate config without installing.');
+    $this->addOption(self::OPTION_AGENT_HELP, NULL, InputOption::VALUE_NONE, 'Output instructions for AI agents on how to use the installer.');
   }
 
   /**
@@ -161,15 +157,15 @@ EOF
       return Command::SUCCESS;
     }
 
-    if ($input->getOption(static::OPTION_AGENT_HELP)) {
+    if ($input->getOption(self::OPTION_AGENT_HELP)) {
       return $this->handleAgentHelp($output);
     }
 
-    if ($input->getOption(static::OPTION_SCHEMA)) {
+    if ($input->getOption(self::OPTION_SCHEMA)) {
       return $this->handleSchema($input, $output);
     }
 
-    if ($input->getOption(static::OPTION_VALIDATE)) {
+    if ($input->getOption(self::OPTION_VALIDATE)) {
       return $this->handleValidate($input, $output);
     }
 
@@ -325,7 +321,7 @@ EOF
    * Handle --validate option.
    */
   protected function handleValidate(InputInterface $input, OutputInterface $output): int {
-    $prompts_option = $input->getOption(static::OPTION_PROMPTS);
+    $prompts_option = $input->getOption(self::OPTION_PROMPTS);
 
     if (empty($prompts_option) || !is_string($prompts_option)) {
       $output->writeln('The --validate option requires --prompts.');
@@ -381,7 +377,7 @@ EOF
     $starter = $responses[Starter::id()] ?? Starter::LOAD_DATABASE_DEMO;
     $is_profile = in_array($starter, [Starter::INSTALL_PROFILE_CORE, Starter::INSTALL_PROFILE_DRUPALCMS], TRUE);
 
-    $args = ['--destination' => $this->config->getDst()];
+    $args = ['--destination' => $this->config->getDestination()];
     if ($is_profile) {
       $args['--profile'] = '1';
     }
@@ -413,7 +409,7 @@ EOF
       return;
     }
 
-    $project_major = Version::detectProjectMajor((string) $this->config->getDst());
+    $project_major = Version::detectProjectMajor((string) $this->config->getDestination());
     if ($project_major === NULL || $project_major === $installer_major) {
       return;
     }
@@ -456,11 +452,11 @@ EOF
   /**
    * Set the repository downloader.
    *
-   * @param \DrevOps\VortexInstaller\Downloader\RepositoryDownloader $repositoryDownloader
+   * @param \DrevOps\VortexInstaller\Downloader\RepositoryDownloader $repository_downloader
    *   The repository downloader.
    */
-  public function setRepositoryDownloader(RepositoryDownloader $repositoryDownloader): void {
-    $this->repositoryDownloader = $repositoryDownloader;
+  public function setRepositoryDownloader(RepositoryDownloader $repository_downloader): void {
+    $this->repositoryDownloader = $repository_downloader;
   }
 
   /**
@@ -479,11 +475,11 @@ EOF
   /**
    * Set the file downloader.
    *
-   * @param \DrevOps\VortexInstaller\Downloader\Downloader $fileDownloader
+   * @param \DrevOps\VortexInstaller\Downloader\Downloader $file_downloader
    *   The file downloader.
    */
-  public function setFileDownloader(Downloader $fileDownloader): void {
-    $this->fileDownloader = $fileDownloader;
+  public function setFileDownloader(Downloader $file_downloader): void {
+    $this->fileDownloader = $file_downloader;
   }
 
 }
