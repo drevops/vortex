@@ -52,9 +52,7 @@ use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Console\Output\OutputInterface;
-use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\form;
-use function Laravel\Prompts\info;
 
 /**
  * PromptManager.
@@ -404,9 +402,7 @@ class PromptManager {
 
     if (!$this->config->getNoInteraction()) {
       Tui::line(sprintf('Vortex will be installed into your project\'s directory "%s"', $this->config->getDestination()));
-      $proceed = confirm(
-        label: 'Proceed with installing Vortex?',
-      );
+      $proceed = Tui::confirm('Proceed with installing Vortex?');
     }
 
     // Kill-switch to not proceed with install. If FALSE, the installer will not
@@ -731,7 +727,7 @@ class PromptManager {
       $message = $handler->resolvedMessage($r, $resolved);
 
       if ($message) {
-        info($message);
+        Tui::success($message);
       }
 
       return $resolved;
