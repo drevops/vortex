@@ -55,8 +55,8 @@ class ToolingBootstrapTest extends FunctionalTestCase {
     }
   }
 
-  #[DataProvider('dataProviderBootstrap')]
   #[Group('p1')]
+  #[DataProvider('dataProviderBootstrap')]
   public function testBootstrap(bool $package_present, bool $binaries_present): void {
     $this->logStepStart();
 

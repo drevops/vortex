@@ -51,6 +51,7 @@ class PostBuildTest extends FunctionalTestCase {
    *   on runner 0 but not runner 1, search.feature on runner 1 but not
    *   runner 0)
    */
+  #[Group('p0')]
   #[Group('postbuild')]
   public function testCircleCiArtifactsAreSaved(): void {
     $current_job_number = (int) getenv('CIRCLE_BUILD_NUM');
@@ -95,6 +96,7 @@ class PostBuildTest extends FunctionalTestCase {
    * - PHPUnit test results from various test suites are recorded
    * - Behat feature test results are recorded.
    */
+  #[Group('p0')]
   #[Group('postbuild')]
   public function testCircleCiTestResultsAreSaved(): void {
     $current_job_number = (int) getenv('CIRCLE_BUILD_NUM');
