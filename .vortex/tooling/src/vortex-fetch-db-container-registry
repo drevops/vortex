@@ -45,6 +45,10 @@ _v="VORTEX_FETCH_DB${_db_index}_CONTAINER_REGISTRY_IMAGE_BASE"
 _vs="VORTEX_DB${_db_index}_IMAGE_BASE"
 VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="${!_v:-${!_vs:-}}"
 
+# Force fetch even if the image already exists on the host.
+_v="VORTEX_FETCH_DB${_db_index}_FORCE"
+VORTEX_FETCH_DB_FORCE="${!_v:-}"
+
 #-------------------------------------------------------------------------------
 
 # @formatter:off
@@ -68,15 +72,21 @@ info "Started database data container image fetch."
 [ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS}" ] && fail "Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS." && exit 1
 [ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" ] && fail "Destination image name is not specified. Please provide VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE or VORTEX_DB_IMAGE in a format <org>/<repository>." && exit 1
 
-docker image inspect "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" >/dev/null 2>&1 &&
-  note "Found ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host." ||
+archive_file="${VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR}/db.tar"
+
+image_found_on_host=0
+if docker image inspect "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" >/dev/null 2>&1; then
+  note "Found ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
+  image_found_on_host=1
+else
   note "Not found ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
+fi
 
 image_expanded_successfully=0
-if [ -f "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR}/db.tar" ]; then
-  task "Found archived database container image file ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR}/db.tar. Expanding..."
+if [ -f "${archive_file}" ]; then
+  task "Found archived database container image file ${archive_file}. Expanding..."
   # Always use archived image, even if such image already exists on the host.
-  docker load -q --input "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR}/db.tar"
+  docker load -q --input "${archive_file}"
 
   # Check that image was expanded and now exists on the host or notify
   # that it will be downloaded from the registry.
@@ -88,8 +98,20 @@ if [ -f "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR}/db.tar" ]; then
   fi
 fi
 
-if [ "${image_expanded_successfully}" -eq 0 ]; then
-  if [ ! -f "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR}/db.tar" ] && [ -n "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE:-}" ]; then
+# An expanded archive always wins over the image on the host, so the host image
+# is only reused when there is no archive to expand.
+should_fetch=1
+if [ "${image_expanded_successfully}" -eq 1 ]; then
+  should_fetch=0
+elif [ ! -f "${archive_file}" ] && [ "${image_found_on_host}" -eq 1 ] && [ "${VORTEX_FETCH_DB_FORCE}" != "1" ]; then
+  note "Using existing ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
+  note "Fetch will not proceed."
+  note "Remove existing image or set VORTEX_FETCH_DB${_db_index}_FORCE value to 1 to force fetch."
+  should_fetch=0
+fi
+
+if [ "${should_fetch}" -eq 1 ]; then
+  if [ ! -f "${archive_file}" ] && [ -n "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE:-}" ]; then
     # If the image archive does not exist and base image was provided - use the
     # base image which allows "clean slate" for the database.
     note "Database container image was not found. Using base image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}."
