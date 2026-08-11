@@ -143,6 +143,9 @@ load ../_helper.bash
   assert_output_contains "Fetching myorg/myapp image from the registry."
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
+  # The inspect, the login and the pull.
+  assert_equal "3" "$(mock_get_call_num "${mock_docker}")"
+
   popd >/dev/null
 }
 
@@ -194,6 +197,9 @@ load ../_helper.bash
   assert_output_contains "Fetching myorg/migration-db image from the registry."
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
+  # The inspect, the login and the pull.
+  assert_equal "3" "$(mock_get_call_num "${mock_docker}")"
+
   popd >/dev/null
 }
 
@@ -226,6 +232,9 @@ load ../_helper.bash
   assert_output_not_contains "Using existing myorg/myapp image on host."
   assert_output_contains "Fetching myorg/myapp image from the registry."
   assert_output_contains "[ OK ] Finished database data container image fetch."
+
+  # The inspect, the load, the second inspect, the login and the pull.
+  assert_equal "5" "$(mock_get_call_num "${mock_docker}")"
 
   rm -f .data/db.tar
 
