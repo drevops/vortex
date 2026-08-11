@@ -44,7 +44,7 @@ class OptionsResolverTest extends UnitTestCase {
       ->willReturnCallback(fn(string $name): ?string => $name === $missing_command ? NULL : '/usr/bin/' . $name);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage(sprintf('Missing required command: %s.', $missing_command));
+    $this->expectExceptionMessage(sprintf('Missing required command: "%s".', $missing_command));
 
     OptionsResolver::checkRequirements($finder);
   }
@@ -60,7 +60,7 @@ class OptionsResolverTest extends UnitTestCase {
     $finder->method('find')->willReturn(NULL);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Missing required command: git.');
+    $this->expectExceptionMessage('Missing required command: "git".');
 
     OptionsResolver::checkRequirements($finder);
   }

@@ -321,7 +321,7 @@ class EnvTest extends UnitTestCase {
 
   public function testWriteValueDotenvFileNotReadable(): void {
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('File /nonexistent/file.env is not readable.');
+    $this->expectExceptionMessage('File "/nonexistent/file.env" is not readable.');
 
     Env::writeValueDotenv('TEST_VAR', 'value', '/nonexistent/file.env');
   }
@@ -332,7 +332,7 @@ class EnvTest extends UnitTestCase {
     chmod($filename, 0000);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage(sprintf('File %s is not readable.', $filename));
+    $this->expectExceptionMessage(sprintf('File "%s" is not readable.', $filename));
 
     try {
       Env::writeValueDotenv('TEST_VAR', 'value', $filename);

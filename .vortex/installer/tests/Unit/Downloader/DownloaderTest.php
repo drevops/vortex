@@ -47,7 +47,7 @@ class DownloaderTest extends UnitTestCase {
     $downloader = new Downloader($mock_http_client);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Unable to download file from https://example.com/file.sql: Network error');
+    $this->expectExceptionMessage('Unable to download file from "https://example.com/file.sql": Network error.');
 
     $downloader->download('https://example.com/file.sql', $destination);
   }
