@@ -292,9 +292,9 @@ class PromptManager {
    * Run all processors.
    */
   public function runProcessors(): void {
-    // Processors run in reverse of the order defined in runPrompts(), so the
-    // handlers for string replacements process more specific values first and
-    // the more generic ones last.
+    // Dotenv and Webroot run first; Dotenv has no prompt of its own. The rest
+    // run in reverse of the order defined in runPrompts(), so string
+    // replacements process more specific values before more generic ones.
     $ids = [
       Dotenv::id(),
       Webroot::id(),

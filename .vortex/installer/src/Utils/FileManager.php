@@ -32,9 +32,13 @@ class FileManager {
 
     if (!is_readable($destination . '/.git')) {
       $messages[] = sprintf('Initializing a new Git repository in directory "%s".', $destination);
-      passthru(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $destination, $destination));
 
-      if (!File::exists($destination . '/.git')) {
+      // The destination arrives from a CLI option, the environment or a config
+      // file, so it is escaped rather than interpolated into the shell string.
+      $command = sprintf('git --work-tree=%s --git-dir=%s init > /dev/null', escapeshellarg($destination), escapeshellarg($destination . '/.git'));
+      passthru($command, $exit_code);
+
+      if ($exit_code !== 0 || !File::exists($destination . '/.git')) {
         throw new \RuntimeException(sprintf('Unable to initialize Git repository in directory "%s".', $destination));
       }
     }

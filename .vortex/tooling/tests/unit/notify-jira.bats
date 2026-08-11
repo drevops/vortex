@@ -169,6 +169,52 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Notify: jira, custom message template replaces the default comment" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  # Call 1: authentication check returns an account ID of the expected length.
+  mock_set_output "${mock_curl}" '{"accountId": "123456789020165700ede21g"}' 1
+  # Call 2: comment creation returns a numeric comment ID.
+  mock_set_output "${mock_curl}" '{"id": "1234"}' 2
+
+  export VORTEX_NOTIFY_CHANNELS="jira"
+  export VORTEX_NOTIFY_JIRA_USER_EMAIL="john.doe@example.com"
+  export VORTEX_NOTIFY_JIRA_TOKEN="token12345"
+  export VORTEX_NOTIFY_JIRA_PROJECT="PROJ"
+  export VORTEX_NOTIFY_BRANCH="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOGIN_URL="https://develop.testproject.com/user/login"
+  export VORTEX_NOTIFY_JIRA_MESSAGE="Deployed %project% %label%
+at %timestamp% to %environment_url%
+Login: %login_url%"
+
+  run ./.vortex/tooling/src/vortex-notify
+  assert_success
+
+  run mock_get_call_args "${mock_curl}" 2
+
+  # Every token is replaced with its value.
+  assert_output_contains "Deployed PROJ feature/proj-1234-some-description"
+  assert_output_contains "https://develop.testproject.com"
+  assert_output_contains "https://develop.testproject.com/user/login"
+  assert_output_not_contains "%project%"
+  assert_output_not_contains "%label%"
+  assert_output_not_contains "%timestamp%"
+  assert_output_not_contains "%environment_url%"
+  assert_output_not_contains "%login_url%"
+
+  # Each newline becomes an ADF hardBreak node.
+  assert_output_contains "hardBreak"
+
+  # The default body is not used when a template is configured.
+  assert_output_not_contains "This is an automated message"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Notify: jira, deployment log included in comment" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
