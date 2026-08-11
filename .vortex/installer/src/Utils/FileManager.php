@@ -31,11 +31,11 @@ class FileManager {
     }
 
     if (!is_readable($destination . '/.git')) {
-      $messages[] = sprintf('Initialising a new Git repository in directory "%s".', $destination);
+      $messages[] = sprintf('Initializing a new Git repository in directory "%s".', $destination);
       passthru(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $destination, $destination));
 
       if (!File::exists($destination . '/.git')) {
-        throw new \RuntimeException(sprintf('Unable to initialise Git repository in directory "%s".', $destination));
+        throw new \RuntimeException(sprintf('Unable to initialize Git repository in directory "%s".', $destination));
       }
     }
 

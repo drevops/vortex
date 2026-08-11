@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Notification dispatch to Jira.
+# Notification dispatch to JIRA.
 #
 # Features:
 # - posts comment with a URL of a deployment environment

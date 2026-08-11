@@ -66,7 +66,7 @@ class OrgMachineName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function validate(): ?callable {
-    return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid organisation machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
+    return fn($v): ?string => Converter::machineExtended($v) !== $v ? 'Please enter a valid organization machine name: only lowercase letters, numbers, and underscores are allowed.' : NULL;
   }
 
   /**

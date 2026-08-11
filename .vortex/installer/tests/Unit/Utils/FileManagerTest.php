@@ -56,7 +56,7 @@ class FileManagerTest extends UnitTestCase {
 
     $this->assertNotEmpty($messages);
     $this->assertDirectoryExists($destination . '/.git');
-    $this->assertStringContainsString('Initialising a new Git repository', $messages[0]);
+    $this->assertStringContainsString('Initializing a new Git repository', $messages[0]);
   }
 
   public function testPrepareDestinationCreatesNewDir(): void {
@@ -76,7 +76,7 @@ class FileManagerTest extends UnitTestCase {
       if (str_contains($message, 'Created directory')) {
         $has_created_msg = TRUE;
       }
-      if (str_contains($message, 'Initialising a new Git repository')) {
+      if (str_contains($message, 'Initializing a new Git repository')) {
         $has_git_msg = TRUE;
       }
     }

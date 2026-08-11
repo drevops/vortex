@@ -533,7 +533,7 @@ class PromptManager {
   }
 
   /**
-   * Collect and initialise handlers.
+   * Collect and initialize handlers.
    */
   protected function initHandlers(): void {
     $dir = __DIR__ . '/Handlers';
