@@ -24,7 +24,7 @@ function ys_demo_deploy_place_counter_block(): string {
   // Check if block already exists.
   $existing_block = $block_storage->load('ys_demo_counter_block');
   if ($existing_block) {
-    return 'Counter block already exists';
+    return 'Counter block already exists.';
   }
 
   // Create block configuration.
@@ -46,7 +46,7 @@ function ys_demo_deploy_place_counter_block(): string {
   $block = $block_storage->create($block_config);
   $block->save();
 
-  return 'Counter block placed in the "content" region';
+  return 'Counter block placed in the "content" region.';
 }
 
 /**

@@ -11,7 +11,7 @@ Feature: Pages listing
       | title                   | status | moderation_state |
       | [TEST] First test page  | 1      | published        |
       | [TEST] Second test page | 1      | published        |
-    When I visit "/pages"
+    When I go to "/pages"
     Then I should see "[TEST] First test page"
     And I should see "[TEST] Second test page"
     And I should not see "Demo page"

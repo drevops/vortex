@@ -1,4 +1,4 @@
-@a11y
+@accessibility
 Feature: Accessibility
 
   As a site visitor

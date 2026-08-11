@@ -72,26 +72,26 @@ setup_robo_fixture() {
     "@docker login --username test_user --password-stdin registry.example.com"
     "Processing service service1"
     "@docker compose ps -q service1 # service1_service_id"
-    'Found "service1" service container with id "service1_service_id".'
-    'Committing container image with name "registry.example.com/image1:test_latest".'
+    'Found service1 service container with id service1_service_id.'
+    'Committing container image with name registry.example.com/image1:test_latest.'
     "@docker commit service1_service_id registry.example.com/image1:test_latest # sha256:service1_image_id"
-    'Committed container image with id "service1_image_id".'
+    'Committed container image with id service1_image_id.'
     "Pushing container image to the registry."
     "@docker push registry.example.com/image1:test_latest"
     "Processing service service2"
     "@docker compose ps -q service2 # service2_service_id"
-    'Found "service2" service container with id "service2_service_id".'
-    'Committing container image with name "registry.example.com/image2:test_latest".'
+    'Found service2 service container with id service2_service_id.'
+    'Committing container image with name registry.example.com/image2:test_latest.'
     "@docker commit service2_service_id registry.example.com/image2:test_latest # sha256:service2_image_id"
-    'Committed container image with id "service2_image_id".'
+    'Committed container image with id service2_image_id.'
     "Pushing container image to the registry."
     "@docker push registry.example.com/image2:test_latest"
     "Processing service service3"
     "@docker compose ps -q service3 # service3_service_id"
-    'Found "service3" service container with id "service3_service_id".'
-    'Committing container image with name "registry.example.com/image3:test_latest".'
+    'Found service3 service container with id service3_service_id.'
+    'Committing container image with name registry.example.com/image3:test_latest.'
     "@docker commit service3_service_id registry.example.com/image3:test_latest # sha256:service3_image_id"
-    'Committed container image with id "service3_image_id".'
+    'Committed container image with id service3_image_id.'
     "Pushing container image to the registry."
     "@docker push registry.example.com/image3:test_latest"
     "Finished container registry push."
@@ -125,7 +125,7 @@ setup_robo_fixture() {
     "@docker login --username test_user --password-stdin registry.example.com"
     "Processing service service1"
     "@docker compose ps -q service1"
-    'Service "service1" is not running.'
+    'Service service1 is not running.'
   )
 
   mocks="$(steps_run "setup")"
@@ -153,35 +153,35 @@ setup_robo_fixture() {
 
   run ./.vortex/tooling/src/vortex-push-container-registry
   assert_failure
-  assert_output_contains 'Invalid key/value pair "service1" provided.'
+  assert_output_contains 'Invalid key/value pair service1 provided.'
 
   # Using a space delimiter.
   export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1=image1 service2=image2"
 
   run .vortex/tooling/src/vortex-push-container-registry
   assert_failure
-  assert_output_contains 'Invalid key/value pair "service1=image1 service2=image2" provided.'
+  assert_output_contains 'Invalid key/value pair service1=image1 service2=image2 provided.'
 
   # No comma delimiter
   export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1=image1=service2=image2"
 
   run .vortex/tooling/src/vortex-push-container-registry
   assert_failure
-  assert_output_contains 'Invalid key/value pair "service1=image1=service2=image2" provided.'
+  assert_output_contains 'Invalid key/value pair service1=image1=service2=image2 provided.'
 
   # Empty image.
   export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1="
 
   run .vortex/tooling/src/vortex-push-container-registry
   assert_failure
-  assert_output_contains 'Invalid key/value pair "service1=" provided.'
+  assert_output_contains 'Invalid key/value pair service1= provided.'
 
   # Empty service.
   export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="=image1"
 
   run .vortex/tooling/src/vortex-push-container-registry
   assert_failure
-  assert_output_contains 'Invalid key/value pair "=image1" provided.'
+  assert_output_contains 'Invalid key/value pair =image1 provided.'
 
   popd >/dev/null
 }
@@ -206,12 +206,12 @@ setup_robo_fixture() {
     "@docker login --username test_user --password-stdin registry.example.com"
     "Processing service service1"
     "@docker compose ps -q service1 # service1_service_id"
-    'Committing container image with name "registry.example.com/org/image1:custom".'
+    'Committing container image with name registry.example.com/org/image1:custom.'
     "@docker commit service1_service_id registry.example.com/org/image1:custom # sha256:service1_image_id"
     "@docker push registry.example.com/org/image1:custom"
     "Processing service service2"
     "@docker compose ps -q service2 # service2_service_id"
-    'Committing container image with name "registry.example.com/host.io:5000/app:test_latest".'
+    'Committing container image with name registry.example.com/host.io:5000/app:test_latest.'
     "@docker commit service2_service_id registry.example.com/host.io:5000/app:test_latest # sha256:service2_image_id"
     "@docker push registry.example.com/host.io:5000/app:test_latest"
     "Finished container registry push."

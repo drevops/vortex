@@ -39,7 +39,7 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-login-container-registry
   assert_success
 
-  assert_output_contains 'Already logged in to the registry "https://www.example.com".'
+  assert_output_contains 'Already logged in to the registry https://www.example.com.'
 
   popd >/dev/null
 }
@@ -72,7 +72,7 @@ load ../_helper.bash
   # shellcheck disable=SC2034
   declare -a STEPS=(
     "@docker login --username test_user --password-stdin https://www.example.com # 0 # Login Succeeded"
-    'Logging in to registry "https://www.example.com".'
+    'Logging in to registry https://www.example.com.'
   )
 
   mocks="$(steps_run "setup")"

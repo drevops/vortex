@@ -1,4 +1,4 @@
-@smoke
+@behat @smoke
 Feature: Behat configuration
 
   As a site administrator
@@ -8,14 +8,14 @@ Feature: Behat configuration
   @api @javascript
   Scenario: Screenshot functionality works
     Given I am an anonymous user
-    When I am on the homepage
+    When I go to the homepage
     Then I save screenshot
-    And save screenshot with name "behat-test-screenshot"
+    And I save screenshot with name "behat-test-screenshot"
 
   @api @javascript
   Scenario: Animated screenshot is recorded across multiple steps
     Given I am an anonymous user
-    When I am on the homepage
+    When I go to the homepage
     And I go to "/user/login"
     Then the path should be "/user/login"
 
