@@ -32,7 +32,7 @@ VORTEX_FETCH_DB_FRESH="${!_v:-}"
 
 # Lagoon project name.
 _v="VORTEX_FETCH_DB${_db_index}_LAGOON_PROJECT"
-VORTEX_FETCH_DB_LAGOON_PROJECT="${!_v:-${LAGOON_PROJECT:?Missing required environment variable LAGOON_PROJECT.}}"
+VORTEX_FETCH_DB_LAGOON_PROJECT="${!_v:-${LAGOON_PROJECT:?Missing required value for LAGOON_PROJECT.}}"
 
 # The source environment branch for the database source.
 _v="VORTEX_FETCH_DB${_db_index}_ENVIRONMENT"

@@ -107,11 +107,11 @@ extract_json_value() {
 }
 
 # Check that all required variables are present.
-[ -z "${VORTEX_FETCH_DB_ACQUIA_KEY}" ] && fail "Missing value for VORTEX_FETCH_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY." && exit 1
-[ -z "${VORTEX_FETCH_DB_ACQUIA_SECRET}" ] && fail "Missing value for VORTEX_FETCH_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET." && exit 1
-[ -z "${VORTEX_FETCH_DB_ACQUIA_APP_NAME}" ] && fail "Missing value for VORTEX_FETCH_DB_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME." && exit 1
-[ -z "${VORTEX_FETCH_DB_ENVIRONMENT}" ] && fail "Missing value for VORTEX_FETCH_DB_ENVIRONMENT." && exit 1
-[ -z "${VORTEX_FETCH_DB_ACQUIA_DB_NAME}" ] && fail "Missing value for VORTEX_FETCH_DB_ACQUIA_DB_NAME." && exit 1
+[ -z "${VORTEX_FETCH_DB_ACQUIA_KEY}" ] && fail "Missing required value for VORTEX_FETCH_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY." && exit 1
+[ -z "${VORTEX_FETCH_DB_ACQUIA_SECRET}" ] && fail "Missing required value for VORTEX_FETCH_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET." && exit 1
+[ -z "${VORTEX_FETCH_DB_ACQUIA_APP_NAME}" ] && fail "Missing required value for VORTEX_FETCH_DB_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME." && exit 1
+[ -z "${VORTEX_FETCH_DB_ENVIRONMENT}" ] && fail "Missing required value for VORTEX_FETCH_DB_ENVIRONMENT." && exit 1
+[ -z "${VORTEX_FETCH_DB_ACQUIA_DB_NAME}" ] && fail "Missing required value for VORTEX_FETCH_DB_ACQUIA_DB_NAME." && exit 1
 
 mkdir -p "${VORTEX_FETCH_DB_ACQUIA_DB_DIR}"
 

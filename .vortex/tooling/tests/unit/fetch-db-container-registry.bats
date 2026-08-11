@@ -344,7 +344,7 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-fetch-db-container-registry
   assert_failure
   assert_output_contains "[INFO] Started database data container image fetch."
-  assert_output_contains "[FAIL] Destination image name is not specified. Please provide VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE or VORTEX_DB_IMAGE in a format <org>/<repository>."
+  assert_output_contains "[FAIL] Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE or VORTEX_DB_IMAGE."
 
   popd >/dev/null
 }

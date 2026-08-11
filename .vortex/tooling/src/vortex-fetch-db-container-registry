@@ -70,7 +70,7 @@ info "Started database data container image fetch."
 [ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY}" ] && fail "Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY or VORTEX_CONTAINER_REGISTRY." && exit 1
 [ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER}" ] && fail "Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER." && exit 1
 [ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS}" ] && fail "Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS." && exit 1
-[ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" ] && fail "Destination image name is not specified. Please provide VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE or VORTEX_DB_IMAGE in a format <org>/<repository>." && exit 1
+[ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" ] && fail "Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE or VORTEX_DB_IMAGE." && exit 1
 
 archive_file="${VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR}/db.tar"
 
