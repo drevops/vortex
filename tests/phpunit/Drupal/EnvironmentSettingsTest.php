@@ -58,7 +58,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       self::ENVIRONMENT_LOCAL,
     ];
 
-    // #;< SETTINGS_PROVIDER_ACQUIA
+    // phpcs:ignore #;< SETTINGS_PROVIDER_ACQUIA
     // Acquia.
     yield [
       [
