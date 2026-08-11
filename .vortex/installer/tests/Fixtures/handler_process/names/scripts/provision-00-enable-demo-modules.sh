@@ -1,4 +1,4 @@
-@@ -47,7 +47,7 @@
+@@ -48,7 +48,7 @@
  fi
  
  task "Setting site name."
@@ -6,10 +6,10 @@
 +drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'New hope')->save();"
  pass "Set site name."
  
- # The core Navigation module serves as the administration interface, so the
-@@ -79,11 +79,11 @@
- pass "Installed Solr search modules."
- 
+ # Use the core Navigation module as the administration interface and remove
+@@ -84,11 +84,11 @@
+ # Note that deployment hooks for already enabled modules have run in the
+ # parent "provision.sh" script.
  task "Installing custom site modules."
 -drush pm:install sw_base
 +drush pm:install the_force_base
@@ -21,4 +21,4 @@
 +drush pm:install the_force_demo
  pass "Installed custom site modules."
  
- # Deployment hooks for already enabled modules have run in the parent
+ task "Running deployment hooks."

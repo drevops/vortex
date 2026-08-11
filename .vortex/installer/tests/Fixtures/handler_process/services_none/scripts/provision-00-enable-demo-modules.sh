@@ -1,4 +1,4 @@
-@@ -65,23 +65,8 @@
+@@ -66,19 +66,6 @@
  drush pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap
  pass "Installed contrib modules."
  
@@ -15,6 +15,11 @@
 -drush pm:install search_api search_api_solr
 -pass "Installed Solr search modules."
 -
+ # Enable custom site module and run its deployment hooks.
+ #
+ # Note that deployment hooks for already enabled modules have run in the
+@@ -85,8 +72,6 @@
+ # parent "provision.sh" script.
  task "Installing custom site modules."
  drush pm:install sw_base
 -

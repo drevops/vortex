@@ -1,6 +1,6 @@
-@@ -79,7 +79,6 @@
- pass "Installed Solr search modules."
- 
+@@ -84,7 +84,6 @@
+ # Note that deployment hooks for already enabled modules have run in the
+ # parent "provision.sh" script.
  task "Installing custom site modules."
 -drush pm:install sw_base
  
