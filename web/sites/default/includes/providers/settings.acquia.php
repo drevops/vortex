@@ -52,9 +52,9 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // Override the config sync directory with the DRUPAL_CONFIG_PATH environment
   // variable if provided, or fall back to the config_vcs_directory setting
   // provided by Acquia.
-  $config_path = getenv('DRUPAL_CONFIG_PATH');
-  if (!empty($config_path)) {
-    $settings['config_sync_directory'] = $config_path;
+  $acquia_config_path = getenv('DRUPAL_CONFIG_PATH');
+  if (!empty($acquia_config_path)) {
+    $settings['config_sync_directory'] = $acquia_config_path;
   }
   elseif (!empty($settings['config_vcs_directory'])) {
     $settings['config_sync_directory'] = $settings['config_vcs_directory'];

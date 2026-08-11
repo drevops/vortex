@@ -47,7 +47,7 @@ class ExampleTest extends YourSiteThemeKernelTestBase {
    * Tests subtraction.
    */
   #[DataProvider('dataProviderSubtract')]
-  #[Group('kernel:subtraction')]
+  #[Group('subtraction')]
   public function testSubtract(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
@@ -73,10 +73,10 @@ class ExampleTest extends YourSiteThemeKernelTestBase {
   /**
    * Tests multiplication.
    */
-  #[DataProvider('dataProviderMultiplication')]
+  #[DataProvider('dataProviderMultiply')]
   #[Group('multiplication')]
   #[Group('skipped')]
-  public function testMultiplication(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
+  public function testMultiply(int $a, int $b, int $expected, string|null $expectExceptionMessage = NULL): void {
     if ($expectExceptionMessage) {
       $this->expectException(\Exception::class);
       $this->expectExceptionMessage($expectExceptionMessage);
@@ -89,9 +89,9 @@ class ExampleTest extends YourSiteThemeKernelTestBase {
   }
 
   /**
-   * Data provider for testMultiplication().
+   * Data provider for testMultiply().
    */
-  public static function dataProviderMultiplication(): \Iterator {
+  public static function dataProviderMultiply(): \Iterator {
     yield [0, 0, 0];
     yield [1, 1, 1];
     yield [2, 1, 2];

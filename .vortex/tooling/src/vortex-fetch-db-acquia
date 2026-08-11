@@ -311,12 +311,12 @@ else
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Decompression completed successfully."
 fi
 
-task "Renaming file ${file_name} to \"${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}\"."
+task "Renaming file ${file_name} to ${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}."
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Moving from: ${file_name}"
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Moving to: ${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}"
 mv "${file_name}" "${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}"
 mv_result=$?
-[ "${mv_result}" -ne 0 ] && fail "Unable to rename file from ${file_name} to '${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}'. mv exit code: ${mv_result}" && exit 1
+[ "${mv_result}" -ne 0 ] && fail "Unable to rename file from ${file_name} to ${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}. mv exit code: ${mv_result}" && exit 1
 [ "${VORTEX_DEBUG-}" = "1" ] && note "File rename completed successfully."
 
 pass "Finished database dump fetch from Acquia."

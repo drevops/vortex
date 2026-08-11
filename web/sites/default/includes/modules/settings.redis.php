@@ -8,9 +8,9 @@
  * We use `DRUPAL_REDIS_` environment variables as the Drupal
  * module name is `redis`.
  *
- * @phpcs:disable DrupalPractice.Commenting.CommentEmptyLine.SpacingAfter
- * @phpcs:disable Drupal.Commenting.InlineComment.SpacingAfter
- * @phpcs:disable Drupal.Commenting.InlineComment.InvalidEndChar
+ * phpcs:disable DrupalPractice.Commenting.CommentEmptyLine.SpacingAfter
+ * phpcs:disable Drupal.Commenting.InlineComment.SpacingAfter
+ * phpcs:disable Drupal.Commenting.InlineComment.InvalidEndChar
  */
 
 declare(strict_types=1);
@@ -104,7 +104,7 @@ if (file_exists($contrib_path . '/redis') && !empty(getenv('DRUPAL_REDIS_ENABLED
           'arguments' => ['@redis.factory', '@cache_tags_provider.container', '@serialization.phpserialize'],
         ],
         'cache.container' => [
-          'class' => '\Drupal\redis\Cache\PhpRedis',
+          'class' => 'Drupal\redis\Cache\PhpRedis',
           'factory' => ['@cache.backend.redis', 'get'],
           'arguments' => ['container'],
         ],
