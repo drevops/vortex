@@ -8,7 +8,7 @@
 declare(strict_types=1);
 
 if ($settings['environment'] === ENVIRONMENT_LOCAL || $settings['environment'] === ENVIRONMENT_CI) {
-  // Disable CSP locally and in CI as we do not serve the site over HTTPS.
+  // The site is not served over HTTPS locally and in CI, so CSP is disabled.
   $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
   $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
 }

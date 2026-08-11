@@ -17,10 +17,8 @@ VORTEX_NOTIFY_ENVIRONMENT_DOMAIN="${VORTEX_NOTIFY_ENVIRONMENT_DOMAIN:-}"
 
 pushd "/var/www/html/${site}.${target_env}" >/dev/null || exit 1
 
-# Set URL to Acquia domain by default.
 url="https://${AH_SITE_NAME}.${AH_REALM:-prod}.acquia-sites.com"
 
-# Use custom domain in URL, if provided.
 if [ -n "${VORTEX_NOTIFY_ENVIRONMENT_DOMAIN}" ]; then
   url="https://${VORTEX_NOTIFY_ENVIRONMENT_DOMAIN}"
 fi

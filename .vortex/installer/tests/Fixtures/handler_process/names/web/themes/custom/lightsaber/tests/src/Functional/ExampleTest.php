@@ -32,7 +32,7 @@ class ExampleTest extends LightsaberFunctionalTestBase {
    * Temporary test stub.
    */
   #[Group('addition')]
-  public function testAddition(): void {
+  public function testAdd(): void {
     $this->assertEquals(2, 1 + 1);
     // DrevOps does not support Functional tests due to permission issues.
     $this->addToAssertionCount(1);
@@ -41,8 +41,8 @@ class ExampleTest extends LightsaberFunctionalTestBase {
   /**
    * Temporary test stub.
    */
-  #[Group('functional:subtraction')]
-  public function testSubtraction(): void {
+  #[Group('subtraction')]
+  public function testSubtract(): void {
     $this->assertEquals(1, 2 - 1);
     // DrevOps does not support Functional tests due to permission issues.
     $this->addToAssertionCount(1);

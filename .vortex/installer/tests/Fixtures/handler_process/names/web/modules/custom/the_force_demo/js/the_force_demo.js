@@ -20,7 +20,6 @@
       const counterBlocks = context.querySelectorAll('[data-the-force-demo-counter]');
 
       counterBlocks.forEach((block) => {
-        // Skip if already processed.
         if (block.classList.contains('the-force-demo-counter-processed')) {
           return;
         }
@@ -32,27 +31,21 @@
         );
         const buttons = block.querySelectorAll('[data-the-force-demo-counter-action]');
 
-        // Load saved value from localStorage.
         let currentValue = this.getCounterValue();
         valueElement.textContent = currentValue;
 
-        // Add event listeners to buttons.
         buttons.forEach((button) => {
           button.addEventListener('click', () => {
             const action = button.getAttribute('data-the-force-demo-counter-action');
             currentValue = this.applyAction(currentValue, action);
 
-            // Update display.
             valueElement.textContent = currentValue;
 
-            // Save to localStorage.
             localStorage.setItem(this.storageKey, currentValue.toString());
 
-            // Add visual feedback.
             valueElement.classList.add('updated');
             this.removeUpdatedClassAfterDelay(valueElement);
 
-            // Log action for debugging.
             this.log(`Counter ${action}: ${currentValue}`);
           });
         });

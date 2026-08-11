@@ -36,10 +36,9 @@ if ! echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then
   exit 0
 fi
 
-# Site modules attach behaviour to the 'page' content type, so it must exist
+# Site modules attach behavior to the 'page' content type, so it must exist
 # before those modules are installed and their deploy hooks run.
 task "Creating the content model."
-# Guard against environments where the Drupal CLI is not available.
 if [ -x ./vendor/bin/dr ]; then
   ./vendor/bin/dr recipe "$(pwd)/recipes/page" --no-interaction
   pass "Created the content model."
@@ -51,10 +50,10 @@ task "Setting site name."
 drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'star wars')->save();"
 pass "Set site name."
 
-# Use the core Navigation module as the administration interface and remove
-# the classic Toolbar so the two admin systems never run at once. Uninstall
-# only when Toolbar is actually enabled (it is absent on re-provision or a
-# navigation-based database); a genuine uninstall failure must still abort.
+# The core Navigation module serves as the administration interface, so the
+# classic Toolbar is removed to keep the two admin systems from running at
+# once. Toolbar is uninstalled only when enabled (it is absent on re-provision
+# or a navigation-based database); a genuine uninstall failure still aborts.
 task "Setting up the administration navigation."
 drush pm:install navigation
 if [ "$(drush php:eval "print \Drupal::moduleHandler()->moduleExists('toolbar');")" = "1" ]; then
@@ -79,10 +78,6 @@ task "Installing Solr search modules."
 drush pm:install search_api search_api_solr
 pass "Installed Solr search modules."
 
-# Enable custom site module and run its deployment hooks.
-#
-# Note that deployment hooks for already enabled modules have run in the
-# parent "provision.sh" script.
 task "Installing custom site modules."
 drush pm:install sw_base
 
@@ -91,6 +86,8 @@ drush pm:install sw_search
 drush pm:install sw_demo
 pass "Installed custom site modules."
 
+# Deployment hooks for already enabled modules have run in the parent
+# provision.sh script.
 task "Running deployment hooks."
 drush deploy:hook
 pass "Ran deployment hooks."

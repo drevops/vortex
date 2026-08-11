@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 ##
-# Example of the custom per-project command that will run after website is installed.
+# Example of a custom per-project command that runs after the site is installed.
 #
-# Clone this file and modify it to your needs or simply remove it.
+# Clone this file and modify it as needed or simply remove it.
 #
-# For ordering multiple commands, use a two-digit suffix for clarity and consistency.
-# This approach ensures a clear sequence and avoids potential ordering issues.
+# For ordering multiple commands, use a two-digit suffix.
 #
 # Example:
 # - provision-40-example.sh
@@ -31,11 +30,9 @@ drush() { ./vendor/bin/drush -y "$@"; }
 
 info "Started example operations."
 
-# Get the current environment from Drupal settings.
 environment="$(drush php:eval "print \Drupal\Core\Site\Settings::get('environment');")"
 note "Environment: ${environment}"
 
-# Perform operations based on the current environment.
 if ! echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then
   note "Skipped example operations in production environment."
   exit 0
@@ -47,7 +44,7 @@ task "Performing an example operation."
 note "Replace this with your own commands."
 pass "Performed an example operation."
 
-# Conditionally perform an action if this is a "fresh" database.
+# Branch on whether the database was freshly imported.
 if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
   note "Fresh database detected. Performing additional example operations."
 else

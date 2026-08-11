@@ -22,7 +22,6 @@ class ExampleTest extends SwBaseFunctionalJavascriptTestBase {
   public function testPageLoad(): void {
     $this->drupalGet('<front>');
 
-    // Verify that the page loaded by checking for a page element.
     $result = $this->assertSession()->waitForElement('css', 'html');
     $this->assertNotNull($result, 'Page HTML element is present.');
 
@@ -35,7 +34,6 @@ class ExampleTest extends SwBaseFunctionalJavascriptTestBase {
   public function testJavascriptExecution(): void {
     $this->drupalGet('<front>');
 
-    // Execute JavaScript and verify the result.
     $result = $this->getSession()->evaluateScript('1 + 1');
     $this->assertEquals(2, $result);
 

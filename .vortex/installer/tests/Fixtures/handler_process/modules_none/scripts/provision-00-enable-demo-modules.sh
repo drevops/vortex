@@ -1,4 +1,4 @@
-@@ -62,10 +62,6 @@
+@@ -61,10 +61,6 @@
  fi
  pass "Set up the administration navigation."
  

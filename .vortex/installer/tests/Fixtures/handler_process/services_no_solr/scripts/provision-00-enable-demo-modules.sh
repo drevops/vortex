@@ -1,4 +1,4 @@
-@@ -75,10 +75,6 @@
+@@ -74,14 +74,8 @@
  drush config:set clamav.settings mode_daemon_tcpip.hostname clamav
  pass "Installed and configured ClamAV."
  
@@ -6,11 +6,6 @@
 -drush pm:install search_api search_api_solr
 -pass "Installed Solr search modules."
 -
- # Enable custom site module and run its deployment hooks.
- #
- # Note that deployment hooks for already enabled modules have run in the
-@@ -85,8 +81,6 @@
- # parent "provision.sh" script.
  task "Installing custom site modules."
  drush pm:install sw_base
 -

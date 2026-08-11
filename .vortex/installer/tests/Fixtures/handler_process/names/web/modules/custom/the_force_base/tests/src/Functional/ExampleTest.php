@@ -20,15 +20,15 @@ class ExampleTest extends TheForceBaseFunctionalTestBase {
    * Tests addition.
    */
   #[Group('addition')]
-  public function testAddition(): void {
+  public function testAdd(): void {
     $this->assertEquals(2, 1 + 1);
   }
 
   /**
    * Tests subtraction.
    */
-  #[Group('functional:subtraction')]
-  public function testSubtraction(): void {
+  #[Group('subtraction')]
+  public function testSubtract(): void {
     $this->assertEquals(1, 2 - 1);
   }
 

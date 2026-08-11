@@ -61,7 +61,7 @@
     * Test Config Split config.
     */
    #[DataProvider('dataProviderConfigSplit')]
-@@ -221,79 +165,6 @@
+@@ -221,78 +165,6 @@
          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
        ],
      ];
@@ -128,7 +128,6 @@
 -
 -    $this->requireSettingsFile();
 -
--    // Test custom Redis configuration.
 -    $settings['redis.connection']['interface'] = 'PhpRedis';
 -    $settings['redis.connection']['host'] = 'custom_redis_host';
 -    $settings['redis.connection']['port'] = 6380;
