@@ -117,12 +117,12 @@ class MigrationFetchSource extends AbstractHandler {
     }
 
     $types = [
-      MigrationFetchSource::URL,
-      MigrationFetchSource::FTP,
-      MigrationFetchSource::ACQUIA,
-      MigrationFetchSource::LAGOON,
-      MigrationFetchSource::CONTAINER_REGISTRY,
-      MigrationFetchSource::S3,
+      self::URL,
+      self::FTP,
+      self::ACQUIA,
+      self::LAGOON,
+      self::CONTAINER_REGISTRY,
+      self::S3,
     ];
 
     foreach ($types as $type) {

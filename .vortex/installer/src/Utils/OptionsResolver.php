@@ -54,7 +54,7 @@ class OptionsResolver {
   public static function resolve(array $options): array {
     $config_json = '{}';
     if (isset($options['config']) && is_scalar($options['config'])) {
-      $config_candidate = strval($options['config']);
+      $config_candidate = (string) $options['config'];
       $config_json = is_file($config_candidate) ? (string) file_get_contents($config_candidate) : $config_candidate;
     }
 
@@ -64,13 +64,13 @@ class OptionsResolver {
     $config->setNoInteraction($options['no-interaction']);
 
     // Set root directory to resolve relative paths.
-    $root = !empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : NULL;
+    $root = !empty($options['root']) && is_scalar($options['root']) ? (string) $options['root'] : NULL;
     if ($root) {
       $config->set(Config::ROOT, $root);
     }
 
     // Set destination directory.
-    $destination_from_option = !empty($options['destination']) && is_scalar($options['destination']) ? strval($options['destination']) : NULL;
+    $destination_from_option = !empty($options['destination']) && is_scalar($options['destination']) ? (string) $options['destination'] : NULL;
     $destination_from_env = Env::get(Config::DESTINATION);
     $destination_from_config = $config->get(Config::DESTINATION);
     $destination_from_root = $config->get(Config::ROOT);
@@ -87,7 +87,7 @@ class OptionsResolver {
     }
 
     // Build URI for artifact.
-    $uri_from_option = !empty($options['uri']) && is_scalar($options['uri']) ? strval($options['uri']) : NULL;
+    $uri_from_option = !empty($options['uri']) && is_scalar($options['uri']) ? (string) $options['uri'] : NULL;
     $repo = Env::get(Config::REPO) ?: ($config->get(Config::REPO) ?: NULL);
     $ref = Env::get(Config::REF) ?: ($config->get(Config::REF) ?: NULL);
 
@@ -124,7 +124,7 @@ class OptionsResolver {
 
     // Parse --prompts JSON if provided.
     if (isset($options['prompts']) && is_scalar($options['prompts'])) {
-      $prompts_candidate = strval($options['prompts']);
+      $prompts_candidate = (string) $options['prompts'];
       if (is_file($prompts_candidate)) {
         if (!is_readable($prompts_candidate)) {
           throw new \RuntimeException(sprintf('Cannot read --prompts file: %s.', $prompts_candidate));

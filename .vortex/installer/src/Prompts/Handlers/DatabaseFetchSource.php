@@ -116,12 +116,12 @@ class DatabaseFetchSource extends AbstractHandler {
     }
 
     $types = [
-      DatabaseFetchSource::URL,
-      DatabaseFetchSource::FTP,
-      DatabaseFetchSource::ACQUIA,
-      DatabaseFetchSource::LAGOON,
-      DatabaseFetchSource::CONTAINER_REGISTRY,
-      DatabaseFetchSource::S3,
+      self::URL,
+      self::FTP,
+      self::ACQUIA,
+      self::LAGOON,
+      self::CONTAINER_REGISTRY,
+      self::S3,
     ];
 
     foreach ($types as $type) {

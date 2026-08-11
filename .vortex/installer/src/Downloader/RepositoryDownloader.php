@@ -107,7 +107,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     $this->validateRemoteRepositoryExists($repo_url);
 
     $version = $artifact->getRef();
-    if ($artifact->getRef() === RepositoryDownloader::REF_STABLE) {
+    if ($artifact->getRef() === self::REF_STABLE) {
       $ref = $this->discoverLatestReleaseRemote($repo_url, $release_prefix);
 
       if ($ref === NULL && $release_prefix !== NULL) {
@@ -124,7 +124,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
 
       $version = $ref;
     }
-    elseif ($artifact->getRef() === RepositoryDownloader::REF_HEAD) {
+    elseif ($artifact->getRef() === self::REF_HEAD) {
       $ref = $artifact->getRef();
       $version = 'develop';
     }
@@ -152,10 +152,10 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     // Validate local repository exists.
     $this->validateLocalRepositoryExists($artifact->getRepo());
 
-    $ref = $artifact->getRef() === RepositoryDownloader::REF_STABLE ? RepositoryDownloader::REF_HEAD : $artifact->getRef();
+    $ref = $artifact->getRef() === self::REF_STABLE ? self::REF_HEAD : $artifact->getRef();
     $version = $ref;
 
-    if ($ref === RepositoryDownloader::REF_HEAD) {
+    if ($ref === self::REF_HEAD) {
       if (!$this->git instanceof Git) {
         $this->git = new Git($artifact->getRepo());
       }
@@ -204,7 +204,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     $records = json_decode($release_contents, TRUE);
 
     foreach ($records as $record) {
-      $tag_name = is_scalar($record['tag_name']) ? strval($record['tag_name']) : '';
+      $tag_name = is_scalar($record['tag_name']) ? (string) $record['tag_name'] : '';
       $is_draft = $record['draft'] ?? FALSE;
 
       if (!$is_draft && (!$release_prefix || str_starts_with($tag_name, $release_prefix))) {
