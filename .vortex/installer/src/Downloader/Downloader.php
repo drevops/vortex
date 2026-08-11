@@ -57,7 +57,7 @@ class Downloader {
       $this->httpClient->request('GET', $url, $options);
     }
     catch (RequestException $e) {
-      throw new \RuntimeException(sprintf('Failed to download file from %s: %s', $url, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to download file from "%s": %s.', $url, $e->getMessage()), $e->getCode(), $e);
     }
   }
 

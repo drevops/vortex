@@ -85,7 +85,7 @@ class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInter
 
     // Validate the base command contains only allowed characters.
     if (preg_match('/[^a-zA-Z0-9_\-.\/]/', (string) $base_command)) {
-      throw new \InvalidArgumentException(sprintf('Invalid command: %s. Only alphanumeric characters, dots, dashes, underscores and slashes are allowed.', $base_command));
+      throw new \InvalidArgumentException(sprintf('Invalid command: "%s". Only alphanumeric characters, dots, dashes, underscores and slashes are allowed.', $base_command));
     }
 
     // If command is a path (contains /), check if it exists directly.
@@ -104,7 +104,7 @@ class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInter
       $resolved = $this->getExecutableFinder()->find($base_command);
 
       if ($resolved === NULL) {
-        throw new \InvalidArgumentException(sprintf('Command not found: %s. Ensure the command is installed and available in PATH.', $base_command));
+        throw new \InvalidArgumentException(sprintf('Command not found: "%s". Ensure the command is installed and available in PATH.', $base_command));
       }
     }
 

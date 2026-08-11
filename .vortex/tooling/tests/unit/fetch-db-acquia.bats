@@ -553,7 +553,7 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -X POST -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups # {"error":"insufficient_permissions","message":"Insufficient permissions to create backup"}'
 
     # Assert failure message
-    "[FAIL] Failed to create backup for database 'testdb'."
+    "[FAIL] Unable to create backup for database 'testdb'."
   )
 
   export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"

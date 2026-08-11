@@ -94,8 +94,8 @@ for cmd in curl; do command -v "${cmd}" >/dev/null || {
 [ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL." && exit 1
 
 # Configure global git settings, if they do not exist.
-[ "$(git config --global user.name)" = "" ] && task "Configuring global git user name." && git config --global user.name "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}"
-[ "$(git config --global user.email)" = "" ] && task "Configuring global git user email." && git config --global user.email "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
+[ -z "$(git config --global user.name)" ] && task "Configuring global git user name." && git config --global user.name "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}"
+[ -z "$(git config --global user.email)" ] && task "Configuring global git user email." && git config --global user.email "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
 
 export VORTEX_SSH_PREFIX="DEPLOY_ARTIFACT"
 . "$(dirname "${BASH_SOURCE[0]}")/vortex-setup-ssh"

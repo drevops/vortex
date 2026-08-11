@@ -203,14 +203,14 @@ class ArchiverTest extends UnitTestCase {
       'content' => "\x1f\x8b" . 'invalid tar content',
       'strip' => FALSE,
       'creator' => NULL,
-      'expected_message' => 'Failed to extract tar archive',
+      'expected_message' => 'Unable to extract tar archive',
     ];
     yield 'invalid zip archive' => [
       'extension' => '.zip',
       'content' => "\x50\x4b\x03\x04invalid zip content",
       'strip' => FALSE,
       'creator' => NULL,
-      'expected_message' => 'Failed to extract ZIP archive',
+      'expected_message' => 'Unable to extract ZIP archive',
     ];
     yield 'multiple top-level directories with strip' => [
       'extension' => NULL,

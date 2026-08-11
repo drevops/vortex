@@ -61,7 +61,7 @@ VORTEX_NOTIFY_EMAIL_EVENT="${VORTEX_NOTIFY_EMAIL_EVENT:-${VORTEX_NOTIFY_EVENT:-p
 # filtering is applied.
 VORTEX_NOTIFY_EMAIL_BRANCHES="${VORTEX_NOTIFY_EMAIL_BRANCHES:-}"
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # @formatter:off
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
@@ -73,7 +73,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 if [ -n "${VORTEX_NOTIFY_EMAIL_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_EMAIL_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped email notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped email notification for branch ${VORTEX_NOTIFY_BRANCH-}."
     exit 0
   fi
 fi

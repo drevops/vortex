@@ -47,7 +47,7 @@ _vs="VORTEX_FETCH_DB${_db_index}_FILE"
 _vss="VORTEX_DB${_db_index}_FILE"
 VORTEX_FETCH_DB_FTP_DB_FILE="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_FILE:-db.sql}}}}"
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # @formatter:off
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }

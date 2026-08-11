@@ -114,7 +114,7 @@ class Env {
     if ($result === FALSE) {
       $message = array_reduce($errors ?? [], fn(string $carry, array $error): string => $carry . $error['message'] . PHP_EOL, '');
 
-      throw new \RuntimeException(sprintf('Unable to parse file %s: %s', $filename, $message));
+      throw new \RuntimeException(sprintf('Unable to parse file "%s": %s.', $filename, $message));
     }
 
     return $result;
@@ -141,13 +141,13 @@ class Env {
    */
   public static function writeValueDotenv(string $name, ?string $value = NULL, string $filename = '.env', bool $enabled = TRUE): array {
     if (!is_readable($filename)) {
-      throw new \RuntimeException(sprintf('File %s is not readable.', $filename));
+      throw new \RuntimeException(sprintf('File "%s" is not readable.', $filename));
     }
 
     $contents = file_get_contents($filename);
     if ($contents === FALSE) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to read file %s.', $filename));
+      throw new \RuntimeException(sprintf('Unable to read file "%s".', $filename));
       // @codeCoverageIgnoreEnd
     }
 
@@ -193,7 +193,7 @@ class Env {
 
     if (file_put_contents($filename, $contents) === FALSE) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to write to file %s.', $filename));
+      throw new \RuntimeException(sprintf('Unable to write to file "%s".', $filename));
       // @codeCoverageIgnoreEnd
     }
 

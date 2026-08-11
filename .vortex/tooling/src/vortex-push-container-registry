@@ -70,8 +70,8 @@ images=()
 IFS=',' read -r -a values <<<"${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}"
 for value in "${values[@]}"; do
   IFS='=' read -r -a parts <<<"${value}"
-  [ "${#parts[@]}" -ne 2 ] && fail "Invalid key/value pair \"${value}\" provided." && exit 1
-  { [ -z "${parts[0]}" ] || [ -z "${parts[1]}" ]; } && fail "Invalid key/value pair \"${value}\" provided." && exit 1
+  [ "${#parts[@]}" -ne 2 ] && fail "Invalid key/value pair ${value} provided." && exit 1
+  { [ -z "${parts[0]}" ] || [ -z "${parts[1]}" ]; } && fail "Invalid key/value pair ${value} provided." && exit 1
   services+=("${parts[0]}")
   images+=("${parts[1]}")
 done
@@ -92,8 +92,8 @@ for key in "${!services[@]}"; do
   # Check if the service is running.
   cid=$(docker compose ps -q "${service}")
 
-  [ -z "${cid}" ] && fail "Service \"${service}\" is not running." && exit 1
-  note "Found \"${service}\" service container with id \"${cid}\"."
+  [ -z "${cid}" ] && fail "Service ${service} is not running." && exit 1
+  note "Found ${service} service container with id ${cid}."
 
   # Only treat a ':' or '@' in the final reference segment as an existing tag or
   # digest, so a registry host:port is never mistaken for one.
@@ -101,10 +101,10 @@ for key in "${!services[@]}"; do
   [ -n "${image_ref##*[:@]*}" ] && image="${image}:${VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG}"
   new_image="${VORTEX_PUSH_CONTAINER_REGISTRY}/${image}"
 
-  task "Committing container image with name \"${new_image}\"."
+  task "Committing container image with name ${new_image}."
   iid=$(docker commit "${cid}" "${new_image}")
   iid="${iid#sha256:}"
-  note "Committed container image with id \"${iid}\"."
+  note "Committed container image with id ${iid}."
 
   task "Pushing container image to the registry."
   docker push "${new_image}"

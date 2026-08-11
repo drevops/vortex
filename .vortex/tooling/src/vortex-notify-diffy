@@ -85,7 +85,7 @@ fi
 # deployment is dispatched and the workflow gates on PR + label.
 if [ -n "${VORTEX_NOTIFY_DIFFY_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_DIFFY_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_DIFFY_BRANCH},"; then
-    pass "Skipped Diffy notification for branch '${VORTEX_NOTIFY_DIFFY_BRANCH}' (not in branch allowlist)."
+    pass "Skipped Diffy notification for branch ${VORTEX_NOTIFY_DIFFY_BRANCH} (not in branch allowlist)."
     exit 0
   fi
 fi
@@ -145,7 +145,7 @@ response_code=$(curl \
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 if [ "${response_code}" != "204" ]; then
-  fail "GitHub repository_dispatch failed with HTTP ${response_code}."
+  fail "Unable to send GitHub repository_dispatch: HTTP ${response_code}."
   exit 1
 fi
 

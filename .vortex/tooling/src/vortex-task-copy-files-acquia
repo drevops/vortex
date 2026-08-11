@@ -40,7 +40,7 @@ VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES="${VORTEX_TASK_COPY_FILES_ACQUIA_ST
 # Interval in seconds to check task status.
 VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL="${VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_INTERVAL:-10}"
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # @formatter:off
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }

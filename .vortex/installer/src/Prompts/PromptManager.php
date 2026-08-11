@@ -593,7 +593,7 @@ class PromptManager {
 
     if (!empty($result['errors'])) {
       $messages = array_map(fn(array $error): string => sprintf('%s: %s', $error['prompt'], $error['message']), $result['errors']);
-      throw new \RuntimeException(sprintf('Invalid --prompts values: %s', implode('; ', $messages)));
+      throw new \RuntimeException(sprintf('Invalid --prompts values: %s.', implode('; ', $messages)));
     }
 
     // Use the resolved values which include defaults for missing prompts.

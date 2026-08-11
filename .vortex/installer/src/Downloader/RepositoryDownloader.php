@@ -195,7 +195,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $release_contents = $response->getBody()->getContents();
     }
     catch (RequestException $e) {
-      throw new \RuntimeException(sprintf('Unable to download release information from "%s": %s', $release_url, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to download release information from "%s": %s.', $release_url, $e->getMessage()), $e->getCode(), $e);
     }
 
     if ($release_contents === '' || $release_contents === '0') {
@@ -242,7 +242,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       if (file_exists($temp_file)) {
         File::remove($temp_file);
       }
-      throw new \RuntimeException(sprintf('Failed to download archive from: %s - %s', $url, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to download archive from "%s": %s.', $url, $e->getMessage()), $e->getCode(), $e);
     }
 
     return $temp_file;
@@ -280,7 +280,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       if (file_exists($temp_file)) {
         File::remove($temp_file);
       }
-      throw new \RuntimeException(sprintf('Failed to create archive from local repository: %s - %s', $repo, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to create archive from local repository "%s": %s.', $repo, $e->getMessage()), $e->getCode(), $e);
     }
 
     return $temp_file;
@@ -304,11 +304,11 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $status_code = $response->getStatusCode();
 
       if ($status_code >= 400) {
-        throw new \RuntimeException(sprintf('Repository not found or not accessible: "%s" (HTTP %d)', $repo_url, $status_code));
+        throw new \RuntimeException(sprintf('Repository not found or not accessible: "%s" (HTTP %d).', $repo_url, $status_code));
       }
     }
     catch (RequestException $e) {
-      throw new \RuntimeException(sprintf('Unable to access repository: "%s" - %s', $repo_url, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to access repository "%s": %s.', $repo_url, $e->getMessage()), $e->getCode(), $e);
     }
   }
 
@@ -334,14 +334,14 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $status_code = $response->getStatusCode();
 
       if ($status_code === 404) {
-        throw new \RuntimeException(sprintf('Reference "%s" not found in repository "%s"', $ref, $repo_url));
+        throw new \RuntimeException(sprintf('Reference "%s" not found in repository "%s".', $ref, $repo_url));
       }
       elseif ($status_code >= 400) {
-        throw new \RuntimeException(sprintf('Unable to verify reference "%s" in repository "%s" (HTTP %d)', $ref, $repo_url, $status_code));
+        throw new \RuntimeException(sprintf('Unable to verify reference "%s" in repository "%s" (HTTP %d).', $ref, $repo_url, $status_code));
       }
     }
     catch (RequestException $e) {
-      throw new \RuntimeException(sprintf('Unable to verify reference "%s" in repository "%s" - %s', $ref, $repo_url, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to verify reference "%s" in repository "%s": %s.', $ref, $repo_url, $e->getMessage()), $e->getCode(), $e);
     }
   }
 
@@ -356,11 +356,11 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    */
   protected function validateLocalRepositoryExists(string $repo): void {
     if (!is_dir($repo)) {
-      throw new \RuntimeException(sprintf('Local repository path does not exist: "%s"', $repo));
+      throw new \RuntimeException(sprintf('Local repository path does not exist: "%s".', $repo));
     }
 
     if (!is_dir($repo . '/.git')) {
-      throw new \RuntimeException(sprintf('Path is not a git repository: "%s"', $repo));
+      throw new \RuntimeException(sprintf('Path is not a git repository: "%s".', $repo));
     }
   }
 
@@ -389,7 +389,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $this->git->run('rev-parse', '--verify', $ref);
     }
     catch (\Exception $e) {
-      throw new \RuntimeException(sprintf('Reference "%s" not found in local repository "%s"', $ref, $repo), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Reference "%s" not found in local repository "%s".', $ref, $repo), $e->getCode(), $e);
     }
   }
 

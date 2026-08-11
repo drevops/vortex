@@ -201,13 +201,13 @@ else
     is_redeploy=0
     for name in ${names}; do
       if [ "${deploy_pr_full}" = "${name}" ]; then
-        note "Found already deployed environment for PR \"${VORTEX_DEPLOY_LAGOON_PR}\"."
+        note "Found already deployed environment for PR ${VORTEX_DEPLOY_LAGOON_PR}."
         is_redeploy=1
         break
       fi
     done
 
-    [ "${is_redeploy:-}" = "0" ] && note "No existing environment found for PR \"${VORTEX_DEPLOY_LAGOON_PR}\"."
+    [ "${is_redeploy:-}" = "0" ] && note "No existing environment found for PR ${VORTEX_DEPLOY_LAGOON_PR}."
     pass "Completed environment discovery."
 
     # Re-deployment of the existing environment.
@@ -258,13 +258,13 @@ else
     is_redeploy=0
     for name in ${names}; do
       if [ "${VORTEX_DEPLOY_LAGOON_BRANCH:-}" = "${name}" ]; then
-        note "Found already deployed environment for branch \"${VORTEX_DEPLOY_LAGOON_BRANCH}\"."
+        note "Found already deployed environment for branch ${VORTEX_DEPLOY_LAGOON_BRANCH}."
         is_redeploy=1
         break
       fi
     done
 
-    [ "${is_redeploy:-}" = "0" ] && note "No existing environment found for branch \"${VORTEX_DEPLOY_LAGOON_BRANCH}\"."
+    [ "${is_redeploy:-}" = "0" ] && note "No existing environment found for branch ${VORTEX_DEPLOY_LAGOON_BRANCH}."
     pass "Completed environment discovery."
 
     # Re-deployment of the existing environment.

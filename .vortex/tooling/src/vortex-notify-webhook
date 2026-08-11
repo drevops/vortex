@@ -72,7 +72,7 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 
 if [ -n "${VORTEX_NOTIFY_WEBHOOK_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_WEBHOOK_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped webhook notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped webhook notification for branch ${VORTEX_NOTIFY_BRANCH-}."
     exit 0
   fi
 fi

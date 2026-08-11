@@ -143,7 +143,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -169,9 +169,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -180,9 +180,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -192,7 +192,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -303,7 +303,7 @@ assert_provision_info() {
     "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -329,9 +329,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -340,9 +340,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -352,7 +352,7 @@ assert_provision_info() {
     "-       Fresh database detected. Performing additional example operations."
     "Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -472,7 +472,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -498,9 +498,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -509,9 +509,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -521,7 +521,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -656,7 +656,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -682,9 +682,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -693,9 +693,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -705,7 +705,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -891,7 +891,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -917,9 +917,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -928,9 +928,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -940,7 +940,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1054,7 +1054,7 @@ assert_provision_info() {
     "Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -1080,9 +1080,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -1091,9 +1091,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -1103,7 +1103,7 @@ assert_provision_info() {
     "-       Fresh database detected. Performing additional example operations."
     "Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1224,7 +1224,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -1250,9 +1250,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -1261,9 +1261,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -1273,7 +1273,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1390,26 +1390,26 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # prod"
     "  ==> Started demo modules operations."
     "      Environment: prod"
     "      Skipped demo modules operations in production environment."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # prod"
     "  ==> Started development modules operations."
     "      Environment: prod"
     "      Skipped installing development modules in production environment."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # prod"
     "  ==> Started example operations."
     "      Environment: prod"
     "      Skipped example operations in production environment."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1577,7 +1577,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -1603,9 +1603,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -1614,9 +1614,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -1626,7 +1626,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -1744,7 +1744,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -1770,9 +1770,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -1781,9 +1781,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -1793,7 +1793,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -2031,7 +2031,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -2057,9 +2057,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -2068,9 +2068,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -2080,7 +2080,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -2216,7 +2216,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -2242,9 +2242,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -2253,9 +2253,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -2265,7 +2265,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -2453,7 +2453,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -2479,9 +2479,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -2490,9 +2490,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -2502,7 +2502,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."
@@ -2777,7 +2777,7 @@ assert_provision_info() {
     "- Skipped database sanitization as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 
     # Custom post-install scripts.
-    "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Running custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
@@ -2803,9 +2803,9 @@ assert_provision_info() {
     "  ==> Started demo modules operations."
     "      Environment: ci"
     "  ==> Finished demo modules operations."
-    "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-00-enable-demo-modules.sh."
 
-    "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Running custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
@@ -2814,9 +2814,9 @@ assert_provision_info() {
     "  ==> Started development modules operations."
     "      Environment: ci"
     "  ==> Finished development modules operations."
-    "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
+    "Completed running of custom post-install script ./scripts/provision-10-enable-dev-modules.sh."
 
-    "Running custom post-install script './scripts/provision-40-example.sh'."
+    "Running custom post-install script ./scripts/provision-40-example.sh."
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
@@ -2826,7 +2826,7 @@ assert_provision_info() {
     "      Fresh database detected. Performing additional example operations."
     "-      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
-    "Completed running of custom post-install script './scripts/provision-40-example.sh'."
+    "Completed running of custom post-install script ./scripts/provision-40-example.sh."
 
     # Disabling maintenance mode.
     "Disabling maintenance mode."

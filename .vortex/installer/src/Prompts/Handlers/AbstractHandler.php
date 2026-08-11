@@ -56,7 +56,7 @@ abstract class AbstractHandler implements HandlerInterface {
     $filename = $reflector->getFileName();
 
     if ($filename === FALSE) {
-      throw new \RuntimeException(sprintf('Could not determine the filename of the handler class %s.', static::class));
+      throw new \RuntimeException(sprintf('Unable to determine the filename of the handler class "%s".', static::class));
     }
 
     return Converter::machine(Converter::pascal2snake(str_replace('Handler', '', basename($filename, '.php'))));

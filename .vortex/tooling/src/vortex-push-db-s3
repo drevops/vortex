@@ -99,7 +99,7 @@ note "S3 region:      ${VORTEX_PUSH_DB_S3_REGION}"
 [ -n "${VORTEX_PUSH_DB_S3_PREFIX}" ] && note "S3 prefix:      ${VORTEX_PUSH_DB_S3_PREFIX}"
 note "Storage class:  ${VORTEX_PUSH_DB_S3_STORAGE_CLASS}"
 
-if hash file 2>/dev/null; then
+if command -v file >/dev/null; then
   content_type="$(file --brief --mime-type "${local_file}")"
 else
   content_type='application/octet-stream'
@@ -108,11 +108,11 @@ fi
 payload_hash=$(openssl dgst -sha256 -hex <"${local_file}" 2>/dev/null | sed 's/^.* //')
 
 aws_sign4() {
-  l_date=$(printf '%s' "$2" | openssl dgst -sha256 -hex -mac HMAC -macopt "key:AWS4$1" 2>/dev/null | sed 's/^.* //')
-  l_region=$(printf '%s' "$3" | openssl dgst -sha256 -hex -mac HMAC -macopt "hexkey:${l_date}" 2>/dev/null | sed 's/^.* //')
-  l_service=$(printf '%s' "$4" | openssl dgst -sha256 -hex -mac HMAC -macopt "hexkey:${l_region}" 2>/dev/null | sed 's/^.* //')
+  l_date=$(printf '%s' "${2}" | openssl dgst -sha256 -hex -mac HMAC -macopt "key:AWS4${1}" 2>/dev/null | sed 's/^.* //')
+  l_region=$(printf '%s' "${3}" | openssl dgst -sha256 -hex -mac HMAC -macopt "hexkey:${l_date}" 2>/dev/null | sed 's/^.* //')
+  l_service=$(printf '%s' "${4}" | openssl dgst -sha256 -hex -mac HMAC -macopt "hexkey:${l_region}" 2>/dev/null | sed 's/^.* //')
   l_signing=$(printf 'aws4_request' | openssl dgst -sha256 -hex -mac HMAC -macopt "hexkey:${l_service}" 2>/dev/null | sed 's/^.* //')
-  printf '%s' "$5" | openssl dgst -sha256 -hex -mac HMAC -macopt "hexkey:${l_signing}" 2>/dev/null | sed 's/^.* //'
+  printf '%s' "${5}" | openssl dgst -sha256 -hex -mac HMAC -macopt "hexkey:${l_signing}" 2>/dev/null | sed 's/^.* //'
 }
 
 header_list='content-type;host;x-amz-content-sha256;x-amz-date;x-amz-server-side-encryption;x-amz-storage-class'
@@ -170,7 +170,7 @@ response_body=$(echo "${response}" | sed '$d')
 case "${http_code}" in
   2*) ;;
   *)
-    echo "ERROR: S3 push failed with HTTP status ${http_code}."
+    echo "ERROR: Unable to push to S3: HTTP status ${http_code}."
     [ -n "${response_body}" ] && echo "Response: ${response_body}"
     exit 1
     ;;

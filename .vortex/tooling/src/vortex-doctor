@@ -62,7 +62,7 @@ VORTEX_DOCTOR_CHECK_BOOTSTRAP="${VORTEX_DOCTOR_CHECK_BOOTSTRAP:-1}"
 # Default SSH key file.
 VORTEX_SSH_FILE="${VORTEX_SSH_FILE:-${HOME}/.ssh/id_rsa}"
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # @formatter:off
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }

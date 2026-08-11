@@ -58,9 +58,9 @@ for cmd in docker; do command -v "${cmd}" >/dev/null || {
 [ -z "$(echo "${VORTEX_LOGIN_CONTAINER_REGISTRY}" | xargs)" ] && fail "VORTEX_LOGIN_CONTAINER_REGISTRY or VORTEX_CONTAINER_REGISTRY should not be empty." && exit 1
 
 if [ -f "${VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG}/config.json" ] && grep -q "${VORTEX_LOGIN_CONTAINER_REGISTRY}" "${VORTEX_LOGIN_CONTAINER_REGISTRY_DOCKER_CONFIG}/config.json"; then
-  note "Already logged in to the registry \"${VORTEX_LOGIN_CONTAINER_REGISTRY}\"."
+  note "Already logged in to the registry ${VORTEX_LOGIN_CONTAINER_REGISTRY}."
 elif [ -n "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" ] && [ -n "${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS:+1}" ]; then
-  task "Logging in to registry \"${VORTEX_LOGIN_CONTAINER_REGISTRY}\"."
+  task "Logging in to registry ${VORTEX_LOGIN_CONTAINER_REGISTRY}."
   (
     set +x
     echo "${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS}"

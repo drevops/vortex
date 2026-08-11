@@ -21,14 +21,14 @@ class Archiver implements ArchiverInterface {
   public function detectFormat(string $archive_path): ?string {
     $handle = @fopen($archive_path, 'rb');
     if ($handle === FALSE) {
-      throw new \RuntimeException(sprintf('Unable to read archive file: %s', $archive_path));
+      throw new \RuntimeException(sprintf('Unable to read archive file: "%s".', $archive_path));
     }
 
     $header = fread($handle, 512);
     fclose($handle);
 
     if ($header === FALSE) {
-      throw new \RuntimeException(sprintf('Failed to read archive file: %s', $archive_path));
+      throw new \RuntimeException(sprintf('Unable to read archive file: "%s".', $archive_path));
     }
 
     if (strlen($header) >= 2 && str_starts_with($header, "\x1f\x8b")) {
@@ -54,7 +54,7 @@ class Archiver implements ArchiverInterface {
    */
   public function validate(string $archive_path): void {
     if (!file_exists($archive_path)) {
-      throw new \RuntimeException(sprintf('Archive file does not exist: %s', $archive_path));
+      throw new \RuntimeException(sprintf('Archive file does not exist: "%s".', $archive_path));
     }
 
     if (filesize($archive_path) === 0) {
@@ -85,7 +85,7 @@ class Archiver implements ArchiverInterface {
         break;
 
       default:
-        throw new \RuntimeException('Unsupported archive format: ' . $format);
+        throw new \RuntimeException(sprintf('Unsupported archive format: "%s".', $format));
     }
   }
 
@@ -114,7 +114,7 @@ class Archiver implements ArchiverInterface {
 
       if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
         $output = $runner->getOutput(as_array: TRUE);
-        throw new \RuntimeException(sprintf('tar command failed: %s', is_array($output) ? implode(PHP_EOL, $output) : $output));
+        throw new \RuntimeException(sprintf('tar command failed: %s.', is_array($output) ? implode(PHP_EOL, $output) : $output));
       }
 
       if ($strip_first_level) {
@@ -122,7 +122,7 @@ class Archiver implements ArchiverInterface {
       }
     }
     catch (\Exception $e) {
-      throw new \RuntimeException(sprintf('Failed to extract tar archive to: %s - %s', $destination, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to extract tar archive to "%s": %s.', $destination, $e->getMessage()), $e->getCode(), $e);
     }
     finally {
       if ($strip_first_level && is_dir($temp_dir)) {
@@ -164,7 +164,7 @@ class Archiver implements ArchiverInterface {
       $zip->close();
     }
     catch (\Exception $e) {
-      throw new \RuntimeException(sprintf('Failed to extract ZIP archive to: %s - %s', $destination, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to extract ZIP archive to "%s": %s.', $destination, $e->getMessage()), $e->getCode(), $e);
     }
     finally {
       if ($strip_first_level && is_dir($temp_dir)) {

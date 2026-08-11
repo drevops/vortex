@@ -89,7 +89,7 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 
 if [ -n "${VORTEX_NOTIFY_JIRA_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_JIRA_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped JIRA notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped JIRA notification for branch ${VORTEX_NOTIFY_BRANCH-}."
     exit 0
   fi
 fi
@@ -152,7 +152,7 @@ extract_issue() {
 
 task "Extracting issue."
 issue="$(extract_issue "${VORTEX_NOTIFY_JIRA_BRANCH}")"
-[ "${issue}" = "" ] && pass "Branch ${VORTEX_NOTIFY_JIRA_BRANCH} does not contain issue number." && exit 0
+[ -z "${issue}" ] && pass "Branch ${VORTEX_NOTIFY_JIRA_BRANCH} does not contain issue number." && exit 0
 note "Found issue ${issue}."
 
 task "Creating API token."
@@ -198,10 +198,10 @@ comment_body=$(VORTEX_NOTIFY_JIRA_PROJECT="${VORTEX_NOTIFY_JIRA_PROJECT}" VORTEX
 $project = getenv("VORTEX_NOTIFY_JIRA_PROJECT");
 $label = getenv("VORTEX_NOTIFY_JIRA_LABEL");
 $timestamp = getenv("timestamp");
-$envUrl = getenv("VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL");
-$loginUrl = getenv("VORTEX_NOTIFY_JIRA_LOGIN_URL");
-$logFile = getenv("LOG_FILE");
-$log = ($logFile !== "" && is_file($logFile)) ? rtrim((string) file_get_contents($logFile), "\r\n") : "";
+$env_url = getenv("VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL");
+$login_url = getenv("VORTEX_NOTIFY_JIRA_LOGIN_URL");
+$log_file = getenv("LOG_FILE");
+$log = ($log_file !== "" && is_file($log_file)) ? rtrim((string) file_get_contents($log_file), "\r\n") : "";
 
 $content = [[
   "type" => "paragraph",
@@ -212,12 +212,12 @@ $content = [[
     ["type" => "text", "text" => "Site " . $project . " "],
     ["type" => "text", "text" => $label, "marks" => [["type" => "code"]]],
     ["type" => "text", "text" => " has been deployed at " . $timestamp . " and is available at "],
-    ["type" => "text", "text" => $envUrl, "marks" => [["type" => "link", "attrs" => ["href" => $envUrl]]]],
+    ["type" => "text", "text" => $env_url, "marks" => [["type" => "link", "attrs" => ["href" => $env_url]]]],
     ["type" => "text", "text" => "."],
     ["type" => "hardBreak"],
     ["type" => "hardBreak"],
     ["type" => "text", "text" => "Login at: "],
-    ["type" => "text", "text" => $loginUrl, "marks" => [["type" => "link", "attrs" => ["href" => $loginUrl]]]]
+    ["type" => "text", "text" => $login_url, "marks" => [["type" => "link", "attrs" => ["href" => $login_url]]]]
   ]
 ]];
 
@@ -277,7 +277,7 @@ if [ -n "${VORTEX_NOTIFY_JIRA_TRANSITION}" ]; then
     --url "${VORTEX_NOTIFY_JIRA_ENDPOINT}/rest/api/3/issue/${issue}/transitions")"
 
   transition_id="$(echo "${payload}" | extract_json_value "transitions" | extract_json_value_by_value "name" "${VORTEX_NOTIFY_JIRA_TRANSITION}" "id" || echo "error")"
-  { [ "${transition_id}" = "" ] || [ "$(expr "x${transition_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Unable to retrieve transition ID." && exit 1
+  { [ -z "${transition_id}" ] || [ "$(expr "x${transition_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Unable to retrieve transition ID." && exit 1
   echo "success"
 
   payload="$(curl \

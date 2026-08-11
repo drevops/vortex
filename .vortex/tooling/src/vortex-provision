@@ -125,7 +125,7 @@ start_time=$(date +%s)
 
 if [ "${VORTEX_PROVISION_SKIP}" = "1" ]; then
   pass "Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1."
-  info "Finished site provisioning."
+  pass "Finished site provisioning."
   exit 0
 fi
 
@@ -143,7 +143,7 @@ site_is_installed="$(drush status --fields=bootstrap 2>/dev/null | grep -q "Succ
 # Discover the configuration directory path from the Drupal settings.
 config_path="$(drush php:eval 'print realpath(\Drupal\Core\Site\Settings::get("config_sync_directory"));')"
 [ -z "${config_path}" ] && fail "Config directory was not found in the Drupal settings." && exit 1
-[ ! -d "${config_path}" ] && fail "Config directory \"${config_path:-<empty>}\" does not exist." && exit 1
+[ ! -d "${config_path}" ] && fail "Config directory ${config_path:-<empty>} does not exist." && exit 1
 site_has_config_files="$(test "$(ls -1 ${config_path}/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
 
 # Normalize the provision type.
@@ -327,7 +327,7 @@ if [ "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}" = "1" ]; then
   info "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
   echo
   duration=$(($(date +%s) - start_time))
-  info "Finished site provisioning ($((duration / 60))m $((duration % 60))s)."
+  pass "Finished site provisioning ($((duration / 60))m $((duration % 60))s)."
   exit 0
 fi
 
@@ -447,11 +447,11 @@ fi
 if [ -d "${VORTEX_PROVISION_SCRIPTS_DIR}" ]; then
   for file in "${VORTEX_PROVISION_SCRIPTS_DIR}"/provision-*.sh; do
     if [ -f "${file}" ]; then
-      task "Running custom post-install script '${file}'."
+      task "Running custom post-install script ${file}."
       echo
       "${file}"
       echo
-      pass "Completed running of custom post-install script '${file}'."
+      pass "Completed running of custom post-install script ${file}."
       echo
     fi
   done
@@ -466,4 +466,4 @@ if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
 fi
 
 duration=$(($(date +%s) - start_time))
-info "Finished site provisioning ($((duration / 60))m $((duration % 60))s)."
+pass "Finished site provisioning ($((duration / 60))m $((duration % 60))s)."

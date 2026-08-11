@@ -75,7 +75,7 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 
 if [ -n "${VORTEX_NOTIFY_SLACK_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_SLACK_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped Slack notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped Slack notification for branch ${VORTEX_NOTIFY_BRANCH-}."
     exit 0
   fi
 fi
@@ -131,13 +131,13 @@ $color = getenv("color");
 $fallback = getenv("fallback_message");
 $title = getenv("title");
 $label = getenv("VORTEX_NOTIFY_SLACK_LABEL");
-$envUrl = getenv("VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL");
+$env_url = getenv("VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL");
 $login_url = getenv("VORTEX_NOTIFY_SLACK_LOGIN_URL");
 $timestamp = getenv("timestamp");
 $channel = getenv("VORTEX_NOTIFY_SLACK_CHANNEL");
 $event = getenv("VORTEX_NOTIFY_SLACK_EVENT");
-$logFile = getenv("LOG_FILE");
-$log = ($logFile !== "" && is_file($logFile)) ? rtrim((string) file_get_contents($logFile), "\r\n") : "";
+$log_file = getenv("LOG_FILE");
+$log = ($log_file !== "" && is_file($log_file)) ? rtrim((string) file_get_contents($log_file), "\r\n") : "";
 
 $fields = [
   ["title" => "Deployment", "value" => $label, "short" => true],
@@ -147,7 +147,7 @@ $fields = [
 // Only include Environment and Login links for post-deployment notifications.
 // Pre-deployment notifications should not show these as the site is not yet available.
 if ($event !== "pre_deployment") {
-  $fields[] = ["title" => "Environment", "value" => "<" . $envUrl . "|View Site>", "short" => true];
+  $fields[] = ["title" => "Environment", "value" => "<" . $env_url . "|View Site>", "short" => true];
   $fields[] = ["title" => "Login", "value" => "<" . $login_url . "|Login Here>", "short" => true];
 }
 

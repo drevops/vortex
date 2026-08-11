@@ -94,7 +94,7 @@ fi
 
 if [ -n "${VORTEX_NOTIFY_NEWRELIC_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_NEWRELIC_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped New Relic notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped New Relic notification for branch ${VORTEX_NOTIFY_BRANCH-}."
     exit 0
   fi
 fi
@@ -191,7 +191,7 @@ if ! curl -X POST "${VORTEX_NOTIFY_NEWRELIC_ENDPOINT}/applications/${VORTEX_NOTI
     \"user\": \"${VORTEX_NOTIFY_NEWRELIC_USER}\"
   }
 }" | grep -q '201'; then
-  fail "Failed to create a deployment notification for application ${VORTEX_NOTIFY_NEWRELIC_APP_NAME} with ID ${VORTEX_NOTIFY_NEWRELIC_APPID}."
+  fail "Unable to create a deployment notification for application ${VORTEX_NOTIFY_NEWRELIC_APP_NAME} with ID ${VORTEX_NOTIFY_NEWRELIC_APPID}."
   exit 1
 fi
 

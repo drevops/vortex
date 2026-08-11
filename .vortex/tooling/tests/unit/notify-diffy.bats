@@ -69,7 +69,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
-  assert_output_contains "Skipped Diffy notification for branch 'feature/random'"
+  assert_output_contains "Skipped Diffy notification for branch feature/random"
 
   popd >/dev/null || exit 1
 }
@@ -92,7 +92,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_failure
 
-  assert_output_contains "GitHub repository_dispatch failed with HTTP 401"
+  assert_output_contains "Unable to send GitHub repository_dispatch: HTTP 401"
 
   popd >/dev/null || exit 1
 }

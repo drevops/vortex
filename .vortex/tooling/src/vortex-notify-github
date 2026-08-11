@@ -63,7 +63,7 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 
 if [ -n "${VORTEX_NOTIFY_GITHUB_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_GITHUB_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped GitHub notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped GitHub notification for branch ${VORTEX_NOTIFY_BRANCH-}."
     exit 0
   fi
 fi
@@ -111,7 +111,7 @@ if [ "${VORTEX_NOTIFY_GITHUB_EVENT}" = "pre_deployment" ]; then
 
   # Check deployment ID.
   if [ -z "${deployment_id}" ] || [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; then
-    fail "Failed to get a deployment ID for a ${VORTEX_NOTIFY_GITHUB_EVENT} operation. Payload: ${payload}"
+    fail "Unable to get a deployment ID for a ${VORTEX_NOTIFY_GITHUB_EVENT} operation. Payload: ${payload}"
     fail "Wait for GitHub checks to finish and try again."
     exit 1
   fi
@@ -132,7 +132,7 @@ else
 
   # Check deployment ID.
   if [ -z "${deployment_id}" ] || [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; then
-    fail "Failed to get a deployment ID for a ${VORTEX_NOTIFY_GITHUB_EVENT} operation. Payload: ${payload}"
+    fail "Unable to get a deployment ID for a ${VORTEX_NOTIFY_GITHUB_EVENT} operation. Payload: ${payload}"
     fail "Check that a pre_deployment notification was dispatched."
     exit 1
   fi

@@ -40,7 +40,7 @@ VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES="${VORTEX_TASK_PURGE_CACHE_ACQUIA_
 # Interval in seconds to check task status.
 VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL="${VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL:-10}"
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # @formatter:off
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
@@ -122,7 +122,7 @@ while read -r domain; do
   fi
 
   # Proceed only if the environment was provided.
-  if [ "${TARGET_ENV_REMAP}" != "" ]; then
+  if [ -n "${TARGET_ENV_REMAP}" ]; then
     # Interpolate variables in domain name.
     domain="$(eval echo "${domain}")"
     # Add domain to list.
@@ -141,7 +141,7 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
 
     # If domain does not exist - notification will be empty; we are skipping
     # non-existing domains without a failure.
-    if [ "${notification_url}" = "" ]; then
+    if [ -z "${notification_url}" ]; then
       note "Warning: Unable to purge cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain} as it does not exist."
       break
     fi

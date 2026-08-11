@@ -30,7 +30,7 @@ class OptionsResolver {
 
     foreach ($required_commands as $required_command) {
       if ($finder->find($required_command) === NULL) {
-        throw new \RuntimeException(sprintf('Missing required command: %s.', $required_command));
+        throw new \RuntimeException(sprintf('Missing required command: "%s".', $required_command));
       }
     }
   }
@@ -103,7 +103,7 @@ class OptionsResolver {
       $config->set(Config::REF, $artifact->getRef());
     }
     catch (\RuntimeException $e) {
-      throw new \RuntimeException(sprintf('Invalid repository URI: %s', $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Invalid repository URI: %s.', $e->getMessage()), $e->getCode(), $e);
     }
 
     // Check if the project is a Vortex project.
@@ -127,7 +127,7 @@ class OptionsResolver {
       $prompts_candidate = (string) $options['prompts'];
       if (is_file($prompts_candidate)) {
         if (!is_readable($prompts_candidate)) {
-          throw new \RuntimeException(sprintf('Cannot read --prompts file: %s.', $prompts_candidate));
+          throw new \RuntimeException(sprintf('Unable to read --prompts file: "%s".', $prompts_candidate));
         }
         $prompts_json = (string) file_get_contents($prompts_candidate);
       }

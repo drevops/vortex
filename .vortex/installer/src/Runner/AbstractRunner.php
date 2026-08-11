@@ -157,7 +157,7 @@ abstract class AbstractRunner implements RunnerInterface {
    */
   protected function setExitCode(int $exit_code): void {
     if ($exit_code < 0 || $exit_code > 255) {
-      throw new \RuntimeException('Command exited with invalid exit code: ' . $exit_code);
+      throw new \RuntimeException(sprintf('Command exited with invalid exit code: %d.', $exit_code));
     }
 
     $this->exitCode = $exit_code;
