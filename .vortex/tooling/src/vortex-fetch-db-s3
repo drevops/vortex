@@ -110,6 +110,7 @@ ${headers}\n
 ${signed_headers}
 ${payload_hash}"
 
+# Create the signature.
 create_signature() {
   string_to_sign="${auth_type}\n${date_long}\n${date_short}/${VORTEX_FETCH_DB_S3_REGION}/${service}/aws4_request\n$(hash_sha256 "${request}")"
   date_key=$(hmac_sha256 key:"AWS4${VORTEX_FETCH_DB_S3_SECRET_KEY}" "${date_short}")

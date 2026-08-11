@@ -4,7 +4,7 @@
 #
 # Features:
 # - posts comment with a URL of a deployment environment
-# - moves an issue to a state
+# - moves an issues to a state
 # - assigns an issue to a dedicated user
 #
 # Uses user's token to perform operations.
@@ -24,6 +24,12 @@ VORTEX_NOTIFY_JIRA_USER_EMAIL="${VORTEX_NOTIFY_JIRA_USER_EMAIL:-}"
 
 # JIRA notification API token.
 #
+# To obtain an API token:
+# 1. Log in to your Atlassian account
+# 2. Go to Account settings -> Security -> API tokens
+# 3. Click "Create API token" and copy the generated value
+#
+# @see https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
 # @see https://www.vortextemplate.com/docs/deployment/notifications#jira
 VORTEX_NOTIFY_JIRA_TOKEN="${VORTEX_NOTIFY_JIRA_TOKEN:-}"
 
@@ -89,7 +95,7 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 
 if [ -n "${VORTEX_NOTIFY_JIRA_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_JIRA_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped JIRA notification for branch ${VORTEX_NOTIFY_BRANCH-}."
+    pass "Skipped JIRA notification for branch \"${VORTEX_NOTIFY_BRANCH-}\"."
     exit 0
   fi
 fi
@@ -101,6 +107,7 @@ fi
 
 info "Started JIRA notification."
 
+# Skip if this is a pre-deployment event (JIRA only processes post-deployment).
 if [ "${VORTEX_NOTIFY_JIRA_EVENT}" = "pre_deployment" ]; then
   pass "Skipped JIRA notification for pre_deployment event."
   exit 0
@@ -167,8 +174,10 @@ task "Posting a comment."
 [ -z "${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL." && exit 1
 [ -z "${VORTEX_NOTIFY_JIRA_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_LOGIN_URL." && exit 1
 
+# Generate timestamp.
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
 
+# Read the deployment log (when enabled) to include it in the comment.
 log_file=""
 [ "${VORTEX_NOTIFY_JIRA_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_JIRA_LOG_FILE}"
 
@@ -185,8 +194,8 @@ $log_file = getenv("LOG_FILE");
 $log = ($log_file !== "" && is_file($log_file)) ? rtrim((string) file_get_contents($log_file), "\r\n") : "";
 
 if ($message !== "") {
-  // Tokens are substituted and newlines become hard breaks so line breaks
-  // are preserved in JIRA.
+  // A configured template replaces the default body. Tokens are substituted
+  // and newlines become hard breaks so the text keeps its shape in JIRA.
   $message = str_replace(
     ["%project%", "%label%", "%timestamp%", "%environment_url%", "%login_url%"],
     [$project, $label, $timestamp, $env_url, $login_url],

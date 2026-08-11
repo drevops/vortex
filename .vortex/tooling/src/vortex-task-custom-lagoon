@@ -62,6 +62,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 info "Started Lagoon task ${VORTEX_TASK_CUSTOM_LAGOON_NAME}."
 
+## Check all required values.
 [ -z "${VORTEX_TASK_CUSTOM_LAGOON_NAME}" ] && fail "Missing required value for VORTEX_TASK_CUSTOM_LAGOON_NAME." && exit 1
 [ -z "${VORTEX_TASK_CUSTOM_LAGOON_BRANCH}" ] && fail "Missing required value for VORTEX_TASK_CUSTOM_LAGOON_BRANCH." && exit 1
 [ -z "${VORTEX_TASK_CUSTOM_LAGOON_COMMAND}" ] && fail "Missing required value for VORTEX_TASK_CUSTOM_LAGOON_COMMAND." && exit 1

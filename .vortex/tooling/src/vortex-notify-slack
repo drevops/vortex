@@ -31,7 +31,14 @@ VORTEX_NOTIFY_SLACK_MESSAGE="${VORTEX_NOTIFY_SLACK_MESSAGE:-}"
 VORTEX_NOTIFY_SLACK_EVENT="${VORTEX_NOTIFY_SLACK_EVENT:-${VORTEX_NOTIFY_EVENT:-post_deployment}}"
 
 # Slack notification webhook URL.
-# The incoming Webhook URL from the Slack app configuration.
+# The incoming Webhook URL from your Slack app configuration.
+#
+# To obtain a webhook URL:
+# 1. Create or open a Slack app at https://api.slack.com/apps
+# 2. Enable "Incoming Webhooks" for the app
+# 3. Click "Add New Webhook to Workspace" and select a channel
+# 4. The URL format is: https://hooks.slack.com/services/XXX/YYY/ZZZ
+#
 # @see https://www.vortextemplate.com/docs/deployment/notifications#slack
 VORTEX_NOTIFY_SLACK_WEBHOOK="${VORTEX_NOTIFY_SLACK_WEBHOOK:-}"
 
@@ -75,7 +82,7 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 
 if [ -n "${VORTEX_NOTIFY_SLACK_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_SLACK_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped Slack notification for branch ${VORTEX_NOTIFY_BRANCH-}."
+    pass "Skipped Slack notification for branch \"${VORTEX_NOTIFY_BRANCH-}\"."
     exit 0
   fi
 fi
@@ -88,6 +95,7 @@ fi
 
 info "Started Slack notification."
 
+# Set default message template if not provided.
 if [ -z "${VORTEX_NOTIFY_SLACK_MESSAGE}" ]; then
   VORTEX_NOTIFY_SLACK_MESSAGE="## This is an automated message ##
 
@@ -96,8 +104,10 @@ Site %project% %label% has been deployed at %timestamp% and is available at %env
 Login at: %login_url%"
 fi
 
+# Generate timestamp.
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
 
+# Build fallback message by replacing tokens.
 fallback_message="${VORTEX_NOTIFY_SLACK_MESSAGE}"
 fallback_message=$(REPLACEMENT="${VORTEX_NOTIFY_SLACK_PROJECT}" TEMPLATE="${fallback_message}" php -r 'echo str_replace("%project%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 fallback_message=$(REPLACEMENT="${VORTEX_NOTIFY_SLACK_LABEL}" TEMPLATE="${fallback_message}" php -r 'echo str_replace("%label%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
@@ -105,6 +115,7 @@ fallback_message=$(REPLACEMENT="${timestamp}" TEMPLATE="${fallback_message}" php
 fallback_message=$(REPLACEMENT="${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}" TEMPLATE="${fallback_message}" php -r 'echo str_replace("%environment_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 fallback_message=$(REPLACEMENT="${VORTEX_NOTIFY_SLACK_LOGIN_URL}" TEMPLATE="${fallback_message}" php -r 'echo str_replace("%login_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 
+# Determine color based on event type.
 color="good"
 event_label="Deployment Complete"
 if [ "${VORTEX_NOTIFY_SLACK_EVENT}" = "pre_deployment" ]; then
@@ -112,8 +123,10 @@ if [ "${VORTEX_NOTIFY_SLACK_EVENT}" = "pre_deployment" ]; then
   event_label="Deployment Starting"
 fi
 
+# Build the message title.
 title="${event_label}: ${VORTEX_NOTIFY_SLACK_PROJECT}"
 
+# Read the deployment log (when enabled) to include it in the message.
 log_file=""
 [ "${VORTEX_NOTIFY_SLACK_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_SLACK_LOG_FILE}"
 
@@ -138,8 +151,8 @@ $fields = [
   ["title" => "Time", "value" => $timestamp, "short" => true]
 ];
 
-// Pre-deployment notifications omit the Environment and Login links as the
-// site is not yet available.
+// Only include Environment and Login links for post-deployment notifications.
+// Pre-deployment notifications should not show these as the site is not yet available.
 if ($event !== "pre_deployment") {
   $fields[] = ["title" => "Environment", "value" => "<" . $env_url . "|View Site>", "short" => true];
   $fields[] = ["title" => "Login", "value" => "<" . $login_url . "|Login Here>", "short" => true];
@@ -184,6 +197,7 @@ note "Channel        : ${VORTEX_NOTIFY_SLACK_CHANNEL:-<default>}"
 note "Username       : ${VORTEX_NOTIFY_SLACK_USERNAME}"
 note "Event          : ${event_label}"
 
+# Send notification to Slack.
 response=$(curl -s -o /dev/null -w "%{http_code}" \
   -X POST \
   -H "Content-Type: application/json" \

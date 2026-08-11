@@ -30,14 +30,18 @@ drush() { ./vendor/bin/drush -y "$@"; }
 # as a first argument.
 dump_file=$([ "${1:-}" ] && echo "${VORTEX_EXPORT_DB_FILE_DIR}/${1}" || echo "${VORTEX_EXPORT_DB_FILE_DIR}/export_db_$(date +%Y%m%d_%H%M%S).sql")
 
-# The provided path is relative to the project root, but the `drush sql:dump`
-# command treats the result file path as relative to the Drupal root.
+# If dump file is relative - update it to the parent directory, because the
+# `drush sql:dump` command result file is relative to Drupal root, but provided
+# path is relative to the project root.
 dump_file_drush="${dump_file/#.\//../}"
 
+# Create a directory to store database dump.
 mkdir -p "${VORTEX_EXPORT_DB_FILE_DIR}"
 
+# Dump database into a file.
 drush sql:dump --skip-tables-key=common --result-file="${dump_file_drush}" -q
 
+# Check that file was saved and output saved dump file name.
 if [ -f "${dump_file}" ] && [ -s "${dump_file}" ]; then
   note "Exported database dump saved ${dump_file}."
 else

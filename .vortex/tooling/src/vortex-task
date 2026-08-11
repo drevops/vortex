@@ -34,17 +34,17 @@ shift
 
 case "${operation}" in
   copy-db | copy-files | purge-cache | custom) ;;
-  *) fail "Unsupported task operation ${operation}." && exit 1 ;;
+  *) fail "Unsupported task operation \"${operation}\"." && exit 1 ;;
 esac
 
 [ -z "${VORTEX_TASK_PLATFORM}" ] && fail "Missing hosting platform. Set VORTEX_PLATFORM or VORTEX_TASK_PLATFORM." && exit 1
 
 case "${VORTEX_TASK_PLATFORM}" in
   acquia | lagoon) ;;
-  *) fail "Unsupported hosting platform ${VORTEX_TASK_PLATFORM}." && exit 1 ;;
+  *) fail "Unsupported hosting platform \"${VORTEX_TASK_PLATFORM}\"." && exit 1 ;;
 esac
 
 task_script="$(dirname "${BASH_SOURCE[0]}")/vortex-task-${operation}-${VORTEX_TASK_PLATFORM}"
-[ ! -x "${task_script}" ] && fail "Operation ${operation} is not supported on the ${VORTEX_TASK_PLATFORM} platform." && exit 1
+[ ! -x "${task_script}" ] && fail "Operation \"${operation}\" is not supported on the \"${VORTEX_TASK_PLATFORM}\" platform." && exit 1
 
 "${task_script}" "$@"

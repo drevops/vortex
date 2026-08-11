@@ -18,6 +18,13 @@ VORTEX_NOTIFY_NEWRELIC_PROJECT="${VORTEX_NOTIFY_NEWRELIC_PROJECT:-${VORTEX_NOTIF
 
 # New Relic notification User API Key.
 #
+# To obtain your User API Key:
+# 1. Log in to New Relic
+# 2. Click on your profile icon (bottom left)
+# 3. Go to "API keys"
+# 4. Create or copy an existing "User key"
+# 5. The key format is: NRAK-XXXXXXXXXXXXXXXXXXXXXX
+#
 # @see https://docs.newrelic.com/docs/apis/intro-apis/new-relic-api-keys/#user-key
 # @see https://www.vortextemplate.com/docs/deployment/notifications#new-relic
 VORTEX_NOTIFY_NEWRELIC_USER_KEY="${VORTEX_NOTIFY_NEWRELIC_USER_KEY:-${NEWRELIC_USER_KEY:-}}"
@@ -86,7 +93,7 @@ fi
 
 if [ -n "${VORTEX_NOTIFY_NEWRELIC_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_NEWRELIC_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped New Relic notification for branch ${VORTEX_NOTIFY_BRANCH-}."
+    pass "Skipped New Relic notification for branch \"${VORTEX_NOTIFY_BRANCH-}\"."
     exit 0
   fi
 fi
@@ -104,6 +111,8 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 
 info "Started New Relic notification."
 
+# Auto-generate revision if not provided.
+# Use SHA if available, otherwise fall back to LABEL-TIMESTAMP.
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_REVISION}" ]; then
   if [ -n "${VORTEX_NOTIFY_NEWRELIC_SHA}" ]; then
     VORTEX_NOTIFY_NEWRELIC_REVISION="${VORTEX_NOTIFY_NEWRELIC_SHA}"
@@ -115,23 +124,28 @@ if [ -z "${VORTEX_NOTIFY_NEWRELIC_REVISION}" ]; then
   note "Auto-generated revision: ${VORTEX_NOTIFY_NEWRELIC_REVISION}"
 fi
 
+# Skip if this is a pre-deployment event (New Relic only for post-deployment).
 if [ "${VORTEX_NOTIFY_NEWRELIC_EVENT}" = "pre_deployment" ]; then
   pass "Skipped New Relic notification for pre_deployment event."
   exit 0
 fi
 
+# Set default description template if not provided.
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" ]; then
   VORTEX_NOTIFY_NEWRELIC_DESCRIPTION="Site %project% %label% has been deployed at %timestamp% and is available at %environment_url%"
 fi
 
+# Build message by replacing tokens.
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
 
+# Replace tokens in description template.
 VORTEX_NOTIFY_NEWRELIC_DESCRIPTION=$(REPLACEMENT="${VORTEX_NOTIFY_NEWRELIC_PROJECT}" TEMPLATE="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" php -r 'echo str_replace("%project%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 VORTEX_NOTIFY_NEWRELIC_DESCRIPTION=$(REPLACEMENT="${VORTEX_NOTIFY_NEWRELIC_LABEL}" TEMPLATE="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" php -r 'echo str_replace("%label%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 VORTEX_NOTIFY_NEWRELIC_DESCRIPTION=$(REPLACEMENT="${timestamp}" TEMPLATE="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" php -r 'echo str_replace("%timestamp%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 VORTEX_NOTIFY_NEWRELIC_DESCRIPTION=$(REPLACEMENT="${VORTEX_NOTIFY_NEWRELIC_ENVIRONMENT_URL}" TEMPLATE="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" php -r 'echo str_replace("%environment_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 VORTEX_NOTIFY_NEWRELIC_DESCRIPTION=$(REPLACEMENT="${VORTEX_NOTIFY_NEWRELIC_LOGIN_URL}" TEMPLATE="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" php -r 'echo str_replace("%login_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 
+# Build changelog if not provided (defaults to description).
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_CHANGELOG}" ]; then
   VORTEX_NOTIFY_NEWRELIC_CHANGELOG="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}"
 fi
@@ -144,6 +158,8 @@ if [ -z "${VORTEX_NOTIFY_NEWRELIC_APPID}" ] && [ -n "${VORTEX_NOTIFY_NEWRELIC_AP
     php -r "\$data = json_decode(file_get_contents('php://stdin'), TRUE); if (isset(\$data['applications'][0]['id'])) { echo \$data['applications'][0]['id']; }")"
 fi
 
+# Check if the VORTEX_NOTIFY_NEWRELIC_APPID variable is empty OR
+# if the variable doesn't contain only numeric values and exit.
 task "Checking if the application ID is valid."
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_APPID}" ] || [ "$(expr "x${VORTEX_NOTIFY_NEWRELIC_APPID}" : "x[0-9]*$")" -eq 0 ]; then
   note "Notification skipped: No New Relic application ID found for ${VORTEX_NOTIFY_NEWRELIC_APP_NAME}. This is expected for non-configured environments."

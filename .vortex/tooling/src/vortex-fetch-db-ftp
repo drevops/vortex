@@ -63,6 +63,7 @@ for cmd in curl; do command -v "${cmd}" >/dev/null || {
   exit 1
 }; done
 
+# Check all required values.
 [ -z "${VORTEX_FETCH_DB_FTP_USER}" ] && fail "Missing required value for VORTEX_FETCH_DB_FTP_USER." && exit 1
 [ -z "${VORTEX_FETCH_DB_FTP_PASS}" ] && fail "Missing required value for VORTEX_FETCH_DB_FTP_PASS." && exit 1
 [ -z "${VORTEX_FETCH_DB_FTP_HOST}" ] && fail "Missing required value for VORTEX_FETCH_DB_FTP_HOST." && exit 1

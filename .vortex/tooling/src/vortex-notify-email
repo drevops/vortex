@@ -2,6 +2,8 @@
 ##
 # Notification dispatch to email recipients.
 #
+# Notification dispatch to email recipients.
+#
 # Usage:
 # VORTEX_NOTIFY_PROJECT="Site Name" \
 # DRUPAL_SITE_EMAIL="from@example.com" \
@@ -71,7 +73,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 if [ -n "${VORTEX_NOTIFY_EMAIL_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_EMAIL_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped email notification for branch ${VORTEX_NOTIFY_BRANCH-}."
+    pass "Skipped email notification for branch \"${VORTEX_NOTIFY_BRANCH-}\"."
     exit 0
   fi
 fi
@@ -85,6 +87,7 @@ fi
 
 info "Started email notification."
 
+# Set default message template if not provided.
 if [ -z "${VORTEX_NOTIFY_EMAIL_MESSAGE}" ]; then
   VORTEX_NOTIFY_EMAIL_MESSAGE="## This is an automated message ##
 
@@ -95,6 +98,7 @@ Login at: %login_url%
 %deployment_log%"
 fi
 
+# Skip if this is a pre-deployment event (email only for post-deployment).
 if [ "${VORTEX_NOTIFY_EMAIL_EVENT}" = "pre_deployment" ]; then
   pass "Skipped email notification for pre_deployment event."
   exit 0
@@ -113,9 +117,11 @@ else
   exit 1
 fi
 
+# Build message by replacing tokens.
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
 subject="${VORTEX_NOTIFY_EMAIL_PROJECT} deployment notification of ${VORTEX_NOTIFY_EMAIL_LABEL}"
 
+# Replace tokens in message template.
 content="${VORTEX_NOTIFY_EMAIL_MESSAGE}"
 content=$(REPLACEMENT="${VORTEX_NOTIFY_EMAIL_PROJECT}" TEMPLATE="${content}" php -r 'echo str_replace("%project%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 content=$(REPLACEMENT="${VORTEX_NOTIFY_EMAIL_LABEL}" TEMPLATE="${content}" php -r 'echo str_replace("%label%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')

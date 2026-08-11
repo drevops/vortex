@@ -38,6 +38,7 @@ for cmd in curl; do command -v "${cmd}" >/dev/null || {
 
 info "Started webhook deployment."
 
+# Check all required values.
 [ -z "${VORTEX_DEPLOY_WEBHOOK_URL}" ] && fail "Missing required value for VORTEX_DEPLOY_WEBHOOK_URL." && exit 1
 [ -z "${VORTEX_DEPLOY_WEBHOOK_METHOD}" ] && fail "Missing required value for VORTEX_DEPLOY_WEBHOOK_METHOD." && exit 1
 [ -z "${VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS}" ] && fail "Missing required value for VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS." && exit 1
