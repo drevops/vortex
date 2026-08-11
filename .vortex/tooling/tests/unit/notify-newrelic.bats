@@ -69,7 +69,7 @@ load ../_helper.bash
   assert_string_contains "${actual_curl_call}" "-X POST https://api.newrelic.com/v2/applications/9876543210/deployments.json"
   assert_string_contains "${actual_curl_call}" "-H Api-Key: key1234"
   assert_string_contains "${actual_curl_call}" '"revision":'
-  assert_string_contains "${actual_curl_call}" '"user": "Deployment robot"'
+  assert_string_contains "${actual_curl_call}" '"user":"Deployment robot"'
 
   assert_output_contains "Finished New Relic notification."
 

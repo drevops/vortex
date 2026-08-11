@@ -99,7 +99,7 @@ if [ "${VORTEX_NOTIFY_GITHUB_EVENT}" = "pre_deployment" ]; then
   note "Environment Type: ${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}"
   note "Event           : ${VORTEX_NOTIFY_GITHUB_EVENT}"
 
-  body="$(php -r '
+  body="$(VORTEX_NOTIFY_GITHUB_BRANCH="${VORTEX_NOTIFY_GITHUB_BRANCH}" VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE="${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}" php -r '
 echo json_encode([
   "ref" => getenv("VORTEX_NOTIFY_GITHUB_BRANCH"),
   "environment" => getenv("VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE"),
@@ -155,7 +155,7 @@ else
   note "Event              : ${VORTEX_NOTIFY_GITHUB_EVENT}"
 
   # Post status update.
-  body="$(php -r '
+  body="$(VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL="${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}" php -r '
 echo json_encode([
   "state" => "success",
   "environment_url" => getenv("VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL"),
