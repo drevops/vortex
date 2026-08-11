@@ -87,18 +87,15 @@ fi
 
 info "Started webhook notification."
 
-# Skip if this is a pre-deployment event (webhook only for post-deployment).
 if [ "${VORTEX_NOTIFY_WEBHOOK_EVENT}" = "pre_deployment" ]; then
   pass "Skipped webhook notification for pre_deployment event."
   exit 0
 fi
 
-# Set default payload template if not provided.
 if [ -z "${VORTEX_NOTIFY_WEBHOOK_PAYLOAD}" ]; then
   VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"channel": "Channel 1", "message": "%message%", "project": "%project%", "label": "%label%", "timestamp": "%timestamp%", "environment_url": "%environment_url%", "login_url": "%login_url%"}'
 fi
 
-# Build and replace tokens (%variable_name%) for webhook payload.
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
 message='## This is an automated message ##\nSite %project% %label% has been deployed at %timestamp% and is available at %environment_url%.\nLogin at: %login_url%\n\n%deployment_log%'
 
@@ -131,14 +128,12 @@ note "Headers            : ${VORTEX_NOTIFY_WEBHOOK_HEADERS}"
 note "Expected Status    : ${VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS}"
 note "Payload (first 200): ${VORTEX_NOTIFY_WEBHOOK_PAYLOAD:0:200}..."
 
-# Build headers.
 headers=()
 IFS=\| read -ra webhook_headers <<<"${VORTEX_NOTIFY_WEBHOOK_HEADERS}"
 for item in "${webhook_headers[@]}"; do
   headers+=('-H' "${item}")
 done
 
-# Make curl request.
 if ! curl -L -s -o /dev/null -w '%{http_code}' \
   -X "${VORTEX_NOTIFY_WEBHOOK_METHOD}" \
   "${headers[@]}" \

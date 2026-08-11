@@ -146,7 +146,7 @@ if (file_exists($app_root . '/' . $site_path . '/includes/providers')) {
   }
 }
 
-// Allow to override an environment type using the ENVIRONMENT_TYPE variable.
+// Allow overriding the environment type using the ENVIRONMENT_TYPE variable.
 if (!empty(getenv('ENVIRONMENT_TYPE'))) {
   $settings['environment'] = getenv('ENVIRONMENT_TYPE');
 }

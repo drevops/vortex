@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 $container_localdev_url = getenv('LOCALDEV_URL');
 if (!empty($container_localdev_url)) {
-  // Local development URL.
   $container_urls = array_map(trim(...), explode(',', $container_localdev_url));
   foreach ($container_urls as $container_url) {
     $container_host = strtolower(str_replace(['https://', 'http://'], '', $container_url));

@@ -88,8 +88,6 @@ if [ -f "${archive_file}" ]; then
   # Always use archived image, even if such image already exists on the host.
   docker load -q --input "${archive_file}"
 
-  # Check that image was expanded and now exists on the host or notify
-  # that it will be downloaded from the registry.
   if docker image inspect "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" >/dev/null 2>&1; then
     note "Found expanded ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
     image_expanded_successfully=1
@@ -98,8 +96,8 @@ if [ -f "${archive_file}" ]; then
   fi
 fi
 
-# An expanded archive always wins over the image on the host, so the host image
-# is only reused when there is no archive to expand.
+# An expanded archive always takes precedence over the image on the host, so
+# the host image is only reused when there is no archive to expand.
 should_fetch=1
 if [ "${image_expanded_successfully}" -eq 1 ]; then
   should_fetch=0
@@ -112,8 +110,7 @@ fi
 
 if [ "${should_fetch}" -eq 1 ]; then
   if [ ! -f "${archive_file}" ] && [ -n "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE:-}" ]; then
-    # If the image archive does not exist and base image was provided - use the
-    # base image which allows "clean slate" for the database.
+    # The base image provides a clean slate for the database.
     note "Database container image was not found. Using base image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}."
     export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}"
   fi

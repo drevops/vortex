@@ -47,7 +47,6 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    // Auto-select webroot based on hosting provider.
     if (isset($responses[HostingProvider::id()])) {
       return match ($responses[HostingProvider::id()]) {
         HostingProvider::ACQUIA => self::DOCROOT,

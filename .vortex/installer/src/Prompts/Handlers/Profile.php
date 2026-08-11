@@ -134,7 +134,6 @@ class Profile extends AbstractHandler {
   public function process(): void {
     $v = $this->getResponseAsString();
 
-    // If user selected 'custom', use the ProfileCustom response instead.
     if ($v === self::CUSTOM && isset($this->responses[ProfileCustom::id()])) {
       $v = $this->responses[ProfileCustom::id()];
     }

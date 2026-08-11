@@ -5,8 +5,8 @@
 # It does not rely on 'drush ac-api-*' commands, which makes it capable of
 # running on hosts without configured Drush and Drush aliases.
 #
-# It requires to have Cloud API token Key and Secret provided.
-# To create your Cloud API token Acquia UI, go to
+# It requires Cloud API token Key and Secret to be provided.
+# To create a Cloud API token, go to
 # Acquia Cloud UI -> Account -> API tokens -> Create Token
 #
 # @see https://cloudapi-docs.acquia.com/#/Environments/postEnvironmentsDatabases
@@ -71,13 +71,11 @@ extract_json_value() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-# Pre-flight checks.
 for cmd in curl php; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available."
   exit 1
 }; done
 
-# Check that all required variables are present.
 [ -z "${VORTEX_TASK_COPY_DB_ACQUIA_KEY}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY." && exit 1
 [ -z "${VORTEX_TASK_COPY_DB_ACQUIA_SECRET}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET." && exit 1
 [ -z "${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME." && exit 1

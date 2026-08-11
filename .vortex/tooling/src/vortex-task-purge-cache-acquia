@@ -5,8 +5,8 @@
 # It does not rely on 'drush ac-api-*' commands, which makes it capable of
 # running on hosts without configured Drush and Drush aliases.
 #
-# It requires to have Cloud API token Key and Secret provided.
-# To create your Cloud API token Acquia UI, go to
+# It requires Cloud API token Key and Secret to be provided.
+# To create a Cloud API token, go to
 # Acquia Cloud UI -> Account -> API tokens -> Create Token
 #
 # @see https://cloudapi-docs.acquia.com/#/Environments/postEnvironmentsDomainsClearVarnish
@@ -50,7 +50,6 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-# Pre-flight checks.
 for cmd in php curl; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available."
   exit 1
@@ -74,7 +73,6 @@ extract_json_value() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-# Check that all required variables are present.
 [ -z "${VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY}" ] && fail "Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY or VORTEX_ACQUIA_KEY." && exit 1
 [ -z "${VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET}" ] && fail "Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET." && exit 1
 [ -z "${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME}" ] && fail "Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME." && exit 1
@@ -121,26 +119,24 @@ while read -r domain; do
     TARGET_ENV_REMAP=""
   fi
 
-  # Proceed only if the environment was provided.
   if [ -n "${TARGET_ENV_REMAP}" ]; then
     # Interpolate variables in domain name.
     domain="$(eval echo "${domain}")"
-    # Add domain to list.
     domain_list+=("${domain}")
   fi
 done <"${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}"
 
 if [ "${#domain_list[@]}" -gt 0 ]; then
-  # Acquia API stops clearing purging caches if at least 1 domain fails, so
-  # we are clearing caches for every domain separately and not failing if
-  # the domain is not found.
+  # The Acquia API stops purging caches when at least one domain fails, so
+  # caches are cleared for every domain separately without failing on a
+  # missing domain.
   for domain in "${domain_list[@]}"; do
     task "Purging cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
     task_status_json=$(curl -X POST -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d "{\"domains\":[\"${domain}\"]}" "https://cloud.acquia.com/api/environments/${ENV_ID}/domains/actions/clear-varnish")
     notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href") || true
 
-    # If domain does not exist - notification will be empty; we are skipping
-    # non-existing domains without a failure.
+    # The notification URL is empty when the domain does not exist - skip
+    # such domains without a failure.
     if [ -z "${notification_url}" ]; then
       note "Warning: Unable to purge cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain} as it does not exist."
       break

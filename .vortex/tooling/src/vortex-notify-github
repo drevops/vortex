@@ -118,7 +118,6 @@ echo json_encode([
 
   deployment_id="$(echo "${payload}" | extract_json_value "id" || true)"
 
-  # Check deployment ID.
   if [ -z "${deployment_id}" ] || [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; then
     fail "Unable to get a deployment ID for a ${VORTEX_NOTIFY_GITHUB_EVENT} operation. Payload: ${payload}"
     fail "Wait for GitHub checks to finish and try again."
@@ -129,7 +128,7 @@ echo json_encode([
 else
   [ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL." && exit 1
 
-  # Returns all deployment for this ref sorted from the latest to the oldest.
+  # Returns all deployments for this ref sorted from the latest to the oldest.
   payload="$(curl \
     -X GET \
     -H "Authorization: token ${VORTEX_NOTIFY_GITHUB_TOKEN}" \
@@ -139,7 +138,6 @@ else
 
   deployment_id="$(echo "${payload}" | extract_json_first_value "id" || true)"
 
-  # Check deployment ID.
   if [ -z "${deployment_id}" ] || [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; then
     fail "Unable to get a deployment ID for a ${VORTEX_NOTIFY_GITHUB_EVENT} operation. Payload: ${payload}"
     fail "Check that a pre_deployment notification was dispatched."
@@ -154,7 +152,6 @@ else
   note "Deployment ID      : ${deployment_id}"
   note "Event              : ${VORTEX_NOTIFY_GITHUB_EVENT}"
 
-  # Post status update.
   body="$(VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL="${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}" php -r '
 echo json_encode([
   "state" => "success",

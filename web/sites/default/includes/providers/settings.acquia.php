@@ -21,7 +21,6 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // Delay the initial database connection.
   $config['acquia_hosting_settings_autoconnect'] = FALSE;
 
-  // Include Acquia environment settings.
   if (!empty($ah_site_group)) {
     $ah_settings_file = getenv('DRUPAL_ACQUIA_SETTINGS_FILE') ?: sprintf('/var/www/site-php/%s/%s-settings.inc', $ah_site_group, $ah_site_group);
     // @codeCoverageIgnoreStart
@@ -35,9 +34,6 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // Default all environments to 'dev', including ODE environments.
   $settings['environment'] = ENVIRONMENT_DEV;
 
-  // Do not put any Acquia-specific settings in this code block. It is used
-  // to explicitly map Acquia environments to $settings['environment']
-  // variable only.
   switch (getenv('AH_SITE_ENVIRONMENT')) {
     case 'prod':
       $settings['environment'] = ENVIRONMENT_PROD;
@@ -63,8 +59,8 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // Automatically create an Apache HTTP .htaccess file in writable directories.
   $settings['auto_create_htaccess'] = TRUE;
 
-  // Allow to override temporary path using per-head mounted directory or
-  // DRUPAL_TMP_PATH variable.
+  // Allow overriding the temporary path using a per-head mounted directory or
+  // the DRUPAL_TMP_PATH variable.
   // @see https://docs.acquia.com/acquia-cloud-platform/manage-apps/files/temporary#section-important-considerations
   $settings['file_temp_path'] = '/tmp';
 

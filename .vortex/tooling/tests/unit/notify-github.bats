@@ -109,7 +109,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started GitHub notification for pre_deployment event."
-    '@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {"ref":"nonexistingbranch", "environment": "nonexistingbranch", "auto_merge": false, "required_contexts": []} # {"message": "No ref found for: nonexistingbranch","documentation_url": "https://docs.github.com/rest/deployments/deployments#create-a-deployment","status": "422"}'
+    '@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {"ref":"nonexistingbranch","environment":"nonexistingbranch","auto_merge":false,"required_contexts":[]} # {"message": "No ref found for: nonexistingbranch","documentation_url": "https://docs.github.com/rest/deployments/deployments#create-a-deployment","status": "422"}'
     "Unable to get a deployment ID for a pre_deployment operation. Payload:"
     "Wait for GitHub checks to finish and try again."
     "-Marked deployment as finished."

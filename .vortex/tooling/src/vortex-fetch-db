@@ -18,13 +18,12 @@ set -eu
 # VORTEX_FETCH_DB_SOURCE).
 _db_index="${VORTEX_DB_INDEX:-}"
 
-# Note that `container_registry` works only for database-in-image
-# database storage (when $VORTEX_DB_IMAGE variable has a value).
+# The `container_registry` source works only for database-in-image
+# storage (when $VORTEX_DB_IMAGE variable has a value).
 _v="VORTEX_FETCH_DB${_db_index}_SOURCE"
 VORTEX_FETCH_DB_SOURCE="${!_v:-url}"
 
 # Force DB fetch even if the cache exists.
-# Usually set in CircleCI UI to override per build cache.
 _v="VORTEX_FETCH_DB${_db_index}_FORCE"
 VORTEX_FETCH_DB_FORCE="${!_v:-}"
 

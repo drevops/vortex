@@ -62,12 +62,10 @@ class ThemeCustom extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    // Get the discovered theme from the Theme handler.
     $theme_handler = new Theme($this->config);
     $theme_handler->setWebroot($this->webroot);
     $discovered = $theme_handler->discoverName();
 
-    // Only return discovered value if it's a custom theme.
     if (!empty($discovered) && !in_array($discovered, [Theme::OLIVERO, Theme::CLARO, Theme::STARK], TRUE)) {
       return $discovered;
     }
@@ -94,8 +92,7 @@ class ThemeCustom extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    // This handler doesn't need processing - the Theme handler will handle
-    // the final result.
+    // No processing needed: the Theme handler processes the final value.
   }
 
 }

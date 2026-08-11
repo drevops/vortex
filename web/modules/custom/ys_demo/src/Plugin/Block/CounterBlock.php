@@ -38,7 +38,7 @@ class CounterBlock extends BlockBase {
    * {@inheritdoc}
    */
   public function getCacheMaxAge(): int {
-    // This block should not be cached as it's interactive.
+    // The block is interactive, so it is never cached.
     return 0;
   }
 

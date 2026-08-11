@@ -28,7 +28,6 @@ class DatabaseImage extends AbstractHandler {
    * {@inheritdoc}
    */
   public function placeholder(array $responses): ?string {
-    // Generate placeholder from OrgMachineName and MachineName if available.
     if (isset($responses[OrgMachineName::id()]) && isset($responses[MachineName::id()])
       && !empty($responses[OrgMachineName::id()]) && !empty($responses[MachineName::id()])) {
       return sprintf('E.g. %s/%s-data:latest',

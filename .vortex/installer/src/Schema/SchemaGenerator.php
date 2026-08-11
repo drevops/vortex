@@ -56,8 +56,7 @@ class SchemaGenerator {
   /**
    * Get a list of handler IDs to exclude from the schema.
    *
-   * This allows us to omit internal or non-prompt handlers from the
-   * generated schema.
+   * Internal or non-prompt handlers are omitted from the generated schema.
    *
    * @return array<string>
    *   An array of handler IDs to exclude.

@@ -20,8 +20,8 @@ function your_site_theme_preprocess_html(array &$variables): void {
  * Preprocess administration navigation.
  */
 function _your_site_theme_preprocess_navigation(array &$variables): void {
-  // Hide the administration navigation. Useful for theming while logged in as
-  // an administrator.
+  // The 'hide_admin_navigation' setting removes the administration navigation
+  // so pages can be themed while logged in as an administrator.
   if (Settings::get('hide_admin_navigation')) {
     unset($variables['page_top']['navigation']);
     unset($variables['page_top']['top_bar']);

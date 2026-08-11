@@ -53,7 +53,6 @@ for cmd in curl unzip; do command -v "${cmd}" >/dev/null || {
 
 info "Started database dump fetch from URL."
 
-# Check all required values.
 [ -z "${VORTEX_FETCH_DB_URL}" ] && fail "Missing required value for VORTEX_FETCH_DB_URL." && exit 1
 
 mkdir -p "${VORTEX_FETCH_DB_URL_DB_DIR}"
@@ -65,7 +64,6 @@ if [ "${VORTEX_FETCH_DB_URL%*.zip}" != "${VORTEX_FETCH_DB_URL}" ]; then
   note "Detecting zip file, preparing for extraction."
   mv "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}" "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}.zip"
 
-  # Create temporary directory for extraction
   temp_extract_dir="${VORTEX_FETCH_DB_URL_DB_DIR}/tmp_extract_$$"
   mkdir -p "${temp_extract_dir}"
 
@@ -77,7 +75,6 @@ if [ "${VORTEX_FETCH_DB_URL%*.zip}" != "${VORTEX_FETCH_DB_URL}" ]; then
     unzip -o "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}.zip" -d "${temp_extract_dir}"
   fi
 
-  # Find the first regular file (not directory) in the extracted content.
   note "Discovering database file in archive."
   extracted_file=$(find "${temp_extract_dir}" -type f -print | head -n 1)
 

@@ -52,8 +52,8 @@ for cmd in docker; do command -v "${cmd}" >/dev/null || {
 
 info "Started container registry push."
 
-# Only push if the map was provided, but do not fail if it has not as this
-# may be called as a part of another task.
+# Only push when the map is provided, but do not fail when it is not: this
+# script may be called as a part of another task.
 # @todo: Handle this better - empty $VORTEX_PUSH_CONTAINER_REGISTRY_MAP should use defaults.
 if [ -z "${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}" ]; then
   note "Services map is not specified in VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
@@ -66,7 +66,6 @@ fi
 
 services=()
 images=()
-# Parse and validate map.
 IFS=',' read -r -a values <<<"${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}"
 for value in "${values[@]}"; do
   IFS='=' read -r -a parts <<<"${value}"
@@ -89,7 +88,6 @@ for key in "${!services[@]}"; do
   image="${images[${key}]}"
 
   task "Processing service ${service}."
-  # Check if the service is running.
   cid=$(docker compose ps -q "${service}")
 
   [ -z "${cid}" ] && fail "Service ${service} is not running." && exit 1

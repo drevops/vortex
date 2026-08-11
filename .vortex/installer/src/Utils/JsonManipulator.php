@@ -90,7 +90,6 @@ class JsonManipulator extends ComposerJsonManipulator {
       return $decoded[$main];
     }
 
-    // Collect from the sub-keys.
     $arr = $decoded[$main];
 
     foreach ($sub as $key) {

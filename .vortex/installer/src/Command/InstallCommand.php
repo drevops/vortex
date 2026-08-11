@@ -185,7 +185,6 @@ EOF
 
       $this->assertMajorCompatibility();
 
-      // Only validate if using custom repository or custom reference.
       if (!$this->artifact->isDefault()) {
         Task::action(
           label: 'Validating repository and reference',
@@ -259,9 +258,7 @@ EOF
 
     $this->presenter->footer();
 
-    // Should build by default.
     $should_build = TRUE;
-    // Requested build via `--build` option. Defaults to FALSE.
     $requested_build = (bool) $this->config->get(Config::BUILD_NOW);
     // Non-interactive: respect the `--build` option.
     if ($this->config->getNoInteraction()) {
@@ -425,7 +422,6 @@ EOF
    * Clean up installer artifacts.
    */
   public function cleanup(): void {
-    // Skip cleanup if the no-cleanup flag is set.
     if ($this->config->get(Config::NO_CLEANUP, FALSE)) {
       return;
     }

@@ -10,7 +10,7 @@ use PHPUnit\Framework\MockObject\Stub\Stub;
 /**
  * Trait MockTrait.
  *
- * This trait provides a method to prepare class mock.
+ * Provides a method to prepare class mocks.
  *
  * @codeCoverageIgnore
  */
@@ -47,7 +47,6 @@ trait MockTrait {
     $mock = $mock->onlyMethods($methods)->getMock();
 
     foreach ($methods_map as $method => $value) {
-      // Handle callback values differently.
       if ($value instanceof Stub) {
         $mock->expects($this->any())
           ->method($method)

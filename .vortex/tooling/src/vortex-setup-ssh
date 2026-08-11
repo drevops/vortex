@@ -128,8 +128,8 @@ if [ -n "${VORTEX_SSH_KNOWN_HOSTS-}" ]; then
   mkdir -p "${HOME}/.ssh/"
 
   # Strip insecure directives that an earlier run with strict checking disabled
-  # may have left in the SSH config, so the pinned host keys are actually
-  # enforced rather than bypassed by a stale "UserKnownHostsFile /dev/null".
+  # may have left in the SSH config. A stale "UserKnownHostsFile /dev/null"
+  # would bypass the pinned host keys.
   if [ -f "${HOME}/.ssh/config" ]; then
     grep -v -E '^[[:space:]]*(StrictHostKeyChecking[[:space:]]+no|UserKnownHostsFile[[:space:]]+/dev/null)[[:space:]]*$' "${HOME}/.ssh/config" >"${HOME}/.ssh/config.tmp" || true
     mv "${HOME}/.ssh/config.tmp" "${HOME}/.ssh/config"

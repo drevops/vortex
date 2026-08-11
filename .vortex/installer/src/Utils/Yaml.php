@@ -10,7 +10,6 @@ use Symfony\Component\Yaml\Yaml as SymfonyYaml;
 class Yaml extends SymfonyYaml {
 
   public static function validateFile(string $path): void {
-    // Check if the file exists and is readable.
     if (!file_exists($path) || !is_readable($path)) {
       throw new \RuntimeException(sprintf('File does not exist or is not readable: "%s".', $path));
     }
@@ -59,7 +58,6 @@ class Yaml extends SymfonyYaml {
         $current_block_start = -1;
       }
 
-      // Handle empty lines.
       if ($data['is_empty']) {
         // If not in a literal block, keep the line.
         if ($current_block_indent < 0) {

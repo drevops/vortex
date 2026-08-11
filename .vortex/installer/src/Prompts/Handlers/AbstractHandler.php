@@ -189,10 +189,9 @@ abstract class AbstractHandler implements HandlerInterface {
     $this->responses = $responses;
     $this->setWebroot($responses[Webroot::id()] ?? Webroot::WEB);
 
-    // Set the response for the current handler as a shorthand.
-    // Some handlers may want to perform an action on the empty responses, so
-    // it is up to the handler's processor to check for the presence of the
-    // value in a set response.
+    // Shorthand for the current handler's response. Some handlers process
+    // empty responses, so checking for the presence of the value is up to the
+    // handler's processor.
     $this->response = $this->responses[static::id()] ?? NULL;
 
     return $this;

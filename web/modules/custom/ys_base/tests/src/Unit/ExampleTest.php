@@ -28,7 +28,7 @@ class ExampleTest extends YsBaseUnitTestBase {
       $this->expectExceptionMessage($expectExceptionMessage);
     }
 
-    // Replace below with a call to your class method.
+    // Replace the line below with a call to the method under test.
     $actual = $a + $b;
 
     $this->assertEquals($expected, $actual);
@@ -53,7 +53,7 @@ class ExampleTest extends YsBaseUnitTestBase {
       $this->expectExceptionMessage($expectExceptionMessage);
     }
 
-    // Replace below with a call to your class method.
+    // Replace the line below with a call to the method under test.
     $actual = $a - $b;
 
     $this->assertEquals($expected, $actual);
@@ -80,7 +80,7 @@ class ExampleTest extends YsBaseUnitTestBase {
       $this->expectExceptionMessage($expectExceptionMessage);
     }
 
-    // Replace below with a call to your class method.
+    // Replace the line below with a call to the method under test.
     $actual = $a * $b;
 
     $this->assertEquals($expected, $actual);

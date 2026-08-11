@@ -56,7 +56,6 @@ info "Started migration operations."
 environment="$(drush php:eval "print \Drupal\Core\Site\Settings::get('environment');")"
 note "Environment: ${environment}"
 
-# Skip migrations in production.
 if [ "${environment}" = "prod" ]; then
   DRUPAL_MIGRATION_SKIP=1
 fi
@@ -74,7 +73,6 @@ if [ "${DRUPAL_MIGRATION_SKIP}" = "1" ]; then
   exit 0
 fi
 
-# Helper function to run a single migration with configured options.
 run_migration() {
   local migration_name="${1}"
   shift
@@ -97,7 +95,6 @@ run_migration() {
     opts+=("--update")
   fi
 
-  # Add any additional arguments passed to the function.
   opts+=("$@")
 
   drush migrate:import "${opts[@]}" "${migration_name}" || {
@@ -108,7 +105,6 @@ run_migration() {
   pass "Migrated: ${migration_name}."
 }
 
-# Detect if existing migration source database is corrupted.
 if [ "${DRUPAL_MIGRATION_SOURCE_DB_IMPORT}" != "1" ]; then
   note "Source database import is set to be skipped. Checking existing database."
   task "Probing for '${DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE}' table in the source database."
@@ -120,7 +116,6 @@ if [ "${DRUPAL_MIGRATION_SOURCE_DB_IMPORT}" != "1" ]; then
   fi
 fi
 
-# Import the migration source database from the dump file.
 if [ "${DRUPAL_MIGRATION_SOURCE_DB_IMPORT}" = "1" ]; then
   task "Importing migration source database."
 
@@ -143,7 +138,6 @@ if ! drush sql:query --database=migrate "SELECT COUNT(*) FROM ${DRUPAL_MIGRATION
 fi
 pass "Verified migration source database."
 
-# Enable custom migration modules.
 task "Enabling migration modules."
 drush pm:install ys_migrate
 pass "Enabled migration modules."

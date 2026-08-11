@@ -40,7 +40,6 @@ class DeployTypes extends AbstractHandler {
       self::WEBHOOK => 'Custom webhook',
     ];
 
-    // Remove Lagoon option for Acquia hosting.
     if (isset($responses[HostingProvider::id()]) && $responses[HostingProvider::id()] === HostingProvider::ACQUIA) {
       unset($options[self::LAGOON]);
     }

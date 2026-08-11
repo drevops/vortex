@@ -69,7 +69,6 @@ class OptionsResolver {
       $config->set(Config::ROOT, $root);
     }
 
-    // Set destination directory.
     $destination_from_option = !empty($options['destination']) && is_scalar($options['destination']) ? (string) $options['destination'] : NULL;
     $destination_from_env = Env::get(Config::DESTINATION);
     $destination_from_config = $config->get(Config::DESTINATION);
@@ -79,14 +78,12 @@ class OptionsResolver {
     $destination = File::realpath($destination);
     $config->set(Config::DESTINATION, $destination, TRUE);
 
-    // Load values from the destination .env file, if it exists.
     $dest_env_file = $config->getDestination() . '/.env';
 
     if (File::exists($dest_env_file)) {
       Env::putFromDotenv($dest_env_file);
     }
 
-    // Build URI for artifact.
     $uri_from_option = !empty($options['uri']) && is_scalar($options['uri']) ? (string) $options['uri'] : NULL;
     $repo = Env::get(Config::REPO) ?: ($config->get(Config::REPO) ?: NULL);
     $ref = Env::get(Config::REF) ?: ($config->get(Config::REF) ?: NULL);
@@ -106,7 +103,6 @@ class OptionsResolver {
       throw new \RuntimeException(sprintf('Invalid repository URI: %s.', $e->getMessage()), $e->getCode(), $e);
     }
 
-    // Check if the project is a Vortex project.
     $config->set(Config::IS_VORTEX_PROJECT, File::contains($config->getDestination() . '/README.md', '/badge\/Vortex-/'));
 
     // Flag to proceed with installation. If FALSE - the installation will only
@@ -119,10 +115,8 @@ class OptionsResolver {
       $config->set(Config::IS_DEMO, (bool) Env::get(Config::IS_DEMO));
     }
 
-    // Internal flag to skip processing of the demo mode.
     $config->set(Config::IS_DEMO_DB_FETCH_SKIP, (bool) Env::get(Config::IS_DEMO_DB_FETCH_SKIP, FALSE));
 
-    // Parse --prompts JSON if provided.
     if (isset($options['prompts']) && is_scalar($options['prompts'])) {
       $prompts_candidate = (string) $options['prompts'];
       if (is_file($prompts_candidate)) {
@@ -140,15 +134,13 @@ class OptionsResolver {
         throw new \RuntimeException('Invalid JSON provided for --prompts.');
       }
 
-      // Store the raw parsed array. Schema validation against prompt handlers
-      // is performed in PromptManager::resolvePromptOverrides().
+      // Schema validation against prompt handlers is performed in
+      // PromptManager::resolvePromptOverrides().
       $config->set(Config::PROMPTS, $prompts, TRUE);
     }
 
-    // Set no-cleanup flag.
     $config->set(Config::NO_CLEANUP, (bool) $options['no-cleanup']);
 
-    // Set build-now flag.
     $config->set(Config::BUILD_NOW, (bool) $options['build']);
 
     return [$config, $artifact];

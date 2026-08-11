@@ -138,7 +138,6 @@ class Tools extends AbstractHandler {
   protected function processTool(string $name): void {
     $tool = self::getToolDefinitions('tools')[$name];
 
-    // Remove associated files.
     if (isset($tool['files'])) {
       if ($tool['files'] instanceof \Closure) {
         $files = $tool['files']->bindTo($this)();
@@ -151,17 +150,14 @@ class Tools extends AbstractHandler {
       File::remove($files);
     }
 
-    // Remove dependencies from composer.json.
     if (isset($tool['composer.json']) && is_callable($tool['composer.json'])) {
       JsonManipulator::updateFile($this->tmpDir . '/composer.json', $tool['composer.json']);
     }
 
-    // Remove dependencies from package.json.
     if (isset($tool['package.json']) && is_callable($tool['package.json'])) {
       JsonManipulator::updateFile($this->tmpDir . '/package.json', $tool['package.json']);
     }
 
-    // Remove command definitions from Ahoy.
     if (isset($tool['ahoy'])) {
       foreach ($tool['ahoy'] as $string) {
         File::replaceContentInFile($this->tmpDir . '/.ahoy.yml', Replacement::create('ahoy_tool', function (string $content) use ($string): string {

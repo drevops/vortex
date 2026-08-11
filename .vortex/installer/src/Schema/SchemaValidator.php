@@ -37,10 +37,8 @@ class SchemaValidator {
     $warnings = [];
     $resolved = [];
 
-    // Normalize config keys to handler IDs.
     $normalized = $this->normalizeConfig($config);
 
-    // Report unknown prompt IDs.
     $known_ids = array_keys($this->handlers);
     foreach (array_keys($normalized) as $key) {
       if (!in_array($key, $known_ids, TRUE)) {
@@ -59,12 +57,10 @@ class SchemaValidator {
       $has_value = array_key_exists($id, $normalized);
       $value = $normalized[$id] ?? NULL;
 
-      // Skip prompts not provided in the input.
       if (!$has_value) {
         continue;
       }
 
-      // Check dependency conditions for provided prompts.
       $depends_on = $handler->dependsOn();
       if ($depends_on !== NULL) {
         $dep_result = $this->checkDependency($depends_on, $normalized);
@@ -96,7 +92,6 @@ class SchemaValidator {
         }
       }
 
-      // Validate value based on type.
       $type_error = $this->validateType($handler, $value);
       if ($type_error !== NULL) {
         $errors[] = [

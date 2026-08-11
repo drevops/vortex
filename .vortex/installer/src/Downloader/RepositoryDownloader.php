@@ -73,25 +73,18 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   If validation fails.
    */
   public function validate(Artifact $artifact): void {
-    // Determine if this is a remote or local repository.
     if ($artifact->isRemote()) {
-      // Remote repository.
       $repo_url = $artifact->getRepoUrl();
 
-      // Validate repository exists.
       $this->validateRemoteRepositoryExists($repo_url);
 
-      // Validate ref exists (skip for special refs).
       if ($artifact->getRef() !== self::REF_STABLE && $artifact->getRef() !== self::REF_HEAD) {
         $this->validateRemoteRefExists($repo_url, $artifact->getRef());
       }
     }
     else {
-      // Local repository.
-      // Validate repository exists.
       $this->validateLocalRepositoryExists($artifact->getRepo());
 
-      // Validate ref exists (skip for HEAD).
       $actual_ref = $artifact->getRef() === self::REF_STABLE ? self::REF_HEAD : $artifact->getRef();
       if ($actual_ref !== self::REF_HEAD) {
         $this->validateLocalRefExists($artifact->getRepo(), $actual_ref);
@@ -105,7 +98,6 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     }
     $repo_url = $artifact->getRepoUrl();
 
-    // Validate repository exists before proceeding.
     $this->validateRemoteRepositoryExists($repo_url);
 
     $version = $artifact->getRef();
@@ -132,7 +124,6 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     }
     else {
       $ref = $artifact->getRef();
-      // Validate ref exists for non-special refs.
       $this->validateRemoteRefExists($repo_url, $ref);
     }
 
@@ -151,7 +142,6 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       throw new \InvalidArgumentException('Destination cannot be null for local downloads.');
     }
 
-    // Validate local repository exists.
     $this->validateLocalRepositoryExists($artifact->getRepo());
 
     $ref = $artifact->getRef() === self::REF_STABLE ? self::REF_HEAD : $artifact->getRef();
@@ -165,7 +155,6 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $version = 'develop';
     }
     else {
-      // Validate ref exists for non-HEAD refs.
       $this->validateLocalRefExists($artifact->getRepo(), $ref);
     }
 
@@ -299,7 +288,6 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     $options = ['headers' => self::requestHeaders($repo_url), 'http_errors' => FALSE];
 
     try {
-      // Try to access the repository root to verify it exists.
       $response = $this->httpClient->request('HEAD', $repo_url, $options);
       $status_code = $response->getStatusCode();
 
@@ -378,14 +366,11 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
   protected function validateLocalRefExists(string $repo, string $ref): void {
     $repo_path = (string) realpath($repo);
 
-    // Reinitialize Git instance if it doesn't exist or references a different
-    // repository.
     if (!$this->git instanceof Git || $this->git->getRepositoryPath() !== $repo_path) {
       $this->git = new Git($repo);
     }
 
     try {
-      // Use git rev-parse to check if the ref exists.
       $this->git->run('rev-parse', '--verify', $ref);
     }
     catch (\Exception $e) {
@@ -402,7 +387,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   Additional headers to include.
    *
    * @return array<string, string>
-   *   The headers, authorised when a token is available.
+   *   The headers, authorized when a token is available.
    */
   protected static function requestHeaders(string $url, array $headers = []): array {
     $headers['User-Agent'] = 'Vortex-Installer';

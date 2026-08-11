@@ -84,7 +84,6 @@ for cmd in curl; do command -v "${cmd}" >/dev/null || {
   exit 1
 }; done
 
-# Check all required values.
 [ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE." && exit 1
 [ -z "${VORTEX_DEPLOY_ARTIFACT_DST_BRANCH}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_DST_BRANCH." && exit 1
 [ -z "${VORTEX_DEPLOY_ARTIFACT_SRC}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_SRC." && exit 1
@@ -93,7 +92,6 @@ for cmd in curl; do command -v "${cmd}" >/dev/null || {
 [ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME." && exit 1
 [ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL." && exit 1
 
-# Configure global git settings, if they do not exist.
 [ -z "$(git config --global user.name)" ] && task "Configuring global git user name." && git config --global user.name "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}"
 [ -z "$(git config --global user.email)" ] && task "Configuring global git user email." && git config --global user.email "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
 
@@ -108,11 +106,9 @@ if ! echo "${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256}  ${TMPDIR:-/tmp}/git-ar
 fi
 chmod +x "${TMPDIR:-/tmp}"/git-artifact
 
-# Try resolving absolute paths.
 if command -v realpath >/dev/null 2>&1; then
-  # Expand relative paths while also handling literal tilde expansion passed in
-  # singe quotes. This addresses the case where the paths are passed directly
-  # from YAML anchors as literal strings.
+  # Expand relative paths and a literal tilde: paths passed directly from YAML
+  # anchors arrive as unexpanded literal strings.
   # shellcheck disable=SC2116
   VORTEX_DEPLOY_ARTIFACT_ROOT="$(realpath "${VORTEX_DEPLOY_ARTIFACT_ROOT/#\~/${HOME}}")"
   # shellcheck disable=SC2116
@@ -140,7 +136,6 @@ if [ -n "${VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN}" ]; then
   artifact_args+=(--cleanup-stale --cleanup-pattern="${VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN}" --cleanup-age="${VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE}")
 fi
 
-# Add --debug to debug any deployment issues.
 "${TMPDIR:-/tmp}"/git-artifact "${artifact_args[@]}" -vvv
 
 pass "Finished artifact deployment."
