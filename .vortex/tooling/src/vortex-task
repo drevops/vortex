@@ -10,6 +10,8 @@
 #
 # shellcheck disable=SC1090,SC1091
 
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
@@ -31,7 +33,7 @@ operation="${1:-}"
 shift
 
 case "${operation}" in
-  copy-db | copy-files | purge-cache) ;;
+  copy-db | copy-files | purge-cache | custom) ;;
   *) fail "Unsupported task operation ${operation}." && exit 1 ;;
 esac
 

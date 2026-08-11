@@ -185,6 +185,7 @@ main() {
     if [ "${ssh_key_added_to_pygmy}" = "1" ] && [ "${ssh_key_volume_mounted}" = "1" ]; then
       if ! docker compose exec -T cli bash -c "ssh-add -L | grep -q 'ssh-rsa'"; then
         fail "SSH key was not added to the container. Run 'pygmy restart'."
+        exit 1
       else
         pass "SSH key is available within the CLI container."
       fi

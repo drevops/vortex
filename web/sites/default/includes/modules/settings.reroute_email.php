@@ -13,7 +13,7 @@ $config['reroute_email.settings']['allowed'] = getenv('DRUPAL_REROUTE_EMAIL_ALLO
 
 // Enable rerouting in all environments except local, ci, stage and prod.
 // This covers dev and any custom environments (e.g., PR environments).
-if (!in_array($settings['environment'], [ENVIRONMENT_LOCAL, ENVIRONMENT_CI, ENVIRONMENT_STAGE, ENVIRONMENT_PROD])) {
+if (!in_array($settings['environment'], [ENVIRONMENT_LOCAL, ENVIRONMENT_CI, ENVIRONMENT_STAGE, ENVIRONMENT_PROD], TRUE)) {
   $config['reroute_email.settings']['enable'] = TRUE;
 }
 else {
