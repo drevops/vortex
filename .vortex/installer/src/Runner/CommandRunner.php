@@ -30,7 +30,7 @@ class CommandRunner extends AbstractRunner {
    * For Symfony Console commands, the $inputs parameter is used for options
    * (named arguments like --verbose or --format=json).
    */
-  public function run(string $command, array $args = [], array $inputs = [], array $env = [], ?OutputInterface $output = NULL): self {
+  public function run(string $command, array $args = [], array $inputs = [], array $env = [], ?OutputInterface $output = NULL): static {
     $this->reset();
 
     // Merge args and inputs (options) for ArrayInput.

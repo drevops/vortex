@@ -17,7 +17,7 @@ class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInter
   /**
    * {@inheritdoc}
    */
-  public function run(string $command, array $args = [], array $inputs = [], array $env = [], ?OutputInterface $output = NULL): self {
+  public function run(string $command, array $args = [], array $inputs = [], array $env = [], ?OutputInterface $output = NULL): static {
     set_time_limit(0);
 
     $this->reset();

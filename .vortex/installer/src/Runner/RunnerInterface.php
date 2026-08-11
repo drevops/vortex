@@ -35,10 +35,10 @@ interface RunnerInterface extends LoggerAwareInterface {
    * @param \Symfony\Component\Console\Output\OutputInterface|null $output
    *   Output interface. Defaults to STDOUT if NULL.
    *
-   * @return self
+   * @return static
    *   The runner instance for method chaining.
    */
-  public function run(string $command, array $args = [], array $inputs = [], array $env = [], ?OutputInterface $output = NULL): self;
+  public function run(string $command, array $args = [], array $inputs = [], array $env = [], ?OutputInterface $output = NULL): static;
 
   /**
    * Get the last command that was run.
