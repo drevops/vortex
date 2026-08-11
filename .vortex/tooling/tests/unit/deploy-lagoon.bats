@@ -76,7 +76,7 @@ load ../_helper.bash
     "Configured Lagoon instance."
     "Discovering existing environments for branch deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
-    'No existing environment found for branch test-branch.'
+    'No existing environment found for branch "test-branch".'
     "Completed environment discovery."
     "Deploying environment: project: test_project, branch: test-branch."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch"
@@ -113,7 +113,7 @@ load ../_helper.bash
     "Configured Lagoon instance."
     "Discovering existing environments for branch deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_env_json}"
-    'Found already deployed environment for branch test-branch.'
+    'Found already deployed environment for branch "test-branch".'
     "Completed environment discovery."
     "Setting a database overwrite flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
@@ -154,7 +154,7 @@ load ../_helper.bash
     "Configured Lagoon instance."
     "Discovering existing environments for branch deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_env_json}"
-    'Found already deployed environment for branch test-branch.'
+    'Found already deployed environment for branch "test-branch".'
     "Completed environment discovery."
     "Setting a database overwrite flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
@@ -205,7 +205,7 @@ load ../_helper.bash
     "Configured Lagoon instance."
     "Discovering existing environments for PR deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
-    'No existing environment found for PR 123.'
+    'No existing environment found for PR "123".'
     "Completed environment discovery."
     "Deploying environment: project: test_project, PR: 123."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 123 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-123"
@@ -247,7 +247,7 @@ load ../_helper.bash
     "Configured Lagoon instance."
     "Discovering existing environments for PR deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_pr_env_json}"
-    'Found already deployed environment for PR 123.'
+    'Found already deployed environment for PR "123".'
     "Completed environment discovery."
     "Setting a database overwrite flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-123 --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
@@ -293,7 +293,7 @@ load ../_helper.bash
     "Configured Lagoon instance."
     "Discovering existing environments for PR deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_pr_env_json}"
-    'Found already deployed environment for PR 456.'
+    'Found already deployed environment for PR "456".'
     "Completed environment discovery."
     "Setting a database overwrite flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
@@ -378,7 +378,7 @@ load ../_helper.bash
     "Configured Lagoon instance."
     "Discovering existing environments for branch deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
-    'No existing environment found for branch test-branch.'
+    'No existing environment found for branch "test-branch".'
     "Completed environment discovery."
     "Deploying environment: project: test_project, branch: test-branch."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 1 # ${limit_error}"
@@ -418,7 +418,7 @@ load ../_helper.bash
     "Configured Lagoon instance."
     "Discovering existing environments for branch deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
-    'No existing environment found for branch test-branch.'
+    'No existing environment found for branch "test-branch".'
     "Completed environment discovery."
     "Deploying environment: project: test_project, branch: test-branch."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 1 # ${limit_error}"
@@ -461,7 +461,7 @@ load ../_helper.bash
     "Configured Lagoon instance."
     "Discovering existing environments for PR deployments."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
-    'No existing environment found for PR 133.'
+    'No existing environment found for PR "133".'
     "Completed environment discovery."
     "Deploying environment: project: test_project, PR: 133."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 133 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-133 # 1 # ${limit_error}"

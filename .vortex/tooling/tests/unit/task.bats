@@ -26,7 +26,7 @@ load ../_helper.bash
 
   run ./.vortex/tooling/src/vortex-task invalid-operation
   assert_failure
-  assert_output_contains "Unsupported task operation invalid-operation."
+  assert_output_contains 'Unsupported task operation "invalid-operation".'
 
   popd >/dev/null || exit 1
 }
@@ -50,7 +50,7 @@ load ../_helper.bash
   export VORTEX_PLATFORM=invalid-platform
   run ./.vortex/tooling/src/vortex-task copy-db
   assert_failure
-  assert_output_contains "Unsupported hosting platform invalid-platform."
+  assert_output_contains 'Unsupported hosting platform "invalid-platform".'
 
   popd >/dev/null || exit 1
 }
@@ -63,7 +63,7 @@ load ../_helper.bash
   export VORTEX_PLATFORM=lagoon
   run ./.vortex/tooling/src/vortex-task copy-db
   assert_failure
-  assert_output_contains "Operation copy-db is not supported on the lagoon platform."
+  assert_output_contains 'Operation "copy-db" is not supported on the "lagoon" platform.'
 
   popd >/dev/null || exit 1
 }

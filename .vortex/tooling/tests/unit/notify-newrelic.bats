@@ -147,7 +147,7 @@ load ../_helper.bash
   assert_success
 
   assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Skipped New Relic notification for branch feature/test."
+  assert_output_contains 'Skipped New Relic notification for branch "feature/test".'
   assert_output_not_contains "Started New Relic notification."
   assert_output_contains "Finished dispatching notifications."
 
@@ -167,7 +167,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify-newrelic
   assert_success
 
-  assert_output_contains "Skipped New Relic notification for branch ."
+  assert_output_contains 'Skipped New Relic notification for branch "".'
   assert_output_not_contains "unbound variable"
 
   popd >/dev/null || exit 1

@@ -69,7 +69,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify
   assert_success
 
-  assert_output_contains "Skipped Diffy notification for branch feature/random"
+  assert_output_contains 'Skipped Diffy notification for branch "feature/random"'
 
   popd >/dev/null || exit 1
 }

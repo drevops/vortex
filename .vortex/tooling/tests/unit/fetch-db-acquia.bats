@@ -50,7 +50,7 @@ bats_require_minimum_version 1.5.0
     "@gunzip -c .data/testdb_backup_backup-id-789.sql.gz # 0 # CREATE TABLE test (id INT);"
 
     # Mock mv operation with its message and side effect to create final file
-    'Renaming file .data/testdb_backup_backup-id-789.sql to .data/db.sql.'
+    'Renaming file ".data/testdb_backup_backup-id-789.sql" to ".data/db.sql".'
     '@mv .data/testdb_backup_backup-id-789.sql .data/db.sql # 0 #  # echo "CREATE TABLE test (id INT);" > .data/db.sql'
 
     # Assert final success message
@@ -109,10 +109,10 @@ bats_require_minimum_version 1.5.0
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-123","completed":"2024-01-01T00:00:00+00:00"}]}}'
 
     # Assert cached file found message
-    'Found existing cached database file .data/testdb_backup_backup-id-123.sql for database testdb.'
+    'Found existing cached database file ".data/testdb_backup_backup-id-123.sql" for database "testdb".'
 
     # Mock mv operation with its message and side effect to create final file
-    'Renaming file .data/testdb_backup_backup-id-123.sql to .data/db.sql.'
+    'Renaming file ".data/testdb_backup_backup-id-123.sql" to ".data/db.sql".'
     '@mv .data/testdb_backup_backup-id-123.sql .data/db.sql # 0 #  # echo "cached database content" > .data/db.sql'
 
     # Assert final success message
@@ -175,7 +175,7 @@ bats_require_minimum_version 1.5.0
     "@gunzip -c .data/testdb_backup_backup-id-456.sql.gz # 0 # decompressed database content"
 
     # Mock mv operation with its message and side effect to create final file
-    'Renaming file .data/testdb_backup_backup-id-456.sql to .data/db.sql.'
+    'Renaming file ".data/testdb_backup_backup-id-456.sql" to ".data/db.sql".'
     '@mv .data/testdb_backup_backup-id-456.sql .data/db.sql # 0 #  # echo "decompressed database content" > .data/db.sql'
 
     # Assert final success message
@@ -239,7 +239,7 @@ bats_require_minimum_version 1.5.0
     "@gunzip -c ./.data/testdb_backup_backup-id-789.sql.gz # 0 # database content"
 
     # Mock mv operation with its message and side effect to create final file
-    'Renaming file ./.data/testdb_backup_backup-id-789.sql to ./.data/db.sql.'
+    'Renaming file "./.data/testdb_backup_backup-id-789.sql" to "./.data/db.sql".'
     '@mv ./.data/testdb_backup_backup-id-789.sql ./.data/db.sql # 0 #  # echo "database content" > ./.data/db.sql'
 
     # Assert final success message
@@ -309,7 +309,7 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dnonexistent-app # {"_embedded":{"items":[]}}'
 
     # Assert application not found failure message
-    "[FAIL] Application nonexistent-app not found. Check application name and access permissions."
+    '[FAIL] Application "nonexistent-app" not found. Check application name and access permissions.'
   )
 
   export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
@@ -347,7 +347,7 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dnonexistent-env # {"_embedded":{"items":[]}}'
 
     # Assert environment not found failure message
-    "[FAIL] Environment nonexistent-env not found in application testapp. Check environment name."
+    '[FAIL] Environment "nonexistent-env" not found in application "testapp". Check environment name.'
   )
 
   export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
@@ -389,7 +389,7 @@ bats_require_minimum_version 1.5.0
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/nonexistent-db/backups?sort=created # {"error":"Database not found","message":"The specified database does not exist"}'
 
     # Assert database not found failure message
-    "[FAIL] Database nonexistent-db not found in environment prod. Check database name."
+    '[FAIL] Database "nonexistent-db" not found in environment "prod". Check database name.'
   )
 
   export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
@@ -431,7 +431,7 @@ bats_require_minimum_version 1.5.0
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[]}}'
 
     # Assert no backups found failure message
-    "[FAIL] No backups found for database testdb in environment prod. Try creating a backup first."
+    '[FAIL] No backups found for database "testdb" in environment "prod". Try creating a backup first.'
   )
 
   export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
@@ -503,7 +503,7 @@ bats_require_minimum_version 1.5.0
     "@gunzip -t .data/testdb_backup_backup-id-new-123.sql.gz # 0"
     "@gunzip -c .data/testdb_backup_backup-id-new-123.sql.gz # 0 # CREATE TABLE fresh (id INT);"
 
-    '[TASK] Renaming file .data/testdb_backup_backup-id-new-123.sql to .data/db.sql.'
+    '[TASK] Renaming file ".data/testdb_backup_backup-id-new-123.sql" to ".data/db.sql".'
     '@mv .data/testdb_backup_backup-id-new-123.sql .data/db.sql # 0 #  # echo "CREATE TABLE fresh (id INT);" > .data/db.sql'
 
     "[ OK ] Finished database dump fetch from Acquia."
@@ -553,7 +553,7 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -X POST -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups # {"error":"insufficient_permissions","message":"Insufficient permissions to create backup"}'
 
     # Assert failure message
-    "[FAIL] Unable to create backup for database testdb."
+    '[FAIL] Unable to create backup for database "testdb".'
   )
 
   export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
@@ -757,7 +757,7 @@ bats_require_minimum_version 1.5.0
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # {"url":""}'
 
     # Assert failure message includes the raw API response for diagnosis
-    '[FAIL] Unable to discover backup URL for backup ID backup-id-789. API response: {"url":""}'
+    '[FAIL] Unable to discover backup URL for backup ID "backup-id-789". API response: {"url":""}'
   )
 
   export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
@@ -915,7 +915,7 @@ bats_require_minimum_version 1.5.0
     "@gunzip -t .data/testdb_backup_backup-id-789.sql.gz # 0"
     "@gunzip -c .data/testdb_backup_backup-id-789.sql.gz # 0 # CREATE TABLE test (id INT);"
 
-    'Renaming file .data/testdb_backup_backup-id-789.sql to .data/db.sql.'
+    'Renaming file ".data/testdb_backup_backup-id-789.sql" to ".data/db.sql".'
     '@mv .data/testdb_backup_backup-id-789.sql .data/db.sql # 0 #  # echo "CREATE TABLE test (id INT);" > .data/db.sql'
 
     "[ OK ] Finished database dump fetch from Acquia."
