@@ -23,14 +23,14 @@
         "composer/composer": "^2.10.2",
         "cweagans/composer-patches": "^2",
         "czproject/git-php": "^4.6",
-        "guzzlehttp/guzzle": "^7.15.1",
-        "laravel/prompts": "^0.3.21",
+        "guzzlehttp/guzzle": "^7.15.3",
+        "laravel/prompts": "^0.3.22",
         "nelexa/zip": "^4.0.2",
         "nikic/iter": "^2.4.1",
         "sebastian/diff": "^6.0.2",
-        "symfony/console": "^7.4.14",
-        "symfony/filesystem": "^7.4.11",
-        "symfony/yaml": "^7.4.14"
+        "symfony/console": "^7.4.16",
+        "symfony/filesystem": "^7.4.15",
+        "symfony/yaml": "^7.4.15"
     },
     "require-dev": {
         "alexskrypnyk/phpunit-helpers": "^0.16.0",
@@ -42,9 +42,9 @@
         "ergebnis/composer-normalize": "^2.52.0",
         "laravel/serializable-closure": "^2.0.15",
         "mockery/mockery": "^1.6.12",
-        "phpstan/phpstan": "^2.2.5",
+        "phpstan/phpstan": "^2.2.8",
         "phpunit/phpunit": "^11.5.56",
-        "rector/rector": "^2.5.7",
+        "rector/rector": "^2.6.1",
         "symfony/finder": "^7.4.14"
     },
     "autoload": {
