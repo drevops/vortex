@@ -16,7 +16,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     # Get environment.
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # devops"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # devops"
 
     # Expected output.
     "Started demo modules operations."

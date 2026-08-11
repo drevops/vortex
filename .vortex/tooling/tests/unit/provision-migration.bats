@@ -20,7 +20,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     # Get environment.
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
 
     # Import: drop and connect.
     "@drush -y sql:drop --database=migrate"
@@ -81,7 +81,7 @@ load ../_helper.bash
   export DRUPAL_MIGRATION_SKIP=1
 
   declare -a STEPS=(
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
 
     "Started migration operations."
     "Migration skip:          1"
@@ -112,7 +112,7 @@ load ../_helper.bash
   create_global_command_wrapper "vendor/bin/drush"
 
   declare -a STEPS=(
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # prod"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # prod"
 
     "Started migration operations."
     "Environment: prod"
@@ -144,7 +144,7 @@ load ../_helper.bash
   export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=0
 
   declare -a STEPS=(
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
 
     # Probe existing DB - succeeds.
     "@drush -y sql:query --database=migrate SELECT COUNT(*) FROM categories"
@@ -192,7 +192,7 @@ load ../_helper.bash
   export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=0
 
   declare -a STEPS=(
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
 
     # Probe existing DB - fails (corrupted).
     "@drush -y sql:query --database=migrate SELECT COUNT(*) FROM categories # 1"
@@ -243,7 +243,7 @@ load ../_helper.bash
   export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
 
   declare -a STEPS=(
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
 
     "Importing migration source database."
     "Migration source database file not found."
@@ -276,7 +276,7 @@ load ../_helper.bash
   export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
 
   declare -a STEPS=(
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
 
     # Import.
     "@drush -y sql:drop --database=migrate"
@@ -322,7 +322,7 @@ load ../_helper.bash
   export DRUPAL_MIGRATION_ROLLBACK_SKIP=0
 
   declare -a STEPS=(
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
 
     "@drush -y sql:drop --database=migrate"
     "@drush -y sql:connect --database=migrate"

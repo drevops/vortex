@@ -319,7 +319,7 @@ fi
 
 echo
 
-environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+environment="$(drush php:eval "print \Drupal\Core\Site\Settings::get('environment');")"
 info "Current Drupal environment: ${environment}"
 echo
 
@@ -348,7 +348,7 @@ if [ "${site_has_config_files}" = "1" ]; then
       exit 1
     fi
 
-    drush config-set system.site uuid "${config_uuid}"
+    drush config:set system.site uuid "${config_uuid}"
     pass "Updated site UUID from the configuration with ${config_uuid}."
     echo
   fi

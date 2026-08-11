@@ -28,7 +28,7 @@ drush() { ./vendor/bin/drush -y "$@"; }
 
 info "Started demo modules operations."
 
-environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+environment="$(drush php:eval "print \Drupal\Core\Site\Settings::get('environment');")"
 note "Environment: ${environment}"
 
 if ! echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then
@@ -79,7 +79,7 @@ pass "Installed Redis module."
 #;< SERVICE_CLAMAV
 task "Installing and configuring ClamAV."
 drush pm:install clamav
-drush config-set clamav.settings mode_daemon_tcpip.hostname clamav
+drush config:set clamav.settings mode_daemon_tcpip.hostname clamav
 pass "Installed and configured ClamAV."
 #;> SERVICE_CLAMAV
 

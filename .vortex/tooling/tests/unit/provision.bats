@@ -94,7 +94,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -144,7 +144,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -157,7 +157,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -172,7 +172,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -183,7 +183,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
@@ -258,7 +258,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -304,7 +304,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -317,7 +317,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -332,7 +332,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -343,7 +343,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
@@ -423,7 +423,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -473,7 +473,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -486,7 +486,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -501,7 +501,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -512,7 +512,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
@@ -597,7 +597,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -608,7 +608,7 @@ assert_provision_info() {
     "Enabled maintenance mode."
 
     # UUID setup.
-    "@drush -y config-set system.site uuid ${mocked_uuid}"
+    "@drush -y config:set system.site uuid ${mocked_uuid}"
     "Updated site UUID from the configuration with ${mocked_uuid}"
 
     # Database updates.
@@ -657,7 +657,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -670,7 +670,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -685,7 +685,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -696,7 +696,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
@@ -767,7 +767,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -842,7 +842,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -892,7 +892,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -905,7 +905,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -920,7 +920,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -931,7 +931,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
@@ -1009,7 +1009,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -1055,7 +1055,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -1068,7 +1068,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -1083,7 +1083,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -1094,7 +1094,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
@@ -1175,7 +1175,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -1225,7 +1225,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -1238,7 +1238,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -1253,7 +1253,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -1264,7 +1264,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
@@ -1341,7 +1341,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: prod"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # prod"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # prod"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -1391,21 +1391,21 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # prod"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # prod"
     "  ==> Started demo modules operations."
     "      Environment: prod"
     "      Skipped demo modules operations in production environment."
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # prod"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # prod"
     "  ==> Started development modules operations."
     "      Environment: prod"
     "      Skipped installing development modules in production environment."
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # prod"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # prod"
     "  ==> Started example operations."
     "      Environment: prod"
     "      Skipped example operations in production environment."
@@ -1528,7 +1528,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -1578,7 +1578,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -1591,7 +1591,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -1606,7 +1606,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -1617,7 +1617,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
@@ -1695,7 +1695,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -1745,7 +1745,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -1758,7 +1758,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -1773,7 +1773,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -1784,7 +1784,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
@@ -1859,7 +1859,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations skipped (set internally by fallback).
     "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -1924,7 +1924,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations skipped.
     "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -1982,7 +1982,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -2032,7 +2032,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -2045,7 +2045,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -2060,7 +2060,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -2071,7 +2071,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
@@ -2153,7 +2153,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -2164,7 +2164,7 @@ assert_provision_info() {
     "Enabled maintenance mode."
 
     # UUID setup.
-    "@drush -y config-set system.site uuid ${mocked_uuid}"
+    "@drush -y config:set system.site uuid ${mocked_uuid}"
     "Updated site UUID from the configuration with ${mocked_uuid}"
 
     # Database updates.
@@ -2217,7 +2217,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -2230,7 +2230,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -2245,7 +2245,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -2256,7 +2256,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
@@ -2385,7 +2385,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -2396,7 +2396,7 @@ assert_provision_info() {
     "Enabled maintenance mode."
 
     # UUID setup.
-    "@drush -y config-set system.site uuid ${mocked_uuid}"
+    "@drush -y config:set system.site uuid ${mocked_uuid}"
     "Updated site UUID from the configuration with ${mocked_uuid}"
 
     # Config verification - export before updatedb.
@@ -2454,7 +2454,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -2467,7 +2467,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -2482,7 +2482,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -2493,7 +2493,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."
@@ -2563,7 +2563,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Maintenance mode.
     "Enabling maintenance mode."
@@ -2571,7 +2571,7 @@ assert_provision_info() {
     "Enabled maintenance mode."
 
     # UUID setup.
-    "@drush -y config-set system.site uuid ${mocked_uuid}"
+    "@drush -y config:set system.site uuid ${mocked_uuid}"
 
     # Config verification - export before updatedb.
     "@drush * # 0"
@@ -2728,7 +2728,7 @@ assert_provision_info() {
 
     # Drupal environment information.
     "Current Drupal environment: ci"
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
 
     # Post-provision operations.
     "- Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
@@ -2778,7 +2778,7 @@ assert_provision_info() {
 
     # Custom post-install scripts.
     "Running custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Setting site name."
     "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
     "    > Setting up the administration navigation."
@@ -2791,7 +2791,7 @@ assert_provision_info() {
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
     "@drush -y pm:install clamav"
-    "@drush -y config-set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
     "    > Installing Solr search modules."
     "@drush -y pm:install search_api search_api_solr"
     "    > Installing custom site modules."
@@ -2806,7 +2806,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-00-enable-demo-modules.sh'."
 
     "Running custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "    > Installing Single Directory Component development tools."
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
@@ -2817,7 +2817,7 @@ assert_provision_info() {
     "Completed running of custom post-install script './scripts/provision-10-enable-dev-modules.sh'."
 
     "Running custom post-install script './scripts/provision-40-example.sh'."
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
     "  ==> Started example operations."
     "      Environment: ci"
     "      Running example operations in non-production environment."

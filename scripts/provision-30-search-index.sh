@@ -26,7 +26,7 @@ drush() { ./vendor/bin/drush -y "$@"; }
 
 info "Started search indexing operations."
 
-environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+environment="$(drush php:eval "print \Drupal\Core\Site\Settings::get('environment');")"
 note "Environment: ${environment}"
 
 note "Search indexing skip: ${DRUPAL_SEARCH_INDEX_SKIP}"
