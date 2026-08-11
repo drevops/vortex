@@ -32,7 +32,7 @@ drush() { ./vendor/bin/drush -y "$@"; }
 info "Started example operations."
 
 # Get the current environment from Drupal settings.
-environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+environment="$(drush php:eval "print \Drupal\Core\Site\Settings::get('environment');")"
 note "Environment: ${environment}"
 
 # Perform operations based on the current environment.
