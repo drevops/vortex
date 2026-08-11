@@ -91,15 +91,13 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "fetch-db-container-registry: Fetch image when it exists on host and no archive exists" {
+@test "fetch-db-container-registry: Skip fetch when image exists on host and no archive exists" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_docker=$(mock_command "docker")
-  # The image is found on the host, but the fetch is not skipped: without an
-  # expanded archive the script still logs in and pulls.
+  # The image is found on the host and there is no archive to expand, so the
+  # inspect is the only call - no registry login and no pull follow it.
   mock_set_side_effect "${mock_docker}" "echo 'image exists'" 1
-  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
-  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
@@ -111,8 +109,125 @@ load ../_helper.bash
   assert_success
   assert_output_contains "[INFO] Started database data container image fetch."
   assert_output_contains "Found myorg/myapp image on host."
+  assert_output_contains "Using existing myorg/myapp image on host."
+  assert_output_contains "Fetch will not proceed."
+  assert_output_contains "Remove existing image or set VORTEX_FETCH_DB_FORCE value to 1 to force fetch."
+  assert_output_not_contains "Fetching myorg/myapp image from the registry."
+  assert_output_contains "[ OK ] Finished database data container image fetch."
+
+  assert_equal "1" "$(mock_get_call_num "${mock_docker}")"
+
+  popd >/dev/null
+}
+
+@test "fetch-db-container-registry: Fetch image when it exists on host and fetch is forced" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "echo 'image exists'" 1
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
+
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
+  export VORTEX_FETCH_DB_FORCE=1
+
+  run .vortex/tooling/src/vortex-fetch-db-container-registry
+  assert_success
+  assert_output_contains "[INFO] Started database data container image fetch."
+  assert_output_contains "Found myorg/myapp image on host."
+  assert_output_not_contains "Using existing myorg/myapp image on host."
   assert_output_contains "Fetching myorg/myapp image from the registry."
   assert_output_contains "[ OK ] Finished database data container image fetch."
+
+  popd >/dev/null
+}
+
+@test "fetch-db-container-registry: Skip fetch when image exists on host and indexed fetch is not forced" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "echo 'image exists'" 1
+
+  export VORTEX_DB_INDEX="2"
+  export VORTEX_DB2_IMAGE="myorg/migration-db"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_DB_DIR=".data"
+
+  run .vortex/tooling/src/vortex-fetch-db-container-registry
+  assert_success
+  assert_output_contains "Using existing myorg/migration-db image on host."
+  # The message names the indexed variable that the script actually reads.
+  assert_output_contains "Remove existing image or set VORTEX_FETCH_DB2_FORCE value to 1 to force fetch."
+  assert_output_not_contains "Fetching myorg/migration-db image from the registry."
+  assert_output_contains "[ OK ] Finished database data container image fetch."
+
+  assert_equal "1" "$(mock_get_call_num "${mock_docker}")"
+
+  popd >/dev/null
+}
+
+@test "fetch-db-container-registry: Fetch image when it exists on host and indexed fetch is forced" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "echo 'image exists'" 1
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
+
+  export VORTEX_DB_INDEX="2"
+  export VORTEX_DB2_IMAGE="myorg/migration-db"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_DB_DIR=".data"
+  export VORTEX_FETCH_DB2_FORCE=1
+
+  run .vortex/tooling/src/vortex-fetch-db-container-registry
+  assert_success
+  assert_output_not_contains "Using existing myorg/migration-db image on host."
+  assert_output_contains "Fetching myorg/migration-db image from the registry."
+  assert_output_contains "[ OK ] Finished database data container image fetch."
+
+  popd >/dev/null
+}
+
+@test "fetch-db-container-registry: Fetch image when archive expansion fails and image exists on host" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  touch .data/db.tar
+
+  mock_docker=$(mock_command "docker")
+  # The archive is authoritative when present, so a failed expansion falls
+  # through to the registry rather than reusing the image already on the host.
+  mock_set_side_effect "${mock_docker}" "echo 'image exists'" 1
+  mock_set_side_effect "${mock_docker}" "echo 'Loaded image: myorg/myapp'" 2
+  mock_set_side_effect "${mock_docker}" "exit 1" 3
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 4
+  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 5
+
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
+
+  run .vortex/tooling/src/vortex-fetch-db-container-registry
+  assert_success
+  assert_output_contains "Found myorg/myapp image on host."
+  assert_output_contains "Found archived database container image file .data/db.tar. Expanding..."
+  assert_output_contains "Not found expanded myorg/myapp image on host."
+  assert_output_not_contains "Using existing myorg/myapp image on host."
+  assert_output_contains "Fetching myorg/myapp image from the registry."
+  assert_output_contains "[ OK ] Finished database data container image fetch."
+
+  rm -f .data/db.tar
 
   popd >/dev/null
 }
