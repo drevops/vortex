@@ -14,6 +14,8 @@ use DrevOps\VortexInstaller\Utils\Validator;
  */
 final readonly class Artifact {
 
+  const INVALID_REF_MESSAGE = 'Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.';
+
   /**
    * Constructor - use a factory method instead.
    *
@@ -67,7 +69,7 @@ final readonly class Artifact {
   public static function create(string $repo, string $ref): self {
     // Validate ref syntax.
     if (!Validator::isGitRef($ref)) {
-      throw new \RuntimeException(sprintf('Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.', $ref));
+      throw new \RuntimeException(sprintf(self::INVALID_REF_MESSAGE, $ref));
     }
     return new self($repo, $ref);
   }
@@ -177,7 +179,7 @@ final readonly class Artifact {
 
       // Validate the extracted ref.
       if (!Validator::isGitRef($ref)) {
-        throw new \RuntimeException(sprintf('Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.', $ref));
+        throw new \RuntimeException(sprintf(self::INVALID_REF_MESSAGE, $ref));
       }
 
       return [$repo, $ref];
@@ -221,7 +223,7 @@ final readonly class Artifact {
     }
 
     if (!Validator::isGitRef($ref)) {
-      throw new \RuntimeException(sprintf('Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.', $ref));
+      throw new \RuntimeException(sprintf(self::INVALID_REF_MESSAGE, $ref));
     }
 
     return [$repo, $ref];

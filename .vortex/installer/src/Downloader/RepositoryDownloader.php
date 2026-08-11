@@ -22,6 +22,8 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
 
   const DEFAULT_REPO = 'https://github.com/drevops/vortex.git';
 
+  const ARCHIVE_URL_TEMPLATE = '%s/archive/%s.tar.gz';
+
   /**
    * Constructs a new RepositoryDownloader instance.
    *
@@ -134,7 +136,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $this->validateRemoteRefExists($repo_url, $ref);
     }
 
-    $url = sprintf('%s/archive/%s.tar.gz', $repo_url, $ref);
+    $url = sprintf(self::ARCHIVE_URL_TEMPLATE, $repo_url, $ref);
 
     $archive_path = $this->downloadArchive($url);
     $this->archiver->validate($archive_path);
@@ -322,7 +324,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   If the reference does not exist.
    */
   protected function validateRemoteRefExists(string $repo_url, string $ref): void {
-    $archive_url = sprintf('%s/archive/%s.tar.gz', $repo_url, $ref);
+    $archive_url = sprintf(self::ARCHIVE_URL_TEMPLATE, $repo_url, $ref);
     $options = ['headers' => self::requestHeaders($archive_url), 'http_errors' => FALSE];
 
     try {
