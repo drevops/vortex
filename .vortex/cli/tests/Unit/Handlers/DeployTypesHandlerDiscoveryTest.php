@@ -8,7 +8,7 @@ use DrevOps\VortexCli\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Converter;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Laravel\Prompts\Key;
+use DrevOps\VortexCli\Tests\Support\Key;
 
 #[CoversClass(DeployTypes::class)]
 class DeployTypesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {

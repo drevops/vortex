@@ -62,9 +62,42 @@ class Processor {
 
     asort($items);
 
+    $responses = $this->responses($answers, $handlers, $config, $weights);
+
     foreach (array_keys($items) as $id) {
-      $this->handler($handlers, $config, (string) $id)->setResponses($answers->values)->process();
+      $this->handler($handlers, $config, (string) $id)->setResponses($responses)->process();
     }
+  }
+
+  /**
+   * The answer set every handler sees, including the questions never asked.
+   *
+   * A question hidden by a condition is not collected, but a handler still
+   * reads it - and reads it expecting a value, not a missing key. Every
+   * question is present, with the ones never asked holding NULL.
+   *
+   * @param \DrevOps\PhpTui\Answers\Answers $answers
+   *   The collected answers.
+   * @param \DrevOps\PhpTui\Handler\HandlerRegistry $handlers
+   *   The handler registry resolving a question id to its handler class.
+   * @param \DrevOps\VortexCli\Utils\Config $config
+   *   The CLI configuration the handlers operate on.
+   * @param array<string,int> $weights
+   *   The processing weight of each question id; its keys are every question.
+   *
+   * @return array<string,mixed>
+   *   The answers, keyed by every question id.
+   */
+  public function responses(Answers $answers, HandlerRegistry $handlers, Config $config, array $weights): array {
+    $responses = $answers->values;
+
+    foreach (array_keys($weights) as $id) {
+      if (!array_key_exists($id, $responses)) {
+        $responses[$id] = $this->handler($handlers, $config, $id)->default($responses);
+      }
+    }
+
+    return $responses;
   }
 
   /**

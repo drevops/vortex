@@ -25,6 +25,40 @@ use DrevOps\VortexCli\Prompts\PromptType;
 class TuiAdapter {
 
   /**
+   * Questions whose options and default are resolved without the answers.
+   *
+   * The linear flow this replaces handed the answers collected so far to some
+   * questions and an empty set to the rest, so a handler in this list has
+   * never seen them - and branches that read them have never run. Keeping the
+   * distinction keeps every answer, and so every processed file, identical;
+   * moving a question out of this list is a behaviour change to argue on its
+   * own merits.
+   */
+  protected const array RESOLVED_WITHOUT_ANSWERS = [
+    'ai_code_instructions',
+    'assign_author_pr',
+    'code_coverage_provider',
+    'code_provider',
+    'dependency_updates_provider',
+    'gitleaks',
+    'hosting_provider',
+    'label_merge_conflicts_pr',
+    'migration',
+    'name',
+    'notification_channels',
+    'preserve_docs_project',
+    'profile',
+    'profile_custom',
+    'provision_type',
+    'services',
+    'theme',
+    'timezone',
+    'tools',
+    'version_scheme',
+    'visual_regression',
+  ];
+
+  /**
    * Declare a handler's question on a panel.
    *
    * @param \DrevOps\PhpTui\Builder\PanelBuilder $p
@@ -80,10 +114,13 @@ class TuiAdapter {
     // Options follow the answers: a handler narrows its own set as earlier
     // questions are answered, so they are resolved rather than fixed. Only the
     // kinds that show a list accept them.
+    $contextual = !in_array($id, self::RESOLVED_WITHOUT_ANSWERS, TRUE);
+
     if (self::hasOptions($handler->type())) {
-      $field->options(function (Context $c) use ($handler): array {
+      $field->options(function (Context $c) use ($handler, $contextual): array {
+        $answers = $contextual ? $c->answers : [];
         $handler->setResponses($c->answers);
-        $options = $handler->options($c->answers);
+        $options = $handler->options($answers);
 
         if (!is_array($options)) {
           return [];
@@ -97,7 +134,7 @@ class TuiAdapter {
         // is never one of the profiles on offer. The answer a handler settles
         // on is authoritative, so it joins the list rather than being dropped
         // when the value is reconciled against it.
-        foreach ([$handler->resolvedValue($c->answers), $handler->default($c->answers)] as $value) {
+        foreach ([$handler->resolvedValue($c->answers), $handler->default($answers)] as $value) {
           if (is_string($value) && $value !== '' && !array_key_exists($value, $options)) {
             $options[$value] = $value;
           }
@@ -111,7 +148,7 @@ class TuiAdapter {
     // the handler contract defines them: a pre-determined resolved value wins,
     // then the handler default, then the kind's own default.
     $type = $handler->type();
-    $field->default(function (Context $c) use ($handler, $type): mixed {
+    $field->default(function (Context $c) use ($handler, $type, $contextual): mixed {
       $handler->setResponses($c->answers);
 
       $resolved = $handler->resolvedValue($c->answers);
@@ -119,7 +156,7 @@ class TuiAdapter {
         return $resolved;
       }
 
-      return $handler->default($c->answers) ?? self::typeDefault($type);
+      return $handler->default($contextual ? $c->answers : []) ?? self::typeDefault($type);
     });
 
     // A closure default is opaque to the schema, so the answer-independent

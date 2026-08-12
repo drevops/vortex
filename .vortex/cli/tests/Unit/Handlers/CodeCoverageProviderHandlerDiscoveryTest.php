@@ -9,7 +9,7 @@ use DrevOps\VortexCli\Prompts\Handlers\CodeCoverageProvider;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\File;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Laravel\Prompts\Key;
+use DrevOps\VortexCli\Tests\Support\Key;
 
 #[CoversClass(CodeCoverageProvider::class)]
 class CodeCoverageProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {

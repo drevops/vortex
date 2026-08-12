@@ -8,7 +8,7 @@ use DrevOps\VortexCli\Prompts\Handlers\Migration;
 use DrevOps\VortexCli\Prompts\Handlers\MigrationFetchSource;
 use DrevOps\VortexCli\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexCli\Utils\Config;
-use Laravel\Prompts\Key;
+use DrevOps\VortexCli\Tests\Support\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(MigrationImage::class)]

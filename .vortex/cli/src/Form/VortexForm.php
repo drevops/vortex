@@ -7,7 +7,6 @@ namespace DrevOps\VortexCli\Form;
 use DrevOps\PhpTui\Builder\Form;
 use DrevOps\PhpTui\Builder\PanelBuilder;
 use DrevOps\PhpTui\Condition\Condition;
-use DrevOps\PhpTui\Derive\Derive;
 use DrevOps\VortexCli\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexCli\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexCli\Prompts\Handlers\CiProvider;
@@ -149,10 +148,10 @@ BANNER;
       ->panel('general', 'General information', function (PanelBuilder $p) use ($config): void {
         $p->description('Project name, organization and public domain.');
         TuiAdapter::field($p, new Name($config));
-        TuiAdapter::field($p, new MachineName($config), derive: new Derive('{{name}}', 'machine'));
-        TuiAdapter::field($p, new Org($config), derive: new Derive('{{name}} Org'));
-        TuiAdapter::field($p, new OrgMachineName($config), derive: new Derive('{{org}}', 'machine'));
-        TuiAdapter::field($p, new Domain($config), derive: new Derive('{{machine_name}}.com', 'host'));
+        TuiAdapter::field($p, new MachineName($config));
+        TuiAdapter::field($p, new Org($config));
+        TuiAdapter::field($p, new OrgMachineName($config));
+        TuiAdapter::field($p, new Domain($config));
       })
       ->panel('drupal', 'Drupal', function (PanelBuilder $p) use ($config): void {
         $p->description('Install profile, modules, theme and front-end build.');
@@ -160,10 +159,10 @@ BANNER;
         TuiAdapter::field($p, new Profile($config));
         TuiAdapter::field($p, new ProfileCustom($config), when: new Condition('profile', eq: Profile::CUSTOM));
         TuiAdapter::field($p, new Modules($config));
-        TuiAdapter::field($p, new ModulePrefix($config), derive: new Derive('{{machine_name}}', 'initials'));
+        TuiAdapter::field($p, new ModulePrefix($config));
         TuiAdapter::field($p, new CustomModules($config));
         TuiAdapter::field($p, new Theme($config));
-        TuiAdapter::field($p, new ThemeCustom($config), when: new Condition('theme', eq: Theme::CUSTOM), derive: new Derive('{{machine_name}}', 'machine'));
+        TuiAdapter::field($p, new ThemeCustom($config), when: new Condition('theme', eq: Theme::CUSTOM));
         TuiAdapter::field($p, new FrontendBuild($config), when: new Condition('theme', eq: Theme::CUSTOM));
       })
       ->panel('code_repository', 'Code repository', function (PanelBuilder $p) use ($config): void {
@@ -183,7 +182,7 @@ BANNER;
         TuiAdapter::field($p, new HostingProjectName($config), when: new Condition('hosting_provider', in: [
           HostingProvider::LAGOON,
           HostingProvider::ACQUIA,
-        ]), derive: new Derive('{{machine_name}}'));
+        ]));
         TuiAdapter::field($p, new Webroot($config));
       })
       ->panel('deployment', 'Deployment', function (PanelBuilder $p) use ($config): void {
@@ -194,10 +193,10 @@ BANNER;
         $p->description('Provisioning method and database source.');
         TuiAdapter::field($p, new ProvisionType($config));
         TuiAdapter::field($p, new DatabaseFetchSource($config), when: new Condition('provision_type', eq: ProvisionType::DATABASE));
-        TuiAdapter::field($p, new DatabaseImage($config), when: new Condition('database_fetch_source', eq: DatabaseFetchSource::CONTAINER_REGISTRY), derive: new Derive('{{org_machine_name}}/{{machine_name}}-data:latest', 'lower'));
+        TuiAdapter::field($p, new DatabaseImage($config), when: new Condition('database_fetch_source', eq: DatabaseFetchSource::CONTAINER_REGISTRY));
         TuiAdapter::field($p, new Migration($config));
         TuiAdapter::field($p, new MigrationFetchSource($config), when: new Condition('migration', eq: TRUE));
-        TuiAdapter::field($p, new MigrationImage($config), when: new Condition('migration_fetch_source', eq: MigrationFetchSource::CONTAINER_REGISTRY), derive: new Derive('{{org_machine_name}}/{{machine_name}}-data-migration:latest', 'lower'));
+        TuiAdapter::field($p, new MigrationImage($config), when: new Condition('migration_fetch_source', eq: MigrationFetchSource::CONTAINER_REGISTRY));
       })
       ->panel('notifications', 'Notifications', function (PanelBuilder $p) use ($config): void {
         $p->description('Where build and deployment notifications are sent.');

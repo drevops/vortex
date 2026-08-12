@@ -9,7 +9,7 @@ use DrevOps\VortexCli\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\Git;
-use Laravel\Prompts\Key;
+use DrevOps\VortexCli\Tests\Support\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(CodeProvider::class)]

@@ -44,18 +44,18 @@ use DrevOps\VortexCli\Prompts\Handlers\Tools;
 use DrevOps\VortexCli\Prompts\Handlers\VersionScheme;
 use DrevOps\VortexCli\Prompts\Handlers\VisualRegression;
 use DrevOps\VortexCli\Prompts\Handlers\Webroot;
-use DrevOps\VortexCli\Prompts\PromptManager;
+use DrevOps\PhpTui\Tui as Engine;
+use DrevOps\VortexCli\Form\VortexForm;
 use DrevOps\VortexCli\Tests\Traits\TuiTrait;
 use DrevOps\VortexCli\Tests\Unit\UnitTestCase;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\File;
-use Laravel\Prompts\Prompt;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * Abstract base class for PromptManager handler discovery tests.
+ * Abstract base class for handler discovery tests.
  *
- * Provides common test logic for all PromptManager test scenarios.
+ * Provides common test logic for all discovery scenarios.
  */
 abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
 
@@ -102,21 +102,59 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       $before($this, $config);
     }
 
-    $answers = array_replace(static::defaultTuiAnswers(), $answers);
-    $keystrokes = static::tuiKeystrokes($answers, 40);
-    Prompt::fake($keystrokes);
+    $supplied = static::suppliedAnswers(array_replace(static::defaultTuiAnswers(), $answers), $expected);
 
-    $pm = new PromptManager($config);
-    $pm->runPrompts();
+    $tui = new Engine(VortexForm::create($config), ['DrevOps\\VortexCli\\Prompts\\Handlers']);
+    $actual = $tui->collect((string) json_encode($supplied), (string) $config->getDst(), $config->isVortexProject(), '1.0.0')->values;
 
     if (!$exception) {
-      $actual = $pm->getResponses();
       $this->assertEquals($expected, $actual, (string) $this->dataName());
     }
 
     if ($after !== NULL) {
       $after($this, $config);
     }
+  }
+
+  /**
+   * The answers to supply, from a data set written as keystrokes.
+   *
+   * A scenario says what it answers by scripting the keys a person would press
+   * at a linear prompt. Collection now takes values, so a control sequence -
+   * "accept the default", "move down then accept" - is read back as the value
+   * the scenario already declares it settles on, and only literal typing is
+   * carried through as-is.
+   *
+   * @param array<string,mixed> $answers
+   *   The data set's answers, keyed by question id.
+   * @param array<string,mixed>|string $expected
+   *   The expected answer set, or an exception message for a failing scenario.
+   *
+   * @return array<string,mixed>
+   *   The answers to supply to collection.
+   */
+  protected static function suppliedAnswers(array $answers, array|string $expected): array {
+    $supplied = [];
+
+    foreach ($answers as $id => $entry) {
+      if ($entry === static::TUI_DEFAULT) {
+        continue;
+      }
+
+      // A control sequence navigates rather than types, so the value it lands
+      // on is the one the scenario expects for that question.
+      if (is_string($entry) && preg_match('/[\x00-\x1F]/', $entry) === 1) {
+        if (is_array($expected) && array_key_exists($id, $expected)) {
+          $supplied[$id] = $expected[$id];
+        }
+
+        continue;
+      }
+
+      $supplied[$id] = $entry;
+    }
+
+    return $supplied;
   }
 
   /**
