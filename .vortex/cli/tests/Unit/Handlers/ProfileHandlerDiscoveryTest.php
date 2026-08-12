@@ -12,6 +12,7 @@ use DrevOps\VortexCli\Tests\Support\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Profile::class)]
+#[CoversClass(ProfileCustom::class)]
 class ProfileHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): \Iterator {

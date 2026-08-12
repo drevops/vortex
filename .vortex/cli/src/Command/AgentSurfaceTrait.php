@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Command;
 
-use DrevOps\PhpTui\Tui as Engine;
 use DrevOps\VortexCli\Form\VortexForm;
-use DrevOps\VortexCli\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexCli\Schema\AgentHelp;
 use DrevOps\VortexCli\Schema\SchemaGenerator;
 use DrevOps\VortexCli\Schema\SchemaValidator;
@@ -77,7 +75,7 @@ trait AgentSurfaceTrait {
   protected function handleSchema(OutputInterface $output): int {
     $config = Config::fromString('{}');
 
-    $generator = new SchemaGenerator($this->questionHandlers($config));
+    $generator = new SchemaGenerator(VortexForm::handlers($config));
     $schema = $generator->generate();
 
     $output->write((string) json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
@@ -120,44 +118,12 @@ trait AgentSurfaceTrait {
 
     $config = Config::fromString('{}');
 
-    $validator = new SchemaValidator($this->questionHandlers($config));
+    $validator = new SchemaValidator(VortexForm::handlers($config));
     $result = $validator->validate($user_config);
 
     $output->write((string) json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     return $result['valid'] ? Command::SUCCESS : Command::FAILURE;
-  }
-
-  /**
-   * The handler behind every question, keyed by question id.
-   *
-   * The form is the list of questions, so the handlers are resolved through it
-   * rather than kept in a second list that could drift from it.
-   *
-   * @param \DrevOps\VortexCli\Utils\Config $config
-   *   The configuration the handlers operate on.
-   *
-   * @return array<string,\DrevOps\VortexCli\Prompts\Handlers\HandlerInterface>
-   *   The handlers, in processing order.
-   *
-   * @throws \RuntimeException
-   *   When a question id has no handler behind it.
-   */
-  protected function questionHandlers(Config $config): array {
-    $registry = (new Engine(VortexForm::create($config), ['DrevOps\\VortexCli\\Prompts\\Handlers']))->registry();
-    $handlers = [];
-
-    foreach (array_keys(VortexForm::WEIGHTS) as $id) {
-      $class = $registry->resolve($id);
-
-      if ($class === NULL || !is_a($class, HandlerInterface::class, TRUE)) {
-        throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
-      }
-
-      $handlers[$id] = new $class($config);
-    }
-
-    return $handlers;
   }
 
   /**

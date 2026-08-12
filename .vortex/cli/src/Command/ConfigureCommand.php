@@ -108,7 +108,7 @@ EOF
         $this->assertVortexProject($config);
       }
 
-      $tui = new Engine(VortexForm::create($config), ['DrevOps\\VortexCli\\Prompts\\Handlers']);
+      $tui = new Engine(VortexForm::create($config), [VortexForm::HANDLER_NAMESPACE]);
       $prompts = $input->getOption(static::OPTION_PROMPTS);
       $prompts = is_string($prompts) ? $prompts : '';
       $answers = $tui->run($prompts, (string) $this->getApplication()?->getVersion(), (string) $config->getDst(), $interactive && $prompts === '', TRUE);

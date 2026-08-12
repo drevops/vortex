@@ -6,6 +6,7 @@ namespace DrevOps\VortexCli\Process;
 
 use DrevOps\PhpTui\Answers\Answers;
 use DrevOps\PhpTui\Handler\HandlerRegistry;
+use DrevOps\VortexCli\Form\VortexForm;
 use DrevOps\VortexCli\Prompts\Handlers\CiProvider;
 use DrevOps\VortexCli\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexCli\Prompts\Handlers\HostingProvider;
@@ -62,10 +63,10 @@ class Processor {
 
     asort($items);
 
-    $responses = $this->responses($answers, $handlers, $config, $weights);
+    $responses = $this->responses($answers, $weights);
 
     foreach (array_keys($items) as $id) {
-      $handler = $this->handler($handlers, $config, (string) $id)->setResponses($responses);
+      $handler = VortexForm::handler($handlers, $config, (string) $id)->setResponses($responses);
 
       // A question the form never asked has no answer to act on, so its
       // handler sits out - the questions it depends on already removed
@@ -87,17 +88,13 @@ class Processor {
    *
    * @param \DrevOps\PhpTui\Answers\Answers $answers
    *   The collected answers.
-   * @param \DrevOps\PhpTui\Handler\HandlerRegistry $handlers
-   *   The handler registry resolving a question id to its handler class.
-   * @param \DrevOps\VortexCli\Utils\Config $config
-   *   The CLI configuration the handlers operate on.
    * @param array<string,int> $weights
    *   The processing weight of each question id; its keys are every question.
    *
    * @return array<string,mixed>
    *   The answers, keyed by every question id.
    */
-  public function responses(Answers $answers, HandlerRegistry $handlers, Config $config, array $weights): array {
+  public function responses(Answers $answers, array $weights): array {
     return array_replace(array_fill_keys(array_keys($weights), NULL), $answers->values);
   }
 
@@ -161,32 +158,6 @@ class Processor {
     }
 
     return $messages;
-  }
-
-  /**
-   * Resolve an id to its handler.
-   *
-   * @param \DrevOps\PhpTui\Handler\HandlerRegistry $handlers
-   *   The handler registry.
-   * @param \DrevOps\VortexCli\Utils\Config $config
-   *   The CLI configuration the handler operates on.
-   * @param string $id
-   *   The question id.
-   *
-   * @return \DrevOps\VortexCli\Prompts\Handlers\HandlerInterface
-   *   The handler.
-   *
-   * @throws \RuntimeException
-   *   When the id has no handler behind it.
-   */
-  protected function handler(HandlerRegistry $handlers, Config $config, string $id): HandlerInterface {
-    $class = $handlers->resolve($id);
-
-    if ($class === NULL || !is_a($class, HandlerInterface::class, TRUE)) {
-      throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
-    }
-
-    return new $class($config);
   }
 
 }

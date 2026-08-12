@@ -7,6 +7,7 @@ namespace DrevOps\VortexCli\Form;
 use DrevOps\PhpTui\Builder\Form;
 use DrevOps\PhpTui\Builder\PanelBuilder;
 use DrevOps\PhpTui\Condition\Condition;
+use DrevOps\PhpTui\Handler\HandlerRegistry;
 use DrevOps\PhpTui\Tui;
 use DrevOps\VortexCli\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexCli\Prompts\Handlers\AssignAuthorPr;
@@ -159,16 +160,40 @@ BANNER;
     $handlers = [];
 
     foreach (array_keys(self::WEIGHTS) as $id) {
-      $class = $registry->resolve($id);
-
-      if ($class === NULL || !is_a($class, HandlerInterface::class, TRUE)) {
-        throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
-      }
-
-      $handlers[$id] = new $class($config);
+      $handlers[$id] = self::handler($registry, $config, $id);
     }
 
     return $handlers;
+  }
+
+  /**
+   * The handler behind one question.
+   *
+   * The single owner of the resolution rule: everything that turns a question
+   * id into a handler comes through here, so the namespace and the contract
+   * check are stated once.
+   *
+   * @param \DrevOps\PhpTui\Handler\HandlerRegistry $registry
+   *   The registry resolving a question id to its handler class.
+   * @param \DrevOps\VortexCli\Utils\Config $config
+   *   The configuration the handler operates on.
+   * @param string $id
+   *   The question id.
+   *
+   * @return \DrevOps\VortexCli\Prompts\Handlers\HandlerInterface
+   *   The handler.
+   *
+   * @throws \RuntimeException
+   *   When the id has no handler behind it.
+   */
+  public static function handler(HandlerRegistry $registry, Config $config, string $id): HandlerInterface {
+    $class = $registry->resolve($id);
+
+    if ($class === NULL || !is_a($class, HandlerInterface::class, TRUE)) {
+      throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
+    }
+
+    return new $class($config);
   }
 
   /**

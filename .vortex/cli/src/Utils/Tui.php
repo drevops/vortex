@@ -135,20 +135,30 @@ class Tui {
       return '';
     }
 
-    // Disable input buffering.
-    system('stty cbreak -echo');
+    // The state is captured rather than assumed, and restored from a finally,
+    // so a failed open, an exception or an interrupt cannot leave the terminal
+    // without an echo.
+    $state = trim((string) shell_exec('stty -g 2>/dev/null'));
 
-    $res = fopen('php://stdin', 'r');
-    if ($res === FALSE) {
-      return '';
+    try {
+      system('stty cbreak -echo');
+
+      $res = fopen('php://stdin', 'r');
+
+      if ($res === FALSE) {
+        // @codeCoverageIgnoreStart
+        return '';
+        // @codeCoverageIgnoreEnd
+      }
+
+      $char = (string) fgetc($res);
+      fclose($res);
+
+      return $char;
     }
-
-    $char = (string) fgetc($res);
-
-    // Restore terminal settings.
-    system('stty -cbreak echo');
-
-    return $char;
+    finally {
+      system($state === '' ? 'stty -cbreak echo' : 'stty ' . escapeshellarg($state));
+    }
   }
 
   protected static function escapeMultiline(string $text, int $color_code, int $end_code = 39): string {

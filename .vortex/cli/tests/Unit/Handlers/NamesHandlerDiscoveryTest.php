@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Org::class)]
 #[CoversClass(OrgMachineName::class)]
 #[CoversClass(Domain::class)]
+#[CoversClass(ThemeCustom::class)]
 #[CoversClass(ModulePrefix::class)]
 class NamesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 

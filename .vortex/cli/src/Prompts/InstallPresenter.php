@@ -28,16 +28,26 @@ class InstallPresenter {
   /**
    * The collected answers.
    */
-  protected ?Answers $answers = NULL;
+  protected Answers $answers;
 
   /**
    * The processor collecting the handlers' closing guidance.
    */
   protected Processor $processor;
 
+  /**
+   * Construct a presenter.
+   *
+   * The answers and the processor start empty so a footer holds its contract
+   * before any answers arrive - the header is printed before the questions are
+   * asked.
+   */
   public function __construct(
     protected Config $config,
-  ) {}
+  ) {
+    $this->answers = new Answers();
+    $this->processor = new Processor();
+  }
 
   public function setAnswers(Answers $answers, ?Processor $processor = NULL): void {
     $this->answers = $answers;
@@ -184,7 +194,7 @@ EOT;
     $output = '';
     $prefix = '  ';
 
-    $responses = $this->answers instanceof Answers ? $this->answers->values : [];
+    $responses = $this->answers->values;
     $starter = $responses[Starter::id()] ?? Starter::LOAD_DATABASE_DEMO;
     $is_profile = in_array($starter, [Starter::INSTALL_PROFILE_CORE, Starter::INSTALL_PROFILE_DRUPALCMS], TRUE);
 

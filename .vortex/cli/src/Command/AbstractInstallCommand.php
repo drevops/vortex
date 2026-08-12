@@ -63,10 +63,6 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
 
   const OPTION_BUILD = 'build';
 
-  /**
-   * The namespace the engine searches for handler classes.
-   */
-  protected const string HANDLER_NAMESPACE = 'DrevOps\\VortexCli\\Prompts\\Handlers';
 
   /**
    * Defines the configuration object.
@@ -157,7 +153,7 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
       [$this->config, $this->artifact] = OptionsResolver::resolve($input->getOptions());
 
       Tui::init($output, !$this->config->getNoInteraction());
-      $this->tui = new Engine(VortexForm::create($this->config), [static::HANDLER_NAMESPACE]);
+      $this->tui = new Engine(VortexForm::create($this->config), [VortexForm::HANDLER_NAMESPACE]);
       $this->processor = new Processor();
       $this->presenter = new InstallPresenter($this->config);
       $this->fileManager = new FileManager($this->config);

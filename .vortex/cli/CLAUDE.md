@@ -138,7 +138,7 @@ Handlers **queue** operations, the processor **executes**:
 ```php
 // In handlers - queue only
 File::replaceContentAsync('old', 'new');
-File::replaceTokenAsync('TOKEN');
+File::removeTokenAsync('TOKEN');
 
 // In Processor - execute all
 File::runTaskDirectory($this->config->get(Config::TMP));

@@ -129,7 +129,7 @@ class TuiAdapter {
     if (self::hasOptions($handler->type())) {
       $field->options(function (Context $c) use ($handler, $contextual, $pre_resolved): array {
         $answers = $contextual ? $c->answers : [];
-        $handler->setResponses($c->answers);
+        $handler->setResponses($answers);
         $options = $handler->options($answers);
 
         if (!is_array($options)) {
@@ -158,8 +158,10 @@ class TuiAdapter {
         $candidates[] = $handler->default($answers);
 
         foreach ($candidates as $candidate) {
-          if (is_string($candidate) && $candidate !== '' && !array_key_exists($candidate, $options)) {
-            $options[$candidate] = $candidate;
+          foreach (is_array($candidate) ? $candidate : [$candidate] as $item) {
+            if (is_string($item) && $item !== '' && !array_key_exists($item, $options)) {
+              $options[$item] = $item;
+            }
           }
         }
 
@@ -172,6 +174,8 @@ class TuiAdapter {
     // then the handler default, then the kind's own default.
     $type = $handler->type();
     $field->default(function (Context $c) use ($handler, $type, $contextual, $pre_resolved): mixed {
+      // A pre-determined value and a detected one were always resolved against
+      // the answers, whatever the question does with them elsewhere.
       $handler->setResponses($c->answers);
 
       if ($pre_resolved) {
@@ -196,7 +200,11 @@ class TuiAdapter {
         }
       }
 
-      $default = $handler->default($contextual ? $c->answers : []);
+      // The default sees the same set its own question is resolved against, so
+      // a handler reading the answers directly cannot see past the isolation.
+      $answers = $contextual ? $c->answers : [];
+      $handler->setResponses($answers);
+      $default = $handler->default($answers);
 
       // An unanswerable question is left unset rather than defaulted to an
       // empty value, which its own validator would then reject.
@@ -291,7 +299,15 @@ class TuiAdapter {
       return [];
     }
 
-    return array_is_list($options) ? array_combine($options, $options) : $options;
+    if (!array_is_list($options)) {
+      return $options;
+    }
+
+    // A list is keyed by its own values, so an entry that cannot be an array
+    // key is dropped rather than aborting the form on a TypeError.
+    $values = array_map(strval(...), array_values(array_filter($options, is_scalar(...))));
+
+    return array_combine($values, $values);
   }
 
   /**
