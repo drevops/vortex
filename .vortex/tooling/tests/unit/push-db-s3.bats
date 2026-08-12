@@ -257,7 +257,7 @@ load ../_helper.bash
 
     "@curl * # 0 # AccessDenied\n403"
 
-    "ERROR: Unable to push to S3: HTTP status 403."
+    "[FAIL] Unable to push to S3: HTTP status 403."
     "- [ OK ] Finished database dump push to S3."
   )
 

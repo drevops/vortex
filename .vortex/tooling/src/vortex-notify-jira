@@ -163,7 +163,7 @@ payload="$(curl \
 
 account_id="$(echo "${payload}" | extract_json_value "accountId" || echo "error")"
 
-[ "${#account_id}" -lt 24 ] && fail "Unable to authenticate." && echo "${payload}"
+[ "${#account_id}" -lt 24 ] && echo "${payload}" && fail "Unable to authenticate."
 echo "success"
 
 task "Posting a comment."
@@ -268,7 +268,7 @@ payload="$(curl \
 
 comment_id="$(echo "${payload}" | extract_json_value "id" || echo "error")"
 if [ "$(expr "x${comment_id}" : "x[0-9]*$")" -eq 0 ]; then
-  note "API Response: ${payload}"
+  echo "API Response: ${payload}"
   fail "Unable to create a comment."
 fi
 
@@ -312,7 +312,7 @@ if [ -n "${VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL:-}" ]; then
     --url "${VORTEX_NOTIFY_JIRA_ENDPOINT}/rest/api/3/user/assignable/search?query=${VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL}&issueKey=${issue}")"
 
   account_id="$(echo "${payload}" | extract_json_first_value "accountId" || echo "error")"
-  [ "${#account_id}" -lt 24 ] && fail "Unable to retrieve assignee account ID." && echo "${payload}"
+  [ "${#account_id}" -lt 24 ] && echo "${payload}" && fail "Unable to retrieve assignee account ID."
   echo "success"
 
   payload="$(curl \

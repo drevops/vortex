@@ -167,7 +167,7 @@ response_body=$(echo "${response}" | sed '$d')
 case "${http_code}" in
   2*) ;;
   *)
-    [ -n "${response_body}" ] && note "Response: ${response_body}"
+    [ -n "${response_body}" ] && echo "Response: ${response_body}"
     fail "Unable to push to S3: HTTP status ${http_code}."
     ;;
 esac
