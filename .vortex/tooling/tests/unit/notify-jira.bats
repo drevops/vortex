@@ -202,9 +202,12 @@ Login: %login_url%"
   assert_output_contains "https://develop.testproject.com/user/login"
   assert_output_not_contains "%project%"
   assert_output_not_contains "%label%"
-  assert_output_not_contains "%timestamp%"
   assert_output_not_contains "%environment_url%"
   assert_output_not_contains "%login_url%"
+
+  # The timestamp token is replaced with a rendered date rather than dropped.
+  assert_output_matches "at [0-9]{2}/[0-9]{2}/[0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2} "
+  assert_output_not_contains "%timestamp%"
 
   # Each newline becomes an ADF hardBreak node.
   assert_output_contains "hardBreak"

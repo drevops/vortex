@@ -116,3 +116,18 @@ load ../_helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Task: platform from VORTEX_PLATFORM dispatches custom" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Without a branch the sibling prints its banner and then fails on the
+  # missing-value guard before any network call, which proves the routing.
+  unset VORTEX_TASK_PLATFORM
+  export VORTEX_PLATFORM=lagoon
+  run ./.vortex/tooling/src/vortex-task custom
+  assert_failure
+  assert_output_contains "Started Lagoon task Automation task."
+  assert_output_contains "Missing required value for VORTEX_TASK_CUSTOM_LAGOON_BRANCH."
+
+  popd >/dev/null || exit 1
+}
