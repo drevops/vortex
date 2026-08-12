@@ -150,9 +150,21 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       }
 
       // A control sequence navigates rather than types, so the value it lands
-      // on is the one the scenario expects for that question.
-      if (is_string($entry) && preg_match('/[\x00-\x1F]/', $entry) === 1) {
-        if (is_array($expected) && array_key_exists($id, $expected)) {
+      // on is the one the scenario expects for that question - except in a
+      // scenario that expects a rejection, where what was typed alongside the
+      // navigation is the value being rejected.
+      if (is_string($entry) && preg_match('/[\x00-\x1F\x7F]/', $entry) === 1) {
+        $typed = (string) preg_replace('/[\x00-\x1F\x7F]/', '', $entry);
+
+        if (is_string($expected)) {
+          if ($typed !== '') {
+            $supplied[$id] = $typed;
+          }
+
+          continue;
+        }
+
+        if (array_key_exists($id, $expected)) {
           $supplied[$id] = $expected[$id];
         }
 
@@ -246,7 +258,8 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       OrgMachineName::id() => 'discovered_project_org',
       Domain::id() => 'discovered-project.com',
       ModulePrefix::id() => 'dp',
-      Theme::id() => 'discovered_project',
+      Theme::id() => Theme::CUSTOM,
+      ThemeCustom::id() => 'discovered_project',
     ];
     return $overrides + static::getExpectedDefaults();
   }
