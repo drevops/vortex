@@ -136,7 +136,7 @@ class TuiAdapter {
           return [];
         }
 
-        $options = array_is_list($options) ? array_combine($options, $options) : $options;
+        $options = self::normalize($options);
 
         // A handler narrows its options against earlier answers but resolves
         // its default and its pre-determined value independently, so either can
@@ -144,7 +144,11 @@ class TuiAdapter {
         // is never one of the profiles on offer. The answer a handler settles
         // on is authoritative, so it joins the list rather than being dropped
         // when the value is reconciled against it.
-        $candidates = $pre_resolved ? [$handler->resolvedValue($c->answers), $handler->default($answers)] : [$handler->default($answers)];
+        $candidates = [$c->update ? $handler->discover() : NULL, $handler->default($answers)];
+
+        if ($pre_resolved) {
+          array_unshift($candidates, $handler->resolvedValue($c->answers));
+        }
 
         foreach ($candidates as $value) {
           if (is_string($value) && $value !== '' && !array_key_exists($value, $options)) {
@@ -168,6 +172,18 @@ class TuiAdapter {
 
         if ($resolved !== NULL && $resolved !== '') {
           return $resolved;
+        }
+      }
+
+      // An existing project answers for itself. The engine detects this too,
+      // but only accepts what the field's options already allow - and options
+      // that follow the answers have not resolved by then - so the detected
+      // value is taken here, where it outranks the default either way.
+      if ($c->update) {
+        $detected = $handler->discover();
+
+        if ($detected !== NULL && $detected !== '') {
+          return $detected;
         }
       }
 
@@ -213,6 +229,23 @@ class TuiAdapter {
     }
 
     return $field;
+  }
+
+  /**
+   * A handler's options as a value-to-label map.
+   *
+   * @param mixed $options
+   *   The handler's options, a list or a map, or NULL when it declares none.
+   *
+   * @return array<string,string>
+   *   The options keyed by value.
+   */
+  protected static function normalize(mixed $options): array {
+    if (!is_array($options)) {
+      return [];
+    }
+
+    return array_is_list($options) ? array_combine($options, $options) : $options;
   }
 
   /**
