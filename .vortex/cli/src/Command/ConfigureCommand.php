@@ -98,7 +98,9 @@ EOF
 
     try {
       $config = $this->resolveConfig($input);
-      $interactive = !$config->getNoInteraction();
+      // A terminal is required as well as the absence of the flag: a piped or
+      // scripted run has nobody to answer the form.
+      $interactive = $input->isInteractive() && !$config->getNoInteraction();
 
       Tui::init($output, $interactive);
 

@@ -328,7 +328,10 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
     $destination = (string) $this->config->getDst();
     $update = (bool) $this->config->get(Config::IS_VORTEX_PROJECT);
     $version = (string) $this->getApplication()?->getVersion();
-    $interactive = !$this->config->getNoInteraction() && $prompts === '';
+    // A terminal is required as well as the absence of the flag: a piped or
+    // scripted run has nobody to answer the form, and rendering it there would
+    // block on input that never arrives.
+    $interactive = $input->isInteractive() && !$this->config->getNoInteraction() && $prompts === '';
 
     return $this->tui->run($prompts, $version, $destination, $interactive, $update);
   }
