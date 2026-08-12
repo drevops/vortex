@@ -5,8 +5,8 @@
 # It does not rely on 'drush ac-api-*' commands, which makes it capable of
 # running on hosts without configured Drush and Drush aliases.
 #
-# It requires to have Cloud API token Key and Secret provided.
-# To create your Cloud API token Acquia UI, go to
+# It requires Cloud API token Key and Secret to be provided.
+# To create a Cloud API token, go to
 # Acquia Cloud UI -> Account -> API tokens -> Create Token
 #
 # @see https://cloudapi-docs.acquia.com/#/Environments/postEnvironmentsDatabases
@@ -43,7 +43,7 @@ VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES="${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_R
 # Interval in seconds to check task status.
 VORTEX_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL="${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL:-10}"
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # @formatter:off
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
@@ -78,14 +78,14 @@ for cmd in curl php; do command -v "${cmd}" >/dev/null || {
 }; done
 
 # Check that all required variables are present.
-[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_KEY}" ] && fail "Missing value for VORTEX_TASK_COPY_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY." && exit 1
-[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_SECRET}" ] && fail "Missing value for VORTEX_TASK_COPY_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET." && exit 1
-[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME}" ] && fail "Missing value for VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME." && exit 1
-[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_SRC}" ] && fail "Missing value for VORTEX_TASK_COPY_DB_ACQUIA_SRC." && exit 1
-[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_DST}" ] && fail "Missing value for VORTEX_TASK_COPY_DB_ACQUIA_DST." && exit 1
-[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_NAME}" ] && fail "Missing value for VORTEX_TASK_COPY_DB_ACQUIA_NAME." && exit 1
-[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES}" ] && fail "Missing value for VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES." && exit 1
-[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL}" ] && fail "Missing value for VORTEX_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL." && exit 1
+[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_KEY}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY." && exit 1
+[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_SECRET}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET." && exit 1
+[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME." && exit 1
+[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_SRC}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_SRC." && exit 1
+[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_DST}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_DST." && exit 1
+[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_NAME}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_NAME." && exit 1
+[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES." && exit 1
+[ -z "${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL." && exit 1
 
 task "Retrieving authentication token."
 token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_COPY_DB_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_COPY_DB_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")

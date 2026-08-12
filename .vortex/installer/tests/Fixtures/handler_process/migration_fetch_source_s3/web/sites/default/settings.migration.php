@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 // Migration DB settings.
 $databases['migrate']['default'] = [
-  'database' => getenv('DATABASE2_NAME') ?: getenv('DATABASE2_DATABASE') ?: 'drupal',
+  'database' => (getenv('DATABASE2_NAME') ?: getenv('DATABASE2_DATABASE')) ?: 'drupal',
   'username' => getenv('DATABASE2_USERNAME') ?: 'drupal',
   'password' => getenv('DATABASE2_PASSWORD') ?: 'drupal',
   'host' => getenv('DATABASE2_HOST') ?: 'localhost',

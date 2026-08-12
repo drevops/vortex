@@ -1,4 +1,4 @@
-@@ -224,79 +224,6 @@
+@@ -224,78 +224,6 @@
    }
  
    /**
@@ -62,7 +62,6 @@
 -
 -    $this->requireSettingsFile();
 -
--    // Test custom Redis configuration.
 -    $settings['redis.connection']['interface'] = 'PhpRedis';
 -    $settings['redis.connection']['host'] = 'custom_redis_host';
 -    $settings['redis.connection']['port'] = 6380;

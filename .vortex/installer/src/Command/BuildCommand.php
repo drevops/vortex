@@ -138,7 +138,6 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
       $config = json_decode($output, TRUE);
 
       if (is_array($config)) {
-        // Extract URL from any service that has LOCALDEV_URL.
         $url = $config['services']['cli']['environment']['LOCALDEV_URL']
           ?? $config['services']['nginx']['environment']['LOCALDEV_URL']
           ?? NULL;

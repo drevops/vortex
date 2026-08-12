@@ -70,7 +70,6 @@ class Validator {
       return TRUE;
     }
 
-    // Already supported: commit hashes.
     if (self::isGitCommitSha($value) || self::isGitCommitShaShort($value)) {
       return TRUE;
     }
@@ -86,12 +85,10 @@ class Validator {
       return FALSE;
     }
 
-    // Reject refs ending with slash or containing consecutive slashes.
     if (str_ends_with($value, '/') || str_contains($value, '//')) {
       return FALSE;
     }
 
-    // Additional disallowed patterns.
     $disallowed = ['@', '^', '~', ':', '?', '*', '[', ' ', '\\', '@{'];
     foreach ($disallowed as $char) {
       if (str_contains($value, $char)) {

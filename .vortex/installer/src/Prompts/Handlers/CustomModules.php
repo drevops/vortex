@@ -82,7 +82,6 @@ DOC;
       return NULL;
     }
 
-    // Discover the module prefix from the existing codebase.
     $prefix = $this->discoverModulePrefix();
 
     if ($prefix === NULL) {
@@ -118,8 +117,8 @@ DOC;
     $t = $this->tmpDir;
     $w = $this->webroot;
 
-    // Safety net: if search was selected but Solr service was not, force-remove
-    // search module since it cannot function without Solr.
+    // The search module cannot function without Solr, so remove it from the
+    // selection when the Solr service was not selected.
     if (in_array(self::SEARCH, $selected) && isset($this->responses[Services::id()])) {
       $services = $this->responses[Services::id()];
       if (is_array($services) && !in_array(Services::SOLR, $services)) {
@@ -183,7 +182,7 @@ DOC;
       }
     }
 
-    // The 'page' content model is shared: the demo module attaches behaviour to
+    // The 'page' content model is shared: the demo module attaches behavior to
     // the content type and the search tests index content of that type. It is
     // only removed once neither of them remains.
     if (!in_array(self::DEMO, $selected) && !in_array(self::SEARCH, $selected)) {

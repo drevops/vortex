@@ -47,12 +47,10 @@ class ProfileCustom extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    // Get the discovered profile from the Profile handler.
     $profile_handler = new Profile($this->config);
     $profile_handler->setWebroot($this->webroot);
     $discovered = $profile_handler->discoverName();
 
-    // Only return discovered value if it's a custom profile.
     if (!empty($discovered) && !in_array($discovered, [Profile::STANDARD, Profile::MINIMAL, Profile::DEMO_UMAMI], TRUE)) {
       return $discovered;
     }
@@ -79,8 +77,7 @@ class ProfileCustom extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    // This handler doesn't need processing - the Profile handler will handle
-    // the final result.
+    // No processing needed: the Profile handler processes the final value.
   }
 
 }

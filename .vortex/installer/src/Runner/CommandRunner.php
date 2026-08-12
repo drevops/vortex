@@ -30,10 +30,9 @@ class CommandRunner extends AbstractRunner {
    * For Symfony Console commands, the $inputs parameter is used for options
    * (named arguments like --verbose or --format=json).
    */
-  public function run(string $command, array $args = [], array $inputs = [], array $env = [], ?OutputInterface $output = NULL): self {
+  public function run(string $command, array $args = [], array $inputs = [], array $env = [], ?OutputInterface $output = NULL): static {
     $this->reset();
 
-    // Merge args and inputs (options) for ArrayInput.
     $input_args = array_merge($args, $inputs);
     $this->command = $this->buildCommandString($command, $args, $inputs);
 
@@ -46,7 +45,6 @@ class CommandRunner extends AbstractRunner {
 
     $output = $this->resolveOutput($output);
 
-    // Create composite output that captures, streams, and logs.
     [$composite_output, $buffered_output] = $this->createCompositeOutput($output, $logger);
 
     $exit_code = $symfony_command->run($input, $composite_output);

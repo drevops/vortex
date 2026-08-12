@@ -42,11 +42,8 @@ trait ReflectionTrait {
 
     $method = $class->getMethod($name);
 
-    // If the method is static, we won't pass an object instance to invokeArgs()
-    // Otherwise, we ensure to pass the object instance.
     $invoke_object = $method->isStatic() ? NULL : (is_object($object) ? $object : NULL);
 
-    // Ensure we have an object for non-static methods.
     if (!$method->isStatic() && $invoke_object === NULL) {
       throw new \InvalidArgumentException("An object instance is required for non-static methods");
     }

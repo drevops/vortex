@@ -32,7 +32,7 @@ VORTEX_FETCH_DB_FRESH="${!_v:-}"
 
 # Lagoon project name.
 _v="VORTEX_FETCH_DB${_db_index}_LAGOON_PROJECT"
-VORTEX_FETCH_DB_LAGOON_PROJECT="${!_v:-${LAGOON_PROJECT:?Missing required environment variable LAGOON_PROJECT.}}"
+VORTEX_FETCH_DB_LAGOON_PROJECT="${!_v:-${LAGOON_PROJECT:?Missing required value for LAGOON_PROJECT.}}"
 
 # The source environment branch for the database source.
 _v="VORTEX_FETCH_DB${_db_index}_ENVIRONMENT"
@@ -87,7 +87,7 @@ VORTEX_FETCH_DB_LAGOON_DB_FILE="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_FILE:-db.sql
 # Name of the webroot directory with Drupal codebase.
 WEBROOT="${WEBROOT:-web}"
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # @formatter:off
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
@@ -121,7 +121,7 @@ if [ ! -d "${VORTEX_FETCH_DB_LAGOON_DB_DIR}" ]; then
   mkdir -p "${VORTEX_FETCH_DB_LAGOON_DB_DIR}"
 fi
 
-if [ "$VORTEX_FETCH_DB_FRESH" = "1" ]; then
+if [ "${VORTEX_FETCH_DB_FRESH}" = "1" ]; then
   note "Database dump refresh requested. Will create a new dump."
 fi
 

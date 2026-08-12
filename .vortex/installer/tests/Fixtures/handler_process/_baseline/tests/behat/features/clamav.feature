@@ -17,22 +17,22 @@ Feature: ClamAV Anti-virus
     And the unmanaged file at the URI "public://test.txt" exists with "some text content"
 
   @api
-  Scenario: Upload EICAR test file to trigger virus detection.
+  Scenario: Upload EICAR test file to trigger virus detection
     Given I am logged in as a user with the "administrator" role
     And I go to "media/add/document"
     When I attach the file "public://eicar_test.txt" to "files[field_media_document_0]"
-    And press "Upload"
+    And I press "Upload"
     Then I should see the text "The specified file eicar_test.txt could not be uploaded."
     And I should see the text "A virus has been detected in the file. The file will be deleted."
     And I should not see the text "The anti-virus scanner could not check the file."
-    And save screenshot
+    And I save screenshot
 
   @api
   Scenario: Upload test file to ensure that file upload works
     Given I am logged in as a user with the "administrator" role
     And I go to "media/add/document"
     When I attach the file "public://test.txt" to "files[field_media_document_0]"
-    And press "Upload"
+    And I press "Upload"
     Then I should not see the text "The specified file test.txt could not be uploaded."
     And I should not see the text "A virus has been detected in the file. The file will be deleted."
     And I should not see the text "The anti-virus scanner could not check the file."

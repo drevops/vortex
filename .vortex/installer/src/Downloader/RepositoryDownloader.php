@@ -22,6 +22,8 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
 
   const DEFAULT_REPO = 'https://github.com/drevops/vortex.git';
 
+  const ARCHIVE_URL_TEMPLATE = '%s/archive/%s.tar.gz';
+
   /**
    * Constructs a new RepositoryDownloader instance.
    *
@@ -71,25 +73,18 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   If validation fails.
    */
   public function validate(Artifact $artifact): void {
-    // Determine if this is a remote or local repository.
     if ($artifact->isRemote()) {
-      // Remote repository.
       $repo_url = $artifact->getRepoUrl();
 
-      // Validate repository exists.
       $this->validateRemoteRepositoryExists($repo_url);
 
-      // Validate ref exists (skip for special refs).
       if ($artifact->getRef() !== self::REF_STABLE && $artifact->getRef() !== self::REF_HEAD) {
         $this->validateRemoteRefExists($repo_url, $artifact->getRef());
       }
     }
     else {
-      // Local repository.
-      // Validate repository exists.
       $this->validateLocalRepositoryExists($artifact->getRepo());
 
-      // Validate ref exists (skip for HEAD).
       $actual_ref = $artifact->getRef() === self::REF_STABLE ? self::REF_HEAD : $artifact->getRef();
       if ($actual_ref !== self::REF_HEAD) {
         $this->validateLocalRefExists($artifact->getRepo(), $actual_ref);
@@ -103,11 +98,10 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     }
     $repo_url = $artifact->getRepoUrl();
 
-    // Validate repository exists before proceeding.
     $this->validateRemoteRepositoryExists($repo_url);
 
     $version = $artifact->getRef();
-    if ($artifact->getRef() === RepositoryDownloader::REF_STABLE) {
+    if ($artifact->getRef() === self::REF_STABLE) {
       $ref = $this->discoverLatestReleaseRemote($repo_url, $release_prefix);
 
       if ($ref === NULL && $release_prefix !== NULL) {
@@ -124,17 +118,16 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
 
       $version = $ref;
     }
-    elseif ($artifact->getRef() === RepositoryDownloader::REF_HEAD) {
+    elseif ($artifact->getRef() === self::REF_HEAD) {
       $ref = $artifact->getRef();
       $version = 'develop';
     }
     else {
       $ref = $artifact->getRef();
-      // Validate ref exists for non-special refs.
       $this->validateRemoteRefExists($repo_url, $ref);
     }
 
-    $url = sprintf('%s/archive/%s.tar.gz', $repo_url, $ref);
+    $url = sprintf(self::ARCHIVE_URL_TEMPLATE, $repo_url, $ref);
 
     $archive_path = $this->downloadArchive($url);
     $this->archiver->validate($archive_path);
@@ -149,13 +142,12 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       throw new \InvalidArgumentException('Destination cannot be null for local downloads.');
     }
 
-    // Validate local repository exists.
     $this->validateLocalRepositoryExists($artifact->getRepo());
 
-    $ref = $artifact->getRef() === RepositoryDownloader::REF_STABLE ? RepositoryDownloader::REF_HEAD : $artifact->getRef();
+    $ref = $artifact->getRef() === self::REF_STABLE ? self::REF_HEAD : $artifact->getRef();
     $version = $ref;
 
-    if ($ref === RepositoryDownloader::REF_HEAD) {
+    if ($ref === self::REF_HEAD) {
       if (!$this->git instanceof Git) {
         $this->git = new Git($artifact->getRepo());
       }
@@ -163,7 +155,6 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $version = 'develop';
     }
     else {
-      // Validate ref exists for non-HEAD refs.
       $this->validateLocalRefExists($artifact->getRepo(), $ref);
     }
 
@@ -193,7 +184,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $release_contents = $response->getBody()->getContents();
     }
     catch (RequestException $e) {
-      throw new \RuntimeException(sprintf('Unable to download release information from "%s": %s', $release_url, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to download release information from "%s": %s.', $release_url, $e->getMessage()), $e->getCode(), $e);
     }
 
     if ($release_contents === '' || $release_contents === '0') {
@@ -204,7 +195,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     $records = json_decode($release_contents, TRUE);
 
     foreach ($records as $record) {
-      $tag_name = is_scalar($record['tag_name']) ? strval($record['tag_name']) : '';
+      $tag_name = is_scalar($record['tag_name']) ? (string) $record['tag_name'] : '';
       $is_draft = $record['draft'] ?? FALSE;
 
       if (!$is_draft && (!$release_prefix || str_starts_with($tag_name, $release_prefix))) {
@@ -240,7 +231,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       if (file_exists($temp_file)) {
         File::remove($temp_file);
       }
-      throw new \RuntimeException(sprintf('Failed to download archive from: %s - %s', $url, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to download archive from "%s": %s.', $url, $e->getMessage()), $e->getCode(), $e);
     }
 
     return $temp_file;
@@ -278,7 +269,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       if (file_exists($temp_file)) {
         File::remove($temp_file);
       }
-      throw new \RuntimeException(sprintf('Failed to create archive from local repository: %s - %s', $repo, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to create archive from local repository "%s": %s.', $repo, $e->getMessage()), $e->getCode(), $e);
     }
 
     return $temp_file;
@@ -297,16 +288,15 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     $options = ['headers' => self::requestHeaders($repo_url), 'http_errors' => FALSE];
 
     try {
-      // Try to access the repository root to verify it exists.
       $response = $this->httpClient->request('HEAD', $repo_url, $options);
       $status_code = $response->getStatusCode();
 
       if ($status_code >= 400) {
-        throw new \RuntimeException(sprintf('Repository not found or not accessible: "%s" (HTTP %d)', $repo_url, $status_code));
+        throw new \RuntimeException(sprintf('Repository not found or not accessible: "%s" (HTTP %d).', $repo_url, $status_code));
       }
     }
     catch (RequestException $e) {
-      throw new \RuntimeException(sprintf('Unable to access repository: "%s" - %s', $repo_url, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to access repository "%s": %s.', $repo_url, $e->getMessage()), $e->getCode(), $e);
     }
   }
 
@@ -322,7 +312,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   If the reference does not exist.
    */
   protected function validateRemoteRefExists(string $repo_url, string $ref): void {
-    $archive_url = sprintf('%s/archive/%s.tar.gz', $repo_url, $ref);
+    $archive_url = sprintf(self::ARCHIVE_URL_TEMPLATE, $repo_url, $ref);
     $options = ['headers' => self::requestHeaders($archive_url), 'http_errors' => FALSE];
 
     try {
@@ -332,14 +322,14 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $status_code = $response->getStatusCode();
 
       if ($status_code === 404) {
-        throw new \RuntimeException(sprintf('Reference "%s" not found in repository "%s"', $ref, $repo_url));
+        throw new \RuntimeException(sprintf('Reference "%s" not found in repository "%s".', $ref, $repo_url));
       }
       elseif ($status_code >= 400) {
-        throw new \RuntimeException(sprintf('Unable to verify reference "%s" in repository "%s" (HTTP %d)', $ref, $repo_url, $status_code));
+        throw new \RuntimeException(sprintf('Unable to verify reference "%s" in repository "%s" (HTTP %d).', $ref, $repo_url, $status_code));
       }
     }
     catch (RequestException $e) {
-      throw new \RuntimeException(sprintf('Unable to verify reference "%s" in repository "%s" - %s', $ref, $repo_url, $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Unable to verify reference "%s" in repository "%s": %s.', $ref, $repo_url, $e->getMessage()), $e->getCode(), $e);
     }
   }
 
@@ -354,11 +344,11 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    */
   protected function validateLocalRepositoryExists(string $repo): void {
     if (!is_dir($repo)) {
-      throw new \RuntimeException(sprintf('Local repository path does not exist: "%s"', $repo));
+      throw new \RuntimeException(sprintf('Local repository path does not exist: "%s".', $repo));
     }
 
     if (!is_dir($repo . '/.git')) {
-      throw new \RuntimeException(sprintf('Path is not a git repository: "%s"', $repo));
+      throw new \RuntimeException(sprintf('Path is not a git repository: "%s".', $repo));
     }
   }
 
@@ -376,18 +366,15 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
   protected function validateLocalRefExists(string $repo, string $ref): void {
     $repo_path = (string) realpath($repo);
 
-    // Reinitialize Git instance if it doesn't exist or references a different
-    // repository.
     if (!$this->git instanceof Git || $this->git->getRepositoryPath() !== $repo_path) {
       $this->git = new Git($repo);
     }
 
     try {
-      // Use git rev-parse to check if the ref exists.
       $this->git->run('rev-parse', '--verify', $ref);
     }
     catch (\Exception $e) {
-      throw new \RuntimeException(sprintf('Reference "%s" not found in local repository "%s"', $ref, $repo), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Reference "%s" not found in local repository "%s".', $ref, $repo), $e->getCode(), $e);
     }
   }
 
@@ -400,7 +387,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   Additional headers to include.
    *
    * @return array<string, string>
-   *   The headers, authorised when a token is available.
+   *   The headers, authorized when a token is available.
    */
   protected static function requestHeaders(string $url, array $headers = []): array {
     $headers['User-Agent'] = 'Vortex-Installer';

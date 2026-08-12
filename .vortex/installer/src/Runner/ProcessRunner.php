@@ -17,28 +17,24 @@ class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInter
   /**
    * {@inheritdoc}
    */
-  public function run(string $command, array $args = [], array $inputs = [], array $env = [], ?OutputInterface $output = NULL): self {
+  public function run(string $command, array $args = [], array $inputs = [], array $env = [], ?OutputInterface $output = NULL): static {
     set_time_limit(0);
 
     $this->reset();
 
-    // Parse and resolve the command.
     [$base_command, $parsed_args] = $this->resolveCommand($command);
 
     $all_args = $this->prepareArguments($parsed_args, $args);
 
     $this->validateEnvironmentVars($env);
 
-    // Build full command array.
     $cmd = array_merge([$base_command], $all_args);
 
-    // Store command string for logging with proper quoting.
     $this->command = $this->buildCommandString($base_command, $all_args);
 
     $logger = $this->initLogger($base_command, $parsed_args);
     $output = $this->resolveOutput($output);
 
-    // Prepare inputs for interactive processes.
     $input_string = empty($inputs) ? NULL : implode(PHP_EOL, $inputs) . PHP_EOL;
 
     $process = new Process($cmd, $this->getCwd(), $env ?: NULL, $input_string);
@@ -78,20 +74,16 @@ class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInter
     $parsed = $this->parseCommand($command);
     $base_command = array_shift($parsed);
 
-    // Defensive check: prevent using 'command' utility.
     if ($base_command === 'command') {
       throw new \InvalidArgumentException('Using the "command" utility is not allowed. Use Symfony\Component\Process\ExecutableFinder to check if a command exists instead.');
     }
 
-    // Validate the base command contains only allowed characters.
     if (preg_match('/[^a-zA-Z0-9_\-.\/]/', (string) $base_command)) {
-      throw new \InvalidArgumentException(sprintf('Invalid command: %s. Only alphanumeric characters, dots, dashes, underscores and slashes are allowed.', $base_command));
+      throw new \InvalidArgumentException(sprintf('Invalid command: "%s". Only alphanumeric characters, dots, dashes, underscores and slashes are allowed.', $base_command));
     }
 
-    // If command is a path (contains /), check if it exists directly.
     if (str_contains((string) $base_command, '/')) {
       $resolved = $base_command;
-      // Check relative to cwd if not absolute.
       if (!str_starts_with((string) $base_command, '/')) {
         $full_path = $this->getCwd() . '/' . $base_command;
         if (is_executable($full_path)) {
@@ -100,11 +92,10 @@ class ProcessRunner extends AbstractRunner implements ExecutableFinderAwareInter
       }
     }
     else {
-      // Use ExecutableFinder for commands without path.
       $resolved = $this->getExecutableFinder()->find($base_command);
 
       if ($resolved === NULL) {
-        throw new \InvalidArgumentException(sprintf('Command not found: %s. Ensure the command is installed and available in PATH.', $base_command));
+        throw new \InvalidArgumentException(sprintf('Command not found: "%s". Ensure the command is installed and available in PATH.', $base_command));
       }
     }
 

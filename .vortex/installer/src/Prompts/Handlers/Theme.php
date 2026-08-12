@@ -118,7 +118,6 @@ class Theme extends AbstractHandler {
   public function process(): void {
     $v = $this->getResponseAsString();
 
-    // If user selected 'custom', use the ThemeCustom response instead.
     if ($v === self::CUSTOM && isset($this->responses[ThemeCustom::id()])) {
       $v = $this->responses[ThemeCustom::id()];
     }
@@ -126,9 +125,7 @@ class Theme extends AbstractHandler {
     $t = $this->tmpDir;
     $w = $this->webroot;
 
-    // Handle core themes (no custom theme files needed)
     if (in_array($v, [self::OLIVERO, self::CLARO, self::STARK])) {
-      // Remove custom theme files if they exist.
       $file_tmpl = self::findThemeFile($t, $w);
       if (!empty($file_tmpl) && is_readable($file_tmpl)) {
         File::remove(dirname($file_tmpl));
@@ -145,15 +142,11 @@ class Theme extends AbstractHandler {
       return;
     }
 
-    // Handle custom themes.
     Env::writeValueDotenv('DRUPAL_THEME', $v, $t . '/.env');
     Env::writeValueDotenv('DRUPAL_MAINTENANCE_THEME', $v, $t . '/.env');
 
-    // Find the theme file in the destination directory.
     $file_dst = self::findThemeFile($this->destinationDir, $w, $v);
 
-    // Remove the theme-related files from the template if not found OR
-    // if found, but the theme is not from Vortex.
     if (
       $this->isInstalled()
       &&
@@ -179,9 +172,6 @@ class Theme extends AbstractHandler {
     File::renameInDir($t, 'YourSiteTheme', Converter::pascal($v));
   }
 
-  /**
-   * Remove theme-related configuration lines from various files.
-   */
   protected function removeThemeConfigLines(string $tmp_dir): void {
     File::removeLineInFile($tmp_dir . '/phpcs.xml', '<file>web/themes/custom</file>');
     File::removeLineInFile($tmp_dir . '/phpcs.xml', '<exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>');

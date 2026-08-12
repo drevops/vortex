@@ -80,7 +80,7 @@ else
   VORTEX_INSTALLER_PATH="installer.php"
   note "Downloading installer to ${VORTEX_INSTALLER_PATH}"
   if ! curl -fsSL "${VORTEX_INSTALLER_URL}?${VORTEX_INSTALLER_URL_CACHE_BUST}" -o "${VORTEX_INSTALLER_PATH}"; then
-    fail "Failed to download installer from ${VORTEX_INSTALLER_URL}."
+    fail "Unable to download installer from ${VORTEX_INSTALLER_URL}."
     exit 1
   fi
 fi

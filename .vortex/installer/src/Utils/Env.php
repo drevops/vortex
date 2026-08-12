@@ -114,7 +114,7 @@ class Env {
     if ($result === FALSE) {
       $message = array_reduce($errors ?? [], fn(string $carry, array $error): string => $carry . $error['message'] . PHP_EOL, '');
 
-      throw new \RuntimeException(sprintf('Unable to parse file %s: %s', $filename, $message));
+      throw new \RuntimeException(sprintf('Unable to parse file "%s": %s.', $filename, $message));
     }
 
     return $result;
@@ -141,13 +141,13 @@ class Env {
    */
   public static function writeValueDotenv(string $name, ?string $value = NULL, string $filename = '.env', bool $enabled = TRUE): array {
     if (!is_readable($filename)) {
-      throw new \RuntimeException(sprintf('File %s is not readable.', $filename));
+      throw new \RuntimeException(sprintf('File "%s" is not readable.', $filename));
     }
 
     $contents = file_get_contents($filename);
     if ($contents === FALSE) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to read file %s.', $filename));
+      throw new \RuntimeException(sprintf('Unable to read file "%s".', $filename));
       // @codeCoverageIgnoreEnd
     }
 
@@ -156,15 +156,12 @@ class Env {
     $pattern = '/^#?\s*(' . preg_quote($name, '/') . ')=("(?:[^"\\\\]|\\\\.)*"|[^\r\n]*)/m';
 
     if ($value === NULL) {
-      // Remove the variable if setting to null and it exists.
       if (preg_match($pattern, $contents)) {
-        // Remove existing variable line.
         $contents = preg_replace($pattern, '', $contents);
         // Clean up any double newlines that might result from removal.
         $contents = preg_replace('/\n\n+/', "\n\n", (string) $contents);
       }
       else {
-        // Add empty line if it doesn't exist.
         if (!str_ends_with($contents, "\n")) {
           $contents .= "\n";
         }
@@ -173,17 +170,14 @@ class Env {
       }
     }
     else {
-      // Format the new value with proper quoting.
       $new_value = self::formatValueForDotenv($value);
       $prefix = $enabled ? '' : '# ';
       $replacement = $prefix . '$1=' . $new_value;
 
       if (preg_match($pattern, $contents)) {
-        // Replace existing variable value.
         $contents = preg_replace($pattern, $replacement, $contents);
       }
       else {
-        // Add new variable at the end with proper newline.
         if (!str_ends_with($contents, "\n")) {
           $contents .= "\n";
         }
@@ -193,11 +187,10 @@ class Env {
 
     if (file_put_contents($filename, $contents) === FALSE) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to write to file %s.', $filename));
+      throw new \RuntimeException(sprintf('Unable to write to file "%s".', $filename));
       // @codeCoverageIgnoreEnd
     }
 
-    // Return parsed values after modification.
     return self::parseDotenv($filename);
   }
 

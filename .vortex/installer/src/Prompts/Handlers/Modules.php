@@ -42,7 +42,7 @@ class Modules extends AbstractHandler {
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    // Default to all modules selected (meaning none will be removed).
+    // Default to all modules selected so that none are removed.
     return array_keys(self::getAvailableModules());
   }
 
@@ -61,7 +61,6 @@ class Modules extends AbstractHandler {
       return NULL;
     }
 
-    // Filter discovered modules to only include those in our available list.
     $available_modules = array_keys(self::getAvailableModules());
     $modules = array_intersect($discovered_modules, $available_modules);
 
@@ -82,15 +81,12 @@ class Modules extends AbstractHandler {
 
     $removed_packages = [];
 
-    // Process each module that was NOT selected (remove them).
     foreach (array_keys($all_modules) as $module_name) {
       if (!in_array($module_name, $selected_modules)) {
         $removed_packages[] = 'drupal/' . $module_name;
 
-        // Remove module from settings file.
         File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.' . $module_name . '.php');
 
-        // Remove module from the provision demo modules file.
         File::replaceContentInFile($t . '/scripts/provision-00-enable-demo-modules.sh', Replacement::create('module', function (string $content) use ($module_name): string {
           $pattern = '/^(\s*)(drush\s+pm:install.*\b' . preg_quote($module_name, '/') . '\b.*)$/m';
           $content = preg_replace_callback($pattern, function (array $matches) use ($module_name): string {
@@ -103,14 +99,11 @@ class Modules extends AbstractHandler {
           return $content ?? '';
         }));
 
-        // Remove module from the Behat tests.
         File::remove($t . '/tests/behat/features/' . $module_name . '.feature');
 
-        // Remove module from the config tests.
         $pattern = '/\s*\$config\[\'' . preg_quote($module_name, '/') . '\..*;(\r?\n)?/';
         File::removeLineInFile($t . '/tests/phpunit/Drupal/EnvironmentSettingsTest.php', $pattern);
 
-        // Remove module tokens.
         File::removeTokenAsync('MODULE_' . strtoupper($module_name));
       }
     }
@@ -126,7 +119,7 @@ class Modules extends AbstractHandler {
     }
 
     // Without any development modules left to install, the script has no
-    // operations to perform, so remove it rather than shipping an empty shell.
+    // operations to perform, so it is removed.
     if (count(array_intersect(self::DEV_MODULES, $selected_modules)) === 0) {
       File::remove($t . '/scripts/provision-10-enable-dev-modules.sh');
     }
@@ -203,7 +196,6 @@ class Modules extends AbstractHandler {
 
     $modules = [];
     foreach ($packages as $package) {
-      // Only include drupal/* packages, excluding core packages.
       if (str_starts_with((string) $package, 'drupal/') && !str_starts_with((string) $package, 'drupal/core-')) {
         // Extract module name (remove drupal/ prefix).
         $module_name = substr((string) $package, 7);

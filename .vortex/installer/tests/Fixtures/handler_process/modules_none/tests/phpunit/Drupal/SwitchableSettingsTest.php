@@ -153,7 +153,7 @@
     * Test Redis settings.
     */
    public function testRedis(): void {
-@@ -294,639 +146,6 @@
+@@ -293,639 +145,6 @@
      unset($this->settings['bootstrap_container_definition']);
  
      $this->assertSettingsContains($settings);

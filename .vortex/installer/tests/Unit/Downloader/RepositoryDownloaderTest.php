@@ -92,7 +92,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
     File::mkdir($destination);
     $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Failed to download archive from');
+    $this->expectExceptionMessage('Unable to download archive from');
     $downloader->download(Artifact::create('https://github.com/user/repo', 'HEAD'), $destination);
   }
 
@@ -105,7 +105,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
     File::mkdir($destination);
     $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Failed to download archive from');
+    $this->expectExceptionMessage('Unable to download archive from');
     $downloader->download(Artifact::create('https://github.com/user/repo', 'HEAD'), $destination);
   }
 
@@ -606,7 +606,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
     File::mkdir($destination);
     $downloader = new RepositoryDownloader($mock_http_client);
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Unable to access repository: "https://github.com/user/repo" - Connection timeout');
+    $this->expectExceptionMessage('Unable to access repository "https://github.com/user/repo": Connection timeout.');
     $downloader->download(Artifact::create('https://github.com/user/repo', '1.0.0'), $destination);
   }
 
@@ -624,7 +624,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
     File::mkdir($destination);
     $downloader = new RepositoryDownloader($mock_http_client);
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Unable to verify reference "test-tag" in repository "https://github.com/user/repo" - Network error');
+    $this->expectExceptionMessage('Unable to verify reference "test-tag" in repository "https://github.com/user/repo": Network error.');
     $downloader->download(Artifact::create('https://github.com/user/repo', 'test-tag'), $destination);
   }
 

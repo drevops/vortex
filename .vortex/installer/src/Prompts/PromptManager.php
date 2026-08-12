@@ -56,9 +56,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\form;
 
 /**
- * PromptManager.
- *
- * Centralised place for providing prompts and their processing.
+ * Centralized place for providing prompts and their processing.
  */
 class PromptManager {
 
@@ -117,8 +115,8 @@ class PromptManager {
    * method, including discovery from the existing codebase, will be used.
    */
   public function runPrompts(): void {
-    // Set verbosity for TUI output based on the config. This will be reset
-    // after the prompt is completed.
+    // Quiet the TUI output in non-interactive mode; the original verbosity is
+    // restored after the form completes.
     $original_verbosity = Tui::output()->getVerbosity();
     if ($this->config->getNoInteraction()) {
       Tui::output()->setVerbosity(OutputInterface::VERBOSITY_QUIET);
@@ -246,26 +244,23 @@ class PromptManager {
 
     $responses = $form->submit();
 
-    // Filter out elements with numeric keys returned from intro()'s.
+    // Filter out elements with numeric keys returned by intro() calls.
     $responses = array_filter($responses, fn($key): bool => !is_numeric($key), ARRAY_FILTER_USE_KEY);
 
-    // Handle Profile custom name merging.
     if (isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM && isset($responses[ProfileCustom::id()])) {
       $responses[Profile::id()] = $responses[ProfileCustom::id()];
     }
 
-    // Always remove ProfileCustom key (it's only used for internal merging)
+    // ProfileCustom is only used for internal merging; always remove it.
     unset($responses[ProfileCustom::id()]);
 
-    // Handle Theme custom name merging.
     if (isset($responses[Theme::id()]) && $responses[Theme::id()] === Theme::CUSTOM && isset($responses[ThemeCustom::id()])) {
       $responses[Theme::id()] = $responses[ThemeCustom::id()];
     }
 
-    // Always remove ThemeCustom key (it's only used for internal merging)
+    // ThemeCustom is only used for internal merging; always remove it.
     unset($responses[ThemeCustom::id()]);
 
-    // Handle DatabaseFetchSource when ProvisionType is PROFILE.
     if (isset($responses[ProvisionType::id()]) && $responses[ProvisionType::id()] === ProvisionType::PROFILE) {
       $responses[DatabaseFetchSource::id()] = DatabaseFetchSource::NONE;
     }
@@ -285,8 +280,6 @@ class PromptManager {
   /**
    * Get all received responses.
    *
-   * Used to provide direct access to the responses values.
-   *
    * @return array
    *   An associative array of responses, where keys are handler IDs and values
    *   are the responses provided by the user or discovered by handlers.
@@ -299,9 +292,9 @@ class PromptManager {
    * Run all processors.
    */
   public function runProcessors(): void {
-    // Run processors in the reverse order of how they are defined in the
-    // runPrompts() to ensure that the handlers for string replacements process
-    // more specific values first, and the more generic ones last.
+    // Dotenv and Webroot run first; Dotenv has no prompt of its own. The rest
+    // run in reverse of the order defined in runPrompts(), so string
+    // replacements process more specific values before more generic ones.
     $ids = [
       Dotenv::id(),
       Webroot::id(),
@@ -387,9 +380,6 @@ class PromptManager {
   /**
    * Check if the installation should proceed.
    *
-   * This method checks the configuration for the no-interaction mode and
-   * prompts the user for confirmation if not in no-interaction mode.
-   *
    * @return bool
    *   TRUE if the installation should proceed, FALSE otherwise.
    */
@@ -401,8 +391,8 @@ class PromptManager {
       $proceed = Tui::confirm('Proceed with installing Vortex?');
     }
 
-    // Kill-switch to not proceed with install. If FALSE, the installer will not
-    // proceed despite the answer received above.
+    // Config::PROCEED is a kill switch: when FALSE, the installer does not
+    // proceed regardless of the answer received above.
     if (!$this->config->get(Config::PROCEED)) {
       $proceed = FALSE;
     }
@@ -533,7 +523,7 @@ class PromptManager {
   }
 
   /**
-   * Collect and initialise handlers.
+   * Collect and initialize handlers.
    */
   protected function initHandlers(): void {
     $dir = __DIR__ . '/Handlers';
@@ -557,7 +547,8 @@ class PromptManager {
       $classes[] = $class;
     }
 
-    // Discover web root and set for all handlers to help with paths resolution.
+    // Discover the web root once and set it on all handlers to help with
+    // path resolution.
     $webroot = (new Webroot($this->config))->discover() ?: Webroot::WEB;
 
     if (!is_string($webroot)) {
@@ -593,7 +584,7 @@ class PromptManager {
 
     if (!empty($result['errors'])) {
       $messages = array_map(fn(array $error): string => sprintf('%s: %s', $error['prompt'], $error['message']), $result['errors']);
-      throw new \RuntimeException(sprintf('Invalid --prompts values: %s', implode('; ', $messages)));
+      throw new \RuntimeException(sprintf('Invalid --prompts values: %s.', implode('; ', $messages)));
     }
 
     // Use the resolved values which include defaults for missing prompts.
@@ -624,7 +615,7 @@ class PromptManager {
   /**
    * Convert handler properties to Laravel prompts.
    *
-   * Do not optimize this method to ease debugging and future changes.
+   * Kept deliberately unoptimized to ease debugging and future changes.
    *
    * @param string $handler_class
    *   The handler class name.
@@ -664,11 +655,8 @@ class PromptManager {
       $args['scroll'] = 10;
     }
 
-    // Find appropriate default value.
     $default_from_handler = $handler->default($responses);
-    // Get from prompt overrides (--prompts CLI option).
     $default_from_prompts = $this->promptOverrides[$id] ?? NULL;
-    // Get from discovery.
     $default_from_discovery = $handler->discover();
 
     if ($default_from_prompts !== NULL) {
@@ -693,10 +681,6 @@ class PromptManager {
 
   /**
    * Resolve a value via handler or prompt the user.
-   *
-   * This method is used to resolve a value via a handler's resolvedValue()
-   * method. If the value is not resolved, it will prompt the user using the
-   * provided prompt callable.
    *
    * @param string $handler_id
    *   The handler ID.

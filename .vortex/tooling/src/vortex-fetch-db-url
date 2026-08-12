@@ -36,7 +36,7 @@ VORTEX_FETCH_DB_URL_DB_FILE="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_FILE:-db.sql}}}
 _v="VORTEX_FETCH_DB${_db_index}_UNZIP_PASSWORD"
 VORTEX_FETCH_DB_UNZIP_PASSWORD="${!_v:-}"
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # @formatter:off
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }

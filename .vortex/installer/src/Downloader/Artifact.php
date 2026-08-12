@@ -14,6 +14,8 @@ use DrevOps\VortexInstaller\Utils\Validator;
  */
 final readonly class Artifact {
 
+  const INVALID_REF_MESSAGE = 'Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.';
+
   /**
    * Constructor - use a factory method instead.
    *
@@ -41,7 +43,6 @@ final readonly class Artifact {
    *   If URI is invalid or ref syntax is incorrect.
    */
   public static function fromUri(?string $uri): self {
-    // Use default repository and stable reference if URI is empty or null.
     if ($uri === NULL || $uri === '') {
       return new self(RepositoryDownloader::DEFAULT_REPO, RepositoryDownloader::REF_STABLE);
     }
@@ -65,9 +66,8 @@ final readonly class Artifact {
    *   If ref syntax is invalid.
    */
   public static function create(string $repo, string $ref): self {
-    // Validate ref syntax.
     if (!Validator::isGitRef($ref)) {
-      throw new \RuntimeException(sprintf('Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.', $ref));
+      throw new \RuntimeException(sprintf(self::INVALID_REF_MESSAGE, $ref));
     }
     return new self($repo, $ref);
   }
@@ -102,7 +102,6 @@ final readonly class Artifact {
       return TRUE;
     }
 
-    // Check for URLs with schemes.
     $parsed = parse_url($this->repo);
     if ($parsed !== FALSE && isset($parsed['scheme'])) {
       $scheme = strtolower($parsed['scheme']);
@@ -127,7 +126,6 @@ final readonly class Artifact {
     $default_repo_without_git = self::normalizeRepoUrl(RepositoryDownloader::DEFAULT_REPO);
     $is_default_repo = ($this->repo === RepositoryDownloader::DEFAULT_REPO || $this->repo === $default_repo_without_git);
 
-    // Check if using default reference.
     $is_default_ref = ($this->ref === RepositoryDownloader::REF_STABLE || $this->ref === RepositoryDownloader::REF_HEAD);
 
     return $is_default_repo && $is_default_ref;
@@ -175,9 +173,8 @@ final readonly class Artifact {
     if ($github_pattern !== NULL) {
       [$repo, $ref] = $github_pattern;
 
-      // Validate the extracted ref.
       if (!Validator::isGitRef($ref)) {
-        throw new \RuntimeException(sprintf('Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.', $ref));
+        throw new \RuntimeException(sprintf(self::INVALID_REF_MESSAGE, $ref));
       }
 
       return [$repo, $ref];
@@ -221,7 +218,7 @@ final readonly class Artifact {
     }
 
     if (!Validator::isGitRef($ref)) {
-      throw new \RuntimeException(sprintf('Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.', $ref));
+      throw new \RuntimeException(sprintf(self::INVALID_REF_MESSAGE, $ref));
     }
 
     return [$repo, $ref];

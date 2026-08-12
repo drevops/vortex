@@ -52,7 +52,7 @@ $databases = [
 
 $app_root ??= DRUPAL_ROOT;
 $site_path ??= 'sites/default';
-// @phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 $contrib_path = $app_root . '/' . (is_dir($app_root . '/modules/contrib') ? 'modules/contrib' : 'modules');
 
 // Public files directory relative to the Drupal root.
@@ -146,7 +146,7 @@ if (file_exists($app_root . '/' . $site_path . '/includes/providers')) {
   }
 }
 
-// Allow to override an environment type using the ENVIRONMENT_TYPE variable.
+// Allow overriding the environment type using the ENVIRONMENT_TYPE variable.
 if (!empty(getenv('ENVIRONMENT_TYPE'))) {
   $settings['environment'] = getenv('ENVIRONMENT_TYPE');
 }

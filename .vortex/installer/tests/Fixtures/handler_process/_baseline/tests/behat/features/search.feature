@@ -17,8 +17,8 @@ Feature: Search API
     And I add the "page" content with the title "[TEST] Test page thirduniquestring" to the search index
     And I run search indexing for 3 items
     And I wait for 5 seconds
-    And I visit "/search"
-    And save screenshot
+    And I go to "/search"
+    And I save screenshot
 
     When I fill in "search_api_fulltext" with "[TEST]"
     And I press "Apply"

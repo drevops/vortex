@@ -14,8 +14,9 @@ use Drupal\workflows\Entity\Workflow;
  * Attach editorial workflow to the page content type.
  *
  * Computed base fields like 'moderation_state' are only available when a
- * workflow is attached to the content type. This deploy hook creates the
- * editorial workflow if it does not exist and attaches the page content type.
+ * workflow is attached to the content type.
+ *
+ * @codeCoverageIgnore
  */
 function the_force_search_deploy_add_editorial_workflow(): string {
   /** @var \Drupal\Core\Extension\ModuleInstallerInterface $installer */

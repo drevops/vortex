@@ -74,7 +74,7 @@ class Version {
    * The project's pinned 'drevops/vortex-tooling' major is the provenance
    * signal: a 1.x project requires '^1', a 2.x project requires '^2'. When the
    * package is absent (a fresh directory or a pre-tooling project), the major
-   * is undeterminable and the caller treats it as compatible.
+   * is undeterminable.
    *
    * @param string $dir
    *   The project directory.

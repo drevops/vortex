@@ -13,7 +13,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     # Get environment.
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
 
     # Development modules.
     "@drush -y pm:install sdc_devel"
@@ -49,7 +49,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     # Get environment.
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # devops"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # devops"
 
     # Expected output.
     "Started development modules operations."
@@ -79,7 +79,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     # Get environment.
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # prod"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # prod"
 
     # Expected output.
     "Started development modules operations."

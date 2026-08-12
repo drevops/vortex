@@ -28,13 +28,11 @@ final class Normalizer {
     $normalized = [];
 
     if (array_is_list($options)) {
-      // Indexed array (e.g., Timezone suggestions).
       foreach ($options as $option) {
         $normalized[] = ['value' => (string) $option, 'label' => (string) $option];
       }
     }
     else {
-      // Associative array (e.g., Select/MultiSelect).
       foreach ($options as $value => $label) {
         $normalized[] = ['value' => (string) $value, 'label' => (string) $label];
       }

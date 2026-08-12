@@ -31,11 +31,15 @@ class FileManager {
     }
 
     if (!is_readable($destination . '/.git')) {
-      $messages[] = sprintf('Initialising a new Git repository in directory "%s".', $destination);
-      passthru(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $destination, $destination));
+      $messages[] = sprintf('Initializing a new Git repository in directory "%s".', $destination);
 
-      if (!File::exists($destination . '/.git')) {
-        throw new \RuntimeException(sprintf('Unable to initialise Git repository in directory "%s".', $destination));
+      // The destination arrives from a CLI option, the environment or a config
+      // file, so it is escaped rather than interpolated into the shell string.
+      $command = sprintf('git --work-tree=%s --git-dir=%s init > /dev/null', escapeshellarg($destination), escapeshellarg($destination . '/.git'));
+      passthru($command, $exit_code);
+
+      if ($exit_code !== 0 || !File::exists($destination . '/.git')) {
+        throw new \RuntimeException(sprintf('Unable to initialize Git repository in directory "%s".', $destination));
       }
     }
 
@@ -46,10 +50,10 @@ class FileManager {
     $src = $this->config->get(Config::TMP);
     $destination = $this->config->getDestination();
 
-    // Due to the way symlinks can be ordered, we cannot copy files one-by-one
-    // into destination directory. Instead, we are removing all ignored files
-    // and empty directories, making the src directory "clean", and then
-    // recursively copying the whole directory.
+    // Symlink ordering prevents copying files one-by-one into the destination
+    // directory. Instead, all ignored files and empty directories are removed
+    // to make the src directory "clean", and then the whole directory is
+    // copied recursively.
     $all = File::scandir($src, File::ignoredPaths(), TRUE);
     $files = File::scandir($src);
     $valid_files = File::scandir($src, File::ignoredPaths());
@@ -64,19 +68,16 @@ class FileManager {
       }
     }
 
-    // Remove skipped files.
     foreach ($ignored_files as $ignored_file) {
       if (is_readable($ignored_file)) {
         File::remove($ignored_file);
       }
     }
 
-    // Remove empty directories.
     foreach ($dirs as $dir) {
       File::rmdirIfEmpty($dir);
     }
 
-    // Src directory is now "clean" - copy it to destination directory.
     if (is_dir($src) && !File::dirIsEmpty($src)) {
       File::copy($src, $destination);
     }

@@ -31,10 +31,10 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-# Run Composer without exposing its progress output, which is an internal detail
-# of this bootstrap rather than something that was asked for. The captured
-# output is replayed on stderr when the command fails, so failures remain
-# diagnosable. Debug mode streams the output as it happens.
+# Run Composer with its progress output suppressed - it is an internal detail
+# of this bootstrap. The captured output is replayed on stderr when the command
+# fails, so failures remain diagnosable. Debug mode streams the output as it
+# happens.
 composer_run() {
   if [ "${VORTEX_DEBUG-}" = "1" ]; then
     composer "$@"

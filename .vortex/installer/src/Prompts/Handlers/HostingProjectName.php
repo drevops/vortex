@@ -71,16 +71,15 @@ class HostingProjectName extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    // Try Acquia.
     $v = Env::getFromDotenv('VORTEX_ACQUIA_APP_NAME', $this->destinationDir);
     if (!empty($v)) {
       return $v;
     }
 
     // @deprecated Discovery from hardcoded path in settings.acquia.php. The
-    // new settings.acquia.php uses AH_SITE_GROUP environment variable instead
-    // of a hardcoded project name. Kept for backward compatibility with older
-    // installations.
+    // current settings.acquia.php uses AH_SITE_GROUP environment variable
+    // instead of a hardcoded project name. Kept for backward compatibility
+    // with older installations.
     $acquia_settings_file = $this->destinationDir . sprintf('/%s/sites/default/includes/providers/settings.acquia.php', $this->webroot);
     if (file_exists($acquia_settings_file)) {
       $content = file_get_contents($acquia_settings_file);
@@ -90,13 +89,11 @@ class HostingProjectName extends AbstractHandler {
       }
     }
 
-    // Try Lagoon.
     $v = Env::getFromDotenv('LAGOON_PROJECT', $this->destinationDir);
     if (!empty($v)) {
       return $v;
     }
 
-    // Try to discover from drush/sites/lagoon.site.yml.
     $lagoon_site_file = $this->destinationDir . '/drush/sites/lagoon.site.yml';
     if (file_exists($lagoon_site_file)) {
       $content = file_get_contents($lagoon_site_file);
@@ -135,8 +132,8 @@ class HostingProjectName extends AbstractHandler {
     $w = $this->webroot;
 
     Env::writeValueDotenv('VORTEX_ACQUIA_APP_NAME', $v, $t . '/.env');
-    // @deprecated The settings.acquia.php no longer uses hardcoded project
-    // names - it uses AH_SITE_GROUP environment variable instead. This
+    // @deprecated The current settings.acquia.php uses AH_SITE_GROUP
+    // environment variable instead of hardcoded project names. This
     // replacement is kept for backward compatibility with older installations
     // that may still use the hardcoded path pattern.
     File::replaceContentInFile($t . '/' . $w . '/sites/default/includes/providers/settings.acquia.php', 'your_site', $v);

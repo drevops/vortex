@@ -49,7 +49,7 @@ VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="${!_v:-${!_vs:-}}"
 _v="VORTEX_FETCH_DB${_db_index}_FORCE"
 VORTEX_FETCH_DB_FORCE="${!_v:-}"
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # @formatter:off
 info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
@@ -59,7 +59,7 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
 # @formatter:on
 
-#shellcheck disable=SC2043
+# shellcheck disable=SC2043
 for cmd in docker; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available."
   exit 1
@@ -70,7 +70,7 @@ info "Started database data container image fetch."
 [ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY}" ] && fail "Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY or VORTEX_CONTAINER_REGISTRY." && exit 1
 [ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER}" ] && fail "Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER." && exit 1
 [ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS}" ] && fail "Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS." && exit 1
-[ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" ] && fail "Destination image name is not specified. Please provide VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE or VORTEX_DB_IMAGE in a format <org>/<repository>." && exit 1
+[ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" ] && fail "Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE or VORTEX_DB_IMAGE." && exit 1
 
 archive_file="${VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR}/db.tar"
 

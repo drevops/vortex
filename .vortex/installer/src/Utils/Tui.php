@@ -26,10 +26,10 @@ class Tui {
     self::$output = $output;
     self::$isInteractive = $is_interactive;
 
-    // We cannot use any Symfony console styles here, because Laravel Prompts
-    // does not correctly calculate the length of strings with style tags, which
-    // breaks the layout. Instead, we use ANSI escape codes directly using
-    // helpers in this class.
+    // Symfony console styles are not used here because Laravel Prompts does
+    // not correctly calculate the length of strings with style tags, which
+    // breaks the layout. Instead, helpers in this class apply ANSI escape
+    // codes directly.
     Prompt::setOutput($output);
 
     if (!$is_interactive) {
@@ -219,7 +219,6 @@ class Tui {
     $lines = explode(PHP_EOL, $text);
     $centered_lines = [];
 
-    // Find the maximum line length.
     $max_length = 0;
     foreach ($lines as $line) {
       $line_length = Strings::strlenPlain($line);

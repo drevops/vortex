@@ -17,7 +17,7 @@ load ../_helper.bash
 
   declare -a STEPS=(
     # Get environment.
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
 
     # Indexing: reset tracker and index.
     "@drush -y search-api:reset-tracker"
@@ -58,7 +58,7 @@ load ../_helper.bash
   export DRUPAL_SEARCH_INDEX_SKIP=1
 
   declare -a STEPS=(
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # local"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
 
     "Started search indexing operations."
     "Environment: local"
@@ -90,7 +90,7 @@ load ../_helper.bash
   create_global_command_wrapper "vendor/bin/drush"
 
   declare -a STEPS=(
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # devops"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # devops"
 
     "Started search indexing operations."
     "Environment: devops"
@@ -123,7 +123,7 @@ load ../_helper.bash
   create_global_command_wrapper "vendor/bin/drush"
 
   declare -a STEPS=(
-    "@drush -y php:eval print \Drupal\core\Site\Settings::get('environment'); # prod"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # prod"
 
     "Started search indexing operations."
     "Environment: prod"

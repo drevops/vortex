@@ -53,7 +53,6 @@ class Strings {
       return FALSE;
     }
 
-    // Extract the first character as the delimiter.
     $delimiter = $string[0];
 
     if (!in_array($delimiter, ['/', '#', '~'], TRUE)) {
@@ -69,7 +68,6 @@ class Strings {
       return FALSE;
     }
 
-    // Test the regex.
     $result = preg_match($string, '');
     return $result !== FALSE && preg_last_error() === PREG_NO_ERROR;
   }
@@ -81,7 +79,6 @@ class Strings {
    * docblocks.
    */
   public static function collapsePhpBlockCommentsEmptyLines(string $content): string {
-    // Use simpler regex approach with direct string replacement.
     return preg_replace_callback(
       '/^(\s*)\/\*\*(.*?)\*\/(\n)?/ms',
       self::processDocblock(...),
@@ -100,7 +97,6 @@ class Strings {
       return $full_match;
     }
 
-    // Split into lines and process.
     $lines = explode("\n", (string) $comment_content);
 
     // Remove leading/trailing empty lines and check for content in one pass.
@@ -108,7 +104,6 @@ class Strings {
     $end = count($lines) - 1;
     $has_content = FALSE;
 
-    // Find first non-empty line.
     while ($start <= $end) {
       $line = trim($lines[$start]);
       if ($line !== '' && !preg_match('/^\*\s*$/', $line)) {
@@ -118,7 +113,6 @@ class Strings {
       $start++;
     }
 
-    // Find last non-empty line.
     while ($end >= $start) {
       $line = trim($lines[$end]);
       if ($line !== '' && !preg_match('/^\*\s*$/', $line)) {
@@ -132,16 +126,13 @@ class Strings {
       return '';
     }
 
-    // Extract working lines.
     $work_lines = array_slice($lines, $start, $end - $start + 1);
 
-    // Get indentation pattern from first line.
     $indent_pattern = ' *';
     if (!empty($work_lines) && preg_match('/^(\s*\*)/', $work_lines[0], $indent_matches)) {
       $indent_pattern = $indent_matches[1];
     }
 
-    // Collapse consecutive empty lines.
     $result_lines = [];
     $prev_empty = FALSE;
 
@@ -161,12 +152,10 @@ class Strings {
       }
     }
 
-    // Reconstruct docblock.
     if (empty($result_lines)) {
       return '';
     }
 
-    // Get closing indentation from original match.
     $closing_indent = ' ';
     if (preg_match('/\n(\s*)\*\/$/', (string) $full_match, $close_matches)) {
       $closing_indent = $close_matches[1];

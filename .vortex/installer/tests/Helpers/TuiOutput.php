@@ -126,11 +126,11 @@ class TuiOutput {
 
   const FOOTER_GIT_COMMIT = 'git commit -m "Initial commit."';
 
-  const INSTALL_ERROR_MISSING_GIT = 'Installation failed with an error: Missing required command: git.';
+  const INSTALL_ERROR_MISSING_GIT = 'Installation failed with an error: Missing required command: "git".';
 
-  const INSTALL_ERROR_MISSING_TAR = 'Installation failed with an error: Missing required command: tar.';
+  const INSTALL_ERROR_MISSING_TAR = 'Installation failed with an error: Missing required command: "tar".';
 
-  const INSTALL_ERROR_MISSING_COMPOSER = 'Installation failed with an error: Missing required command: Composer.';
+  const INSTALL_ERROR_MISSING_COMPOSER = 'Installation failed with an error: Missing required command: "composer".';
 
   const INSTALL_ERROR_DOWNLOAD_FAILED = 'Installation failed with an error: Failed to download Vortex.';
 

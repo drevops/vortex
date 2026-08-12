@@ -22,7 +22,7 @@ class JsonManipulator extends ComposerJsonManipulator {
     if ($contents === FALSE) {
       // @codeCoverageIgnoreStart
       throw new \RuntimeException(sprintf(
-        'Failed to read composer.json from %s: %s',
+        'Unable to read composer.json from %s: %s',
         $composer_json,
         error_get_last()['message'] ?? 'unknown error'
       ));
@@ -90,7 +90,6 @@ class JsonManipulator extends ComposerJsonManipulator {
       return $decoded[$main];
     }
 
-    // Collect from the sub-keys.
     $arr = $decoded[$main];
 
     foreach ($sub as $key) {

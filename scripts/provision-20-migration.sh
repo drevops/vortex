@@ -53,7 +53,7 @@ drush() { ./vendor/bin/drush -y "$@"; }
 
 info "Started migration operations."
 
-environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+environment="$(drush php:eval "print \Drupal\Core\Site\Settings::get('environment');")"
 note "Environment: ${environment}"
 
 # Skip migrations in production.
@@ -159,9 +159,9 @@ else
 fi
 echo
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Add your migrations below.
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 run_migration ys_migrate_categories
 

@@ -42,7 +42,6 @@ class Name extends AbstractHandler {
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    // Discover the name from the project directory.
     return Converter::label(basename((string) $this->config->getDestination()));
   }
 

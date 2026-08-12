@@ -100,7 +100,7 @@ class Git extends GitRepository {
 
     if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
       // @codeCoverageIgnoreStart
-      throw new \RuntimeException('Failed to retrieve tracked files using git ls-files.');
+      throw new \RuntimeException('Unable to retrieve tracked files using git ls-files.');
       // @codeCoverageIgnoreEnd
     }
 

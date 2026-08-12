@@ -30,7 +30,7 @@ class OptionsResolver {
 
     foreach ($required_commands as $required_command) {
       if ($finder->find($required_command) === NULL) {
-        throw new \RuntimeException(sprintf('Missing required command: %s.', $required_command));
+        throw new \RuntimeException(sprintf('Missing required command: "%s".', $required_command));
       }
     }
   }
@@ -54,7 +54,7 @@ class OptionsResolver {
   public static function resolve(array $options): array {
     $config_json = '{}';
     if (isset($options['config']) && is_scalar($options['config'])) {
-      $config_candidate = strval($options['config']);
+      $config_candidate = (string) $options['config'];
       $config_json = is_file($config_candidate) ? (string) file_get_contents($config_candidate) : $config_candidate;
     }
 
@@ -64,13 +64,12 @@ class OptionsResolver {
     $config->setNoInteraction($options['no-interaction']);
 
     // Set root directory to resolve relative paths.
-    $root = !empty($options['root']) && is_scalar($options['root']) ? strval($options['root']) : NULL;
+    $root = !empty($options['root']) && is_scalar($options['root']) ? (string) $options['root'] : NULL;
     if ($root) {
       $config->set(Config::ROOT, $root);
     }
 
-    // Set destination directory.
-    $destination_from_option = !empty($options['destination']) && is_scalar($options['destination']) ? strval($options['destination']) : NULL;
+    $destination_from_option = !empty($options['destination']) && is_scalar($options['destination']) ? (string) $options['destination'] : NULL;
     $destination_from_env = Env::get(Config::DESTINATION);
     $destination_from_config = $config->get(Config::DESTINATION);
     $destination_from_root = $config->get(Config::ROOT);
@@ -79,15 +78,13 @@ class OptionsResolver {
     $destination = File::realpath($destination);
     $config->set(Config::DESTINATION, $destination, TRUE);
 
-    // Load values from the destination .env file, if it exists.
     $dest_env_file = $config->getDestination() . '/.env';
 
     if (File::exists($dest_env_file)) {
       Env::putFromDotenv($dest_env_file);
     }
 
-    // Build URI for artifact.
-    $uri_from_option = !empty($options['uri']) && is_scalar($options['uri']) ? strval($options['uri']) : NULL;
+    $uri_from_option = !empty($options['uri']) && is_scalar($options['uri']) ? (string) $options['uri'] : NULL;
     $repo = Env::get(Config::REPO) ?: ($config->get(Config::REPO) ?: NULL);
     $ref = Env::get(Config::REF) ?: ($config->get(Config::REF) ?: NULL);
 
@@ -103,10 +100,9 @@ class OptionsResolver {
       $config->set(Config::REF, $artifact->getRef());
     }
     catch (\RuntimeException $e) {
-      throw new \RuntimeException(sprintf('Invalid repository URI: %s', $e->getMessage()), $e->getCode(), $e);
+      throw new \RuntimeException(sprintf('Invalid repository URI: %s.', $e->getMessage()), $e->getCode(), $e);
     }
 
-    // Check if the project is a Vortex project.
     $config->set(Config::IS_VORTEX_PROJECT, File::contains($config->getDestination() . '/README.md', '/badge\/Vortex-/'));
 
     // Flag to proceed with installation. If FALSE - the installation will only
@@ -119,15 +115,13 @@ class OptionsResolver {
       $config->set(Config::IS_DEMO, (bool) Env::get(Config::IS_DEMO));
     }
 
-    // Internal flag to skip processing of the demo mode.
     $config->set(Config::IS_DEMO_DB_FETCH_SKIP, (bool) Env::get(Config::IS_DEMO_DB_FETCH_SKIP, FALSE));
 
-    // Parse --prompts JSON if provided.
     if (isset($options['prompts']) && is_scalar($options['prompts'])) {
-      $prompts_candidate = strval($options['prompts']);
+      $prompts_candidate = (string) $options['prompts'];
       if (is_file($prompts_candidate)) {
         if (!is_readable($prompts_candidate)) {
-          throw new \RuntimeException(sprintf('Cannot read --prompts file: %s.', $prompts_candidate));
+          throw new \RuntimeException(sprintf('Unable to read --prompts file: "%s".', $prompts_candidate));
         }
         $prompts_json = (string) file_get_contents($prompts_candidate);
       }
@@ -140,15 +134,13 @@ class OptionsResolver {
         throw new \RuntimeException('Invalid JSON provided for --prompts.');
       }
 
-      // Store the raw parsed array. Schema validation against prompt handlers
-      // is performed in PromptManager::resolvePromptOverrides().
+      // Schema validation against prompt handlers is performed in
+      // PromptManager::resolvePromptOverrides().
       $config->set(Config::PROMPTS, $prompts, TRUE);
     }
 
-    // Set no-cleanup flag.
     $config->set(Config::NO_CLEANUP, (bool) $options['no-cleanup']);
 
-    // Set build-now flag.
     $config->set(Config::BUILD_NOW, (bool) $options['build']);
 
     return [$config, $artifact];

@@ -22,7 +22,6 @@ class Internal extends AbstractHandler {
   }
 
   public function discover(): null|string|bool|array {
-    // Noop.
     return NULL;
   }
 
@@ -33,7 +32,6 @@ class Internal extends AbstractHandler {
 
     $this->processDemoMode($this->responses, $t);
 
-    // Replace version placeholders.
     File::replaceContentAsync([
       'VORTEX_VERSION_URLENCODED' => str_replace('-', '--', $version),
       'VORTEX_VERSION' => $version,
@@ -47,7 +45,6 @@ class Internal extends AbstractHandler {
     // fence. Strip the inline alternative here instead.
     File::replaceContentAsync('|^[0-9]+\.x$', '');
 
-    // Enable commented out code and process complex content transformations.
     File::replaceContentAsync(function (string $content, ContentFile $file) use ($t): string {
       // Remove all other comments.
       $content = File::removeToken($content, '#;', '#;');
@@ -55,7 +52,6 @@ class Internal extends AbstractHandler {
       // Enable commented out code.
       $content = File::replaceContent($content, '##### ', '');
 
-      // Process empty lines, but exclude specific files and directories.
       $ignore_empty_line_processing = [
         '/web/sites/default/default.settings.php',
         '/web/sites/default/default.services.yml',
@@ -166,36 +162,25 @@ class Internal extends AbstractHandler {
       if ($responses[Starter::id()] !== Starter::LOAD_DATABASE_DEMO) {
         $is_demo = FALSE;
       }
-      // Check if it should be enabled based on the provision type and database
-      // download source.
       elseif ($responses[ProvisionType::id()] === ProvisionType::DATABASE) {
         $db_file_exists = file_exists(Env::get('VORTEX_DB_DIR', './.data') . '/' . Env::get('VORTEX_DB_FILE', 'db.sql'));
         $has_comment = File::contains($this->destinationDir . '/.env', 'Override project-specific values for demonstration purposes');
 
-        // Demo mode can only be used if the user selected a URL or a container
-        // registry download source. This is because the demo mode would not
-        // have access to integrations with providers to pull the database
-        // from.
+        // Demo mode applies only to the URL and container registry download
+        // sources: it has no access to provider integrations to pull the
+        // database from.
         if ($responses[DatabaseFetchSource::id()] === DatabaseFetchSource::URL) {
-          // For fetching from URL, demo mode is enabled if the database
-          // file does not exist or if there is an explicit comment in the
-          // destination .env file that indicates that this is a demo mode.
           $is_demo = !$db_file_exists || $has_comment;
         }
         elseif ($responses[DatabaseFetchSource::id()] === DatabaseFetchSource::CONTAINER_REGISTRY) {
-          // For a downloading from container registry, demo mode is enabled if
-          // there is an explicit comment in the destination .env file that
-          // indicates that this is a demo mode.
           $is_demo = $has_comment;
         }
         else {
-          // For any other download source, demo mode is not applicable.
           $is_demo = FALSE;
         }
       }
       else {
-        // Not a database-driven provision type (a profile-driven), so demo is
-        // not applicable.
+        // Demo mode is not applicable to a profile-driven provision type.
         $is_demo = FALSE;
       }
     }

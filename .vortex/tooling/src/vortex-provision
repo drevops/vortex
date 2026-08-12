@@ -125,7 +125,7 @@ start_time=$(date +%s)
 
 if [ "${VORTEX_PROVISION_SKIP}" = "1" ]; then
   pass "Skipped site provisioning as VORTEX_PROVISION_SKIP is set to 1."
-  info "Finished site provisioning."
+  pass "Finished site provisioning."
   exit 0
 fi
 
@@ -319,7 +319,7 @@ fi
 
 echo
 
-environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+environment="$(drush php:eval "print \Drupal\Core\Site\Settings::get('environment');")"
 info "Current Drupal environment: ${environment}"
 echo
 
@@ -327,7 +327,7 @@ if [ "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}" = "1" ]; then
   info "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
   echo
   duration=$(($(date +%s) - start_time))
-  info "Finished site provisioning ($((duration / 60))m $((duration % 60))s)."
+  pass "Finished site provisioning ($((duration / 60))m $((duration % 60))s)."
   exit 0
 fi
 
@@ -348,7 +348,7 @@ if [ "${site_has_config_files}" = "1" ]; then
       exit 1
     fi
 
-    drush config-set system.site uuid "${config_uuid}"
+    drush config:set system.site uuid "${config_uuid}"
     pass "Updated site UUID from the configuration with ${config_uuid}."
     echo
   fi
@@ -447,11 +447,11 @@ fi
 if [ -d "${VORTEX_PROVISION_SCRIPTS_DIR}" ]; then
   for file in "${VORTEX_PROVISION_SCRIPTS_DIR}"/provision-*.sh; do
     if [ -f "${file}" ]; then
-      task "Running custom post-install script '${file}'."
+      task "Running custom post-install script \"${file}\"."
       echo
       "${file}"
       echo
-      pass "Completed running of custom post-install script '${file}'."
+      pass "Completed running of custom post-install script \"${file}\"."
       echo
     fi
   done
@@ -466,4 +466,4 @@ if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
 fi
 
 duration=$(($(date +%s) - start_time))
-info "Finished site provisioning ($((duration / 60))m $((duration % 60))s)."
+pass "Finished site provisioning ($((duration / 60))m $((duration % 60))s)."

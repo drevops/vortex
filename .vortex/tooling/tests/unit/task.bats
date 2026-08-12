@@ -26,7 +26,7 @@ load ../_helper.bash
 
   run ./.vortex/tooling/src/vortex-task invalid-operation
   assert_failure
-  assert_output_contains "Unsupported task operation 'invalid-operation'."
+  assert_output_contains 'Unsupported task operation "invalid-operation".'
 
   popd >/dev/null || exit 1
 }
@@ -50,7 +50,7 @@ load ../_helper.bash
   export VORTEX_PLATFORM=invalid-platform
   run ./.vortex/tooling/src/vortex-task copy-db
   assert_failure
-  assert_output_contains "Unsupported hosting platform 'invalid-platform'."
+  assert_output_contains 'Unsupported hosting platform "invalid-platform".'
 
   popd >/dev/null || exit 1
 }
@@ -63,7 +63,7 @@ load ../_helper.bash
   export VORTEX_PLATFORM=lagoon
   run ./.vortex/tooling/src/vortex-task copy-db
   assert_failure
-  assert_output_contains "Operation 'copy-db' is not supported on the 'lagoon' platform."
+  assert_output_contains 'Operation "copy-db" is not supported on the "lagoon" platform.'
 
   popd >/dev/null || exit 1
 }
@@ -113,6 +113,21 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-task purge-cache
   assert_failure
   assert_output_contains "Started cache purging in Acquia."
+
+  popd >/dev/null || exit 1
+}
+
+@test "Task: platform from VORTEX_PLATFORM dispatches custom" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Without a branch the sibling prints its banner and then fails on the
+  # missing-value guard before any network call, which proves the routing.
+  unset VORTEX_TASK_PLATFORM
+  export VORTEX_PLATFORM=lagoon
+  run ./.vortex/tooling/src/vortex-task custom
+  assert_failure
+  assert_output_contains "Started Lagoon task Automation task."
+  assert_output_contains "Missing required value for VORTEX_TASK_CUSTOM_LAGOON_BRANCH."
 
   popd >/dev/null || exit 1
 }

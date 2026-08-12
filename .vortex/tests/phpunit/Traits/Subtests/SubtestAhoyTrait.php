@@ -619,7 +619,7 @@ trait SubtestAhoyTrait {
     $this->assertFileExists('.logs/screenshots/behat-test-screenshot.html');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Current URL: http://nginx:8080/');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Feature: Behat configuration');
-    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Step: save screenshot with name');
+    $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Step: I save screenshot with name');
     $this->assertFileContainsString('.logs/screenshots/behat-test-screenshot.html', 'Datetime:');
     $this->assertDirectoryExists('.logs/test_results');
     $this->assertFileExists('.logs/test_results/behat/default.xml');

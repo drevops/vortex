@@ -157,7 +157,7 @@ abstract class AbstractRunner implements RunnerInterface {
    */
   protected function setExitCode(int $exit_code): void {
     if ($exit_code < 0 || $exit_code > 255) {
-      throw new \RuntimeException('Command exited with invalid exit code: ' . $exit_code);
+      throw new \RuntimeException(sprintf('Command exited with invalid exit code: %d.', $exit_code));
     }
 
     $this->exitCode = $exit_code;
@@ -253,8 +253,6 @@ abstract class AbstractRunner implements RunnerInterface {
 
       if (!$in_quotes && ($char === ' ' || $char === "\t")) {
         if ($current !== '' || $has_content) {
-          // Check for end-of-options marker (--) only if not already found
-          // and not inside quotes.
           if (!$end_of_options_found && $current === '--') {
             $end_of_options_found = TRUE;
             // Add the -- marker to the parts array so it reaches the command.
@@ -333,7 +331,6 @@ abstract class AbstractRunner implements RunnerInterface {
    *   The quoted argument if needed, otherwise the original.
    */
   protected function quoteArgument(string $argument): string {
-    // If argument is empty, return empty quoted string.
     if ($argument === '') {
       return "''";
     }

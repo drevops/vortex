@@ -48,9 +48,8 @@ VORTEX_NOTIFY_NEWRELIC_LOGIN_URL="${VORTEX_NOTIFY_NEWRELIC_LOGIN_URL:-${VORTEX_N
 # New Relic notification application name as it appears in the dashboard.
 VORTEX_NOTIFY_NEWRELIC_APP_NAME="${VORTEX_NOTIFY_NEWRELIC_APP_NAME:-"${VORTEX_NOTIFY_NEWRELIC_PROJECT}-${VORTEX_NOTIFY_NEWRELIC_LABEL}"}"
 
-# New Relic notification application ID (auto-discovered if not provided).
-#
-# Will be discovered automatically from application name if not provided.
+# New Relic notification application ID (auto-discovered from the application
+# name if not provided).
 VORTEX_NOTIFY_NEWRELIC_APPID="${VORTEX_NOTIFY_NEWRELIC_APPID:-}"
 
 # New Relic notification deployment description template.
@@ -94,12 +93,12 @@ fi
 
 if [ -n "${VORTEX_NOTIFY_NEWRELIC_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_NEWRELIC_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped New Relic notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped New Relic notification for branch \"${VORTEX_NOTIFY_BRANCH-}\"."
     exit 0
   fi
 fi
 
-for cmd in curl; do command -v "${cmd}" >/dev/null || {
+for cmd in php curl; do command -v "${cmd}" >/dev/null || {
   fail "Command ${cmd} is not available."
   exit 1
 }; done
@@ -178,20 +177,23 @@ note "Endpoint         : ${VORTEX_NOTIFY_NEWRELIC_ENDPOINT}"
 note "Description      : ${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}"
 
 task "Creating a deployment notification for application ${VORTEX_NOTIFY_NEWRELIC_APP_NAME} with ID ${VORTEX_NOTIFY_NEWRELIC_APPID}."
+body="$(VORTEX_NOTIFY_NEWRELIC_REVISION="${VORTEX_NOTIFY_NEWRELIC_REVISION}" VORTEX_NOTIFY_NEWRELIC_CHANGELOG="${VORTEX_NOTIFY_NEWRELIC_CHANGELOG}" VORTEX_NOTIFY_NEWRELIC_DESCRIPTION="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" VORTEX_NOTIFY_NEWRELIC_USER="${VORTEX_NOTIFY_NEWRELIC_USER}" php -r '
+echo json_encode([
+  "deployment" => [
+    "revision" => getenv("VORTEX_NOTIFY_NEWRELIC_REVISION"),
+    "changelog" => getenv("VORTEX_NOTIFY_NEWRELIC_CHANGELOG"),
+    "description" => getenv("VORTEX_NOTIFY_NEWRELIC_DESCRIPTION"),
+    "user" => getenv("VORTEX_NOTIFY_NEWRELIC_USER"),
+  ],
+], JSON_UNESCAPED_SLASHES);
+')"
+
 if ! curl -X POST "${VORTEX_NOTIFY_NEWRELIC_ENDPOINT}/applications/${VORTEX_NOTIFY_NEWRELIC_APPID}/deployments.json" \
   -L -s -o /dev/null -w "%{http_code}" \
   -H "Api-Key: ${VORTEX_NOTIFY_NEWRELIC_USER_KEY}" \
   -H 'Content-Type: application/json' \
-  -d \
-  "{
-  \"deployment\": {
-    \"revision\": \"${VORTEX_NOTIFY_NEWRELIC_REVISION}\",
-    \"changelog\": \"${VORTEX_NOTIFY_NEWRELIC_CHANGELOG}\",
-    \"description\": \"${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}\",
-    \"user\": \"${VORTEX_NOTIFY_NEWRELIC_USER}\"
-  }
-}" | grep -q '201'; then
-  fail "Failed to create a deployment notification for application ${VORTEX_NOTIFY_NEWRELIC_APP_NAME} with ID ${VORTEX_NOTIFY_NEWRELIC_APPID}."
+  -d "${body}" | grep -q '201'; then
+  fail "Unable to create a deployment notification for application ${VORTEX_NOTIFY_NEWRELIC_APP_NAME} with ID ${VORTEX_NOTIFY_NEWRELIC_APPID}."
   exit 1
 fi
 

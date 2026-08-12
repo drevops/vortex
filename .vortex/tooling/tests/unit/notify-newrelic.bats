@@ -69,7 +69,7 @@ load ../_helper.bash
   assert_string_contains "${actual_curl_call}" "-X POST https://api.newrelic.com/v2/applications/9876543210/deployments.json"
   assert_string_contains "${actual_curl_call}" "-H Api-Key: key1234"
   assert_string_contains "${actual_curl_call}" '"revision":'
-  assert_string_contains "${actual_curl_call}" '"user": "Deployment robot"'
+  assert_string_contains "${actual_curl_call}" '"user":"Deployment robot"'
 
   assert_output_contains "Finished New Relic notification."
 
@@ -147,7 +147,7 @@ load ../_helper.bash
   assert_success
 
   assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Skipped New Relic notification for branch 'feature/test'."
+  assert_output_contains 'Skipped New Relic notification for branch "feature/test".'
   assert_output_not_contains "Started New Relic notification."
   assert_output_contains "Finished dispatching notifications."
 
@@ -167,7 +167,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify-newrelic
   assert_success
 
-  assert_output_contains "Skipped New Relic notification for branch ''."
+  assert_output_contains 'Skipped New Relic notification for branch "".'
   assert_output_not_contains "unbound variable"
 
   popd >/dev/null || exit 1

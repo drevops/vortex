@@ -14,7 +14,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started GitHub notification for pre_deployment event."
-    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"existingbranch\", \"environment\": \"existingbranch\", \"auto_merge\": false, \"required_contexts\": []} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
+    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"existingbranch\",\"environment\":\"existingbranch\",\"auto_merge\":false,\"required_contexts\":[]} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
     "Marked deployment as started."
     "Finished GitHub notification for pre_deployment event."
     "Finished dispatching notifications."
@@ -46,7 +46,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started GitHub notification for pre_deployment event."
-    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"feature/my-pr-branch\", \"environment\": \"PR-123\", \"auto_merge\": false, \"required_contexts\": []} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
+    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"feature/my-pr-branch\",\"environment\":\"PR-123\",\"auto_merge\":false,\"required_contexts\":[]} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
     "Marked deployment as started."
     "Finished GitHub notification for pre_deployment event."
     "Finished dispatching notifications."
@@ -79,7 +79,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started GitHub notification for pre_deployment event."
-    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"existingbranch\", \"environment\": \"existingbranch\", \"auto_merge\": false, \"required_contexts\": []} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
+    "@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {\"ref\":\"existingbranch\",\"environment\":\"existingbranch\",\"auto_merge\":false,\"required_contexts\":[]} # {\"id\": \"${app_id}\", \"othervar\": \"54321\"}"
     "Marked deployment as started."
     "Finished GitHub notification for pre_deployment event."
     "Finished dispatching notifications."
@@ -109,8 +109,8 @@ load ../_helper.bash
   declare -a STEPS=(
     "Started dispatching notifications."
     "Started GitHub notification for pre_deployment event."
-    '@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {"ref":"nonexistingbranch", "environment": "nonexistingbranch", "auto_merge": false, "required_contexts": []} # {"message": "No ref found for: nonexistingbranch","documentation_url": "https://docs.github.com/rest/deployments/deployments#create-a-deployment","status": "422"}'
-    "Failed to get a deployment ID for a pre_deployment operation. Payload:"
+    '@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {"ref":"nonexistingbranch","environment":"nonexistingbranch","auto_merge":false,"required_contexts":[]} # {"message": "No ref found for: nonexistingbranch","documentation_url": "https://docs.github.com/rest/deployments/deployments#create-a-deployment","status": "422"}'
+    "Unable to get a deployment ID for a pre_deployment operation. Payload:"
     "Wait for GitHub checks to finish and try again."
     "-Marked deployment as finished."
   )
@@ -143,7 +143,7 @@ load ../_helper.bash
     "Started dispatching notifications."
     "Started GitHub notification for post_deployment event."
     "@curl -X GET -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments?ref=existingbranch # [{\"id\": \"${app_id}\", \"othervar\": \"54321\"},{\"id\": \"98765432101\", \"othervar\": \"12345\"}]"
-    "@curl -X POST -H Accept: application/vnd.github.v3+json -H Authorization: token token12345 https://api.github.com/repos/myorg/myrepo/deployments/${app_id}/statuses -s -d {\"state\":\"success\", \"environment_url\": \"https://develop.testproject.com\"} # {\"state\": \"success\", \"othervar\": \"54321\"}"
+    "@curl -X POST -H Accept: application/vnd.github.v3+json -H Authorization: token token12345 https://api.github.com/repos/myorg/myrepo/deployments/${app_id}/statuses -s -d {\"state\":\"success\",\"environment_url\":\"https://develop.testproject.com\"} # {\"state\": \"success\", \"othervar\": \"54321\"}"
     "Marked deployment as finished."
     "Finished GitHub notification for post_deployment event."
     "Finished dispatching notifications."
@@ -176,7 +176,7 @@ load ../_helper.bash
     "Started dispatching notifications."
     "Started GitHub notification for post_deployment event."
     "@curl -X GET -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments?ref=existingbranch # [{\"id\": \"${app_id}\", \"othervar\": \"54321\"},{\"id\": \"98765432101\", \"othervar\": \"12345\"}]"
-    "@curl -X POST -H Accept: application/vnd.github.v3+json -H Authorization: token token12345 https://api.github.com/repos/myorg/myrepo/deployments/${app_id}/statuses -s -d {\"state\":\"success\", \"environment_url\": \"https://develop.testproject.com\"} # {\"state\": \"success\", \"othervar\": \"54321\"}"
+    "@curl -X POST -H Accept: application/vnd.github.v3+json -H Authorization: token token12345 https://api.github.com/repos/myorg/myrepo/deployments/${app_id}/statuses -s -d {\"state\":\"success\",\"environment_url\":\"https://develop.testproject.com\"} # {\"state\": \"success\", \"othervar\": \"54321\"}"
     "Marked deployment as finished."
     "Finished GitHub notification for post_deployment event."
     "Finished dispatching notifications."
@@ -208,7 +208,7 @@ load ../_helper.bash
     "Started dispatching notifications."
     "Started GitHub notification for post_deployment event."
     "@curl -X GET -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments?ref=nonexistingbranch # []"
-    "Failed to get a deployment ID for a post_deployment operation. Payload:"
+    "Unable to get a deployment ID for a post_deployment operation. Payload:"
     "Check that a pre_deployment notification was dispatched."
     "-Marked deployment as finished."
   )
@@ -247,7 +247,7 @@ load ../_helper.bash
   assert_success
 
   assert_output_contains "Started dispatching notifications."
-  assert_output_contains "Skipped GitHub notification for branch 'feature/test'."
+  assert_output_contains 'Skipped GitHub notification for branch "feature/test".'
   assert_output_not_contains "Started GitHub notification"
   assert_output_contains "Finished dispatching notifications."
 
@@ -266,7 +266,7 @@ load ../_helper.bash
   run ./.vortex/tooling/src/vortex-notify-github
   assert_success
 
-  assert_output_contains "Skipped GitHub notification for branch ''."
+  assert_output_contains 'Skipped GitHub notification for branch "".'
   assert_output_not_contains "unbound variable"
 
   popd >/dev/null || exit 1
@@ -309,7 +309,7 @@ load ../_helper.bash
     "Started dispatching notifications."
     "Started GitHub notification for post_deployment event."
     "@curl -X GET -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments?ref=existingbranch # [{\"id\": \"${app_id}\", \"othervar\": \"54321\"},{\"id\": \"98765432101\", \"othervar\": \"12345\"}]"
-    "@curl -X POST -H Accept: application/vnd.github.v3+json -H Authorization: token token12345 https://api.github.com/repos/myorg/myrepo/deployments/${app_id}/statuses -s -d {\"state\":\"success\", \"environment_url\": \"https://develop.testproject.com\"} # {\"state\": \"notsuccess\", \"othervar\": \"54321\"}"
+    "@curl -X POST -H Accept: application/vnd.github.v3+json -H Authorization: token token12345 https://api.github.com/repos/myorg/myrepo/deployments/${app_id}/statuses -s -d {\"state\":\"success\",\"environment_url\":\"https://develop.testproject.com\"} # {\"state\": \"notsuccess\", \"othervar\": \"54321\"}"
     "Previous deployment was found, but was unable to update the deployment status. Payload:"
     "-Marked deployment as finished."
   )

@@ -45,7 +45,6 @@ class Services extends AbstractHandler {
     if (isset($responses[CustomModules::id()])) {
       $custom_modules = $responses[CustomModules::id()];
       if (is_array($custom_modules) && !in_array(CustomModules::SEARCH, $custom_modules)) {
-        // Check if Solr is discovered in the existing docker-compose.yml.
         $discovered = $this->discover();
         $solr_discovered = is_array($discovered) && in_array(self::SOLR, $discovered);
         if (!$solr_discovered) {
@@ -63,7 +62,6 @@ class Services extends AbstractHandler {
   public function default(array $responses): null|string|bool|array {
     $defaults = [self::CLAMAV, self::REDIS, self::SOLR];
 
-    // Filter defaults to only include available options.
     $options = $this->options($responses);
     if (is_array($options)) {
       $defaults = array_values(array_intersect($defaults, array_keys($options)));

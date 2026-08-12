@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Notification dispatch to Jira.
+# Notification dispatch to JIRA.
 #
 # Features:
 # - posts comment with a URL of a deployment environment
@@ -24,6 +24,12 @@ VORTEX_NOTIFY_JIRA_USER_EMAIL="${VORTEX_NOTIFY_JIRA_USER_EMAIL:-}"
 
 # JIRA notification API token.
 #
+# To obtain an API token:
+# 1. Log in to your Atlassian account
+# 2. Go to Account settings -> Security -> API tokens
+# 3. Click "Create API token" and copy the generated value
+#
+# @see https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
 # @see https://www.vortextemplate.com/docs/deployment/notifications#jira
 VORTEX_NOTIFY_JIRA_TOKEN="${VORTEX_NOTIFY_JIRA_TOKEN:-}"
 
@@ -89,7 +95,7 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || {
 
 if [ -n "${VORTEX_NOTIFY_JIRA_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_JIRA_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
-    pass "Skipped JIRA notification for branch '${VORTEX_NOTIFY_BRANCH-}'."
+    pass "Skipped JIRA notification for branch \"${VORTEX_NOTIFY_BRANCH-}\"."
     exit 0
   fi
 fi
@@ -105,15 +111,6 @@ info "Started JIRA notification."
 if [ "${VORTEX_NOTIFY_JIRA_EVENT}" = "pre_deployment" ]; then
   pass "Skipped JIRA notification for pre_deployment event."
   exit 0
-fi
-
-# Set default message template if not provided.
-if [ -z "${VORTEX_NOTIFY_JIRA_MESSAGE}" ]; then
-  VORTEX_NOTIFY_JIRA_MESSAGE="## This is an automated message ##
-
-Site %project% %label% has been deployed at %timestamp% and is available at %environment_url%.
-
-Login at: %login_url%"
 fi
 
 #
@@ -152,7 +149,7 @@ extract_issue() {
 
 task "Extracting issue."
 issue="$(extract_issue "${VORTEX_NOTIFY_JIRA_BRANCH}")"
-[ "${issue}" = "" ] && pass "Branch ${VORTEX_NOTIFY_JIRA_BRANCH} does not contain issue number." && exit 0
+[ -z "${issue}" ] && pass "Branch ${VORTEX_NOTIFY_JIRA_BRANCH} does not contain issue number." && exit 0
 note "Found issue ${issue}."
 
 task "Creating API token."
@@ -180,46 +177,62 @@ task "Posting a comment."
 # Generate timestamp.
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
 
-# Build message by replacing tokens.
-message="${VORTEX_NOTIFY_JIRA_MESSAGE}"
-message=$(REPLACEMENT="${VORTEX_NOTIFY_JIRA_PROJECT}" TEMPLATE="${message}" php -r 'echo str_replace("%project%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
-message=$(REPLACEMENT="${VORTEX_NOTIFY_JIRA_LABEL}" TEMPLATE="${message}" php -r 'echo str_replace("%label%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
-message=$(REPLACEMENT="${timestamp}" TEMPLATE="${message}" php -r 'echo str_replace("%timestamp%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
-message=$(REPLACEMENT="${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}" TEMPLATE="${message}" php -r 'echo str_replace("%environment_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
-message=$(REPLACEMENT="${VORTEX_NOTIFY_JIRA_LOGIN_URL}" TEMPLATE="${message}" php -r 'echo str_replace("%login_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
-
 # Read the deployment log (when enabled) to include it in the comment.
 log_file=""
 [ "${VORTEX_NOTIFY_JIRA_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_JIRA_LOG_FILE}"
 
 # Build JIRA Atlassian Document Format (ADF) from the message using PHP with proper escaping.
 # shellcheck disable=SC2016
-comment_body=$(VORTEX_NOTIFY_JIRA_PROJECT="${VORTEX_NOTIFY_JIRA_PROJECT}" VORTEX_NOTIFY_JIRA_LABEL="${VORTEX_NOTIFY_JIRA_LABEL}" timestamp="${timestamp}" VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL="${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}" VORTEX_NOTIFY_JIRA_LOGIN_URL="${VORTEX_NOTIFY_JIRA_LOGIN_URL}" LOG_FILE="${log_file}" php -r '
+comment_body=$(VORTEX_NOTIFY_JIRA_PROJECT="${VORTEX_NOTIFY_JIRA_PROJECT}" VORTEX_NOTIFY_JIRA_LABEL="${VORTEX_NOTIFY_JIRA_LABEL}" timestamp="${timestamp}" VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL="${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}" VORTEX_NOTIFY_JIRA_LOGIN_URL="${VORTEX_NOTIFY_JIRA_LOGIN_URL}" VORTEX_NOTIFY_JIRA_MESSAGE="${VORTEX_NOTIFY_JIRA_MESSAGE}" LOG_FILE="${log_file}" php -r '
 $project = getenv("VORTEX_NOTIFY_JIRA_PROJECT");
 $label = getenv("VORTEX_NOTIFY_JIRA_LABEL");
 $timestamp = getenv("timestamp");
-$envUrl = getenv("VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL");
-$loginUrl = getenv("VORTEX_NOTIFY_JIRA_LOGIN_URL");
-$logFile = getenv("LOG_FILE");
-$log = ($logFile !== "" && is_file($logFile)) ? rtrim((string) file_get_contents($logFile), "\r\n") : "";
+$env_url = getenv("VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL");
+$login_url = getenv("VORTEX_NOTIFY_JIRA_LOGIN_URL");
+$message = getenv("VORTEX_NOTIFY_JIRA_MESSAGE");
+$log_file = getenv("LOG_FILE");
+$log = ($log_file !== "" && is_file($log_file)) ? rtrim((string) file_get_contents($log_file), "\r\n") : "";
 
-$content = [[
-  "type" => "paragraph",
-  "content" => [
-    ["type" => "text", "text" => "## This is an automated message ##"],
-    ["type" => "hardBreak"],
-    ["type" => "hardBreak"],
-    ["type" => "text", "text" => "Site " . $project . " "],
-    ["type" => "text", "text" => $label, "marks" => [["type" => "code"]]],
-    ["type" => "text", "text" => " has been deployed at " . $timestamp . " and is available at "],
-    ["type" => "text", "text" => $envUrl, "marks" => [["type" => "link", "attrs" => ["href" => $envUrl]]]],
-    ["type" => "text", "text" => "."],
-    ["type" => "hardBreak"],
-    ["type" => "hardBreak"],
-    ["type" => "text", "text" => "Login at: "],
-    ["type" => "text", "text" => $loginUrl, "marks" => [["type" => "link", "attrs" => ["href" => $loginUrl]]]]
-  ]
-]];
+if ($message !== "") {
+  // A configured template replaces the default body. Tokens are substituted
+  // and newlines become hard breaks so the text keeps its shape in JIRA.
+  $message = str_replace(
+    ["%project%", "%label%", "%timestamp%", "%environment_url%", "%login_url%"],
+    [$project, $label, $timestamp, $env_url, $login_url],
+    $message
+  );
+
+  $nodes = [];
+  foreach (explode("\n", str_replace("\r\n", "\n", $message)) as $index => $line) {
+    if ($index > 0) {
+      $nodes[] = ["type" => "hardBreak"];
+    }
+    if ($line !== "") {
+      $nodes[] = ["type" => "text", "text" => $line];
+    }
+  }
+
+  $content = [["type" => "paragraph", "content" => $nodes]];
+}
+else {
+  $content = [[
+    "type" => "paragraph",
+    "content" => [
+      ["type" => "text", "text" => "## This is an automated message ##"],
+      ["type" => "hardBreak"],
+      ["type" => "hardBreak"],
+      ["type" => "text", "text" => "Site " . $project . " "],
+      ["type" => "text", "text" => $label, "marks" => [["type" => "code"]]],
+      ["type" => "text", "text" => " has been deployed at " . $timestamp . " and is available at "],
+      ["type" => "text", "text" => $env_url, "marks" => [["type" => "link", "attrs" => ["href" => $env_url]]]],
+      ["type" => "text", "text" => "."],
+      ["type" => "hardBreak"],
+      ["type" => "hardBreak"],
+      ["type" => "text", "text" => "Login at: "],
+      ["type" => "text", "text" => $login_url, "marks" => [["type" => "link", "attrs" => ["href" => $login_url]]]]
+    ]
+  ]];
+}
 
 if ($log !== "") {
   $content[] = [
@@ -277,7 +290,7 @@ if [ -n "${VORTEX_NOTIFY_JIRA_TRANSITION}" ]; then
     --url "${VORTEX_NOTIFY_JIRA_ENDPOINT}/rest/api/3/issue/${issue}/transitions")"
 
   transition_id="$(echo "${payload}" | extract_json_value "transitions" | extract_json_value_by_value "name" "${VORTEX_NOTIFY_JIRA_TRANSITION}" "id" || echo "error")"
-  { [ "${transition_id}" = "" ] || [ "$(expr "x${transition_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Unable to retrieve transition ID." && exit 1
+  { [ -z "${transition_id}" ] || [ "$(expr "x${transition_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Unable to retrieve transition ID." && exit 1
   echo "success"
 
   payload="$(curl \

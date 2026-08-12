@@ -7,8 +7,6 @@ namespace DrevOps\VortexInstaller\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\PromptType;
 
 /**
- * Interface HandlerInterface.
- *
  * The interface for the prompt handlers.
  */
 interface HandlerInterface {
@@ -57,7 +55,7 @@ interface HandlerInterface {
   public function dependsOn(): ?array;
 
   /**
-   * Label for of the handler.
+   * Label for the handler.
    *
    * @return string
    *   The label for the handler.

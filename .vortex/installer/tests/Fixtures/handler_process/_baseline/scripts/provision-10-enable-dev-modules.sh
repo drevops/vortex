@@ -26,7 +26,7 @@ drush() { ./vendor/bin/drush -y "$@"; }
 
 info "Started development modules operations."
 
-environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+environment="$(drush php:eval "print \Drupal\Core\Site\Settings::get('environment');")"
 note "Environment: ${environment}"
 
 if ! echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then

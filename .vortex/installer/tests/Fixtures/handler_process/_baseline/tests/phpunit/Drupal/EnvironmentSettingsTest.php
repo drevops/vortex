@@ -39,7 +39,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
    * Data provider for testing environment type detection.
    */
   public static function dataProviderEnvironmentTypeDetection(): \Iterator {
-    // By default, the default environment type is local.
+    // The default environment type is local.
     yield [[], self::ENVIRONMENT_LOCAL];
 
     // CI.

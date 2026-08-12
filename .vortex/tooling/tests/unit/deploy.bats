@@ -340,8 +340,8 @@ load ../_helper.bash
 
   run .vortex/tooling/src/vortex-deploy
   assert_success
-  assert_output_contains "Found flag to gate deployment on the 'deploy' label."
-  assert_output_contains "PR 123 carries the 'deploy' label."
+  assert_output_contains 'Found flag to gate deployment on the "deploy" label.'
+  assert_output_contains 'PR 123 carries the "deploy" label.'
   assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
@@ -357,8 +357,8 @@ load ../_helper.bash
 
   run .vortex/tooling/src/vortex-deploy
   assert_success
-  assert_output_contains "Found flag to gate deployment on the 'deploy' label."
-  assert_output_contains "PR 123 does not carry the 'deploy' label."
+  assert_output_contains 'Found flag to gate deployment on the "deploy" label.'
+  assert_output_contains 'PR 123 does not carry the "deploy" label.'
   assert_output_contains "Skipped deployment webhook."
 
   popd >/dev/null
@@ -398,7 +398,7 @@ load ../_helper.bash
 
   run .vortex/tooling/src/vortex-deploy
   assert_success
-  assert_output_contains "PR 456 carries the 'deploy' label."
+  assert_output_contains 'PR 456 carries the "deploy" label.'
   assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null
@@ -433,7 +433,7 @@ load ../_helper.bash
 
   run .vortex/tooling/src/vortex-deploy
   assert_success
-  assert_output_contains "PR 123 does not carry the 'deploy' label."
+  assert_output_contains 'PR 123 does not carry the "deploy" label.'
   assert_output_contains "Skipped deployment webhook."
 
   popd >/dev/null
@@ -449,7 +449,7 @@ load ../_helper.bash
 
   run .vortex/tooling/src/vortex-deploy
   assert_success
-  assert_output_contains "PR 123 does not carry the 'deploy' label."
+  assert_output_contains 'PR 123 does not carry the "deploy" label.'
   assert_output_contains "Skipped deployment webhook."
 
   popd >/dev/null
@@ -469,7 +469,7 @@ load ../_helper.bash
 
   run .vortex/tooling/src/vortex-deploy
   assert_success
-  assert_output_contains "PR 123 carries the 'deploy to env' label."
+  assert_output_contains 'PR 123 carries the "deploy to env" label.'
   assert_output_not_contains "Skipped deployment"
 
   popd >/dev/null

@@ -173,7 +173,7 @@ for cmd in lagoon curl jq; do command -v "${cmd}" >/dev/null || {
 }; done
 
 task "Configuring Lagoon instance."
-#shellcheck disable=SC2218
+# shellcheck disable=SC2218
 lagoon config add --force --lagoon "${VORTEX_DEPLOY_LAGOON_INSTANCE}" --graphql "${VORTEX_DEPLOY_LAGOON_INSTANCE_GRAPHQL}" --hostname "${VORTEX_DEPLOY_LAGOON_INSTANCE_HOSTNAME}" --port "${VORTEX_DEPLOY_LAGOON_INSTANCE_PORT}"
 pass "Configured Lagoon instance."
 

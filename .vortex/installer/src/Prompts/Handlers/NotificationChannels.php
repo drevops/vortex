@@ -8,39 +8,18 @@ use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 
-/**
- * Handler for notification channels selection.
- */
 class NotificationChannels extends AbstractHandler {
 
-  /**
-   * Email notification channel.
-   */
   public const EMAIL = 'email';
 
-  /**
-   * GitHub notification channel.
-   */
   public const GITHUB = 'github';
 
-  /**
-   * JIRA notification channel.
-   */
   public const JIRA = 'jira';
 
-  /**
-   * New Relic notification channel.
-   */
   public const NEWRELIC = 'newrelic';
 
-  /**
-   * Slack notification channel.
-   */
   public const SLACK = 'slack';
 
-  /**
-   * Webhook notification channel.
-   */
   public const WEBHOOK = 'webhook';
 
   /**
@@ -104,11 +83,9 @@ class NotificationChannels extends AbstractHandler {
       Env::writeValueDotenv('VORTEX_NOTIFY_CHANNELS', Converter::toList($v), $t . '/.env');
     }
     else {
-      // If no channels selected, set to empty value.
       Env::writeValueDotenv('VORTEX_NOTIFY_CHANNELS', '', $t . '/.env', FALSE);
     }
 
-    // Build list of tokens to remove based on unselected channels.
     $tokens = [];
 
     if (!in_array(self::EMAIL, $v)) {
@@ -135,7 +112,6 @@ class NotificationChannels extends AbstractHandler {
       $tokens[] = 'NOTIFICATIONS_GITHUB';
     }
 
-    // Remove tokens for unselected channels.
     foreach ($tokens as $token) {
       File::removeTokenAsync($token);
     }

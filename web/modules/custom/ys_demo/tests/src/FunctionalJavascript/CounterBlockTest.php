@@ -85,13 +85,11 @@ class CounterBlockTest extends WebDriverTestBase {
 
     $this->assertSession()->waitForElement('css', '[data-ys-demo-counter]');
 
-    // Increment a few times.
     $this->click('[data-ys-demo-counter-action="increment"]');
     $this->click('[data-ys-demo-counter-action="increment"]');
     $this->click('[data-ys-demo-counter-action="increment"]');
     $this->assertCounterValue('3');
 
-    // Reset.
     $this->click('[data-ys-demo-counter-action="reset"]');
     $this->assertCounterValue('0');
   }

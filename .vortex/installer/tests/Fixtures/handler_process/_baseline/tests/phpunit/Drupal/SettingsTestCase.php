@@ -20,7 +20,7 @@ abstract class SettingsTestCase extends TestCase {
    *
    * This is used to differentiate between the environment names set in
    * settings.php and the environment used to test configs and settings
-   * in environment-less way.
+   * in an environment-less way.
    */
   final const ENVIRONMENT_SUT = 'env-testing';
 

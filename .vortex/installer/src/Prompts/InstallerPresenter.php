@@ -67,11 +67,9 @@ EOT;
     $logo = Tui::center($logo, Tui::terminalWidth($max_header_width), '─');
     $logo = Tui::cyan($logo);
 
-    // Depending on how the installer is run, the version may be set to
-    // the placeholder value or actual version (PHAR packager will replace
-    // the placeholder with the actual version).
-    // We need to fence the replacement below only if the version is still set
-    // to the placeholder value.
+    // Depending on how the installer is run, the version is either the actual
+    // version or the placeholder (the PHAR packager replaces the placeholder
+    // with the actual version).
     if (str_contains($version, 'vortex-installer-version')) {
       $version = str_replace('@vortex-installer-version@', 'development', $version);
     }
@@ -135,7 +133,6 @@ EOT;
     else {
       $title = 'Finished installing Vortex';
 
-      // Check for required tools and provide conditional instructions.
       $missing_tools = $this->checkRequiredTools();
       if (!empty($missing_tools)) {
         $tools_output = 'Install required tools:' . PHP_EOL;
