@@ -145,7 +145,9 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
     $supplied = [];
 
     foreach ($answers as $id => $entry) {
-      if ($entry === static::TUI_DEFAULT) {
+      // Both sentinels mean the scenario answers nothing here: one accepts
+      // whatever the default is, the other never reaches the question at all.
+      if ($entry === static::TUI_DEFAULT || $entry === static::TUI_SKIP) {
         continue;
       }
 

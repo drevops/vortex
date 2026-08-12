@@ -26,7 +26,9 @@ class CodeProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase 
       [CodeProvider::id() => Key::DOWN . Key::ENTER],
       [
         CodeProvider::id() => CodeProvider::OTHER,
-        CiProvider::id() => CiProvider::CIRCLECI,
+        // The narrowed options exclude GitHub Actions, but the default is
+        // handed through unreconciled - the same value the install produces.
+        CiProvider::id() => CiProvider::GITHUB_ACTIONS,
       ] + $expected_defaults,
     ];
     yield 'code repo - discovery' => [

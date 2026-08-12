@@ -144,11 +144,18 @@ class TuiAdapter {
         // is never one of the profiles on offer. The answer a handler settles
         // on is authoritative, so it joins the list rather than being dropped
         // when the value is reconciled against it.
-        $candidates = [$c->update ? $handler->discover() : NULL, $handler->default($answers)];
+        $candidates = [$c->update ? $handler->discover() : NULL];
 
         if ($pre_resolved) {
-          array_unshift($candidates, $handler->resolvedValue($c->answers));
+          $candidates[] = $handler->resolvedValue($c->answers);
         }
+
+        // The default joins the list even when the handler's own narrowing
+        // excludes it: the flow this replaces handed the narrowed options and
+        // the unnarrowed default to the prompt without reconciling them, and
+        // the answer that reached processing was the default. Dropping it here
+        // would change what a project is built with.
+        $candidates[] = $handler->default($answers);
 
         foreach ($candidates as $value) {
           if (is_string($value) && $value !== '' && !array_key_exists($value, $options)) {
@@ -182,7 +189,9 @@ class TuiAdapter {
       if ($c->update) {
         $detected = $handler->discover();
 
-        if ($detected !== NULL && $detected !== '') {
+        // What a project holds is not necessarily something the question
+        // offers, and a value it does not offer is not an answer.
+        if ($detected !== NULL && $detected !== '' && self::offers($handler, $detected, $contextual ? $c->answers : [])) {
           return $detected;
         }
       }
@@ -233,6 +242,39 @@ class TuiAdapter {
     }
 
     return $field;
+  }
+
+  /**
+   * Whether a question offers the given value.
+   *
+   * @param \DrevOps\VortexCli\Prompts\Handlers\HandlerInterface $handler
+   *   The handler declaring the question.
+   * @param mixed $value
+   *   The value to look for.
+   * @param array<string,mixed> $responses
+   *   The answers the options are resolved against.
+   *
+   * @return bool
+   *   TRUE when the question offers the value, or offers no list at all.
+   */
+  protected static function offers(HandlerInterface $handler, mixed $value, array $responses): bool {
+    if (!self::hasOptions($handler->type())) {
+      return TRUE;
+    }
+
+    $options = self::normalize($handler->options($responses));
+
+    if ($options === []) {
+      return TRUE;
+    }
+
+    foreach (is_array($value) ? $value : [$value] as $item) {
+      if (!array_key_exists((string) $item, $options)) {
+        return FALSE;
+      }
+    }
+
+    return TRUE;
   }
 
   /**

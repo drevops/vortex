@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Tests\Unit\Handlers;
 
 use DrevOps\VortexCli\Prompts\Handlers\Profile;
+use DrevOps\VortexCli\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Tests\Support\Key;
@@ -21,11 +22,11 @@ class ProfileHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Profile::id() => 'minimal'] + $expected_defaults,
     ];
     yield 'profile - prompt - custom' => [
-      [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'myprofile'],
-      [Profile::id() => 'myprofile'] + $expected_defaults,
+      [Profile::id() => Profile::CUSTOM, ProfileCustom::id() => 'myprofile'],
+      [Profile::id() => Profile::CUSTOM, ProfileCustom::id() => 'myprofile'] + $expected_defaults,
     ];
     yield 'profile - prompt - invalid' => [
-      [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'my profile'],
+      [Profile::id() => Profile::CUSTOM, ProfileCustom::id() => 'my profile'],
       'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.',
     ];
     yield 'profile - discovery' => [
@@ -38,7 +39,7 @@ class ProfileHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     ];
     yield 'profile - discovery - non-Vortex project' => [
       [],
-      [Profile::id() => 'discovered_profile'] + $expected_defaults,
+      [Profile::id() => Profile::CUSTOM, ProfileCustom::id() => 'discovered_profile'] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         File::dump(static::$sut . '/web/profiles/discovered_profile/discovered_profile.info');
       },

@@ -18,24 +18,24 @@ class MigrationImageHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCas
     $expected_defaults = static::getExpectedDefaults();
     yield 'migration image - default' => [
       [
-        Migration::id() => Key::LEFT . Key::ENTER,
-        MigrationFetchSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+        Migration::id() => TRUE,
+        MigrationFetchSource::id() => MigrationFetchSource::CONTAINER_REGISTRY,
         MigrationImage::id() => static::TUI_DEFAULT,
       ],
       [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::CONTAINER_REGISTRY, MigrationImage::id() => 'myprojectorg/myproject-data-migration:latest'] + $expected_defaults,
     ];
     yield 'migration image - invalid' => [
       [
-        Migration::id() => Key::LEFT . Key::ENTER,
-        MigrationFetchSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+        Migration::id() => TRUE,
+        MigrationFetchSource::id() => MigrationFetchSource::CONTAINER_REGISTRY,
         MigrationImage::id() => 'myregistry:myimage:mytag',
       ],
       'Please enter a valid container image name with an optional tag.',
     ];
     yield 'migration image - discovery' => [
       [
-        Migration::id() => Key::LEFT . Key::ENTER,
-        MigrationFetchSource::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+        Migration::id() => TRUE,
+        MigrationFetchSource::id() => MigrationFetchSource::CONTAINER_REGISTRY,
       ],
       [
         Migration::id() => TRUE,
