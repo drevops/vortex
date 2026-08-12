@@ -21,6 +21,11 @@ use PHPUnit\Framework\TestCase;
 class CircleCiConfigTest extends TestCase {
 
   /**
+   * Maximum length of a filter pattern accepted by the CircleCI compiler.
+   */
+  const FILTER_PATTERN_MAX_LENGTH = 128;
+
+  /**
    * CircleCI loaded config.
    *
    * @var mixed
@@ -32,11 +37,22 @@ class CircleCiConfigTest extends TestCase {
    */
   protected function setUp(): void {
     parent::setUp();
+    $this->config = static::loadConfig();
+  }
+
+  /**
+   * Loads the CircleCI config.
+   *
+   * @return array<mixed>
+   *   Decoded config.
+   */
+  protected static function loadConfig(): array {
     $file = file_get_contents(__DIR__ . '/../../.circleci/config.yml');
     if (!$file) {
       throw new \RuntimeException('Unable to read CircleCI config file.');
     }
-    $this->config = Yaml::decode($file);
+
+    return Yaml::decode($file);
   }
 
   /**
@@ -46,9 +62,17 @@ class CircleCiConfigTest extends TestCase {
    */
   #[DataProvider('dataProviderDeployBranchRegex')]
   public function testDeployBranchRegex(string $branch, bool $expected = TRUE): void {
-    $pattern = $this->getCommitWorkflowJob('deploy')['filters']['branches']['only'];
-    $result = preg_match($pattern, $branch);
-    $this->assertEquals($expected, $result);
+    $patterns = $this->getCommitWorkflowJob('deploy')['filters']['branches']['only'];
+
+    $result = FALSE;
+    foreach ($patterns as $pattern) {
+      if (preg_match($pattern, $branch)) {
+        $result = TRUE;
+        break;
+      }
+    }
+
+    $this->assertSame($expected, $result);
   }
 
   /**
@@ -254,6 +278,53 @@ class CircleCiConfigTest extends TestCase {
     yield ['2023-04-17.pre123', FALSE];
     yield ['2023-04-17.pre123post', FALSE];
     yield ['2023-04-17.123post', FALSE];
+  }
+
+  /**
+   * Tests that filter patterns are within the supported length.
+   */
+  #[DataProvider('dataProviderFilterPatternLength')]
+  public function testFilterPatternLength(string $pattern): void {
+    $regex = preg_match('#^/(.*)/$#', $pattern, $matches) === 1 ? $matches[1] : $pattern;
+
+    $this->assertLessThanOrEqual(static::FILTER_PATTERN_MAX_LENGTH, strlen($regex));
+  }
+
+  /**
+   * Data provider for testFilterPatternLength().
+   */
+  public static function dataProviderFilterPatternLength(): \Iterator {
+    foreach (static::collectFilterPatterns(static::loadConfig()) as $path => $pattern) {
+      yield $path => [$pattern];
+    }
+  }
+
+  /**
+   * Collects the patterns of every workflow filter in the config.
+   *
+   * @param mixed $config
+   *   Config structure to traverse.
+   * @param string $path
+   *   Path of the structure within the config, used to label the patterns.
+   * @param bool $is_filter
+   *   Whether the structure is within a filter.
+   *
+   * @return array<string, string>
+   *   Patterns keyed by their path within the config.
+   */
+  protected static function collectFilterPatterns(mixed $config, string $path = '', bool $is_filter = FALSE): array {
+    if (!is_array($config)) {
+      return $is_filter ? [$path . ': ' . $config => (string) $config] : [];
+    }
+
+    $patterns = [];
+
+    foreach ($config as $key => $value) {
+      $child = $path === '' ? (string) $key : $path . '.' . $key;
+      $patterns += static::collectFilterPatterns($value, $child, $is_filter || $key === 'filters');
+    }
+
+    return $patterns;
   }
 
   /**

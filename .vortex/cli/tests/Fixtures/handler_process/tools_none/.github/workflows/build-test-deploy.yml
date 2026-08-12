@@ -13,18 +13,16 @@
 -        run: docker run --rm -v "${PWD}":/app zavoloklom/dclint:__VERSION__ .
 -        continue-on-error: ${{ vars.VORTEX_CI_DCLINT_IGNORE_FAILURE == '1' }}
 -
-       - name: Scan for committed secrets with Gitleaks
-         run: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner
-         continue-on-error: ${{ vars.VORTEX_CI_GITLEAKS_IGNORE_FAILURE == '1' }}
-@@ -129,7 +118,6 @@
+       - name: Build stack
+         run: docker compose up --no-deps --detach cli
+ 
+@@ -125,36 +114,11 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 -          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
  
-       - name: Audit Composer packages
-         run: docker compose exec -T cli composer audit
-@@ -139,30 +127,6 @@
+       - name: Validate Composer configuration is normalized
          run: docker compose exec -T cli composer normalize --dry-run
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
  
@@ -55,7 +53,7 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -298,7 +262,6 @@
+@@ -290,7 +254,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -63,7 +61,7 @@
  
        - name: Provision site
          run: |
-@@ -312,71 +275,6 @@
+@@ -304,71 +267,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -135,7 +133,7 @@
        - name: Validate Single Directory Components
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: |
-@@ -389,20 +287,6 @@
+@@ -381,20 +279,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -156,7 +154,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -419,16 +303,6 @@
+@@ -411,16 +295,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
