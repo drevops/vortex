@@ -223,23 +223,39 @@ else
       # environment to the state it was found in, so an environment that had no
       # flag is not left with one.
       task "Discovering a database import override flag."
-      override_db_vars="$(lagoon list variables --environment "${deploy_pr_full}" --reveal --output-json 2>/dev/null || echo '{"data":[]}')"
-      override_db_exists="$(printf '%s' "${override_db_vars}" | jq -r '[.data[]? | select(.name == "VORTEX_PROVISION_OVERRIDE_DB")] | length' 2>/dev/null || echo 0)"
-      override_db_original="$(printf '%s' "${override_db_vars}" | jq -r '[.data[]? | select(.name == "VORTEX_PROVISION_OVERRIDE_DB") | .value] | first // ""' 2>/dev/null || echo '')"
-      override_db_scope="$(printf '%s' "${override_db_vars}" | jq -r '[.data[]? | select(.name == "VORTEX_PROVISION_OVERRIDE_DB") | .scope] | first // "global"' 2>/dev/null || echo 'global')"
+      override_db_state="unknown"
+      override_db_original=""
+      override_db_scope="global"
 
-      if [ "${override_db_exists}" = "0" ]; then
+      if override_db_vars="$(lagoon list variables --environment "${deploy_pr_full}" --reveal --output-json 2>/dev/null)"; then
+        if override_db_count="$(printf '%s' "${override_db_vars}" | jq -r '[.data[]? | select(type == "object") | select(.name? == "VORTEX_PROVISION_OVERRIDE_DB")] | length' 2>/dev/null)"; then
+          if [ "${override_db_count}" = "0" ]; then
+            override_db_state="absent"
+          else
+            override_db_state="present"
+            override_db_original="$(printf '%s' "${override_db_vars}" | jq -r '[.data[]? | select(type == "object") | select(.name? == "VORTEX_PROVISION_OVERRIDE_DB") | .value] | first // ""')"
+            override_db_scope="$(printf '%s' "${override_db_vars}" | jq -r '[.data[]? | select(type == "object") | select(.name? == "VORTEX_PROVISION_OVERRIDE_DB") | .scope] | first // "global"')"
+          fi
+        fi
+      fi
+
+      if [ "${override_db_state}" = "unknown" ]; then
+        # An unreadable variable list is not an absent flag. Adding one and
+        # deleting it afterwards would destroy a flag that already exists, so
+        # the flag is left alone.
+        note "Could not read environment variables. Leaving a database import override flag unchanged."
+      elif [ "${override_db_state}" = "absent" ]; then
         note "No existing database import override flag found."
       else
         note "Found an existing database import override flag with value \"${override_db_original}\" and scope \"${override_db_scope}\"."
       fi
       pass "Completed database import override flag discovery."
 
-      if [ "${override_db_exists}" = "0" ]; then
+      if [ "${override_db_state}" = "absent" ]; then
         task "Adding a database import override flag with value ${override_db_value}."
         lagoon add variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB --value "${override_db_value}" --scope global || true
         pass "Added a database import override flag with value ${override_db_value}."
-      else
+      elif [ "${override_db_state}" = "present" ]; then
         task "Updating a database import override flag to ${override_db_value}."
         lagoon update variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB --value "${override_db_value}" --scope "${override_db_scope}" || true
         pass "Updated a database import override flag to ${override_db_value}."
@@ -253,11 +269,11 @@ else
       sleep 10
       pass "Waited for deployment to be queued."
 
-      if [ "${override_db_exists}" = "0" ]; then
+      if [ "${override_db_state}" = "absent" ]; then
         task "Removing a database import override flag."
         lagoon delete variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB || true
         pass "Removed a database import override flag."
-      else
+      elif [ "${override_db_state}" = "present" ]; then
         task "Restoring a database import override flag to ${override_db_original}."
         lagoon update variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB --value "${override_db_original}" --scope "${override_db_scope}" || true
         pass "Restored a database import override flag to ${override_db_original}."
@@ -303,23 +319,39 @@ else
       # environment to the state it was found in, so an environment that had no
       # flag is not left with one.
       task "Discovering a database import override flag."
-      override_db_vars="$(lagoon list variables --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --reveal --output-json 2>/dev/null || echo '{"data":[]}')"
-      override_db_exists="$(printf '%s' "${override_db_vars}" | jq -r '[.data[]? | select(.name == "VORTEX_PROVISION_OVERRIDE_DB")] | length' 2>/dev/null || echo 0)"
-      override_db_original="$(printf '%s' "${override_db_vars}" | jq -r '[.data[]? | select(.name == "VORTEX_PROVISION_OVERRIDE_DB") | .value] | first // ""' 2>/dev/null || echo '')"
-      override_db_scope="$(printf '%s' "${override_db_vars}" | jq -r '[.data[]? | select(.name == "VORTEX_PROVISION_OVERRIDE_DB") | .scope] | first // "global"' 2>/dev/null || echo 'global')"
+      override_db_state="unknown"
+      override_db_original=""
+      override_db_scope="global"
 
-      if [ "${override_db_exists}" = "0" ]; then
+      if override_db_vars="$(lagoon list variables --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --reveal --output-json 2>/dev/null)"; then
+        if override_db_count="$(printf '%s' "${override_db_vars}" | jq -r '[.data[]? | select(type == "object") | select(.name? == "VORTEX_PROVISION_OVERRIDE_DB")] | length' 2>/dev/null)"; then
+          if [ "${override_db_count}" = "0" ]; then
+            override_db_state="absent"
+          else
+            override_db_state="present"
+            override_db_original="$(printf '%s' "${override_db_vars}" | jq -r '[.data[]? | select(type == "object") | select(.name? == "VORTEX_PROVISION_OVERRIDE_DB") | .value] | first // ""')"
+            override_db_scope="$(printf '%s' "${override_db_vars}" | jq -r '[.data[]? | select(type == "object") | select(.name? == "VORTEX_PROVISION_OVERRIDE_DB") | .scope] | first // "global"')"
+          fi
+        fi
+      fi
+
+      if [ "${override_db_state}" = "unknown" ]; then
+        # An unreadable variable list is not an absent flag. Adding one and
+        # deleting it afterwards would destroy a flag that already exists, so
+        # the flag is left alone.
+        note "Could not read environment variables. Leaving a database import override flag unchanged."
+      elif [ "${override_db_state}" = "absent" ]; then
         note "No existing database import override flag found."
       else
         note "Found an existing database import override flag with value \"${override_db_original}\" and scope \"${override_db_scope}\"."
       fi
       pass "Completed database import override flag discovery."
 
-      if [ "${override_db_exists}" = "0" ]; then
+      if [ "${override_db_state}" = "absent" ]; then
         task "Adding a database import override flag with value ${override_db_value}."
         lagoon add variable --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --name VORTEX_PROVISION_OVERRIDE_DB --value "${override_db_value}" --scope global || true
         pass "Added a database import override flag with value ${override_db_value}."
-      else
+      elif [ "${override_db_state}" = "present" ]; then
         task "Updating a database import override flag to ${override_db_value}."
         lagoon update variable --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --name VORTEX_PROVISION_OVERRIDE_DB --value "${override_db_value}" --scope "${override_db_scope}" || true
         pass "Updated a database import override flag to ${override_db_value}."
@@ -333,11 +365,11 @@ else
       sleep 10
       pass "Waited for deployment to be queued."
 
-      if [ "${override_db_exists}" = "0" ]; then
+      if [ "${override_db_state}" = "absent" ]; then
         task "Removing a database import override flag."
         lagoon delete variable --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --name VORTEX_PROVISION_OVERRIDE_DB || true
         pass "Removed a database import override flag."
-      else
+      elif [ "${override_db_state}" = "present" ]; then
         task "Restoring a database import override flag to ${override_db_original}."
         lagoon update variable --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --name VORTEX_PROVISION_OVERRIDE_DB --value "${override_db_original}" --scope "${override_db_scope}" || true
         pass "Restored a database import override flag to ${override_db_original}."
