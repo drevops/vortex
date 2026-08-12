@@ -179,3 +179,17 @@ Tests run across parallel build instances, so a separate check is created for
 each instance (for example, `Test results (0)` and `Test results (1)`). To
 disable publishing, set `VORTEX_CI_TEST_RESULTS_SKIP` to `1` in **Settings →
 Secrets and variables → Actions → Variables**.
+
+### Deployment summary
+
+The result of the `deploy` job is written to the run summary page: the outcome,
+the deployment types, mode, branch and pull request, and the deployment log
+itself. The log is truncated to its last 200 lines.
+
+A deployment finishes successfully without deploying anything when a skip flag
+or the pull request label gate applies. The summary reports those runs as
+**Skipped**, along with the reason, so a green `deploy` job is never mistaken
+for a completed deployment.
+
+To disable the summary, set `VORTEX_CI_DEPLOY_SUMMARY_SKIP` to `1` in
+**Settings → Secrets and variables → Actions → Variables**.
