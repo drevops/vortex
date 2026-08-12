@@ -128,6 +128,20 @@ run_lagoon_deploy() {
   return 0
 }
 
+# Update the database import override flag for an environment.
+#
+# Lagoon does not remove a deleted variable from the build configmap, so the
+# flag is updated in place rather than added and deleted.
+# @see https://github.com/uselagoon/build-deploy-tool/issues/136
+update_override_db_flag() {
+  local environment="${1}"
+  local value="${2}"
+
+  task "Updating a database import override flag to ${value}."
+  lagoon update variable --environment "${environment}" --name VORTEX_PROVISION_OVERRIDE_DB --value "${value}" --scope global || true
+  pass "Updated a database import override flag to ${value}."
+}
+
 # Track exit status to return at the end.
 exit_code=0
 
@@ -188,6 +202,11 @@ if [ "${VORTEX_DEPLOY_LAGOON_ACTION}" = "destroy" ]; then
 
 # ACTION: 'deploy' OR 'deploy_override_db'
 else
+  override_db=0
+  if [ "${VORTEX_DEPLOY_LAGOON_ACTION}" = "deploy_override_db" ]; then
+    override_db=1
+  fi
+
   # Deploy PR.
   if [ -n "${VORTEX_DEPLOY_LAGOON_PR:-}" ]; then
     deploy_pr_full="pr-${VORTEX_DEPLOY_LAGOON_PR}"
@@ -212,32 +231,18 @@ else
 
     # Re-deployment of the existing environment.
     if [ "${is_redeploy:-}" = "1" ]; then
-      # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
-      # @see https://github.com/uselagoon/lagoon/issues/1922
-      task "Setting a database overwrite flag to 0."
-      lagoon update variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global || true
-      pass "Set a database overwrite flag to 0."
-
-      # Override DB during re-deployment.
-      if [ "${VORTEX_DEPLOY_LAGOON_ACTION}" = "deploy_override_db" ]; then
-        task "Adding a database import override flag for the current deployment."
-        # To update variable value, we need to remove it and add again.
-        lagoon update variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global || true
-        pass "Added a database import override flag for the current deployment."
-      fi
+      update_override_db_flag "${deploy_pr_full}" "${override_db}"
 
       task "Redeploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
       run_lagoon_deploy deploy pullrequest --number "${VORTEX_DEPLOY_LAGOON_PR}" --base-branch-name "${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_LAGOON_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_LAGOON_PR_HEAD}" --title "${deploy_pr_full}"
 
-      if [ "${VORTEX_DEPLOY_LAGOON_ACTION:-}" = "deploy_override_db" ]; then
+      if [ "${override_db}" = "1" ]; then
+        # Lagoon reads the flag when it queues the build.
         task "Waiting for deployment to be queued."
         sleep 10
         pass "Waited for deployment to be queued."
 
-        task "Removing a database import override flag for the current deployment."
-        # Note that a variable will be read by Lagoon during queuing of the build.
-        lagoon update variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global || true
-        pass "Removed a database import override flag for the current deployment."
+        update_override_db_flag "${deploy_pr_full}" 0
       fi
 
     # Deployment of the fresh environment.
@@ -269,32 +274,18 @@ else
 
     # Re-deployment of the existing environment.
     if [ "${is_redeploy:-}" = "1" ]; then
-      # Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
-      # @see https://github.com/uselagoon/lagoon/issues/1922
-      task "Setting a database overwrite flag to 0."
-      lagoon update variable --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global || true
-      pass "Set a database overwrite flag to 0."
-
-      # Override DB during re-deployment.
-      if [ "${VORTEX_DEPLOY_LAGOON_ACTION:-}" = "deploy_override_db" ]; then
-        task "Adding a database import override flag for the current deployment."
-        # To update variable value, we need to remove it and add again.
-        lagoon update variable --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global || true
-        pass "Added a database import override flag for the current deployment."
-      fi
+      update_override_db_flag "${VORTEX_DEPLOY_LAGOON_BRANCH}" "${override_db}"
 
       task "Redeploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
       run_lagoon_deploy deploy latest --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}"
 
-      if [ "${VORTEX_DEPLOY_LAGOON_ACTION:-}" = "deploy_override_db" ]; then
+      if [ "${override_db}" = "1" ]; then
+        # Lagoon reads the flag when it queues the build.
         task "Waiting for deployment to be queued."
         sleep 10
         pass "Waited for deployment to be queued."
 
-        task "Removing a database import override flag for the current deployment."
-        # Note that a variable will be read by Lagoon during queuing of the build.
-        lagoon update variable --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global || true
-        pass "Removed a database import override flag for the current deployment."
+        update_override_db_flag "${VORTEX_DEPLOY_LAGOON_BRANCH}" 0
       fi
 
     # Deployment of the fresh environment.
