@@ -44,7 +44,7 @@ info() { printf "   ==> %s\n" "${1}"; }
 note() { printf "       %s\n" "${1}"; }
 task() { printf "     > %s\n" "${1}"; }
 pass() { printf "     < %s\n" "${1}"; }
-fail() { printf "     ! %s\n" "${1}"; }
+fail() { printf "     ! %s\n" "${1}"; exit 1; }
 # @formatter:on
 
 drush() { ./vendor/bin/drush -y "$@"; }
@@ -79,10 +79,7 @@ run_migration() {
   local migration_name="${1}"
   shift
 
-  drush migrate:reset-status "${migration_name}" || {
-    fail "Failed to reset migration status for ${migration_name}."
-    exit 1
-  }
+  drush migrate:reset-status "${migration_name}" || fail "Failed to reset migration status for ${migration_name}."
 
   task "Running migration: ${migration_name}."
   local opts=()
@@ -102,7 +99,7 @@ run_migration() {
 
   drush migrate:import "${opts[@]}" "${migration_name}" || {
     drush migrate:messages "${migration_name}"
-    exit 1
+    fail "Failed to run migration ${migration_name}."
   }
 
   pass "Migrated: ${migration_name}."
@@ -124,7 +121,7 @@ fi
 if [ "${DRUPAL_MIGRATION_SOURCE_DB_IMPORT}" = "1" ]; then
   task "Importing migration source database."
 
-  [ ! -f "${VORTEX_DB_DIR}/${VORTEX_FETCH_DB2_FILE}" ] && fail "Migration source database file not found. Please run 'ahoy fetch-db2'." && exit 1
+  [ ! -f "${VORTEX_DB_DIR}/${VORTEX_FETCH_DB2_FILE}" ] && fail "Migration source database file not found. Please run 'ahoy fetch-db2'."
 
   drush sql:drop --database=migrate
   # shellcheck disable=SC2091
@@ -137,9 +134,8 @@ fi
 
 task "Verifying migration source database."
 if ! drush sql:query --database=migrate "SELECT COUNT(*) FROM ${DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE}" >/dev/null 2>&1; then
-  fail "Migration source database is corrupted."
   drush sql:query --database=migrate "SHOW TABLES;"
-  exit 1
+  fail "Migration source database is corrupted."
 fi
 pass "Verified migration source database."
 
