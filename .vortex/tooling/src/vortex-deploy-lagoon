@@ -78,6 +78,13 @@ VORTEX_DEPLOY_LAGOON_LAGOONCLI_VERSION="${VORTEX_DEPLOY_LAGOON_LAGOONCLI_VERSION
 # When set to 1, the deployment will fail.
 VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED="${VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED:-0}"
 
+# File to write the URL of the deployed environment to.
+#
+# The URL is resolved from the environment's Lagoon route, so it is available
+# for an environment that already exists but not for one that this deployment
+# creates. Leave empty to not resolve the URL at all.
+VORTEX_DEPLOY_LAGOON_URL_FILE="${VORTEX_DEPLOY_LAGOON_URL_FILE:-}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -309,6 +316,27 @@ if [ "${exit_code}" != "0" ]; then
   fi
 
   fail "Lagoon deployment completed with errors." "${exit_code}"
+fi
+
+if [ -n "${VORTEX_DEPLOY_LAGOON_URL_FILE}" ] && [ "${VORTEX_DEPLOY_LAGOON_ACTION}" != "destroy" ]; then
+  environment_name="${VORTEX_DEPLOY_LAGOON_BRANCH}"
+
+  if [ -n "${VORTEX_DEPLOY_LAGOON_PR}" ]; then
+    environment_name="pr-${VORTEX_DEPLOY_LAGOON_PR}"
+  fi
+
+  task "Resolving environment URL."
+  environment_url="$(lagoon list environments --output-json --pretty | jq -r --arg name "${environment_name}" '.data[] | select(.name == $name) | .route // empty' 2>/dev/null || echo '')"
+
+  if [ -n "${environment_url}" ]; then
+    mkdir -p "$(dirname "${VORTEX_DEPLOY_LAGOON_URL_FILE}")"
+    printf '%s\n' "${environment_url}" >"${VORTEX_DEPLOY_LAGOON_URL_FILE}"
+    note "Environment URL: ${environment_url}"
+    pass "Resolved environment URL."
+  else
+    note "Lagoon has no route for environment \"${environment_name}\"."
+    pass "Skipped environment URL resolution."
+  fi
 fi
 
 pass "Finished Lagoon deployment."

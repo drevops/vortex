@@ -180,16 +180,13 @@ each instance (for example, `Test results (0)` and `Test results (1)`). To
 disable publishing, set `VORTEX_CI_TEST_RESULTS_SKIP` to `1` in **Settings →
 Secrets and variables → Actions → Variables**.
 
-### Deployment summary
+### Environment URL
 
-The result of the `deploy` job is written to the run summary page: the outcome,
-the deployment types, mode, branch and pull request, and the deployment log
-itself. The log is truncated to its last 200 lines.
+The `deploy` job adds the URL of the deployed environment to the run summary,
+so the environment can be opened from the run page.
 
-A deployment finishes successfully without deploying anything when a skip flag
-or the pull request label gate applies. The summary reports those runs as
-**Skipped**, along with the reason, so a green `deploy` job is never mistaken
-for a completed deployment.
-
-To disable the summary, set `VORTEX_CI_DEPLOY_SUMMARY_SKIP` to `1` in
-**Settings → Secrets and variables → Actions → Variables**.
+The URL is read from the environment's Lagoon route, so it appears only for
+[Lagoon deployments](/docs/deployment/lagoon) and only once that route exists —
+an environment created by the deployment itself has none until its first build
+completes. Artifact and webhook deployments hand the code to the hosting
+provider without learning a URL, so nothing is added for them.

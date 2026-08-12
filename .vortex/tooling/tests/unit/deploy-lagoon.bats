@@ -668,3 +668,179 @@ load ../_helper.bash
 
   popd >/dev/null
 }
+
+@test "URL: not resolved when the URL file is not set" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_BRANCH="test-branch"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+
+  local existing_env_json='{"data":[{"name":"test-branch","deploytype":"branch","route":"https://test-branch.example.com"}]}'
+
+  declare -a STEPS=(
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_env_json}"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy latest --environment test-branch"
+    "- Resolving environment URL."
+    "Finished Lagoon deployment."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-deploy-lagoon
+  assert_success
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
+
+@test "URL: branch environment route is written to the URL file" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_BRANCH="test-branch"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+  export VORTEX_DEPLOY_LAGOON_URL_FILE=".logs/deployment_url.txt"
+
+  local existing_env_json='{"data":[{"name":"test-branch","deploytype":"branch","route":"https://test-branch.example.com"}]}'
+
+  declare -a STEPS=(
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_env_json}"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy latest --environment test-branch"
+    "Resolving environment URL."
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_env_json}"
+    "Environment URL: https://test-branch.example.com"
+    "Resolved environment URL."
+    "Finished Lagoon deployment."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-deploy-lagoon
+  assert_success
+  steps_run "assert" "${mocks[@]}"
+
+  assert_file_exists ".logs/deployment_url.txt"
+  assert_file_contains ".logs/deployment_url.txt" "https://test-branch.example.com"
+
+  popd >/dev/null
+}
+
+@test "URL: PR environment route is written to the URL file" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_PR="123"
+  export VORTEX_DEPLOY_BRANCH="feature-branch"
+  export VORTEX_DEPLOY_PR_HEAD="origin/feature-branch"
+  export VORTEX_DEPLOY_PR_BASE_BRANCH="develop"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+  export VORTEX_DEPLOY_LAGOON_URL_FILE=".logs/deployment_url.txt"
+
+  local existing_pr_env_json='{"data":[{"name":"pr-123","deploytype":"pullrequest","route":"https://pr-123.example.com"}]}'
+
+  declare -a STEPS=(
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_pr_env_json}"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-123 --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 123 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-123"
+    "Resolving environment URL."
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_pr_env_json}"
+    "Environment URL: https://pr-123.example.com"
+    "Resolved environment URL."
+    "Finished Lagoon deployment."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-deploy-lagoon
+  assert_success
+  steps_run "assert" "${mocks[@]}"
+
+  assert_file_exists ".logs/deployment_url.txt"
+  assert_file_contains ".logs/deployment_url.txt" "https://pr-123.example.com"
+
+  popd >/dev/null
+}
+
+@test "URL: no file is written when the environment has no route" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_BRANCH="test-branch"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+  export VORTEX_DEPLOY_LAGOON_URL_FILE=".logs/deployment_url.txt"
+
+  declare -a STEPS=(
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch"
+    "Resolving environment URL."
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
+    'Lagoon has no route for environment "test-branch".'
+    "Skipped environment URL resolution."
+    "Finished Lagoon deployment."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-deploy-lagoon
+  assert_success
+  steps_run "assert" "${mocks[@]}"
+
+  assert_file_not_exists ".logs/deployment_url.txt"
+
+  popd >/dev/null
+}
+
+@test "URL: not resolved when destroying an environment" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_BRANCH="test-branch"
+  export VORTEX_DEPLOY_ACTION="destroy"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+  export VORTEX_DEPLOY_LAGOON_URL_FILE=".logs/deployment_url.txt"
+
+  # shellcheck disable=SC2034
+  declare -a STEPS=(
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project delete environment --environment test-branch"
+    "- Resolving environment URL."
+    "Finished Lagoon deployment."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-deploy-lagoon
+  assert_success
+  steps_run "assert" "${mocks[@]}"
+
+  assert_file_not_exists ".logs/deployment_url.txt"
+
+  popd >/dev/null
+}
