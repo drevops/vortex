@@ -1,0 +1,82 @@
+# GitHub Actions configuration file.
+#
+# Security checks run in their own workflow so that a failing audit is
+# distinguishable from a failing linter and can be re-run on its own.
+name: Security audit
+
+on:
+  push:
+    # Pushes to the following branches will trigger the workflow.
+    branches:
+      - production
+      - main
+      - master
+      - develop
+      - release/**
+      - hotfix/**
+      - project/**
+    # Pushes of tags will also trigger the workflow.
+    tags:
+      - '*'
+  # Pull requests to the following branches will trigger the workflow.
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - production
+      - main
+      - master
+      - develop
+      - release/**
+      - hotfix/**
+      - feature/**
+      - bugfix/**
+      - project/**
+
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  contents: read
+
+jobs:
+
+  audit:
+    runs-on: ubuntu-latest
+
+    env:
+      TZ: ${{ vars.TZ || 'UTC' }}
+      TERM: xterm-256color
+      VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@__HASH__ # __VERSION__
+        with:
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@__HASH__ # __VERSION__
+        with:
+          php-version: '8.4'
+          tools: composer
+          coverage: none
+
+      - name: Fix Git ownership permissions
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Load environment variables from .env
+        run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
+
+      - name: Scan for committed secrets with Gitleaks
+        run: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner
+        continue-on-error: ${{ vars.VORTEX_CI_GITLEAKS_IGNORE_FAILURE == '1' }}
+
+      - name: Audit Composer packages
+        run: composer audit --locked
+        continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}

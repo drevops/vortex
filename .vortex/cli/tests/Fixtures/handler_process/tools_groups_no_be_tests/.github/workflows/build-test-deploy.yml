@@ -1,4 +1,4 @@
-@@ -155,10 +155,6 @@
+@@ -147,10 +147,6 @@
          run: docker compose exec -T cli vendor/bin/twig-cs-fixer
          continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
  
@@ -9,7 +9,7 @@
        - name: Lint module code with NodeJS linters
          run: docker compose exec -T cli bash -c "yarn run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-@@ -317,66 +313,6 @@
+@@ -309,66 +305,6 @@
          run: docker compose exec -T cli bash -c "yarn test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -76,7 +76,7 @@
        - name: Validate Single Directory Components
          if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
          run: |
-@@ -389,20 +325,6 @@
+@@ -381,20 +317,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -97,7 +97,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -419,16 +341,6 @@
+@@ -411,16 +333,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

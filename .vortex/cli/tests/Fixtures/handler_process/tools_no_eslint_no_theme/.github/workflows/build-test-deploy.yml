@@ -1,12 +1,12 @@
-@@ -129,7 +129,6 @@
+@@ -125,7 +125,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
 -          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
  
-       - name: Audit Composer packages
-         run: docker compose exec -T cli composer audit
-@@ -159,15 +158,6 @@
+       - name: Validate Composer configuration is normalized
+         run: docker compose exec -T cli composer normalize --dry-run
+@@ -151,15 +150,6 @@
          run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
          continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
  
@@ -22,7 +22,7 @@
    test:
      runs-on: ubuntu-latest
      if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
-@@ -376,18 +366,6 @@
+@@ -368,18 +358,6 @@
            fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
