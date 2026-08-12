@@ -156,7 +156,29 @@ class FetchDbContainerRegistryTest extends UnitTestCase {
   public function testImageFoundOnHost(): void {
     mkdir(self::$tmp . '/data', 0755, TRUE);
 
-    // Initial inspect: found on host. Still pulls from registry (no archive).
+    // Found on host and no archive to expand, so the image is reused as-is and
+    // no registry commands run.
+    $this->mockPassthruMultiple([
+      [
+        'cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1',
+        'result_code' => 0,
+      ],
+    ]);
+
+    $output = $this->runScript('src/vortex-fetch-db-container-registry');
+
+    $this->assertStringContainsString('Found myorg/mydb image on host.', $output);
+    $this->assertStringContainsString('Using existing myorg/mydb image on host.', $output);
+    $this->assertStringContainsString('Fetch will not proceed.', $output);
+    $this->assertStringContainsString('set VORTEX_FETCH_DB_FORCE value to 1 to force fetch.', $output);
+    $this->assertStringNotContainsString('Downloading myorg/mydb image from the registry.', $output);
+    $this->assertStringContainsString('Finished database data container image download.', $output);
+  }
+
+  public function testImageFoundOnHostForced(): void {
+    mkdir(self::$tmp . '/data', 0755, TRUE);
+    $this->envSet('VORTEX_FETCH_DB_FORCE', '1');
+
     $this->mockPassthruMultiple([
       [
         'cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1',
@@ -175,6 +197,27 @@ class FetchDbContainerRegistryTest extends UnitTestCase {
     $output = $this->runScript('src/vortex-fetch-db-container-registry');
 
     $this->assertStringContainsString('Found myorg/mydb image on host.', $output);
+    $this->assertStringContainsString('Downloading myorg/mydb image from the registry.', $output);
+    $this->assertStringContainsString('Finished database data container image download.', $output);
+  }
+
+  public function testImageFoundOnHostWithArchiveStillExpands(): void {
+    $db_dir = self::$tmp . '/data';
+    mkdir($db_dir, 0755, TRUE);
+    file_put_contents($db_dir . '/db.tar', 'fake-tar-data');
+
+    // An archive always wins over the image already on the host.
+    $this->mockPassthruMultiple([
+      ['cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1', 'result_code' => 0],
+      ['cmd' => sprintf('docker load -q --input %s', escapeshellarg($db_dir . '/db.tar')), 'result_code' => 0],
+      ['cmd' => 'docker image inspect ' . escapeshellarg('myorg/mydb') . ' >/dev/null 2>&1', 'result_code' => 0],
+    ]);
+
+    $output = $this->runScript('src/vortex-fetch-db-container-registry');
+
+    $this->assertStringContainsString('Found myorg/mydb image on host.', $output);
+    $this->assertStringContainsString('Found expanded myorg/mydb image on host.', $output);
+    $this->assertStringNotContainsString('Using existing myorg/mydb image on host.', $output);
     $this->assertStringContainsString('Finished database data container image download.', $output);
   }
 

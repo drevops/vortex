@@ -40,6 +40,9 @@ $db_dir = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_i
 // in a form of `<org>/<repository>` (without a registry prefix).
 $image_base = getenv_default(...array_values(array_unique(['VORTEX_FETCH_DB' . $db_index . '_CONTAINER_REGISTRY_IMAGE_BASE', 'VORTEX_DB' . $db_index . '_IMAGE_BASE', 'VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE', 'VORTEX_DB_IMAGE_BASE', ''])));
 
+// Force the fetch even when the image already exists on the host.
+$force = getenv_default('VORTEX_FETCH_DB' . $db_index . '_FORCE', '');
+
 // -----------------------------------------------------------------------------
 
 command_must_exist('docker');
@@ -61,7 +64,9 @@ function image_exists_on_host(string $image): bool {
 
 INFO('Started database data container image download.');
 
-if (image_exists_on_host($image)) {
+$image_found_on_host = image_exists_on_host($image);
+
+if ($image_found_on_host) {
   NOTE('Found %s image on host.', $image);
 }
 else {
@@ -85,7 +90,21 @@ if (file_exists($archive)) {
   );
 }
 
-if (!$image_expanded_successfully) {
+// An expanded archive always wins over the image on the host, so the host image
+// is only reused when there is no archive to expand.
+$should_fetch = TRUE;
+
+if ($image_expanded_successfully) {
+  $should_fetch = FALSE;
+}
+elseif (!file_exists($archive) && $image_found_on_host && $force !== '1') {
+  NOTE('Using existing %s image on host.', $image);
+  NOTE('Fetch will not proceed.');
+  NOTE('Remove existing image or set VORTEX_FETCH_DB%s_FORCE value to 1 to force fetch.', $db_index);
+  $should_fetch = FALSE;
+}
+
+if ($should_fetch) {
   if (!file_exists($archive) && $image_base !== '') {
     // If the image archive does not exist and base image was provided - use the
     // base image which allows "clean slate" for the database.
