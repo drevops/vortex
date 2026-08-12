@@ -68,7 +68,7 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
 if [ -n "${VORTEX_NOTIFY_EMAIL_BRANCHES}" ]; then
@@ -78,12 +78,12 @@ if [ -n "${VORTEX_NOTIFY_EMAIL_BRANCHES}" ]; then
   fi
 fi
 
-[ -z "${VORTEX_NOTIFY_EMAIL_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_PROJECT." && exit 1
-[ -z "${VORTEX_NOTIFY_EMAIL_FROM}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_FROM." && exit 1
-[ -z "${VORTEX_NOTIFY_EMAIL_RECIPIENTS}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_RECIPIENTS." && exit 1
-[ -z "${VORTEX_NOTIFY_EMAIL_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_LABEL." && exit 1
-[ -z "${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL." && exit 1
-[ -z "${VORTEX_NOTIFY_EMAIL_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_LOGIN_URL." && exit 1
+[ -z "${VORTEX_NOTIFY_EMAIL_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_PROJECT."
+[ -z "${VORTEX_NOTIFY_EMAIL_FROM}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_FROM."
+[ -z "${VORTEX_NOTIFY_EMAIL_RECIPIENTS}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_RECIPIENTS."
+[ -z "${VORTEX_NOTIFY_EMAIL_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_LABEL."
+[ -z "${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL."
+[ -z "${VORTEX_NOTIFY_EMAIL_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_EMAIL_LOGIN_URL."
 
 info "Started email notification."
 
@@ -114,7 +114,6 @@ elif command -v mail >/dev/null 2>&1; then
   has_mail=1
 else
   fail "Neither mail nor sendmail commands are available."
-  exit 1
 fi
 
 # Build message by replacing tokens.

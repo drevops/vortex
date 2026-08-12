@@ -43,18 +43,15 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
-for cmd in curl unzip; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+for cmd in curl unzip; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 info "Started database dump fetch from URL."
 
 # Check all required values.
-[ -z "${VORTEX_FETCH_DB_URL}" ] && fail "Missing required value for VORTEX_FETCH_DB_URL." && exit 1
+[ -z "${VORTEX_FETCH_DB_URL}" ] && fail "Missing required value for VORTEX_FETCH_DB_URL."
 
 mkdir -p "${VORTEX_FETCH_DB_URL_DB_DIR}"
 
@@ -82,10 +79,9 @@ if [ "${VORTEX_FETCH_DB_URL%*.zip}" != "${VORTEX_FETCH_DB_URL}" ]; then
   extracted_file=$(find "${temp_extract_dir}" -type f -print | head -n 1)
 
   if [ -z "${extracted_file}" ]; then
-    fail "No files found in the zip archive."
     rm -rf "${temp_extract_dir}" >/dev/null
     rm -f "${VORTEX_FETCH_DB_URL_DB_DIR}/${VORTEX_FETCH_DB_URL_DB_FILE}.zip" >/dev/null
-    exit 1
+    fail "No files found in the zip archive."
   fi
 
   note "Moving extracted file to target location."

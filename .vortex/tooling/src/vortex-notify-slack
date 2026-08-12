@@ -72,13 +72,10 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
-for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 if [ -n "${VORTEX_NOTIFY_SLACK_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_SLACK_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
@@ -87,11 +84,11 @@ if [ -n "${VORTEX_NOTIFY_SLACK_BRANCHES}" ]; then
   fi
 fi
 
-[ -z "${VORTEX_NOTIFY_SLACK_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_PROJECT." && exit 1
-[ -z "${VORTEX_NOTIFY_SLACK_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_LABEL." && exit 1
-[ -z "${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL." && exit 1
-[ -z "${VORTEX_NOTIFY_SLACK_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_LOGIN_URL." && exit 1
-[ -z "${VORTEX_NOTIFY_SLACK_WEBHOOK}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_WEBHOOK." && exit 1
+[ -z "${VORTEX_NOTIFY_SLACK_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_PROJECT."
+[ -z "${VORTEX_NOTIFY_SLACK_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_LABEL."
+[ -z "${VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL."
+[ -z "${VORTEX_NOTIFY_SLACK_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_LOGIN_URL."
+[ -z "${VORTEX_NOTIFY_SLACK_WEBHOOK}" ] && fail "Missing required value for VORTEX_NOTIFY_SLACK_WEBHOOK."
 
 info "Started Slack notification."
 
@@ -206,7 +203,6 @@ response=$(curl -s -o /dev/null -w "%{http_code}" \
 
 if [ "${response}" != "200" ]; then
   fail "Unable to send notification to Slack. HTTP status: ${response}."
-  exit 1
 fi
 
 note "Notification sent to Slack."

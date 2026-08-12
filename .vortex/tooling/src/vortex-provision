@@ -111,7 +111,7 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
 drush() { ./vendor/bin/drush -y "$@"; }
@@ -142,8 +142,8 @@ site_is_installed="$(drush status --fields=bootstrap 2>/dev/null | grep -q "Succ
 
 # Discover the configuration directory path from the Drupal settings.
 config_path="$(drush php:eval 'print realpath(\Drupal\Core\Site\Settings::get("config_sync_directory"));')"
-[ -z "${config_path}" ] && fail "Config directory was not found in the Drupal settings." && exit 1
-[ ! -d "${config_path}" ] && fail "Config directory \"${config_path:-<empty>}\" does not exist." && exit 1
+[ -z "${config_path}" ] && fail "Config directory was not found in the Drupal settings."
+[ ! -d "${config_path}" ] && fail "Config directory \"${config_path:-<empty>}\" does not exist."
 site_has_config_files="$(test "$(ls -1 ${config_path}/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
 
 # Normalize the provision type.
@@ -181,10 +181,7 @@ echo
 ################################################################################
 
 if [ "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}" = "1" ]; then
-  for cmd in diff mktemp; do command -v "${cmd}" >/dev/null || {
-    fail "Command ${cmd} is not available."
-    exit 1
-  }; done
+  for cmd in diff mktemp; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 fi
 
 #
@@ -199,11 +196,10 @@ provision_from_db() {
     fi
 
     echo
-    fail "Unable to import database from file."
     note "Dump file ${VORTEX_PROVISION_DB} does not exist."
     note "Site content was not changed."
 
-    exit 1
+    fail "Unable to import database from file."
   fi
 
   "$(dirname "${BASH_SOURCE[0]}")/vortex-import-db-file" "${VORTEX_PROVISION_DB}"
@@ -281,9 +277,8 @@ if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
         provision_from_profile 1 "${site_has_config_files}"
         export VORTEX_PROVISION_OVERRIDE_DB=1
       else
-        note "Looks like the database in the container image is corrupted."
         note "Site content was not changed."
-        exit 1
+        fail "Looks like the database in the container image is corrupted."
       fi
     else
       note "Fresh site content will be imported from the database dump file."
@@ -345,7 +340,6 @@ if [ "${site_has_config_files}" = "1" ]; then
 
     if [ -z "${config_uuid}" ]; then
       fail "Could not read site UUID from ${config_path}/system.site.yml."
-      exit 1
     fi
 
     drush config:set system.site uuid "${config_uuid}"
@@ -368,13 +362,12 @@ if [ "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}" = "1" ] && [ "${
   config_diff=$(diff -rq "${config_before}" "${config_after}" || true)
 
   if [ -n "${config_diff}" ]; then
-    fail "Configuration was changed by database updates."
     note "The following configuration files were changed:"
     echo "${config_diff}"
     note "Configuration before updates: ${config_before}"
     note "Configuration after updates:  ${config_after}"
     note "Review the update hooks and manually export updated configuration."
-    exit 1
+    fail "Configuration was changed by database updates."
   fi
 
   rm -rf "${config_before}" "${config_after}"

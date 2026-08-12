@@ -52,14 +52,11 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
 # Pre-flight checks.
-for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 for arg in "$@"; do
   if [ "${arg}" = "--interactive" ]; then
@@ -73,7 +70,6 @@ if [ -n "${VORTEX_INSTALLER_PATH}" ]; then
   note "Using installer script from local path: ${VORTEX_INSTALLER_PATH}"
   if [ ! -f "${VORTEX_INSTALLER_PATH}" ]; then
     fail "Installer script not found at ${VORTEX_INSTALLER_PATH}."
-    exit 1
   fi
 else
   note "Using installer script from URL: ${VORTEX_INSTALLER_URL}"
@@ -81,7 +77,6 @@ else
   note "Downloading installer to ${VORTEX_INSTALLER_PATH}"
   if ! curl -fsSL "${VORTEX_INSTALLER_URL}?${VORTEX_INSTALLER_URL_CACHE_BUST}" -o "${VORTEX_INSTALLER_PATH}"; then
     fail "Unable to download installer from ${VORTEX_INSTALLER_URL}."
-    exit 1
   fi
 fi
 

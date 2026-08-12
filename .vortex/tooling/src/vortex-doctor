@@ -69,14 +69,11 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 warn() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[33m[WARN] %s\033[0m\n" "${1}" || printf "[WARN] %s\n" "${1}"; }
 # @formatter:on
 
-for cmd in docker pygmy ahoy; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+for cmd in docker pygmy ahoy; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 #
 # Main entry point.
@@ -87,17 +84,16 @@ main() {
   info "Checking project requirements."
 
   if [ "${VORTEX_DOCTOR_CHECK_TOOLS}" = "1" ]; then
-    [ "$(command_exists docker)" = "1" ] && fail "Please install Docker (https://www.docker.com/get-started)." && exit 1
-    [ "$(command_exists docker compose)" = "1" ] && fail "Please install docker compose (https://docs.docker.com/compose/install/)." && exit 1
-    [ "$(command_exists pygmy)" = "1" ] && fail "Please install Pygmy (https://pygmy.readthedocs.io/)." && exit 1
-    [ "$(command_exists ahoy)" = "1" ] && fail "Please install Ahoy (https://ahoy-cli.readthedocs.io/)." && exit 1
+    [ "$(command_exists docker)" = "1" ] && fail "Please install Docker (https://www.docker.com/get-started)."
+    [ "$(command_exists docker compose)" = "1" ] && fail "Please install docker compose (https://docs.docker.com/compose/install/)."
+    [ "$(command_exists pygmy)" = "1" ] && fail "Please install Pygmy (https://pygmy.readthedocs.io/)."
+    [ "$(command_exists ahoy)" = "1" ] && fail "Please install Ahoy (https://ahoy-cli.readthedocs.io/)."
     pass "All required tools are present."
   fi
 
   if [ "${VORTEX_DOCTOR_CHECK_PORT}" = "1" ] && [ "${OSTYPE}" != "linux-gnu" ]; then
     if lsof -i :80 | grep -v 'CLOSED' | grep 'LISTEN' | grep -vq 'om.docke'; then
       fail "Port 80 is occupied by a service other than Docker. Stop this service and run 'pygmy up'."
-      exit 1
     fi
     pass "Port 80 is available."
   fi
@@ -114,7 +110,6 @@ main() {
     for pygmy_service in "${pygmy_services[@]}"; do
       if ! echo "${pygmy_status}" | grep -q "${pygmy_service}: Running"; then
         fail "Pygmy service ${pygmy_service} is not running. Run 'pygmy up' or 'pygmy restart' to fix."
-        exit 1
       fi
     done
     pass "Pygmy is running."
@@ -125,10 +120,9 @@ main() {
     container_services=(cli php nginx database)
     for container_service in "${container_services[@]}"; do
       if ! docker compose ps --status=running --services | grep -q "${container_service}"; then
-        fail "${container_service} container is not running."
         note "Run 'ahoy up'."
         note "Run 'ahoy logs ${container_service}' to see error logs."
-        exit 1
+        fail "${container_service} container is not running."
       fi
     done
     pass "All containers are running."
@@ -185,7 +179,6 @@ main() {
     if [ "${ssh_key_added_to_pygmy}" = "1" ] && [ "${ssh_key_volume_mounted}" = "1" ]; then
       if ! docker compose exec -T cli bash -c "ssh-add -l >/dev/null 2>&1"; then
         fail "SSH key was not added to the container. Run 'pygmy restart'."
-        exit 1
       else
         pass "SSH key is available within the CLI container."
       fi
@@ -198,14 +191,12 @@ main() {
       # Depending on the type of installation, the homepage may return 200 or 403.
       if ! curl -L -s -o /dev/null -w "%{http_code}" "${local_dev_url}" | grep -q '200\|403'; then
         fail "Web server is not accessible at http://${local_dev_url}."
-        exit 1
       fi
       pass "Web server is running and accessible at http://${local_dev_url}."
 
       if [ "${VORTEX_DOCTOR_CHECK_BOOTSTRAP}" = "1" ]; then
         if ! curl -L -s -N "${local_dev_url}" | grep -q -i "charset="; then
           fail "Website is running, but cannot be bootstrapped. Check web-server configuration."
-          exit 1
         fi
         pass "Bootstrapped website at http://${local_dev_url}."
       fi

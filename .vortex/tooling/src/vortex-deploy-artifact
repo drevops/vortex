@@ -73,25 +73,22 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
 info "Started artifact deployment."
 
 # shellcheck disable=SC2043
-for cmd in curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+for cmd in curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 # Check all required values.
-[ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE." && exit 1
-[ -z "${VORTEX_DEPLOY_ARTIFACT_DST_BRANCH}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_DST_BRANCH." && exit 1
-[ -z "${VORTEX_DEPLOY_ARTIFACT_SRC}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_SRC." && exit 1
-[ -z "${VORTEX_DEPLOY_ARTIFACT_ROOT}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_ROOT." && exit 1
-[ -z "${VORTEX_DEPLOY_ARTIFACT_LOG}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_LOG." && exit 1
-[ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME." && exit 1
-[ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL." && exit 1
+[ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE."
+[ -z "${VORTEX_DEPLOY_ARTIFACT_DST_BRANCH}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_DST_BRANCH."
+[ -z "${VORTEX_DEPLOY_ARTIFACT_SRC}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_SRC."
+[ -z "${VORTEX_DEPLOY_ARTIFACT_ROOT}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_ROOT."
+[ -z "${VORTEX_DEPLOY_ARTIFACT_LOG}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_LOG."
+[ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME."
+[ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL."
 
 # Configure global git settings, if they do not exist.
 [ -z "$(git config --global user.name)" ] && task "Configuring global git user name." && git config --global user.name "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}"
@@ -104,7 +101,6 @@ task "Installing artifact builder."
 curl -sS -L "https://github.com/drevops/git-artifact/releases/download/${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION}/git-artifact" -o "${TMPDIR:-/tmp}"/git-artifact
 if ! echo "${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256}  ${TMPDIR:-/tmp}/git-artifact" | sha256sum -c; then
   fail "SHA256 checksum verification failed for git-artifact binary."
-  exit 1
 fi
 chmod +x "${TMPDIR:-/tmp}"/git-artifact
 

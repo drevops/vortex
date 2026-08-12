@@ -61,13 +61,10 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
-for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 if [ -n "${VORTEX_NOTIFY_GITHUB_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_GITHUB_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
@@ -76,11 +73,11 @@ if [ -n "${VORTEX_NOTIFY_GITHUB_BRANCHES}" ]; then
   fi
 fi
 
-[ -z "${VORTEX_NOTIFY_GITHUB_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_TOKEN." && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_REPOSITORY}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_REPOSITORY." && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_BRANCH." && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_EVENT}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_EVENT." && exit 1
-[ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE." && exit 1
+[ -z "${VORTEX_NOTIFY_GITHUB_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_TOKEN."
+[ -z "${VORTEX_NOTIFY_GITHUB_REPOSITORY}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_REPOSITORY."
+[ -z "${VORTEX_NOTIFY_GITHUB_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_BRANCH."
+[ -z "${VORTEX_NOTIFY_GITHUB_EVENT}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_EVENT."
+[ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE."
 
 info "Started GitHub notification for ${VORTEX_NOTIFY_GITHUB_EVENT} event."
 
@@ -128,14 +125,13 @@ echo json_encode([
 
   # Check deployment ID.
   if [ -z "${deployment_id}" ] || [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; then
+    note "Wait for GitHub checks to finish and try again."
     fail "Unable to get a deployment ID for a ${VORTEX_NOTIFY_GITHUB_EVENT} operation. Payload: ${payload}"
-    fail "Wait for GitHub checks to finish and try again."
-    exit 1
   fi
 
   note "Marked deployment as started."
 else
-  [ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL." && exit 1
+  [ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL."
 
   # Returns all deployment for this ref sorted from the latest to the oldest.
   payload="$(curl \
@@ -149,9 +145,8 @@ else
 
   # Check deployment ID.
   if [ -z "${deployment_id}" ] || [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; then
+    note "Check that a pre_deployment notification was dispatched."
     fail "Unable to get a deployment ID for a ${VORTEX_NOTIFY_GITHUB_EVENT} operation. Payload: ${payload}"
-    fail "Check that a pre_deployment notification was dispatched."
-    exit 1
   fi
 
   info "GitHub post-deployment notification summary:"
@@ -182,7 +177,6 @@ echo json_encode([
 
   if [ "${status}" != "success" ]; then
     fail "Previous deployment was found, but was unable to update the deployment status. Payload: ${payload}"
-    exit 1
   fi
 
   note "Marked deployment as finished."

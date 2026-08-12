@@ -85,13 +85,10 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
-for cmd in php curl; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 if [ -n "${VORTEX_NOTIFY_JIRA_BRANCHES}" ]; then
   if ! echo ",${VORTEX_NOTIFY_JIRA_BRANCHES}," | grep -qF ",${VORTEX_NOTIFY_BRANCH-},"; then
@@ -100,10 +97,10 @@ if [ -n "${VORTEX_NOTIFY_JIRA_BRANCHES}" ]; then
   fi
 fi
 
-[ -z "${VORTEX_NOTIFY_JIRA_USER_EMAIL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_USER_EMAIL." && exit 1
-[ -z "${VORTEX_NOTIFY_JIRA_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_TOKEN." && exit 1
-[ -z "${VORTEX_NOTIFY_JIRA_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_LABEL." && exit 1
-[ -z "${VORTEX_NOTIFY_JIRA_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_PROJECT." && exit 1
+[ -z "${VORTEX_NOTIFY_JIRA_USER_EMAIL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_USER_EMAIL."
+[ -z "${VORTEX_NOTIFY_JIRA_TOKEN}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_TOKEN."
+[ -z "${VORTEX_NOTIFY_JIRA_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_LABEL."
+[ -z "${VORTEX_NOTIFY_JIRA_PROJECT}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_PROJECT."
 
 info "Started JIRA notification."
 
@@ -166,13 +163,13 @@ payload="$(curl \
 
 account_id="$(echo "${payload}" | extract_json_value "accountId" || echo "error")"
 
-[ "${#account_id}" -lt 24 ] && fail "Unable to authenticate." && echo "${payload}" && exit 1
+[ "${#account_id}" -lt 24 ] && echo "${payload}" && fail "Unable to authenticate."
 echo "success"
 
 task "Posting a comment."
 
-[ -z "${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL." && exit 1
-[ -z "${VORTEX_NOTIFY_JIRA_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_LOGIN_URL." && exit 1
+[ -z "${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL."
+[ -z "${VORTEX_NOTIFY_JIRA_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_LOGIN_URL."
 
 # Generate timestamp.
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
@@ -271,9 +268,8 @@ payload="$(curl \
 
 comment_id="$(echo "${payload}" | extract_json_value "id" || echo "error")"
 if [ "$(expr "x${comment_id}" : "x[0-9]*$")" -eq 0 ]; then
-  fail "Unable to create a comment."
   echo "API Response: ${payload}"
-  exit 1
+  fail "Unable to create a comment."
 fi
 
 pass "Posted comment with ID ${comment_id}."
@@ -290,7 +286,7 @@ if [ -n "${VORTEX_NOTIFY_JIRA_TRANSITION}" ]; then
     --url "${VORTEX_NOTIFY_JIRA_ENDPOINT}/rest/api/3/issue/${issue}/transitions")"
 
   transition_id="$(echo "${payload}" | extract_json_value "transitions" | extract_json_value_by_value "name" "${VORTEX_NOTIFY_JIRA_TRANSITION}" "id" || echo "error")"
-  { [ -z "${transition_id}" ] || [ "$(expr "x${transition_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Unable to retrieve transition ID." && exit 1
+  { [ -z "${transition_id}" ] || [ "$(expr "x${transition_id}" : "x[0-9]*$")" -eq 0 ]; } && fail "Unable to retrieve transition ID."
   echo "success"
 
   payload="$(curl \
@@ -316,7 +312,7 @@ if [ -n "${VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL:-}" ]; then
     --url "${VORTEX_NOTIFY_JIRA_ENDPOINT}/rest/api/3/user/assignable/search?query=${VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL}&issueKey=${issue}")"
 
   account_id="$(echo "${payload}" | extract_json_first_value "accountId" || echo "error")"
-  [ "${#account_id}" -lt 24 ] && fail "Unable to retrieve assignee account ID." && echo "${payload}" && exit 1
+  [ "${#account_id}" -lt 24 ] && echo "${payload}" && fail "Unable to retrieve assignee account ID."
   echo "success"
 
   payload="$(curl \
