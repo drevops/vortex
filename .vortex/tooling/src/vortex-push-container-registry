@@ -41,14 +41,11 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit 1; }
 # @formatter:on
 
 # shellcheck disable=SC2043
-for cmd in docker; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+for cmd in docker; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 info "Started container registry push."
 
@@ -60,9 +57,9 @@ if [ -z "${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}" ]; then
   exit 0
 fi
 
-[ -z "${VORTEX_PUSH_CONTAINER_REGISTRY}" ] && fail "Missing required value for VORTEX_PUSH_CONTAINER_REGISTRY." && exit 1
-[ -z "${VORTEX_PUSH_CONTAINER_REGISTRY_USER}" ] && fail "Missing required value for VORTEX_PUSH_CONTAINER_REGISTRY_USER." && exit 1
-[ -z "${VORTEX_PUSH_CONTAINER_REGISTRY_PASS}" ] && fail "Missing required value for VORTEX_PUSH_CONTAINER_REGISTRY_PASS." && exit 1
+[ -z "${VORTEX_PUSH_CONTAINER_REGISTRY}" ] && fail "Missing required value for VORTEX_PUSH_CONTAINER_REGISTRY."
+[ -z "${VORTEX_PUSH_CONTAINER_REGISTRY_USER}" ] && fail "Missing required value for VORTEX_PUSH_CONTAINER_REGISTRY_USER."
+[ -z "${VORTEX_PUSH_CONTAINER_REGISTRY_PASS}" ] && fail "Missing required value for VORTEX_PUSH_CONTAINER_REGISTRY_PASS."
 
 services=()
 images=()
@@ -70,8 +67,8 @@ images=()
 IFS=',' read -r -a values <<<"${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}"
 for value in "${values[@]}"; do
   IFS='=' read -r -a parts <<<"${value}"
-  [ "${#parts[@]}" -ne 2 ] && fail "Invalid key/value pair \"${value}\" provided." && exit 1
-  { [ -z "${parts[0]}" ] || [ -z "${parts[1]}" ]; } && fail "Invalid key/value pair \"${value}\" provided." && exit 1
+  [ "${#parts[@]}" -ne 2 ] && fail "Invalid key/value pair \"${value}\" provided."
+  { [ -z "${parts[0]}" ] || [ -z "${parts[1]}" ]; } && fail "Invalid key/value pair \"${value}\" provided."
   services+=("${parts[0]}")
   images+=("${parts[1]}")
 done
@@ -92,7 +89,7 @@ for key in "${!services[@]}"; do
   # Check if the service is running.
   cid=$(docker compose ps -q "${service}")
 
-  [ -z "${cid}" ] && fail "Service \"${service}\" is not running." && exit 1
+  [ -z "${cid}" ] && fail "Service \"${service}\" is not running."
   note "Found \"${service}\" service container with id \"${cid}\"."
 
   # Only treat a ':' or '@' in the final reference segment as an existing tag or

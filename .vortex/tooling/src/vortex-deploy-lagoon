@@ -85,7 +85,7 @@ info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 note() { printf "       %s\n" "${1}"; }
 task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
-fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit 1; }
 
 # Check if error output contains Lagoon environment limit exceeded message.
 # Returns 0 if limit exceeded error found, 1 otherwise.
@@ -128,7 +128,7 @@ run_lagoon_deploy() {
   return 0
 }
 
-# Track exit status to return at the end.
+# Track deploy status to report at the end.
 exit_code=0
 
 # Raw CLI output of a failed deploy, printed with the final status.
@@ -144,8 +144,8 @@ if [ "${VORTEX_DEPLOY_MODE}" = "tag" ]; then
 fi
 
 ## Check all required values.
-[ -z "${VORTEX_DEPLOY_LAGOON_PROJECT}" ] && fail "Missing required value for VORTEX_DEPLOY_LAGOON_PROJECT or LAGOON_PROJECT." && exit 1
-{ [ -z "${VORTEX_DEPLOY_LAGOON_BRANCH}" ] && [ -z "${VORTEX_DEPLOY_LAGOON_PR}" ]; } && fail "Missing required value for VORTEX_DEPLOY_LAGOON_BRANCH or VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_LAGOON_PR or VORTEX_DEPLOY_PR." && exit 1
+[ -z "${VORTEX_DEPLOY_LAGOON_PROJECT}" ] && fail "Missing required value for VORTEX_DEPLOY_LAGOON_PROJECT or LAGOON_PROJECT."
+{ [ -z "${VORTEX_DEPLOY_LAGOON_BRANCH}" ] && [ -z "${VORTEX_DEPLOY_LAGOON_PR}" ]; } && fail "Missing required value for VORTEX_DEPLOY_LAGOON_BRANCH or VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_LAGOON_PR or VORTEX_DEPLOY_PR."
 
 export VORTEX_SSH_PREFIX="DEPLOY_LAGOON"
 . "$(dirname "${BASH_SOURCE[0]}")/vortex-setup-ssh"
@@ -167,10 +167,7 @@ if ! command -v lagoon >/dev/null || [ -n "${VORTEX_DEPLOY_LAGOON_LAGOONCLI_FORC
   pass "Installed Lagoon CLI."
 fi
 
-for cmd in lagoon curl jq; do command -v "${cmd}" >/dev/null || {
-  fail "Command ${cmd} is not available."
-  exit 1
-}; done
+for cmd in lagoon curl jq; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 task "Configuring Lagoon instance."
 # shellcheck disable=SC2218
@@ -306,14 +303,12 @@ else
   fi
 fi
 
-if [ "${exit_code}" = "0" ]; then
-  pass "Finished Lagoon deployment."
-else
-  fail "Lagoon deployment completed with errors."
-
+if [ "${exit_code}" != "0" ]; then
   if [ -n "${deploy_error}" ]; then
     printf '%s\n' "${deploy_error}"
   fi
+
+  fail "Lagoon deployment completed with errors."
 fi
 
-exit "${exit_code}"
+pass "Finished Lagoon deployment."
