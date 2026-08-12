@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Command;
 
-use DrevOps\VortexCli\Prompts\PromptManager;
+use DrevOps\PhpTui\Answers\Answers;
+use DrevOps\PhpTui\Tui as Engine;
+use DrevOps\VortexCli\Form\VortexForm;
+use DrevOps\VortexCli\Process\Processor;
 use DrevOps\VortexCli\Task\Task;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\OptionsResolver;
@@ -105,24 +108,26 @@ EOF
         $this->assertVortexProject($config);
       }
 
-      $prompt_manager = new PromptManager($config);
-      $prompt_manager->runPrompts();
+      $tui = new Engine(VortexForm::create($config), ['DrevOps\\VortexCli\\Prompts\\Handlers']);
+      $prompts = $input->getOption(static::OPTION_PROMPTS);
+      $prompts = is_string($prompts) ? $prompts : '';
+      $answers = $tui->run($prompts, (string) $this->getApplication()?->getVersion(), (string) $config->getDst(), $interactive && $prompts === '', TRUE);
 
       if ($apply) {
         if ($interactive) {
-          Tui::list($prompt_manager->getResponsesSummary(), 'Configuration summary');
+          Tui::box($answers->toSummary(), 'Configuration summary');
 
-          if (!$prompt_manager->shouldProceed(sprintf('These answers will be written to the project directory "%s"', $config->getDst()), 'Apply the answers to the project?')) {
+          if (!Tui::confirm('Apply the answers to the project?', TRUE, sprintf('These answers will be written to the project directory "%s"', $config->getDst()))) {
             Tui::info('Aborting. No files were changed.');
 
             return Command::SUCCESS;
           }
         }
 
-        $this->apply($prompt_manager, $interactive);
+        $this->apply($answers, $tui, $config, $interactive);
       }
       elseif ($interactive) {
-        Tui::list($prompt_manager->getResponsesSummary(), 'Configuration summary');
+        Tui::box($answers->toSummary(), 'Configuration summary');
       }
     }
     catch (\Exception $exception) {
@@ -138,7 +143,7 @@ EOF
     else {
       // The answers are this command's data output: a scripted caller reads
       // them from stdout, so nothing else is written there.
-      $output->writeln((string) json_encode($prompt_manager->getResponses(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+      $output->writeln((string) json_encode($answers->values, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
 
     return Command::SUCCESS;
@@ -198,13 +203,17 @@ EOF
   /**
    * Write the collected answers to the project.
    *
-   * @param \DrevOps\VortexCli\Prompts\PromptManager $prompt_manager
-   *   The prompt manager holding the collected answers.
+   * @param \DrevOps\PhpTui\Answers\Answers $answers
+   *   The collected answers.
+   * @param \DrevOps\PhpTui\Tui $tui
+   *   The form engine resolving a question id to its handler.
+   * @param \DrevOps\VortexCli\Utils\Config $config
+   *   The configuration the handlers operate on.
    * @param bool $interactive
    *   Whether a person is watching.
    */
-  protected function apply(PromptManager $prompt_manager, bool $interactive): void {
-    $action = fn() => $prompt_manager->runProcessors();
+  protected function apply(Answers $answers, Engine $tui, Config $config, bool $interactive): void {
+    $action = fn() => (new Processor())->apply($answers, $tui->registry(), $config, VortexForm::PROCESSORS, VortexForm::WEIGHTS);
 
     if (!$interactive) {
       $action();

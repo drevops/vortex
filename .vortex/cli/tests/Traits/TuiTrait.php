@@ -5,33 +5,19 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Tests\Traits;
 
 use DrevOps\VortexCli\Utils\Tui;
-use Laravel\Prompts\Output\BufferedConsoleOutput;
-use Laravel\Prompts\Prompt;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 trait TuiTrait {
 
   const TUI_MAX_QUESTIONS = 25;
 
   protected static function tuiSetUp(): void {
-    Tui::init((new BufferedConsoleOutput()), FALSE);
-
-    // Override how validation is handled (it expects a user input on incorrect
-    // validation) to throw an exception instead so that we can assert on it
-    // in the tests.
-    Prompt::validateUsing(function (Prompt $prompt, mixed $value): null {
-      if (is_callable($prompt->validate)) {
-        $error = ($prompt->validate)($value);
-        if ($error) {
-          throw new \RuntimeException(sprintf('Validation failed with error "%s".', $error));
-        }
-      }
-
-      return NULL;
-    });
+    // Headless: the form engine rejects an invalid answer outright rather than
+    // re-asking, so a test never waits on input it cannot give.
+    Tui::init(new BufferedOutput(), FALSE);
   }
 
   protected static function tuiTeardown(): void {
-    Prompt::validateUsing(NULL);
   }
 
   /**

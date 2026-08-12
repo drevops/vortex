@@ -6,7 +6,6 @@ namespace DrevOps\VortexCli\Task;
 
 use DrevOps\VortexCli\Utils\Strings;
 use DrevOps\VortexCli\Utils\Tui;
-use function Laravel\Prompts\spin;
 
 class Task {
 
@@ -50,8 +49,8 @@ class Task {
       Tui::setOutput($original_output);
     }
     else {
-      // @phpstan-ignore-next-line
-      $return = spin($action, Tui::yellow($label));
+      static::start($label);
+      $return = $action();
       self::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Strings::isAsciiStart($label) ? 2 : 3);
     }
 

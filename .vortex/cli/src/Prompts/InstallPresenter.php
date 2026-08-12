@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Prompts;
 
+use DrevOps\PhpTui\Answers\Answers;
 use DrevOps\VortexCli\Downloader\Artifact;
+use DrevOps\VortexCli\Process\Processor;
 use DrevOps\VortexCli\Prompts\Handlers\Starter;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Strings;
@@ -24,16 +26,22 @@ class InstallPresenter {
   const BUILD_RESULT_FAILED = 'failed';
 
   /**
-   * The prompt manager.
+   * The collected answers.
    */
-  protected ?PromptManager $promptManager = NULL;
+  protected ?Answers $answers = NULL;
+
+  /**
+   * The processor collecting the handlers' closing guidance.
+   */
+  protected Processor $processor;
 
   public function __construct(
     protected Config $config,
   ) {}
 
-  public function setPromptManager(PromptManager $prompt_manager): void {
-    $this->promptManager = $prompt_manager;
+  public function setAnswers(Answers $answers): void {
+    $this->answers = $answers;
+    $this->processor = new Processor();
   }
 
   public function header(Artifact $artifact, string $version): void {
@@ -161,7 +169,7 @@ EOT;
     $output .= 'Login:         ahoy login' . PHP_EOL;
     $output .= PHP_EOL;
 
-    $handler_output = $this->promptManager->runPostBuild(self::BUILD_RESULT_SUCCESS);
+    $handler_output = $this->processor->postBuild($this->answers, $this->config, self::BUILD_RESULT_SUCCESS);
     if (!empty($handler_output)) {
       $output .= $handler_output;
     }
@@ -176,7 +184,7 @@ EOT;
     $output = '';
     $prefix = '  ';
 
-    $responses = $this->promptManager->getResponses();
+    $responses = $this->answers instanceof Answers ? $this->answers->values : [];
     $starter = $responses[Starter::id()] ?? Starter::LOAD_DATABASE_DEMO;
     $is_profile = in_array($starter, [Starter::INSTALL_PROFILE_CORE, Starter::INSTALL_PROFILE_DRUPALCMS], TRUE);
 
@@ -195,7 +203,7 @@ EOT;
       $output .= PHP_EOL;
     }
 
-    $handler_output = $this->promptManager->runPostBuild(self::BUILD_RESULT_SKIPPED);
+    $handler_output = $this->processor->postBuild($this->answers, $this->config, self::BUILD_RESULT_SKIPPED);
     if (!empty($handler_output)) {
       $output .= $handler_output;
     }
@@ -218,7 +226,7 @@ EOT;
     $output .= $prefix . 'Diagnostics:' . $prefix . 'ahoy doctor' . PHP_EOL;
     $output .= PHP_EOL;
 
-    $handler_output = $this->promptManager->runPostBuild(self::BUILD_RESULT_FAILED);
+    $handler_output = $this->processor->postBuild($this->answers, $this->config, self::BUILD_RESULT_FAILED);
     if (!empty($handler_output)) {
       $output .= $handler_output;
     }

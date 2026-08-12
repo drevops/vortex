@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Command;
 
+use DrevOps\PhpTui\Answers\Answers;
+use DrevOps\PhpTui\Tui as Engine;
 use DrevOps\VortexCli\Downloader\Artifact;
 use DrevOps\VortexCli\Downloader\Downloader;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
+use DrevOps\VortexCli\Form\VortexForm;
+use DrevOps\VortexCli\Process\Processor;
 use DrevOps\VortexCli\Prompts\Handlers\Starter;
 use DrevOps\VortexCli\Prompts\InstallPresenter;
-use DrevOps\VortexCli\Prompts\PromptManager;
 use DrevOps\VortexCli\Runner\CommandRunnerAwareInterface;
 use DrevOps\VortexCli\Runner\CommandRunnerAwareTrait;
 use DrevOps\VortexCli\Runner\ExecutableFinderAwareInterface;
@@ -61,14 +64,29 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
   const OPTION_BUILD = 'build';
 
   /**
+   * The namespace the engine searches for handler classes.
+   */
+  protected const string HANDLER_NAMESPACE = 'DrevOps\\VortexCli\\Prompts\\Handlers';
+
+  /**
    * Defines the configuration object.
    */
   protected Config $config;
 
   /**
-   * The prompt manager.
+   * The form engine collecting the answers.
    */
-  protected PromptManager $promptManager;
+  protected Engine $tui;
+
+  /**
+   * The collected answers.
+   */
+  protected Answers $answers;
+
+  /**
+   * The processor applying the answers.
+   */
+  protected Processor $processor;
 
   /**
    * The install presenter.
@@ -139,9 +157,9 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
       [$this->config, $this->artifact] = OptionsResolver::resolve($input->getOptions());
 
       Tui::init($output, !$this->config->getNoInteraction());
-      $this->promptManager = new PromptManager($this->config);
+      $this->tui = new Engine(VortexForm::create($this->config), [static::HANDLER_NAMESPACE]);
+      $this->processor = new Processor();
       $this->presenter = new InstallPresenter($this->config);
-      $this->presenter->setPromptManager($this->promptManager);
       $this->fileManager = new FileManager($this->config);
 
       $this->presenter->header($this->artifact, $this->getApplication()->getVersion());
@@ -162,23 +180,15 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
         Tui::line('');
       }
 
-      Tui::line(Tui::dim('Press any key to continue...'));
-      Tui::getChar();
-
-      $this->promptManager->runPrompts();
+      $this->answers = $this->collectAnswers($input);
+      $this->presenter->setAnswers($this->answers);
 
       // Flushed here rather than at resolve time because prompt answers are
       // read from the environment during the run above, so earlier reporting
       // would miss every deprecated prompt variable.
       $this->noticeDeprecatedEnvVars();
 
-      Tui::list($this->promptManager->getResponsesSummary(), 'Installation summary');
-
-      if (!$this->promptManager->shouldProceed()) {
-        Tui::info('Aborting project installation. No files were changed.');
-
-        return Command::SUCCESS;
-      }
+      Tui::box($this->answers->toSummary(), 'Installation summary');
 
       Tui::info('Starting project installation');
 
@@ -196,7 +206,7 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
 
       Task::action(
         label: 'Customizing Vortex for your project',
-        action: fn() => $this->promptManager->runProcessors(),
+        action: fn() => $this->processor->apply($this->answers, $this->tui->registry(), $this->config, VortexForm::PROCESSORS, VortexForm::WEIGHTS),
         success: 'Vortex was customized for your project',
       );
 
@@ -304,6 +314,30 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
   }
 
   /**
+   * Collect the answers through the form.
+   *
+   * A terminal with nothing scripted at it gets the interactive form; a
+   * scripted or piped run collects headlessly, so both behave the same.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *   The input.
+   *
+   * @return \DrevOps\PhpTui\Answers\Answers
+   *   The collected answers.
+   */
+  protected function collectAnswers(InputInterface $input): Answers {
+    $prompts = $input->getOption(static::OPTION_PROMPTS);
+    $prompts = is_string($prompts) ? $prompts : '';
+
+    $destination = (string) $this->config->getDst();
+    $update = (bool) $this->config->get(Config::IS_VORTEX_PROJECT);
+    $version = (string) $this->getApplication()?->getVersion();
+    $interactive = !$this->config->getNoInteraction() && $prompts === '';
+
+    return $this->tui->run($prompts, $version, $destination, $interactive, $update);
+  }
+
+  /**
    * Run the 'build' command.
    *
    * @param \Symfony\Component\Console\Output\OutputInterface $output
@@ -313,7 +347,7 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
    *   TRUE if the build command succeeded, FALSE otherwise.
    */
   protected function runBuildCommand(OutputInterface $output): bool {
-    $responses = $this->promptManager->getResponses();
+    $responses = $this->answers->values;
     $starter = $responses[Starter::id()] ?? Starter::LOAD_DATABASE_DEMO;
     $is_profile = in_array($starter, [Starter::INSTALL_PROFILE_CORE, Starter::INSTALL_PROFILE_DRUPALCMS], TRUE);
 

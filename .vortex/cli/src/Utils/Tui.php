@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Utils;
 
-use Laravel\Prompts\Prompt;
-use Laravel\Prompts\Terminal;
+use DrevOps\PhpTui\Terminal\Terminal;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableStyle;
 use Symfony\Component\Console\Output\OutputInterface;
-use function Laravel\Prompts\confirm;
-use function Laravel\Prompts\error;
-use function Laravel\Prompts\info;
-use function Laravel\Prompts\intro;
-use function Laravel\Prompts\note;
-use function Laravel\Prompts\table;
 
 class Tui {
 
@@ -25,16 +20,6 @@ class Tui {
   public static function init(OutputInterface $output, bool $is_interactive = TRUE): void {
     static::$output = $output;
     static::$isInteractive = $is_interactive;
-
-    // We cannot use any Symfony console styles here, because Laravel Prompts
-    // does not correctly calculate the length of strings with style tags, which
-    // breaks the layout. Instead, we use ANSI escape codes directly using
-    // helpers in this class.
-    Prompt::setOutput($output);
-
-    if (!$is_interactive) {
-      Prompt::interactive(FALSE);
-    }
   }
 
   public static function output(): OutputInterface {
@@ -46,23 +31,22 @@ class Tui {
 
   public static function setOutput(OutputInterface $output): void {
     static::$output = $output;
-    Prompt::setOutput($output);
   }
 
   public static function info(string $message): void {
-    intro($message);
+    static::marker(static::cyan(static::bold('›')), $message);
   }
 
   public static function note(string $message): void {
-    note($message);
+    static::marker(static::dim('│'), $message);
   }
 
   public static function success(string $message): void {
-    info($message);
+    static::marker(static::green('✓'), $message);
   }
 
   public static function error(string $message): void {
-    error('✕ ' . $message);
+    static::marker(static::yellow('✕'), $message);
   }
 
   public static function confirm(string $label, bool $default = TRUE, ?string $hint = NULL): bool {
@@ -70,11 +54,28 @@ class Tui {
       return $default;
     }
 
-    return confirm(
-      label: $label,
-      default: $default,
-      hint: $hint ?? '',
-    );
+    static::line(sprintf('%s %s [%s]', static::cyan(static::bold('›')), $label, $default ? 'Y/n' : 'y/N'));
+
+    if ($hint !== NULL && $hint !== '') {
+      static::line(static::dim($hint));
+    }
+
+    $answer = static::getChar();
+
+    return match (mb_strtolower($answer)) {
+      'y' => TRUE,
+      'n' => FALSE,
+      default => $default,
+    };
+  }
+
+  /**
+   * Write a message behind a single-glyph marker, one marker per line.
+   */
+  protected static function marker(string $marker, string $message): void {
+    foreach (explode(PHP_EOL, $message) as $index => $line) {
+      static::line(($index === 0 ? $marker : ' ') . ' ' . $line);
+    }
   }
 
   public static function line(string $message, int $padding = 1): void {
@@ -190,8 +191,8 @@ class Tui {
       $rows[] = [$key, $value];
     }
 
-    intro(PHP_EOL . static::normalizeText($title) . PHP_EOL);
-    table($header, $rows);
+    static::info(PHP_EOL . static::normalizeText((string) $title) . PHP_EOL);
+    static::table($header, $rows);
   }
 
   public static function box(string $content, ?string $title = NULL, ?int $width = NULL): void {
@@ -212,7 +213,33 @@ class Tui {
 
     $rows[] = [$content];
 
-    table([], $rows);
+    static::table([], $rows);
+  }
+
+  /**
+   * Render a bordered table through the console output.
+   *
+   * @param array<int,string> $header
+   *   The header cells; empty for a borderless block.
+   * @param array<int,array<int,string>> $rows
+   *   The rows.
+   */
+  protected static function table(array $header, array $rows): void {
+    $style = (new TableStyle())
+      ->setHorizontalBorderChars('─')
+      ->setVerticalBorderChars('│')
+      ->setDefaultCrossingChar('┼')
+      ->setCellRowContentFormat('%s');
+
+    $table = new Table(static::output());
+    $table->setStyle($style);
+    $table->setRows($rows);
+
+    if ($header !== []) {
+      $table->setHeaders($header);
+    }
+
+    $table->render();
   }
 
   public static function center(string $text, int $width = 80, ?string $border = NULL): string {
@@ -245,7 +272,7 @@ class Tui {
   }
 
   public static function terminalWidth(int $max = 100): int {
-    return min($max, max(20, (new Terminal())->cols()));
+    return min($max, max(20, (new Terminal())->columns()));
   }
 
   public static function normalizeText(string $text): string {
