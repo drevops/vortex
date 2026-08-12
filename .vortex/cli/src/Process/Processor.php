@@ -65,7 +65,16 @@ class Processor {
     $responses = $this->responses($answers, $handlers, $config, $weights);
 
     foreach (array_keys($items) as $id) {
-      $this->handler($handlers, $config, (string) $id)->setResponses($responses)->process();
+      $handler = $this->handler($handlers, $config, (string) $id)->setResponses($responses);
+
+      // A question the form never asked has no answer to act on, so its
+      // handler sits out - the questions it depends on already removed
+      // whatever it would have removed.
+      if (array_key_exists($id, $weights) && !$handler->shouldRun($responses)) {
+        continue;
+      }
+
+      $handler->process();
     }
   }
 
@@ -89,15 +98,7 @@ class Processor {
    *   The answers, keyed by every question id.
    */
   public function responses(Answers $answers, HandlerRegistry $handlers, Config $config, array $weights): array {
-    $responses = $answers->values;
-
-    foreach (array_keys($weights) as $id) {
-      if (!array_key_exists($id, $responses)) {
-        $responses[$id] = $this->handler($handlers, $config, $id)->default($responses);
-      }
-    }
-
-    return $responses;
+    return array_replace(array_fill_keys(array_keys($weights), NULL), $answers->values);
   }
 
   /**

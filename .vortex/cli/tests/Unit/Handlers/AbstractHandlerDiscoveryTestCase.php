@@ -34,6 +34,7 @@ use DrevOps\VortexCli\Prompts\Handlers\Org;
 use DrevOps\VortexCli\Prompts\Handlers\OrgMachineName;
 use DrevOps\VortexCli\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\VortexCli\Prompts\Handlers\Profile;
+use DrevOps\VortexCli\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexCli\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexCli\Prompts\Handlers\Services;
 use DrevOps\VortexCli\Prompts\Handlers\Starter;
@@ -46,6 +47,7 @@ use DrevOps\VortexCli\Prompts\Handlers\VisualRegression;
 use DrevOps\VortexCli\Prompts\Handlers\Webroot;
 use DrevOps\PhpTui\Tui as Engine;
 use DrevOps\VortexCli\Form\VortexForm;
+use DrevOps\VortexCli\Process\Processor;
 use DrevOps\VortexCli\Tests\Traits\TuiTrait;
 use DrevOps\VortexCli\Tests\Unit\UnitTestCase;
 use DrevOps\VortexCli\Utils\Config;
@@ -105,7 +107,11 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
     $supplied = static::suppliedAnswers(array_replace(static::defaultTuiAnswers(), $answers), $expected);
 
     $tui = new Engine(VortexForm::create($config), ['DrevOps\\VortexCli\\Prompts\\Handlers']);
-    $actual = $tui->collect((string) json_encode($supplied), (string) $config->getDst(), $config->isVortexProject(), '1.0.0')->values;
+    $collected = $tui->collect((string) json_encode($supplied), (string) $config->getDst(), $config->isVortexProject(), '1.0.0');
+
+    // The questions never asked are part of the answer set every handler sees,
+    // so the assertion is against that set rather than the collected subset.
+    $actual = (new Processor())->responses($collected, $tui->registry(), $config, VortexForm::WEIGHTS);
 
     if (!$exception) {
       $this->assertEquals($expected, $actual, (string) $this->dataName());
@@ -174,10 +180,12 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       Domain::id() => 'myproject.com',
       Starter::id() => Starter::LOAD_DATABASE_DEMO,
       Profile::id() => Profile::STANDARD,
+      ProfileCustom::id() => NULL,
       Modules::id() => array_keys(Modules::getAvailableModules()),
       ModulePrefix::id() => 'mypr',
       CustomModules::id() => [CustomModules::BASE, CustomModules::SEARCH, CustomModules::DEMO],
-      Theme::id() => 'myproject',
+      Theme::id() => Theme::CUSTOM,
+      ThemeCustom::id() => 'myproject',
       FrontendBuild::id() => TRUE,
       CodeProvider::id() => CodeProvider::GITHUB,
       VersionScheme::id() => VersionScheme::CALVER,
