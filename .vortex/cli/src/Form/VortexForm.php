@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Form;
 
 use DrevOps\PhpTui\Builder\Form;
-use DrevOps\PhpTui\Tui;
 use DrevOps\PhpTui\Builder\PanelBuilder;
 use DrevOps\PhpTui\Condition\Condition;
+use DrevOps\PhpTui\Tui;
 use DrevOps\VortexCli\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexCli\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexCli\Prompts\Handlers\CiProvider;
@@ -69,7 +69,7 @@ final class VortexForm {
   /**
    * The start banner shown before the interactive TUI.
    */
-  protected const string BANNER = <<<'BANNER'
+  private const string BANNER = <<<'BANNER'
 
   ██╗   ██╗ ██████╗ ██████╗ ████████╗███████╗██╗  ██╗
   ██║   ██║██╔═══██╗██╔══██╗╚══██╔══╝██╔════╝╚██╗██╔╝

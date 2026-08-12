@@ -27,7 +27,9 @@ use DrevOps\VortexCli\Prompts\Handlers\Services;
 use DrevOps\VortexCli\Prompts\Handlers\Theme;
 use DrevOps\VortexCli\Prompts\Handlers\Timezone;
 use DrevOps\VortexCli\Prompts\Handlers\Webroot;
-use DrevOps\VortexCli\Prompts\PromptManager;
+use DrevOps\VortexCli\Form\TuiAdapter;
+use DrevOps\VortexCli\Form\VortexForm;
+use DrevOps\VortexCli\Process\Processor;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
 use DrevOps\VortexCli\Utils\File;
@@ -58,7 +60,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Theme::class)]
 #[CoversClass(Timezone::class)]
 #[CoversClass(Webroot::class)]
-#[CoversClass(PromptManager::class)]
+#[CoversClass(VortexForm::class)]
+#[CoversClass(TuiAdapter::class)]
+#[CoversClass(Processor::class)]
 #[CoversClass(RepositoryDownloader::class)]
 #[CoversClass(Config::class)]
 #[CoversClass(Git::class)]

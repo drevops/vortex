@@ -157,9 +157,9 @@ class TuiAdapter {
         // would change what a project is built with.
         $candidates[] = $handler->default($answers);
 
-        foreach ($candidates as $value) {
-          if (is_string($value) && $value !== '' && !array_key_exists($value, $options)) {
-            $options[$value] = $value;
+        foreach ($candidates as $candidate) {
+          if (is_string($candidate) && $candidate !== '' && !array_key_exists($candidate, $options)) {
+            $options[$candidate] = $candidate;
           }
         }
 

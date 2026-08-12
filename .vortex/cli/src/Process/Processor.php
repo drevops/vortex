@@ -117,6 +117,13 @@ class Processor {
 
     foreach (static::POST_INSTALL as $class) {
       $handler = new $class($config);
+
+      if (!$handler instanceof HandlerInterface) {
+        // @codeCoverageIgnoreStart
+        continue;
+        // @codeCoverageIgnoreEnd
+      }
+
       $handler->setResponses($answers->values);
       $messages .= (string) $handler->postInstall();
     }
@@ -142,6 +149,13 @@ class Processor {
 
     foreach (static::POST_BUILD as $class) {
       $handler = new $class($config);
+
+      if (!$handler instanceof HandlerInterface) {
+        // @codeCoverageIgnoreStart
+        continue;
+        // @codeCoverageIgnoreEnd
+      }
+
       $handler->setResponses($answers->values);
       $messages .= (string) $handler->postBuild($result);
     }

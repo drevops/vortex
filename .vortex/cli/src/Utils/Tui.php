@@ -227,6 +227,9 @@ class Tui {
    *   The rows.
    */
   protected static function table(array $header, array $rows): void {
+    $header = array_values($header);
+    $rows = array_map(array_values(...), array_values($rows));
+
     static::primitive(function (Output $out) use ($header, $rows): void {
       $out->table($header, $rows);
     });
@@ -323,7 +326,7 @@ class Tui {
     }
 
     if (str_contains((string) getenv('TERM_PROGRAM'), 'Apple_Terminal') && ($mblen > 1 && $len < 8)) {
-      $padding = ' ';
+      return ' ';
     }
 
     return $padding;

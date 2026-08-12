@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Tests\Unit\Handlers;
 
 use DrevOps\VortexCli\Prompts\Handlers\Internal;
-use DrevOps\VortexCli\Prompts\PromptManager;
+use DrevOps\VortexCli\Form\TuiAdapter;
+use DrevOps\VortexCli\Form\VortexForm;
+use DrevOps\VortexCli\Process\Processor;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Converter;
 use DrevOps\VortexCli\Utils\Env;
@@ -16,7 +18,9 @@ use DrevOps\VortexCli\Utils\Tui;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Internal::class)]
-#[CoversClass(PromptManager::class)]
+#[CoversClass(VortexForm::class)]
+#[CoversClass(TuiAdapter::class)]
+#[CoversClass(Processor::class)]
 #[CoversClass(JsonManipulator::class)]
 #[CoversClass(Converter::class)]
 #[CoversClass(Env::class)]

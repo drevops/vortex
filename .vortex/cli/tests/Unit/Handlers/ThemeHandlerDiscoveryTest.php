@@ -27,8 +27,6 @@ class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_installed_core = $expected_installed;
     $expected_installed_core[FrontendBuild::id()] = NULL;
     $expected_installed_core[ThemeCustom::id()] = NULL;
-
-    $clear_keys = implode('', array_fill(0, 20, Key::BACKSPACE));
     yield 'theme - prompt - olivero' => [
       [Theme::id() => Key::DOWN . Key::ENTER],
       [Theme::id() => Theme::OLIVERO] + $expected_defaults_core,

@@ -8,7 +8,6 @@ use DrevOps\VortexCli\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexCli\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexCli\Utils\Config;
 use PHPUnit\Framework\Attributes\CoversClass;
-use DrevOps\VortexCli\Tests\Support\Key;
 
 #[CoversClass(DatabaseImage::class)]
 class DatabaseImageHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {

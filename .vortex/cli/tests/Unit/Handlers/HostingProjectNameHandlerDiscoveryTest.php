@@ -11,7 +11,6 @@ use DrevOps\VortexCli\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexCli\Prompts\Handlers\Webroot;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\File;
-use DrevOps\VortexCli\Tests\Support\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(HostingProjectName::class)]
@@ -19,8 +18,6 @@ class HostingProjectNameHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
 
   public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
-
-    $clear_keys = implode('', array_fill(0, 20, Key::BACKSPACE));
     yield 'hosting project name - acquia - prompt' => [
       [
         HostingProvider::id() => HostingProvider::ACQUIA,
