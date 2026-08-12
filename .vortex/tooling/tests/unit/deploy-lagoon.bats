@@ -297,7 +297,7 @@ load ../_helper.bash
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_env_json}"
     "Discovering a database import override flag."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list variables --environment test-branch --reveal --output-json # 1"
-    "Could not read environment variables. Leaving a database import override flag unchanged."
+    "Could not read environment variables. A database import override flag was left unchanged and may not match the requested deployment action."
     "Completed database import override flag discovery."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy latest --environment test-branch"
     "@sleep 10"
@@ -495,6 +495,87 @@ load ../_helper.bash
     "Removing a database import override flag."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project delete variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB"
     "Removed a database import override flag."
+    "Finished Lagoon deployment."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-deploy-lagoon
+  assert_success
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
+
+@test "PR: Redeploy restores a pre-existing flag value rather than resetting it to 0" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_PR="456"
+  export VORTEX_DEPLOY_BRANCH="feature-branch"
+  export VORTEX_DEPLOY_PR_HEAD="origin/feature-branch"
+  export VORTEX_DEPLOY_PR_BASE_BRANCH="develop"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+
+  local existing_pr_env_json='{"data":[{"name":"pr-456","deploytype":"pullrequest"}]}'
+  # Mock a flag left at 1 with a non-default scope by an operator.
+  local existing_vars_json='{"data":[{"scope":"BUILD","name":"VORTEX_PROVISION_OVERRIDE_DB","value":"1"}]}'
+
+  declare -a STEPS=(
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_pr_env_json}"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list variables --environment pr-456 --reveal --output-json # ${existing_vars_json}"
+    'Found an existing database import override flag with value "1" and scope "BUILD".'
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope BUILD"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 456 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-456"
+    "@sleep 10"
+    "Restoring a database import override flag to 1."
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope BUILD"
+    "Restored a database import override flag to 1."
+    "Finished Lagoon deployment."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-deploy-lagoon
+  assert_success
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}
+
+@test "PR: Redeploy leaves the flag untouched when the variables cannot be read" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+
+  export LAGOON_PROJECT="test_project"
+  export VORTEX_DEPLOY_PR="456"
+  export VORTEX_DEPLOY_BRANCH="feature-branch"
+  export VORTEX_DEPLOY_PR_HEAD="origin/feature-branch"
+  export VORTEX_DEPLOY_PR_BASE_BRANCH="develop"
+  export VORTEX_DEPLOY_ACTION="deploy_override_db"
+  export VORTEX_DEPLOY_LAGOON_INSTANCE="amazeeio"
+
+  local existing_pr_env_json='{"data":[{"name":"pr-456","deploytype":"pullrequest"}]}'
+
+  declare -a STEPS=(
+    "@ssh-add -l # ${HOME}/.ssh/id_rsa"
+    "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # ${existing_pr_env_json}"
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list variables --environment pr-456 --reveal --output-json # 1"
+    "Could not read environment variables. A database import override flag was left unchanged and may not match the requested deployment action."
+    "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 456 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-456"
+    "@sleep 10"
+    "- Adding a database import override flag"
+    "- Updating a database import override flag"
+    "- Removing a database import override flag"
+    "- Restoring a database import override flag"
     "Finished Lagoon deployment."
   )
 

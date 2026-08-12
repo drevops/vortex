@@ -242,8 +242,9 @@ else
       if [ "${override_db_state}" = "unknown" ]; then
         # An unreadable variable list is not an absent flag. Adding one and
         # deleting it afterwards would destroy a flag that already exists, so
-        # the flag is left alone.
-        note "Could not read environment variables. Leaving a database import override flag unchanged."
+        # the flag is left alone. The build then runs against whatever value the
+        # environment already carries, which may not be the requested one.
+        fail "Could not read environment variables. A database import override flag was left unchanged and may not match the requested deployment action."
       elif [ "${override_db_state}" = "absent" ]; then
         note "No existing database import override flag found."
       else
@@ -338,8 +339,9 @@ else
       if [ "${override_db_state}" = "unknown" ]; then
         # An unreadable variable list is not an absent flag. Adding one and
         # deleting it afterwards would destroy a flag that already exists, so
-        # the flag is left alone.
-        note "Could not read environment variables. Leaving a database import override flag unchanged."
+        # the flag is left alone. The build then runs against whatever value the
+        # environment already carries, which may not be the requested one.
+        fail "Could not read environment variables. A database import override flag was left unchanged and may not match the requested deployment action."
       elif [ "${override_db_state}" = "absent" ]; then
         note "No existing database import override flag found."
       else
