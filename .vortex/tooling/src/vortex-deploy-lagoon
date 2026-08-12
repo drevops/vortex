@@ -244,7 +244,7 @@ else
         # deleting it afterwards would destroy a flag that already exists, so
         # the flag is left alone. The build then runs against whatever value the
         # environment already carries, which may not be the requested one.
-        fail "Could not read environment variables. A database import override flag was left unchanged and may not match the requested deployment action."
+        fail "Could not read environment variables. A database import override flag was left unchanged and may not match the requested deployment action." || true
       elif [ "${override_db_state}" = "absent" ]; then
         note "No existing database import override flag found."
       else
@@ -341,7 +341,7 @@ else
         # deleting it afterwards would destroy a flag that already exists, so
         # the flag is left alone. The build then runs against whatever value the
         # environment already carries, which may not be the requested one.
-        fail "Could not read environment variables. A database import override flag was left unchanged and may not match the requested deployment action."
+        fail "Could not read environment variables. A database import override flag was left unchanged and may not match the requested deployment action." || true
       elif [ "${override_db_state}" = "absent" ]; then
         note "No existing database import override flag found."
       else
