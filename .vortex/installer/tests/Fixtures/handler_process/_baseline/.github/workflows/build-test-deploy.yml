@@ -628,4 +628,9 @@ jobs:
           VORTEX_DEPLOY_SKIP_BRANCHES: ${{ vars.VORTEX_DEPLOY_SKIP_BRANCHES }}
           VORTEX_DEPLOY_ALLOW_LABEL: ${{ vars.VORTEX_DEPLOY_ALLOW_LABEL }}
           VORTEX_DEPLOY_ACTION: ${{ inputs.override_db && 'deploy_override_db' || '' }}
+          VORTEX_DEPLOY_LAGOON_URL_FILE: .logs/deployment_url.txt
         timeout-minutes: 30
+
+      - name: Add the environment URL to the run summary
+        if: ${{ hashFiles('.logs/deployment_url.txt') != '' }}
+        run: cat .logs/deployment_url.txt >> "$GITHUB_STEP_SUMMARY"
