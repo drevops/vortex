@@ -59,6 +59,15 @@ class TuiAdapter {
   ];
 
   /**
+   * Questions that settle on a pre-determined value instead of being asked.
+   *
+   * Only these were resolved ahead of the prompt in the flow this replaces, so
+   * only these consult the handler for one; for every other question the value
+   * comes from the answer, the default, or the environment.
+   */
+  protected const array PRE_RESOLVED = ['profile', 'theme', 'webroot'];
+
+  /**
    * Declare a handler's question on a panel.
    *
    * @param \DrevOps\PhpTui\Builder\PanelBuilder $p
@@ -115,9 +124,10 @@ class TuiAdapter {
     // questions are answered, so they are resolved rather than fixed. Only the
     // kinds that show a list accept them.
     $contextual = !in_array($id, self::RESOLVED_WITHOUT_ANSWERS, TRUE);
+    $pre_resolved = in_array($id, self::PRE_RESOLVED, TRUE);
 
     if (self::hasOptions($handler->type())) {
-      $field->options(function (Context $c) use ($handler, $contextual): array {
+      $field->options(function (Context $c) use ($handler, $contextual, $pre_resolved): array {
         $answers = $contextual ? $c->answers : [];
         $handler->setResponses($c->answers);
         $options = $handler->options($answers);
@@ -134,7 +144,9 @@ class TuiAdapter {
         // is never one of the profiles on offer. The answer a handler settles
         // on is authoritative, so it joins the list rather than being dropped
         // when the value is reconciled against it.
-        foreach ([$handler->resolvedValue($c->answers), $handler->default($answers)] as $value) {
+        $candidates = $pre_resolved ? [$handler->resolvedValue($c->answers), $handler->default($answers)] : [$handler->default($answers)];
+
+        foreach ($candidates as $value) {
           if (is_string($value) && $value !== '' && !array_key_exists($value, $options)) {
             $options[$value] = $value;
           }
@@ -148,12 +160,15 @@ class TuiAdapter {
     // the handler contract defines them: a pre-determined resolved value wins,
     // then the handler default, then the kind's own default.
     $type = $handler->type();
-    $field->default(function (Context $c) use ($handler, $type, $contextual): mixed {
+    $field->default(function (Context $c) use ($handler, $type, $contextual, $pre_resolved): mixed {
       $handler->setResponses($c->answers);
 
-      $resolved = $handler->resolvedValue($c->answers);
-      if ($resolved !== NULL && $resolved !== '') {
-        return $resolved;
+      if ($pre_resolved) {
+        $resolved = $handler->resolvedValue($c->answers);
+
+        if ($resolved !== NULL && $resolved !== '') {
+          return $resolved;
+        }
       }
 
       return $handler->default($contextual ? $c->answers : []) ?? self::typeDefault($type);

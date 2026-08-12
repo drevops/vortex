@@ -107,7 +107,9 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
     $supplied = static::suppliedAnswers(array_replace(static::defaultTuiAnswers(), $answers), $expected);
 
     $tui = new Engine(VortexForm::create($config), ['DrevOps\\VortexCli\\Prompts\\Handlers']);
-    $collected = $tui->collect((string) json_encode($supplied), (string) $config->getDst(), $config->isVortexProject(), '1.0.0');
+    // Discovery is what these scenarios exercise, so it always runs; a
+    // destination with nothing to find simply discovers nothing.
+    $collected = $tui->collect((string) json_encode($supplied), (string) $config->getDst(), TRUE, '1.0.0');
 
     // The questions never asked are part of the answer set every handler sees,
     // so the assertion is against that set rather than the collected subset.
