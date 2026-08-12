@@ -97,6 +97,7 @@ class CiProvider extends AbstractHandler {
 
     if ($remove_gha) {
       File::remove($t . '/.github/workflows/build-test-deploy.yml');
+      File::remove($t . '/.github/workflows/audit.yml');
       File::removeTokenAsync('CI_PROVIDER_GHA');
       File::removeTokenAsync('SETTINGS_PROVIDER_GHA');
     }

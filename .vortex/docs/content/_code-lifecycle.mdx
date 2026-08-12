@@ -14,7 +14,7 @@
 │  The Lint, Test and Build jobs run in parallel. Deployment runs after all three pass.      │
 │                                                                                            │
 │  Lint Job                                                                                  │
-│    Build CLI container ──► Composer validate / audit / normalize ──► Hadolint ──►          │
+│    Build CLI container ──► Composer validate / normalize ──► Hadolint ──►                  │
 │    DCLint ──► PHPCS ──► PHPStan ──► Rector ──► Twig CS Fixer ──►                           │
 │    Gherkin Lint ──► ESLint / Stylelint                                                     │
 │                                                                                            │
@@ -50,4 +50,13 @@
  ═════════════════════════════════════════════════════════════════════════════════════════
         ┊ PR Environment ┊    Dev             Staging          Production
         ┊ (auto-removed) ┊    develop branch  main branch      production branch or tag
+
+
+                                  Security Audit Workflow
+ ═════════════════════════════════════════════════════════════════════════════════════════
+   Push, pull request or manual run ──► Gitleaks secret scan ──► Composer advisory audit
+                                        (committed secrets)      (composer audit --locked)
+
+   Runs as its own workflow, independently of the pipeline above, and does not gate
+   deployment.
 ```
