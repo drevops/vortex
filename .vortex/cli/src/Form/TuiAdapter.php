@@ -187,7 +187,11 @@ class TuiAdapter {
         }
       }
 
-      return $handler->default($contextual ? $c->answers : []) ?? self::typeDefault($type);
+      $default = $handler->default($contextual ? $c->answers : []);
+
+      // An unanswerable question is left unset rather than defaulted to an
+      // empty value, which its own validator would then reject.
+      return $default ?? ($handler->isRequired() ? self::typeDefault($type) : NULL);
     });
 
     // A closure default is opaque to the schema, so the answer-independent

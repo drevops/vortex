@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Form;
 
 use DrevOps\PhpTui\Builder\Form;
+use DrevOps\PhpTui\Tui;
 use DrevOps\PhpTui\Builder\PanelBuilder;
 use DrevOps\PhpTui\Condition\Condition;
 use DrevOps\VortexCli\Prompts\Handlers\AiCodeInstructions;
@@ -20,6 +21,7 @@ use DrevOps\VortexCli\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexCli\Prompts\Handlers\Domain;
 use DrevOps\VortexCli\Prompts\Handlers\FrontendBuild;
 use DrevOps\VortexCli\Prompts\Handlers\Gitleaks;
+use DrevOps\VortexCli\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexCli\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexCli\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexCli\Prompts\Handlers\LabelMergeConflictsPr;
@@ -58,6 +60,11 @@ use DrevOps\VortexCli\Utils\Config;
  * @package DrevOps\VortexCli\Form
  */
 final class VortexForm {
+
+  /**
+   * The namespace the engine searches for handler classes.
+   */
+  public const string HANDLER_NAMESPACE = 'DrevOps\\VortexCli\\Prompts\\Handlers';
 
   /**
    * The start banner shown before the interactive TUI.
@@ -131,6 +138,38 @@ BANNER;
     'org' => 370,
     'name' => 380,
   ];
+
+  /**
+   * The handler behind every question, keyed by question id.
+   *
+   * The form is the list of questions, so the handlers come from it rather
+   * than from a second list that could drift out of step with it.
+   *
+   * @param \DrevOps\VortexCli\Utils\Config $config
+   *   The configuration the handlers operate on.
+   *
+   * @return array<string,\DrevOps\VortexCli\Prompts\Handlers\HandlerInterface>
+   *   The handlers, in processing order.
+   *
+   * @throws \RuntimeException
+   *   When a question id has no handler behind it.
+   */
+  public static function handlers(Config $config): array {
+    $registry = (new Tui(self::create($config), [self::HANDLER_NAMESPACE]))->registry();
+    $handlers = [];
+
+    foreach (array_keys(self::WEIGHTS) as $id) {
+      $class = $registry->resolve($id);
+
+      if ($class === NULL || !is_a($class, HandlerInterface::class, TRUE)) {
+        throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
+      }
+
+      $handlers[$id] = new $class($config);
+    }
+
+    return $handlers;
+  }
 
   /**
    * Build the Vortex form definition.

@@ -43,7 +43,7 @@ use DrevOps\VortexCli\Prompts\Handlers\Tools;
 use DrevOps\VortexCli\Prompts\Handlers\VersionScheme;
 use DrevOps\VortexCli\Prompts\Handlers\VisualRegression;
 use DrevOps\VortexCli\Prompts\Handlers\Webroot;
-use DrevOps\VortexCli\Prompts\PromptManager;
+use DrevOps\VortexCli\Form\VortexForm;
 use DrevOps\VortexCli\Prompts\PromptType;
 use DrevOps\VortexCli\Tests\Unit\UnitTestCase;
 use DrevOps\VortexCli\Utils\Config;
@@ -59,8 +59,7 @@ class AbstractHandlerTypeTest extends UnitTestCase {
   #[DataProvider('dataProviderTypeInference')]
   public function testTypeInference(string $handler_id, PromptType $expected_type): void {
     $config = Config::fromString('{}');
-    $prompt_manager = new PromptManager($config);
-    $handlers = $prompt_manager->getHandlers();
+    $handlers = VortexForm::handlers($config);
 
     $this->assertArrayHasKey($handler_id, $handlers, sprintf('Handler "%s" not found.', $handler_id));
 

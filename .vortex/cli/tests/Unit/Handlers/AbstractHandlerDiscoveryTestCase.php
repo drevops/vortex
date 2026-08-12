@@ -154,7 +154,9 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       // scenario that expects a rejection, where what was typed alongside the
       // navigation is the value being rejected.
       if (is_string($entry) && preg_match('/[\x00-\x1F\x7F]/', $entry) === 1) {
-        $typed = (string) preg_replace('/[\x00-\x1F\x7F]/', '', $entry);
+        // A cursor key is an escape sequence, so the bracket and letter go
+        // with the escape byte rather than surviving as typed text.
+        $typed = (string) preg_replace(['/\x1B\[[0-9;]*[A-Za-z]/', '/[\x00-\x1F\x7F]/'], '', $entry);
 
         if (is_string($expected)) {
           if ($typed !== '') {

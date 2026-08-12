@@ -39,9 +39,9 @@ class InstallPresenter {
     protected Config $config,
   ) {}
 
-  public function setAnswers(Answers $answers): void {
+  public function setAnswers(Answers $answers, ?Processor $processor = NULL): void {
     $this->answers = $answers;
-    $this->processor = new Processor();
+    $this->processor = $processor ?? new Processor();
   }
 
   public function header(Artifact $artifact, string $version): void {

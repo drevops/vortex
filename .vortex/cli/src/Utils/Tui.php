@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Utils;
 
+use DrevOps\PhpTui\Primitive\Output;
 use DrevOps\PhpTui\Terminal\Terminal;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Helper\TableStyle;
+use DrevOps\PhpTui\Theme\DefaultTheme;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Tui {
@@ -34,19 +34,19 @@ class Tui {
   }
 
   public static function info(string $message): void {
-    static::marker(static::cyan(static::bold('›')), $message);
+    static::marker('›', $message, static::cyan(...));
   }
 
   public static function note(string $message): void {
-    static::marker(static::dim('│'), $message);
+    static::marker('', $message, static::dim(...));
   }
 
   public static function success(string $message): void {
-    static::marker(static::green('✓'), $message);
+    static::marker('✓', $message, static::green(...));
   }
 
   public static function error(string $message): void {
-    static::marker(static::yellow('✕'), $message);
+    static::marker('✕', $message, static::yellow(...));
   }
 
   public static function confirm(string $label, bool $default = TRUE, ?string $hint = NULL): bool {
@@ -70,11 +70,21 @@ class Tui {
   }
 
   /**
-   * Write a message behind a single-glyph marker, one marker per line.
+   * Write a message behind a marker glyph, colouring the line as a whole.
+   *
+   * @param string $marker
+   *   The glyph opening the first line; empty for none.
+   * @param string $message
+   *   The message, which may span lines.
+   * @param \Closure $color
+   *   Applied to the composed line, so the glyph and the text read as one run
+   *   rather than being separated by a reset.
    */
-  protected static function marker(string $marker, string $message): void {
+  protected static function marker(string $marker, string $message, \Closure $color): void {
+    $prefix = $marker === '' ? '' : $marker . ' ';
+
     foreach (explode(PHP_EOL, $message) as $index => $line) {
-      static::line(($index === 0 ? $marker : ' ') . ' ' . $line);
+      static::line($color(($index === 0 ? $prefix : str_repeat(' ', mb_strlen($prefix))) . $line));
     }
   }
 
@@ -196,24 +206,16 @@ class Tui {
   }
 
   public static function box(string $content, ?string $title = NULL, ?int $width = NULL): void {
-    $rows = [];
-
     $width ??= static::terminalWidth();
 
     // 1 margin + 1 border + 1 padding + 1 padding + 1 border + 1 margin.
     $offset = 6;
 
-    $content = wordwrap($content, $width - $offset, PHP_EOL, TRUE);
+    $lines = explode(PHP_EOL, wordwrap($content, $width - $offset, PHP_EOL, TRUE));
 
-    if ($title) {
-      $title = wordwrap($title, $width - $offset, PHP_EOL, FALSE);
-      $rows[] = [static::green($title)];
-      $rows[] = [static::green(str_repeat('─', Strings::strlenPlain(explode(PHP_EOL, static::normalizeText($title))[0]))) . PHP_EOL];
-    }
-
-    $rows[] = [$content];
-
-    static::table([], $rows);
+    static::primitive(function (Output $out) use ($title, $lines): void {
+      $out->box(static::normalizeText((string) $title), $lines);
+    }, $width);
   }
 
   /**
@@ -225,21 +227,40 @@ class Tui {
    *   The rows.
    */
   protected static function table(array $header, array $rows): void {
-    $style = (new TableStyle())
-      ->setHorizontalBorderChars('─')
-      ->setVerticalBorderChars('│')
-      ->setDefaultCrossingChar('┼')
-      ->setCellRowContentFormat('%s');
+    static::primitive(function (Output $out) use ($header, $rows): void {
+      $out->table($header, $rows);
+    });
+  }
 
-    $table = new Table(static::output());
-    $table->setStyle($style);
-    $table->setRows($rows);
+  /**
+   * Draw with the library's primitives and write the result to the output.
+   *
+   * The primitives render to a terminal of their own, so they are pointed at a
+   * memory stream and the drawn frame is forwarded to the console output the
+   * rest of this class writes through - which keeps them capturable.
+   *
+   * @param \Closure $draw
+   *   Receives the primitives to draw with.
+   * @param int|null $width
+   *   The width to draw within; NULL for the terminal's own.
+   */
+  protected static function primitive(\Closure $draw, ?int $width = NULL): void {
+    $stream = fopen('php://memory', 'w+');
 
-    if ($header !== []) {
-      $table->setHeaders($header);
+    if ($stream === FALSE) {
+      // @codeCoverageIgnoreStart
+      return;
+      // @codeCoverageIgnoreEnd
     }
 
-    $table->render();
+    $width ??= static::terminalWidth();
+    $draw(new Output(new Terminal($stream), new DefaultTheme($width)));
+
+    rewind($stream);
+    $drawn = (string) stream_get_contents($stream);
+    fclose($stream);
+
+    static::$output->write($drawn);
   }
 
   public static function center(string $text, int $width = 80, ?string $border = NULL): string {

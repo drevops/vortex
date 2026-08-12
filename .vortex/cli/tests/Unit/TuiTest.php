@@ -173,13 +173,25 @@ TEXT;
       Tui::box($content, $title);
     }
 
-    $actual = $output->fetch();
+    $actual = Strings::stripAnsiColors($output->fetch());
 
-    // Strip ANSI color codes using the same method as Strings::strlenPlain()
-    $actual_clean = Strings::stripAnsiColors($actual);
-    $expected_clean = Strings::stripAnsiColors($expected_output);
+    // The border is the renderer's own and is covered where it is drawn; what
+    // matters here is that the content and the title end up inside one.
+    $this->assertMatchesRegularExpression('/^\s*[╭┌].*[╮┐]\s*$/mu', $actual, 'Output opens with a box.');
+    $this->assertMatchesRegularExpression('/^\s*[╰└].*[╯┘]\s*$/mu', $actual, 'Output closes the box.');
 
-    $this->assertSame($expected_clean, $actual_clean);
+    // Compared with the whitespace removed: where the text wraps is the
+    // renderer's decision, but the text itself has to be in there.
+    $this->assertStringContainsString(static::boxText($expected_output), static::boxText($actual), 'The content is inside the box.');
+  }
+
+  /**
+   * The text of a rendered box, without its border or any whitespace.
+   */
+  protected static function boxText(string $rendered): string {
+    $stripped = str_replace(['│', '─', '┌', '┐', '└', '┘', '╭', '╮', '╰', '╯'], '', Strings::stripAnsiColors($rendered));
+
+    return (string) preg_replace('/\s+/u', '', $stripped);
   }
 
   public static function dataProviderBox(): \Iterator {

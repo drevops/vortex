@@ -8,7 +8,8 @@ use DrevOps\VortexCli\Downloader\Artifact;
 use DrevOps\VortexCli\Downloader\RepositoryDownloader;
 use DrevOps\VortexCli\Prompts\Handlers\Starter;
 use DrevOps\VortexCli\Prompts\InstallPresenter;
-use DrevOps\VortexCli\Prompts\PromptManager;
+use DrevOps\PhpTui\Answers\Answers;
+use DrevOps\VortexCli\Process\Processor;
 use DrevOps\VortexCli\Tests\Unit\UnitTestCase;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Tui;
@@ -38,14 +39,14 @@ class InstallPresenterTest extends UnitTestCase {
     $this->assertInstanceOf(InstallPresenter::class, $presenter);
   }
 
-  public function testSetPromptManager(): void {
+  public function testSetAnswers(): void {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $presenter = new InstallPresenter($config);
 
-    $mock_pm = $this->createMock(PromptManager::class);
-    $presenter->setPromptManager($mock_pm);
+    $mock_processor = $this->createMock(Processor::class);
+    $presenter->setAnswers(new Answers(), $mock_processor);
 
-    // No exception means success - prompt manager was accepted.
+    // No exception means success - the answer set was accepted.
     $this->addToAssertionCount(1);
   }
 
@@ -175,11 +176,11 @@ class InstallPresenterTest extends UnitTestCase {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $presenter = new InstallPresenter($config);
 
-    $mock_pm = $this->createMock(PromptManager::class);
-    $mock_pm->method('runPostBuild')
-      ->with(InstallPresenter::BUILD_RESULT_SUCCESS)
+    $mock_processor = $this->createMock(Processor::class);
+    $mock_processor->method('postBuild')
+      ->willReturnCallback(fn(): string => '')
       ->willReturn('');
-    $presenter->setPromptManager($mock_pm);
+    $presenter->setAnswers(new Answers(), $mock_processor);
 
     $presenter->footerBuildSucceeded();
 
@@ -193,11 +194,11 @@ class InstallPresenterTest extends UnitTestCase {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $presenter = new InstallPresenter($config);
 
-    $mock_pm = $this->createMock(PromptManager::class);
-    $mock_pm->method('runPostBuild')
-      ->with(InstallPresenter::BUILD_RESULT_SUCCESS)
+    $mock_processor = $this->createMock(Processor::class);
+    $mock_processor->method('postBuild')
+      ->willReturnCallback(fn(): string => '')
       ->willReturn('Setup GitHub Actions: ...');
-    $presenter->setPromptManager($mock_pm);
+    $presenter->setAnswers(new Answers(), $mock_processor);
 
     $presenter->footerBuildSucceeded();
 
@@ -210,12 +211,9 @@ class InstallPresenterTest extends UnitTestCase {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $presenter = new InstallPresenter($config);
 
-    $mock_pm = $this->createMock(PromptManager::class);
-    $mock_pm->method('getResponses')->willReturn([Starter::id() => $starter]);
-    $mock_pm->method('runPostBuild')
-      ->with(InstallPresenter::BUILD_RESULT_SKIPPED)
-      ->willReturn('');
-    $presenter->setPromptManager($mock_pm);
+    $mock_processor = $this->createMock(Processor::class);
+    $mock_processor->method('postBuild')->willReturn('');
+    $presenter->setAnswers(new Answers([Starter::id() => $starter]), $mock_processor);
 
     $presenter->footerBuildSkipped();
 
@@ -260,10 +258,9 @@ class InstallPresenterTest extends UnitTestCase {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $presenter = new InstallPresenter($config);
 
-    $mock_pm = $this->createMock(PromptManager::class);
-    $mock_pm->method('getResponses')->willReturn([]);
-    $mock_pm->method('runPostBuild')->willReturn('');
-    $presenter->setPromptManager($mock_pm);
+    $mock_processor = $this->createMock(Processor::class);
+    $mock_processor->method('postBuild')->willReturn('');
+    $presenter->setAnswers(new Answers(), $mock_processor);
 
     $presenter->footerBuildSkipped();
 
@@ -276,11 +273,11 @@ class InstallPresenterTest extends UnitTestCase {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $presenter = new InstallPresenter($config);
 
-    $mock_pm = $this->createMock(PromptManager::class);
-    $mock_pm->method('runPostBuild')
-      ->with(InstallPresenter::BUILD_RESULT_FAILED)
+    $mock_processor = $this->createMock(Processor::class);
+    $mock_processor->method('postBuild')
+      ->willReturnCallback(fn(): string => '')
       ->willReturn('');
-    $presenter->setPromptManager($mock_pm);
+    $presenter->setAnswers(new Answers(), $mock_processor);
 
     $presenter->footerBuildFailed();
 
@@ -297,11 +294,11 @@ class InstallPresenterTest extends UnitTestCase {
     $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
     $presenter = new InstallPresenter($config);
 
-    $mock_pm = $this->createMock(PromptManager::class);
-    $mock_pm->method('runPostBuild')
-      ->with(InstallPresenter::BUILD_RESULT_FAILED)
+    $mock_processor = $this->createMock(Processor::class);
+    $mock_processor->method('postBuild')
+      ->willReturnCallback(fn(): string => '')
       ->willReturn('Check hosting config');
-    $presenter->setPromptManager($mock_pm);
+    $presenter->setAnswers(new Answers(), $mock_processor);
 
     $presenter->footerBuildFailed();
 
