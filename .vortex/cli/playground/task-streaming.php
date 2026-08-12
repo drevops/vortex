@@ -124,33 +124,36 @@ Task::action(
 );
 echo PHP_EOL;
 
-// Streaming mode with nested spinner (simulates build command with requirements check).
-echo "--- Streaming mode: nested spinner (cursor control) ---" . PHP_EOL;
+// Streaming mode with a nested task (simulates the build command running a
+// requirements check inside itself).
+echo "--- Streaming mode: nested task (cursor control) ---" . PHP_EOL;
 Task::action(
-  label: 'Streaming task with nested spinner',
+  label: 'Streaming task with nested task',
   action: function () {
-    // The nested command uses spin() which outputs cursor control sequences.
-    \Laravel\Prompts\spin(
-      function () {
-        usleep(300000);
-        usleep(300000);
-        usleep(300000);
+    // The nested task writes its own cursor control sequences, which is what
+    // the streaming mode has to survive.
+    Task::action(
+      label: 'Nested task...',
+      action: function (): bool {
+        usleep(900000);
+
+        return TRUE;
       },
-      'Nested spinner task...'
     );
 
-    echo "AFTER SPINNER 1\n";
-    \Laravel\Prompts\spin(
-      function () {
-        usleep(1000000);
-        usleep(1000000);
+    echo "AFTER NESTED 1\n";
+    Task::action(
+      label: 'Another nested task...',
+      action: function (): bool {
+        usleep(2000000);
+
+        return TRUE;
       },
-      'Another nested spinner task...'
     );
 
-    echo "AFTER SPINNER 2\n";
+    echo "AFTER NESTED 2\n";
 
-    return true;
+    return TRUE;
   },
   streaming: true,
 );

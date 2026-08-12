@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Prompts;
 
 /**
- * Prompt input types covering all Laravel Prompts input types.
+ * The kinds of question a handler can declare.
  *
  * @package DrevOps\VortexCli\Prompts
  */
@@ -32,12 +32,5 @@ enum PromptType: string {
   case MultiSearch = 'multisearch';
 
   case Pause = 'pause';
-
-  /**
-   * Get the Laravel Prompts function name for this type.
-   */
-  public function promptFunction(): string {
-    return $this->value;
-  }
 
 }

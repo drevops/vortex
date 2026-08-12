@@ -15,34 +15,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversClass(PromptType::class)]
 class PromptTypeTest extends UnitTestCase {
 
-  #[DataProvider('dataProviderAllCasesHavePromptFunction')]
-  public function testAllCasesHavePromptFunction(PromptType $case): void {
-    $this->assertNotEmpty($case->promptFunction());
-  }
-
-  /**
-   * Data provider for testAllCasesHavePromptFunction.
-   */
-  public static function dataProviderAllCasesHavePromptFunction(): \Iterator {
-    foreach (PromptType::cases() as $case) {
-      yield $case->name => [$case];
-    }
-  }
-
-  #[DataProvider('dataProviderPromptFunctionMatchesCaseValue')]
-  public function testPromptFunctionMatchesCaseValue(PromptType $case): void {
-    $this->assertSame($case->value, $case->promptFunction());
-  }
-
-  /**
-   * Data provider for testPromptFunctionMatchesCaseValue.
-   */
-  public static function dataProviderPromptFunctionMatchesCaseValue(): \Iterator {
-    foreach (PromptType::cases() as $case) {
-      yield $case->name => [$case];
-    }
-  }
-
   #[DataProvider('dataProviderFromValidString')]
   public function testFromValidString(string $value, PromptType $expected): void {
     $this->assertSame($expected, PromptType::from($value));

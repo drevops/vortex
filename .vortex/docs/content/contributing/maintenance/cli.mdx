@@ -29,11 +29,17 @@ The CLI is a PHP application rather than a shell script because it
 touches many different parts of the template and requires complex management of
 different permutations of the template variants. Using PHP allows the CLI
 to provide a **terminal UI experience** via
-[Laravel Prompts](https://github.com/laravel/prompts), where users are guided
-through a series of questions to customize their project. At the same time,
-the CLI supports **non-interactive installs** (via the `--no-interaction`
-flag) for both new and existing projects, as well as updates — making it
-suitable for automated pipelines and CI environments.
+[PHP TUI](https://phptui.dev/), where the questions are grouped into panels the
+user moves between freely. At the same time, the CLI supports
+**non-interactive installs** (via the `--no-interaction` flag) for both new and
+existing projects, as well as updates — making it suitable for automated
+pipelines and CI environments.
+
+The CLI ships only the project-specific parts: the form definition in
+`VortexForm` (the questions and their panels) and the handler classes that
+carry the **Vortex** behaviour. A single adapter converts a handler into a form
+field; collection, conditionals, discovery and rendering belong to the library,
+which is developed and released in its own repository.
 
 The binary is `vortex` and it exposes five commands: `install`, `update`,
 `configure`, `doctor` and `build`. Running it without a command resolves by the
@@ -59,7 +65,7 @@ The core flow is:
 1. User downloads the PHAR from https://www.vortextemplate.com/install
    and runs it with `php vortex.phar`.
 2. `InstallCommand` orchestrates the installation process.
-3. `PromptManager` collects user choices via interactive prompts.
+3. The form collects the answers, applying conditionals and discovery as it goes.
 4. Handlers queue file operations based on selections — each handler is
    responsible for a specific aspect of the template (CI provider, hosting,
    services, theme, deployment strategy, etc.).
