@@ -5,7 +5,10 @@
 # @usage
 # cd .vortex/docs && ./update-docs.sh
 #
-# shellcheck disable=SC2129
+# The assertion markers below contain literal backticks: the table renders paths
+# as inline code.
+#
+# shellcheck disable=SC2129,SC2016
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
@@ -27,7 +30,10 @@ for tooling_file in "${ROOT_DIR}/${TOOLING_DIR}/"*; do
   tooling_paths+=("${TOOLING_DIR}/$(basename "${tooling_file}")")
 done
 
-[ "${#tooling_paths[@]}" -gt 0 ] || { echo "ERROR: No scripts found in ${TOOLING_DIR}." >&2; exit 1; }
+[ "${#tooling_paths[@]}" -gt 0 ] || {
+  echo "ERROR: No scripts found in ${TOOLING_DIR}." >&2
+  exit 1
+}
 
 table="$(docker run -v "${ROOT_DIR}:/app" drevops/shellvar:1.7.0 extract \
   --skip-text="@docs:skip" \
