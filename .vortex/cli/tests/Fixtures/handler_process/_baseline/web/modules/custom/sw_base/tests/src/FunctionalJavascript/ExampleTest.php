@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\sw_base\FunctionalJavascript;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Class ExampleTest.
@@ -14,6 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @package Drupal\sw_base\Tests
  */
 #[Group('SwBase')]
+#[RunTestsInSeparateProcesses]
 class ExampleTest extends SwBaseFunctionalJavascriptTestBase {
 
   /**

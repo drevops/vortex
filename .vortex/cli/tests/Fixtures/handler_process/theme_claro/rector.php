@@ -1,4 +1,4 @@
-@@ -47,7 +47,6 @@
+@@ -48,7 +48,6 @@
  return RectorConfig::configure()
    ->withPaths([
      __DIR__ . '/web/modules/custom',

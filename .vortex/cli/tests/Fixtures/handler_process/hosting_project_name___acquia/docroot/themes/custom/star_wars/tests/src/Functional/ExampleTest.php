@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\star_wars\Functional;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Class ExampleTest.
@@ -14,6 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @package Drupal\star_wars\Tests
  */
 #[Group('StarWars')]
+#[RunTestsInSeparateProcesses]
 class ExampleTest extends StarWarsFunctionalTestBase {
 
   /**

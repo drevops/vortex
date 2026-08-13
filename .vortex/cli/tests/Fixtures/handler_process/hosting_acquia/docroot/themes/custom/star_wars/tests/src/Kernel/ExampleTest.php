@@ -6,6 +6,7 @@ namespace Drupal\Tests\star_wars\Kernel;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Class ExampleTest.
@@ -15,6 +16,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @package Drupal\star_wars\Tests
  */
 #[Group('StarWars')]
+#[RunTestsInSeparateProcesses]
 class ExampleTest extends StarWarsKernelTestBase {
 
   /**
