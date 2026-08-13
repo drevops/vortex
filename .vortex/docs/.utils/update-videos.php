@@ -219,9 +219,19 @@ EXPECT;
 
   return str_replace(
     ['{{URI}}', '{{COLS}}', '{{ROWS}}'],
-    [$uri, (string) $cols, (string) $rows],
+    [tcl_quote($uri), (string) $cols, (string) $rows],
     $body,
   );
+}
+
+/**
+ * Make a value safe to sit inside a Tcl double-quoted string.
+ *
+ * Tcl substitutes inside double quotes, so a path holding a bracket, a dollar
+ * or a backslash would either fail to parse or run as a command.
+ */
+function tcl_quote(string $value): string {
+  return str_replace(['\\', '"', '$', '[', ']'], ['\\\\', '\\"', '\\$', '\\[', '\\]'], $value);
 }
 
 function render_video(VideoRecorder $recorder, string $name, string $workspace, string $docs_static_dir): void {
@@ -259,6 +269,13 @@ function record_install(VideoRecorder $recorder, string $workspace, string $proj
     cols: (int) $cfg['cols'],
     rows: (int) $cfg['rows'],
   );
+
+  // The keystrokes are aimed by position, and the script cannot tell a panel it
+  // misread from one it read correctly, so the project it was supposed to
+  // create is what says the recording is worth keeping.
+  if (!is_dir("$workspace/star_wars")) {
+    throw new RuntimeException("Recorded install did not create a project at $workspace/star_wars");
+  }
 
   render_video($recorder, 'cli-install', $workspace, $docs_static_dir);
 }

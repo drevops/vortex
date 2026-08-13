@@ -142,7 +142,7 @@ class Tui {
     $state = trim((string) shell_exec('stty -g 2>/dev/null'));
     $restore = static fn(): string|false => system($state === '' ? 'stty -cbreak echo' : 'stty ' . escapeshellarg($state));
 
-    static::trapSignals($restore);
+    $trapped = static::trapSignals($restore);
 
     try {
       system('stty cbreak -echo');
@@ -162,7 +162,7 @@ class Tui {
     }
     finally {
       $restore();
-      static::releaseSignals();
+      static::releaseSignals($trapped);
     }
   }
 
@@ -174,15 +174,23 @@ class Tui {
    *
    * @param callable $restore
    *   Puts the terminal back the way it was found.
+   *
+   * @return array{async: bool, handlers: array<int, callable|int>}|null
+   *   What was in place before, to be put back once the read is over, or NULL
+   *   when the extension is absent and nothing was installed.
    */
-  protected static function trapSignals(callable $restore): void {
-    if (!function_exists('pcntl_signal') || !function_exists('pcntl_async_signals')) {
-      return;
+  protected static function trapSignals(callable $restore): ?array {
+    if (!function_exists('pcntl_signal') || !function_exists('pcntl_async_signals') || !function_exists('pcntl_signal_get_handler')) {
+      return NULL;
     }
 
-    pcntl_async_signals(TRUE);
+    // Whatever a caller arranged for these signals is theirs, and this read
+    // borrows them only for as long as the terminal is out of its normal mode.
+    $previous = ['async' => pcntl_async_signals(TRUE), 'handlers' => []];
 
     foreach ([SIGINT, SIGTERM] as $signal) {
+      $previous['handlers'][$signal] = pcntl_signal_get_handler($signal);
+
       // @codeCoverageIgnoreStart
       pcntl_signal($signal, static function (int $received) use ($restore): void {
         $restore();
@@ -193,19 +201,26 @@ class Tui {
       });
       // @codeCoverageIgnoreEnd
     }
+
+    return $previous;
   }
 
   /**
-   * Hand the trapped signals back to their default disposition.
+   * Put back what was handling these signals before the read.
+   *
+   * @param array{async: bool, handlers: array<int, callable|int>}|null $previous
+   *   What trapSignals() found in place, or NULL when it installed nothing.
    */
-  protected static function releaseSignals(): void {
-    if (!function_exists('pcntl_signal')) {
+  protected static function releaseSignals(?array $previous): void {
+    if ($previous === NULL) {
       return;
     }
 
     foreach ([SIGINT, SIGTERM] as $signal) {
-      pcntl_signal($signal, SIG_DFL);
+      pcntl_signal($signal, $previous['handlers'][$signal] ?? SIG_DFL);
     }
+
+    pcntl_async_signals($previous['async']);
   }
 
   protected static function escapeMultiline(string $text, int $color_code, int $end_code = 39): string {

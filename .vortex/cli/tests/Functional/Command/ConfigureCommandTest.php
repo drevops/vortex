@@ -241,20 +241,30 @@ class ConfigureCommandTest extends FunctionalTestCase {
    * Options that answer one file-controlling question with "no".
    *
    * The answer is one the handlers can act on in an already-installed project,
-   * so a run that honours it leaves a visible trace on disk.
+   * so a run that honours it leaves a visible trace on disk. Each route carries
+   * the answer the way that route is meant to: the flag route takes it from the
+   * environment, so it is not silently also carrying the option that makes the
+   * other route scripted.
+   *
+   * @param bool $no_interaction
+   *   Whether the run is scripted by the flag rather than by answers.
+   * @param array<string, mixed> $extra
+   *   Options to add.
    *
    * @return array<string, mixed>
    *   The command options.
    */
   protected function configureOptions(bool $no_interaction, array $extra = []): array {
-    $options = [
-      '--' . ConfigureCommand::OPTION_DESTINATION => self::$sut,
-      '--' . ConfigureCommand::OPTION_PROMPTS => (string) json_encode([AiCodeInstructions::id() => FALSE]),
-    ] + $extra;
+    $options = ['--' . ConfigureCommand::OPTION_DESTINATION => self::$sut] + $extra;
 
-    if ($no_interaction) {
-      $options['--' . ConfigureCommand::OPTION_NO_INTERACTION] = TRUE;
+    if (!$no_interaction) {
+      $options['--' . ConfigureCommand::OPTION_PROMPTS] = (string) json_encode([AiCodeInstructions::id() => FALSE]);
+
+      return $options;
     }
+
+    Env::put(AiCodeInstructions::envName(), '0');
+    $options['--' . ConfigureCommand::OPTION_NO_INTERACTION] = TRUE;
 
     return $options;
   }

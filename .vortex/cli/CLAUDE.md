@@ -64,8 +64,10 @@ permission before running.
 
 Triggers that require re-recording:
 - New `Handlers/*.php` class or handler removal.
-- Wording change to `label()` or `hint()` of any existing handler.
+- Change to `label()`, `hint()`, `options()` or `validate()` of any existing
+  handler.
 - Reordering questions or panels inside `VortexForm::create()`.
+- Widget or layout change in `Form/TuiAdapter.php` or `Prompts/PromptType.php`.
 
 The expect script drives the panels by position (a fixed number of arrow keys
 to reach a panel and the closing actions), so any change to the number or
