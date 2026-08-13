@@ -331,7 +331,9 @@ Content is generated only when `VORTEX_PROVISION_OVERRIDE_DB` is set to `1` -
 that is, when the database has just been imported or installed from scratch.
 Re-provisioning a site whose content is preserved keeps that content untouched.
 Generation is also skipped when the site already holds generated content, so
-repeated provisioning never duplicates it.
+repeated provisioning does not duplicate it. The module only records entities
+from plugins that declare `tracking: TRUE`, which is the default, so entities
+from untracked plugins are created again on every fresh database.
 
 Generation is heavier than the rest of provisioning, so it runs without a PHP
 memory limit.
