@@ -53,49 +53,34 @@ return RectorConfig::configure()
     __DIR__ . '/tests',
   ])
   ->withSkip([
-    // Rules that rename variables and parameters after their type. The
-    // project names local variables and method arguments in snake_case.
+    // Specific rules to skip based on project coding standards.
+    AddOverrideAttributeToOverriddenMethodsRector::class,
+    ArrayToFirstClassCallableRector::class,
     CatchExceptionNameMatchingTypeRector::class,
+    ChangeSwitchToMatchRector::class,
+    CompleteDynamicPropertiesRector::class,
+    DisallowedEmptyRuleFixerRector::class,
+    InlineArrayReturnAssignRector::class,
+    NewlineAfterStatementRector::class,
+    NewlineBeforeNewAssignSetRector::class,
+    NewlineBetweenClassLikeStmtsRector::class,
+    PrivatizeFinalClassMethodRector::class,
+    PrivatizeFinalClassPropertyRector::class,
+    PrivatizeLocalGetterToPropertyRector::class,
+    RemoveAlwaysTrueIfConditionRector::class,
+    RemoveUnusedPublicMethodParameterRector::class => [
+      __DIR__ . '/web/modules/custom/*/src/Hook/*',
+      __DIR__ . '/web/themes/custom/*/src/Hook/*',
+    ],
     RenameForeachValueVariableToMatchExprVariableRector::class,
     RenameForeachValueVariableToMatchMethodCallReturnTypeRector::class,
     RenameParamToMatchTypeRector::class,
     RenameVariableToMatchMethodCallReturnTypeRector::class,
     RenameVariableToMatchNewTypeRector::class,
-    // Rules that narrow class members to private. The project declares
-    // members protected.
-    PrivatizeFinalClassMethodRector::class,
-    PrivatizeFinalClassPropertyRector::class,
-    PrivatizeLocalGetterToPropertyRector::class,
-    // Rules that replace empty() checks with explicit comparisons.
-    DisallowedEmptyRuleFixerRector::class,
     SimplifyEmptyCheckOnEmptyArrayRector::class,
-    // Rules that add or move blank lines. PHP_CodeSniffer decides
-    // formatting.
-    NewlineAfterStatementRector::class,
-    NewlineBeforeNewAssignSetRector::class,
-    NewlineBetweenClassLikeStmtsRector::class,
-    // Drupal caches form arrays, and a first-class callable is a Closure.
-    ArrayToFirstClassCallableRector::class,
-    // match() compares strictly and throws when no arm matches.
-    ChangeSwitchToMatchRector::class,
-    // Object-oriented hook implementations keep the signature the hook
-    // declares, including parameters the implementation does not use.
-    RemoveUnusedPublicMethodParameterRector::class => [
-      __DIR__ . '/web/modules/custom/*/src/Hook/*',
-      __DIR__ . '/web/themes/custom/*/src/Hook/*',
-    ],
-    // The settings includes name classes from modules that are registered
-    // with the autoloader at runtime.
     StringClassNameToClassConstantRector::class => [
       __DIR__ . '/web/sites/default/includes/*',
     ],
-    // Rules that rewrite working code beyond a syntax upgrade.
-    CompleteDynamicPropertiesRector::class,
-    InlineArrayReturnAssignRector::class,
-    // Drupal core does not use the #[\Override] attribute.
-    AddOverrideAttributeToOverriddenMethodsRector::class,
-    // Docblock type inference is not a runtime guarantee.
-    RemoveAlwaysTrueIfConditionRector::class,
     // Directories to skip.
     '*/vendor/*',
     '*/node_modules/*',
