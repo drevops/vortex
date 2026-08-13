@@ -217,10 +217,6 @@ jobs:
 
       #;< CI_GITLEAKS
       - *step_setup_remote_docker
-
-      - run:
-          name: Scan for committed secrets with Gitleaks
-          command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> CI_GITLEAKS
 
       #;< VORTEX_DEV
@@ -232,9 +228,19 @@ jobs:
           command: composer update --no-install --no-audit --ignore-platform-reqs
       #;> VORTEX_DEV
 
+      # Every check below runs even after an earlier one failed, so a single run
+      # reports all findings. A failed check still fails the job unless its
+      # 'IGNORE_FAILURE' variable is set to 1.
       - run:
           name: Audit Composer packages
           command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      #;< CI_GITLEAKS
+      - run:
+          name: Scan for committed secrets with Gitleaks
+          when: always
+          command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
+      #;> CI_GITLEAKS
 
   #;< !PROVISION_TYPE_PROFILE
   # Database handling is a first step of the build.

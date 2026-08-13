@@ -78,9 +78,9 @@
 
                                   Security Audit Workflow
  ═════════════════════════════════════════════════════════════════════════════════════════
-   Push, pull request or manual run ──► Gitleaks secret scan ──► Composer advisory audit
-                                        (committed secrets)      (composer audit --locked)
+   Push, pull request or manual run ──► Composer advisory audit ──► Gitleaks secret scan
+                                        (composer audit --locked)   (committed secrets)
 
    Runs as its own workflow, independently of the pipeline above, and does not gate
-   deployment.
+   deployment. Every check runs even if an earlier one failed.
 ```

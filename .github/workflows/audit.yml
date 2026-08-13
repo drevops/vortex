@@ -87,12 +87,6 @@ jobs:
       - name: Load environment variables from .env
         run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
 
-      #;< CI_GITLEAKS
-      - name: Scan for committed secrets with Gitleaks
-        run: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 dir . --no-banner
-        continue-on-error: ${{ vars.VORTEX_CI_GITLEAKS_IGNORE_FAILURE == '1' }}
-      #;> CI_GITLEAKS
-
       #;< VORTEX_DEV
       #; Vortex does not track 'composer.lock', so resolve dependencies to give
       #; the audit below something to read. Nothing is installed, so the runner
@@ -101,6 +95,17 @@ jobs:
         run: composer update --no-install --no-audit --ignore-platform-reqs
       #;> VORTEX_DEV
 
+      # Every check below runs even after an earlier one failed, so a single run
+      # reports all findings. A failed check still fails the job unless its
+      # 'IGNORE_FAILURE' variable is set to '1'.
       - name: Audit Composer packages
+        if: ${{ !cancelled() }}
         run: composer audit --locked
         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}
+
+      #;< CI_GITLEAKS
+      - name: Scan for committed secrets with Gitleaks
+        if: ${{ !cancelled() }}
+        run: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 dir . --no-banner
+        continue-on-error: ${{ vars.VORTEX_CI_GITLEAKS_IGNORE_FAILURE == '1' }}
+      #;> CI_GITLEAKS
