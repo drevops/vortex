@@ -239,6 +239,8 @@ trait SubtestAhoyTrait {
     $this->syncToHost('.data');
     $this->assertFileExists('.data/db.sql', 'Database dump file should exist after export');
 
+    $this->assertDumpExcludesCacheTableData('.data/db.sql');
+
     $this->cmd(
       'ahoy provision',
       [
@@ -285,6 +287,27 @@ trait SubtestAhoyTrait {
     );
 
     $this->logStepFinish();
+  }
+
+  protected function assertDumpExcludesCacheTableData(string $file): void {
+    $this->logSubstep('Assert cache tables are exported without their data');
+
+    // Prove the cache tables held rows when the dump was taken, so that their
+    // absence from the dump is the export behaviour rather than an empty cache.
+    $probe_file = '.data/probe-cache-rows.sql';
+    File::dump($probe_file, "SELECT 'CACHE_ROWS_PRESENT' FROM cache_default LIMIT 1;\n");
+    $this->syncToContainer($probe_file);
+    $this->cmd('ahoy drush sql:query --file=../' . $probe_file, '* CACHE_ROWS_PRESENT', 'Cache table should hold rows before the export');
+
+    $this->assertFileContainsString($file, 'CREATE TABLE `cache_default`', 'Cache table structure should be present in the dump');
+    $this->assertFileNotContainsString($file, 'INSERT INTO `cache_default`', 'Cache table rows should be absent from the dump');
+    $this->assertFileContainsString($file, 'CREATE TABLE `cachetags`', 'Cache tags table structure should be present in the dump');
+    $this->assertFileNotContainsString($file, 'INSERT INTO `cachetags`', 'Cache tags table rows should be absent from the dump');
+
+    $this->assertFileContainsString($file, 'CREATE TABLE `users_field_data`', 'Non-cache table structure should be present in the dump');
+    $this->assertFileContainsString($file, 'INSERT INTO `users_field_data`', 'Non-cache table rows should be present in the dump');
+    $this->assertFileContainsString($file, 'CREATE TABLE `config`', 'Configuration table structure should be present in the dump');
+    $this->assertFileContainsString($file, 'INSERT INTO `config`', 'Configuration table rows should be present in the dump');
   }
 
   protected function subtestAhoyExportDb(string $filename = '', bool $is_container_image_archive = FALSE): void {
