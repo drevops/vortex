@@ -249,11 +249,13 @@ with [asciinema](https://asciinema.org/). The recording is produced by
 
 1. Builds the PHAR from source.
 2. Generates an [Expect](https://en.wikipedia.org/wiki/Expect) script that
-   automates the interaction, simulating human-like typing with
-   delays.
+   answers the panels with paced keystrokes, typing at a human speed and
+   pausing long enough for each screen to be read.
 3. Records the session with `asciinema rec` into a JSON cast file.
-4. Post-processes the recording (sanitizes paths, removes spawn lines).
-5. Converts the cast file to SVG and PNG using a custom
+4. Checks that the recorded run created the project, so a mistimed recording
+   never reaches the published assets.
+5. Post-processes the recording, replacing local paths with stable ones.
+6. Converts the cast file to SVG and PNG using a custom
    `svg-term-render.js` script, and optionally to GIF using `agg`.
 
 The output files are stored in `.vortex/docs/static/img/` as `cli-install.*`
@@ -266,6 +268,11 @@ To update the video:
 cd .vortex
 ahoy update-videos cli-install
 ```
+
+The script reaches each panel by counting arrow keys rather than by matching
+text, because a panel redraws in place and a match would land on a line that
+has already been overwritten. Adding, removing or reordering a panel therefore
+means adjusting those counts in `build_install_expect_script()`.
 
 `sharp-cli`, which renders the PNG posters, is a declared dependency of
 `.vortex/docs`, so it is pinned by `yarn.lock` and installed by the existing

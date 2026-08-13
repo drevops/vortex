@@ -50,7 +50,9 @@ const VIDEOS = [
     'speed' => 1.0,
     'cols' => 80,
     'rows' => 42,
-    'poster_ms' => 2000,
+    // Late enough for the panel overview to have settled, which is the frame
+    // that says what this tool is before anyone presses play.
+    'poster_ms' => 7000,
     'typer' => FALSE,
   ],
   'build' => [
@@ -210,9 +212,22 @@ press $ESC 1.5
 repeat $DOWN 12 0.3
 press $ENTER 2
 
-# The child may already have finished writing the closing box by now, so both
-# the handler removal and the wait are best-effort.
+# The install writes its own progress from here, so the drain goes back to the
+# foreground: a background reader would swallow the closing question along with
+# it and leave the recording waiting out the timeout on an answer nobody gave.
 catch { expect_background }
+
+expect {
+  "Run the site build now?" {
+    sleep 1.5
+    # Declined, so the demo ends on the summary rather than on a build that
+    # takes minutes and shows nothing about the questions.
+    send -- "n"
+  }
+  timeout { }
+  eof { }
+}
+
 catch { expect eof }
 sleep 2
 EXPECT;
