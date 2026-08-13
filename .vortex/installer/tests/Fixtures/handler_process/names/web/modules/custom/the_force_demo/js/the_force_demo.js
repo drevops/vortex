@@ -26,9 +26,7 @@
 
         block.classList.add('the-force-demo-counter-processed');
 
-        const valueElement = block.querySelector(
-          '[data-the-force-demo-counter-value]',
-        );
+        const valueElement = block.querySelector('[data-the-force-demo-counter-value]');
         const buttons = block.querySelectorAll('[data-the-force-demo-counter-action]');
 
         let currentValue = this.getCounterValue();
