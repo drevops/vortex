@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f00256356d4e4886203dcb8125a26c77",
+    "content-hash": "a4c2620f6d299c0244cea20c37862e20",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -820,16 +820,16 @@
         },
         {
             "name": "drevops/phptui",
-            "version": "0.2.0",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drevops/phptui.git",
-                "reference": "b1e7a526c2f90e068c3a805ddf174e8ff27e8743"
+                "reference": "984cc9eaa51d07eaab40d0bf28bc809428a8432f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drevops/phptui/zipball/b1e7a526c2f90e068c3a805ddf174e8ff27e8743",
-                "reference": "b1e7a526c2f90e068c3a805ddf174e8ff27e8743",
+                "url": "https://api.github.com/repos/drevops/phptui/zipball/984cc9eaa51d07eaab40d0bf28bc809428a8432f",
+                "reference": "984cc9eaa51d07eaab40d0bf28bc809428a8432f",
                 "shasum": ""
             },
             "require": {
@@ -875,7 +875,7 @@
                 "issues": "https://github.com/drevops/phptui/issues",
                 "source": "https://github.com/drevops/phptui"
             },
-            "time": "2026-08-12T03:50:12+00:00"
+            "time": "2026-08-13T04:14:28+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

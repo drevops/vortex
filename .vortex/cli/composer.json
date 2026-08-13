@@ -22,7 +22,7 @@
         "alexskrypnyk/str2name": "^1.6.0",
         "composer/composer": "^2.10.2",
         "czproject/git-php": "^4.6",
-        "drevops/phptui": "^0.2.0",
+        "drevops/phptui": "^0.2.1",
         "guzzlehttp/guzzle": "^7.15.3",
         "nelexa/zip": "^4.0.2",
         "nikic/iter": "^2.4.1",
