@@ -95,4 +95,6 @@ Export timestamped database dumps from the local environment.
 You can use these dumps to restore the local environment to a specific state:
 rename the dump file to `.data/db.sql` and run the import command.
 
+Cache tables are exported with their structure but without their data, because Drupal rebuilds them on demand and their contents would only inflate the dump. Set `VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES` to a comma-separated list of table names, each of which may use the `*` wildcard, to choose which tables are exported this way. Set it to an empty value to export the data of every table.
+
 ➡️ See [Drupal > Provision](../drupal/provision)
