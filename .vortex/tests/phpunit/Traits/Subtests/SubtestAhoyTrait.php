@@ -295,12 +295,14 @@ trait SubtestAhoyTrait {
     // Prove the cache tables held rows when the dump was taken, so that their
     // absence from the dump is the export behaviour rather than an empty cache.
     $probe_file = '.data/probe-cache-rows.sql';
-    File::dump($probe_file, "SELECT 'CACHE_ROWS_PRESENT' FROM cache_default LIMIT 1;\n");
+    File::dump($probe_file, "SELECT 'CACHE_ROWS_PRESENT' FROM cache_bootstrap LIMIT 1;\n");
     $this->syncToContainer($probe_file);
     $this->cmd('ahoy drush sql:query --file=../' . $probe_file, '* CACHE_ROWS_PRESENT', 'Cache table should hold rows before the export');
 
-    $this->assertFileContainsString($file, 'CREATE TABLE `cache_default`', 'Cache table structure should be present in the dump');
-    $this->assertFileNotContainsString($file, 'INSERT INTO `cache_default`', 'Cache table rows should be absent from the dump');
+    $this->assertFileContainsString($file, 'CREATE TABLE `cache_bootstrap`', 'Cache table structure should be present in the dump');
+    $this->assertFileNotContainsString($file, 'INSERT INTO `cache_bootstrap`', 'Cache table rows should be absent from the dump');
+    $this->assertFileContainsString($file, 'CREATE TABLE `cache_default`', 'Every cache bin should be matched by the wildcard');
+    $this->assertFileNotContainsString($file, 'INSERT INTO `cache_default`', 'Every cache bin should be exported without its rows');
     $this->assertFileContainsString($file, 'CREATE TABLE `cachetags`', 'Cache tags table structure should be present in the dump');
     $this->assertFileNotContainsString($file, 'INSERT INTO `cachetags`', 'Cache tags table rows should be absent from the dump');
 
