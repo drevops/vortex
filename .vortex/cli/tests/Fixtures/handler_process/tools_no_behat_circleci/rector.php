@@ -1,4 +1,4 @@
-@@ -86,8 +86,6 @@
+@@ -87,8 +87,6 @@
    // PHP version upgrade sets - modernizes syntax to PHP 8.4.
    // Includes all rules from PHP 5.3 through 8.4.
    ->withPhpSets(php84: TRUE)

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\ys_base\FunctionalJavascript;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Class ExampleTest.
@@ -14,6 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @package Drupal\ys_base\Tests
  */
 #[Group('YsBase')]
+#[RunTestsInSeparateProcesses]
 class ExampleTest extends YsBaseFunctionalJavascriptTestBase {
 
   /**

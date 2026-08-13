@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\your_site_theme\FunctionalJavascript;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Class ExampleTest.
@@ -14,6 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @package Drupal\your_site_theme\Tests
  */
 #[Group('YourSiteTheme')]
+#[RunTestsInSeparateProcesses]
 class ExampleTest extends YourSiteThemeFunctionalJavascriptTestBase {
 
   /**
