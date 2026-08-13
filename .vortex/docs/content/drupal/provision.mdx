@@ -328,11 +328,11 @@ calls the generated content repository directly instead, so content is created
 even when the modules were installed earlier in the provisioning run.
 
 The script runs only in the `local`, `ci`, `dev` and `stage` environments, and
-only when [`$VORTEX_PROVISION_OVERRIDE_DB`](../development/variables#vortex_provision_override_db)
-is set to `1` - that is, when the database has just been imported or installed
-from scratch. Re-provisioning a site whose content is preserved keeps that
-content untouched. Content is also skipped when the site already holds generated
-content, so repeated provisioning never duplicates it.
+only when `VORTEX_PROVISION_OVERRIDE_DB` is set to `1` - that is, when the
+database has just been imported or installed from scratch. Re-provisioning a site
+whose content is preserved keeps that content untouched. Content is also skipped
+when the site already holds generated content, so repeated provisioning never
+duplicates it.
 
 Generation is heavier than the rest of provisioning, so it runs without a PHP
 memory limit.
