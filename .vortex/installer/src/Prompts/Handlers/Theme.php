@@ -195,6 +195,7 @@ class Theme extends AbstractHandler {
     File::removeLineInFile($tmp_dir . '/phpunit.xml', '<directory>web/themes/custom/**/node_modules</directory>');
 
     File::removeLineInFile($tmp_dir . '/rector.php', "__DIR__ . '/web/themes/custom',");
+    File::removeLineInFile($tmp_dir . '/rector.php', "__DIR__ . '/web/themes/custom/*/src/Hook/*',");
 
     File::removeLineInFile($tmp_dir . '/.twig-cs-fixer.php', "\$finder->in(__DIR__ . '/web/themes/custom');");
 
