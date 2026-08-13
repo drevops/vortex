@@ -8,6 +8,8 @@
 
 declare(strict_types=1);
 
+use DrevOps\PhpTui\Screen\Layout\DefaultLayout;
+use DrevOps\PhpTui\Screen\Layout\LayoutManager;
 use DrevOps\VortexCli\Command\BuildCommand;
 use DrevOps\VortexCli\Command\ConfigureCommand;
 use DrevOps\VortexCli\Command\DoctorCommand;
@@ -27,6 +29,11 @@ $version = (string) Env::get(Config::VERSION, '@vortex-cli-version@');
 // Box replaces the placeholder when packaging the PHAR, so a version still
 // carrying it means the CLI is running straight from source.
 $version = str_contains($version, 'vortex-cli-version') ? 'development' : $version;
+
+// The library finds its shipped layouts by globbing its own directory, and
+// glob() returns nothing through the phar:// wrapper, so the layout every
+// screen falls back to is registered by class for the packaged binary.
+LayoutManager::register('default', DefaultLayout::class);
 
 $application = new Application('Vortex CLI', $version);
 

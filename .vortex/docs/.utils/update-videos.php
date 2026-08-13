@@ -27,8 +27,6 @@ require_once __DIR__ . '/VideoRecorder.php';
  *   php update-videos.php --keep lint              # reuse workspace, record lint only
  */
 
-const PROMPT_DELAY = 1;
-
 const WORKSPACE_REL = '.artifacts/tmp/videos-workspace';
 
 const COMPOSE_PROJECT = 'vortex_videos';
@@ -43,8 +41,8 @@ const COMPOSE_PROJECT = 'vortex_videos';
  * - poster_ms: cast timestamp (ms) at which the PNG poster frame is taken.
  *              NULL means use the last frame of the cast.
  * - typer:     wrap the command with the simulated-typing intro from
- *              type-and-run.php. The install demo is FALSE because the expect
- *              script handles its own prompt-driven flow.
+ *              type-and-run.php. The install demo is FALSE because its expect
+ *              script types the command line itself.
  */
 const VIDEOS = [
   'cli-install' => [
@@ -112,140 +110,116 @@ function usage(): void {
   fwrite(STDERR, "Video names may be space or comma separated (lint test = lint,test).\n");
 }
 
-function build_install_expect_script(int|float $prompt_delay, string $uri): string {
+function build_install_expect_script(string $uri, int $cols, int $rows): string {
   $body = <<<'EXPECT'
 #!/usr/bin/env expect
 
-set timeout 60
+# Drive an interactive Vortex CLI install for the documentation demo video.
+#
+# The script types the command a reader would type, then answers the panel TUI
+# with paced keystrokes so the recording reads like someone using it. The panel
+# is addressed by position rather than by text, because a panel redraws in
+# place and an expect pattern would match a line that is no longer on screen.
+#
+# A background reader drains the child's output for the whole session: without
+# it the pty buffer fills, the child blocks mid-write and never returns to its
+# input loop.
+
+set timeout 180
 log_user 1
 
-set prompt_delay {{PROMPT_DELAY}}
 set cli_uri "{{URI}}"
 
-proc safe_send {s} {
-    if {[exp_pid] > 0} {
-        send -- $s
-    } else {
-        puts "child process already ended; skipping send <$s>"
-    }
-}
-
-proc wait_for_quiet {{secs 1}} {
-    set old $::timeout
-    set ::timeout $secs
-    expect {
-        -re {.+} { exp_continue }
-        timeout { }
-    }
-    set ::timeout $old
-}
-
-proc clear_field {} {
-    for {set i 0} {$i < 50} {incr i} {
-        safe_send "\b"
-    }
-    after 150
-}
-
-proc type_text {text} {
-    wait_for_quiet 0.1
-    set send_human {.1 .3 1 .05 2 .1 .2 0 .4 0 .6 0 .8 0 1}
-    send -h $text
-}
-
-proc wait_and_enter {} {
-    global prompt_delay
-    wait_for_quiet 0.25
-    sleep $prompt_delay
-    safe_send "\r"
-}
-
+set env(TERM) xterm-256color
+set env(COLUMNS) {{COLS}}
+set env(LINES) {{ROWS}}
 set env(VORTEX_CLI_INSTALL_PROMPT_BUILD_NOW) 0
-spawn php vortex.phar install --destination=star_wars --uri=$cli_uri
+
+set send_slow {1 .06}
+
+proc press {seq {secs 1}} {
+  send -- $seq
+  sleep $secs
+}
+
+proc repeat {seq times {secs 1}} {
+  for {set i 0} {$i < $times} {incr i} {
+    press $seq $secs
+  }
+}
+
+set ENTER "\r"
+set ESC "\033"
+set UP "\033\[A"
+set DOWN "\033\[B"
+set BACKSPACE "\177"
+
+# The typed line is what a reader would run; the spawned command adds the
+# destination and template source the recording harness needs.
+send_user "$ "
+sleep 1
+foreach char [split "php vortex.phar" ""] {
+  send_user -- $char
+  sleep 0.06
+}
+sleep 0.5
+send_user "\n"
+
+spawn -noecho php vortex.phar install --destination=star_wars --uri=$cli_uri
 
 expect {
-  "Press any key to continue" {
-    after 3000
-    safe_send "\r"
-  }
+  "Press any key" { }
   timeout {
-    puts "Timeout waiting for welcome screen or first prompt"
+    puts "Timeout waiting for the welcome screen"
     exit 1
-  }
-}
-
-expect {
-  "Site name" {
-    clear_field
-    type_text "Star Wars"
-    wait_and_enter
-  }
-  timeout {
-    puts "Timeout waiting for welcome screen or first prompt"
-    exit 1
-  }
-}
-
-expect {
-  "Site machine name" {
-    wait_and_enter
-  }
-}
-
-expect {
-  "Organization name" {
-    clear_field
-    type_text "Rebellion"
-    wait_and_enter
-  }
-}
-
-while {1} {
-  expect {
-    "Proceed with installing Vortex?" {
-      after 2000
-      safe_send "\r"
-    }
-    "Vortex will be installed into your project" {
-      after 2000
-      safe_send "\r"
-    }
-    "Finished installing Vortex" {
-      break
-    }
-    "─┘" {
-      wait_and_enter
-    }
-    timeout {
-      puts "Timeout during installation"
-      break
-    }
-    eof {
-      puts "End of file reached"
-      break
-    }
-  }
-}
-
-expect {
-  "Run the site build now?" {
-    after 2000
-    safe_send "\r"
-  }
-  timeout {
-    puts "Timeout waiting for build prompt"
   }
   eof {
-    puts "End of file before build prompt"
+    puts "Install ended before the welcome screen"
+    exit 1
   }
 }
 
-expect eof
+expect_background -re ".+"
+sleep 2.5
+
+# Dismiss the banner and let the panel overview settle.
+press $ENTER 3
+
+# General information: replace the detected site name and watch the machine
+# name, organization and domain re-derive from it.
+press $ENTER 2
+press $ENTER 1
+repeat $BACKSPACE 9 0.06
+sleep 0.4
+send -s -- "Star Wars"
+sleep 0.8
+press $ENTER 2.5
+press $ESC 1.5
+
+# Hosting: switching the provider reveals the fields that only it needs.
+repeat $DOWN 4 0.4
+press $ENTER 1.5
+press $ENTER 1.5
+press $UP 0.7
+press $UP 0.7
+press $ENTER 2.5
+press $ESC 1.5
+
+# Leaving a panel returns to the top of the overview, so the walk to the
+# closing actions always starts from the first entry.
+repeat $DOWN 12 0.3
+press $ENTER 2
+
+# The child may already have finished writing the closing box by now, so both
+# the handler removal and the wait are best-effort.
+catch { expect_background }
+catch { expect eof }
+sleep 2
 EXPECT;
 
   return str_replace(
-    ['{{PROMPT_DELAY}}', '{{URI}}'],
-    [(string) $prompt_delay, $uri],
+    ['{{URI}}', '{{COLS}}', '{{ROWS}}'],
+    [$uri, (string) $cols, (string) $rows],
     $body,
   );
 }
@@ -254,10 +228,7 @@ function render_video(VideoRecorder $recorder, string $name, string $workspace, 
   $cfg = VIDEOS[$name];
   $cast = $docs_static_dir . "/$name.json";
 
-  // The install expect script makes asciinema echo a spawn line as the
-  // first event; for command videos using type-and-run.php there is no such
-  // echo and the first event is the typed prompt that we want to keep.
-  $recorder->postprocessCast($cast, $workspace, strip_first_event: $name === 'cli-install');
+  $recorder->postprocessCast($cast, $workspace);
 
   if ((float) $cfg['speed'] !== 1.0) {
     $recorder->applyTimeScale($cast, 1.0 / (float) $cfg['speed']);
@@ -273,7 +244,7 @@ function record_install(VideoRecorder $recorder, string $workspace, string $proj
   $recorder->info("===== Recording 'cli-install' =====");
 
   $expect_script = "$workspace/cli-install.exp";
-  if (file_put_contents($expect_script, build_install_expect_script(PROMPT_DELAY, $project_root)) === FALSE) {
+  if (file_put_contents($expect_script, build_install_expect_script($project_root, (int) $cfg['cols'], (int) $cfg['rows'])) === FALSE) {
     throw new RuntimeException("Failed to write expect script: $expect_script");
   }
   if (!chmod($expect_script, 0o755)) {

@@ -65,8 +65,12 @@ permission before running.
 Triggers that require re-recording:
 - New `Handlers/*.php` class or handler removal.
 - Wording change to `label()` or `hint()` of any existing handler.
-- Reordering questions inside `VortexForm::create()`.
-- Change to `TOTAL_RESPONSES` constant.
+- Reordering questions or panels inside `VortexForm::create()`.
+
+The expect script drives the panels by position (a fixed number of arrow keys
+to reach a panel and the closing actions), so any change to the number or
+order of panels needs the key counts in `build_install_expect_script()`
+adjusted to match.
 
 ## Conditional Token System
 

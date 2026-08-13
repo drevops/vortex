@@ -153,10 +153,11 @@ When updating template files (settings, configs, Dockerfiles, etc.):
 2. **Commit.**
 3. Run `ahoy update-snapshots` and commit the regenerated fixtures.
 
-When the prompt flow changes (any change under
-`.vortex/cli/src/Prompts/` - new or removed handler, reordered or reworded
-prompt, `TOTAL_RESPONSES` bump), also run `ahoy update-videos cli-install` to
-re-record the demo, since the video records the live prompt flow.
+When the prompt flow changes (a new or removed handler under
+`.vortex/cli/src/Prompts/`, or a reordered or reworded prompt or panel in
+`.vortex/cli/src/Form/VortexForm.php`), also run
+`ahoy update-videos cli-install` to re-record the demo, since the video records
+the live prompt flow.
 `update-snapshots` commits automatically; `update-videos` does not - stage and
 commit its output manually. Run both after the code change is committed.
 
