@@ -57,8 +57,8 @@ mock_drush_dump() {
   assert_output_contains "Exported database dump saved ./.data/export_db_"
   assert_output_contains "Finished database file export."
 
-  assert_string_contains "--structure-tables-list=cache*" "$(mock_get_call_args "${mock_drush}" 1)"
-  assert_string_contains "--result-file=../.data/export_db_" "$(mock_get_call_args "${mock_drush}" 1)"
+  assert_string_contains "$(mock_get_call_args "${mock_drush}" 1)" "--structure-tables-list=cache*"
+  assert_string_contains "$(mock_get_call_args "${mock_drush}" 1)" "--result-file=../.data/export_db_"
 
   assert_file_exists ".data/export_db_*.sql"
 
