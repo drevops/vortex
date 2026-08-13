@@ -390,7 +390,7 @@ class PromptManager {
       return [];
     }
 
-    return $handler->leftovers();
+    return $handler->getLeftovers();
   }
 
   /**

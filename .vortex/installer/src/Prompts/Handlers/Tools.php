@@ -37,6 +37,13 @@ class Tools extends AbstractHandler {
   const HADOLINT = 'hadolint';
 
   /**
+   * Files of deselected tools that remain in the destination.
+   *
+   * @var array<string, array<string>>
+   */
+  protected array $leftovers = [];
+
+  /**
    * {@inheritdoc}
    */
   public function label(): string {
@@ -136,36 +143,14 @@ class Tools extends AbstractHandler {
   }
 
   /**
-   * Collect files of deselected tools that remain in the destination.
-   *
-   * Deselection removes files from the staged template copy, never from the
-   * destination, so an existing project keeps a deselected tool's config
-   * files. Those files are also the tool's discovery signal, so a project that
-   * keeps them has the tool re-selected on the next update.
+   * Get files of deselected tools that remain in the destination.
    *
    * @return array<string, array<string>>
-   *   Destination-relative file paths, keyed by tool title.
+   *   Destination-relative file paths, keyed by tool title. Populated while
+   *   the deselected tools are processed.
    */
-  public function leftovers(): array {
-    if (!$this->isInstalled() || !is_array($this->response)) {
-      return [];
-    }
-
-    $leftovers = [];
-
-    foreach (self::getToolDefinitions('tools') as $name => $tool) {
-      if (!isset($tool['files']) || in_array($name, $this->response, TRUE)) {
-        continue;
-      }
-
-      foreach ($tool['files'] as $file) {
-        if (File::exists($this->destinationDir . '/' . $file)) {
-          $leftovers[$tool['title']][] = $file;
-        }
-      }
-    }
-
-    return $leftovers;
+  public function getLeftovers(): array {
+    return $this->leftovers;
   }
 
   protected function processTool(string $name): void {
@@ -173,6 +158,18 @@ class Tools extends AbstractHandler {
 
     if (isset($tool['files'])) {
       File::remove(array_map(fn(string $file): string => $this->tmpDir . '/' . $file, $tool['files']));
+
+      // The staged copy is overlaid onto the destination without a delete
+      // pass, so an existing project keeps its own copy of these files. They
+      // are also the tool's discovery signal, so a project that keeps them has
+      // the tool re-selected on the next update.
+      if ($this->isInstalled()) {
+        $remaining = array_values(array_filter($tool['files'], fn(string $file): bool => File::exists($this->destinationDir . '/' . $file)));
+
+        if ($remaining !== []) {
+          $this->leftovers[$tool['title']] = $remaining;
+        }
+      }
     }
 
     if (isset($tool['files_dynamic']) && $tool['files_dynamic'] instanceof \Closure) {

@@ -16,17 +16,23 @@ class ToolsHandlerLeftoversTest extends UnitTestCase {
 
   #[DataProvider('dataProviderLeftovers')]
   public function testLeftovers(array $files, array $selected, bool $is_vortex_project, array $expected): void {
+    $destination = static::$sut . '/destination';
+    $tmp = static::$sut . '/tmp';
+
     foreach ($files as $file) {
-      File::dump(static::$sut . DIRECTORY_SEPARATOR . $file);
+      File::dump($destination . '/' . $file);
     }
 
-    $config = new Config(static::$sut, static::$sut, static::$sut . '/tmp');
-    $config->set(Config::IS_VORTEX_PROJECT, $is_vortex_project);
+    $this->stubTemplate($tmp);
+
+    $config = new Config(static::$sut, $destination, $tmp);
+    $config->set(Config::IS_VORTEX_PROJECT, $is_vortex_project, TRUE);
 
     $handler = new Tools($config);
     $handler->setResponses([Tools::id() => $selected]);
+    $handler->process();
 
-    $this->assertEquals($expected, $handler->leftovers());
+    $this->assertEquals($expected, $handler->getLeftovers());
   }
 
   public static function dataProviderLeftovers(): \Iterator {
@@ -92,6 +98,15 @@ class ToolsHandlerLeftoversTest extends UnitTestCase {
       TRUE,
       [],
     ];
+  }
+
+  /**
+   * Create the staged template files that tool processing writes to.
+   */
+  protected function stubTemplate(string $dir): void {
+    File::dump($dir . '/composer.json', (string) json_encode(['require-dev' => [], 'config' => ['allow-plugins' => []]], JSON_PRETTY_PRINT));
+    File::dump($dir . '/package.json', (string) json_encode(['devDependencies' => [], 'scripts' => []], JSON_PRETTY_PRINT));
+    File::dump($dir . '/.ahoy.yml', 'commands:' . PHP_EOL);
   }
 
 }
