@@ -136,9 +136,13 @@ class Tui {
     }
 
     // The state is captured rather than assumed, and restored from a finally,
-    // so a failed open, an exception or an interrupt cannot leave the terminal
-    // without an echo.
+    // so a failed open or an exception cannot leave the terminal without an
+    // echo. A signal unwinds nothing, so the same restore is installed as a
+    // handler for as long as the terminal is out of its normal mode.
     $state = trim((string) shell_exec('stty -g 2>/dev/null'));
+    $restore = static fn(): string|bool|null => system($state === '' ? 'stty -cbreak echo' : 'stty ' . escapeshellarg($state));
+
+    static::trapSignals($restore);
 
     try {
       system('stty cbreak -echo');
@@ -157,7 +161,50 @@ class Tui {
       return $char;
     }
     finally {
-      system($state === '' ? 'stty -cbreak echo' : 'stty ' . escapeshellarg($state));
+      $restore();
+      static::releaseSignals();
+    }
+  }
+
+  /**
+   * Restore the terminal when a signal ends the run.
+   *
+   * Interrupting a question is the ordinary way to leave one, and the shell
+   * that gets its terminal back has to be able to echo what is typed into it.
+   *
+   * @param callable $restore
+   *   Puts the terminal back the way it was found.
+   */
+  protected static function trapSignals(callable $restore): void {
+    if (!function_exists('pcntl_signal') || !function_exists('pcntl_async_signals')) {
+      return;
+    }
+
+    pcntl_async_signals(TRUE);
+
+    foreach ([SIGINT, SIGTERM] as $signal) {
+      // @codeCoverageIgnoreStart
+      pcntl_signal($signal, static function (int $received) use ($restore): void {
+        $restore();
+
+        // The conventional status for a run a signal ended, so a caller reading
+        // the exit code still learns which signal it was.
+        exit(128 + $received);
+      });
+      // @codeCoverageIgnoreEnd
+    }
+  }
+
+  /**
+   * Hand the trapped signals back to their default disposition.
+   */
+  protected static function releaseSignals(): void {
+    if (!function_exists('pcntl_signal')) {
+      return;
+    }
+
+    foreach ([SIGINT, SIGTERM] as $signal) {
+      pcntl_signal($signal, SIG_DFL);
     }
   }
 
