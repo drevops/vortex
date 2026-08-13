@@ -140,7 +140,7 @@ class Tui {
     // echo. A signal unwinds nothing, so the same restore is installed as a
     // handler for as long as the terminal is out of its normal mode.
     $state = trim((string) shell_exec('stty -g 2>/dev/null'));
-    $restore = static fn(): string|bool|null => system($state === '' ? 'stty -cbreak echo' : 'stty ' . escapeshellarg($state));
+    $restore = static fn(): string|false => system($state === '' ? 'stty -cbreak echo' : 'stty ' . escapeshellarg($state));
 
     static::trapSignals($restore);
 
