@@ -50,7 +50,7 @@ VORTEX_NOTIFY_LOGIN_URL="${VORTEX_NOTIFY_LOGIN_URL:-}"
 VORTEX_NOTIFY_LOG="${VORTEX_NOTIFY_LOG:-0}"
 
 # Directory from which deployment logs are collected. Each producing script writes
-# its own '<name>.log' here.
+# its own `<name>.log` here.
 VORTEX_NOTIFY_LOG_DIR="${VORTEX_NOTIFY_LOG_DIR:-/tmp/vortex-logs}"
 
 # ------------------------------------------------------------------------------
