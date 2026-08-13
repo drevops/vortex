@@ -52,6 +52,19 @@
   display: none;
 }
 
+/* JetBrains Mono ligatures fuse operators into single glyphs, drawing '->' as
+   '→' and '=>' as '⇒'. Code samples must show the literal characters. */
+code,
+pre,
+kbd,
+samp {
+  font-variant-ligatures: none;
+  font-feature-settings:
+    'liga' 0,
+    'clig' 0,
+    'calt' 0;
+}
+
 /* Frosted glass navbar. */
 .navbar {
   backdrop-filter: blur(20px) saturate(180%);
@@ -504,6 +517,12 @@ html[data-theme='dark'] .vtx-home .btn-primary:hover {
   color: var(--ink-2);
   white-space: nowrap;
   scrollbar-width: thin;
+  /* Not a 'code' element, so it needs its own ligature opt-out for '&&'. */
+  font-variant-ligatures: none;
+  font-feature-settings:
+    'liga' 0,
+    'clig' 0,
+    'calt' 0;
 }
 .vtx-home .snippet-code .pr {
   color: var(--teal);
