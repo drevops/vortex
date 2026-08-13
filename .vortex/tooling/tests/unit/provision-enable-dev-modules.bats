@@ -2,7 +2,11 @@
 ##
 # Unit tests for provision-10-enable-dev-modules.sh
 #
-#shellcheck disable=SC2030,SC2031,SC2034
+#
+# The mock side effects expand when the mock runs, not when the step is defined,
+# so they are single-quoted.
+#
+#shellcheck disable=SC2030,SC2031,SC2034,SC2016
 
 load ../_helper.bash
 
@@ -21,8 +25,10 @@ load ../_helper.bash
     "@drush -y pm:install sdc_devel"
     "@drush -y pm:install devel"
 
-    # Content generation.
-    "@drush -y pm:install generated_content"
+    # Content generation. Both branches install the module with the same
+    # arguments, so the side effect records the environment that distinguishes
+    # them.
+    '@drush -y pm:install generated_content # 0 #  # echo "${GENERATED_CONTENT_CREATE:-unset}" >./generated_content_create.txt'
 
     # Expected output.
     "Started development modules operations."
@@ -47,6 +53,8 @@ load ../_helper.bash
 
   steps_run "assert" "${mocks[@]}"
 
+  assert_file_contains "./generated_content_create.txt" "1"
+
   popd >/dev/null || exit 1
 }
 
@@ -63,7 +71,7 @@ load ../_helper.bash
     "@drush -y pm:install devel"
 
     # The module is installed either way; only the content is skipped.
-    "@drush -y pm:install generated_content"
+    '@drush -y pm:install generated_content # 0 #  # echo "${GENERATED_CONTENT_CREATE:-unset}" >./generated_content_create.txt'
 
     "Started development modules operations."
     "Environment: local"
@@ -80,6 +88,8 @@ load ../_helper.bash
   assert_success
 
   steps_run "assert" "${mocks[@]}"
+
+  assert_file_contains "./generated_content_create.txt" "unset"
 
   popd >/dev/null || exit 1
 }
