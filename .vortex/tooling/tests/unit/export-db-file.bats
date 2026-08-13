@@ -26,8 +26,18 @@ mock_drush_dump() {
   printf '%s\n' "${mock}"
 }
 
+# Drops the export variables inherited from the shell running the suite. The
+# script's `.env` loader restores the saved environment last, so an ambient
+# value would win over `.env` and change the arguments a test asserts on.
+isolate_export_vars() {
+  unset VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES
+  unset VORTEX_EXPORT_DB_FILE_DIR
+}
+
 @test "export-db-file: Exports cache tables without their data by default" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  isolate_export_vars
 
   mock_drush=$(mock_drush_dump "dump")
 
@@ -49,6 +59,8 @@ mock_drush_dump() {
 @test "export-db-file: Exports to a timestamped file when no argument is given" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  isolate_export_vars
+
   mock_drush=$(mock_drush_dump "dump")
 
   run .vortex/tooling/src/vortex-export-db-file
@@ -68,6 +80,7 @@ mock_drush_dump() {
 @test "export-db-file: Honours a custom structure tables list" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  isolate_export_vars
   export VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES="cache*,watchdog,sessions"
 
   mock_drush=$(mock_drush_dump "dump")
@@ -83,6 +96,7 @@ mock_drush_dump() {
 @test "export-db-file: Exports the data of every table when the list is empty" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  isolate_export_vars
   export VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES=""
 
   mock_drush=$(mock_drush_dump "dump")
@@ -98,6 +112,7 @@ mock_drush_dump() {
 @test "export-db-file: Exports into a custom directory" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  isolate_export_vars
   export VORTEX_EXPORT_DB_FILE_DIR="./.data/custom"
 
   mock_drush=$(mock_drush_dump "dump")
@@ -116,6 +131,8 @@ mock_drush_dump() {
 @test "export-db-file: Fails when the dump file was not created" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  isolate_export_vars
+
   mock_drush=$(mock_drush_dump)
 
   run .vortex/tooling/src/vortex-export-db-file db.sql
@@ -132,6 +149,8 @@ mock_drush_dump() {
 
 @test "export-db-file: Fails when the dump file is empty" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  isolate_export_vars
 
   mock_drush=$(mock_drush_dump "")
 

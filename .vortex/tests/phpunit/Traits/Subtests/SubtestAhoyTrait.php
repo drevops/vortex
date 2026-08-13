@@ -235,6 +235,8 @@ trait SubtestAhoyTrait {
     $this->assertFileNotContainsString('config/default/core.extension.yml', 'generated_content', 'Excluded module "generated_content" should not appear in the exported extension list');
     $this->assertFileNotContainsString('config/default/core.extension.yml', 'testmode', 'Excluded module "testmode" should not appear in the exported extension list');
 
+    $this->assertCacheTablesHaveRows();
+
     $this->cmd('ahoy export-db db.sql', '* Exported database dump saved', 'Export database should complete successfully');
     $this->syncToHost('.data');
     $this->assertFileExists('.data/db.sql', 'Database dump file should exist after export');
@@ -289,15 +291,19 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
-  protected function assertDumpExcludesCacheTableData(string $file): void {
-    $this->logSubstep('Assert cache tables are exported without their data');
+  protected function assertCacheTablesHaveRows(): void {
+    $this->logSubstep('Assert cache tables hold rows before the export');
 
-    // Prove a cache table held rows when the dump was taken, so that the
-    // absence of cache rows is the export behaviour, not an empty cache.
+    // Establishes that the absence of cache rows from the dump taken next is
+    // the export behaviour, not an already-empty cache.
     $probe_file = '.data/probe-cache-rows.sql';
     File::dump($probe_file, "SELECT 'CACHE_ROWS_PRESENT' FROM cache_bootstrap LIMIT 1;\n");
     $this->syncToContainer($probe_file);
     $this->cmd('ahoy drush sql:query --file=../' . $probe_file, '* CACHE_ROWS_PRESENT', 'Cache table should hold rows before the export');
+  }
+
+  protected function assertDumpExcludesCacheTableData(string $file): void {
+    $this->logSubstep('Assert cache tables are exported without their data');
 
     $this->assertFileContainsString($file, 'CREATE TABLE `cache_bootstrap`', 'Cache table structure should be present in the dump');
     $this->assertFileContainsString($file, 'CREATE TABLE `cache_default`', 'Every cache bin should be matched by the wildcard');
