@@ -1,4 +1,4 @@
-@@ -77,14 +77,6 @@
+@@ -37,14 +37,6 @@
    exit 0
  fi
  
@@ -10,6 +10,6 @@
 -drush pm:install devel || true
 -pass "Installed Devel module."
 -
- generate_content
- 
- info "Finished development modules operations."
+ if [ "${DRUPAL_GENERATED_CONTENT_SKIP}" = "1" ]; then
+   note "Skipped content generation. DRUPAL_GENERATED_CONTENT_SKIP is set to 1."
+ else
