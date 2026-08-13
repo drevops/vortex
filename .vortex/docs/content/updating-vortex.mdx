@@ -97,28 +97,6 @@ Specifically check if any environment variables were added or changed.
 7. Schedule release to production environment and make sure to leave enough
    time for spot-check testing and potential rollbacks.
 
-## Changing the selected tools
-
-The [installer](installation) asks which development tools your project uses. That choice is not frozen at install time - re-run the installer interactively to change it:
-
-```shell title="Change the tool selection on an existing project"
-ahoy update-vortex --interactive
-```
-
-Answer the prompts as usual and use the **Development tools** step to select or deselect tools. Without `--interactive`, `ahoy update-vortex` re-applies your current selection and never adds or drops a tool.
-
-### Finishing a deselection
-
-Deselecting a tool removes its references: the Composer or Yarn dependency, the `ahoy` command, the continuous integration step, and the AI agent instructions. It does **not** delete the tool's own configuration file. **Vortex** copies files into your project and never deletes files it no longer ships, so `jest.config.js`, `phpstan.neon` and their equivalents stay where they are.
-
-The installer lists the files it left behind when it finishes. Delete them and commit the result.
-
-:::warning
-
-Leaving those files in place reverts the choice. **Vortex** detects a tool by its configuration file, so the next `ahoy update-vortex` finds the leftover, treats the tool as selected, and restores its dependency and commands.
-
-:::
-
 ## Best practices
 
 1. **Regular Updates**: Update **Vortex** monthly or when security patches are released
