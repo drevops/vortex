@@ -52,7 +52,13 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function ($test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('generated_content');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/generated_content')),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertSutNotContains('drupal/generated_content');
+        // The script still installs the development modules, so it survives
+        // with only its content generation removed.
+        $test->assertFileExists(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
+        $test->assertFileNotContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'GENERATED_CONTENT_CREATE');
+      }),
     ];
     yield 'modules_no_navigation_extra_tools' => [
       static::cw(function ($test): void {
@@ -139,6 +145,18 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
         $test->assertSutNotContains(['drupal/devel', 'drupal/sdc_devel']);
+        // Content generation still runs from the script, so it survives with
+        // only its development module installs removed.
+        $test->assertFileExists(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
+        $test->assertFileContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'GENERATED_CONTENT_CREATE');
+      }),
+    ];
+    yield 'modules_no_devel_sdc_devel_generated_content' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept(['devel', 'sdc_devel', 'generated_content']);
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertSutNotContains(['drupal/devel', 'drupal/sdc_devel', 'drupal/generated_content']);
         $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
       }),
     ];

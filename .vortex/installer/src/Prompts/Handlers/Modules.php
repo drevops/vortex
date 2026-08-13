@@ -11,11 +11,14 @@ use DrevOps\VortexInstaller\Utils\JsonManipulator;
 class Modules extends AbstractHandler {
 
   /**
-   * Modules installed by the dedicated development modules provision script.
+   * Modules driven by the development modules provision script.
+   *
+   * The script installs the development modules and generates content, so it
+   * has operations to perform while any one of these is selected.
    *
    * @var string[]
    */
-  protected const DEV_MODULES = ['devel', 'sdc_devel'];
+  protected const DEV_MODULES = ['devel', 'sdc_devel', 'generated_content'];
 
   /**
    * {@inheritdoc}
@@ -118,8 +121,8 @@ class Modules extends AbstractHandler {
       });
     }
 
-    // Without any development modules left to install, the script has no
-    // operations to perform, so it is removed.
+    // Without any of the modules it drives, the script has no operations to
+    // perform, so it is removed.
     if (count(array_intersect(self::DEV_MODULES, $selected_modules)) === 0) {
       File::remove($t . '/scripts/provision-10-enable-dev-modules.sh');
     }

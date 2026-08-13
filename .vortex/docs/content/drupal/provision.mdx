@@ -244,7 +244,7 @@ e.g., `provision-50-custom.sh`, `provision-60-another-custom.sh`.
 | Script                                | Purpose                                                  |
 |---------------------------------------|----------------------------------------------------------|
 | `provision-00-enable-demo-modules.sh` | Enables the modules and content model the demo site uses |
-| `provision-10-enable-dev-modules.sh`  | Enables the development modules                          |
+| `provision-10-enable-dev-modules.sh`  | Enables the development modules and generates content    |
 | `provision-20-migration.sh`           | Runs the content migration                               |
 | `provision-30-search-index.sh`        | Rebuilds the search index                                |
 | `provision-40-example.sh`             | A runnable example that performs no operations           |
@@ -313,6 +313,30 @@ demo and example scripts are adapted or removed.
 
 Both scripts run only in the `local`, `ci`, `dev` and `stage` environments. To
 opt out of either set of modules, remove the corresponding script.
+
+### Generated content
+
+Projects with the
+[Generated content](https://www.drupal.org/project/generated_content) module
+install it from the same `scripts/provision-10-enable-dev-modules.sh` custom
+script, after the development modules and before the search index is rebuilt.
+
+The module creates content from its own `hook_modules_installed()` when
+`GENERATED_CONTENT_CREATE=1` is set, so the script installs it with that
+variable and the content appears as part of the install. The site modules
+providing the generated content plugins are already enabled by then, so their
+plugins are picked up.
+
+To opt out of the content, set `DRUPAL_GENERATED_CONTENT_SKIP=1` in the `.env`
+file or in your hosting provider's specific environment. The module is still
+installed, so content can be generated later from the admin interface or with
+`drush generated-content:create-content`.
+
+Installing a module that is already installed does nothing, so provisioning a
+site that already holds the module leaves its content untouched. This also means
+the content is created only on the provision that first installs the module: a
+site provisioned once with `DRUPAL_GENERATED_CONTENT_SKIP=1` does not gain the
+content by unsetting the variable and provisioning again.
 
 ### Search indexing
 
