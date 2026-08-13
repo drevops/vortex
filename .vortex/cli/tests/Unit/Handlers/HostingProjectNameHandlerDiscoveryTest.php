@@ -11,7 +11,6 @@ use DrevOps\VortexCli\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexCli\Prompts\Handlers\Webroot;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(HostingProjectName::class)]
@@ -19,11 +18,10 @@ class HostingProjectNameHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
 
   public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
-
-    $clear_keys = implode('', array_fill(0, 20, Key::BACKSPACE));
     yield 'hosting project name - acquia - prompt' => [
       [
-        HostingProvider::id() => Key::DOWN . Key::ENTER . $clear_keys . 'my_acquia-project',
+        HostingProvider::id() => HostingProvider::ACQUIA,
+        HostingProjectName::id() => 'my_acquia-project',
       ],
       [
         HostingProvider::id() => HostingProvider::ACQUIA,
@@ -34,12 +32,12 @@ class HostingProjectNameHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
       ] + $expected_defaults,
     ];
     yield 'hosting project name - acquia - prompt - invalid' => [
-      [HostingProvider::id() => Key::DOWN . Key::ENTER . $clear_keys . 'my_acquia project'],
+      [HostingProvider::id() => HostingProvider::ACQUIA, HostingProjectName::id() => 'my_acquia project'],
       'Please enter a valid machine name: only lowercase letters, numbers, hyphens and underscores are allowed.',
     ];
     yield 'hosting project name - acquia - discovery from .env' => [
       [
-        HostingProvider::id() => Key::DOWN . Key::ENTER,
+        HostingProvider::id() => HostingProvider::ACQUIA,
       ],
       [
         HostingProvider::id() => HostingProvider::ACQUIA,
@@ -54,7 +52,8 @@ class HostingProjectNameHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
     ];
     yield 'hosting project name - lagoon - prompt' => [
       [
-        HostingProvider::id() => Key::DOWN . Key::DOWN . Key::ENTER . $clear_keys . 'my_lagoon-project',
+        HostingProvider::id() => HostingProvider::LAGOON,
+        HostingProjectName::id() => 'my_lagoon-project',
       ],
       [
         HostingProvider::id() => HostingProvider::LAGOON,
@@ -64,12 +63,12 @@ class HostingProjectNameHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
       ] + $expected_defaults,
     ];
     yield 'hosting project name - lagoon - prompt - invalid' => [
-      [HostingProvider::id() => Key::DOWN . Key::DOWN . Key::ENTER . $clear_keys . 'my_lagoon project'],
+      [HostingProvider::id() => HostingProvider::LAGOON, HostingProjectName::id() => 'my_lagoon project'],
       'Please enter a valid machine name: only lowercase letters, numbers, hyphens and underscores are allowed.',
     ];
     yield 'hosting project name - lagoon - discovery from .env' => [
       [
-        HostingProvider::id() => Key::DOWN . Key::DOWN . Key::ENTER,
+        HostingProvider::id() => HostingProvider::LAGOON,
       ],
       [
         HostingProvider::id() => HostingProvider::LAGOON,
@@ -83,7 +82,7 @@ class HostingProjectNameHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
     ];
     yield 'hosting project name - lagoon - discovery from drush lagoon.site.yml' => [
       [
-        HostingProvider::id() => Key::DOWN . Key::DOWN . Key::ENTER,
+        HostingProvider::id() => HostingProvider::LAGOON,
       ],
       [
         HostingProvider::id() => HostingProvider::LAGOON,

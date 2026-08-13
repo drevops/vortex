@@ -7,7 +7,7 @@ namespace DrevOps\VortexCli\Tests\Unit\Handlers;
 use DrevOps\VortexCli\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexCli\Prompts\Handlers\Webroot;
 use DrevOps\VortexCli\Utils\Config;
-use Laravel\Prompts\Key;
+use DrevOps\VortexCli\Tests\Support\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Webroot::class)]

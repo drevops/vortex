@@ -6,8 +6,9 @@ namespace DrevOps\VortexCli\Tests\Unit\Handlers;
 
 use DrevOps\VortexCli\Prompts\Handlers\FrontendBuild;
 use DrevOps\VortexCli\Prompts\Handlers\Theme;
+use DrevOps\VortexCli\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexCli\Utils\Config;
-use Laravel\Prompts\Key;
+use DrevOps\VortexCli\Tests\Support\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(FrontendBuild::class)]
@@ -21,6 +22,7 @@ class FrontendBuildHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
     // resolves to null.
     $expected_defaults_core = $expected_defaults;
     $expected_defaults_core[FrontendBuild::id()] = NULL;
+    $expected_defaults_core[ThemeCustom::id()] = NULL;
 
     yield 'frontend build - prompt' => [
       [FrontendBuild::id() => Key::ENTER],
@@ -34,7 +36,7 @@ class FrontendBuildHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
 
     yield 'frontend build - discovery - build in container' => [
       [],
-      [Theme::id() => 'discovered_project', FrontendBuild::id() => TRUE] + $expected_installed,
+      [Theme::id() => Theme::CUSTOM, ThemeCustom::id() => 'discovered_project', FrontendBuild::id() => TRUE] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $test->stubDotenvValue('DRUPAL_THEME', 'discovered_project');
@@ -44,7 +46,7 @@ class FrontendBuildHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
 
     yield 'frontend build - discovery - skip' => [
       [],
-      [Theme::id() => 'discovered_project', FrontendBuild::id() => FALSE] + $expected_installed,
+      [Theme::id() => Theme::CUSTOM, ThemeCustom::id() => 'discovered_project', FrontendBuild::id() => FALSE] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $test->stubDotenvValue('DRUPAL_THEME', 'discovered_project');
@@ -54,7 +56,7 @@ class FrontendBuildHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
 
     yield 'frontend build - discovery - default when absent' => [
       [],
-      [Theme::id() => 'discovered_project', FrontendBuild::id() => TRUE] + $expected_installed,
+      [Theme::id() => Theme::CUSTOM, ThemeCustom::id() => 'discovered_project', FrontendBuild::id() => TRUE] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $test->stubDotenvValue('DRUPAL_THEME', 'discovered_project');

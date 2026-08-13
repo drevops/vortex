@@ -18,9 +18,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Functional tests for ConfigureCommand.
  *
- * Both collection paths run the same code here: command interactivity is
- * decoupled from prompt interactivity, so the interactive branch executes
- * without a terminal and neither path is excluded from coverage.
+ * A run is scripted by the flag or by answers given up front, and both reach
+ * the same code, so each is exercised here rather than assumed equivalent.
  */
 #[CoversClass(ConfigureCommand::class)]
 class ConfigureCommandTest extends FunctionalTestCase {
@@ -38,7 +37,7 @@ class ConfigureCommandTest extends FunctionalTestCase {
   }
 
   /**
-   * Answers reach the project on both paths when --apply is given.
+   * Answers reach the project on both scripted routes when --apply is given.
    */
   #[DataProvider('dataProviderApplyWritesToTheProject')]
   public function testApplyWritesToTheProject(bool $no_interaction): void {
@@ -60,12 +59,12 @@ class ConfigureCommandTest extends FunctionalTestCase {
    *   Test data.
    */
   public static function dataProviderApplyWritesToTheProject(): \Iterator {
-    yield 'scripted' => [TRUE];
-    yield 'interactive' => [FALSE];
+    yield 'flag' => [TRUE];
+    yield 'answers up front' => [FALSE];
   }
 
   /**
-   * Without --apply nothing is written on either path.
+   * Without --apply nothing is written on either scripted route.
    */
   #[DataProvider('dataProviderWithoutApplyNothingChanges')]
   public function testWithoutApplyNothingChanges(bool $no_interaction): void {
@@ -86,8 +85,8 @@ class ConfigureCommandTest extends FunctionalTestCase {
    *   Test data.
    */
   public static function dataProviderWithoutApplyNothingChanges(): \Iterator {
-    yield 'scripted' => [TRUE];
-    yield 'interactive' => [FALSE];
+    yield 'flag' => [TRUE];
+    yield 'answers up front' => [FALSE];
   }
 
   /**
@@ -106,6 +105,44 @@ class ConfigureCommandTest extends FunctionalTestCase {
     $answers = json_decode(trim($output), TRUE);
     $this->assertIsArray($answers);
     $this->assertArrayHasKey(Name::id(), $answers);
+  }
+
+  /**
+   * Answers given up front make the whole run scripted, not just the form.
+   */
+  #[DataProvider('dataProviderAnswersUpFrontRunHeadless')]
+  public function testAnswersUpFrontRunHeadless(bool $apply): void {
+    $this->installProject();
+
+    $options = [
+      '--' . ConfigureCommand::OPTION_DESTINATION => self::$sut,
+      '--' . ConfigureCommand::OPTION_PROMPTS => (string) json_encode([Name::id() => 'Star Wars']),
+    ];
+
+    if ($apply) {
+      $options['--' . ConfigureCommand::OPTION_APPLY] = TRUE;
+    }
+
+    $output = $this->runConfigure($options);
+
+    $this->assertStringNotContainsString('Apply the answers to the project?', $output, 'A run answered up front should not stop to confirm');
+
+    if ($apply) {
+      return;
+    }
+
+    $this->assertJson(trim($output), 'A run answered up front should emit only the answers as JSON');
+  }
+
+  /**
+   * Data provider for testAnswersUpFrontRunHeadless().
+   *
+   * @return \Iterator<string, array{bool}>
+   *   Test data.
+   */
+  public static function dataProviderAnswersUpFrontRunHeadless(): \Iterator {
+    yield 'collect only' => [FALSE];
+    yield 'apply' => [TRUE];
   }
 
   /**
@@ -204,20 +241,30 @@ class ConfigureCommandTest extends FunctionalTestCase {
    * Options that answer one file-controlling question with "no".
    *
    * The answer is one the handlers can act on in an already-installed project,
-   * so a run that honours it leaves a visible trace on disk.
+   * so a run that honours it leaves a visible trace on disk. Each route carries
+   * the answer the way that route is meant to: the flag route takes it from the
+   * environment, so it is not silently also carrying the option that makes the
+   * other route scripted.
+   *
+   * @param bool $no_interaction
+   *   Whether the run is scripted by the flag rather than by answers.
+   * @param array<string, mixed> $extra
+   *   Options to add.
    *
    * @return array<string, mixed>
    *   The command options.
    */
   protected function configureOptions(bool $no_interaction, array $extra = []): array {
-    $options = [
-      '--' . ConfigureCommand::OPTION_DESTINATION => self::$sut,
-      '--' . ConfigureCommand::OPTION_PROMPTS => (string) json_encode([AiCodeInstructions::id() => FALSE]),
-    ] + $extra;
+    $options = ['--' . ConfigureCommand::OPTION_DESTINATION => self::$sut] + $extra;
 
-    if ($no_interaction) {
-      $options['--' . ConfigureCommand::OPTION_NO_INTERACTION] = TRUE;
+    if (!$no_interaction) {
+      $options['--' . ConfigureCommand::OPTION_PROMPTS] = (string) json_encode([AiCodeInstructions::id() => FALSE]);
+
+      return $options;
     }
+
+    Env::put(AiCodeInstructions::envName(), '0');
+    $options['--' . ConfigureCommand::OPTION_NO_INTERACTION] = TRUE;
 
     return $options;
   }

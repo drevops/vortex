@@ -6,12 +6,14 @@ namespace DrevOps\VortexCli\Tests\Unit\Handlers;
 
 use DrevOps\VortexCli\Prompts\Handlers\FrontendBuild;
 use DrevOps\VortexCli\Prompts\Handlers\Theme;
+use DrevOps\VortexCli\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\File;
-use Laravel\Prompts\Key;
+use DrevOps\VortexCli\Tests\Support\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Theme::class)]
+#[CoversClass(ThemeCustom::class)]
 class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): \Iterator {
@@ -22,10 +24,10 @@ class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     // resolves to null.
     $expected_defaults_core = $expected_defaults;
     $expected_defaults_core[FrontendBuild::id()] = NULL;
+    $expected_defaults_core[ThemeCustom::id()] = NULL;
     $expected_installed_core = $expected_installed;
     $expected_installed_core[FrontendBuild::id()] = NULL;
-
-    $clear_keys = implode('', array_fill(0, 20, Key::BACKSPACE));
+    $expected_installed_core[ThemeCustom::id()] = NULL;
     yield 'theme - prompt - olivero' => [
       [Theme::id() => Key::DOWN . Key::ENTER],
       [Theme::id() => Theme::OLIVERO] + $expected_defaults_core,
@@ -39,15 +41,15 @@ class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Theme::id() => Theme::STARK] + $expected_defaults_core,
     ];
     yield 'theme - prompt - custom' => [
-      [Theme::id() => Key::ENTER . $clear_keys . 'mytheme'],
-      [Theme::id() => 'mytheme'] + $expected_defaults,
+      [Theme::id() => Theme::CUSTOM, ThemeCustom::id() => 'mytheme'],
+      [Theme::id() => Theme::CUSTOM, ThemeCustom::id() => 'mytheme'] + $expected_defaults,
     ];
     yield 'theme - prompt - custom - invalid' => [
-      [Theme::id() => Key::ENTER . $clear_keys . 'my theme'],
+      [Theme::id() => Theme::CUSTOM, ThemeCustom::id() => 'my theme'],
       'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
     ];
     yield 'theme - prompt - custom - invalid - capitalization' => [
-      [Theme::id() => Key::ENTER . $clear_keys . 'MyTheme'],
+      [Theme::id() => Theme::CUSTOM, ThemeCustom::id() => 'MyTheme'],
       'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
     ];
     yield 'theme - discovery - olivero' => [
@@ -76,7 +78,7 @@ class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     ];
     yield 'theme - discovery - custom' => [
       [],
-      [Theme::id() => 'discovered_project'] + $expected_installed,
+      [Theme::id() => Theme::CUSTOM, ThemeCustom::id() => 'discovered_project'] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $test->stubDotenvValue('DRUPAL_THEME', 'discovered_project');
@@ -84,7 +86,7 @@ class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     ];
     yield 'theme - discovery - non-Vortex project' => [
       [],
-      [Theme::id() => 'discovered_project'] + $expected_defaults,
+      [Theme::id() => Theme::CUSTOM, ThemeCustom::id() => 'discovered_project'] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         File::dump(static::$sut . '/web/themes/custom/discovered_project/discovered_project.info');
       },

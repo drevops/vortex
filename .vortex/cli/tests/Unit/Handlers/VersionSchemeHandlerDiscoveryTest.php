@@ -7,7 +7,7 @@ namespace DrevOps\VortexCli\Tests\Unit\Handlers;
 use DrevOps\VortexCli\Prompts\Handlers\VersionScheme;
 use DrevOps\VortexCli\Utils\Config;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Laravel\Prompts\Key;
+use DrevOps\VortexCli\Tests\Support\Key;
 
 #[CoversClass(VersionScheme::class)]
 class VersionSchemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {

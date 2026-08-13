@@ -11,6 +11,7 @@ use DrevOps\VortexCli\Prompts\Handlers\Name;
 use DrevOps\VortexCli\Prompts\Handlers\Org;
 use DrevOps\VortexCli\Prompts\Handlers\OrgMachineName;
 use DrevOps\VortexCli\Prompts\Handlers\Theme;
+use DrevOps\VortexCli\Prompts\Handlers\ThemeCustom;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Name::class)]
@@ -18,6 +19,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(Org::class)]
 #[CoversClass(OrgMachineName::class)]
 #[CoversClass(Domain::class)]
+#[CoversClass(ThemeCustom::class)]
 #[CoversClass(ModulePrefix::class)]
 class NamesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
@@ -33,7 +35,8 @@ class NamesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
         OrgMachineName::id() => 'prompted_project_org',
         Domain::id() => 'prompted-project.com',
         ModulePrefix::id() => 'pp',
-        Theme::id() => 'prompted_project',
+        Theme::id() => Theme::CUSTOM,
+        ThemeCustom::id() => 'prompted_project',
       ] + $expected_defaults,
     ];
     yield 'project name - prompt - invalid' => [
@@ -75,7 +78,8 @@ class NamesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
         MachineName::id() => 'prompted_project',
         Domain::id() => 'prompted-project.com',
         ModulePrefix::id() => 'pp',
-        Theme::id() => 'prompted_project',
+        Theme::id() => Theme::CUSTOM,
+        ThemeCustom::id() => 'prompted_project',
       ] + $expected_defaults,
     ];
     yield 'project machine name - prompt - invalid' => [

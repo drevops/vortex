@@ -29,11 +29,19 @@ The CLI is a PHP application rather than a shell script because it
 touches many different parts of the template and requires complex management of
 different permutations of the template variants. Using PHP allows the CLI
 to provide a **terminal UI experience** via
-[Laravel Prompts](https://github.com/laravel/prompts), where users are guided
-through a series of questions to customize their project. At the same time,
-the CLI supports **non-interactive installs** (via the `--no-interaction`
-flag) for both new and existing projects, as well as updates — making it
-suitable for automated pipelines and CI environments.
+[PHP TUI](https://phptui.dev/), where the questions are grouped into panels the
+user moves between freely. At the same time, the CLI supports
+**non-interactive installs** (via the `--no-interaction` flag) for both new and
+existing projects, as well as updates — making it suitable for automated
+pipelines and CI environments.
+
+The CLI ships only the project-specific parts: the form definition in
+`VortexForm` (the questions and their panels) and the handler classes that
+carry the **Vortex** behavior. A single adapter converts a handler into a form
+field; collection, conditionals and rendering belong to the library, which is
+developed and released in its own repository. Discovery is split between the
+two: each handler knows how to read its own value out of an existing project,
+and the library decides when to ask for it.
 
 The binary is `vortex` and it exposes five commands: `install`, `update`,
 `configure`, `doctor` and `build`. Running it without a command resolves by the
@@ -59,7 +67,7 @@ The core flow is:
 1. User downloads the PHAR from https://www.vortextemplate.com/install
    and runs it with `php vortex.phar`.
 2. `InstallCommand` orchestrates the installation process.
-3. `PromptManager` collects user choices via interactive prompts.
+3. The form collects the answers, applying conditionals and discovery as it goes.
 4. Handlers queue file operations based on selections — each handler is
    responsible for a specific aspect of the template (CI provider, hosting,
    services, theme, deployment strategy, etc.).
@@ -241,11 +249,13 @@ with [asciinema](https://asciinema.org/). The recording is produced by
 
 1. Builds the PHAR from source.
 2. Generates an [Expect](https://en.wikipedia.org/wiki/Expect) script that
-   automates the interaction, simulating human-like typing with
-   delays.
+   answers the panels with paced keystrokes, typing at a human speed and
+   pausing long enough for each screen to be read.
 3. Records the session with `asciinema rec` into a JSON cast file.
-4. Post-processes the recording (sanitizes paths, removes spawn lines).
-5. Converts the cast file to SVG and PNG using a custom
+4. Checks that the recorded run created the project, so a mistimed recording
+   never reaches the published assets.
+5. Post-processes the recording, replacing local paths with stable ones.
+6. Converts the cast file to SVG and PNG using a custom
    `svg-term-render.js` script, and optionally to GIF using `agg`.
 
 The output files are stored in `.vortex/docs/static/img/` as `cli-install.*`
@@ -258,6 +268,11 @@ To update the video:
 cd .vortex
 ahoy update-videos cli-install
 ```
+
+The script reaches each panel by counting arrow keys rather than by matching
+text, because a panel redraws in place and a match would land on a line that
+has already been overwritten. Adding, removing or reordering a panel therefore
+means adjusting those counts in `build_install_expect_script()`.
 
 `sharp-cli`, which renders the PNG posters, is a declared dependency of
 `.vortex/docs`, so it is pinned by `yarn.lock` and installed by the existing

@@ -108,7 +108,7 @@ echo "--- Box ---" . PHP_EOL;
 Tui::box("This is content inside a box.\nIt can have multiple lines.", "Box Title");
 echo PHP_EOL;
 
-// Info/Note/Error (Laravel Prompts styles).
+// Info, note and error styles.
 echo "--- Messages ---" . PHP_EOL;
 Tui::info("This is an info message");
 Tui::note("This is a note message");

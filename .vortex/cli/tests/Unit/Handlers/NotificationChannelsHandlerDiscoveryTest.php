@@ -7,7 +7,7 @@ namespace DrevOps\VortexCli\Tests\Unit\Handlers;
 use DrevOps\VortexCli\Prompts\Handlers\NotificationChannels;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Converter;
-use Laravel\Prompts\Key;
+use DrevOps\VortexCli\Tests\Support\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(NotificationChannels::class)]

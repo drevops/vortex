@@ -145,7 +145,7 @@ class OptionsResolver {
       }
 
       // Store the raw parsed array. Schema validation against prompt handlers
-      // is performed in PromptManager::resolvePromptOverrides().
+      // is performed when the form resolves its per-question overrides.
       $config->set(Config::PROMPTS, $prompts, TRUE);
     }
 

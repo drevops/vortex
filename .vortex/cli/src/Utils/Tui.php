@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Utils;
 
-use Laravel\Prompts\Prompt;
-use Laravel\Prompts\Terminal;
+use DrevOps\PhpTui\Primitive\Output;
+use DrevOps\PhpTui\Terminal\Terminal;
+use DrevOps\PhpTui\Theme\DefaultTheme;
 use Symfony\Component\Console\Output\OutputInterface;
-use function Laravel\Prompts\confirm;
-use function Laravel\Prompts\error;
-use function Laravel\Prompts\info;
-use function Laravel\Prompts\intro;
-use function Laravel\Prompts\note;
-use function Laravel\Prompts\table;
 
 class Tui {
 
@@ -25,16 +20,6 @@ class Tui {
   public static function init(OutputInterface $output, bool $is_interactive = TRUE): void {
     static::$output = $output;
     static::$isInteractive = $is_interactive;
-
-    // We cannot use any Symfony console styles here, because Laravel Prompts
-    // does not correctly calculate the length of strings with style tags, which
-    // breaks the layout. Instead, we use ANSI escape codes directly using
-    // helpers in this class.
-    Prompt::setOutput($output);
-
-    if (!$is_interactive) {
-      Prompt::interactive(FALSE);
-    }
   }
 
   public static function output(): OutputInterface {
@@ -46,23 +31,22 @@ class Tui {
 
   public static function setOutput(OutputInterface $output): void {
     static::$output = $output;
-    Prompt::setOutput($output);
   }
 
   public static function info(string $message): void {
-    intro($message);
+    static::marker('›', $message, static::cyan(...));
   }
 
   public static function note(string $message): void {
-    note($message);
+    static::marker('', $message, static::dim(...));
   }
 
   public static function success(string $message): void {
-    info($message);
+    static::marker('✓', $message, static::green(...));
   }
 
   public static function error(string $message): void {
-    error('✕ ' . $message);
+    static::marker('✕', $message, static::yellow(...));
   }
 
   public static function confirm(string $label, bool $default = TRUE, ?string $hint = NULL): bool {
@@ -70,11 +54,38 @@ class Tui {
       return $default;
     }
 
-    return confirm(
-      label: $label,
-      default: $default,
-      hint: $hint ?? '',
-    );
+    static::line(sprintf('%s %s [%s]', static::cyan(static::bold('›')), $label, $default ? 'Y/n' : 'y/N'));
+
+    if ($hint !== NULL && $hint !== '') {
+      static::line(static::dim($hint));
+    }
+
+    $answer = static::getChar();
+
+    return match (mb_strtolower($answer)) {
+      'y' => TRUE,
+      'n' => FALSE,
+      default => $default,
+    };
+  }
+
+  /**
+   * Write a message behind a marker glyph, colouring the line as a whole.
+   *
+   * @param string $marker
+   *   The glyph opening the first line; empty for none.
+   * @param string $message
+   *   The message, which may span lines.
+   * @param \Closure $color
+   *   Applied to the composed line, so the glyph and the text read as one run
+   *   rather than being separated by a reset.
+   */
+  protected static function marker(string $marker, string $message, \Closure $color): void {
+    $prefix = $marker === '' ? '' : $marker . ' ';
+
+    foreach (explode(PHP_EOL, $message) as $index => $line) {
+      static::line($color(($index === 0 ? $prefix : str_repeat(' ', mb_strlen($prefix))) . $line));
+    }
   }
 
   public static function line(string $message, int $padding = 1): void {
@@ -124,20 +135,92 @@ class Tui {
       return '';
     }
 
-    // Disable input buffering.
-    system('stty cbreak -echo');
+    // The state is captured rather than assumed, and restored from a finally,
+    // so a failed open or an exception cannot leave the terminal without an
+    // echo. A signal unwinds nothing, so the same restore is installed as a
+    // handler for as long as the terminal is out of its normal mode.
+    $state = trim((string) shell_exec('stty -g 2>/dev/null'));
+    $restore = static fn(): string|false => system($state === '' ? 'stty -cbreak echo' : 'stty ' . escapeshellarg($state));
 
-    $res = fopen('php://stdin', 'r');
-    if ($res === FALSE) {
-      return '';
+    $trapped = static::trapSignals($restore);
+
+    try {
+      system('stty cbreak -echo');
+
+      $res = fopen('php://stdin', 'r');
+
+      if ($res === FALSE) {
+        // @codeCoverageIgnoreStart
+        return '';
+        // @codeCoverageIgnoreEnd
+      }
+
+      $char = (string) fgetc($res);
+      fclose($res);
+
+      return $char;
+    }
+    finally {
+      $restore();
+      static::releaseSignals($trapped);
+    }
+  }
+
+  /**
+   * Restore the terminal when a signal ends the run.
+   *
+   * Interrupting a question is the ordinary way to leave one, and the shell
+   * that gets its terminal back has to be able to echo what is typed into it.
+   *
+   * @param callable $restore
+   *   Puts the terminal back the way it was found.
+   *
+   * @return array{async: bool, handlers: array<int, callable|int>}|null
+   *   What was in place before, to be put back once the read is over, or NULL
+   *   when the extension is absent and nothing was installed.
+   */
+  protected static function trapSignals(callable $restore): ?array {
+    if (!function_exists('pcntl_signal') || !function_exists('pcntl_async_signals') || !function_exists('pcntl_signal_get_handler')) {
+      return NULL;
     }
 
-    $char = (string) fgetc($res);
+    // Whatever a caller arranged for these signals is theirs, and this read
+    // borrows them only for as long as the terminal is out of its normal mode.
+    $previous = ['async' => pcntl_async_signals(TRUE), 'handlers' => []];
 
-    // Restore terminal settings.
-    system('stty -cbreak echo');
+    foreach ([SIGINT, SIGTERM] as $signal) {
+      $previous['handlers'][$signal] = pcntl_signal_get_handler($signal);
 
-    return $char;
+      // @codeCoverageIgnoreStart
+      pcntl_signal($signal, static function (int $received) use ($restore): void {
+        $restore();
+
+        // The conventional status for a run a signal ended, so a caller reading
+        // the exit code still learns which signal it was.
+        exit(128 + $received);
+      });
+      // @codeCoverageIgnoreEnd
+    }
+
+    return $previous;
+  }
+
+  /**
+   * Put back what was handling these signals before the read.
+   *
+   * @param array{async: bool, handlers: array<int, callable|int>}|null $previous
+   *   What trapSignals() found in place, or NULL when it installed nothing.
+   */
+  protected static function releaseSignals(?array $previous): void {
+    if ($previous === NULL) {
+      return;
+    }
+
+    foreach ([SIGINT, SIGTERM] as $signal) {
+      pcntl_signal($signal, $previous['handlers'][$signal] ?? SIG_DFL);
+    }
+
+    pcntl_async_signals($previous['async']);
   }
 
   protected static function escapeMultiline(string $text, int $color_code, int $end_code = 39): string {
@@ -190,29 +273,69 @@ class Tui {
       $rows[] = [$key, $value];
     }
 
-    intro(PHP_EOL . static::normalizeText($title) . PHP_EOL);
-    table($header, $rows);
+    static::info(PHP_EOL . static::normalizeText((string) $title) . PHP_EOL);
+    static::table($header, $rows);
   }
 
   public static function box(string $content, ?string $title = NULL, ?int $width = NULL): void {
-    $rows = [];
-
     $width ??= static::terminalWidth();
 
     // 1 margin + 1 border + 1 padding + 1 padding + 1 border + 1 margin.
     $offset = 6;
 
-    $content = wordwrap($content, $width - $offset, PHP_EOL, TRUE);
+    $lines = explode(PHP_EOL, wordwrap($content, $width - $offset, PHP_EOL, TRUE));
 
-    if ($title) {
-      $title = wordwrap($title, $width - $offset, PHP_EOL, FALSE);
-      $rows[] = [static::green($title)];
-      $rows[] = [static::green(str_repeat('─', Strings::strlenPlain(explode(PHP_EOL, static::normalizeText($title))[0]))) . PHP_EOL];
+    static::primitive(function (Output $out) use ($title, $lines): void {
+      $out->box(static::normalizeText((string) $title), $lines);
+    }, $width);
+  }
+
+  /**
+   * Render a bordered table through the console output.
+   *
+   * @param array<int,string> $header
+   *   The header cells; empty for a borderless block.
+   * @param array<int,array<int,string>> $rows
+   *   The rows.
+   */
+  protected static function table(array $header, array $rows): void {
+    $header = array_values($header);
+    $rows = array_map(array_values(...), array_values($rows));
+
+    static::primitive(function (Output $out) use ($header, $rows): void {
+      $out->table($header, $rows);
+    });
+  }
+
+  /**
+   * Draw with the library's primitives and write the result to the output.
+   *
+   * The primitives render to a terminal of their own, so they are pointed at a
+   * memory stream and the drawn frame is forwarded to the console output the
+   * rest of this class writes through - which keeps them capturable.
+   *
+   * @param \Closure $draw
+   *   Receives the primitives to draw with.
+   * @param int|null $width
+   *   The width to draw within; NULL for the terminal's own.
+   */
+  protected static function primitive(\Closure $draw, ?int $width = NULL): void {
+    $stream = fopen('php://memory', 'w+');
+
+    if ($stream === FALSE) {
+      // @codeCoverageIgnoreStart
+      return;
+      // @codeCoverageIgnoreEnd
     }
 
-    $rows[] = [$content];
+    $width ??= static::terminalWidth();
+    $draw(new Output(new Terminal($stream), new DefaultTheme($width)));
 
-    table([], $rows);
+    rewind($stream);
+    $drawn = (string) stream_get_contents($stream);
+    fclose($stream);
+
+    static::$output->write($drawn);
   }
 
   public static function center(string $text, int $width = 80, ?string $border = NULL): string {
@@ -245,7 +368,7 @@ class Tui {
   }
 
   public static function terminalWidth(int $max = 100): int {
-    return min($max, max(20, (new Terminal())->cols()));
+    return min($max, max(20, (new Terminal())->columns()));
   }
 
   public static function normalizeText(string $text): string {
@@ -275,7 +398,7 @@ class Tui {
     }
 
     if (str_contains((string) getenv('TERM_PROGRAM'), 'Apple_Terminal') && ($mblen > 1 && $len < 8)) {
-      $padding = ' ';
+      return ' ';
     }
 
     return $padding;

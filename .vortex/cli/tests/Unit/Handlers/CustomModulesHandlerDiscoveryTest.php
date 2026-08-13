@@ -7,7 +7,7 @@ namespace DrevOps\VortexCli\Tests\Unit\Handlers;
 use DrevOps\VortexCli\Prompts\Handlers\CustomModules;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\File;
-use Laravel\Prompts\Key;
+use DrevOps\VortexCli\Tests\Support\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(CustomModules::class)]

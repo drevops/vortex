@@ -18,7 +18,7 @@ use DrevOps\VortexCli\Prompts\Handlers\OrgMachineName;
 use DrevOps\VortexCli\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexCli\Prompts\Handlers\Starter;
 use DrevOps\VortexCli\Prompts\Handlers\Webroot;
-use DrevOps\VortexCli\Prompts\PromptManager;
+use DrevOps\VortexCli\Form\VortexForm;
 use DrevOps\VortexCli\Schema\SchemaValidator;
 use DrevOps\VortexCli\Tests\Unit\UnitTestCase;
 use DrevOps\VortexCli\Utils\Config;
@@ -44,8 +44,7 @@ class SchemaValidatorTest extends UnitTestCase {
     parent::setUp();
 
     $config = Config::fromString('{}');
-    $prompt_manager = new PromptManager($config);
-    $this->handlers = $prompt_manager->getHandlers();
+    $this->handlers = VortexForm::handlers($config);
     $this->validator = new SchemaValidator($this->handlers);
   }
 

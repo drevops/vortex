@@ -16,7 +16,7 @@ use DrevOps\VortexCli\Prompts\Handlers\MigrationFetchSource;
 use DrevOps\VortexCli\Prompts\Handlers\Name;
 use DrevOps\VortexCli\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexCli\Prompts\Handlers\ThemeCustom;
-use DrevOps\VortexCli\Prompts\PromptManager;
+use DrevOps\VortexCli\Form\VortexForm;
 use DrevOps\VortexCli\Schema\SchemaGenerator;
 use DrevOps\VortexCli\Tests\Unit\UnitTestCase;
 use DrevOps\VortexCli\Utils\Config;
@@ -45,8 +45,7 @@ class SchemaGeneratorTest extends UnitTestCase {
   protected function getSchema(): array {
     if (static::$schema === NULL) {
       $config = Config::fromString('{}');
-      $prompt_manager = new PromptManager($config);
-      static::$handlers = $prompt_manager->getHandlers();
+      static::$handlers = VortexForm::handlers($config);
 
       $generator = new SchemaGenerator(static::$handlers);
       static::$schema = $generator->generate();

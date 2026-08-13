@@ -34,6 +34,7 @@ use DrevOps\VortexCli\Prompts\Handlers\Org;
 use DrevOps\VortexCli\Prompts\Handlers\OrgMachineName;
 use DrevOps\VortexCli\Prompts\Handlers\PreserveDocsProject;
 use DrevOps\VortexCli\Prompts\Handlers\Profile;
+use DrevOps\VortexCli\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexCli\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexCli\Prompts\Handlers\Services;
 use DrevOps\VortexCli\Prompts\Handlers\Starter;
@@ -44,18 +45,19 @@ use DrevOps\VortexCli\Prompts\Handlers\Tools;
 use DrevOps\VortexCli\Prompts\Handlers\VersionScheme;
 use DrevOps\VortexCli\Prompts\Handlers\VisualRegression;
 use DrevOps\VortexCli\Prompts\Handlers\Webroot;
-use DrevOps\VortexCli\Prompts\PromptManager;
+use DrevOps\PhpTui\Tui as Engine;
+use DrevOps\VortexCli\Form\VortexForm;
+use DrevOps\VortexCli\Process\Processor;
 use DrevOps\VortexCli\Tests\Traits\TuiTrait;
 use DrevOps\VortexCli\Tests\Unit\UnitTestCase;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\File;
-use Laravel\Prompts\Prompt;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * Abstract base class for PromptManager handler discovery tests.
+ * Abstract base class for handler discovery tests.
  *
- * Provides common test logic for all PromptManager test scenarios.
+ * Provides common test logic for all discovery scenarios.
  */
 abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
 
@@ -102,21 +104,81 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       $before($this, $config);
     }
 
-    $answers = array_replace(static::defaultTuiAnswers(), $answers);
-    $keystrokes = static::tuiKeystrokes($answers, 40);
-    Prompt::fake($keystrokes);
+    $supplied = static::suppliedAnswers(array_replace(static::defaultTuiAnswers(), $answers), $expected);
 
-    $pm = new PromptManager($config);
-    $pm->runPrompts();
+    $tui = new Engine(VortexForm::create($config), [VortexForm::HANDLER_NAMESPACE]);
+    // Discovery is what these scenarios exercise, so it always runs; a
+    // destination with nothing to find simply discovers nothing.
+    $collected = $tui->collect((string) json_encode($supplied), (string) $config->getDst(), TRUE, '1.0.0');
+
+    // The questions never asked are part of the answer set every handler sees,
+    // so the assertion is against that set rather than the collected subset.
+    $actual = (new Processor())->responses($collected, VortexForm::WEIGHTS);
 
     if (!$exception) {
-      $actual = $pm->getResponses();
       $this->assertEquals($expected, $actual, (string) $this->dataName());
     }
 
     if ($after !== NULL) {
       $after($this, $config);
     }
+  }
+
+  /**
+   * The answers to supply, from a data set written as keystrokes.
+   *
+   * A scenario says what it answers by scripting the keys a person would press
+   * at a linear prompt. Collection now takes values, so a control sequence -
+   * "accept the default", "move down then accept" - is read back as the value
+   * the scenario already declares it settles on, and only literal typing is
+   * carried through as-is.
+   *
+   * @param array<string,mixed> $answers
+   *   The data set's answers, keyed by question id.
+   * @param array<string,mixed>|string $expected
+   *   The expected answer set, or an exception message for a failing scenario.
+   *
+   * @return array<string,mixed>
+   *   The answers to supply to collection.
+   */
+  protected static function suppliedAnswers(array $answers, array|string $expected): array {
+    $supplied = [];
+
+    foreach ($answers as $id => $entry) {
+      // Both sentinels mean the scenario answers nothing here: one accepts
+      // whatever the default is, the other never reaches the question at all.
+      if ($entry === static::TUI_DEFAULT || $entry === static::TUI_SKIP) {
+        continue;
+      }
+
+      // A control sequence navigates rather than types, so the value it lands
+      // on is the one the scenario expects for that question - except in a
+      // scenario that expects a rejection, where what was typed alongside the
+      // navigation is the value being rejected.
+      if (is_string($entry) && preg_match('/[\x00-\x1F\x7F]/', $entry) === 1) {
+        // A cursor key is an escape sequence, so the bracket and letter go
+        // with the escape byte rather than surviving as typed text.
+        $typed = (string) preg_replace(['/\x1B\[[0-9;]*[A-Za-z]/', '/[\x00-\x1F\x7F]/'], '', $entry);
+
+        if (is_string($expected)) {
+          if ($typed !== '') {
+            $supplied[$id] = $typed;
+          }
+
+          continue;
+        }
+
+        if (array_key_exists($id, $expected)) {
+          $supplied[$id] = $expected[$id];
+        }
+
+        continue;
+      }
+
+      $supplied[$id] = $entry;
+    }
+
+    return $supplied;
   }
 
   /**
@@ -136,10 +198,12 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       Domain::id() => 'myproject.com',
       Starter::id() => Starter::LOAD_DATABASE_DEMO,
       Profile::id() => Profile::STANDARD,
+      ProfileCustom::id() => NULL,
       Modules::id() => array_keys(Modules::getAvailableModules()),
       ModulePrefix::id() => 'mypr',
       CustomModules::id() => [CustomModules::BASE, CustomModules::SEARCH, CustomModules::DEMO],
-      Theme::id() => 'myproject',
+      Theme::id() => Theme::CUSTOM,
+      ThemeCustom::id() => 'myproject',
       FrontendBuild::id() => TRUE,
       CodeProvider::id() => CodeProvider::GITHUB,
       VersionScheme::id() => VersionScheme::CALVER,
@@ -198,7 +262,8 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       OrgMachineName::id() => 'discovered_project_org',
       Domain::id() => 'discovered-project.com',
       ModulePrefix::id() => 'dp',
-      Theme::id() => 'discovered_project',
+      Theme::id() => Theme::CUSTOM,
+      ThemeCustom::id() => 'discovered_project',
     ];
     return $overrides + static::getExpectedDefaults();
   }

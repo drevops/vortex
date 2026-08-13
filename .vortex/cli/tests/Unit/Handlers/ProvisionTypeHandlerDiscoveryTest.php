@@ -7,7 +7,7 @@ namespace DrevOps\VortexCli\Tests\Unit\Handlers;
 use DrevOps\VortexCli\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexCli\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexCli\Utils\Config;
-use Laravel\Prompts\Key;
+use DrevOps\VortexCli\Tests\Support\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(ProvisionType::class)]
@@ -28,7 +28,9 @@ class ProvisionTypeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
     ];
     yield 'provision type - discovery - profile' => [
       [],
-      [ProvisionType::id() => ProvisionType::PROFILE, DatabaseFetchSource::id() => DatabaseFetchSource::NONE] + $expected_defaults,
+      // Provisioning from a profile never asks where to fetch a database, so
+      // the question is left unanswered rather than answered "none".
+      [ProvisionType::id() => ProvisionType::PROFILE, DatabaseFetchSource::id() => NULL] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::PROFILE);
       },

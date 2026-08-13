@@ -158,7 +158,7 @@ class PharTest extends FunctionalTestCase {
     $options += $defaults;
 
     // The interactive mode is not supported in the tests as the CLI
-    // uses Laravel\Prompts which require a real TTY or a series of fallback
+    // uses the form engine, which requires a real TTY or a series of fallback
     // callbacks to be defined. These callbacks are not implemented yet, so
     // we enforce the non-interactive mode for the tests.
     // @see https://github.com/drush-ops/drush/blob/13.x/src/Commands/ConfiguresPrompts.php

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Command;
 
-use DrevOps\VortexCli\Prompts\PromptManager;
+use DrevOps\VortexCli\Form\VortexForm;
 use DrevOps\VortexCli\Schema\AgentHelp;
 use DrevOps\VortexCli\Schema\SchemaGenerator;
 use DrevOps\VortexCli\Schema\SchemaValidator;
@@ -43,6 +43,41 @@ trait AgentSurfaceTrait {
   }
 
   /**
+   * The raw value of the answers option.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *   The input.
+   *
+   * @return string
+   *   The option value, empty when it was not given.
+   */
+  protected function promptsOption(InputInterface $input): string {
+    $prompts = $input->getOption(static::OPTION_PROMPTS);
+
+    return is_string($prompts) ? $prompts : '';
+  }
+
+  /**
+   * Whether a person is answering this run.
+   *
+   * The form, the confirmations and the closing guidance all need the same
+   * answer, so it is derived once: a run carrying answers up front, or the
+   * flag, or nothing at the keyboard, is scripted from end to end rather than
+   * only for as long as the form is on screen.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *   The input.
+   * @param \DrevOps\VortexCli\Utils\Config $config
+   *   The resolved configuration.
+   *
+   * @return bool
+   *   TRUE when a person is watching and answering.
+   */
+  protected function isInteractiveRun(InputInterface $input, Config $config): bool {
+    return $input->isInteractive() && !$config->getNoInteraction() && $this->promptsOption($input) === '';
+  }
+
+  /**
    * Answer an agent surface option, if one was requested.
    *
    * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -74,9 +109,8 @@ trait AgentSurfaceTrait {
    */
   protected function handleSchema(OutputInterface $output): int {
     $config = Config::fromString('{}');
-    $prompt_manager = new PromptManager($config);
 
-    $generator = new SchemaGenerator($prompt_manager->getHandlers());
+    $generator = new SchemaGenerator(VortexForm::handlers($config));
     $schema = $generator->generate();
 
     $output->write((string) json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
@@ -118,9 +152,8 @@ trait AgentSurfaceTrait {
     $user_config = json_decode($prompts_json, TRUE);
 
     $config = Config::fromString('{}');
-    $prompt_manager = new PromptManager($config);
 
-    $validator = new SchemaValidator($prompt_manager->getHandlers());
+    $validator = new SchemaValidator(VortexForm::handlers($config));
     $result = $validator->validate($user_config);
 
     $output->write((string) json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
