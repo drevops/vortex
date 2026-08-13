@@ -78,10 +78,12 @@ if [ -z "${VORTEX_NOTIFY_LOGIN_URL}" ]; then
   VORTEX_NOTIFY_LOGIN_URL="${VORTEX_NOTIFY_ENVIRONMENT_URL}/user/login"
 fi
 
-# Collect all producer logs from the shared directory into one combined file for
-# the channels to include, each as its own titled section. Best-effort: a failure
-# here must not abort dispatching.
+# Path of the combined log file passed to the channels, empty when no logs were
+# collected.
 VORTEX_NOTIFY_LOG_FILE=""
+
+# All producer logs from the shared directory are combined into one file, each as
+# its own titled section. Best-effort: a failure here must not abort dispatching.
 if [ "${VORTEX_NOTIFY_LOG}" = "1" ] && [ -d "${VORTEX_NOTIFY_LOG_DIR}" ]; then
   set +e
   _combined="${VORTEX_NOTIFY_LOG_DIR}/combined"
