@@ -19,6 +19,58 @@ Feature: Behat configuration
     And I go to "/user/login"
     Then the path should be "/user/login"
 
+  @api @javascript @breakpoint:mobile_portrait
+  Scenario: Viewport is resized from a tag and from a step
+    Given I am an anonymous user
+    When I go to the homepage
+    And I set the viewport to the "tablet_landscape" breakpoint
+    And I set the viewport to "1920" by "1080"
+    And I go to "/user/login"
+    Then the path should be "/user/login"
+
+  @api
+  Scenario: REST requests are sent and asserted
+    Given a REST header "Accept" with value "text/html"
+    When I send a REST "GET" request to "/user/login"
+    Then the REST response status code should be 200
+    And the REST response should contain "user-login-form"
+
+  @api
+  Scenario: XML responses are asserted
+    Given the response content from the file "response.xml"
+    Then the response should be in XML format
+    And the XML should use the namespace "https://example.com/meta"
+    And the XML element "//items" should have "2" elements
+    And the XML element "//item[@id='1']/title" should be equal to "First item"
+    And the XML element "//item[2]/title" should contain "Second"
+    And the XML attribute "id" on element "//item[2]" should be equal to "2"
+    And the XML element "//missing" should not exist
+
+  @api
+  Scenario: JSON responses are asserted
+    Given the response JSON from the file "response.json"
+    Then the response should be in JSON format
+    And the JSON path "$.status" should be equal to "ok"
+    And the JSON path "$.items" should have "2" elements
+    And the JSON path "$.items[0].title" should be equal to "First item"
+    And the JSON path "$.items[*].id" should exist
+    And the JSON path "$.missing" should not exist
+    And the response should match the following JSON schema:
+      """
+      {
+        "type": "object",
+        "required": ["status", "items"]
+      }
+      """
+
+  @api
+  Scenario: Caches are invalidated from within a scenario
+    Given the page cache for the path "/" has been cleared
+    And the render cache has been cleared
+    And I am an anonymous user
+    When I go to the homepage
+    Then the response status code should be 200
+
   @api
   Scenario: Drush integration works
     Given I run drush "status"
