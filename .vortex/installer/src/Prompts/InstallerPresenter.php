@@ -129,6 +129,22 @@ EOT;
     if ($this->config->isVortexProject()) {
       $title = 'Finished updating Vortex';
       $output .= 'Please review the changes and commit the required files.';
+
+      $leftovers = $this->promptManager instanceof PromptManager ? $this->promptManager->getToolLeftovers() : [];
+
+      if (!empty($leftovers)) {
+        $output .= PHP_EOL . PHP_EOL;
+        $output .= 'Tools you did not select left these files behind:' . PHP_EOL;
+
+        foreach ($leftovers as $tool => $files) {
+          foreach ($files as $file) {
+            $output .= $prefix . sprintf('%s (%s)', $file, $tool) . PHP_EOL;
+          }
+        }
+
+        $output .= PHP_EOL;
+        $output .= 'Remove them to complete the opt-out. While they remain, the next update detects the tool as present and re-enables it.' . PHP_EOL;
+      }
     }
     else {
       $title = 'Finished installing Vortex';

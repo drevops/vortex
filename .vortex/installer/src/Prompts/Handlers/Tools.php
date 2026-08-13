@@ -135,19 +135,48 @@ class Tools extends AbstractHandler {
     }
   }
 
+  /**
+   * Collect files of deselected tools that remain in the destination.
+   *
+   * Deselection removes files from the staged template copy, never from the
+   * destination, so an existing project keeps a deselected tool's config
+   * files. Those files are also the tool's discovery signal, so a project that
+   * keeps them has the tool re-selected on the next update.
+   *
+   * @return array<string, array<string>>
+   *   Destination-relative file paths, keyed by tool title.
+   */
+  public function leftovers(): array {
+    if (!$this->isInstalled() || !is_array($this->response)) {
+      return [];
+    }
+
+    $leftovers = [];
+
+    foreach (self::getToolDefinitions('tools') as $name => $tool) {
+      if (!isset($tool['files']) || in_array($name, $this->response, TRUE)) {
+        continue;
+      }
+
+      foreach ($tool['files'] as $file) {
+        if (File::exists($this->destinationDir . '/' . $file)) {
+          $leftovers[$tool['title']][] = $file;
+        }
+      }
+    }
+
+    return $leftovers;
+  }
+
   protected function processTool(string $name): void {
     $tool = self::getToolDefinitions('tools')[$name];
 
     if (isset($tool['files'])) {
-      if ($tool['files'] instanceof \Closure) {
-        $files = $tool['files']->bindTo($this)();
-        $files = flatten($files);
-      }
-      else {
-        $files = $tool['files'];
-        $files = array_map(fn($file): string => $this->tmpDir . '/' . $file, $files);
-      }
-      File::remove($files);
+      File::remove(array_map(fn(string $file): string => $this->tmpDir . '/' . $file, $tool['files']));
+    }
+
+    if (isset($tool['files_dynamic']) && $tool['files_dynamic'] instanceof \Closure) {
+      File::remove(flatten($tool['files_dynamic']->bindTo($this)()));
     }
 
     if (isset($tool['composer.json']) && is_callable($tool['composer.json'])) {
@@ -229,6 +258,21 @@ class Tools extends AbstractHandler {
     }
   }
 
+  /**
+   * Get the tool and tool group definitions.
+   *
+   * A tool's file footprint is split across two keys. 'files' lists the fixed,
+   * destination-relative paths the template owns outright, and is the only
+   * source for leftover reporting. 'files_dynamic' resolves globs that can
+   * match project-authored content, such as test directories under custom
+   * modules, and is used for staging removal only.
+   *
+   * @param string $filter
+   *   One of 'all', 'tools' or 'groups'. An unknown value falls back to 'all'.
+   *
+   * @return array<string, array<string, mixed>>
+   *   Definitions keyed by tool or group name.
+   */
   public static function getToolDefinitions(string $filter = 'all'): array {
     $filter = in_array($filter, ['all', 'tools', 'groups'], TRUE) ? $filter : 'all';
 
@@ -343,8 +387,8 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('devDependencies', 'jest-environment-jsdom');
           $pj->removeSubNode('scripts', 'test');
         },
-        'files' => fn(): array => [
-          $this->tmpDir . '/jest.config.js',
+        'files' => ['jest.config.js'],
+        'files_dynamic' => fn(): array => [
           glob($this->tmpDir . '/' . $this->webroot . '/modules/custom/*/js/*.test.js'),
         ],
         'lines' => [
@@ -366,9 +410,8 @@ class Tools extends AbstractHandler {
           $cj->removeProperty('autoload-dev.classmap');
           $cj->removeMainKeyIfEmpty('autoload-dev');
         },
-        'files' => fn(): array => [
-          $this->tmpDir . '/phpunit.xml',
-          $this->tmpDir . '/tests/phpunit',
+        'files' => ['phpunit.xml', 'tests/phpunit'],
+        'files_dynamic' => fn(): array => [
           glob($this->tmpDir . '/' . $this->webroot . '/profiles/custom/*/tests', GLOB_ONLYDIR),
           glob($this->tmpDir . '/' . $this->webroot . '/modules/custom/*/tests', GLOB_ONLYDIR),
           glob($this->tmpDir . '/' . $this->webroot . '/themes/custom/*/tests', GLOB_ONLYDIR),

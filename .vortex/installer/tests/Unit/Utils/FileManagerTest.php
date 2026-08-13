@@ -160,6 +160,29 @@ class FileManagerTest extends UnitTestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testCopyFilesLeavesDestinationOnlyFilesInPlace(): void {
+    // The copy is an overlay: a path the source no longer carries is not
+    // deleted from the destination. Handlers remove a deselected feature's
+    // files from the source only, so an existing project keeps its copy.
+    $src = self::$sut . '/src_overlay';
+    $destination = self::$sut . '/dst_overlay';
+    mkdir($src, 0777, TRUE);
+    mkdir($destination . '/.circleci', 0777, TRUE);
+    file_put_contents($src . '/package.json', '{"devDependencies":{}}');
+    file_put_contents($destination . '/package.json', '{"devDependencies":{"jest":"*"}}');
+    file_put_contents($destination . '/jest.config.js', 'module.exports = {};');
+    file_put_contents($destination . '/.circleci/config.yml', 'version: 2.1');
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $fm = new FileManager($config);
+
+    $fm->copyFiles();
+
+    $this->assertFileExists($destination . '/jest.config.js', 'Deselected tool config file remains in the destination.');
+    $this->assertFileExists($destination . '/.circleci/config.yml', 'Deselected CI provider config remains in the destination.');
+    $this->assertEquals('{"devDependencies":{}}', file_get_contents($destination . '/package.json'), 'Shipped files are overwritten by the source version.');
+  }
+
   public function testCopyFilesRemovesObsoleteScriptsVortex(): void {
     // Simulate an upgrade from a Vortex version that shipped scripts at
     // 'scripts/vortex/' before they were extracted into the

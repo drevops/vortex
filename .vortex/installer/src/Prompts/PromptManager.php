@@ -378,6 +378,22 @@ class PromptManager {
   }
 
   /**
+   * Get files of deselected tools left behind in the destination.
+   *
+   * @return array<string, array<string>>
+   *   Destination-relative file paths, keyed by tool title.
+   */
+  public function getToolLeftovers(): array {
+    $handler = $this->handler(Tools::id());
+
+    if (!$handler instanceof Tools) {
+      return [];
+    }
+
+    return $handler->leftovers();
+  }
+
+  /**
    * Check if the installation should proceed.
    *
    * @return bool
