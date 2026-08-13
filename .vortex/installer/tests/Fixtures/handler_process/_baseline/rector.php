@@ -17,8 +17,7 @@
 declare(strict_types=1);
 
 use DrupalFinder\DrupalFinderComposerRuntime;
-use DrupalRector\Set\Drupal10SetList;
-use DrupalRector\Set\Drupal9SetList;
+use DrupalRector\Set\DrupalSetProvider;
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
@@ -93,11 +92,13 @@ return RectorConfig::configure()
     privatization: TRUE,
     typeDeclarations: TRUE,
   )
-  // Drupal-specific deprecation fixes.
-  ->withSets([
-    Drupal9SetList::DRUPAL_9,
-    Drupal10SetList::DRUPAL_10,
-  ])
+  // Drupal-specific deprecation fixes. The provider binds each set to a
+  // `drupal/core` version and only the sets the installed core satisfies are
+  // loaded, so the set tracks core upgrades without changing this
+  // configuration. Both calls are required: the provider supplies the sets,
+  // `withComposerBased()` enables the group.
+  ->withSetProviders(DrupalSetProvider::class)
+  ->withComposerBased(drupal: TRUE)
   // Additional rules.
   ->withRules([
     DeclareStrictTypesRector::class,

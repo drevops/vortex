@@ -1,4 +1,4 @@
-@@ -36,7 +36,6 @@
+@@ -35,7 +35,6 @@
  use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
  use Rector\Php81\Rector\Array_\ArrayToFirstClassCallableRector;
  use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
@@ -6,7 +6,7 @@
  use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
  use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
  use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
-@@ -101,7 +100,6 @@
+@@ -102,7 +101,6 @@
    // Additional rules.
    ->withRules([
      DeclareStrictTypesRector::class,

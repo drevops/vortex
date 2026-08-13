@@ -6,6 +6,7 @@ namespace Drupal\Tests\your_site_theme\Kernel;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Class ExampleTest.
@@ -15,6 +16,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @package Drupal\your_site_theme\Tests
  */
 #[Group('YourSiteTheme')]
+#[RunTestsInSeparateProcesses]
 class ExampleTest extends YourSiteThemeKernelTestBase {
 
   /**

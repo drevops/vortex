@@ -6,6 +6,7 @@ namespace Drupal\Tests\ys_demo\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests for the CounterBlock plugin discovery and theme integration.
@@ -13,6 +14,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @package Drupal\ys_demo\Tests
  */
 #[Group('YsDemo')]
+#[RunTestsInSeparateProcesses]
 class CounterBlockTest extends KernelTestBase {
 
   /**
