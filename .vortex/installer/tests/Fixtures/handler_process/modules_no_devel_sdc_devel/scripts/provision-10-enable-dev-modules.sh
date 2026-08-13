@@ -10,6 +10,6 @@
 -drush pm:install devel || true
 -pass "Installed Devel module."
 -
+ task "Installing Generated content module."
  if [ "${DRUPAL_GENERATED_CONTENT_SKIP}" = "1" ]; then
-   note "Skipped content generation. DRUPAL_GENERATED_CONTENT_SKIP is set to 1."
- else
+   note "Content generation skipped. DRUPAL_GENERATED_CONTENT_SKIP is set to 1."
