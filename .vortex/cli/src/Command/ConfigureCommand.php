@@ -98,9 +98,7 @@ EOF
 
     try {
       $config = $this->resolveConfig($input);
-      // A terminal is required as well as the absence of the flag: a piped or
-      // scripted run has nobody to answer the form.
-      $interactive = $input->isInteractive() && !$config->getNoInteraction();
+      $interactive = $this->isInteractiveRun($input, $config);
 
       Tui::init($output, $interactive);
 
@@ -111,9 +109,7 @@ EOF
       }
 
       $tui = new Engine(VortexForm::create($config), [VortexForm::HANDLER_NAMESPACE]);
-      $prompts = $input->getOption(static::OPTION_PROMPTS);
-      $prompts = is_string($prompts) ? $prompts : '';
-      $answers = $tui->run($prompts, (string) $this->getApplication()?->getVersion(), (string) $config->getDst(), $interactive && $prompts === '', TRUE);
+      $answers = $tui->run($this->promptsOption($input), (string) $this->getApplication()?->getVersion(), (string) $config->getDst(), $interactive, TRUE);
 
       if ($apply) {
         if ($interactive) {

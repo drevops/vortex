@@ -70,6 +70,11 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
   protected Config $config;
 
   /**
+   * Whether a person is answering this run.
+   */
+  protected bool $interactive = FALSE;
+
+  /**
    * The form engine collecting the answers.
    */
   protected Engine $tui;
@@ -152,7 +157,9 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
       OptionsResolver::checkRequirements($this->getExecutableFinder());
       [$this->config, $this->artifact] = OptionsResolver::resolve($input->getOptions());
 
-      Tui::init($output, !$this->config->getNoInteraction());
+      $this->interactive = $this->isInteractiveRun($input, $this->config);
+
+      Tui::init($output, $this->interactive);
       $this->tui = new Engine(VortexForm::create($this->config), [VortexForm::HANDLER_NAMESPACE]);
       $this->processor = new Processor();
       $this->presenter = new InstallPresenter($this->config);
@@ -240,7 +247,7 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
     // Requested build via `--build` option. Defaults to FALSE.
     $requested_build = (bool) $this->config->get(Config::BUILD_NOW);
     // Non-interactive: respect the `--build` option.
-    if ($this->config->getNoInteraction()) {
+    if (!$this->interactive) {
       $should_build = $requested_build;
     }
     // Interactive: ask only if `--build` option was not provided.
@@ -306,14 +313,11 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
    *   TRUE when a person is watching.
    */
   protected function shouldGuide(): bool {
-    return !$this->config->getNoInteraction();
+    return $this->interactive;
   }
 
   /**
    * Collect the answers through the form.
-   *
-   * A terminal with nothing scripted at it gets the interactive form; a
-   * scripted or piped run collects headlessly, so both behave the same.
    *
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *   The input.
@@ -322,18 +326,11 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
    *   The collected answers.
    */
   protected function collectAnswers(InputInterface $input): Answers {
-    $prompts = $input->getOption(static::OPTION_PROMPTS);
-    $prompts = is_string($prompts) ? $prompts : '';
-
     $destination = (string) $this->config->getDst();
     $update = (bool) $this->config->get(Config::IS_VORTEX_PROJECT);
     $version = (string) $this->getApplication()?->getVersion();
-    // A terminal is required as well as the absence of the flag: a piped or
-    // scripted run has nobody to answer the form, and rendering it there would
-    // block on input that never arrives.
-    $interactive = $input->isInteractive() && !$this->config->getNoInteraction() && $prompts === '';
 
-    return $this->tui->run($prompts, $version, $destination, $interactive, $update);
+    return $this->tui->run($this->promptsOption($input), $version, $destination, $this->interactive, $update);
   }
 
   /**

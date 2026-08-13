@@ -19,6 +19,7 @@ use DrevOps\VortexCli\Command\UpdateCommand;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Env;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
 
 require_once $GLOBALS['_composer_autoload_path'] ?? __DIR__ . '/vendor/autoload.php';
 
@@ -46,4 +47,13 @@ $application->add(new RouteCommand());
 
 $application->setDefaultCommand('route');
 
-$application->run();
+$input = new ArgvInput();
+
+// Symfony clears interactivity for the flag alone, so a redirected standard
+// input is cleared here instead: a run with nobody at the keyboard must not
+// reach a question that would block on input that never arrives.
+if (!stream_isatty(STDIN)) {
+  $input->setInteractive(FALSE);
+}
+
+$application->run($input);
