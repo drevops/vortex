@@ -322,6 +322,21 @@ trait SubtestDockerComposeTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestDockerComposeDatabaseConfig(): void {
+    $this->logStepStart();
+
+    // Asserting the effective value rather than the file contents: the config
+    // file is copied to a path the database image reads only if the copy
+    // destination in the Dockerfile matches the engine's include directory.
+    $this->cmd(
+      'docker compose exec -T database mysql -udrupal -pdrupal -e "SHOW VARIABLES LIKE \'innodb_redo_log_capacity\';"',
+      '1073741824',
+      'Database applies the InnoDB redo log capacity from the shipped my.cnf'
+    );
+
+    $this->logStepFinish();
+  }
+
   protected function subtestDockerComposeSolr(): void {
     $this->logStepStart();
 
