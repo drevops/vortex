@@ -327,11 +327,16 @@ variable and the content appears as part of the install. The site modules
 providing the generated content plugins are already enabled by then, so their
 plugins are picked up.
 
-Installing a module that is already installed does nothing, so provisioning a
-site that already holds the module leaves its content untouched.
+To opt out of the content, set `DRUPAL_GENERATED_CONTENT_SKIP=1` in the `.env`
+file or in your hosting provider's specific environment. The module is still
+installed, so content can be generated later from the admin interface or with
+`drush generated-content:create-content`.
 
-To opt out of content generation, set `DRUPAL_GENERATED_CONTENT_SKIP=1` in the
-`.env` file or in your hosting provider's specific environment.
+Installing a module that is already installed does nothing, so provisioning a
+site that already holds the module leaves its content untouched. This also means
+the content is created only on the provision that first installs the module: a
+site provisioned once with `DRUPAL_GENERATED_CONTENT_SKIP=1` does not gain the
+content by unsetting the variable and provisioning again.
 
 ### Search indexing
 

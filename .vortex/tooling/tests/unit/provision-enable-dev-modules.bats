@@ -37,7 +37,7 @@ load ../_helper.bash
 
     # Not expected.
     "- Skipped installing development modules in production environment."
-    "- Skipped content generation."
+    "- Content generation skipped."
   )
 
   mocks="$(steps_run "setup")"
@@ -62,13 +62,16 @@ load ../_helper.bash
     "@drush -y pm:install sdc_devel"
     "@drush -y pm:install devel"
 
+    # The module is installed either way; only the content is skipped.
+    "@drush -y pm:install generated_content"
+
     "Started development modules operations."
     "Environment: local"
     "Installed Devel module."
-    "Skipped content generation. DRUPAL_GENERATED_CONTENT_SKIP is set to 1."
+    "Installing Generated content module."
+    "Content generation skipped. DRUPAL_GENERATED_CONTENT_SKIP is set to 1."
+    "Installed Generated content module."
     "Finished development modules operations."
-
-    "- Installing Generated content module."
   )
 
   mocks="$(steps_run "setup")"

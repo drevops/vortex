@@ -94,9 +94,11 @@ GENERATED_CONTENT_ITEMS="taxonomy_term-tags,node-article"
 
 ### Provisioning
 
-**Vortex** installs the module with `GENERATED_CONTENT_CREATE=1` from
-`scripts/provision-10-enable-dev-modules.sh` in non-production environments, so
-the content is created as part of the install.
+**Vortex** installs the module from
+`scripts/provision-10-enable-dev-modules.sh` in non-production environments,
+passing `GENERATED_CONTENT_CREATE=1` so the content is created as part of the
+install. Setting `DRUPAL_GENERATED_CONTENT_SKIP=1` installs the module without
+the content.
 
 ➡️ See [Generated content](provision#generated-content) in the provisioning
 documentation.
