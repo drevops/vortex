@@ -177,8 +177,12 @@ assert_provision_info() {
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
     "@drush -y pm:install devel"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('generated_content'); # 0 # 0"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 1"
+    "      Content generation skip: 0"
+    "      Skipped content generation: the Generated content module is not enabled."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
@@ -339,6 +343,9 @@ assert_provision_info() {
     "@drush -y pm:install devel"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 0"
+    "      Content generation skip: 0"
+    "      Existing database detected. Skipped content generation to keep the existing content."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
@@ -506,8 +513,12 @@ assert_provision_info() {
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
     "@drush -y pm:install devel"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('generated_content'); # 0 # 0"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 1"
+    "      Content generation skip: 0"
+    "      Skipped content generation: the Generated content module is not enabled."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
@@ -690,8 +701,12 @@ assert_provision_info() {
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
     "@drush -y pm:install devel"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('generated_content'); # 0 # 0"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 1"
+    "      Content generation skip: 0"
+    "      Skipped content generation: the Generated content module is not enabled."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
@@ -925,8 +940,12 @@ assert_provision_info() {
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
     "@drush -y pm:install devel"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('generated_content'); # 0 # 0"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 1"
+    "      Content generation skip: 0"
+    "      Skipped content generation: the Generated content module is not enabled."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
@@ -1090,6 +1109,9 @@ assert_provision_info() {
     "@drush -y pm:install devel"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 0"
+    "      Content generation skip: 0"
+    "      Existing database detected. Skipped content generation to keep the existing content."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
@@ -1258,8 +1280,12 @@ assert_provision_info() {
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
     "@drush -y pm:install devel"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('generated_content'); # 0 # 0"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 1"
+    "      Content generation skip: 0"
+    "      Skipped content generation: the Generated content module is not enabled."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
@@ -1611,8 +1637,12 @@ assert_provision_info() {
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
     "@drush -y pm:install devel"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('generated_content'); # 0 # 0"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 1"
+    "      Content generation skip: 0"
+    "      Skipped content generation: the Generated content module is not enabled."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
@@ -1778,8 +1808,12 @@ assert_provision_info() {
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
     "@drush -y pm:install devel"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('generated_content'); # 0 # 0"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 1"
+    "      Content generation skip: 0"
+    "      Skipped content generation: the Generated content module is not enabled."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
@@ -2065,8 +2099,12 @@ assert_provision_info() {
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
     "@drush -y pm:install devel"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('generated_content'); # 0 # 0"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 1"
+    "      Content generation skip: 0"
+    "      Skipped content generation: the Generated content module is not enabled."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
@@ -2250,8 +2288,12 @@ assert_provision_info() {
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
     "@drush -y pm:install devel"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('generated_content'); # 0 # 0"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 1"
+    "      Content generation skip: 0"
+    "      Skipped content generation: the Generated content module is not enabled."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
@@ -2487,8 +2529,12 @@ assert_provision_info() {
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
     "@drush -y pm:install devel"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('generated_content'); # 0 # 0"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 1"
+    "      Content generation skip: 0"
+    "      Skipped content generation: the Generated content module is not enabled."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
@@ -2811,8 +2857,12 @@ assert_provision_info() {
     "@drush -y pm:install sdc_devel"
     "    > Installing Devel module."
     "@drush -y pm:install devel"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('generated_content'); # 0 # 0"
     "  ==> Started development modules operations."
     "      Environment: ci"
+    "      Fresh database: 1"
+    "      Content generation skip: 0"
+    "      Skipped content generation: the Generated content module is not enabled."
     "  ==> Finished development modules operations."
     'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
 
