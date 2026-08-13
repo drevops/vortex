@@ -235,7 +235,7 @@ trait SubtestAhoyTrait {
     $this->assertFileNotContainsString('config/default/core.extension.yml', 'generated_content', 'Excluded module "generated_content" should not appear in the exported extension list');
     $this->assertFileNotContainsString('config/default/core.extension.yml', 'testmode', 'Excluded module "testmode" should not appear in the exported extension list');
 
-    $this->assertCacheTablesHaveRows();
+    $this->seedCacheTableRow();
 
     $this->cmd('ahoy export-db db.sql', '* Exported database dump saved', 'Export database should complete successfully');
     $this->syncToHost('.data');
@@ -291,24 +291,25 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
-  protected function assertCacheTablesHaveRows(): void {
-    $this->logSubstep('Assert cache tables hold rows before the export');
+  protected function seedCacheTableRow(): void {
+    $this->logSubstep('Seed a cache entry before the export');
 
-    // Establishes that the absence of cache rows from the dump taken next is
-    // the export behaviour, not an already-empty cache.
+    // Drupal creates cache tables lazily, so seeding the default bin is what
+    // guarantees the export has cache rows to leave out.
+    $this->cmd('ahoy drush cache:set vortex_cache_probe probe', txt: 'Cache entry should be written to the default bin');
+
     $probe_file = '.data/probe-cache-rows.sql';
-    File::dump($probe_file, "SELECT 'CACHE_ROWS_PRESENT' FROM cache_bootstrap LIMIT 1;\n");
+    File::dump($probe_file, "SELECT 'CACHE_ROWS_PRESENT' FROM cache_default WHERE cid = 'vortex_cache_probe';\n");
     $this->syncToContainer($probe_file);
-    $this->cmd('ahoy drush sql:query --file=../' . $probe_file, '* CACHE_ROWS_PRESENT', 'Cache table should hold rows before the export');
+    $this->cmd('ahoy drush sql:query --file=../' . $probe_file, '* CACHE_ROWS_PRESENT', 'Seeded cache entry should be stored in the database');
   }
 
   protected function assertDumpExcludesCacheTableData(string $file): void {
     $this->logSubstep('Assert cache tables are exported without their data');
 
-    $this->assertFileContainsString($file, 'CREATE TABLE `cache_bootstrap`', 'Cache table structure should be present in the dump');
-    $this->assertFileContainsString($file, 'CREATE TABLE `cache_default`', 'Every cache bin should be matched by the wildcard');
-    $this->assertFileContainsString($file, 'CREATE TABLE `cachetags`', 'Cache tags table structure should be present in the dump');
+    $this->assertFileContainsString($file, 'CREATE TABLE `cache_default`', 'Cache table structure should be present in the dump');
     $this->assertFileNotContainsString($file, 'INSERT INTO `cache', 'No cache table should carry rows into the dump');
+    $this->assertFileNotContainsString($file, 'vortex_cache_probe', 'The seeded cache entry should not appear in the dump');
 
     $this->assertFileContainsString($file, 'CREATE TABLE `users_field_data`', 'Non-cache table structure should be present in the dump');
     $this->assertFileContainsString($file, 'INSERT INTO `users_field_data`', 'Non-cache table rows should be present in the dump');
