@@ -6,6 +6,7 @@ namespace Drupal\Tests\light_saber\Kernel;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Class ExampleTest.
@@ -15,6 +16,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @package Drupal\light_saber\Tests
  */
 #[Group('LightSaber')]
+#[RunTestsInSeparateProcesses]
 class ExampleTest extends LightSaberKernelTestBase {
 
   /**

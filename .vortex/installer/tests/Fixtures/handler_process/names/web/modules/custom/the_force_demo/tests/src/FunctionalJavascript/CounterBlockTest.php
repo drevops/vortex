@@ -6,6 +6,7 @@ namespace Drupal\Tests\the_force_demo\FunctionalJavascript;
 
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests for the CounterBlock JavaScript interactions.
@@ -13,6 +14,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @package Drupal\the_force_demo\Tests
  */
 #[Group('TheForceDemo')]
+#[RunTestsInSeparateProcesses]
 class CounterBlockTest extends WebDriverTestBase {
 
   /**

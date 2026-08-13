@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\the_force_base\Functional;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Class ExampleTest.
@@ -14,6 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @package Drupal\the_force_base\Tests
  */
 #[Group('TheForceBase')]
+#[RunTestsInSeparateProcesses]
 class ExampleTest extends TheForceBaseFunctionalTestBase {
 
   /**
