@@ -43,22 +43,16 @@ import TabItem from '@theme/TabItem';
 
 ## PHP runtime configuration
 
-Vortex allows you to customize PHP runtime settings for Drush CLI commands
-by editing the `drush/php-ini/drush.ini` file.
+**Vortex** allows you to customize PHP runtime settings for PHP CLI processes,
+including Drush commands, by editing the `drush/php-ini/drush.ini` file.
 
 This file is auto-discovered via the `PHP_INI_SCAN_DIR` environment variable,
 which is pre-configured in both the Docker CLI container and Acquia deployment
-hooks.
-
-For example, to increase the memory limit for Drush operations:
-
-```ini
-; drush/php-ini/drush.ini
-memory_limit = 512M
-```
+hooks. Every PHP CLI process that loads this scan path picks the file up, not
+only Drush.
 
 Any valid PHP ini directive can be added to this file to adjust the runtime
-behavior of Drush commands.
+behavior of those processes.
 
 :::note
 
@@ -67,6 +61,41 @@ directories. On Acquia, this ensures that the hosting provider's own PHP ini
 overrides (such as `sendmail_path`) are not lost.
 
 :::
+
+### Memory limit
+
+The shipped configuration raises the PHP memory limit above the platform
+default:
+
+```ini
+; drush/php-ini/drush.ini
+memory_limit = 1G
+```
+
+This value is sized for database imports and configuration synchronization on
+large sites. It applies to PHP CLI processes that load this scan path,
+including Drush, and does not change the memory limit used to serve web
+requests.
+
+If a Drush command exhausts this limit, profile the command before raising the
+value. An exhausted 1G limit usually points to a memory leak in custom code
+rather than a limit set too low, and raising the ceiling hides the leak until a
+larger dataset reaches the new limit.
+
+To grant more memory to a single command without changing the default:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy cli php -d memory_limit=2G vendor/bin/drush <command>
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli php -d memory_limit=2G vendor/bin/drush <command>
+    ```
+  </TabItem>
+</Tabs>
 
 ## Aliases
 
