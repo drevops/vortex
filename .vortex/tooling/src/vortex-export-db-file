@@ -12,6 +12,12 @@ set -eu
 # Directory with database dump file.
 VORTEX_EXPORT_DB_FILE_DIR="${VORTEX_EXPORT_DB_FILE_DIR:-${VORTEX_DB_DIR:-./.data}}"
 
+# Tables to export with their structure but without their data. Accepts a
+# comma-separated list where each entry may use the `*` wildcard. Drupal
+# rebuilds cache tables on demand, so their contents only inflate the dump.
+# Set to an empty value to export the data of every table.
+VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES="${VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES-cache*}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -39,7 +45,7 @@ dump_file_drush="${dump_file/#.\//../}"
 mkdir -p "${VORTEX_EXPORT_DB_FILE_DIR}"
 
 # Dump database into a file.
-drush sql:dump --skip-tables-key=common --result-file="${dump_file_drush}" -q
+drush sql:dump --skip-tables-key=common --structure-tables-list="${VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES}" --result-file="${dump_file_drush}" -q
 
 # Check that file was saved and output saved dump file name.
 if [ -f "${dump_file}" ] && [ -s "${dump_file}" ]; then
