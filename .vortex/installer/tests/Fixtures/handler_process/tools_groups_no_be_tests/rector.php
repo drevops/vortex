@@ -6,7 +6,7 @@
  use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
  use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
  use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
-@@ -103,8 +102,6 @@
+@@ -88,8 +87,6 @@
    // PHP version upgrade sets - modernizes syntax to PHP 8.4.
    // Includes all rules from PHP 5.3 through 8.4.
    ->withPhpSets(php84: TRUE)
@@ -15,7 +15,7 @@
    // Code quality improvement sets.
    ->withPreparedSets(
      codeQuality: TRUE,
-@@ -124,7 +121,6 @@
+@@ -109,7 +106,6 @@
    // Additional rules.
    ->withRules([
      DeclareStrictTypesRector::class,

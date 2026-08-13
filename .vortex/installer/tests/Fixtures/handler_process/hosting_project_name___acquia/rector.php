@@ -13,20 +13,23 @@
      __DIR__ . '/tests',
    ])
    ->withSkip([
-@@ -81,13 +81,13 @@
-     // Object-oriented hook implementations keep the signature the hook
-     // declares, including parameters the implementation does not use.
+@@ -69,8 +69,8 @@
+     PrivatizeLocalGetterToPropertyRector::class,
+     RemoveAlwaysTrueIfConditionRector::class,
      RemoveUnusedPublicMethodParameterRector::class => [
 -      __DIR__ . '/web/modules/custom/*/src/Hook/*',
 -      __DIR__ . '/web/themes/custom/*/src/Hook/*',
 +      __DIR__ . '/docroot/modules/custom/*/src/Hook/*',
 +      __DIR__ . '/docroot/themes/custom/*/src/Hook/*',
      ],
-     // The settings includes name classes from modules that are registered
-     // with the autoloader at runtime.
+     RenameForeachValueVariableToMatchExprVariableRector::class,
+     RenameForeachValueVariableToMatchMethodCallReturnTypeRector::class,
+@@ -79,7 +79,7 @@
+     RenameVariableToMatchNewTypeRector::class,
+     SimplifyEmptyCheckOnEmptyArrayRector::class,
      StringClassNameToClassConstantRector::class => [
 -      __DIR__ . '/web/sites/default/includes/*',
 +      __DIR__ . '/docroot/sites/default/includes/*',
      ],
-     // Rules that rewrite working code beyond a syntax upgrade.
-     CompleteDynamicPropertiesRector::class,
+     // Directories to skip.
+     '*/vendor/*',
