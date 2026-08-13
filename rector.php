@@ -17,8 +17,6 @@
 declare(strict_types=1);
 
 use DrupalFinder\DrupalFinderComposerRuntime;
-use DrupalRector\Set\Drupal10SetList;
-use DrupalRector\Set\Drupal9SetList;
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
@@ -95,11 +93,10 @@ return RectorConfig::configure()
     privatization: TRUE,
     typeDeclarations: TRUE,
   )
-  // Drupal-specific deprecation fixes.
-  ->withSets([
-    Drupal9SetList::DRUPAL_9,
-    Drupal10SetList::DRUPAL_10,
-  ])
+  // Drupal-specific deprecation fixes. Each rule is bound to a `drupal/core`
+  // version and runs only when the installed core matches, so the set tracks
+  // core upgrades without changing this configuration.
+  ->withComposerBased(drupal: TRUE)
   // Additional rules.
   ->withRules([
     DeclareStrictTypesRector::class,
