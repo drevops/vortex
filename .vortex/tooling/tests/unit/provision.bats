@@ -52,7 +52,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -221,7 +220,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -382,7 +380,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -552,7 +549,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -737,7 +733,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -804,7 +799,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -974,7 +968,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -1138,7 +1131,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -1309,7 +1301,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -1448,7 +1439,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -1497,7 +1487,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -1663,7 +1652,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -1831,7 +1819,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -1896,7 +1883,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -1962,7 +1948,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -2121,7 +2106,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -2307,7 +2291,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -2356,7 +2339,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -2549,7 +2531,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 
@@ -2702,7 +2683,6 @@ assert_provision_info() {
 
   # Remove .env file to test in isolation.
   rm ./.env && touch ./.env
-  rm -f ./scripts/provision-15-generated-content.sh
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
 

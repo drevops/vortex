@@ -244,8 +244,7 @@ e.g., `provision-50-custom.sh`, `provision-60-another-custom.sh`.
 | Script                                | Purpose                                                  |
 |---------------------------------------|----------------------------------------------------------|
 | `provision-00-enable-demo-modules.sh` | Enables the modules and content model the demo site uses |
-| `provision-10-enable-dev-modules.sh`  | Enables the development modules                          |
-| `provision-15-generated-content.sh`   | Generates content from the Generated content plugins     |
+| `provision-10-enable-dev-modules.sh`  | Enables the development modules and generates content    |
 | `provision-20-migration.sh`           | Runs the content migration                               |
 | `provision-30-search-index.sh`        | Rebuilds the search index                                |
 | `provision-40-example.sh`             | A runnable example that performs no operations           |
@@ -318,21 +317,21 @@ opt out of either set of modules, remove the corresponding script.
 ### Generated content
 
 Projects with the
-[Generated content](https://www.drupal.org/project/generated_content) module ship
-with a `scripts/provision-15-generated-content.sh` custom script that creates
-content from every generated content plugin the site provides.
+[Generated content](https://www.drupal.org/project/generated_content) module
+create content from every generated content plugin the site provides in the same
+`scripts/provision-10-enable-dev-modules.sh` custom script, after the development
+modules are installed and before the search index is rebuilt.
 
 The module creates content from its own `hook_modules_installed()`, which only
-fires while the module providing the plugins is being installed. The script
-calls the generated content repository directly instead, so content is created
-even when the modules were installed earlier in the provisioning run.
+fires while the module providing the plugins is being installed. The script calls
+the generated content repository directly instead, so content is created even
+when the modules were installed earlier in the provisioning run.
 
-The script runs only in the `local`, `ci`, `dev` and `stage` environments, and
-only when `VORTEX_PROVISION_OVERRIDE_DB` is set to `1` - that is, when the
-database has just been imported or installed from scratch. Re-provisioning a site
-whose content is preserved keeps that content untouched. Content is also skipped
-when the site already holds generated content, so repeated provisioning never
-duplicates it.
+Content is generated only when `VORTEX_PROVISION_OVERRIDE_DB` is set to `1` -
+that is, when the database has just been imported or installed from scratch.
+Re-provisioning a site whose content is preserved keeps that content untouched.
+Generation is also skipped when the site already holds generated content, so
+repeated provisioning never duplicates it.
 
 Generation is heavier than the rest of provisioning, so it runs without a PHP
 memory limit.

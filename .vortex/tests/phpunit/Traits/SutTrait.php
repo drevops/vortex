@@ -480,7 +480,6 @@ trait SutTrait {
     // Script files.
     $this->assertFileExists('scripts/provision-00-enable-demo-modules.sh');
     $this->assertFileExists('scripts/provision-10-enable-dev-modules.sh');
-    $this->assertFileExists('scripts/provision-15-generated-content.sh');
     $this->assertFileExists('scripts/provision-30-search-index.sh');
     $this->assertFileExists('scripts/provision-40-example.sh');
 
