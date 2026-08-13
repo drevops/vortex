@@ -613,7 +613,7 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Run all BDD tests');
 
-    $this->cmd('ahoy test-bdd', tio: 120, ito: 90);
+    $this->cmd('ahoy test-bdd', tio: 240, ito: 90);
     $this->syncToHost('.logs');
     $this->assertDirectoryExists('.logs/screenshots');
     $this->assertFileExists('.logs/screenshots/behat-test-screenshot.html');

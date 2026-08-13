@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response xmlns:meta="https://example.com/meta">
+  <items meta:count="2">
+    <item id="1">
+      <title>First item</title>
+    </item>
+    <item id="2">
+      <title>Second item</title>
+    </item>
+  </items>
+</response>

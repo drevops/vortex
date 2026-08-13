@@ -22,10 +22,10 @@
          "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
 -        "rector/rector": "__VERSION__",
+         "softcreatr/jsonpath": "^0.10 || ^1.0",
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
      },
-     "conflict": {
-@@ -80,11 +71,9 @@
+@@ -81,11 +72,9 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,
