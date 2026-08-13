@@ -17,7 +17,7 @@
      },
      "require-dev": {
          "behat/behat": "__VERSION__",
-@@ -69,7 +72,7 @@
+@@ -70,7 +73,7 @@
              "url": "https://packages.drupal.org/8"
          }
      ],
@@ -26,7 +26,7 @@
      "prefer-stable": true,
      "autoload-dev": {
          "classmap": [
-@@ -87,7 +90,11 @@
+@@ -88,7 +91,11 @@
              "phpstan/extension-installer": true,
              "pyrech/composer-changelogs": true,
              "symfony/runtime": true,
@@ -39,7 +39,7 @@
          },
          "bump-after-update": true,
          "discard-changes": true,
-@@ -162,6 +169,17 @@
+@@ -163,6 +170,17 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },
