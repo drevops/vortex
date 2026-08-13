@@ -292,24 +292,28 @@ trait SubtestAhoyTrait {
   }
 
   protected function seedCacheTableRow(): void {
-    $this->logSubstep('Seed a cache entry before the export');
+    $this->logSubstep('Seed a cache table row before the export');
 
-    // Drupal creates cache tables lazily, so seeding the default bin is what
-    // guarantees the export has cache rows to leave out.
-    $this->cmd('ahoy drush cache:set vortex_cache_probe probe', txt: 'Cache entry should be written to the default bin');
+    // Drupal creates its cache tables lazily and which bins reach the database
+    // depends on the configured backends, so the row proving that the export
+    // drops cache data is written into a table this suite owns.
+    $seed_file = '.data/probe-cache-seed.sql';
+    File::dump($seed_file, "CREATE TABLE IF NOT EXISTS cache_vortex_probe (cid VARCHAR(255) NOT NULL PRIMARY KEY, data LONGBLOB);\nINSERT INTO cache_vortex_probe (cid, data) VALUES ('SEEDED_CACHE_ROW_MARKER', 'probe');\n");
+    $this->syncToContainer($seed_file);
+    $this->cmd('ahoy drush sql:query --file=../' . $seed_file, txt: 'Seed row should be written into a cache table');
 
     $probe_file = '.data/probe-cache-rows.sql';
-    File::dump($probe_file, "SELECT 'CACHE_ROWS_PRESENT' FROM cache_default WHERE cid = 'vortex_cache_probe';\n");
+    File::dump($probe_file, "SELECT cid FROM cache_vortex_probe;\n");
     $this->syncToContainer($probe_file);
-    $this->cmd('ahoy drush sql:query --file=../' . $probe_file, '* CACHE_ROWS_PRESENT', 'Seeded cache entry should be stored in the database');
+    $this->cmd('ahoy drush sql:query --file=../' . $probe_file, '* SEEDED_CACHE_ROW_MARKER', 'Seeded cache row should be stored in the database');
   }
 
   protected function assertDumpExcludesCacheTableData(string $file): void {
     $this->logSubstep('Assert cache tables are exported without their data');
 
-    $this->assertFileContainsString($file, 'CREATE TABLE `cache_default`', 'Cache table structure should be present in the dump');
+    $this->assertFileContainsString($file, 'CREATE TABLE `cache_vortex_probe`', 'Cache table structure should be present in the dump');
     $this->assertFileNotContainsString($file, 'INSERT INTO `cache', 'No cache table should carry rows into the dump');
-    $this->assertFileNotContainsString($file, 'vortex_cache_probe', 'The seeded cache entry should not appear in the dump');
+    $this->assertFileNotContainsString($file, 'SEEDED_CACHE_ROW_MARKER', 'The seeded cache row should not appear in the dump');
 
     $this->assertFileContainsString($file, 'CREATE TABLE `users_field_data`', 'Non-cache table structure should be present in the dump');
     $this->assertFileContainsString($file, 'INSERT INTO `users_field_data`', 'Non-cache table rows should be present in the dump');
