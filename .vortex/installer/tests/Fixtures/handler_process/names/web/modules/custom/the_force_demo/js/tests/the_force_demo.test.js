@@ -152,9 +152,7 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const incrementBtn = document.querySelector(
-        '[data-the-force-demo-counter-action="increment"]',
-      );
+      const incrementBtn = document.querySelector('[data-the-force-demo-counter-action="increment"]');
       incrementBtn.click();
 
       const value = document.querySelector('[data-the-force-demo-counter-value]');
@@ -165,9 +163,7 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const decrementBtn = document.querySelector(
-        '[data-the-force-demo-counter-action="decrement"]',
-      );
+      const decrementBtn = document.querySelector('[data-the-force-demo-counter-action="decrement"]');
       decrementBtn.click();
 
       const value = document.querySelector('[data-the-force-demo-counter-value]');
@@ -178,16 +174,12 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const incrementBtn = document.querySelector(
-        '[data-the-force-demo-counter-action="increment"]',
-      );
+      const incrementBtn = document.querySelector('[data-the-force-demo-counter-action="increment"]');
       incrementBtn.click();
       incrementBtn.click();
       incrementBtn.click();
 
-      const resetBtn = document.querySelector(
-        '[data-the-force-demo-counter-action="reset"]',
-      );
+      const resetBtn = document.querySelector('[data-the-force-demo-counter-action="reset"]');
       resetBtn.click();
 
       const value = document.querySelector('[data-the-force-demo-counter-value]');
@@ -198,9 +190,7 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const incrementBtn = document.querySelector(
-        '[data-the-force-demo-counter-action="increment"]',
-      );
+      const incrementBtn = document.querySelector('[data-the-force-demo-counter-action="increment"]');
       incrementBtn.click();
       incrementBtn.click();
 
@@ -212,9 +202,7 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const incrementBtn = document.querySelector(
-        '[data-the-force-demo-counter-action="increment"]',
-      );
+      const incrementBtn = document.querySelector('[data-the-force-demo-counter-action="increment"]');
       incrementBtn.click();
 
       const value = document.querySelector('[data-the-force-demo-counter-value]');
@@ -239,12 +227,8 @@ describe('Drupal.behaviors.ysDemo', () => {
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
       const blocks = document.querySelectorAll('[data-the-force-demo-counter]');
-      expect(blocks[0].classList.contains('the-force-demo-counter-processed')).toBe(
-        true,
-      );
-      expect(blocks[1].classList.contains('the-force-demo-counter-processed')).toBe(
-        true,
-      );
+      expect(blocks[0].classList.contains('the-force-demo-counter-processed')).toBe(true);
+      expect(blocks[1].classList.contains('the-force-demo-counter-processed')).toBe(true);
     });
   });
 
@@ -263,9 +247,7 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.attach(document);
 
-      const incrementBtn = document.querySelector(
-        '[data-the-force-demo-counter-action="increment"]',
-      );
+      const incrementBtn = document.querySelector('[data-the-force-demo-counter-action="increment"]');
       incrementBtn.click();
 
       const value = document.querySelector('[data-the-force-demo-counter-value]');
