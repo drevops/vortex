@@ -318,25 +318,17 @@ opt out of either set of modules, remove the corresponding script.
 
 Projects with the
 [Generated content](https://www.drupal.org/project/generated_content) module
-create content from every generated content plugin the site provides in the same
-`scripts/provision-10-enable-dev-modules.sh` custom script, after the development
-modules are installed and before the search index is rebuilt.
+install it from the same `scripts/provision-10-enable-dev-modules.sh` custom
+script, after the development modules and before the search index is rebuilt.
 
-The module creates content from its own `hook_modules_installed()`, which only
-fires while the module providing the plugins is being installed. The script calls
-the generated content repository directly instead, so content is created even
-when the modules were installed earlier in the provisioning run.
+The module creates content from its own `hook_modules_installed()` when
+`GENERATED_CONTENT_CREATE=1` is set, so the script installs it with that
+variable and the content appears as part of the install. The site modules
+providing the generated content plugins are already enabled by then, so their
+plugins are picked up.
 
-Content is generated only when `VORTEX_PROVISION_OVERRIDE_DB` is set to `1` -
-that is, when the database has just been imported or installed from scratch.
-Re-provisioning a site whose content is preserved keeps that content untouched.
-Generation is also skipped when the site already holds generated content, so
-repeated provisioning does not duplicate it. The module only records entities
-from plugins that declare `tracking: TRUE`, which is the default, so entities
-from untracked plugins are created again on every fresh database.
-
-Generation is heavier than the rest of provisioning, so it runs without a PHP
-memory limit.
+Installing a module that is already installed does nothing, so provisioning a
+site that already holds the module leaves its content untouched.
 
 To opt out of content generation, set `DRUPAL_GENERATED_CONTENT_SKIP=1` in the
 `.env` file or in your hosting provider's specific environment.

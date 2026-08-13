@@ -94,9 +94,9 @@ GENERATED_CONTENT_ITEMS="taxonomy_term-tags,node-article"
 
 ### Provisioning
 
-**Vortex** generates content from `scripts/provision-10-enable-dev-modules.sh` on
-a fresh database in non-production environments - one just imported from a dump
-or installed from a profile.
+**Vortex** installs the module with `GENERATED_CONTENT_CREATE=1` from
+`scripts/provision-10-enable-dev-modules.sh` in non-production environments, so
+the content is created as part of the install.
 
 ➡️ See [Generated content](provision#generated-content) in the provisioning
 documentation.

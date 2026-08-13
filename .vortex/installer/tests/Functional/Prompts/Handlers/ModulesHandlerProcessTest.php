@@ -57,7 +57,7 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
         // The script still installs the development modules, so it survives
         // with only its content generation removed.
         $test->assertFileExists(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
-        $test->assertFileNotContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'generate_content');
+        $test->assertFileNotContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'GENERATED_CONTENT_CREATE');
       }),
     ];
     yield 'modules_no_navigation_extra_tools' => [
@@ -148,7 +148,7 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
         // Content generation still runs from the script, so it survives with
         // only its development module installs removed.
         $test->assertFileExists(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
-        $test->assertFileContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'generate_content');
+        $test->assertFileContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'GENERATED_CONTENT_CREATE');
       }),
     ];
     yield 'modules_no_devel_sdc_devel_generated_content' => [
