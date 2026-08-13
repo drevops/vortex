@@ -52,7 +52,10 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function ($test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('generated_content');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/generated_content')),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertSutNotContains('drupal/generated_content');
+        $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-15-generated-content.sh');
+      }),
     ];
     yield 'modules_no_navigation_extra_tools' => [
       static::cw(function ($test): void {

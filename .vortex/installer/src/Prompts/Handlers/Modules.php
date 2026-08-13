@@ -18,6 +18,11 @@ class Modules extends AbstractHandler {
   protected const DEV_MODULES = ['devel', 'sdc_devel'];
 
   /**
+   * Module powering the content generation provision script.
+   */
+  protected const CONTENT_GENERATION_MODULE = 'generated_content';
+
+  /**
    * {@inheritdoc}
    */
   public function label(): string {
@@ -122,6 +127,11 @@ class Modules extends AbstractHandler {
     // operations to perform, so it is removed.
     if (count(array_intersect(self::DEV_MODULES, $selected_modules)) === 0) {
       File::remove($t . '/scripts/provision-10-enable-dev-modules.sh');
+    }
+
+    // Content generation is driven entirely by the Generated content module.
+    if (!in_array(self::CONTENT_GENERATION_MODULE, $selected_modules)) {
+      File::remove($t . '/scripts/provision-15-generated-content.sh');
     }
 
     if (count($selected_modules) === 0) {
