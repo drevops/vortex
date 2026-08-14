@@ -15,7 +15,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -167,133 +164,8 @@
+@@ -167,130 +164,8 @@
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
@@ -45,17 +45,14 @@
 -        VORTEX_CI_DB_CACHE_BRANCH: "develop"
 -
 -    steps:
--      # The host root is outside the container's mount namespace, so it is
--      # reached through the mounted Docker socket.
+-      # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
 -      - name: Free up disk space on the runner
--        if: ${{ vars.CI_FREE_DISK_SPACE != '0' }}
+-        if: ${{ vars.CI_FREE_DISK_SPACE == '1' }}
 -        run: |
--          set -- /host/usr/share/dotnet /host/usr/local/.ghcup /host/usr/share/swift /host/opt/hostedtoolcache/CodeQL /host/usr/local/share/powershell
--          # Frees about 10 GB more but adds about 50 seconds.
--          # set -- "$@" /host/usr/local/lib/android
--          # Reuse the job's own image so nothing is pulled before login.
--          image="$(docker inspect --format '{{.Config.Image}}' "${HOSTNAME}" 2>/dev/null || echo alpine:3)"
--          docker run --rm -v /:/host "${image}" rm -rf "$@" || true
+-          set -- /host/usr/local/.ghcup /host/usr/share/swift /host/usr/local/share/powershell /host/usr/share/dotnet /host/opt/hostedtoolcache/CodeQL
+-          # set -- "$@" /host/usr/local/lib/android # Removes about 10GB more, but takes about 50s. Uncomment to enable.
+-          job_image=$(docker inspect --format '{{.Config.Image}}' "${HOSTNAME}" 2>/dev/null || echo alpine:3)
+-          docker run --rm -v /:/host "${job_image}" rm -rf "$@" || true
 -
 -      - name: Report disk usage
 -        run: df -h
@@ -149,7 +146,7 @@
  
      permissions:
        contents: read
-@@ -319,14 +191,6 @@
+@@ -316,14 +191,6 @@
          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
          VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -163,8 +160,8 @@
 -        VORTEX_CI_DB_CACHE_BRANCH: "develop"
  
      steps:
-       # The host root is outside the container's mount namespace, so it is
-@@ -368,29 +232,6 @@
+       # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
+@@ -362,29 +229,6 @@
        - name: Install Vortex tooling
          run: ./scripts/vortex-tooling.sh
  
@@ -194,7 +191,7 @@
        - name: Login to container registry
          run: ./vendor/bin/vortex-login-container-registry
  
-@@ -562,7 +403,6 @@
+@@ -556,7 +400,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: [build, lint]
