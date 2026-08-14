@@ -352,11 +352,6 @@ preserve the existing index.
 To opt out of search indexing, set `DRUPAL_SEARCH_INDEX_SKIP=1` in the `.env`
 file or in your hosting provider's specific environment.
 
-Projects that also run migrations have the search indexes disabled for the
-duration of `scripts/provision-20-migration.sh`, so migrated entities are not
-sent to the search server one at a time while the index is about to be rebuilt.
-See [Migrations](./migrations#search-indexing).
-
 :::tip Related Documentation
 For information about different types of Drupal hooks used during deployment and updates.
 

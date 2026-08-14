@@ -108,7 +108,12 @@ It handles:
 - Corruption detection (probes for a known table to verify the database)
 - Running Drupal migrations via `drush migrate:import`
 - Optional rollback before import
-- Disabling the search indexes while the migrations run
+- Disabling the Solr search server while the migrations run
+
+On projects with the Solr service, the script disables the search server before
+the migrations and enables it again afterward, so migrated entities are not
+indexed one at a time. The `scripts/provision-30-search-index.sh` script rebuilds
+the index straight after.
 
 ### Configuration variables
 
@@ -137,23 +142,6 @@ If `DRUPAL_MIGRATION_SOURCE_DB_IMPORT` is `0`, the script probes the source data
 for the table specified in `DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE`. If the table is
 missing (corrupted or empty database), the script automatically re-imports the
 dump file.
-
-### Search indexing
-
-On projects that also use the Solr service, the script disables the Search API
-indexes that are enabled before the rollback and the imports, then enables those
-same indexes again once the migrations finish. An index that is already disabled
-is left alone, and a site with no enabled indexes skips the step entirely.
-
-Without this, every migrated entity is sent to the search server as it is
-created, which slows the migration down for no benefit - the
-`scripts/provision-30-search-index.sh` script rebuilds the index from scratch
-immediately afterward.
-
-The indexes are also restored when a migration fails part-way through, and the
-migration failure is still reported. If the restore itself fails, provisioning
-fails with `Failed to enable search indexes.` and the indexes stay disabled -
-re-run `ahoy provision`, or enable them with `drush search-api:enable <index>`.
 
 ## Demo migration module
 

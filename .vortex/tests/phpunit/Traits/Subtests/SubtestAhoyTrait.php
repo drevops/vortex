@@ -1016,8 +1016,6 @@ trait SubtestAhoyTrait {
         '* Started migration operations.',
         '* Importing migration source database.',
         '* Imported migration source database.',
-        '* Disabled search indexes.',
-        '* Enabled search indexes.',
         '* Finished migration operations.',
       ],
       'Provision with migration should complete successfully',
