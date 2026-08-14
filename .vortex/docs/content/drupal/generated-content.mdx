@@ -9,6 +9,10 @@ a plugin-based system for programmatically generating deterministic content
 entities. Unlike random dummy content, generated content produces reproducible
 sets useful for visual regression testing and consistent demo environments.
 
+This page covers how **Vortex** uses the module. The
+[module documentation](https://git.drupalcode.org/project/generated_content/-/blob/HEAD/README.md)
+is the reference for its full API.
+
 ## Plugin system
 
 Content generators are PHP classes placed in a module's
@@ -18,27 +22,32 @@ attribute.
 ### Creating a plugin
 
 ```php
-namespace Drupal\ys_demo\Plugin\GeneratedContent;
+namespace Drupal\ys_demo\Plugin\GeneratedContent\Node;
 
 use Drupal\generated_content\Attribute\GeneratedContent;
 use Drupal\generated_content\Plugin\GeneratedContent\GeneratedContentPluginBase;
-use Drupal\taxonomy\Entity\Term;
 
 #[GeneratedContent(
-  id: 'ys_demo_taxonomy_term_tags',
-  entity_type: 'taxonomy_term',
-  bundle: 'tags',
-  weight: 10,
+  id: 'ys_demo_node_page',
+  entity_type: 'node',
+  bundle: 'page',
+  weight: 20,
 )]
-class TaxonomyTermTags extends GeneratedContentPluginBase {
+class Page extends GeneratedContentPluginBase {
 
   public function generate(): array {
     $entities = [];
+    $storage = $this->entityTypeManager->getStorage('node');
 
-    foreach (['Technology', 'Science', 'Health'] as $name) {
-      $term = Term::create(['vid' => 'tags', 'name' => $name]);
-      $term->save();
-      $entities[] = $term;
+    for ($i = 1; $i <= 20; $i++) {
+      $node = $storage->create([
+        'type' => 'page',
+        'title' => sprintf('Demo page %s %s', $i, $this->helper::staticName()),
+        'status' => 1,
+      ]);
+      $node->save();
+
+      $entities[] = $node;
     }
 
     return $entities;
@@ -56,17 +65,51 @@ class TaxonomyTermTags extends GeneratedContentPluginBase {
 | `bundle` | string | yes | Target bundle |
 | `weight` | int | no | Execution order (lower = earlier) |
 | `tracking` | bool | no | Track created entities for cleanup (default: `TRUE`) |
+| `label` | TranslatableMarkup | no | Human-readable name shown in the admin UI |
 | `helper` | string | no | Custom helper class extending `GeneratedContentHelper` |
 
-### Cross-referencing entities
+## Generation helpers
 
-Use `weight` to control execution order and `$this->helper` to reference
-previously generated entities:
+`$this->helper` is a `GeneratedContentHelper` singleton that produces field
+values, creates file assets, and looks up entities that earlier plugins
+created. The examples below are a sample of what it offers - the module
+documentation lists the full set.
+
+**Static** helpers return the same values on every run, which is what visual
+regression testing needs:
+
+```php
+$this->helper::staticName();          // Fixed-length name.
+$this->helper::staticSentence(5);     // Sentence of 5 words.
+$this->helper::staticRichText(3);     // 3 paragraphs of HTML.
+```
+
+**Random** helpers vary on every run, which suits content that only needs to
+make the site look populated:
+
+```php
+$this->helper::randomName();
+$this->helper::randomSentence(5, 10); // Between 5 and 10 words.
+$this->helper::randomEmail();
+$this->helper::randomTimestamp('-1year', 'now');
+```
+
+**Entity** helpers reference content that earlier plugins produced. Use
+`weight` to make sure those plugins ran first, and pick the `static` variant
+when the reference itself must stay stable between runs:
 
 ```php
 // In a node plugin with weight: 20 (runs after terms at weight: 10).
-$tags = $this->helper::randomTerms('tags', 3);
-$node->set('field_tags', $tags);
+$node->set('field_tags', $this->helper::randomTerms('tags', 3));
+$node->set('field_author', $this->helper::staticUser());
+```
+
+**Asset** helpers create managed files from the dummy assets that ship with the
+module, covering image, document, audio and video extensions:
+
+```php
+$node->set('field_image', $this->helper::createFile('png'));
+$node->set('field_attachment', $this->helper::createFile('pdf'));
 ```
 
 ## Triggering generation
@@ -75,7 +118,7 @@ $node->set('field_tags', $tags);
 
 ```shell
 drush generated-content:create-content
-drush generated-content:create-content node article
+drush generated-content:create-content node page
 ```
 
 ### Admin UI
@@ -89,7 +132,7 @@ Set `GENERATED_CONTENT_CREATE=1` before provisioning to auto-generate content
 on module install. Optionally filter:
 
 ```shell
-GENERATED_CONTENT_ITEMS="taxonomy_term-tags,node-article"
+GENERATED_CONTENT_ITEMS="taxonomy_term-tags,node-page"
 ```
 
 ### Provisioning
@@ -105,7 +148,8 @@ documentation.
 
 ## Example in Vortex
 
-The `ys_demo` module ships two generated content plugins:
-
-- `TaxonomyTermTags` — generates 5 taxonomy terms in the `tags` vocabulary
-- `NodeArticle` — generates 20 article nodes referencing generated tags
+The `ys_demo` module ships a single generated content plugin,
+[`Page`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/src/Plugin/GeneratedContent/Node/Page.php):
+it creates 20 `page` nodes whose titles and body text come from the static
+helpers, so the same pages appear on every rebuild. The nodes back the demo
+`/pages` view used by the [Test mode](test-mode.mdx) example.
