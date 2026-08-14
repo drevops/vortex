@@ -215,24 +215,25 @@ When it runs out, the runner is terminated from the outside: the step that was r
 
 **Vortex** keeps the build within that budget:
 
-- On GitHub Actions, the `build` and `database` jobs remove the preinstalled toolchains no **Vortex** job uses - .NET, Swift, GHCup, PowerShell and CodeQL - before doing anything else. In the same measurement this freed about 15 GB in around 14 seconds, taking the job from roughly 13 GB of headroom to 28 GB.
-- Those same two jobs print `df -h` in a **Report disk usage** step, so the disk state is on the record for every run.
+- The `build` and `database` jobs print `df -h` in a **Report disk usage** step, so the disk state is on the record for every run.
 - The Docker build cache and dangling images are pruned once the stack is up.
 - The database dump is removed from the runner as soon as it has been copied into the container, so only one copy is held during provisioning.
 
+#### Reclaim the preinstalled toolchains
+
+On GitHub Actions, the `build` and `database` jobs can remove the preinstalled toolchains no **Vortex** job uses - GHCup, Swift, PowerShell, .NET and CodeQL - before doing anything else. In the measurement above this freed about 15 GB in around 14 seconds, taking the job from roughly 13 GB of headroom to 28 GB.
+
+The removal is destructive to the runner for the rest of the job, so it is off by default. Turn it on by setting the `CI_FREE_DISK_SPACE` variable to `1` in **Settings → Secrets and variables → Actions → Variables**. Leave it unset on a project whose workflow runs a step that needs Haskell, Swift, PowerShell, .NET or CodeQL.
+
 :::note
 
-Every figure above comes from one runner image at one point in time, and GitHub reissues that image regularly. Read the **Report disk usage** output of a recent run for the current numbers - if the reclaimed amount has shrunk, the path list needs revisiting.
+Every figure here comes from one runner image at one point in time, and GitHub reissues that image regularly. Read the **Report disk usage** output of a recent run for the current numbers - if the reclaimed amount has shrunk, the path list needs revisiting.
 
 :::
 
-#### Keep the preinstalled toolchains
-
-Removing the toolchains is destructive to the runner for the rest of the job. A project whose workflow runs a step that needs .NET, Swift, Haskell, PowerShell or CodeQL should keep them by setting the `CI_FREE_DISK_SPACE` variable to `0` in **Settings → Secrets and variables → Actions → Variables**.
-
 #### Free even more space
 
-The Android SDK is the single largest remaining tree at about 10 GB, but removing it takes around 50 seconds. It ships commented out in the workflow for that reason - uncomment the line in the **Free up disk space on the runner** step of both the `build` and `database` jobs to enable it:
+With `CI_FREE_DISK_SPACE` enabled, the Android SDK is the single largest remaining tree at about 10 GB, but removing it takes around 50 seconds. It ships commented out in the workflow for that reason - uncomment the line in the **Free up disk space on the runner** step of both the `build` and `database` jobs to enable it:
 
 ```yaml
 set -- "$@" /host/usr/local/lib/android

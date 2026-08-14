@@ -91,9 +91,9 @@ provisioning is disk-heavy. See [Runner disk space](/docs/continuous-integration
 
 ### Preinstalled toolchains
 
-Most of the `ubuntu-latest` runner's root volume is consumed by preinstalled software before a job starts - in one measurement, 59 GB of 72 GB, leaving around 13 GB to work with. The `build` and `database` jobs remove the toolchains no **Vortex** job uses - .NET, Swift, GHCup, PowerShell and CodeQL - before doing anything else, which freed about 15 GB in that same measurement. GitHub reissues the runner image regularly, so read the **Report disk usage** step of a recent run for the current numbers.
+Most of the `ubuntu-latest` runner's root volume is consumed by preinstalled software before a job starts - in one measurement, 59 GB of 72 GB, leaving around 13 GB to work with. The `build` and `database` jobs can remove the toolchains no **Vortex** job uses - GHCup, Swift, PowerShell, .NET and CodeQL - before doing anything else, which freed about 15 GB in that same measurement. GitHub reissues the runner image regularly, so read the **Report disk usage** step of a recent run for the current numbers.
 
-To keep the toolchains, set the `CI_FREE_DISK_SPACE` variable to `0` in **Settings → Secrets and variables → Actions → Variables**.
+The removal is off by default because it is destructive to the runner. To enable it, set the `CI_FREE_DISK_SPACE` variable to `1` in **Settings → Secrets and variables → Actions → Variables**.
 
 See [Runner disk space](/docs/continuous-integration#runner-disk-space) for the full measurements, how to free the Android SDK as well, and what to do when a job still runs out.
 
