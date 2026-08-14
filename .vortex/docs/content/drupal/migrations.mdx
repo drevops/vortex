@@ -146,7 +146,7 @@ and re-enables them with `drush search-api:enable-all` once the migrations
 finish. Without this, every migrated entity is sent to the search server as it
 is created, which slows the migration down for no benefit - the
 `scripts/provision-30-search-index.sh` script rebuilds the index from scratch
-immediately afterwards.
+immediately afterward.
 
 The indexes are re-enabled even when a migration fails part-way through, so a
 failed provision never leaves the site with search switched off.

@@ -108,9 +108,19 @@ run_migration() {
 #;< SERVICE_SOLR
 enable_search_indexes() {
   task "Enabling search indexes."
-  # A failure here must not mask the failure that triggered the restore.
-  drush search-api:enable-all || true
+  drush search-api:enable-all
   pass "Enabled search indexes."
+}
+
+# Preserves the exit status that triggered the restore, so a failed restore
+# reports itself without replacing the original failure.
+restore_search_indexes() {
+  local status="${?}"
+
+  trap - EXIT
+  enable_search_indexes || note "Failed to enable search indexes."
+
+  exit "${status}"
 }
 #;> SERVICE_SOLR
 
@@ -162,7 +172,7 @@ task "Disabling search indexes."
 drush search-api:disable-all
 pass "Disabled search indexes."
 # Restore the indexes even when a migration fails part-way through.
-trap 'enable_search_indexes' EXIT
+trap 'restore_search_indexes' EXIT
 #;> SERVICE_SOLR
 
 if [ "${DRUPAL_MIGRATION_ROLLBACK_SKIP}" = "1" ]; then

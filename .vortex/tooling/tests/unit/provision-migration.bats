@@ -384,6 +384,98 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Provision migration: failed search index restore reports and keeps the migration failure" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  rm ./.env && touch ./.env
+
+  mkdir -p "./.data"
+  touch "./.data/db2.sql"
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
+
+  declare -a STEPS=(
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
+
+    "@drush -y sql:drop --database=migrate"
+    "@drush -y sql:connect --database=migrate"
+    "@drush -y sql:query --database=migrate SELECT COUNT(*) FROM categories"
+    "@drush -y pm:install ys_migrate"
+
+    "@drush -y search-api:disable-all"
+
+    # Both the migration and the restore fail.
+    "@drush -y migrate:reset-status ys_migrate_categories"
+    "@drush -y migrate:import --feedback=50 --limit=50 ys_migrate_categories # 1"
+    "@drush -y migrate:messages ys_migrate_categories"
+    "@drush -y search-api:enable-all # 1"
+
+    "Failed to run migration ys_migrate_categories."
+    "Failed to enable search indexes."
+
+    "- Enabled search indexes."
+    "- Finished migration operations."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run ./scripts/provision-20-migration.sh
+  assert_failure
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Provision migration: failed search index restore fails a successful migration" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  rm ./.env && touch ./.env
+
+  mkdir -p "./.data"
+  touch "./.data/db2.sql"
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
+
+  declare -a STEPS=(
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
+
+    "@drush -y sql:drop --database=migrate"
+    "@drush -y sql:connect --database=migrate"
+    "@drush -y sql:query --database=migrate SELECT COUNT(*) FROM categories"
+    "@drush -y pm:install ys_migrate"
+
+    "@drush -y search-api:disable-all"
+
+    "@drush -y migrate:reset-status ys_migrate_categories"
+    "@drush -y migrate:import --feedback=50 --limit=50 ys_migrate_categories"
+
+    # The restore fails after the migrations succeeded.
+    "@drush -y search-api:enable-all # 1"
+
+    "Migrated: ys_migrate_categories."
+    "Finished migrations."
+    "Enabling search indexes."
+
+    "- Enabled search indexes."
+    "- Failed to enable search indexes."
+    "- Finished migration operations."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run ./scripts/provision-20-migration.sh
+  assert_failure
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Provision migration: rollback enabled" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
