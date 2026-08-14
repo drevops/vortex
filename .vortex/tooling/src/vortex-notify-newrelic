@@ -155,13 +155,17 @@ if [ -z "${VORTEX_NOTIFY_NEWRELIC_APPID}" ] && [ -n "${VORTEX_NOTIFY_NEWRELIC_AP
     php -r "\$data = json_decode(file_get_contents('php://stdin'), TRUE); if (isset(\$data['applications'][0]['id'])) { echo \$data['applications'][0]['id']; }")"
 fi
 
+pass "Completed application ID discovery."
+
 # Check if the VORTEX_NOTIFY_NEWRELIC_APPID variable is empty OR
 # if the variable doesn't contain only numeric values and exit.
 task "Checking if the application ID is valid."
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_APPID}" ] || [ "$(expr "x${VORTEX_NOTIFY_NEWRELIC_APPID}" : "x[0-9]*$")" -eq 0 ]; then
-  note "Notification skipped: No New Relic application ID found for ${VORTEX_NOTIFY_NEWRELIC_APP_NAME}. This is expected for non-configured environments."
+  pass "Notification skipped: No New Relic application ID found for ${VORTEX_NOTIFY_NEWRELIC_APP_NAME}. This is expected for non-configured environments."
   exit 0
 fi
+
+pass "Checked that the application ID is valid."
 
 info "New Relic notification summary:"
 note "Project          : ${VORTEX_NOTIFY_NEWRELIC_PROJECT}"
@@ -192,5 +196,7 @@ if ! curl -X POST "${VORTEX_NOTIFY_NEWRELIC_ENDPOINT}/applications/${VORTEX_NOTI
   -d "${body}" | grep -q '201'; then
   fail "Unable to create a deployment notification for application ${VORTEX_NOTIFY_NEWRELIC_APP_NAME} with ID ${VORTEX_NOTIFY_NEWRELIC_APPID}."
 fi
+
+pass "Created a deployment notification for application ${VORTEX_NOTIFY_NEWRELIC_APP_NAME} with ID ${VORTEX_NOTIFY_NEWRELIC_APPID}."
 
 pass "Finished New Relic notification."

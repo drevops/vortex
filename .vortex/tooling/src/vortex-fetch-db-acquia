@@ -124,6 +124,7 @@ fi
 token="$(echo "${token_json}" | extract_json_value "access_token")"
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Access token extracted (value redacted)."
 [ -z "${token}" ] && fail "Unable to retrieve a token. API response: ${token_json}"
+pass "Retrieved authentication token."
 
 task "Retrieving ${VORTEX_FETCH_DB_ACQUIA_APP_NAME} application UUID."
 app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_FETCH_DB_ACQUIA_APP_NAME/ /%20}")
@@ -137,6 +138,7 @@ fi
 app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted app UUID: ${app_uuid}"
 [ -z "${app_uuid}" ] && fail "Unable to retrieve an application UUID for \"${VORTEX_FETCH_DB_ACQUIA_APP_NAME}\". API response: ${app_uuid_json}"
+pass "Retrieved ${VORTEX_FETCH_DB_ACQUIA_APP_NAME} application UUID."
 
 task "Retrieving ${VORTEX_FETCH_DB_ENVIRONMENT} environment ID."
 envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_FETCH_DB_ENVIRONMENT}")
@@ -150,6 +152,7 @@ fi
 env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted environment ID: ${env_id}"
 [ -z "${env_id}" ] && fail "Unable to retrieve an environment ID for \"${VORTEX_FETCH_DB_ENVIRONMENT}\". API response: ${envs_json}"
+pass "Retrieved ${VORTEX_FETCH_DB_ENVIRONMENT} environment ID."
 
 # If fresh backup requested, create a new backup and wait for it to complete.
 if [ "${VORTEX_FETCH_DB_FRESH}" = "1" ]; then
@@ -171,6 +174,8 @@ if [ "${VORTEX_FETCH_DB_FRESH}" = "1" ]; then
   if [ -z "${notification_url}" ]; then
     fail "Unable to get notification URL for backup creation. API response: ${create_backup_json}"
   fi
+
+  pass "Requested a new database backup for ${VORTEX_FETCH_DB_ACQUIA_DB_NAME}."
 
   task "Waiting for backup to complete."
   max_wait="${VORTEX_FETCH_DB_ACQUIA_BACKUP_MAX_WAIT}"
@@ -232,6 +237,7 @@ file_name_compressed="${file_name}.gz"
 
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Target file name: ${file_name}"
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Compressed file name: ${file_name_compressed}"
+pass "Discovered latest backup ID ${backup_id} for database ${VORTEX_FETCH_DB_ACQUIA_DB_NAME}."
 
 if [ -f "${file_name_discovered}" ]; then
   note "Found existing cached database file \"${file_name_discovered}\" for database \"${VORTEX_FETCH_DB_ACQUIA_DB_NAME}\"."
@@ -253,6 +259,7 @@ else
     backup_url=$(echo "${backup_url_json}" | extract_json_value "url")
     [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted backup URL: ${backup_url}"
     [ -z "${backup_url}" ] && fail "Unable to discover backup URL for backup ID \"${backup_id}\". API response: ${backup_url_json}"
+    pass "Discovered backup URL."
 
     task "Fetching database dump into file ${file_name_compressed}."
     curl --progress-bar -L "${backup_url}" -o "${file_name_compressed}"
@@ -268,6 +275,7 @@ else
     fi
 
     [ "${VORTEX_DEBUG-}" = "1" ] && note "Fetch completed successfully."
+    pass "Fetched database dump into file ${file_name_compressed}."
   else
     pass "Found existing cached gzipped database file ${file_name_compressed} for database ${VORTEX_FETCH_DB_ACQUIA_DB_NAME}."
   fi
@@ -294,6 +302,7 @@ else
   rm "${file_name_compressed}"
 
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Decompression completed successfully."
+  pass "Expanded database file ${file_name_compressed} into ${file_name}."
 fi
 
 task "Renaming file \"${file_name}\" to \"${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}\"."
@@ -303,5 +312,6 @@ mv "${file_name}" "${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_
 mv_result=$?
 [ "${mv_result}" -ne 0 ] && fail "Unable to rename file from \"${file_name}\" to \"${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}\". mv exit code: ${mv_result}"
 [ "${VORTEX_DEBUG-}" = "1" ] && note "File rename completed successfully."
+pass "Renamed file \"${file_name}\" to \"${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${VORTEX_FETCH_DB_ACQUIA_DB_FILE}\"."
 
 pass "Finished database dump fetch from Acquia."

@@ -76,8 +76,11 @@ setup_robo_fixture() {
     'Committing container image with name "registry.example.com/image1:test_latest".'
     "@docker commit service1_service_id registry.example.com/image1:test_latest # sha256:service1_image_id"
     'Committed container image with id "service1_image_id".'
+    'Committed container image with name "registry.example.com/image1:test_latest".'
     "Pushing container image to the registry."
     "@docker push registry.example.com/image1:test_latest"
+    "Pushed container image to the registry."
+    "Processed service service1."
     "Processing service service2"
     "@docker compose ps -q service2 # service2_service_id"
     'Found "service2" service container with id "service2_service_id".'
@@ -92,8 +95,11 @@ setup_robo_fixture() {
     'Committing container image with name "registry.example.com/image3:test_latest".'
     "@docker commit service3_service_id registry.example.com/image3:test_latest # sha256:service3_image_id"
     'Committed container image with id "service3_image_id".'
+    'Committed container image with name "registry.example.com/image3:test_latest".'
     "Pushing container image to the registry."
     "@docker push registry.example.com/image3:test_latest"
+    "Pushed container image to the registry."
+    "Processed service service3."
     "Finished container registry push."
   )
 

@@ -28,6 +28,7 @@ load ../_helper.bash
   assert_output_contains "[INFO] Started database data container image fetch."
   assert_output_contains "Not found myorg/myapp image on host."
   assert_output_contains "Fetching myorg/myapp image from the registry."
+  assert_output_contains "[ OK ] Fetched myorg/myapp image from the registry."
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
   popd >/dev/null
@@ -58,6 +59,7 @@ load ../_helper.bash
   assert_output_contains "Not found myorg/myapp image on host."
   assert_output_contains "Found archived database container image file .data/db.tar. Expanding..."
   assert_output_contains "Found expanded myorg/myapp image on host."
+  assert_output_contains "[ OK ] Expanded archived database container image file .data/db.tar."
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
   # Clean up

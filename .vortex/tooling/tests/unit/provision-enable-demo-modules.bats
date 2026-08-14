@@ -25,6 +25,7 @@ load ../_helper.bash
 
     # Not expected.
     "- Creating the content model."
+    "- Skipped creating the content model: Drupal CLI is not available."
     "- Installing contrib modules."
     "- Installing custom site modules."
     "- Finished demo modules operations."

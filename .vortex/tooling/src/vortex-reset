@@ -49,14 +49,19 @@ if [ "${is_hard_reset}" = "1" ]; then
     rm -rf "${file}" >/dev/null || true
   done
 
+  pass "Changed permissions and removed all other untracked files."
+
   task "Resetting repository files."
   git reset --hard
+  pass "Reset repository files."
 
   task "Removing all untracked files."
   git clean -f -d
+  pass "Removed all untracked files."
 
   task "Removing empty directories."
   find . -type d -not -path "./.git/*" -empty -delete
+  pass "Removed empty directories."
 fi
 
 pass "Finished reset."

@@ -104,18 +104,23 @@ export "${file_var}=${file}"
 if [ "$(ps ax | grep -c "[s]sh-agent")" -eq 0 ]; then
   task "Starting SSH agent."
   eval "$(ssh-agent)"
+  pass "Started SSH agent."
 fi
 
 if ssh-add -l | grep -q "${file}"; then
   note "SSH agent already has ${file} key loaded."
 else
   task "SSH agent does not have a required key loaded. Trying to load."
+
   if [ "${VORTEX_SSH_REMOVE_ALL_KEYS-}" = "1" ]; then
     task "Removing all keys from the SSH agent."
     ssh-add -D
+    pass "Removed all keys from the SSH agent."
   fi
+
   ssh-add "${file}"
   ssh-add -l
+  pass "Loaded key ${file} into the SSH agent."
 fi
 
 if [ -n "${VORTEX_SSH_KNOWN_HOSTS-}" ]; then
@@ -137,11 +142,13 @@ if [ -n "${VORTEX_SSH_KNOWN_HOSTS-}" ]; then
 
   printf '%b\n' "${VORTEX_SSH_KNOWN_HOSTS}" >>"${HOME}/.ssh/known_hosts"
   chmod 600 "${HOME}/.ssh/known_hosts"
+  pass "Pinned SSH host keys to known_hosts."
 elif [ "${VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING-}" = "1" ]; then
   task "Disabling strict host key checking."
   mkdir -p "${HOME}/.ssh/"
   echo -e "\nHost *\n\tStrictHostKeyChecking no\n\tUserKnownHostsFile /dev/null\n" >>"${HOME}/.ssh/config"
   chmod 600 "${HOME}/.ssh/config"
+  pass "Disabled strict host key checking."
 fi
 
 pass "Finished SSH setup."

@@ -280,6 +280,7 @@ load ../_helper.bash
 
     "Source database import is set to be skipped. Checking existing database."
     "Migration source database is corrupted or empty. Re-importing."
+    "Marked the source database for re-import."
     "Importing migration source database."
     "Imported migration source database."
     "Verifying migration source database."

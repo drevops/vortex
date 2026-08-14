@@ -23,35 +23,43 @@ bats_require_minimum_version 1.5.0
     # Mock authentication token curl call with its message
     "Retrieving authentication token."
     '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token", "expires_in":3600}'
+    "[ OK ] Retrieved authentication token."
 
     # Mock application UUID curl call with its message
     "Retrieving testapp application UUID."
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123","name":"testapp"}]}}'
+    "[ OK ] Retrieved testapp application UUID."
 
     # Mock environment ID curl call with its message
     "Retrieving prod environment ID."
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
+    "[ OK ] Retrieved prod environment ID."
 
     # Mock backups curl call with its message
     "Discovering latest backup ID for database testdb."
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-789","completed":"2024-01-01T00:00:00+00:00"}]}}'
+    "[ OK ] Discovered latest backup ID backup-id-789 for database testdb."
 
     # Mock backup URL curl call with its message
     "Discovering backup URL."
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # {"url":"https://backup.example.com/db.sql.gz"}'
+    "[ OK ] Discovered backup URL."
 
     # Mock file download curl call with its message and side effect to create zipped archive
     "Fetching database dump into file .data/testdb_backup_backup-id-789.sql.gz."
     '@curl --progress-bar -L https://backup.example.com/db.sql.gz -o .data/testdb_backup_backup-id-789.sql.gz # 0 #  # echo "CREATE TABLE test (id INT);" | gzip > .data/testdb_backup_backup-id-789.sql.gz'
+    "[ OK ] Fetched database dump into file .data/testdb_backup_backup-id-789.sql.gz."
 
     # Mock gunzip operations with their message
     "Expanding database file .data/testdb_backup_backup-id-789.sql.gz into .data/testdb_backup_backup-id-789.sql."
     "@gunzip -t .data/testdb_backup_backup-id-789.sql.gz # 0"
     "@gunzip -c .data/testdb_backup_backup-id-789.sql.gz # 0 # CREATE TABLE test (id INT);"
+    "[ OK ] Expanded database file .data/testdb_backup_backup-id-789.sql.gz into .data/testdb_backup_backup-id-789.sql."
 
     # Mock mv operation with its message and side effect to create final file
     'Renaming file ".data/testdb_backup_backup-id-789.sql" to ".data/db.sql".'
     '@mv .data/testdb_backup_backup-id-789.sql .data/db.sql # 0 #  # echo "CREATE TABLE test (id INT);" > .data/db.sql'
+    '[ OK ] Renamed file ".data/testdb_backup_backup-id-789.sql" to ".data/db.sql".'
 
     # Assert final success message
     "[ OK ] Finished database dump fetch from Acquia."

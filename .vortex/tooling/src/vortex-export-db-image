@@ -52,17 +52,21 @@ task "Locking and unlocking tables before upgrade."
 docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
 sleep 5
 docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" mysql -e "UNLOCK TABLES;"
+pass "Locked and unlocked tables before upgrade."
 
 task "Running forced service upgrade."
 docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" sh -c "mariadb-upgrade --force || mariadb-upgrade --force"
+pass "Ran forced service upgrade."
 
 task "Locking tables after upgrade."
 docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" mysql -e "FLUSH TABLES WITH READ LOCK;"
+pass "Locked tables after upgrade."
 
 task "Committing exported container image with name ${new_image}."
 iid=$(docker commit "${cid}" "${new_image}")
 iid="${iid#sha256:}"
 note "Committed exported container image with id ${iid}."
+pass "Committed exported container image with name ${new_image}."
 
 # Create directory to store database dump.
 mkdir -p "${VORTEX_EXPORT_DB_IMAGE_DIR}"

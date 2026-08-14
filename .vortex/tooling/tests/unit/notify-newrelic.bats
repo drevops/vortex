@@ -56,8 +56,11 @@ load ../_helper.bash
 
   assert_output_contains "Started New Relic notification."
   assert_output_contains "Discovering application ID by name if it was not provided."
+  assert_output_contains "Completed application ID discovery."
   assert_output_contains "Checking if the application ID is valid."
+  assert_output_contains "Checked that the application ID is valid."
   assert_output_contains "Creating a deployment notification for application testproject-main with ID 9876543210."
+  assert_output_contains "Created a deployment notification for application testproject-main with ID 9876543210."
 
   assert_equal "-s -X GET https://api.newrelic.com/v2/applications.json -H Api-Key: key1234 -s -G -d filter[name]=testproject-main&exclude_links=true" "$(mock_get_call_args "${mock_curl}" 1)"
 
