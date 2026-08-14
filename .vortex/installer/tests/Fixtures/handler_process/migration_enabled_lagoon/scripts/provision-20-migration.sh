@@ -192,7 +192,7 @@ echo
 note "Finished migrations."
 
 trap - EXIT
-enable_search_indexes
+enable_search_indexes || fail "Failed to enable search indexes."
 
 drush migrate:status
 
