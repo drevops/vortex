@@ -460,9 +460,9 @@ load ../_helper.bash
     "Migrated: ys_migrate_categories."
     "Finished migrations."
     "Enabling search indexes."
+    "Failed to enable search indexes."
 
     "- Enabled search indexes."
-    "- Failed to enable search indexes."
     "- Finished migration operations."
   )
 

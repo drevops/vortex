@@ -197,7 +197,7 @@ note "Finished migrations."
 
 #;< SERVICE_SOLR
 trap - EXIT
-enable_search_indexes
+enable_search_indexes || fail "Failed to enable search indexes."
 #;> SERVICE_SOLR
 
 drush migrate:status
