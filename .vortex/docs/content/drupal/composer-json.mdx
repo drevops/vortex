@@ -78,9 +78,10 @@ The [`require`](https://getcomposer.org/doc/04-schema.md#require) section
 specifies the essential packages and libraries your project needs.
 
 The **Documentation** column links to the page covering that package in more
-depth. A [Settings](settings.mdx#per-module-overrides) link means the module
-ships with a per-module override file, so it works out of the box in every
-environment.
+depth. A [Settings](settings.mdx#per-module-overrides) link means **Vortex**
+ships a per-module override file that applies environment-aware defaults for
+that module. Some modules still need a running service or environment-specific
+values on top of those defaults.
 
 | Package | Description | Documentation |
 |---------|-------------|---------------|
