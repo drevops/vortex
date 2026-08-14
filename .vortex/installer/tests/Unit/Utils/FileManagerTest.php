@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
-use DrevOps\VortexInstaller\Downloader\Artifact;
 use DrevOps\VortexInstaller\Downloader\Downloader;
-use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
@@ -246,54 +244,40 @@ class FileManagerTest extends UnitTestCase {
     $this->assertFileExists($destination . '/.vortex/CLAUDE.md', "The harness never ships, so a matching path is the project's own.");
   }
 
-  public function testCopyFilesRemovesPathsDroppedByTheTemplate(): void {
-    // A path the incoming template no longer ships at all is absent from its
-    // file list, so only the project's own version can name it.
-    // 'scripts/vortex' is the real case: it held the shipped scripts before
-    // they moved into the 'drevops/vortex-tooling' package.
-    $src = self::$sut . '/src_dropped';
-    $destination = self::$sut . '/dst_dropped';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
-    file_put_contents(File::mkdir($destination) . '/README.md', '[![Vortex](https://img.shields.io/badge/Vortex-1.30.0-65ACBC.svg)](https://github.com/drevops/vortex)');
-    file_put_contents(File::mkdir($destination . '/scripts/vortex') . '/legacy.sh', 'legacy');
-    file_put_contents(File::mkdir($destination . '/scripts') . '/keep.sh', 'custom');
+  public function testCopyFilesRemovesObsoleteScriptsVortex(): void {
+    // Simulate an upgrade from a Vortex version that shipped scripts at
+    // 'scripts/vortex/' before they were extracted into the
+    // 'drevops/vortex-tooling' Composer package. The legacy directory must
+    // be removed from the destination after the copy.
+    $src = self::$sut . '/src_obsolete';
+    $destination = self::$sut . '/dst_obsolete';
+    mkdir($src, 0777, TRUE);
+    mkdir($destination . '/scripts/vortex', 0777, TRUE);
+    file_put_contents($src . '/test.txt', 'new');
+    file_put_contents($destination . '/scripts/vortex/legacy.sh', 'legacy');
+    file_put_contents($destination . '/scripts/keep.sh', 'custom');
 
     $config = new Config('/tmp/root', $destination, $src);
-    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
-    $fm->snapshotTemplate();
-
-    // The version the project runs shipped the legacy directory.
-    $downloader = $this->createMock(RepositoryDownloader::class);
-    $downloader->method('download')->willReturnCallback(function (Artifact $artifact, ?string $dir = NULL): string {
-      File::dump($dir . '/scripts/vortex/legacy.sh', 'legacy');
-      File::dump($dir . '/composer.json', '{}');
-
-      return '1.30.0';
-    });
-    $fm->snapshotPreviousTemplate($downloader, Artifact::fromUri('https://github.com/drevops/vortex.git#stable'));
 
     $fm->copyFiles();
 
-    $this->assertDirectoryDoesNotExist($destination . '/scripts/vortex', 'Directory dropped by the template removed from the destination.');
-    $this->assertFileExists($destination . '/scripts/keep.sh', 'Sibling project-authored entries preserved.');
-    $this->assertFileExists($destination . '/composer.json', 'Shipped files still copied.');
+    $this->assertDirectoryDoesNotExist($destination . '/scripts/vortex', 'Legacy scripts/vortex/ directory removed after copy.');
+    $this->assertFileExists($destination . '/scripts/keep.sh', 'Sibling custom scripts/ entries preserved.');
+    $this->assertFileExists($destination . '/test.txt', 'New files copied from source.');
   }
 
-  public function testCopyFilesKeepsDroppedPathsWithoutPreviousVersion(): void {
-    $src = self::$sut . '/src_noprev';
-    $destination = self::$sut . '/dst_noprev';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
-    file_put_contents(File::mkdir($destination . '/scripts/vortex') . '/legacy.sh', 'legacy');
+  public function testRemoveObsoletePathsSilentOnMissing(): void {
+    $destination = self::$sut . '/dst_no_obsolete';
+    mkdir($destination, 0777, TRUE);
 
-    $config = new Config('/tmp/root', $destination, $src);
-    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
     $fm = new FileManager($config);
-    $fm->snapshotTemplate();
 
-    $fm->copyFiles();
+    // Should not throw when there is nothing to remove.
+    $fm->removeObsoletePaths();
 
-    $this->assertFileExists($destination . '/scripts/vortex/legacy.sh', 'Without a previous file list, a dropped path cannot be named and is left alone.');
+    $this->addToAssertionCount(1);
   }
 
   /**
