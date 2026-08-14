@@ -209,28 +209,41 @@ by setting the `VORTEX_DEBUG` variable to `1` in your CI provider's settings.
 
 ### Runner disk space
 
-Continuous integration jobs run on hosted runners with a fixed amount of disk
-space - around 14 GB free on the GitHub Actions `ubuntu-latest` runner, and a
-fixed allocation on CircleCI. Pulled container images, database dumps, and every
-file created while provisioning share that space.
+Continuous integration jobs run on hosted runners with a fixed amount of disk space - a fixed allocation on CircleCI, and on GitHub Actions a root volume that is largely consumed before the job starts. Measured on one `ubuntu-latest` image, preinstalled software occupied 59 GB of a 72 GB volume, leaving the job around 13 GB. Pulled container images, database dumps, and every file created while provisioning share what is left.
 
-When it runs out, the runner is terminated from the outside: the step that was
-running never reports an error and the log archive may be lost entirely, so the
-failure looks like a hang rather than a disk problem.
+When it runs out, the runner is terminated from the outside: the step that was running never reports an error and the log archive may be lost entirely, so the failure looks like a hang rather than a disk problem.
 
 **Vortex** keeps the build within that budget:
 
+- The `build` and `database` jobs print `df -h` in a **Report disk usage** step, so the disk state is on the record for every run.
 - The Docker build cache and dangling images are pruned once the stack is up.
-- The database dump is removed from the runner as soon as it has been copied
-  into the container, so only one copy is held during provisioning.
+- The database dump is removed from the runner as soon as it has been copied into the container, so only one copy is held during provisioning.
 
-If a build dies during provisioning without reporting an error, suspect the
-disk. The most reliable fix is to reduce what has to fit: a sanitized dump or a
-[database container image](#caching-strategy) instead of a full dump. On GitHub
-Actions, a [larger runner](/docs/continuous-integration/github-actions#change-runner-size)
-also comes with more disk. On CircleCI, disk space is not tied to the
-[resource class](/docs/continuous-integration/circleci#change-runner-resource-class),
-so upgrading it adds CPU and memory but no extra room for the build.
+#### Reclaim the preinstalled toolchains
+
+On GitHub Actions, the `build` and `database` jobs can remove the preinstalled toolchains no **Vortex** job uses - GHCup, Swift, PowerShell, .NET and CodeQL - before doing anything else. In the measurement above this freed about 15 GB in around 14 seconds, taking the job from roughly 13 GB of headroom to 28 GB.
+
+The removal is destructive to the runner for the rest of the job, so it is off by default. Turn it on by setting the `CI_FREE_DISK_SPACE` variable to `1` in **Settings → Secrets and variables → Actions → Variables**. Leave it unset on a project whose workflow runs a step that needs Haskell, Swift, PowerShell, .NET or CodeQL.
+
+:::note
+
+Every figure here comes from one runner image at one point in time, and GitHub reissues that image regularly. Read the **Report disk usage** output of a recent run for the current numbers - if the reclaimed amount has shrunk, the path list needs revisiting.
+
+:::
+
+#### Free even more space
+
+With `CI_FREE_DISK_SPACE` enabled, the Android SDK is the single largest remaining tree at about 10 GB, but removing it takes around 50 seconds. It ships commented out in the workflow for that reason - uncomment the line in the **Free up disk space on the runner** step of both the `build` and `database` jobs to enable it:
+
+```yaml
+set -- "$@" /host/usr/local/lib/android
+```
+
+The removal runs through a container that bind-mounts the runner's root filesystem, because the job itself runs in a container and cannot see the host's directories directly. This is also why the general-purpose disk-cleanup actions available on the Marketplace have no effect in a **Vortex** job.
+
+#### When space still runs out
+
+If a build dies during provisioning without reporting an error, suspect the disk and read the **Report disk usage** output. The most reliable fix is to reduce what has to fit: a sanitized dump or a [database container image](#caching-strategy) instead of a full dump. On GitHub Actions, a [larger runner](/docs/continuous-integration/github-actions#change-runner-size) also comes with more disk. On CircleCI, disk space is not tied to the [resource class](/docs/continuous-integration/circleci#change-runner-resource-class), so upgrading it adds CPU and memory but no extra room for the build.
 
 ### Update CI runner image
 
