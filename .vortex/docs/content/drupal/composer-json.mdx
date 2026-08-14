@@ -1,6 +1,6 @@
 ---
 sidebar_label: composer.json
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 # composer.json
@@ -83,6 +83,9 @@ ships a per-module override file that applies environment-aware defaults for
 that module. Some modules still need a running service or environment-specific
 values on top of those defaults.
 
+➡️ See [Modules](modules.mdx) for what each override actually configures and
+where each module is installed.
+
 | Package | Description | Documentation |
 |---------|-------------|---------------|
 | `php` | The minimum PHP version required to run this project. Specify a range such as `>=8.4` rather than an exact version such as `8.4.0`. | |
@@ -113,7 +116,7 @@ values on top of those defaults.
 | [`drupal/seckit`](https://www.drupal.org/project/seckit) | Adds configurable security-hardening HTTP headers, including Content Security Policy and anti-framing protection. | [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/shield`](https://www.drupal.org/project/shield) | Protects non-production environments behind HTTP basic authentication. | [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/stage_file_proxy`](https://www.drupal.org/project/stage_file_proxy) | Fetches media files from a remote site on demand, so local environments do not need a full copy of the files directory. | [Settings](settings.mdx#per-module-overrides) |
-| [`drupal/testmode`](https://www.drupal.org/project/testmode) | Adjusts site behavior during automated tests, for example by filtering out generated content from listings. | [Test mode](test-mode.mdx), [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/testmode`](https://www.drupal.org/project/testmode) | Adjusts site behavior during automated tests, for example by filtering out generated content from listings. | [Testmode](testmode.mdx), [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/xmlsitemap`](https://www.drupal.org/project/xmlsitemap) | Generates a multilingual XML sitemap to help search engines index the site. | [Settings](settings.mdx#per-module-overrides) |
 | [`drush/drush`](https://github.com/drush-ops/drush) | A command-line shell and scripting interface for Drupal, providing a wide range of utilities to manage and interact with your Drupal sites. | [Drush](../tools/drush.mdx) |
 | [`webflo/drupal-finder`](https://github.com/webflo/drupal-finder) | Locates Drupal installations in a directory structure. | |
