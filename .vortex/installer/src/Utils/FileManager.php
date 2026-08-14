@@ -180,7 +180,6 @@ class FileManager {
     }
 
     $this->removeExcludedPaths($excluded);
-    $this->removeObsoletePaths();
   }
 
   /**
@@ -247,31 +246,6 @@ class FileManager {
     $files = File::scandir($root, File::ignoredPaths());
 
     return array_map(fn(string $file): string => ltrim(str_replace($root, '', $file), DIRECTORY_SEPARATOR), $files);
-  }
-
-  /**
-   * Remove obsolete paths from previous Vortex versions.
-   *
-   * Removes paths that previous Vortex versions placed in the destination but
-   * the current version no longer ships. Runs after copyFiles() so legacy
-   * artifacts do not linger across upgrades.
-   */
-  public function removeObsoletePaths(): void {
-    $destination = $this->config->getDestination();
-
-    // 'scripts/vortex/' was the location of shipped Vortex scripts before
-    // they were extracted into the 'drevops/vortex-tooling' Composer package.
-    // Consumer projects updated from older Vortex versions still have it.
-    $obsolete = [
-      'scripts/vortex',
-    ];
-
-    foreach ($obsolete as $relative) {
-      $path = $destination . '/' . $relative;
-      if (file_exists($path)) {
-        File::remove($path);
-      }
-    }
   }
 
   /**
