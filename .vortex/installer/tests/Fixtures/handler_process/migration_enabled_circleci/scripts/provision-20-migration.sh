@@ -31,6 +31,9 @@ DRUPAL_MIGRATION_SOURCE_DB_IMPORT="${DRUPAL_MIGRATION_SOURCE_DB_IMPORT:-${VORTEX
 # Table name to probe in the source database to verify it is not corrupted.
 DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE="${DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE:-categories}"
 
+# Disable the search server while migrations run. Set to 0 to keep indexing.
+DRUPAL_MIGRATION_SEARCH_DISABLE="${DRUPAL_MIGRATION_SEARCH_DISABLE:-1}"
+
 # Directory with database dump file.
 VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
 
@@ -67,6 +70,7 @@ note "Migration skip rollback: ${DRUPAL_MIGRATION_ROLLBACK_SKIP}"
 note "Migration update:        ${DRUPAL_MIGRATION_UPDATE}"
 note "Migration feedback:      ${DRUPAL_MIGRATION_FEEDBACK}"
 note "Source DB import:        ${DRUPAL_MIGRATION_SOURCE_DB_IMPORT}"
+note "Search disable:          ${DRUPAL_MIGRATION_SEARCH_DISABLE}"
 echo
 
 if [ "${DRUPAL_MIGRATION_SKIP}" = "1" ]; then
@@ -146,9 +150,11 @@ pass "Enabled migration modules."
 
 info "Starting migrations."
 
-task "Disabling Search API Solr server."
-drush search-api:server-disable solr || true
-pass "Disabled Search API Solr server."
+if [ "${DRUPAL_MIGRATION_SEARCH_DISABLE}" = "1" ]; then
+  task "Disabling Search API Solr server."
+  drush search-api:server-disable solr || true
+  pass "Disabled Search API Solr server."
+fi
 
 if [ "${DRUPAL_MIGRATION_ROLLBACK_SKIP}" = "1" ]; then
   note "Skipped rollback of all migrations."
@@ -168,10 +174,12 @@ run_migration ys_migrate_categories
 echo
 note "Finished migrations."
 
-task "Enabling Search API Solr server."
-drush search-api:server-enable solr || true
-drush search-api:enable-all || true
-pass "Enabled Search API Solr server."
+if [ "${DRUPAL_MIGRATION_SEARCH_DISABLE}" = "1" ]; then
+  task "Enabling Search API Solr server."
+  drush search-api:server-enable solr || true
+  drush search-api:enable-all || true
+  pass "Enabled Search API Solr server."
+fi
 
 drush migrate:status
 
