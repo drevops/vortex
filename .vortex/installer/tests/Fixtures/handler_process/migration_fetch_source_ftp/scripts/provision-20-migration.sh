@@ -105,56 +105,6 @@ run_migration() {
   pass "Migrated: ${migration_name}."
 }
 
-# Machine names of the indexes disabled for the duration of the migration.
-search_indexes=""
-
-disable_search_indexes() {
-  local query="print implode(' ', array_keys(\Drupal::entityTypeManager()->getStorage('search_api_index')->loadByProperties(['status' => TRUE])));"
-
-  # 'set -e' does not apply while the function runs as a condition, so a failed
-  # query would otherwise read as a site with no enabled indexes.
-  search_indexes="$(drush php:eval "${query}")" || return 1
-
-  [ -z "${search_indexes}" ] && return 0
-
-  task "Disabling search indexes."
-  for index in ${search_indexes}; do
-    drush search-api:disable "${index}" || return 1
-  done
-  pass "Disabled search indexes."
-}
-
-# Only the indexes disabled above are enabled again, so an index that was
-# already disabled before the migration stays that way.
-enable_search_indexes() {
-  [ -z "${search_indexes}" ] && return 0
-
-  local status=0
-
-  task "Enabling search indexes."
-  # Every index is attempted so that one failure does not strand the rest.
-  # 'set -e' does not apply while the function runs as a condition, so the
-  # failure is returned explicitly.
-  for index in ${search_indexes}; do
-    drush search-api:enable "${index}" || status=1
-  done
-
-  [ "${status}" = "1" ] && return 1
-
-  pass "Enabled search indexes."
-}
-
-# Preserves the exit status that triggered the restore, so a failed restore
-# reports itself without replacing the original failure.
-restore_search_indexes() {
-  local status="${?}"
-
-  trap - EXIT
-  enable_search_indexes || note "Failed to enable search indexes."
-
-  exit "${status}"
-}
-
 # Detect if existing migration source database is corrupted.
 if [ "${DRUPAL_MIGRATION_SOURCE_DB_IMPORT}" != "1" ]; then
   note "Source database import is set to be skipped. Checking existing database."
@@ -196,12 +146,8 @@ pass "Enabled migration modules."
 
 info "Starting migrations."
 
-# Indexing every migrated entity on save is discarded work: the search indexing
-# provision script rebuilds the index straight after this one.
-# Armed before the indexes are touched so that a disable failing part-way
-# through still restores the ones it already disabled.
-trap 'restore_search_indexes' EXIT
-disable_search_indexes || fail "Failed to disable search indexes."
+task "Disabling Search API Solr server."
+drush search-api:server-disable solr || true
 
 if [ "${DRUPAL_MIGRATION_ROLLBACK_SKIP}" = "1" ]; then
   note "Skipped rollback of all migrations."
@@ -221,8 +167,9 @@ run_migration ys_migrate_categories
 echo
 note "Finished migrations."
 
-trap - EXIT
-enable_search_indexes || fail "Failed to enable search indexes."
+task "Enabling Search API Solr server."
+drush search-api:server-enable solr || true
+drush search-api:enable-all || true
 
 drush migrate:status
 
