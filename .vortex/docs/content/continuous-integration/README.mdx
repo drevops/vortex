@@ -68,8 +68,10 @@ Security checks run in their own workflow, separate from the pipeline above, so 
 
 The workflow runs the same two checks in both providers, and needs neither the application containers nor installed dependencies:
 
-- [Gitleaks](/docs/tools/gitleaks) scans the codebase for committed secrets
 - `composer audit --locked` checks the packages pinned in `composer.lock` against published security advisories
+- [Gitleaks](/docs/tools/gitleaks) scans the codebase for committed secrets
+
+Every check runs even if an earlier one failed, so a single run reports all the findings at once. The workflow fails if any of the checks failed, unless that check's `_IGNORE_FAILURE` variable is set to `1`.
 
 It is triggered by the same pushes, pull requests and tags as the main pipeline, and can also be started on demand - in GitHub Actions from **Actions → Security audit → Run workflow**, and in CircleCI by re-running the `audit` workflow from the pipeline view.
 
