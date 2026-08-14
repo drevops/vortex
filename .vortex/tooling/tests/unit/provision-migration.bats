@@ -48,6 +48,7 @@ load ../_helper.bash
     "Migration skip:          0"
     "Migration limit:         50"
     "Source DB import:        1"
+    "Search disable:          1"
     "Importing migration source database."
     "Imported migration source database."
     "Verifying migration source database."
@@ -68,6 +69,52 @@ load ../_helper.bash
     "- Migration source database is corrupted."
     "- Rolling back all migrations."
     "- Migration source database file not found."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run ./scripts/provision-20-migration.sh
+  assert_success
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Provision migration: search server is left enabled when opted out" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  rm ./.env && touch ./.env
+
+  mkdir -p "./.data"
+  touch "./.data/db2.sql"
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
+  export DRUPAL_MIGRATION_SEARCH_DISABLE=0
+
+  declare -a STEPS=(
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
+
+    "@drush -y sql:drop --database=migrate"
+    "@drush -y sql:connect --database=migrate"
+    "@drush -y sql:query --database=migrate SELECT COUNT(*) FROM categories"
+    "@drush -y pm:install ys_migrate"
+
+    # No search server calls are made.
+    "@drush -y migrate:reset-status ys_migrate_categories"
+    "@drush -y migrate:import --feedback=50 --limit=50 ys_migrate_categories"
+    "@drush -y migrate:status"
+
+    "Search disable:          0"
+    "Running migration: ys_migrate_categories"
+    "Finished migration operations."
+
+    "- Disabling Search API Solr server."
+    "- Disabled Search API Solr server."
+    "- Enabling Search API Solr server."
+    "- Enabled Search API Solr server."
   )
 
   mocks="$(steps_run "setup")"

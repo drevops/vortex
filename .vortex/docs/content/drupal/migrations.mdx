@@ -115,6 +115,9 @@ the migrations and enables it again afterward, so migrated entities are not
 indexed one at a time. The `scripts/provision-30-search-index.sh` script rebuilds
 the index straight after.
 
+Set `DRUPAL_MIGRATION_SEARCH_DISABLE=0` to leave the search server running and
+index entities as they are migrated.
+
 ### Configuration variables
 
 | Variable | Default | Description |
@@ -126,6 +129,7 @@ the index straight after.
 | `DRUPAL_MIGRATION_FEEDBACK` | `50` | Progress feedback frequency |
 | `DRUPAL_MIGRATION_SOURCE_DB_IMPORT` | `$VORTEX_PROVISION_OVERRIDE_DB` | Import source database (`1` to import, `0` to skip) |
 | `DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE` | `categories` | Table name to probe for corruption detection |
+| `DRUPAL_MIGRATION_SEARCH_DISABLE` | `1` | Disable the Solr search server while migrations run (`0` to keep indexing) |
 
 ### Adding migrations
 
