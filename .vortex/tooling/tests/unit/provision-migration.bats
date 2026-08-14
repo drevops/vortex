@@ -32,9 +32,14 @@ load ../_helper.bash
     # Enable migration module.
     "@drush -y pm:install ys_migrate"
 
+    # Search server is disabled for the duration of the migration.
+    "@drush -y search-api:server-disable solr"
+
     # Migration: reset, import, status.
     "@drush -y migrate:reset-status ys_migrate_categories"
     "@drush -y migrate:import --feedback=50 --limit=50 ys_migrate_categories"
+    "@drush -y search-api:server-enable solr"
+    "@drush -y search-api:enable-all"
     "@drush -y migrate:status"
 
     # Expected output.
@@ -43,14 +48,19 @@ load ../_helper.bash
     "Migration skip:          0"
     "Migration limit:         50"
     "Source DB import:        1"
+    "Search disable:          1"
     "Importing migration source database."
     "Imported migration source database."
     "Verifying migration source database."
     "Enabling migration modules."
     "Starting migrations."
+    "Disabling Search API Solr server."
+    "Disabled Search API Solr server."
     "Skipped rollback of all migrations."
     "Running migration: ys_migrate_categories"
     "Finished migrations."
+    "Enabling Search API Solr server."
+    "Enabled Search API Solr server."
     "Finished migration operations."
 
     # Not expected.
@@ -59,6 +69,52 @@ load ../_helper.bash
     "- Migration source database is corrupted."
     "- Rolling back all migrations."
     "- Migration source database file not found."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run ./scripts/provision-20-migration.sh
+  assert_success
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Provision migration: search server is left enabled when opted out" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  rm ./.env && touch ./.env
+
+  mkdir -p "./.data"
+  touch "./.data/db2.sql"
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
+  export DRUPAL_MIGRATION_SEARCH_DISABLE=0
+
+  declare -a STEPS=(
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
+
+    "@drush -y sql:drop --database=migrate"
+    "@drush -y sql:connect --database=migrate"
+    "@drush -y sql:query --database=migrate SELECT COUNT(*) FROM categories"
+    "@drush -y pm:install ys_migrate"
+
+    # No search server calls are made.
+    "@drush -y migrate:reset-status ys_migrate_categories"
+    "@drush -y migrate:import --feedback=50 --limit=50 ys_migrate_categories"
+    "@drush -y migrate:status"
+
+    "Search disable:          0"
+    "Running migration: ys_migrate_categories"
+    "Finished migration operations."
+
+    "- Disabling Search API Solr server."
+    "- Disabled Search API Solr server."
+    "- Enabling Search API Solr server."
+    "- Enabled Search API Solr server."
   )
 
   mocks="$(steps_run "setup")"
@@ -155,9 +211,14 @@ load ../_helper.bash
     # Enable migration module.
     "@drush -y pm:install ys_migrate"
 
+    # Search server is disabled for the duration of the migration.
+    "@drush -y search-api:server-disable solr"
+
     # Migration.
     "@drush -y migrate:reset-status ys_migrate_categories"
     "@drush -y migrate:import --feedback=50 --limit=50 ys_migrate_categories"
+    "@drush -y search-api:server-enable solr"
+    "@drush -y search-api:enable-all"
     "@drush -y migrate:status"
 
     "Source database import is set to be skipped. Checking existing database."
@@ -207,9 +268,14 @@ load ../_helper.bash
     # Enable migration module.
     "@drush -y pm:install ys_migrate"
 
+    # Search server is disabled for the duration of the migration.
+    "@drush -y search-api:server-disable solr"
+
     # Migration.
     "@drush -y migrate:reset-status ys_migrate_categories"
     "@drush -y migrate:import --feedback=50 --limit=50 ys_migrate_categories"
+    "@drush -y search-api:server-enable solr"
+    "@drush -y search-api:enable-all"
     "@drush -y migrate:status"
 
     "Source database import is set to be skipped. Checking existing database."
@@ -329,12 +395,17 @@ load ../_helper.bash
     "@drush -y sql:query --database=migrate SELECT COUNT(*) FROM categories"
     "@drush -y pm:install ys_migrate"
 
+    # Search server is disabled before the rollback, which also writes entities.
+    "@drush -y search-api:server-disable solr"
+
     # Rollback.
     "@drush -y migrate:rollback --all"
 
     # Migration.
     "@drush -y migrate:reset-status ys_migrate_categories"
     "@drush -y migrate:import --feedback=50 --limit=50 ys_migrate_categories"
+    "@drush -y search-api:server-enable solr"
+    "@drush -y search-api:enable-all"
     "@drush -y migrate:status"
 
     "Rolling back all migrations."

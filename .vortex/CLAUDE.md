@@ -78,6 +78,22 @@ note() { printf "      %s\n" "${1}"; }
 # Main execution
 ```
 
+**Output helpers** - every `task` MUST be closed by a `pass` or a `fail`. A
+task announces work that is starting, so it always reports its outcome; a `task`
+with no closing line leaves the reader unable to tell whether the step
+succeeded. This holds even when the work itself cannot fail (e.g. a command
+suffixed with `|| true`) - close it with `pass`.
+
+Use the other helpers for what they are: `info` for the banners that open and
+close an operation, `note` for a standalone remark that starts no task, and
+`fail` to abort.
+
+```bash
+task "Disabling Search API Solr server."
+drush search-api:server-disable solr || true
+pass "Disabled Search API Solr server."
+```
+
 **Publishing**: the version is injected at publish time - never hardcode
 `version` in the package `composer.json`. The path repository in the template's
 root `composer.json` declares `"versions": {"drevops/vortex-tooling": "1.3.0"}`
