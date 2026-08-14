@@ -27,8 +27,8 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
 
           // Token-controlled content preserved in files.
-          $test->assertFileContainsString(static::$sut . '/scripts/provision-20-migration.sh', 'search-api:disable-all');
-          $test->assertFileContainsString(static::$sut . '/scripts/provision-20-migration.sh', 'search-api:enable-all');
+          $test->assertFileContainsString(static::$sut . '/scripts/provision-20-migration.sh', 'search-api:disable');
+          $test->assertFileContainsString(static::$sut . '/scripts/provision-20-migration.sh', 'search-api:enable');
           $test->assertFileContainsString(static::$sut . '/docker-compose.yml', 'database2');
           $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'fetch-db2');
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE');
