@@ -45,6 +45,12 @@ class Page extends GeneratedContentPluginBase {
         'title' => sprintf('Demo page %s %s', $i, $this->helper::staticName()),
         'status' => 1,
       ]);
+
+      $node->set('body', [
+        'value' => $this->helper::staticRichText(3),
+        'format' => 'full_html',
+      ]);
+
       $node->save();
 
       $entities[] = $node;
