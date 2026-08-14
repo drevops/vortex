@@ -26,11 +26,21 @@ class FileManager {
   protected array $templatePaths = [];
 
   /**
-   * Paths shipped by the version the project currently runs.
-   *
-   * @var array<string>
+   * Name of the file recording what the installer wrote into the project.
    */
-  protected array $previousTemplatePaths = [];
+  const MANIFEST_FILE = '.vortex-manifest.json';
+
+  /**
+   * Algorithm used to detect project edits to shipped files.
+   */
+  const HASH_ALGO = 'sha256';
+
+  /**
+   * Content hashes shipped by the version the project currently runs.
+   *
+   * @var array<string, string>
+   */
+  protected array $previousTemplateHashes = [];
 
   public function __construct(
     protected Config $config,
@@ -90,10 +100,10 @@ class FileManager {
       File::remove($dir);
       File::mkdir($dir);
       $downloader->download(Artifact::create($artifact->getRepo(), $ref), $dir);
-      $this->previousTemplatePaths = $this->relativePaths($dir);
+      $this->previousTemplateHashes = $this->hashDirectory($dir);
     }
     catch (\Exception) {
-      $this->previousTemplatePaths = [];
+      $this->previousTemplateHashes = [];
     }
     finally {
       File::remove($dir);
@@ -135,11 +145,17 @@ class FileManager {
     $src = $this->config->get(Config::TMP);
     $destination = $this->config->getDestination();
 
-    // Anything either version of the template ships but the staged copy no
-    // longer holds is a path this install does not own: dropped by the
-    // selection when the incoming version still ships it, dropped by the
-    // template itself when only the project's own version did.
-    $shipped = array_merge($this->previousTemplatePaths, $this->templatePaths);
+    // What the project should hold for a path this install no longer ships.
+    // The manifest is authoritative because it records the processed content
+    // that was actually written; the previous version's own files stand in for
+    // projects installed before manifests existed, and match only where the
+    // installer copied the file through unchanged.
+    $expected = $this->previousTemplateHashes;
+    $expected = $this->readManifest() + $expected;
+
+    // Anything either version of the template ships, or the last install
+    // wrote, but the staged copy no longer holds.
+    $shipped = array_merge(array_keys($expected), $this->templatePaths);
     $excluded = array_diff($shipped, $this->relativePaths($src));
 
     // Symlink ordering prevents copying files one-by-one into the destination
@@ -179,23 +195,27 @@ class FileManager {
       File::copy($destination . '/.env.local.example', $destination . '/.env.local');
     }
 
-    $this->removeExcludedPaths($excluded);
+    $this->removeExcludedPaths($excluded, $expected);
     $this->removeObsoletePaths();
+    $this->writeManifest($src);
   }
 
   /**
-   * Remove paths excluded by the current selection from the destination.
+   * Remove paths the install no longer ships from the destination.
    *
    * The staged copy is overlaid onto the destination without a delete pass, so
-   * a path the selection drops would otherwise survive from a previous
-   * install and keep being detected as an active feature. Only projects
-   * already running Vortex are pruned: in any other destination a matching
-   * path belongs to that project rather than to a previous install.
+   * a path this install drops would otherwise survive and keep being detected
+   * as an active feature. A path is only removed when the project's copy still
+   * matches what the template put there: a project that edited the file owns
+   * it, and an edit that cannot be ruled out is treated as one. Only projects
+   * already running Vortex are pruned at all.
    *
    * @param array<string> $paths
    *   Template-relative paths absent from the staged copy.
+   * @param array<string, string> $expected
+   *   Content hashes the template last wrote, keyed by path.
    */
-  protected function removeExcludedPaths(array $paths): void {
+  protected function removeExcludedPaths(array $paths, array $expected): void {
     if (!$this->config->isVortexProject()) {
       return;
     }
@@ -212,9 +232,17 @@ class FileManager {
 
       $target = $destination . '/' . $path;
 
-      if (File::exists($target)) {
-        File::remove($target);
+      if (!is_file($target)) {
+        continue;
       }
+
+      // Without a recorded hash there is nothing to compare the project's copy
+      // against, so ownership cannot be established.
+      if (!isset($expected[$path]) || hash_file(self::HASH_ALGO, $target) !== $expected[$path]) {
+        continue;
+      }
+
+      File::remove($target);
 
       for ($dir = dirname($path); $dir !== '.'; $dir = dirname($dir)) {
         $dirs[$dir] = substr_count($dir, '/');
@@ -227,6 +255,73 @@ class FileManager {
     foreach (array_keys($dirs) as $dir) {
       File::rmdirIfEmpty($destination . '/' . $dir);
     }
+  }
+
+  /**
+   * Record what this install wrote, so the next one can detect project edits.
+   *
+   * The staged copy at this point holds exactly the processed content that was
+   * copied into the destination, which is what a later run has to compare the
+   * project's files against.
+   *
+   * @param string $src
+   *   The staged template directory.
+   */
+  protected function writeManifest(string $src): void {
+    $hashes = $this->hashDirectory($src);
+
+    if ($hashes === []) {
+      return;
+    }
+
+    ksort($hashes);
+
+    File::dump($this->config->getDestination() . '/' . self::MANIFEST_FILE, json_encode($hashes, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
+  }
+
+  /**
+   * Read the hashes recorded by the previous install.
+   *
+   * @return array<string, string>
+   *   Content hashes keyed by path, empty when the project has no manifest.
+   */
+  protected function readManifest(): array {
+    $file = $this->config->getDestination() . '/' . self::MANIFEST_FILE;
+
+    if (!is_file($file)) {
+      return [];
+    }
+
+    $data = json_decode((string) file_get_contents($file), TRUE);
+
+    if (!is_array($data)) {
+      return [];
+    }
+
+    return array_filter($data, fn(mixed $hash, mixed $path): bool => is_string($path) && is_string($hash), ARRAY_FILTER_USE_BOTH);
+  }
+
+  /**
+   * Hash every file within a directory, keyed by its relative path.
+   *
+   * @param string $directory
+   *   Directory to scan.
+   *
+   * @return array<string, string>
+   *   Content hashes keyed by relative path.
+   */
+  protected function hashDirectory(string $directory): array {
+    $hashes = [];
+
+    foreach ($this->relativePaths($directory) as $path) {
+      $file = $directory . '/' . $path;
+
+      if (is_file($file)) {
+        $hashes[$path] = (string) hash_file(self::HASH_ALGO, $file);
+      }
+    }
+
+    return $hashes;
   }
 
   /**

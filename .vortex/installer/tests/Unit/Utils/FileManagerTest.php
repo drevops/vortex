@@ -161,7 +161,7 @@ class FileManagerTest extends UnitTestCase {
     $this->addToAssertionCount(1);
   }
 
-  public function testCopyFilesRemovesExcludedTemplatePaths(): void {
+  public function testCopyFilesRemovesUnmodifiedExcludedPaths(): void {
     $src = self::$sut . '/src_excluded';
     $destination = self::$sut . '/dst_excluded';
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
@@ -171,21 +171,89 @@ class FileManagerTest extends UnitTestCase {
     $config = new Config('/tmp/root', $destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
-    $fm->snapshotTemplate();
 
-    // A previous install placed both in the destination; the current selection
-    // drops them, so the handlers strip them from the staged copy.
+    // A previous install wrote both, unmodified since.
     file_put_contents(File::mkdir($destination) . '/phpstan.neon', 'parameters: []');
     file_put_contents(File::mkdir($destination . '/.circleci') . '/config.yml', 'version: 2.1');
+    $this->stubManifest($destination, [
+      'phpstan.neon' => 'parameters: []',
+      '.circleci/config.yml' => 'version: 2.1',
+    ]);
+
+    $fm->snapshotTemplate();
+
+    // The current selection drops them from the staged copy.
     File::remove($src . '/phpstan.neon');
     File::remove($src . '/.circleci');
 
     $fm->copyFiles();
 
-    $this->assertFileDoesNotExist($destination . '/phpstan.neon', 'Excluded template file removed from the destination.');
-    $this->assertFileDoesNotExist($destination . '/.circleci/config.yml', 'Excluded template directory contents removed.');
+    $this->assertFileDoesNotExist($destination . '/phpstan.neon', 'Unmodified excluded file removed from the destination.');
+    $this->assertFileDoesNotExist($destination . '/.circleci/config.yml', 'Unmodified excluded directory contents removed.');
     $this->assertDirectoryDoesNotExist($destination . '/.circleci', 'Directory emptied by the removal is pruned.');
     $this->assertFileExists($destination . '/composer.json', 'Shipped files still copied.');
+  }
+
+  public function testCopyFilesKeepsModifiedExcludedPaths(): void {
+    $src = self::$sut . '/src_modified';
+    $destination = self::$sut . '/dst_modified';
+    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+    file_put_contents($src . '/phpstan.neon', 'parameters: []');
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $fm = new FileManager($config);
+
+    // The project edited the file after the previous install wrote it.
+    file_put_contents(File::mkdir($destination) . '/phpstan.neon', "parameters:\n  level: 8");
+    $this->stubManifest($destination, ['phpstan.neon' => 'parameters: []']);
+
+    $fm->snapshotTemplate();
+    File::remove($src . '/phpstan.neon');
+
+    $fm->copyFiles();
+
+    $this->assertFileExists($destination . '/phpstan.neon', 'A file the project edited is never removed.');
+    $this->assertStringEqualsFile($destination . '/phpstan.neon', "parameters:\n  level: 8", 'The project edit is left untouched.');
+  }
+
+  public function testCopyFilesKeepsExcludedPathsWithoutRecordedHash(): void {
+    $src = self::$sut . '/src_unverifiable';
+    $destination = self::$sut . '/dst_unverifiable';
+    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+    file_put_contents($src . '/phpstan.neon', 'parameters: []');
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $fm = new FileManager($config);
+    $fm->snapshotTemplate();
+
+    // No manifest and no previous version, so ownership cannot be established.
+    file_put_contents(File::mkdir($destination) . '/phpstan.neon', 'parameters: []');
+    File::remove($src . '/phpstan.neon');
+
+    $fm->copyFiles();
+
+    $this->assertFileExists($destination . '/phpstan.neon', 'Without a recorded hash the file is left alone.');
+  }
+
+  public function testCopyFilesWritesTheManifest(): void {
+    $src = self::$sut . '/src_manifest';
+    $destination = self::$sut . '/dst_manifest';
+    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+    file_put_contents(File::mkdir($src . '/scripts') . '/provision.sh', 'echo 1');
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $fm = new FileManager($config);
+    $fm->snapshotTemplate();
+
+    $fm->copyFiles();
+
+    $manifest = json_decode((string) file_get_contents($destination . '/' . FileManager::MANIFEST_FILE), TRUE);
+
+    $this->assertIsArray($manifest);
+    $this->assertArrayHasKey('scripts/provision.sh', $manifest, 'Manifest records every shipped path.');
+    $this->assertEquals(hash('sha256', 'echo 1'), $manifest['scripts/provision.sh'], 'Manifest records the content that was written.');
   }
 
   public function testCopyFilesKeepsPathsTheTemplateNeverShipped(): void {
@@ -278,6 +346,20 @@ class FileManagerTest extends UnitTestCase {
     $fm->removeObsoletePaths();
 
     $this->addToAssertionCount(1);
+  }
+
+  /**
+   * Write a manifest recording what a previous install wrote.
+   *
+   * @param string $destination
+   *   The project directory.
+   * @param array<string, string> $files
+   *   Content the previous install wrote, keyed by relative path.
+   */
+  protected function stubManifest(string $destination, array $files): void {
+    $hashes = array_map(fn(string $contents): string => hash('sha256', $contents), $files);
+
+    File::dump($destination . '/' . FileManager::MANIFEST_FILE, (string) json_encode($hashes, JSON_PRETTY_PRINT));
   }
 
   /**

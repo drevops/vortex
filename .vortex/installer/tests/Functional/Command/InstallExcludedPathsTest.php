@@ -27,9 +27,14 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
   const PROMPTS_WITHOUT_TEST_TOOLS = '{"tools":["behat","dclint","eslint","hadolint","phpcs","rector","stylelint","twig_cs_fixer"]}';
 
   #[DataProvider('dataProviderExcludedPaths')]
-  public function testExcludedPaths(bool $is_vortex_project, array $existing, string $prompts, array $absent, array $present): void {
+  public function testExcludedPaths(bool $is_vortex_project, array $existing, array $recorded, string $prompts, array $absent, array $present): void {
     foreach ($existing as $path => $contents) {
       File::dump(static::$sut . '/' . $path, $contents);
+    }
+
+    if ($recorded !== []) {
+      $hashes = array_map(fn(string $contents): string => hash('sha256', $contents), $recorded);
+      File::dump(static::$sut . '/' . FileManager::MANIFEST_FILE, (string) json_encode($hashes, JSON_PRETTY_PRINT));
     }
 
     if ($is_vortex_project) {
@@ -52,24 +57,23 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
   }
 
   public static function dataProviderExcludedPaths(): \Iterator {
-    yield 'excluded tool paths removed from an existing project' => [
+    $shipped = [
+      'phpstan.neon' => 'parameters: []',
+      'phpunit.xml' => '<phpunit/>',
+      'jest.config.js' => 'module.exports = {};',
+      'tests/phpunit/bootstrap.php' => '<?php // Shipped.',
+    ];
+
+    yield 'unmodified excluded paths removed' => [
       TRUE,
-      [
-        'jest.config.js' => 'module.exports = {};',
-        'phpstan.neon' => 'parameters: []',
-        'phpunit.xml' => '<phpunit/>',
-        'tests/phpunit/bootstrap.php' => '<?php',
-        'tests/phpunit/Drupal/DatabaseSettingsTest.php' => '<?php',
-      ],
+      $shipped,
+      $shipped,
       self::PROMPTS_WITHOUT_TEST_TOOLS,
       [
-        'jest.config.js',
         'phpstan.neon',
         'phpunit.xml',
+        'jest.config.js',
         'tests/phpunit/bootstrap.php',
-        'tests/phpunit/Drupal/DatabaseSettingsTest.php',
-        // Emptied by the removal of every path the template shipped into it.
-        'tests/phpunit/Drupal',
       ],
       [
         // A tool that stayed selected keeps its shipped configuration.
@@ -77,49 +81,57 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
         'behat.yml' => NULL,
       ],
     ];
-    yield 'project-authored paths inside an excluded directory are kept' => [
+    yield 'modified excluded paths kept with their contents' => [
       TRUE,
       [
+        'phpstan.neon' => "parameters:\n  level: 8",
         'phpunit.xml' => '<phpunit/>',
-        'tests/phpunit/bootstrap.php' => '<?php',
-        'tests/phpunit/MyProjectTest.php' => '<?php // Project owned.',
       ],
+      $shipped,
       self::PROMPTS_WITHOUT_TEST_TOOLS,
       [
+        // Unmodified, so still removed.
         'phpunit.xml',
-        'tests/phpunit/bootstrap.php',
       ],
       [
-        // Removal is path-level, so a file the template never shipped stays
-        // even when its directory is otherwise emptied.
-        'tests/phpunit/MyProjectTest.php' => '<?php // Project owned.',
+        'phpstan.neon' => "parameters:\n  level: 8",
       ],
     ];
-    yield 'project-authored paths kept in an existing project' => [
+    yield 'excluded paths kept when nothing was recorded' => [
+      TRUE,
+      $shipped,
+      [],
+      self::PROMPTS_WITHOUT_TEST_TOOLS,
+      [],
+      [
+        'phpstan.neon' => 'parameters: []',
+        'jest.config.js' => 'module.exports = {};',
+      ],
+    ];
+    yield 'project-authored paths kept' => [
       TRUE,
       [
-        'jest.config.js' => 'module.exports = {};',
         'custom-notes.md' => 'Project notes.',
+        'scripts/custom-deploy.sh' => 'echo deploy',
         'web/modules/custom/mymodule/mymodule.info.yml' => 'name: My module',
         'web/modules/custom/mymodule/js/mymodule.test.js' => "test('kept', () => {});",
       ],
+      $shipped,
       self::PROMPTS_WITHOUT_TEST_TOOLS,
-      [
-        'jest.config.js',
-      ],
+      [],
       [
         // Never shipped by the template, so never a candidate for removal.
         'custom-notes.md' => 'Project notes.',
+        'scripts/custom-deploy.sh' => 'echo deploy',
         'web/modules/custom/mymodule/mymodule.info.yml' => 'name: My module',
         // Matched only by a glob over project content, not by a shipped path.
         'web/modules/custom/mymodule/js/mymodule.test.js' => "test('kept', () => {});",
       ],
     ];
-    yield 'harness paths kept in an existing project' => [
+    yield 'harness paths kept' => [
       TRUE,
-      [
-        '.vortex/CLAUDE.md' => 'Project owned.',
-      ],
+      ['.vortex/CLAUDE.md' => 'Project owned.'],
+      ['.vortex/CLAUDE.md' => 'Project owned.'],
       self::PROMPTS_WITHOUT_TEST_TOOLS,
       [],
       [
@@ -129,15 +141,13 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
     ];
     yield 'nothing removed from a destination that is not a Vortex project' => [
       FALSE,
-      [
-        'jest.config.js' => 'module.exports = {};',
-        'phpstan.neon' => 'parameters: []',
-      ],
+      $shipped,
+      $shipped,
       self::PROMPTS_WITHOUT_TEST_TOOLS,
       [],
       [
-        'jest.config.js' => 'module.exports = {};',
         'phpstan.neon' => 'parameters: []',
+        'jest.config.js' => 'module.exports = {};',
       ],
     ];
   }
