@@ -105,6 +105,13 @@ run_migration() {
   pass "Migrated: ${migration_name}."
 }
 
+enable_search_indexes() {
+  task "Enabling search indexes."
+  # A failure here must not mask the failure that triggered the restore.
+  drush search-api:enable-all || true
+  pass "Enabled search indexes."
+}
+
 # Detect if existing migration source database is corrupted.
 if [ "${DRUPAL_MIGRATION_SOURCE_DB_IMPORT}" != "1" ]; then
   note "Source database import is set to be skipped. Checking existing database."
@@ -146,6 +153,14 @@ pass "Enabled migration modules."
 
 info "Starting migrations."
 
+# Indexing every migrated entity on save is discarded work: the search indexing
+# provision script rebuilds the index straight after this one.
+task "Disabling search indexes."
+drush search-api:disable-all
+pass "Disabled search indexes."
+# Restore the indexes even when a migration fails part-way through.
+trap 'enable_search_indexes' EXIT
+
 if [ "${DRUPAL_MIGRATION_ROLLBACK_SKIP}" = "1" ]; then
   note "Skipped rollback of all migrations."
 else
@@ -163,6 +178,9 @@ run_migration ys_migrate_categories
 
 echo
 note "Finished migrations."
+
+trap - EXIT
+enable_search_indexes
 
 drush migrate:status
 
