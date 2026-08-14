@@ -149,6 +149,7 @@ info "Starting migrations."
 #;< SERVICE_SOLR
 task "Disabling Search API Solr server."
 drush search-api:server-disable solr || true
+pass "Disabled Search API Solr server."
 #;> SERVICE_SOLR
 
 if [ "${DRUPAL_MIGRATION_ROLLBACK_SKIP}" = "1" ]; then
@@ -173,6 +174,7 @@ note "Finished migrations."
 task "Enabling Search API Solr server."
 drush search-api:server-enable solr || true
 drush search-api:enable-all || true
+pass "Enabled Search API Solr server."
 #;> SERVICE_SOLR
 
 drush migrate:status

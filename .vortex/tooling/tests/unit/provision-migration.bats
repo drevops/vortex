@@ -54,10 +54,12 @@ load ../_helper.bash
     "Enabling migration modules."
     "Starting migrations."
     "Disabling Search API Solr server."
+    "Disabled Search API Solr server."
     "Skipped rollback of all migrations."
     "Running migration: ys_migrate_categories"
     "Finished migrations."
     "Enabling Search API Solr server."
+    "Enabled Search API Solr server."
     "Finished migration operations."
 
     # Not expected.
