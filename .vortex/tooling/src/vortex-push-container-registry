@@ -102,9 +102,13 @@ for key in "${!services[@]}"; do
   iid=$(docker commit "${cid}" "${new_image}")
   iid="${iid#sha256:}"
   note "Committed container image with id \"${iid}\"."
+  pass "Committed container image with name \"${new_image}\"."
 
   task "Pushing container image to the registry."
   docker push "${new_image}"
+  pass "Pushed container image to the registry."
+
+  pass "Processed service ${service}."
 done
 
 pass "Finished container registry push."

@@ -148,6 +148,7 @@ task "Extracting issue."
 issue="$(extract_issue "${VORTEX_NOTIFY_JIRA_BRANCH}")"
 [ -z "${issue}" ] && pass "Branch ${VORTEX_NOTIFY_JIRA_BRANCH} does not contain issue number." && exit 0
 note "Found issue ${issue}."
+pass "Extracted issue ${issue}."
 
 task "Creating API token."
 base64_opts=() && [ "$(uname)" != "Darwin" ] && base64_opts=(-w 0)
@@ -165,6 +166,7 @@ account_id="$(echo "${payload}" | extract_json_value "accountId" || echo "error"
 
 [ "${#account_id}" -lt 24 ] && echo "${payload}" && fail "Unable to authenticate."
 echo "success"
+pass "Created API token."
 
 task "Posting a comment."
 

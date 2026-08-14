@@ -93,6 +93,8 @@ if [ -f "${archive_file}" ]; then
   else
     note "Not found expanded ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
   fi
+
+  pass "Expanded archived database container image file ${archive_file}."
 fi
 
 # An expanded archive always wins over the image on the host, so the host image
@@ -123,6 +125,7 @@ if [ "${should_fetch}" -eq 1 ]; then
   "$(dirname "${BASH_SOURCE[0]}")/vortex-login-container-registry"
 
   docker pull "${VORTEX_FETCH_DB_CONTAINER_REGISTRY}/${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}"
+  pass "Fetched ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
 fi
 
 pass "Finished database data container image fetch."

@@ -84,16 +84,19 @@ task "Retrieving authentication token."
 token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
 token=$(echo "${token_json}" | extract_json_value "access_token")
 [ -z "${token}" ] && fail "Unable to retrieve a token."
+pass "Retrieved authentication token."
 
 task "Retrieving ${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME} application UUID."
 app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME/ /%20}")
 app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
 [ -z "${app_uuid}" ] && fail "Unable to retrieve an application UUID."
+pass "Retrieved ${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME} application UUID."
 
 task "Retrieving environment ID."
 envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV}")
 ENV_ID=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
 [ -z "${ENV_ID}" ] && fail "Unable to retrieve environment ID."
+pass "Retrieved environment ID."
 
 task "Compiling a list of domains."
 
@@ -127,6 +130,8 @@ while read -r domain; do
   fi
 done <"${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}"
 
+pass "Compiled a list of ${#domain_list[@]} domains."
+
 if [ "${#domain_list[@]}" -gt 0 ]; then
   # Acquia API stops clearing purging caches if at least 1 domain fails, so
   # we are clearing caches for every domain separately and not failing if
@@ -140,6 +145,7 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
     # non-existing domains without a failure.
     if [ -z "${notification_url}" ]; then
       note "Warning: Unable to purge cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain} as it does not exist."
+      pass "Completed cache purging for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
       break
     fi
 
@@ -161,12 +167,17 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
       token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
       token=$(echo "${token_json}" | extract_json_value "access_token")
       [ -z "${token}" ] && fail "Unable to retrieve a token."
+      pass "Retrieved authentication token."
     done
     echo
 
     if [ "${task_completed}" = "0" ]; then
       note "Warning: Unable to purge cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
     fi
+
+    # A domain that could not be purged is reported as a warning and does not
+    # stop the remaining domains, so the step is closed either way.
+    pass "Completed cache purging for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
   done
 else
   note "Unable to find domains to purge cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment."

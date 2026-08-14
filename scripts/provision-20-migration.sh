@@ -122,6 +122,7 @@ if [ "${DRUPAL_MIGRATION_SOURCE_DB_IMPORT}" != "1" ]; then
   else
     note "Migration source database is corrupted or empty. Re-importing."
     DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
+    pass "Marked the source database for re-import."
   fi
 fi
 

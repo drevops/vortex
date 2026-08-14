@@ -116,6 +116,7 @@ fi
 if [ ! -d "${VORTEX_FETCH_DB_LAGOON_DB_DIR}" ]; then
   task "Creating directory for database dumps."
   mkdir -p "${VORTEX_FETCH_DB_LAGOON_DB_DIR}"
+  pass "Created directory for database dumps."
 fi
 
 if [ "${VORTEX_FETCH_DB_FRESH}" = "1" ]; then
@@ -140,10 +141,12 @@ ssh \
    else \
      echo \"      > Using existing dump ${VORTEX_FETCH_DB_LAGOON_REMOTE_DIR}/${VORTEX_FETCH_DB_LAGOON_REMOTE_FILE}.\"; \
    fi"
+pass "Discovered or created a database dump on Lagoon."
 
 task "Fetching a database dump."
 ssh_opts_string="${ssh_opts[@]}"
 rsync_opts=(-e "ssh ${ssh_opts_string}")
 rsync "${rsync_opts[@]}" "${VORTEX_FETCH_DB_LAGOON_SSH_USER}@${VORTEX_FETCH_DB_LAGOON_SSH_HOST}":"${VORTEX_FETCH_DB_LAGOON_REMOTE_DIR}"/"${VORTEX_FETCH_DB_LAGOON_REMOTE_FILE}" "${VORTEX_FETCH_DB_LAGOON_DB_DIR}/${VORTEX_FETCH_DB_LAGOON_DB_FILE}"
+pass "Fetched a database dump."
 
 pass "Finished database dump fetch from Lagoon."

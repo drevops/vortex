@@ -91,8 +91,8 @@ for cmd in curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is no
 [ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL."
 
 # Configure global git settings, if they do not exist.
-[ -z "$(git config --global user.name)" ] && task "Configuring global git user name." && git config --global user.name "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}"
-[ -z "$(git config --global user.email)" ] && task "Configuring global git user email." && git config --global user.email "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}"
+[ -z "$(git config --global user.name)" ] && task "Configuring global git user name." && git config --global user.name "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME}" && pass "Configured global git user name."
+[ -z "$(git config --global user.email)" ] && task "Configuring global git user email." && git config --global user.email "${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL}" && pass "Configured global git user email."
 
 export VORTEX_SSH_PREFIX="DEPLOY_ARTIFACT"
 . "$(dirname "${BASH_SOURCE[0]}")/vortex-setup-ssh"
@@ -103,6 +103,7 @@ if ! echo "${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256}  ${TMPDIR:-/tmp}/git-ar
   fail "SHA256 checksum verification failed for git-artifact binary."
 fi
 chmod +x "${TMPDIR:-/tmp}"/git-artifact
+pass "Installed artifact builder."
 
 # Try resolving absolute paths.
 if command -v realpath >/dev/null 2>&1; then
@@ -117,8 +118,11 @@ fi
 
 task "Copying git repo files meta file to the deploy code repo."
 cp -a "${VORTEX_DEPLOY_ARTIFACT_ROOT}"/.git "${VORTEX_DEPLOY_ARTIFACT_SRC}" || true
+pass "Copied git repo files meta file to the deploy code repo."
+
 task "Copying deployment .gitignore as it may not exist in deploy code source files."
 cp -a "${VORTEX_DEPLOY_ARTIFACT_ROOT}"/.gitignore.artifact "${VORTEX_DEPLOY_ARTIFACT_SRC}" || true
+pass "Copied deployment .gitignore."
 
 task "Running artifact builder."
 artifact_args=(

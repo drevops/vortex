@@ -62,6 +62,7 @@ elif [ -n "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" ] && [ -n "${VORTEX_LOGIN_CO
     set +x
     echo "${VORTEX_LOGIN_CONTAINER_REGISTRY_PASS}"
   ) | docker login --username "${VORTEX_LOGIN_CONTAINER_REGISTRY_USER}" --password-stdin "${VORTEX_LOGIN_CONTAINER_REGISTRY}"
+  pass "Logged in to registry \"${VORTEX_LOGIN_CONTAINER_REGISTRY}\"."
 else
   note "Skipped login to the container registry as either VORTEX_LOGIN_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER or VORTEX_LOGIN_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS was not provided."
 fi

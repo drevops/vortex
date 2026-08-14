@@ -45,7 +45,7 @@ if [ -x ./vendor/bin/dr ]; then
   ./vendor/bin/dr recipe "$(pwd)/recipes/page" --no-interaction
   pass "Created the content model."
 else
-  note "Skipped creating the content model: Drupal CLI is not available."
+  pass "Skipped creating the content model: Drupal CLI is not available."
 fi
 #;> CONTENT_MODEL
 

@@ -261,6 +261,9 @@ else
 
       task "Redeploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
       run_lagoon_deploy deploy pullrequest --number "${VORTEX_DEPLOY_LAGOON_PR}" --base-branch-name "${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_LAGOON_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_LAGOON_PR_HEAD}" --title "${deploy_pr_full}"
+      # A failed deploy is reported by the final status line, after the override
+      # flag has been returned to the state it was found in.
+      [ "${exit_code}" = "0" ] && pass "Requested redeployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
 
       # Lagoon reads the flag when it queues the build.
       task "Waiting for deployment to be queued."
@@ -282,6 +285,7 @@ else
       # If PR deployments are not configured in Lagoon - it will filter it out and will not deploy.
       task "Deploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
       run_lagoon_deploy deploy pullrequest --number "${VORTEX_DEPLOY_LAGOON_PR}" --base-branch-name "${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_LAGOON_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_LAGOON_PR_HEAD}" --title "${deploy_pr_full}"
+      [ "${exit_code}" = "0" ] && pass "Requested deployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
     fi
 
   # Deploy branch.
@@ -358,6 +362,9 @@ else
 
       task "Redeploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
       run_lagoon_deploy deploy latest --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}"
+      # A failed deploy is reported by the final status line, after the override
+      # flag has been returned to the state it was found in.
+      [ "${exit_code}" = "0" ] && pass "Requested redeployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
 
       # Lagoon reads the flag when it queues the build.
       task "Waiting for deployment to be queued."
@@ -379,6 +386,7 @@ else
       # If current branch deployments does not match a regex in Lagoon - it will filter it out and will not deploy.
       task "Deploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
       run_lagoon_deploy deploy branch --branch "${VORTEX_DEPLOY_LAGOON_BRANCH}"
+      [ "${exit_code}" = "0" ] && pass "Requested deployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
     fi
   fi
 fi
