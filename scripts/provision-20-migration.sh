@@ -108,7 +108,9 @@ run_migration() {
 #;< SERVICE_SOLR
 enable_search_indexes() {
   task "Enabling search indexes."
-  drush search-api:enable-all
+  # 'set -e' does not apply while the function runs as a condition, so the
+  # failure is returned explicitly.
+  drush search-api:enable-all || return 1
   pass "Enabled search indexes."
 }
 
