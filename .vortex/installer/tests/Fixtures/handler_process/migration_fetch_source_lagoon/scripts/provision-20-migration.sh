@@ -105,11 +105,32 @@ run_migration() {
   pass "Migrated: ${migration_name}."
 }
 
+# Machine names of the indexes disabled for the duration of the migration.
+search_indexes=""
+
+disable_search_indexes() {
+  search_indexes="$(drush php:eval "print implode(' ', array_keys(\Drupal::entityTypeManager()->getStorage('search_api_index')->loadByProperties(['status' => TRUE])));")"
+
+  [ -z "${search_indexes}" ] && return 0
+
+  task "Disabling search indexes."
+  for index in ${search_indexes}; do
+    drush search-api:disable "${index}" || return 1
+  done
+  pass "Disabled search indexes."
+}
+
+# Only the indexes disabled above are enabled again, so an index that was
+# already disabled before the migration stays that way.
 enable_search_indexes() {
+  [ -z "${search_indexes}" ] && return 0
+
   task "Enabling search indexes."
   # 'set -e' does not apply while the function runs as a condition, so the
   # failure is returned explicitly.
-  drush search-api:enable-all || return 1
+  for index in ${search_indexes}; do
+    drush search-api:enable "${index}" || return 1
+  done
   pass "Enabled search indexes."
 }
 
@@ -167,9 +188,7 @@ info "Starting migrations."
 
 # Indexing every migrated entity on save is discarded work: the search indexing
 # provision script rebuilds the index straight after this one.
-task "Disabling search indexes."
-drush search-api:disable-all
-pass "Disabled search indexes."
+disable_search_indexes || fail "Failed to disable search indexes."
 # Restore the indexes even when a migration fails part-way through.
 trap 'restore_search_indexes' EXIT
 
