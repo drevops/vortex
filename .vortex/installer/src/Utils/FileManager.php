@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Utils;
 
+use DrevOps\VortexInstaller\Downloader\Artifact;
 use DrevOps\VortexInstaller\Downloader\Downloader;
+use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 
 /**
  * File operations for the installation process.
@@ -23,9 +25,26 @@ class FileManager {
    */
   protected array $templatePaths = [];
 
+  /**
+   * Paths shipped by the version the project currently runs.
+   *
+   * @var array<string>
+   */
+  protected array $previousTemplatePaths = [];
+
   public function __construct(
     protected Config $config,
   ) {}
+
+  /**
+   * Empty the staging directory the template is downloaded into.
+   */
+  public function resetStaging(): void {
+    $dir = $this->config->get(Config::TMP);
+
+    File::remove($dir);
+    File::mkdir($dir);
+  }
 
   /**
    * Record the paths of the freshly downloaded template.
@@ -35,6 +54,50 @@ class FileManager {
    */
   public function snapshotTemplate(): void {
     $this->templatePaths = $this->relativePaths($this->config->get(Config::TMP));
+  }
+
+  /**
+   * Record the paths shipped by the version the project currently runs.
+   *
+   * A path the template has stopped shipping altogether is absent from the
+   * incoming download, so the selection diff alone cannot see it. Listing the
+   * project's own version restores it as a candidate, which is what makes a
+   * file dropped between releases removable rather than permanent.
+   *
+   * Failure is not fatal: the recorded reference may no longer resolve, in
+   * which case only the selection diff applies.
+   *
+   * @param \DrevOps\VortexInstaller\Downloader\RepositoryDownloader $downloader
+   *   The repository downloader.
+   * @param \DrevOps\VortexInstaller\Downloader\Artifact $artifact
+   *   The artifact identifying the repository to read the reference from.
+   */
+  public function snapshotPreviousTemplate(RepositoryDownloader $downloader, Artifact $artifact): void {
+    if (!$this->config->isVortexProject()) {
+      return;
+    }
+
+    $ref = Version::detectProjectRef((string) $this->config->getDestination());
+
+    if ($ref === NULL) {
+      return;
+    }
+
+    $dir = $this->config->get(Config::TMP) . '-previous';
+
+    try {
+      // The extraction unpacks into an existing directory.
+      File::remove($dir);
+      File::mkdir($dir);
+      $downloader->download(Artifact::create($artifact->getRepo(), $ref), $dir);
+      $this->previousTemplatePaths = $this->relativePaths($dir);
+    }
+    catch (\Exception) {
+      $this->previousTemplatePaths = [];
+    }
+    finally {
+      File::remove($dir);
+    }
   }
 
   /**
@@ -72,10 +135,12 @@ class FileManager {
     $src = $this->config->get(Config::TMP);
     $destination = $this->config->getDestination();
 
-    // Handlers strip the paths excluded by the current selection from the
-    // staged copy, so what the template shipped but the staged copy no longer
-    // holds is exactly that exclusion set.
-    $excluded = array_diff($this->templatePaths, $this->relativePaths($src));
+    // Anything either version of the template ships but the staged copy no
+    // longer holds is a path this install does not own: dropped by the
+    // selection when the incoming version still ships it, dropped by the
+    // template itself when only the project's own version did.
+    $shipped = array_merge($this->previousTemplatePaths, $this->templatePaths);
+    $excluded = array_diff($shipped, $this->relativePaths($src));
 
     // Symlink ordering prevents copying files one-by-one into the destination
     // directory. Instead, all ignored files and empty directories are removed

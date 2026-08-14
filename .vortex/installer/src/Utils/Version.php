@@ -69,6 +69,38 @@ class Version {
   }
 
   /**
+   * Detect the Vortex reference an installed project was last installed from.
+   *
+   * The README badge records the reference of the installed release, which is
+   * the only place the exact version is preserved: composer.json pins the
+   * tooling package's major rather than the template's version. Shields.io
+   * escapes a literal dash in the label as a double dash.
+   *
+   * @param string $dir
+   *   The project directory.
+   *
+   * @return string|null
+   *   The git reference, or NULL when the badge is absent or unreadable.
+   */
+  public static function detectProjectRef(string $dir): ?string {
+    $readme = $dir . '/README.md';
+
+    if (!is_file($readme)) {
+      return NULL;
+    }
+
+    $contents = (string) file_get_contents($readme);
+
+    if (!preg_match('#badge/Vortex-(.+?)-65ACBC\.svg#', $contents, $matches)) {
+      return NULL;
+    }
+
+    $ref = str_replace('--', '-', $matches[1]);
+
+    return Validator::isGitRef($ref) ? $ref : NULL;
+  }
+
+  /**
    * Detect the Vortex major of an installed project from its composer.json.
    *
    * The project's pinned 'drevops/vortex-tooling' major is the provenance

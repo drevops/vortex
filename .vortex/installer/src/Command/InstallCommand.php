@@ -217,9 +217,14 @@ EOF
         label: 'Downloading Vortex',
         action: function (): string {
           $release_prefix = Version::releasePrefix($this->getApplication()->getVersion());
+          // The staging directory can be pointed at a reused location, and the
+          // download unpacks into it rather than replacing it, so anything a
+          // previous run left behind would be treated as shipped by this one.
+          $this->fileManager->resetStaging();
           $version = $this->getRepositoryDownloader()->download($this->artifact, $this->config->get(Config::TMP), $release_prefix);
           $this->config->set(Config::VERSION, $version);
           $this->fileManager->snapshotTemplate();
+          $this->fileManager->snapshotPreviousTemplate($this->getRepositoryDownloader(), $this->artifact);
           return $version;
         },
         hint: fn(): string => sprintf('Downloading from "%s" repository at ref "%s"', $this->artifact->getRepo(), $this->artifact->getRef()),

@@ -88,6 +88,35 @@ class InstallerTest extends FunctionalTestCase {
   }
 
   #[Group('p3')]
+  public function testUpdateRemovesFilesDroppedByTemplate(): void {
+    $this->logSubstep('Add a template-owned script to the Vortex template repository');
+    File::dump(static::$repo . '/scripts/provision-50-legacy.sh', "#!/usr/bin/env bash\necho 'Legacy provision step.'\n");
+    $commit_with_script = $this->gitCommitAll(static::$repo, 'Added a legacy provision script to Vortex');
+    $this->logNote(sprintf('Vortex version with the script: %s', $commit_with_script));
+
+    $this->logSubstep('Install the SUT from the version that ships the script');
+    $this->gitInitRepo(static::$sut);
+    static::$sutInstallerEnv = [
+      'VORTEX_INSTALLER_TEMPLATE_REPO' => FALSE,
+      'SHELL_VERBOSITY' => FALSE,
+    ];
+    $this->runInstaller([sprintf('--uri=%s#%s', static::$repo, $commit_with_script)]);
+    $this->assertFileExists('scripts/provision-50-legacy.sh', 'Template-owned script installed into the SUT');
+    $this->gitCommitAll(static::$sut, 'Init Vortex');
+
+    $this->logSubstep('Drop the script from the Vortex template repository');
+    File::remove(static::$repo . '/scripts/provision-50-legacy.sh');
+    $commit_without_script = $this->gitCommitAll(static::$repo, 'Removed the legacy provision script from Vortex');
+    $this->logNote(sprintf('Vortex version without the script: %s', $commit_without_script));
+
+    $this->logSubstep('Update the SUT to the version that no longer ships the script');
+    $this->runInstaller([sprintf('--uri=%s#%s', static::$repo, $commit_without_script)]);
+
+    $this->assertFileDoesNotExist('scripts/provision-50-legacy.sh', 'Script dropped by the template removed from the SUT on update');
+    $this->assertFileExists('scripts/provision-40-example.sh', 'Scripts still shipped by the template kept in the SUT');
+  }
+
+  #[Group('p3')]
   public function testInstallFromRef(): void {
     $this->logSubstep('Add custom files to SUT');
     File::dump('test1.txt', 'test content');
