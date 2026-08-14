@@ -89,6 +89,14 @@ runs-on: ubuntu-latest-4-cores  # Options: ubuntu-latest, ubuntu-latest-4-cores,
 Larger runners also come with more disk, which matters for projects whose
 provisioning is disk-heavy. See [Runner disk space](/docs/continuous-integration#runner-disk-space).
 
+### Preinstalled toolchains
+
+The `ubuntu-latest` runner ships with about 59 GB of preinstalled software on a 72 GB volume, leaving a job around 13 GB to work with. The `build` and `database` jobs remove the toolchains no **Vortex** job uses - .NET, Swift, GHCup, PowerShell and CodeQL - before doing anything else, which frees about 15 GB.
+
+To keep them, set the `CI_FREE_DISK_SPACE` variable to `0` in **Settings → Secrets and variables → Actions → Variables**.
+
+See [Runner disk space](/docs/continuous-integration#runner-disk-space) for the measurements, how to free the Android SDK as well, and what to do when a job still runs out.
+
 ### Change test parallelism
 
 To speed up test execution, you can increase the number of parallel runners in

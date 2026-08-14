@@ -21,6 +21,9 @@ VORTEX_DEPLOY_ALLOW_LABEL=
 # Proceed with container image push after it was exported.
 VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=
 
+# Remove preinstalled toolchains from the GitHub Actions runner to free disk space. Set to `0` to keep them.
+CI_FREE_DISK_SPACE=1
+
 # Ignore Hadolint failures.
 VORTEX_CI_HADOLINT_IGNORE_FAILURE=0
 
