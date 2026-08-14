@@ -73,6 +73,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "@docker login --username test_user --password-stdin https://www.example.com # 0 # Login Succeeded"
     'Logging in to registry "https://www.example.com".'
+    'Logged in to registry "https://www.example.com".'
   )
 
   mocks="$(steps_run "setup")"

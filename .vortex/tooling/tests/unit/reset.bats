@@ -14,9 +14,13 @@ load ../_helper.bash
   assert_output_contains "Started reset."
   assert_output_contains "Finished reset."
   assert_output_not_contains "Changing permissions and removing all other untracked files."
+  assert_output_not_contains "Changed permissions and removed all other untracked files."
   assert_output_not_contains "Resetting repository files."
+  assert_output_not_contains "Reset repository files."
   assert_output_not_contains "Removing all untracked files."
+  assert_output_not_contains "Removed all untracked files."
   assert_output_not_contains "Removing empty directories."
+  assert_output_not_contains "Removed empty directories."
 
   popd >/dev/null
 }
@@ -31,9 +35,13 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Started reset."
   assert_output_contains "Changing permissions and removing all other untracked files."
+  assert_output_contains "Changed permissions and removed all other untracked files."
   assert_output_contains "Resetting repository files."
+  assert_output_contains "Reset repository files."
   assert_output_contains "Removing all untracked files."
+  assert_output_contains "Removed all untracked files."
   assert_output_contains "Removing empty directories."
+  assert_output_contains "Removed empty directories."
   assert_output_contains "Finished reset."
 
   popd >/dev/null
@@ -47,9 +55,13 @@ load ../_helper.bash
   assert_output_contains "Started reset."
   assert_output_contains "Finished reset."
   assert_output_not_contains "Changing permissions and removing all other untracked files."
+  assert_output_not_contains "Changed permissions and removed all other untracked files."
   assert_output_not_contains "Resetting repository files."
+  assert_output_not_contains "Reset repository files."
   assert_output_not_contains "Removing all untracked files."
+  assert_output_not_contains "Removed all untracked files."
   assert_output_not_contains "Removing empty directories."
+  assert_output_not_contains "Removed empty directories."
 
   popd >/dev/null
 }

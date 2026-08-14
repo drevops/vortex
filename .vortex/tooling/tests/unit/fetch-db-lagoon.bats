@@ -24,10 +24,12 @@ load ../_helper.bash
 
     # Mock SSH command to create/check database dump on remote
     "@ssh * # 0 # > Creating a database dump /tmp/db_$(date +%Y%m%d).sql."
+    "[ OK ] Discovered or created a database dump on Lagoon."
 
     # Mock rsync download command with side effect to create database file
     "Fetching a database dump."
     '@rsync * # 0 #  # echo "CREATE TABLE test (id INT);" > .data/db.sql'
+    "[ OK ] Fetched a database dump."
 
     # Assert final success message
     "[ OK ] Finished database dump fetch from Lagoon."

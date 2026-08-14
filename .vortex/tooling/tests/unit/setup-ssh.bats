@@ -78,7 +78,9 @@ load ../_helper.bash
     "@ssh-add -l # ${file}"
     "SSH agent already has ${file} key loaded."
     "- Removing all keys from the SSH agent."
+    "- Removed all keys from the SSH agent."
     "- Disabling strict host key checking."
+    "- Disabled strict host key checking."
   )
   mocks="$(steps_run "setup")"
 
@@ -111,7 +113,9 @@ load ../_helper.bash
     "@ssh-add -l # ${VORTEX_KEY_IDENTIFIER_SSH_FILE}"
     "SSH agent already has ${VORTEX_KEY_IDENTIFIER_SSH_FILE} key loaded."
     "- Removing all keys from the SSH agent."
+    "- Removed all keys from the SSH agent."
     "- Disabling strict host key checking."
+    "- Disabled strict host key checking."
     "Finished SSH setup"
   )
   mocks="$(steps_run "setup")"
@@ -167,7 +171,9 @@ load ../_helper.bash
     "@ssh-add -l # ${file}"
     "SSH agent already has ${file} key loaded."
     "- Removing all keys from the SSH agent."
+    "- Removed all keys from the SSH agent."
     "- Disabling strict host key checking."
+    "- Disabled strict host key checking."
   )
   mocks="$(steps_run "setup")"
 
@@ -204,9 +210,11 @@ load ../_helper.bash
     "SSH agent does not have a required key loaded. Trying to load."
     "- SSH agent already has ${file} key loaded."
     "- Removing all keys from the SSH agent."
+    "- Removed all keys from the SSH agent."
     "@ssh-add ${file}"
     "@ssh-add -l # ${file}"
     "Disabling strict host key checking."
+    "Disabled strict host key checking."
     "Finished SSH setup."
   )
   mocks="$(steps_run "setup")"
@@ -241,7 +249,9 @@ load ../_helper.bash
     "@ssh-add -l # ${file}"
     "SSH agent already has ${file} key loaded."
     "Pinning SSH host keys to known_hosts."
+    "Pinned SSH host keys to known_hosts."
     "- Disabling strict host key checking."
+    "- Disabled strict host key checking."
   )
   mocks="$(steps_run "setup")"
 
@@ -279,7 +289,9 @@ load ../_helper.bash
     "SSH agent already has ${file} key loaded."
     "pinning takes precedence"
     "Pinning SSH host keys to known_hosts."
+    "Pinned SSH host keys to known_hosts."
     "- Disabling strict host key checking."
+    "- Disabled strict host key checking."
   )
   mocks="$(steps_run "setup")"
 
@@ -317,7 +329,9 @@ load ../_helper.bash
     "@ssh-add -l # ${file}"
     "SSH agent already has ${file} key loaded."
     "Pinning SSH host keys to known_hosts."
+    "Pinned SSH host keys to known_hosts."
     "- Disabling strict host key checking."
+    "- Disabled strict host key checking."
   )
   mocks="$(steps_run "setup")"
 
@@ -361,10 +375,12 @@ load ../_helper.bash
     "SSH agent does not have a required key loaded. Trying to load."
     "- SSH agent already has ${file} key loaded."
     "Removing all keys from the SSH agent."
+    "Removed all keys from the SSH agent."
     "@ssh-add -D"
     "@ssh-add ${file}"
     "@ssh-add -l # ${file}"
     "- Disabling strict host key checking."
+    "- Disabled strict host key checking."
     "Finished SSH setup."
   )
   mocks="$(steps_run "setup")"
@@ -401,7 +417,9 @@ load ../_helper.bash
     "Using fingerprint-based deploy key because fingerprint was provided."
     "SSH key file ${ssh_key_file} does not exist."
     "- Removing all keys from the SSH agent."
+    "- Removed all keys from the SSH agent."
     "- Disabling strict host key checking."
+    "- Disabled strict host key checking."
   )
   mocks="$(steps_run "setup")"
 
@@ -441,7 +459,9 @@ load ../_helper.bash
     "Found matching existing key file ${file}."
     "SSH key file ${ssh_key_file} does not exist."
     "- Removing all keys from the SSH agent."
+    "- Removed all keys from the SSH agent."
     "- Disabling strict host key checking."
+    "- Disabled strict host key checking."
   )
   mocks="$(steps_run "setup")"
 
