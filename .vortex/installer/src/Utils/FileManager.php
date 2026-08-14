@@ -11,9 +11,31 @@ use DrevOps\VortexInstaller\Downloader\Downloader;
  */
 class FileManager {
 
+  /**
+   * Path of the template's own harness, which is never shipped.
+   */
+  const HARNESS_DIR = '.vortex';
+
+  /**
+   * Paths shipped by the downloaded template, relative to its root.
+   *
+   * @var array<string>
+   */
+  protected array $templatePaths = [];
+
   public function __construct(
     protected Config $config,
   ) {}
+
+  /**
+   * Record the paths of the freshly downloaded template.
+   *
+   * Taken before the handlers process the staged copy, so that whatever they
+   * remove can later be identified as the paths the selection excludes.
+   */
+  public function snapshotTemplate(): void {
+    $this->templatePaths = $this->relativePaths($this->config->get(Config::TMP));
+  }
 
   /**
    * Prepare the destination directory.
@@ -49,6 +71,11 @@ class FileManager {
   public function copyFiles(): void {
     $src = $this->config->get(Config::TMP);
     $destination = $this->config->getDestination();
+
+    // Handlers strip the paths excluded by the current selection from the
+    // staged copy, so what the template shipped but the staged copy no longer
+    // holds is exactly that exclusion set.
+    $excluded = array_diff($this->templatePaths, $this->relativePaths($src));
 
     // Symlink ordering prevents copying files one-by-one into the destination
     // directory. Instead, all ignored files and empty directories are removed
@@ -87,7 +114,74 @@ class FileManager {
       File::copy($destination . '/.env.local.example', $destination . '/.env.local');
     }
 
+    $this->removeExcludedPaths($excluded);
     $this->removeObsoletePaths();
+  }
+
+  /**
+   * Remove paths excluded by the current selection from the destination.
+   *
+   * The staged copy is overlaid onto the destination without a delete pass, so
+   * a path the selection drops would otherwise survive from a previous
+   * install and keep being detected as an active feature. Only projects
+   * already running Vortex are pruned: in any other destination a matching
+   * path belongs to that project rather than to a previous install.
+   *
+   * @param array<string> $paths
+   *   Template-relative paths absent from the staged copy.
+   */
+  protected function removeExcludedPaths(array $paths): void {
+    if (!$this->config->isVortexProject()) {
+      return;
+    }
+
+    $destination = $this->config->getDestination();
+    $dirs = [];
+
+    foreach ($paths as $path) {
+      // The harness never ships, so a matching path in the destination is the
+      // project's own.
+      if ($path === self::HARNESS_DIR || str_starts_with($path, self::HARNESS_DIR . '/')) {
+        continue;
+      }
+
+      $target = $destination . '/' . $path;
+
+      if (File::exists($target)) {
+        File::remove($target);
+      }
+
+      for ($dir = dirname($path); $dir !== '.'; $dir = dirname($dir)) {
+        $dirs[$dir] = substr_count($dir, '/');
+      }
+    }
+
+    // Deepest first, so a parent is only tested once its children are gone.
+    arsort($dirs);
+
+    foreach (array_keys($dirs) as $dir) {
+      File::rmdirIfEmpty($destination . '/' . $dir);
+    }
+  }
+
+  /**
+   * List the files within a directory, relative to it.
+   *
+   * @param string $directory
+   *   Directory to scan.
+   *
+   * @return array<string>
+   *   Relative file paths.
+   */
+  protected function relativePaths(string $directory): array {
+    if (!is_dir($directory)) {
+      return [];
+    }
+
+    $root = File::dir($directory);
+    $files = File::scandir($root, File::ignoredPaths());
+
+    return array_map(fn(string $file): string => ltrim(str_replace($root, '', $file), DIRECTORY_SEPARATOR), $files);
   }
 
   /**

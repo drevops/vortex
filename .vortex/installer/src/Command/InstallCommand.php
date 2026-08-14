@@ -219,6 +219,7 @@ EOF
           $release_prefix = Version::releasePrefix($this->getApplication()->getVersion());
           $version = $this->getRepositoryDownloader()->download($this->artifact, $this->config->get(Config::TMP), $release_prefix);
           $this->config->set(Config::VERSION, $version);
+          $this->fileManager->snapshotTemplate();
           return $version;
         },
         hint: fn(): string => sprintf('Downloading from "%s" repository at ref "%s"', $this->artifact->getRepo(), $this->artifact->getRef()),

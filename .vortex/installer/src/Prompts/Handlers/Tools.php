@@ -37,13 +37,6 @@ class Tools extends AbstractHandler {
   const HADOLINT = 'hadolint';
 
   /**
-   * Files of deselected tools that remain in the destination.
-   *
-   * @var array<string, array<string>>
-   */
-  protected array $leftovers = [];
-
-  /**
    * {@inheritdoc}
    */
   public function label(): string {
@@ -142,38 +135,19 @@ class Tools extends AbstractHandler {
     }
   }
 
-  /**
-   * Get files of deselected tools that remain in the destination.
-   *
-   * @return array<string, array<string>>
-   *   Destination-relative file paths, keyed by tool title. Populated while
-   *   the deselected tools are processed.
-   */
-  public function getLeftovers(): array {
-    return $this->leftovers;
-  }
-
   protected function processTool(string $name): void {
     $tool = self::getToolDefinitions('tools')[$name];
 
     if (isset($tool['files'])) {
-      File::remove(array_map(fn(string $file): string => $this->tmpDir . '/' . $file, $tool['files']));
-
-      // The staged copy is overlaid onto the destination without a delete
-      // pass, so an existing project keeps its own copy of these files. They
-      // are also the tool's discovery signal, so a project that keeps them has
-      // the tool re-selected on the next update.
-      if ($this->isInstalled()) {
-        $remaining = array_values(array_filter($tool['files'], fn(string $file): bool => File::exists($this->destinationDir . '/' . $file)));
-
-        if ($remaining !== []) {
-          $this->leftovers[$tool['title']] = $remaining;
-        }
+      if ($tool['files'] instanceof \Closure) {
+        $files = $tool['files']->bindTo($this)();
+        $files = flatten($files);
       }
-    }
-
-    if (isset($tool['files_dynamic']) && $tool['files_dynamic'] instanceof \Closure) {
-      File::remove(flatten($tool['files_dynamic']->bindTo($this)()));
+      else {
+        $files = $tool['files'];
+        $files = array_map(fn($file): string => $this->tmpDir . '/' . $file, $files);
+      }
+      File::remove($files);
     }
 
     if (isset($tool['composer.json']) && is_callable($tool['composer.json'])) {
@@ -255,21 +229,6 @@ class Tools extends AbstractHandler {
     }
   }
 
-  /**
-   * Get the tool and tool group definitions.
-   *
-   * A tool's file footprint is split across two keys. 'files' lists the fixed,
-   * destination-relative paths the template owns outright, and is the only
-   * source for leftover reporting. 'files_dynamic' resolves globs that can
-   * match project-authored content, such as test directories under custom
-   * modules, and is used for staging removal only.
-   *
-   * @param string $filter
-   *   One of 'all', 'tools' or 'groups'. An unknown value falls back to 'all'.
-   *
-   * @return array<string, array<string, mixed>>
-   *   Definitions keyed by tool or group name.
-   */
   public static function getToolDefinitions(string $filter = 'all'): array {
     $filter = in_array($filter, ['all', 'tools', 'groups'], TRUE) ? $filter : 'all';
 
@@ -384,8 +343,8 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('devDependencies', 'jest-environment-jsdom');
           $pj->removeSubNode('scripts', 'test');
         },
-        'files' => ['jest.config.js'],
-        'files_dynamic' => fn(): array => [
+        'files' => fn(): array => [
+          $this->tmpDir . '/jest.config.js',
           glob($this->tmpDir . '/' . $this->webroot . '/modules/custom/*/js/*.test.js'),
         ],
         'lines' => [
@@ -407,8 +366,9 @@ class Tools extends AbstractHandler {
           $cj->removeProperty('autoload-dev.classmap');
           $cj->removeMainKeyIfEmpty('autoload-dev');
         },
-        'files' => ['phpunit.xml', 'tests/phpunit'],
-        'files_dynamic' => fn(): array => [
+        'files' => fn(): array => [
+          $this->tmpDir . '/phpunit.xml',
+          $this->tmpDir . '/tests/phpunit',
           glob($this->tmpDir . '/' . $this->webroot . '/profiles/custom/*/tests', GLOB_ONLYDIR),
           glob($this->tmpDir . '/' . $this->webroot . '/modules/custom/*/tests', GLOB_ONLYDIR),
           glob($this->tmpDir . '/' . $this->webroot . '/themes/custom/*/tests', GLOB_ONLYDIR),

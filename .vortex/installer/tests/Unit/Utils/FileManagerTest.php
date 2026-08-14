@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 use DrevOps\VortexInstaller\Downloader\Downloader;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\FileManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -160,27 +161,87 @@ class FileManagerTest extends UnitTestCase {
     $this->addToAssertionCount(1);
   }
 
-  public function testCopyFilesLeavesDestinationOnlyFilesInPlace(): void {
-    // The copy is an overlay: a path the source no longer carries is not
-    // deleted from the destination. Handlers remove a deselected feature's
-    // files from the source only, so an existing project keeps its copy.
-    $src = self::$sut . '/src_overlay';
-    $destination = self::$sut . '/dst_overlay';
-    mkdir($src, 0777, TRUE);
-    mkdir($destination . '/.circleci', 0777, TRUE);
-    file_put_contents($src . '/package.json', '{"devDependencies":{}}');
-    file_put_contents($destination . '/package.json', '{"devDependencies":{"jest":"*"}}');
-    file_put_contents($destination . '/jest.config.js', 'module.exports = {};');
-    file_put_contents($destination . '/.circleci/config.yml', 'version: 2.1');
+  public function testCopyFilesRemovesExcludedTemplatePaths(): void {
+    $src = self::$sut . '/src_excluded';
+    $destination = self::$sut . '/dst_excluded';
+    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+    file_put_contents($src . '/phpstan.neon', 'parameters: []');
+    file_put_contents(File::mkdir($src . '/.circleci') . '/config.yml', 'version: 2.1');
 
     $config = new Config('/tmp/root', $destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
+    $fm->snapshotTemplate();
+
+    // A previous install placed both in the destination; the current selection
+    // drops them, so the handlers strip them from the staged copy.
+    file_put_contents(File::mkdir($destination) . '/phpstan.neon', 'parameters: []');
+    file_put_contents(File::mkdir($destination . '/.circleci') . '/config.yml', 'version: 2.1');
+    File::remove($src . '/phpstan.neon');
+    File::remove($src . '/.circleci');
 
     $fm->copyFiles();
 
-    $this->assertFileExists($destination . '/jest.config.js', 'Deselected tool config file remains in the destination.');
-    $this->assertFileExists($destination . '/.circleci/config.yml', 'Deselected CI provider config remains in the destination.');
-    $this->assertEquals('{"devDependencies":{}}', file_get_contents($destination . '/package.json'), 'Shipped files are overwritten by the source version.');
+    $this->assertFileDoesNotExist($destination . '/phpstan.neon', 'Excluded template file removed from the destination.');
+    $this->assertFileDoesNotExist($destination . '/.circleci/config.yml', 'Excluded template directory contents removed.');
+    $this->assertDirectoryDoesNotExist($destination . '/.circleci', 'Directory emptied by the removal is pruned.');
+    $this->assertFileExists($destination . '/composer.json', 'Shipped files still copied.');
+  }
+
+  public function testCopyFilesKeepsPathsTheTemplateNeverShipped(): void {
+    $src = self::$sut . '/src_unknown';
+    $destination = self::$sut . '/dst_unknown';
+    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $fm = new FileManager($config);
+    $fm->snapshotTemplate();
+
+    file_put_contents(File::mkdir($destination) . '/phpstan.neon', 'project owned');
+    file_put_contents(File::mkdir($destination . '/web/modules/custom/mymodule') . '/mymodule.info.yml', 'name: My module');
+
+    $fm->copyFiles();
+
+    $this->assertFileExists($destination . '/phpstan.neon', 'A path the template never shipped is left alone.');
+    $this->assertFileExists($destination . '/web/modules/custom/mymodule/mymodule.info.yml', 'Project-authored content is left alone.');
+  }
+
+  public function testCopyFilesKeepsExcludedPathsForNonVortexProject(): void {
+    $src = self::$sut . '/src_fresh';
+    $destination = self::$sut . '/dst_fresh';
+    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+    file_put_contents($src . '/phpstan.neon', 'parameters: []');
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $fm = new FileManager($config);
+    $fm->snapshotTemplate();
+
+    file_put_contents(File::mkdir($destination) . '/phpstan.neon', 'project owned');
+    File::remove($src . '/phpstan.neon');
+
+    $fm->copyFiles();
+
+    $this->assertFileExists($destination . '/phpstan.neon', 'A destination that is not a Vortex project is never pruned.');
+  }
+
+  public function testCopyFilesKeepsHarnessPaths(): void {
+    $src = self::$sut . '/src_harness';
+    $destination = self::$sut . '/dst_harness';
+    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+    file_put_contents(File::mkdir($src . '/.vortex') . '/CLAUDE.md', 'harness');
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $fm = new FileManager($config);
+    $fm->snapshotTemplate();
+
+    file_put_contents(File::mkdir($destination . '/.vortex') . '/CLAUDE.md', 'project owned');
+    File::remove($src . '/.vortex');
+
+    $fm->copyFiles();
+
+    $this->assertFileExists($destination . '/.vortex/CLAUDE.md', "The harness never ships, so a matching path is the project's own.");
   }
 
   public function testCopyFilesRemovesObsoleteScriptsVortex(): void {
