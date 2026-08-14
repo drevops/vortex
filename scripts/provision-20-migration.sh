@@ -130,12 +130,18 @@ disable_search_indexes() {
 enable_search_indexes() {
   [ -z "${search_indexes}" ] && return 0
 
+  local status=0
+
   task "Enabling search indexes."
+  # Every index is attempted so that one failure does not strand the rest.
   # 'set -e' does not apply while the function runs as a condition, so the
   # failure is returned explicitly.
   for index in ${search_indexes}; do
-    drush search-api:enable "${index}" || return 1
+    drush search-api:enable "${index}" || status=1
   done
+
+  [ "${status}" = "1" ] && return 1
+
   pass "Enabled search indexes."
 }
 

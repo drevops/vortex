@@ -432,6 +432,56 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Provision migration: one failed enable does not strand the other indexes" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  rm ./.env && touch ./.env
+
+  mkdir -p "./.data"
+  touch "./.data/db2.sql"
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  export DRUPAL_MIGRATION_SOURCE_DB_IMPORT=1
+
+  declare -a STEPS=(
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
+
+    "@drush -y sql:drop --database=migrate"
+    "@drush -y sql:connect --database=migrate"
+    "@drush -y sql:query --database=migrate SELECT COUNT(*) FROM categories"
+    "@drush -y pm:install ys_migrate"
+
+    "@drush -y php:eval print implode(' ', array_keys(\Drupal::entityTypeManager()->getStorage('search_api_index')->loadByProperties(['status' => TRUE]))); # content archive"
+
+    "@drush -y search-api:disable content"
+    "@drush -y search-api:disable archive"
+
+    "@drush -y migrate:reset-status ys_migrate_categories"
+    "@drush -y migrate:import --feedback=50 --limit=50 ys_migrate_categories"
+
+    # The first index fails, the second is still attempted.
+    "@drush -y search-api:enable content # 1"
+    "@drush -y search-api:enable archive"
+
+    "Migrated: ys_migrate_categories."
+    "Enabling search indexes."
+    "Failed to enable search indexes."
+
+    "- Enabled search indexes."
+    "- Finished migration operations."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run ./scripts/provision-20-migration.sh
+  assert_failure
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Provision migration: failed migration re-enables search indexes" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
