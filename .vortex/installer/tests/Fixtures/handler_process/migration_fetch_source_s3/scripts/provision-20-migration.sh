@@ -107,9 +107,21 @@ run_migration() {
 
 enable_search_indexes() {
   task "Enabling search indexes."
-  # A failure here must not mask the failure that triggered the restore.
-  drush search-api:enable-all || true
+  # 'set -e' does not apply while the function runs as a condition, so the
+  # failure is returned explicitly.
+  drush search-api:enable-all || return 1
   pass "Enabled search indexes."
+}
+
+# Preserves the exit status that triggered the restore, so a failed restore
+# reports itself without replacing the original failure.
+restore_search_indexes() {
+  local status="${?}"
+
+  trap - EXIT
+  enable_search_indexes || note "Failed to enable search indexes."
+
+  exit "${status}"
 }
 
 # Detect if existing migration source database is corrupted.
@@ -159,7 +171,7 @@ task "Disabling search indexes."
 drush search-api:disable-all
 pass "Disabled search indexes."
 # Restore the indexes even when a migration fails part-way through.
-trap 'enable_search_indexes' EXIT
+trap 'restore_search_indexes' EXIT
 
 if [ "${DRUPAL_MIGRATION_ROLLBACK_SKIP}" = "1" ]; then
   note "Skipped rollback of all migrations."
