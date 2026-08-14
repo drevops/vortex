@@ -66,7 +66,7 @@ jobs:
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
-      image: drevops/ci-runner:26.7.0@sha256:6f917acfc2903e77e1bd9a2a32f3633ff49538553474fe43df3033352e0059b0
+      image: drevops/ci-runner:26.8.0@sha256:80be478cfff66d81fa804ccc707dbeae478655d8b850f1ae06824c194bd6528e
       env:
         TZ: ${{ vars.TZ || 'UTC' }}
         TERM: xterm-256color
