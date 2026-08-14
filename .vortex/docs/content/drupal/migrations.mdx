@@ -140,16 +140,20 @@ dump file.
 
 ### Search indexing
 
-On projects that also use the Solr service, the script disables all Search API
-indexes with `drush search-api:disable-all` before the rollback and the imports,
-and re-enables them with `drush search-api:enable-all` once the migrations
-finish. Without this, every migrated entity is sent to the search server as it
-is created, which slows the migration down for no benefit - the
+On projects that also use the Solr service, the script disables the Search API
+indexes that are enabled before the rollback and the imports, then enables those
+same indexes again once the migrations finish. An index that is already disabled
+is left alone, and a site with no enabled indexes skips the step entirely.
+
+Without this, every migrated entity is sent to the search server as it is
+created, which slows the migration down for no benefit - the
 `scripts/provision-30-search-index.sh` script rebuilds the index from scratch
 immediately afterward.
 
-The indexes are re-enabled even when a migration fails part-way through, so a
-failed provision never leaves the site with search switched off.
+The indexes are also restored when a migration fails part-way through, and the
+migration failure is still reported. If the restore itself fails, provisioning
+fails with `Failed to enable search indexes.` and the indexes stay disabled -
+re-run `ahoy provision`, or enable them with `drush search-api:enable <index>`.
 
 ## Demo migration module
 
