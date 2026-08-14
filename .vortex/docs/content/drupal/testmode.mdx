@@ -1,8 +1,8 @@
 ---
-sidebar_position: 8
+sidebar_position: 12
 ---
 
-# Test mode
+# Testmode
 
 [Testmode](https://www.drupal.org/project/testmode) filters site content during
 Behat tests, preventing live or generated content from interfering with test
@@ -15,13 +15,13 @@ is the reference for its full API.
 ## How it works
 
 1. Test content follows a naming convention - titles prefixed with `[TEST]`
-2. Views are registered in testmode configuration
+2. Views are registered in Testmode configuration
 3. Behat scenarios tagged with `@testmode` automatically enable and disable filtering
 4. When enabled, registered views only show content matching the `[TEST]` pattern
 
 ## Configuration
 
-Testmode is configured via `testmode.settings`:
+Testmode is configured through the `testmode.settings` configuration object:
 
 | Key | Type | Description |
 |-----|------|-------------|
@@ -64,7 +64,7 @@ pattern getters and setters, plus `enableTestMode()`, `disableTestMode()` and
 
 ## Behat integration
 
-The `@testmode` tag activates test mode for individual scenarios via
+The `@testmode` tag activates Testmode for individual scenarios via
 `TestmodeTrait` from
 [behat-steps](https://github.com/drevops/behat-steps):
 
@@ -82,7 +82,7 @@ Scenario: Pages view shows only test content when test mode is enabled
 ```
 
 The `[TEST]` prefix in content titles matches the default `[TEST%` pattern
-configured in testmode. Only matching content appears in registered views, so
+configured in Testmode. Only matching content appears in registered views, so
 the generated `Demo page` nodes stay out of the assertions.
 
 ## Example in Vortex
@@ -90,7 +90,7 @@ the generated `Demo page` nodes stay out of the assertions.
 The `ys_demo` module:
 
 - Ships a pages view at `/pages`
-- Registers it with testmode via the `ys_demo_deploy_configure_testmode` deploy hook
+- Registers it with Testmode via the `ys_demo_deploy_configure_testmode` deploy hook
 - Includes the
   [`pages.feature`](https://github.com/drevops/vortex/blob/main/tests/behat/features/pages.feature)
   Behat feature demonstrating the `@testmode` tag against the
