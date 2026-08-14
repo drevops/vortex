@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
+use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Migration::class)]
@@ -26,6 +27,8 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
 
           // Token-controlled content preserved in files.
+          $test->assertFileContainsString(static::$sut . '/scripts/provision-20-migration.sh', 'search-api:disable-all');
+          $test->assertFileContainsString(static::$sut . '/scripts/provision-20-migration.sh', 'search-api:enable-all');
           $test->assertFileContainsString(static::$sut . '/docker-compose.yml', 'database2');
           $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'fetch-db2');
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE');
@@ -46,6 +49,18 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_tools');
           $test->assertFileContainsString(static::$sut . '/.circleci/config.yml', 'Fetch migration DB');
+      }),
+    ];
+    yield 'migration_enabled_no_solr' => [
+      static::cw(function ($test): void {
+          $test->prompts[Migration::id()] = TRUE;
+          $test->prompts[Services::id()] = [Services::CLAMAV, Services::REDIS];
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertFileExists(static::$sut . '/scripts/provision-20-migration.sh');
+          $test->assertFileContainsString(static::$sut . '/scripts/provision-20-migration.sh', 'migrate:import');
+          $test->assertFileNotContainsString(static::$sut . '/scripts/provision-20-migration.sh', 'search-api');
+          $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-30-search-index.sh');
       }),
     ];
     yield 'migration_disabled' => [
