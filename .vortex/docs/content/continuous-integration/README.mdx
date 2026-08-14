@@ -209,16 +209,22 @@ by setting the `VORTEX_DEBUG` variable to `1` in your CI provider's settings.
 
 ### Runner disk space
 
-Continuous integration jobs run on hosted runners with a fixed amount of disk space - a fixed allocation on CircleCI, and a 72 GB root volume on the GitHub Actions `ubuntu-latest` runner. On GitHub Actions the preinstalled software occupies about 59 GB of that volume, so a job starts with around 13 GB free. Pulled container images, database dumps, and every file created while provisioning share what is left.
+Continuous integration jobs run on hosted runners with a fixed amount of disk space - a fixed allocation on CircleCI, and on GitHub Actions a root volume that is largely consumed before the job starts. Measured on one `ubuntu-latest` image, preinstalled software occupied 59 GB of a 72 GB volume, leaving the job around 13 GB. Pulled container images, database dumps, and every file created while provisioning share what is left.
 
 When it runs out, the runner is terminated from the outside: the step that was running never reports an error and the log archive may be lost entirely, so the failure looks like a hang rather than a disk problem.
 
 **Vortex** keeps the build within that budget:
 
-- On GitHub Actions, the `build` and `database` jobs remove the preinstalled toolchains no **Vortex** job uses - .NET, Swift, GHCup, PowerShell and CodeQL - before doing anything else. This frees about 15 GB in around 14 seconds, taking the job from roughly 13 GB of headroom to 28 GB.
+- On GitHub Actions, the `build` and `database` jobs remove the preinstalled toolchains no **Vortex** job uses - .NET, Swift, GHCup, PowerShell and CodeQL - before doing anything else. In the same measurement this freed about 15 GB in around 14 seconds, taking the job from roughly 13 GB of headroom to 28 GB.
 - Those same two jobs print `df -h` in a **Report disk usage** step, so the disk state is on the record for every run.
 - The Docker build cache and dangling images are pruned once the stack is up.
 - The database dump is removed from the runner as soon as it has been copied into the container, so only one copy is held during provisioning.
+
+:::note
+
+Every figure above comes from one runner image at one point in time, and GitHub reissues that image regularly. Read the **Report disk usage** output of a recent run for the current numbers - if the reclaimed amount has shrunk, the path list needs revisiting.
+
+:::
 
 #### Keep the preinstalled toolchains
 
@@ -233,12 +239,6 @@ set -- "$@" /host/usr/local/lib/android
 ```
 
 The removal runs through a container that bind-mounts the runner's root filesystem, because the job itself runs in a container and cannot see the host's directories directly. This is also why the general-purpose disk-cleanup actions available on the Marketplace have no effect in a **Vortex** job.
-
-:::note
-
-These figures come from one runner image at one point in time, and GitHub reissues that image regularly. The **Report disk usage** step is the check against drift - if the reclaimed amount shrinks, the path list needs revisiting.
-
-:::
 
 #### When space still runs out
 
