@@ -22,7 +22,8 @@ class ReflectionTraitTest extends YsBaseUnitTestBase {
    */
   #[DataProvider('dataProviderGetProtectedValue')]
   public function testGetProtectedValue(mixed $value): void {
-    $object = new ReflectionTraitTestStub($value);
+    $object = new ReflectionTraitTestStub();
+    $object->setInstanceValue($value);
 
     $this->assertSame($value, static::getProtectedValue($object, 'instanceValue'));
   }
@@ -44,8 +45,11 @@ class ReflectionTraitTest extends YsBaseUnitTestBase {
    * Tests that the value is read from the given instance.
    */
   public function testGetProtectedValueReadsGivenInstance(): void {
-    $first = new ReflectionTraitTestStub('first value');
-    $second = new ReflectionTraitTestStub('second value');
+    $first = new ReflectionTraitTestStub();
+    $first->setInstanceValue('first value');
+
+    $second = new ReflectionTraitTestStub();
+    $second->setInstanceValue('second value');
 
     $this->assertSame('first value', static::getProtectedValue($first, 'instanceValue'));
     $this->assertSame('second value', static::getProtectedValue($second, 'instanceValue'));
@@ -64,7 +68,8 @@ class ReflectionTraitTest extends YsBaseUnitTestBase {
    * Tests reading a protected property declared on a parent class.
    */
   public function testGetProtectedValueInheritedProperty(): void {
-    $object = new ReflectionTraitTestChildStub('inherited value');
+    $object = new ReflectionTraitTestChildStub();
+    $object->setInstanceValue('inherited value');
 
     $this->assertSame('inherited value', static::getProtectedValue($object, 'instanceValue'));
     $this->assertSame('child value', static::getProtectedValue($object, 'childValue'));
@@ -94,26 +99,19 @@ class ReflectionTraitTest extends YsBaseUnitTestBase {
 class ReflectionTraitTestStub {
 
   /**
-   * Protected static property.
-   *
-   * @var string
+   * Value shared by every instance.
    */
   protected static string $staticValue = 'static value';
 
   /**
-   * Protected instance property.
-   *
-   * @var mixed
+   * Value held by a single instance.
    */
-  protected mixed $instanceValue;
+  protected mixed $instanceValue = 'instance value';
 
   /**
-   * Constructs the stub.
-   *
-   * @param mixed $value
-   *   Value to assign to the protected instance property.
+   * Assigns the protected instance property.
    */
-  public function __construct(mixed $value = 'instance value') {
+  public function setInstanceValue(mixed $value): void {
     $this->instanceValue = $value;
   }
 
@@ -129,9 +127,7 @@ class ReflectionTraitTestStub {
 class ReflectionTraitTestChildStub extends ReflectionTraitTestStub {
 
   /**
-   * Protected property declared on the child.
-   *
-   * @var string
+   * Value declared on the child class.
    */
   protected string $childValue = 'child value';
 
