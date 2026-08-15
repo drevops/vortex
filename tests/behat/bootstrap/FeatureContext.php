@@ -28,7 +28,9 @@ use DrevOps\BehatSteps\Drupal\RedirectTrait;
 // phpcs:ignore #;> MODULE_REDIRECT
 use DrevOps\BehatSteps\Drupal\SearchApiTrait;
 use DrevOps\BehatSteps\Drupal\TaxonomyTrait;
+// phpcs:ignore #;< MODULE_TESTMODE
 use DrevOps\BehatSteps\Drupal\TestmodeTrait;
+// phpcs:ignore #;> MODULE_TESTMODE
 use DrevOps\BehatSteps\Drupal\UserTrait;
 use DrevOps\BehatSteps\Drupal\WatchdogTrait;
 use DrevOps\BehatSteps\ElementTrait;
@@ -85,7 +87,9 @@ class FeatureContext extends DrupalContext {
   use RestTrait;
   use SearchApiTrait;
   use TaxonomyTrait;
+  // phpcs:ignore #;< MODULE_TESTMODE
   use TestmodeTrait;
+  // phpcs:ignore #;> MODULE_TESTMODE
   use UserTrait;
   use WaitTrait;
   use WatchdogTrait;

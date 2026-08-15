@@ -8,4 +8,6 @@ dependencies:
   - drupal:node
   - drupal:views
   - drupal_helpers:drupal_helpers
+#;< MODULE_TESTMODE
   - testmode:testmode
+#;> MODULE_TESTMODE

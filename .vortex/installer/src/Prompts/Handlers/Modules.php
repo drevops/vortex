@@ -13,12 +13,16 @@ class Modules extends AbstractHandler {
   /**
    * Modules driven by the development modules provision script.
    *
-   * The script installs the development modules and generates content, so it
-   * has operations to perform while any one of these is selected.
+   * These modules are development and testing tools that are deliberately kept
+   * out of the exported configuration, so the provision script is the only
+   * place that can install them. Adding a module here also requires a fenced
+   * 'MODULE_<NAME>' block in the script.
+   *
+   * The script has operations to perform while any one of these is selected.
    *
    * @var string[]
    */
-  protected const DEV_MODULES = ['devel', 'sdc_devel', 'generated_content'];
+  protected const DEV_MODULES = ['devel', 'sdc_devel', 'generated_content', 'testmode'];
 
   /**
    * {@inheritdoc}
@@ -119,6 +123,13 @@ class Modules extends AbstractHandler {
           $cj->removeSubNode('require-dev', $removed_package);
         }
       });
+    }
+
+    // The only scenario in the demo pages feature asserts Testmode filtering,
+    // so the feature does not survive without the module. It is not named after
+    // the module, so the removal above does not cover it.
+    if (!in_array('testmode', $selected_modules)) {
+      File::remove($t . '/tests/behat/features/pages.feature');
     }
 
     // Without any of the modules it drives, the script has no operations to
