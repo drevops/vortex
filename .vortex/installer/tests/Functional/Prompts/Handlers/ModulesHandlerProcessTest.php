@@ -121,7 +121,16 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function ($test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('testmode');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/testmode')),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        // Covers the demo module dependency and its deploy hook, which call
+        // the Testmode API, alongside the Composer requirement and settings.
+        $test->assertSutNotContains([
+          'testmode',
+          'TestmodeTrait',
+        ]);
+        // The only scenario in the pages feature asserts Testmode filtering.
+        $test->assertFileDoesNotExist(static::$sut . '/tests/behat/features/pages.feature');
+      }),
     ];
     yield 'modules_no_xmlsitemap' => [
       static::cw(function ($test): void {
@@ -157,6 +166,18 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
         $test->assertSutNotContains(['drupal/devel', 'drupal/sdc_devel', 'drupal/generated_content']);
+        // Testmode still installs from the script, so it survives with only
+        // its other development module installs removed.
+        $test->assertFileExists(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
+        $test->assertFileContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'pm:install testmode');
+      }),
+    ];
+    yield 'modules_no_devel_sdc_devel_generated_content_testmode' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept(['devel', 'sdc_devel', 'generated_content', 'testmode']);
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertSutNotContains(['drupal/devel', 'drupal/sdc_devel', 'drupal/generated_content', 'testmode']);
         $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
       }),
     ];

@@ -1,0 +1,5 @@
+@@ -8,4 +8,3 @@
+   - drupal:node
+   - drupal:views
+   - drupal_helpers:drupal_helpers
+-  - testmode:testmode

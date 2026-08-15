@@ -14,6 +14,26 @@ use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\testmode\Testmode;
 
 /**
+ * Configure testmode to filter the pages view.
+ *
+ * Registers the 'the_force_demo_pages' view with testmode so that only
+ * content matching the [TEST] prefix appears during test runs.
+ *
+ * @codeCoverageIgnore
+ */
+function the_force_demo_deploy_configure_testmode(): string {
+  $testmode = Testmode::getInstance();
+
+  $views = $testmode->getNodeViews();
+  if (!in_array('the_force_demo_pages', $views)) {
+    $views[] = 'the_force_demo_pages';
+    $testmode->setNodeViews($views);
+  }
+
+  return 'Configured testmode to filter the pages view.';
+}
+
+/**
  * Place counter block in the "content" region.
  *
  * @codeCoverageIgnore
@@ -65,24 +85,4 @@ function the_force_demo_deploy_create_pages_menu_link(): string {
   ]);
 
   return 'Created "Pages" menu link in main navigation.';
-}
-
-/**
- * Configure testmode to filter the pages view.
- *
- * Registers the 'the_force_demo_pages' view with testmode so that only
- * content matching the [TEST] prefix appears during test runs.
- *
- * @codeCoverageIgnore
- */
-function the_force_demo_deploy_configure_testmode(): string {
-  $testmode = Testmode::getInstance();
-
-  $views = $testmode->getNodeViews();
-  if (!in_array('the_force_demo_pages', $views)) {
-    $views[] = 'the_force_demo_pages';
-    $testmode->setNodeViews($views);
-  }
-
-  return 'Configured testmode to filter the pages view.';
 }

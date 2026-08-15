@@ -27,7 +27,9 @@ assertions in a single pass.
 | Module dependency | `ys_demo.info.yml` | Installs the module as a dependency of the demo module |
 
 A module can be required without being installed anywhere: the settings
-override is then ready for the day the project enables it.
+override is then ready for the day the project enables it. `seckit` is the only
+module shipped that way - every other module below is installed by one of the
+mechanisms above, so selecting it is enough to get it enabled.
 
 ## Site building
 
@@ -73,7 +75,7 @@ override is then ready for the day the project enables it.
 | [`devel`](https://www.drupal.org/project/devel) | Inspect variables, entities and the service container | Installed by the development provisioning script. `settings.devel.php` excludes it from the exported configuration |
 | [`sdc_devel`](https://www.drupal.org/project/sdc_devel) | Validation for Single Directory Components | Installed by the development provisioning script. No settings override |
 | [`generated_content`](https://www.drupal.org/project/generated_content) | Deterministic placeholder content from plugins | Installed by the development provisioning script with `GENERATED_CONTENT_CREATE=1`, unless `DRUPAL_GENERATED_CONTENT_SKIP=1` installs it without generating. `settings.generated_content.php` excludes it from the exported configuration. ➡️ See [Generated content](generated-content.mdx) |
-| [`testmode`](https://www.drupal.org/project/testmode) | Filters non-test content out of registered views | Installed as a dependency of the demo module. `settings.testmode.php` excludes it from the exported configuration. ➡️ See [Testmode](testmode.mdx) |
+| [`testmode`](https://www.drupal.org/project/testmode) | Filters non-test content out of registered views | Installed by the development provisioning script. `settings.testmode.php` excludes it from the exported configuration. ➡️ See [Testmode](testmode.mdx) |
 | [`drupal_helpers`](https://www.drupal.org/project/drupal_helpers) | Static facades for deploy hooks and update scripts | Installed as a dependency of the demo module. No settings override. ➡️ See [Drupal helpers](drupal-helpers.mdx) |
 
 ## Migrations

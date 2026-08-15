@@ -305,11 +305,14 @@ relying on the demo content.
 ### Development modules
 
 **Vortex** ships a `scripts/provision-10-enable-dev-modules.sh` custom script that
-installs the development modules - [Devel](https://www.drupal.org/project/devel)
-and [SDC Devel](https://www.drupal.org/project/sdc_devel).
+installs the development modules - [Devel](https://www.drupal.org/project/devel),
+[SDC Devel](https://www.drupal.org/project/sdc_devel) and
+[Testmode](https://www.drupal.org/project/testmode).
 
 Development modules live in their own script so that they stay enabled after the
-demo and example scripts are adapted or removed.
+demo and example scripts are adapted or removed. They are also the modules kept
+out of the exported configuration, so provisioning is the only place that can
+install them.
 
 Both scripts run only in the `local`, `ci`, `dev` and `stage` environments. To
 opt out of either set of modules, remove the corresponding script.

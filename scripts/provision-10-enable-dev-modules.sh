@@ -51,6 +51,12 @@ drush pm:install devel || true
 pass "Installed Devel module."
 #;> MODULE_DEVEL
 
+#;< MODULE_TESTMODE
+task "Installing Testmode module."
+drush pm:install testmode
+pass "Installed Testmode module."
+#;> MODULE_TESTMODE
+
 #;< MODULE_GENERATED_CONTENT
 task "Installing Generated content module."
 if [ "${DRUPAL_GENERATED_CONTENT_SKIP}" = "1" ]; then
