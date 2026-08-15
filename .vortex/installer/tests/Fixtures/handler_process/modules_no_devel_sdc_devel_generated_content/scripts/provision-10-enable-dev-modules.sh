@@ -8,7 +8,18 @@
  # ------------------------------------------------------------------------------
  
  # @formatter:off
-@@ -48,14 +45,5 @@
+@@ -37,25 +34,8 @@
+   exit 0
+ fi
+ 
+-task "Installing Single Directory Component development tools."
+-drush pm:install sdc_devel || true
+-pass "Installed Single Directory Component development tools."
+-
+-task "Installing Devel module."
+-drush pm:install devel || true
+-pass "Installed Devel module."
+-
  task "Installing Testmode module."
  drush pm:install testmode
  pass "Installed Testmode module."
