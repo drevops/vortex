@@ -185,6 +185,17 @@ jobs:
           php -d memory_limit=-1 ./vendor/bin/rector --dry-run
         working-directory: .vortex/tests
 
+      # The unit suite covers the test traits shipped to consumer sites. It
+      # carries no batch group, so it runs once here rather than in every batch.
+      # 'pcov.directory' is widened to the repository root because the traits
+      # live outside this working directory.
+      - name: Run unit tests with coverage
+        if: matrix.batch == 0
+        run: |
+          mkdir -p "${VORTEX_DEV_TEST_COVERAGE_DIR}"
+          php -d memory_limit=-1 -d pcov.directory=../.. vendor/bin/phpunit --testsuite=unit --coverage-text --coverage-cobertura="${VORTEX_DEV_TEST_COVERAGE_DIR}/cobertura-tests-unit.xml"
+        working-directory: .vortex/tests
+
       - name: Install Ahoy
         run: |
           version=2.4.0 && \

@@ -15,12 +15,21 @@
          displayDetailsOnPhpunitDeprecations="true">
     <testsuites>
         <testsuite name="default">
-            <directory>phpunit</directory>
+            <directory>phpunit/Functional</directory>
+        </testsuite>
+        <testsuite name="unit">
+            <directory>phpunit/Unit</directory>
         </testsuite>
     </testsuites>
+    <!-- The traits carry '@codeCoverageIgnore' so that they do not weigh on a
+         consumer site's own coverage; this suite measures them directly. -->
+    <coverage disableCodeCoverageIgnore="true"/>
     <source restrictNotices="true"
             restrictWarnings="true"
             ignoreIndirectDeprecations="true">
+        <include>
+            <directory>../../web/modules/custom/ys_base/tests/src/Traits</directory>
+        </include>
         <exclude>
             <directory>phpunit</directory>
         </exclude>

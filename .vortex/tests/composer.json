@@ -38,7 +38,8 @@
     "prefer-stable": true,
     "autoload-dev": {
         "psr-4": {
-            "DrevOps\\Vortex\\Tests\\": "phpunit/"
+            "DrevOps\\Vortex\\Tests\\": "phpunit/",
+            "Drupal\\Tests\\ys_base\\Traits\\": "../../web/modules/custom/ys_base/tests/src/Traits/"
         }
     },
     "config": {
@@ -64,6 +65,8 @@
         ],
         "reset": "rm -Rf vendor",
         "test": "phpunit",
+        "test-unit": "phpunit --testsuite=unit",
+        "test-unit-coverage": "@php -d pcov.directory=../.. vendor/bin/phpunit --testsuite=unit --coverage-text --coverage-html=.logs/coverage/unit --coverage-cobertura=.logs/coverage/unit/cobertura.xml",
         "update-snapshots": "UPDATE_SNAPSHOTS=1 phpunit --no-coverage --filter=testDockerComposeConfig"
     }
 }
