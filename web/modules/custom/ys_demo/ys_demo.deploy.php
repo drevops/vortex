@@ -11,9 +11,29 @@ declare(strict_types=1);
 
 use Drupal\drupal_helpers\Helper;
 use Drupal\menu_link_content\MenuLinkContentInterface;
-// phpcs:ignore #;< MODULE_TESTMODE
+// phpcs:disable Squiz.WhiteSpace.FunctionSpacing -- #;< MODULE_TESTMODE
 use Drupal\testmode\Testmode;
-// phpcs:ignore #;> MODULE_TESTMODE
+
+/**
+ * Configure testmode to filter the pages view.
+ *
+ * Registers the 'ys_demo_pages' view with testmode so that only
+ * content matching the [TEST] prefix appears during test runs.
+ *
+ * @codeCoverageIgnore
+ */
+function ys_demo_deploy_configure_testmode(): string {
+  $testmode = Testmode::getInstance();
+
+  $views = $testmode->getNodeViews();
+  if (!in_array('ys_demo_pages', $views)) {
+    $views[] = 'ys_demo_pages';
+    $testmode->setNodeViews($views);
+  }
+
+  return 'Configured testmode to filter the pages view.';
+}
+// phpcs:enable Squiz.WhiteSpace.FunctionSpacing -- #;> MODULE_TESTMODE
 
 /**
  * Place counter block in the "content" region.
@@ -68,25 +88,3 @@ function ys_demo_deploy_create_pages_menu_link(): string {
 
   return 'Created "Pages" menu link in main navigation.';
 }
-
-// phpcs:ignore #;< MODULE_TESTMODE
-/**
- * Configure testmode to filter the pages view.
- *
- * Registers the 'ys_demo_pages' view with testmode so that only
- * content matching the [TEST] prefix appears during test runs.
- *
- * @codeCoverageIgnore
- */
-function ys_demo_deploy_configure_testmode(): string {
-  $testmode = Testmode::getInstance();
-
-  $views = $testmode->getNodeViews();
-  if (!in_array('ys_demo_pages', $views)) {
-    $views[] = 'ys_demo_pages';
-    $testmode->setNodeViews($views);
-  }
-
-  return 'Configured testmode to filter the pages view.';
-}
-// phpcs:ignore #;> MODULE_TESTMODE
