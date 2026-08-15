@@ -1,16 +1,8 @@
-@@ -11,7 +11,6 @@
+@@ -11,27 +11,6 @@
  
  use Drupal\drupal_helpers\Helper;
  use Drupal\menu_link_content\MenuLinkContentInterface;
 -use Drupal\testmode\Testmode;
- 
- /**
-  * Place counter block in the "content" region.
-@@ -65,24 +64,4 @@
-   ]);
- 
-   return 'Created "Pages" menu link in main navigation.';
--}
 -
 -/**
 - * Configure testmode to filter the pages view.
@@ -30,4 +22,7 @@
 -  }
 -
 -  return 'Configured testmode to filter the pages view.';
- }
+-}
+ 
+ /**
+  * Place counter block in the "content" region.
