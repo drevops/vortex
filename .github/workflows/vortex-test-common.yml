@@ -29,7 +29,7 @@ jobs:
       contents: read # Read repository contents; coverage is uploaded to external Codecov.
 
     container:
-      image: drevops/ci-runner:26.7.0@sha256:6f917acfc2903e77e1bd9a2a32f3633ff49538553474fe43df3033352e0059b0
+      image: drevops/ci-runner:26.8.0@sha256:80be478cfff66d81fa804ccc707dbeae478655d8b850f1ae06824c194bd6528e
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
@@ -137,7 +137,7 @@ jobs:
         batch: [0, 1, 2, 3, 4, 5]
 
     container:
-      image: drevops/ci-runner:26.7.0@sha256:6f917acfc2903e77e1bd9a2a32f3633ff49538553474fe43df3033352e0059b0
+      image: drevops/ci-runner:26.8.0@sha256:80be478cfff66d81fa804ccc707dbeae478655d8b850f1ae06824c194bd6528e
       env:
         # Prevent GitHub overriding the Docker config.
         DOCKER_CONFIG: /root/.docker
