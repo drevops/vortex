@@ -1,5 +1,5 @@
 @@ -45,10 +45,6 @@
- drush pm:install devel || true
+ drush pm:install devel
  pass "Installed Devel module."
  
 -task "Installing Testmode module."

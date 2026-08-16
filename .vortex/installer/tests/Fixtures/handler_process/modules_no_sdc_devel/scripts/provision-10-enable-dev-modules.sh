@@ -3,9 +3,9 @@
  fi
  
 -task "Installing Single Directory Component development tools."
--drush pm:install sdc_devel || true
+-drush pm:install sdc_devel
 -pass "Installed Single Directory Component development tools."
 -
  task "Installing Devel module."
- drush pm:install devel || true
+ drush pm:install devel
  pass "Installed Devel module."
