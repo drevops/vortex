@@ -23,7 +23,12 @@
     </testsuites>
     <!-- The traits carry '@codeCoverageIgnore' so that they do not weigh on a
          consumer site's own coverage; this suite measures them directly. -->
-    <coverage disableCodeCoverageIgnore="true"/>
+    <coverage disableCodeCoverageIgnore="true">
+        <report>
+            <text outputFile="php://stdout" showOnlySummary="true"/>
+            <cobertura outputFile=".logs/coverage/cobertura.xml"/>
+        </report>
+    </coverage>
     <source restrictNotices="true"
             restrictWarnings="true"
             ignoreIndirectDeprecations="true">

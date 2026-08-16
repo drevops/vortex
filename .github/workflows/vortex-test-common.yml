@@ -187,13 +187,9 @@ jobs:
 
       # The unit suite covers the test traits shipped to consumer sites. It
       # carries no batch group, so it runs once here rather than in every batch.
-      # 'pcov.directory' is widened to the repository root because the traits
-      # live outside this working directory.
-      - name: Run unit tests with coverage
+      - name: Run unit tests
         if: matrix.batch == 0
-        run: |
-          mkdir -p "${VORTEX_DEV_TEST_COVERAGE_DIR}"
-          php -d memory_limit=-1 -d pcov.directory=../.. vendor/bin/phpunit --testsuite=unit --coverage-text --coverage-cobertura="${VORTEX_DEV_TEST_COVERAGE_DIR}/cobertura-tests-unit.xml"
+        run: composer test-unit
         working-directory: .vortex/tests
 
       - name: Install Ahoy
@@ -215,7 +211,7 @@ jobs:
           # Create stub of local network.
           docker network create amazeeio-network 2>/dev/null || true
 
-          php -d memory_limit=-1 vendor/bin/phpunit --group="p${TEST_NODE_INDEX:-*}"
+          composer test-functional -- --group="p${TEST_NODE_INDEX:-*}"
         working-directory: .vortex/tests
         env:
           TEST_VORTEX_DEBUG: ${{ vars.TEST_VORTEX_DEBUG }}
@@ -242,6 +238,9 @@ jobs:
         continue-on-error: true
         with:
           directory: /tmp/.vortex-coverage-html
+          # The unit suite writes outside the searched directory and runs on a
+          # single batch, so its report is named explicitly only for that batch.
+          files: ${{ matrix.batch == 0 && '.vortex/tests/.logs/coverage/cobertura.xml' || '' }}
           fail_ci_if_error: false
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
