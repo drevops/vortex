@@ -41,13 +41,13 @@ fi
 
 #;< MODULE_SDC_DEVEL
 task "Installing Single Directory Component development tools."
-drush pm:install sdc_devel || true
+drush pm:install sdc_devel
 pass "Installed Single Directory Component development tools."
 #;> MODULE_SDC_DEVEL
 
 #;< MODULE_DEVEL
 task "Installing Devel module."
-drush pm:install devel || true
+drush pm:install devel
 pass "Installed Devel module."
 #;> MODULE_DEVEL
 
