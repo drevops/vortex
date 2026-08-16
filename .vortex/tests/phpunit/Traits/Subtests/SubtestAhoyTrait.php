@@ -140,13 +140,20 @@ trait SubtestAhoyTrait {
       txt: '`ahoy cli` does not forward a host variable that contains an allowed prefix mid-name'
     );
 
-    // 'LOCALDEV_URL' is matched in full, so a name ending with it is not
-    // forwarded.
+    // 'LOCALDEV_URL' is matched in full: the exact name is forwarded, a name
+    // ending with it is not.
     $this->cmdFail(
       "ahoy cli 'printenv MY_LOCALDEV_URL'",
       '! unforwardedvar',
       env: ['MY_LOCALDEV_URL' => 'unforwardedvar'],
       txt: '`ahoy cli` does not forward a host variable that ends with an allowed name'
+    );
+
+    $this->cmd(
+      "ahoy cli 'printenv LOCALDEV_URL'",
+      'anchoredlocaldevurl',
+      env: ['LOCALDEV_URL' => 'anchoredlocaldevurl'],
+      txt: '`ahoy cli` forwards an exact host LOCALDEV_URL into the container'
     );
 
     // 'TERM' is matched in full, so terminal variables built around it are not
