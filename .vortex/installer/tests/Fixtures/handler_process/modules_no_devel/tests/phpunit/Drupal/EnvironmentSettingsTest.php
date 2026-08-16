@@ -30,7 +30,7 @@
        'generated_content',
        'testmode',
      ];
-@@ -339,7 +335,6 @@
+@@ -359,7 +355,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [

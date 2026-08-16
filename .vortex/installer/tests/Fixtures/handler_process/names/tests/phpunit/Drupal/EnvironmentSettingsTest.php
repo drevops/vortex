@@ -42,7 +42,7 @@
      $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
      $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
-@@ -331,8 +331,8 @@
+@@ -351,8 +351,8 @@
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $config['reroute_email.settings']['enable'] = FALSE;

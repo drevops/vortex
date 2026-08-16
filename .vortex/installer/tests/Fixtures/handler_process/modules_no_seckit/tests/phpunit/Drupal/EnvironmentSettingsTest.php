@@ -16,7 +16,7 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -333,8 +329,6 @@
+@@ -353,8 +349,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';

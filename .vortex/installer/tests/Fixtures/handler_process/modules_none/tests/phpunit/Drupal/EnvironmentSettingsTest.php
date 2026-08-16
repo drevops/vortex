@@ -116,7 +116,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -318,30 +256,13 @@
+@@ -338,30 +276,13 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;

@@ -48,7 +48,7 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -325,7 +317,6 @@
+@@ -345,7 +337,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -56,7 +56,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -333,8 +324,6 @@
+@@ -353,8 +344,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
