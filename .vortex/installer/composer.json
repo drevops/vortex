@@ -41,10 +41,10 @@
         "drupal/coder": "^9.0.1@alpha",
         "ergebnis/composer-normalize": "^2.52.0",
         "laravel/serializable-closure": "^2.0.15",
-        "mockery/mockery": "^1.6.12",
+        "mockery/mockery": "^1.6.13",
         "phpstan/phpstan": "^2.2.8",
         "phpunit/phpunit": "^11.5.56",
-        "rector/rector": "^2.6.1",
+        "rector/rector": "^2.6.2",
         "symfony/finder": "^7.4.14"
     },
     "autoload": {

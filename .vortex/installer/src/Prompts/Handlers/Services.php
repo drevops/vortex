@@ -64,7 +64,7 @@ class Services extends AbstractHandler {
 
     $options = $this->options($responses);
     if (is_array($options)) {
-      $defaults = array_values(array_intersect($defaults, array_keys($options)));
+      return array_values(array_intersect($defaults, array_keys($options)));
     }
 
     return $defaults;

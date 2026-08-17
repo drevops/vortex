@@ -274,7 +274,7 @@ class Tui {
     }
 
     if (str_contains((string) getenv('TERM_PROGRAM'), 'Apple_Terminal') && ($mblen > 1 && $len < 8)) {
-      $padding = ' ';
+      return ' ';
     }
 
     return $padding;

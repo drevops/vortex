@@ -42,7 +42,7 @@
         "dantleech/gherkin-lint": "^0.2.4",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
         "drevops/behat-format-progress-fail": "^1.5.1",
-        "drevops/behat-screenshot": "^2.4.2",
+        "drevops/behat-screenshot": "^2.5.0",
         "drevops/behat-steps": "^3.13.0",
         "drevops/phpcs-standard": "^0.7.0",
         "drupal/coder": "^9.0.1@alpha",

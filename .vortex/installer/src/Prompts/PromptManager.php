@@ -394,7 +394,7 @@ class PromptManager {
     // Config::PROCEED is a kill switch: when FALSE, the installer does not
     // proceed regardless of the answer received above.
     if (!$this->config->get(Config::PROCEED)) {
-      $proceed = FALSE;
+      return FALSE;
     }
 
     return $proceed;
