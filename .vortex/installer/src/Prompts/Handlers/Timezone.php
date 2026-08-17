@@ -646,7 +646,7 @@ class Timezone extends AbstractHandler {
 
     $from_env = Env::getFromDotenv('TZ', $this->destinationDir);
     if ($from_env) {
-      $value = $from_env;
+      return $from_env;
     }
 
     return $value;

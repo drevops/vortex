@@ -324,7 +324,8 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       if ($status_code === 404) {
         throw new \RuntimeException(sprintf('Reference "%s" not found in repository "%s".', $ref, $repo_url));
       }
-      elseif ($status_code >= 400) {
+
+      if ($status_code >= 400) {
         throw new \RuntimeException(sprintf('Unable to verify reference "%s" in repository "%s" (HTTP %d).', $ref, $repo_url, $status_code));
       }
     }
