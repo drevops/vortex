@@ -38,7 +38,8 @@
     "prefer-stable": true,
     "autoload-dev": {
         "psr-4": {
-            "DrevOps\\Vortex\\Tests\\": "phpunit/"
+            "DrevOps\\Vortex\\Tests\\": "phpunit/",
+            "Drupal\\Tests\\ys_base\\Traits\\": "../../web/modules/custom/ys_base/tests/src/Traits/"
         }
     },
     "config": {
@@ -63,7 +64,12 @@
             "phpcbf"
         ],
         "reset": "rm -Rf vendor",
-        "test": "phpunit",
+        "test": [
+            "@test-unit",
+            "@test-functional"
+        ],
+        "test-functional": "@php -d memory_limit=-1 vendor/bin/phpunit --testsuite=default --no-coverage",
+        "test-unit": "@php -d memory_limit=-1 -d pcov.directory=../.. vendor/bin/phpunit --testsuite=unit",
         "update-snapshots": "UPDATE_SNAPSHOTS=1 phpunit --no-coverage --filter=testDockerComposeConfig"
     }
 }

@@ -18,11 +18,19 @@ ahoy install  # Install dependencies (run once)
 ```bash
 cd .vortex/tests
 
-composer install      # Install dependencies
-composer lint         # Run phpcs, phpstan, rector --dry-run
-composer lint-fix     # Run rector, phpcbf
-composer test         # Run PHPUnit tests
+composer install         # Install dependencies
+composer lint            # Run phpcs, phpstan, rector --dry-run
+composer lint-fix        # Run rector, phpcbf
+composer test            # Run both suites below
+composer test-unit       # Unit suite, with coverage of the shipped test traits
+composer test-functional # Functional suite, no coverage
 ```
+
+The unit suite covers the test traits the template ships to consumer sites
+(`web/modules/custom/ys_base/tests/src/Traits/`), which reach the autoloader
+through a PSR-4 mapping in `composer.json`. Coverage is configured in
+`phpunit.xml`; `test-unit` widens `pcov.directory` to the repository root
+because those traits sit outside this directory.
 
 ## PHPUnit - Integration Testing Workflows
 

@@ -185,6 +185,13 @@ jobs:
           php -d memory_limit=-1 ./vendor/bin/rector --dry-run
         working-directory: .vortex/tests
 
+      # The unit suite covers the test traits shipped to consumer sites. It
+      # carries no batch group, so it runs once here rather than in every batch.
+      - name: Run unit tests
+        if: matrix.batch == 0
+        run: composer test-unit
+        working-directory: .vortex/tests
+
       - name: Install Ahoy
         run: |
           version=2.4.0 && \
@@ -204,7 +211,7 @@ jobs:
           # Create stub of local network.
           docker network create amazeeio-network 2>/dev/null || true
 
-          php -d memory_limit=-1 vendor/bin/phpunit --group="p${TEST_NODE_INDEX:-*}"
+          composer test-functional -- --group="p${TEST_NODE_INDEX:-*}"
         working-directory: .vortex/tests
         env:
           TEST_VORTEX_DEBUG: ${{ vars.TEST_VORTEX_DEBUG }}
@@ -231,6 +238,9 @@ jobs:
         continue-on-error: true
         with:
           directory: /tmp/.vortex-coverage-html
+          # The unit suite writes outside the searched directory and runs on a
+          # single batch, so its report is named explicitly only for that batch.
+          files: ${{ matrix.batch == 0 && '.vortex/tests/.logs/coverage/cobertura.xml' || '' }}
           fail_ci_if_error: false
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
