@@ -1,4 +1,4 @@
-@@ -47,7 +47,6 @@
+@@ -45,7 +45,6 @@
  return RectorConfig::configure()
    ->withPaths([
      __DIR__ . '/web/modules/custom',
@@ -6,7 +6,7 @@
      __DIR__ . '/web/sites/default/settings.php',
      __DIR__ . '/web/sites/default/includes',
      __DIR__ . '/tests',
-@@ -70,7 +69,6 @@
+@@ -66,7 +65,6 @@
      RemoveAlwaysTrueIfConditionRector::class,
      RemoveUnusedPublicMethodParameterRector::class => [
        __DIR__ . '/web/modules/custom/*/src/Hook/*',
