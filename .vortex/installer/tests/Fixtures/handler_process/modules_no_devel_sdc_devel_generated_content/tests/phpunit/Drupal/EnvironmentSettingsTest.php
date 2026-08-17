@@ -34,7 +34,7 @@
        'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -339,8 +331,6 @@
+@@ -359,8 +351,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [

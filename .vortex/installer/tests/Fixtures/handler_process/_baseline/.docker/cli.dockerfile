@@ -46,9 +46,6 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_CACHE_DIR=/tmp/.composer/cache
 
 # Allow custom PHP runtime configuration for Drush CLI commands.
-# The argument is declared so the reference resolves cleanly; when the base
-# image does not set it, the value stays empty and the leading colon appends
-# to the default scan directories.
 ARG PHP_INI_SCAN_DIR=""
 ENV PHP_INI_SCAN_DIR="${PHP_INI_SCAN_DIR}:/app/drush/php-ini"
 

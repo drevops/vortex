@@ -185,7 +185,7 @@
    }
  
    /**
-@@ -360,6 +540,256 @@
+@@ -380,6 +560,256 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',

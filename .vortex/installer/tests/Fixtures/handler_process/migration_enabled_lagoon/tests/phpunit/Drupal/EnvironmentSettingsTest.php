@@ -199,7 +199,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
-@@ -360,6 +547,256 @@
+@@ -380,6 +567,256 @@
      $settings['suspend_mail_send'] = TRUE;
      $settings['trusted_host_patterns'] = [
        '^localhost$',

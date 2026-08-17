@@ -308,6 +308,26 @@ class EnvironmentSettingsTest extends SettingsTestCase {
   }
 
   /**
+   * Test trusted host patterns for multiple container provider URLs.
+   */
+  public function testEnvironmentLocalContainerMultipleUrls(): void {
+    $this->setEnvVars([
+      'LOCALDEV_URL' => 'https://example-site.docker.amazee.io , http://second-site.docker.amazee.io,',
+    ]);
+
+    $this->requireSettingsFile();
+
+    $this->assertSettingsContains([
+      'trusted_host_patterns' => [
+        '^localhost$',
+        '^example\-site\.docker\.amazee\.io$',
+        '^second\-site\.docker\.amazee\.io$',
+        '^nginx$',
+      ],
+    ]);
+  }
+
+  /**
    * Test per-environment settings for GitHub Actions.
    */
   public function testEnvironmentGha(): void {

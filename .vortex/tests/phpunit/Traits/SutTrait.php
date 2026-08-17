@@ -116,7 +116,7 @@ trait SutTrait {
           'options' => [
             'symlink' => FALSE,
             'versions' => [
-              'drevops/vortex-tooling' => '1.3.0',
+              'drevops/vortex-tooling' => '1.4.0',
             ],
           ],
         ];

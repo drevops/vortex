@@ -14,7 +14,7 @@
      $config['environment_indicator.indicator']['bg_color'] = '#006600';
      $config['environment_indicator.indicator']['fg_color'] = '#ffffff';
      $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_LOCAL;
-@@ -318,7 +316,6 @@
+@@ -338,7 +336,6 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
