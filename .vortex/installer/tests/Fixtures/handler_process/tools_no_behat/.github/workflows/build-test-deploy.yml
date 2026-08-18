@@ -9,22 +9,29 @@
        - name: Lint module code with NodeJS linters
          run: docker compose exec -T cli bash -c "yarn run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-@@ -494,20 +490,6 @@
+@@ -314,7 +310,6 @@
+       CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-      CI_IS_BEHAT_RUNNER: true
+ 
+     container:
+       # https://hub.docker.com/r/drevops/ci-runner
+@@ -507,19 +502,6 @@
              exit 1
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
 -
 -      - name: Test with Behat
+-        if: ${{ env.CI_IS_BEHAT_RUNNER == 'true' }}
 -        run: |
 -          # shellcheck disable=SC2170
--          if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${STRATEGY_JOB_INDEX}}"; fi
+-          if [ "${CI_RUNNER_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${CI_RUNNER_INDEX}}"; fi
 -          echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
 -          docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
 -            docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}"
 -        env:
 -          VORTEX_CI_BEHAT_PROFILE: ${{ vars.VORTEX_CI_BEHAT_PROFILE }}
--          STRATEGY_JOB_TOTAL: ${{ strategy.job-total }}
--          STRATEGY_JOB_INDEX: ${{ strategy.job-index }}
 -        continue-on-error: ${{ vars.VORTEX_CI_BEHAT_IGNORE_FAILURE == '1' }}
 -        timeout-minutes: 30
  

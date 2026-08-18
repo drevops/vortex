@@ -312,6 +312,22 @@ jobs:
       - *load_variables_from_dotenv
 
       - run:
+          name: Set test runner roles
+          command: |
+            # Which tools run on this node. The tools that only need to run once
+            # are pinned to the first node, while Behat runs on every node using
+            # the `p<node index>` profile. Add a line for every additional tool
+            # and reference it in that tool's step.
+            # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
+            {
+              echo "export CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
+              echo "export CI_RUNNER_TOTAL=${CIRCLE_NODE_TOTAL:-1}"
+              echo "export CI_IS_JEST_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+              echo "export CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+              echo "export CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+            } >> "${BASH_ENV}"
+
+      - run:
           name: Validate Composer configuration
           command: composer validate --strict || [ "${VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE:-0}" -eq 1 ]
 
@@ -374,18 +390,20 @@ jobs:
 
       - run:
           name: Test with Jest
-          command: docker compose exec -T cli bash -c "yarn test" || [ "${VORTEX_CI_JEST_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: |
+            [ "${CI_IS_JEST_RUNNER:-1}" = "1" ] || exit 0
+            docker compose exec -T cli bash -c "yarn test" || [ "${VORTEX_CI_JEST_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Test with PHPUnit
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
             docker compose exec -T cli vendor/bin/phpunit || [ "${VORTEX_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Process PHPUnit logs and coverage
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
             mkdir -p "${VORTEX_CI_ARTIFACTS}"
             if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
                docker compose cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
@@ -394,7 +412,7 @@ jobs:
       - run:
           name: Extract code coverage
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
             RATE=$(grep -om1 'line-rate="[0-9.]*"' /tmp/artifacts/coverage/phpunit/cobertura.xml | tr -cd '0-9.')
             PERCENT=$(awk "BEGIN {printf \"%.2f\", $RATE*100}")
             echo "Coverage: $PERCENT% (threshold: ${VORTEX_CI_CODE_COVERAGE_THRESHOLD:-90}%)"
@@ -403,14 +421,14 @@ jobs:
       - run:
           name: Post coverage summary as PR comment
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
             [ "${VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP:-0}" = "1" ] && exit 0
             .circleci/post-coverage-comment.sh /tmp/artifacts/coverage/phpunit/coverage.txt
 
       - run:
           name: Check code coverage threshold
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
             if [ "${COVERAGE_PERCENT//.}" -lt "$((${VORTEX_CI_CODE_COVERAGE_THRESHOLD:-90}*100))" ]; then
               echo "FAIL: coverage ${COVERAGE_PERCENT}% is below threshold ${VORTEX_CI_CODE_COVERAGE_THRESHOLD:-90}%"
               exit 1
@@ -419,7 +437,7 @@ jobs:
       - run:
           name: Validate Single Directory Components
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${CI_IS_SDC_DEVEL_RUNNER:-1}" = "1" ] || exit 0
             [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
             output=$(docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}" 2>&1)
             echo "${output}"
