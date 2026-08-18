@@ -350,6 +350,29 @@ jobs:
         instance: [0, 1]
       fail-fast: false
 
+    env:
+      # Which tools run on this instance. The tools that only need to run once
+      # are pinned to the first instance, while Behat runs on every instance
+      # using the `p<instance index>` profile. Add a line for every additional
+      # tool and reference it in that tool's step.
+      # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
+      CI_RUNNER_INDEX: ${{ strategy.job-index }}
+      CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+      #;< TOOL_JEST
+      CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+      #;> TOOL_JEST
+      #;< TOOL_PHPUNIT
+      CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+      #;> TOOL_PHPUNIT
+      #;< DRUPAL_THEME
+      #;< MODULE_SDC_DEVEL
+      CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+      #;> MODULE_SDC_DEVEL
+      #;> DRUPAL_THEME
+      #;< TOOL_BEHAT
+      CI_IS_BEHAT_RUNNER: true
+      #;> TOOL_BEHAT
+
     container:
       # https://hub.docker.com/r/drevops/ci-runner
       image: drevops/ci-runner:26.8.0@sha256:80be478cfff66d81fa804ccc707dbeae478655d8b850f1ae06824c194bd6528e
@@ -480,19 +503,19 @@ jobs:
 
       #;< TOOL_JEST
       - name: Test with Jest
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        if: ${{ env.CI_IS_JEST_RUNNER == 'true' }}
         run: docker compose exec -T cli bash -c "yarn test"
         continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
       #;> TOOL_JEST
 
       #;< TOOL_PHPUNIT
       - name: Test with PHPUnit
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
         run: docker compose exec -T cli vendor/bin/phpunit
         continue-on-error: ${{ vars.VORTEX_CI_PHPUNIT_IGNORE_FAILURE == '1' }}
 
       - name: Process PHPUnit logs and coverage
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
         run: |
           mkdir -p ".logs"
           if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
@@ -500,7 +523,7 @@ jobs:
           fi
 
       - name: Extract code coverage
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
         run: |
           RATE=$(grep -om1 'line-rate="[0-9.]*"' .logs/coverage/phpunit/cobertura.xml | tr -cd '0-9.')
           PERCENT=$(awk "BEGIN {printf \"%.2f\", $RATE*100}")
@@ -518,7 +541,7 @@ jobs:
           VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 
       - name: Post coverage summary as PR comment
-        if: ${{ github.event_name == 'pull_request' && (matrix.instance == 0 || strategy.job-total == 1) && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
+        if: ${{ github.event_name == 'pull_request' && env.CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
         uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
           header: coverage-gha
@@ -539,7 +562,7 @@ jobs:
       #;< CODE_COVERAGE_PROVIDER_CODECOV
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
-        if: ${{ (matrix.instance == 0 || strategy.job-total == 1) && env.CODECOV_TOKEN != '' }}
+        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' && env.CODECOV_TOKEN != '' }}
         continue-on-error: true
         with:
           directory: .logs/coverage
@@ -550,7 +573,7 @@ jobs:
       #;> CODE_COVERAGE_PROVIDER_CODECOV
 
       - name: Check code coverage threshold
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
         run: |
           if [ "${COVERAGE_PERCENT//.}" -lt "$((VORTEX_CI_CODE_COVERAGE_THRESHOLD*100))" ]; then
             echo "FAIL: coverage ${COVERAGE_PERCENT}% is below threshold ${VORTEX_CI_CODE_COVERAGE_THRESHOLD}%"
@@ -563,7 +586,7 @@ jobs:
       #;< DRUPAL_THEME
       #;< MODULE_SDC_DEVEL
       - name: Validate Single Directory Components
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        if: ${{ env.CI_IS_SDC_DEVEL_RUNNER == 'true' }}
         run: |
           [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
           output=$(docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}" 2>&1)
@@ -578,16 +601,15 @@ jobs:
 
       #;< TOOL_BEHAT
       - name: Test with Behat
+        if: ${{ env.CI_IS_BEHAT_RUNNER == 'true' }}
         run: |
           # shellcheck disable=SC2170
-          if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${STRATEGY_JOB_INDEX}}"; fi
+          if [ "${CI_RUNNER_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${CI_RUNNER_INDEX}}"; fi
           echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
           docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
             docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}"
         env:
           VORTEX_CI_BEHAT_PROFILE: ${{ vars.VORTEX_CI_BEHAT_PROFILE }}
-          STRATEGY_JOB_TOTAL: ${{ strategy.job-total }}
-          STRATEGY_JOB_INDEX: ${{ strategy.job-index }}
         continue-on-error: ${{ vars.VORTEX_CI_BEHAT_IGNORE_FAILURE == '1' }}
         timeout-minutes: 30
       #;> TOOL_BEHAT

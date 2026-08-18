@@ -3,6 +3,9 @@ sidebar_label: Overview
 sidebar_position: 1
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Continuous Integration
 
 **Vortex** offers continuous integration configurations for [GitHub Actions](/docs/continuous-integration/github-actions)
@@ -153,13 +156,99 @@ parallelism settings.
 
 | Task | First container | Other containers |
 |------|:---:|:---:|
+| Jest tests | ✓ | — |
 | PHPUnit tests | ✓ | — |
 | Code coverage check and PR comment | ✓ | — |
+| Single Directory Component validation | ✓ | — |
 | Behat tests | ✓ (profile `p0`) | ✓ (profile `p1`, `p2`, ...) |
 
-PHPUnit and coverage reporting run exclusively on the first container
-to avoid duplicate work. Behat tests run on all containers using profile-based
+Everything except Behat runs exclusively on the first container to avoid
+duplicate work. Behat tests run on all containers using profile-based
 distribution.
+
+### Choosing which container runs what
+
+Each tool reads a `CI_IS_<TOOL>_RUNNER` variable that decides whether it runs on
+the current container. All of them are declared together at the top of the build
+job, so the whole distribution is visible and editable in one place:
+
+<Tabs queryString="ci-provider" groupId="ci-provider">
+<TabItem value="gha" label="GitHub Actions">
+
+```yaml title=".github/workflows/build-test-deploy.yml"
+env:
+  CI_RUNNER_INDEX: ${{ strategy.job-index }}
+  CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+  CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+  CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+  CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+  CI_IS_BEHAT_RUNNER: true
+```
+
+Each tool's step then reads its own flag:
+
+```yaml
+- name: Test with PHPUnit
+  if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
+```
+
+</TabItem>
+<TabItem value="circleci" label="CircleCI">
+
+```yaml title=".circleci/config.yml"
+- run:
+    name: Set test runner roles
+    command: |
+      {
+        echo "export CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
+        echo "export CI_RUNNER_TOTAL=${CIRCLE_NODE_TOTAL:-1}"
+        echo "export CI_IS_JEST_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+        echo "export CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+        echo "export CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+        echo "export CI_IS_BEHAT_RUNNER=1"
+      } >> "${BASH_ENV}"
+```
+
+Each tool's step then reads its own flag as its first line:
+
+```yaml
+- run:
+    name: Test with PHPUnit
+    command: |
+      [ "${CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
+```
+
+</TabItem>
+</Tabs>
+
+`CI_RUNNER_INDEX` and `CI_RUNNER_TOTAL` carry the current container's index and
+the container count under the same names on both providers.
+
+To run a tool of your own on a specific container, add one more flag alongside
+the others and reference it from your step:
+
+```yaml
+CI_IS_CYPRESS_RUNNER: ${{ matrix.instance == 1 }}
+```
+
+#### Giving a tool its own container
+
+Moving a tool onto a container of its own takes two edits - point its flag at
+that container, and exclude that container from Behat:
+
+```yaml
+CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 2 }}
+CI_IS_BEHAT_RUNNER: ${{ matrix.instance != 2 }}
+```
+
+:::warning
+
+Use the **last** container for this, never the first. Behat derives its profile
+name from the container index, and `p0` is the catch-all that runs every
+scenario without a `@pX` tag. Excluding container 0 from Behat means `p0` never
+runs and those scenarios silently stop being tested.
+
+:::
 
 ### Balancing Behat tests
 
@@ -194,11 +283,43 @@ duration of the longest single container rather than the sum of all tests.
 
 :::
 
-See the provider-specific pages for how to change the number of parallel
-containers:
+### Adding more containers
 
-- [CircleCI — Change test parallelism](/docs/continuous-integration/circleci#change-test-parallelism)
-- [GitHub Actions — Change test parallelism](/docs/continuous-integration/github-actions#change-test-parallelism)
+Raising the container count takes two changes that must stay in step - the
+container count itself, and a matching Behat profile for every new container.
+
+1. Increase the container count. See the provider-specific pages:
+
+   - [CircleCI — Change test parallelism](/docs/continuous-integration/circleci#change-test-parallelism)
+   - [GitHub Actions — Change test parallelism](/docs/continuous-integration/github-actions#change-test-parallelism)
+
+2. Add a profile to `behat.yml` for each new container. **Vortex** ships with
+   `p0` and `p1` only, and Behat fails with `profile 'p2' does not exist` if a
+   container has no profile named after its index:
+
+   ```yaml title="behat.yml"
+   p2:
+     gherkin:
+       cache: '/tmp/behat_gherkin_cache'
+       filters:
+         tags: '@smoke,@p2&&~@skipped'
+   ```
+
+3. Exclude the new tag from the `p0` catch-all, so its scenarios do not also run
+   on the first container:
+
+   ```yaml title="behat.yml"
+   p0:
+     gherkin:
+       cache: '/tmp/behat_gherkin_cache'
+       filters:
+         tags: '@smoke,~@p1&&~@p2&&~@skipped'
+   ```
+
+4. Tag scenarios with `@p2` to move them onto the new container.
+
+Scenarios tagged `@smoke` run on every container by design, so they stay out of
+the balancing arithmetic.
 
 ## Maintenance
 
