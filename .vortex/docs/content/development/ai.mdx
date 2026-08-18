@@ -1,6 +1,6 @@
 ---
 sidebar_label: AI
-sidebar_position: 7
+sidebar_position: 9
 ---
 
 # AI
@@ -18,13 +18,13 @@ throughout **Vortex**:
   agent reads all files in `docs/` to understand project-specific decisions
   such as testing conventions, CI configuration, deployment rules, and
   release processes.
-- **How** to perform operations is sourced from the
-  https://www.vortextemplate.com/docs (this site). The
-  `AGENTS.md` file instructs agents to fetch operational guides from the
-  website and cache them locally in `.artifacts/`.
+- **How** to perform operations is sourced from
+  [www.vortextemplate.com/docs](https://www.vortextemplate.com/docs) (this
+  site). The `AGENTS.md` file instructs agents to fetch operational guides
+  from the website and cache them locally in `.artifacts/`.
 
 This means AI agents receive the same layered guidance as human developers:
-project-level decisions first, then Vortex-level procedures.
+project-level decisions first, then **Vortex**-level procedures.
 
 ## Configuration files
 
@@ -36,15 +36,16 @@ an agent-agnostic file that any AI tool can use.
 
 Key sections include:
 
-- **Daily development tasks** — a reference of `ahoy` commands for building,
+- **Daily development tasks** - a reference of `ahoy` commands for building,
   testing, and managing the local environment.
-- **Critical rules** — constraints that agents must always follow (e.g., never
+- **Critical rules** - constraints that agents must always follow (e.g., never
   modify `vendor/drevops/vortex-tooling/src/`, always export config after admin UI changes).
-- **Key directories** — the project's directory layout.
-- **Documentation** — instructions for agents to check `docs/` files for
+- **Key directories** - the project's directory layout.
+- **Documentation** - instructions for agents to check `docs/` files for
   project-specific decisions and to fetch operational documentation from
-  https://www.vortextemplate.com/docs. Fetched documentation is cached locally so
-  that agents can reuse it across sessions without repeated requests.
+  [www.vortextemplate.com/docs](https://www.vortextemplate.com/docs). Fetched
+  documentation is cached locally so that agents can reuse it across sessions
+  without repeated requests.
 
 ### `CLAUDE.md`
 

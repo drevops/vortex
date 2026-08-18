@@ -1,5 +1,6 @@
 ---
-sidebar_position: 100
+sidebar_label: Variables
+sidebar_position: 11
 hide_table_of_contents: true
 ---
 
@@ -10,14 +11,14 @@ hide_table_of_contents: true
 **Vortex** uses environment variables to configure scripts without the need to
 change the code to alter behavior.
 
-There are two main types of variables:
+There are 2 main types of variables:
 
-**Project Configuration Variables** are set once during project setup and
+**Project configuration variables** are set once during project setup and
 remain constant throughout the project lifecycle. These are typically
 configured in the `.env` file, or within the CI or hosting provider
 environments.
 
-**Runtime Variables** can be changed during the project lifecycle
+**Runtime variables** can be changed during the project lifecycle
 to alter script behavior. For example, changing how deployment behaves
 or skipping a certain code branch deployment within CI.
 
@@ -42,7 +43,7 @@ separate from the main `.env` file.
 - value in `.env.local` (last value wins)
 - value from environment
 
-### Naming conventions
+## Naming conventions
 
 All variables used by **Vortex** scripts start with the `VORTEX_` prefix to
 differentiate them from other environment variables. The exception is
@@ -55,7 +56,7 @@ All Drupal-specific environment variables start with the `DRUPAL_` prefix.
 Any other third-party service variables (like `COMPOSER_TOKEN` or `NEWRELIC_API_KEY`)
 are used as-is.
 
-### Default values
+## Default values
 
 All _required_ variables used by **Vortex** scripts have checks in place to
 ensure they are set before proceeding. If a required variable is missing, the
@@ -66,17 +67,16 @@ defined within the scripts. This ensures that scripts can run out-of-the-box
 without requiring extensive configuration.
 
 Variables without values provided or set in scripts are considered defects in
-the template implementation and should be reported. This is because in Shell
-scripts not having a value or having an empty value may lead to unexpected
-behavior in when these values are evaluated in conditions. Moreover, having
-empty or unset values do not allow to have a reliable multi-level override
+the template implementation and should be reported. In Shell scripts, a missing
+or empty value may lead to unexpected behavior when it is evaluated in
+conditions, and empty or unset values break the reliable multi-level override
 mechanism for variables.
 
 For example, a variable can have a default value in the script, be overridden in
 the `.env` file, and further overridden in the CI/hosting for all environments,
 and then additionally overridden for a specific environment.
 
-### Boolean variables
+## Boolean variables
 
 Boolean variables use `1` for true and `0` for false values to ensure consistency
 across different environments.
@@ -504,5 +504,3 @@ The list below is automatically generated with [Shellvar](https://github.com/ale
 | <a id="vortex_task_purge_cache_acquia_status_retries"></a>`VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES`                       | Number of status retrieval retries. If this limit reached and task has not yet finished, the task is considered failed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `600`                                                               | `.vortex/tooling/src/vortex-task-purge-cache-acquia`                                                                                                                      |
 | <a id="vortex_unblock_admin"></a>`VORTEX_UNBLOCK_ADMIN`                                                                         | Unblock admin account when logging in.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | `1`                                                                 | `.env`                                                                                                                   |
 | <a id="webroot"></a>`WEBROOT`                                                                                                   | Name of the web root directory containing a Drupal codebase.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `web`                                                               | `.env`, `.vortex/tooling/src/vortex-fetch-db-lagoon`, `.vortex/tooling/src/vortex-info`, `.vortex/tooling/src/vortex-provision`, `.vortex/tooling/src/vortex-reset`       |
----
-Variable list generated with [Shellvar - Utility to work with shell variables](https://github.com/AlexSkrypnyk/shellvar)
