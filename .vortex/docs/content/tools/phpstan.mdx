@@ -2,20 +2,17 @@
 sidebar_label: PHPStan
 ---
 
-# PHPStan - PHP Static Analysis Tool
+# PHPStan - PHP static analysis tool
 
 https://phpstan.org/user-guide/getting-started
 
-> PHPStan focuses on finding errors in your code without actually running it. It
-> catches whole classes of bugs even before you write tests for the code. It
-> moves
-> PHP closer to compiled languages in the sense that the correctness of each
-> line
-> of the code can be checked before you run the actual line.
+> PHPStan focuses on finding errors in your code without actually running it.
+> It catches whole classes of bugs even before you write tests for the code.
+> It moves PHP closer to compiled languages in the sense that the correctness
+> of each line of the code can be checked before you run the actual line.
 
-**Vortex** comes with [pre-configured PHPStan ruleset](https://github.com/drevops/vortex/blob/main/phpstan.neon)
-for
-Drupal projects.
+**Vortex** comes with a [pre-configured PHPStan ruleset](https://github.com/drevops/vortex/blob/main/phpstan.neon)
+for Drupal projects.
 
 ## Usage
 
@@ -52,10 +49,12 @@ All global configuration takes place in
 the [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon)
 file.
 
-By default, PHPStan will check with the Drupal context in mind thanks to
+The analysis runs at [level 7](https://phpstan.org/user-guide/rule-levels)
+against the PHP version pinned in the `composer.json` key
+`config.platform.php`, and checks with the Drupal context in mind thanks to
 [mglaman/phpstan-drupal](https://github.com/mglaman/phpstan-drupal).
 
-Targets include custom modules and themes, settings and tests.
+Targets include custom modules and themes, settings, tests and scripts.
 
 Adding or removing targets:
 
@@ -76,7 +75,7 @@ the [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon) f
 ```yaml
 parameters:
   ignoreErrors:
-    - # Comment about why this rules is excluded.
+    - # Comment about why this rule is excluded.
       # 'message' is a regular expression with `#` as begin and end delimiters.
       message: '#.*no value type specified in iterable type array.#'
       paths:
@@ -84,14 +83,11 @@ parameters:
         - path/to/exclude/a_file.php
 ```
 
-PHPStan does not support ignoring of **all PHPStan rules** within a file.
+PHPStan does not support ignoring all rules within a file, ignoring a specific
+rule within a file, or ignoring [code blocks](https://github.com/phpstan/phpstan/issues/4452) -
+inline suppression is per-line only.
 
-PHPStan does not support ignoring of **a specific rule** within a file.
-
-PHPStan [does not support](https://github.com/phpstan/phpstan/issues/4452)
-ignoring of the **code blocks**.
-
-To ignore only the current and the **next line**:
+To ignore only the **next line**:
 
 ```php
 // @phpstan-ignore-next-line
@@ -100,8 +96,8 @@ $a = 1;
 
 ## Ignoring fail in continuous integration pipeline
 
-This tool runs in continuous integration pipeline by default and fails the build
-if there are any violations.
+This tool runs in the continuous integration pipeline by default and fails the
+build if there are any violations.
 
-Set `VORTEX_CI_PHPSTAN_IGNORE_FAILURE` environment variable to `1` to ignore
-failures. The tool will still run and report violations, if any.
+Set the `VORTEX_CI_PHPSTAN_IGNORE_FAILURE` environment variable to `1` to
+ignore failures. The tool will still run and report violations, if any.

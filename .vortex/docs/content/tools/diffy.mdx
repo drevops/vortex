@@ -21,9 +21,8 @@ environment), and surfaces the per-page differences in a web UI.
   page and per breakpoint.
 - **DOM manipulation** - mask, hide, or replace elements before screenshots
   (useful for hiding ads, popups, dynamic timestamps).
-- **CI-friendly CLI** - the
-  [`diffy-cli`](https://github.com/DiffyWebsite/diffy-cli) PHAR can be driven
-  from any CI runner or shell script.
+- **CLI** - the [`diffy-cli`](https://github.com/DiffyWebsite/diffy-cli) PHAR
+  can be driven from any CI runner or shell script.
 - **REST API** - all CLI operations are available as direct HTTP calls.
 
 ## Account and project setup
@@ -38,12 +37,14 @@ environment), and surfaces the per-page differences in a web UI.
 The numeric **project ID** is visible in the Diffy project URL and is needed
 by any automation that talks to the Diffy API.
 
-## Pricing
+:::note
 
-Diffy bills per screenshot set. Each comparison consumes one screenshot set
-per environment compared (so a "production vs. PR env" comparison consumes
-two). Plan accordingly when wiring it into CI - frequent dispatches against
-a chatty repository can exhaust a plan quickly.
+Diffy bills per screenshot set, and a comparison consumes one set per
+environment compared (a "production vs. PR environment" comparison consumes
+2). Frequent automated dispatches consume a plan quickly, so limit which
+branches trigger comparisons when wiring it into CI.
+
+:::
 
 ## Vortex integration
 

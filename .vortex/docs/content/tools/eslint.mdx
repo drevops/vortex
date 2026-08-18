@@ -25,7 +25,10 @@ import TabItem from '@theme/TabItem';
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
+    # Lint all front-end code: Twig, JavaScript and CSS.
     ahoy lint-fe
+    # Lint only JavaScript in custom modules.
+    ahoy cli "yarn run lint-js"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -37,12 +40,16 @@ import TabItem from '@theme/TabItem';
 
 ### Fix violations
 
-ESLint supports automatic fixing of many violations using the `--fix` flag. Prettier integration provides additional auto-formatting capabilities.
+ESLint fixes many violations automatically using the `--fix` flag, and the
+Prettier integration reformats the code at the same time.
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
+    # Fix all front-end lint issues.
     ahoy lint-fe-fix
+    # Fix only JavaScript issues in custom modules.
+    ahoy cli "yarn run lint-fix-js"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -71,12 +78,13 @@ The configuration includes Drupal-specific globals:
 - `CKEditor5`
 - And other common Drupal frontend libraries
 
-Targets include custom modules only:
+Targets include custom modules only. The `--max-warnings=0` flag makes
+warnings fail the check too:
 
 ```json
 {
   "scripts": {
-    "lint-js": "eslint web/modules/custom --ext .js"
+    "lint-js": "eslint web/modules/custom --ext .js --max-warnings=0 --no-error-on-unmatched-pattern"
   }
 }
 ```
@@ -86,7 +94,7 @@ Adding or removing targets in `package.json`:
 ```json
 {
   "scripts": {
-    "lint-js": "eslint web/modules/custom web/sites/default --ext .js"
+    "lint-js": "eslint web/modules/custom web/sites/default --ext .js --max-warnings=0 --no-error-on-unmatched-pattern"
   }
 }
 ```
@@ -101,7 +109,7 @@ When you run `ahoy lint-fe-fix`, both ESLint's `--fix` and Prettier's formatting
 
 **Vortex** sets `printWidth` to `160` in [`.prettierrc.json`](https://github.com/drevops/vortex/blob/main/.prettierrc.json) instead of the Prettier default of `80`, so a statement stays on one line unless it is genuinely long. Documentation blocks are held to `80` columns through `jsdocPrintWidth`, matching the width the PHP coding standard applies to comments.
 
-CSS carries its own `printWidth` override so that declarations are never wrapped. Prettier only reaches CSS when it is invoked directly, such as from an editor on save - within **Vortex**, stylesheets are linted by Stylelint.
+CSS carries its own `printWidth` override so that declarations are never wrapped. Prettier only reaches CSS when it is invoked directly, such as from an editor on save - within **Vortex**, stylesheets are linted by [Stylelint](stylelint.mdx).
 
 The custom theme ships a second `.prettierrc.json` with the same settings, because a theme carries its own front-end tooling and can be moved into a separate repository.
 
@@ -117,8 +125,11 @@ vendor/
 web/core/
 web/libraries/
 web/modules/contrib/
+web/profiles/contrib/
 web/themes/contrib/
+web/sites/*/files/
 *.min.js
+*.min.css
 ```
 
 ### Inline ignoring
@@ -158,8 +169,9 @@ console.log('Debug'); // eslint-disable-line no-console
 
 ## Ignoring fail in continuous integration pipeline
 
-This tool runs in continuous integration pipeline by default and fails the build
-if there are any violations.
+This tool runs in the continuous integration pipeline by default and fails the
+build if there are any violations.
 
-Set `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE` environment variable to `1` to ignore
-failures. The tool will still run and report violations, if any.
+Set the `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE` environment variable to `1` to
+ignore failures (this variable also covers [Stylelint](stylelint.mdx), which
+runs in the same step). The tool will still run and report violations, if any.

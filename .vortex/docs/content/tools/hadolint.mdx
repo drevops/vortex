@@ -6,9 +6,11 @@ https://github.com/hadolint/hadolint
 
 :::note
 
-**Vortex** does not install Hadolint locally. Please follow the [instructions](https://github.com/hadolint/hadolint#install) to install it on your system.
+**Vortex** does not install Hadolint locally. Follow the
+[instructions](https://github.com/hadolint/hadolint#install) to install it on
+your system.
 
-In CI, Hadolint is installed automatically as part of the pipeline.
+In CI, Hadolint runs from its official Docker image.
 
 :::
 
@@ -32,7 +34,7 @@ To ignore **all Hadolint rules** within a file, place in the file header:
 FROM ubuntu
 ```
 
-To ignore only the current and the **next line**:
+To ignore rules for the **next instruction** only:
 
 ```Dockerfile
 FROM ubuntu
@@ -43,8 +45,8 @@ RUN cd /tmp && echo "hello!"
 
 ## Ignoring fail in continuous integration pipeline
 
-This tool runs in continuous integration pipeline by default and fails the build
-if there are any violations.
+This tool runs in the continuous integration pipeline by default and fails the
+build if there are any violations.
 
-Set `VORTEX_CI_HADOLINT_IGNORE_FAILURE` environment variable to `1` to ignore
-failures. The tool will still run and report violations, if any.
+Set the `VORTEX_CI_HADOLINT_IGNORE_FAILURE` environment variable to `1` to
+ignore failures. The tool will still run and report violations, if any.

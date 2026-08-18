@@ -6,9 +6,12 @@ https://github.com/gitleaks/gitleaks
 
 :::note
 
-**Vortex** does not install Gitleaks locally. Please follow the [instructions](https://github.com/gitleaks/gitleaks#installing) to install it on your system.
+**Vortex** does not install Gitleaks locally. Follow the
+[instructions](https://github.com/gitleaks/gitleaks#installing) to install it
+on your system.
 
-In CI, Gitleaks runs from its official Docker image as part of the [security audit workflow](/docs/continuous-integration#security-audit).
+In CI, Gitleaks runs from its official Docker image as part of the
+[security audit workflow](../continuous-integration/README.mdx#security-audit).
 
 :::
 
@@ -18,7 +21,14 @@ In CI, Gitleaks runs from its official Docker image as part of the [security aud
 gitleaks dir .
 ```
 
-Gitleaks reads its configuration from the `.gitleaks.toml` file at the repository root. The shipped allowlist is tuned for Drupal projects so that a clean install reports no findings while real secrets are still detected.
+## Configuration
+
+Global configuration takes place in the [`.gitleaks.toml`](https://github.com/drevops/vortex/blob/main/.gitleaks.toml)
+file at the repository root (see the
+[configuration documentation](https://github.com/gitleaks/gitleaks#configuration)).
+It extends the default rule set with an allowlist for the placeholder values a
+Drupal project template legitimately contains, so a clean install reports no
+findings while real secrets are still detected.
 
 ## Ignoring
 
@@ -28,7 +38,8 @@ To ignore a single line, add a `gitleaks:allow` comment to it:
 $settings['example'] = 'not-a-real-secret'; // gitleaks:allow
 ```
 
-To ignore a path or a recurring known-safe value across the codebase, add it to the `.gitleaks.toml` file at the repository root. See the [configuration documentation](https://github.com/gitleaks/gitleaks#configuration).
+To ignore a path or a recurring known-safe value across the codebase, add it to
+the `.gitleaks.toml` file.
 
 ## Ignoring fail in continuous integration pipeline
 

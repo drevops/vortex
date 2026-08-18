@@ -6,33 +6,55 @@ sidebar_position: 1
 # Tools
 
 **Vortex** comes with a set of tools to help you develop and maintain your
-Drupal project.
-
-The tools have their own configuration files with sensible defaults to make them
+Drupal project. Each tool ships with its own configuration file, adjusted to
 work for Drupal projects out of the box.
 
-Some of the tools run in continuous integration pipeline and would fail the
-build if they detect issues.
+Many of the tools are selectable when you install **Vortex**, and the linters
+and scanners run in the continuous integration pipeline, where each can be
+individually allowed to fail via its `VORTEX_CI_<TOOL>_IGNORE_FAILURE`
+variable - see [Ignore tool failures](../continuous-integration/README.mdx#ignore-tool-failures).
 
-Head over to the tool-specific documentation to learn more.
+## Environment and runtime
 
-| Name                               | Description                                                                             |
-|------------------------------------|-----------------------------------------------------------------------------------------|
-| [Ahoy](ahoy.mdx)                   | CLI command wrapper                                                                     |
-| [Behat](behat.mdx)                 | Testing framework for auto-testing your business expectations                           |
-| [DCLint](dclint.mdx)               | A command-line tool for validating and enforcing best practices in Docker Compose files |
-| [Docker](docker.mdx)               | A platform for containerizing and running applications                                  |
-| [Doctor](doctor.mdx)               | Check **Vortex** project requirements or retrieve environment information               |
-| [Drush](drush.mdx)                 | Command line shell and Unix scripting interface for Drupal                              |
-| [ESLint](eslint.mdx)               | JavaScript linter with Prettier integration for custom modules                          |
-| [Gherkin Lint](gherkin-lint.mdx)   | Provides a Gherkin linter for PHP                                                       |
-| [Git artifact](git-artifact.mdx)   | Package and push files to remote repositories                                           |
-| [Gitleaks](gitleaks.mdx)           | Detect hardcoded secrets like passwords, API keys, and tokens                           |
-| [Hadolint](hadolint.mdx)           | A smarter Dockerfile linter that helps you build best practice container images         |
-| [PHPCS](phpcs.mdx)                 | Check that code adheres to coding standards                                             |
-| [PHPStan](phpstan.mdx)             | PHP Static Analysis Tool                                                                |
-| [PHPUnit](phpunit.mdx)             | The PHP Testing Framework                                                               |
-| [Pygmy](pygmy.mdx)                 | A local reverse-proxy and email catcher                                                 |
-| [Rector](rector.mdx)               | Instant Upgrades and Automated Refactoring                                              |
-| [Renovate](renovate.mdx)           | A bot for automated dependency updates                                                  |
-| [Twig CS Fixer](twig-cs-fixer.mdx) | Checkstyle for Twig                                                                     |
+| Name                     | Description                                                    |
+|--------------------------|----------------------------------------------------------------|
+| [Ahoy](ahoy.mdx)         | CLI command wrapper for project tasks                          |
+| [Docker](docker.mdx)     | Containerized services for local development and hosting       |
+| [Pygmy](pygmy.mdx)       | Local reverse-proxy and email catcher for the container stack  |
+| [Doctor](doctor.mdx)     | Check project requirements and retrieve environment information |
+| [Drush](drush.mdx)       | Command line shell and scripting interface for Drupal          |
+
+## Code quality
+
+| Name                                   | Description                                                 |
+|----------------------------------------|-------------------------------------------------------------|
+| [PHPCS](phpcs.mdx)                     | Check that PHP code adheres to coding standards             |
+| [PHPStan](phpstan.mdx)                 | Static analysis for PHP                                     |
+| [Rector](rector.mdx)                   | Automated PHP refactoring and upgrades                      |
+| [ESLint](eslint.mdx)                   | Lint JavaScript in custom modules, with Prettier integration |
+| [Stylelint](stylelint.mdx)             | Lint CSS in custom modules and the theme                    |
+| [Twig CS Fixer](twig-cs-fixer.mdx)     | Check Twig templates against coding standards               |
+| [Gherkin Lint](gherkin-lint.mdx)       | Lint Behat feature files                                    |
+| [SDC Devel](sdc-devel.mdx)             | Validate Single Directory Components in the theme           |
+| [DCLint](dclint.mdx)                   | Lint Docker Compose files                                   |
+| [Hadolint](hadolint.mdx)               | Lint Dockerfiles                                            |
+| [Gitleaks](gitleaks.mdx)               | Detect committed secrets like passwords, API keys, and tokens |
+
+## Testing
+
+The test frameworks are documented in the [Development](../development/README.mdx)
+section, since running and writing tests is part of the daily workflow:
+
+| Name                                    | Description                          |
+|-----------------------------------------|--------------------------------------|
+| [PHPUnit](../development/phpunit.mdx)   | Unit, kernel, and functional testing |
+| [Behat](../development/behat.mdx)       | Behavior-driven (BDD) testing        |
+| [Jest](../development/jest.mdx)         | JavaScript unit testing              |
+
+## Delivery and automation
+
+| Name                                 | Description                                        |
+|--------------------------------------|----------------------------------------------------|
+| [Git artifact](git-artifact.mdx)     | Package and push built code to a remote repository |
+| [Renovate](renovate.mdx)             | Automated dependency updates                       |
+| [Diffy](diffy.mdx)                   | Visual regression testing service                  |

@@ -1,0 +1,94 @@
+---
+sidebar_label: Stylelint
+---
+
+# Stylelint
+
+https://github.com/stylelint/stylelint
+
+> A mighty CSS linter that helps you avoid errors and enforce conventions.
+
+**Vortex** comes with a [pre-configured Stylelint ruleset](https://github.com/drevops/vortex/blob/main/.stylelintrc.js)
+for Drupal projects.
+
+## Usage
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### Check for violations
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Lint all front-end code: Twig, JavaScript and CSS in custom modules, and the theme.
+    ahoy lint-fe
+    # Lint only CSS in custom modules.
+    ahoy cli "yarn run lint-css"
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Lint only CSS in custom modules.
+    docker compose exec cli yarn run lint-css
+    ```
+  </TabItem>
+</Tabs>
+
+### Fix violations
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Fix all front-end lint issues.
+    ahoy lint-fe-fix
+    # Fix only CSS issues in custom modules.
+    ahoy cli "yarn run lint-fix-css"
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Fix only CSS issues in custom modules.
+    docker compose exec cli yarn run lint-fix-css
+    ```
+  </TabItem>
+</Tabs>
+
+## Configuration
+
+See the [configuration reference](https://stylelint.io/user-guide/configure).
+
+Global configuration takes place in the [`.stylelintrc.js`](https://github.com/drevops/vortex/blob/main/.stylelintrc.js)
+file. It extends [`stylelint-config-standard`](https://github.com/stylelint/stylelint-config-standard),
+adds the [`stylelint-order`](https://github.com/hudochenkov/stylelint-order)
+plugin to keep CSS properties in alphabetical order, allows the SCSS at-rules
+used in Drupal themes, and relaxes the naming-pattern rules that conflict with
+Drupal's BEM-style class names.
+
+The targets are defined in [`package.json`](https://github.com/drevops/vortex/blob/main/package.json):
+the `lint-css` script covers `*.css` files in custom modules. The custom theme
+ships its own [`.stylelintrc.json`](https://github.com/drevops/vortex/blob/main/web/themes/custom/your_site_theme/.stylelintrc.json)
+and lints its sources through the theme's own `lint` script, which
+`ahoy lint-fe` also runs.
+
+## Ignoring
+
+Stylelint supports suppressing rules inline (see
+[ignoring code](https://stylelint.io/user-guide/ignore-code)):
+
+```css
+/* stylelint-disable-next-line color-no-hex */
+.selector { color: #fff; }
+```
+
+To ignore whole files or directories, add them to an `ignoreFiles` key in the
+configuration file.
+
+## Ignoring fail in continuous integration pipeline
+
+This tool runs in the continuous integration pipeline by default and fails the
+build if there are any violations.
+
+Set the `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE` environment variable to `1` to
+ignore failures (this variable also covers [ESLint](eslint.mdx), which runs in
+the same step). The tool will still run and report violations, if any.
