@@ -76,7 +76,7 @@
 - [ ] Updated PHP version in `composer.json` for `config.platform`.
 - [ ] Updated PHP version in `phpcs.xml` for `testVersion`.
 - [ ] Updated PHP version in `phpstan.neon` for `phpVersion`.
-- [ ] Tagged `drevops/vortex-tooling` before the Vortex tag when the tooling changed, and pinned the freshly tagged version as the upper boundary in `composer.json`.
+- [ ] Tagged `drevops/vortex-tooling` before the Vortex tag when the tooling changed, and required the freshly tagged version with a tilde constraint in `composer.json` so the requirement stays within that version's minor.
 - [ ] Updated minor version of all packages in `composer.json`.
 - [ ] Updated minor version of dependencies in theme's `package.json`.
 - [ ] Updated `drevops/ci-runner` to the latest version in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.

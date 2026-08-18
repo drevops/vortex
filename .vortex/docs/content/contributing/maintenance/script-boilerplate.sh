@@ -27,9 +27,13 @@ info "Started Vortex operations."
 [ -z "${VORTEX_EXAMPLE_URL}" ] && fail "Missing required value for VORTEX_EXAMPLE_URL."
 command -v curl >/dev/null || fail "curl command is not available."
 
-# Example of the script body. Every task is closed by a pass or a fail.
+# Example of the script body. Every task is closed by a pass or a fail. The
+# assignment is guarded so a curl transport error reports through fail instead
+# of aborting the script via 'set -e' before fail can run.
 task "Requesting example page."
-status="$(curl -L -s -o /dev/null -w "%{http_code}" "${VORTEX_EXAMPLE_URL}")"
+if ! status="$(curl -L -s -o /dev/null -w "%{http_code}" "${VORTEX_EXAMPLE_URL}")"; then
+  fail "Unable to reach ${VORTEX_EXAMPLE_URL}."
+fi
 echo "${status}" | grep -q '200\|403' || fail "Example page returned status ${status}."
 pass "Requested example page."
 

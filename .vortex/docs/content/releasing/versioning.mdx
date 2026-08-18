@@ -71,6 +71,6 @@ VORTEX_RELEASE_VERSION_SCHEME=calver  # or semver, or other
 
 - **Draft release notes** are automatically updated when commits are pushed to the `develop` branch
 - The next version number is proposed per your scheme: computed from the current date for CalVer, and resolved by [release-drafter](https://github.com/release-drafter/release-drafter) (minor increment by default) for SemVer
-- The workflow reads the scheme from the `VORTEX_RELEASE_VERSION_SCHEME` repository variable, falling back to the `.env` value
+- The workflow reads the scheme from the `VORTEX_RELEASE_VERSION_SCHEME` **repository variable**, defaulting to `calver` when the variable is unset - set it in your repository settings to match your project's scheme, since the `.env` value does not drive this workflow
 - Release notes accumulate changes until the release is finalized
 - On release finish, you can use the draft to publish the final release notes

@@ -41,13 +41,14 @@ services:
     build: .
 ```
 
-To ignore only **specific rules** on the next line:
+To ignore **specific rules** for a single line, place a `disable-line`
+directive on its own line immediately above it:
 
 ```yaml
 services:
-  # dclint disable-next-line require-quotes-in-ports
   nginx:
     ports:
+      # dclint disable-line require-quotes-in-ports
       - 8080:8080
 ```
 

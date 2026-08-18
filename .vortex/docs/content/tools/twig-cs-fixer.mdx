@@ -67,7 +67,9 @@ $finder->in(__DIR__ . '/web/themes/custom');
 
 ## Ignoring
 
-Ignoring rules **globally** takes place in the [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php) file:
+Excluding **target directories** takes place in the [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php)
+file - `$finder->exclude()` removes directories from the set of linted files
+rather than disabling a rule:
 
 ```php
 $finder->exclude('myCustomDirectory');

@@ -69,7 +69,9 @@ Specifically check if any environment variables were added or changed.
    so review the package version changes carefully. We recommend temporarily
    reverting the changes to `composer.json` and `composer.lock` to preserve
    your project's versions, then updating the package versions in your
-   `composer.json` manually.
+   `composer.json` manually. After settling the constraints, run
+   `ahoy composer update` and commit the regenerated `composer.lock`, so the
+   build installs the versions you selected rather than the stale locked ones.
 
    ```shell title="Review changes"
    git status

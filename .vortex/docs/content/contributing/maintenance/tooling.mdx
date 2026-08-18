@@ -50,6 +50,10 @@ drush search-api:server-disable solr || true
 pass "Disabled Search API Solr server."
 ```
 
+The `|| true` in this example is deliberate: the disable is best-effort
+because the Solr server is not enabled in every environment, and the contract
+still requires the closing `pass` so the step reports an outcome.
+
 See [Template > Authoring scripts](template.mdx#authoring-scripts) for the full
 authoring requirements shared by all shell scripts in the template.
 

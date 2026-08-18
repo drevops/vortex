@@ -39,10 +39,9 @@ by any automation that talks to the Diffy API.
 
 :::note
 
-Diffy bills per screenshot set, and a comparison consumes one set per
-environment compared (a "production vs. PR environment" comparison consumes
-2). Frequent automated dispatches consume a plan quickly, so limit which
-branches trigger comparisons when wiring it into CI.
+Diffy plan usage depends on the screenshots captured. Reuse a saved baseline
+screenshot set where possible, and limit which branches trigger comparisons
+when wiring it into CI - frequent automated dispatches consume a plan quickly.
 
 :::
 

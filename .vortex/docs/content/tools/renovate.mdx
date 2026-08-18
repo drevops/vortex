@@ -67,9 +67,9 @@ restrict third-party access to their repositories.
 
 :::note
 
-If the job is configured but `RENOVATE_TOKEN` is not provided, the job still
-runs and the Renovate update steps are skipped gracefully without failing the
-build.
+If the job is configured but a required variable - `RENOVATE_TOKEN` or
+`RENOVATE_GIT_AUTHOR` - is not provided, the job still runs and the Renovate
+update steps are skipped gracefully without failing the build.
 
 :::
 

@@ -90,8 +90,12 @@ the container count under the same names on both providers.
 To run a tool of your own on a specific container, add one more flag alongside
 the others and reference it from your step:
 
-```yaml
+```yaml title=".github/workflows/build-test-deploy.yml"
 CI_IS_CYPRESS_RUNNER: ${{ matrix.instance == 1 }}
+```
+
+```shell title=".circleci/config.yml, inside 'Set test runner roles'"
+echo "export CI_IS_CYPRESS_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 1 ] && echo 1 || echo 0)"
 ```
 
 ### Giving a tool its own container
@@ -99,7 +103,8 @@ CI_IS_CYPRESS_RUNNER: ${{ matrix.instance == 1 }}
 Start by [adding a container](#adding-more-containers) for the tool to move
 onto - the default configuration has containers `0` and `1` only. Then point
 the tool's flag at the new container and exclude that container from Behat.
-With a third container added, that is:
+With a third container added, that is (GitHub Actions shown - mirror the
+conditions in CircleCI's `Set test runner roles` step):
 
 ```yaml
 CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 2 }}

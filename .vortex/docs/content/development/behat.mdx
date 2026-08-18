@@ -145,8 +145,10 @@ Feature: Homepage
     Given I go to the homepage
 ```
 
-If the pipeline has only one runner, the `default` profile is used and all
-tests run there (except those tagged `@skipped`).
+If the pipeline has only one runner and `VORTEX_CI_BEHAT_PROFILE` is unset,
+the `default` profile is used and all tests run there except those tagged
+`@skipped`. An explicitly set `VORTEX_CI_BEHAT_PROFILE` stays active even on a
+single runner.
 
 To add more runners, copy the `p1` profile in `behat.yml`, adjust its tag
 filter, and register the new runner in the pipeline - see
