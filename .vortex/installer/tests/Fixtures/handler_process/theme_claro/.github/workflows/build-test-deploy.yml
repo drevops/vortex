@@ -10,13 +10,21 @@
    database:
      runs-on: ubuntu-latest
      if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
-@@ -482,18 +477,6 @@
+@@ -312,7 +307,6 @@
+       CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+       CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-      CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       # Runs on every instance, using the `p<instance index>` profile.
+       CI_IS_BEHAT_RUNNER: true
+ 
+@@ -495,18 +489,6 @@
            fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 -
 -      - name: Validate Single Directory Components
--        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        if: ${{ env.CI_IS_SDC_DEVEL_RUNNER == 'true' }}
 -        run: |
 -          [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
 -          output=$(docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}" 2>&1)
@@ -28,4 +36,4 @@
 -        continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
        - name: Test with Behat
-         run: |
+         if: ${{ env.CI_IS_BEHAT_RUNNER == 'true' }}

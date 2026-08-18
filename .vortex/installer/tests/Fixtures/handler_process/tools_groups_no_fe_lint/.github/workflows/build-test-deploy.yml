@@ -17,7 +17,15 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -404,7 +399,6 @@
+@@ -310,7 +305,6 @@
+       # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
+       CI_RUNNER_INDEX: ${{ strategy.job-index }}
+       CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+-      CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       # Runs on every instance, using the `p<instance index>` profile.
+@@ -417,7 +411,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -25,15 +33,15 @@
  
        - name: Provision site
          run: |
-@@ -417,11 +411,6 @@
+@@ -430,11 +423,6 @@
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
 -
 -      - name: Test with Jest
--        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        if: ${{ env.CI_IS_JEST_RUNNER == 'true' }}
 -        run: docker compose exec -T cli bash -c "yarn test"
 -        continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
        - name: Test with PHPUnit
-         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+         if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}

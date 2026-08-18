@@ -1,14 +1,22 @@
-@@ -423,66 +423,6 @@
+@@ -311,7 +311,6 @@
+       CI_RUNNER_INDEX: ${{ strategy.job-index }}
+       CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+       CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-      CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       # Runs on every instance, using the `p<instance index>` profile.
+       CI_IS_BEHAT_RUNNER: true
+@@ -436,66 +435,6 @@
          run: docker compose exec -T cli bash -c "yarn test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
 -      - name: Test with PHPUnit
--        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
 -        run: docker compose exec -T cli vendor/bin/phpunit
 -        continue-on-error: ${{ vars.VORTEX_CI_PHPUNIT_IGNORE_FAILURE == '1' }}
 -
 -      - name: Process PHPUnit logs and coverage
--        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
 -        run: |
 -          mkdir -p ".logs"
 -          if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
@@ -16,7 +24,7 @@
 -          fi
 -
 -      - name: Extract code coverage
--        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
 -        run: |
 -          RATE=$(grep -om1 'line-rate="[0-9.]*"' .logs/coverage/phpunit/cobertura.xml | tr -cd '0-9.')
 -          PERCENT=$(awk "BEGIN {printf \"%.2f\", $RATE*100}")
@@ -34,7 +42,7 @@
 -          VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 -
 -      - name: Post coverage summary as PR comment
--        if: ${{ github.event_name == 'pull_request' && (matrix.instance == 0 || strategy.job-total == 1) && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
+-        if: ${{ github.event_name == 'pull_request' && env.CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
 -        uses: marocchino/sticky-pull-request-comment@__HASH__ # __VERSION__
 -        with:
 -          header: coverage-gha
@@ -53,7 +61,7 @@
 -          hide_and_recreate: true
 -
 -      - name: Check code coverage threshold
--        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
 -        run: |
 -          if [ "${COVERAGE_PERCENT//.}" -lt "$((VORTEX_CI_CODE_COVERAGE_THRESHOLD*100))" ]; then
 -            echo "FAIL: coverage ${COVERAGE_PERCENT}% is below threshold ${VORTEX_CI_CODE_COVERAGE_THRESHOLD}%"
@@ -63,9 +71,9 @@
 -          VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 -
        - name: Validate Single Directory Components
-         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+         if: ${{ env.CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -525,16 +465,6 @@
+@@ -537,16 +476,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
