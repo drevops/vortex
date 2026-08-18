@@ -9,15 +9,16 @@
        - name: Lint module code with NodeJS linters
          run: docker compose exec -T cli bash -c "yarn run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-@@ -314,7 +310,6 @@
+@@ -313,8 +309,6 @@
        CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-      # Runs on every instance, using the `p<instance index>` profile.
 -      CI_IS_BEHAT_RUNNER: true
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -507,19 +502,6 @@
+@@ -507,19 +501,6 @@
              exit 1
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}

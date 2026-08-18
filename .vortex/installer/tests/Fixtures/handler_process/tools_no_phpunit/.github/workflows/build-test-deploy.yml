@@ -1,11 +1,11 @@
-@@ -312,7 +312,6 @@
+@@ -311,7 +311,6 @@
        CI_RUNNER_INDEX: ${{ strategy.job-index }}
        CI_RUNNER_TOTAL: ${{ strategy.job-total }}
        CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -      CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       # Runs on every instance, using the `p<instance index>` profile.
        CI_IS_BEHAT_RUNNER: true
- 
 @@ -436,66 +435,6 @@
          run: docker compose exec -T cli bash -c "yarn test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}

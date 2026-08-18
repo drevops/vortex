@@ -318,10 +318,9 @@ jobs:
       - run:
           name: Set test runner roles
           command: |
-            # Which tools run on this node. The tools that only need to run once
-            # are pinned to the first node, while Behat runs on every node using
-            # the `p<node index>` profile. Add a line for every additional tool
-            # and reference it in that tool's step.
+            # Which tools run on this node. Tools that only need to run once are
+            # pinned to the first node. Add a line for every additional tool and
+            # reference it in that tool's step.
             # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
             {
               echo "export CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
@@ -329,6 +328,7 @@ jobs:
               echo "export CI_IS_JEST_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
               echo "export CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
               echo "export CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+              # Runs on every node, using the `p<node index>` profile.
               echo "export CI_IS_BEHAT_RUNNER=1"
             } >> "${BASH_ENV}"
 
