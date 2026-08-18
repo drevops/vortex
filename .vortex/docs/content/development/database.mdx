@@ -8,6 +8,11 @@ sidebar_position: 2
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+The running site's database lives **inside the `database` container** - the
+`.data/db.sql` file on the host is only a dump used for imports and exports.
+Removing the container (for example, with `ahoy reset`) discards the live
+database, and the next build re-creates it from the dump.
+
 Fetching and exporting run on the **host** (they move dump files around), while
 refreshing runs inside the **containers** (it imports into the running
 database) - the tabs below reflect that difference.
@@ -50,32 +55,46 @@ name it `db.sql`, and place it in the `.data` directory.
 
 ## Refreshing database
 
-Import the database dump into the local environment and run all necessary updates.
+There are 2 distinct ways to load the dump from `.data` into the running
+database container - pick the one matching what you need.
+
+### Import and run updates
+
+`ahoy provision` imports the dump **and** applies all the provisioning steps:
+database updates, configuration import, cache rebuilds and deploy hooks. Use
+it any time you need the local environment reset to a fully updated state.
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    # Import database and run updates
     ahoy provision
-    # Import database without running updates
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli ./vendor/bin/vortex-provision
+    ```
+  </TabItem>
+</Tabs>
+
+### Import only
+
+`ahoy import-db` imports the raw dump **without** running any updates,
+configuration imports or scripts. Use it to quickly reset the database
+contents to the state captured in the dump.
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
     ahoy import-db
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    # Import database and run updates
-    docker compose exec cli ./vendor/bin/vortex-provision
-    # Import database without running updates
     docker compose exec cli ./vendor/bin/vortex-import-db
     ```
   </TabItem>
 </Tabs>
-
-Run the provision command any time you need to reset the local environment to
-use the fresh database dump stored in `.data`.
-
-The import-db command is useful if you want to quickly reset the database
-without applying any updates or changes.
 
 ## Exporting database
 

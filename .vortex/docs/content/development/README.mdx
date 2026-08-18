@@ -36,9 +36,9 @@ a fresh **Vortex** project.
 
 ### Build the project
 
-```shell title="Build"
-ahoy build
-```
+`ahoy build` rebuilds the whole stack from scratch: it recreates the
+containers, installs the Composer and front-end dependencies, compiles the
+theme assets, and provisions the site from the database dump.
 
 <AsciinemaPlayer
   src="/img/build.json"
@@ -53,9 +53,9 @@ ahoy build
 
 ### Re-provision the site
 
-```shell title="Provision"
-ahoy provision
-```
+`ahoy provision` re-imports the database dump from `.data/db.sql` into the
+running stack and applies the provisioning steps: database updates,
+configuration import, cache rebuilds and deploy hooks.
 
 <AsciinemaPlayer
   src="/img/provision.json"
@@ -70,9 +70,9 @@ ahoy provision
 
 ### Run linters
 
-```shell title="Lint"
-ahoy lint
-```
+`ahoy lint` runs all the code quality checks: back-end (PHPCS, PHPStan,
+Rector), front-end (Twig CS Fixer, ESLint, Stylelint) and test linting
+(Gherkin Lint).
 
 <AsciinemaPlayer
   src="/img/lint.json"
@@ -87,9 +87,8 @@ ahoy lint
 
 ### Run unit, kernel and functional tests
 
-```shell title="Test"
-ahoy test
-```
+`ahoy test` runs all the PHPUnit test suites: unit, kernel, functional and
+functional JavaScript.
 
 <AsciinemaPlayer
   src="/img/test.json"
@@ -104,9 +103,8 @@ ahoy test
 
 ### Run BDD tests
 
-```shell title="Test BDD"
-ahoy test-bdd
-```
+`ahoy test-bdd` runs the Behat tests against the provisioned site, driving a
+real browser inside the container stack.
 
 <AsciinemaPlayer
   src="/img/test-bdd.json"
@@ -286,7 +284,7 @@ To update environment variables in your local development environment:
 sudo chown -R $USER:$USER .
 ```
 
-## Log files
+## Reading logs
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
