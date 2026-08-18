@@ -62,6 +62,16 @@ class Page extends GeneratedContentPluginBase {
 }
 ```
 
+:::note
+
+For a bundle under content moderation, also set the `moderation_state` field
+to `published` before saving - the shipped
+[`Page` plugin](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/src/Plugin/GeneratedContent/Node/Page.php)
+shows the guarded check. Without it, generated nodes stay as unpublished
+drafts.
+
+:::
+
 ### Attribute parameters
 
 | Parameter | Type | Required | Description |

@@ -10,14 +10,14 @@ you to declare the libraries your project depends on and manages them for you.
 
 :::tip
 
-➡️ See [Development > Composer](../development/composer) for information on how to add and manage dependencies.
+➡️ See [Development > Composer](../development/composer.mdx) for information on how to add and manage dependencies.
 
 :::
 
-## `composer.json`
+## File overview
 
-**Vortex** comes with a pre-configured `composer.json` that lists essential
-dependencies for Drupal projects, along with development tools to help you
+**Vortex** comes with a pre-configured `composer.json` that lists the
+dependencies a Drupal project needs, along with development tools to help you
 maintain your code quality.
 
 The `composer.json` file is the core configuration file for Composer, detailing
@@ -64,7 +64,7 @@ the [SPDX Open Source License Registry](https://spdx.org/licenses/).
 ### `repositories`
 
 The [`repositories`](https://getcomposer.org/doc/04-schema.md#repositories)
-section defines custom package repositories, essential for accessing packages
+section defines custom package repositories, needed for accessing packages
 outside the default Packagist repository.
 
 | Repository | Type | Description |
@@ -75,7 +75,7 @@ outside the default Packagist repository.
 ### `require`
 
 The [`require`](https://getcomposer.org/doc/04-schema.md#require) section
-specifies the essential packages and libraries your project needs.
+specifies the packages and libraries your project needs.
 
 The **Documentation** column links to the page covering that package in more
 depth. A [Settings](settings.mdx#per-module-overrides) link means **Vortex**
@@ -125,10 +125,9 @@ where each module is installed.
 
 The [`require-dev`](https://getcomposer.org/doc/04-schema.md#require-dev)
 section lists packages used for development purposes, like code quality checks
-and testing. These tools are essential for development but not required in
-production environments. This distinction helps to keep the production
-deployment streamlined and efficient, while still supporting a comprehensive and
-effective development environment.
+and testing. These tools are needed during development but not in production
+environments, so the production deployment stays smaller while the development
+environment keeps its full tooling.
 
 | Package | Description | Documentation |
 |---------|-------------|---------------|
@@ -151,7 +150,7 @@ effective development environment.
 | [`phpspec/prophecy-phpunit`](https://github.com/phpspec/prophecy-phpunit) | Integrates the Prophecy mocking library with PHPUnit to provide advanced mocking capabilities in tests. | [PHPUnit](../development/phpunit.mdx) |
 | [`phpstan/extension-installer`](https://github.com/phpstan/extension-installer) | Automatically registers the installed PHPStan extensions, removing the need to wire them up by hand. | [PHPStan](../tools/phpstan.mdx) |
 | [`phpstan/phpstan`](https://github.com/phpstan/phpstan) | A static analysis tool that finds type errors, incorrect method calls and other bugs without running the code. | [PHPStan](../tools/phpstan.mdx) |
-| [`phpunit/phpunit`](https://github.com/sebastianbergmann/phpunit) | The industry-standard PHP testing framework, used here for unit, kernel and functional tests. | [PHPUnit](../development/phpunit.mdx) |
+| [`phpunit/phpunit`](https://github.com/sebastianbergmann/phpunit) | The PHP testing framework, used here for unit, kernel and functional tests. | [PHPUnit](../development/phpunit.mdx) |
 | [`pyrech/composer-changelogs`](https://github.com/pyrech/composer-changelogs) | Prints a summary of package additions, updates and removals after running `composer update`. | |
 | [`rector/rector`](https://github.com/rectorphp/rector) | An automated refactoring tool that upgrades and modernizes PHP code. | [Rector](../tools/rector.mdx) |
 | [`softcreatr/jsonpath`](https://github.com/SoftCreatR/JSONPath) | A JSONPath implementation required by the `drevops/behat-steps` JSON assertion steps. | [Behat](../development/behat.mdx) |
@@ -160,7 +159,7 @@ effective development environment.
 ### `conflict`
 
 The [`conflict`](https://getcomposer.org/doc/04-schema.md#conflict) section
-prevents installation conflicts with standalone Drupal core, crucial for
+prevents installation conflicts with standalone Drupal core, which matters for
 avoiding version clashes and ensuring consistency in core files.
 
 ### `minimum-stability`
@@ -193,18 +192,11 @@ specifies key configurations for Composer's behavior in the project.
   plugins. Each plugin needs to be explicitly allowed to ensure it can execute.
 - [`policy`](https://getcomposer.org/doc/06-config.md#policy): Introduced in
   Composer 2.10.0, this unified setting controls security auditing and version
-  blocking of dependencies. **Vortex** configures it to keep vulnerabilities
-  visible without blocking installs:
-  - `advisories.block` (set to `false`): security advisories do not block
-    `composer install`, `composer update`, or `composer require`, keeping builds
-    reproducible when new advisories are published upstream.
-  - `advisories.audit` (set to `fail`): `composer audit` still fails on
-    advisories, so they remain visible locally and in CI.
-  - `abandoned.audit` (set to `report`): abandoned packages are reported as
-    warnings without failing the audit.
-  - See
-    [Composer Security Auditing](../development/composer#security-auditing)
-    for the full reference, ignoring advisories, and best practices.
+  blocking of dependencies. **Vortex** configures it so that advisories never
+  block installs but still fail `composer audit`, keeping vulnerabilities
+  visible without breaking reproducible builds.
+  ➡️ See [Security auditing](../development/composer.mdx#security-auditing)
+  for the option values, ignoring advisories, and the CI integration.
 - [`bump-after-update`](https://getcomposer.org/doc/06-config.md#bump-after-update):
   Automatically updates version constraints in `composer.json` to match currently
   installed package versions after running `composer update`. **Vortex** sets this
@@ -229,7 +221,7 @@ specifies key configurations for Composer's behavior in the project.
 ### `autoload-dev`
 
 The [`autoload-dev`](https://getcomposer.org/doc/04-schema.md#autoload-dev)
-section is essential for defining how Composer automatically loads PHP
+section defines how Composer automatically loads PHP
 development-specific classes within the project, without needing to manually
 include or require each class file.
 
@@ -240,11 +232,6 @@ a source of custom configuration for various packages. These packages read
 settings from this section to tailor their behavior according to the specific
 needs and structure of your Drupal project.
 
-- **patches.lock.json**: Automatically generated by `cweagans/composer-patches`
-  v2.x. This file contains patch metadata and SHA-256 checksums, and must be
-  committed to version control (like `composer.lock`). It ensures reproducible
-  builds across teams and CI/CD environments by verifying patch integrity and
-  making the patch state explicit and trackable.
 - [`drupal-scaffold`](https://www.drupal.org/docs/develop/using-composer/using-drupals-composer-scaffold):
   This setting controls which files should be scaffolded:
   - `locations`: Specifies the location of the web root (the directory
@@ -261,8 +248,10 @@ needs and structure of your Drupal project.
   the file paths found in the patch file. This determines how the paths in the
   patch file are interpreted relative to the current directory where the patch
   is being applied.
-- `patches`: Specifies the patches to be applied to specific packages.
-  ➡️ See [Development > Composer > Patching](../development/composer#patching)
+- `patches`: Specifies the patches to be applied to specific packages. The
+  applied patch state lives in the generated `patches.lock.json` file, which is
+  committed like `composer.lock`.
+  ➡️ See [Development > Composer > Patching](../development/composer.mdx#patching)
 
 ## Dependency bumping
 

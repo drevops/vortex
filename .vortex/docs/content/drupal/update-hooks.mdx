@@ -4,31 +4,30 @@ sidebar_position: 5
 
 # Update hooks
 
-Update hooks in Drupal are essential for managing database schema changes,
-data migrations, and environment-specific deployment tasks. They are
-irreplaceable mechanisms to automate changes to take place during deployments.
+Update hooks automate database schema changes, data migrations, and
+environment-specific deployment tasks, so a change ships together with the code
+that needs it instead of being applied by hand.
 
-Drupal provides several types of hooks for database updates. Understanding these
-different hook types helps you choose the right approach for your deployment needs.
+Drupal provides several types of hooks for database updates. Understanding the
+differences helps you choose the right one for a deployment task.
 
 ## Hook types overview
 
-| Hook Type                 | Use Case                                   | Execution                        | File Location            |
+| Hook type                 | Use case                                   | Execution                        | File location            |
 |---------------------------|--------------------------------------------|----------------------------------|--------------------------|
-| `hook_update_n()`         | Database schema changes, data migrations   | <code>drush&nbsp;updatedb</code> | `MODULE.install`         |
+| `hook_update_N()`         | Database schema changes, data migrations   | <code>drush&nbsp;updatedb</code> | `MODULE.install`         |
 | `hook_post_update_NAME()` | Entity updates and other module operations | <code>drush&nbsp;updatedb</code> | `MODULE.post_update.php` |
-| `hook_deploy_NAME()`      | Environment-specific deployment tasks      | <code>drush&nbsp;deploy</code>   | `MODULE.deploy.php`      |
+| `hook_deploy_NAME()`      | Environment-specific deployment tasks      | <code>drush&nbsp;deploy:hook</code> | `MODULE.deploy.php`   |
 
 All of these hooks run automatically during the
-[provisioning process](./provision) using `drush`.
+[provisioning process](provision.mdx): `drush updatedb` runs the update and
+post-update hooks, and `drush deploy:hook` runs the deploy hooks.
 
-To automate changes during site deployments, we advise to use **deploy hooks**.
-Note that deploy hooks run only once: Drupal tracks which hooks have been
-executed by name.
+To automate changes during site deployments, use **deploy hooks**. Note that
+deploy hooks run only once: Drupal tracks which hooks have been executed by
+name.
 
 ## Example deploy hook
-
-###
 
 ```php
 function ys_base_deploy_create_about_page(): string {
@@ -65,9 +64,9 @@ function ys_base_deploy_create_about_page(): string {
 ### Debugging commands
 
 ```shell
-# List available deploy hooks
-drush deploy:hook --list
+# Show pending deploy hooks.
+drush deploy:hook-status
 
-# Run deploy hooks manually (for testing)
+# Run deploy hooks manually (for testing).
 drush deploy:hook
 ```

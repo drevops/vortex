@@ -38,7 +38,8 @@ Testmode is configured through the `testmode.settings` configuration object:
 configuration. Configuration import therefore never enables it, which is why
 `scripts/provision-10-enable-dev-modules.sh` installs it alongside the other
 [development modules](provision.mdx#development-modules), in the `local`, `ci`,
-`dev` and `stage` environments.
+`dev` and `stage` environments. It is also a declared dependency of the
+`ys_demo` module, so installing the demo module brings it in as well.
 
 ### Registering a view programmatically
 
