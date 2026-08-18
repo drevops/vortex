@@ -233,13 +233,24 @@ CI_IS_CYPRESS_RUNNER: ${{ matrix.instance == 1 }}
 
 #### Giving a tool its own container
 
-Moving a tool onto a container of its own takes two edits - point its flag at
-that container, and exclude that container from Behat:
+Start by [adding a container](#adding-more-containers) for the tool to move onto
+
+- the default configuration has containers `0` and `1` only. Then point the
+tool's flag at the new container and exclude that container from Behat. With a
+third container added, that is:
 
 ```yaml
 CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 2 }}
 CI_IS_BEHAT_RUNNER: ${{ matrix.instance != 2 }}
 ```
+
+:::warning
+
+Point the flag at a container that exists. A flag whose condition matches no
+container disables the tool everywhere, and nothing reports it - the steps are
+simply skipped and the job still passes.
+
+:::
 
 :::warning
 
@@ -293,9 +304,10 @@ container count itself, and a matching Behat profile for every new container.
    - [CircleCI — Change test parallelism](/docs/continuous-integration/circleci#change-test-parallelism)
    - [GitHub Actions — Change test parallelism](/docs/continuous-integration/github-actions#change-test-parallelism)
 
-2. Add a profile to `behat.yml` for each new container. **Vortex** ships with
-   `p0` and `p1` only, and Behat fails with `profile 'p2' does not exist` if a
-   container has no profile named after its index:
+2. Add a profile to `behat.yml` for each new container that runs Behat.
+   **Vortex** ships with `p0` and `p1` only, and Behat fails with
+   `profile 'p2' does not exist` if a container running Behat has no profile
+   named after its index. A container excluded from Behat needs no profile:
 
    ```yaml title="behat.yml"
    p2:
