@@ -77,7 +77,7 @@ The following rules apply to every release:
 
 1. **Vortex is always tagged.** A release always creates the **Vortex** tag, whether or not the tooling changed.
 2. **The tooling is always referenced by a tag.** The `drevops/vortex-tooling` requirement in **Vortex**'s root `composer.json` must point at a published tag - never a branch or a development alias.
-3. **The tooling is tagged before Vortex when it changed.** When `.vortex/tooling/` has changed since the previous **Vortex** release, create and publish the new `drevops/vortex-tooling` tag *before* tagging **Vortex**.
+3. **The tooling is tagged before Vortex when it changed.** When `.vortex/tooling/` has changed since the previous **Vortex** release, create and publish the new `drevops/vortex-tooling` tag _before_ tagging **Vortex**.
 4. **Vortex caps its tooling requirement at the tagged version.** When the tooling is tagged for a release, require that freshly tagged `drevops/vortex-tooling` version in root `composer.json` with a tilde constraint (for example `~1.3.0`). This makes the freshly tagged version the upper boundary of the requirement at the minor level: later patch releases within the same minor are still accepted, but the requirement cannot float onto a newer minor that was never published with the release.
 
 ## Release process
