@@ -224,21 +224,21 @@ failures (but still run the tool and see the results in the logs):
 
 | Tool                                                | Purpose                                  | Variable                                      |
 |-----------------------------------------------------|------------------------------------------|-----------------------------------------------|
-| [Behat](../development/behat.mdx)                   | Run BDD acceptance tests                 | `VORTEX_CI_BEHAT_IGNORE_FAILURE`              |
+| [Behat](../tools/behat.mdx)                   | Run BDD acceptance tests                 | `VORTEX_CI_BEHAT_IGNORE_FAILURE`              |
 | Composer normalize                                  | Ensure `composer.json` is sorted         | `VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE` |
 | Composer security audit                             | Check dependencies for vulnerabilities   | `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`     |
 | Composer validate                                   | Validate `composer.json` and lock file   | `VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE`  |
 | [DCLint](../tools/dclint.mdx)                       | Lint Docker Compose files                | `VORTEX_CI_DCLINT_IGNORE_FAILURE`             |
-| [ESLint](../tools/eslint.mdx) and [Stylelint](../tools/stylelint.mdx) | Lint JavaScript and CSS  | `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE`        |
+| [ESLint](../tools/eslint.mdx) and Stylelint | Lint JavaScript and CSS  | `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE`        |
 | [Gherkin Lint](../tools/gherkin-lint.mdx)           | Lint Behat feature files                 | `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE`       |
 | [Gitleaks](../tools/gitleaks.mdx)                   | Scan the codebase for committed secrets  | `VORTEX_CI_GITLEAKS_IGNORE_FAILURE`           |
 | [Hadolint](../tools/hadolint.mdx)                   | Lint Dockerfiles for best practices      | `VORTEX_CI_HADOLINT_IGNORE_FAILURE`           |
-| [Jest](../development/jest.mdx)                     | Run JavaScript unit tests                | `VORTEX_CI_JEST_IGNORE_FAILURE`               |
+| [Jest](../tools/jest.mdx)                     | Run JavaScript unit tests                | `VORTEX_CI_JEST_IGNORE_FAILURE`               |
 | [PHPCS](../tools/phpcs.mdx)                         | Check PHP coding standards               | `VORTEX_CI_PHPCS_IGNORE_FAILURE`              |
 | [PHPStan](../tools/phpstan.mdx)                     | Static analysis for PHP                  | `VORTEX_CI_PHPSTAN_IGNORE_FAILURE`            |
-| [PHPUnit](../development/phpunit.mdx)               | Run unit, kernel, and functional tests   | `VORTEX_CI_PHPUNIT_IGNORE_FAILURE`            |
+| [PHPUnit](../tools/phpunit.mdx)               | Run unit, kernel, and functional tests   | `VORTEX_CI_PHPUNIT_IGNORE_FAILURE`            |
 | [Rector](../tools/rector.mdx)                       | Check for automated refactoring rules    | `VORTEX_CI_RECTOR_IGNORE_FAILURE`             |
-| [SDC Devel](../tools/sdc-devel.mdx)                 | Validate Single Directory Components     | `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE`          |
+| [SDC Devel](../drupal/theme-scaffold.mdx#single-directory-components)                 | Validate Single Directory Components     | `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE`          |
 | [Twig CS Fixer](../tools/twig-cs-fixer.mdx)         | Lint Twig templates                      | `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE`      |
 
 ### Configure deployment skip conditions

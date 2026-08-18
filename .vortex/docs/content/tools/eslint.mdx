@@ -109,7 +109,7 @@ When you run `ahoy lint-fe-fix`, both ESLint's `--fix` and Prettier's formatting
 
 **Vortex** sets `printWidth` to `160` in [`.prettierrc.json`](https://github.com/drevops/vortex/blob/main/.prettierrc.json) instead of the Prettier default of `80`, so a statement stays on one line unless it is genuinely long. Documentation blocks are held to `80` columns through `jsdocPrintWidth`, matching the width the PHP coding standard applies to comments.
 
-CSS carries its own `printWidth` override so that declarations are never wrapped. Prettier only reaches CSS when it is invoked directly, such as from an editor on save - within **Vortex**, stylesheets are linted by [Stylelint](stylelint.mdx).
+CSS carries its own `printWidth` override so that declarations are never wrapped. Prettier only reaches CSS when it is invoked directly, such as from an editor on save - within **Vortex**, stylesheets are linted by Stylelint.
 
 The custom theme ships a second `.prettierrc.json` with the same settings, because a theme carries its own front-end tooling and can be moved into a separate repository.
 
@@ -173,5 +173,5 @@ This tool runs in the continuous integration pipeline by default and fails the
 build if there are any violations.
 
 Set the `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE` environment variable to `1` to
-ignore failures (this variable also covers [Stylelint](stylelint.mdx), which
+ignore failures (this variable also covers Stylelint, which
 runs in the same step). The tool will still run and report violations, if any.

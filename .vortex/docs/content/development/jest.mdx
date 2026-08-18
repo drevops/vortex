@@ -5,48 +5,12 @@ sidebar_position: 7
 
 # Jest
 
-https://github.com/jestjs/jest
-
-> Jest is a delightful JavaScript Testing Framework with a focus on simplicity.
-
 **Vortex** uses [Jest](https://jestjs.io/) as a framework for JavaScript unit
 testing. Jest tests verify that JavaScript behaviors in custom Drupal modules
 work correctly in isolation, without requiring a browser or Drupal bootstrap.
 
-## Running tests
-
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    # Run all Jest tests with coverage.
-    ahoy test-js
-    # Run test files matching a pattern.
-    ahoy cli "yarn test ys_demo"
-    # Run tests matching a name.
-    ahoy cli "yarn test -t 'should increment the value'"
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    # Run all Jest tests with coverage.
-    docker compose exec cli yarn test
-    # Run test files matching a pattern.
-    docker compose exec cli yarn test ys_demo
-    # Run tests matching a name.
-    docker compose exec cli yarn test -t 'should increment the value'
-    ```
-  </TabItem>
-</Tabs>
-
-:::note
-
-`ahoy test-js` does not forward extra arguments, so run subsets through
-`ahoy cli "yarn test ..."` as shown above.
-
-:::
+For running tests, configuration, and CI settings, see the
+[Jest tool reference](/docs/tools/jest).
 
 ## Test file structure
 
@@ -62,8 +26,8 @@ web/modules/custom/my_module/
 ```
 
 Jest automatically discovers `*.test.js` files in `web/modules/custom/*/js/`
-directories and their subdirectories - configured in [`jest.config.js`](https://github.com/drevops/vortex/blob/main/jest.config.js).
-Adding a new module with tests requires no configuration changes.
+directories and their subdirectories. Adding a new module with tests requires
+no configuration changes.
 
 ## Writing tests
 
@@ -191,14 +155,6 @@ trends and can be consumed by CI tools that support the Cobertura format.
 that demonstrates testing a counter block with DOM manipulation, localStorage
 interaction, and event handling.
 
-This boilerplate test runs in the continuous integration pipeline when you
-install **Vortex** and can be used as a starting point for writing your own
-JavaScript tests.
-
-## Ignoring fail in continuous integration pipeline
-
-This tool runs in the continuous integration pipeline by default and fails the
-build if any tests fail.
-
-Set the `VORTEX_CI_JEST_IGNORE_FAILURE` environment variable to `1` to ignore
-failures. The tool will still run and report failures, if any.
+This boilerplate test runs in continuous integration pipeline when you install
+**Vortex** and can be used as a starting point for writing your own JavaScript
+tests.
