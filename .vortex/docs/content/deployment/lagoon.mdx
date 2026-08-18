@@ -6,17 +6,22 @@ sidebar_position: 4
 # Lagoon deployment
 
 Lagoon deployment triggers a deployment on the [Lagoon](https://lagoon.sh/)
-hosting platform by calling its webhook URL.
+hosting platform using the [Lagoon CLI](https://github.com/uselagoon/lagoon-cli).
 
 ## How it works
 
 When `lagoon` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script
-calls the Lagoon webhook URL to trigger a deployment. Lagoon then:
+downloads the Lagoon CLI, points it at the configured Lagoon instance, and
+requests a deployment for the current branch or pull request over SSH. Lagoon
+then:
 
 1. Pulls the latest code from your repository
 2. Builds container images using your `docker-compose.yml`
 3. Deploys containers to Kubernetes
 4. Runs post-rollout tasks defined in `.lagoon.yml`
+
+Tag deployments are not supported by Lagoon - the script reports this and
+skips the deployment.
 
 ## Configuration
 
@@ -24,12 +29,19 @@ calls the Lagoon webhook URL to trigger a deployment. Lagoon then:
 
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
-| `LAGOON_PROJECT` | **Yes** | | `.env` | Your Lagoon project name |
+| `VORTEX_DEPLOY_LAGOON_PROJECT` | **Yes** | Value of `LAGOON_PROJECT` | `.env` | Your Lagoon project name |
 | `VORTEX_DEPLOY_LAGOON_INSTANCE` | No | `amazeeio` | `.env` | Lagoon instance name |
-| `VORTEX_DEPLOY_LAGOON_INSTANCE_GRAPHQL` | No | Auto-generated | `.env` | Lagoon GraphQL endpoint |
-| `VORTEX_DEPLOY_LAGOON_INSTANCE_HOSTNAME` | No | Auto-generated | `.env` | Lagoon SSH hostname |
-| `VORTEX_DEPLOY_LAGOON_INSTANCE_PORT` | No | Auto-generated | `.env` | Lagoon SSH port |
-| `VORTEX_DEPLOY_LAGOON_BRANCH` | No | Current branch | CI | Branch to deploy |
+| `VORTEX_DEPLOY_LAGOON_INSTANCE_GRAPHQL` | No | `https://api.lagoon.amazeeio.cloud/graphql` | `.env` | Lagoon GraphQL endpoint |
+| `VORTEX_DEPLOY_LAGOON_INSTANCE_HOSTNAME` | No | `ssh.lagoon.amazeeio.cloud` | `.env` | Lagoon SSH hostname |
+| `VORTEX_DEPLOY_LAGOON_INSTANCE_PORT` | No | `32222` | `.env` | Lagoon SSH port |
+| `VORTEX_DEPLOY_LAGOON_BRANCH` | No | Value of `VORTEX_DEPLOY_BRANCH` | CI | Branch to deploy |
+| `VORTEX_DEPLOY_LAGOON_SSH_FINGERPRINT` | No | Value of `VORTEX_DEPLOY_SSH_FINGERPRINT` | CI | Fingerprint of the SSH key used to authenticate |
+| `VORTEX_DEPLOY_LAGOON_LAGOONCLI_VERSION` | No | `v0.32.0` | CI | Lagoon CLI version to install |
+| `VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED` | No | `0` | CI | Fail the build when the Lagoon environment limit is exceeded (`1`) or pass it (`0`) |
+
+The full list of `VORTEX_DEPLOY_LAGOON_*` variables, including the pull request
+context variables set by CI, is in the
+[Variables reference](../development/variables.mdx).
 
 ### Setup
 
@@ -45,31 +57,29 @@ calls the Lagoon webhook URL to trigger a deployment. Lagoon then:
    LAGOON_PROJECT=your-project-name
    ```
 
-3. Ensure your CI has the Lagoon SSH key configured for authentication.
+3. Ensure your CI has the Lagoon SSH key configured for authentication - the
+   CLI connects over SSH, so a missing key fails the deployment.
 
 ## Post-deployment automation
 
-When code is deployed, Vortex automatically:
-
-1. **Provisions the site** - Runs database updates, imports configuration, clears caches
-2. **Sends notifications** - Notifies configured channels about the deployment
-
-This is implemented using post-rollout tasks defined in the
+Once Lagoon rolls out the new containers, the post-rollout tasks defined in
 [`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
-configuration file.
+provision the site and send notifications - see
+[Lagoon hosting](../hosting/lagoon.mdx#deployment-automation) for what runs.
 
-## Environment types
+## Environments
 
-Lagoon creates different environment types based on your branch:
+The shipped [`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
+defines environment-specific settings (cron jobs, routes) for the `main` and
+`develop` branches, and treats an environment as production when Lagoon marks
+it as such or when the branch matches `VORTEX_LAGOON_PRODUCTION_BRANCH`
+(default: `main`).
 
-| Branch pattern | Environment type |
-|---------------|------------------|
-| `main`, `master` | Production |
-| `develop` | Development |
-| `release/*`, `hotfix/*` | Staging |
-| Pull requests | Development (ephemeral) |
+Which branches get an environment, their types, and pull request (ephemeral)
+environments are configured per project in Lagoon itself - see
+[Lagoon environment types](https://docs.lagoon.sh/concepts-advanced/environment-types/).
 
 ## See also
 
-- [Lagoon hosting](/docs/hosting/lagoon) - Detailed Lagoon hosting configuration
-- [Lagoon documentation](https://docs.lagoon.sh/) - Official Lagoon docs
+- [Lagoon hosting](../hosting/lagoon.mdx) - platform integration, environment detection, and routine operations
+- [Lagoon documentation](https://docs.lagoon.sh/) - official Lagoon docs

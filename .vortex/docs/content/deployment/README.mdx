@@ -9,16 +9,22 @@ Deployment to a remote location is performed by the `deploy` _router_ script
 shipped via the [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
 Composer package and installed at `vendor/bin/vortex-deploy`.
 
-The script runs in continuous integration pipeline `deploy` job only after all
-tests pass.
+The script runs in the continuous integration pipeline's `deploy` job after the
+`build` and `lint` jobs pass. (On GitHub Actions, a
+[manual deployment](../continuous-integration/github-actions.mdx#manual-deployment)
+can also run the `deploy` job on its own.)
 
 The script deploys the code to a remote location by calling the
-relevant scripts based on the type of deployment defined in `$VORTEX_DEPLOY_TYPES`
+relevant scripts based on the type of deployment defined in the `$VORTEX_DEPLOY_TYPES`
 variable as a comma-separated list of one or multiple supported deployment types:
 
-- [`webhook`](webhook) - A webhook URL is called via CURL.
-- [`artifact`](artifact) - A code artifact is created and sent to a remote repository.
-- [`lagoon`](lagoon) - A Lagoon webhook URL is called via CURL to trigger a deployment.
+- [`webhook`](webhook.mdx) - A webhook URL is called via CURL.
+- [`artifact`](artifact.mdx) - A code artifact is created and sent to a remote repository.
+- [`lagoon`](lagoon.mdx) - The Lagoon CLI is used to trigger a deployment on the Lagoon platform.
+
+Once the code lands on the hosting platform, the platform provisions the site
+and sends [notifications](notifications.mdx) - that part runs on the hosting
+side, not in the `deploy` job.
 
 <details>
 <summary>Expand to see deployment in the complete code lifecycle</summary>
@@ -45,46 +51,49 @@ branches:
 - `hotfix/**`
 - `project/**`
 
-This will run the deployment script to forward the code to the remote hosting
+This runs the deployment script to forward the code to the remote hosting
 platform and tell it to use the current branch's code for the deployment.
 
 When a pull request is raised against one of the branches above, a deployment
-will run for the pull request's branch. Depending on the hosting platform, this
-may create a temporary environment for the pull request with the name of the
-pull request.
+runs for the pull request's branch. Depending on the hosting platform, this
+may create a temporary environment named after the pull request.
 
-Note that `feature/*` or `bugfix/*` (or any other branches) branches are not
-included in the default list of deployment targets. This is to prevent
-deployments from branches that are typically short-lived and have a pull
-request raised, which will trigger a deployment. Adding these branches to the
-list of deployment targets will lead to duplicated CI runs and deployments.
+Short-lived `feature/*` and `bugfix/*` branches deploy through their pull
+requests rather than through direct pushes - deploying both the push and the
+PR would double every CI run and deployment. Branches created by automated
+dependency updates (`deps/*`) never deploy.
 
-`project/*` branches are long-lived branches that are typically used for
-larger features or projects that may span multiple pull requests. Such branches
-would be manually synced with the `develop` branch and deployed to a remote
-environment for testing. An example of this would be a migration branch that
-has migration code and configuration that is not yet ready to be merged into
-`develop` but needs to be deployed to a remote environment for testing.
+`project/*` branches are long-lived branches typically used for larger
+features or projects spanning multiple pull requests - for example, a
+migration branch whose code and configuration are not ready to merge into
+`develop` but need a remote environment for testing. Such branches are
+manually synced with `develop` and deploy on direct pushes.
+
+The exact patterns differ slightly per provider - see
+[GitHub Actions > Update trigger branches](../continuous-integration/github-actions.mdx#update-trigger-branches)
+and [CircleCI > Update deployment branches](../continuous-integration/circleci.mdx#update-deployment-branches).
 
 ### Deployment action
 
-By default, an existing database will be retained during a deployment.
+By default, an existing database is retained during a deployment.
 
-To change this behavior and overwrite the database with a fresh copy from
-production environment, set the `$VORTEX_DEPLOY_ACTION` variable to
-`deploy_override_db`.
+The `$VORTEX_DEPLOY_ACTION` variable changes what a deployment does:
+
+- `deploy` (default) - deploy the code and preserve the environment's database.
+- `deploy_override_db` - deploy the code and overwrite the database with a fresh copy from the production environment.
+- `destroy` - remove the deployed environment, on platforms that support it (Lagoon).
 
 ## Skipping deployments
 
 You can skip all deployments by setting the `VORTEX_DEPLOY_SKIP` environment
 variable to `1`.
 
-This is especially useful in continuous integration pipelines where you may want to build and test
-without triggering a deployment.
+This is useful when you want the continuous integration pipeline to build and
+test without triggering a deployment.
 
 ### Skipping deployments for specific pull requests or branches
 
-To skip specific Pull Requests or branches, set `$VORTEX_DEPLOY_ALLOW_SKIP` to `1`
+To skip specific pull requests or branches, set `$VORTEX_DEPLOY_ALLOW_SKIP` to `1`
 and provide lists in the following variables:
 
 #### Skipping specific pull requests
@@ -161,7 +170,7 @@ evaluated first and always wins, so a pull request listed in
 
 | Topic | Description |
 |-------|-------------|
-| [Webhook](webhook) | Deploy by calling a webhook URL |
-| [Artifact](artifact) | Deploy code artifacts to remote repositories |
-| [Lagoon](lagoon) | Deploy to Lagoon hosting platform |
-| [Notifications](notifications) | Send deployment notifications |
+| [Webhook](webhook.mdx) | Deploy by calling a webhook URL |
+| [Artifact](artifact.mdx) | Deploy code artifacts to remote repositories |
+| [Lagoon](lagoon.mdx) | Deploy to the Lagoon hosting platform |
+| [Notifications](notifications.mdx) | Send deployment notifications |
