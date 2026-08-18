@@ -5,10 +5,14 @@ sidebar_position: 6
 
 # Behat
 
+https://github.com/Behat/Behat
+
+> A php framework for auto-testing your business expectations.
+
 **Vortex** uses [Behat](https://behat.org) for Behavior-Driven Development (BDD)
-testing. Behat allows to write human-readable stories that describe the behavior
-of the application. Behat tests primarily focus on critical user journeys,
-serving as comprehensive end-to-end validations.
+testing. Behat lets you write human-readable stories that describe the behavior
+of the application. Behat tests focus on critical user journeys, serving as
+end-to-end validations.
 
 **Vortex** provides full Behat support, including configuration in [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml)
 and a [browser container](https://github.com/drevops/vortex/blob/main/docker-compose.yml) to run tests interactively in a real browser with
@@ -16,13 +20,16 @@ a VNC viewer.
 
 Additional features include:
 
-1. [Behat Drupal Extension](https://github.com/drupalprojects/drupalextension) - an extension to work with Drupal.
+1. [Behat Drupal Extension](https://github.com/drupalprojects/drupalextension) - an integration layer between Behat, Mink and Drupal with step definitions for common Drupal testing scenarios.
 2. [Behat Steps](https://github.com/drevops/behat-steps) - a library of re-usable Behat steps.
-3. [Behat Screenshot](https://github.com/drevops/behat-screenshot) - extension to capture screenshots on-demand and on failure.
-4. [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail) - extension to show progress as TAP and failures inline.
-5. Parallel profiles - configuration to allow running tests in parallel.
+3. [Behat Screenshot](https://github.com/drevops/behat-screenshot) - an extension to capture screenshots on-demand and on failure.
+4. [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail) - an extension to show progress as TAP and failures inline.
+5. Parallel profiles - configuration to run tests across parallel runners.
 
 ## Running tests
+
+Since Behat requires a running Drupal site, it can only run inside the
+container environment.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -30,126 +37,261 @@ import TabItem from '@theme/TabItem';
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    # Run all Behat tests
+    # Run all Behat tests.
     ahoy test-bdd
-    # Run specific feature file
+    # Run all tests in a file.
     ahoy test-bdd tests/behat/features/homepage.feature
-    # Run scenarios with specific tag
+    # Run scenarios tagged with a specific tag.
     ahoy test-bdd -- --tags=@smoke
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    # Run all Behat tests
-    docker compose exec cli vendor/bin/behat
-    # Run specific feature file
-    docker compose exec cli vendor/bin/behat tests/behat/features/homepage.feature
-    # Run scenarios with specific tag
-    docker compose exec cli vendor/bin/behat -- --tags=@smoke
-    ```
-  </TabItem>
-</Tabs>
-
-### Discovering available step definitions
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    # Generate step definitions reference
+    # List available step definitions.
     ahoy test-bdd -- --definitions=l
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    # Generate step definitions reference
-    docker compose exec cli vendor/bin/behat -- --definitions=l
+    # Run all Behat tests. The `-d memory_limit=-1` flag lifts the PHP memory
+    # limit for long runs, matching what `ahoy test-bdd` does.
+    docker compose exec cli php -d memory_limit=-1 vendor/bin/behat
+    # Run all tests in a file.
+    docker compose exec cli php -d memory_limit=-1 vendor/bin/behat tests/behat/features/homepage.feature
+    # Run scenarios tagged with a specific tag.
+    docker compose exec cli php -d memory_limit=-1 vendor/bin/behat --tags=@smoke
+    # List available step definitions.
+    docker compose exec cli php -d memory_limit=-1 vendor/bin/behat --definitions=l
     ```
   </TabItem>
 </Tabs>
 
+## Configuration
+
+All global configuration takes place in the [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml)
+file (see the [configuration reference](https://docs.behat.org/en/latest/user_guide/configuration.html)).
+
+By default, Behat runs all tests defined in the `tests/behat/features`
+directory. To add or remove test locations, adjust the suite paths:
+
+```yml
+default:
+  suites:
+    default:
+      paths:
+        - '%paths.base%/web/modules/custom/mymodule/tests/behat/features'
+```
+
+### Chrome session flags
+
+The [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml)
+configuration passes the following flags to Chrome via `goog:chromeOptions`
+to keep test runs stable and deterministic in the container environment:
+
+| Flag                             | Purpose                                                          |
+|----------------------------------|------------------------------------------------------------------|
+| `--disable-extensions`           | Prevents interference from browser extensions                    |
+| `--disable-popup-blocking`       | Allows tests to open popups without being blocked                |
+| `--disable-translate`            | Prevents the translation bar from appearing on non-English pages |
+| `--force-prefers-reduced-motion` | Disables CSS animations and transitions for test stability       |
+| `--test-type`                    | Suppresses error dialogs and crash recovery prompts              |
+| `--window-size=1920,1080`        | Sets a deterministic viewport size for consistent screenshots    |
+
 ## FeatureContext
 
-The [`FeatureContext.php`](https://github.com/drevops/vortex/blob/main/tests/behat/bootstrap/FeatureContext.php) file comes with
-included steps from [Behat steps](https://github.com/drevops/behat-steps) package.
+The [`FeatureContext.php`](https://github.com/drevops/vortex/blob/main/tests/behat/bootstrap/FeatureContext.php)
+file is a custom context loaded by default. This is where your custom step
+definitions and hooks go.
 
-You can add your custom steps into this file.
+Organize step definitions and hooks as traits and include them in
+`FeatureContext.php` - several traits from the [Behat Steps](https://github.com/drevops/behat-steps)
+package are already included this way.
 
 ## Profiles
 
-Behat's `default` profile configured with sensible defaults to allow running it
-with provided extensions.
+Behat's `default` profile runs every scenario except those tagged `@skipped`.
 
-In continuous integration environment, the profile can be overridden using \
+In the continuous integration pipeline, the profile can be overridden using the
 `$VORTEX_CI_BEHAT_PROFILE` environment variable.
 
 ## Parallel runs
 
-In continuous integration pipeline, Behat tests can run within multiple runners
-to increase the speed of the test suite. To achieve this, Behat tags are used to
-mark features and scenarios with `@p*` tags.
+In the continuous integration pipeline, Behat tests can run on multiple runners
+to speed up the test suite. Tags decide which runner a scenario lands on.
 
-Out of the box, **Vortex** provides support for unlimited parallel
-runners, but only 2 parallel profiles `p0` and `p1`: a feature can be tagged by
-either `@p0` or `@p1` to run in a dedicated runner, or with both tags to run in
-both runners.
+Out of the box, **Vortex** ships 2 parallel profiles, `p0` and `p1`, matching
+the default 2 runners:
 
-Note that you can easily add more `p*` profiles in your `behat.yml` by copying
-existing `p1` profile and changing several lines of configuration.
+- `p0` (the first runner) is the catch-all: it runs every scenario **not**
+  tagged `@p1`, plus all `@smoke` scenarios.
+- `p1` (the second runner) runs scenarios tagged `@p1`, plus all `@smoke`
+  scenarios.
 
-Features without `@p*` tags will always run in the first CI pipeline runner, so
-even if you forget to tag the feature, it will still be allocated to a runner.
+In practice: leave a feature untagged to run it on the first runner, tag it
+`@p1` to move it to the second runner, or tag it `@smoke` to run it on every
+runner. An untagged feature always lands on the first runner, so forgetting to
+tag never orphans a test.
 
-If CI pipeline has only one runner - a `default` profile will be used and all tests
-(except for those that tagged with `@skipped`) will be run.
+```gherkin
+@homepage
+Feature: Homepage
+
+  @api
+  Scenario: Runs on the first runner (untagged scenarios stay on runner 0)
+    Given I go to the homepage
+
+  @api @p1
+  Scenario: Runs on the second runner
+    Given I go to the homepage
+
+  @api @smoke
+  Scenario: Runs on every runner
+    Given I go to the homepage
+```
+
+If the pipeline has only one runner, the `default` profile is used and all
+tests run there (except those tagged `@skipped`).
+
+To add more runners, copy the `p1` profile in `behat.yml`, adjust its tag
+filter, and register the new runner in the pipeline - see
+[Test parallelism](../continuous-integration/parallelism.mdx).
 
 ## Skipping tests
 
-Add `@skipped` tag to a feature or scenario to exclude it from the test run.
+Add the `@skipped` tag to a feature or scenario to exclude it from the test run.
 
 ## Screenshots
 
-Test screenshots are stored into `.logs/screenshots` location by default,
-which can be overwritten using `$BEHAT_SCREENSHOT_DIR` variable (courtesy of
+Test screenshots are stored in the `.logs/screenshots` directory by default -
+both those captured on failure and those made on purpose with the
+`I save screenshot` step. The location can be overridden using the
+`$BEHAT_SCREENSHOT_DIR` variable (courtesy of the
 [Behat Screenshot](https://github.com/drevops/behat-screenshot) package).
 
-In continuous integration pipeline, screenshots are stored as build artifacts.
-In GitHub Actions, they can be downloaded from the `Summary` tab.
-In CircleCI they are accessible in the `Artifacts` tab.
+In the continuous integration pipeline, screenshots are stored as build
+artifacts: in GitHub Actions, download them from the run's **Summary** tab; in
+CircleCI, open the **Artifacts** tab.
 
 ### Animated screenshots
 
-Per-step screenshots are combined into an animated GIF for each scenario, making a failing test easier to follow. This is enabled in `behat.yml` under the `animation` key of the `DrevOps\BehatScreenshotExtension` block.
+Per-step screenshots are combined into an animated GIF for each scenario,
+making a failing test easier to follow. This is enabled in `behat.yml` under
+the `animation` key of the `DrevOps\BehatScreenshotExtension` block.
 
-Animation forces a full-page capture after every passed step, so its cost grows with the number of steps and roughly doubles the wall time of a run. **Vortex** passes `BEHAT_SCREENSHOT_ANIMATION_SKIP=1` into the Behat step in continuous integration to skip animation there, while keeping it available for local runs where a recording is worth the wait.
+Animation forces a full-page capture after every passed step, so its cost grows
+with the number of steps and roughly doubles the wall time of a run. **Vortex**
+passes `BEHAT_SCREENSHOT_ANIMATION_SKIP=1` into the Behat step in continuous
+integration to skip animation there, while keeping it available for local runs
+where a recording is worth the wait.
 
-Set `animation.enabled` to `false` in `behat.yml` to disable animation everywhere, or tag an individual scenario or feature with `@screenshots:animated:skip` to exempt it.
+Set `animation.enabled` to `false` in `behat.yml` to disable animation
+everywhere, or tag an individual scenario or feature with
+`@screenshots:animated:skip` to exempt it.
 
 ## Format
 
-Out of the box, **Vortex** comes with [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail)
-output formatter to show progress as TAP and failures inline. This allows to
-continue test runs after a failure while maintaining a minimal output.
+Out of the box, **Vortex** comes with the [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail)
+output formatter to show progress as TAP and failures inline. This lets a test
+run continue after a failure while keeping the output minimal.
 
 ## Reporting
 
-Test reports are stored in `.logs/behat` directory.
+Behat writes test reports in JUnit format to the `.logs/test_results/behat`
+directory. The continuous integration pipeline stores them as artifacts and
+uses them to track test performance and stability.
 
-Continuous integration pipeline usually uses them to track test performance and
-stability.
+## Connecting to the browser
+
+For `@javascript` tests, Behat uses Selenium to connect to the browser. The
+browser runs inside a container and can be observed from the host machine
+thanks to the VNC server running in the container and [noVNC](https://novnc.com/).
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    1. Get the link for the Selenium VNC URL on the host:
+    ```shell
+    ahoy info
+    ```
+    2. Click on the link next to `Selenium VNC URL on host` to open the browser.
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    1. Get the port number:
+    ```shell
+    docker compose port chrome 7900
+    ```
+    2. Replace `<port>` with the value above and open `http://localhost:<port>/?autoconnect=1&password=secret` in your browser.
+  </TabItem>
+</Tabs>
+
+:::tip
+
+When running tests, add an `And I wait for 60 seconds` step to suspend the test
+execution for a minute and interact with the headless browser through the
+browser on your host machine.
+
+:::
+
+![behat-novnc.gif](/img/behat-novnc.gif)
 
 ## Boilerplate test features
 
-**Vortex** provides BDD [tests boilerplate](https://github.com/drevops/vortex/blob/main/tests/behat/features) for [homepage](https://github.com/drevops/vortex/blob/main/tests/behat/features/homepage.feature)
-and [login](https://github.com/drevops/vortex/blob/main/tests/behat/features/login.feature)
-user journeys.
+**Vortex** provides BDD [tests boilerplate](https://github.com/drevops/vortex/blob/main/tests/behat/features)
+covering core user journeys ([homepage](https://github.com/drevops/vortex/blob/main/tests/behat/features/homepage.feature),
+[login](https://github.com/drevops/vortex/blob/main/tests/behat/features/login.feature), search)
+and the shipped module integrations (Redis, ClamAV, redirects, `robots.txt`,
+XML sitemap, accessibility).
 
-These boilerplate tests run in continuous integration pipeline when you install
-**Vortex** and can be used as a starting point for writing your own.
+These boilerplate tests run in the continuous integration pipeline when you
+install **Vortex** and can be used as a starting point for writing your own.
 
 ## Writing tests
 
-For project-specific test writing conventions (user story format, standard user
-types, test data conventions), see your project's `docs/testing.md` file.
+A recommended structure for a feature file:
 
-The `docs/testing.md` file is scaffolded when you install **Vortex** and should
-be maintained by your project team to document agreed-upon testing practices.
+```gherkin
+@tag_describing_feature_group
+Feature: Short feature description
+
+  As a site owner
+  I want to make sure that my feature does what it is supposed to do
+  So that I can be sure that my site is working as expected
+
+  @api
+  Scenario: Anonymous user uses a feature
+    Given I go to the homepage
+    And I should be in the "<front>" path
+    Then I save screenshot
+
+  @api @javascript
+  Scenario: Anonymous user uses a feature with AJAX
+    Given I go to the homepage
+    And I click ".button" element
+    Then I save screenshot
+```
+
+Use the `@api` tag for tests that do not require JavaScript and `@api
+@javascript` for tests that do.
+
+:::tip
+
+JavaScript tests are slow. Use as few of them as possible to keep the test run
+time low.
+
+:::
+
+For project-specific test writing conventions (user story format, standard user
+types, test data conventions), see your project's `docs/testing.md` file. It is
+scaffolded when you install **Vortex** and should be maintained by your project
+team to document agreed-upon testing practices.
+
+## Ignoring fail in continuous integration pipeline
+
+This tool runs in the continuous integration pipeline by default and fails the
+build if any tests fail.
+
+Set the `VORTEX_CI_BEHAT_IGNORE_FAILURE` environment variable to `1` to ignore
+failures. The tool will still run and report failures, if any.
+
+:::note
+
+Depending on the size of your website and the available continuous integration
+runner resources, Behat tests may occasionally fail. To prevent the pipeline
+from failing as a result, any failed Behat test is retried automatically.
+
+:::

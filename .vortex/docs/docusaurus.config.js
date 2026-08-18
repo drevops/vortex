@@ -439,6 +439,18 @@ const config = {
             from: '/docs/drupal/composer',
             to: '/docs/drupal/composer-json',
           },
+          {
+            from: '/docs/tools/phpunit',
+            to: '/docs/development/phpunit',
+          },
+          {
+            from: '/docs/tools/behat',
+            to: '/docs/development/behat',
+          },
+          {
+            from: '/docs/tools/jest',
+            to: '/docs/development/jest',
+          },
         ],
       },
     ],
