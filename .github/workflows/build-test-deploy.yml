@@ -351,10 +351,9 @@ jobs:
       fail-fast: false
 
     env:
-      # Which tools run on this instance. The tools that only need to run once
-      # are pinned to the first instance, while Behat runs on every instance
-      # using the `p<instance index>` profile. Add a line for every additional
-      # tool and reference it in that tool's step.
+      # Which tools run on this instance. Tools that only need to run once are
+      # pinned to the first instance. Add a line for every additional tool and
+      # reference it in that tool's step.
       # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
       CI_RUNNER_INDEX: ${{ strategy.job-index }}
       CI_RUNNER_TOTAL: ${{ strategy.job-total }}
@@ -370,6 +369,7 @@ jobs:
       #;> MODULE_SDC_DEVEL
       #;> DRUPAL_THEME
       #;< TOOL_BEHAT
+      # Runs on every instance, using the `p<instance index>` profile.
       CI_IS_BEHAT_RUNNER: true
       #;> TOOL_BEHAT
 
