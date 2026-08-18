@@ -9,12 +9,9 @@ testing the template functionality.
 
 ## Authoring scripts
 
-:::info
-
-Heads up! Scripts are changing from Bash to PHP in `2.0` release. Track the progress
-in [this issue](https://github.com/drevops/vortex/issues/1192).
-
-:::
+These requirements apply to all shell scripts in the template: the shipped
+tooling scripts (see [Tooling](tooling.mdx)) and the `scripts/` provision
+subscripts.
 
 ### Requirements
 
@@ -55,19 +52,26 @@ Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of w
     # ------------------------------------------------------------------------------
     ```
 
-6. SHOULD include formatting helper functions. `fail` prints the message and
-   terminates the script with status `1`, or with the status passed as its
-   second argument. It is always the last statement of a failure branch -
+6. SHOULD include formatting helper functions. `info` opens and closes an
+   operation, `task` announces work that is starting, `note` is a standalone
+   remark that starts no task, and `fail` prints the message and terminates
+   the script with status `1`, or with the status passed as its second
+   argument - it is always the last statement of a failure branch, and
    anything that explains the failure runs before it:
 
     ```shell
     # @formatter:off
+    info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
     note() { printf "       %s\n" "${1}"; }
-    info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+    task() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
     pass() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s\033[0m\n" "${1}" || printf "[ OK ] %s\n" "${1}"; }
     fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
     # @formatter:on
     ```
+
+   Every `task` MUST be closed by a `pass` or a `fail` - a task announces work
+   that is starting, so it always reports its outcome, even when the work
+   itself cannot fail.
 
 7. SHOULD include variable values checks with errors and early exit, i.e.:
 
@@ -87,19 +91,19 @@ Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of w
     info "Started GitHub notification for operation ${VORTEX_NOTIFY_EVENT}."
     ```
 
-10. MUST contain an `pass` message about the finish of the script body, e.g.:
+10. MUST contain a `pass` message about the finish of the script body, e.g.:
 
     ```shell
     pass "Finished GitHub notification for operation ${VORTEX_NOTIFY_EVENT}."
     ```
 
-11. MUST use uppercase global variables
+11. MUST use uppercase global variables.
 12. MUST use lowercase local variables.
 13. MUST use long options instead of short options for readability. I.e., `drush cache:rebuild` instead of `drush cr`.
 14. MUST use `VORTEX_` prefix for variables, unless it is a known 3-rd party
     variable like `PACKAGE_TOKEN` or `COMPOSER`.
-15. MUST use script-specific prefix. I.e., for `notify.sh`, the variable to skip
-    notifications should start with `VORTEX_NOTIFY_`.
+15. MUST use a script-specific prefix. I.e., for `vortex-notify`, the variable
+    to skip notifications should start with `VORTEX_NOTIFY_`.
 16. MAY rely on variables from the external scripts (not prefixed with a
     script-specific prefix), but MUST declare such variables in the header of
     the file.
@@ -124,7 +128,7 @@ Follow these guidelines when creating or updating **Vortex** variables.
 
 4. **Vortex** action-specific script variables MUST be scoped within their own
    script. For instance, the `VORTEX_PROVISION_OVERRIDE_DB`
-   variable in the `provision.sh`.
+   variable in the `vortex-provision` script.
 
 5. Drupal-related variables SHOULD start with `DRUPAL_` and SHOULD have a module
    name added as a second prefix. This is to separate **Vortex**,
@@ -171,16 +175,9 @@ a step-based testing approach with built-in mocking and assertions, making it
 straightforward to define expected inputs and outputs for each script.
 
 Unit tests execute in seconds, providing fast feedback during development.
-There are 25+ test files covering deployment, database operations,
-notifications, provisioning, and other automation scripts.
-
-:::info
-
-Scripts are transitioning from Bash to PHP in **Vortex** `2.0`, which will
-make the use of BATS obsolete. Track the progress
-in [this issue](https://github.com/drevops/vortex/issues/1192).
-
-:::
+The test files in `.vortex/tooling/tests/unit/` cover deployment, database
+operations, notifications, provisioning, and the other automation scripts -
+see [Tooling > Testing](tooling.mdx#testing) for how to run them.
 
 ### End-to-end testing
 
@@ -206,13 +203,13 @@ library provides test helpers, traits, and assertions purpose-built for running
 shell commands and validating their output within PHPUnit tests.
 
 End-to-end tests take minutes to run because they operate on real containers
-and a real Drupal site, but they provide the highest confidence that
-everything works together correctly.
+and a real Drupal site, and they verify that everything works together
+correctly.
 
 ### Example site
 
 The [DrevOps website](https://github.com/drevops/website) is a real-world
-production site built using **Vortex**. It serves as the ultimate validation
+production site built using **Vortex**. It serves as the final validation
 ground: if **Vortex** works correctly, the website should continue to build,
 test, and deploy without issues after each upstream update.
 
@@ -243,19 +240,21 @@ Functional tests rely on database fixtures - see the section below on
 
 ### Unit tests with BATS
 
-BATS unit tests for shipped shell scripts live in the
-[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
-Composer package.
+BATS unit tests for the shipped shell scripts live in
+`.vortex/tooling/tests/unit/`. Run them from `.vortex/`:
 
 ```shell
-cd .vortex/tooling
+cd .vortex
 
-# Install npm dependencies.
-yarn install
+# Run all BATS tests.
+ahoy test-bats
 
-# Run a single test.
-node_modules/.bin/bats .vortex/tooling/tests/unit/deploy.bats
+# Run a single test file.
+ahoy test-bats tooling/tests/unit/deploy.bats
 ```
+
+➡️ See [Tooling > Testing](tooling.mdx#testing) for the package's full test
+layers.
 
 ## Updating test assets
 
@@ -275,10 +274,10 @@ Without arguments, runs `all` for a full refresh. Default tag is `latest`.
 | --- | --- | --- |
 | `demo-dump` | Builds the demo profile in-place; exports `.data/db.demo.sql`. | Upload as `db.demo.sql` to the latest GitHub release. |
 | `demo-image` | Builds the demo profile in-place; pushes `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:<tag>`. | None. |
-| `test-dump` | Installs Vortex into `/tmp/star-wars`; builds; exports `/tmp/star-wars/.data/db.test.sql`. | Upload as `db_d11.test.sql` to the latest GitHub release. |
-| `test-image` | Installs Vortex into `/tmp/star-wars`; builds; pushes `drevops/vortex-dev-mariadb-drupal-data-test-11.x:<tag>`. | None. |
+| `test-dump` | Installs **Vortex** into `/tmp/star-wars`; builds; exports `/tmp/star-wars/.data/db.test.sql`. | Upload as `db_d11.test.sql` to the latest GitHub release. |
+| `test-image` | Installs **Vortex** into `/tmp/star-wars`; builds; pushes `drevops/vortex-dev-mariadb-drupal-data-test-11.x:<tag>`. | None. |
 | `destination-images` | Tags and pushes the local demo image to the didi destination tags (`vortex-dev-database-ii`, `vortex-dev-didi-database-fi`). | None. |
-| `all` | Optimised full refresh: builds the demo stack once for both demo modes and the test stack once for both test modes (2 stack builds instead of 4), then pushes images and tags destination images. Default when no mode is given. | Upload both dump files as above. |
+| `all` | Optimized full refresh: builds the demo stack once for both demo modes and the test stack once for both test modes (2 stack builds instead of 4), then pushes images and tags destination images. Default when no mode is given. | Upload both dump files as above. |
 
 ### Options
 
