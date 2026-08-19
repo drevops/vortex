@@ -26,32 +26,32 @@
 │  │  Composer validate    │  │          store cache          │  │ Gitleaks             │  │
 │  │          ▼            │  └───────────────┬───────────────┘  │ (committed secrets)  │  │
 │  │  Composer normalize   │                  ▼                  │                      │  │
-│  │          ▼            │  ┌─ Build Job ───────────────────┐  │ Does not gate        │  │
-│  │      Hadolint         │  │ Code assembly                 │  │ deployment           │  │
-│  │          ▼            │  │ Docker, Composer deps,        │  └──────────────────────┘  │
-│  │       DCLint          │  │ NPM deps, assets              │                            │
-│  │          ▼            │  │               ▼               │                            │
-│  │       PHPCS           │  │ Website setup                 │                            │
-│  │          ▼            │  │ Import cached DB, drush       │                            │
-│  │      PHPStan          │  │ deploy, custom scripts        │                            │
-│  │          ▼            │  │               ▼               │                            │
-│  │       Rector          │  │ Testing                       │                            │
-│  │          ▼            │  │ PHPUnit tests ──► Behat tests │                            │
-│  │    Twig CS Fixer      │  └───────────────┬───────────────┘                            │
-│  │          ▼            │                  │                                            │
-│  │    Gherkin Lint       │                  │                                            │
-│  │          ▼            │                  │                                            │
-│  │  ESLint / Stylelint   │                  │                                            │
-│  │                       │                  │                                            │
-│  └──────────┬────────────┘                  │                                            │
-│             │                               │                                            │
-│             ▼                               ▼                                            │
-│  ┌─ Deployment Job ─────────────────────────────────────────────────────────────────┐    │
-│  │                                                                                  │    │
-│  │  Webhook       Artifact            Lagoon                                        │    │
-│  │  Call URL      Package artifact    Run Lagoon CLI deploy                         │    │
-│  │                                                                                  │    │
-│  └──────────────────────────────────────────────────────────────────────────────────┘    │
+│  │          ▼            │  ┌─ Build Job ───────────────────┐  │                      │  │
+│  │      Hadolint         │  │ Code assembly                 │  │                      │  │
+│  │          ▼            │  │ Docker, Composer deps,        │  │                      │  │
+│  │       DCLint          │  │ NPM deps, assets              │  │                      │  │
+│  │          ▼            │  │               ▼               │  │                      │  │
+│  │       PHPCS           │  │ Website setup                 │  │                      │  │
+│  │          ▼            │  │ Import cached DB, drush       │  │                      │  │
+│  │      PHPStan          │  │ deploy, custom scripts        │  │                      │  │
+│  │          ▼            │  │               ▼               │  │                      │  │
+│  │       Rector          │  │ Testing                       │  │                      │  │
+│  │          ▼            │  │ PHPUnit tests ──► Behat tests │  │                      │  │
+│  │    Twig CS Fixer      │  └───────────────┬───────────────┘  │                      │  │
+│  │          ▼            │                  │                  │                      │  │
+│  │    Gherkin Lint       │                  │                  │                      │  │
+│  │          ▼            │                  │                  │                      │  │
+│  │  ESLint / Stylelint   │                  │                  │                      │  │
+│  │                       │                  │                  │                      │  │
+│  └──────────┬────────────┘                  │                  │                      │  │
+│             │                               │                  │                      │  │
+│             ▼                               ▼                  │                      │  │
+│  ┌─ Deployment Job ─────────────────────────────────────────┐  │                      │  │
+│  │                                                          │  │                      │  │
+│  │  Webhook       Artifact            Lagoon                │  │ Does not gate        │  │
+│  │  Call URL      Package artifact    Run Lagoon CLI deploy │  │ deployment           │  │
+│  │                                                          │  │                      │  │
+│  └──────────────────────────────────────────────────────────┘  └──────────────────────┘  │
 │                                                                                          │
 └──────────────────────────────────────────────────────────────────────────────────────────┘
                                             │
