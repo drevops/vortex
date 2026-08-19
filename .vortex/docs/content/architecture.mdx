@@ -94,7 +94,7 @@ rule cannot express them:
 The other two ignore files apply the same deny-list model to different targets:
 
 - `.dockerignore` controls the container image build context.
-  ➡️ See [Tools > Docker](./tools/docker#build-context-and-dockerignore)
+  ➡️ See [Development > Environment > Build context and .dockerignore](./development/environment#build-context-and-dockerignore)
 - `.gitignore.artifact` controls the deployment artifact.
   ➡️ See [Deployment > Artifact](./deployment/artifact#artifact-file-control)
 
@@ -120,7 +120,7 @@ problems and makes the process predictable for everyone.
 It also makes it possible to add more automation around provisioning, like conditionally
 running migrations or creating demo content.
 
-➡️ See [Drupal > Provision](./drupal/provision)
+➡️ See [Development > Provision](./development/provision)
 
 ### Module and theme scaffolds
 
@@ -133,8 +133,8 @@ tests. These show you how to:
 
 Use these scaffolds as starting points for your own work.
 
-➡️ See [Drupal > Module Scaffold](./drupal/module-scaffold)
-and [Drupal > Theme Scaffold](./drupal/theme-scaffold)
+➡️ See [Development > Modules > Module scaffold](./development/modules#module-scaffold)
+and [Development > Themes](./development/themes)
 
 ### Settings management
 
@@ -152,7 +152,7 @@ module's settings cleanly when no longer needed.
 **Vortex** also includes tests for these settings to ensure they are loaded
 correctly in each environment.
 
-➡️ See [Drupal > Settings](./drupal/settings)
+➡️ See [Development > Settings](./development/settings)
 
 ## Code quality and testing
 
@@ -171,7 +171,7 @@ You'll also find scaffolds for:
 - **Behat**: Behavior-driven testing with screenshot capture and extra steps
 - **Jest**: JavaScript unit testing
 
-➡️ See [Tools](./tools)
+➡️ See [Development > Code quality](./development/code-quality) and [Development > Testing](./development/testing)
 
 ## Continuous integration workflows
 
@@ -212,7 +212,7 @@ integrations.
 You can host RenovateBot yourself or use the cloud version, and you can tweak
 the schedule as needed.
 
-➡️ See [Tools > Renovate](./tools/renovate)
+➡️ See [Development > Dependency updates](./development/dependency-updates)
 
 ## Documentation & onboarding
 
@@ -231,6 +231,34 @@ These scripts:
 - Run identically across local, CI, and hosting
 - Support environment variables to adapt behavior
 - Are modular and easy to extend
+
+### Tooling package
+
+The scripts are not part of the template's own files: they are a dependency.
+Your project's `composer.json` requires `drevops/vortex-tooling` with a tilde
+constraint (`~1.4.0` in the shipped template), which accepts patch releases but
+holds the minor version, so a new minor release cannot reach your deployments
+until you raise the constraint yourself. Once installed, every script is
+available as a Composer binary at `vendor/bin/vortex-<script>` - for example
+`vendor/bin/vortex-provision` or `vendor/bin/vortex-deploy` - and the Ahoy
+commands wrap those binaries.
+
+The package repository on GitHub is a read-only mirror of the
+[`.vortex/tooling/`](https://github.com/drevops/vortex/tree/main/.vortex/tooling)
+directory of the **Vortex** repository. Bugs and changes go to the
+[**Vortex** issue queue](https://github.com/drevops/vortex/issues), not to the
+mirror.
+
+Never edit the files under `vendor/drevops/vortex-tooling/src/` - the next
+`composer update` discards the change. Adapt behavior through environment
+variables, add project logic as your own scripts under `scripts/` (the
+`provision` script discovers and runs `scripts/provision-*.sh`), and reach for a
+[`cweagans/composer-patches`](https://github.com/cweagans/composer-patches)
+patch only when a shipped script itself must change.
+
+➡️ See [Development > Composer > Vortex tooling package](./development/composer#vortex-tooling-package)
+for updating the package and [Development > Provision > Running custom scripts](./development/provision#running-custom-scripts)
+for extending provisioning.
 
 ### Customizing scripts
 

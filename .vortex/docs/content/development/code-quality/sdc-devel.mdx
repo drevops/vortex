@@ -1,0 +1,89 @@
+---
+sidebar_label: SDC Devel
+---
+
+# SDC Devel - Single Directory Components validation
+
+https://www.drupal.org/project/sdc_devel
+
+> Provides development aids to Single-Directory Components developers.
+
+SDC Devel validates the component YAML files of
+[Single Directory Components](https://www.drupal.org/docs/develop/theming-drupal/using-single-directory-components)
+(SDC) and statically checks their Twig templates for errors and best
+practices.
+
+**Vortex** ships the module as a `composer.json` dependency and uses it to
+validate the components of the custom theme. The theme scaffold includes a
+sample component in `components/button`.
+
+➡️ See [Single Directory Components in the theme scaffold](../themes.mdx#single-directory-components)
+
+## Usage
+
+Validation runs through Drush against a provisioned site, so build the stack
+and provision the site first.
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy lint-sdc
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/drush sdc-devel:validate your_site_theme
+    ```
+  </TabItem>
+</Tabs>
+
+`ahoy lint-sdc` runs `drush sdc-devel:validate` for the theme named in the
+[`DRUPAL_THEME`](../variables.mdx#drupal_theme) variable. The Drush command
+lists the problems it finds in a table; the Ahoy command prints that output
+and exits with a non-zero code when it contains `Critical`, `Error(s)` or
+`Warning(s)`.
+
+`ahoy lint` does not include `ahoy lint-sdc`; run it separately once the site
+is provisioned.
+
+To validate a single component, pass its ID as the second argument:
+
+```shell
+ahoy drush sdc-devel:validate your_site_theme your_site_theme:button
+```
+
+The module also provides a "Components status report" in the site UI at
+`/admin/reports/ui-components`.
+
+## Configuration
+
+SDC Devel has no configuration file of its own.
+
+The module is installed by the `scripts/provision-10-enable-dev-modules.sh`
+provisioning script in the `local`, `ci`, `dev` and `stage` environments and
+is skipped in production.
+
+➡️ See [Provision > Development modules](../provision.mdx#development-modules)
+and [Modules > sdc_devel](../modules.mdx#sdc_devel)
+
+The `lint-sdc` command and the continuous integration step ship only when a
+custom theme and the SDC Devel module are selected during installation.
+
+## Continuous integration
+
+SDC Devel runs in the `build` job of the [continuous integration pipeline](../../continuous-integration/README.mdx),
+after the site is provisioned, on the first container only - see
+[Test parallelism](../../continuous-integration/README.mdx#test-parallelism).
+The step fails the build when validation reports problems and is skipped when
+[`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
+is set to `1`.
+
+### Ignoring failures
+
+Set the `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE` environment variable to `1`. The
+tool still runs and reports violations.
+
+➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)

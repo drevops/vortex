@@ -1,0 +1,184 @@
+---
+sidebar_label: ESLint
+---
+
+# ESLint - JavaScript linter
+
+- https://eslint.org/
+- https://github.com/eslint/eslint
+
+> ESLint is a tool for identifying and reporting on patterns found in ECMAScript/JavaScript code, with the goal of making code more consistent and avoiding bugs.
+
+**Vortex** comes with [pre-configured ESLint ruleset](https://github.com/drevops/vortex/blob/main/.eslintrc.json) for Drupal projects, along with [Prettier](https://prettier.io/) integration for automatic code formatting.
+
+:::info
+ESLint in **Vortex** is configured to lint **custom modules only** (`web/modules/custom`). Custom themes should maintain their own ESLint configuration within the theme directory.
+:::
+
+## Usage
+
+### Check for violations
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Lint all front-end code: Twig, JavaScript and CSS.
+    ahoy lint-fe
+    # Lint only JavaScript in custom modules.
+    ahoy cli "yarn run lint-js"
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli yarn run lint-js
+    ```
+  </TabItem>
+</Tabs>
+
+### Fix violations
+
+ESLint fixes many violations automatically using the `--fix` flag, and the
+Prettier integration reformats the code at the same time.
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Fix all front-end lint issues.
+    ahoy lint-fe-fix
+    # Fix only JavaScript issues in custom modules.
+    ahoy cli "yarn run lint-fix-js"
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli yarn run lint-fix-js
+    ```
+  </TabItem>
+</Tabs>
+
+## Configuration
+
+See [configuration reference](https://eslint.org/docs/latest/use/configure/).
+
+All global configuration takes place in the [`.eslintrc.json`](https://github.com/drevops/vortex/blob/main/.eslintrc.json) file.
+
+By default, ESLint will check against the following rules:
+
+- `airbnb-base` - Airbnb's base JavaScript style guide
+- `plugin:prettier/recommended` - Prettier integration for code formatting
+- `plugin:yml/recommended` - YAML file linting
+
+The configuration includes Drupal-specific globals:
+
+- `Drupal`, `drupalSettings`, `drupalTranslations`
+- `jQuery`, `once`
+- `CKEditor5`
+- And other common Drupal frontend libraries
+
+Targets include custom modules only. The `--max-warnings=0` flag makes
+warnings fail the check too:
+
+```json
+{
+  "scripts": {
+    "lint-js": "eslint web/modules/custom --ext .js --max-warnings=0 --no-error-on-unmatched-pattern"
+  }
+}
+```
+
+Adding or removing targets in `package.json`:
+
+```json
+{
+  "scripts": {
+    "lint-js": "eslint web/modules/custom web/sites/default --ext .js --max-warnings=0 --no-error-on-unmatched-pattern"
+  }
+}
+```
+
+### Prettier integration
+
+Prettier is integrated via `eslint-plugin-prettier` and provides automatic code formatting. The rule `"prettier/prettier": "error"` ensures that all code formatting issues are caught by ESLint.
+
+When you run `ahoy lint-fe-fix`, both ESLint's `--fix` and Prettier's formatting are applied automatically.
+
+#### Line width
+
+**Vortex** sets `printWidth` to `160` in [`.prettierrc.json`](https://github.com/drevops/vortex/blob/main/.prettierrc.json) instead of the Prettier default of `80`, so a statement stays on one line unless it is genuinely long. Documentation blocks are held to `80` columns through `jsdocPrintWidth`, matching the width the PHP coding standard applies to comments.
+
+CSS carries its own `printWidth` override so that declarations are never wrapped. Prettier only reaches CSS when it is invoked directly, such as from an editor on save - within **Vortex**, stylesheets are linted by [Stylelint](stylelint.mdx).
+
+The custom theme ships a second `.prettierrc.json` with the same settings, because a theme carries its own front-end tooling and can be moved into a separate repository.
+
+## Ignoring
+
+### Global ignoring
+
+Ignoring paths **globally** takes place in the [`.eslintignore`](https://github.com/drevops/vortex/blob/main/.eslintignore) file:
+
+```text
+node_modules/
+vendor/
+web/core/
+web/libraries/
+web/modules/contrib/
+web/profiles/contrib/
+web/themes/contrib/
+web/sites/*/files/
+*.min.js
+*.min.css
+```
+
+### Inline ignoring
+
+To ignore **all ESLint rules** within a file, place in the file header:
+
+```javascript
+/* eslint-disable */
+```
+
+To ignore **a specific rule** within a file, place in the file header:
+
+```javascript
+/* eslint-disable no-console, no-unused-vars */
+```
+
+To ignore rules for a **code block**:
+
+```javascript
+/* eslint-disable no-console */
+console.log('Debug information');
+/* eslint-enable no-console */
+```
+
+To ignore only the **next line**:
+
+```javascript
+// eslint-disable-next-line no-console
+console.log('Single debug statement');
+```
+
+To ignore rules for the **current line** (inline):
+
+```javascript
+console.log('Debug'); // eslint-disable-line no-console
+```
+
+## Continuous integration
+
+ESLint runs in the `lint` job of the [continuous integration pipeline](../../continuous-integration/README.mdx)
+and fails the build on violations. The custom modules and the custom theme are
+linted in separate steps; the theme step is skipped when
+[`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
+is set to `1`.
+
+### Ignoring failures
+
+Set the `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE` environment variable to `1`.
+The variable is shared with [Stylelint](stylelint.mdx), which runs in the same
+step. The tool still runs and reports violations.
+
+➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)

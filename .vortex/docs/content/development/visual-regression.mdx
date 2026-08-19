@@ -1,15 +1,44 @@
 ---
 sidebar_label: Visual regression
-sidebar_position: 8
+sidebar_position: 12
 ---
 
 # Visual regression
 
 **Vortex** ships an optional visual regression workflow powered by
-[Diffy](../tools/diffy.mdx). It compares the just-deployed environment
+[Diffy](#diffy). It compares the just-deployed environment
 against a baseline (typically `production`) and posts the result back to
 the related pull request, or to the workflow run summary when the
 deployment has no pull request.
+
+## Diffy
+
+[Diffy](https://diffy.website) is a hosted visual regression testing service.
+It captures full-page screenshots of a website across configured breakpoints,
+compares them against a baseline (a previous screenshot set or a different
+environment), and surfaces the per-page differences in a web UI.
+
+<img src="/img/diffy-hero.webp" alt="Diffy visual regression UI" style={{ width: '100%', height: 'auto' }} />
+
+- **Cross-environment comparison** - compare any two URLs (e.g. production
+  vs. a preview environment) or a URL against a saved baseline.
+- **Breakpoint coverage** - each comparison runs across configured desktop,
+  tablet, and mobile widths.
+- **Per-page diff scoring** - reports the percentage of pixels changed per
+  page and per breakpoint.
+- **DOM manipulation** - mask, hide, or replace elements before screenshots
+  (useful for hiding ads, popups, dynamic timestamps).
+- **CLI** - the [`diffy-cli`](https://github.com/DiffyWebsite/diffy-cli) PHAR
+  can be driven from any CI runner or shell script.
+- **REST API** - all CLI operations are available as direct HTTP calls.
+
+:::note
+
+Diffy plan usage depends on the screenshots captured. Reuse a saved baseline
+screenshot set where possible, and limit which branches trigger comparisons
+when wiring it into CI - frequent automated dispatches consume a plan quickly.
+
+:::
 
 ## Account setup
 

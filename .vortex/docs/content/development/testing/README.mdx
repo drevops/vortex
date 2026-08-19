@@ -1,0 +1,96 @@
+---
+sidebar_label: Overview
+sidebar_position: 1
+---
+
+# Testing
+
+import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
+
+**Vortex** ships three pre-configured test frameworks, each wired into the
+continuous integration pipeline: [PHPUnit](phpunit.mdx) for unit, kernel,
+functional and functional JavaScript tests of custom PHP code, [Behat](behat.mdx)
+for Behavior-Driven Development (BDD) end-to-end tests that drive a real
+browser, and [Jest](jest.mdx) for JavaScript unit tests of custom module
+behaviors.
+
+| Framework              | Covers                                                    | Command         |
+|------------------------|-----------------------------------------------------------|-----------------|
+| [PHPUnit](phpunit.mdx) | Unit, kernel, functional and functional JavaScript tests  | `ahoy test`     |
+| [Behat](behat.mdx)     | BDD end-to-end tests in a real browser                    | `ahoy test-bdd` |
+| [Jest](jest.mdx)       | JavaScript unit tests                                     | `ahoy test-js`  |
+
+## Running
+
+```shell
+ahoy test                        # Run all PHPUnit test suites.
+ahoy test-unit                   # Run PHPUnit unit tests.
+ahoy test-kernel                 # Run PHPUnit kernel tests.
+ahoy test-functional             # Run PHPUnit functional tests.
+ahoy test-functional-javascript  # Run PHPUnit functional JavaScript tests.
+ahoy test-bdd                    # Run Behat tests.
+ahoy test-js                     # Run Jest tests.
+```
+
+Each framework page lists the Docker Compose equivalents and the options for
+running a single file, a tag or a filter.
+
+### Run unit, kernel and functional tests
+
+`ahoy test` runs all the PHPUnit test suites: unit, kernel, functional and
+functional JavaScript.
+
+<AsciinemaPlayer
+  src="/img/test.json"
+  poster="npt:0:1"
+  autoPlay={false}
+  loop={false}
+  preload={true}
+  controls={true}
+  theme="asciinema"
+  terminalLineHeight={1.0}
+/>
+
+### Run BDD tests
+
+`ahoy test-bdd` runs the Behat tests against the provisioned site, driving a
+real browser inside the container stack.
+
+<AsciinemaPlayer
+  src="/img/test-bdd.json"
+  poster="npt:0:1"
+  autoPlay={false}
+  loop={false}
+  preload={true}
+  controls={true}
+  theme="asciinema"
+  terminalLineHeight={1.0}
+/>
+
+## Reports and coverage
+
+[PHPUnit](phpunit.mdx#reports) and [Behat](behat.mdx#reports) write JUnit
+reports under `.logs/test_results/<tool>/`, and [PHPUnit](phpunit.mdx#coverage)
+and [Jest](jest.mdx#coverage) write coverage reports under
+`.logs/coverage/<tool>/`. The continuous integration pipeline stores them as
+artifacts.
+
+## Continuous integration
+
+Tests run in the `build` job of the continuous integration pipeline. PHPUnit
+and Jest run on the first container, while Behat scenarios are distributed
+across all containers, see
+[Test parallelism](../../continuous-integration/README.mdx#test-parallelism).
+
+Each framework has a `VORTEX_CI_<TOOL>_IGNORE_FAILURE` variable
+(`VORTEX_CI_PHPUNIT_IGNORE_FAILURE`, `VORTEX_CI_BEHAT_IGNORE_FAILURE`,
+`VORTEX_CI_JEST_IGNORE_FAILURE`) that lets the build pass despite failures
+while the tool still runs and reports them, see
+[Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).
+
+## Project conventions
+
+Project-specific test writing conventions (user story format, standard user
+types, test class structure, test data conventions) live in your project's
+`docs/testing.md` file, scaffolded when you install **Vortex** and maintained
+by your project team.

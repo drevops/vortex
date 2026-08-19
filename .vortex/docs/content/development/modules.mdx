@@ -1,0 +1,713 @@
+---
+sidebar_label: Modules
+sidebar_position: 6
+---
+
+# Modules
+
+**Vortex** is not a Drupal distribution: it ships no installation profile, and
+the only recipe it carries is the small `recipes/page` recipe that creates the
+demo content model during provisioning. It provides a small set of contributed
+modules that most projects need, each already wired into the environment-aware
+[settings](settings.mdx) and the [provisioning](provision.mdx) scripts. You add
+the rest once the initial setup is done.
+
+Every module listed here is optional. The installer asks which ones to keep,
+and deselecting one removes its Composer requirement, its settings override,
+its line in the provisioning script, its Behat feature and its settings test
+assertions in a single pass.
+
+## How modules are configured
+
+| Mechanism | Location | Effect |
+|-----------|----------|--------|
+| Composer requirement | `require` in `composer.json` | Makes the module available to the site. ➡️ See [composer.json](composer.mdx#require) |
+| Settings override | `web/sites/default/includes/modules/settings.<module>.php` | Applies configuration conditioned on the detected environment, reading values from environment variables. ➡️ See [Settings](settings.mdx#per-module-overrides) |
+| Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a development-only module out of the exported configuration, so enabling it locally never dirties the config |
+| Provisioning | `scripts/provision-00-enable-demo-modules.sh` | Stands up the demo site in the `local`, `ci`, `dev` and `stage` environments: applies the `recipes/page` content model, sets the site name, installs the contrib, service and custom site modules (including core's `media` and `navigation`), and runs their deploy hooks |
+| Development provisioning | `scripts/provision-10-enable-dev-modules.sh` | Installs the development-only modules in the same four environments |
+| Module dependency | `ys_demo.info.yml` | Installs the module as a dependency of the demo module |
+
+A module can be required without being installed anywhere: the settings
+override is then ready for the day the project enables it. `seckit` is the only
+module shipped that way - every other module below is installed by one of the
+mechanisms above, so selecting it is enough to get it enabled.
+
+## Site building
+
+### `coffee`
+
+[Coffee](https://www.drupal.org/project/coffee) adds a keyboard shortcut to jump straight to any administration page by typing its name.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`.
+- **Configured:** No settings override.
+
+### `config_split`
+
+[Configuration Split](https://www.drupal.org/project/config_split) splits configuration into sets that are conditionally imported, enabling environment-specific configuration such as development-only modules.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`.
+- **Configured:** `settings.config_split.php` enables the split matching the detected environment - `local`, `ci`, `dev` or `stage` - so each environment imports only its own set.
+
+### `config_update`
+
+[Configuration Update Manager](https://www.drupal.org/project/config_update) provides tools and Drush commands to report, revert and import configuration changes relative to the defaults shipped by modules.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`.
+- **Configured:** No settings override.
+
+### `navigation_extra_tools`
+
+[Navigation Extra Tools](https://www.drupal.org/project/navigation_extra_tools) adds administration shortcuts - clear caches, run cron, run database updates - to the core Navigation module.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`, after the core Navigation module replaces the classic Toolbar.
+- **Configured:** No settings override.
+
+### `pathauto`
+
+[Pathauto](https://www.drupal.org/project/pathauto) automatically generates URL aliases for content based on configurable patterns.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`.
+- **Configured:** No settings override.
+
+### `redirect`
+
+[Redirect](https://www.drupal.org/project/redirect) manages URL redirects and creates them automatically when content URLs change.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`.
+- **Configured:** No settings override.
+
+### `xmlsitemap`
+
+[XML sitemap](https://www.drupal.org/project/xmlsitemap) generates a multilingual XML sitemap to help search engines index the site.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`.
+- **Configured:** `settings.xmlsitemap.php` stops cron regeneration and search engine submission outside production, so non-production environments are never advertised.
+
+import CodeBlock from '@theme/CodeBlock';
+import ShieldModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.shield.php';
+import RerouteEmailModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.reroute_email.php';
+
+## Security
+
+### `seckit`
+
+[Security Kit](https://www.drupal.org/project/seckit) adds configurable security-hardening HTTP headers, including Content Security Policy and anti-framing protection.
+
+- **Installed:** Required only - not installed during provisioning; enable it when the project needs it.
+- **Configured:** `settings.seckit.php` disables the Content Security Policy and the upgrade-insecure-requests header locally and in CI, where the site is not served over HTTPS.
+
+### `shield`
+
+[Shield](https://www.drupal.org/project/shield) restricts access to your site by requiring HTTP authentication credentials.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`.
+- **Configured:** `settings.shield.php` forces Shield on in non-production environments other than `local` and `ci`, where it is forced off. Production is left untouched, so Shield stays under UI control there.
+
+  **Environment behavior:**
+
+  | Environment | Shield enabled | Reason                                            |
+  |-------------|----------------|---------------------------------------------------|
+  | Local       | No             | No need for HTTP auth during local development    |
+  | CI          | No             | Automated tests must access the site freely       |
+  | Dev         | **Yes**        | Protects development environments from crawlers   |
+  | Stage       | **Yes**        | Protects staging environments from public access  |
+  | Prod        | Not enforced   | Left to the site configuration - enable or disable through the UI |
+
+  **Environment variables:**
+
+  | Variable                             | Default | Purpose                                             |
+  |--------------------------------------|---------|-----------------------------------------------------|
+  | `DRUPAL_SHIELD_USER`                 |         | HTTP authentication username                        |
+  | `DRUPAL_SHIELD_PASS`                 |         | HTTP authentication password                        |
+  | `DRUPAL_SHIELD_PRINT`                |         | Message shown in the authentication popup (module default when unset) |
+  | `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` |         | Set to any non-empty value to keep the `/.well-known/acme-challenge/*` path open for Let's Encrypt certificate generation |
+
+  **Overriding default behavior:**
+
+  Set `DRUPAL_SHIELD_DISABLED` to any non-empty value to completely disable Shield
+  in an environment where it would otherwise be enabled. This is useful for
+  temporary access during debugging or when an environment does not require
+  protection.
+
+<details>
+  <summary>Example of the `Shield` module `settings.shield.php` file</summary>
+
+  <CodeBlock language="php">{ShieldModuleSettingsExample}</CodeBlock>
+
+</details>
+
+### `clamav`
+
+[ClamAV](https://www.drupal.org/project/clamav) scans uploaded files for malware with the ClamAV engine before they are saved.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`; ships only when the ClamAV service is selected.
+- **Configured:** `settings.clamav.php` selects daemon or executable mode and points the daemon at the ClamAV service, but only when `DRUPAL_CLAMAV_ENABLED` is set.
+
+  | Variable                     | Purpose                            |
+  |------------------------------|------------------------------------|
+  | `DRUPAL_CLAMAV_ENABLED`      | Applies the override only when set |
+  | `DRUPAL_CLAMAV_MODE`         | Selects daemon or executable mode  |
+  | `CLAMAV_HOST`, `CLAMAV_PORT` | Daemon host and port               |
+
+## Operations
+
+### `environment_indicator`
+
+[Environment Indicator](https://www.drupal.org/project/environment_indicator) shows a colored banner identifying the current environment to prevent accidental changes on the wrong site.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`.
+- **Configured:** `settings.environment_indicator.php` names the indicator after the detected environment and colors it per environment - red for production, yellow for stage, green for dev - with the toolbar integration and favicon marker turned on.
+
+### `reroute_email`
+
+[Reroute Email](https://www.drupal.org/project/reroute_email) intercepts
+outgoing emails and redirects them to a configurable address instead of the
+intended recipients. This prevents accidental email delivery to real users in
+non-production environments while still allowing email functionality to be
+tested.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`.
+- **Configured:** `settings.reroute_email.php` enables rerouting in every environment except `local`, `ci`, `stage` and `prod`.
+
+  **Environment behavior:**
+
+  | Environment | Rerouting enabled | Reason                                                        |
+  |-------------|-------------------|---------------------------------------------------------------|
+  | Local       | No                | Emails are typically not sent in local development            |
+  | CI          | No                | Automated tests do not send real emails                       |
+  | Dev         | **Yes**           | Prevents accidental delivery to real users                    |
+  | Stage       | No                | Stage may require real email delivery for UAT                 |
+  | Prod        | No                | Production emails must reach actual recipients                |
+
+  Rerouting is also enabled in any custom environments (e.g., PR environments)
+  that do not match the standard environment types listed above.
+
+  **Environment variables:**
+
+  | Variable                       | Default                            | Purpose                                              |
+  |--------------------------------|------------------------------------|------------------------------------------------------|
+  | `DRUPAL_REROUTE_EMAIL_ADDRESS` | `webmaster@your-site-domain.example` | Address to receive all rerouted emails               |
+  | `DRUPAL_REROUTE_EMAIL_ALLOWED` | `*@your-site-domain.example`         | Pattern for addresses allowed to bypass rerouting    |
+
+  **Overriding default behavior:**
+
+  Set `DRUPAL_REROUTE_EMAIL_DISABLED` to any non-empty value to completely disable
+  email rerouting in an environment where it would otherwise be enabled.
+
+<details>
+  <summary>Example of the `Reroute Email` module `settings.reroute_email.php` file</summary>
+
+  <CodeBlock language="php">{RerouteEmailModuleSettingsExample}</CodeBlock>
+
+</details>
+
+### `robotstxt`
+
+[RobotsTxt](https://www.drupal.org/project/robotstxt) manages the `robots.txt` file from the admin UI, useful when it cannot be placed on disk (for example, in multisite setups).
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`.
+- **Configured:** `settings.robotstxt.php` serves a `Disallow: /` file outside production, so non-production environments are not indexed.
+
+### `stage_file_proxy`
+
+[Stage File Proxy](https://www.drupal.org/project/stage_file_proxy) fetches media files from a remote site on demand, so local environments do not need a full copy of the files directory.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`.
+- **Configured:** `settings.stage_file_proxy.php` sets the origin from `DRUPAL_STAGE_FILE_PROXY_ORIGIN` outside production and injects the Shield credentials into that URL when they are set, so a shielded origin still serves files.
+
+### `redis`
+
+[Redis](https://www.drupal.org/project/redis) integrates Drupal with the Redis in-memory store for cache and lock backends.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`; ships only when the Redis service is selected.
+- **Configured:** `settings.redis.php` makes Redis the default cache backend, registers the module container YAML files and swaps the bootstrap container over - all gated on `DRUPAL_REDIS_ENABLED` and on the `redis` PHP extension being loaded, so a two-stage deployment can provision the service before switching the cache.
+
+  | Variable                           | Purpose                            |
+  |------------------------------------|------------------------------------|
+  | `DRUPAL_REDIS_ENABLED`             | Applies the override only when set |
+  | `REDIS_HOST`, `REDIS_SERVICE_PORT` | Connection host and port           |
+
+## Search
+
+### `search_api`
+
+[Search API](https://www.drupal.org/project/search_api) provides a framework for building search experiences with pluggable indexing backends.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`, alongside the Solr backend.
+- **Configured:** No settings override.
+
+### `search_api_solr`
+
+[Search API Solr](https://www.drupal.org/project/search_api_solr) is a Search API backend that integrates Apache Solr for fast, scalable search.
+
+- **Installed:** During provisioning by `scripts/provision-00-enable-demo-modules.sh`; ships only when the Solr service is selected.
+- **Configured:** No settings override.
+
+## Development and testing
+
+### `devel`
+
+[Devel](https://www.drupal.org/project/devel) is a suite of development tools for inspecting variables, entities and the service container while debugging.
+
+- **Installed:** During development provisioning by `scripts/provision-10-enable-dev-modules.sh`.
+- **Configured:** `settings.devel.php` excludes it from the exported configuration.
+
+### `sdc_devel`
+
+[SDC Devel](https://www.drupal.org/project/sdc_devel) provides development and validation tooling for Single Directory Components (SDC), reporting issues in component definitions and templates.
+
+- **Installed:** During development provisioning by `scripts/provision-10-enable-dev-modules.sh`.
+- **Configured:** No settings override.
+
+### `generated_content`
+
+[Generated content](https://www.drupal.org/project/generated_content) generates deterministic placeholder content from declarative definitions for development and testing.
+
+- **Installed:** During development provisioning by `scripts/provision-10-enable-dev-modules.sh` with `GENERATED_CONTENT_CREATE=1`, unless `DRUPAL_GENERATED_CONTENT_SKIP=1` installs it without generating.
+- **Configured:** `settings.generated_content.php` excludes it from the exported configuration.
+
+➡️ See [Generated content](#generated-content) for the plugin system and the demo plugin.
+
+### `testmode` {#testmode-module}
+
+[Testmode](https://www.drupal.org/project/testmode) adjusts site behavior during automated tests, for example by filtering out generated content from listings.
+
+- **Installed:** During development provisioning by `scripts/provision-10-enable-dev-modules.sh`, and as a dependency of the `ys_demo` demo module.
+- **Configured:** `settings.testmode.php` excludes it from the exported configuration.
+
+➡️ See [Testmode](#testmode) for the configuration and the Behat integration.
+
+### `drupal_helpers`
+
+[Drupal helpers](https://www.drupal.org/project/drupal_helpers) is a collection of helper functions that simplify writing update hooks and deployment operations.
+
+- **Installed:** As a dependency of the `ys_demo` demo module, declared in `ys_demo.info.yml`.
+- **Configured:** No settings override.
+
+➡️ See [Drupal helpers](#drupal-helpers) for the helper facades.
+
+## Migrations
+
+These two modules ship only when the migration feature is selected. The
+installer removes both requirements otherwise.
+
+### `migrate_plus`
+
+[Migrate Plus](https://www.drupal.org/project/migrate_plus) extends the core Migrate API with extra source and process plugins and configuration-entity migrations. The demo migration module uses it against the second database.
+
+- **Installed:** As a dependency of the `ys_migrate` demo migration module, which `scripts/provision-20-migration.sh` installs during provisioning.
+- **Configured:** No settings override.
+
+### `migrate_tools`
+
+[Migrate Tools](https://www.drupal.org/project/migrate_tools) provides Drush commands and a UI to run, roll back and monitor migrations. `scripts/provision-20-migration.sh` drives it during provisioning.
+
+- **Installed:** As a dependency of the `ys_migrate` demo migration module, which `scripts/provision-20-migration.sh` installs during provisioning.
+- **Configured:** No settings override.
+
+➡️ See [Migrations](migrations.mdx) for the second database and the demo
+migration.
+
+## Module scaffold
+
+[Module scaffold](https://github.com/drevops/vortex/tree/main/web/modules/custom/ys_base)
+is an example of a Drupal module.
+
+We recommend creating a custom `ys_base` module for your project to hold
+general-purpose functionality that doesn't belong in a dedicated,
+feature-specific module.
+
+The `ys` prefix is abbreviated from your project name (`your_site` in this case).
+We recommend using this technique to prefix all modules, and use the site
+machine name for a theme name.
+
+:::info Token replacement
+
+The `your_site`, `ys` prefix and other similar tokens are placeholders. They
+will be replaced with your actual project prefix when you install **Vortex**.
+
+:::
+
+### Deploy file
+
+The [`ys_base.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/ys_base.deploy.php)
+file is an example of a Drush deploy file that can be used
+to run deployment commands during the site [provisioning](provision.mdx) process.
+
+### Demo module
+
+The `ys_demo` module demonstrates integration patterns for several contributed
+modules:
+
+- [Drupal helpers](#drupal-helpers) - utility facades for deploy hooks
+- [Generated content](#generated-content) - plugin-based content generation
+- [Testmode](#testmode) - content filtering during Behat tests (declared as a dependency, so it installs together with `ys_demo`)
+
+The demo module ships a pages view at `/pages`, a generated content plugin that
+populates it, and the deploy hooks that place a counter block, add the `Pages`
+menu link, and register the view with testmode.
+
+### Other shipped modules
+
+2 more custom modules ship alongside the scaffold and demo modules:
+
+- `ys_search` - configures the Search API index, the Solr server, and the
+  search view for the [Solr service](environment.mdx#services); it also
+  brings in the `workflows` and `content_moderation` core modules.
+- `ys_migrate` - a demo migration module - see [Migrations](migrations.mdx).
+
+### Tests scaffold
+
+The `tests` directory contains working examples of tests that can be used as a
+starting point in your project.
+
+It also has a set of helper `Traits` that you may find useful when writing your
+tests. Remove them if you do not need them.
+
+---
+
+➡️ See [Development](README.mdx) for more details on how to work
+with the custom modules.
+
+## Drupal helpers
+
+[Drupal helpers](https://www.drupal.org/project/drupal_helpers) is a utility
+library that provides static facade helpers for common Drupal development tasks,
+primarily intended for use within deploy hooks and update scripts.
+
+This section covers how **Vortex** uses the module. The
+[module documentation](https://git.drupalcode.org/project/drupal_helpers/-/blob/HEAD/README.md)
+is the reference for its full API.
+
+### Helper facade
+
+The `Helper` class provides convenient access to helper services without needing
+dependency injection:
+
+```php
+use Drupal\drupal_helpers\Helper;
+
+// Create taxonomy terms.
+Helper::term()->createTree('tags', ['News', 'Events', 'Blog']);
+
+// Create menu links.
+Helper::menu()->createTree('main', [
+  'About' => '/about',
+  'Contact' => '/contact',
+]);
+
+// Delete all entities of a type.
+Helper::entity()->deleteAll('node', 'page');
+```
+
+Each facade throws a `RuntimeException` when the helper needs a module that is
+not installed, so a deploy hook fails loudly rather than half-applying.
+
+### Available helpers
+
+Every facade is listed below. The **Examples** column shows a few of the methods
+each one exposes, not the complete set - see the module documentation for that.
+
+| Helper | Access | Examples |
+|--------|--------|----------|
+| Term | `Helper::term()` | `createTree()`, `deleteAll()`, `find()` |
+| Menu | `Helper::menu()` | `createTree()`, `deleteTree()`, `findItem()`, `updateItem()` |
+| Entity | `Helper::entity()` | `deleteAll()` |
+| Config | `Helper::config()` | `get()`, `set()`, `import()`, `setFrontPage()` |
+| User | `Helper::user()` | `create()`, `createMultiple()`, `assignRoles()`, `removeRoles()` |
+| Redirect | `Helper::redirect()` | `create()`, `deleteBySource()`, `importFromCsv()` |
+| Field | `Helper::field()` | `delete()`, `deleteInstance()` |
+
+### Batched operations
+
+Every facade except `Helper::config()` accepts a `$sandbox` array, which turns
+on `batch()` and `batchEntity()` so large datasets are processed across multiple
+deploy hook passes:
+
+```php
+function ys_base_deploy_update_pages(array &$sandbox): ?string {
+  return Helper::entity($sandbox)->batchEntity('node', 'page', function ($node) {
+    $node->set('field_migrated', TRUE);
+    $node->save();
+  });
+}
+```
+
+`batchEntity()` queries the entity IDs itself; `batch()` takes an arbitrary
+array of items instead. Both return the progress message Drush prints, and the
+batch size defaults to 50 - pass a second argument to the facade to change it,
+for example `Helper::entity($sandbox, 100)`.
+
+### Drupal helpers example in Vortex
+
+The [`ys_demo.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.deploy.php)
+file uses `Helper::menu()` to add a `Pages` link to the main navigation during
+deployment, guarding the operation with `findItem()` so re-running the hook does
+not create a duplicate.
+
+## Generated content
+
+[Generated content](https://www.drupal.org/project/generated_content) provides
+a plugin-based system for programmatically generating deterministic content
+entities. Unlike random dummy content, generated content produces reproducible
+sets useful for visual regression testing and consistent demo environments.
+
+This section covers how **Vortex** uses the module. The
+[module documentation](https://git.drupalcode.org/project/generated_content/-/blob/HEAD/README.md)
+is the reference for its full API.
+
+### Plugin system
+
+Content generators are PHP classes placed in a module's
+`src/Plugin/GeneratedContent/` directory, annotated with the `#[GeneratedContent]`
+attribute.
+
+#### Creating a plugin
+
+```php
+namespace Drupal\ys_demo\Plugin\GeneratedContent\Node;
+
+use Drupal\generated_content\Attribute\GeneratedContent;
+use Drupal\generated_content\Plugin\GeneratedContent\GeneratedContentPluginBase;
+
+#[GeneratedContent(
+  id: 'ys_demo_node_page',
+  entity_type: 'node',
+  bundle: 'page',
+  weight: 20,
+)]
+class Page extends GeneratedContentPluginBase {
+
+  public function generate(): array {
+    $entities = [];
+    $storage = $this->entityTypeManager->getStorage('node');
+
+    for ($i = 1; $i <= 20; $i++) {
+      $node = $storage->create([
+        'type' => 'page',
+        'title' => sprintf('Demo page %s %s', $i, $this->helper::staticName()),
+        'status' => 1,
+      ]);
+
+      $node->set('body', [
+        'value' => $this->helper::staticRichText(3),
+        'format' => 'full_html',
+      ]);
+
+      $node->save();
+
+      $entities[] = $node;
+    }
+
+    return $entities;
+  }
+
+}
+```
+
+:::note
+
+For a bundle under content moderation, also set the `moderation_state` field
+to `published` before saving - the shipped
+[`Page` plugin](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/src/Plugin/GeneratedContent/Node/Page.php)
+shows the guarded check. Without it, generated nodes stay as unpublished
+drafts.
+
+:::
+
+#### Attribute parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | string | yes | Unique plugin ID |
+| `entity_type` | string | yes | Target entity type (`node`, `taxonomy_term`, etc.) |
+| `bundle` | string | yes | Target bundle |
+| `weight` | int | no | Execution order (lower = earlier) |
+| `tracking` | bool | no | Track created entities for cleanup (default: `TRUE`) |
+| `label` | TranslatableMarkup | no | Human-readable name shown in the admin UI |
+| `helper` | string | no | Custom helper class extending `GeneratedContentHelper` |
+
+### Generation helpers
+
+`$this->helper` is a `GeneratedContentHelper` singleton that produces field
+values, creates file assets, and looks up entities that earlier plugins
+created. The examples below are a sample of what it offers - the module
+documentation lists the full set.
+
+**Static** helpers return the same values on every run, which is what visual
+regression testing needs:
+
+```php
+$this->helper::staticName();          // Fixed-length name.
+$this->helper::staticSentence(5);     // Sentence of 5 words.
+$this->helper::staticRichText(3);     // 3 paragraphs of HTML.
+```
+
+**Random** helpers vary on every run, which suits content that only needs to
+make the site look populated:
+
+```php
+$this->helper::randomName();
+$this->helper::randomSentence(5, 10); // Between 5 and 10 words.
+$this->helper::randomEmail();
+$this->helper::randomTimestamp('-1year', 'now');
+```
+
+**Entity** helpers reference content that earlier plugins produced. Use
+`weight` to make sure those plugins ran first, and pick the `static` variant
+when the reference itself must stay stable between runs:
+
+```php
+// In a node plugin with weight: 20 (runs after terms at weight: 10).
+$node->set('field_tags', $this->helper::randomTerms('tags', 3));
+$node->set('field_author', $this->helper::staticUser());
+```
+
+**Asset** helpers create managed files from the dummy assets that ship with the
+module, covering image, document, audio and video extensions:
+
+```php
+$node->set('field_image', $this->helper::createFile('png'));
+$node->set('field_attachment', $this->helper::createFile('pdf'));
+```
+
+### Triggering generation
+
+#### Drush command
+
+```shell
+drush generated-content:create-content
+drush generated-content:create-content node page
+```
+
+#### Admin UI
+
+Visit `/admin/config/development/generated-content` to generate content through
+the admin interface.
+
+#### Environment variable
+
+Set `GENERATED_CONTENT_CREATE=1` before provisioning to auto-generate content
+on module install. Optionally filter:
+
+```shell
+GENERATED_CONTENT_ITEMS="taxonomy_term-tags,node-page"
+```
+
+#### Provisioning
+
+**Vortex** installs the module from
+`scripts/provision-10-enable-dev-modules.sh` in the `local`, `ci`, `dev` and
+`stage` environments, passing `GENERATED_CONTENT_CREATE=1` so the content is
+created as part of the install. Setting `DRUPAL_GENERATED_CONTENT_SKIP=1`
+installs the module without the content.
+
+➡️ See [Generated content](provision.mdx#generated-content) in the provisioning
+documentation.
+
+### Generated content example in Vortex
+
+The `ys_demo` module ships a single generated content plugin,
+[`Page`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/src/Plugin/GeneratedContent/Node/Page.php):
+it creates 20 `page` nodes whose titles and body text come from the static
+helpers, so the same pages appear on every rebuild. The nodes back the demo
+`/pages` view used by the [Testmode](#testmode) example.
+
+## Testmode
+
+[Testmode](https://www.drupal.org/project/testmode) filters site content during
+Behat tests, preventing live or generated content from interfering with test
+assertions.
+
+This section covers how **Vortex** uses the module. The
+[module documentation](https://git.drupalcode.org/project/testmode/-/blob/HEAD/README.md)
+is the reference for its full API.
+
+### How it works
+
+1. Test content follows a naming convention - titles prefixed with `[TEST]`
+2. Views are registered in Testmode configuration
+3. Behat scenarios tagged with `@testmode` automatically enable and disable filtering
+4. When enabled, registered views only show content matching the `[TEST]` pattern
+
+### Configuration
+
+Testmode is configured through the `testmode.settings` configuration object:
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `views_node` | string[] | Node view machine names to filter |
+| `views_term` | string[] | Term view machine names to filter |
+| `views_user` | string[] | User view machine names to filter |
+| `pattern_node` | string[] | MySQL LIKE patterns for node titles |
+| `pattern_term` | string[] | MySQL LIKE patterns for term names |
+| `pattern_user` | string[] | MySQL LIKE patterns for user emails |
+| `list_term` | bool | Whether to filter term listings |
+
+**Vortex** adds `testmode` to `config_exclude_modules` in
+`settings.testmode.php`, so the module never leaks into an exported
+configuration. Configuration import therefore never enables it, which is why
+`scripts/provision-10-enable-dev-modules.sh` installs it alongside the other
+[development modules](provision.mdx#development-modules), in the `local`, `ci`,
+`dev` and `stage` environments. It is also a declared dependency of the
+`ys_demo` module, so installing the demo module brings it in as well.
+
+#### Registering a view programmatically
+
+The `Testmode` singleton reads and writes that configuration. Use it from a
+deploy hook to register a view:
+
+```php
+use Drupal\testmode\Testmode;
+
+function ys_demo_deploy_configure_testmode(): string {
+  $testmode = Testmode::getInstance();
+
+  $views = $testmode->getNodeViews();
+  if (!in_array('ys_demo_pages', $views)) {
+    $views[] = 'ys_demo_pages';
+    $testmode->setNodeViews($views);
+  }
+
+  return 'Configured testmode to filter the pages view.';
+}
+```
+
+The same singleton exposes `getTermViews()`, `getUserViews()` and the matching
+pattern getters and setters, plus `enableTestMode()`, `disableTestMode()` and
+`isTestMode()` for driving the mode directly.
+
+### Behat integration
+
+The `@testmode` tag activates Testmode for individual scenarios via
+`TestmodeTrait` from
+[behat-steps](https://github.com/drevops/behat-steps):
+
+```gherkin
+@api @testmode
+Scenario: Pages view shows only test content when test mode is enabled
+  Given the following page content:
+    | title                   | status | moderation_state |
+    | [TEST] First test page  | 1      | published        |
+    | [TEST] Second test page | 1      | published        |
+  When I go to "/pages"
+  Then I should see "[TEST] First test page"
+  And I should see "[TEST] Second test page"
+  And I should not see "Demo page"
+```
+
+The `[TEST]` prefix in content titles matches the default `[TEST%` pattern
+configured in Testmode. Only matching content appears in registered views, so
+the generated `Demo page` nodes stay out of the assertions.
+
+### Testmode example in Vortex
+
+The `ys_demo` module:
+
+- Ships a pages view at `/pages`
+- Registers it with Testmode via the `ys_demo_deploy_configure_testmode` deploy hook
+- Includes the
+  [`pages.feature`](https://github.com/drevops/vortex/blob/main/tests/behat/features/pages.feature)
+  Behat feature demonstrating the `@testmode` tag against the
+  [generated content](#generated-content) it filters out

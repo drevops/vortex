@@ -1,0 +1,1008 @@
+---
+sidebar_label: Environment
+sidebar_position: 2
+---
+
+# Environment
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+The local environment is a Docker Compose stack built from
+[Lagoon container images](https://github.com/uselagoon/lagoon-images), with
+Ahoy wrapping the longer `docker compose` commands into short, memorable ones.
+This page covers every layer of that stack: Docker and the anatomy of
+`docker-compose.yml`, the shared services provided by Pygmy, the Doctor
+project checks, the Ahoy and Drush command wrappers, the day-to-day operations
+of switching branches, resetting, updating environment variables and reading
+logs, and troubleshooting and debugging.
+
+## Docker
+
+https://github.com/docker/cli
+https://github.com/docker/compose
+
+> Docker is a platform for developing, shipping, and running applications in
+> containers.
+
+**Vortex** provides a configuration for Docker and Docker Compose to run the
+project in all environments using containers.
+
+Special thanks to Lagoon for providing
+the [container images](https://github.com/uselagoon/lagoon-images)
+that make this possible.
+
+:::info
+
+Lagoon images run in production environments, receive regular updates, and are
+maintained by the Lagoon team.
+
+If you are using Lagoon as your hosting provider, then all of your
+environments are using identical images to run the project.
+
+:::
+
+### About Docker and Docker Compose
+
+:::note
+
+Below is a brief overview of Docker and Docker Compose. For more information,
+see the official documentation.
+
+:::
+
+Docker lets you define services such as a web server or a database server as
+standalone _containers_, which then run in an isolated environment and can talk
+to each other.
+
+The containers are started from _images_ - templates that define what is
+installed in the container and how it is configured - so every container starts
+with consistent content and configuration.
+
+Docker is the engine that runs containers built from images, letting them share
+host system resources and communicate with each other. When run locally, Docker
+is controlled with the Docker CLI command, `docker`.
+
+Docker Compose describes a multi-container Docker application in a single
+`docker-compose.yml` file: all the containers that work together are defined in
+one place, which makes them easier to manage.
+
+When working with Drupal, which requires multiple service containers, a
+developer would normally use the Docker Compose CLI (`docker compose`) rather
+than the Docker CLI. These commands run in the context of the current
+directory, so run them from the project root: they only affect the containers
+defined in the `docker-compose.yml` file there, not other containers running on
+the host.
+
+When a project is fully configured, the usage of Docker-based application comes
+down to a handful of commands to manage the state of the containers (per
+project):
+
+- `docker compose up -d` - start the containers in the background.
+- `docker compose down` - stop and remove the containers.
+- `docker compose exec <service>` - run a command in a running `<service>`
+  container.
+- `docker compose logs -f` - follow the logs of all the containers.
+- `docker compose ps` - list all running containers.
+
+More advanced commands are normally used when adjusting the project Docker
+configuration and services.
+
+### Using Docker
+
+**Vortex** uses Docker to run the project in a containerized environment locally
+and in the continuous integration pipeline.
+
+Some of the commands are wrapped in the Ahoy script as a shorthand. But all
+the commands can be run directly using `docker compose` command.
+
+Specific commands are described in the relevant [Development](README.mdx)
+documentation.
+
+### Understanding `docker-compose.yml`
+
+Docker Compose reads the configuration from the `docker-compose.yml` and
+`docker-compose.override.yml` files. The configuration files are written in
+YAML, which [support anchors and references](http://blog.daemonl.com/2016/02/yaml.html)
+that help to reduce duplication.
+
+The file provided by **Vortex** contains the following sections:
+
+- [Volumes definitions](#volumes-definitions)
+- [Default user](#default-user)
+- [Container environment variables](#container-environment-variables)
+- [Services](#services)
+- [Networks](#networks)
+
+#### Volumes definitions
+
+Volumes are used to share data between containers. If the host supports volume
+mounting, then the data can be shared between containers through the host,
+making it possible to access and modify the data from the host.
+
+This is used during development to share the application code between the
+container and the host, so that the changes made on the host are immediately
+reflected in the running application.
+
+There are 2 volumes defined:
+
+- Project root directory `.` maps to `/app` directory within a container. This
+  is where a PHP engine accesses the application code.
+- Files directory `./web/sites/default/files` maps
+  to `/app/web/sites/default/files` directory within a container as an override
+  to the default volume definition. This allows a different type of syncing
+  to optimize performance, because files are not changed as often as the code.
+
+There are 2 more volumes defined and commented out - these are used in
+environments without volume mounting support, such as CircleCI. These volumes
+definitions are automatically uncommented in the continuous integration
+environment, and they replace the host volume mounting, which is removed.
+
+The `VOLUME_FLAGS` environment variable defines the consistency of the data
+within mounted volumes. The values are:
+
+- `default`: Equivalent to `consistent`.
+- `consistent`: Full consistency. The container runtime and the host maintain an
+  identical view of the mount at all times.
+- `cached`: The host's view of the mount is authoritative. There may be delays
+  before updates made on the host are visible within a container.
+- `delegated`: The container runtime's view of the mount is authoritative. There
+  may be delays before updates made in a container are visible on the host.
+
+The default value is `delegated`: it prioritizes the container's write
+performance for heavy operations like dependency installation, at the cost of
+container-made changes taking a moment to appear on the host.
+
+#### Default user
+
+The default user is defined as `1000` - this is the user ID that is used in the
+container to run the application. This is the same user ID as the host user, so
+that the files created in the container are owned by the host user.
+
+Change this value if your user ID is different.
+
+#### Container environment variables
+
+By default, Docker Compose reads environment variables from the `.env`
+file. **Vortex** additionally reads the `.env.local` file, so you can override
+environment variables locally without modifying the `.env` file.
+
+The variables read from `.env` and `.env.local` files then passed into the
+containers.
+
+This section only defines 2 types of variables:
+
+1. Variables that are specific to the stack and require a default value (
+   like `LAGOON_ROUTE`).
+2. Variables that cannot be stored in `.env` file and are injected from the
+   actual environment (like secrets).
+
+Any other variables should be defined in the `.env` file.
+
+Consider the example:
+
+```shell
+TZ: ${TZ:-UTC}
+# Local development URL.
+LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io
+# Local development route used in Lagoon images and Pygmy to route requests.
+LAGOON_ROUTE: *default-url
+```
+
+where
+
+- `TZ: ${TZ:-UTC}` - defines a variable `TZ` with a
+  default value of `UTC`, but only if `TZ` variable is
+  not defined.
+- `LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io` - defines
+   a variable `LOCALDEV_URL` with a default value of
+  `${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io`, but only if
+  `LOCALDEV_URL` variable is not defined. The value of the variable
+  is also stored in a YAML anchor `default-url` for later use.
+- `LAGOON_ROUTE: *default-url` - defines a variable `LAGOON_ROUTE` with a value
+  of `*default-url`, which is a reference to the `default-url` YAML anchor
+  defined above.
+
+See more information about environment variables in
+the [official documentation](https://docs.docker.com/compose/environment-variables/set-environment-variables/).
+
+#### Services
+
+Services section describes the configuration for each container.
+
+The following services are defined in the `docker-compose.yml` file provided by
+**Vortex**:
+
+- `cli` - a container that runs a shell. This container is used to run commands
+  in the context of the project, such as `composer` or `drush`. This is also a
+  container where cron jobs are run within a hosting environment (if that
+  environment supports containerization).
+- `nginx` - a container that runs a web server. This container is used to serve
+  the application and pass requests to the PHP container.
+- `php` - a container that runs a PHP engine. This container is used to run the
+  application code and execute commands in the context of the application. It is
+  different from the `cli` container in that it does not have certain
+  development dependencies installed, has a smaller size and is optimized for
+  scalability.
+- `database` - a container that runs a database server. This container is used to
+  store the application data. It can be accessed from the host via a randomly
+  assigned port - run `docker compose port database 3306` to get the port number.
+- `database2` - an optional second database container holding the source
+  database for [migrations](migrations.mdx). It is only present when
+  the migration feature is enabled.
+- `redis` - an optional container that runs a Redis-compatible
+  ([Valkey](https://valkey.io/)) server. This container is used to store the
+  application cache.
+- `solr` - an optional container that runs an Apache Solr 9 search server to
+  store the application search index and provide full-text search. It is built
+  from `.docker/solr.dockerfile` on top of the Lagoon `uselagoon/solr-9-drupal`
+  image, with the configuration set maintained locally in
+  `.docker/config/solr/config-set/` so the Solr schema can be customized and
+  version controlled. The container can be accessed from the host via a
+  randomly assigned port - run `docker compose port solr 8983` to get the port
+  number. The Solr admin interface is available at
+  `http://localhost:<port>/solr/`.
+- `clamav` - an optional container that runs a ClamAV antivirus server. This
+  container is used to scan uploaded files for viruses.
+- `chrome` - container that runs a Chrome browser. This container is
+  used to run Behat tests. It is based on the official Selenium image which has
+  additional required tools, like virtual desktop, installed.
+- `wait-for-dependencies` - a container that runs a script to wait for applications
+  within other containers to become available. Docker itself can coordinate
+  startup of containers, but it does not know when the application within the
+  container is ready to accept connections. This container is used to wait for
+  specified application ports to become available. The whole stack is considered
+  ready to be worked with only when this container exits with a zero exit code.
+
+#### Networks
+
+Networks section defines the networks that are used to connect containers to
+each other. [Pygmy](#pygmy) provides the default `amazeeio-network` network
+that is used to connect all containers together.
+
+### Build context and `.dockerignore`
+
+When an image is built, Docker sends a **build context** - the set of files it
+is allowed to copy into the image - to the build engine. **Vortex** controls
+this context with a `.dockerignore` file written as a **deny list**: every file
+is part of the build context by default, and the file lists only what must be
+kept out.
+
+Excluded from the image build context:
+
+- Version control, IDE, and operating system files (`.git`, `.idea`,
+  `**/.DS_Store`).
+- Credentials and local overrides (`.env.local`, `docker-compose.override.yml`,
+  `web/sites/*/settings.local.php`).
+- Host-installed dependencies, which are reinstalled during the build (`vendor`,
+  `node_modules`, `web/themes/**/node_modules`).
+- Composer-generated Drupal directories, which are regenerated during the build
+  (`web/core`, `web/libraries`, `web/modules/contrib`, `web/profiles/contrib`,
+  `web/themes/contrib`, `drush/Commands/contrib`).
+- Content files, caches, logs, and compiled theme assets (`web/sites/*/files`,
+  `.data`, `.logs`, `web/themes/**/build`).
+
+Keeping these out of the context matters for both security - secrets and
+database dumps never reach an image layer - and speed, since a smaller context
+builds faster. Everything not listed, such as application code, configuration,
+`composer.json`, and settings files, is included automatically, so a new file
+you add reaches the build without any change to `.dockerignore`.
+
+### Validate `docker-compose.yml`
+
+After updating the `docker-compose.yml` file, it is useful sometimes to validate
+it before running the build. This can be done with the following command:
+
+```shell
+docker compose -f docker-compose.yml config
+```
+
+## Pygmy
+
+https://pygmy.readthedocs.io/
+
+https://github.com/pygmystack/pygmy
+
+> `pygmy` is the single tool needed to get the local amazee.io Docker Drupal
+> Development Environment running on your Linux based system. It is built to work
+> with Docker for Mac! (quite a lot for such a small whale 🐳)
+
+Pygmy provides the shared services the **Vortex** container stack relies on:
+
+- An HTTP reverse proxy for readable URLs and HTTPS offloading.
+- A DNS system, so services are addressed by name instead of IP address.
+- SSH agents, so SSH keys are available within containers.
+- A local mail catcher that receives and displays outgoing mail at http://mailhog.docker.amazee.io/.
+
+The `docker-compose.yml` shipped with **Vortex** attaches its services to the
+external `amazeeio-network` that Pygmy creates, so Pygmy must be running before
+`ahoy up` can start the stack - [`ahoy doctor`](#doctor) checks for it.
+
+### Installation
+
+Follow the [official installation instructions](https://github.com/pygmystack/pygmy/tree/main#installation).
+
+### Pygmy usage
+
+```shell
+pygmy up       # Start the services. Required to run only once per system boot.
+pygmy down     # Stop the services.
+pygmy restart  # Restart the services.
+pygmy status   # Show the status of the services.
+pygmy clean    # Stop and remove all services. Useful if you have issues with pygmy.
+```
+
+## Doctor
+
+Doctor is a standalone, self-contained script that inspects the current state
+of your project: it checks the project requirements and displays system
+information. It ships as `vendor/bin/vortex-doctor` via the
+[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
+Composer package.
+
+### Checking project status
+
+```shell
+ahoy doctor
+```
+
+Doctor performs a series of checks, each reported on its own line:
+
+```text
+[INFO] Checking project requirements
+[ OK ] All required tools are present.
+[ OK ] Port 80 is available.
+[ OK ] Pygmy is running.
+[ OK ] All containers are running.
+[ OK ] SSH key is available within the CLI container.
+[ OK ] Web server is running and accessible at http://vortex.docker.amazee.io.
+[ OK ] Bootstrapped website at http://vortex.docker.amazee.io.
+[ OK ] All required checks have passed.
+```
+
+The checks, in order:
+
+1. **Tools** - Docker, Docker Compose, Pygmy and Ahoy are installed.
+2. **Port** - port 80 on the host is either free or held by Docker (skipped on Linux).
+3. **Pygmy** - the [Pygmy](#pygmy) services are running.
+4. **Containers** - all project containers are running.
+5. **SSH** - an SSH key is available within the CLI container.
+6. **Webserver** - the web server responds at the local development URL.
+7. **Bootstrap** - the Drupal site bootstraps successfully.
+
+A failing check prints what to do about it (for example,
+`Pygmy service is not running. Run 'pygmy up' or 'pygmy restart' to fix.`).
+
+### Doctor configuration
+
+Each check can be toggled with a `VORTEX_DOCTOR_CHECK_<NAME>` variable
+(`TOOLS`, `PORT`, `PYGMY`, `CONTAINERS`, `SSH`, `WEBSERVER`, `BOOTSTRAP`) set
+to `0` or `1`.
+
+2 presets combine them:
+
+- `VORTEX_DOCTOR_CHECK_MINIMAL=1` - only the tools and containers checks; for
+  environments without Pygmy or a routable web server.
+- `VORTEX_DOCTOR_CHECK_PREFLIGHT=1` - only the tools, port and Pygmy checks;
+  for validating a machine before the stack is up.
+
+### Getting system information
+
+```shell
+ahoy doctor info
+```
+
+Prints a system information report to attach to a support request: the
+operating system version, the Docker, Docker Compose, Pygmy and Ahoy binaries
+with their versions, and the Docker daemon details. Usernames, IDs, hashes and
+IP addresses are redacted, so the output is safe to share.
+
+➡️ See [Support](../support.mdx) for how to report an issue.
+
+## Ahoy
+
+https://github.com/ahoy-cli/ahoy
+
+> Automate and organize your workflows, no matter what technology you use.
+>
+> Ahoy is command line tool that gives each of your projects their own CLI app
+> with zero code and dependencies.
+
+Ahoy wraps longer commands into short, memorable ones, so the development
+process stays consistent across projects and team members.
+
+**Vortex** comes with [pre-configured `.ahoy.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.yml) that has
+commands wrapped around the most common tasks:
+
+- Working with containers
+- Building the project locally
+- Running tests
+- Running code quality checks
+
+It also provides an example of [local Ahoy `.ahoy.local.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.local.example.yml)
+to be used in your projects. Once copied to `.ahoy.local.yml`, the file will
+be excluded from the repository and can be used to add local project-specific
+commands.
+
+### Ahoy usage
+
+```shell
+# Run a command in the global Ahoy file.
+ahoy COMMAND [ARGUMENTS] [OPTIONS]
+
+# Run a command in the local Ahoy file.
+ahoy local COMMAND [ARGUMENTS] [OPTIONS]
+
+# Show all available commands.
+ahoy --help
+```
+
+### Ahoy configuration
+
+See [configuration reference](https://github.com/ahoy-cli/ahoy#example-of-new-yaml-setup-in-v2).
+
+Adding a new command with passed arguments:
+
+```yml
+commands:
+  custom:
+    cmd: vendor/bin/phpunit --group="smoke" "$@"
+```
+
+Adding a new multi-line command with usage details that calls other Ahoy
+commands after a confirmation:
+
+```yml
+commands:
+  custom:
+    usage: Custom action
+    cmd: |
+      ahoy confirm "Are you sure?" &&
+      vendor/bin/phpunit --group="smoke" "$@" &&
+      ahoy info
+```
+
+#### Loading environment variables
+
+The configuration is set up to load environment variables from `.env` and
+`.env.local` files, giving the precedence to the values in the existing
+environment.
+
+➡️ See [Variables](variables.mdx)
+
+### Running CLI commands
+
+You can run CLI commands inside the project containers.
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Run a command in the CLI container
+    ahoy cli echo "Hello, World!"
+    # SSH into the CLI container
+    ahoy cli
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Run a command in the CLI container
+    docker compose exec cli echo "Hello, World!"
+    # SSH into the CLI container
+    docker compose exec cli bash
+    ```
+  </TabItem>
+</Tabs>
+
+You can also use shortcuts for common commands:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Run Drush command
+    ahoy drush status
+    # Run Composer command
+    ahoy composer install
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Run Drush command
+    docker compose exec cli drush status
+    # Run Composer command
+    docker compose exec cli composer install
+    ```
+  </TabItem>
+</Tabs>
+
+## Drush
+
+https://www.drush.org/
+
+> Drush is a command line shell and Unix scripting interface for Drupal. Drush
+> core ships with lots of useful commands and generators. Similarly, it runs
+> update.php, executes SQL queries, runs content migrations, and misc utilities
+> like cron or cache rebuild. Drush can be extended by 3rd party commandfiles.
+
+Drush is used throughout **Vortex** to interact with Drupal from the automation
+scripts and Behat tests.
+
+It also allows a developer to interact with the site via CLI during development.
+
+While all the standard Drush commands are supported, **Vortex** also provides
+shorthand commands that wrap the common tasks:
+
+- `ahoy fetch-db` - fetch the database dump from the remote environment
+- `ahoy import-db` - import the database dump into the local environment
+- `ahoy provision` - import the database and run updates, config imports and cache rebuilds
+
+➡️ See [Development](README.mdx)
+
+### Drush usage
+
+Drush should be used from the inside of the container.
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy drush <command>
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli drush <command>
+    ```
+  </TabItem>
+</Tabs>
+
+### PHP runtime configuration
+
+**Vortex** allows you to customize PHP runtime settings for PHP CLI processes,
+including Drush commands, by editing the `drush/php-ini/drush.ini` file.
+
+This file is auto-discovered via the `PHP_INI_SCAN_DIR` environment variable,
+which is pre-configured in both the Docker CLI container and Acquia deployment
+hooks. Every PHP CLI process that loads this scan path picks the file up, not
+only Drush.
+
+Any valid PHP ini directive can be added to this file to adjust the runtime
+behavior of those processes.
+
+:::note
+
+The leading colon in the `PHP_INI_SCAN_DIR` value preserves the default scan
+directories. On Acquia, this ensures that the hosting provider's own PHP ini
+overrides (such as `sendmail_path`) are not lost.
+
+:::
+
+#### Memory limit
+
+The shipped configuration raises the PHP memory limit above the platform
+default:
+
+```ini
+; drush/php-ini/drush.ini
+memory_limit = 1G
+```
+
+This value is sized for database imports and configuration synchronization on
+large sites. It applies to PHP CLI processes that load this scan path,
+including Drush, and does not change the memory limit used to serve web
+requests.
+
+If a Drush command exhausts this limit, profile the command before raising the
+value. An exhausted 1G limit usually points to a memory leak in custom code
+rather than a limit set too low, and raising the ceiling hides the leak until a
+larger dataset reaches the new limit.
+
+To grant more memory to a single command without changing the default:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy cli php -d memory_limit=2G vendor/bin/drush <command>
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli php -d memory_limit=2G vendor/bin/drush <command>
+    ```
+  </TabItem>
+</Tabs>
+
+### Aliases
+
+For Lagoon hosting, Drush site aliases are automatically generated for each
+environment and can be used either from the host machine or from within the
+container.
+
+<Tabs>
+  <TabItem value="host" label="Host" default>
+    1. Make sure your SSH key is loaded in your `ssh-agent`:
+    ```shell
+    ssh-add ~/.ssh/path/to/key
+    ```
+    2. Run Drush commands using the Lagoon site aliases:
+    ```shell
+    drush @lagoon.develop status  # Show status of the develop environment
+    drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
+    ```
+  </TabItem>
+  <TabItem value="ahoy" label="Ahoy">
+    1. Make sure your SSH key is loaded into `pygmy`:
+    ```shell
+    pygmy addkey --key ~/.ssh/path/to/key
+    ```
+    2. Run Drush commands using the Lagoon site aliases:
+    ```shell
+    ahoy drush @lagoon.develop status  # Show status of the develop environment
+    ahoy drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    1. Make sure your SSH key is loaded into `pygmy`:
+    ```shell
+    pygmy addkey --key ~/.ssh/path/to/key
+    ```
+    2. Run Drush commands using the Lagoon site aliases:
+    ```shell
+    docker compose exec cli drush @lagoon.develop status  # Show status of the develop environment
+    docker compose exec cli drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
+    ```
+  </TabItem>
+</Tabs>
+
+## Switching branches
+
+When switching to a new branch, there is no need to rebuild the entire project
+as it may take a long time. Instead, you can run these commands as needed based
+on what changed:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Update Composer dependencies (only if composer.json/composer.lock changed)
+    ahoy composer install
+    # Rebuild frontend assets (only if theme files changed)
+    ahoy fe
+    # Provision site (only if database or configuration changes expected)
+    ahoy provision
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Update Composer dependencies (only if composer.json/composer.lock changed)
+    docker compose exec cli composer install
+    # Rebuild frontend assets (only if theme files changed)
+    docker compose exec cli bash -c "cd \${WEBROOT}/themes/custom/\${DRUPAL_THEME} && yarn run build"
+    # Provision site (only if database or configuration changes expected)
+    docker compose exec cli ./vendor/bin/vortex-provision
+    ```
+  </TabItem>
+</Tabs>
+
+## Resetting
+
+To reset the local environment, use the reset command. This will stop and remove
+all containers and downloaded dependency packages (`vendor`, `node_modules` etc.).
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Reset local environment
+    ahoy reset
+    # Fully reset repository to a state as if it was just cloned
+    ahoy reset --hard
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Reset local environment
+    docker compose down
+    ./vendor/bin/vortex-reset
+    # Fully reset repository to a state as if it was just cloned
+    docker compose down
+    ./vendor/bin/vortex-reset --hard
+    ```
+  </TabItem>
+</Tabs>
+
+## Environment variables
+
+To update environment variables in your local development environment:
+
+1. Edit variables in `.env.local` file
+2. Apply changes by re-creating the containers (a plain restart does not
+   re-read the `.env` files):
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy up
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose up -d
+    ```
+  </TabItem>
+</Tabs>
+
+➡️ See [Variables](variables.mdx) for the full variable reference.
+
+## Logs
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Show container logs
+    ahoy logs
+    # Check recent logs of a single container
+    ahoy logs -- --tail=50 cli
+    # View Drupal watchdog logs
+    ahoy drush watchdog:show --count=20
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Show container logs
+    docker compose logs
+    # Check recent logs of a single container
+    docker compose logs --tail=50 cli
+    # View Drupal watchdog logs
+    docker compose exec cli drush watchdog:show --count=20
+    ```
+  </TabItem>
+</Tabs>
+
+## Troubleshooting
+
+When the local environment misbehaves, run [Doctor](#doctor) first - it
+pinpoints the layer that is broken (tooling, containers, or the site itself)
+before you start guessing.
+
+### Site not loading
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy doctor                # Check for common issues
+    ahoy down && ahoy up       # Restart containers
+    ahoy info                  # Verify URLs and ports
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    ./vendor/bin/vortex-doctor                       # Check for common issues
+    docker compose down && docker compose up -d      # Restart containers
+    docker compose exec cli ./vendor/bin/vortex-info # Verify URLs and ports
+    ```
+  </TabItem>
+</Tabs>
+
+### Database connection errors
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    docker compose ps      # Check if the database container is running
+    ahoy reset             # Last resort: rebuild everything
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose ps      # Check if the database container is running
+    docker compose down --volumes && docker compose up -d  # Last resort
+    ```
+  </TabItem>
+</Tabs>
+
+### Permission issues
+
+```shell
+# Fix file permissions (Linux/Mac)
+sudo chown -R $USER:$USER .
+```
+
+## Debugging
+
+This section covers 3 debugging aids: step-debugging PHP with Xdebug, testing
+authenticated pages with curl, and inspecting the containers directly.
+
+### Xdebug
+
+https://xdebug.org/
+
+> Xdebug is an extension for PHP, and provides a range of features to improve
+> the PHP development experience.
+
+**Vortex** comes with Xdebug pre-installed and configured for local development
+thanks to [Lagoon images](https://github.com/uselagoon/lagoon-images).
+
+Xdebug is also configured to work in coverage mode, so tests can run with code
+coverage enabled.
+
+➡️ See [PHPUnit](testing/phpunit.mdx)
+
+#### Usage
+
+Xdebug is disabled by default. Run the following command to enable it:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy debug    # Restart containers with Xdebug enabled.
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    XDEBUG_ENABLE=true docker compose up -d cli php nginx   # Restart containers with Xdebug enabled.
+    ```
+  </TabItem>
+</Tabs>
+
+Run the following command to disable Xdebug:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy up   # Restart containers with Xdebug disabled.
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose up -d cli php nginx    # Restart containers with Xdebug disabled.
+    ```
+  </TabItem>
+</Tabs>
+
+#### CLI
+
+Running PHP from the command line with Xdebug works the same way as
+debugging a web page, except that you need to run it from within the
+container.
+
+Note that some commands, like `drush`, may disable Xdebug by default for
+performance reasons. You may need to explicitly enable it by providing
+`--xdebug` flag to `drush` command. Check the documentation of the
+command you are trying to run for more details.
+
+#### IDE configuration
+
+##### PhpStorm
+
+By default, PhpStorm is configured to automatically interrupt on incoming
+unmapped debug connections when `Start listening for PHP Debug Connections`
+button (the one with a little bug) is activated. When interrupted, PhpStorm
+will ask you to map the incoming connection to a project.
+
+In order to use Xdebug on the project for the first time, you need to follow
+these steps (assuming you already have a fully working site):
+
+1. Install Xdebug helper extension for your browser:
+     - [Chrome Xdebug Helper by JetBrains](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm)
+       extension.
+     - [Firefox Xdebug Helper by JetBrains](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-by-jetbrains/)
+       extension.
+     - [Edge Xdebug Helper by JetBrains](https://microsoftedge.microsoft.com/addons/detail/xdebug-helper-by-jetbrain/kddfioocjgjmmambaijldfbpiaecmoco)
+       add-on.
+
+2. Enable Xdebug in your browser (see instructions for your extension/add-on).
+3. Set a breakpoint in your IDE. `index.php` in your web root is a good place to
+   start.
+4. Run `ahoy debug` or `XDEBUG_ENABLE=true docker compose up -d cli php nginx`
+   to enable Xdebug.
+5. Refresh the page in your browser.
+6. PhpStorm will stop on your breakpoint and will ask you to map the incoming
+   connection to directory in your project. This is because the code runs in the
+   container, which qualifies as a remote server. You need to "tell"
+   Xdebug where to find the code on your local machine that corresponds to the
+   code running in the container. You would need to do it once and PhpStorm will
+   remember the mapping.
+
+![xdebug-phpstorm.png](/img/xdebug-phpstorm.png)
+
+For more information see the following resources:
+
+- https://www.jetbrains.com/help/phpstorm/configuring-xdebug.html#debugging-with-phpstorm
+- https://docs.lagoon.sh/using-lagoon-advanced/setting-up-xdebug-with-lagoon/
+
+##### Tips and tricks
+
+Once your first Xdebug session is set up, you can adjust some of the Debug
+configurations in the PhpStorm IDE to make your life easier:
+
+- Disable the following options:
+  - `Break at first line in PHP scripts`
+  - `Force break at first line when no path mapping specified`
+  - `Force break at first line when a script is outside the project`
+- Increase the number in `Max. simultaneous connections` to `5` or more. This
+  will prevent hidden debug session being "stuck" without being visible in
+  the IDE.
+
+### Testing authenticated pages with curl
+
+Use `curl` with session cookies to simulate manual testing of pages that require
+authentication (admin pages, protected routes) without opening a browser. This
+is for ad-hoc debugging only - automated testing should use Behat or PHPUnit.
+
+#### When to use
+
+- Quick ad-hoc debugging of admin page errors (500 errors, permission issues)
+- Investigating issues without spinning up a browser
+- Verifying page content during troubleshooting
+- One-off checks that don't warrant a formal test
+
+#### Step-by-step process
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Step 1: Get the site URL from project info
+    ahoy info
+    # Note the URL (e.g., http://your-project.docker.amazee.io)
+    # Step 2: Get a one-time login URL
+    ahoy login
+    # Output example: http://your-project.docker.amazee.io/user/reset/1/1234567890/abc123/login
+    # Step 3: Authenticate and save session cookies
+    # Replace LOGIN_URL with the full URL from Step 2
+    curl -k -c .data/cookies.txt -L "LOGIN_URL"
+    # Step 4: Access any authenticated page using saved cookies
+    # Replace SITE_URL with your site URL from Step 1
+    curl -k -b .data/cookies.txt "SITE_URL/admin/content"
+    # Step 5: Check for specific errors in page output
+    curl -k -b .data/cookies.txt "SITE_URL/admin/content" | grep -iE "(error|exception|warning|notice)"
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Step 1: Get the site URL from project info
+    docker compose exec cli ./vendor/bin/vortex-info
+    # Note the URL (e.g., http://your-project.docker.amazee.io)
+    # Step 2: Get a one-time login URL
+    docker compose exec cli drush uli
+    # Output example: http://your-project.docker.amazee.io/user/reset/1/1234567890/abc123/login
+    # Step 3: Authenticate and save session cookies
+    # Replace LOGIN_URL with the full URL from Step 2
+    curl -k -c .data/cookies.txt -L "LOGIN_URL"
+    # Step 4: Access any authenticated page using saved cookies
+    # Replace SITE_URL with your site URL from Step 1
+    curl -k -b .data/cookies.txt "SITE_URL/admin/content"
+    # Step 5: Check for specific errors in page output
+    curl -k -b .data/cookies.txt "SITE_URL/admin/content" | grep -iE "(error|exception|warning|notice)"
+    ```
+  </TabItem>
+</Tabs>
+
+#### Curl flags reference
+
+| Flag | Purpose |
+|------|---------|
+| `-k` | Ignore SSL certificate errors (required for self-signed local certs) |
+| `-c FILE` | Save cookies to FILE after request |
+| `-b FILE` | Send cookies from FILE with request |
+| `-L` | Follow redirects (required for login flow) |
+
+#### Important notes
+
+- **Cookie storage**: Always use `.data/` directory - it is gitignored
+- **Session expiry**: Cookies expire after session timeout; regenerate as needed
+- **Login URL format**: `http://SITE/user/reset/UID/TIMESTAMP/HASH/login`
+- **One-time use**: Login URLs from `ahoy login` can only be used once
+
+### Container debugging
+
+```shell
+# Check container status
+docker compose ps
+
+# View container logs
+docker compose logs [service_name]
+# Examples:
+docker compose logs cli
+docker compose logs database
+
+# Access container shell
+docker compose exec cli bash
+docker compose exec database mysql -u drupal -p drupal
+```
