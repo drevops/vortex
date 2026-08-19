@@ -1,15 +1,15 @@
-@@ -23,7 +23,6 @@
- use DrevOps\BehatSteps\MetatagTrait;
+@@ -29,7 +29,6 @@
  use DrevOps\BehatSteps\Drupal\OverrideTrait;
  use DrevOps\BehatSteps\Drupal\ParagraphsTrait;
+ use DrevOps\BehatSteps\Drupal\QueueTrait;
 -use DrevOps\BehatSteps\Drupal\RedirectTrait;
  use DrevOps\BehatSteps\Drupal\SearchApiTrait;
+ use DrevOps\BehatSteps\Drupal\StateTrait;
  use DrevOps\BehatSteps\Drupal\TaxonomyTrait;
- use DrevOps\BehatSteps\Drupal\TestmodeTrait;
-@@ -75,7 +74,6 @@
-   use OverrideTrait;
+@@ -91,7 +90,6 @@
    use ParagraphsTrait;
    use PathTrait;
+   use QueueTrait;
 -  use RedirectTrait;
    use ResponseTrait;
    use ResponsiveTrait;
