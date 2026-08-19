@@ -328,8 +328,13 @@ jobs:
               echo "export CI_IS_JEST_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
               echo "export CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
               echo "export CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
-              # Runs on every node, using the `p<node index>` profile.
+              # Runs on every node, using the `p<node index - offset>` profile.
               echo "export CI_IS_BEHAT_RUNNER=1"
+              # Subtracted from the node index to derive the profile number.
+              # Raise it by one for every leading node that does not run
+              # Behat, so the first Behat node still selects the `p0`
+              # catch-all profile.
+              echo "export CI_BEHAT_PROFILE_OFFSET=0"
             } >> "${BASH_ENV}"
 
       - run:
@@ -463,7 +468,7 @@ jobs:
           name: Test with Behat
           command: |
             [ "${CI_IS_BEHAT_RUNNER:-1}" = "1" ] || exit 0
-            if [ "${CI_RUNNER_TOTAL:-1}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${CI_RUNNER_INDEX}}"; fi
+            if [ "${CI_RUNNER_TOTAL:-1}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p$((CI_RUNNER_INDEX - CI_BEHAT_PROFILE_OFFSET))}"; fi
             echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
             docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
               docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
