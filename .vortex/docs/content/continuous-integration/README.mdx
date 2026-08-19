@@ -410,6 +410,18 @@ the balancing arithmetic.
 
 ## Maintenance
 
+### Pin SSH host keys
+
+Strict host-key checking is disabled by default for the SSH connections the
+pipeline makes to the hosting provider. To enable it, add the verified host
+keys as a `VORTEX_SSH_KNOWN_HOSTS` variable in your provider's settings - on
+GitHub Actions as a repository variable mapped into the workflow `env` block,
+on CircleCI as an environment variable with multiple entries joined with `\n`.
+The steps that load the SSH keys skip their `known_hosts` file by default; set
+the `VORTEX_FETCH_DB_SSH_KNOWN_HOSTS` (database fetch) and
+`VORTEX_DEPLOY_SSH_KNOWN_HOSTS` (deployment) variables to pin those host keys
+too.
+
 ### Enable debug mode
 
 To get verbose output when troubleshooting build failures, enable debug mode
