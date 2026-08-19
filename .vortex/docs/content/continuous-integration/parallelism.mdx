@@ -90,13 +90,22 @@ the container count under the same names on both providers.
 To run a tool of your own on a specific container, add one more flag alongside
 the others and reference it from your step:
 
+<Tabs queryString="ci-provider" groupId="ci-provider">
+<TabItem value="gha" label="GitHub Actions">
+
 ```yaml title=".github/workflows/build-test-deploy.yml"
 CI_IS_CYPRESS_RUNNER: ${{ matrix.instance == 1 }}
 ```
 
+</TabItem>
+<TabItem value="circleci" label="CircleCI">
+
 ```shell title=".circleci/config.yml, inside 'Set test runner roles'"
 echo "export CI_IS_CYPRESS_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 1 ] && echo 1 || echo 0)"
 ```
+
+</TabItem>
+</Tabs>
 
 ### Giving a tool its own container
 
@@ -158,6 +167,9 @@ As a rule of thumb, keep lightweight scenarios on the first container and move
 heavier or more numerous scenarios to additional containers (`@p1`, `@p2`,
 etc.). This keeps the total build time closer to the duration of the longest
 single container rather than the sum of all tests.
+
+Note that `@smoke` scenarios - used to check that Behat itself is configured
+and works correctly - run on every runner by design, so keep them few and fast.
 
 :::
 
