@@ -350,13 +350,13 @@ e.g., `provision-50-custom.sh`, `provision-60-another-custom.sh`.
 
 **Vortex** ships the following scripts:
 
-| Script                                | Purpose                                                  |
-|---------------------------------------|----------------------------------------------------------|
-| `provision-00-enable-demo-modules.sh` | Enables the modules and content model the demo site uses |
-| `provision-10-enable-dev-modules.sh`  | Enables the development modules and generates content    |
-| `provision-20-migration.sh`           | Runs the content migration                               |
-| `provision-30-search-index.sh`        | Rebuilds the search index                                |
-| `provision-40-example.sh`             | A runnable example that performs no operations           |
+| Script                                | Purpose                                                  | Present when                                                                                               |
+|---------------------------------------|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| `provision-00-enable-demo-modules.sh` | Enables the modules and content model the demo site uses | Always; the installer trims its operations to the selected modules                                          |
+| `provision-10-enable-dev-modules.sh`  | Enables the development modules and generates content    | Any of `devel`, `sdc_devel`, `generated_content` or `testmode` is selected; removed by the installer otherwise |
+| `provision-20-migration.sh`           | Runs the content migration                               | The migration feature is selected; removed by the installer otherwise                                       |
+| `provision-30-search-index.sh`        | Rebuilds the search index                                | The Solr service is selected; removed by the installer otherwise                                            |
+| `provision-40-example.sh`             | A runnable example that performs no operations           | Always; copy it as a starting point or remove it                                                            |
 
 ### Conditional execution
 
@@ -447,6 +447,21 @@ the content is created only on the provision that first installs the module: a
 site provisioned once with `DRUPAL_GENERATED_CONTENT_SKIP=1` does not gain the
 content by unsetting the variable and provisioning again.
 
+### Migration
+
+Projects with the migration feature ship a `scripts/provision-20-migration.sh`
+custom script that runs the content migration: it imports the migration source
+database dump into the `database2` container, probes it for corruption, and
+runs the migrations via `drush migrate:import`, with an optional rollback
+before the import.
+
+On projects with the Solr service, the script disables the search server while
+the migrations run, so migrated entities are not indexed one at a time - the
+search indexing script rebuilds the index straight after.
+
+➡️ See [Migrations](migrations.mdx#provision-script) for the script's
+configuration variables and how to add your own migrations.
+
 ### Search indexing
 
 Projects with the Solr service ship with a `scripts/provision-30-search-index.sh`
@@ -517,6 +532,20 @@ function ys_base_deploy_create_about_page(): string {
   $node->save();
 
   return 'Created About Us page';
+}
+```
+
+The shipped [Drupal helpers](modules.mdx#drupal-helpers) module provides static
+facade helpers for the common deploy hook operations, so a hook stays a few
+lines instead of repeating the entity API boilerplate every time:
+
+```php
+use Drupal\drupal_helpers\Helper;
+
+function ys_base_deploy_create_default_tags(): string {
+  Helper::term()->createTree('tags', ['News', 'Events', 'Blog']);
+
+  return 'Created the default tags.';
 }
 ```
 
