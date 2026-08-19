@@ -86,7 +86,7 @@ $settings['maintenance_theme'] = (getenv('DRUPAL_MAINTENANCE_THEME') ?: getenv('
 // Settings for specific environments (including a local container-based
 // environment) are populated within provider-specific
 // `includes/providers/settings.<provider>.php` files.
-// @see https://www.vortextemplate.com/docs/development/settings#per-module-overrides
+// @see https://www.vortextemplate.com/docs/development/settings#environment-type-detection
 $settings['trusted_host_patterns'] = [
   '^localhost$',
 ];

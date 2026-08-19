@@ -365,7 +365,7 @@ const config = {
           },
           {
             from: '/docs/workflows/development/debugging',
-            to: '/docs/development/environment',
+            to: '/docs/development/environment#debugging',
           },
           {
             from: '/docs/workflows/development/composer',
@@ -445,7 +445,7 @@ const config = {
           },
           {
             from: '/docs/tools/ahoy',
-            to: '/docs/development/environment',
+            to: '/docs/development/environment#ahoy',
           },
           {
             from: '/docs/tools/behat',
@@ -457,19 +457,19 @@ const config = {
           },
           {
             from: '/docs/tools/diffy',
-            to: '/docs/development/visual-regression',
+            to: '/docs/development/visual-regression#diffy',
           },
           {
             from: '/docs/tools/docker',
-            to: '/docs/development/environment',
+            to: '/docs/development/environment#docker',
           },
           {
             from: '/docs/tools/doctor',
-            to: '/docs/development/environment',
+            to: '/docs/development/environment#doctor',
           },
           {
             from: '/docs/tools/drush',
-            to: '/docs/development/environment',
+            to: '/docs/development/environment#drush',
           },
           {
             from: '/docs/tools/eslint',
@@ -509,7 +509,7 @@ const config = {
           },
           {
             from: '/docs/tools/pygmy',
-            to: '/docs/development/environment',
+            to: '/docs/development/environment#pygmy',
           },
           {
             from: '/docs/tools/rector',
@@ -577,7 +577,7 @@ const config = {
           },
           {
             from: '/docs/development/debugging',
-            to: '/docs/development/environment',
+            to: '/docs/development/environment#debugging',
           },
           {
             from: '/docs/development/phpunit',

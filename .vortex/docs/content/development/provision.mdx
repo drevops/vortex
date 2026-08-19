@@ -500,7 +500,7 @@ function ys_base_deploy_create_about_page(): string {
   // Check if the About Us page already exists.
   $node = \Drupal::entityTypeManager()
     ->getStorage('node')
-    ->loadByProperties(['type' => 'page']);
+    ->loadByProperties(['type' => 'page', 'title' => 'About Us']);
   if (!empty($node)) {
     return 'About Us page already exists';
   }
