@@ -313,8 +313,12 @@ jobs:
       CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
       CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
       CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
-      # Runs on every instance, using the `p<instance index>` profile.
+      # Runs on every instance, using the `p<instance index - offset>` profile.
       CI_IS_BEHAT_RUNNER: true
+      # Subtracted from the instance index to derive the profile number. Raise
+      # it by one for every leading instance that does not run Behat, so the
+      # first Behat instance still selects the `p0` catch-all profile.
+      CI_BEHAT_PROFILE_OFFSET: 0
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
@@ -512,7 +516,7 @@ jobs:
         if: ${{ env.CI_IS_BEHAT_RUNNER == 'true' }}
         run: |
           # shellcheck disable=SC2170
-          if [ "${CI_RUNNER_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${CI_RUNNER_INDEX}}"; fi
+          if [ "${CI_RUNNER_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p$((CI_RUNNER_INDEX - CI_BEHAT_PROFILE_OFFSET))}"; fi
           echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
           docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
             docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}"

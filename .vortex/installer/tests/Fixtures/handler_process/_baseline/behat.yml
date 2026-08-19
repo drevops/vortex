@@ -96,9 +96,11 @@ default:
     # Show explicit fail information and continue the test run.
     DrevOps\BehatFormatProgressFail\FormatExtension: ~
 
-# Profiles for parallel testing. CI runs the profile named after the index of
-# the runner it is on, so 'pN' requires a runner N. Adding a runner means adding
-# a matching profile here and excluding its tag from the 'p0' catch-all below.
+# Profiles for parallel testing. CI derives the profile number from the index
+# of the runner it is on minus 'CI_BEHAT_PROFILE_OFFSET', so profiles stay
+# numbered from 'p0' regardless of which runner Behat starts on. Adding a
+# runner that runs Behat means adding a profile for its derived number and
+# excluding its tag from the 'p0' catch-all below.
 # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
 
 # Runs all tests tagged with '@smoke' or not tagged with '@p1', and not tagged

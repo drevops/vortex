@@ -53,19 +53,23 @@
        - name: Lint theme code with NodeJS linters
          if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
          run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
-@@ -310,11 +274,7 @@
+@@ -310,15 +274,7 @@
        # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
        CI_RUNNER_INDEX: ${{ strategy.job-index }}
        CI_RUNNER_TOTAL: ${{ strategy.job-total }}
 -      CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -      CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
--      # Runs on every instance, using the `p<instance index>` profile.
+-      # Runs on every instance, using the `p<instance index - offset>` profile.
 -      CI_IS_BEHAT_RUNNER: true
+-      # Subtracted from the instance index to derive the profile number. Raise
+-      # it by one for every leading instance that does not run Behat, so the
+-      # first Behat instance still selects the `p0` catch-all profile.
+-      CI_BEHAT_PROFILE_OFFSET: 0
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -417,7 +377,6 @@
+@@ -421,7 +377,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -73,7 +77,7 @@
  
        - name: Provision site
          run: |
-@@ -431,71 +390,6 @@
+@@ -435,71 +390,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -145,7 +149,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -508,19 +402,6 @@
+@@ -512,19 +402,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -153,7 +157,7 @@
 -        if: ${{ env.CI_IS_BEHAT_RUNNER == 'true' }}
 -        run: |
 -          # shellcheck disable=SC2170
--          if [ "${CI_RUNNER_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${CI_RUNNER_INDEX}}"; fi
+-          if [ "${CI_RUNNER_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p$((CI_RUNNER_INDEX - CI_BEHAT_PROFILE_OFFSET))}"; fi
 -          echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
 -          docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
 -            docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}"
@@ -165,7 +169,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -537,16 +418,6 @@
+@@ -541,16 +418,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

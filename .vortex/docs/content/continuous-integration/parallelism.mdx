@@ -46,6 +46,7 @@ env:
   CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
   CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
   CI_IS_BEHAT_RUNNER: true
+  CI_BEHAT_PROFILE_OFFSET: 0
 ```
 
 Each tool's step then reads its own flag:
@@ -69,6 +70,7 @@ Each tool's step then reads its own flag:
         echo "export CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
         echo "export CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
         echo "export CI_IS_BEHAT_RUNNER=1"
+        echo "export CI_BEHAT_PROFILE_OFFSET=0"
       } >> "${BASH_ENV}"
 ```
 
@@ -86,6 +88,9 @@ Each tool's step then reads its own flag as its first line:
 
 `CI_RUNNER_INDEX` and `CI_RUNNER_TOTAL` carry the current container's index and
 the container count under the same names on both providers.
+`CI_BEHAT_PROFILE_OFFSET` is subtracted from the container index to derive the
+Behat profile number - see
+[Giving a tool its own container](#giving-a-tool-its-own-container).
 
 To run a tool of your own on a specific container, add one more flag alongside
 the others and reference it from your step:
@@ -128,12 +133,41 @@ skipped and the job still passes.
 
 :::
 
+Behat derives its profile number from the container index minus
+`CI_BEHAT_PROFILE_OFFSET`, and `p0` is the catch-all that runs every scenario
+without a `@pX` tag. With the dedicated container at the end, the offset stays
+`0`: the containers before it keep their profiles.
+
+To dedicate a **leading** container instead - for example, pinning every
+once-only tool to container `0` and keeping Behat off it - raise the offset by
+one for each leading container excluded from Behat, so the first Behat
+container still selects the `p0` catch-all:
+
+```yaml
+CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 }}
+CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 }}
+CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 }}
+CI_IS_BEHAT_RUNNER: ${{ matrix.instance != 0 }}
+CI_BEHAT_PROFILE_OFFSET: 1
+```
+
+| Container | Role | Behat profile |
+|-----------|------|:---:|
+| 0 | Jest, PHPUnit, coverage, SDC validation | - |
+| 1 | Behat | `p0` (catch-all) |
+| 2 | Behat | `p1` |
+
+`behat.yml` stays untouched: the profiles remain numbered from `p0` and no
+feature file is re-tagged.
+
 :::warning
 
-Use the **last** container for this, never the first. Behat derives its profile
-name from the container index, and `p0` is the catch-all that runs every
-scenario without a `@pX` tag. Excluding container 0 from Behat means `p0` never
-runs and those scenarios silently stop being tested.
+When `VORTEX_CI_BEHAT_PROFILE` is unset, the offset expresses one contiguous
+block of Behat containers starting at the offset. A Behat container below the
+offset derives a negative profile name and the run fails. A gap inside the
+block leaves the profile at the gap's position unselected, and its scenarios
+silently stop running. An explicitly set `VORTEX_CI_BEHAT_PROFILE` bypasses
+the derivation entirely.
 
 :::
 
@@ -189,7 +223,8 @@ container count itself, and a matching Behat profile for every new container.
 2. Add a profile to `behat.yml` for each new container that runs Behat.
    **Vortex** ships with `p0` and `p1` only, and Behat fails with
    `profile 'p2' does not exist` if a container running Behat has no profile
-   named after its index. A container excluded from Behat needs no profile:
+   named after its derived number (its index minus `CI_BEHAT_PROFILE_OFFSET`).
+   A container excluded from Behat needs no profile:
 
    ```yaml title="behat.yml"
    p2:
