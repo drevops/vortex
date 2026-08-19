@@ -162,10 +162,12 @@ feature file is re-tagged.
 
 :::warning
 
-The offset expresses one contiguous block of Behat containers starting at the
-offset. A Behat container below the offset derives a negative profile name and
-the run fails. A gap inside the block leaves the profile at the gap's position
-unselected, and its scenarios silently stop running.
+When `VORTEX_CI_BEHAT_PROFILE` is unset, the offset expresses one contiguous
+block of Behat containers starting at the offset. A Behat container below the
+offset derives a negative profile name and the run fails. A gap inside the
+block leaves the profile at the gap's position unselected, and its scenarios
+silently stop running. An explicitly set `VORTEX_CI_BEHAT_PROFILE` bypasses
+the derivation entirely.
 
 :::
 
