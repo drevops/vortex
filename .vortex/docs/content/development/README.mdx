@@ -58,14 +58,13 @@ theme assets, and provisions the site from the database dump.
   terminalLineHeight={1.0}
 />
 
-### Re-provision the site
+### Show project information
 
-`ahoy provision` re-imports the database dump from `.data/db.sql` into the
-running stack and applies the provisioning steps: database updates,
-configuration import, cache rebuilds and deploy hooks.
+`ahoy info` shows the current project information: the site URL, container
+status and ports.
 
 <AsciinemaPlayer
-  src="/img/provision.json"
+  src="/img/info.json"
   poster="npt:0:1"
   autoPlay={false}
   loop={false}
@@ -115,6 +114,23 @@ real browser inside the container stack.
 
 <AsciinemaPlayer
   src="/img/test-bdd.json"
+  poster="npt:0:1"
+  autoPlay={false}
+  loop={false}
+  preload={true}
+  controls={true}
+  theme="asciinema"
+  terminalLineHeight={1.0}
+/>
+
+### Re-provision the site
+
+`ahoy provision` re-imports the database dump from `.data/db.sql` into the
+running stack and applies the provisioning steps: database updates,
+configuration import, cache rebuilds and deploy hooks.
+
+<AsciinemaPlayer
+  src="/img/provision.json"
   poster="npt:0:1"
   autoPlay={false}
   loop={false}

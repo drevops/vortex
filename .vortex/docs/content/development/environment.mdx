@@ -7,6 +7,7 @@ sidebar_position: 2
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
 The local environment is a Docker Compose stack built from
 [Lagoon container images](https://github.com/uselagoon/lagoon-images), with
@@ -15,12 +16,12 @@ This page covers every layer of that stack: Docker and the anatomy of
 `docker-compose.yml`, the shared services provided by Pygmy, the Doctor
 project checks, the Ahoy and Drush command wrappers, the day-to-day operations
 of switching branches, resetting, updating environment variables and reading
-logs, and troubleshooting and debugging.
+logs, debugging, and troubleshooting.
 
 ## Docker
 
-https://github.com/docker/cli
-https://github.com/docker/compose
+- https://github.com/docker/cli
+- https://github.com/docker/compose
 
 > Docker is a platform for developing, shipping, and running applications in
 > containers.
@@ -38,7 +39,8 @@ Lagoon images run in production environments, receive regular updates, and are
 maintained by the Lagoon team.
 
 If you are using Lagoon as your hosting provider, then all of your
-environments are using identical images to run the project.
+environments (local, CI and production) are using identical images to run the
+project.
 
 :::
 
@@ -299,9 +301,8 @@ docker compose -f docker-compose.yml config
 
 ## Pygmy
 
-https://pygmy.readthedocs.io/
-
-https://github.com/pygmystack/pygmy
+- https://pygmy.readthedocs.io/
+- https://github.com/pygmystack/pygmy
 
 > `pygmy` is the single tool needed to get the local amazee.io Docker Drupal
 > Development Environment running on your Linux based system. It is built to work
@@ -331,73 +332,6 @@ pygmy restart  # Restart the services.
 pygmy status   # Show the status of the services.
 pygmy clean    # Stop and remove all services. Useful if you have issues with pygmy.
 ```
-
-## Doctor
-
-Doctor is a standalone, self-contained script that inspects the current state
-of your project: it checks the project requirements and displays system
-information. It ships as `vendor/bin/vortex-doctor` via the
-[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
-Composer package.
-
-### Checking project status
-
-```shell
-ahoy doctor
-```
-
-Doctor performs a series of checks, each reported on its own line:
-
-```text
-[INFO] Checking project requirements
-[ OK ] All required tools are present.
-[ OK ] Port 80 is available.
-[ OK ] Pygmy is running.
-[ OK ] All containers are running.
-[ OK ] SSH key is available within the CLI container.
-[ OK ] Web server is running and accessible at http://vortex.docker.amazee.io.
-[ OK ] Bootstrapped website at http://vortex.docker.amazee.io.
-[ OK ] All required checks have passed.
-```
-
-The checks, in order:
-
-1. **Tools** - Docker, Docker Compose, Pygmy and Ahoy are installed.
-2. **Port** - port 80 on the host is either free or held by Docker (skipped on Linux).
-3. **Pygmy** - the [Pygmy](#pygmy) services are running.
-4. **Containers** - all project containers are running.
-5. **SSH** - an SSH key is available within the CLI container.
-6. **Webserver** - the web server responds at the local development URL.
-7. **Bootstrap** - the Drupal site bootstraps successfully.
-
-A failing check prints what to do about it (for example,
-`Pygmy service is not running. Run 'pygmy up' or 'pygmy restart' to fix.`).
-
-### Doctor configuration
-
-Each check can be toggled with a `VORTEX_DOCTOR_CHECK_<NAME>` variable
-(`TOOLS`, `PORT`, `PYGMY`, `CONTAINERS`, `SSH`, `WEBSERVER`, `BOOTSTRAP`) set
-to `0` or `1`.
-
-2 presets combine them:
-
-- `VORTEX_DOCTOR_CHECK_MINIMAL=1` - only the tools and containers checks; for
-  environments without Pygmy or a routable web server.
-- `VORTEX_DOCTOR_CHECK_PREFLIGHT=1` - only the tools, port and Pygmy checks;
-  for validating a machine before the stack is up.
-
-### Getting system information
-
-```shell
-ahoy doctor info
-```
-
-Prints a system information report to attach to a support request: the
-operating system version, the Docker, Docker Compose, Pygmy and Ahoy binaries
-with their versions, and the Docker daemon details. Usernames, IDs, hashes and
-IP addresses are redacted, so the output is safe to share.
-
-➡️ See [Support](../support.mdx) for how to report an issue.
 
 ## Ahoy
 
@@ -493,6 +427,13 @@ You can run CLI commands inside the project containers.
   </TabItem>
 </Tabs>
 
+:::note
+
+Running `ahoy cli` without arguments opens an interactive shell inside the
+`cli` container.
+
+:::
+
 You can also use shortcuts for common commands:
 
 <Tabs>
@@ -513,6 +454,93 @@ You can also use shortcuts for common commands:
     ```
   </TabItem>
 </Tabs>
+
+## Doctor
+
+Doctor is a standalone, self-contained script that inspects the current state
+of your project: it checks the project requirements and displays system
+information. It ships as `vendor/bin/vortex-doctor` via the
+[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
+Composer package.
+
+### Checking project status
+
+```shell
+ahoy doctor
+```
+
+Doctor performs a series of checks, each reported on its own line.
+
+<details>
+  <summary>Expand to see the video of ahoy doctor</summary>
+
+  <AsciinemaPlayer
+    src="/img/doctor.json"
+    poster="npt:0:1"
+    autoPlay={false}
+    loop={false}
+    preload={true}
+    controls={true}
+    theme="asciinema"
+    terminalLineHeight={1.0}
+  />
+
+</details>
+
+The checks, in order:
+
+1. **Tools** - Docker, Docker Compose, Pygmy and Ahoy are installed.
+2. **Port** - port 80 on the host is either free or held by Docker (skipped on Linux).
+3. **Pygmy** - the [Pygmy](#pygmy) services are running.
+4. **Containers** - all project containers are running.
+5. **SSH** - an SSH key is available within the CLI container.
+6. **Webserver** - the web server responds at the local development URL.
+7. **Bootstrap** - the Drupal site bootstraps successfully.
+
+A failing check prints what to do about it (for example,
+`Pygmy service is not running. Run 'pygmy up' or 'pygmy restart' to fix.`).
+
+### Doctor configuration
+
+Each check can be toggled with a `VORTEX_DOCTOR_CHECK_<NAME>` variable
+(`TOOLS`, `PORT`, `PYGMY`, `CONTAINERS`, `SSH`, `WEBSERVER`, `BOOTSTRAP`) set
+to `0` or `1`.
+
+2 presets combine them:
+
+- `VORTEX_DOCTOR_CHECK_MINIMAL=1` - only the tools and containers checks; for
+  environments without Pygmy or a routable web server.
+- `VORTEX_DOCTOR_CHECK_PREFLIGHT=1` - only the tools, port and Pygmy checks;
+  for validating a machine before the stack is up.
+
+### Getting system information
+
+```shell
+ahoy doctor info
+```
+
+Prints a system information report to attach to a support request: the
+operating system version, the Docker, Docker Compose, Pygmy and Ahoy binaries
+with their versions, and the Docker daemon details. Usernames, IDs, hashes and
+IP addresses are redacted, so the output is safe to share.
+
+<details>
+  <summary>Expand to see the video of ahoy doctor info</summary>
+
+  <AsciinemaPlayer
+    src="/img/doctor-info.json"
+    poster="npt:0:1"
+    autoPlay={false}
+    loop={false}
+    preload={true}
+    controls={true}
+    theme="asciinema"
+    terminalLineHeight={1.0}
+  />
+
+</details>
+
+➡️ See [Support](../support.mdx) for how to report an issue.
 
 ## Drush
 
@@ -535,8 +563,6 @@ shorthand commands that wrap the common tasks:
 - `ahoy import-db` - import the database dump into the local environment
 - `ahoy provision` - import the database and run updates, config imports and cache rebuilds
 
-➡️ See [Development](README.mdx)
-
 ### Drush usage
 
 Drush should be used from the inside of the container.
@@ -553,6 +579,22 @@ Drush should be used from the inside of the container.
     ```
   </TabItem>
 </Tabs>
+
+### Drush configuration
+
+The shipped Drush configuration lives in the `drush/` directory:
+
+- [`drush/drush.yml`](https://github.com/drevops/vortex/blob/main/drush/drush.yml)
+  passes `--disable-ssl` to the `sql:*` commands (`sql:cli`, `sql:query`,
+  `sql:dump`, `sql:drop`, `sql:create`) and `site:install`, so the database
+  commands connect to the stack's database service without TLS, and adds
+  `--no-tablespaces` to `sql:dump`.
+- [`drush/sites/lagoon.site.yml`](https://github.com/drevops/vortex/blob/main/drush/sites/lagoon.site.yml)
+  defines the site aliases for Lagoon-hosted environments - see
+  [Aliases](#aliases).
+- [`drush/php-ini/drush.ini`](https://github.com/drevops/vortex/blob/main/drush/php-ini/drush.ini)
+  adjusts the PHP runtime for CLI processes - see
+  [PHP runtime configuration](#php-runtime-configuration).
 
 ### PHP runtime configuration
 
@@ -612,9 +654,15 @@ To grant more memory to a single command without changing the default:
 
 ### Aliases
 
-For Lagoon hosting, Drush site aliases are automatically generated for each
-environment and can be used either from the host machine or from within the
-container.
+For Lagoon hosting, the shipped
+[`drush/sites/lagoon.site.yml`](https://github.com/drevops/vortex/blob/main/drush/sites/lagoon.site.yml)
+file defines a wildcard alias, so every environment resolves as
+`@lagoon.<branch-or-pr>` without per-environment entries. The aliases can be
+used either from the host machine or from within the container.
+
+The project name is hardcoded in the alias file because Drush does not load
+variables from `.env` files - this keeps the aliases working identically on
+the host and in the container.
 
 <Tabs>
   <TabItem value="host" label="Host" default>
@@ -784,55 +832,6 @@ To update environment variables in your local development environment:
     ```
   </TabItem>
 </Tabs>
-
-## Troubleshooting
-
-When the local environment misbehaves, run [Doctor](#doctor) first - it
-pinpoints the layer that is broken (tooling, containers, or the site itself)
-before you start guessing.
-
-### Site not loading
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    ahoy doctor                # Check for common issues
-    ahoy down && ahoy up       # Restart containers
-    ahoy info                  # Verify URLs and ports
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    ./vendor/bin/vortex-doctor                       # Check for common issues
-    docker compose down && docker compose up -d      # Restart containers
-    docker compose exec cli ./vendor/bin/vortex-info # Verify URLs and ports
-    ```
-  </TabItem>
-</Tabs>
-
-### Database connection errors
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    docker compose ps      # Check if the database container is running
-    ahoy reset             # Last resort: rebuild everything
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    docker compose ps      # Check if the database container is running
-    docker compose down --volumes && docker compose up -d  # Last resort
-    ```
-  </TabItem>
-</Tabs>
-
-### Permission issues
-
-```shell
-# Fix file permissions (Linux/Mac)
-sudo chown -R $USER:$USER .
-```
 
 ## Debugging
 
@@ -1035,4 +1034,53 @@ docker compose logs database
 # Access container shell
 docker compose exec cli bash
 docker compose exec database mysql -u drupal -p drupal
+```
+
+## Troubleshooting
+
+When the local environment misbehaves, run [Doctor](#doctor) first - it
+pinpoints the layer that is broken (tooling, containers, or the site itself)
+before you start guessing.
+
+### Site not loading
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy doctor                # Check for common issues
+    ahoy down && ahoy up       # Restart containers
+    ahoy info                  # Verify URLs and ports
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    ./vendor/bin/vortex-doctor                       # Check for common issues
+    docker compose down && docker compose up -d      # Restart containers
+    docker compose exec cli ./vendor/bin/vortex-info # Verify URLs and ports
+    ```
+  </TabItem>
+</Tabs>
+
+### Database connection errors
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    docker compose ps      # Check if the database container is running
+    ahoy reset             # Last resort: rebuild everything
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose ps      # Check if the database container is running
+    docker compose down --volumes && docker compose up -d  # Last resort
+    ```
+  </TabItem>
+</Tabs>
+
+### Permission issues
+
+```shell
+# Fix file permissions (Linux/Mac)
+sudo chown -R $USER:$USER .
 ```

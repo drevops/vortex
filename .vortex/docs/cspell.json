@@ -86,6 +86,7 @@
         "simpletest",
         "softcreatr",
         "solrcore",
+        "tablespaces",
         "testmode",
         "toml",
         "updatedb",

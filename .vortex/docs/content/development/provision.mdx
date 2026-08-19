@@ -21,6 +21,147 @@ updates.
 The main purpose of the script is to automate the setup of a Drupal site
 in every environment, ensuring consistency and eliminating manual steps.
 
+## Provisioning flow
+
+Below is a generic provisioning flow diagram illustrating the steps taken by the
+`provision` script. The flow may vary based on environment variables and
+conditions that could alter the execution path.
+
+The numbered steps refer to the environment variables described in the next
+section.
+
+```text
+🚀 Start
+   │
+① 💡 Skip provision? ──Yes──► 🏁 End
+   │ No
+   ▼
+② 💡 Provision type = database
+│
+├─ 💡 Existing site found = YES
+│  ├─ Container image set? ──► preserve content (no change)
+│  ├─ ③ Overwrite DB? ──Yes──► 🗑️ Drop DB ──► 🛢️ Attempt import from dump
+│  │                                              │
+│  │                                              ├─ Dump file exists? ──► 🛢️ Import DB
+│  │                                              └─ Dump file missing?
+│  │                                                  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
+│  │                                                  └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
+│  └─ else ──► preserve content, ⑩ skip sanitization
+│
+└─ 💡 Existing site found = NO
+   ├─ Container image set?
+   │  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
+   │  └─ ④ Fallback? ──No───► 🏁 EXIT 1 ("corrupted image") ✗
+   └─ Container image not set? ──► 🗑️ Drop DB ──► 🛢️ Attempt import from dump
+                                                     │
+                                                     ├─ Dump file exists? ──► 🛢️ Import DB
+                                                     └─ Dump file missing?
+                                                         ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
+                                                         └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
+
+── after provisioning (both DB and profile paths) ──
+
+⑤ 💡 Skip other operations? ──Yes──► 🏁 End
+   │ No
+   ▼
+⑥ 🚧 Enable maintenance mode
+   ▼
+   🆔 Set site UUID from configuration (if config files present)
+   ▼
+   🔄 Run DB updates
+   ▼
+⑦ 💡 Verify config unchanged? ──Config changed──► 🏁 EXIT 1 (fail) ✗
+   │ Config unchanged (or check disabled)
+   ▼
+⑧ 🧹 Rebuild caches after DB updates (skippable)
+   ▼
+   ⬇️ Import configuration (if config files present)
+   ▼
+   ⬇️ Import config_split configuration (if the module is enabled)
+   ▼
+⑨ 🔁 Repeat configuration import (opt-in)
+   ▼
+   🧹 Rebuild caches
+   ▼
+   🔄 Run deployment hooks
+   ▼
+⑩ 😷 Run DB sanitization
+   ▼
+   ⚙️ Run custom scripts
+   ▼
+⑥ 🚧 Disable maintenance mode
+   ▼
+   🏁 End
+```
+
+### Customizing flow
+
+You can control the provisioning flow using the following environment variables:
+
+1. `VORTEX_PROVISION_SKIP=1`<br/>Kill-switch to completely skip provisioning. The script will exit immediately after start. Useful in emergencies when any kind of automation needs to be disabled.<br/><br/>
+2. `VORTEX_PROVISION_TYPE=profile`<br/>Install from a Drupal `profile` instead of importing from a `database` dump. Useful for building sites without the persistent DB and/or test profile configuration installation.<br/><br/>
+3. `VORTEX_PROVISION_OVERRIDE_DB=1`<br/>Drop an existing database before importing from dump/installing from profile. This is useful when an already provisioned environment requires a fresh database to be imported.<br/><br/>
+4. `VORTEX_PROVISION_FALLBACK_TO_PROFILE=1`<br/>Automatically fall back to installing from profile if the database dump file or container image is not available. The site is installed from the configured profile, the Shield module is enabled to protect the environment, and all post-provision operations (configuration import, database updates, deployment hooks, etc.) are skipped. This provides a minimal working Drupal site when no database is available.<br/><br/>
+5. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>Skip configuration imports, database updates, and other post-provisioning steps. This is useful when you want to provision a site without running any additional operations.<br/><br/>
+6. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>Enable maintenance mode right after the site is bootstrappable and disable it at the end. Useful when you want to prevent users from accessing the site while it is being provisioned.<br/><br/>
+7. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1`<br/>Verify that active configuration was not changed by database updates. When enabled and config files are present, the provision will fail if `drush updatedb` modifies active configuration, preventing `drush config:import` from silently overwriting those changes.<br/><br/>
+8. `VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP=1`<br/>Skip the cache rebuild that runs between database updates and configuration import. By default, caches are rebuilt after `drush updatedb` to ensure a clean state before importing configuration.<br/><br/>
+9. `VORTEX_PROVISION_CONFIG_IMPORT_REPEAT=1`<br/>Repeat the configuration import after the initial import. Useful when database update hooks introduce new configuration that affects subsequent configuration imports (e.g., new config_split settings). Disabled by default.<br/><br/>
+10. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>Disable database sanitization.
+
+:::tip
+
+These variables can be set in your `.env` file to apply them globally or set
+in your CI or hosting provider's specific environment based on your needs.
+
+:::
+
+### Maintenance mode
+
+During the provisioning process, you may want to enable maintenance mode to
+prevent users from accessing the site while it is being updated.
+
+To enable maintenance mode, set the `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`
+environment variable in your `.env` file to apply it globally or set it in your
+hosting provider's specific environment.
+
+### Database sanitization
+
+The `provision` script includes a step to sanitize the database after
+provisioning. This helps ensure that sensitive data - like real email addresses,
+passwords, and user information - is replaced with safe, generic values in
+non-production environments. It prevents issues like accidentally sending emails
+to real users or exposing private data during testing, making shared
+environments safer to work with.
+
+:::warning
+
+Sanitization takes place only after the database is **imported**, so anyone
+with access to the dump file can still see sensitive data.
+
+If your database has highly sensitive data, consider sanitizing the database
+dump before it can be downloaded (sanitize on export). There are tools
+available for this purpose, such as [Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper)
+or [MTK](https://github.com/skpr/mtk). These tools can be integrated into
+**Vortex**-based projects without changing the provisioning process.
+
+:::
+
+The database sanitization step is enabled by default on all environments except
+production. To disable database sanitization, set
+`VORTEX_PROVISION_SANITIZE_DB_SKIP=1` in the `.env` file or in your hosting
+provider's specific environment.
+
+#### Customizing database sanitization
+
+Place these variables in the `.env` file or in your hosting provider's specific
+environment to further customize the database sanitization:
+
+1. `VORTEX_PROVISION_SANITIZE_DB_EMAIL=user_%uid@your-site-domain.example`<br/>Replace all emails with a tokenized email string.<br/><br/>
+2. `VORTEX_PROVISION_SANITIZE_DB_PASSWORD=<random or exact>`<br/>Replace passwords with a random or exact value.<br/><br/>
+3. `VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL=0`<br/>Replace username with email. Useful to also sanitize user names.<br/><br/>
+4. `VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE=./scripts/sanitize.sql`<br/>Path to a file with custom sanitization SQL queries.
+
 ## Database
 
 The running site's database lives **inside the `database` container** - the
@@ -190,147 +331,6 @@ project-specific logic like enabling test modules or running migrations.
 In short, `provision` orchestrates standalone Drush commands in a consistent,
 repeatable, and configurable process - turning a manual setup step into a
 reliable automation layer.
-
-## Provisioning flow
-
-Below is a generic provisioning flow diagram illustrating the steps taken by the
-`provision` script. The flow may vary based on environment variables and
-conditions that could alter the execution path.
-
-The numbered steps refer to the environment variables described in the next
-section.
-
-```text
-🚀 Start
-   │
-① 💡 Skip provision? ──Yes──► 🏁 End
-   │ No
-   ▼
-② 💡 Provision type = database
-│
-├─ 💡 Existing site found = YES
-│  ├─ Container image set? ──► preserve content (no change)
-│  ├─ ③ Overwrite DB? ──Yes──► 🗑️ Drop DB ──► 🛢️ Attempt import from dump
-│  │                                              │
-│  │                                              ├─ Dump file exists? ──► 🛢️ Import DB
-│  │                                              └─ Dump file missing?
-│  │                                                  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
-│  │                                                  └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
-│  └─ else ──► preserve content, ⑩ skip sanitization
-│
-└─ 💡 Existing site found = NO
-   ├─ Container image set?
-   │  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
-   │  └─ ④ Fallback? ──No───► 🏁 EXIT 1 ("corrupted image") ✗
-   └─ Container image not set? ──► 🗑️ Drop DB ──► 🛢️ Attempt import from dump
-                                                     │
-                                                     ├─ Dump file exists? ──► 🛢️ Import DB
-                                                     └─ Dump file missing?
-                                                         ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
-                                                         └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
-
-── after provisioning (both DB and profile paths) ──
-
-⑤ 💡 Skip other operations? ──Yes──► 🏁 End
-   │ No
-   ▼
-⑥ 🚧 Enable maintenance mode
-   ▼
-   🆔 Set site UUID from configuration (if config files present)
-   ▼
-   🔄 Run DB updates
-   ▼
-⑦ 💡 Verify config unchanged? ──Config changed──► 🏁 EXIT 1 (fail) ✗
-   │ Config unchanged (or check disabled)
-   ▼
-⑧ 🧹 Rebuild caches after DB updates (skippable)
-   ▼
-   ⬇️ Import configuration (if config files present)
-   ▼
-   ⬇️ Import config_split configuration (if the module is enabled)
-   ▼
-⑨ 🔁 Repeat configuration import (opt-in)
-   ▼
-   🧹 Rebuild caches
-   ▼
-   🔄 Run deployment hooks
-   ▼
-⑩ 😷 Run DB sanitization
-   ▼
-   ⚙️ Run custom scripts
-   ▼
-⑥ 🚧 Disable maintenance mode
-   ▼
-   🏁 End
-```
-
-### Customizing flow
-
-You can control the provisioning flow using the following environment variables:
-
-1. `VORTEX_PROVISION_SKIP=1`<br/>Kill-switch to completely skip provisioning. The script will exit immediately after start. Useful in emergencies when any kind of automation needs to be disabled.<br/><br/>
-2. `VORTEX_PROVISION_TYPE=profile`<br/>Install from a Drupal `profile` instead of importing from a `database` dump. Useful for building sites without the persistent DB and/or test profile configuration installation.<br/><br/>
-3. `VORTEX_PROVISION_OVERRIDE_DB=1`<br/>Drop an existing database before importing from dump/installing from profile. This is useful when an already provisioned environment requires a fresh database to be imported.<br/><br/>
-4. `VORTEX_PROVISION_FALLBACK_TO_PROFILE=1`<br/>Automatically fall back to installing from profile if the database dump file or container image is not available. The site is installed from the configured profile, the Shield module is enabled to protect the environment, and all post-provision operations (configuration import, database updates, deployment hooks, etc.) are skipped. This provides a minimal working Drupal site when no database is available.<br/><br/>
-5. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>Skip configuration imports, database updates, and other post-provisioning steps. This is useful when you want to provision a site without running any additional operations.<br/><br/>
-6. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>Enable maintenance mode right after the site is bootstrappable and disable it at the end. Useful when you want to prevent users from accessing the site while it is being provisioned.<br/><br/>
-7. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1`<br/>Verify that active configuration was not changed by database updates. When enabled and config files are present, the provision will fail if `drush updatedb` modifies active configuration, preventing `drush config:import` from silently overwriting those changes.<br/><br/>
-8. `VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP=1`<br/>Skip the cache rebuild that runs between database updates and configuration import. By default, caches are rebuilt after `drush updatedb` to ensure a clean state before importing configuration.<br/><br/>
-9. `VORTEX_PROVISION_CONFIG_IMPORT_REPEAT=1`<br/>Repeat the configuration import after the initial import. Useful when database update hooks introduce new configuration that affects subsequent configuration imports (e.g., new config_split settings). Disabled by default.<br/><br/>
-10. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>Disable database sanitization.
-
-:::tip
-
-These variables can be set in your `.env` file to apply them globally or set
-in your CI or hosting provider's specific environment based on your needs.
-
-:::
-
-### Maintenance mode
-
-During the provisioning process, you may want to enable maintenance mode to
-prevent users from accessing the site while it is being updated.
-
-To enable maintenance mode, set the `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`
-environment variable in your `.env` file to apply it globally or set it in your
-hosting provider's specific environment.
-
-### Database sanitization
-
-The `provision` script includes a step to sanitize the database after
-provisioning. This helps ensure that sensitive data - like real email addresses,
-passwords, and user information - is replaced with safe, generic values in
-non-production environments. It prevents issues like accidentally sending emails
-to real users or exposing private data during testing, making shared
-environments safer to work with.
-
-:::warning
-
-Sanitization takes place only after the database is **imported**, so anyone
-with access to the dump file can still see sensitive data.
-
-If your database has highly sensitive data, consider sanitizing the database
-dump before it can be downloaded (sanitize on export). There are tools
-available for this purpose, such as [Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper)
-or [MTK](https://github.com/skpr/mtk). These tools can be integrated into
-**Vortex**-based projects without changing the provisioning process.
-
-:::
-
-The database sanitization step is enabled by default on all environments except
-production. To disable database sanitization, set
-`VORTEX_PROVISION_SANITIZE_DB_SKIP=1` in the `.env` file or in your hosting
-provider's specific environment.
-
-#### Customizing database sanitization
-
-Place these variables in the `.env` file or in your hosting provider's specific
-environment to further customize the database sanitization:
-
-1. `VORTEX_PROVISION_SANITIZE_DB_EMAIL=user_%uid@your-site-domain.example`<br/>Replace all emails with a tokenized email string.<br/><br/>
-2. `VORTEX_PROVISION_SANITIZE_DB_PASSWORD=<random or exact>`<br/>Replace passwords with a random or exact value.<br/><br/>
-3. `VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL=0`<br/>Replace username with email. Useful to also sanitize user names.<br/><br/>
-4. `VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE=./scripts/sanitize.sql`<br/>Path to a file with custom sanitization SQL queries.
 
 ## Running custom scripts
 

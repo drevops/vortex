@@ -173,6 +173,49 @@ For updating Drupal core, use:
 
 After updating core, review changes with `git diff`, especially modified scaffolding files like `.htaccess`, and commit them in a single commit.
 
+### Dependency bumping
+
+[Dependency bumping](https://getcomposer.org/doc/03-cli.md#bump) updates version
+constraints in your `composer.json` to match currently installed versions. This
+prevents accidental downgrades when adding new dependencies and improves
+dependency resolution performance.
+
+**Vortex** enables this automatically via the `bump-after-update` configuration.
+Every time you run `composer update`, your version constraints are updated to
+reflect the installed versions.
+
+:::note
+
+**Vortex** enables automatic bumping because it's designed for **application
+projects** (Drupal sites) where you control the entire dependency tree. This
+keeps your version constraints synchronized with tested versions and prevents
+accidental downgrades.
+
+This approach is **not recommended for libraries** (reusable packages). Libraries
+should keep version constraints as broad as possible to avoid [dependency
+hell](https://getcomposer.org/doc/articles/versions.md) for downstream users. If
+you're building a library, use `bump-after-update: "dev"` to only bump
+development dependencies, or disable automatic bumping and run `composer bump
+--dev-only` manually.
+
+:::
+
+#### Manual bumping
+
+```shell
+# Bump all dependencies
+composer bump
+
+# Bump specific package
+composer bump drupal/core-recommended
+
+# Bump only development dependencies
+composer bump --dev-only
+
+# Preview changes without modifying files
+composer bump --dry-run
+```
+
 ## Overriding paths
 
 To override package installation paths, modify `composer.json`:
@@ -758,46 +801,3 @@ needs and structure of your Drupal project.
   applied patch state lives in the generated `patches.lock.json` file, which is
   committed like `composer.lock`.
   ➡️ See [Patching](#patching)
-
-### Dependency bumping
-
-[Dependency bumping](https://getcomposer.org/doc/03-cli.md#bump) updates version
-constraints in your `composer.json` to match currently installed versions. This
-prevents accidental downgrades when adding new dependencies and improves
-dependency resolution performance.
-
-**Vortex** enables this automatically via the `bump-after-update` configuration.
-Every time you run `composer update`, your version constraints are updated to
-reflect the installed versions.
-
-:::note
-
-**Vortex** enables automatic bumping because it's designed for **application
-projects** (Drupal sites) where you control the entire dependency tree. This
-keeps your version constraints synchronized with tested versions and prevents
-accidental downgrades.
-
-This approach is **not recommended for libraries** (reusable packages). Libraries
-should keep version constraints as broad as possible to avoid [dependency
-hell](https://getcomposer.org/doc/articles/versions.md) for downstream users. If
-you're building a library, use `bump-after-update: "dev"` to only bump
-development dependencies, or disable automatic bumping and run `composer bump
---dev-only` manually.
-
-:::
-
-#### Manual bumping
-
-```shell
-# Bump all dependencies
-composer bump
-
-# Bump specific package
-composer bump drupal/core-recommended
-
-# Bump only development dependencies
-composer bump --dev-only
-
-# Preview changes without modifying files
-composer bump --dry-run
-```
