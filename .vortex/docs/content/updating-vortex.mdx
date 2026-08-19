@@ -65,11 +65,13 @@ Specifically check if any environment variables were added or changed.
    It may be a good idea to commit changes in smaller chunks to make it easier
    to review and revert if necessary.
 
-   Note that `composer.json` would be most likely deviated from the **Vortex**
-   version, so you may want to additionally review the changes to the package
-   versions and dependencies. We recommend temporarily reverting changes to
-   `composer.json` and `composer.lock` to preserve your project's version, and
-   manually updating the packages versions in your `composer.json`.
+   Your `composer.json` has most likely deviated from the **Vortex** version,
+   so review the package version changes carefully. We recommend temporarily
+   reverting the changes to `composer.json` and `composer.lock` to preserve
+   your project's versions, then updating the package versions in your
+   `composer.json` manually. After settling the constraints, run
+   `ahoy composer update` and commit the regenerated `composer.lock`, so the
+   build installs the versions you selected rather than the stale locked ones.
 
    ```shell title="Review changes"
    git status
@@ -99,11 +101,11 @@ Specifically check if any environment variables were added or changed.
 
 ## Best practices
 
-1. **Regular Updates**: Update **Vortex** monthly or when security patches are released
-2. **Test Updates**: Always test updates in development before applying to production
-3. **Staged Rollout**: Update development → staging → production environments
-4. **Document Changes**: Keep track of what changed and why
-5. **Monitor After Update**: Watch for issues in the days following an update
+1. **Regular updates**: Update **Vortex** monthly or when security patches are released
+2. **Test updates**: Always test updates in development before applying to production
+3. **Staged rollout**: Update development → staging → production environments
+4. **Document changes**: Keep track of what changed and why
+5. **Monitor after update**: Watch for issues in the days following an update
 
 ## Getting help
 

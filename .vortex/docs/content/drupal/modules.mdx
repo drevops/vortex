@@ -4,9 +4,10 @@ sidebar_position: 9
 
 # Modules
 
-**Vortex** is not a Drupal distribution: it ships no installation profile and
-no recipes. It provides a small set of contributed modules that most projects
-need, each already wired into the environment-aware
+**Vortex** is not a Drupal distribution: it ships no installation profile, and
+the only recipe it carries is the small `recipes/page` recipe that creates the
+demo content model during provisioning. It provides a small set of contributed
+modules that most projects need, each already wired into the environment-aware
 [settings](settings.mdx) and the [provisioning](provision.mdx) scripts. You add
 the rest once the initial setup is done.
 
@@ -22,7 +23,7 @@ assertions in a single pass.
 | Composer requirement | `require` in `composer.json` | Makes the module available to the site. ➡️ See [composer.json](composer-json.mdx#require) |
 | Settings override | `web/sites/default/includes/modules/settings.<module>.php` | Applies configuration conditioned on the detected environment, reading values from environment variables. ➡️ See [Settings](settings.mdx#per-module-overrides) |
 | Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a development-only module out of the exported configuration, so enabling it locally never dirties the config |
-| Provisioning | `scripts/provision-00-enable-demo-modules.sh` | Installs the module in the `local`, `ci`, `dev` and `stage` environments only |
+| Provisioning | `scripts/provision-00-enable-demo-modules.sh` | Stands up the demo site in the `local`, `ci`, `dev` and `stage` environments: applies the `recipes/page` content model, sets the site name, installs the contrib, service and custom site modules (including core's `media` and `navigation`), and runs their deploy hooks |
 | Development provisioning | `scripts/provision-10-enable-dev-modules.sh` | Installs the development-only modules in the same four environments |
 | Module dependency | `ys_demo.info.yml` | Installs the module as a dependency of the demo module |
 
@@ -75,7 +76,7 @@ mechanisms above, so selecting it is enough to get it enabled.
 | [`devel`](https://www.drupal.org/project/devel) | Inspect variables, entities and the service container | Installed by the development provisioning script. `settings.devel.php` excludes it from the exported configuration |
 | [`sdc_devel`](https://www.drupal.org/project/sdc_devel) | Validation for Single Directory Components | Installed by the development provisioning script. No settings override |
 | [`generated_content`](https://www.drupal.org/project/generated_content) | Deterministic placeholder content from plugins | Installed by the development provisioning script with `GENERATED_CONTENT_CREATE=1`, unless `DRUPAL_GENERATED_CONTENT_SKIP=1` installs it without generating. `settings.generated_content.php` excludes it from the exported configuration. ➡️ See [Generated content](generated-content.mdx) |
-| [`testmode`](https://www.drupal.org/project/testmode) | Filters non-test content out of registered views | Installed by the development provisioning script. `settings.testmode.php` excludes it from the exported configuration. ➡️ See [Testmode](testmode.mdx) |
+| [`testmode`](https://www.drupal.org/project/testmode) | Filters non-test content out of registered views | Installed by the development provisioning script and as a dependency of `ys_demo`. `settings.testmode.php` excludes it from the exported configuration. ➡️ See [Testmode](testmode.mdx) |
 | [`drupal_helpers`](https://www.drupal.org/project/drupal_helpers) | Static facades for deploy hooks and update scripts | Installed as a dependency of the demo module. No settings override. ➡️ See [Drupal helpers](drupal-helpers.mdx) |
 
 ## Migrations

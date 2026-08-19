@@ -13,7 +13,7 @@ require pre-built code artifacts.
 
 When `artifact` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script:
 
-1. Creates a clean code artifact using [Git Artifact](/docs/tools/git-artifact)
+1. Creates a clean code artifact using [Git Artifact](../tools/git-artifact.mdx)
 2. Applies the `.gitignore.artifact` rules to control which files are included
 3. Pushes the artifact to the configured remote repository
 4. The hosting platform then deploys from that repository
@@ -24,13 +24,17 @@ When `artifact` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script:
 
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
-| `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` | **Yes** | | `.env` | Remote repository URL for the artifact |
-| `VORTEX_DEPLOY_ARTIFACT_ROOT` | No | Current directory | `.env` | Root directory for artifact creation |
-| `VORTEX_DEPLOY_ARTIFACT_SRC` | No | Current directory | `.env` | Source directory to package |
-| `VORTEX_DEPLOY_ARTIFACT_DST` | No | `.artifact` | `.env` | Destination directory for artifact |
-| `VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME` | **Yes** | | CI | Git user name for commits |
-| `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL` | **Yes** | | CI | Git user email for commits |
-| `VORTEX_DEPLOY_ARTIFACT_LOG` | No | | `.env` | Log file path |
+| `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` | **Yes** | | CI or `.env` | Remote repository URL for the artifact |
+| `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL` | **Yes** | | CI | Email address of the user committing to the remote repository |
+| `VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME` | No | `Deployment Robot` | CI | Name of the user committing to the remote repository |
+| `VORTEX_DEPLOY_ARTIFACT_DST_BRANCH` | No | `[branch]` | `.env` | Remote branch to push to; supports [tokens](https://github.com/drevops/git-artifact#token-support) |
+| `VORTEX_DEPLOY_ARTIFACT_ROOT` | No | Current directory | CI | Root directory the deployment script runs from |
+| `VORTEX_DEPLOY_ARTIFACT_SRC` | No | | CI | Source directory with the built code to package |
+| `VORTEX_DEPLOY_ARTIFACT_LOG` | No | `<root>/deployment_log.txt` | `.env` | Deployment log file path |
+
+The SSH key selection, the pinned `git-artifact` version, and the optional
+stale-branch cleanup are covered in [Git Artifact](../tools/git-artifact.mdx);
+the full variable list is in the [Variables reference](../development/variables.mdx).
 
 ### Setup
 
@@ -46,11 +50,12 @@ When `artifact` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script:
    VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE=git@github.com:your-org/your-project-artifact.git
    ```
 
-3. Add Git user credentials to your CI provider's environment variables:
+3. Add the Git user email to your CI provider's environment variables (and
+   optionally a user name to replace the default `Deployment Robot`):
 
    ```shell
-   VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME="Deployment Bot"
    VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL="deploy@example.com"
+   VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME="Deployment Bot"
    ```
 
 ## Artifact file control
@@ -95,10 +100,9 @@ the artifact, or to re-include something that a broader rule excludes:
 ## Use cases
 
 - **Acquia hosting** - Acquia requires code artifacts pushed to their Git repository
-- **Pantheon hosting** - Similar artifact-based deployment model
-- **Custom hosting** - Any platform that deploys from a Git repository
+- **Other Git-based hosting** - any platform that deploys from a Git repository it controls
 
 ## See also
 
-- [Git Artifact tool](/docs/tools/git-artifact) - Detailed documentation on the artifact tool
-- [Acquia hosting](/docs/hosting/acquia) - Acquia-specific deployment configuration
+- [Git Artifact tool](../tools/git-artifact.mdx) - detailed documentation on the artifact tool
+- [Acquia hosting](../hosting/acquia.mdx) - Acquia platform integration

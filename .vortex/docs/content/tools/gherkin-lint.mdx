@@ -1,4 +1,8 @@
-# Gherkin lint
+---
+sidebar_label: Gherkin Lint
+---
+
+# Gherkin Lint
 
 https://github.com/dantleech/gherkin-lint-php
 
@@ -31,15 +35,15 @@ See [configuration reference](https://github.com/dantleech/gherkin-lint-php?tab=
 All global configuration takes place in the [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json) file.
 The values are merged with the default configuration.
 
-To check enabled rules, run
+To check enabled rules, run:
 
 ```shell
-vendor/bin/gherkinlint rules
+ahoy cli vendor/bin/gherkinlint rules
 ```
 
 ## Ignoring
 
-Ignoring rules **globally** takes place in the  [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json) file.
+Ignoring rules **globally** takes place in the [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json) file.
 
 ```json
 {
@@ -51,24 +55,20 @@ Ignoring rules **globally** takes place in the  [`gherkinlint.json`](https://git
 }
 ```
 
-Gherkin Lint does not support ignoring of all rules in the file.
-
 To ignore **a specific rule** within a file, place in the file header:
 
 ```yaml
 # @gherkinlint-disable-rule keyword-order, someother-rule
 ```
 
-Gherkin Lint does not support ignoring of the **code blocks**.
-
-Gherkin Lint does not support ignoring rules on the **current line**.
-
-Gherkin Lint does not support ignoring rules on the **next line**.
+Gherkin Lint does not support ignoring all rules within a file, ignoring code
+blocks, or ignoring individual lines - per-file rule suppression is the only
+inline mechanism.
 
 ## Ignoring fail in continuous integration pipeline
 
-This tool runs in continuous integration pipeline by default and fails the build
-if there are any violations.
+This tool runs in the continuous integration pipeline by default and fails the
+build if there are any violations.
 
-Set `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE` environment variable to `1` to
+Set the `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE` environment variable to `1` to
 ignore failures. The tool will still run and report violations, if any.

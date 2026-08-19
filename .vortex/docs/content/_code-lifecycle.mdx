@@ -19,45 +19,39 @@
 │  └─────────────────────────────────────┬──────────────────────────────────────────────┘  │
 │                                        │ Provides cached database                        │
 │                                        ▼                                                 │
-│  ┌─ Lint Job ────────────┐  ┌─ Database Job ──────────────────────────────────────────┐  │
-│  │                       │  │                                                         │  │
-│  │  Build CLI container  │  │  ◆ Nightly cache ──Yes──► Pipeline Success              │  │
-│  │          ▼            │  │    exists?                                              │  │
-│  │  Composer validate    │  │       │ No                                              │  │
-│  │          ▼            │  │       ▼                                                 │  │
-│  │  Composer normalize   │  │  Download    ──►   Sanitize    ──►    Store database    │  │
-│  │          ▼            │  │  production        database           cache             │  │
-│  │      Hadolint         │  │  database          Remove                               │  │
-│  │          ▼            │  │                    sensitive data                       │  │
-│  │       DCLint          │  │                                                         │  │
-│  │          ▼            │  └───────────────────────────┬─────────────────────────────┘  │
-│  │       PHPCS           │                              │                                │
-│  │          ▼            │                              ▼                                │
-│  │      PHPStan          │  ┌─ Build Job ────────────────────────────────────────────┐   │
-│  │          ▼            │  │                                                        │   │
-│  │       Rector          │  │  Code assembly                                         │   │
-│  │          ▼            │  │  Build Docker ──► Composer deps ──► NPM deps ──► Assets│   │
-│  │    Twig CS Fixer      │  │                          │                             │   │
-│  │          ▼            │  │                          ▼                             │   │
-│  │    Gherkin Lint       │  │  Website setup                                         │   │
-│  │          ▼            │  │  Import cached DB ──► drush deploy ──► Custom scripts  │   │
-│  │  ESLint / Stylelint   │  │                          │                             │   │
-│  │                       │  │                          ▼                             │   │
-│  │                       │  │  Testing                                               │   │
-│  │                       │  │  PHPUnit tests ──► Behat tests                         │   │
-│  │                       │  │                                                        │   │
-│  │                       │  └────────────────────────────┬───────────────────────────┘   │
-│  └──────────┬────────────┘                               │                               │
-│             │                                            │                               │
-│             │                                            │                               │
-│             │                                            │                               │
-│             ▼                                            ▼                               │
-│  ┌─ Deployment Job ─────────────────────────────────────────────────────────────────┐    │
-│  │                                                                                  │    │
-│  │  Webhook     Artifact            Lagoon              Docker                      │    │
-│  │  Call URL    Package artifact    Call Lagoon webhook  Create container image     │    │
-│  │                                                                                  │    │
-│  └──────────────────────────────────────────────────────────────────────────────────┘    │
+│  ┌─ Lint Job ────────────┐  ┌─ Database Job ────────────────┐  ┌─ Audit Job ──────────┐  │
+│  │                       │  │ ◆ Nightly cache exists?       │  │ Composer audit       │  │
+│  │  Build CLI container  │  │   Yes ──► job succeeds        │  │ (advisories)         │  │
+│  │          ▼            │  │   No ──► download, sanitize,  │  │          ▼           │  │
+│  │  Composer validate    │  │          store cache          │  │ Gitleaks             │  │
+│  │          ▼            │  └───────────────┬───────────────┘  │ (committed secrets)  │  │
+│  │  Composer normalize   │                  ▼                  │                      │  │
+│  │          ▼            │  ┌─ Build Job ───────────────────┐  │                      │  │
+│  │      Hadolint         │  │ Code assembly                 │  │                      │  │
+│  │          ▼            │  │ Docker, Composer deps,        │  │                      │  │
+│  │       DCLint          │  │ NPM deps, assets              │  │                      │  │
+│  │          ▼            │  │               ▼               │  │                      │  │
+│  │       PHPCS           │  │ Website setup                 │  │                      │  │
+│  │          ▼            │  │ Import cached DB, drush       │  │                      │  │
+│  │      PHPStan          │  │ deploy, custom scripts        │  │                      │  │
+│  │          ▼            │  │               ▼               │  │                      │  │
+│  │       Rector          │  │ Testing                       │  │                      │  │
+│  │          ▼            │  │ PHPUnit tests ──► Behat tests │  │                      │  │
+│  │    Twig CS Fixer      │  └───────────────┬───────────────┘  │                      │  │
+│  │          ▼            │                  │                  │                      │  │
+│  │    Gherkin Lint       │                  │                  │                      │  │
+│  │          ▼            │                  │                  │                      │  │
+│  │  ESLint / Stylelint   │                  │                  │                      │  │
+│  │                       │                  │                  │                      │  │
+│  └──────────┬────────────┘                  │                  │                      │  │
+│             │                               │                  │                      │  │
+│             ▼                               ▼                  │                      │  │
+│  ┌─ Deployment Job ─────────────────────────────────────────┐  │                      │  │
+│  │                                                          │  │                      │  │
+│  │  Webhook       Artifact            Lagoon                │  │ Does not gate        │  │
+│  │  Call URL      Package artifact    Run Lagoon CLI deploy │  │ deployment           │  │
+│  │                                                          │  │                      │  │
+│  └──────────────────────────────────────────────────────────┘  └──────────────────────┘  │
 │                                                                                          │
 └──────────────────────────────────────────────────────────────────────────────────────────┘
                                             │
@@ -74,13 +68,4 @@
  ═════════════════════════════════════════════════════════════════════════════════════════
         ┊ PR Environment ┊    Dev             Staging          Production
         ┊ (auto-removed) ┊    develop branch  main branch      production branch or tag
-
-
-                                  Security Audit Workflow
- ═════════════════════════════════════════════════════════════════════════════════════════
-   Push, pull request or manual run ──► Composer advisory audit ──► Gitleaks secret scan
-                                        (composer audit --locked)   (committed secrets)
-
-   Runs as its own workflow, independently of the pipeline above, and does not gate
-   deployment. Every check runs even if an earlier one failed.
 ```

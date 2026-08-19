@@ -36,7 +36,7 @@ environments, eliminating "it works on my machine" issues.
 project-specific logic like enabling test modules or running migrations.
 
 In short, `provision` orchestrates standalone Drush commands in a consistent,
-repeatable, and configurable process — turning a manual setup step into a
+repeatable, and configurable process - turning a manual setup step into a
 reliable automation layer.
 
 ## Database import vs full provisioning
@@ -112,7 +112,7 @@ section.
 │  │                                              └─ Dump file missing?
 │  │                                                  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
 │  │                                                  └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
-│  └─ else ──► preserve content, ⑦ skip sanitization
+│  └─ else ──► preserve content, ⑩ skip sanitization
 │
 └─ 💡 Existing site found = NO
    ├─ Container image set?
@@ -132,6 +132,8 @@ section.
    ▼
 ⑥ 🚧 Enable maintenance mode
    ▼
+   🆔 Set site UUID from configuration (if config files present)
+   ▼
    🔄 Run DB updates
    ▼
 ⑦ 💡 Verify config unchanged? ──Config changed──► 🏁 EXIT 1 (fail) ✗
@@ -140,6 +142,8 @@ section.
 ⑧ 🧹 Rebuild caches after DB updates (skippable)
    ▼
    ⬇️ Import configuration (if config files present)
+   ▼
+   ⬇️ Import config_split configuration (if the module is enabled)
    ▼
 ⑨ 🔁 Repeat configuration import (opt-in)
    ▼
@@ -190,8 +194,8 @@ hosting provider's specific environment.
 ### Database sanitization
 
 The `provision` script includes a step to sanitize the database after
-provisioning. This helps ensure that sensitive data — like real email addresses,
-passwords, and user information — is replaced with safe, generic values in
+provisioning. This helps ensure that sensitive data - like real email addresses,
+passwords, and user information - is replaced with safe, generic values in
 non-production environments. It prevents issues like accidentally sending emails
 to real users or exposing private data during testing, making shared
 environments safer to work with.
@@ -204,13 +208,13 @@ with access to the dump file can still see sensitive data.
 If your database has highly sensitive data, consider sanitizing the database
 dump before it can be downloaded (sanitize on export). There are tools
 available for this purpose, such as [Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper)
-or [MTK](https://github.com/skpr/mtk). These tools can be easily integrated into **Vortex**-based projects
-without changing the provisioning process.
+or [MTK](https://github.com/skpr/mtk). These tools can be integrated into
+**Vortex**-based projects without changing the provisioning process.
 
 :::
 
-By default, the database sanitization step is enabled by default on all
-environments except production. To disable database sanitization, set the
+The database sanitization step is enabled by default on all environments except
+production. To disable database sanitization, set
 `VORTEX_PROVISION_SANITIZE_DB_SKIP=1` in the `.env` file or in your hosting
 provider's specific environment.
 
@@ -234,7 +238,8 @@ specific order.
 To run custom scripts, create a new file in the `scripts` directory with the
 `provision-` prefix and the `.sh` extension, and make it executable with
 `chmod +x scripts/provision-50-custom.sh`. The script will be automatically
-discovered and executed.
+discovered and executed. (The discovery directory can be changed with the
+`VORTEX_PROVISION_SCRIPTS_DIR` variable, default `./scripts`.)
 
 It is recommended to use a 2-digit suffix to control the order of execution:
 e.g., `provision-50-custom.sh`, `provision-60-another-custom.sh`.
@@ -253,10 +258,10 @@ e.g., `provision-50-custom.sh`, `provision-60-another-custom.sh`.
 
 You may choose to only perform an action based on a specific environment (the
 value of `$settings['environment']` is populated by
-the [Drupal settings file](settings#environment-type-detection)):
+the [Drupal settings file](settings.mdx#environment-type-detection)):
 
 ```shell
-environment="$(drush php:eval "print \Drupal\core\Site\Settings::get('environment');")"
+environment="$(drush php:eval "print \Drupal\Core\Site\Settings::get('environment');")"
 
 if echo "${environment}" | grep -qxF -e local -e ci -e dev -e stage; then
   echo "> Running custom script for local, ci, dev or stage environment."
@@ -281,7 +286,7 @@ Expand below to see a provision scaffold script that you can use as a
 starting point for your custom scripts:
 
 import CodeBlock from '@theme/CodeBlock';
-import ProvisionScriptExample from '!!raw-loader!./provision-example.sh';
+import ProvisionScriptExample from '!!raw-loader!@site/../../scripts/provision-40-example.sh';
 
 <details>
   <summary>Example of a custom provision script</summary>
@@ -355,8 +360,9 @@ preserve the existing index.
 To opt out of search indexing, set `DRUPAL_SEARCH_INDEX_SKIP=1` in the `.env`
 file or in your hosting provider's specific environment.
 
-:::tip Related Documentation
-For information about different types of Drupal hooks used during deployment and updates.
+:::tip Related documentation
 
-➡️ See [Update Hooks](./update-hooks)
+For the different types of Drupal hooks that run during deployment and updates,
+see [Update hooks](update-hooks.mdx).
+
 :::

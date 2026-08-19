@@ -1,5 +1,10 @@
 # FAQs
 
+Answers to the questions teams ask when deciding whether to adopt **Vortex**.
+For operational questions once you're working in a project - clearing caches,
+using Xdebug, adding modules and patches - see the
+[Development FAQs](development/faqs.mdx).
+
 ## Why use Vortex instead of the Drupal Composer template?
 
 The Drupal Composer template gives you a starting point, but you still need to
@@ -7,7 +12,7 @@ add everything else: CI pipelines, tooling, automations, deployment scripts,
 hosting configurations, and documentation. Then you need to test that
 everything works together correctly.
 
-You also need to watch for _false negatives_ — faulty tests that pass silently
+You also need to watch for _false negatives_ - faulty tests that pass silently
 in CI but fail at release time, blocking your deployment.
 
 And you need to maintain all of this across every project you run.
@@ -19,7 +24,7 @@ documentation and consistent tooling across all projects.
 ## Can I use Vortex with an existing project?
 
 Yes, you can install **Vortex** into your existing project. See
-[Installation](installation#installing-vortex-into-an-existing-project).
+[Installation](installation.mdx#installing-vortex-into-an-existing-project).
 
 ## Can I keep my existing CI provider?
 
@@ -43,7 +48,7 @@ discuss any of the decisions made in **Vortex**.
 ## Isn't this overkill for my project?
 
 **Vortex** provides a full feature set to all projects, regardless of size. You
-can simply opt-out of features you don't need when installing: the installer
+can opt out of features you don't need when installing: the installer
 provides an interactive prompt to select only the features you want.
 
 If you're sure you don't need certain features, **Vortex** may not be the
@@ -64,7 +69,7 @@ be happy to fix it. Please share your feedback in the
 
 Run the update command to pull in the latest **Vortex** version. The command
 updates the boilerplate code automatically. You then resolve any conflicts
-manually — similar to merging changes between projects, but automated.
+manually - similar to merging changes between projects, but automated.
 
 Any customizations your team made will also need manual resolution. This is a
 trade-off between relying on an upgradable project template, where you have full
@@ -80,7 +85,7 @@ override scaffolded code.
 
 ## How easy is it to choose the features that I need?
 
-**Vortex** provides an [installer](installation) that allows you to choose the features
+**Vortex** provides an [installer](installation.mdx) that lets you choose the features
 that you need interactively.
 
 It is usually used as a part of the project creation process.

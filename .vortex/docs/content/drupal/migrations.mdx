@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # Migrations
 
-Vortex provides optional support for a **second database** to power Drupal
+**Vortex** provides optional support for a **second database** to power Drupal
 migrations. When enabled, a `database2` Docker service runs alongside the
 primary database, and a `settings.migration.php` file registers the
 `$databases['migrate']` connection that Drupal's Migrate API uses by default.
@@ -13,15 +13,15 @@ primary database, and a `settings.migration.php` file registers the
 
 ### Via the installer
 
-When running the Vortex installer, answer **Yes** to
+When running the **Vortex** installer, answer **Yes** to
 "Use a second database for migrations?" and select a fetch source.
 
 ### Manual setup
 
-If you already have a Vortex project and want to add migration support:
+If you already have a **Vortex** project and want to add migration support:
 
 1. Ensure `docker-compose.yml` contains the `database2` service and
-   `DATABASE2_*` environment variables (copy from a fresh Vortex install
+   `DATABASE2_*` environment variables (copy from a fresh **Vortex** install
    with migration enabled).
 2. Add `VORTEX_FETCH_DB2_FILE`, `VORTEX_FETCH_DB2_SOURCE`, and
    `VORTEX_FETCH_DB2_URL` to `.env`.
@@ -44,12 +44,13 @@ If you already have a Vortex project and want to add migration support:
 
 ## Docker service
 
-The `database2` service uses the same Lagoon MySQL image as the primary
-database but does not use a custom Dockerfile or database-in-image storage.
+The `database2` service uses the same Lagoon database image as the primary
+database, and the image can be overridden with the `VORTEX_DB2_IMAGE` variable
+(for example, to use a database-in-image seed):
 
 ```yaml
 database2:
-  image: uselagoon/mysql-8.4:26.1.0
+  image: "${VORTEX_DB2_IMAGE:-uselagoon/mysql-8.4:26.8.0}"
   environment:
     <<: *default-environment
     MYSQL_DATABASE: drupal
@@ -58,27 +59,21 @@ database2:
   ports:
     - '3306'
   labels:
-    lagoon.type: none
+    lagoon.type: mariadb
 ```
 
-The service is labeled `lagoon.type: none` because the migration database
-is only used locally and in CI — it is not deployed to hosting environments.
+The image tag tracks the primary database image - check the shipped
+[`docker-compose.yml`](https://github.com/drevops/vortex/blob/main/docker-compose.yml)
+for the current version.
 
 ## Drupal settings
 
 ### `settings.migration.php`
 
-```php
-$databases['migrate']['default'] = [
-  'database' => getenv('DATABASE2_NAME') ?: 'drupal',
-  'username' => getenv('DATABASE2_USERNAME') ?: 'drupal',
-  'password' => getenv('DATABASE2_PASSWORD') ?: 'drupal',
-  'host' => getenv('DATABASE2_HOST') ?: 'localhost',
-  'port' => getenv('DATABASE2_PORT') ?: '',
-  'prefix' => '',
-  'driver' => 'mysql',
-];
-```
+import CodeBlock from '@theme/CodeBlock';
+import MigrationSettingsExample from '!!raw-loader!@site/../../web/sites/default/settings.migration.php';
+
+<CodeBlock language="php">{MigrationSettingsExample}</CodeBlock>
 
 Drupal's Migrate API `SqlBase` source plugin uses `key: migrate` by default,
 which resolves to this connection.
@@ -89,13 +84,15 @@ which resolves to this connection.
 |---------|-------------|
 | `ahoy fetch-db2` | Fetch the migration database dump |
 | `ahoy fetch-db2 --fresh` | Force a fresh fetch |
+| `ahoy reload-db2` | Recreate the `database2` container and re-import its dump |
 | `ahoy db2` | Open the migration database in Sequel Ace |
 
-The `fetch-db2` command reuses the existing `fetch-db.sh` script with
-`VORTEX_DB_INDEX=2`, which makes all scripts resolve indexed variable names
-(e.g., `VORTEX_FETCH_DB2_SOURCE` instead of `VORTEX_FETCH_DB_SOURCE`,
-`VORTEX_DB2_IMAGE` instead of `VORTEX_DB_IMAGE`) so all existing fetch
-sources (URL, FTP, Acquia, Lagoon, S3) work for the migration database as well.
+The `fetch-db2` command reuses the existing `vendor/bin/vortex-fetch-db`
+tooling script with `VORTEX_DB_INDEX=2`, which makes all scripts resolve
+indexed variable names (e.g., `VORTEX_FETCH_DB2_SOURCE` instead of
+`VORTEX_FETCH_DB_SOURCE`, `VORTEX_DB2_IMAGE` instead of `VORTEX_DB_IMAGE`) so
+all existing fetch sources (URL, FTP, Acquia, Lagoon, S3) work for the
+migration database as well.
 
 ## Provision script
 
@@ -137,8 +134,12 @@ Add your project-specific migrations at the bottom of the script using the
 `run_migration` helper:
 
 ```bash
-run_migration ys_migrate_categories --limit=all
+run_migration my_migration
 ```
+
+The per-migration entity limit comes from `DRUPAL_MIGRATION_IMPORT_LIMIT`
+(set it to `all` for unlimited), and progress feedback from
+`DRUPAL_MIGRATION_FEEDBACK`.
 
 ### Corruption detection
 
@@ -149,7 +150,7 @@ dump file.
 
 ## Demo migration module
 
-Vortex ships with a demo migration module `ys_migrate` in
+**Vortex** ships with a demo migration module `ys_migrate` in
 `web/modules/custom/ys_migrate/`. It demonstrates the full migration workflow
 by migrating `categories` from the source database into Drupal's `tags`
 taxonomy vocabulary.
@@ -205,7 +206,7 @@ alongside the primary database before running provision.
 4. Add your migrations to `scripts/provision-20-migration.sh`:
 
    ```bash
-   run_migration ys_migrate_categories --limit=all
+   run_migration my_migration
    ```
 
 5. Re-provision to run migrations:
@@ -213,3 +214,6 @@ alongside the primary database before running provision.
    ```bash
    ahoy provision
    ```
+
+➡️ See [Provision](provision.mdx) for how the custom provision scripts run, and
+[Modules](modules.mdx) for the shipped migration modules.

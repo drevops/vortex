@@ -17,7 +17,7 @@ while modules use the abbreviated prefix (`ys_` for `your_site`).
 
 We understand that front-end theming is often highly project-specific and
 subject to team preferences. The provided `your_site_theme` scaffold is not
-intended to dictate how your theme should be built — it simply demonstrates how
+intended to dictate how your theme should be built - it demonstrates how
 custom themes can _integrate_ with the **Vortex** tooling and automations.
 
 Feel free to adapt or replace it with your preferred theme.
@@ -26,7 +26,10 @@ Feel free to adapt or replace it with your preferred theme.
 
 ## Build system
 
-The theme includes a complete Node.js-based build system using [Grunt](https://gruntjs.com/):
+The theme includes a complete Node.js-based build system composed of npm
+scripts over [Sass](https://sass-lang.com/), [PostCSS](https://postcss.org/)
+with Autoprefixer, [Terser](https://terser.org/) and
+[chokidar](https://github.com/open-cli-tools/chokidar-cli):
 
 - **SCSS compilation**
 - **JavaScript concatenation and minification**
@@ -76,6 +79,9 @@ ahoy few
 
 # Lint front-end code
 ahoy lint-fe
+
+# Fix front-end lint issues
+ahoy lint-fe-fix
 ```
 
 These commands run within the container to use the Node.js environment
@@ -91,6 +97,9 @@ the build system without learning a new process.
 :::
 
 ## File structure
+
+The main directories and files (build outputs, lint configuration files, and
+static assets are trimmed for brevity):
 
 ```text
 your_site_theme/
@@ -138,13 +147,14 @@ The theme ships a sample [Single Directory Component](https://www.drupal.org/doc
 link, demonstrating real component usage from a template.
 
 Components are validated with [SDC Devel](https://www.drupal.org/project/sdc_devel),
-which is enabled during provisioning in non-production environments:
+which the provisioning process enables in the `local`, `ci`, `dev` and `stage`
+environments:
 
 ```shell
 ahoy lint-sdc
 ```
 
-This command requires a provisioned site and also runs in continuous
+This command requires a provisioned site and also runs in the continuous
 integration pipeline.
 
 ## Tests scaffold
@@ -153,9 +163,9 @@ The `tests` directory contains working examples of tests that can be used as a
 starting point in your project.
 
 It also has a set of helper `Traits` that you may find useful when writing your
-tests. Simply remove them if you do not need them.
+tests. Remove them if you do not need them.
 
 ---
 
-➡️ See [Development](../development) for more details on how to work with
-the theme.
+➡️ See [Development](../development/README.mdx) for more details on how to work
+with the theme.

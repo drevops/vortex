@@ -1,5 +1,6 @@
 ---
 sidebar_label: Visual regression
+sidebar_position: 8
 ---
 
 # Visual regression
@@ -258,7 +259,7 @@ With `VR_DIFFY_PR_SKIP_BRANCHES=deps/*` (default) and
 | `deps/drupal-core-11.2` | no | **yes** (matches `deps/*`) |
 | `deps/drupal-core-11.2` | yes | yes (matches `deps/*`, label irrelevant) |
 
-Consumers using Dependabot just append:
+Consumers using Dependabot append:
 `VR_DIFFY_PR_SKIP_BRANCHES=deps/*,dependabot/*`. Consumers who want the
 label as the only gate set the variable to empty.
 

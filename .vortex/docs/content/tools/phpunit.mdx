@@ -2,13 +2,13 @@
 sidebar_label: PHPUnit
 ---
 
-# PHPUnit – The PHP Testing Framework
+# PHPUnit - PHP testing framework
 
 https://github.com/sebastianbergmann/phpunit/
 
 > PHPUnit is a programmer-oriented testing framework for PHP.
 
-**Vortex** comes with [pre-configured PHPCS ruleset](https://github.com/drevops/vortex/blob/main/phpunit.xml) for Drupal projects.
+**Vortex** comes with a [pre-configured PHPUnit configuration](https://github.com/drevops/vortex/blob/main/phpunit.xml) for Drupal projects.
 
 ## Usage
 
@@ -55,27 +55,27 @@ import TabItem from '@theme/TabItem';
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    ahoy test-unit --filter=MyTest
+    ahoy test-unit -- --filter=MyTest
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli vendor/bin/phpunit -- --filter=MyTest
+    docker compose exec cli vendor/bin/phpunit --filter=MyTest
     ```
   </TabItem>
 </Tabs>
 
-**Running tagged tests with `@group group_name` annotation**
+### Running tagged tests with a `@group group_name` annotation
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    ahoy test-unit --group=group_name
+    ahoy test-unit -- --group=group_name
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli vendor/bin/phpunit -- --group=group_name
+    docker compose exec cli vendor/bin/phpunit --group=group_name
     ```
   </TabItem>
 </Tabs>
@@ -87,21 +87,14 @@ See [configuration reference](https://docs.phpunit.de/en/10.4/configuration.html
 All global configuration takes place in the [`phpunit.xml`](https://github.com/drevops/vortex/blob/main/phpunit.xml) file.
 
 By default, PHPUnit will run tests for custom modules and themes, Drupal
-settings and continuous integration configuration.
+settings, and the shipped CircleCI configuration test.
 
-The recommended way to adding test targets is via using test suites:
+The recommended way of adding test targets is via test suites:
 
 ```xml
 <testsuite name="unit">
   <directory>my/custom/dir/*/tests</directory>
 </testsuite>
-
-```
-
-Run checks against platform version specified in `composer.json` key `config.platform.php`:
-
-```xml
-<config name="testVersion" value="8.1"/>
 ```
 
 ### Chrome session flags
@@ -154,7 +147,7 @@ minimum percentage (default: `90`).
 ### PR comments
 
 Coverage reports are posted as PR comments automatically. Each new report
-replaces the previous one — older comments are minimized to keep the PR
+replaces the previous one - older comments are minimized to keep the PR
 timeline clean. The comment includes a header indicating the CI source
 (GitHub Actions or CircleCI).
 

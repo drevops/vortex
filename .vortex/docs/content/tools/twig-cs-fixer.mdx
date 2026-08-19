@@ -1,3 +1,7 @@
+---
+sidebar_label: Twig CS Fixer
+---
+
 # Twig CS Fixer
 
 https://github.com/VincentLanglet/Twig-CS-Fixer
@@ -6,9 +10,11 @@ https://github.com/VincentLanglet/Twig-CS-Fixer
 >
 > Twig CS Fixer aims to be what phpcs is to php. It checks your codebase for violations on coding standards.
 
-**Vortex** comes with [pre-configured Twig-cs-fixer ruleset](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php) for Drupal projects.
+**Vortex** comes with a [pre-configured Twig CS Fixer ruleset](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php) for Drupal projects.
 
 ## Usage
+
+### Check for violations
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -16,12 +22,29 @@ import TabItem from '@theme/TabItem';
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
+    # Lint all front-end code: Twig, JavaScript and CSS.
     ahoy lint-fe
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli vendor/bin/twig-cs-fixer
+    docker compose exec cli vendor/bin/twig-cs-fixer lint
+    ```
+  </TabItem>
+</Tabs>
+
+### Fix violations
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Fix all front-end lint issues.
+    ahoy lint-fe-fix
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/twig-cs-fixer lint --fix
     ```
   </TabItem>
 </Tabs>
@@ -44,30 +67,23 @@ $finder->in(__DIR__ . '/web/themes/custom');
 
 ## Ignoring
 
-Ignoring rules **globally** takes place in the  [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php) file:
+Excluding **target directories** takes place in the [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php)
+file - `$finder->exclude()` removes directories from the set of linted files
+rather than disabling a rule:
 
 ```php
 $finder->exclude('myCustomDirectory');
 ```
 
-All errors have an identifier with the syntax: `A.B:C:D` with
+Every error has an identifier in the form `A.B:C:D`, where:
 
-- `A`: The rule short name (mainly made from the class name)
-- `B`: The error identifier (like the error level or a specific name)
-- `C`: The line the error occurs
-- `D`: The position of the token in the line the error occurs
+- `A`: the rule short name (mainly made from the class name)
+- `B`: the error identifier (like the error level or a specific name)
+- `C`: the line the error occurs on
+- `D`: the position of the token in that line
 
-The four parts are optional, all those format are working
-
-- `A`
-- `A.B`
-- `A.B:C`
-- `A.B:C:D`
-- `A:C`
-- `A:C:D`
-- `A::D`
-
-If you need to know the errors identifier you have/want to ignore, you can run
+All 4 parts are optional: `A`, `A.B`, `A.B:C`, `A.B:C:D`, `A:C`, `A:C:D` and
+`A::D` all work. To find the identifier of an error you want to ignore, run
 the linter command with the `--debug` option.
 
 To ignore **all Twig CS Fixer rules** within a file, place in the file header:
@@ -87,19 +103,20 @@ Twig CS Fixer does not support ignoring of the **code blocks**.
 To ignore only the **current line**:
 
 ```twig
-{# twig-cs-fixer-disable-next-line A.B:C:D #}
+{{ token }} {# twig-cs-fixer-disable-line A.B:C:D #}
 ```
 
 To ignore only the **next line**:
 
 ```twig
-{# twig-cs-fixer-disable-line A.B:C:D #}
+{# twig-cs-fixer-disable-next-line A.B:C:D #}
+{{ token }}
 ```
 
 ## Ignoring fail in continuous integration pipeline
 
-This tool runs in continuous integration pipeline by default and fails the build
-if there are any violations.
+This tool runs in the continuous integration pipeline by default and fails the
+build if there are any violations.
 
-Set `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE` environment variable to `1` to
+Set the `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE` environment variable to `1` to
 ignore failures. The tool will still run and report violations, if any.
