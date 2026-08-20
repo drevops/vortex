@@ -189,29 +189,29 @@ distribution.
 
 ### Choosing which container runs what
 
-Each tool reads a `CI_IS_<TOOL>_RUNNER` variable that decides whether it runs on
-the current container. All of them are declared together at the top of the build
-job, so the whole distribution is visible and editable in one place:
+Each tool reads a `VORTEX_CI_IS_<TOOL>_RUNNER` variable that decides whether it
+runs on the current container. All of them are declared together at the top of
+the build job, so the whole distribution is visible and editable in one place:
 
 <Tabs queryString="ci-provider" groupId="ci-provider">
 <TabItem value="gha" label="GitHub Actions">
 
 ```yaml title=".github/workflows/build-test-deploy.yml"
 env:
-  CI_RUNNER_INDEX: ${{ strategy.job-index }}
-  CI_RUNNER_TOTAL: ${{ strategy.job-total }}
-  CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
-  CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
-  CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
-  CI_IS_BEHAT_RUNNER: true
-  CI_BEHAT_PROFILE_OFFSET: 0
+  VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
+  VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+  VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+  VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+  VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+  VORTEX_CI_IS_BEHAT_RUNNER: true
+  VORTEX_CI_BEHAT_PROFILE_OFFSET: 0
 ```
 
 Each tool's step then reads its own flag:
 
 ```yaml
 - name: Test with PHPUnit
-  if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
+  if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
 ```
 
 </TabItem>
@@ -222,13 +222,13 @@ Each tool's step then reads its own flag:
     name: Set test runner roles
     command: |
       {
-        echo "export CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
-        echo "export CI_RUNNER_TOTAL=${CIRCLE_NODE_TOTAL:-1}"
-        echo "export CI_IS_JEST_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
-        echo "export CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
-        echo "export CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
-        echo "export CI_IS_BEHAT_RUNNER=1"
-        echo "export CI_BEHAT_PROFILE_OFFSET=0"
+        echo "export VORTEX_CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
+        echo "export VORTEX_CI_RUNNER_TOTAL=${CIRCLE_NODE_TOTAL:-1}"
+        echo "export VORTEX_CI_IS_JEST_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+        echo "export VORTEX_CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+        echo "export VORTEX_CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+        echo "export VORTEX_CI_IS_BEHAT_RUNNER=1"
+        echo "export VORTEX_CI_BEHAT_PROFILE_OFFSET=0"
       } >> "${BASH_ENV}"
 ```
 
@@ -238,16 +238,16 @@ Each tool's step then reads its own flag as its first line:
 - run:
     name: Test with PHPUnit
     command: |
-      [ "${CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
+      [ "${VORTEX_CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
 ```
 
 </TabItem>
 </Tabs>
 
-`CI_RUNNER_INDEX` and `CI_RUNNER_TOTAL` carry the current container's index and
-the container count under the same names on both providers.
-`CI_BEHAT_PROFILE_OFFSET` is subtracted from the container index to derive the
-Behat profile number - see
+`VORTEX_CI_RUNNER_INDEX` and `VORTEX_CI_RUNNER_TOTAL` carry the current
+container's index and the container count under the same names on both
+providers. `VORTEX_CI_BEHAT_PROFILE_OFFSET` is subtracted from the container
+index to derive the Behat profile number - see
 [Giving a tool its own container](#giving-a-tool-its-own-container).
 
 To run a tool of your own on a specific container, add one more flag alongside
@@ -257,14 +257,14 @@ the others and reference it from your step:
 <TabItem value="gha" label="GitHub Actions">
 
 ```yaml title=".github/workflows/build-test-deploy.yml"
-CI_IS_CYPRESS_RUNNER: ${{ matrix.instance == 1 }}
+VORTEX_CI_IS_CYPRESS_RUNNER: ${{ matrix.instance == 1 }}
 ```
 
 </TabItem>
 <TabItem value="circleci" label="CircleCI">
 
 ```shell title=".circleci/config.yml, inside 'Set test runner roles'"
-echo "export CI_IS_CYPRESS_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 1 ] && echo 1 || echo 0)"
+echo "export VORTEX_CI_IS_CYPRESS_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 1 ] && echo 1 || echo 0)"
 ```
 
 </TabItem>
@@ -279,8 +279,8 @@ With a third container added, that is (GitHub Actions shown - mirror the
 conditions in CircleCI's `Set test runner roles` step):
 
 ```yaml
-CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 2 }}
-CI_IS_BEHAT_RUNNER: ${{ matrix.instance != 2 }}
+VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 2 }}
+VORTEX_CI_IS_BEHAT_RUNNER: ${{ matrix.instance != 2 }}
 ```
 
 :::warning
@@ -292,9 +292,9 @@ skipped and the job still passes.
 :::
 
 Behat derives its profile number from the container index minus
-`CI_BEHAT_PROFILE_OFFSET`, and `p0` is the catch-all that runs every scenario
-without a `@pX` tag. With the dedicated container at the end, the offset stays
-`0`: the containers before it keep their profiles.
+`VORTEX_CI_BEHAT_PROFILE_OFFSET`, and `p0` is the catch-all that runs every
+scenario without a `@pX` tag. With the dedicated container at the end, the
+offset stays `0`: the containers before it keep their profiles.
 
 To dedicate a **leading** container instead - for example, pinning every
 once-only tool to container `0` and keeping Behat off it - raise the offset by
@@ -302,11 +302,11 @@ one for each leading container excluded from Behat, so the first Behat
 container still selects the `p0` catch-all:
 
 ```yaml
-CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 }}
-CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 }}
-CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 }}
-CI_IS_BEHAT_RUNNER: ${{ matrix.instance != 0 }}
-CI_BEHAT_PROFILE_OFFSET: 1
+VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 }}
+VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 }}
+VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 }}
+VORTEX_CI_IS_BEHAT_RUNNER: ${{ matrix.instance != 0 }}
+VORTEX_CI_BEHAT_PROFILE_OFFSET: 1
 ```
 
 | Container | Role | Behat profile |
@@ -381,8 +381,9 @@ container count itself, and a matching Behat profile for every new container.
 2. Add a profile to `behat.yml` for each new container that runs Behat.
    **Vortex** ships with `p0` and `p1` only, and Behat fails with
    `profile 'p2' does not exist` if a container running Behat has no profile
-   named after its derived number (its index minus `CI_BEHAT_PROFILE_OFFSET`).
-   A container excluded from Behat needs no profile:
+   named after its derived number (its index minus
+   `VORTEX_CI_BEHAT_PROFILE_OFFSET`). A container excluded from Behat needs no
+   profile:
 
    ```yaml title="behat.yml"
    p2:

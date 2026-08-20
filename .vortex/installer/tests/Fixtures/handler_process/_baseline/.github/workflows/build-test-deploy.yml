@@ -195,7 +195,7 @@ jobs:
     steps:
       # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
       - name: Free up disk space on the runner
-        if: ${{ vars.CI_FREE_DISK_SPACE == '1' }}
+        if: ${{ vars.VORTEX_CI_FREE_DISK_SPACE == '1' }}
         run: |
           set -- /host/usr/local/.ghcup /host/usr/share/swift /host/usr/local/share/powershell /host/usr/share/dotnet /host/opt/hostedtoolcache/CodeQL
           # set -- "$@" /host/usr/local/lib/android # Removes about 10GB more, but takes about 50s. Uncomment to enable.
@@ -308,17 +308,17 @@ jobs:
       # pinned to the first instance. Add a line for every additional tool and
       # reference it in that tool's step.
       # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
-      CI_RUNNER_INDEX: ${{ strategy.job-index }}
-      CI_RUNNER_TOTAL: ${{ strategy.job-total }}
-      CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
-      CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
-      CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+      VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
+      VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+      VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+      VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+      VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
       # Runs on every instance, using the `p<instance index - offset>` profile.
-      CI_IS_BEHAT_RUNNER: true
+      VORTEX_CI_IS_BEHAT_RUNNER: true
       # Subtracted from the instance index to derive the profile number. Raise
       # it by one for every leading instance that does not run Behat, so the
       # first Behat instance still selects the `p0` catch-all profile.
-      CI_BEHAT_PROFILE_OFFSET: 0
+      VORTEX_CI_BEHAT_PROFILE_OFFSET: 0
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
@@ -345,7 +345,7 @@ jobs:
     steps:
       # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
       - name: Free up disk space on the runner
-        if: ${{ vars.CI_FREE_DISK_SPACE == '1' }}
+        if: ${{ vars.VORTEX_CI_FREE_DISK_SPACE == '1' }}
         run: |
           set -- /host/usr/local/.ghcup /host/usr/share/swift /host/usr/local/share/powershell /host/usr/share/dotnet /host/opt/hostedtoolcache/CodeQL
           # set -- "$@" /host/usr/local/lib/android # Removes about 10GB more, but takes about 50s. Uncomment to enable.
@@ -436,17 +436,17 @@ jobs:
         timeout-minutes: 30
 
       - name: Test with Jest
-        if: ${{ env.CI_IS_JEST_RUNNER == 'true' }}
+        if: ${{ env.VORTEX_CI_IS_JEST_RUNNER == 'true' }}
         run: docker compose exec -T cli bash -c "yarn test"
         continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
 
       - name: Test with PHPUnit
-        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
+        if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
         run: docker compose exec -T cli vendor/bin/phpunit
         continue-on-error: ${{ vars.VORTEX_CI_PHPUNIT_IGNORE_FAILURE == '1' }}
 
       - name: Process PHPUnit logs and coverage
-        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
+        if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
         run: |
           mkdir -p ".logs"
           if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
@@ -454,7 +454,7 @@ jobs:
           fi
 
       - name: Extract code coverage
-        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
+        if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
         run: |
           RATE=$(grep -om1 'line-rate="[0-9.]*"' .logs/coverage/phpunit/cobertura.xml | tr -cd '0-9.')
           PERCENT=$(awk "BEGIN {printf \"%.2f\", $RATE*100}")
@@ -472,7 +472,7 @@ jobs:
           VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 
       - name: Post coverage summary as PR comment
-        if: ${{ github.event_name == 'pull_request' && env.CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
+        if: ${{ github.event_name == 'pull_request' && env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
         uses: marocchino/sticky-pull-request-comment@__HASH__ # __VERSION__
         with:
           header: coverage-gha
@@ -491,7 +491,7 @@ jobs:
           hide_and_recreate: true
 
       - name: Check code coverage threshold
-        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
+        if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
         run: |
           if [ "${COVERAGE_PERCENT//.}" -lt "$((VORTEX_CI_CODE_COVERAGE_THRESHOLD*100))" ]; then
             echo "FAIL: coverage ${COVERAGE_PERCENT}% is below threshold ${VORTEX_CI_CODE_COVERAGE_THRESHOLD}%"
@@ -501,7 +501,7 @@ jobs:
           VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 
       - name: Validate Single Directory Components
-        if: ${{ env.CI_IS_SDC_DEVEL_RUNNER == 'true' }}
+        if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
         run: |
           [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
           output=$(docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}" 2>&1)
@@ -513,10 +513,10 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
 
       - name: Test with Behat
-        if: ${{ env.CI_IS_BEHAT_RUNNER == 'true' }}
+        if: ${{ env.VORTEX_CI_IS_BEHAT_RUNNER == 'true' }}
         run: |
           # shellcheck disable=SC2170
-          if [ "${CI_RUNNER_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p$((CI_RUNNER_INDEX - CI_BEHAT_PROFILE_OFFSET))}"; fi
+          if [ "${VORTEX_CI_RUNNER_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p$((VORTEX_CI_RUNNER_INDEX - VORTEX_CI_BEHAT_PROFILE_OFFSET))}"; fi
           echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
           docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
             docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}"

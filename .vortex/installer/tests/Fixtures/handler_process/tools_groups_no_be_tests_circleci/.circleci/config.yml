@@ -319,10 +319,10 @@ jobs:
             # reference it in that tool's step.
             # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
             {
-              echo "export CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
-              echo "export CI_RUNNER_TOTAL=${CIRCLE_NODE_TOTAL:-1}"
-              echo "export CI_IS_JEST_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
-              echo "export CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+              echo "export VORTEX_CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
+              echo "export VORTEX_CI_RUNNER_TOTAL=${CIRCLE_NODE_TOTAL:-1}"
+              echo "export VORTEX_CI_IS_JEST_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+              echo "export VORTEX_CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
             } >> "${BASH_ENV}"
 
       - run:
@@ -389,13 +389,13 @@ jobs:
       - run:
           name: Test with Jest
           command: |
-            [ "${CI_IS_JEST_RUNNER:-1}" = "1" ] || exit 0
+            [ "${VORTEX_CI_IS_JEST_RUNNER:-1}" = "1" ] || exit 0
             docker compose exec -T cli bash -c "yarn test" || [ "${VORTEX_CI_JEST_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Validate Single Directory Components
           command: |
-            [ "${CI_IS_SDC_DEVEL_RUNNER:-1}" = "1" ] || exit 0
+            [ "${VORTEX_CI_IS_SDC_DEVEL_RUNNER:-1}" = "1" ] || exit 0
             [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
             output=$(docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}" 2>&1)
             echo "${output}"

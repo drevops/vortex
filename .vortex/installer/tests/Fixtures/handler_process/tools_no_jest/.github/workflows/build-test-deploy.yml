@@ -1,10 +1,10 @@
 @@ -310,7 +310,6 @@
        # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
-       CI_RUNNER_INDEX: ${{ strategy.job-index }}
-       CI_RUNNER_TOTAL: ${{ strategy.job-total }}
--      CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
-       CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
-       CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
+       VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+-      VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        # Runs on every instance, using the `p<instance index - offset>` profile.
 @@ -421,7 +420,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
@@ -20,9 +20,9 @@
          timeout-minutes: 30
 -
 -      - name: Test with Jest
--        if: ${{ env.CI_IS_JEST_RUNNER == 'true' }}
+-        if: ${{ env.VORTEX_CI_IS_JEST_RUNNER == 'true' }}
 -        run: docker compose exec -T cli bash -c "yarn test"
 -        continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
        - name: Test with PHPUnit
-         if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
+         if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
