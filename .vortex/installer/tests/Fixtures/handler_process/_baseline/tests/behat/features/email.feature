@@ -1,4 +1,3 @@
-@email
 Feature: Email
 
   As a site administrator
