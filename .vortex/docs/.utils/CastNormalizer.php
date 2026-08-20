@@ -209,10 +209,10 @@ final class CastNormalizer {
    * Rewrite a cast onto the canonical timeline.
    *
    * @param string $cast
-   *   Contents of an asciicast v2 file.
+   *   Contents of an asciicast file, version 2 or 3.
    *
    * @return string
-   *   Contents of the canonical cast, newline-terminated.
+   *   Contents of the canonical version 2 cast, newline-terminated.
    */
   public function normalize(string $cast): string {
     $lines = preg_split('/\R/', $cast);
@@ -222,14 +222,15 @@ final class CastNormalizer {
       throw new \RuntimeException('Cast is empty or malformed.');
     }
 
-    $header = $this->normalizeHeader((string) array_shift($lines));
-    $frames = $this->collapseRedraws($this->foldBlankFrames($this->cutFrames($this->readWrites($lines))));
+    $header = $this->decodeHeader((string) array_shift($lines));
+    $relative = ($header['version'] ?? 2) === 3;
+    $frames = $this->collapseRedraws($this->foldBlankFrames($this->cutFrames($this->readWrites($lines, $relative))));
 
     if ($frames === []) {
       throw new \RuntimeException('Cast carries no frames to draw.');
     }
 
-    return implode("\n", array_merge([$header], $this->buildTimeline($frames))) . "\n";
+    return implode("\n", array_merge([$this->normalizeHeader($header)], $this->buildTimeline($frames))) . "\n";
   }
 
   /**
@@ -291,22 +292,42 @@ final class CastNormalizer {
   }
 
   /**
-   * Rewrite the header, dropping everything the machine contributed.
+   * Read the header line.
    *
    * @param string $line
    *   The recorded header line.
    *
-   * @return string
-   *   The canonical header line.
+   * @return array<array-key, mixed>
+   *   The decoded header.
    */
-  protected function normalizeHeader(string $line): string {
+  protected function decodeHeader(string $line): array {
     $header = json_decode($line, TRUE);
     if (!is_array($header)) {
       throw new \RuntimeException('Cast header is not valid JSON.');
     }
 
-    $width = $header['width'] ?? 80;
-    $height = $header['height'] ?? 24;
+    return $header;
+  }
+
+  /**
+   * Rewrite the header, dropping everything the machine contributed.
+   *
+   * The output is always version 2, which is what the renderers read.
+   *
+   * @param array<array-key, mixed> $header
+   *   The decoded header.
+   *
+   * @return string
+   *   The canonical header line.
+   */
+  protected function normalizeHeader(array $header): string {
+    // Version 3 carries the terminal in its own object rather than at the top
+    // level of the header.
+    $term = $header['term'] ?? [];
+    $term = is_array($term) ? $term : [];
+
+    $width = $header['width'] ?? $term['cols'] ?? 80;
+    $height = $header['height'] ?? $term['rows'] ?? 24;
 
     $canonical = [
       'version' => 2,
@@ -328,19 +349,31 @@ final class CastNormalizer {
    *
    * @param array<int, string> $lines
    *   Recorded event lines.
+   * @param bool $relative
+   *   Whether each timestamp is the gap from the event before it, as version 3
+   *   records them, rather than the time from the start of the recording.
    *
    * @return list<array{at: float, data: string}>
    *   One entry per write, in order.
    */
-  protected function readWrites(array $lines): array {
+  protected function readWrites(array $lines, bool $relative = FALSE): array {
     $chunks = [];
+    $time = 0.0;
 
     foreach ($lines as $line) {
       $event = json_decode(trim($line), TRUE);
-      if (!is_array($event) || count($event) < 3 || !is_numeric($event[0]) || ($event[1] ?? '') !== 'o' || !is_string($event[2])) {
+      if (!is_array($event) || count($event) < 3 || !is_numeric($event[0]) || !is_string($event[2])) {
         continue;
       }
-      $chunks[] = ['at' => (float) $event[0], 'data' => $event[2]];
+
+      // An event that draws nothing still spends the time before it.
+      $time = $relative ? $time + (float) $event[0] : (float) $event[0];
+
+      if (($event[1] ?? '') !== 'o') {
+        continue;
+      }
+
+      $chunks[] = ['at' => $time, 'data' => $event[2]];
     }
 
     $writes = [];

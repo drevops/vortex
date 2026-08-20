@@ -7,6 +7,7 @@ require_once __DIR__ . '/CastNormalizer.php';
 require_once __DIR__ . '/VideoRecorder.php';
 
 use DrevOps\Vortex\Docs\CastNormalizer;
+use DrevOps\Vortex\Docs\VideoRecorder;
 
 /**
  * Update one or more documentation videos.

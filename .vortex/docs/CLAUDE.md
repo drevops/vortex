@@ -119,6 +119,20 @@ The `.png` posters are rasterized from the `.svg` by `sharp`, whose output
 depends on the host's SVG renderer and fonts. Two runs on one machine match;
 two machines need not.
 
+**Cast format**: a recording is whatever version the installed `asciinema`
+writes - version 3 since asciinema 3.0, version 2 before it. `CastNormalizer`
+reads both (version 3 times each event from the one before it and carries the
+terminal in a `term` object) and always writes version 2, which is the version
+`svg-term` reads. Nothing downstream has to know which recorder produced the
+session.
+
+**Proof**: `VideoRecordingTest` in `.vortex/tests/phpunit/Functional/` records
+one command twice through the real pipeline and asserts the `.json`, `.svg` and
+`.png` come out byte-identical. It needs `asciinema`, `node` and the
+documentation Node dependencies, and skips when any of them is missing, so it
+runs where the recording toolchain is installed and stays out of the way
+everywhere else.
+
 **Iterating on one video** - use `--keep` so the install + build happens only
 once, then replay the recording against the preserved project:
 

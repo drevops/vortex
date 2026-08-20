@@ -339,6 +339,28 @@ class CastNormalizerTest extends TestCase {
   }
 
   /**
+   * Tests that a version 3 recording normalizes like a version 2 one.
+   */
+  public function testVersionThreeCastNormalizesLikeVersionTwo(): void {
+    $events = [[0.4, '$ '], [0.5, 'l'], [0.6, "\r\n"], [2.0, "one\r\n"]];
+
+    // The same session as version 3 records it: the terminal moves into its
+    // own header object, each timestamp is the gap from the event before it,
+    // and an exit event closes the recording.
+    $lines = [(string) json_encode(['version' => 3, 'term' => ['cols' => 80, 'rows' => 24, 'type' => 'xterm-256color'], 'title' => 'Demo', 'command' => 'demo'], JSON_UNESCAPED_SLASHES)];
+    $previous = 0.0;
+    foreach ($events as $event) {
+      $lines[] = (string) json_encode([round($event[0] - $previous, 6), 'o', $event[1]], JSON_UNESCAPED_SLASHES);
+      $previous = $event[0];
+    }
+    $lines[] = (string) json_encode([0.1, 'x', '0'], JSON_UNESCAPED_SLASHES);
+
+    $normalizer = new CastNormalizer();
+
+    $this->assertSame($normalizer->normalize(static::cast($events)), $normalizer->normalize(implode("\n", $lines) . "\n"));
+  }
+
+  /**
    * Tests that two recordings of one session normalize to the same bytes.
    */
   public function testTwoRecordingsOfOneSessionMatch(): void {

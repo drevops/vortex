@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use DrevOps\Vortex\Docs\CastNormalizer;
+namespace DrevOps\Vortex\Docs;
 
 /**
  * Shared recorder for Vortex documentation videos.
@@ -26,13 +26,13 @@ final class VideoRecorder {
     public readonly string $renderer_script,
   ) {
     if (!is_dir($this->project_root)) {
-      throw new RuntimeException("Project root not found: {$this->project_root}");
+      throw new \RuntimeException("Project root not found: {$this->project_root}");
     }
     if (!is_dir($this->docs_static_dir)) {
-      throw new RuntimeException("Docs static dir not found: {$this->docs_static_dir}");
+      throw new \RuntimeException("Docs static dir not found: {$this->docs_static_dir}");
     }
     if (!is_file($this->renderer_script)) {
-      throw new RuntimeException("Renderer script not found: {$this->renderer_script}");
+      throw new \RuntimeException("Renderer script not found: {$this->renderer_script}");
     }
   }
 
@@ -55,7 +55,7 @@ final class VideoRecorder {
       $this->note('Install commands:');
       $this->note('  brew install asciinema expect composer  # macOS');
       $this->note('  apt-get install asciinema expect-dev composer  # Ubuntu/Debian');
-      throw new RuntimeException('Missing dependencies: ' . implode(', ', $missing));
+      throw new \RuntimeException('Missing dependencies: ' . implode(', ', $missing));
     }
 
     $this->pass('All required dependencies present');
@@ -69,7 +69,7 @@ final class VideoRecorder {
     $built_phar = $source_dir . '/build/installer.phar';
 
     if (!is_dir($source_dir)) {
-      throw new RuntimeException("Installer source not found: $source_dir");
+      throw new \RuntimeException("Installer source not found: $source_dir");
     }
 
     $this->info('Building installer.phar from source');
@@ -79,11 +79,11 @@ final class VideoRecorder {
     $this->run(['composer', 'build'], $source_dir);
 
     if (!is_file($built_phar)) {
-      throw new RuntimeException("Build completed but installer.phar not found at $built_phar");
+      throw new \RuntimeException("Build completed but installer.phar not found at $built_phar");
     }
 
     if (!copy($built_phar, $dest)) {
-      throw new RuntimeException("Failed to copy installer.phar to $dest");
+      throw new \RuntimeException("Failed to copy installer.phar to $dest");
     }
 
     $this->pass("installer.phar built and copied to $dest");
@@ -102,7 +102,7 @@ final class VideoRecorder {
   public function runInstaller(string $workspace, string $uri): string {
     $installer = "$workspace/installer.php";
     if (!is_file($installer)) {
-      throw new RuntimeException("Installer not found in workspace: $installer");
+      throw new \RuntimeException("Installer not found in workspace: $installer");
     }
 
     $this->info('Running installer non-interactively');
@@ -123,7 +123,7 @@ final class VideoRecorder {
 
     $project_dir = "$workspace/star_wars";
     if (!is_dir($project_dir)) {
-      throw new RuntimeException("Installer did not produce project at $project_dir");
+      throw new \RuntimeException("Installer did not produce project at $project_dir");
     }
 
     $this->pass("Installer completed; project at $project_dir");
@@ -203,7 +203,7 @@ final class VideoRecorder {
   }
 
   /**
-   * Run asciinema rec against a target command, producing an asciicast v2 JSON file.
+   * Run asciinema rec against a target command, producing an asciicast file.
    *
    * @param string $cwd
    *   The cwd for asciinema (and therefore for the recorded command).
@@ -228,10 +228,12 @@ final class VideoRecorder {
     $this->note("command: $command");
     $this->note("output: $cast_path");
 
+    // The output format is whatever the installed recorder writes: version 3
+    // since asciinema 3.0, version 2 before it. CastNormalizer reads either
+    // and writes the version 2 the renderers read.
     $this->run([
       'asciinema', 'rec',
       "--window-size=$size",
-      '--output-format=asciicast-v2',
       "--title=$title",
       "--command=$command",
       '--overwrite',
@@ -239,7 +241,7 @@ final class VideoRecorder {
     ], $cwd, $env);
 
     if (!is_file($cast_path)) {
-      throw new RuntimeException("Recording produced no cast file at $cast_path");
+      throw new \RuntimeException("Recording produced no cast file at $cast_path");
     }
 
     $this->pass('Recording complete');
@@ -255,18 +257,18 @@ final class VideoRecorder {
    */
   public function normalizeCast(string $cast_path, CastNormalizer $normalizer): void {
     if (!is_file($cast_path)) {
-      throw new RuntimeException("Cast file not found: $cast_path");
+      throw new \RuntimeException("Cast file not found: $cast_path");
     }
 
     $this->info('Normalizing cast');
 
     $contents = file_get_contents($cast_path);
     if ($contents === FALSE) {
-      throw new RuntimeException("Failed to read cast: $cast_path");
+      throw new \RuntimeException("Failed to read cast: $cast_path");
     }
 
     if (file_put_contents($cast_path, $normalizer->normalize($contents)) === FALSE) {
-      throw new RuntimeException("Failed to write normalized cast: $cast_path");
+      throw new \RuntimeException("Failed to write normalized cast: $cast_path");
     }
 
     $this->pass('Cast normalized');
@@ -287,7 +289,7 @@ final class VideoRecorder {
     ]);
 
     if (!is_file($svg_path)) {
-      throw new RuntimeException("SVG render produced no file: $svg_path");
+      throw new \RuntimeException("SVG render produced no file: $svg_path");
     }
 
     $this->pass("SVG rendered: $svg_path");
@@ -308,7 +310,7 @@ final class VideoRecorder {
   public function getFrameTimestampMs(string $cast_path, ?string $marker = NULL): int {
     $handle = fopen($cast_path, 'r');
     if ($handle === FALSE) {
-      throw new RuntimeException("Cannot read cast: $cast_path");
+      throw new \RuntimeException("Cannot read cast: $cast_path");
     }
 
     fgets($handle);
@@ -332,7 +334,7 @@ final class VideoRecorder {
     fclose($handle);
 
     if ($at === NULL) {
-      throw new RuntimeException($marker === NULL ? "Cast has no events: $cast_path" : "No frame draws \"$marker\" in $cast_path");
+      throw new \RuntimeException($marker === NULL ? "Cast has no events: $cast_path" : "No frame draws \"$marker\" in $cast_path");
     }
 
     return (int) round($at * 1000) + 1;
@@ -379,7 +381,7 @@ final class VideoRecorder {
     @unlink($frame_svg);
 
     if (!is_file($png_path)) {
-      throw new RuntimeException("PNG render produced no file: $png_path");
+      throw new \RuntimeException("PNG render produced no file: $png_path");
     }
 
     $this->pass("PNG rendered: $png_path");
@@ -442,12 +444,12 @@ final class VideoRecorder {
 
     $proc = proc_open($command, [], $pipes, $cwd, $env);
     if (!is_resource($proc)) {
-      throw new RuntimeException("Failed to start: $pretty");
+      throw new \RuntimeException("Failed to start: $pretty");
     }
 
     $exit_code = proc_close($proc);
     if ($exit_code !== 0) {
-      throw new RuntimeException("Command failed (exit $exit_code): $pretty");
+      throw new \RuntimeException("Command failed (exit $exit_code): $pretty");
     }
 
     return $exit_code;
