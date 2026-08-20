@@ -36,10 +36,8 @@ commands:
       yarn --cwd=docs run build
 
   build-combined-docs:
-    usage: Build the combined site serving both majors into the disposable 'docs_combined' directory.
-    cmd: |
-      [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
-      ./docs/.utils/assemble-combined-docs.sh
+    usage: Build the combined site serving both majors into the disposable, self-contained 'docs_combined' directory.
+    cmd: ./docs/.utils/assemble-combined-docs.sh
 
   serve-combined-docs:
     usage: Serve the built combined site. Pass a port as the first argument, e.g. 'ahoy serve-combined-docs 4000'.

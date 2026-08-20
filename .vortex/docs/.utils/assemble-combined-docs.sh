@@ -47,8 +47,8 @@ rm -rf "${COMBINED_DIR}"
 mkdir -p "${COMBINED_DIR}"
 
 # The combined site is a copy of this one, so it builds with the same config,
-# components and sidebars. Generated and installed directories are rebuilt or
-# linked below rather than copied.
+# components and sidebars. Generated and installed directories are excluded and
+# rebuilt inside it, so it depends on nothing outside itself.
 rsync -a \
   --exclude '/node_modules' \
   --exclude '/build' \
@@ -57,7 +57,7 @@ rsync -a \
   --exclude '/.logs' \
   "${DOCS_DIR}/" "${COMBINED_DIR}/"
 
-ln -s "${DOCS_DIR}/node_modules" "${COMBINED_DIR}/node_modules"
+yarn --cwd="${COMBINED_DIR}" install --frozen-lockfile
 
 # Snapshot this branch as the default version before 'content/' is handed over
 # to the other major.
