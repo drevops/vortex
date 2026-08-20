@@ -42,7 +42,7 @@
  
  # Composer installs contrib recipes into 'recipes/', next to custom recipes,
  # so recipes stay an allow list: un-ignore custom recipes explicitly.
-@@ -41,10 +41,10 @@
+@@ -43,10 +43,10 @@
  # Dependencies.
  /vendor
  /node_modules

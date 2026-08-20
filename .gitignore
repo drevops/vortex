@@ -39,16 +39,17 @@ recipes/*
 #;> CONTENT_MODEL
 
 #;< AI_CODE_INSTRUCTIONS
-# Ignore all Claude files by default. Custom files should be added explicitly.
+# Claude writes machine-local state into '.claude/', so it stays an allow
+# list: un-ignore only the files shared with the team.
 .claude/*
 !.claude/settings.json
+!.claude/skills/
 #;> AI_CODE_INSTRUCTIONS
 
 #;< VORTEX_DEV
 #; Ignore these files in Vortex itself, but do not ignore in consumer site.
 /composer.lock
 /patches.lock.json
-!.claude/skills/
 #;> VORTEX_DEV
 
 # Dependencies.
