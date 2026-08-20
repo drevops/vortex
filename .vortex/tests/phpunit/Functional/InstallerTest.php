@@ -145,12 +145,17 @@ class InstallerTest extends FunctionalTestCase {
       'config/custom.settings.yml' => "custom: true\n",
       'recipes/custom/recipe.yml' => "name: Custom recipe\n",
       '.claude/skills/custom/SKILL.md' => "# Custom skill\n",
+      '.claude/settings.local.json' => "{\"permissions\": {}}\n",
       'PROJECT-NOTES.md' => "Project notes.\n",
     ];
     foreach ($project_files as $path => $contents) {
       File::dump(static::$sut . '/' . $path, $contents);
     }
     $this->gitCommitAll(static::$sut, 'Init Vortex with project files');
+
+    $this->logSubstep('Assert that the shipped ignore rules share skills and keep other ".claude/" files local');
+    $this->gitAssertFilesTracked('.claude/skills/custom/SKILL.md', static::$sut);
+    $this->gitAssertFilesNotTracked('.claude/settings.local.json', static::$sut);
 
     $commit_without_script = $this->dropLegacyScriptFromTemplate();
 
@@ -194,6 +199,10 @@ class InstallerTest extends FunctionalTestCase {
    */
   protected function installSutFrom(string $ref): void {
     $this->gitInitRepo(static::$sut);
+    // The shipped '.gitignore' is the only ignore source these tests assert
+    // on, so the developer's global excludes file must not reach the SUT.
+    $this->gitDisableGlobalExcludes(static::$sut);
+
     static::$sutInstallerEnv = [
       'VORTEX_INSTALLER_TEMPLATE_REPO' => FALSE,
       'SHELL_VERBOSITY' => FALSE,
