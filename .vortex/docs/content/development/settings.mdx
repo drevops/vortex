@@ -55,8 +55,28 @@ does not apply any configuration overrides.
 - Configuration overrides are defined in [per-module override files](#per-module-overrides),
 with conditions applied based on the detected _environment type_.
 
-The `settings.php` file runs its sections in a fixed order, loading additional
-files from the `includes/` directories along the way:
+This structure offers several benefits:
+
+- It keeps environment detection separate from configuration logic.
+- It shows how a module behaves in a specific environment - all in one place.
+- If a module is no longer needed, its override file can be safely removed
+without modifying the `settings.php` file.
+- It prevents environment-specific settings from leaking into unrelated parts of
+the configuration.
+
+## Settings file structure
+
+The [`settings.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/settings.php)
+file is organized into the following sections:
+
+- [Database](#database)
+- [General](#general)
+- [Environment type detection](#environment-type-detection)
+- [Per-module overrides](#per-module-overrides)
+- [Local overrides](#local-overrides)
+
+The sections run in a fixed order, loading additional files from the
+`includes/` directories along the way:
 
 ```text
 🚀 Drupal bootstrap
@@ -85,26 +105,6 @@ files from the `includes/` directories along the way:
    ▼
 🏁 Fully configured site
 ```
-
-This structure offers several benefits:
-
-- It keeps environment detection separate from configuration logic.
-- It shows how a module behaves in a specific environment - all in one place.
-- If a module is no longer needed, its override file can be safely removed
-without modifying the `settings.php` file.
-- It prevents environment-specific settings from leaking into unrelated parts of
-the configuration.
-
-## Settings file structure
-
-The [`settings.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/settings.php)
-file is organized into the following sections:
-
-- [Database](#database)
-- [General](#general)
-- [Environment type detection](#environment-type-detection)
-- [Per-module overrides](#per-module-overrides)
-- [Local overrides](#local-overrides)
 
 import CodeBlock from '@theme/CodeBlock';
 import SettingsExample from '!!raw-loader!@site/../../web/sites/default/settings.php';
