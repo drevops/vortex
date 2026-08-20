@@ -179,7 +179,7 @@ function useReveals() {
 }
 
 export default function Home() {
-  const installerVideo = useBaseUrl('/img/installer.svg');
+  const installerPoster = useBaseUrl('/img/installer.png');
   const installerCast = useBaseUrl('/img/installer.json');
   const [playerOpen, setPlayerOpen] = useState(false);
   const triggerRef = useRef(null);
@@ -260,10 +260,6 @@ export default function Home() {
             <div className="wrap">
               <div className="hero-grid">
                 <div className="hero-text reveal">
-                  <span className="hero-badge">
-                    <span className="pulse" /> Production-grade Drupal, since
-                    2017
-                  </span>
                   <h1>
                     Ship Drupal projects on{' '}
                     <span className="grad">solid ground.</span>
@@ -315,12 +311,12 @@ export default function Home() {
                       aria-label="Play the installer demo with playback controls"
                     >
                       <img
-                        src={installerVideo}
-                        alt="Animated demo of the Vortex installer scaffolding a new project from a single command"
+                        src={installerPoster}
+                        alt="The Vortex installer scaffolding a new project from a single command"
                         loading="lazy"
                         decoding="async"
                         width="1280"
-                        height="705"
+                        height="794"
                       />
                       <span className="media-play-overlay" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -1257,13 +1253,16 @@ export default function Home() {
                 </button>
               </div>
               <div className="vtx-modal-body">
+                {/* Fitting the width lets the player derive its own height, so
+                    the dialog can take that height rather than guess at it. */}
                 <AsciinemaPlayer
                   src={installerCast}
-                  poster="npt:0:1"
+                  poster="npt:0:00.3"
                   autoPlay
                   loop={false}
                   controls
                   preload
+                  fit="width"
                   className="vtx-cast"
                 />
               </div>
