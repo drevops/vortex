@@ -1,0 +1,35 @@
+---
+sidebar_label: JIRA
+sidebar_position: 4
+---
+
+# JIRA
+
+Post a deployment comment and optionally update issue status and assignee.
+
+## Setup
+
+1. [Create a JIRA API token](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/).
+2. Add `VORTEX_NOTIFY_JIRA_TOKEN` to your hosting provider's environment variables.
+3. Add `VORTEX_NOTIFY_JIRA_USER_EMAIL` to your `.env` file.
+
+## Environment variables
+
+| Variable | Required | Default | Location | Description |
+|----------|----------|---------|----------|-------------|
+| `VORTEX_NOTIFY_JIRA_TOKEN` | **Yes** | | Hosting | JIRA API token |
+| `VORTEX_NOTIFY_JIRA_USER_EMAIL` | **Yes** | | `.env` | JIRA user email |
+| `VORTEX_NOTIFY_JIRA_PROJECT` | No | `VORTEX_NOTIFY_PROJECT` | `.env` | Project name |
+| `VORTEX_NOTIFY_JIRA_MESSAGE` | No | Default template | `.env` | Custom message template |
+| `VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL` | No | | `.env` | Assignee email after deployment |
+| `VORTEX_NOTIFY_JIRA_TRANSITION` | No | | `.env` | Transition name (e.g., "In Review") |
+| `VORTEX_NOTIFY_JIRA_ENDPOINT` | No | `https://jira.atlassian.com` | `.env` | JIRA API endpoint |
+| `VORTEX_NOTIFY_JIRA_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
+
+## Issue key extraction
+
+The notification system automatically extracts JIRA issue keys from the
+deployment label using the pattern `[A-Za-z0-9]+-[0-9]+`:
+
+- `feature/PROJ-123-add-feature` → `PROJ-123`
+- `feature/PRJ-456-fix-auth` → `PRJ-456`

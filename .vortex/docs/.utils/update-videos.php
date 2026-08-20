@@ -95,6 +95,30 @@ const VIDEOS = [
     'poster_ms' => 2000,
     'typer' => TRUE,
   ],
+  'info' => [
+    'command' => 'ahoy info',
+    'speed' => 1.0,
+    'cols' => 80,
+    'rows' => 42,
+    'poster_ms' => NULL,
+    'typer' => TRUE,
+  ],
+  'doctor' => [
+    'command' => 'ahoy doctor',
+    'speed' => 1.0,
+    'cols' => 80,
+    'rows' => 42,
+    'poster_ms' => NULL,
+    'typer' => TRUE,
+  ],
+  'doctor-info' => [
+    'command' => 'ahoy doctor info',
+    'speed' => 1.0,
+    'cols' => 80,
+    'rows' => 42,
+    'poster_ms' => NULL,
+    'typer' => TRUE,
+  ],
 ];
 
 function usage(): void {
@@ -364,7 +388,7 @@ function main(array $argv): int {
   $recorder->note('Requested: ' . implode(', ', $requested));
   $recorder->note('Mode: ' . ($keep ? 'reuse workspace (--keep)' : 'wipe + bootstrap'));
 
-  $needs_built_project = array_intersect($requested, ['build', 'provision', 'lint', 'test', 'test-bdd']) !== [];
+  $needs_built_project = array_intersect($requested, ['build', 'provision', 'lint', 'test', 'test-bdd', 'info', 'doctor', 'doctor-info']) !== [];
 
   $extra_deps = ['expect'];
   if ($needs_built_project) {
@@ -424,7 +448,7 @@ function main(array $argv): int {
     }
   }
 
-  $order = ['build', 'provision', 'lint', 'test', 'test-bdd'];
+  $order = ['build', 'info', 'doctor', 'doctor-info', 'provision', 'lint', 'test', 'test-bdd'];
   foreach ($order as $name) {
     if (!in_array($name, $requested, TRUE)) {
       continue;

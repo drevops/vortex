@@ -5,34 +5,42 @@ sidebar_position: 1
 
 # Development
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
+
+This section covers the day-to-day work on a **Vortex** project: running the
+local environment, managing the database and dependencies, working with the
+Drupal application, and checking your code with linters and tests.
+
+Each page owns one task or tool and carries everything about it - daily usage,
+configuration, and how it behaves in the continuous integration pipeline - so
+there is one place to look. Larger topics are subsections whose overview page
+ties their pages together. This page describes the overall process and points
+to the right page for each task.
 
 ## Typical development process
 
 1. Pull the latest changes from the remote repository.
-2. Fetch the latest database dump from the production environment.
-3. Build the project.
+2. [Fetch the latest database dump](provision.mdx#database) from the production environment.
+3. [Build the project](environment/README.mdx).
 4. Start a new feature or bugfix branch:
-    - Create a new branch from `develop`.
+    - Create a new branch from `develop` (see [Releasing > GitFlow](../releasing/gitflow.mdx) for the branch structure).
     - Implement the feature or fix the bug.
-5. Run tests:
+5. [Run tests](testing/README.mdx):
     - Run automated tests locally.
     - Fix any failing tests.
-6. Run code quality checks:
+6. [Run code quality checks](code-quality/README.mdx):
     - Run static code analysis locally.
     - Fix any issues reported.
 7. Commit changes to the branch and push it to the remote repository.
 8. Create a pull request:
     - Create a pull request from the branch to `develop`.
     - Assign reviewers.
-    - Wait for the continuous integration pipeline to pass.
+    - Wait for the [continuous integration pipeline](../continuous-integration/README.mdx) to pass.
 
 ## Common commands
 
 The most common day-to-day commands. Each video is a live recording captured on
-a fresh **Vortex** project.
+a demo consumer project that uses **Vortex**.
 
 ### Build the project
 
@@ -51,14 +59,13 @@ theme assets, and provisions the site from the database dump.
   terminalLineHeight={1.0}
 />
 
-### Re-provision the site
+### Show project information
 
-`ahoy provision` re-imports the database dump from `.data/db.sql` into the
-running stack and applies the provisioning steps: database updates,
-configuration import, cache rebuilds and deploy hooks.
+`ahoy info` shows the current project information: the site URL, container
+status and ports.
 
 <AsciinemaPlayer
-  src="/img/provision.json"
+  src="/img/info.json"
   poster="npt:0:1"
   autoPlay={false}
   loop={false}
@@ -117,197 +124,22 @@ real browser inside the container stack.
   terminalLineHeight={1.0}
 />
 
-## Running CLI commands
+### Re-provision the site
 
-You can run CLI commands inside the project containers.
+`ahoy provision` re-imports the database dump from `.data/db.sql` into the
+running stack and applies the provisioning steps: database updates,
+configuration import, cache rebuilds and deploy hooks.
 
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    # Run a command in the CLI container
-    ahoy cli echo "Hello, World!"
-    # SSH into the CLI container
-    ahoy cli
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    # Run a command in the CLI container
-    docker compose exec cli echo "Hello, World!"
-    # SSH into the CLI container
-    docker compose exec cli bash
-    ```
-  </TabItem>
-</Tabs>
-
-You can also use shortcuts for common commands:
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    # Run Drush command
-    ahoy drush status
-    # Run Composer command
-    ahoy composer install
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    # Run Drush command
-    docker compose exec cli drush status
-    # Run Composer command
-    docker compose exec cli composer install
-    ```
-  </TabItem>
-</Tabs>
-
-## Switching branches
-
-When switching to a new branch, there is no need to rebuild the entire project
-as it may take a long time. Instead, you can run these commands as needed based
-on what changed:
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    # Update Composer dependencies (only if composer.json/composer.lock changed)
-    ahoy composer install
-    # Rebuild frontend assets (only if theme files changed)
-    ahoy fe
-    # Provision site (only if database or configuration changes expected)
-    ahoy provision
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    # Update Composer dependencies (only if composer.json/composer.lock changed)
-    docker compose exec cli composer install
-    # Rebuild frontend assets (only if theme files changed)
-    docker compose exec cli bash -c "cd \${WEBROOT}/themes/custom/\${DRUPAL_THEME} && yarn run build"
-    # Provision site (only if database or configuration changes expected)
-    docker compose exec cli ./vendor/bin/vortex-provision
-    ```
-  </TabItem>
-</Tabs>
-
-## Resetting the codebase
-
-To reset the local environment, use the reset command. This will stop and remove
-all containers and downloaded dependency packages (`vendor`, `node_modules` etc.).
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    # Reset local environment
-    ahoy reset
-    # Fully reset repository to a state as if it was just cloned
-    ahoy reset --hard
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    # Reset local environment
-    docker compose down
-    ./vendor/bin/vortex-reset
-    # Fully reset repository to a state as if it was just cloned
-    docker compose down
-    ./vendor/bin/vortex-reset --hard
-    ```
-  </TabItem>
-</Tabs>
-
-## Environment variables
-
-To update environment variables in your local development environment:
-
-1. Edit variables in `.env.local` file
-2. Apply changes by re-creating the containers (a plain restart does not
-   re-read the `.env` files):
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    ahoy up
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    docker compose up -d
-    ```
-  </TabItem>
-</Tabs>
-
-➡️ See [Variables](variables.mdx) for the full variable reference.
-
-## Common issues and solutions
-
-### Site not loading
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    ahoy doctor                # Check for common issues
-    ahoy down && ahoy up       # Restart containers
-    ahoy info                  # Verify URLs and ports
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    ./vendor/bin/vortex-doctor                       # Check for common issues
-    docker compose down && docker compose up -d      # Restart containers
-    docker compose exec cli ./vendor/bin/vortex-info # Verify URLs and ports
-    ```
-  </TabItem>
-</Tabs>
-
-### Database connection errors
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    docker compose ps      # Check if the database container is running
-    ahoy reset             # Last resort: rebuild everything
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    docker compose ps      # Check if the database container is running
-    docker compose down --volumes && docker compose up -d  # Last resort
-    ```
-  </TabItem>
-</Tabs>
-
-### Permission issues
-
-```shell
-# Fix file permissions (Linux/Mac)
-sudo chown -R $USER:$USER .
-```
-
-## Reading logs
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    # Show container logs
-    ahoy logs
-    # Check recent logs of a single container
-    ahoy logs -- --tail=50 cli
-    # View Drupal watchdog logs
-    ahoy drush watchdog:show --count=20
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    # Show container logs
-    docker compose logs
-    # Check recent logs of a single container
-    docker compose logs --tail=50 cli
-    # View Drupal watchdog logs
-    docker compose exec cli drush watchdog:show --count=20
-    ```
-  </TabItem>
-</Tabs>
+<AsciinemaPlayer
+  src="/img/provision.json"
+  poster="npt:0:1"
+  autoPlay={false}
+  loop={false}
+  preload={true}
+  controls={true}
+  theme="asciinema"
+  terminalLineHeight={1.0}
+/>
 
 ## Beyond local development
 
@@ -320,17 +152,53 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 </details>
 
-## See also
+## In this section
 
-| Topic | Description |
-|-------|-------------|
-| [Database](database.mdx) | Fetching, refreshing, and exporting databases |
-| [Composer](composer.mdx) | Managing packages, patching, security auditing |
-| [Debugging](debugging.mdx) | Xdebug, curl testing, container access |
-| [PHPUnit](phpunit.mdx) | Unit, kernel, and functional testing |
-| [Behat](behat.mdx) | Behavior-driven (BDD) testing |
-| [Jest](jest.mdx) | JavaScript unit testing |
+| Page | Description |
+|------|-------------|
+| [Environment](environment/README.mdx) | The container stack, Ahoy, Drush, Doctor, Pygmy, debugging |
+| [Composer](composer.mdx) | Managing packages, patching, security auditing, the shipped `composer.json` |
+| [Provision](provision.mdx) | Fetching and importing databases, the provisioning flow, deploy hooks |
+| [Settings](settings.mdx) | Environment type detection and per-module settings overrides |
+| [Modules](modules/README.mdx) | Every shipped module, the module scaffold, Drupal helpers, generated content, Testmode |
+| [Themes](themes.mdx) | The theme scaffold and its build system |
+| [Migrations](migrations.mdx) | The optional second database powering Drupal migrations |
+| [Code quality](code-quality/README.mdx) | The linters and how to run them |
+| [Testing](testing/README.mdx) | PHPUnit, Behat and Jest |
+| [Security](security/README.mdx) | Secret scanning, dependency auditing, environment access |
 | [Visual regression](visual-regression.mdx) | Diffy-powered visual regression on deployments |
+| [Dependency updates](dependency-updates.mdx) | Automated dependency updates with Renovate |
 | [AI](ai.mdx) | The AI agent configuration files |
 | [FAQs](faqs.mdx) | Answers to common operational questions |
 | [Variables](variables.mdx) | The full environment variable reference |
+
+## Tools
+
+Every tool **Vortex** ships, and where it is documented.
+
+| Tool | Documented in |
+|------|---------------|
+| Ahoy | [Environment > Ahoy](environment/ahoy.mdx) |
+| Behat | [Testing > Behat](testing/behat.mdx) |
+| Composer | [Composer](composer.mdx) |
+| DCLint | [Code quality > DCLint](code-quality/dclint.mdx) |
+| Diffy | [Visual regression > Diffy](visual-regression.mdx#diffy) |
+| Docker | [Environment > Docker](environment/docker.mdx) |
+| Doctor | [Environment > Doctor](environment/doctor.mdx) |
+| Drush | [Environment > Drush](environment/drush.mdx) |
+| ESLint | [Code quality > ESLint](code-quality/eslint.mdx) |
+| Gherkin Lint | [Code quality > Gherkin Lint](code-quality/gherkin-lint.mdx) |
+| Git artifact | [Deployment > Artifact > Git artifact tool](../deployment/artifact.mdx#git-artifact-tool) |
+| Gitleaks | [Security > Secret scanning](security/secret-scanning.mdx) |
+| Hadolint | [Code quality > Hadolint](code-quality/hadolint.mdx) |
+| Jest | [Testing > Jest](testing/jest.mdx) |
+| PHPCS | [Code quality > PHPCS](code-quality/phpcs.mdx) |
+| PHPStan | [Code quality > PHPStan](code-quality/phpstan.mdx) |
+| PHPUnit | [Testing > PHPUnit](testing/phpunit.mdx) |
+| Pygmy | [Environment > Pygmy](environment/pygmy.mdx) |
+| Rector | [Code quality > Rector](code-quality/rector.mdx) |
+| Renovate | [Dependency updates](dependency-updates.mdx) |
+| SDC Devel | [Code quality > SDC Devel](code-quality/sdc-devel.mdx) |
+| Stylelint | [Code quality > Stylelint](code-quality/stylelint.mdx) |
+| Twig CS Fixer | [Code quality > Twig CS Fixer](code-quality/twig-cs-fixer.mdx) |
+| Xdebug | [Environment > Debugging](environment/debugging.mdx) |

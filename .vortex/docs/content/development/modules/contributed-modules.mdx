@@ -1,0 +1,320 @@
+---
+sidebar_label: Contributed modules
+sidebar_position: 2
+---
+
+# Contributed modules
+
+**Vortex** ships the contributed modules most Drupal projects need, pre-configured and wired into the environment-aware settings and the provisioning scripts. This page lists every shipped module in alphabetical order: what it does, why it ships, and how it is configured.
+
+➡️ See [Overview](README.mdx) for the mechanisms that require, configure and install these modules.
+
+## ClamAV
+
+[ClamAV](https://www.drupal.org/project/clamav) scans uploaded files for malware with the ClamAV engine before they are saved. Ships only when the ClamAV service is selected.
+
+### Configuration
+
+[`settings.clamav.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.clamav.php) selects daemon or executable mode and points the daemon at the ClamAV service, but only when `DRUPAL_CLAMAV_ENABLED` is set.
+
+| Variable                     | Purpose                            |
+|------------------------------|------------------------------------|
+| `DRUPAL_CLAMAV_ENABLED`      | Applies the override only when set |
+| `DRUPAL_CLAMAV_MODE`         | Selects daemon or executable mode  |
+| `CLAMAV_HOST`, `CLAMAV_PORT` | Daemon host and port               |
+
+## Coffee
+
+[Coffee](https://www.drupal.org/project/coffee) adds a keyboard shortcut to jump straight to any administration page by typing its name.
+
+### Configuration
+
+No settings override.
+
+## Config Split
+
+[Configuration Split](https://www.drupal.org/project/config_split) splits configuration into sets that are conditionally imported, enabling environment-specific configuration such as development-only modules.
+
+### Configuration
+
+[`settings.config_split.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.config_split.php) enables the split matching the detected environment - `local`, `ci`, `dev` or `stage` - so each environment imports only its own set.
+
+## Config Update
+
+[Configuration Update Manager](https://www.drupal.org/project/config_update) provides tools and Drush commands to report, revert and import configuration changes relative to the defaults shipped by modules.
+
+### Configuration
+
+No settings override.
+
+## Devel
+
+[Devel](https://www.drupal.org/project/devel) is a suite of development tools for inspecting variables, entities and the service container while debugging.
+
+- **Installed:** During development provisioning by [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh).
+
+### Configuration
+
+[`settings.devel.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.devel.php) excludes it from the exported configuration.
+
+## Drupal Helpers
+
+[Drupal helpers](https://www.drupal.org/project/drupal_helpers) is a collection of helper functions that simplify writing update hooks and deployment operations.
+
+- **Installed:** As a dependency of the `ys_demo` demo module, declared in [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml).
+
+### Configuration
+
+No settings override.
+
+➡️ See [Drupal helpers](drupal-helpers.mdx) for the helper facades.
+
+## Environment Indicator
+
+[Environment Indicator](https://www.drupal.org/project/environment_indicator) shows a colored banner identifying the current environment to prevent accidental changes on the wrong site.
+
+### Configuration
+
+[`settings.environment_indicator.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.environment_indicator.php) names the indicator after the detected environment and colors it per environment - red for production, yellow for stage, green for dev - with the toolbar integration and favicon marker turned on.
+
+## Generated Content
+
+[Generated content](https://www.drupal.org/project/generated_content) generates deterministic placeholder content from declarative definitions for development and testing.
+
+- **Installed:** During development provisioning by [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) with `GENERATED_CONTENT_CREATE=1`, unless `DRUPAL_GENERATED_CONTENT_SKIP=1` installs it without generating.
+
+### Configuration
+
+[`settings.generated_content.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.generated_content.php) excludes it from the exported configuration.
+
+➡️ See [Generated content](generated-content.mdx) for the plugin system and the demo plugin.
+
+## Migrate Plus
+
+[Migrate Plus](https://www.drupal.org/project/migrate_plus) extends the core Migrate API with extra source and process plugins and configuration-entity migrations. The demo migration module uses it against the second database.
+
+- **Installed:** As a dependency of the `ys_migrate` demo migration module, which [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh) installs during provisioning.
+
+### Configuration
+
+No settings override.
+
+Ships only when the migration feature is selected - the installer removes the
+requirement otherwise.
+
+➡️ See [Migrations](../migrations.mdx) for the second database and the demo
+migration.
+
+## Migrate Tools
+
+[Migrate Tools](https://www.drupal.org/project/migrate_tools) provides Drush commands and a UI to run, roll back and monitor migrations. [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh) drives it during provisioning.
+
+- **Installed:** As a dependency of the `ys_migrate` demo migration module, which [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh) installs during provisioning.
+
+### Configuration
+
+No settings override.
+
+Ships only when the migration feature is selected - the installer removes the
+requirement otherwise.
+
+➡️ See [Migrations](../migrations.mdx) for the second database and the demo
+migration.
+
+## Navigation Extra Tools
+
+[Navigation Extra Tools](https://www.drupal.org/project/navigation_extra_tools) adds administration shortcuts - clear caches, run cron, run database updates - to the core Navigation module.
+
+### Configuration
+
+No settings override.
+
+## Pathauto
+
+[Pathauto](https://www.drupal.org/project/pathauto) automatically generates URL aliases for content based on configurable patterns.
+
+### Configuration
+
+No settings override.
+
+## Redirect
+
+[Redirect](https://www.drupal.org/project/redirect) manages URL redirects and creates them automatically when content URLs change.
+
+### Configuration
+
+No settings override.
+
+## Redis
+
+[Redis](https://www.drupal.org/project/redis) integrates Drupal with the Redis in-memory store for cache and lock backends. Ships only when the Redis service is selected.
+
+### Configuration
+
+[`settings.redis.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.redis.php) makes Redis the default cache backend, registers the module container YAML files and swaps the bootstrap container over - all gated on `DRUPAL_REDIS_ENABLED` and on the `redis` PHP extension being loaded, so a two-stage deployment can provision the service before switching the cache.
+
+| Variable                           | Purpose                            |
+|------------------------------------|------------------------------------|
+| `DRUPAL_REDIS_ENABLED`             | Applies the override only when set |
+| `REDIS_HOST`, `REDIS_SERVICE_PORT` | Connection host and port           |
+
+## Reroute Email
+
+[Reroute Email](https://www.drupal.org/project/reroute_email) intercepts
+outgoing emails and redirects them to a configurable address instead of the
+intended recipients. This prevents accidental email delivery to real users in
+non-production environments while still allowing email functionality to be
+tested.
+
+### Configuration
+
+[`settings.reroute_email.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.reroute_email.php) enables rerouting in every environment except `local`, `ci`, `stage` and `prod`.
+
+**Environment behavior:**
+
+| Environment | Rerouting enabled | Reason                                                        |
+|-------------|-------------------|---------------------------------------------------------------|
+| Local       | No                | Emails are typically not sent in local development            |
+| CI          | No                | Automated tests do not send real emails                       |
+| Dev         | **Yes**           | Prevents accidental delivery to real users                    |
+| Stage       | No                | Stage may require real email delivery for UAT                 |
+| Prod        | No                | Production emails must reach actual recipients                |
+
+Rerouting is also enabled in any custom environments (e.g., PR environments)
+that do not match the standard environment types listed above.
+
+**Environment variables:**
+
+| Variable                       | Default                            | Purpose                                              |
+|--------------------------------|------------------------------------|------------------------------------------------------|
+| `DRUPAL_REROUTE_EMAIL_ADDRESS` | `webmaster@your-site-domain.example` | Address to receive all rerouted emails               |
+| `DRUPAL_REROUTE_EMAIL_ALLOWED` | `*@your-site-domain.example`         | Pattern for addresses allowed to bypass rerouting    |
+
+**Overriding default behavior:**
+
+Set `DRUPAL_REROUTE_EMAIL_DISABLED` to any non-empty value to completely disable
+email rerouting in an environment where it would otherwise be enabled.
+
+<details>
+<summary>Example of the `Reroute Email` module `settings.reroute_email.php` file</summary>
+
+<CodeBlock language="php">{RerouteEmailModuleSettingsExample}</CodeBlock>
+
+</details>
+
+## RobotsTxt
+
+[RobotsTxt](https://www.drupal.org/project/robotstxt) manages the `robots.txt` file from the admin UI, useful when it cannot be placed on disk (for example, in multisite setups).
+
+### Configuration
+
+[`settings.robotstxt.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.robotstxt.php) serves a `Disallow: /` file outside production, so non-production environments are not indexed.
+
+## SDC Devel
+
+[SDC Devel](https://www.drupal.org/project/sdc_devel) provides development and validation tooling for Single Directory Components (SDC), reporting issues in component definitions and templates.
+
+- **Installed:** During development provisioning by [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh).
+
+### Configuration
+
+No settings override.
+
+## Search API
+
+[Search API](https://www.drupal.org/project/search_api) provides a framework for building search experiences with pluggable indexing backends.
+
+### Configuration
+
+No settings override.
+
+## Search API Solr
+
+[Search API Solr](https://www.drupal.org/project/search_api_solr) is a Search API backend that integrates Apache Solr for fast, scalable search. Ships only when the Solr service is selected.
+
+### Configuration
+
+No settings override.
+
+## Security Kit
+
+[Security Kit](https://www.drupal.org/project/seckit) adds configurable security-hardening HTTP headers, including Content Security Policy and anti-framing protection.
+
+- **Installed:** Required only - not installed during provisioning; enable it when the project needs it.
+
+### Configuration
+
+[`settings.seckit.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.seckit.php) disables the Content Security Policy and the upgrade-insecure-requests header locally and in CI, where the site is not served over HTTPS.
+
+## Shield
+
+[Shield](https://www.drupal.org/project/shield) restricts access to your site by requiring HTTP authentication credentials.
+
+### Configuration
+
+[`settings.shield.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.shield.php) forces Shield on in non-production environments other than `local` and `ci`, where it is forced off. Production is left untouched, so Shield stays under UI control there.
+
+**Environment behavior:**
+
+| Environment | Shield enabled | Reason                                            |
+|-------------|----------------|---------------------------------------------------|
+| Local       | No             | No need for HTTP auth during local development    |
+| CI          | No             | Automated tests must access the site freely       |
+| Dev         | **Yes**        | Protects development environments from crawlers   |
+| Stage       | **Yes**        | Protects staging environments from public access  |
+| Prod        | Not enforced   | Left to the site configuration - enable or disable through the UI |
+
+**Environment variables:**
+
+| Variable                             | Default | Purpose                                             |
+|--------------------------------------|---------|-----------------------------------------------------|
+| `DRUPAL_SHIELD_USER`                 |         | HTTP authentication username                        |
+| `DRUPAL_SHIELD_PASS`                 |         | HTTP authentication password                        |
+| `DRUPAL_SHIELD_PRINT`                |         | Message shown in the authentication popup (module default when unset) |
+| `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` |         | Set to any non-empty value to keep the `/.well-known/acme-challenge/*` path open for Let's Encrypt certificate generation |
+
+**Overriding default behavior:**
+
+Set `DRUPAL_SHIELD_DISABLED` to any non-empty value to completely disable Shield
+in an environment where it would otherwise be enabled. This is useful for
+temporary access during debugging or when an environment does not require
+protection.
+
+<details>
+<summary>Example of the `Shield` module `settings.shield.php` file</summary>
+
+<CodeBlock language="php">{ShieldModuleSettingsExample}</CodeBlock>
+
+</details>
+
+## Stage File Proxy
+
+[Stage File Proxy](https://www.drupal.org/project/stage_file_proxy) fetches media files from a remote site on demand, so local environments do not need a full copy of the files directory.
+
+### Configuration
+
+[`settings.stage_file_proxy.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.stage_file_proxy.php) sets the origin from `DRUPAL_STAGE_FILE_PROXY_ORIGIN` outside production and injects the Shield credentials into that URL when they are set, so a shielded origin still serves files.
+
+## Testmode
+
+[Testmode](https://www.drupal.org/project/testmode) adjusts site behavior during automated tests, for example by filtering out generated content from listings.
+
+- **Installed:** During development provisioning by [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh), and as a dependency of the `ys_demo` demo module.
+
+### Configuration
+
+[`settings.testmode.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.testmode.php) excludes it from the exported configuration.
+
+➡️ See [Testmode](testmode.mdx) for the configuration and the Behat integration.
+
+## XML Sitemap
+
+[XML sitemap](https://www.drupal.org/project/xmlsitemap) generates a multilingual XML sitemap to help search engines index the site.
+
+### Configuration
+
+[`settings.xmlsitemap.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.xmlsitemap.php) stops cron regeneration and search engine submission outside production, so non-production environments are never advertised.
+
+import CodeBlock from '@theme/CodeBlock';
+import ShieldModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.shield.php';
+import RerouteEmailModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.reroute_email.php';

@@ -91,7 +91,7 @@ rebuilds the search index. The last two ship only when migration and the Solr
 service are selected.
 
 See the
-[provisioning documentation](https://www.vortextemplate.com/docs/drupal/provision#running-custom-scripts)
+[provisioning documentation](https://www.vortextemplate.com/docs/development/provision#running-custom-scripts)
 for the full reference.
 
 ## Customisation

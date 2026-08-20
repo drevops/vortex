@@ -1,0 +1,62 @@
+---
+sidebar_label: Hadolint
+---
+
+# Hadolint
+
+https://github.com/hadolint/hadolint
+
+> A smarter Dockerfile linter that helps you build best practice container images.
+
+## Installation
+
+:::note
+
+**Vortex** does not install Hadolint locally. Follow the
+[instructions](https://github.com/hadolint/hadolint#install) to install it on
+your system.
+
+In CI, Hadolint runs from its official Docker image.
+
+:::
+
+Hadolint is selected by default during installation. Deselecting it in the
+`Development tools` question removes the continuous integration step from every
+supported provider. The `hadolint ignore=` directives in the Dockerfiles are
+kept, so the tool still works when run by hand.
+
+## Usage
+
+```shell
+hadolint .docker/*.dockerfile
+```
+
+## Ignoring
+
+To ignore **all Hadolint rules** within a file, place in the file header:
+
+```Dockerfile
+# hadolint global ignore=DL3003,DL3006,SC1035
+FROM ubuntu
+```
+
+To ignore rules for the **next instruction** only:
+
+```Dockerfile
+FROM ubuntu
+
+# hadolint ignore=DL3003,SC1035
+RUN cd /tmp && echo "hello!"
+```
+
+## Continuous integration
+
+Hadolint runs in the `lint` job of the [continuous integration pipeline](../../continuous-integration/README.mdx)
+and fails the build on violations.
+
+### Ignoring failures
+
+Set the `VORTEX_CI_HADOLINT_IGNORE_FAILURE` environment variable to `1`. The
+tool still runs and reports violations.
+
+➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)

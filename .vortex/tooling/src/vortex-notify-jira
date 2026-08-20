@@ -30,7 +30,7 @@ VORTEX_NOTIFY_JIRA_USER_EMAIL="${VORTEX_NOTIFY_JIRA_USER_EMAIL:-}"
 # 3. Click "Create API token" and copy the generated value
 #
 # @see https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
-# @see https://www.vortextemplate.com/docs/deployment/notifications#jira
+# @see https://www.vortextemplate.com/docs/deployment/notifications/jira
 VORTEX_NOTIFY_JIRA_TOKEN="${VORTEX_NOTIFY_JIRA_TOKEN:-}"
 
 # JIRA notification git branch name (used for issue extraction).

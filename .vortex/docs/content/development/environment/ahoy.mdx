@@ -1,0 +1,129 @@
+---
+sidebar_label: Ahoy
+sidebar_position: 4
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Ahoy
+
+https://github.com/ahoy-cli/ahoy
+
+> Automate and organize your workflows, no matter what technology you use.
+>
+> Ahoy is command line tool that gives each of your projects their own CLI app
+> with zero code and dependencies.
+
+Ahoy wraps longer commands into short, memorable ones, so the development
+process stays consistent across projects and team members.
+
+**Vortex** comes with [pre-configured `.ahoy.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.yml) that has
+commands wrapped around the most common tasks:
+
+- Working with containers
+- Building the project locally
+- Running tests
+- Running code quality checks
+
+It also provides an example of [local Ahoy `.ahoy.local.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.local.example.yml)
+to be used in your projects. Once copied to `.ahoy.local.yml`, the file will
+be excluded from the repository and can be used to add local project-specific
+commands.
+
+## Usage
+
+```shell
+# Run a command in the global Ahoy file.
+ahoy COMMAND [ARGUMENTS] [OPTIONS]
+
+# Run a command in the local Ahoy file.
+ahoy local COMMAND [ARGUMENTS] [OPTIONS]
+
+# Show all available commands.
+ahoy --help
+```
+
+## Configuration
+
+See [configuration reference](https://github.com/ahoy-cli/ahoy#example-of-new-yaml-setup-in-v2).
+
+Adding a new command with passed arguments:
+
+```yml
+commands:
+  custom:
+    cmd: vendor/bin/phpunit --group="smoke" "$@"
+```
+
+Adding a new multi-line command with usage details that calls other Ahoy
+commands after a confirmation:
+
+```yml
+commands:
+  custom:
+    usage: Custom action
+    cmd: |
+      ahoy confirm "Are you sure?" &&
+      vendor/bin/phpunit --group="smoke" "$@" &&
+      ahoy info
+```
+
+## Loading environment variables
+
+The configuration is set up to load environment variables from `.env` and
+`.env.local` files, giving the precedence to the values in the existing
+environment.
+
+➡️ See [Variables](../variables.mdx)
+
+## Running CLI commands
+
+You can run CLI commands inside the project containers.
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Run a command in the CLI container
+    ahoy cli echo "Hello, World!"
+    # SSH into the CLI container
+    ahoy cli
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Run a command in the CLI container
+    docker compose exec cli echo "Hello, World!"
+    # SSH into the CLI container
+    docker compose exec cli bash
+    ```
+  </TabItem>
+</Tabs>
+
+:::note
+
+Running `ahoy cli` without arguments opens an interactive shell inside the
+`cli` container.
+
+:::
+
+You can also use shortcuts for common commands:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Run Drush command
+    ahoy drush status
+    # Run Composer command
+    ahoy composer install
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Run Drush command
+    docker compose exec cli drush status
+    # Run Composer command
+    docker compose exec cli composer install
+    ```
+  </TabItem>
+</Tabs>

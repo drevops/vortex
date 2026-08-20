@@ -1,0 +1,74 @@
+---
+sidebar_label: DCLint
+---
+
+# DCLint
+
+https://github.com/zavoloklom/docker-compose-linter
+
+> A command-line tool for validating and enforcing best practices in Docker Compose files.
+
+**Vortex** comes with a [pre-configured DCLint ruleset](https://github.com/drevops/vortex/blob/main/.dclintrc)
+for its Docker Compose files.
+
+## Installation
+
+:::note
+
+**Vortex** does not install DCLint locally. Follow the [instructions](https://github.com/zavoloklom/docker-compose-linter#installation)
+to install it on your system.
+
+In CI, DCLint runs from its official Docker image.
+
+:::
+
+DCLint is selected by default during installation. Deselecting it in the
+`Development tools` question removes the `.dclintrc` configuration file and the
+continuous integration step from every supported provider.
+
+## Usage
+
+```shell
+dclint .
+```
+
+## Configuration
+
+Global configuration takes place in the [`.dclintrc`](https://github.com/drevops/vortex/blob/main/.dclintrc)
+file. Beyond the defaults, it defines a `service-keys-order` rule group that
+keeps the keys of every service in `docker-compose.yml` in a consistent order,
+so diffs stay small and services stay easy to compare.
+
+## Ignoring
+
+To ignore **all DCLint rules** within a file, place in the file header:
+
+```yaml
+# dclint disable
+services:
+  cli:
+    build: .
+```
+
+To ignore **specific rules** for a single line, place a `disable-line`
+directive on its own line immediately above it:
+
+```yaml
+services:
+  nginx:
+    ports:
+      # dclint disable-line require-quotes-in-ports
+      - 8080:8080
+```
+
+## Continuous integration
+
+DCLint runs in the `lint` job of the [continuous integration pipeline](../../continuous-integration/README.mdx)
+and fails the build on violations.
+
+### Ignoring failures
+
+Set the `VORTEX_CI_DCLINT_IGNORE_FAILURE` environment variable to `1`. The tool
+still runs and reports violations.
+
+➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)

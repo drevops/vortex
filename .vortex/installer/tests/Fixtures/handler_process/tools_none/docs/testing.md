@@ -7,7 +7,7 @@
 -
 -Unit, Kernel, Functional tests.
 -
--See [documentation](https://www.vortextemplate.com/docs/development/phpunit)
+-See [documentation](https://www.vortextemplate.com/docs/development/testing/phpunit)
 -on how to run tests, configure environment variables and code coverage, and use
 -test reports in continuous integration pipeline.
 -
@@ -141,7 +141,7 @@
 -
 -BDD end-to-end tests.
 -
--See [documentation](https://www.vortextemplate.com/docs/development/behat)
+-See [documentation](https://www.vortextemplate.com/docs/development/testing/behat)
 -on how to run Behat tests, configure environment variables, and use test reports
 -in continuous integration pipeline.
 -

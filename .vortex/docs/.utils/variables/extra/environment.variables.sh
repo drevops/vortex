@@ -23,5 +23,5 @@ ENVIRONMENT_TYPE=
 # or secret. If not set, a fallback is derived from the database host, which is
 # suitable for local and CI use only.
 #
-# @see https://www.vortextemplate.com/docs/drupal/settings
+# @see https://www.vortextemplate.com/docs/development/settings
 DRUPAL_HASH_SALT="<generated from database host>"

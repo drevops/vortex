@@ -86,6 +86,8 @@
         "simpletest",
         "softcreatr",
         "solrcore",
+        "starwars",
+        "tablespaces",
         "testmode",
         "toml",
         "updatedb",

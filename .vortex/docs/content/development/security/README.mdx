@@ -1,0 +1,35 @@
+---
+sidebar_label: Overview
+sidebar_position: 1
+---
+
+# Security
+
+**Vortex** covers three security concerns: secrets committed to the codebase
+([Secret scanning](secret-scanning.mdx)), vulnerable dependencies
+([Dependency audit](dependency-audit.mdx)), and access to non-production
+environments (Shield).
+
+## Environment access
+
+[Shield](https://www.drupal.org/project/shield) restricts access to your site
+by requiring HTTP authentication credentials. **Vortex** forces Shield on in
+the `dev` and `stage` hosted environments, keeps local development and CI
+accessible without authentication, and leaves production alone so Shield stays
+under UI control there. The credentials come from the `DRUPAL_SHIELD_USER` and
+`DRUPAL_SHIELD_PASS` environment variables.
+
+➡️ See [Modules > Shield](../modules/contributed-modules.mdx#shield) for the
+full entry, including the overrides that disable Shield for one environment or
+open the Let's Encrypt challenge path.
+
+## Continuous integration
+
+Both scans run in the
+[security audit workflow](../../continuous-integration/README.mdx#security-audit),
+which is separate from the build pipeline, so that a failing audit is never
+confused with a failing linter and can be re-run on its own. Because it is a
+separate workflow, it is not a dependency of the `deploy` job - a failing audit
+does not by itself stop a deployment. To block merges and deployments on it,
+add its check to the repository's branch protection rules as a required status
+check.

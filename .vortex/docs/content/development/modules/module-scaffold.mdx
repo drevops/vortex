@@ -1,0 +1,60 @@
+---
+sidebar_label: Module scaffold
+sidebar_position: 6
+---
+
+# Module scaffold
+
+[Module scaffold](https://github.com/drevops/vortex/tree/main/web/modules/custom/ys_base)
+is an example of a Drupal module.
+
+We recommend creating a custom `ys_base` module for your project to hold
+general-purpose functionality that doesn't belong in a dedicated,
+feature-specific module.
+
+The `ys` prefix is abbreviated from your project name (`your_site` in this case).
+We recommend using this technique to prefix all modules, and use the site
+machine name for a theme name.
+
+:::info Token replacement
+
+The `your_site`, `ys` prefix and other similar tokens are placeholders. They
+will be replaced with your actual project prefix when you install **Vortex**.
+
+:::
+
+## Deploy file
+
+The [`ys_base.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/ys_base.deploy.php)
+file is an example of a Drush deploy file that can be used
+to run deployment commands during the site [provisioning](../provision.mdx) process.
+
+## Demo module
+
+The `ys_demo` module demonstrates integration patterns for several contributed
+modules:
+
+- [Drupal helpers](drupal-helpers.mdx) - utility facades for deploy hooks
+- [Generated content](generated-content.mdx) - plugin-based content generation
+- [Testmode](testmode.mdx) - content filtering during Behat tests (declared as a dependency, so it installs together with `ys_demo`)
+
+The demo module ships a pages view at `/pages`, a generated content plugin that
+populates it, and the deploy hooks that place a counter block, add the `Pages`
+menu link, and register the view with testmode.
+
+## Other shipped modules
+
+2 more custom modules ship alongside the scaffold and demo modules:
+
+- `ys_search` - configures the Search API index, the Solr server, and the
+  search view for the [Solr service](../environment/docker.mdx#services); it also
+  brings in the `workflows` and `content_moderation` core modules.
+- `ys_migrate` - a demo migration module - see [Migrations](../migrations.mdx).
+
+## Tests scaffold
+
+The `tests` directory contains working examples of tests that can be used as a
+starting point in your project.
+
+It also has a set of helper `Traits` that you may find useful when writing your
+tests. Remove them if you do not need them.
