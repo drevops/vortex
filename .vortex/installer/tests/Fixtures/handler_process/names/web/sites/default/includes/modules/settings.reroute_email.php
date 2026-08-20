@@ -7,5 +7,5 @@
 +$config['reroute_email.settings']['address'] = getenv('DRUPAL_REROUTE_EMAIL_ADDRESS') ?: 'webmaster@death-star.com';
 +$config['reroute_email.settings']['allowed'] = getenv('DRUPAL_REROUTE_EMAIL_ALLOWED') ?: '*@death-star.com';
  
- // Rerouting replaces the recipient of an outgoing message with the address
- // above, unless that recipient matches the allowed list. Disabling it delivers
+ if (!in_array($settings['environment'], [ENVIRONMENT_LOCAL, ENVIRONMENT_CI, ENVIRONMENT_STAGE, ENVIRONMENT_PROD], TRUE)) {
+   // Send every outgoing message to the address above instead of to its
