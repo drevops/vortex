@@ -23,10 +23,10 @@ assertions in a single pass.
 |-----------|----------|--------|
 | Composer requirement | `require` in `composer.json` | Makes the module available to the site. ➡️ See [composer.json](composer.mdx#require) |
 | Settings override | `web/sites/default/includes/modules/settings.<module>.php` | Applies configuration conditioned on the detected environment, reading values from environment variables. ➡️ See [Settings](settings.mdx#per-module-overrides) |
-| Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a development-only module out of the exported configuration, so enabling it locally never dirties the config |
-| Provisioning | `scripts/provision-00-enable-demo-modules.sh` | Stands up the demo site in the `local`, `ci`, `dev` and `stage` environments: applies the `recipes/page` content model, sets the site name, installs the contrib, service and custom site modules (including core's `media` and `navigation`), and runs their deploy hooks |
-| Development provisioning | `scripts/provision-10-enable-dev-modules.sh` | Installs the development-only modules in the same four environments |
-| Module dependency | `ys_demo.info.yml` | Installs the module as a dependency of the demo module |
+| Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a development-only module out of the exported configuration, so enabling it locally never dirties the config. ➡️ See [Settings](settings.mdx#per-module-overrides) |
+| Provisioning | `scripts/provision-00-enable-demo-modules.sh` | Stands up the demo site in the `local`, `ci`, `dev` and `stage` environments: applies the `recipes/page` content model, sets the site name, installs the contrib, service and custom site modules (including core's `media` and `navigation`), and runs their deploy hooks. ➡️ See [Provision](provision.mdx#demo-modules) |
+| Development provisioning | `scripts/provision-10-enable-dev-modules.sh` | Installs the development-only modules in the same four environments. ➡️ See [Provision](provision.mdx#development-modules) |
+| Module dependency | `ys_demo.info.yml` | Installs the module as a dependency of the demo module. ➡️ See [Demo module](#demo-module) |
 
 A module can be required without being installed anywhere: the settings
 override is then ready for the day the project enables it. `seckit` is the only
