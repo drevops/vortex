@@ -25,6 +25,12 @@ const versioned = fs.existsSync('versioned_docs');
 const assembledDocsPath = '.docusaurus-versioned/content';
 const docsPath = fs.existsSync(assembledDocsPath) ? assembledDocsPath : 'content';
 
+// The other major records its own demo videos and diagrams under the same
+// 'img/' names as this one, so its assets are staged under a '/v{other}' prefix
+// and served alongside rather than colliding with 'static/'.
+const assembledStaticPath = '.docusaurus-versioned/static';
+const staticDirectories = fs.existsSync(assembledStaticPath) ? ['static', assembledStaticPath] : ['static'];
+
 // The current major (the 'VORTEX_CURRENT_MAJOR' repository variable, default 1)
 // drives the whole site: its docs are a snapshot under 'versioned_docs/' served
 // as the default at the bare '/docs', and the assembled docs (pulled from the
@@ -66,6 +72,8 @@ const config = {
   // GitHub pages deployment config.
   organizationName: 'DrevOps',
   projectName: 'Vortex',
+
+  staticDirectories,
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',

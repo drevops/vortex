@@ -88,6 +88,12 @@ is assembled under `/docs/v{N}`, those links are re-pointed at the major they
 were written for, and a link that already names a version is left alone. Write
 links the way they read on their own branch.
 
+Static assets work the same way. Both majors record their own demo videos and
+diagrams under the same `static/img` names, so the other major's `static/` is
+served from `/v{N}` and its asset references are re-pointed to match. Each
+version therefore shows its own screenshots and recordings. Reference assets the
+way they read on their own branch, from the bare `/img`.
+
 To assemble and preview the aggregate site locally:
 
 ```shell
