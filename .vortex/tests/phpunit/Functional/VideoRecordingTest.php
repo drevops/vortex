@@ -30,9 +30,15 @@ class VideoRecordingTest extends TestCase {
    */
   protected string $utils = '';
 
+  /**
+   * Path to the repository root.
+   */
+  protected string $root = '';
+
   protected function setUp(): void {
-    $root = dirname(__DIR__, 3);
-    $this->utils = $root . '/docs/.utils';
+    $vortex = dirname(__DIR__, 3);
+    $this->root = dirname($vortex);
+    $this->utils = $vortex . '/docs/.utils';
 
     foreach (['asciinema', 'node', 'npx'] as $binary) {
       if (!$this->commandExists($binary)) {
@@ -40,28 +46,27 @@ class VideoRecordingTest extends TestCase {
       }
     }
 
-    if (!is_dir($root . '/docs/node_modules')) {
-      $this->markTestSkipped('Documentation Node dependencies are not installed.');
+    foreach ([$vortex . '/docs/node_modules', $this->utils . '/svg-term-render.js'] as $dependency) {
+      if (!file_exists($dependency)) {
+        $this->markTestSkipped(sprintf('"%s" is missing.', $dependency));
+      }
     }
 
-    $this->workspace = dirname($root) . '/.artifacts/tmp/videos-test-' . getmypid();
+    $this->workspace = $this->root . '/.artifacts/tmp/videos-test-' . getmypid();
     if (!is_dir($this->workspace) && !mkdir($this->workspace, 0o755, TRUE) && !is_dir($this->workspace)) {
       throw new \RuntimeException('Could not create ' . $this->workspace);
     }
   }
 
   protected function tearDown(): void {
-    if ($this->workspace !== '' && is_dir($this->workspace)) {
-      (new VideoRecorder(dirname(__DIR__, 4), $this->workspace, $this->utils . '/svg-term-render.js'))->rmrf($this->workspace);
-    }
+    $this->remove($this->workspace);
   }
 
   /**
    * Tests that two recordings of one command produce identical artefacts.
    */
   public function testRecordingTwiceProducesIdenticalArtefacts(): void {
-    $root = dirname(__DIR__, 3);
-    $recorder = new VideoRecorder(dirname($root), $this->workspace, $this->utils . '/svg-term-render.js');
+    $recorder = new VideoRecorder($this->root, $this->workspace, $this->utils . '/svg-term-render.js');
 
     // Typed at a prompt and then run, the same way a demo records a command.
     $command = sprintf('php %s %s', escapeshellarg($this->utils . '/type-and-run.php'), escapeshellarg('printf "one\ntwo\nthree\n"'));
@@ -101,6 +106,40 @@ class VideoRecordingTest extends TestCase {
     $this->assertArrayNotHasKey('timestamp', $header);
     $this->assertArrayNotHasKey('env', $header);
     $this->assertStringContainsString('[0,"o","$ "]', $canonical);
+
+    // A poster is chosen by the text its frame draws, which is how the
+    // installer demo pins its welcome screen.
+    $poster = sprintf('%s/poster.png', $this->workspace);
+    $recorder->renderPng(sprintf('%s/first.json', $this->workspace), $poster, 'two');
+    $this->assertFileExists($poster);
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('No frame draws "never drawn"');
+    $recorder->renderPng(sprintf('%s/first.json', $this->workspace), $poster, 'never drawn');
+  }
+
+  /**
+   * Remove a directory and everything under it.
+   *
+   * @param string $path
+   *   The directory to remove.
+   */
+  protected function remove(string $path): void {
+    if ($path === '' || !is_dir($path)) {
+      return;
+    }
+
+    $entries = scandir($path);
+    foreach ($entries === FALSE ? [] : $entries as $entry) {
+      if ($entry === '.' || $entry === '..') {
+        continue;
+      }
+
+      $child = $path . DIRECTORY_SEPARATOR . $entry;
+      is_dir($child) && !is_link($child) ? $this->remove($child) : unlink($child);
+    }
+
+    rmdir($path);
   }
 
   /**

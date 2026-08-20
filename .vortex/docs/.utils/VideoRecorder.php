@@ -228,9 +228,9 @@ final class VideoRecorder {
     $this->note("command: $command");
     $this->note("output: $cast_path");
 
-    // The output format is whatever the installed recorder writes: version 3
-    // since asciinema 3.0, version 2 before it. CastNormalizer reads either
-    // and writes the version 2 the renderers read.
+    // '--window-size' needs asciinema 3.x, which writes version 3 casts.
+    // CastNormalizer reads those and the version 2 an older recorder would
+    // write, so the format is left to whichever one is installed.
     $this->run([
       'asciinema', 'rec',
       "--window-size=$size",

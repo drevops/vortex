@@ -340,14 +340,29 @@ class CastNormalizerTest extends TestCase {
 
   /**
    * Tests that a version 3 recording normalizes like a version 2 one.
+   *
+   * Repaint mode is the mode that reads the recorded times, and the session is
+   * one of evenly spaced repaints: accumulated, every gap is half a second and
+   * begins a step, while a normalizer that took the version 3 timestamps for
+   * times from the start would see gaps of zero and never begin one. The
+   * terminal is not the default size, so a normalizer that missed the 'term'
+   * object would write the wrong one.
    */
-  public function testVersionThreeCastNormalizesLikeVersionTwo(): void {
-    $events = [[0.4, '$ '], [0.5, 'l'], [0.6, "\r\n"], [2.0, "one\r\n"]];
+  #[DataProvider('dataProviderVersionThreeCastNormalizesLikeVersionTwo')]
+  public function testVersionThreeCastNormalizesLikeVersionTwo(string $mode): void {
+    $events = [
+      [0.0, "banner\r\n"],
+      [0.5, "\x1b[2A\x1b[Jfirst"],
+      [1.0, "\x1b[2A\x1b[Jsecond"],
+      [1.5, "\x1b[2A\x1b[Jthird"],
+    ];
+
+    $v2 = static::cast($events, ['width' => 100, 'height' => 30]);
 
     // The same session as version 3 records it: the terminal moves into its
     // own header object, each timestamp is the gap from the event before it,
     // and an exit event closes the recording.
-    $lines = [(string) json_encode(['version' => 3, 'term' => ['cols' => 80, 'rows' => 24, 'type' => 'xterm-256color'], 'title' => 'Demo', 'command' => 'demo'], JSON_UNESCAPED_SLASHES)];
+    $lines = [(string) json_encode(['version' => 3, 'term' => ['cols' => 100, 'rows' => 30, 'type' => 'xterm-256color'], 'title' => 'Demo', 'command' => 'demo'], JSON_UNESCAPED_SLASHES)];
     $previous = 0.0;
     foreach ($events as $event) {
       $lines[] = (string) json_encode([round($event[0] - $previous, 6), 'o', $event[1]], JSON_UNESCAPED_SLASHES);
@@ -355,9 +370,23 @@ class CastNormalizerTest extends TestCase {
     }
     $lines[] = (string) json_encode([0.1, 'x', '0'], JSON_UNESCAPED_SLASHES);
 
-    $normalizer = new CastNormalizer();
+    $normalizer = new CastNormalizer(mode: $mode, typed: FALSE);
+    $normalized = $normalizer->normalize($v2);
 
-    $this->assertSame($normalizer->normalize(static::cast($events)), $normalizer->normalize(implode("\n", $lines) . "\n"));
+    $this->assertSame($normalized, $normalizer->normalize(implode("\n", $lines) . "\n"));
+    $this->assertStringContainsString('"width":100,"height":30', $normalized);
+
+    if ($mode === CastNormalizer::MODE_REPAINT) {
+      // Every accumulated gap is 0.5s against a 0.35s window, so each repaint
+      // begins a step and plays a second after the one before it.
+      $this->assertSame([[0.0, "banner\r\n"], [1.0, "\x1b[2A\x1b[Jfirst"], [2.0, "\x1b[2A\x1b[Jsecond"], [3.0, "\x1b[2A\x1b[Jthird"], [6.0, '']], static::frames($normalized));
+    }
+  }
+
+  public static function dataProviderVersionThreeCastNormalizesLikeVersionTwo(): \Iterator {
+    yield 'writes' => [CastNormalizer::MODE_WRITES];
+
+    yield 'repaint' => [CastNormalizer::MODE_REPAINT];
   }
 
   /**
