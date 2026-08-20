@@ -116,7 +116,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -338,30 +276,13 @@
+@@ -338,31 +276,13 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -132,9 +132,10 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
--    $config['reroute_email.settings']['enable'] = FALSE;
--    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
--    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
+-    $config['reroute_email.settings']['enable'] = TRUE;
+-    $config['reroute_email.settings']['address'] = '';
+-    $config['reroute_email.settings']['allowed'] = '';
+-    $config['reroute_email.settings']['message'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);

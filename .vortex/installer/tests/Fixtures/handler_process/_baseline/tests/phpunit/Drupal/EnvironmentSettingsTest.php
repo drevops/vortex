@@ -350,9 +350,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.logging']['error_level'] = 'all';
     $config['system.performance']['cache']['page']['max_age'] = 900;
-    $config['reroute_email.settings']['enable'] = FALSE;
-    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
-    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
+    $config['reroute_email.settings']['enable'] = TRUE;
+    $config['reroute_email.settings']['address'] = '';
+    $config['reroute_email.settings']['allowed'] = '';
+    $config['reroute_email.settings']['message'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
     $this->assertConfig($config);
@@ -377,7 +378,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['maintenance_theme'] = 'claro';
     $settings['skip_permissions_hardening'] = TRUE;
     $settings['config_sync_directory'] = '../config/default';
-    $settings['suspend_mail_send'] = TRUE;
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];

@@ -153,7 +153,7 @@
     * Test Redis settings.
     */
    public function testRedis(): void {
-@@ -293,639 +145,6 @@
+@@ -293,662 +145,6 @@
      unset($this->settings['bootstrap_container_definition']);
  
      $this->assertSettingsContains($settings);
@@ -554,12 +554,35 @@
 -      ],
 -    ];
 -
--    // CI: disabled by default.
+-    // CI: enabled with an empty address, which aborts delivery.
 -    yield [
 -      self::ENVIRONMENT_CI,
 -      [],
 -      [
--        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
+-        'reroute_email.settings' => ['enable' => TRUE, 'address' => '', 'allowed' => '', 'message' => FALSE],
+-      ],
+-    ];
+-
+-    // CI: the empty address and allowed list win over the variables.
+-    yield [
+-      self::ENVIRONMENT_CI,
+-      [
+-        'DRUPAL_REROUTE_EMAIL_ADDRESS' => 'dev@example.com',
+-        'DRUPAL_REROUTE_EMAIL_ALLOWED' => '*@example.com',
+-      ],
+-      [
+-        'reroute_email.settings' => ['enable' => TRUE, 'address' => '', 'allowed' => ''],
+-      ],
+-    ];
+-
+-    // CI with DRUPAL_REROUTE_EMAIL_DISABLED: forced off.
+-    yield [
+-      self::ENVIRONMENT_CI,
+-      [
+-        'DRUPAL_REROUTE_EMAIL_DISABLED' => 1,
+-      ],
+-      [
+-        'reroute_email.settings' => ['enable' => FALSE],
 -      ],
 -    ];
 -
