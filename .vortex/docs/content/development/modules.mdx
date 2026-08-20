@@ -21,12 +21,12 @@ assertions in a single pass.
 
 | Mechanism | Location | Effect |
 |-----------|----------|--------|
-| Composer requirement | `require` in `composer.json` | Makes the module available to the site. ➡️ See [composer.json](composer.mdx#require) |
+| Composer requirement | `require` in [`composer.json`](https://github.com/drevops/vortex/blob/main/composer.json) | Makes the module available to the site. ➡️ See [composer.json](composer.mdx#require) |
 | Settings override | `web/sites/default/includes/modules/settings.<module>.php` | Applies configuration conditioned on the detected environment, reading values from environment variables. ➡️ See [Settings](settings.mdx#per-module-overrides) |
 | Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a development-only module out of the exported configuration, so enabling it locally never dirties the config. ➡️ See [Settings](settings.mdx#per-module-overrides) |
-| Provisioning | `scripts/provision-00-enable-demo-modules.sh` | Stands up the demo site in the `local`, `ci`, `dev` and `stage` environments: applies the `recipes/page` content model, sets the site name, installs the contrib, service and custom site modules (including core's `media` and `navigation`), and runs their deploy hooks. ➡️ See [Provision](provision.mdx#demo-modules) |
-| Development provisioning | `scripts/provision-10-enable-dev-modules.sh` | Installs the development-only modules in the same four environments. ➡️ See [Provision](provision.mdx#development-modules) |
-| Module dependency | `ys_demo.info.yml` | Installs the module as a dependency of the demo module. ➡️ See [Demo module](#demo-module) |
+| Provisioning | [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh) | Stands up the demo site in the `local`, `ci`, `dev` and `stage` environments: applies the `recipes/page` content model, sets the site name, installs the contrib, service and custom site modules (including core's `media` and `navigation`), and runs their deploy hooks. ➡️ See [Provision](provision.mdx#demo-modules) |
+| Development provisioning | [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) | Installs the development-only modules in the same four environments. ➡️ See [Provision](provision.mdx#development-modules) |
+| Module dependency | [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml) | Installs the module as a dependency of the demo module. ➡️ See [Demo module](#demo-module) |
 
 A module can be required without being installed anywhere: the settings
 override is then ready for the day the project enables it. `seckit` is the only
@@ -41,7 +41,7 @@ mechanisms above, so selecting it is enough to get it enabled.
 
 #### Configuration
 
-`settings.clamav.php` selects daemon or executable mode and points the daemon at the ClamAV service, but only when `DRUPAL_CLAMAV_ENABLED` is set.
+[`settings.clamav.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.clamav.php) selects daemon or executable mode and points the daemon at the ClamAV service, but only when `DRUPAL_CLAMAV_ENABLED` is set.
 
 | Variable                     | Purpose                            |
 |------------------------------|------------------------------------|
@@ -63,7 +63,7 @@ No settings override.
 
 #### Configuration
 
-`settings.config_split.php` enables the split matching the detected environment - `local`, `ci`, `dev` or `stage` - so each environment imports only its own set.
+[`settings.config_split.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.config_split.php) enables the split matching the detected environment - `local`, `ci`, `dev` or `stage` - so each environment imports only its own set.
 
 ### Config Update
 
@@ -77,17 +77,17 @@ No settings override.
 
 [Devel](https://www.drupal.org/project/devel) is a suite of development tools for inspecting variables, entities and the service container while debugging.
 
-- **Installed:** During development provisioning by `scripts/provision-10-enable-dev-modules.sh`.
+- **Installed:** During development provisioning by [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh).
 
 #### Configuration
 
-`settings.devel.php` excludes it from the exported configuration.
+[`settings.devel.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.devel.php) excludes it from the exported configuration.
 
 ### Drupal Helpers {#drupal-helpers-module}
 
 [Drupal helpers](https://www.drupal.org/project/drupal_helpers) is a collection of helper functions that simplify writing update hooks and deployment operations.
 
-- **Installed:** As a dependency of the `ys_demo` demo module, declared in `ys_demo.info.yml`.
+- **Installed:** As a dependency of the `ys_demo` demo module, declared in [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml).
 
 #### Configuration
 
@@ -101,17 +101,17 @@ No settings override.
 
 #### Configuration
 
-`settings.environment_indicator.php` names the indicator after the detected environment and colors it per environment - red for production, yellow for stage, green for dev - with the toolbar integration and favicon marker turned on.
+[`settings.environment_indicator.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.environment_indicator.php) names the indicator after the detected environment and colors it per environment - red for production, yellow for stage, green for dev - with the toolbar integration and favicon marker turned on.
 
 ### Generated Content {#generated-content-module}
 
 [Generated content](https://www.drupal.org/project/generated_content) generates deterministic placeholder content from declarative definitions for development and testing.
 
-- **Installed:** During development provisioning by `scripts/provision-10-enable-dev-modules.sh` with `GENERATED_CONTENT_CREATE=1`, unless `DRUPAL_GENERATED_CONTENT_SKIP=1` installs it without generating.
+- **Installed:** During development provisioning by [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) with `GENERATED_CONTENT_CREATE=1`, unless `DRUPAL_GENERATED_CONTENT_SKIP=1` installs it without generating.
 
 #### Configuration
 
-`settings.generated_content.php` excludes it from the exported configuration.
+[`settings.generated_content.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.generated_content.php) excludes it from the exported configuration.
 
 ➡️ See [Generated content](#generated-content) for the plugin system and the demo plugin.
 
@@ -119,7 +119,7 @@ No settings override.
 
 [Migrate Plus](https://www.drupal.org/project/migrate_plus) extends the core Migrate API with extra source and process plugins and configuration-entity migrations. The demo migration module uses it against the second database.
 
-- **Installed:** As a dependency of the `ys_migrate` demo migration module, which `scripts/provision-20-migration.sh` installs during provisioning.
+- **Installed:** As a dependency of the `ys_migrate` demo migration module, which [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh) installs during provisioning.
 
 #### Configuration
 
@@ -133,9 +133,9 @@ migration.
 
 ### Migrate Tools
 
-[Migrate Tools](https://www.drupal.org/project/migrate_tools) provides Drush commands and a UI to run, roll back and monitor migrations. `scripts/provision-20-migration.sh` drives it during provisioning.
+[Migrate Tools](https://www.drupal.org/project/migrate_tools) provides Drush commands and a UI to run, roll back and monitor migrations. [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh) drives it during provisioning.
 
-- **Installed:** As a dependency of the `ys_migrate` demo migration module, which `scripts/provision-20-migration.sh` installs during provisioning.
+- **Installed:** As a dependency of the `ys_migrate` demo migration module, which [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh) installs during provisioning.
 
 #### Configuration
 
@@ -177,7 +177,7 @@ No settings override.
 
 #### Configuration
 
-`settings.redis.php` makes Redis the default cache backend, registers the module container YAML files and swaps the bootstrap container over - all gated on `DRUPAL_REDIS_ENABLED` and on the `redis` PHP extension being loaded, so a two-stage deployment can provision the service before switching the cache.
+[`settings.redis.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.redis.php) makes Redis the default cache backend, registers the module container YAML files and swaps the bootstrap container over - all gated on `DRUPAL_REDIS_ENABLED` and on the `redis` PHP extension being loaded, so a two-stage deployment can provision the service before switching the cache.
 
 | Variable                           | Purpose                            |
 |------------------------------------|------------------------------------|
@@ -194,7 +194,7 @@ tested.
 
 #### Configuration
 
-`settings.reroute_email.php` enables rerouting in every environment except `local`, `ci`, `stage` and `prod`.
+[`settings.reroute_email.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.reroute_email.php) enables rerouting in every environment except `local`, `ci`, `stage` and `prod`.
 
 **Environment behavior:**
 
@@ -234,13 +234,13 @@ email rerouting in an environment where it would otherwise be enabled.
 
 #### Configuration
 
-`settings.robotstxt.php` serves a `Disallow: /` file outside production, so non-production environments are not indexed.
+[`settings.robotstxt.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.robotstxt.php) serves a `Disallow: /` file outside production, so non-production environments are not indexed.
 
 ### SDC Devel
 
 [SDC Devel](https://www.drupal.org/project/sdc_devel) provides development and validation tooling for Single Directory Components (SDC), reporting issues in component definitions and templates.
 
-- **Installed:** During development provisioning by `scripts/provision-10-enable-dev-modules.sh`.
+- **Installed:** During development provisioning by [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh).
 
 #### Configuration
 
@@ -270,7 +270,7 @@ No settings override.
 
 #### Configuration
 
-`settings.seckit.php` disables the Content Security Policy and the upgrade-insecure-requests header locally and in CI, where the site is not served over HTTPS.
+[`settings.seckit.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.seckit.php) disables the Content Security Policy and the upgrade-insecure-requests header locally and in CI, where the site is not served over HTTPS.
 
 ### Shield
 
@@ -278,7 +278,7 @@ No settings override.
 
 #### Configuration
 
-`settings.shield.php` forces Shield on in non-production environments other than `local` and `ci`, where it is forced off. Production is left untouched, so Shield stays under UI control there.
+[`settings.shield.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.shield.php) forces Shield on in non-production environments other than `local` and `ci`, where it is forced off. Production is left untouched, so Shield stays under UI control there.
 
 **Environment behavior:**
 
@@ -319,17 +319,17 @@ protection.
 
 #### Configuration
 
-`settings.stage_file_proxy.php` sets the origin from `DRUPAL_STAGE_FILE_PROXY_ORIGIN` outside production and injects the Shield credentials into that URL when they are set, so a shielded origin still serves files.
+[`settings.stage_file_proxy.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.stage_file_proxy.php) sets the origin from `DRUPAL_STAGE_FILE_PROXY_ORIGIN` outside production and injects the Shield credentials into that URL when they are set, so a shielded origin still serves files.
 
 ### Testmode {#testmode-module}
 
 [Testmode](https://www.drupal.org/project/testmode) adjusts site behavior during automated tests, for example by filtering out generated content from listings.
 
-- **Installed:** During development provisioning by `scripts/provision-10-enable-dev-modules.sh`, and as a dependency of the `ys_demo` demo module.
+- **Installed:** During development provisioning by [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh), and as a dependency of the `ys_demo` demo module.
 
 #### Configuration
 
-`settings.testmode.php` excludes it from the exported configuration.
+[`settings.testmode.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.testmode.php) excludes it from the exported configuration.
 
 ➡️ See [Testmode](#testmode) for the configuration and the Behat integration.
 
@@ -339,7 +339,7 @@ protection.
 
 #### Configuration
 
-`settings.xmlsitemap.php` stops cron regeneration and search engine submission outside production, so non-production environments are never advertised.
+[`settings.xmlsitemap.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.xmlsitemap.php) stops cron regeneration and search engine submission outside production, so non-production environments are never advertised.
 
 import CodeBlock from '@theme/CodeBlock';
 import ShieldModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.shield.php';
@@ -629,7 +629,7 @@ GENERATED_CONTENT_ITEMS="taxonomy_term-tags,node-page"
 #### Provisioning
 
 **Vortex** installs the module from
-`scripts/provision-10-enable-dev-modules.sh` in the `local`, `ci`, `dev` and
+[`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) in the `local`, `ci`, `dev` and
 `stage` environments, passing `GENERATED_CONTENT_CREATE=1` so the content is
 created as part of the install. Setting `DRUPAL_GENERATED_CONTENT_SKIP=1`
 installs the module without the content.
@@ -677,9 +677,9 @@ Testmode is configured through the `testmode.settings` configuration object:
 | `list_term` | bool | Whether to filter term listings |
 
 **Vortex** adds `testmode` to `config_exclude_modules` in
-`settings.testmode.php`, so the module never leaks into an exported
+[`settings.testmode.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.testmode.php), so the module never leaks into an exported
 configuration. Configuration import therefore never enables it, which is why
-`scripts/provision-10-enable-dev-modules.sh` installs it alongside the other
+[`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) installs it alongside the other
 [development modules](provision.mdx#development-modules), in the `local`, `ci`,
 `dev` and `stage` environments. It is also a declared dependency of the
 `ys_demo` module, so installing the demo module brings it in as well.
