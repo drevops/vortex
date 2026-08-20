@@ -1,0 +1,130 @@
+---
+sidebar_label: Overview
+sidebar_position: 1
+---
+
+# Notifications
+
+**Vortex** provides a notification system that sends updates across multiple
+channels when deployments occur.
+
+Notifications are dispatched by the `vendor/bin/vortex-notify` router script,
+which the _hosting platform_ runs around a deployment - from Lagoon
+post-rollout tasks or Acquia Cloud Hooks - rather than by the CI `deploy` job.
+
+## Channels
+
+Configure notification channels in your `.env` file:
+
+```shell title=".env"
+# Enable notification channels (comma-separated list)
+VORTEX_NOTIFY_CHANNELS=email,slack,github
+```
+
+Available channels: [`diffy`](diffy.mdx), [`email`](email.mdx), [`github`](github.mdx), [`jira`](jira.mdx), [`newrelic`](newrelic.mdx), [`slack`](slack.mdx), [`webhook`](webhook.mdx)
+
+## Global environment variables
+
+These variables apply to all notification channels unless overridden by
+channel-specific settings. The full generated list of `VORTEX_NOTIFY_*`
+variables with their source scripts is in the
+[Variables reference](../../development/variables.mdx).
+
+| Variable | Required | Default | Location | Description |
+|----------|----------|---------|----------|-------------|
+| `VORTEX_NOTIFY_CHANNELS` | No | `email` | `.env` | Notification channels (comma-separated) |
+| `VORTEX_NOTIFY_PROJECT` | No | `VORTEX_PROJECT` | `.env` | Notification project name |
+| `VORTEX_NOTIFY_SKIP` | No | | Hosting | Set to `1` to skip notifications |
+
+## Deployment context variables
+
+These variables provide deployment context information used by notification
+channels. They must be set by the hosting environment before calling the
+notification script.
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VORTEX_NOTIFY_BRANCH` | **Yes** | Git branch name |
+| `VORTEX_NOTIFY_SHA` | **Yes** | Git commit SHA |
+| `VORTEX_NOTIFY_PR_NUMBER` | No | Pull request number (empty for branch deployments) |
+| `VORTEX_NOTIFY_LABEL` | **Yes** | Human-readable deployment label |
+| `VORTEX_NOTIFY_ENVIRONMENT_URL` | **Yes** | URL of the deployed environment, used by the `%environment_url%` token |
+| `VORTEX_NOTIFY_LOGIN_URL` | No | Login URL for the `%login_url%` token; defaults to `<environment_url>/user/login` |
+| `VORTEX_NOTIFY_EVENT` | No | Deployment event: `post_deployment` (default) or `pre_deployment`; any other value fails the run |
+
+## Branch filtering
+
+Each notification channel can be restricted to specific branches using
+a `VORTEX_NOTIFY_<CHANNEL>_BRANCHES` variable. When set, the channel
+only sends notifications for deployments on the listed branches
+(comma-separated, exact match). When empty or unset, the channel runs
+on all branches.
+
+For example, to restrict New Relic notifications to only `main` and `staging`:
+
+```shell
+VORTEX_NOTIFY_NEWRELIC_BRANCHES=main,staging
+```
+
+New Relic defaults to `main,master,develop`. All other channels default to no filter.
+
+## Message templates and tokens
+
+Most notification channels support customizable message templates using replacement tokens:
+
+| Token | Description | Example |
+|-------|-------------|---------|
+| `%project%` | Project name | `My Project` |
+| `%label%` | Deployment label | `main` or `PR-123` |
+| `%timestamp%` | Current timestamp | `15/11/2025 14:30:45 UTC` |
+| `%environment_url%` | Environment URL | `https://example.com` |
+| `%login_url%` | Login URL | `https://example.com/user/login` |
+| `%deployment_log%` | Collected deployment logs, when enabled | |
+
+**Default message template:**
+
+```text
+## This is an automated message ##
+
+Site %project% %label% has been deployed at %timestamp% and is available at %environment_url%.
+
+Login at: %login_url%
+```
+
+## Deployment log
+
+Deployment logs are collected from a shared directory and included in
+notifications. Each producing script writes its own `<name>.log` into
+`VORTEX_NOTIFY_LOG_DIR` - `vortex-provision` writes `provision.log` when
+`VORTEX_PROVISION_LOG=1`, truncated fresh each run - and when `VORTEX_NOTIFY_LOG=1`
+the notifier collects every log in that directory, each as its own titled section,
+and the **email**, **Slack**, **JIRA**, and **webhook** channels add them to their
+message. The email and webhook message templates expose the collected logs as the
+`%deployment_log%` token; Slack adds them to the message attachment and JIRA as a
+comment code block. Any future script that drops a `<name>.log` into the directory
+is collected automatically.
+
+To include the provision log in notifications, set both `VORTEX_PROVISION_LOG=1`
+and `VORTEX_NOTIFY_LOG=1` (in `.env` or per environment). A single channel can be
+turned off with `VORTEX_NOTIFY_<CHANNEL>_LOG=0` (for example
+`VORTEX_NOTIFY_SLACK_LOG=0`).
+
+:::warning
+
+Deployment logs are included verbatim. Make sure producing scripts do not print
+secrets, and enable the feature only for the channels and environments where
+exposing the full logs is acceptable.
+
+Logs are written to `VORTEX_NOTIFY_LOG_DIR` (default `/tmp/vortex-logs`).
+`vortex-provision` creates its log directory and `provision.log` owner-only
+(`700`/`600`) on a best-effort basis; any other producing script controls the
+permissions of its own log file. If you point `VORTEX_NOTIFY_LOG_DIR` at a custom
+directory, make sure that location is not readable by other users.
+
+:::
+
+| Variable | Required | Default | Location | Description |
+|----------|----------|---------|----------|-------------|
+| `VORTEX_PROVISION_LOG` | No | `0` | `.env` or Hosting | Set to `1` to write the provision log for collection |
+| `VORTEX_NOTIFY_LOG` | No | `0` | `.env` or Hosting | Set to `1` to collect and include deployment logs |
+| `VORTEX_NOTIFY_LOG_DIR` | No | `/tmp/vortex-logs` | `.env` | Directory the logs are collected from |
