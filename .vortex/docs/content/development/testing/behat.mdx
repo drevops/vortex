@@ -123,6 +123,8 @@ Tag a scenario `@email` to capture outgoing messages instead of delivering them,
 
 In the `ci` environment, [`settings.system.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.system.php) makes the same mail collector the default backend for every message, so an automated test run cannot deliver a message to a real recipient even when a scenario is not tagged. Because that value is a settings override rather than stored configuration, nothing running inside the site can switch it off. [Reroute Email](../modules/contributed-modules.mdx#reroute-email) is disabled in `ci` for the same reason: it would replace the original recipient before the collector stored the message.
 
+The collector covers `interface.default`, which is the only interface the shipped configuration defines. A site that routes a module through its own interface (`interface.<module>` or `interface.<module>_<key>`, as [Symfony Mailer](https://www.drupal.org/project/symfony_mailer) and [Mail System](https://www.drupal.org/project/mailsystem) do) bypasses the collector for those messages, so `docker-compose.yml` also points `SSMTP_MAILHUB` at a closed port in CI. Delivery then fails at the transport no matter which mail plugin produced the message.
+
 The bare `When I clear the test email system queue` step still requires the `@email` tag, and each tagged scenario clears the queue as it starts.
 
 ### Project conventions
