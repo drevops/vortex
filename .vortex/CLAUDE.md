@@ -158,15 +158,26 @@ commit its output manually. Run both after the code change is committed.
 
 ## Documentation videos
 
-Six terminal demo videos live in `.vortex/docs/static/img/` (`installer.*`,
-`build.*`, `provision.*`, `lint.*`, `test.*`, `test-bdd.*`). Regenerate from
-`.vortex/` with `ahoy update-videos [names]`. A video goes stale when the
-command it records changes behavior:
+Nine terminal demo videos live in `.vortex/docs/static/img/` (`installer.*`,
+`build.*`, `provision.*`, `lint.*`, `test.*`, `test-bdd.*`, `info.*`,
+`doctor.*`, `doctor-info.*`). Regenerate from `.vortex/` with
+`ahoy update-videos [names]`. A video goes stale when the command it records
+changes behavior:
 
 - `installer` - any prompt flow change.
 - `build`, `provision` - changes to `.ahoy.yml` build/provision targets or
   `scripts/vortex/provision*`.
 - `lint`, `test`, `test-bdd` - changes to the linter or test-runner setup.
+- `info`, `doctor`, `doctor-info` - changes to those `ahoy` targets or to
+  `vortex-doctor`.
+
+Regeneration is reproducible: recording the same session twice on one machine
+produces the same bytes, so a clean `git status` afterward means the rendering
+did not change and any diff is a real change worth reading. `ahoy
+update-videos --verify` re-renders the committed artefacts without recording
+and reports every one that no longer matches. Three sources of drift survive
+that guarantee - `build`, `installer` and the `.png` posters - and
+`.vortex/docs/CLAUDE.md` says what each of them is.
 
 `update-videos` does not commit - review the diff under `.vortex/docs/static/img/`
 and commit manually. See `.vortex/docs/CLAUDE.md` for the pipeline internals

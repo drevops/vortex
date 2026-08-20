@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+namespace DrevOps\Vortex\Docs;
+
 /**
  * Shared recorder for Vortex documentation videos.
  *
  * Each per-video script constructs an instance of this class and orchestrates
- * a sequence of calls (workspace, bootstrap, record, postprocess, render,
+ * a sequence of calls (workspace, bootstrap, record, normalize, render,
  * install). The class is intentionally self-contained: no framework, no
  * composer dependencies.
  */
@@ -16,12 +18,6 @@ final class VideoRecorder {
 
   public const TERMINAL_HEIGHT = 42;
 
-  /** Poster timestamp for the installer recording (captures the welcome banner). */
-  public const POSTER_TIMESTAMP_MS = 2000;
-
-  /** Poster timestamp for command videos that spend their first seconds bootstrapping inside Docker. */
-  public const POSTER_TIMESTAMP_MS_LATE = 30000;
-
   public const LINE_HEIGHT = '1.1';
 
   public function __construct(
@@ -30,13 +26,13 @@ final class VideoRecorder {
     public readonly string $renderer_script,
   ) {
     if (!is_dir($this->project_root)) {
-      throw new RuntimeException("Project root not found: {$this->project_root}");
+      throw new \RuntimeException("Project root not found: {$this->project_root}");
     }
     if (!is_dir($this->docs_static_dir)) {
-      throw new RuntimeException("Docs static dir not found: {$this->docs_static_dir}");
+      throw new \RuntimeException("Docs static dir not found: {$this->docs_static_dir}");
     }
     if (!is_file($this->renderer_script)) {
-      throw new RuntimeException("Renderer script not found: {$this->renderer_script}");
+      throw new \RuntimeException("Renderer script not found: {$this->renderer_script}");
     }
   }
 
@@ -59,7 +55,7 @@ final class VideoRecorder {
       $this->note('Install commands:');
       $this->note('  brew install asciinema expect composer  # macOS');
       $this->note('  apt-get install asciinema expect-dev composer  # Ubuntu/Debian');
-      throw new RuntimeException('Missing dependencies: ' . implode(', ', $missing));
+      throw new \RuntimeException('Missing dependencies: ' . implode(', ', $missing));
     }
 
     $this->pass('All required dependencies present');
@@ -73,7 +69,7 @@ final class VideoRecorder {
     $built_phar = $source_dir . '/build/installer.phar';
 
     if (!is_dir($source_dir)) {
-      throw new RuntimeException("Installer source not found: $source_dir");
+      throw new \RuntimeException("Installer source not found: $source_dir");
     }
 
     $this->info('Building installer.phar from source');
@@ -83,11 +79,11 @@ final class VideoRecorder {
     $this->run(['composer', 'build'], $source_dir);
 
     if (!is_file($built_phar)) {
-      throw new RuntimeException("Build completed but installer.phar not found at $built_phar");
+      throw new \RuntimeException("Build completed but installer.phar not found at $built_phar");
     }
 
     if (!copy($built_phar, $dest)) {
-      throw new RuntimeException("Failed to copy installer.phar to $dest");
+      throw new \RuntimeException("Failed to copy installer.phar to $dest");
     }
 
     $this->pass("installer.phar built and copied to $dest");
@@ -106,7 +102,7 @@ final class VideoRecorder {
   public function runInstaller(string $workspace, string $uri): string {
     $installer = "$workspace/installer.php";
     if (!is_file($installer)) {
-      throw new RuntimeException("Installer not found in workspace: $installer");
+      throw new \RuntimeException("Installer not found in workspace: $installer");
     }
 
     $this->info('Running installer non-interactively');
@@ -127,7 +123,7 @@ final class VideoRecorder {
 
     $project_dir = "$workspace/star_wars";
     if (!is_dir($project_dir)) {
-      throw new RuntimeException("Installer did not produce project at $project_dir");
+      throw new \RuntimeException("Installer did not produce project at $project_dir");
     }
 
     $this->pass("Installer completed; project at $project_dir");
@@ -207,7 +203,7 @@ final class VideoRecorder {
   }
 
   /**
-   * Run asciinema rec against a target command, producing an asciicast v2 JSON file.
+   * Run asciinema rec against a target command, producing an asciicast file.
    *
    * @param string $cwd
    *   The cwd for asciinema (and therefore for the recorded command).
@@ -232,10 +228,12 @@ final class VideoRecorder {
     $this->note("command: $command");
     $this->note("output: $cast_path");
 
+    // '--window-size' needs asciinema 3.x, which writes version 3 casts.
+    // CastNormalizer reads those and the version 2 an older recorder would
+    // write, so the format is left to whichever one is installed.
     $this->run([
       'asciinema', 'rec',
       "--window-size=$size",
-      '--output-format=asciicast-v2',
       "--title=$title",
       "--command=$command",
       '--overwrite',
@@ -243,154 +241,37 @@ final class VideoRecorder {
     ], $cwd, $env);
 
     if (!is_file($cast_path)) {
-      throw new RuntimeException("Recording produced no cast file at $cast_path");
+      throw new \RuntimeException("Recording produced no cast file at $cast_path");
     }
 
     $this->pass('Recording complete');
   }
 
   /**
-   * Post-process a recorded cast:
-   *   - When $strip_first_event is TRUE, drop the first event line (used for
-   *     the installer's expect script where asciinema echoes the spawn
-   *     command on event 1).
-   *   - Replace the workspace path with /home/user/demo.
-   *   - Replace the project root path with /home/user/vortex.
-   *   - Strip any leftover /Users/<name>/ user-home references.
-   */
-  public function postprocessCast(string $cast_path, ?string $workspace = NULL, bool $strip_first_event = FALSE): void {
-    if (!is_file($cast_path)) {
-      throw new RuntimeException("Cast file not found: $cast_path");
-    }
-
-    $this->info('Post-processing cast');
-
-    $lines = file($cast_path, FILE_IGNORE_NEW_LINES);
-    if ($lines === FALSE || count($lines) < 2) {
-      throw new RuntimeException("Cast file is empty or malformed: $cast_path");
-    }
-
-    if ($strip_first_event) {
-      array_splice($lines, 1, 1);
-    }
-
-    $contents = implode("\n", $lines) . "\n";
-
-    if ($workspace !== NULL && $workspace !== '') {
-      $contents = str_replace($workspace, '/home/user/demo', $contents);
-      $workspace_json = json_encode($workspace);
-      $demo_json = json_encode('/home/user/demo');
-      if (is_string($workspace_json) && $workspace_json !== '' && is_string($demo_json)) {
-        $contents = str_replace($workspace_json, $demo_json, $contents);
-      }
-    }
-
-    $contents = str_replace($this->project_root, '/home/user/vortex', $contents);
-    $project_root_json = json_encode($this->project_root);
-    $vortex_json = json_encode('/home/user/vortex');
-    if (is_string($project_root_json) && $project_root_json !== '' && is_string($vortex_json)) {
-      $contents = str_replace($project_root_json, $vortex_json, $contents);
-    }
-
-    $contents = preg_replace('#/Users/[^/]+/#', '/home/user/', $contents);
-    if ($contents === NULL) {
-      throw new RuntimeException("Failed to anonymise user paths in cast: $cast_path");
-    }
-
-    $contents = preg_replace('#(/user/reset/\d+/\d+/)[A-Za-z0-9_-]+(/login)#', '$1[REDACTED]$2', $contents);
-    if ($contents === NULL) {
-      throw new RuntimeException("Failed to redact login tokens in cast: $cast_path");
-    }
-
-    $contents = $this->redactSecrets($contents);
-
-    if (file_put_contents($cast_path, $contents) === FALSE) {
-      throw new RuntimeException("Failed to write postprocessed cast: $cast_path");
-    }
-
-    $this->pass('Cast post-processed');
-  }
-
-  /**
-   * Mask credential-like secrets in cast contents with a fixed placeholder.
+   * Rewrite a recorded cast onto the canonical timeline in place.
    *
-   * Recorded command output can surface real secrets - for example a
-   * 'PACKAGE_TOKEN' replayed verbatim by a cached Docker build layer, or a
-   * token printed by a provisioning step. Published demos must never embed
-   * real credentials, so recognised token formats and the literal values of
-   * sensitive environment variables are masked before the cast is rendered to
-   * SVG and PNG.
+   * @param string $cast_path
+   *   Path to the recorded cast file.
+   * @param \DrevOps\Vortex\Docs\CastNormalizer $normalizer
+   *   Normalizer configured for the video being rendered.
    */
-  protected function redactSecrets(string $contents): string {
-    $placeholder = 'XXXXX';
-
-    $patterns = [
-      // GitHub personal access, OAuth, user-to-server, server-to-server and
-      // refresh tokens (for example 'ghp_...', 'gho_...').
-      '#\bgh[oprsu]_[A-Za-z0-9]{36,255}#',
-      // GitHub fine-grained personal access tokens ('github_pat_...').
-      '#\bgithub_pat_[A-Za-z0-9_]{22,255}#',
-      // AWS access key identifiers.
-      '#\b(?:AKIA|ASIA)[A-Z0-9]{16}#',
-    ];
-
-    $masked = preg_replace($patterns, $placeholder, $contents);
-    if ($masked === NULL) {
-      throw new RuntimeException('Failed to mask secret token patterns in cast');
-    }
-
-    // Defence in depth: mask the literal values of sensitive environment
-    // variables when set, catching tokens whose format the patterns above do
-    // not recognise. Short values are skipped to avoid mangling innocuous text.
-    foreach (['PACKAGE_TOKEN', 'GITHUB_TOKEN', 'VORTEX_CONTAINER_REGISTRY_PASS'] as $name) {
-      $value = getenv($name);
-      if (is_string($value) && strlen($value) >= 8) {
-        $masked = str_replace($value, $placeholder, $masked);
-      }
-    }
-
-    return $masked;
-  }
-
-  /**
-   * Multiply every event timestamp by $factor (< 1 speeds up, > 1 slows down).
-   * Used to make recorded command demos playable in less wall-clock time.
-   */
-  public function applyTimeScale(string $cast_path, float $factor): void {
+  public function normalizeCast(string $cast_path, CastNormalizer $normalizer): void {
     if (!is_file($cast_path)) {
-      throw new RuntimeException("Cast file not found: $cast_path");
-    }
-    if ($factor <= 0) {
-      throw new RuntimeException("applyTimeScale factor must be > 0, got $factor");
+      throw new \RuntimeException("Cast file not found: $cast_path");
     }
 
-    $this->info("Applying time scale {$factor}x to cast");
+    $this->info('Normalizing cast');
 
-    $lines = file($cast_path, FILE_IGNORE_NEW_LINES);
-    if ($lines === FALSE || count($lines) < 2) {
-      throw new RuntimeException("Cast file is empty or malformed: $cast_path");
+    $contents = file_get_contents($cast_path);
+    if ($contents === FALSE) {
+      throw new \RuntimeException("Failed to read cast: $cast_path");
     }
 
-    $output = [$lines[0]];
-    for ($i = 1, $n = count($lines); $i < $n; $i++) {
-      $line = trim($lines[$i]);
-      if ($line === '') {
-        continue;
-      }
-      $event = json_decode($line, TRUE);
-      if (!is_array($event) || !isset($event[0]) || !is_numeric($event[0])) {
-        $output[] = $lines[$i];
-        continue;
-      }
-      $event[0] = round(((float) $event[0]) * $factor, 6);
-      $output[] = json_encode($event, JSON_UNESCAPED_SLASHES);
+    if (file_put_contents($cast_path, $normalizer->normalize($contents)) === FALSE) {
+      throw new \RuntimeException("Failed to write normalized cast: $cast_path");
     }
 
-    if (file_put_contents($cast_path, implode("\n", $output) . "\n") === FALSE) {
-      throw new RuntimeException("Failed to write time-scaled cast: $cast_path");
-    }
-
-    $this->pass("Cast time-scaled by {$factor}x");
+    $this->pass('Cast normalized');
   }
 
   /**
@@ -408,53 +289,70 @@ final class VideoRecorder {
     ]);
 
     if (!is_file($svg_path)) {
-      throw new RuntimeException("SVG render produced no file: $svg_path");
+      throw new \RuntimeException("SVG render produced no file: $svg_path");
     }
 
     $this->pass("SVG rendered: $svg_path");
   }
 
   /**
-   * Inspect a cast file and return the timestamp of its last event in ms.
+   * Return the timestamp in ms at which a cast shows a given frame.
+   *
+   * @param string $cast_path
+   *   Path to the cast file.
+   * @param string|null $marker
+   *   Text the wanted frame draws. NULL means the last frame of the cast.
+   *
+   * @return int
+   *   Milliseconds from the start of the cast, one millisecond after the frame
+   *   is applied so that the snapshot shows it.
    */
-  public function getCastDurationMs(string $cast_path): int {
+  public function getFrameTimestampMs(string $cast_path, ?string $marker = NULL): int {
     $handle = fopen($cast_path, 'r');
     if ($handle === FALSE) {
-      throw new RuntimeException("Cannot read cast: $cast_path");
+      throw new \RuntimeException("Cannot read cast: $cast_path");
     }
 
     fgets($handle);
-    $last_ts = 0.0;
+    $at = NULL;
     while (($line = fgets($handle)) !== FALSE) {
-      $line = trim($line);
-      if ($line === '') {
+      $event = json_decode(trim($line), TRUE);
+      if (!is_array($event) || !isset($event[0]) || !is_numeric($event[0]) || !isset($event[2]) || !is_string($event[2])) {
         continue;
       }
-      $event = json_decode($line, TRUE);
-      if (is_array($event) && isset($event[0]) && is_numeric($event[0])) {
-        $last_ts = (float) $event[0];
+
+      if ($marker === NULL) {
+        $at = (float) $event[0];
+        continue;
+      }
+
+      if (str_contains((string) preg_replace('/\x1b\[[0-9;?]*[A-Za-z]/', '', $event[2]), $marker)) {
+        $at = (float) $event[0];
+        break;
       }
     }
     fclose($handle);
 
-    return (int) round($last_ts * 1000);
+    if ($at === NULL) {
+      throw new \RuntimeException($marker === NULL ? "Cast has no events: $cast_path" : "No frame draws \"$marker\" in $cast_path");
+    }
+
+    return (int) round($at * 1000) + 1;
   }
 
   /**
    * Render a single frame to PNG (1280px wide).
    *
-   * @param int|null $at_ms
-   *   Cast timestamp (ms) to snapshot. NULL means the last frame of the cast.
-   *   When omitted, falls back to POSTER_TIMESTAMP_MS.
+   * @param string $cast_path
+   *   Path to the cast file.
+   * @param string $png_path
+   *   Path to write the PNG to.
+   * @param string|null $marker
+   *   Text the poster frame draws. NULL means the last frame of the cast.
    */
-  public function renderPng(string $cast_path, string $png_path, ?int $at_ms = NULL): void {
-    if ($at_ms === NULL) {
-      $at = $this->getCastDurationMs($cast_path);
-      $this->note("Using end-of-cast timestamp: {$at}ms");
-    }
-    else {
-      $at = $at_ms;
-    }
+  public function renderPng(string $cast_path, string $png_path, ?string $marker = NULL): void {
+    $at = $this->getFrameTimestampMs($cast_path, $marker);
+    $this->note($marker === NULL ? "Poster: last frame ({$at}ms)" : "Poster: first frame drawing \"$marker\" ({$at}ms)");
 
     $this->info("Rendering PNG poster (at {$at}ms): $png_path");
 
@@ -476,12 +374,14 @@ final class VideoRecorder {
       '-o', $png_path,
       '-f', 'png',
       'resize', '1280',
-    ]);
+    // 'npx' resolves from its working directory, so run it where the pinned
+    // 'sharp-cli' is installed rather than wherever the caller happened to be.
+    ], dirname($this->renderer_script, 2));
 
     @unlink($frame_svg);
 
     if (!is_file($png_path)) {
-      throw new RuntimeException("PNG render produced no file: $png_path");
+      throw new \RuntimeException("PNG render produced no file: $png_path");
     }
 
     $this->pass("PNG rendered: $png_path");
@@ -544,12 +444,12 @@ final class VideoRecorder {
 
     $proc = proc_open($command, [], $pipes, $cwd, $env);
     if (!is_resource($proc)) {
-      throw new RuntimeException("Failed to start: $pretty");
+      throw new \RuntimeException("Failed to start: $pretty");
     }
 
     $exit_code = proc_close($proc);
     if ($exit_code !== 0) {
-      throw new RuntimeException("Command failed (exit $exit_code): $pretty");
+      throw new \RuntimeException("Command failed (exit $exit_code): $pretty");
     }
 
     return $exit_code;

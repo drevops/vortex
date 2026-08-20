@@ -1259,7 +1259,7 @@ export default function Home() {
               <div className="vtx-modal-body">
                 <AsciinemaPlayer
                   src={installerCast}
-                  poster="npt:0:1"
+                  poster="npt:0:00.3"
                   autoPlay
                   loop={false}
                   controls
