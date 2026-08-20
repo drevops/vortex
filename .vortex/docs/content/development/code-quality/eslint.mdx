@@ -9,7 +9,7 @@ sidebar_label: ESLint
 
 > ESLint is a tool for identifying and reporting on patterns found in ECMAScript/JavaScript code, with the goal of making code more consistent and avoiding bugs.
 
-**Vortex** comes with [pre-configured ESLint ruleset](https://github.com/drevops/vortex/blob/main/.eslintrc.json) for Drupal projects, along with [Prettier](https://prettier.io/) integration for automatic code formatting.
+**Vortex** comes with [pre-configured ESLint ruleset](https://github.com/drevops/vortex/blob/main/eslint.config.mjs) for Drupal projects, along with [Prettier](https://prettier.io/) integration for automatic code formatting.
 
 :::info
 ESLint in **Vortex** is configured to lint **custom modules only** (`web/modules/custom`). Custom themes should maintain their own ESLint configuration within the theme directory.
@@ -63,13 +63,20 @@ Prettier integration reformats the code at the same time.
 
 See [configuration reference](https://eslint.org/docs/latest/use/configure/).
 
-All global configuration takes place in the [`.eslintrc.json`](https://github.com/drevops/vortex/blob/main/.eslintrc.json) file.
+All global configuration takes place in the [`eslint.config.mjs`](https://github.com/drevops/vortex/blob/main/eslint.config.mjs) file.
 
 By default, ESLint will check against the following rules:
 
-- `airbnb-base` - Airbnb's base JavaScript style guide
-- `plugin:prettier/recommended` - Prettier integration for code formatting
-- `plugin:yml/recommended` - YAML file linting
+- `@eslint/js` recommended - the rules ESLint itself ships
+- `eslint-plugin-import` recommended - module resolution and import order
+- `eslint-plugin-jsdoc` recommended - documentation block correctness
+- `eslint-plugin-prettier` recommended - Prettier integration for code formatting
+- `eslint-plugin-yml` recommended - YAML file linting
+- `eslint-plugin-no-jquery` - the full rule set, discouraging jQuery where the
+  browser has an equivalent
+
+The configuration follows the one Drupal core adopts for its own JavaScript, so
+the two stay comparable as core evolves.
 
 The configuration includes Drupal-specific globals:
 
@@ -84,7 +91,7 @@ warnings fail the check too:
 ```json
 {
   "scripts": {
-    "lint-js": "eslint web/modules/custom --ext .js --max-warnings=0 --no-error-on-unmatched-pattern"
+    "lint-js": "eslint web/modules/custom --max-warnings=0 --no-error-on-unmatched-pattern"
   }
 }
 ```
@@ -94,7 +101,7 @@ Adding or removing targets in `package.json`:
 ```json
 {
   "scripts": {
-    "lint-js": "eslint web/modules/custom web/sites/default --ext .js --max-warnings=0 --no-error-on-unmatched-pattern"
+    "lint-js": "eslint web/modules/custom web/sites/default --max-warnings=0 --no-error-on-unmatched-pattern"
   }
 }
 ```
@@ -117,19 +124,23 @@ The custom theme ships a second `.prettierrc.json` with the same settings, becau
 
 ### Global ignoring
 
-Ignoring paths **globally** takes place in the [`.eslintignore`](https://github.com/drevops/vortex/blob/main/.eslintignore) file:
+Ignoring paths **globally** takes place in the `ignores` entry of the [`eslint.config.mjs`](https://github.com/drevops/vortex/blob/main/eslint.config.mjs) file:
 
-```text
-node_modules/
-vendor/
-web/core/
-web/libraries/
-web/modules/contrib/
-web/profiles/contrib/
-web/themes/contrib/
-web/sites/*/files/
-*.min.js
-*.min.css
+```js
+{
+  ignores: [
+    'node_modules/**/*',
+    'vendor/**/*',
+    'web/core/**/*',
+    'web/libraries/**/*',
+    'web/modules/contrib/**/*',
+    'web/profiles/contrib/**/*',
+    'web/themes/contrib/**/*',
+    'web/sites/*/files/**/*',
+    '**/build/**/*',
+    '**/*.min.js',
+  ],
+}
 ```
 
 ### Inline ignoring

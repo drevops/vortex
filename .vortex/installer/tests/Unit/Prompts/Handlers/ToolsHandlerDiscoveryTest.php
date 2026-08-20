@@ -206,7 +206,7 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Tools::id() => [Tools::ESLINT]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        File::dump(static::$sut . '/.eslintrc.json');
+        File::dump(static::$sut . '/eslint.config.mjs');
       },
     ];
     yield 'tools - discovery - stylelint' => [

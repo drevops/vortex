@@ -1,4 +1,7 @@
+# check=skip=SecretsUsedInArgOrEnv
 # Database container.
+#
+# The check skipped above is BuildKit's twin of DL3064, ignored inline below.
 #
 # @see https://hub.docker.com/r/uselagoon/mysql-8.4/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/mysql

@@ -6,6 +6,7 @@
   "plugins": ["@homer0/prettier-plugin-jsdoc"],
   "jsdocPrintWidth": 80,
   "jsdocReplaceTagsSynonyms": false,
+  "jsdocUseTypeScriptTypesCasing": false,
   "overrides": [
     {
       "files": ["*.css"],

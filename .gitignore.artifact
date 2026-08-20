@@ -31,8 +31,6 @@ web/sites/simpletest
 /.docker
 /.dockerignore
 /.editorconfig
-/.eslintignore
-/.eslintrc.json
 /.gitattributes
 /.github
 /.gitignore.artifact
@@ -45,6 +43,7 @@ web/sites/simpletest
 /AGENTS.md
 /CLAUDE.md
 /docker-compose.yml
+/eslint.config.mjs
 /renovate.json
 
 #;< CI_PROVIDER_GHA
@@ -87,7 +86,7 @@ web/sites/simpletest
 web/themes/**/node_modules
 
 # Custom theme asset sources - only compiled assets in 'build' are deployed.
-web/themes/custom/your_site_theme/.eslintrc.json
+web/themes/custom/your_site_theme/eslint.config.mjs
 web/themes/custom/your_site_theme/fonts
 web/themes/custom/your_site_theme/images
 web/themes/custom/your_site_theme/js
