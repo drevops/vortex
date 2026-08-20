@@ -109,6 +109,11 @@ Two consequences worth knowing:
   regeneration.
 - `build` can still drift. BuildKit numbers its `#N` steps as parallel targets
   start and interleaves their lines by completion, which no masking fixes.
+- `installer` can still drift. Repaint mode is the one place a recorded gap is
+  read, as a two-way choice against `MERGE_WINDOW`. Its own pauses sit an order
+  of magnitude clear of that threshold, but a gap that lands near it can fall
+  either way between runs, which changes one delay and shifts every timestamp
+  after it.
 
 The `.png` posters are rasterized from the `.svg` by `sharp`, whose output
 depends on the host's SVG renderer and fonts. Two runs on one machine match;

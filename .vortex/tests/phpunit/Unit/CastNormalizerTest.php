@@ -87,6 +87,24 @@ class CastNormalizerTest extends TestCase {
   }
 
   /**
+   * Tests that a timestamp is written without consulting the machine.
+   */
+  public function testTimestampFormattingIsIndependentOfSerializePrecision(): void {
+    $cast = static::cast([[0.4, 'one'], [0.9, 'two'], [1.4, 'three']]);
+    $normalizer = new CastNormalizer(frame_delay: 0.1 + 0.2, typed: FALSE);
+
+    $original = ini_get('serialize_precision');
+    ini_set('serialize_precision', '17');
+
+    try {
+      $this->assertSame([[0.0, 'one'], [0.3, 'two'], [0.6, 'three'], [3.6, '']], static::frames($normalizer->normalize($cast)));
+    }
+    finally {
+      ini_set('serialize_precision', $original === FALSE ? '-1' : $original);
+    }
+  }
+
+  /**
    * Tests that output plays at one rate when nothing is typed.
    */
   public function testUntypedTimeline(): void {
@@ -157,6 +175,26 @@ class CastNormalizerTest extends TestCase {
   }
 
   /**
+   * Tests that a progress indicator hiding the cursor still collapses.
+   */
+  public function testInPlaceRedrawsCollapseWithCursorHidden(): void {
+    $cast = static::cast([
+      [0.1, "\x1b[?25l 0/60   0%"],
+      [0.2, "\x1b[?25l\x1b[1G\x1b[2K 20/60  33%"],
+      [0.3, "\x1b[?25l\x1b[1G\x1b[2K 41/60  68%"],
+      [0.4, "\x1b[?25l\x1b[1G\x1b[2K 60/60 100%"],
+      [0.5, "\r\ndone\r\n"],
+    ]);
+
+    $this->assertSame([
+      "\x1b[?25l 0/60   0%",
+      "\x1b[?25l\x1b[1G\x1b[2K 60/60 100%",
+      "\r\ndone\r\n",
+      '',
+    ], static::payloads((new CastNormalizer(typed: FALSE))->normalize($cast)));
+  }
+
+  /**
    * Tests that a repaint is not mistaken for an in-place redraw.
    */
   public function testRepaintsDoNotCollapse(): void {
@@ -190,6 +228,10 @@ class CastNormalizerTest extends TestCase {
 
   public static function dataProviderMask(): \Iterator {
     yield 'user home' => ['/Users/someone/vortex/.env', '/home/user/vortex/.env'];
+
+    yield 'linux home' => ['Path: /home/someone/.docker/cli-plugins/docker-buildx', 'Path: /home/user/.docker/cli-plugins/docker-buildx'];
+
+    yield 'masked home is left alone' => ['/home/user/demo/star_wars', '/home/user/demo/star_wars'];
 
     yield 'login link' => [
       'http://site.docker.amazee.io/user/reset/1/1787192699/Cs7-tOken_9/login',

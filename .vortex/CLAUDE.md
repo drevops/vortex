@@ -172,7 +172,7 @@ changes behavior:
   `vortex-doctor`.
 
 Regeneration is reproducible: recording the same session twice produces the
-same bytes, so a clean `git status` afterwards means the rendering did not
+same bytes, so a clean `git status` afterward means the rendering did not
 change and any diff is a real change worth reading. `ahoy update-videos
 --verify` re-renders the committed artefacts without recording and reports
 every one that no longer matches.

@@ -72,6 +72,11 @@ final class CastNormalizer {
   public const END_PAUSE = 3.0;
 
   /**
+   * Decimals each event timestamp is written to.
+   */
+  public const TIME_DECIMALS = 6;
+
+  /**
    * Start of a repaint: the cursor-up sequence a full-screen prompt emits.
    */
   public const REPAINT_BOUNDARY = '/(?=\x1b\[[0-9]*A)/';
@@ -91,8 +96,11 @@ final class CastNormalizer {
    * applied to the result of the one before it.
    */
   public const MASKS = [
-    // Home directory of whoever recorded the session.
+    // Home directory of whoever recorded the session, on macOS and on Linux.
+    // Container output carries host paths from outside the workspace and the
+    // project root, so the caller's path replacements do not reach them.
     '#/Users/[^/\s"\']+/#' => '/home/user/',
+    '#/home/(?!user/)[^/\s"\']+/#' => '/home/user/',
     // Drupal one-time login link, which carries an issue time and a token.
     '#/user/reset/(\d+)/\d+/[A-Za-z0-9_\[\]-]+/login#' => '/user/reset/$1/[TIME]/[REDACTED]/login',
     // PHPUnit run summary.
@@ -567,7 +575,11 @@ final class CastNormalizer {
       return FALSE;
     }
 
-    return preg_match('/^(?:\r(?!\n)|\x1b\[[0-9]*[GDK])/', $frame['data']) === 1;
+    // A progress indicator that hides the cursor before each update has that
+    // sequence folded onto the front of the frame, and it draws nothing.
+    $data = (string) preg_replace('/^(?:\x1b\[\?[0-9;]*[a-zA-Z])+/', '', $frame['data']);
+
+    return preg_match('/^(?:\r(?!\n)|\x1b\[[0-9]*[GDK])/', $data) === 1;
   }
 
   /**
@@ -591,12 +603,33 @@ final class CastNormalizer {
         $typing = $typing && !str_contains($previous['data'], "\n");
       }
 
-      $events[] = (string) json_encode([round($time, 6), 'o', $frame['data']], JSON_UNESCAPED_SLASHES);
+      $events[] = $this->encodeEvent($time, $frame['data']);
     }
 
-    $events[] = (string) json_encode([round($time + self::END_PAUSE, 6), 'o', ''], JSON_UNESCAPED_SLASHES);
+    $events[] = $this->encodeEvent($time + self::END_PAUSE, '');
 
     return $events;
+  }
+
+  /**
+   * Encode one output event.
+   *
+   * The timestamp is written to a fixed number of decimals rather than handed
+   * to json_encode, which renders a float according to the machine's
+   * 'serialize_precision' setting.
+   *
+   * @param float $time
+   *   Seconds from the start of the cast.
+   * @param string $data
+   *   The output the event draws.
+   *
+   * @return string
+   *   The encoded event line.
+   */
+  protected function encodeEvent(float $time, string $data): string {
+    $seconds = rtrim(rtrim(number_format($time, self::TIME_DECIMALS, '.', ''), '0'), '.');
+
+    return '[' . ($seconds === '' ? '0' : $seconds) . ',"o",' . (string) json_encode($data, JSON_UNESCAPED_SLASHES) . ']';
   }
 
   /**
