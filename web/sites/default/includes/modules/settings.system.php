@@ -22,3 +22,12 @@ if ($settings['environment'] === ENVIRONMENT_LOCAL || $settings['environment'] =
   // Show all error messages on the site.
   $config['system.logging']['error_level'] = 'all';
 }
+
+if ($settings['environment'] === ENVIRONMENT_CI) {
+  // Store outgoing messages in the state system instead of handing them to the
+  // mail transport, so that an automated test run cannot deliver a message to a
+  // real recipient and tests can assert on the messages that were produced.
+  // Being a settings override, this cannot be switched off from within the
+  // site, including by a test that does not ask for a mail collector.
+  $config['system.mail']['interface']['default'] = 'test_mail_collector';
+}

@@ -10,26 +10,29 @@ declare(strict_types=1);
 $config['reroute_email.settings']['address'] = getenv('DRUPAL_REROUTE_EMAIL_ADDRESS') ?: 'webmaster@your-site-domain.example';
 $config['reroute_email.settings']['allowed'] = getenv('DRUPAL_REROUTE_EMAIL_ALLOWED') ?: '*@your-site-domain.example';
 
-// Enable rerouting in all environments except local, stage and prod.
-// This covers ci, dev and any custom environments (e.g., PR environments).
-if (!in_array($settings['environment'], [ENVIRONMENT_LOCAL, ENVIRONMENT_STAGE, ENVIRONMENT_PROD], TRUE)) {
+// Rerouting replaces the recipient of every outgoing message with the address
+// above. Disabling it delivers messages to their original recipients, so it is
+// disabled only where that delivery is either intended or already intercepted:
+//
+// - local: the mail catcher of the local stack receives the message.
+// - ci: the mail collector configured in settings.system.php stores the message
+//   instead of sending it, and preserves the original recipient so that tests
+//   can assert on it.
+// - stage: user acceptance testing needs messages to reach their recipients.
+// - prod: messages must reach their recipients.
+//
+// Rerouting therefore covers dev and any custom environment, such as a
+// per-pull-request environment, where recipients are real people and delivery
+// is not wanted.
+if (!in_array($settings['environment'], [ENVIRONMENT_LOCAL, ENVIRONMENT_CI, ENVIRONMENT_STAGE, ENVIRONMENT_PROD], TRUE)) {
   $config['reroute_email.settings']['enable'] = TRUE;
 }
 else {
   $config['reroute_email.settings']['enable'] = FALSE;
 }
 
-if ($settings['environment'] === ENVIRONMENT_CI) {
-  // An empty address aborts delivery instead of forwarding the message, and an
-  // empty allowlist leaves no recipient able to bypass the interception.
-  $config['reroute_email.settings']['address'] = '';
-  $config['reroute_email.settings']['allowed'] = '';
-  // The interception notice would otherwise render on every page that sends
-  // mail during a test run.
-  $config['reroute_email.settings']['message'] = FALSE;
-}
-
-// Allow disabling reroute email completely in an environment.
+// Deliver messages to their original recipients in an environment where
+// rerouting would otherwise apply.
 if (!empty(getenv('DRUPAL_REROUTE_EMAIL_DISABLED'))) {
   $config['reroute_email.settings']['enable'] = FALSE;
 }
