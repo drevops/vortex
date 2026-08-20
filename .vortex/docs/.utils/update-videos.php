@@ -21,7 +21,7 @@ use DrevOps\Vortex\Docs\CastNormalizer;
  * the existing workspace, useful for re-recording a subset of videos
  * without paying the install + build cost.
  *
- * Output is hardcoded to .vortex/docs/static/img/<name>.{json,svg,png,gif}.
+ * Output is hardcoded to .vortex/docs/static/img/<name>.{json,svg,png}.
  *
  * Recording the same session twice produces the same bytes: every artefact is
  * a function of what the session output, never of how the machine was doing

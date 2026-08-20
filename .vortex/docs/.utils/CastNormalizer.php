@@ -79,8 +79,8 @@ final class CastNormalizer {
   /**
    * The line expect echoes for the process it spawned.
    *
-   * That line is not session output. It is matched on content so that
-   * normalizing twice is normalizing once.
+   * The echo is not session output. It is recognised by its content, so
+   * normalizing an already normalized cast drops nothing further.
    */
   public const SPAWN_ECHO = '/^\s*spawn\s/';
 
@@ -394,11 +394,10 @@ final class CastNormalizer {
   /**
    * Cut the session's output into the frames it is made of.
    *
-   * In writes mode a write is a frame, since a command flushes what it wants
-   * shown when it wants it shown. In repaint mode the writes are treated as
-   * one stream and cut where the session repainted, because a prompt redraws
-   * its whole screen and a partial repaint is not a state the session was ever
-   * in.
+   * In writes mode a write is a frame: a command flushes each state it has to
+   * show. In repaint mode the writes are treated as one stream and cut where
+   * the session repainted, because a prompt redraws its whole screen and a
+   * half-applied repaint is not a state the screen was ever in.
    *
    * @param list<array{at: float, data: string}> $writes
    *   Writes the session made, in order.
@@ -460,10 +459,9 @@ final class CastNormalizer {
   /**
    * Fold the frames that paint nothing into the frame that follows them.
    *
-   * A session moves the cursor and hides it before it draws, and a prompt that
-   * repaints five lines may do so with five separate cursor-up sequences. None
-   * of that is a state the screen was ever in, so it belongs to the frame it
-   * introduces rather than standing as a frame of its own.
+   * A session moves and hides the cursor before it draws, and a prompt that
+   * repaints five lines may do so with five separate cursor-up sequences.
+   * Neither changes the screen, so both belong to the frame they introduce.
    *
    * @param list<array{at: float, data: string}> $frames
    *   Frames, in order.
@@ -586,8 +584,9 @@ final class CastNormalizer {
 
     foreach ($frames as $index => $frame) {
       if ($index > 0) {
-        $time += $this->delay($frames, $index, $typing);
-        $typing = $typing && !str_contains($frames[$index - 1]['data'], "\n");
+        $previous = $frames[$index - 1];
+        $time += $this->delay($previous, $frame, $typing);
+        $typing = $typing && !str_contains($previous['data'], "\n");
       }
 
       $events[] = (string) json_encode([round($time, 6), 'o', $frame['data']], JSON_UNESCAPED_SLASHES);
@@ -599,28 +598,28 @@ final class CastNormalizer {
   }
 
   /**
-   * Return how long the frame before the given one plays for.
+   * Return how long a frame plays for before the next one replaces it.
    *
-   * @param list<array{at: float, data: string}> $frames
-   *   Frames, in order.
-   * @param int $index
-   *   Index of the frame the delay precedes.
+   * @param array{at: float, data: string} $previous
+   *   The frame being played.
+   * @param array{at: float, data: string} $current
+   *   The frame that replaces it.
    * @param bool $typing
    *   Whether the command line is still being typed.
    *
    * @return float
    *   Seconds.
    */
-  protected function delay(array $frames, int $index, bool $typing): float {
+  protected function delay(array $previous, array $current, bool $typing): float {
     if ($this->mode === self::MODE_REPAINT) {
-      // The session's own pauses are the only thing the recording is asked
-      // for, and only as a two-way choice: a repaint that follows within the
-      // merge window continues a step, and anything slower begins one.
-      return $frames[$index]['at'] - $frames[$index - 1]['at'] < self::MERGE_WINDOW ? $this->frameDelay : self::STEP_DELAY;
+      // A prompt paces itself, so the recorded gaps are read here, but only as
+      // a two-way choice: a repaint that follows within the merge window
+      // continues a step, and anything slower begins one.
+      return $current['at'] - $previous['at'] < self::MERGE_WINDOW ? $this->frameDelay : self::STEP_DELAY;
     }
 
     if ($typing) {
-      return str_contains($frames[$index - 1]['data'], "\n") ? self::STEP_DELAY : self::TYPE_DELAY;
+      return str_contains($previous['data'], "\n") ? self::STEP_DELAY : self::TYPE_DELAY;
     }
 
     return $this->frameDelay;
