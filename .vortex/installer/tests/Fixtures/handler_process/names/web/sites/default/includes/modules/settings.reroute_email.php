@@ -7,5 +7,5 @@
 +$config['reroute_email.settings']['address'] = getenv('DRUPAL_REROUTE_EMAIL_ADDRESS') ?: 'webmaster@death-star.com';
 +$config['reroute_email.settings']['allowed'] = getenv('DRUPAL_REROUTE_EMAIL_ALLOWED') ?: '*@death-star.com';
  
- // Enable rerouting in all environments except local, stage and prod.
- // This covers ci, dev and any custom environments (e.g., PR environments).
+ // Rerouting replaces the recipient of every outgoing message with the address
+ // above. Disabling it delivers messages to their original recipients, so it is

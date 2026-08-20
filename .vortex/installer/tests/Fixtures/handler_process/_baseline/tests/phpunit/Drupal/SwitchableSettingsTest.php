@@ -690,35 +690,12 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
     ];
 
-    // CI: enabled with an empty address, which aborts delivery.
+    // CI: disabled by default.
     yield [
       self::ENVIRONMENT_CI,
       [],
       [
-        'reroute_email.settings' => ['enable' => TRUE, 'address' => '', 'allowed' => '', 'message' => FALSE],
-      ],
-    ];
-
-    // CI: the empty address and allowed list win over the variables.
-    yield [
-      self::ENVIRONMENT_CI,
-      [
-        'DRUPAL_REROUTE_EMAIL_ADDRESS' => 'dev@example.com',
-        'DRUPAL_REROUTE_EMAIL_ALLOWED' => '*@example.com',
-      ],
-      [
-        'reroute_email.settings' => ['enable' => TRUE, 'address' => '', 'allowed' => ''],
-      ],
-    ];
-
-    // CI with DRUPAL_REROUTE_EMAIL_DISABLED: forced off.
-    yield [
-      self::ENVIRONMENT_CI,
-      [
-        'DRUPAL_REROUTE_EMAIL_DISABLED' => 1,
-      ],
-      [
-        'reroute_email.settings' => ['enable' => FALSE],
+        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
       ],
     ];
 
@@ -948,6 +925,77 @@ class SwitchableSettingsTest extends SettingsTestCase {
         'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
       ],
       [],
+    ];
+  }
+
+  /**
+   * Test mail collector config.
+   */
+  #[DataProvider('dataProviderMailCollector')]
+  public function testMailCollector(string $env, array $expected_present, array $expected_absent = []): void {
+    $this->setEnvVars(['ENVIRONMENT_TYPE' => $env]);
+
+    $this->requireSettingsFile();
+
+    $this->assertConfigContains($expected_present);
+    $this->assertConfigNotContains($expected_absent);
+  }
+
+  /**
+   * Data provider for testMailCollector().
+   */
+  public static function dataProviderMailCollector(): \Iterator {
+    // CI: messages are collected instead of being handed to the transport.
+    yield [
+      self::ENVIRONMENT_CI,
+      [
+        'system.mail' => ['interface' => ['default' => 'test_mail_collector']],
+      ],
+    ];
+
+    // Local: the mail catcher of the local stack receives the message.
+    yield [
+      self::ENVIRONMENT_LOCAL,
+      [],
+      [
+        'system.mail' => ['interface' => ['default' => 'test_mail_collector']],
+      ],
+    ];
+
+    // Dev: rerouted, then delivered to the rerouting address.
+    yield [
+      self::ENVIRONMENT_DEV,
+      [],
+      [
+        'system.mail' => ['interface' => ['default' => 'test_mail_collector']],
+      ],
+    ];
+
+    // SUT: a custom environment is rerouted, not collected.
+    yield [
+      self::ENVIRONMENT_SUT,
+      [],
+      [
+        'system.mail' => ['interface' => ['default' => 'test_mail_collector']],
+      ],
+    ];
+
+    // Stage: delivered to the original recipients.
+    yield [
+      self::ENVIRONMENT_STAGE,
+      [],
+      [
+        'system.mail' => ['interface' => ['default' => 'test_mail_collector']],
+      ],
+    ];
+
+    // Prod: delivered to the original recipients.
+    yield [
+      self::ENVIRONMENT_PROD,
+      [],
+      [
+        'system.mail' => ['interface' => ['default' => 'test_mail_collector']],
+      ],
     ];
   }
 

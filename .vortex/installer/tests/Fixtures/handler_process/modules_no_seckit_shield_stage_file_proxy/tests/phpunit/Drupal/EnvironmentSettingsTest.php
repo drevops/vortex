@@ -57,9 +57,9 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
 @@ -354,8 +345,6 @@
-     $config['reroute_email.settings']['address'] = '';
-     $config['reroute_email.settings']['allowed'] = '';
-     $config['reroute_email.settings']['message'] = FALSE;
+     $config['reroute_email.settings']['enable'] = FALSE;
+     $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
+     $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 -    $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
