@@ -56,7 +56,7 @@ trait DeploymentTrait {
     $this->assertFileDoesNotExist($dir . '/.ahoy.yml', '.ahoy.yml should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/.dockerignore', '.dockerignore should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/.editorconfig', '.editorconfig should not exist in deployment');
-    $this->assertFileDoesNotExist($dir . '/.eslintrc.json', '.eslintrc.json should not exist in deployment');
+    $this->assertFileDoesNotExist($dir . '/eslint.config.mjs', 'eslint.config.mjs should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/.lagoon.yml', '.lagoon.yml should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/.stylelintrc.json', '.stylelintrc.json should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/LICENSE', 'LICENSE should not exist in deployment');
@@ -94,7 +94,7 @@ trait DeploymentTrait {
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/postcss.config.js', 'Theme postcss.config.js should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/package.json', 'Theme package.json should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/package-lock.json', 'Theme package-lock.json should not exist in deployment');
-    $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/.eslintrc.json', 'Theme .eslintrc.json should not exist in deployment');
+    $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/eslint.config.mjs', 'Theme eslint.config.mjs should not exist in deployment');
     $this->assertDirectoryDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/node_modules', 'Theme node_modules should not exist in deployment');
 
     // Drupal scaffold files should be present. The 'autoload_runtime.php'
