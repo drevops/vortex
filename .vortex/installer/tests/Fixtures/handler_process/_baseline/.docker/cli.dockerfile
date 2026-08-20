@@ -93,9 +93,9 @@ RUN mkdir -p -m 2775 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/$
 
 RUN if [ "${VORTEX_FRONTEND_BUILD_SKIP}" != "1" ]; then \
       theme_path="/app/${WEBROOT}/themes/custom/${DRUPAL_THEME}"; \
-      yarn --cwd="${theme_path}" install --frozen-lockfile --no-progress && \
-      yarn --cwd="${theme_path}" run build && \
-      yarn cache clean; \
+      npm --prefix="${theme_path}" ci --no-progress --no-audit --no-fund && \
+      npm --prefix="${theme_path}" run build && \
+      npm cache clean --force; \
     fi
 
 WORKDIR /app

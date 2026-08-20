@@ -1,10 +1,10 @@
 @@ -162,11 +162,6 @@
-         run: docker compose exec -T cli bash -c "yarn run lint"
+         run: docker compose exec -T cli bash -c "npm run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
 -      - name: Lint theme code with NodeJS linters
 -        if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
--        run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
+-        run: docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
 -        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 -
    database:

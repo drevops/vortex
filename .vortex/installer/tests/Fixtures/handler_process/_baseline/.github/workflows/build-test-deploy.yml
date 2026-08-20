@@ -132,7 +132,7 @@ jobs:
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
             if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
 
       - name: Validate Composer configuration is normalized
         run: docker compose exec -T cli composer normalize --dry-run
@@ -159,12 +159,12 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
 
       - name: Lint module code with NodeJS linters
-        run: docker compose exec -T cli bash -c "yarn run lint"
+        run: docker compose exec -T cli bash -c "npm run lint"
         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 
       - name: Lint theme code with NodeJS linters
         if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
-        run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
+        run: docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 
   database:
@@ -421,7 +421,7 @@ jobs:
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
             if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
 
       - name: Provision site
         run: |
@@ -437,7 +437,7 @@ jobs:
 
       - name: Test with Jest
         if: ${{ env.VORTEX_CI_IS_JEST_RUNNER == 'true' }}
-        run: docker compose exec -T cli bash -c "yarn test"
+        run: docker compose exec -T cli bash -c "npm test"
         continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
 
       - name: Test with PHPUnit

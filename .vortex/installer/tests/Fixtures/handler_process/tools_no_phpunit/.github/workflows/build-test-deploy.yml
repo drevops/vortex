@@ -7,7 +7,7 @@
        # Runs on every instance, using the `p<instance index - offset>` profile.
        VORTEX_CI_IS_BEHAT_RUNNER: true
 @@ -440,66 +439,6 @@
-         run: docker compose exec -T cli bash -c "yarn test"
+         run: docker compose exec -T cli bash -c "npm test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
 -      - name: Test with PHPUnit

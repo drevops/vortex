@@ -7,7 +7,7 @@
 -        continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
 -
        - name: Lint module code with NodeJS linters
-         run: docker compose exec -T cli bash -c "yarn run lint"
+         run: docker compose exec -T cli bash -c "npm run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 @@ -313,12 +309,6 @@
        VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
