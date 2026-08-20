@@ -372,7 +372,9 @@ final class VideoRecorder {
       '-o', $png_path,
       '-f', 'png',
       'resize', '1280',
-    ]);
+    // 'npx' resolves from its working directory, so run it where the pinned
+    // 'sharp-cli' is installed rather than wherever the caller happened to be.
+    ], dirname($this->renderer_script, 2));
 
     @unlink($frame_svg);
 

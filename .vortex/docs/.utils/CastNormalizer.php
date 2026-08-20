@@ -77,9 +77,10 @@ final class CastNormalizer {
   public const REPAINT_BOUNDARY = '/(?=\x1b\[[0-9]*A)/';
 
   /**
-   * The line expect echoes for the process it spawned, which is not session
-   * output and is matched on content so that normalizing twice is normalizing
-   * once.
+   * The line expect echoes for the process it spawned.
+   *
+   * That line is not session output. It is matched on content so that
+   * normalizing twice is normalizing once.
    */
   public const SPAWN_ECHO = '/^\s*spawn\s/';
 
@@ -170,6 +171,8 @@ final class CastNormalizer {
   protected array $paths;
 
   /**
+   * Constructs a normalizer for one video.
+   *
    * @param string $mode
    *   One of the MODE_* constants.
    * @param float|null $frame_delay
@@ -213,7 +216,7 @@ final class CastNormalizer {
     $frames = $this->collapseRedraws($this->foldBlankFrames($this->cutFrames($this->readWrites($lines))));
 
     if ($frames === []) {
-      throw new \RuntimeException('Cast carries no output events.');
+      throw new \RuntimeException('Cast carries no frames to draw.');
     }
 
     return implode("\n", array_merge([$header], $this->buildTimeline($frames))) . "\n";
@@ -292,10 +295,13 @@ final class CastNormalizer {
       throw new \RuntimeException('Cast header is not valid JSON.');
     }
 
+    $width = $header['width'] ?? 80;
+    $height = $header['height'] ?? 24;
+
     $canonical = [
       'version' => 2,
-      'width' => (int) ($header['width'] ?? 80),
-      'height' => (int) ($header['height'] ?? 24),
+      'width' => is_numeric($width) ? (int) $width : 80,
+      'height' => is_numeric($height) ? (int) $height : 24,
     ];
 
     foreach (['title', 'command'] as $key) {
@@ -355,24 +361,31 @@ final class CastNormalizer {
    */
   protected function joinBufferSplits(array $chunks): array {
     $writes = [];
+    $open = NULL;
     $previous_length = 0;
     $previous_at = 0.0;
 
     foreach ($chunks as $chunk) {
-      $length = strlen($chunk['data']);
-      $continues = $writes !== []
-        && $previous_length >= self::READ_BUFFER - self::READ_BUFFER_TOLERANCE
+      $continues = $previous_length >= self::READ_BUFFER - self::READ_BUFFER_TOLERANCE
         && $chunk['at'] - $previous_at < self::SPLIT_WINDOW;
 
-      if ($continues) {
-        $writes[array_key_last($writes)]['data'] .= $chunk['data'];
+      if ($open === NULL) {
+        $open = $chunk;
+      }
+      elseif ($continues) {
+        $open = ['at' => $open['at'], 'data' => $open['data'] . $chunk['data']];
       }
       else {
-        $writes[] = $chunk;
+        $writes[] = $open;
+        $open = $chunk;
       }
 
-      $previous_length = $length;
+      $previous_length = strlen($chunk['data']);
       $previous_at = $chunk['at'];
+    }
+
+    if ($open !== NULL) {
+      $writes[] = $open;
     }
 
     return $writes;
@@ -475,9 +488,12 @@ final class CastNormalizer {
       $pending_at = NULL;
     }
 
-    if ($pending !== '' && $folded !== []) {
-      $folded[array_key_last($folded)]['data'] .= $pending;
+    if ($pending === '' || $folded === []) {
+      return $folded;
     }
+
+    $last = array_pop($folded);
+    $folded[] = ['at' => $last['at'], 'data' => $last['data'] . $pending];
 
     return $folded;
   }
@@ -571,13 +587,10 @@ final class CastNormalizer {
     foreach ($frames as $index => $frame) {
       if ($index > 0) {
         $time += $this->delay($frames, $index, $typing);
+        $typing = $typing && !str_contains($frames[$index - 1]['data'], "\n");
       }
 
       $events[] = (string) json_encode([round($time, 6), 'o', $frame['data']], JSON_UNESCAPED_SLASHES);
-
-      if ($typing && str_contains($frame['data'], "\n")) {
-        $typing = FALSE;
-      }
     }
 
     $events[] = (string) json_encode([round($time + self::END_PAUSE, 6), 'o', ''], JSON_UNESCAPED_SLASHES);
