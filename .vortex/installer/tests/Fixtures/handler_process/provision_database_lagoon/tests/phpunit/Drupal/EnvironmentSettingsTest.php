@@ -186,7 +186,7 @@
  
    /**
 @@ -380,6 +560,256 @@
-     $settings['suspend_mail_send'] = TRUE;
+     $settings['config_sync_directory'] = '../config/default';
      $settings['trusted_host_patterns'] = [
        '^localhost$',
 +    ];

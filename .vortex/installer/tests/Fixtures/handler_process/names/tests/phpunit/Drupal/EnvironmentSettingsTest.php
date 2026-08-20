@@ -42,8 +42,8 @@
      $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
      $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
-@@ -351,8 +351,8 @@
-     $config['system.logging']['error_level'] = 'all';
+@@ -352,8 +352,8 @@
+     $config['system.mail']['interface']['default'] = 'test_mail_collector';
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $config['reroute_email.settings']['enable'] = FALSE;
 -    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';

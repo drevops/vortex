@@ -349,6 +349,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
     $config['system.logging']['error_level'] = 'all';
+    $config['system.mail']['interface']['default'] = 'test_mail_collector';
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $config['reroute_email.settings']['enable'] = FALSE;
     $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
@@ -377,7 +378,6 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['maintenance_theme'] = 'claro';
     $settings['skip_permissions_hardening'] = TRUE;
     $settings['config_sync_directory'] = '../config/default';
-    $settings['suspend_mail_send'] = TRUE;
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];

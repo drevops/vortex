@@ -559,7 +559,6 @@ trait SutTrait {
     $this->assertDirectoryExists($webroot . '/modules/custom/sw_base');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.deploy.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.info.yml');
-    $this->assertFileExists($webroot . '/modules/custom/sw_base/sw_base.module');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Functional/ExampleTest.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Functional/SwBaseFunctionalTestBase.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_base/tests/src/Kernel/ExampleTest.php');
