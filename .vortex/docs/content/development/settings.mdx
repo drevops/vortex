@@ -71,13 +71,10 @@ environment, which [Shield](modules.mdx#shield) protects with HTTP
 authentication. The shipped `settings.shield.php` override already reads the
 `DRUPAL_SHIELD_DISABLED` variable, so the change is a variable, not code:
 
-1. Test the behavior locally first: add `DRUPAL_SHIELD_DISABLED=1` to
-   `.env.local` and re-create the containers with `ahoy up`.
-2. Set the same variable on the `stage` environment only, using your hosting
-   provider's environment variables (some providers need a redeploy or an
-   environment restart for a new variable to reach the runtime) - see
-   [Acquia](../hosting/acquia.mdx) and [Lagoon](../hosting/lagoon.mdx).
-3. When the review is over, remove the variable to restore the default
+1. Set `DRUPAL_SHIELD_DISABLED=1` on the `stage` environment in your hosting
+   provider's environment variables and apply it (Acquia applies it
+   automatically; Lagoon requires a deployment).
+2. When the review is over, remove the variable to restore the default
    behavior.
 
 Nothing is committed and no other environment is affected: the override file
