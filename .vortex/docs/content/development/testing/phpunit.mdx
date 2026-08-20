@@ -62,6 +62,61 @@ suite per project.
   </TabItem>
 </Tabs>
 
+## Writing tests
+
+### Skipping tests
+
+Add a `@group skipped` annotation to a test class or method to exclude it from
+the test run - `phpunit.xml` excludes the `skipped` group by default:
+
+```php
+/**
+ * @group skipped
+ */
+public function testSomethingToSkip(): void {
+  // This test will be skipped
+}
+```
+
+### Boilerplate
+
+**Vortex** provides unit, kernel, functional and functional JavaScript tests
+boilerplate for custom [modules](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/tests/src),
+[themes](https://github.com/drevops/vortex/blob/main/web/themes/custom/your_site_theme/tests/src) and
+[scripts](https://github.com/drevops/vortex/blob/main/tests/phpunit).
+
+These boilerplate tests run in the continuous integration pipeline when you
+install **Vortex** and can be used as a starting point for writing your own.
+
+#### Drupal settings tests
+
+**Vortex** provides [Drupal settings tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal)
+to check that Drupal settings are correct based on the environment type the site
+is running: with the number of custom modules multiplied by the number of
+environment types, it is easy to miss certain settings which may lead to
+unexpected issues when deploying a project to a different environment.
+
+They are intended to be used in your site and kept up-to-date with the
+changes made to the `settings.php` file.
+
+#### Continuous integration pipeline configuration tests
+
+**Vortex** provides [CircleCI configuration tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/CircleCiConfigTest.php)
+to check that the continuous integration configuration is correct. They are
+intended to be used in your site and kept up-to-date with the continuous
+integration configuration.
+
+For example, there are tests for regular expressions used to filter the branches
+and tags before they are deployed to the hosting environment.
+
+### Project conventions
+
+For project-specific test writing conventions (test class structure, base classes,
+data providers, test data conventions), see your project's `docs/testing.md` file.
+
+The `docs/testing.md` file is scaffolded when you install **Vortex** and should
+be maintained by your project team to document agreed-upon testing practices.
+
 ## Configuration
 
 See [configuration reference](https://docs.phpunit.de/en/11.5/configuration.html).
@@ -122,61 +177,6 @@ file runs before tests to:
 2. Create the `web/sites/simpletest/browser_output` directory required by the
    `HtmlOutputLogger` extension before it initializes
    (see [Drupal core issue #2992069](https://www.drupal.org/project/drupal/issues/2992069)).
-
-## Writing tests
-
-### Skipping tests
-
-Add a `@group skipped` annotation to a test class or method to exclude it from
-the test run - `phpunit.xml` excludes the `skipped` group by default:
-
-```php
-/**
- * @group skipped
- */
-public function testSomethingToSkip(): void {
-  // This test will be skipped
-}
-```
-
-### Boilerplate
-
-**Vortex** provides unit, kernel, functional and functional JavaScript tests
-boilerplate for custom [modules](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/tests/src),
-[themes](https://github.com/drevops/vortex/blob/main/web/themes/custom/your_site_theme/tests/src) and
-[scripts](https://github.com/drevops/vortex/blob/main/tests/phpunit).
-
-These boilerplate tests run in the continuous integration pipeline when you
-install **Vortex** and can be used as a starting point for writing your own.
-
-#### Drupal settings tests
-
-**Vortex** provides [Drupal settings tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal)
-to check that Drupal settings are correct based on the environment type the site
-is running: with the number of custom modules multiplied by the number of
-environment types, it is easy to miss certain settings which may lead to
-unexpected issues when deploying a project to a different environment.
-
-They are intended to be used in your site and kept up-to-date with the
-changes made to the `settings.php` file.
-
-#### Continuous integration pipeline configuration tests
-
-**Vortex** provides [CircleCI configuration tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/CircleCiConfigTest.php)
-to check that the continuous integration configuration is correct. They are
-intended to be used in your site and kept up-to-date with the continuous
-integration configuration.
-
-For example, there are tests for regular expressions used to filter the branches
-and tags before they are deployed to the hosting environment.
-
-### Project conventions
-
-For project-specific test writing conventions (test class structure, base classes,
-data providers, test data conventions), see your project's `docs/testing.md` file.
-
-The `docs/testing.md` file is scaffolded when you install **Vortex** and should
-be maintained by your project team to document agreed-upon testing practices.
 
 ## Reports
 

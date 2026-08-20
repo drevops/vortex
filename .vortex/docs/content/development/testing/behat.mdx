@@ -65,61 +65,6 @@ container environment.
   </TabItem>
 </Tabs>
 
-## Configuration
-
-See the [Behat user guide](https://docs.behat.org/en/latest/user_guide.html)
-and its [configuration reference](https://docs.behat.org/en/latest/user_guide/configuration.html).
-
-All global configuration takes place in the [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml) file.
-
-By default, Behat will run all tests defined in the `tests/behat/features`
-directory.
-
-Adding or removing test targets:
-
-```yml
-default:
-  suites:
-    default:
-      paths:
-        - '%paths.base%/web/modules/custom/mymodule/tests/behat/features'
-```
-
-### Chrome session flags
-
-The [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml)
-configuration passes the following flags to Chrome via `goog:chromeOptions`
-to ensure stable and deterministic test execution in the container environment:
-
-| Flag                             | Purpose                                                          |
-|----------------------------------|------------------------------------------------------------------|
-| `--disable-extensions`           | Prevents interference from browser extensions                    |
-| `--disable-popup-blocking`       | Allows tests to open popups without being blocked                |
-| `--disable-translate`            | Prevents the translation bar from appearing on non-English pages |
-| `--force-prefers-reduced-motion` | Disables CSS animations and transitions for test stability       |
-| `--test-type`                    | Suppresses error dialogs and crash recovery prompts              |
-| `--window-size=1920,1080`        | Sets a deterministic viewport size for consistent screenshots    |
-
-### Contexts and extensions
-
-The configuration uses the following contexts and extensions:
-
-- [Drupal Extension](https://github.com/jhedstrom/drupalextension): an integration layer between Behat, Mink Extension, and Drupal. It provides step definitions for common testing scenarios specific to Drupal sites.
-- [Behat Steps](https://github.com/drevops/behat-steps): a library of re-usable Behat steps for Drupal.
-- [Behat Screenshot](https://github.com/drevops/behat-screenshot): extension and step definitions to create HTML and image screenshots on demand or when tests fail.
-- [Behat Progress Fail Output Extension](https://github.com/drevops/behat-format-progress-fail): output formatter, see [Output format](#output-format).
-
-### FeatureContext
-
-The [`FeatureContext.php`](https://github.com/drevops/vortex/blob/main/tests/behat/bootstrap/FeatureContext.php)
-file is a Behat custom context file that is loaded by default. This is where
-custom step definitions and hooks should be placed.
-
-It is recommended to use traits to organize step definitions and hooks and
-include those traits in the `FeatureContext.php` file. There are already
-several traits included from the [Behat Steps](https://github.com/drevops/behat-steps)
-package.
-
 ## Writing tests
 
 When writing tests, it is recommended to use the following structure:
@@ -178,6 +123,61 @@ types, test data conventions), see your project's `docs/testing.md` file.
 
 The `docs/testing.md` file is scaffolded when you install **Vortex** and should
 be maintained by your project team to document agreed-upon testing practices.
+
+## Configuration
+
+See the [Behat user guide](https://docs.behat.org/en/latest/user_guide.html)
+and its [configuration reference](https://docs.behat.org/en/latest/user_guide/configuration.html).
+
+All global configuration takes place in the [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml) file.
+
+By default, Behat will run all tests defined in the `tests/behat/features`
+directory.
+
+Adding or removing test targets:
+
+```yml
+default:
+  suites:
+    default:
+      paths:
+        - '%paths.base%/web/modules/custom/mymodule/tests/behat/features'
+```
+
+### Chrome session flags
+
+The [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml)
+configuration passes the following flags to Chrome via `goog:chromeOptions`
+to ensure stable and deterministic test execution in the container environment:
+
+| Flag                             | Purpose                                                          |
+|----------------------------------|------------------------------------------------------------------|
+| `--disable-extensions`           | Prevents interference from browser extensions                    |
+| `--disable-popup-blocking`       | Allows tests to open popups without being blocked                |
+| `--disable-translate`            | Prevents the translation bar from appearing on non-English pages |
+| `--force-prefers-reduced-motion` | Disables CSS animations and transitions for test stability       |
+| `--test-type`                    | Suppresses error dialogs and crash recovery prompts              |
+| `--window-size=1920,1080`        | Sets a deterministic viewport size for consistent screenshots    |
+
+### Contexts and extensions
+
+The configuration uses the following contexts and extensions:
+
+- [Drupal Extension](https://github.com/jhedstrom/drupalextension): an integration layer between Behat, Mink Extension, and Drupal. It provides step definitions for common testing scenarios specific to Drupal sites.
+- [Behat Steps](https://github.com/drevops/behat-steps): a library of re-usable Behat steps for Drupal.
+- [Behat Screenshot](https://github.com/drevops/behat-screenshot): extension and step definitions to create HTML and image screenshots on demand or when tests fail.
+- [Behat Progress Fail Output Extension](https://github.com/drevops/behat-format-progress-fail): output formatter, see [Output format](#output-format).
+
+### FeatureContext
+
+The [`FeatureContext.php`](https://github.com/drevops/vortex/blob/main/tests/behat/bootstrap/FeatureContext.php)
+file is a Behat custom context file that is loaded by default. This is where
+custom step definitions and hooks should be placed.
+
+It is recommended to use traits to organize step definitions and hooks and
+include those traits in the `FeatureContext.php` file. There are already
+several traits included from the [Behat Steps](https://github.com/drevops/behat-steps)
+package.
 
 ## Reports
 
