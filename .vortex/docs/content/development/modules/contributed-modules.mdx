@@ -170,7 +170,7 @@ tested.
 
 [`settings.reroute_email.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.reroute_email.php) enables rerouting in every environment except `local`, `ci`, `stage` and `prod`.
 
-Rerouting replaces the recipient of every outgoing message with the configured address. Disabling it delivers messages to their original recipients, so it is disabled only where that delivery is either intended or already intercepted by other means.
+Rerouting replaces the recipient of an outgoing message with the configured address, unless that recipient matches `DRUPAL_REROUTE_EMAIL_ALLOWED`. Disabling it delivers every message to its original recipients, so it is disabled only where that delivery is either intended or already intercepted by other means.
 
 **Environment behavior:**
 
