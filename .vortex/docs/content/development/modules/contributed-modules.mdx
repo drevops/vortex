@@ -170,7 +170,7 @@ tested.
 
 [`settings.reroute_email.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.reroute_email.php) enables rerouting in every environment except `local`, `ci`, `stage` and `prod`.
 
-Rerouting replaces the recipient of an outgoing message with the configured address, unless that recipient matches `DRUPAL_REROUTE_EMAIL_ALLOWED`. Disabling it delivers every message to its original recipients, so it is disabled only where that delivery is either intended or already intercepted by other means.
+Rerouting replaces the recipient of an outgoing message with the configured address, unless that recipient matches `DRUPAL_REROUTE_EMAIL_ALLOWED`. With rerouting disabled, every message reaches its intended recipient. Rerouting is therefore disabled only where that delivery is either wanted or already intercepted by other means.
 
 **Environment behavior:**
 
@@ -185,7 +185,9 @@ Rerouting replaces the recipient of an outgoing message with the configured addr
 Rerouting is also enabled in any custom environments (e.g., PR environments)
 that do not match the standard environment types listed above.
 
-Rerouting in `ci` would replace the original recipient before the collector stored the message, leaving tests with nothing but the rerouting address to assert on. A site that deselects this module during [installation](../../installation.mdx) therefore still cannot deliver mail from `ci`, but does deliver it in `dev` and in custom environments.
+Rerouting is off in `ci` so that tests can assert on the address a message was sent to. With rerouting on, every message would carry the rerouting address instead of the intended one.
+
+A site that deselects this module during [installation](../../installation.mdx) still sends no mail from `ci`, because the mail collector stores messages there regardless. That site does send mail to real recipients in `dev` and in custom environments.
 
 **Environment variables:**
 
