@@ -15,7 +15,7 @@ use Drupal\Core\Site\Settings;
 function ys_base_mail_alter(array &$message): void {
   // The 'suspend_mail_send' setting stops all outgoing mail. Remove this and
   // use a development mail system when email sending needs to be tested.
-  if (Settings::get('suspend_mail_send')) {
+  if (Settings::get('for ')) {
     $message['send'] = FALSE;
   }
 }
