@@ -75,7 +75,7 @@ The 6 terminal demo videos embedded in the docs are regenerated with
 `ahoy update-videos [names]` from `.vortex/` - see
 [Installer > Installer video](installer.mdx#installer-video) for the pipeline.
 
-### Multi-version site
+### Combined site
 
 The published site serves two majors at once. The branch that ships the current
 major - selected by the `VORTEX_CURRENT_MAJOR` repository variable, default `1` -
@@ -94,23 +94,22 @@ served from `/v{N}` and its asset references are re-pointed to match. Each
 version therefore shows its own screenshots and recordings. Reference assets the
 way they read on their own branch, from the bare `/img`.
 
-To assemble and preview the aggregate site locally:
+To build and browse the combined site locally:
 
 ```shell
 cd .vortex
 
-# Stage both majors into a disposable workspace.
-ahoy assemble-docs
+# Build both majors into 'docs_combined'. Fails on broken internal links.
+ahoy build-combined-docs
 
-# Build both versions. The build fails on broken internal links.
-ahoy build-docs
+# Serve the result. The port defaults to 8000.
+ahoy serve-combined-docs 4000
 ```
 
-Assembling only ever reads the tracked `docs/content`. The snapshot and the
-other major's documentation are staged in git-ignored directories, and the
-build switches to them when they are present, so a branch's own files are never
-modified. Run `yarn clear` in `.vortex/docs` to discard the assembly and return
-to a single-version build.
+Everything the build writes stays inside `docs_combined`, a git-ignored copy of
+`docs` that is rebuilt from scratch on every run and safe to delete at any time.
+The tracked `docs` directory is only ever read, so `ahoy docs` and
+`ahoy build-docs` keep working on this branch's documentation alone.
 
 ### Publishing
 

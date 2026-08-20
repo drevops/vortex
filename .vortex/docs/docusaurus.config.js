@@ -10,31 +10,18 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 // Multi-version mode turns on automatically when a 'versioned_docs/' snapshot
 // is present: 'versioned_docs/version-1.x' is v1 (the default, served at the
-// bare '/docs') and the assembled docs are v2 (served at '/docs/v2'). With no
-// snapshot - local development, per-branch preview builds, and the
-// 'docusaurus docs:version' run that creates the snapshot - the site builds a
-// single unversioned set, so the config never references a version that does
-// not exist yet. The publish jobs assemble the snapshot in CI; it is never
-// committed to a branch.
+// bare '/docs') and 'content/' is v2 (served at '/docs/v2'). With no snapshot -
+// local development and per-branch preview builds - the site builds 'content/'
+// as a single unversioned set, so the config never references a version that
+// does not exist yet. Only the disposable site that
+// 'assemble-combined-docs.sh' writes to 'docs_combined/' carries a snapshot;
+// it is never committed to a branch.
 const versioned = fs.existsSync('versioned_docs');
-
-// The docs the build reads. 'assemble-versioned-docs.sh' writes the other
-// major's content into a disposable workspace and never modifies the tracked
-// 'content/', so an assembled tree is picked up by its presence alone and a
-// plain build of the branch is unaffected.
-const assembledDocsPath = '.docusaurus-versioned/content';
-const docsPath = fs.existsSync(assembledDocsPath) ? assembledDocsPath : 'content';
-
-// The other major records its own demo videos and diagrams under the same
-// 'img/' names as this one, so its assets are staged under a '/v{other}' prefix
-// and served alongside rather than colliding with 'static/'.
-const assembledStaticPath = '.docusaurus-versioned/static';
-const staticDirectories = fs.existsSync(assembledStaticPath) ? ['static', assembledStaticPath] : ['static'];
 
 // The current major (the 'VORTEX_CURRENT_MAJOR' repository variable, default 1)
 // drives the whole site: its docs are a snapshot under 'versioned_docs/' served
-// as the default at the bare '/docs', and the assembled docs (pulled from the
-// other major's '{N}.x' branch in CI) are served at '/docs/v{other}'. Bumping
+// as the default at the bare '/docs', and 'content/' (replaced with the other
+// major's docs in the combined site) is served at '/docs/v{other}'. Bumping
 // that one variable promotes a new major - nothing else changes here.
 const currentMajor = process.env.VORTEX_CURRENT_MAJOR || '1';
 const otherMajor = currentMajor === '1' ? '2' : '1';
@@ -73,8 +60,6 @@ const config = {
   organizationName: 'DrevOps',
   projectName: 'Vortex',
 
-  staticDirectories,
-
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
   onBrokenAnchors: 'warn',
@@ -95,7 +80,7 @@ const config = {
         docs: {
           routeBasePath: '/docs',
           sidebarPath: './sidebars.js',
-          path: docsPath,
+          path: 'content',
           // Remove this to remove the "edit this page" links.
           //
           // Both the snapshot and the assembled docs are built from copies that
@@ -148,7 +133,7 @@ const config = {
       ({
         // @see https://github.com/easyops-cn/docusaurus-search-local#theme-options
         searchBarPosition: 'left',
-        docsDir: docsPath,
+        docsDir: 'content',
         docsRouteBasePath: '/docs',
         indexBlog: false,
         hashed: true,

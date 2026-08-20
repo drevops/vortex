@@ -29,6 +29,9 @@ jobs:
       # binary from its own workflow, so the workflow name identifies the major
       # for pushes, branches and fork pull requests alike.
       BUILD_MAJOR: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && '2' || '1' }}
+      # Where the built site lands. The combined build assembles both majors
+      # into its own site directory; an other-major branch builds in place.
+      DOCS_BUILD_DIR: ${{ (github.event.workflow_run.name == 'Vortex - Test CLI' && '2' || '1') == (vars.VORTEX_CURRENT_MAJOR || '1') && '.vortex/docs_combined/build' || '.vortex/docs/build' }}
       BINARY_ARTIFACT: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && 'vortex-cli' || 'vortex-installer' }}
       BINARY_FILE: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && 'vortex.phar' || 'installer.phar' }}
 
@@ -103,17 +106,6 @@ jobs:
         run: yarn run spellcheck
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
-      # Every current-major build assembles, so a branch is checked against the
-      # same aggregate site its merge publishes. Other-major branches stay
-      # single-version previews: their docs reach production through the
-      # current-major branch, which builds them as '/docs/v{other}'.
-      - name: Assemble versioned docs
-        if: env.BUILD_MAJOR == env.CURRENT_MAJOR
-        run: ./.utils/assemble-versioned-docs.sh
-        working-directory: '${{ github.workspace }}/.vortex/docs'
-        env:
-          VORTEX_CURRENT_MAJOR: ${{ env.CURRENT_MAJOR }}
-
       # On the main deploy, publish both majors to match the multi-version
       # docs: '/v1/install' and '/v2/install' are the stable per-major pins and
       # the bare '/install' is a copy of the current major's pin (the
@@ -145,7 +137,21 @@ jobs:
           cp "vortex-v${OTHER_MAJOR}/.vortex/cli/.build/vortex.phar" ".vortex/docs/static/v${OTHER_MAJOR}/install"
           cp ".vortex/docs/static/v${CURRENT_MAJOR}/install" .vortex/docs/static/install
 
+      # Every current-major build assembles, so a branch is checked against the
+      # same combined site its merge publishes. It runs after the binaries are
+      # staged, which the assembly copies across with the rest of 'docs/'.
+      - name: Build the combined documentation site
+        if: env.BUILD_MAJOR == env.CURRENT_MAJOR
+        run: ./docs/.utils/assemble-combined-docs.sh
+        working-directory: '${{ github.workspace }}/.vortex'
+        env:
+          VORTEX_CURRENT_MAJOR: ${{ env.CURRENT_MAJOR }}
+
+      # Other-major branches stay single-version previews: their docs reach
+      # production through the current-major branch, which builds them as
+      # '/docs/v{other}'.
       - name: Build documentation site
+        if: env.BUILD_MAJOR != env.CURRENT_MAJOR
         run: yarn run build
         working-directory: '${{ github.workspace }}/.vortex/docs'
         env:
@@ -162,7 +168,7 @@ jobs:
         id: netlify
         uses: nwtgck/actions-netlify@d22a32a27c918fe470bbc562e984f80ec48c2668 # v4.0
         with:
-          publish-dir: '.vortex/docs/build'
+          publish-dir: ${{ env.DOCS_BUILD_DIR }}
           production-deploy: ${{ github.event.workflow_run.head_branch == 'main' }}
           deploy-message: "Deploy from GitHub Actions"
           enable-pull-request-comment: false

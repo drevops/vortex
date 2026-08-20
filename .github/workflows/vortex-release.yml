@@ -212,17 +212,12 @@ jobs:
         run: yarn install --frozen-lockfile
         working-directory: .vortex/docs
 
-      # Production (GitHub Pages) serves the same aggregate site that
-      # 'vortex-test-docs.yml' builds for development deploys and previews.
-      - name: Assemble versioned docs
-        run: ./.utils/assemble-versioned-docs.sh
-        working-directory: .vortex/docs
-        env:
-          VORTEX_CURRENT_MAJOR: ${{ env.CURRENT_MAJOR }}
-
-      - name: Build documentation site
-        run: yarn run build
-        working-directory: .vortex/docs
+      # Production (GitHub Pages) serves the same combined site that
+      # 'vortex-test-docs.yml' builds for development deploys and previews. The
+      # binaries copied above are picked up from 'docs/static'.
+      - name: Build the combined documentation site
+        run: ./docs/.utils/assemble-combined-docs.sh
+        working-directory: .vortex
         env:
           VORTEX_CURRENT_MAJOR: ${{ env.CURRENT_MAJOR }}
 
@@ -243,7 +238,7 @@ jobs:
       - name: Upload documentation site
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
-          path: .vortex/docs/build
+          path: .vortex/docs_combined/build
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5

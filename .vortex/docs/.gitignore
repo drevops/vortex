@@ -10,12 +10,9 @@
 .docusaurus-dev
 .cache-loader
 
-# Assembled docs versions - created by the CI publish step (or a local
-# `ahoy assemble-docs` to preview the multi-version site) and never committed.
-# The build auto-detects `versioned_docs/` to switch to multi-version and
-# `.docusaurus-versioned/content` to read the other major's documentation, so
-# the tracked `content/` is never used as a staging area.
-/.docusaurus-versioned
+# Version snapshots. Only the disposable `docs_combined/` site carries them, so
+# these never appear here in normal use; the pattern stays as a guard against a
+# stray local `docusaurus docs:version` run being committed.
 /versioned_docs
 /versioned_sidebars
 /versions.json

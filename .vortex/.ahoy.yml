@@ -18,22 +18,36 @@ commands:
       yarn --cwd=docs install --frozen-lockfile
 
   docs:
-    name: Start documentation server.
+    usage: Start the documentation development server. Passes options through, e.g. 'ahoy docs --port 4000'.
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
-      yarn --cwd=docs run start
+      yarn --cwd=docs run start "$@"
 
   docs-serve:
-    name: Serve built documentation.
+    usage: Serve the built documentation. Passes options through, e.g. 'ahoy docs-serve --port 4000'.
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
-      yarn --cwd=docs run start
+      yarn --cwd=docs run serve "$@"
 
   build-docs:
     name: Build documentation.
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
       yarn --cwd=docs run build
+
+  build-combined-docs:
+    usage: Build the combined site serving both majors into the disposable 'docs_combined' directory.
+    cmd: |
+      [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
+      ./docs/.utils/assemble-combined-docs.sh
+
+  serve-combined-docs:
+    usage: Serve the built combined site. Pass a port as the first argument, e.g. 'ahoy serve-combined-docs 4000'.
+    cmd: |
+      [ -d ./docs_combined/build ] || { echo "No combined site found. Run 'ahoy build-combined-docs' first."; exit 1; }
+      port="${1:-8000}"
+      echo "Serving the combined documentation site at http://localhost:${port}"
+      php -S "localhost:${port}" -t ./docs_combined/build ./docs/.utils/serve-router.php
 
   build-installer:
     name: Build documentation.
@@ -136,10 +150,6 @@ commands:
   update-docs:
     usage: Update the documentation.
     cmd: yarn --cwd=docs run update-variables
-
-  assemble-docs:
-    usage: Assemble the multi-version documentation site into a disposable workspace. Does not modify 'docs/content'.
-    cmd: yarn --cwd=docs run assemble-versions
 
   update-videos:
     usage: Update documentation videos. Pass names to record a subset (installer, build, provision, lint, test, test-bdd); default is all six.
