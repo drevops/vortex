@@ -137,6 +137,10 @@ commands:
     usage: Update the documentation.
     cmd: yarn --cwd=docs run update-variables
 
+  assemble-docs:
+    usage: Assemble the multi-version documentation site. Replaces 'docs/content' with the other major's documentation.
+    cmd: yarn --cwd=docs run assemble-versions
+
   update-videos:
     usage: Update documentation videos. Pass names to record a subset (installer, build, provision, lint, test, test-bdd); default is all six.
     cmd: php docs/.utils/update-videos.php "$@"

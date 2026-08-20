@@ -75,6 +75,36 @@ The 6 terminal demo videos embedded in the docs are regenerated with
 `ahoy update-videos [names]` from `.vortex/` - see
 [Installer > Installer video](installer.mdx#installer-video) for the pipeline.
 
+### Multi-version site
+
+The published site serves two majors at once. The branch that ships the current
+major - selected by the `VORTEX_CURRENT_MAJOR` repository variable, default `1` -
+is snapshotted as the default version at `/docs`, and the other major's `{N}.x`
+branch content is served at `/docs/v{N}`.
+
+Each branch writes its content against the bare `/docs` mount, so an absolute
+link such as `/docs/tools/behat` points at the current major. When that content
+is assembled under `/docs/v{N}`, those links are re-pointed at the major they
+were written for, and a link that already names a version is left alone. Write
+links the way they read on their own branch.
+
+To assemble and preview the aggregate site locally:
+
+```shell
+cd .vortex
+
+# Fetch the other major's documentation into 'docs/content'.
+ahoy assemble-docs
+
+# Build both versions. The build fails on broken internal links.
+ahoy build-docs
+```
+
+Assembling replaces `docs/content` with the other major's documentation.
+Restore the branch with `git restore .vortex/docs/content` and delete
+`versioned_docs/`, `versioned_sidebars/` and `versions.json` to return to a
+single-version build.
+
 ### Publishing
 
 Automated continuous integration builds publish this documentation:

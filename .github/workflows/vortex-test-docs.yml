@@ -25,6 +25,10 @@ jobs:
     env:
       CURRENT_MAJOR: ${{ vars.VORTEX_CURRENT_MAJOR || '1' }}
       OTHER_MAJOR: ${{ (vars.VORTEX_CURRENT_MAJOR || '1') == '1' && '2' || '1' }}
+      # The major the triggering branch belongs to. Each major ships its own
+      # binary from its own workflow, so the workflow name identifies the major
+      # for pushes, branches and fork pull requests alike.
+      BUILD_MAJOR: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && '2' || '1' }}
       BINARY_ARTIFACT: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && 'vortex-cli' || 'vortex-installer' }}
       BINARY_FILE: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && 'vortex.phar' || 'installer.phar' }}
 
@@ -99,21 +103,16 @@ jobs:
         run: yarn run spellcheck
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
-      # On the main (development) deploy, assemble the multi-version site:
-      # snapshot main's docs as the current major (served at the bare '/docs')
-      # and pull the other major's '{N}.x' branch docs in at '/docs/v{other}'.
-      # Driven by 'VORTEX_CURRENT_MAJOR'. Skipped on PR/branch builds, which stay
-      # single-version previews. Mirrors the same step in 'vortex-release.yml'
-      # (production / GitHub Pages).
+      # Every current-major build assembles, so a branch is checked against the
+      # same aggregate site its merge publishes. Other-major branches stay
+      # single-version previews: their docs reach production through the
+      # current-major branch, which builds them as '/docs/v{other}'.
       - name: Assemble versioned docs
-        if: github.event.workflow_run.head_branch == 'main'
-        run: |
-          yarn docusaurus docs:version "${CURRENT_MAJOR}.x"
-          git -C "${{ github.workspace }}" fetch origin "${OTHER_MAJOR}.x" --depth=1 || { echo "Failed to fetch the ${OTHER_MAJOR}.x branch."; exit 1; }
-          git -C "${{ github.workspace }}" rev-parse --verify "origin/${OTHER_MAJOR}.x" || { echo "The ${OTHER_MAJOR}.x branch does not exist."; exit 1; }
-          rm -rf content
-          git -C "${{ github.workspace }}" checkout "origin/${OTHER_MAJOR}.x" -- .vortex/docs/content || { echo "Failed to check out content from ${OTHER_MAJOR}.x."; exit 1; }
+        if: env.BUILD_MAJOR == env.CURRENT_MAJOR
+        run: ./.utils/assemble-versioned-docs.sh
         working-directory: '${{ github.workspace }}/.vortex/docs'
+        env:
+          VORTEX_CURRENT_MAJOR: ${{ env.CURRENT_MAJOR }}
 
       # On the main deploy, publish both majors to match the multi-version
       # docs: '/v1/install' and '/v2/install' are the stable per-major pins and
