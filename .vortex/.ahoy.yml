@@ -138,7 +138,7 @@ commands:
     cmd: yarn --cwd=docs run update-variables
 
   update-videos:
-    usage: Update documentation videos. Pass names to record a subset (installer, build, provision, lint, test, test-bdd, info, doctor, doctor-info); default is all of them. Pass --verify to re-render the committed artefacts and compare instead of recording.
+    usage: Update documentation videos. Pass names to record a subset (installer, build, provision, lint, test, test-bdd); default is all six.
     cmd: php docs/.utils/update-videos.php "$@"
 
 entrypoint:

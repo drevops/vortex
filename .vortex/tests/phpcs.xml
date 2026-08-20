@@ -20,7 +20,6 @@
 
     <file>phpunit</file>
     <file>generate-vortex-dev-circleci</file>
-    <file>../docs/.utils/CastNormalizer.php</file>
 
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">

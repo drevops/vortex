@@ -9,7 +9,6 @@ parameters:
   paths:
     - phpunit
     - generate-vortex-dev-circleci
-    - ../docs/.utils/CastNormalizer.php
 
   excludePaths:
     - vendor/*

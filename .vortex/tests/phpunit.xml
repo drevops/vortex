@@ -34,7 +34,6 @@
             ignoreIndirectDeprecations="true">
         <include>
             <directory>../../web/modules/custom/ys_base/tests/src/Traits</directory>
-            <file>../docs/.utils/CastNormalizer.php</file>
         </include>
         <exclude>
             <directory>phpunit</directory>
