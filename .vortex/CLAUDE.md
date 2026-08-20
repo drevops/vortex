@@ -171,11 +171,13 @@ changes behavior:
 - `info`, `doctor`, `doctor-info` - changes to those `ahoy` targets or to
   `vortex-doctor`.
 
-Regeneration is reproducible: recording the same session twice produces the
-same bytes, so a clean `git status` afterward means the rendering did not
-change and any diff is a real change worth reading. `ahoy update-videos
---verify` re-renders the committed artefacts without recording and reports
-every one that no longer matches.
+Regeneration is reproducible: recording the same session twice on one machine
+produces the same bytes, so a clean `git status` afterward means the rendering
+did not change and any diff is a real change worth reading. `ahoy
+update-videos --verify` re-renders the committed artefacts without recording
+and reports every one that no longer matches. Three sources of drift survive
+that guarantee - `build`, `installer` and the `.png` posters - and
+`.vortex/docs/CLAUDE.md` says what each of them is.
 
 `update-videos` does not commit - review the diff under `.vortex/docs/static/img/`
 and commit manually. See `.vortex/docs/CLAUDE.md` for the pipeline internals

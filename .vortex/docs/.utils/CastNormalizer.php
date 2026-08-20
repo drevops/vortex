@@ -99,8 +99,8 @@ final class CastNormalizer {
     // Home directory of whoever recorded the session, on macOS and on Linux.
     // Container output carries host paths from outside the workspace and the
     // project root, so the caller's path replacements do not reach them.
-    '#/Users/[^/\s"\']+/#' => '/home/user/',
-    '#/home/(?!user/)[^/\s"\']+/#' => '/home/user/',
+    '#/Users/[^/\s"\']+#' => '/home/user',
+    '#/home/(?!user\b)[^/\s"\']+#' => '/home/user',
     // Drupal one-time login link, which carries an issue time and a token.
     '#/user/reset/(\d+)/\d+/[A-Za-z0-9_\[\]-]+/login#' => '/user/reset/$1/[TIME]/[REDACTED]/login',
     // PHPUnit run summary.

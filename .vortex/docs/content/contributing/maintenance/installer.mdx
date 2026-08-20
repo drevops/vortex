@@ -204,8 +204,8 @@ class. For the installer video, the pipeline:
 
 1. Builds the installer PHAR from source.
 2. Generates an [Expect](https://en.wikipedia.org/wiki/Expect) script that
-   automates the installer interaction, typing at a fixed rate so that two
-   recordings of the same session produce the same bytes.
+   automates the installer interaction, typing at a fixed rate rather than a
+   randomized one so the session drives the terminal the same way on every run.
 3. Records the session with `asciinema rec` into a JSON cast file.
 4. Normalizes the recording onto a canonical timeline (rewrites its frames and
    delays, masks output that differs between runs, sanitizes paths, drops the

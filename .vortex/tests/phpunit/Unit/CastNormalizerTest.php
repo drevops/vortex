@@ -97,7 +97,13 @@ class CastNormalizerTest extends TestCase {
     ini_set('serialize_precision', '17');
 
     try {
-      $this->assertSame([[0.0, 'one'], [0.3, 'two'], [0.6, 'three'], [3.6, '']], static::frames($normalizer->normalize($cast)));
+      $normalized = $normalizer->normalize($cast);
+
+      // The decoded frames pin the timeline; the literals pin how it is
+      // written, which decoding a float back would not notice.
+      $this->assertSame([[0.0, 'one'], [0.3, 'two'], [0.6, 'three'], [3.6, '']], static::frames($normalized));
+      $this->assertStringContainsString('[0.3,"o","two"]', $normalized);
+      $this->assertStringContainsString('[0.6,"o","three"]', $normalized);
     }
     finally {
       ini_set('serialize_precision', $original === FALSE ? '-1' : $original);
@@ -231,7 +237,15 @@ class CastNormalizerTest extends TestCase {
 
     yield 'linux home' => ['Path: /home/someone/.docker/cli-plugins/docker-buildx', 'Path: /home/user/.docker/cli-plugins/docker-buildx'];
 
+    yield 'standalone macos home' => ['HOME=/Users/someone', 'HOME=/home/user'];
+
+    yield 'standalone linux home' => ['HOME=/home/someone', 'HOME=/home/user'];
+
     yield 'masked home is left alone' => ['/home/user/demo/star_wars', '/home/user/demo/star_wars'];
+
+    yield 'standalone masked home is left alone' => ['HOME=/home/user', 'HOME=/home/user'];
+
+    yield 'a longer name is not the masked one' => ['/home/username/notes', '/home/user/notes'];
 
     yield 'login link' => [
       'http://site.docker.amazee.io/user/reset/1/1787192699/Cs7-tOken_9/login',
