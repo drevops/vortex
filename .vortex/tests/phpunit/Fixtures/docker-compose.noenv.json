@@ -48,6 +48,7 @@
                 "ENVIRONMENT_TYPE": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "127.0.0.1:1",
                 "TZ": "UTC",
                 "XDEBUG_ENABLE": ""
             },
@@ -114,6 +115,7 @@
                 "ENVIRONMENT_TYPE": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "127.0.0.1:1",
                 "TZ": "UTC",
                 "XDEBUG_ENABLE": ""
             },
@@ -186,6 +188,7 @@
                 "ENVIRONMENT_TYPE": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "127.0.0.1:1",
                 "TZ": "UTC",
                 "XDEBUG_ENABLE": ""
             },
@@ -250,6 +253,7 @@
                 "ENVIRONMENT_TYPE": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "127.0.0.1:1",
                 "TZ": "UTC",
                 "XDEBUG_ENABLE": ""
             },
@@ -300,6 +304,7 @@
                 "MYSQL_DATABASE": "drupal",
                 "MYSQL_PASSWORD": "drupal",
                 "MYSQL_USER": "drupal",
+                "SSMTP_MAILHUB": "127.0.0.1:1",
                 "TZ": "UTC",
                 "XDEBUG_ENABLE": ""
             },
@@ -365,6 +370,7 @@
                 "ENVIRONMENT_TYPE": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "127.0.0.1:1",
                 "TZ": "UTC",
                 "XDEBUG_ENABLE": ""
             },
@@ -438,6 +444,7 @@
                 "ENVIRONMENT_TYPE": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "127.0.0.1:1",
                 "TZ": "UTC",
                 "XDEBUG_ENABLE": ""
             },
@@ -510,6 +517,7 @@
                 "ENVIRONMENT_TYPE": "",
                 "LAGOON_ROUTE": "star_wars.docker.amazee.io",
                 "LOCALDEV_URL": "star_wars.docker.amazee.io",
+                "SSMTP_MAILHUB": "127.0.0.1:1",
                 "TZ": "UTC",
                 "XDEBUG_ENABLE": ""
             },
