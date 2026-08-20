@@ -261,8 +261,9 @@ git commit -m "Initial Vortex commit"
 
 Copy your files back from the temporary directory, overriding the installed
 ones. Review the diff and selectively keep changes: merge `composer.json` by
-hand, preserving **all** of **Vortex**'s entries, and regenerate
-`composer.lock` with `composer install`.
+hand, preserving **all** of **Vortex**'s entries, regenerate `composer.lock`
+with a reviewed `composer update`, and check the result with
+`composer validate`.
 
 ### 7. Commit and push
 
