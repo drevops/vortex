@@ -38,7 +38,6 @@
     "prefer-stable": true,
     "autoload-dev": {
         "psr-4": {
-            "DrevOps\\Vortex\\Docs\\": "../docs/.utils/",
             "DrevOps\\Vortex\\Tests\\": "phpunit/",
             "Drupal\\Tests\\ys_base\\Traits\\": "../../web/modules/custom/ys_base/tests/src/Traits/"
         }

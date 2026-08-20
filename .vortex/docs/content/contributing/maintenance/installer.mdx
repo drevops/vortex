@@ -14,7 +14,7 @@ that template modifications and the corresponding installer logic stay in sync.
 
 <AsciinemaPlayer
   src="/img/installer.json"
-  poster="npt:0:00.3"
+  poster="npt:0:1"
   autoPlay={false}
   loop={false}
   preload={true}
@@ -197,19 +197,17 @@ which allows testing installer changes before a formal release.
 ## Installer video
 
 The documentation includes an interactive recording of the installer captured
-with [asciinema](https://asciinema.org/). It is one of the 9 terminal demo
+with [asciinema](https://asciinema.org/). It is one of the 6 terminal demo
 videos produced by the PHP orchestrator at
 `.vortex/docs/.utils/update-videos.php`, driven by the shared `VideoRecorder`
 class. For the installer video, the pipeline:
 
 1. Builds the installer PHAR from source.
 2. Generates an [Expect](https://en.wikipedia.org/wiki/Expect) script that
-   automates the installer interaction, typing at a fixed rate rather than a
-   randomized one so the session drives the terminal the same way on every run.
+   automates the installer interaction, simulating human-like typing with
+   delays.
 3. Records the session with `asciinema rec` into a JSON cast file.
-4. Normalizes the recording onto a canonical timeline (rewrites its frames and
-   delays, masks output that differs between runs, sanitizes paths, drops the
-   spawn line).
+4. Post-processes the recording (sanitizes paths, removes spawn lines).
 5. Converts the cast file to SVG and PNG using the custom
    `svg-term-render.js` script.
 
