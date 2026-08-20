@@ -103,6 +103,8 @@ final class CastNormalizer {
     '#Time: [\d.]+ ?(?:secs?|mins?|hours?); Memory: [\d.]+ ?[KMGT]?i?B#' => 'Time: [TIME]; Memory: [MEMORY]',
     // Gherkin linter run summary.
     '#took [\d.]+ seconds#' => 'took [TIME]',
+    // Behat run summary.
+    '#(?<![\d.])(?:\d+h)?(?:\d+m)?\d+(?:\.\d+)?s \([\d.]+ ?[kKMGT]?i?[bB]\)#' => '[TIME] ([MEMORY])',
     // Drupal functional test browser output file name.
     '#(browser_output/[A-Za-z0-9_]+)-\d+-\d+\.html#' => '$1-[ID].html',
     // Provisioning task duration.
@@ -115,9 +117,9 @@ final class CastNormalizer {
     '#\b(127\.0\.0\.1|localhost):\d{2,5}#' => '$1:[PORT]',
     '#(port on host\h+: )\d+#' => '$1[PORT]',
     // Build step duration.
-    '#\b\d+(?:\.\d+)?s(?=\D|$)#' => '[TIME]',
+    '#(?<![\d.])(?:\d+h)?(?:\d+m)?\d+(?:\.\d+)?s(?=\D|$)#' => '[TIME]',
     // Byte size reported by a build or a transfer.
-    '#\b\d+(?:\.\d+)?\h?[kKMGT]?i?B\b#' => '[SIZE]',
+    '#(?<![\d.])\d+(?:\.\d+)?\h?[kKMGT]?i?[bB]\b#' => '[SIZE]',
   ];
 
   /**

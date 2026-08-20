@@ -209,6 +209,8 @@ class CastNormalizerTest extends TestCase {
 
     yield 'gherkinlint summary' => ['found in 12 files (took 0.0495 seconds)', 'found in 12 files (took [TIME])'];
 
+    yield 'behat summary' => ['0m46.02s (66.71Mb)', '[TIME] ([MEMORY])'];
+
     yield 'browser output file' => [
       'browser_output/Drupal_Tests_ExampleTest-3-64373793.html',
       'browser_output/Drupal_Tests_ExampleTest-[ID].html',
@@ -230,6 +232,8 @@ class CastNormalizerTest extends TestCase {
     yield 'labelled host port' => ["DB port on host             : 51391 ('ahoy db')", "DB port on host             : [PORT] ('ahoy db')"];
 
     yield 'build step duration' => ['#15 DONE 1.4s', '#15 DONE [TIME]'];
+
+    yield 'compound duration' => ['elapsed 1h2m3.4s here', 'elapsed [TIME] here'];
 
     yield 'transfer size' => ['#12 transferring context: 1.23kB done', '#12 transferring context: [SIZE] done'];
 
@@ -258,13 +262,14 @@ class CastNormalizerTest extends TestCase {
    * Tests that a sensitive environment variable is masked wherever it appears.
    */
   public function testRedactSecretsFromEnvironment(): void {
+    $original = getenv('PACKAGE_TOKEN');
     putenv('PACKAGE_TOKEN=s3cr3t-package-token');
 
     try {
       $this->assertSame('used XXXXX here', (new CastNormalizer())->mask('used s3cr3t-package-token here'));
     }
     finally {
-      putenv('PACKAGE_TOKEN');
+      putenv($original === FALSE ? 'PACKAGE_TOKEN' : 'PACKAGE_TOKEN=' . $original);
     }
   }
 
