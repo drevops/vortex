@@ -1,6 +1,7 @@
 // Mirrors the Drupal core configuration from
-// https://www.drupal.org/project/drupal/issues/3440225, adapted to lint custom
-// modules rather than core itself.
+// https://www.drupal.org/project/drupal/issues/3440225, adapted to lint the
+// theme's own sources. The theme carries its own front-end tooling because it
+// can be moved into a separate repository.
 import { defineConfig } from 'eslint/config';
 import { fixupPluginRules } from '@eslint/compat';
 import importPlugin from 'eslint-plugin-import';
@@ -13,18 +14,7 @@ import globals from 'globals';
 
 export default defineConfig(
   {
-    ignores: [
-      'node_modules/**/*',
-      'vendor/**/*',
-      'web/core/**/*',
-      'web/libraries/**/*',
-      'web/modules/contrib/**/*',
-      'web/profiles/contrib/**/*',
-      'web/themes/contrib/**/*',
-      'web/sites/*/files/**/*',
-      '**/build/**/*',
-      '**/*.min.js',
-    ],
+    ignores: ['node_modules/**/*', 'build/**/*', '**/*.min.js'],
   },
   js.configs.recommended,
   importPlugin.flatConfigs.recommended,
@@ -105,18 +95,6 @@ export default defineConfig(
           property: 'prop',
         },
       },
-    },
-  },
-  {
-    files: ['**/*.test.js'],
-    languageOptions: {
-      globals: {
-        ...globals.jest,
-      },
-    },
-    rules: {
-      'max-nested-callbacks': ['warn', 5],
-      'jsdoc/check-tag-names': 'off',
     },
   },
 );
