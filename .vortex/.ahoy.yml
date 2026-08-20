@@ -18,16 +18,16 @@ commands:
       yarn --cwd=docs install --frozen-lockfile
 
   docs:
-    usage: Start the documentation development server. Passes options through, e.g. 'ahoy docs --port 4000'.
+    name: Start documentation server.
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
-      yarn --cwd=docs run start "$@"
+      yarn --cwd=docs run start
 
   docs-serve:
-    usage: Serve the built documentation. Passes options through, e.g. 'ahoy docs-serve --port 4000'.
+    name: Serve built documentation.
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
-      yarn --cwd=docs run serve "$@"
+      yarn --cwd=docs run start
 
   build-docs:
     name: Build documentation.
@@ -35,14 +35,14 @@ commands:
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
       yarn --cwd=docs run build
 
-  build-combined-docs:
-    usage: Build the combined site serving both majors into the disposable, self-contained 'docs_combined' directory.
+  docs-combined:
+    usage: Build the combined site serving both majors into the disposable 'docs_combined' directory.
     cmd: ./docs/.utils/assemble-combined-docs.sh
 
-  serve-combined-docs:
-    usage: Serve the built combined site. Pass a port as the first argument, e.g. 'ahoy serve-combined-docs 4000'.
+  docs-combined-serve:
+    usage: Serve the built combined site. Pass a port as the first argument, e.g. 'ahoy docs-combined-serve 4000'.
     cmd: |
-      [ -d ./docs_combined/build ] || { echo "No combined site found. Run 'ahoy build-combined-docs' first."; exit 1; }
+      [ -d ./docs_combined/build ] || { echo "No combined site found. Run 'ahoy docs-combined' first."; exit 1; }
       port="${1:-8000}"
       echo "Serving the combined documentation site at http://localhost:${port}"
       php -S "localhost:${port}" -t ./docs_combined/build ./docs/.utils/serve-router.php
@@ -150,7 +150,7 @@ commands:
     cmd: yarn --cwd=docs run update-variables
 
   update-videos:
-    usage: Update documentation videos. Pass names to record a subset (installer, build, provision, lint, test, test-bdd); default is all six.
+    usage: Update documentation videos. Pass names to record a subset (installer, build, provision, lint, test, test-bdd, info, doctor, doctor-info); default is all of them. Pass --verify to re-render the committed artefacts and compare instead of recording.
     cmd: php docs/.utils/update-videos.php "$@"
 
 entrypoint:

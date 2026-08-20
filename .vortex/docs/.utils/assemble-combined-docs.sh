@@ -60,7 +60,8 @@ rsync -a \
 yarn --cwd="${COMBINED_DIR}" install --frozen-lockfile
 
 # Snapshot this branch as the default version before 'content/' is handed over
-# to the other major.
+# to the other major. 'VORTEX_DOCS_COMBINED' stays unset here: the snapshot the
+# combined config expects does not exist until this command creates it.
 yarn --cwd="${COMBINED_DIR}" docusaurus docs:version "${VORTEX_CURRENT_MAJOR}.x"
 
 rm -rf "${COMBINED_DIR}/content"
@@ -113,6 +114,6 @@ for asset_dir in "${other_static_dir}"/*/; do
     sed -E "${sed_opts[@]}" "s%([\"'(])/${asset_name}/%\1/v${other_major}/${asset_name}/%g" {} +
 done
 
-VORTEX_CURRENT_MAJOR="${VORTEX_CURRENT_MAJOR}" yarn --cwd="${COMBINED_DIR}" run build
+VORTEX_DOCS_COMBINED=1 VORTEX_CURRENT_MAJOR="${VORTEX_CURRENT_MAJOR}" yarn --cwd="${COMBINED_DIR}" run build
 
 echo "Combined documentation site built at ${COMBINED_DIR}/build"

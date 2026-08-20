@@ -1,4 +1,4 @@
-# The combined documentation site built by `ahoy build-combined-docs`. It is a
+# The combined documentation site built by `ahoy docs-combined`. It is a
 # generated copy of `docs/` carrying both majors, rebuilt from scratch on every
 # run and safe to delete at any time.
 /docs_combined
