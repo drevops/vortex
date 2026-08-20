@@ -2,6 +2,12 @@
  * @file Global theme behaviors.
  */
 
+/**
+ * Wraps the behaviors so that anything declared here stays out of the global
+ * scope.
+ *
+ * @param {object} Drupal  The Drupal object.
+ */
 (function lightSaberBehaviors(Drupal) {
   Drupal.behaviors.lightSaber = {
     attach(context) {

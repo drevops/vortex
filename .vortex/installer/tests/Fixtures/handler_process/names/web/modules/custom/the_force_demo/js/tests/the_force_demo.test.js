@@ -10,7 +10,6 @@ describe('Drupal.behaviors.ysDemo', () => {
     jest.spyOn(console, 'log').mockImplementation(() => {});
 
     jest.resetModules();
-    // eslint-disable-next-line global-require
     require('../the_force_demo.js');
   });
 
