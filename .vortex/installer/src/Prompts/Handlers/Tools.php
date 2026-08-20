@@ -312,8 +312,8 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('devDependencies', '@homer0/prettier-plugin-jsdoc');
           $pj->removeSubNode('scripts', 'lint-js');
           $pj->removeSubNode('scripts', 'lint-fix-js');
-          $pj->addSubNode('scripts', 'lint', 'yarn run lint-css');
-          $pj->addSubNode('scripts', 'lint-fix', 'yarn run lint-fix-css');
+          $pj->addSubNode('scripts', 'lint', 'npm run lint-css');
+          $pj->addSubNode('scripts', 'lint-fix', 'npm run lint-fix-css');
         },
         'files' => ['.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore'],
       ],
@@ -328,8 +328,8 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('devDependencies', 'stylelint-order');
           $pj->removeSubNode('scripts', 'lint-css');
           $pj->removeSubNode('scripts', 'lint-fix-css');
-          $pj->addSubNode('scripts', 'lint', 'yarn run lint-js');
-          $pj->addSubNode('scripts', 'lint-fix', 'yarn run lint-fix-js');
+          $pj->addSubNode('scripts', 'lint', 'npm run lint-js');
+          $pj->addSubNode('scripts', 'lint-fix', 'npm run lint-fix-js');
         },
         'files' => ['.stylelintrc.js'],
       ],
@@ -497,8 +497,8 @@ class Tools extends AbstractHandler {
       'frontend_linting' => [
         'tools' => [self::ESLINT, self::STYLELINT],
         'ahoy' => [
-          '/^\h*ahoy cli "yarn run lint"\h*\n?/m',
-          '/^\h*ahoy cli "yarn run lint-fix"\h*\n?/m',
+          '/^\h*ahoy cli "npm run lint"\h*\n?/m',
+          '/^\h*ahoy cli "npm run lint-fix"\h*\n?/m',
         ],
         'token' => 'TOOL_ESLINT_STYLELINT',
       ],
@@ -508,7 +508,7 @@ class Tools extends AbstractHandler {
       ],
       'frontend_all' => [
         'tools' => [self::ESLINT, self::STYLELINT, self::JEST],
-        'files' => ['package.json', 'yarn.lock'],
+        'files' => ['package.json', 'package-lock.json'],
       ],
     ];
 

@@ -92,8 +92,8 @@ Work through each checklist item from the release process doc:
      repo). **After bumping, grep the whole repo for the previous tooling version**
      (e.g. `grep -rn "vortex-tooling.*<old-version>" --exclude-dir=vendor`) - this is the
      authoritative check, since new pin spots have been added over time.
-5. **Theme dependencies** - Run `yarn upgrade` in `web/themes/custom/your_site_theme/`.
-   Use yarn, NOT npm.
+5. **Theme dependencies** - Run `npm update` in `web/themes/custom/your_site_theme/`.
+   Use npm, NOT yarn.
 6. **CI runner** - Check if `drevops/ci-runner` is at the latest version.
 7. **Cache version** - The cache key has the form `v<YY>.<M>.<minor>` (CalVer).
    Update it in `.circleci/config.yml`,

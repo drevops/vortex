@@ -42,7 +42,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           ]);
 
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
-          $test->assertFileDoesNotExist(static::$sut . '/yarn.lock');
+          $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintignore');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
@@ -461,7 +461,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
-          $test->assertFileDoesNotExist(static::$sut . '/yarn.lock');
+          $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintignore');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
@@ -478,7 +478,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
-          $test->assertFileDoesNotExist(static::$sut . '/yarn.lock');
+          $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintignore');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
@@ -538,7 +538,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
-          $test->assertFileDoesNotExist(static::$sut . '/yarn.lock');
+          $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintignore');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
@@ -546,8 +546,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
           $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
           $test->assertSutNotContains([
-            'yarn install',
-            'yarn run lint',
+            'npm ci',
+            'npm run lint',
             'ahoy fei',
             '/\bfei:/',
           ]);
@@ -562,7 +562,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
-          $test->assertFileDoesNotExist(static::$sut . '/yarn.lock');
+          $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.eslintignore');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
@@ -570,8 +570,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
           $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
           $test->assertSutNotContains([
-            'yarn install',
-            'yarn run lint',
+            'npm ci',
+            'npm run lint',
             'ahoy fei',
             '/\bfei:/',
           ]);
@@ -592,7 +592,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
           $test->assertFileContainsString($pj, '"eslint":');
           $test->assertFileExists(static::$sut . '/.eslintrc.json');
-          $test->assertSutContains(['yarn install', 'yarn run lint']);
+          $test->assertSutContains(['npm ci', 'npm run lint']);
       }),
     ];
     yield 'tools_no_eslint_no_theme' => [
@@ -613,7 +613,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
           $test->assertFileContainsString($pj, '"stylelint":');
           $test->assertFileExists(static::$sut . '/.stylelintrc.js');
-          $test->assertSutContains(['yarn install', 'yarn run lint']);
+          $test->assertSutContains(['npm ci', 'npm run lint']);
       }),
     ];
   }

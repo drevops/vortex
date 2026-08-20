@@ -404,7 +404,7 @@ class InstallCommandTest extends FunctionalTestCase {
         ...TuiOutput::present([
           TuiOutput::BUILD_ASSEMBLE_DOCKER,
           TuiOutput::BUILD_ASSEMBLE_COMPOSER,
-          TuiOutput::BUILD_ASSEMBLE_YARN,
+          TuiOutput::BUILD_ASSEMBLE_NPM,
           TuiOutput::BUILD_PROVISION_START,
           TuiOutput::BUILD_PROVISION_PROJECT_INFO,
           TuiOutput::BUILD_PROVISION_TYPE_PROFILE,

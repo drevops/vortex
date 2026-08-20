@@ -607,11 +607,11 @@ trait SutTrait {
     $this->assertFileExists($webroot . '/themes/custom/star_wars/.gitignore');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/js/star_wars.js');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/package.json');
+    $this->assertFileExists($webroot . '/themes/custom/star_wars/package-lock.json');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/postcss.config.js');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/star_wars.info.yml');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/star_wars.libraries.yml');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/star_wars.theme');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/yarn.lock');
 
     $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Functional/ExampleTest.php');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Functional/StarWarsFunctionalTestBase.php');
@@ -647,7 +647,7 @@ trait SutTrait {
 
     // Assert that lock files were added to the git repository.
     $this->gitAssertFilesTracked('composer.lock');
-    $this->gitAssertFilesTracked($webroot . '/themes/custom/star_wars/yarn.lock');
+    $this->gitAssertFilesTracked($webroot . '/themes/custom/star_wars/package-lock.json');
 
     $this->gitAssertFilesNotTracked('.data/db.sql');
 

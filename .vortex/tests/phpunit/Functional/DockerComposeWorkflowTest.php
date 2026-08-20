@@ -46,7 +46,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
 
     $this->logSubstep('Installing development dependencies');
     $this->cmd('docker compose exec -T cli composer install --prefer-dist', txt: 'Install development dependencies with Composer', tio: 600);
-    $this->cmd('docker compose exec -T cli bash -cl "yarn install --frozen-lockfile"', txt: 'Install development dependencies with Yarn', tio: 600);
+    $this->cmd('docker compose exec -T cli bash -cl "npm ci"', txt: 'Install development dependencies with npm', tio: 600);
 
     $this->logSubstep('Linting backend code');
     $this->cmd('docker compose exec -T cli vendor/bin/phpcs', txt: 'Lint code with PHPCS', tio: 600);
@@ -55,8 +55,8 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
 
     $this->logSubstep('Linting front-end code');
     $this->cmd('docker compose exec -T cli vendor/bin/twig-cs-fixer lint', txt: 'Lint code with TwigCS', tio: 600);
-    $this->cmd('docker compose exec -T cli yarn run lint', txt: 'Lint code with module linters', tio: 600);
-    $this->cmd('docker compose exec -T cli bash -cl "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"', txt: 'Lint code with theme linters', tio: 600);
+    $this->cmd('docker compose exec -T cli npm run lint', txt: 'Lint code with module linters', tio: 600);
+    $this->cmd('docker compose exec -T cli bash -cl "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"', txt: 'Lint code with theme linters', tio: 600);
 
     $this->fetchDatabase(TRUE);
 
@@ -78,7 +78,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
 
     $this->logSubstep('Installing development dependencies');
     $this->cmd('docker compose exec -T cli composer install --prefer-dist', txt: 'Install development dependencies with Composer', tio: 600);
-    $this->cmd('docker compose exec -T cli bash -cl "yarn install --frozen-lockfile"', txt: 'Install development dependencies with Yarn', tio: 600);
+    $this->cmd('docker compose exec -T cli bash -cl "npm ci"', txt: 'Install development dependencies with npm', tio: 600);
 
     $this->logSubstep('Linting backend code');
     $this->cmd('docker compose exec -T cli vendor/bin/phpcs', txt: 'Lint code with PHPCS', tio: 600);
@@ -87,7 +87,7 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
 
     $this->logSubstep('Linting front-end code');
     $this->cmd('docker compose exec -T cli vendor/bin/twig-cs-fixer lint', txt: 'Lint code with TwigCS', tio: 600);
-    $this->cmd('docker compose exec -T cli yarn run lint', txt: 'Lint code with module linters', tio: 600);
+    $this->cmd('docker compose exec -T cli npm run lint', txt: 'Lint code with module linters', tio: 600);
 
     $this->fetchDatabase(TRUE);
 

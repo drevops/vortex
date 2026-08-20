@@ -28,12 +28,12 @@ import TabItem from '@theme/TabItem';
     # Lint all front-end code: Twig, JavaScript and CSS.
     ahoy lint-fe
     # Lint only JavaScript in custom modules.
-    ahoy cli "yarn run lint-js"
+    ahoy cli "npm run lint-js"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli yarn run lint-js
+    docker compose exec cli npm run lint-js
     ```
   </TabItem>
 </Tabs>
@@ -49,12 +49,12 @@ Prettier integration reformats the code at the same time.
     # Fix all front-end lint issues.
     ahoy lint-fe-fix
     # Fix only JavaScript issues in custom modules.
-    ahoy cli "yarn run lint-fix-js"
+    ahoy cli "npm run lint-fix-js"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli yarn run lint-fix-js
+    docker compose exec cli npm run lint-fix-js
     ```
   </TabItem>
 </Tabs>

@@ -24,7 +24,7 @@ work correctly in isolation, without requiring a browser or Drupal bootstrap.
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli bash -c "yarn test"     # Run all Jest tests.
+    docker compose exec cli bash -c "npm test"      # Run all Jest tests.
     ```
   </TabItem>
 </Tabs>
@@ -37,12 +37,12 @@ work correctly in isolation, without requiring a browser or Drupal bootstrap.
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    ahoy cli "yarn test ys_demo"
+    ahoy cli "npm test -- ys_demo"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli bash -c "yarn test ys_demo"
+    docker compose exec cli bash -c "npm test -- ys_demo"
     ```
   </TabItem>
 </Tabs>
@@ -52,12 +52,12 @@ work correctly in isolation, without requiring a browser or Drupal bootstrap.
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    ahoy cli "yarn test -t 'should increment the value'"
+    ahoy cli "npm test -- -t 'should increment the value'"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli bash -c "yarn test -t 'should increment the value'"
+    docker compose exec cli bash -c "npm test -- -t 'should increment the value'"
     ```
   </TabItem>
 </Tabs>
