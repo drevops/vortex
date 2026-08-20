@@ -297,7 +297,7 @@ const config = {
           },
           {
             from: '/docs/drupal/test-mode',
-            to: '/docs/development/modules',
+            to: '/docs/development/modules/testmode',
           },
           {
             from: '/docs/contributing/maintenance/scripts',
@@ -485,7 +485,7 @@ const config = {
           },
           {
             from: '/docs/tools/gitleaks',
-            to: '/docs/development/security',
+            to: '/docs/development/security/secret-scanning',
           },
           {
             from: '/docs/tools/hadolint',
@@ -549,7 +549,7 @@ const config = {
           },
           {
             from: '/docs/drupal/module-scaffold',
-            to: '/docs/development/modules',
+            to: '/docs/development/modules/module-scaffold',
           },
           {
             from: '/docs/drupal/theme-scaffold',
@@ -561,15 +561,15 @@ const config = {
           },
           {
             from: '/docs/drupal/drupal-helpers',
-            to: '/docs/development/modules',
+            to: '/docs/development/modules/drupal-helpers',
           },
           {
             from: '/docs/drupal/generated-content',
-            to: '/docs/development/modules',
+            to: '/docs/development/modules/generated-content',
           },
           {
             from: '/docs/drupal/testmode',
-            to: '/docs/development/modules',
+            to: '/docs/development/modules/testmode',
           },
           {
             from: '/docs/development/database',

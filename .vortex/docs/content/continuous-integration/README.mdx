@@ -77,7 +77,7 @@ The workflow runs the same 2 checks in both providers, and needs neither the
 application containers nor installed dependencies:
 
 - `composer audit --locked` checks the packages pinned in `composer.lock` against published security advisories
-- [Gitleaks](../development/security.mdx#secret-scanning) scans the codebase for committed secrets
+- [Gitleaks](../development/security/secret-scanning.mdx) scans the codebase for committed secrets
 
 Every check runs even if an earlier one failed, so a single run reports all the
 findings at once. The workflow fails if any of the checks failed, unless that
@@ -475,12 +475,12 @@ failures (but still run the tool and see the results in the logs):
 |---------------------------------------------------------------|-----------------------------------------|-----------------------------------------------|
 | [Behat](../development/testing/behat.mdx)                    | Run BDD acceptance tests                | `VORTEX_CI_BEHAT_IGNORE_FAILURE`              |
 | Composer normalize                                            | Ensure `composer.json` is sorted        | `VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE` |
-| [Composer security audit](../development/security.mdx)       | Check dependencies for vulnerabilities  | `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`     |
+| [Composer security audit](../development/security/dependency-audit.mdx) | Check dependencies for vulnerabilities  | `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`     |
 | Composer validate                                             | Validate `composer.json` and lock file  | `VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE`  |
 | [DCLint](../development/code-quality/dclint.mdx)             | Lint Docker Compose files               | `VORTEX_CI_DCLINT_IGNORE_FAILURE`             |
 | [ESLint](../development/code-quality/eslint.mdx) and [Stylelint](../development/code-quality/stylelint.mdx) | Lint JavaScript and CSS | `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE` |
 | [Gherkin Lint](../development/code-quality/gherkin-lint.mdx) | Lint Behat feature files                | `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE`       |
-| [Gitleaks](../development/security.mdx)                      | Scan the codebase for committed secrets | `VORTEX_CI_GITLEAKS_IGNORE_FAILURE`           |
+| [Gitleaks](../development/security/secret-scanning.mdx)      | Scan the codebase for committed secrets | `VORTEX_CI_GITLEAKS_IGNORE_FAILURE`           |
 | [Hadolint](../development/code-quality/hadolint.mdx)         | Lint Dockerfiles for best practices     | `VORTEX_CI_HADOLINT_IGNORE_FAILURE`           |
 | [Jest](../development/testing/jest.mdx)                      | Run JavaScript unit tests               | `VORTEX_CI_JEST_IGNORE_FAILURE`               |
 | [PHPCS](../development/code-quality/phpcs.mdx)               | Check PHP coding standards              | `VORTEX_CI_PHPCS_IGNORE_FAILURE`              |
