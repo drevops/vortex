@@ -97,8 +97,8 @@ default:
     DrevOps\BehatFormatProgressFail\FormatExtension: ~
 
 # Profiles for parallel testing. CI derives the profile number from the index
-# of the runner it is on minus 'CI_BEHAT_PROFILE_OFFSET', so profiles stay
-# numbered from 'p0' regardless of which runner Behat starts on. Adding a
+# of the runner it is on minus 'VORTEX_CI_BEHAT_PROFILE_OFFSET', so profiles
+# stay numbered from 'p0' regardless of which runner Behat starts on. Adding a
 # runner that runs Behat means adding a profile for its derived number and
 # excluding its tag from the 'p0' catch-all below.
 # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism

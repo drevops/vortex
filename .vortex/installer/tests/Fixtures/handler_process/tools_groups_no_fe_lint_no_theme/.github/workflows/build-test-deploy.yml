@@ -24,13 +24,13 @@
      if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
 @@ -310,9 +300,7 @@
        # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
-       CI_RUNNER_INDEX: ${{ strategy.job-index }}
-       CI_RUNNER_TOTAL: ${{ strategy.job-total }}
--      CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
-       CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
--      CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
+       VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+-      VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-      VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        # Runs on every instance, using the `p<instance index - offset>` profile.
-       CI_IS_BEHAT_RUNNER: true
+       VORTEX_CI_IS_BEHAT_RUNNER: true
        # Subtracted from the instance index to derive the profile number. Raise
 @@ -421,7 +409,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
@@ -45,12 +45,12 @@
          timeout-minutes: 30
  
 -      - name: Test with Jest
--        if: ${{ env.CI_IS_JEST_RUNNER == 'true' }}
+-        if: ${{ env.VORTEX_CI_IS_JEST_RUNNER == 'true' }}
 -        run: docker compose exec -T cli bash -c "yarn test"
 -        continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
 -
        - name: Test with PHPUnit
-         if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
+         if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
          run: docker compose exec -T cli vendor/bin/phpunit
 @@ -499,18 +481,6 @@
            fi
@@ -58,7 +58,7 @@
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 -
 -      - name: Validate Single Directory Components
--        if: ${{ env.CI_IS_SDC_DEVEL_RUNNER == 'true' }}
+-        if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
 -        run: |
 -          [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
 -          output=$(docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}" 2>&1)
@@ -70,4 +70,4 @@
 -        continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
        - name: Test with Behat
-         if: ${{ env.CI_IS_BEHAT_RUNNER == 'true' }}
+         if: ${{ env.VORTEX_CI_IS_BEHAT_RUNNER == 'true' }}

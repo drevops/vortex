@@ -4,7 +4,7 @@
  
 +      - name: Upload coverage report to Codecov
 +        uses: codecov/codecov-action@__HASH__ # __VERSION__
-+        if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' && env.CODECOV_TOKEN != '' }}
++        if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' && env.CODECOV_TOKEN != '' }}
 +        continue-on-error: true
 +        with:
 +          directory: .logs/coverage
@@ -14,5 +14,5 @@
 +          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 +
        - name: Check code coverage threshold
-         if: ${{ env.CI_IS_PHPUNIT_RUNNER == 'true' }}
+         if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
          run: |
