@@ -93,17 +93,18 @@ To assemble and preview the aggregate site locally:
 ```shell
 cd .vortex
 
-# Fetch the other major's documentation into 'docs/content'.
+# Stage both majors into a disposable workspace.
 ahoy assemble-docs
 
 # Build both versions. The build fails on broken internal links.
 ahoy build-docs
 ```
 
-Assembling replaces `docs/content` with the other major's documentation.
-Restore the branch with `git restore .vortex/docs/content` and delete
-`versioned_docs/`, `versioned_sidebars/` and `versions.json` to return to a
-single-version build.
+Assembling only ever reads the tracked `docs/content`. The snapshot and the
+other major's documentation are staged in git-ignored directories, and the
+build switches to them when they are present, so a branch's own files are never
+modified. Run `yarn clear` in `.vortex/docs` to discard the assembly and return
+to a single-version build.
 
 ### Publishing
 

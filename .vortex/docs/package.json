@@ -7,7 +7,7 @@
     "start": "DOCUSAURUS_GENERATED_FILES_DIR_NAME=.docusaurus-dev docusaurus start",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
-    "clear": "docusaurus clear && DOCUSAURUS_GENERATED_FILES_DIR_NAME=.docusaurus-dev docusaurus clear",
+    "clear": "docusaurus clear && DOCUSAURUS_GENERATED_FILES_DIR_NAME=.docusaurus-dev docusaurus clear && rm -rf .docusaurus-versioned versioned_docs versioned_sidebars versions.json",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",

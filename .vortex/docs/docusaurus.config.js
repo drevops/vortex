@@ -10,18 +10,25 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 // Multi-version mode turns on automatically when a 'versioned_docs/' snapshot
 // is present: 'versioned_docs/version-1.x' is v1 (the default, served at the
-// bare '/docs') and the current 'content/' is v2 (served at '/docs/v2'). With
-// no snapshot - local development, per-branch preview builds, and the
-// 'docusaurus docs:version' run that creates the snapshot - the site builds
-// 'content/' as a single unversioned set, so the config never references a
-// version that does not exist yet. The publish jobs assemble the snapshot in
-// CI; it is never committed to a branch.
+// bare '/docs') and the assembled docs are v2 (served at '/docs/v2'). With no
+// snapshot - local development, per-branch preview builds, and the
+// 'docusaurus docs:version' run that creates the snapshot - the site builds a
+// single unversioned set, so the config never references a version that does
+// not exist yet. The publish jobs assemble the snapshot in CI; it is never
+// committed to a branch.
 const versioned = fs.existsSync('versioned_docs');
+
+// The docs the build reads. 'assemble-versioned-docs.sh' writes the other
+// major's content into a disposable workspace and never modifies the tracked
+// 'content/', so an assembled tree is picked up by its presence alone and a
+// plain build of the branch is unaffected.
+const assembledDocsPath = '.docusaurus-versioned/content';
+const docsPath = fs.existsSync(assembledDocsPath) ? assembledDocsPath : 'content';
 
 // The current major (the 'VORTEX_CURRENT_MAJOR' repository variable, default 1)
 // drives the whole site: its docs are a snapshot under 'versioned_docs/' served
-// as the default at the bare '/docs', and the live 'content/' (pulled from the
-// other major's '{N}.x' branch in CI) is served at '/docs/v{other}'. Bumping
+// as the default at the bare '/docs', and the assembled docs (pulled from the
+// other major's '{N}.x' branch in CI) are served at '/docs/v{other}'. Bumping
 // that one variable promotes a new major - nothing else changes here.
 const currentMajor = process.env.VORTEX_CURRENT_MAJOR || '1';
 const otherMajor = currentMajor === '1' ? '2' : '1';
@@ -80,13 +87,21 @@ const config = {
         docs: {
           routeBasePath: '/docs',
           sidebarPath: './sidebars.js',
-          path: 'content',
-          // Please change this to your repo.
+          path: docsPath,
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/drevops/vortex/tree/main/.vortex/docs/',
+          //
+          // Both the snapshot and the assembled docs are built from copies that
+          // exist only for the build, so the link is composed from the branch
+          // that actually carries the page: the other major's docs live on its
+          // '{N}.x' branch, everything else on 'main'.
+          editUrl: ({version, docPath}) => {
+            const branch = versioned && version === 'current' ? `${otherMajor}.x` : 'main';
+
+            return `https://github.com/drevops/vortex/tree/${branch}/.vortex/docs/content/${docPath}`;
+          },
           // In versioned (aggregate) builds the current major is the snapshot
           // in 'versioned_docs/' served at the bare '/docs' (the default), and
-          // the live 'content/' is the other major at '/docs/v{other}'. Both
+          // the assembled docs are the other major at '/docs/v{other}'. Both
           // are derived from 'VORTEX_CURRENT_MAJOR' - no manual edits to flip.
           ...(versioned ? {
             lastVersion: currentDocsVersion,
@@ -125,7 +140,7 @@ const config = {
       ({
         // @see https://github.com/easyops-cn/docusaurus-search-local#theme-options
         searchBarPosition: 'left',
-        docsDir: 'content',
+        docsDir: docsPath,
         docsRouteBasePath: '/docs',
         indexBlog: false,
         hashed: true,
