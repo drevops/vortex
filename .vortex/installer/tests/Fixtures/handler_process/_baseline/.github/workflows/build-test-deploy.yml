@@ -270,10 +270,10 @@ jobs:
           if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
           ./vendor/bin/vortex-login-container-registry
           docker compose up --detach && sleep 15
-          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+          docker compose exec cli mkdir -p .data && docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
           ./vendor/bin/vortex-export-db db.sql
-          docker compose cp -L cli:/app/.data/db.sql .data/db.sql
+          docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql
         timeout-minutes: 30
 
       # Save cache per default branch and the timestamp.
@@ -412,7 +412,7 @@ jobs:
         if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         run: |
           mkdir -p "/tmp/workspace/code" "/tmp/artifacts"
-          docker compose cp -L cli:"/app/." "/tmp/workspace/code"
+          docker compose --progress quiet cp -L cli:"/app/." "/tmp/workspace/code"
           tar -C /tmp/workspace -cpf /tmp/artifacts/code.tar code
           du -sh "/tmp/artifacts"
 
@@ -429,7 +429,7 @@ jobs:
           # container to avoid holding two copies for the rest of the job.
           if [ -f .data/db.sql ]; then
             docker compose exec cli mkdir -p .data
-            docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+            docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
             rm -f .data/db.sql
           fi
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
@@ -450,7 +450,7 @@ jobs:
         run: |
           mkdir -p ".logs"
           if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-             docker compose cp cli:/app/.logs/. ".logs/"
+             docker compose --progress quiet cp cli:/app/.logs/. ".logs/"
           fi
 
       - name: Extract code coverage
@@ -530,7 +530,7 @@ jobs:
         run: |
           mkdir -p ".logs"
           if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-             docker compose cp cli:/app/.logs/. ".logs/"
+             docker compose --progress quiet cp cli:/app/.logs/. ".logs/"
           fi
 
       - name: Upload test artifacts

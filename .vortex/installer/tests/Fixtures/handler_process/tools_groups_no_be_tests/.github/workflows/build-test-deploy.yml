@@ -38,7 +38,7 @@
 -        run: |
 -          mkdir -p ".logs"
 -          if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
--             docker compose cp cli:/app/.logs/. ".logs/"
+-             docker compose --progress quiet cp cli:/app/.logs/. ".logs/"
 -          fi
 -
 -      - name: Extract code coverage

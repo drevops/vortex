@@ -258,11 +258,11 @@ jobs:
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
             ./vendor/bin/vortex-login-container-registry
             docker compose up --detach && sleep 15
-            docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+            docker compose exec cli mkdir -p .data && docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
             ./vendor/bin/vortex-export-db db.sql
-            docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
+            docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 
       # Deploy the freshly-exported database image to the container registry.
@@ -373,7 +373,7 @@ jobs:
           command: |
             echo "${VORTEX_DEPLOY_TYPES:-}" | grep -vq "artifact" && exit 0 || true
             mkdir -p "/tmp/workspace/code"
-            docker compose cp -L cli:"/app/." "/tmp/workspace/code"
+            docker compose --progress quiet cp -L cli:"/app/." "/tmp/workspace/code"
             du -sh "/tmp/workspace/code"
 
       - run:
@@ -390,7 +390,7 @@ jobs:
             # container to avoid holding two copies for the rest of the job.
             if [ -f .data/db.sql ]; then
               docker compose exec cli mkdir -p .data
-              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+              docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
               rm -f .data/db.sql
             fi
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
@@ -408,7 +408,7 @@ jobs:
             [ "${VORTEX_CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
             mkdir -p "${VORTEX_CI_ARTIFACTS}"
             if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-               docker compose cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
+               docker compose --progress quiet cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
             fi
 
       - run:
@@ -464,9 +464,9 @@ jobs:
           command: |
             mkdir -p "${VORTEX_CI_TEST_RESULTS}" "${VORTEX_CI_ARTIFACTS}"
             if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-               docker compose cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
+               docker compose --progress quiet cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
               if docker compose exec -T cli sh -c '[ -d /app/.logs/test_results/ ]'; then
-                 docker compose cp cli:/app/.logs/test_results/. "${VORTEX_CI_TEST_RESULTS}/"
+                 docker compose --progress quiet cp cli:/app/.logs/test_results/. "${VORTEX_CI_TEST_RESULTS}/"
               fi
             fi
           when: always
