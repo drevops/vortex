@@ -55,6 +55,37 @@ does not apply any configuration overrides.
 - Configuration overrides are defined in [per-module override files](#per-module-overrides),
 with conditions applied based on the detected _environment type_.
 
+The `settings.php` file runs its sections in a fixed order, loading additional
+files from the `includes/` directories along the way:
+
+```text
+🚀 Drupal bootstrap
+   │
+   ▼
+📄 web/sites/default/settings.php
+   │
+① 🛢️ Database
+   │  Connection credentials from environment variables.
+   ▼
+② ⚙️ General
+   │  File paths, hash salt, timezone, maintenance theme.
+   ▼
+③ 🔍 Environment type detection
+   │  Loads web/sites/default/includes/providers/settings.<provider>.php
+   │  (acquia, lagoon, circleci, gha, container) and stores the detected
+   │  type in $settings['environment']. No overrides are applied here.
+   ▼
+④ 🧩 Per-module overrides
+   │  Loads every web/sites/default/includes/modules/settings.<module>.php,
+   │  each applying its overrides based on the detected environment type.
+   ▼
+⑤ 🏠 Local overrides
+   │  Loads web/sites/default/settings.local.php and services.local.yml
+   │  when present (local development only).
+   ▼
+🏁 Fully configured site
+```
+
 This structure offers several benefits:
 
 - It keeps environment detection separate from configuration logic.
@@ -63,38 +94,6 @@ This structure offers several benefits:
 without modifying the `settings.php` file.
 - It prevents environment-specific settings from leaking into unrelated parts of
 the configuration.
-
-## Guidelines
-
-When working with settings, follow these guidelines to ensure clarity, consistency, and maintainability:
-
-- **Do not modify `settings.php` directly.<br/>**
-Use environment variables for [general](#general) settings or [per-module override files](#per-module-overrides)
-for any custom or environment-aware configuration.
-
-- **Keep all overrides isolated by module.**<br/>
-Each file should encapsulate logic for a single module only. If a module is
-removed, its override file should be removable without affecting unrelated
-settings.
-
-- **Use environment variables for configuration that changes by environment.**<br/>
-Prefix all such variables with `DRUPAL_` (e.g. `DRUPAL_MY_SETTING`) to
-distinguish them from other environment variables.<br/>
-Always define a default hardcoded value for each environment variable.
-
-- **Use conditions based on _environment type_ within per-module override files.**<br/>
-This allows for environment-specific configuration without cluttering the main
-`settings.php` file.<br/>
-Use the `$settings['environment']` variable to check the current _environment type_.
-
-import EnvironmentIndicatorModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.environment_indicator.php';
-
-<details>
-  <summary>Example of the `Environment indicator` module `settings.environment_indicator.php` file</summary>
-
-  <CodeBlock language="php">{EnvironmentIndicatorModuleSettingsExample}</CodeBlock>
-
-</details>
 
 ## Settings file structure
 
@@ -312,6 +311,38 @@ import LocalServicesExample from '!!raw-loader!@site/../../web/sites/default/exa
   <summary>Click here to see the contents of the `example.services.local.yml` file</summary>
 
   <CodeBlock language="php">{LocalServicesExample}</CodeBlock>
+
+</details>
+
+## Guidelines
+
+When working with settings, follow these guidelines to ensure clarity, consistency, and maintainability:
+
+- **Do not modify `settings.php` directly.<br/>**
+Use environment variables for [general](#general) settings or [per-module override files](#per-module-overrides)
+for any custom or environment-aware configuration.
+
+- **Keep all overrides isolated by module.**<br/>
+Each file should encapsulate logic for a single module only. If a module is
+removed, its override file should be removable without affecting unrelated
+settings.
+
+- **Use environment variables for configuration that changes by environment.**<br/>
+Prefix all such variables with `DRUPAL_` (e.g. `DRUPAL_MY_SETTING`) to
+distinguish them from other environment variables.<br/>
+Always define a default hardcoded value for each environment variable.
+
+- **Use conditions based on _environment type_ within per-module override files.**<br/>
+This allows for environment-specific configuration without cluttering the main
+`settings.php` file.<br/>
+Use the `$settings['environment']` variable to check the current _environment type_.
+
+import EnvironmentIndicatorModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.environment_indicator.php';
+
+<details>
+  <summary>Example of the `Environment indicator` module `settings.environment_indicator.php` file</summary>
+
+  <CodeBlock language="php">{EnvironmentIndicatorModuleSettingsExample}</CodeBlock>
 
 </details>
 
