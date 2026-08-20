@@ -19,6 +19,7 @@ x-environment: &default-environment
   TZ: ${TZ:-UTC}
   # Pass-through 'CI' variable used to identify the CI environment.
   CI: ${CI:-}
+  ##SSMTP_MAILHUB: "127.0.0.1:1" # Closed port so that no message leaves an automated test run. Automatically uncommented in CI.
   # Pass-through 'ENVIRONMENT_TYPE' to override the auto-detected environment type.
   ENVIRONMENT_TYPE: ${ENVIRONMENT_TYPE:-}
   # Pass-through 'XDEBUG_ENABLE' to enable XDebug with "ahoy debug" or "XDEBUG_ENABLE=true docker compose up -d".
