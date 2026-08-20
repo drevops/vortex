@@ -16,7 +16,7 @@
      container:
        # https://hub.docker.com/r/drevops/ci-runner
 @@ -167,130 +164,8 @@
-         run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
+         run: docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
 -  database:

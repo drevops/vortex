@@ -284,7 +284,7 @@ jobs:
               if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
             #;< TOOL_JEST
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
             #;> TOOL_JEST
 
       - run:
@@ -312,7 +312,7 @@ jobs:
           name: Test with Jest
           command: |
             [ "${VORTEX_CI_IS_JEST_RUNNER:-1}" = "1" ] || exit 0
-            docker compose exec -T cli bash -c "yarn test" || [ "${VORTEX_CI_JEST_IGNORE_FAILURE:-0}" -eq 1 ]
+            docker compose exec -T cli bash -c "npm test" || [ "${VORTEX_CI_JEST_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> TOOL_JEST
 
       #;< TOOL_PHPUNIT

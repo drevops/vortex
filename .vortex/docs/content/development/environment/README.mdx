@@ -42,7 +42,7 @@ instead of silently disappearing until someone remembers to allow it.
 
 The `.gitignore` file controls which paths Git ignores in the project
 repository - committing a file is still what puts it there. It
-excludes Composer- and Yarn-generated directories (`web/core`,
+excludes Composer- and npm-generated directories (`web/core`,
 `web/modules/contrib`, `vendor`, `node_modules`), local setting overrides,
 caches, and content files. Two sections stay as small allow lists because a deny
 rule cannot express them:
@@ -86,7 +86,7 @@ on what changed:
     # Update Composer dependencies (only if composer.json/composer.lock changed)
     docker compose exec cli composer install
     # Rebuild frontend assets (only if theme files changed)
-    docker compose exec cli bash -c "cd \${WEBROOT}/themes/custom/\${DRUPAL_THEME} && yarn run build"
+    docker compose exec cli bash -c "cd \${WEBROOT}/themes/custom/\${DRUPAL_THEME} && npm run build"
     # Provision site (only if database or configuration changes expected)
     docker compose exec cli ./vendor/bin/vortex-provision
     ```

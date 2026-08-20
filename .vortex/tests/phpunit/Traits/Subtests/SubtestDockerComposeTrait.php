@@ -16,7 +16,7 @@ trait SubtestDockerComposeTrait {
 
     $this->logSubstep('Assert lock files presence/absence before build');
     $this->assertFileDoesNotExist('composer.lock', 'Composer lock file should not exist before build');
-    $this->assertFileExists('yarn.lock', 'Yarn lock file should exist before build');
+    $this->assertFileExists('package-lock.json', 'npm lock file should exist before build');
 
     if ($build_theme) {
       $this->assertThemeFilesPresent($webroot);
@@ -38,7 +38,7 @@ trait SubtestDockerComposeTrait {
 
     $this->logSubstep('Assert lock files presence/absence after build');
     $this->assertFileExists('composer.lock', 'Composer lock file should exist after build');
-    $this->assertFileExists('yarn.lock', 'Yarn lock file should exist after build');
+    $this->assertFileExists('package-lock.json', 'npm lock file should exist after build');
     if ($build_theme) {
       $this->assertThemeFilesPresent($webroot);
     }

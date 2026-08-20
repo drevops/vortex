@@ -7,7 +7,7 @@
 -        continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
 -
        - name: Lint module code with NodeJS linters
-         run: docker compose exec -T cli bash -c "yarn run lint"
+         run: docker compose exec -T cli bash -c "npm run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 @@ -311,14 +307,7 @@
        VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
@@ -25,7 +25,7 @@
      container:
        # https://hub.docker.com/r/drevops/ci-runner
 @@ -440,66 +429,6 @@
-         run: docker compose exec -T cli bash -c "yarn test"
+         run: docker compose exec -T cli bash -c "npm test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
 -      - name: Test with PHPUnit

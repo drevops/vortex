@@ -45,7 +45,7 @@
             "groupSlug": "js-language-versions",
             "matchDepNames": [
                 "node",
-                "yarn"
+                "npm"
             ],
             "matchManagers": [
                 "npm"

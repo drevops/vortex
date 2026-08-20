@@ -18,7 +18,7 @@
 @@ -266,11 +263,6 @@
    test-js:
      usage: Run Jest JavaScript unit tests.
-     cmd: ahoy cli "yarn test"
+     cmd: ahoy cli "npm test"
 -
 -  test-bdd:
 -    usage: Run BDD tests.

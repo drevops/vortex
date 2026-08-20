@@ -1,10 +1,10 @@
 @@ -13,13 +13,10 @@
-     "lint": "yarn run lint-js && yarn run lint-css",
+     "lint": "npm run lint-js && npm run lint-css",
      "lint-fix-js": "eslint web/modules/custom --ext .js --no-error-on-unmatched-pattern --fix",
      "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" --fix",
--    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css",
+-    "lint-fix": "npm run lint-fix-js && npm run lint-fix-css",
 -    "test": "jest --coverage --passWithNoTests"
-+    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css"
++    "lint-fix": "npm run lint-fix-js && npm run lint-fix-css"
    },
    "devDependencies": {
      "@homer0/prettier-plugin-jsdoc": "__VERSION__",

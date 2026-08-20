@@ -7,8 +7,8 @@
    lint-be:
      usage: Lint back-end code.
 @@ -210,11 +209,6 @@
-       ahoy cli "yarn run lint"
-       ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+       ahoy cli "npm run lint"
+       ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
  
 -  lint-tests:
 -    usage: Lint tests code.
@@ -19,8 +19,8 @@
      usage: Validate Single Directory Components (requires a provisioned site).
      cmd: |
 @@ -242,35 +236,9 @@
-       ahoy cli "yarn run lint-fix"
-       ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
+       ahoy cli "npm run lint-fix"
+       ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
  
 -  test:
 -    usage: Run all PHPUnit tests.
@@ -45,7 +45,7 @@
 -
    test-js:
      usage: Run Jest JavaScript unit tests.
-     cmd: ahoy cli "yarn test"
+     cmd: ahoy cli "npm test"
 -
 -  test-bdd:
 -    usage: Run BDD tests.
