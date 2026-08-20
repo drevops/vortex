@@ -365,7 +365,7 @@ const config = {
           },
           {
             from: '/docs/workflows/development/debugging',
-            to: '/docs/development/environment#debugging',
+            to: '/docs/development/environment/debugging',
           },
           {
             from: '/docs/workflows/development/composer',
@@ -385,27 +385,27 @@ const config = {
           },
           {
             from: '/docs/workflows/notifications/email',
-            to: '/docs/deployment/notifications',
+            to: '/docs/deployment/notifications/email',
           },
           {
             from: '/docs/workflows/notifications/github',
-            to: '/docs/deployment/notifications',
+            to: '/docs/deployment/notifications/github',
           },
           {
             from: '/docs/workflows/notifications/jira',
-            to: '/docs/deployment/notifications',
+            to: '/docs/deployment/notifications/jira',
           },
           {
             from: '/docs/workflows/notifications/newrelic',
-            to: '/docs/deployment/notifications',
+            to: '/docs/deployment/notifications/newrelic',
           },
           {
             from: '/docs/workflows/notifications/slack',
-            to: '/docs/deployment/notifications',
+            to: '/docs/deployment/notifications/slack',
           },
           {
             from: '/docs/workflows/notifications/webhook',
-            to: '/docs/deployment/notifications',
+            to: '/docs/deployment/notifications/webhook',
           },
           {
             from: '/docs/workflows/releasing',
@@ -445,7 +445,7 @@ const config = {
           },
           {
             from: '/docs/tools/ahoy',
-            to: '/docs/development/environment#ahoy',
+            to: '/docs/development/environment/ahoy',
           },
           {
             from: '/docs/tools/behat',
@@ -461,15 +461,15 @@ const config = {
           },
           {
             from: '/docs/tools/docker',
-            to: '/docs/development/environment#docker',
+            to: '/docs/development/environment/docker',
           },
           {
             from: '/docs/tools/doctor',
-            to: '/docs/development/environment#doctor',
+            to: '/docs/development/environment/doctor',
           },
           {
             from: '/docs/tools/drush',
-            to: '/docs/development/environment#drush',
+            to: '/docs/development/environment/drush',
           },
           {
             from: '/docs/tools/eslint',
@@ -509,7 +509,7 @@ const config = {
           },
           {
             from: '/docs/tools/pygmy',
-            to: '/docs/development/environment#pygmy',
+            to: '/docs/development/environment/pygmy',
           },
           {
             from: '/docs/tools/rector',
@@ -577,7 +577,7 @@ const config = {
           },
           {
             from: '/docs/development/debugging',
-            to: '/docs/development/environment#debugging',
+            to: '/docs/development/environment/debugging',
           },
           {
             from: '/docs/development/phpunit',

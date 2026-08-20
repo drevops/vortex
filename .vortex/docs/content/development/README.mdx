@@ -20,7 +20,7 @@ to the right page for each task.
 
 1. Pull the latest changes from the remote repository.
 2. [Fetch the latest database dump](provision.mdx#database) from the production environment.
-3. [Build the project](environment.mdx).
+3. [Build the project](environment/README.mdx).
 4. Start a new feature or bugfix branch:
     - Create a new branch from `develop` (see [Releasing > GitFlow](../releasing/gitflow.mdx) for the branch structure).
     - Implement the feature or fix the bug.
@@ -155,7 +155,7 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 | Page | Description |
 |------|-------------|
-| [Environment](environment.mdx) | The container stack, Ahoy, Drush, Doctor, Pygmy, debugging |
+| [Environment](environment/README.mdx) | The container stack, Ahoy, Drush, Doctor, Pygmy, debugging |
 | [Composer](composer.mdx) | Managing packages, patching, security auditing, the shipped `composer.json` |
 | [Provision](provision.mdx) | Fetching and importing databases, the provisioning flow, deploy hooks |
 | [Settings](settings.mdx) | Environment type detection and per-module settings overrides |
@@ -177,14 +177,14 @@ Every tool **Vortex** ships, and where it is documented.
 
 | Tool | Documented in |
 |------|---------------|
-| Ahoy | [Environment > Ahoy](environment.mdx#ahoy) |
+| Ahoy | [Environment > Ahoy](environment/ahoy.mdx) |
 | Behat | [Testing > Behat](testing/behat.mdx) |
 | Composer | [Composer](composer.mdx) |
 | DCLint | [Code quality > DCLint](code-quality/dclint.mdx) |
 | Diffy | [Visual regression > Diffy](visual-regression.mdx#diffy) |
-| Docker | [Environment > Docker](environment.mdx#docker) |
-| Doctor | [Environment > Doctor](environment.mdx#doctor) |
-| Drush | [Environment > Drush](environment.mdx#drush) |
+| Docker | [Environment > Docker](environment/docker.mdx) |
+| Doctor | [Environment > Doctor](environment/doctor.mdx) |
+| Drush | [Environment > Drush](environment/drush.mdx) |
 | ESLint | [Code quality > ESLint](code-quality/eslint.mdx) |
 | Gherkin Lint | [Code quality > Gherkin Lint](code-quality/gherkin-lint.mdx) |
 | Git artifact | [Deployment > Artifact > Git artifact tool](../deployment/artifact.mdx#git-artifact-tool) |
@@ -194,10 +194,10 @@ Every tool **Vortex** ships, and where it is documented.
 | PHPCS | [Code quality > PHPCS](code-quality/phpcs.mdx) |
 | PHPStan | [Code quality > PHPStan](code-quality/phpstan.mdx) |
 | PHPUnit | [Testing > PHPUnit](testing/phpunit.mdx) |
-| Pygmy | [Environment > Pygmy](environment.mdx#pygmy) |
+| Pygmy | [Environment > Pygmy](environment/pygmy.mdx) |
 | Rector | [Code quality > Rector](code-quality/rector.mdx) |
 | Renovate | [Dependency updates](dependency-updates.mdx) |
 | SDC Devel | [Code quality > SDC Devel](code-quality/sdc-devel.mdx) |
 | Stylelint | [Code quality > Stylelint](code-quality/stylelint.mdx) |
 | Twig CS Fixer | [Code quality > Twig CS Fixer](code-quality/twig-cs-fixer.mdx) |
-| Xdebug | [Environment > Debugging](environment.mdx#debugging) |
+| Xdebug | [Environment > Debugging](environment/debugging.mdx) |
