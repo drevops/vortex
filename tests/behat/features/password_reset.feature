@@ -1,11 +1,11 @@
-Feature: Email
+Feature: Password reset
 
-  As a site administrator
-  I want outgoing messages to be captured instead of delivered during tests
-  So that I can assert on their recipients and content
+  As a site visitor who has forgotten their password
+  I want to be sent a one-time login link
+  So that I can get back into my account without contacting an administrator
 
   @api @email
-  Scenario: Password reset message is captured with its original recipient
+  Scenario: Visitor requests a one-time login link
     Given the following users:
       | name          | mail                      |
       | test_password | test_password@example.com |

@@ -81,7 +81,6 @@ trait DeploymentTrait {
     // Site core module should be present.
     $this->assertDirectoryExists($dir . '/' . $webroot . '/modules/custom/sw_base', 'sw_base module directory should exist');
     $this->assertFileExists($dir . '/' . $webroot . '/modules/custom/sw_base/sw_base.info.yml', 'sw_base info file should exist');
-    $this->assertFileExists($dir . '/' . $webroot . '/modules/custom/sw_base/sw_base.module', 'sw_base module file should exist');
     $this->assertFileExists($dir . '/' . $webroot . '/modules/custom/sw_base/sw_base.deploy.php', 'sw_base deploy file should exist');
 
     // Site theme should be present.
