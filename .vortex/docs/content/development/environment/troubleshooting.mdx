@@ -1,0 +1,56 @@
+---
+sidebar_label: Troubleshooting
+sidebar_position: 9
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Troubleshooting
+
+When the local environment misbehaves, run [Doctor](doctor.mdx) first - it
+pinpoints the layer that is broken (tooling, containers, or the site itself)
+before you start guessing.
+
+## Site not loading
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy doctor                # Check for common issues
+    ahoy down && ahoy up       # Restart containers
+    ahoy info                  # Verify URLs and ports
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    ./vendor/bin/vortex-doctor                       # Check for common issues
+    docker compose down && docker compose up -d      # Restart containers
+    docker compose exec cli ./vendor/bin/vortex-info # Verify URLs and ports
+    ```
+  </TabItem>
+</Tabs>
+
+## Database connection errors
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    docker compose ps      # Check if the database container is running
+    ahoy reset             # Last resort: rebuild everything
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose ps      # Check if the database container is running
+    docker compose down --volumes && docker compose up -d  # Last resort
+    ```
+  </TabItem>
+</Tabs>
+
+## Permission issues
+
+```shell
+# Fix file permissions (Linux/Mac)
+sudo chown -R $USER:$USER .
+```
