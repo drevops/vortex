@@ -4,5 +4,5 @@
  recipes/*
 -!recipes/page
  
- # Ignore all Claude files by default. Custom files should be added explicitly.
- .claude/*
+ # Claude writes machine-local state into '.claude/', so it stays an allow
+ # list: un-ignore only the files shared with the team.
