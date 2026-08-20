@@ -1,8 +1,0 @@
-<?php
-
-/**
- * @file
- * Base module for star wars.
- */
-
-declare(strict_types=1);

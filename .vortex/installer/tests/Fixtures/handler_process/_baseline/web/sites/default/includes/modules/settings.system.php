@@ -24,11 +24,9 @@ if ($settings['environment'] === ENVIRONMENT_LOCAL || $settings['environment'] =
 }
 
 if ($settings['environment'] === ENVIRONMENT_CI) {
-  // Store outgoing messages in the state system instead of handing them to the
-  // mail transport, so that tests can assert on the messages that were
-  // produced. Being a settings override, this cannot be switched off from
-  // within the site, including by a test that does not ask for a mail
-  // collector. A message routed through a module-specific interface still
-  // reaches the transport, which the container points at a closed port.
+  // Delivery fails in CI because the transport points at a closed port, and a
+  // failed delivery makes Drupal log an error and show a message to the user.
+  // Storing messages in the state system reports success instead, and leaves
+  // them readable by tests that assert on what was sent.
   $config['system.mail']['interface']['default'] = 'test_mail_collector';
 }
