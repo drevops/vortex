@@ -138,7 +138,7 @@ commands:
     cmd: yarn --cwd=docs run update-variables
 
   assemble-docs:
-    usage: Assemble the multi-version documentation site. Replaces 'docs/content' with the other major's documentation.
+    usage: Assemble the multi-version documentation site into a disposable workspace. Does not modify 'docs/content'.
     cmd: yarn --cwd=docs run assemble-versions
 
   update-videos:
