@@ -474,8 +474,8 @@ final class VideoRecorder {
     // sequence can be split across two recorded events and is only contiguous
     // once they are concatenated.
     $text = '';
-    foreach (array_slice($lines, 1) as $line) {
-      $line = trim($line);
+    for ($i = 1, $n = count($lines); $i < $n; $i++) {
+      $line = trim($lines[$i]);
 
       if ($line === '') {
         continue;
@@ -483,9 +483,15 @@ final class VideoRecorder {
 
       $event = json_decode($line, TRUE);
 
+      // A line that cannot be read is output that cannot be checked, so a
+      // recording is refused rather than approved on a partial transcript.
+      if (!is_array($event)) {
+        throw new RuntimeException(sprintf('Malformed event on line %d of %s', $i + 1, $cast_path));
+      }
+
       // Only 'o' events carry terminal output; 'i' and 'r' events carry input
       // and resizes.
-      if (is_array($event) && ($event[1] ?? '') === 'o' && isset($event[2])) {
+      if (($event[1] ?? '') === 'o' && isset($event[2])) {
         $text .= (string) $event[2];
       }
     }
@@ -501,7 +507,7 @@ final class VideoRecorder {
       // Operating system commands, such as the window title.
       '#\x1b\][^\x07\x1b]*(?:\x07|\x1b\\\\)#',
       // Control sequence introducer, covering colors and cursor movement.
-      '#\x1b\[[0-9;?]*[ -/]*[@-~]#',
+      '#\x1b\[[0-?]*[ -/]*[@-~]#',
       // Two-character escapes left between the sequences above.
       '#\x1b[@-Z\\\\-_]#',
     ];
