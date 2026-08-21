@@ -88,8 +88,8 @@ timestamp, typer on/off) live in the `VIDEOS` array at the top of
 **Pipeline**:
 
 1. Runs the installer non-interactively (or via `expect` when `installer` is in the requested set) using `--uri=<project_root>`, producing `$workspace/star_wars`.
-2. If any of `build`, `provision`, `lint`, `test`, `test-bdd` is requested, `ahoy build` runs **once** in `$workspace/star_wars` (either as the recorded `build` video or silently).
-3. Remaining requested commands (`provision`, `lint`, `test`, `test-bdd`) are recorded in that same `star_wars` directory, in fixed order.
+2. If any of `build`, `provision`, `lint`, `test`, `test-bdd`, `info`, `doctor`, `doctor-info` is requested, `ahoy build` runs **once** in `$workspace/star_wars` (either as the recorded `build` video or silently).
+3. Remaining requested commands (`info`, `doctor`, `doctor-info`, `provision`, `lint`, `test`, `test-bdd`) are recorded in that same `star_wars` directory, in fixed order.
 4. Each cast is decoded to plain text at `.artifacts/videos/<name>.txt` and checked before it is rendered; a recording whose output reports an error, a warning or a failure is not turned into an SVG.
 5. The workspace and Docker stack are preserved at exit so the next `--keep` invocation can reuse them; a stale workspace from a previous run is torn down at the **start** of the next non-`--keep` run.
 
