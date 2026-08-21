@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 $doc_root = $_SERVER['DOCUMENT_ROOT'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$path = is_string($path) ? urldecode($path) : '/';
+$path = is_string($path) ? rawurldecode($path) : '/';
 
 // Reject traversal outside the build directory before touching the filesystem.
 if (str_contains($path, '..')) {
