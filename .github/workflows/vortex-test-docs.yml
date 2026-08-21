@@ -25,6 +25,10 @@ jobs:
     env:
       CURRENT_MAJOR: ${{ vars.VORTEX_CURRENT_MAJOR || '1' }}
       OTHER_MAJOR: ${{ (vars.VORTEX_CURRENT_MAJOR || '1') == '1' && '2' || '1' }}
+      # The major the triggering commit ships. Each major builds its own binary
+      # from its own workflow, so the workflow name identifies the major for
+      # pushes, branches and fork pull requests alike.
+      DOCS_MAJOR: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && '2' || '1' }}
       BINARY_ARTIFACT: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && 'vortex-cli' || 'vortex-installer' }}
       BINARY_FILE: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && 'vortex.phar' || 'installer.phar' }}
 
@@ -138,6 +142,7 @@ jobs:
         working-directory: '${{ github.workspace }}/.vortex'
         env:
           VORTEX_CURRENT_MAJOR: ${{ env.CURRENT_MAJOR }}
+          VORTEX_DOCS_MAJOR: ${{ env.DOCS_MAJOR }}
 
       # This workflow runs via 'workflow_run', where 'github.ref' is always the
       # default branch, so the action's branch-based production detection cannot

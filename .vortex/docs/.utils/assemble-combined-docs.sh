@@ -2,10 +2,15 @@
 ##
 # Assemble the combined documentation site, serving both majors from one build.
 #
-# Produces a complete, self-contained Docusaurus site in 'docs_combined/': this
-# branch's documentation as the default version at '/docs', and the other
-# major's '{N}.x' branch documentation at '/docs/v{N}' with its own assets at
-# '/v{N}'. Everything the assembly writes stays inside 'docs_combined/', which
+# Produces a complete, self-contained Docusaurus site in 'docs_combined/'. The
+# current major is served at '/docs' with its assets at '/img'; the other major
+# is served at '/docs/v{other}' with its assets at '/v{other}/img'.
+#
+# This checkout supplies the documentation for the major it ships
+# ('VORTEX_DOCS_MAJOR'); the other major is read from its own branch. So a
+# branch off 'main' is built as the current major and '{other}.x' is fetched,
+# while a branch off '{other}.x' is built as the other major and 'main' is
+# fetched. Everything the assembly writes stays inside 'docs_combined/', which
 # is disposable - 'docs/' is only ever read.
 #
 # @usage
@@ -15,8 +20,12 @@ set -eu
 set -o pipefail
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# The major this branch ships. Its docs become the site's default version.
+# The major served as the site's default version at the bare '/docs'.
 VORTEX_CURRENT_MAJOR="${VORTEX_CURRENT_MAJOR:-1}"
+
+# The major this checkout ships. Defaults to the current major, which is the
+# major that lives on the default branch.
+VORTEX_DOCS_MAJOR="${VORTEX_DOCS_MAJOR:-${VORTEX_CURRENT_MAJOR}}"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../" && pwd)"
 DOCS_DIR="${ROOT_DIR}/.vortex/docs"
@@ -24,23 +33,69 @@ COMBINED_DIR="${ROOT_DIR}/.vortex/docs_combined"
 
 sed_opts=(-i) && [ "$(uname)" = "Darwin" ] && sed_opts=(-i '')
 
+for major in "${VORTEX_CURRENT_MAJOR}" "${VORTEX_DOCS_MAJOR}"; do
+  case "${major}" in
+    1 | 2) ;;
+    *)
+      echo "ERROR: Invalid major '${major}'. Expected 1 or 2." >&2
+      exit 1
+      ;;
+  esac
+done
+
 case "${VORTEX_CURRENT_MAJOR}" in
   1) other_major=2 ;;
   2) other_major=1 ;;
-  *)
-    echo "ERROR: Invalid VORTEX_CURRENT_MAJOR='${VORTEX_CURRENT_MAJOR}'. Expected 1 or 2." >&2
-    exit 1
-    ;;
 esac
 
-git -C "${ROOT_DIR}" fetch origin "${other_major}.x" --depth=1 || {
-  echo "ERROR: Failed to fetch the ${other_major}.x branch." >&2
+# The current major lives on the default branch; every other major lives on its
+# own '{N}.x' branch. Whichever side this checkout does not supply is fetched.
+if [ "${VORTEX_DOCS_MAJOR}" = "${VORTEX_CURRENT_MAJOR}" ]; then
+  default_ref=""
+  other_ref="origin/${other_major}.x"
+else
+  default_ref="origin/main"
+  other_ref=""
+fi
+
+fetch_ref="${default_ref}${other_ref}"
+fetch_branch="${fetch_ref#origin/}"
+
+git -C "${ROOT_DIR}" fetch origin "${fetch_branch}" --depth=1 || {
+  echo "ERROR: Failed to fetch the ${fetch_branch} branch." >&2
   exit 1
 }
 
-git -C "${ROOT_DIR}" rev-parse --verify "origin/${other_major}.x" >/dev/null || {
-  echo "ERROR: The ${other_major}.x branch does not exist." >&2
+git -C "${ROOT_DIR}" rev-parse --verify "${fetch_ref}" >/dev/null || {
+  echo "ERROR: The ${fetch_branch} branch does not exist." >&2
   exit 1
+}
+
+##
+# Replace a directory with a major's documentation tree.
+#
+# $1 - directory to populate.
+# $2 - subdirectory of the documentation to read ('content' or 'static').
+# $3 - git ref to read from, or empty to read this checkout.
+##
+populate() {
+  local dest="${1}"
+  local tree="${2}"
+  local ref="${3}"
+
+  rm -rf "${dest}"
+  mkdir -p "${dest}"
+
+  if [ -z "${ref}" ]; then
+    cp -R "${DOCS_DIR}/${tree}/." "${dest}/"
+  else
+    git -C "${ROOT_DIR}" archive "${ref}:.vortex/docs/${tree}" | tar -x -C "${dest}"
+  fi
+
+  [ -n "$(ls -A "${dest}")" ] || {
+    echo "ERROR: No '${tree}' found in ${ref:-this checkout}." >&2
+    exit 1
+  }
 }
 
 rm -rf "${COMBINED_DIR}"
@@ -59,39 +114,22 @@ rsync -a \
 
 yarn --cwd="${COMBINED_DIR}" install --frozen-lockfile
 
-# Snapshot this branch as the default version before 'content/' is handed over
-# to the other major. 'VORTEX_DOCS_COMBINED' stays unset here: the snapshot the
-# combined config expects does not exist until this command creates it.
+# Snapshot the current major, whose assets stay at the bare static root.
+populate "${COMBINED_DIR}/content" content "${default_ref}"
+populate "${COMBINED_DIR}/static" static "${default_ref}"
+
+# 'VORTEX_DOCS_COMBINED' stays unset here: the snapshot the combined config
+# expects does not exist until this command creates it.
 yarn --cwd="${COMBINED_DIR}" docusaurus docs:version "${VORTEX_CURRENT_MAJOR}.x"
 
-rm -rf "${COMBINED_DIR}/content"
-mkdir -p "${COMBINED_DIR}/content"
-
-git -C "${ROOT_DIR}" archive "origin/${other_major}.x:.vortex/docs/content" | tar -x -C "${COMBINED_DIR}/content" || {
-  echo "ERROR: Failed to extract content from ${other_major}.x." >&2
-  exit 1
-}
-
-[ -n "$(ls -A "${COMBINED_DIR}/content")" ] || {
-  echo "ERROR: The ${other_major}.x branch carries no documentation content." >&2
-  exit 1
-}
-
-# Both majors record their own demo videos and diagrams under the same
-# 'static/img' names, so the other major's assets get their own '/v{other}'
-# prefix instead of losing to this major's copies.
+# Hand 'content/' over to the other major. Both majors record their own demo
+# videos and diagrams under the same 'static/img' names, so the other major's
+# assets get their own '/v{other}' prefix instead of losing to the current
+# major's copies.
 other_static_dir="${COMBINED_DIR}/static/v${other_major}"
-mkdir -p "${other_static_dir}"
 
-git -C "${ROOT_DIR}" archive "origin/${other_major}.x:.vortex/docs/static" | tar -x -C "${other_static_dir}" || {
-  echo "ERROR: Failed to extract static assets from ${other_major}.x." >&2
-  exit 1
-}
-
-[ -n "$(ls -A "${other_static_dir}")" ] || {
-  echo "ERROR: The ${other_major}.x branch carries no static assets." >&2
-  exit 1
-}
+populate "${COMBINED_DIR}/content" content "${other_ref}"
+populate "${other_static_dir}" static "${other_ref}"
 
 # Every branch authors its docs against the bare '/docs' mount, so an absolute
 # link lands on the current major once the content is served at '/docs/v{other}'.
