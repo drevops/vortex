@@ -7,14 +7,11 @@
  ENV DRUPAL_THEME=${DRUPAL_THEME}
  
  ARG VORTEX_FRONTEND_BUILD_SKIP="0"
-@@ -90,16 +90,5 @@
+@@ -90,13 +90,5 @@
  # Create file directories and set correct permissions.
  # hadolint ignore=SC2174 # only the leaf directory needs the mode
  RUN mkdir -p -m 2775 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
 -
--# The cache is written to a build-scoped path and removed in the same layer, so
--# it never reaches the image. 'npm cache clean' would do the same, but npm
--# requires '--force' for it and then warns that protections are disabled.
 -RUN if [ "${VORTEX_FRONTEND_BUILD_SKIP}" != "1" ]; then \
 -      theme_path="/app/${WEBROOT}/themes/custom/${DRUPAL_THEME}"; \
 -      export npm_config_cache=/tmp/npm-cache; \
