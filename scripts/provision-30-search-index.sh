@@ -16,7 +16,7 @@ DRUPAL_SEARCH_INDEX_SKIP="${DRUPAL_SEARCH_INDEX_SKIP:-0}"
 info() { printf "   ==> %s\n" "${1}"; }
 note() { printf "       %s\n" "${1}"; }
 task() { printf "     > %s\n" "${1}"; }
-pass() { printf "     < %s\n" "${1}"; }
+pass() { printf "     + %s\n" "${1}"; }
 fail() { printf "     ! %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
