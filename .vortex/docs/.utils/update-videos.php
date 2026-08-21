@@ -27,6 +27,14 @@ require_once __DIR__ . '/VideoRecorder.php';
  *   php update-videos.php --keep lint              # reuse workspace, record lint only
  */
 
+/**
+ * Shape every recording is given: the 2560x1600 of a MacBook screen.
+ *
+ * A terminal is configured by its columns alone; VideoRecorder::rowsForAspect()
+ * turns that width and this ratio into the rows to record at.
+ */
+const ASPECT_RATIO = 2560 / 1600;
+
 const PROMPT_DELAY = 1;
 
 const WORKSPACE_REL = '.artifacts/tmp/videos-workspace';
@@ -39,7 +47,8 @@ const COMPOSE_PROJECT = 'vortex_videos';
  * - command:   the command executed inside the recording. NULL means the
  *              installer expect script is used instead.
  * - speed:     playback speed multiplier. 1.0 = recorded speed, 2.0 = 2x faster.
- * - cols/rows: terminal dimensions passed to asciinema and used for renders.
+ * - cols:      columns the terminal is recorded at. The rows follow from
+ *              ASPECT_RATIO, so a recording cannot end up an arbitrary shape.
  * - poster_ms: cast timestamp (ms) at which the PNG poster frame is taken.
  *              NULL means use the last frame of the cast.
  * - typer:     wrap the command with the simulated-typing intro from
@@ -51,7 +60,6 @@ const VIDEOS = [
     'command' => NULL,
     'speed' => 1.0,
     'cols' => 80,
-    'rows' => 42,
     'poster_ms' => 2000,
     'typer' => FALSE,
   ],
@@ -59,7 +67,6 @@ const VIDEOS = [
     'command' => 'ahoy build',
     'speed' => 1.0,
     'cols' => 80,
-    'rows' => 42,
     'poster_ms' => 2000,
     'typer' => TRUE,
   ],
@@ -67,7 +74,6 @@ const VIDEOS = [
     'command' => 'ahoy provision',
     'speed' => 1.0,
     'cols' => 80,
-    'rows' => 42,
     'poster_ms' => NULL,
     'typer' => TRUE,
   ],
@@ -75,7 +81,6 @@ const VIDEOS = [
     'command' => 'ahoy lint',
     'speed' => 2.0,
     'cols' => 80,
-    'rows' => 42,
     'poster_ms' => NULL,
     'typer' => TRUE,
   ],
@@ -83,7 +88,6 @@ const VIDEOS = [
     'command' => 'ahoy test',
     'speed' => 2.0,
     'cols' => 80,
-    'rows' => 42,
     'poster_ms' => 2000,
     'typer' => TRUE,
   ],
@@ -91,7 +95,6 @@ const VIDEOS = [
     'command' => 'ahoy test-bdd',
     'speed' => 1.0,
     'cols' => 80,
-    'rows' => 42,
     'poster_ms' => 2000,
     'typer' => TRUE,
   ],
@@ -99,7 +102,6 @@ const VIDEOS = [
     'command' => 'ahoy info',
     'speed' => 1.0,
     'cols' => 80,
-    'rows' => 42,
     'poster_ms' => NULL,
     'typer' => TRUE,
   ],
@@ -107,7 +109,6 @@ const VIDEOS = [
     'command' => 'ahoy doctor',
     'speed' => 1.0,
     'cols' => 80,
-    'rows' => 42,
     'poster_ms' => NULL,
     'typer' => TRUE,
   ],
@@ -115,7 +116,6 @@ const VIDEOS = [
     'command' => 'ahoy doctor info',
     'speed' => 1.0,
     'cols' => 80,
-    'rows' => 42,
     'poster_ms' => NULL,
     'typer' => TRUE,
   ],
@@ -310,7 +310,7 @@ function record_installer(VideoRecorder $recorder, string $workspace, string $pr
     command: $expect_script,
     title: 'Vortex Installer Demo',
     cols: (int) $cfg['cols'],
-    rows: (int) $cfg['rows'],
+    rows: VideoRecorder::rowsForAspect((int) $cfg['cols'], ASPECT_RATIO),
   );
 
   render_video($recorder, 'installer', $workspace, $docs_static_dir);
@@ -339,7 +339,7 @@ function record_command_video(VideoRecorder $recorder, string $name, string $pro
     title: "Vortex $cmd Demo",
     env: $env,
     cols: (int) $cfg['cols'],
-    rows: (int) $cfg['rows'],
+    rows: VideoRecorder::rowsForAspect((int) $cfg['cols'], ASPECT_RATIO),
   );
 
   render_video($recorder, $name, $workspace, $docs_static_dir);

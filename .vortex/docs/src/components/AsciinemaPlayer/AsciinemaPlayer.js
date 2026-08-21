@@ -8,6 +8,7 @@ const AsciinemaPlayer = ({
   loop = false,
   preload = true,
   controls = true,
+  fit,
   theme = 'asciinema',
   terminalLineHeight = 1.0,
   terminalFontFamily = 'Consolas, "Courier New", Courier, "Liberation Mono", monospace',
@@ -54,6 +55,10 @@ const AsciinemaPlayer = ({
                 options.startAt = startAt;
               }
 
+              if (fit !== undefined) {
+                options.fit = fit;
+              }
+
               window.AsciinemaPlayer.create(src, containerRef.current, options);
             }
           };
@@ -78,6 +83,10 @@ const AsciinemaPlayer = ({
               options.startAt = startAt;
             }
 
+            if (fit !== undefined) {
+              options.fit = fit;
+            }
+
             window.AsciinemaPlayer.create(src, containerRef.current, options);
           }
         }
@@ -95,6 +104,7 @@ const AsciinemaPlayer = ({
     loop,
     preload,
     controls,
+    fit,
     theme,
     terminalLineHeight,
     terminalFontFamily,

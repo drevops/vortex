@@ -378,27 +378,6 @@ html[data-theme='dark'] .vtx-home .ic::after {
 .vtx-home .hero-media {
   min-width: 0;
 }
-.vtx-home .hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--teal);
-  background: color-mix(in srgb, var(--teal) 11%, transparent);
-  border: 1px solid color-mix(in srgb, var(--teal) 30%, transparent);
-  padding: 6px 14px;
-  border-radius: 100px;
-  margin-bottom: 24px;
-}
-.vtx-home .hero-badge .pulse {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--teal);
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--teal) 60%, transparent);
-  animation: vtx-pulse 2.4s var(--ease) infinite;
-}
 @keyframes vtx-pulse {
   0% {
     box-shadow: 0 0 0 0 color-mix(in srgb, var(--teal) 55%, transparent);
@@ -647,11 +626,12 @@ html[data-theme='dark'] .vtx-home .btn-primary:hover {
   background: #0a0e15;
   line-height: 0;
 }
+/* No ratio of its own: the tile takes the poster's, so it hugs the image and
+   follows it whenever the recording is re-shaped. */
 .vtx-home .media-screen img {
+  display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 1280 / 705;
-  object-fit: cover;
 }
 .vtx-home .media-foot {
   display: flex;
@@ -1395,8 +1375,27 @@ html[data-theme='dark'] .vtx-home .step-num {
     opacity: 1;
   }
 }
+/* The panel spans most of the screen and takes its height from the player, so
+   the terminal grows with the viewport and the panel hugs whatever the player
+   drew. Only the width is computed here, and only to keep the panel inside the
+   viewport: '--vtx-demo-max' stops a wide desktop blowing the terminal up past
+   the width its poster is rendered at, and the last term stops a wide panel
+   from growing taller than the screen. That term needs the shape the player
+   draws, which is neither the SVG's nor the poster's - all three are rendered
+   with different cell metrics - and it only has to be close, since the height
+   itself comes from the player rather than from this number.
+   '--vtx-demo-chrome' is the title bar plus the body's padding, which sit
+   outside the terminal. */
 .vtx-home .vtx-modal-panel {
-  width: min(960px, 100%);
+  --vtx-demo-ratio: 1.513;
+  --vtx-demo-chrome: 89px;
+  --vtx-demo-max: 1280px;
+  --vtx-demo-width: min(
+    80vw,
+    var(--vtx-demo-max),
+    calc((90vh - var(--vtx-demo-chrome)) * var(--vtx-demo-ratio) + 32px)
+  );
+  width: var(--vtx-demo-width);
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -1406,6 +1405,21 @@ html[data-theme='dark'] .vtx-home .step-num {
   overflow: hidden;
   box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.85);
   animation: vtx-pop 260ms var(--ease);
+}
+/* On a narrow screen there is no room to spare, so the dialog takes the whole
+   width and drops the frame that would only eat into it. */
+@media (max-width: 860px) {
+  .vtx-home .vtx-modal {
+    padding: 0;
+  }
+  .vtx-home .vtx-modal-panel {
+    --vtx-demo-width: min(
+      100vw,
+      calc((100vh - var(--vtx-demo-chrome)) * var(--vtx-demo-ratio) + 32px)
+    );
+    border-width: 0;
+    border-radius: 0;
+  }
 }
 @keyframes vtx-pop {
   from {
@@ -1454,14 +1468,19 @@ html[data-theme='dark'] .vtx-home .step-num {
   width: 18px;
   height: 18px;
 }
+/* The player fills the width and works out its own height, so the body takes
+   that height rather than imposing one. That is what makes the dialog hug the
+   terminal exactly at every size, since the player's rendered shape shifts
+   slightly as its font size rounds to whole pixels. */
 .vtx-home .vtx-modal-body {
   padding: 16px;
-  overflow: auto;
+  overflow: hidden;
   background: #0a0e15;
 }
 .vtx-home .vtx-modal-body .asciinema-player,
 .vtx-home .vtx-cast {
   width: 100%;
+  height: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
