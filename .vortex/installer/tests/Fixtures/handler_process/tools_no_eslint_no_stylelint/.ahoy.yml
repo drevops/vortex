@@ -16,14 +16,3 @@
  
    test:
      usage: Run all PHPUnit tests.
-@@ -262,10 +258,6 @@
-   test-functional-javascript:
-     usage: Run PHPUnit functional JavaScript tests.
-     cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"
--
--  test-js:
--    usage: Run Jest JavaScript unit tests.
--    cmd: ahoy cli "npm test"
- 
-   test-bdd:
-     usage: Run BDD tests.
