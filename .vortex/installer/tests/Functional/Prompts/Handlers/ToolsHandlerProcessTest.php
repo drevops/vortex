@@ -264,6 +264,18 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
           $test->assertFileContainsString($pj, '"stylelint":');
           $test->assertFileExists(static::$sut . '/.stylelintrc.js');
+
+          $tpj = static::themeManifest();
+          $test->assertFileNotContainsString($tpj, '"eslint":');
+          $test->assertFileNotContainsString($tpj, '"prettier":');
+          $test->assertFileContainsString($tpj, '"stylelint":');
+
+          static::assertNpmPairIsInSync($pj);
+          static::assertNpmPairIsInSync($tpj);
+          static::assertNpmLockLacksPackages($pj, ['eslint', 'prettier']);
+          static::assertNpmLockLacksPackages($tpj, ['eslint', 'prettier']);
+          static::assertNpmLockHasPackages($pj, ['stylelint', 'jest']);
+          static::assertNpmLockHasPackages($tpj, ['stylelint', 'sass']);
       }),
     ];
     yield 'tools_no_eslint_circleci' => [
@@ -305,6 +317,55 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
           $test->assertFileContainsString($pj, '"eslint":');
           $test->assertFileExists(static::$sut . '/eslint.config.mjs');
+
+          $tpj = static::themeManifest();
+          $test->assertFileNotContainsString($tpj, '"stylelint":');
+          $test->assertFileNotContainsString($tpj, '"stylelint-scss":');
+          $test->assertFileContainsString($tpj, '"eslint":');
+
+          static::assertNpmPairIsInSync($pj);
+          static::assertNpmPairIsInSync($tpj);
+          static::assertNpmLockLacksPackages($pj, ['stylelint']);
+          static::assertNpmLockLacksPackages($tpj, ['stylelint', 'stylelint-scss']);
+          static::assertNpmLockHasPackages($pj, ['eslint', 'jest']);
+          static::assertNpmLockHasPackages($tpj, ['eslint', 'sass']);
+      }),
+    ];
+    yield 'tools_no_eslint_no_stylelint' => [
+      static::cw(function ($test): void {
+          $tools = array_keys(Tools::getToolDefinitions('tools'));
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $pj = static::$sut . '/package.json';
+          $tpj = static::themeManifest();
+
+          $test->assertFileNotContainsString($pj, '"eslint":');
+          $test->assertFileNotContainsString($pj, '"stylelint":');
+          $test->assertFileNotContainsString($pj, '"lint":');
+          $test->assertFileNotContainsString($pj, '"lint-fix":');
+          $test->assertFileContainsString($pj, '"jest":');
+
+          $test->assertFileNotContainsString($tpj, '"eslint":');
+          $test->assertFileNotContainsString($tpj, '"stylelint":');
+          $test->assertFileNotContainsString($tpj, '"lint":');
+          $test->assertFileNotContainsString($tpj, '"lint-fix":');
+          $test->assertFileContainsString($tpj, '"sass":');
+
+          $test->assertFileDoesNotExist(static::$sut . '/eslint.config.mjs');
+          $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
+          $test->assertFileExists(static::$sut . '/jest.config.js');
+
+          static::assertNpmPairIsInSync($pj);
+          static::assertNpmPairIsInSync($tpj);
+          static::assertNpmLockLacksPackages($pj, ['eslint', 'stylelint']);
+          static::assertNpmLockLacksPackages($tpj, ['eslint', 'stylelint']);
+          static::assertNpmLockHasPackages($pj, ['jest']);
+          static::assertNpmLockHasPackages($tpj, ['sass']);
+
+          $test->assertSutContains(['npm ci']);
+          $test->assertSutNotContains(['npm run lint']);
       }),
     ];
     yield 'tools_no_stylelint_circleci' => [
@@ -433,6 +494,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
           $test->assertFileContainsString($pj, '"eslint":');
           $test->assertFileContainsString($pj, '"stylelint":');
+
+          static::assertNpmPairIsInSync($pj);
+          static::assertNpmLockLacksPackages($pj, ['jest', 'jest-environment-jsdom']);
+          static::assertNpmLockHasPackages($pj, ['eslint', 'stylelint']);
       }),
     ];
     yield 'tools_no_jest_circleci' => [
@@ -608,6 +673,50 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertSutContains(['npm ci', 'npm run lint']);
       }),
     ];
+  }
+
+  protected static function themeManifest(): string {
+    return static::$sut . '/web/themes/custom/star_wars/package.json';
+  }
+
+  /**
+   * Assert that a manifest and its lock file declare the same dependencies.
+   *
+   * This is the condition 'npm ci' refuses to install without.
+   */
+  protected static function assertNpmPairIsInSync(string $manifest_file): void {
+    $manifest = static::readJson($manifest_file);
+    $root = static::readJson(dirname($manifest_file) . '/package-lock.json')['packages'][''];
+
+    foreach (['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies'] as $block) {
+      self::assertSame(
+        $manifest[$block] ?? NULL,
+        $root[$block] ?? NULL,
+        sprintf('The "%s" block of "%s" does not match its lock file.', $block, $manifest_file)
+      );
+    }
+  }
+
+  protected static function assertNpmLockHasPackages(string $manifest_file, array $names): void {
+    $packages = static::readJson(dirname($manifest_file) . '/package-lock.json')['packages'];
+
+    foreach ($names as $name) {
+      self::assertArrayHasKey('node_modules/' . $name, $packages, sprintf('Package "%s" is missing from the lock file next to "%s".', $name, $manifest_file));
+    }
+  }
+
+  protected static function assertNpmLockLacksPackages(string $manifest_file, array $names): void {
+    $packages = static::readJson(dirname($manifest_file) . '/package-lock.json')['packages'];
+
+    foreach ($names as $name) {
+      self::assertArrayNotHasKey('node_modules/' . $name, $packages, sprintf('Package "%s" is still in the lock file next to "%s".', $name, $manifest_file));
+    }
+  }
+
+  protected static function readJson(string $file): array {
+    self::assertFileExists($file);
+
+    return (array) json_decode((string) file_get_contents($file), TRUE, 512, JSON_THROW_ON_ERROR);
   }
 
 }

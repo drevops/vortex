@@ -8,6 +8,7 @@ use AlexSkrypnyk\File\ContentFile\ContentFile;
 use AlexSkrypnyk\File\Replacer\Replacement;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\JsonManipulator;
+use DrevOps\VortexInstaller\Utils\NpmLock;
 use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Yaml;
 use function iter\flatten;
@@ -154,9 +155,7 @@ class Tools extends AbstractHandler {
       JsonManipulator::updateFile($this->tmpDir . '/composer.json', $tool['composer.json']);
     }
 
-    if (isset($tool['package.json']) && is_callable($tool['package.json'])) {
-      JsonManipulator::updateFile($this->tmpDir . '/package.json', $tool['package.json']);
-    }
+    $this->processNpmManifests($tool);
 
     if (isset($tool['ahoy'])) {
       foreach ($tool['ahoy'] as $string) {
@@ -167,37 +166,7 @@ class Tools extends AbstractHandler {
       }
     }
 
-    File::replaceContentAsync(
-      function (string $content, ContentFile $file) use ($tool): string {
-        if (isset($tool['strings'])) {
-          foreach ($tool['strings'] as $string) {
-            if (Strings::isRegex($string)) {
-              $replaced = preg_replace($string, '', $content, -1, $count);
-
-              if ($count > 0) {
-                $content = $replaced;
-              }
-            }
-            else {
-              $content = str_replace($string, '', $content);
-            }
-          }
-        }
-
-        if (isset($tool['lines'])) {
-          $relative_file_path = str_replace($this->tmpDir . '/', '', $file->getPathname());
-          foreach ($tool['lines'] as $relative_lines_file_name => $lines) {
-            if ($relative_file_path === $relative_lines_file_name) {
-              foreach ($lines as $line) {
-                $content = File::removeLine($content, $line);
-              }
-            }
-          }
-        }
-
-        return $content;
-      }
-    );
+    $this->processContent($tool);
 
     File::removeTokenAsync('TOOL_' . strtoupper($name));
   }
@@ -209,6 +178,8 @@ class Tools extends AbstractHandler {
     if (!isset($config['tools']) || array_intersect($config['tools'], $selected_tools)) {
       return;
     }
+
+    $this->processNpmManifests($config);
 
     if (isset($config['files'])) {
       $files = array_map(fn($file): string => $this->tmpDir . '/' . $file, $config['files']);
@@ -224,9 +195,91 @@ class Tools extends AbstractHandler {
       }
     }
 
+    $this->processContent($config);
+
     if (isset($config['token'])) {
       File::removeTokenAsync($config['token']);
     }
+  }
+
+  /**
+   * Queue the content removals declared by a tool or a group.
+   *
+   * @param array $config
+   *   Tool or group definition.
+   */
+  protected function processContent(array $config): void {
+    if (!isset($config['strings']) && !isset($config['lines'])) {
+      return;
+    }
+
+    File::replaceContentAsync(
+      function (string $content, ContentFile $file) use ($config): string {
+        if (isset($config['strings'])) {
+          foreach ($config['strings'] as $string) {
+            if (Strings::isRegex($string)) {
+              $replaced = preg_replace($string, '', $content, -1, $count);
+
+              if ($count > 0) {
+                $content = $replaced;
+              }
+            }
+            else {
+              $content = str_replace($string, '', $content);
+            }
+          }
+        }
+
+        if (isset($config['lines'])) {
+          $relative_file_path = str_replace($this->tmpDir . '/', '', $file->getPathname());
+          foreach ($config['lines'] as $relative_lines_file_name => $lines) {
+            if ($relative_file_path === $relative_lines_file_name) {
+              foreach ($lines as $line) {
+                $content = File::removeLine($content, $line);
+              }
+            }
+          }
+        }
+
+        return $content;
+      }
+    );
+  }
+
+  /**
+   * Apply the npm manifest edits declared by a tool or a group.
+   *
+   * @param array $config
+   *   Tool or group definition.
+   */
+  protected function processNpmManifests(array $config): void {
+    if (isset($config['package.json']) && is_callable($config['package.json'])) {
+      $this->updateNpmManifest($this->tmpDir . '/package.json', $config['package.json']);
+    }
+
+    if (isset($config['theme.package.json']) && is_callable($config['theme.package.json'])) {
+      foreach ($this->themeManifests() as $manifest) {
+        $this->updateNpmManifest($manifest, $config['theme.package.json']);
+      }
+    }
+  }
+
+  protected function updateNpmManifest(string $manifest, callable $callback): void {
+    JsonManipulator::updateFile($manifest, $callback);
+
+    // A lock file that still lists the removed dependencies makes 'npm ci'
+    // abort on the first build.
+    NpmLock::sync($manifest);
+  }
+
+  /**
+   * Find the manifests of the custom themes.
+   *
+   * @return array<int, string>
+   *   Paths to the "package.json" files.
+   */
+  protected function themeManifests(): array {
+    return glob($this->tmpDir . '/' . $this->webroot . '/themes/custom/*/package.json') ?: [];
   }
 
   public static function getToolDefinitions(string $filter = 'all'): array {
@@ -317,6 +370,24 @@ class Tools extends AbstractHandler {
           $pj->addSubNode('scripts', 'lint', 'npm run lint-css');
           $pj->addSubNode('scripts', 'lint-fix', 'npm run lint-fix-css');
         },
+        'theme.package.json' => function (JsonManipulator $pj): void {
+          $pj->removeSubNode('devDependencies', '@eslint/compat');
+          $pj->removeSubNode('devDependencies', '@eslint/js');
+          $pj->removeSubNode('devDependencies', 'eslint');
+          $pj->removeSubNode('devDependencies', 'eslint-config-prettier');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-import');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-jsdoc');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-no-jquery');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-prettier');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-yml');
+          $pj->removeSubNode('devDependencies', 'globals');
+          $pj->removeSubNode('devDependencies', 'prettier');
+          $pj->removeSubNode('devDependencies', '@homer0/prettier-plugin-jsdoc');
+          $pj->removeSubNode('scripts', 'lint-js');
+          $pj->removeSubNode('scripts', 'lint-js-fix');
+          $pj->addSubNode('scripts', 'lint', 'npm run lint-css');
+          $pj->addSubNode('scripts', 'lint-fix', 'npm run lint-css-fix');
+        },
         // A project created before the move to flat config still carries the
         // legacy files, which linger unread once the tool is deselected.
         'files' => ['eslint.config.mjs', '.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore'],
@@ -334,6 +405,17 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('scripts', 'lint-fix-css');
           $pj->addSubNode('scripts', 'lint', 'npm run lint-js');
           $pj->addSubNode('scripts', 'lint-fix', 'npm run lint-fix-js');
+        },
+        'theme.package.json' => function (JsonManipulator $pj): void {
+          $pj->removeSubNode('devDependencies', 'stylelint');
+          $pj->removeSubNode('devDependencies', 'stylelint-config-standard');
+          $pj->removeSubNode('devDependencies', 'stylelint-config-standard-scss');
+          $pj->removeSubNode('devDependencies', 'stylelint-order');
+          $pj->removeSubNode('devDependencies', 'stylelint-scss');
+          $pj->removeSubNode('scripts', 'lint-css');
+          $pj->removeSubNode('scripts', 'lint-css-fix');
+          $pj->addSubNode('scripts', 'lint', 'npm run lint-js');
+          $pj->addSubNode('scripts', 'lint-fix', 'npm run lint-js-fix');
         },
         'files' => ['.stylelintrc.js'],
       ],
@@ -500,9 +582,25 @@ class Tools extends AbstractHandler {
       ],
       'frontend_linting' => [
         'tools' => [self::ESLINT, self::STYLELINT],
+        // Both linters are gone, so the aggregate scripts point at scripts
+        // that each tool has already removed.
+        'package.json' => function (JsonManipulator $pj): void {
+          $pj->removeSubNode('scripts', 'lint');
+          $pj->removeSubNode('scripts', 'lint-fix');
+        },
+        'theme.package.json' => function (JsonManipulator $pj): void {
+          $pj->removeSubNode('scripts', 'lint');
+          $pj->removeSubNode('scripts', 'lint-fix');
+        },
         'ahoy' => [
           '/^\h*ahoy cli "npm run lint"\h*\n?/m',
           '/^\h*ahoy cli "npm run lint-fix"\h*\n?/m',
+          'ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"',
+          'ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"',
+        ],
+        'strings' => [
+          '/^\|\h*`npm run lint`.*\n?/m',
+          '/^\|\h*`npm run lint-fix`.*\n?/m',
         ],
         'token' => 'TOOL_ESLINT_STYLELINT',
       ],
