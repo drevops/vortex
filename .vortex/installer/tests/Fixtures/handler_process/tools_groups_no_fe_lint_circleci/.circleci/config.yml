@@ -166,12 +166,6 @@ jobs:
           name: Lint code with Gherkin Lint
           command: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features || [ "${VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
-      - run:
-          name: Lint theme code with NodeJS linters
-          command: |
-            [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
-            docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
-
   # Audit job runs in its own workflow, independently of the commit workflow.
   audit:
     <<: *runner_config
