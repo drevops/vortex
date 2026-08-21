@@ -128,8 +128,16 @@ yarn --cwd="${COMBINED_DIR}" docusaurus docs:version "${VORTEX_CURRENT_MAJOR}.x"
 # major's copies.
 other_static_dir="${COMBINED_DIR}/static/v${other_major}"
 
+# The other major's binary is built into 'static/v{other}' before the assembly
+# runs and is not tracked on any branch, so replacing that directory with the
+# branch's own static tree would discard it.
+staged_other_install="${DOCS_DIR}/static/v${other_major}/install"
+[ -f "${staged_other_install}" ] || staged_other_install=""
+
 populate "${COMBINED_DIR}/content" content "${other_ref}"
 populate "${other_static_dir}" static "${other_ref}"
+
+[ -z "${staged_other_install}" ] || cp "${staged_other_install}" "${other_static_dir}/install"
 
 # Every branch authors its docs against the bare '/docs' mount, so an absolute
 # link lands on the current major once the content is served at '/docs/v{other}'.
