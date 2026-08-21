@@ -676,7 +676,10 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
   }
 
   protected static function themeManifest(): string {
-    return static::$sut . '/web/themes/custom/star_wars/package.json';
+    $manifests = glob(static::$sut . '/*/themes/custom/*/package.json') ?: [];
+    self::assertCount(1, $manifests, 'Expected a single custom theme manifest.');
+
+    return $manifests[0];
   }
 
   /**

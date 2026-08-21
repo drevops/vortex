@@ -34,8 +34,9 @@ class NpmLock {
    *   Path to the "package.json" file.
    *
    * @throws \RuntimeException
-   *   If either file holds invalid JSON, if the lock file carries no
-   *   "packages" map, or if the lock file cannot be written back.
+   *   If either file holds invalid JSON, if a manifest dependency block is not
+   *   a JSON object, if the lock file carries no "packages" map, or if the lock
+   *   file cannot be written back.
    */
   public static function sync(string $manifest_file): void {
     $lock_file = dirname($manifest_file) . DIRECTORY_SEPARATOR . self::FILE;
@@ -51,7 +52,7 @@ class NpmLock {
       throw new \RuntimeException(sprintf('Unsupported lock file format at "%s": a "packages" entry is required.', $lock_file));
     }
 
-    self::reconcileRoot($manifest, $lock->packages->{''});
+    self::reconcileRoot($manifest, $lock->packages->{''}, $manifest_file);
     self::prune($lock->packages);
 
     self::write($lock_file, $lock);
@@ -60,12 +61,16 @@ class NpmLock {
   /**
    * Copy the manifest's dependency blocks onto the lock's root entry.
    */
-  protected static function reconcileRoot(\stdClass $manifest, \stdClass $root): void {
+  protected static function reconcileRoot(\stdClass $manifest, \stdClass $root, string $manifest_file): void {
     foreach (self::BLOCKS as $block) {
       if (!isset($manifest->{$block})) {
         unset($root->{$block});
 
         continue;
+      }
+
+      if (!$manifest->{$block} instanceof \stdClass) {
+        throw new \RuntimeException(sprintf('Unable to read the "%s" block of "%s": a JSON object is required.', $block, $manifest_file));
       }
 
       $root->{$block} = clone $manifest->{$block};

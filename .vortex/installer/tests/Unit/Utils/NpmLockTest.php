@@ -204,6 +204,7 @@ class NpmLockTest extends UnitTestCase {
     yield 'manifest with invalid JSON' => ['{"name":}', NULL, '/Unable to parse a JSON file/'];
     yield 'lock with invalid JSON' => [NULL, '{"packages":}', '/Unable to parse a JSON file/'];
     yield 'manifest that is not an object' => ['[]', NULL, '/a JSON object is required/'];
+    yield 'manifest with a dependency block that is not an object' => ['{"devDependencies":[]}', '{"packages":{"":{}}}', '/Unable to read the "devDependencies" block/'];
   }
 
   public function testSyncThrowsWhenLockIsNotWritable(): void {
