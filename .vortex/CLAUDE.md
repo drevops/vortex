@@ -158,15 +158,22 @@ commit its output manually. Run both after the code change is committed.
 
 ## Documentation videos
 
-Six terminal demo videos live in `.vortex/docs/static/img/` (`installer.*`,
-`build.*`, `provision.*`, `lint.*`, `test.*`, `test-bdd.*`). Regenerate from
-`.vortex/` with `ahoy update-videos [names]`. A video goes stale when the
-command it records changes behavior:
+Nine terminal demo videos live in `.vortex/docs/static/img/` (`installer.*`,
+`build.*`, `provision.*`, `lint.*`, `test.*`, `test-bdd.*`, `info.*`,
+`doctor.*`, `doctor-info.*`). Regenerate from `.vortex/` with
+`ahoy update-videos [names]`. A video goes stale when the command it records
+changes behavior:
 
 - `installer` - any prompt flow change.
 - `build`, `provision` - changes to `.ahoy.yml` build/provision targets or
   `scripts/vortex/provision*`.
 - `lint`, `test`, `test-bdd` - changes to the linter or test-runner setup.
+- `info`, `doctor`, `doctor-info` - changes to the reported environment.
+
+A published video is a claim that the command it records runs clean, so each
+recording is decoded to plain text at `.artifacts/videos/<name>.txt` and is not
+rendered when that text reports an error, a warning or a failure. There is no
+override flag: fix the output at the command that emits it and record again.
 
 `update-videos` does not commit - review the diff under `.vortex/docs/static/img/`
 and commit manually. See `.vortex/docs/CLAUDE.md` for the pipeline internals
