@@ -124,11 +124,16 @@ Work through each checklist item from the release process doc:
      project to work against.
    - To re-record a subset, pass the names:
      `ahoy update-videos installer build lint`. Allowed names: `installer`,
-     `build`, `provision`, `lint`, `test`, `test-bdd`. Default is all six.
-   - Heavy step: ~15-20 minutes wall-clock when running all six; requires
+     `build`, `provision`, `lint`, `test`, `test-bdd`, `info`, `doctor`,
+     `doctor-info`. Default is all nine.
+   - Heavy step: ~15-20 minutes wall-clock when running all nine; requires
      Docker. `ahoy update-videos installer` is fast (no Docker).
    - The command does NOT auto-commit; review the artifact diff under
      `.vortex/docs/static/img/` and stage manually.
+   - A recording whose output reports an error, a warning or a failure is not
+     rendered, and the command stops naming the offending lines. Read them in
+     `.artifacts/videos/<name>.txt`, fix the command that emits them, and record
+     again - there is no flag that renders anyway.
 
 ## Step 5: Generate release notes
 
