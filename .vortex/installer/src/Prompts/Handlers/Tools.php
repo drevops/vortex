@@ -582,8 +582,8 @@ class Tools extends AbstractHandler {
       ],
       'frontend_linting' => [
         'tools' => [self::ESLINT, self::STYLELINT],
-        // Both linters are gone, so the aggregate scripts point at scripts
-        // that each tool has already removed.
+        // Each linter rewrites 'lint' to call the other one, so with both
+        // deselected the pair points at scripts that no longer exist.
         'package.json' => function (JsonManipulator $pj): void {
           $pj->removeSubNode('scripts', 'lint');
           $pj->removeSubNode('scripts', 'lint-fix');

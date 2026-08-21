@@ -34,8 +34,8 @@ class NpmLock {
    *   Path to the "package.json" file.
    *
    * @throws \RuntimeException
-   *   If either file cannot be read, holds invalid JSON, is not a version 3
-   *   lock file, or cannot be written back.
+   *   If either file holds invalid JSON, if the lock file carries no
+   *   "packages" map, or if the lock file cannot be written back.
    */
   public static function sync(string $manifest_file): void {
     $lock_file = dirname($manifest_file) . DIRECTORY_SEPARATOR . self::FILE;
