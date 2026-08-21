@@ -102,8 +102,8 @@ cd .vortex
 # Build both majors into 'docs_combined'. Fails on broken internal links.
 ahoy docs-combined
 
-# Serve the result. The port defaults to 8000.
-ahoy docs-combined-serve 4000
+# Serve the result on port 4000. Pass a port to override.
+ahoy docs-combined-serve
 ```
 
 Everything the build writes stays inside `docs_combined`, a git-ignored copy of

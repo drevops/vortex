@@ -40,10 +40,10 @@ commands:
     cmd: ./docs/.utils/assemble-combined-docs.sh
 
   docs-combined-serve:
-    usage: Serve the built combined site. Pass a port as the first argument, e.g. 'ahoy docs-combined-serve 4000'.
+    usage: Serve the built combined site on port 4000. Pass a port as the first argument to override.
     cmd: |
       [ -d ./docs_combined/build ] || { echo "No combined site found. Run 'ahoy docs-combined' first."; exit 1; }
-      port="${1:-8000}"
+      port="${1:-4000}"
       echo "Serving the combined documentation site at http://localhost:${port}"
       php -S "localhost:${port}" -t ./docs_combined/build ./docs/.utils/serve-router.php
 

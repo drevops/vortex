@@ -6,22 +6,7 @@
 
 import {themes as prismThemes} from 'prism-react-renderer';
 
-// Serving both majors from one site is opt-in through 'VORTEX_DOCS_COMBINED':
-// 'versioned_docs/' then holds the current major at the bare '/docs' and
-// 'content/' holds the other major at '/docs/v{other}'. Unset, the site builds
-// 'content/' as a single unversioned set and never references a version that
-// does not exist.
-const versioned = process.env.VORTEX_DOCS_COMBINED === '1';
-
-// The current major (the 'VORTEX_CURRENT_MAJOR' repository variable, default 1)
-// drives the whole site: its docs are a snapshot under 'versioned_docs/' served
-// as the default at the bare '/docs', and the live 'content/' (pulled from the
-// other major's '{N}.x' branch in CI) is served at '/docs/v{other}'. Bumping
-// that one variable promotes a new major - nothing else changes here.
-const currentMajor = process.env.VORTEX_CURRENT_MAJOR || '1';
-const otherMajor = currentMajor === '1' ? '2' : '1';
-const currentDocsVersion = `${currentMajor}.x`;
-const otherIsNewer = Number(otherMajor) > Number(currentMajor);
+import {docsVersions, versionNavbarItems, versionRedirects} from './versions.js';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -79,23 +64,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/drevops/vortex/tree/main/.vortex/docs/',
-          // In versioned (aggregate) builds the current major is the snapshot
-          // in 'versioned_docs/' served at the bare '/docs' (the default), and
-          // the live 'content/' is the other major at '/docs/v{other}'. Both
-          // are derived from 'VORTEX_CURRENT_MAJOR' - no manual edits to flip.
-          ...(versioned ? {
-            lastVersion: currentDocsVersion,
-            versions: {
-              [currentDocsVersion]: {
-                label: `v${currentMajor}`,
-              },
-              current: {
-                label: `v${otherMajor}`,
-                path: `v${otherMajor}`,
-                banner: otherIsNewer ? 'unreleased' : 'unmaintained',
-              },
-            },
-          } : {}),
+          ...docsVersions,
         },
         blog: false,
         theme: {
@@ -175,10 +144,7 @@ const config = {
             position: 'right',
             title: 'Join us on Slack',
           },
-          ...(versioned ? [{
-            type: 'docsVersionDropdown',
-            position: 'right',
-          }] : []),
+          ...versionNavbarItems,
           {
             type: 'search',
             position: 'right',
@@ -252,12 +218,7 @@ const config = {
       '@docusaurus/plugin-client-redirects',
       {
         redirects: [
-          // The current major is the default at the bare '/docs', so its
-          // explicit '/docs/v{current}' path redirects there.
-          ...(versioned ? [{
-            from: `/docs/v${currentMajor}`,
-            to: '/docs',
-          }] : []),
+          ...versionRedirects,
           {
             from: ['/quickstart'],
             to: '/docs',
