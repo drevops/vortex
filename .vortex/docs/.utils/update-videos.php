@@ -45,9 +45,9 @@ const WORKSPACE_REL = '.artifacts/tmp/videos-workspace';
 /**
  * Where the plain text decoded from each cast is written.
  *
- * The transcript is what the output check reports line numbers against, so it
- * is kept for inspection; it is working material rather than a published
- * artifact and lives outside the docs static directory.
+ * The output check reports line numbers against this text, so it is kept for
+ * inspection. It is working material and not a published artifact, so it lives
+ * outside the docs static directory.
  */
 const TRANSCRIPT_REL = '.artifacts/videos';
 
