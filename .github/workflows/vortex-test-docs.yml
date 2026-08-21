@@ -25,6 +25,10 @@ jobs:
     env:
       CURRENT_MAJOR: ${{ vars.VORTEX_CURRENT_MAJOR || '1' }}
       OTHER_MAJOR: ${{ (vars.VORTEX_CURRENT_MAJOR || '1') == '1' && '2' || '1' }}
+      # The major the triggering commit ships. Each major builds its own binary
+      # from its own workflow, so the workflow name identifies the major for
+      # pushes, branches and fork pull requests alike.
+      DOCS_MAJOR: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && '2' || '1' }}
       BINARY_ARTIFACT: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && 'vortex-cli' || 'vortex-installer' }}
       BINARY_FILE: ${{ github.event.workflow_run.name == 'Vortex - Test CLI' && 'vortex.phar' || 'installer.phar' }}
 
@@ -99,22 +103,6 @@ jobs:
         run: yarn run spellcheck
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
-      # On the main (development) deploy, assemble the multi-version site:
-      # snapshot main's docs as the current major (served at the bare '/docs')
-      # and pull the other major's '{N}.x' branch docs in at '/docs/v{other}'.
-      # Driven by 'VORTEX_CURRENT_MAJOR'. Skipped on PR/branch builds, which stay
-      # single-version previews. Mirrors the same step in 'vortex-release.yml'
-      # (production / GitHub Pages).
-      - name: Assemble versioned docs
-        if: github.event.workflow_run.head_branch == 'main'
-        run: |
-          yarn docusaurus docs:version "${CURRENT_MAJOR}.x"
-          git -C "${{ github.workspace }}" fetch origin "${OTHER_MAJOR}.x" --depth=1 || { echo "Failed to fetch the ${OTHER_MAJOR}.x branch."; exit 1; }
-          git -C "${{ github.workspace }}" rev-parse --verify "origin/${OTHER_MAJOR}.x" || { echo "The ${OTHER_MAJOR}.x branch does not exist."; exit 1; }
-          rm -rf content
-          git -C "${{ github.workspace }}" checkout "origin/${OTHER_MAJOR}.x" -- .vortex/docs/content || { echo "Failed to check out content from ${OTHER_MAJOR}.x."; exit 1; }
-        working-directory: '${{ github.workspace }}/.vortex/docs'
-
       # On the main deploy, publish both majors to match the multi-version
       # docs: '/v1/install' and '/v2/install' are the stable per-major pins and
       # the bare '/install' is a copy of the current major's pin (the
@@ -146,11 +134,15 @@ jobs:
           cp "vortex-v${OTHER_MAJOR}/.vortex/cli/.build/vortex.phar" ".vortex/docs/static/v${OTHER_MAJOR}/install"
           cp ".vortex/docs/static/v${CURRENT_MAJOR}/install" .vortex/docs/static/install
 
-      - name: Build documentation site
-        run: yarn run build
-        working-directory: '${{ github.workspace }}/.vortex/docs'
+      # Building the combined site is what checks links across both majors, so
+      # every branch builds it. It runs after the binaries are staged, which the
+      # assembly copies across with the rest of 'docs/'.
+      - name: Build the combined documentation site
+        run: ./docs/.utils/assemble-combined-docs.sh
+        working-directory: '${{ github.workspace }}/.vortex'
         env:
           VORTEX_CURRENT_MAJOR: ${{ env.CURRENT_MAJOR }}
+          VORTEX_DOCS_MAJOR: ${{ env.DOCS_MAJOR }}
 
       # This workflow runs via 'workflow_run', where 'github.ref' is always the
       # default branch, so the action's branch-based production detection cannot
@@ -163,7 +155,7 @@ jobs:
         id: netlify
         uses: nwtgck/actions-netlify@d22a32a27c918fe470bbc562e984f80ec48c2668 # v4.0
         with:
-          publish-dir: '.vortex/docs/build'
+          publish-dir: '.vortex/docs_combined/build'
           production-deploy: ${{ github.event.workflow_run.head_branch == 'main' }}
           deploy-message: "Deploy from GitHub Actions"
           enable-pull-request-comment: false

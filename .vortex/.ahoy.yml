@@ -35,6 +35,18 @@ commands:
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
       yarn --cwd=docs run build
 
+  docs-combined:
+    usage: Build the combined site serving both majors into the disposable 'docs_combined' directory.
+    cmd: ./docs/.utils/assemble-combined-docs.sh
+
+  docs-combined-serve:
+    usage: Serve the built combined site on port 4000. Pass a port as the first argument to override.
+    cmd: |
+      [ -d ./docs_combined/build ] || { echo "No combined site found. Run 'ahoy docs-combined' first."; exit 1; }
+      port="${1:-4000}"
+      echo "Serving the combined documentation site at http://localhost:${port}"
+      php -S "localhost:${port}" -t ./docs_combined/build ./docs/.utils/serve-router.php
+
   build-installer:
     name: Build documentation.
     cmd: |
@@ -138,7 +150,7 @@ commands:
     cmd: yarn --cwd=docs run update-variables
 
   update-videos:
-    usage: Update documentation videos. Pass names to record a subset (installer, build, provision, lint, test, test-bdd); default is all six.
+    usage: Update documentation videos. Pass names to record a subset (installer, build, provision, lint, test, test-bdd, info, doctor, doctor-info); default is all of them. Pass --verify to re-render the committed artefacts and compare instead of recording.
     cmd: php docs/.utils/update-videos.php "$@"
 
 entrypoint:
