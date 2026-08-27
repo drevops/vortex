@@ -8,7 +8,7 @@
 ARG CLI_IMAGE
 FROM ${CLI_IMAGE:-cli} AS cli
 
-FROM uselagoon/nginx-drupal:26.8.0
+FROM uselagoon/nginx-drupal:26.8.1
 
 # Webroot is used for Nginx web root configuration.
 ARG WEBROOT=web
