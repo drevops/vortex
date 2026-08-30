@@ -132,19 +132,13 @@ abstract class SettingsTestCase extends TestCase {
    */
   protected function setEnvVars(array $vars): void {
     // Unset the existing environment variable if not set in the test.
-    if (!isset($vars['TMP'])) {
-      $vars['TMP'] = NULL;
-    }
+    $vars['TMP'] ??= NULL;
 
     // Unset the existing environment variable if not set in the test.
-    if (!isset($vars['DRUPAL_CONFIG_PATH'])) {
-      $vars['DRUPAL_CONFIG_PATH'] = NULL;
-    }
+    $vars['DRUPAL_CONFIG_PATH'] ??= NULL;
 
     // Do not enforce the CI environment unless it is explicitly set.
-    if (!isset($vars['CI'])) {
-      $vars['CI'] = FALSE;
-    }
+    $vars['CI'] ??= FALSE;
 
     // Filtered real vars without a value to unset them in the lines below.
     $vars_real = self::getRealEnvVarsFilteredNoValues(static::ALLOWED_ENV_VARS);
