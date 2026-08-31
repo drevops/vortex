@@ -267,14 +267,19 @@ simply skipped and the job still passes.
 
 :::
 
-:::warning
+Behat derives its profile name from the container index, and `p0` is the
+catch-all that runs every scenario without a `@pX` tag. Excluding container 0
+from Behat would therefore leave `p0` unrun and those scenarios silently
+untested, so profile numbers count from the first container that runs Behat
+instead: `VORTEX_CI_BEHAT_PROFILE_OFFSET` is subtracted from the container index
+to pick the profile. Raise it by one for every leading container excluded from
+Behat, and the first Behat container still selects `p0`:
 
-Use the **last** container for this, never the first. Behat derives its profile
-name from the container index, and `p0` is the catch-all that runs every
-scenario without a `@pX` tag. Excluding container 0 from Behat means `p0` never
-runs and those scenarios silently stop being tested.
-
-:::
+```yaml
+VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 }}
+VORTEX_CI_IS_BEHAT_RUNNER: ${{ matrix.instance != 0 }}
+VORTEX_CI_BEHAT_PROFILE_OFFSET: 1
+```
 
 ### Balancing Behat tests
 
