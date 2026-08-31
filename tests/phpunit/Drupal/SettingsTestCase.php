@@ -143,32 +143,22 @@ abstract class SettingsTestCase extends TestCase {
    */
   protected function setEnvVars(array $vars): void {
     // Unset the existing environment variable if not set in the test.
-    if (!isset($vars['TMP'])) {
-      $vars['TMP'] = NULL;
-    }
+    $vars['TMP'] ??= NULL;
 
     // Unset the existing environment variable if not set in the test.
-    if (!isset($vars['DRUPAL_CONFIG_PATH'])) {
-      $vars['DRUPAL_CONFIG_PATH'] = NULL;
-    }
+    $vars['DRUPAL_CONFIG_PATH'] ??= NULL;
 
     // Do not enforce the CI environment unless it is explicitly set.
-    if (!isset($vars['CI'])) {
-      $vars['CI'] = FALSE;
-    }
+    $vars['CI'] ??= FALSE;
 
     // Do not let a real CI platform variable leak in and activate a detector
     // platform during the test run. NULL unsets it so the platform reports
     // inactive; an empty string would still count as present.
-    if (!isset($vars['CIRCLECI'])) {
-      $vars['CIRCLECI'] = NULL;
-    }
+    $vars['CIRCLECI'] ??= NULL;
 
     // Clear any leaked detected type unless a test pre-sets ENVIRONMENT_TYPE to
     // force one (the detector treats a pre-set value as an override).
-    if (!isset($vars['ENVIRONMENT_TYPE'])) {
-      $vars['ENVIRONMENT_TYPE'] = NULL;
-    }
+    $vars['ENVIRONMENT_TYPE'] ??= NULL;
 
     // Filtered real vars without a value to unset them in the lines below.
     $vars_real = self::getRealEnvVarsFilteredNoValues(static::ALLOWED_ENV_VARS);
