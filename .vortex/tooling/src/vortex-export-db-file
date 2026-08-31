@@ -19,6 +19,15 @@ require_once __DIR__ . '/helpers.php';
 // Directory with database dump file.
 $db_dir = getenv_default('VORTEX_EXPORT_DB_FILE_DIR', 'VORTEX_DB_DIR', './.data');
 
+// Tables to export with their structure but without their data. Accepts a
+// comma-separated list where each entry may use the `*` wildcard. Drupal
+// rebuilds cache tables on demand, so their contents only inflate the dump.
+// Set to an empty value to export the data of every table, which is why the
+// variable is read directly rather than through getenv_default(): that helper
+// treats an empty value as unset and would restore the default.
+$structure_tables = getenv('VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES');
+$structure_tables = $structure_tables === FALSE ? 'cache*' : $structure_tables;
+
 // Custom dump file name provided as first CLI argument.
 $custom_file = $GLOBALS['argv'][1] ?? '';
 
@@ -41,8 +50,8 @@ prepare_db_dir($db_dir);
 TASK(
   'Exporting database to the dump file.',
   sprintf('Exported database dump saved %s.', $dump_file),
-  function () use ($dump_file_drush, $dump_file): void {
-    drush('sql:dump --skip-tables-key=common --result-file=' . escapeshellarg($dump_file_drush) . ' -q');
+  function () use ($dump_file_drush, $dump_file, $structure_tables): void {
+    drush('sql:dump --skip-tables-key=common --structure-tables-list=' . escapeshellarg($structure_tables) . ' --result-file=' . escapeshellarg($dump_file_drush) . ' -q');
 
     // Check that file was saved.
     if (!file_exists($dump_file) || filesize($dump_file) <= 0) {
