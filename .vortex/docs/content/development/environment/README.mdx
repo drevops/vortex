@@ -49,7 +49,8 @@ rule cannot express them:
 
 - `recipes/` - Composer installs contributed recipes next to your custom ones,
   so each custom recipe is un-ignored explicitly.
-- `.claude/` - only `.claude/settings.json` is un-ignored by default.
+- `.claude/` - Claude writes machine-local state here, so only
+  `.claude/settings.json` and `.claude/skills/` are un-ignored by default.
 
 The other two ignore files apply the same deny-list model to different targets:
 
