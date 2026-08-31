@@ -24,3 +24,11 @@ if ($settings['environment'] === Environment::LOCAL || $settings['environment'] 
   // Show all error messages on the site.
   $config['system.logging']['error_level'] = 'all';
 }
+
+if ($settings['environment'] === Environment::CI) {
+  // Delivery fails in CI because the transport points at a closed port, and a
+  // failed delivery makes Drupal log an error and show a message to the user.
+  // Storing messages in the state system reports success instead, and leaves
+  // them readable by tests that assert on what was sent.
+  $config['system.mail']['interface']['default'] = 'test_mail_collector';
+}

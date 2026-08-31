@@ -435,7 +435,7 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $this->logSubstep('Assert that BE lint failure works');
-    $test_file = $webroot . '/modules/custom/sw_base/sw_base.module';
+    $test_file = $webroot . '/modules/custom/sw_base/sw_base.deploy.php';
     $this->fileAppend($test_file, '$a=1;');
     $this->syncToContainer($test_file);
 
