@@ -33,6 +33,34 @@ final class VideoRecorder {
   public const FONT_SIZE = '1.67';
 
   /**
+   * Recorded output markers, keyed by the category they are reported under.
+   *
+   * A command that fails inside a recording still leaves asciinema exiting
+   * zero, so a failure is only visible in the text the command printed.
+   */
+  public const ISSUE_PATTERNS = [
+    'error' => '#\berrors?\b|✖|✗#iu',
+    'warning' => '#\bwarn(?:ing|ings|s)?\b#i',
+    'failure' => '#\bfail(?:ed|ing|s|ure|ures)?\b#i',
+  ];
+
+  /**
+   * Fragments removed from a line before it is matched against ISSUE_PATTERNS.
+   *
+   * Paths, URLs, package names and command line options embed the marker words
+   * in identifiers ('symfony/error-handler',
+   * '--no-error-on-unmatched-pattern'), and tools report a clean run with an
+   * explicit zero count ('0 errors', 'warnings: 0').
+   */
+  public const ISSUE_EXEMPT_PATTERNS = [
+    '#https?://\S+#',
+    '#\S+/\S+#',
+    '#(?<!\S)-{1,2}[A-Za-z0-9][\w.=-]*#',
+    '#\b(?:0|no)\s+(?:new\s+)?(?:errors?|warn(?:ing|ings|s)?|problems?|notices?|fail(?:ed|ures?)?)\b#i',
+    '#\b(?:errors?|warn(?:ing|ings|s)?|problems?|notices?|fail(?:ed|ures?)?)\s*[:=]\s*0\b#i',
+  ];
+
+  /**
    * Return the rows that give a terminal of the given width a wanted shape.
    *
    * The renderer draws a cell one column wide and FONT_SIZE * LINE_HEIGHT
@@ -420,6 +448,161 @@ final class VideoRecorder {
     }
 
     $this->pass("Cast time-scaled by {$factor}x");
+  }
+
+  /**
+   * Decode a cast into the plain text the recorded terminal displayed.
+   */
+  public function castToText(string $cast_path): string {
+    if (!is_file($cast_path)) {
+      throw new RuntimeException("Cast file not found: $cast_path");
+    }
+
+    $lines = file($cast_path, FILE_IGNORE_NEW_LINES);
+    if ($lines === FALSE || count($lines) < 2) {
+      throw new RuntimeException("Cast file is empty or malformed: $cast_path");
+    }
+
+    // The whole stream is joined before it is stripped, because an escape
+    // sequence can be split across two recorded events and is only contiguous
+    // once they are concatenated.
+    $text = '';
+    foreach (array_slice($lines, 1) as $line) {
+      $line = trim($line);
+
+      if ($line === '') {
+        continue;
+      }
+
+      $event = json_decode($line, TRUE);
+
+      // Only 'o' events carry terminal output; 'i' and 'r' events carry input
+      // and resizes.
+      if (is_array($event) && ($event[1] ?? '') === 'o' && isset($event[2])) {
+        $text .= (string) $event[2];
+      }
+    }
+
+    return $this->stripAnsi($text);
+  }
+
+  /**
+   * Remove the escape sequences that color and position recorded output.
+   */
+  protected function stripAnsi(string $text): string {
+    $patterns = [
+      // Operating system commands, such as the window title.
+      '#\x1b\][^\x07\x1b]*(?:\x07|\x1b\\\\)#',
+      // Control sequence introducer, covering colors and cursor movement.
+      '#\x1b\[[0-9;?]*[ -/]*[@-~]#',
+      // Two-character escapes left between the sequences above.
+      '#\x1b[@-Z\\\\-_]#',
+    ];
+
+    $stripped = preg_replace($patterns, '', $text);
+    if ($stripped === NULL) {
+      throw new RuntimeException('Failed to strip ANSI sequences from cast text');
+    }
+
+    // ISSUE_PATTERNS needs the 'u' modifier to carry '✖', and a 'u' pattern
+    // returns FALSE rather than no-match on invalid UTF-8, which would hide
+    // every marker on the offending line.
+    $stripped = mb_scrub($stripped, 'UTF-8');
+
+    // A carriage return redraws the current line, so each redraw becomes its
+    // own line rather than overwriting the text that was already recorded.
+    return str_replace(["\r\n", "\r"], "\n", $stripped);
+  }
+
+  /**
+   * Write the plain text transcript of a cast and return its contents.
+   */
+  public function writeTranscript(string $cast_path, string $transcript_path): string {
+    $text = $this->castToText($cast_path);
+
+    $dir = dirname($transcript_path);
+    if (!is_dir($dir) && !mkdir($dir, 0o755, TRUE) && !is_dir($dir)) {
+      throw new RuntimeException("Failed to create transcript directory: $dir");
+    }
+
+    if (file_put_contents($transcript_path, $text) === FALSE) {
+      throw new RuntimeException("Failed to write transcript: $transcript_path");
+    }
+
+    $this->pass("Transcript written: $transcript_path");
+
+    return $text;
+  }
+
+  /**
+   * Find the lines of recorded output that report an error or a warning.
+   *
+   * @return array<int,array{line:int,category:string,text:string}>
+   */
+  public function findIssues(string $text): array {
+    $issues = [];
+
+    foreach (explode("\n", $text) as $index => $line) {
+      $line = trim($line);
+
+      if ($line === '') {
+        continue;
+      }
+
+      $probe = preg_replace(self::ISSUE_EXEMPT_PATTERNS, ' ', $line);
+      if ($probe === NULL) {
+        throw new RuntimeException('Failed to apply issue exemptions to recorded output');
+      }
+
+      foreach (self::ISSUE_PATTERNS as $category => $pattern) {
+        if (preg_match($pattern, $probe) === 1) {
+          $issues[] = ['line' => $index + 1, 'category' => $category, 'text' => $line];
+
+          break;
+        }
+      }
+    }
+
+    return $issues;
+  }
+
+  /**
+   * Report the issues found in recorded output and fail when there are any.
+   *
+   * A published demo is a claim that the command runs clean, so a recording
+   * that reports an error, a warning or a failure is not rendered.
+   */
+  public function assertNoIssues(string $name, string $text): void {
+    $issues = $this->findIssues($text);
+
+    if ($issues === []) {
+      $this->pass("No errors, warnings or failures recorded in '$name'");
+
+      return;
+    }
+
+    $grouped = [];
+    foreach ($issues as $issue) {
+      $key = $issue['category'] . '|' . $issue['text'];
+      $grouped[$key] ??= ['line' => $issue['line'], 'category' => $issue['category'], 'text' => $issue['text'], 'count' => 0];
+      $grouped[$key]['count']++;
+    }
+
+    $this->fail(sprintf("Recorded '%s' output reports %d issue line(s), %d unique:", $name, count($issues), count($grouped)));
+
+    foreach ($grouped as $issue) {
+      $repeat = $issue['count'] > 1 ? sprintf(' (x%d)', $issue['count']) : '';
+      $this->note(sprintf('line %d [%s]%s %s', $issue['line'], $issue['category'], $repeat, $this->truncate($issue['text'])));
+    }
+
+    throw new RuntimeException(sprintf("Refusing to render '%s': fix the reported lines at the command that emits them and re-record", $name));
+  }
+
+  /**
+   * Shorten a reported line to keep the issue report readable.
+   */
+  protected function truncate(string $text, int $length = 160): string {
+    return mb_strlen($text) > $length ? mb_substr($text, 0, $length - 3) . '...' : $text;
   }
 
   /**
