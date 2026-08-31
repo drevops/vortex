@@ -15,11 +15,7 @@
    // Code quality improvement sets.
    ->withPreparedSets(
      codeQuality: TRUE,
-@@ -100,11 +97,9 @@
-   // paths and the file extensions Drupal executes PHP from, so this file
-   // declares neither.
-   ->withSetProviders(DrupalSetProvider::class)
--  ->withComposerBased(twig: TRUE, phpunit: TRUE, symfony: TRUE, drupal: TRUE)
+@@ -103,7 +100,6 @@
    // Additional rules.
    ->withRules([
      DeclareStrictTypesRector::class,

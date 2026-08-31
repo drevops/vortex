@@ -6,11 +6,7 @@
  use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
  use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
  use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
-@@ -100,11 +99,9 @@
-   // paths and the file extensions Drupal executes PHP from, so this file
-   // declares neither.
-   ->withSetProviders(DrupalSetProvider::class)
--  ->withComposerBased(twig: TRUE, phpunit: TRUE, symfony: TRUE, drupal: TRUE)
+@@ -103,7 +102,6 @@
    // Additional rules.
    ->withRules([
      DeclareStrictTypesRector::class,

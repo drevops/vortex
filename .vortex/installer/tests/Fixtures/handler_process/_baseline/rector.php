@@ -94,13 +94,12 @@ return RectorConfig::configure()
     privatization: TRUE,
     typeDeclarations: TRUE,
   )
-  // Deprecation fixes for the installed versions of Drupal, Twig, PHPUnit and
-  // Symfony. Both calls are required: the provider supplies the sets,
-  // `withComposerBased()` enables the group. The Drupal sets carry the autoload
-  // paths and the file extensions Drupal executes PHP from, so this file
-  // declares neither.
+  // Drupal deprecation fixes for the installed `drupal/core` version. Both
+  // calls are required: the provider supplies the sets, `withComposerBased()`
+  // enables the group. The sets carry the autoload paths and the file
+  // extensions Drupal executes PHP from, so this file declares neither.
   ->withSetProviders(DrupalSetProvider::class)
-  ->withComposerBased(twig: TRUE, phpunit: TRUE, symfony: TRUE, drupal: TRUE)
+  ->withComposerBased(drupal: TRUE)
   // Additional rules.
   ->withRules([
     DeclareStrictTypesRector::class,
