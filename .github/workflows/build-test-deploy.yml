@@ -182,7 +182,6 @@ jobs:
       - name: Lint module code with NodeJS linters
         run: docker compose exec -T cli bash -c "npm run lint"
         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-      #;> TOOL_ESLINT_STYLELINT
 
       #;< DRUPAL_THEME
       - name: Lint theme code with NodeJS linters
@@ -190,6 +189,7 @@ jobs:
         run: docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
       #;> DRUPAL_THEME
+      #;> TOOL_ESLINT_STYLELINT
 
   test:
     runs-on: ubuntu-latest
