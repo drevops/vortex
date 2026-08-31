@@ -24,6 +24,42 @@ final class VideoRecorder {
 
   public const LINE_HEIGHT = '1.1';
 
+  /**
+   * Height the renderer draws a character at, in column widths.
+   *
+   * Passed to the renderer, so this is the value it uses rather than a copy of
+   * it.
+   */
+  public const FONT_SIZE = '1.67';
+
+  /**
+   * Return the rows that give a terminal of the given width a wanted shape.
+   *
+   * The renderer draws a cell one column wide and FONT_SIZE * LINE_HEIGHT
+   * column widths tall, so a terminal's rendered aspect is
+   * cols / (rows * FONT_SIZE * LINE_HEIGHT). Solving that for rows fixes the
+   * shape of every recording to one number rather than to a pair that has to
+   * be kept consistent by hand.
+   *
+   * @param int $cols
+   *   Columns the terminal is recorded at.
+   * @param float $aspect
+   *   Wanted width divided by height.
+   *
+   * @return int
+   *   Rows to record, rounded to the nearest whole row.
+   */
+  public static function rowsForAspect(int $cols, float $aspect): int {
+    if ($cols < 1) {
+      throw new InvalidArgumentException('Columns must be positive, got ' . $cols);
+    }
+    if ($aspect <= 0) {
+      throw new InvalidArgumentException('Aspect must be positive, got ' . $aspect);
+    }
+
+    return max(1, (int) round($cols / ($aspect * (float) self::FONT_SIZE * (float) self::LINE_HEIGHT)));
+  }
+
   public function __construct(
     public readonly string $project_root,
     public readonly string $docs_static_dir,
@@ -398,6 +434,7 @@ final class VideoRecorder {
       $cast_path,
       $svg_path,
       '--line-height', self::LINE_HEIGHT,
+      '--font-size', self::FONT_SIZE,
     ]);
 
     if (!is_file($svg_path)) {
@@ -459,6 +496,7 @@ final class VideoRecorder {
       $cast_path,
       $frame_svg,
       '--line-height', self::LINE_HEIGHT,
+      '--font-size', self::FONT_SIZE,
       '--at', (string) $at,
     ]);
 

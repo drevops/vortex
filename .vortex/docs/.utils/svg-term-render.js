@@ -11,6 +11,7 @@
  * Options:
  *   --at <ms>          Timestamp of frame to render
  *   --line-height <n>  Line height multiplier (default: 1.0)
+ *   --font-size <n>    Character height in column widths (default: 1.67)
  *   --font-family <s>  Font family (default: Consolas, monospace)
  */
 
@@ -30,6 +31,7 @@ if (args.length < 2 || args.includes('--help')) {
   console.log('Options:');
   console.log('  --at <ms>          Timestamp of frame to render');
   console.log('  --line-height <n>  Line height multiplier (default: 1.0)');
+  console.log('  --font-size <n>    Character height in column widths (default: 1.67)');
   console.log('  --font-family <s>  Font family (default: Consolas, monospace)');
   process.exit(args.includes('--help') ? 0 : 1);
 }
@@ -40,6 +42,7 @@ const outputFile = args[1];
 // Parse options.
 let at = null;
 let lineHeight = 1.0;
+let fontSize = 1.67;
 let fontFamily = 'Consolas, "Courier New", Courier, "Liberation Mono", monospace';
 
 for (let i = 2; i < args.length; i++) {
@@ -48,6 +51,9 @@ for (let i = 2; i < args.length; i++) {
     i++;
   } else if (args[i] === '--line-height' && i + 1 < args.length) {
     lineHeight = parseFloat(args[i + 1]);
+    i++;
+  } else if (args[i] === '--font-size' && i + 1 < args.length) {
+    fontSize = parseFloat(args[i + 1]);
     i++;
   } else if (args[i] === '--font-family' && i + 1 < args.length) {
     fontFamily = args[i + 1];
@@ -129,7 +135,7 @@ const theme = {
   text: [171, 178, 191],          // #abb2bf
   cursor: [82, 139, 255],         // #528bff
   bold: [171, 178, 191],          // #abb2bf
-  fontSize: 1.67,
+  fontSize: fontSize,
   lineHeight: lineHeight,
   fontFamily: fontFamily,
 };
@@ -150,6 +156,7 @@ try {
   fs.writeFileSync(outputFile, svg, 'utf8');
   console.log(`SVG rendered successfully: ${outputFile}`);
   console.log(`  lineHeight: ${lineHeight}`);
+  console.log(`  fontSize: ${fontSize}`);
   console.log(`  fontFamily: ${fontFamily}`);
   if (at !== null) {
     console.log(`  at: ${at}ms`);

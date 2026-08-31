@@ -340,6 +340,28 @@ describe('AsciinemaPlayer Component', () => {
     });
   });
 
+  describe('Prop Variants - Fit Options', () => {
+    test('renders with each fit value', () => {
+      const fitValues = ['width', 'height', 'both', false];
+
+      fitValues.forEach(fit => {
+        const { container } = render(
+          <AsciinemaPlayer src="/fixtures/test-cast.json" fit={fit} />
+        );
+
+        expect(container.firstChild).toBeInTheDocument();
+      });
+    });
+
+    test('renders without a fit value', () => {
+      const { container } = render(
+        <AsciinemaPlayer src="/fixtures/test-cast.json" />
+      );
+
+      expect(container.firstChild).toBeInTheDocument();
+    });
+  });
+
   describe('Prop Combinations', () => {
     test('renders with all boolean props true', () => {
       const { container } = render(
