@@ -173,6 +173,119 @@ function lagoon_get_existing_environments(bool $is_branch): array {
 }
 
 /**
+ * Discover the database import override flag on an environment.
+ *
+ * @param string $environment
+ *   The environment name to read the variable from.
+ *
+ * @return array
+ *   An array with the 'state' ('absent', 'present' or 'unknown'), and the
+ *   'value' and 'scope' of an existing flag.
+ */
+function lagoon_discover_override_db_flag(string $environment): array {
+  $flag = TASK(
+    'Discovering a database import override flag.',
+    'Completed database import override flag discovery.',
+    function () use ($environment): array {
+      $flag = ['state' => 'unknown', 'value' => '', 'scope' => 'global'];
+
+      $exit_code = 0;
+      $json = lagoon_run_cli(sprintf('list variables --environment %s --reveal --output-json', escapeshellarg($environment)), $exit_code);
+
+      if ($exit_code !== 0) {
+        // An unreadable variable list is not an absent flag. Adding one and
+        // deleting it afterwards would destroy a flag that already exists, so
+        // the flag is left alone. The build then runs against whatever value
+        // the environment already carries, which may not be the requested one.
+        NOTE('WARNING: Could not read environment variables. A database import override flag was left unchanged and may not match the requested deployment action.');
+
+        return $flag;
+      }
+
+      $data = json_decode($json, TRUE);
+      if (!is_array($data) || !isset($data['data']) || !is_array($data['data'])) {
+        NOTE('WARNING: Could not read environment variables. A database import override flag was left unchanged and may not match the requested deployment action.');
+
+        return $flag;
+      }
+
+      $flag['state'] = 'absent';
+
+      foreach ($data['data'] as $variable) {
+        if (!is_array($variable) || ($variable['name'] ?? NULL) !== 'VORTEX_PROVISION_OVERRIDE_DB') {
+          continue;
+        }
+
+        $flag['state'] = 'present';
+        $flag['value'] = (string) ($variable['value'] ?? '');
+        $flag['scope'] = (string) ($variable['scope'] ?? 'global');
+        break;
+      }
+
+      if ($flag['state'] === 'absent') {
+        NOTE('No existing database import override flag found.');
+      }
+      else {
+        NOTE('Found an existing database import override flag with value "%s" and scope "%s".', $flag['value'], $flag['scope']);
+      }
+
+      return $flag;
+    },
+  );
+
+  return is_array($flag) ? $flag : ['state' => 'unknown', 'value' => '', 'scope' => 'global'];
+}
+
+/**
+ * Set the database import override flag for the duration of one build.
+ *
+ * @param string $environment
+ *   The environment name to write the variable to.
+ * @param array $flag
+ *   The flag as discovered by lagoon_discover_override_db_flag().
+ * @param string $value
+ *   The value this deployment needs while Lagoon queues the build.
+ */
+function lagoon_borrow_override_db_flag(string $environment, array $flag, string $value): void {
+  if ($flag['state'] === 'absent') {
+    TASK(sprintf('Adding a database import override flag with value %s.', $value), sprintf('Added a database import override flag with value %s.', $value), function () use ($environment, $value): void {
+      lagoon_run_cli(sprintf('add variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value %s --scope global', escapeshellarg($environment), escapeshellarg($value)));
+    });
+  }
+  elseif ($flag['state'] === 'present') {
+    TASK(sprintf('Updating a database import override flag to %s.', $value), sprintf('Updated a database import override flag to %s.', $value), function () use ($environment, $flag, $value): void {
+      lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value %s --scope %s', escapeshellarg($environment), escapeshellarg($value), escapeshellarg($flag['scope'])));
+    });
+  }
+}
+
+/**
+ * Return the database import override flag to the state it was discovered in.
+ *
+ * @param string $environment
+ *   The environment name to write the variable to.
+ * @param array $flag
+ *   The flag as discovered by lagoon_discover_override_db_flag().
+ */
+function lagoon_restore_override_db_flag(string $environment, array $flag): void {
+  // Lagoon reads the flag when it queues the build.
+  TASK('Waiting for deployment to be queued.', 'Waited for the deployment to be queued.', function (): void {
+    sleep_progress(10);
+  });
+
+  if ($flag['state'] === 'absent') {
+    TASK('Removing a database import override flag.', 'Removed a database import override flag.', function () use ($environment): void {
+      lagoon_run_cli(sprintf('delete variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB', escapeshellarg($environment)));
+    });
+  }
+  elseif ($flag['state'] === 'present') {
+    TASK(sprintf('Restoring a database import override flag to %s.', $flag['value']), sprintf('Restored a database import override flag to %s.', $flag['value']), function () use ($environment, $flag): void {
+      lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value %s --scope %s', escapeshellarg($environment), escapeshellarg($flag['value']), escapeshellarg($flag['scope'])));
+    });
+  }
+}
+
+/**
  * Handle Lagoon environment limit exceeded.
  *
  * @param string $output
@@ -248,18 +361,14 @@ else {
 
     // Re-deployment of an existing environment.
     if ($is_redeploy) {
-      // Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
-      // @see https://github.com/uselagoon/lagoon/issues/1922
-      // @todo Review and remove this workaround as the issue is fixed.
-      TASK('Setting a database overwrite flag to 0.', 'Set the database overwrite flag to 0.', function () use ($deploy_pr_full): void {
-        lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_pr_full)));
-      });
+      // The flag value this deployment needs while Lagoon queues the build.
+      $override_db_value = $deploy_action === 'deploy_override_db' ? '1' : '0';
 
-      if ($deploy_action === 'deploy_override_db') {
-        TASK('Adding a database import override flag for the current deployment.', 'Added the database import override flag.', function () use ($deploy_pr_full): void {
-          lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global', escapeshellarg($deploy_pr_full)));
-        });
-      }
+      // A deployment borrows the flag for a single build and then returns the
+      // environment to the state it was found in, so an environment that had no
+      // flag is not left with one.
+      $override_db_flag = lagoon_discover_override_db_flag($deploy_pr_full);
+      lagoon_borrow_override_db_flag($deploy_pr_full, $override_db_flag, $override_db_value);
 
       $deploy_cmd = sprintf('deploy pullrequest --number %s --base-branch-name %s --base-branch-ref %s --head-branch-name %s --head-branch-ref %s --title %s', escapeshellarg($deploy_pr), escapeshellarg($deploy_pr_base_branch), escapeshellarg('origin/' . $deploy_pr_base_branch), escapeshellarg($deploy_branch), escapeshellarg($deploy_pr_head), escapeshellarg($deploy_pr_full));
       TASK(sprintf('Redeploying environment: project %s, PR: %s.', $lagoon_project, $deploy_pr), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code, &$deploy_error): void {
@@ -270,15 +379,7 @@ else {
         }
       }, fatal: FALSE);
 
-      if ($deploy_action === 'deploy_override_db') {
-        TASK('Waiting for deployment to be queued.', 'Waited for the deployment to be queued.', function (): void {
-          sleep_progress(10);
-        });
-
-        TASK('Removing a database import override flag for the current deployment.', 'Removed the database import override flag.', function () use ($deploy_pr_full): void {
-          lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_pr_full)));
-        });
-      }
+      lagoon_restore_override_db_flag($deploy_pr_full, $override_db_flag);
     }
     // Fresh deployment.
     else {
@@ -300,18 +401,14 @@ else {
 
     // Re-deployment of an existing environment.
     if ($is_redeploy) {
-      // Explicitly set DB overwrite flag to 0 due to a bug in Lagoon.
-      // @see https://github.com/uselagoon/lagoon/issues/1922
-      // @todo Review and remove this workaround as the issue is fixed.
-      TASK('Setting a database overwrite flag to 0.', 'Set the database overwrite flag to 0.', function () use ($deploy_branch): void {
-        lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_branch)));
-      });
+      // The flag value this deployment needs while Lagoon queues the build.
+      $override_db_value = $deploy_action === 'deploy_override_db' ? '1' : '0';
 
-      if ($deploy_action === 'deploy_override_db') {
-        TASK('Adding a database import override flag for the current deployment.', 'Added the database import override flag.', function () use ($deploy_branch): void {
-          lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global', escapeshellarg($deploy_branch)));
-        });
-      }
+      // A deployment borrows the flag for a single build and then returns the
+      // environment to the state it was found in, so an environment that had no
+      // flag is not left with one.
+      $override_db_flag = lagoon_discover_override_db_flag($deploy_branch);
+      lagoon_borrow_override_db_flag($deploy_branch, $override_db_flag, $override_db_value);
 
       $deploy_cmd = sprintf('deploy latest --environment %s', escapeshellarg($deploy_branch));
       TASK(sprintf('Redeploying environment: project %s, branch: %s.', $lagoon_project, $deploy_branch), 'Requested the environment redeployment.', function () use ($deploy_cmd, &$exit_code, &$deploy_error): void {
@@ -322,15 +419,7 @@ else {
         }
       }, fatal: FALSE);
 
-      if ($deploy_action === 'deploy_override_db') {
-        TASK('Waiting for deployment to be queued.', 'Waited for the deployment to be queued.', function (): void {
-          sleep_progress(10);
-        });
-
-        TASK('Removing a database import override flag for the current deployment.', 'Removed the database import override flag.', function () use ($deploy_branch): void {
-          lagoon_run_cli(sprintf('update variable --environment %s --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global', escapeshellarg($deploy_branch)));
-        });
-      }
+      lagoon_restore_override_db_flag($deploy_branch, $override_db_flag);
     }
     // Fresh deployment.
     else {
