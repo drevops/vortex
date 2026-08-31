@@ -10,6 +10,15 @@ Webhook deployment triggers a remote deployment by calling an HTTP endpoint.
 This is useful for integrating with external systems or custom deployment
 pipelines that expose webhook URLs.
 
+:::note
+
+This is a deployment _type_ - it triggers the deployment itself. To call a
+webhook _about_ a deployment (for example, to tell a monitoring system one
+happened), use the [webhook notification channel](notifications.mdx#webhook)
+instead.
+
+:::
+
 ## How it works
 
 When `webhook` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script
@@ -42,3 +51,8 @@ as parameters.
 - Triggering deployments on platforms that provide webhook endpoints
 - Integrating with custom deployment orchestration systems
 - Notifying external services when code is ready for deployment
+
+## See also
+
+- [Deployment overview](README.mdx) - the deployment router and skip rules
+- [Notifications](notifications.mdx) - messages sent after a deployment lands

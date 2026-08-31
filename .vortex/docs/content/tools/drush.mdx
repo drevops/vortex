@@ -12,14 +12,14 @@ scripts and Behat tests.
 
 It also allows a developer to interact with the site via CLI during development.
 
-While all the standard Drush commands supported, **Vortex** also provides some
-shorthand commands to abstract some of the common tasks:
+While all the standard Drush commands are supported, **Vortex** also provides
+shorthand commands that wrap the common tasks:
 
-- fetching the database dump from the remote environment
-- importing the database dump into the local environment
-- running database updates and clearing caches
+- `ahoy fetch-db` - fetch the database dump from the remote environment
+- `ahoy import-db` - import the database dump into the local environment
+- `ahoy provision` - import the database and run updates, config imports and cache rebuilds
 
-➡️ See [Development](/docs/development)
+➡️ See [Development](../development/README.mdx)
 
 ## Usage
 
@@ -133,8 +133,8 @@ container.
     ```
     2. Run Drush commands using the Lagoon site aliases:
     ```shell
-    docker compose exec cli drush drush @lagoon.develop status  # Show status of the develop environment
-    docker compose exec cli drush drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
+    docker compose exec cli drush @lagoon.develop status  # Show status of the develop environment
+    docker compose exec cli drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
     ```
   </TabItem>
 </Tabs>

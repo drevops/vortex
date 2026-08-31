@@ -2,7 +2,7 @@
 sidebar_label: Jest
 ---
 
-# Jest – JavaScript Testing Framework
+# Jest - JavaScript testing framework
 
 https://jestjs.io/
 
@@ -33,15 +33,18 @@ import TabItem from '@theme/TabItem';
 
 ### Running tests matching a pattern
 
+`ahoy test-js` does not forward extra arguments, so run subsets through
+`ahoy cli`:
+
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    ahoy test-js -- --testPathPattern=ys_demo
+    ahoy cli "yarn test ys_demo"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli bash -c "yarn test --testPathPattern=ys_demo"
+    docker compose exec cli bash -c "yarn test ys_demo"
     ```
   </TabItem>
 </Tabs>
@@ -51,7 +54,7 @@ import TabItem from '@theme/TabItem';
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    ahoy test-js -- -t "should increment the value"
+    ahoy cli "yarn test -t 'should increment the value'"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -68,8 +71,9 @@ See [Jest configuration reference](https://jestjs.io/docs/configuration).
 All global configuration takes place in the [`jest.config.js`](https://github.com/drevops/vortex/blob/main/jest.config.js) file.
 
 By default, Jest will discover and run test files in `web/modules/custom/*/js/`
-directories. Test files must use the `.test.js` extension and be co-located
-alongside the source files they test.
+directories and their subdirectories. Test files must use the `.test.js`
+extension and live in a `tests/` subdirectory next to the source files they
+test.
 
 The configuration uses the `jsdom` test environment to provide browser globals
 like `document`, `window`, and `localStorage`.
@@ -83,84 +87,22 @@ changes.
 
 ## Writing tests
 
-Test files are placed next to the source file they test:
+Test files live in a `tests/` subdirectory next to the source files they test:
 
 ```text
 web/modules/custom/my_module/
 └── js/
-    ├── my_module.js          # Source file
-    └── my_module.test.js     # Test file
+    ├── my_module.js           # Source file
+    └── tests/
+        └── my_module.test.js  # Test file
 ```
 
-### Loading Drupal behaviors
+Tests load the source file with `require()` after setting up the required
+globals, and the `.eslintrc.json` override for `*.test.js` files enables the
+`jest` environment and allows `global-require` to support that pattern.
 
-Drupal JavaScript uses the IIFE pattern with `Drupal` as a global. Tests load
-the source file using `eval()` after setting up the global:
-
-```javascript
-/**
- * @jest-environment jsdom
- */
-
-const fs = require('fs');
-const path = require('path');
-
-describe('Drupal.behaviors.myModule', () => {
-  beforeEach(() => {
-    localStorage.clear();
-    global.Drupal = { behaviors: {} };
-
-    const filePath = path.resolve(__dirname, 'my_module.js');
-    const code = fs.readFileSync(filePath, 'utf8');
-    eval(code);
-  });
-
-  afterEach(() => {
-    delete global.Drupal;
-  });
-
-  it('should attach behavior', () => {
-    document.body.innerHTML = '<div data-my-module></div>';
-    Drupal.behaviors.myModule.attach(document);
-
-    const el = document.querySelector('[data-my-module]');
-    expect(el.classList.contains('processed')).toBe(true);
-  });
-});
-```
-
-### Key patterns
-
-- **`global.Drupal = { behaviors: {} }`** in `beforeEach` provides the Drupal
-  global that the IIFE receives as a parameter.
-- **`eval(fs.readFileSync(...))`** loads and executes the source file, which
-  registers the behavior on `Drupal.behaviors`.
-- **`delete global.Drupal`** in `afterEach` ensures test isolation.
-- **`document.body.innerHTML`** sets up the DOM for each test using jsdom.
-- **`jest.useFakeTimers()`** controls `setTimeout` and `setInterval` for
-  testing timed behavior.
-
-### ESLint configuration
-
-The `.eslintrc.json` file includes an override for `*.test.js` files that
-enables the `jest` environment and disables `no-eval` to allow the source
-loading pattern:
-
-```json
-{
-  "overrides": [
-    {
-      "files": ["*.test.js"],
-      "env": { "jest": true },
-      "rules": {
-        "no-eval": "off",
-        "max-nested-callbacks": ["warn", 5],
-        "jsdoc/check-tag-names": "off"
-      }
-    }
-  ]
-}
-```
+For the test template, loading Drupal behaviors, and mocking globals, see the
+[Jest development guide](/docs/development/jest).
 
 ## Ignoring fail in continuous integration pipeline
 

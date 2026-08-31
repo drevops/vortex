@@ -5,10 +5,10 @@ https://github.com/ahoy-cli/ahoy
 > Automate and organize your workflows, no matter what technology you use.
 >
 > Ahoy is command line tool that gives each of your projects their own CLI app
-with zero code and dependencies.
+> with zero code and dependencies.
 
-Usually, Ahoy is used to wrap the commands to make the development process
-consistent and easy to use.
+Ahoy wraps longer commands into short, memorable ones, so the development
+process stays consistent across projects and team members.
 
 **Vortex** comes with [pre-configured `.ahoy.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.yml) that has
 commands wrapped around the most common tasks:
@@ -45,20 +45,19 @@ Adding a new command with passed arguments:
 ```yml
 commands:
   custom:
-    cmd: .vendor/bin/phpunit --group="smoke" "$@"
+    cmd: vendor/bin/phpunit --group="smoke" "$@"
 ```
 
-Adding a new multi-line command with usage details and calling another Ahoy
-commands after confirmation:
+Adding a new multi-line command with usage details that calls other Ahoy
+commands after a confirmation:
 
 ```yml
-
 commands:
   custom:
     usage: Custom action
     cmd: |
       ahoy confirm "Are you sure?" &&
-      .vendor/bin/phpunit --group="smoke" "$@" &&
+      vendor/bin/phpunit --group="smoke" "$@" &&
       ahoy info
 ```
 

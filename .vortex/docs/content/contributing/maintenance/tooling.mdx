@@ -1,0 +1,91 @@
+---
+sidebar_label: Tooling
+sidebar_position: 4
+---
+
+# Tooling
+
+The operational scripts that consumer projects run - build, provision,
+database, deployment and notification commands - live in `.vortex/tooling/`
+and are published as the standalone
+[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
+Composer package. Consumer projects install the package and run the scripts
+from `vendor/bin/vortex-*`.
+
+## Package layout
+
+| Path | Purpose |
+|------|---------|
+| `src/` | The shipped scripts - the only directory in the published archive |
+| `tests/Unit/` | PHPUnit unit tests covering the shipped scripts |
+| `playground/` | Manual scripts that hit live services (Slack, JIRA, New Relic); not automated |
+
+`tests/` and `playground/` are stripped from the published archive via
+`.gitattributes` `export-ignore`.
+
+While developing **Vortex** itself, the template's root `composer.json`
+resolves the package from the in-tree copy through a `path` repository with a
+pinned version; the CLI install command strips that entry so consumer sites
+resolve the published package from Packagist.
+
+## Script conventions
+
+The shipped scripts are PHP and use PHP internals wherever possible, so a
+consumer site needs no extra host binaries. Every script follows the same
+pattern: a `helpers.php` include, variables read through `getenv_default()` and
+`getenv_required()` with their fallback chains, and the shared output helpers.
+
+The output helpers have a strict contract:
+
+- `INFO()` opens and closes an operation.
+- `TASK()` announces work that is starting and reports its outcome. It takes
+  both the starting and the finishing message, so a task always closes.
+- `NOTE()` is a standalone remark that starts no task.
+- `FAIL()` reports the failure and aborts.
+
+```php
+TASK('Disabling Search API Solr server.', 'Disabled Search API Solr server.', function (): void {
+  drush('search-api:server-disable solr');
+});
+```
+
+Consumer projects that need to alter a shipped script do so with a
+`cweagans/composer-patches` patch, never by overriding it at runtime.
+
+## Testing
+
+The scripts are tested at 3 levels:
+
+- **Unit** - PHPUnit tests in `tooling/tests/Unit/` cover the shipped scripts
+  with external commands mocked. Run them from `.vortex/`:
+
+  ```shell
+  cd .vortex
+  ahoy test-tooling
+
+  # Run a single test class.
+  ahoy test-tooling -- --filter=DeployLagoonTest
+  ```
+
+- **Integration** - the scripts are exercised end-to-end by the template's
+  PHPUnit functional tests in `.vortex/tests/` - see
+  [Template > Testing](template.mdx#testing).
+- **Manual** - `tooling/playground/` holds scripts that hit live services.
+  They are not automated; see `tooling/playground/README.md`.
+
+## Publishing
+
+The `Vortex - Publish tooling` workflow
+(`.github/workflows/vortex-publish-tooling.yml`) mirrors `.vortex/tooling/` to
+the [`drevops/vortex-tooling`](https://github.com/drevops/vortex-tooling)
+repository on every push to `main`, `2.x`, and any branch whose name contains
+`vortex-tooling`, matching the source branch name. The published commit subject
+matches the source commit subject, and the body records provenance.
+
+The package version is injected at publish time - never hardcode a `version`
+in the package `composer.json`.
+
+Releases of the package are tagged on the mirror repository. When the tooling
+changed since the last release, it is tagged **before** the **Vortex** release,
+so the template can require the new tag - see
+[Release > Tagging](release.mdx#tagging).

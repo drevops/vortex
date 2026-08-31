@@ -6,7 +6,7 @@ https://github.com/drevops/git-artifact
 
 Some hosting providers, like Acquia, restrict certain build operations, making
 it necessary to develop and build your site elsewhere before deploying it. This
-tool streamlines that process: it uses a `.gitignore.artifact` file to control
+tool handles that transfer: it uses a `.gitignore.artifact` file to control
 which files get transferred, and overwrites the destination repository's history
 with each push, while preserving the source history.
 
@@ -31,10 +31,10 @@ The file already contains all required targets to get the full site build with
 production-only dependencies (dev-dependencies are excluded from the code
 artifact during the continuous integration pipeline build).
 
-Modifying targets in the `.gitignore.artifact` file works just like updating
-a regular `.gitignore` file.
+Modifying targets in the `.gitignore.artifact` file works the same way as
+updating a regular `.gitignore` file.
 
-➡️ See [Deployment > Artifact](/docs/deployment/artifact#artifact-file-control)
+➡️ See [Deployment > Artifact](../deployment/artifact.mdx#artifact-file-control)
 for the deny-list model and the list of files the artifact excludes.
 
 The `git-artifact` binary is downloaded from
@@ -46,13 +46,13 @@ The version and checksum are controlled by:
 - `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION`: Version to download (default: `1.7.0`).
 - `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256`: Expected SHA256 checksum of the binary.
 
-It is required to set the following environment variables in the continuous
-integration environment:
+Set the following environment variables in the continuous integration
+environment:
 
-- `VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME`: Email address of the user who will be
-  committing to a remote repository.
-- `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL`: Name of the user who will be
-  committing to a remote repository.
+- `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL` (required): Email address of the user
+  who will be committing to a remote repository.
+- `VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME` (optional): Name of the user who will
+  be committing to a remote repository (default: `Deployment Robot`).
 
 ## Stale branch cleanup
 

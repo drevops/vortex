@@ -56,7 +56,7 @@ priority order:
    `VORTEX_CLI_INSTALL_PROMPT_<handler_id>` naming convention.
 3. **Discovery** — auto-detection from existing project files (e.g.,
    `composer.json`, `.env`, hosting-specific files like `.lagoon.yml`).
-4. **Handler defaults** — fallback values defined by each handler.
+4. **Handler defaults** - fallback values defined by each handler.
 
 This means the CLI can be driven entirely by a config file or environment
 variables without any user interaction, which is essential for reproducible
@@ -160,9 +160,9 @@ is tested in isolation with mocks provided by
 For every test permutation, the install command *initiates a fresh project* from the
 Vortex template with a specific combination of user selections and runs
 assertions against the resulting files. Because a single template change can
-affect a hundred plus installation permutations, snapshot testing makes it easy to
-**review the impact of a change across all scenarios as diffs** — ensuring that
-regressions are caught before they reach consumers.
+affect a hundred plus installation permutations, snapshot testing makes it easy
+to **review the impact of a change across all scenarios as diffs** - ensuring
+that regressions are caught before they reach consumers.
 
 Each handler has a dedicated functional test class extending
 `AbstractHandlerProcessTestCase`, covering every aspect of the installation
@@ -173,7 +173,7 @@ These tests use the [`alexskrypnyk/snapshot`](https://github.com/AlexSkrypnyk/sn
 library for snapshot-based testing. The snapshot system works on a
 **baseline + diff** pattern:
 
-- `_baseline/` contains the *complete* reference installation — a full set of
+- `_baseline/` contains the *complete* reference installation - a full set of
   template files as they would appear after a default installation.
 - Each scenario directory (e.g., `services_no_clamav/`, `hosting_acquia/`,
   `deploy_types_all_circleci/`) contains only the *delta* changes from the
@@ -190,7 +190,7 @@ cover scenarios like:
 - **CI providers**: GitHub Actions, CircleCI
 - **Hosting**: Acquia, Lagoon
 - **Services**: Solr, Redis, ClamAV (enabled/disabled combinations)
-- **Deployment**: artifact, container image, webhook, Lagoon, all combined
+- **Deployment**: artifact, webhook, Lagoon, all combined
 - **Database sources**: Acquia, Lagoon, FTP, S3, URL, container registry
 - And many more permutations
 
@@ -218,7 +218,7 @@ Fixture files should never be modified directly. When the template or CLI
 logic changes, update the snapshots:
 
 ```shell
-# From .vortex/ directory (recommended).
+cd .vortex
 ahoy update-snapshots
 
 # Manual (for debugging specific scenarios).
@@ -231,6 +231,17 @@ initiates a fresh project for each scenario, and automatically updates the
 fixture files to match the current output. The resulting changes appear as
 diffs in version control, making it straightforward to review exactly how a
 template or CLI change affects each scenario.
+
+:::warning
+
+Commit your template and CLI changes **before** running
+`ahoy update-snapshots` - the snapshots regenerate from the committed baseline,
+so uncommitted changes are not picked up. `ahoy update-snapshots` is the only
+sanctioned way to regenerate fixtures: invoking the test suite with
+`UPDATE_SNAPSHOTS` by hand bypasses part of the workflow and produces partial,
+inconsistent fixtures.
+
+:::
 
 ## Releasing
 

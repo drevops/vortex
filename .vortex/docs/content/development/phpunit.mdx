@@ -84,11 +84,12 @@ The `phpunit.xml` file in the project root configures:
 
 ## Skipping tests
 
-Add `@group skip` annotation to a test class or method to exclude it from the test run:
+Add a `@group skipped` annotation to a test class or method to exclude it from
+the test run - `phpunit.xml` excludes the `skipped` group by default:
 
 ```php
 /**
- * @group skip
+ * @group skipped
  */
 public function testSomethingToSkip(): void {
   // This test will be skipped
@@ -97,9 +98,9 @@ public function testSomethingToSkip(): void {
 
 ## Reporting
 
-Test reports are stored in `.logs/phpunit` directory, separated into multiple
-files and named after the suite name. These reports are usually used in
-continuous integration to track test performance and stability.
+PHPUnit writes a JUnit XML report to `.logs/test_results/phpunit/phpunit.xml`.
+The continuous integration pipeline collects it to track test performance and
+stability.
 
 ## Boilerplate
 
@@ -112,21 +113,21 @@ These boilerplate tests run in continuous integration pipeline when you install
 
 ### Drupal settings tests
 
-**Vortex** provides [Drupal settings tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal/DrupalSettingsTest.php)
+**Vortex** provides [Drupal settings tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal)
 to check that Drupal settings are correct based on the environment type the site
 is running: with the number of custom modules multiplied by the number of
 environment types, it is easy to miss certain settings which may lead to
 unexpected issues when deploying a project to a different environment.
 
-It is intended to be used in your site and kept up-to-date with the
+They are intended to be used in your site and kept up-to-date with the
 changes made to the `settings.php` file.
 
 ### Continuous integration pipeline configuration tests
 
-**Vortex** provides [continuous integration pipeline configuration tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/CircleCiConfigTest.php)
-to check that the continuous integration configuration is correct. It is
+**Vortex** provides [CircleCI configuration tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/CircleCiConfigTest.php)
+to check that the continuous integration configuration is correct. They are
 intended to be used in your site and kept up-to-date with the continuous
-integration configurations.
+integration configuration.
 
 For example, there are tests for regular expressions used to filter the branches
 and tags before they are deployed to the hosting environment.

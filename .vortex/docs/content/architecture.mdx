@@ -18,8 +18,8 @@ maintainability:
   and avoids reinvention.
 - **Avoid silent errors**: Misconfigurations should fail loudly.
 - **Readability counts**: Code and configuration are meant to be understood.
-- **Explicit logging helps**: Scripts log every major step, so it’s easy to
-  follow what’s going on.
+- **Explicit logging helps**: Scripts log every major step, so it's easy to
+  follow what's going on.
 
 ## System components
 
@@ -113,11 +113,11 @@ running Drush commands, you run a single provision script. This script handles:
 - Running updates, config imports, cache rebuilds, and deploy hooks
 - Executing post-provision custom scripts
 
-Because provisioning is centralized, it runs exactly in the same way in every
+Because provisioning is centralized, it runs the same way in every
 environment: local, CI, or hosting. This eliminates "works on my machine"
 problems and makes the process predictable for everyone.
 
-It also allows to add more automation around provisioning, like conditionally
+It also makes it possible to add more automation around provisioning, like conditionally
 running migrations or creating demo content.
 
 ➡️ See [Drupal > Provision](./drupal/provision)
@@ -148,7 +148,7 @@ Here's how it works:
   environment inside each module-specific file.
 
 This structure gives you clarity, avoids config sprawl, and lets you remove a
-module’s settings cleanly when no longer needed.
+module's settings cleanly when no longer needed.
 
 **Vortex** also includes tests for these settings to ensure they are loaded
 correctly in each environment.
@@ -164,11 +164,13 @@ correctly in each environment.
 - **Rector**
 - **Twig CS Fixer**
 - **ESLint**
+- **Stylelint**
 
-You’ll also find scaffolds for:
+You'll also find scaffolds for:
 
 - **PHPUnit**: Unit and kernel testing
 - **Behat**: Behavior-driven testing with screenshot capture and extra steps
+- **Jest**: JavaScript unit testing
 
 ➡️ See [Tools](./tools)
 
@@ -233,8 +235,8 @@ These scripts:
 
 ### Customizing scripts
 
-All scripts support configuration via environment variables, allowing them
-to be easily adapted to specific project or environment needs.
+All scripts support configuration via environment variables, so they can be
+adapted to specific project or environment needs.
 
 During initial project setup, `.env` file is updated with project-specific
 values like project name, email etc. Then, environment variables (secrets,
@@ -244,17 +246,17 @@ tokens, etc.) are set in CI or hosting environments.
 
 ### Router scripts
 
-Most **Vortex** commands are implemented as router scripts entry points like
-`fetch-db.sh` or `deploy.sh` that dynamically invoke a more specific logic
-for your setup, based on configuration or environment variables.
+Most **Vortex** commands are implemented as _router_ script entry points, like
+`vortex-fetch-db` or `vortex-deploy`, that dynamically invoke the more specific
+logic for your setup, based on configuration or environment variables.
 
 For example:
 
-- `fetch-db.sh` is a router script that fetches a database from any
+- `vortex-fetch-db` is a router script that fetches a database from any
   supported hosting provider or custom location without needing to know the
   specifics of each provider.
-- `deploy.sh` is a router script that deploys code to any hosting provider in a
-  consistent manner, regardless of whether it's Acquia, Lagoon, or another
+- `vortex-deploy` is a router script that deploys code to any hosting provider
+  in a consistent manner, regardless of whether it's Acquia, Lagoon, or another
   platform.
 
 <details>
@@ -266,8 +268,6 @@ For example:
 </picture>
 
 </details>
-
-➡️ See [Variables](./development/variables)
 
 ## Environment variables
 

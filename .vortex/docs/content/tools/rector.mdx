@@ -8,35 +8,33 @@ https://github.com/rectorphp/rector
 
 > Rector instantly upgrades and refactors the PHP code of your application.
 
-**Vortex** comes with [pre-configured Rector configuration](https://github.com/drevops/vortex/blob/main/rector.php)
-for Drupal projects. The configuration is based on
-the configuration provided
-by [Drupal Rector](https://github.com/palantirnet/drupal-rector).
+**Vortex** comes with a [pre-configured Rector configuration](https://github.com/drevops/vortex/blob/main/rector.php)
+for Drupal projects, based on the configuration provided by
+[Drupal Rector](https://github.com/palantirnet/drupal-rector).
 
-## What is Rector?
+## What Rector does
 
 Rector automatically refactors your PHP and Drupal code to:
 
-- **Fix deprecated Drupal APIs** - Prepares code for Drupal major version upgrades
-- **Modernize PHP syntax** - Leverages PHP 8.3 language features
-- **Improve code quality** - Enhances readability and maintainability
-- **Reduce technical debt** - Automated cleanup and optimization
+- **Fix deprecated Drupal APIs** - prepares code for Drupal major version upgrades
+- **Modernize PHP syntax** - rewrites code to use PHP 8.4 language features
+- **Keep code consistent** - applies the same refactoring rules across the codebase
 
 ## When to use Rector
 
-- **Before Drupal Upgrades**: Run before upgrading Drupal major versions to fix deprecations
-- **During Development**: Run periodically (weekly/monthly) to catch deprecations early
-- **Code Reviews**: Include in CI pipeline for automated quality checks
-- **Refactoring Legacy Code**: When modernizing older codebases
+- **Before Drupal upgrades** - run before upgrading Drupal major versions to fix deprecations
+- **During development** - run periodically (weekly/monthly) to catch deprecations early
+- **In code review** - it runs in the CI pipeline as one of the code quality checks
+- **When refactoring legacy code** - to modernize older codebases in bulk
 
 :::note
 
-  Rector is often used ad hoc to perform bulk refactoring.
+Rector is often used ad hoc to perform bulk refactoring.
 
-  In **Vortex**, it is integrated as a regular code quality tool
-  that can be run at any time to check for deprecated code and
-  automatically fix issues. This allows us to keep the codebase up-to-date
-  _continuously_ rather than waiting for major upgrades.
+In **Vortex**, it is integrated as a regular code quality tool that can be run
+at any time to check for deprecated code and automatically fix issues. This
+keeps the codebase up-to-date _continuously_ rather than waiting for major
+upgrades.
 
 :::
 
@@ -65,7 +63,8 @@ import TabItem from '@theme/TabItem';
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    ahoy lint-fix
+    # Fix all back-end lint issues (Rector, then PHPCBF).
+    ahoy lint-be-fix
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -88,20 +87,21 @@ Targets include custom modules and themes, settings and tests.
 ### Config sets
 
 Rector provides [config sets](https://getrector.com/documentation/set-lists)
-functionality that allows to enable/disable rules in bulk.
+that enable or disable rules in bulk.
 
-**Vortex** provides the config sets for Drupal 8, 9 and 10 deprecated code and
-code style fixes.
+**Vortex** enables the PHP 8.4 sets and the Drupal sets from
+[Drupal Rector](https://github.com/palantirnet/drupal-rector). The Drupal sets
+are resolved from the installed `drupal/core` version, so the rules track core
+upgrades without changes to `rector.php`.
 
-The config sets are meant to be adjusted per-project as needed.
-
-A full list of available config sets can be found in
+The config sets are meant to be adjusted per-project as needed. A full list of
+available config sets can be found on
 the [Rules overview](https://getrector.com/documentation/rules-overview) page.
 
 ## Ignoring
 
 See more
-on [Ignoring Rules Or Paths](https://getrector.com/documentation/ignoring-rules-or-paths)
+on the [Ignoring Rules Or Paths](https://getrector.com/documentation/ignoring-rules-or-paths)
 page.
 
 Ignoring rules **globally** takes place in
@@ -134,39 +134,16 @@ Rector does not support ignoring of the **code blocks**.
 
 ## Cache management
 
-### How caching works
+Rector caches parsed file information and analysis results in the system temp
+directory (`/tmp/rector_cached_files`) to speed up subsequent runs by reusing
+results for unchanged files.
 
-Rector caches parsed file information and analysis results to speed up subsequent runs:
+Clear the cache after changing the `rector.php` configuration (rules, skip
+list, or paths), after updating the `rector/rector` or
+`palantirnet/drupal-rector` packages, after switching git branches with
+different Rector configurations, or when results look stale.
 
-- **Cache location**: `/tmp/_rector` (system temp directory)
-- **Stores**: Parsed AST, file metadata, rule analysis results
-- **Performance**: Subsequent runs are ~40-60% faster by reusing results for unchanged files
-
-### When to clear cache
-
-Clear Rector cache in these situations:
-
-1. **After changing `rector.php` configuration**
-   - Added/removed rules
-   - Changed skip list
-   - Modified paths
-
-2. **After updating Rector or Drupal Rector packages**
-
-   ```shell
-   composer update rector/rector palantirnet/drupal-rector
-   ```
-
-3. **When seeing unexpected behavior**
-   - Rules not applying when they should
-   - Stale results
-   - False negatives in CI
-
-4. **After switching git branches** with different Rector configurations
-
-### Clear cache
-
-To clear cache and check for violations:
+To clear the cache and check for violations:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -181,7 +158,7 @@ To clear cache and check for violations:
   </TabItem>
 </Tabs>
 
-To clear cache and apply changes:
+To clear the cache and apply changes:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -198,8 +175,8 @@ To clear cache and apply changes:
 
 ## Ignoring fail in continuous integration pipeline
 
-This tool runs in continuous integration pipeline by default and fails the build
-if there are any violations.
+This tool runs in the continuous integration pipeline by default and fails the
+build if there are any violations.
 
-Set `VORTEX_CI_RECTOR_IGNORE_FAILURE` environment variable to `1` to ignore
-failures. The tool will still run and report violations, if any.
+Set the `VORTEX_CI_RECTOR_IGNORE_FAILURE` environment variable to `1` to
+ignore failures. The tool will still run and report violations, if any.

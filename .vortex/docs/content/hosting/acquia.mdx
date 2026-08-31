@@ -1,23 +1,26 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 # Acquia
 
 [Acquia](https://www.acquia.com/) is a cloud hosting platform specifically
-designed for Drupal applications, offering managed infrastructure, developer
-tools, and enterprise-grade security.
+designed for Drupal applications, offering managed infrastructure and developer
+tools.
 
 For general Acquia documentation, refer to the
 [Acquia Documentation](https://docs.acquia.com/).
 
+This page covers how the site behaves once it runs on Acquia. For how code gets
+there from CI, see [Artifact deployment](../deployment/artifact.mdx).
+
 ## Integration
 
-Vortex provides the following integration with Acquia:
+**Vortex** provides the following integration with Acquia:
 
 ### Tasks
 
-With Vortex, you can:
+With **Vortex**, you can:
 
 - **Fetch a database** from an Acquia environment for local development or CI
 - **Copy the database** between Acquia environments (e.g., refresh staging from production)
@@ -29,7 +32,7 @@ source for the application name and API credentials.
 
 ### Deployment automation
 
-When code is deployed, Vortex automatically:
+When code is deployed, **Vortex** automatically:
 
 1. **Provisions the site** - Runs database updates, imports configuration, clears caches
 2. **Purges edge cache** - Clears the Varnish cache to serve fresh content
@@ -50,18 +53,18 @@ and environment variables.
 
 #### Acquia settings file
 
-By default, Vortex includes the Acquia-provided settings file from
+By default, **Vortex** includes the Acquia-provided settings file from
 `/var/www/site-php/{group}/{group}-settings.inc`. You can override this path
 by setting the `DRUPAL_ACQUIA_SETTINGS_FILE` environment variable.
 
 #### Temporary file path
 
-Vortex configures the temporary file path (`file_temp_path`) with a three-tier
-priority:
+**Vortex** configures the temporary file path (`file_temp_path`) with a
+three-tier priority:
 
 1. **Default**: `/tmp`
 2. **Shared GFS mount**: If `DRUPAL_TMP_PATH_IS_SHARED` is set, uses
-   `/mnt/gfs/{group}.{env}/tmp` — a per-head mounted directory on Acquia's
+   `/mnt/gfs/{group}.{env}/tmp` - a per-head mounted directory on Acquia's
    shared filesystem. This is useful for operations like bulk uploads that
    require a shared temporary directory across web heads. See
    [Acquia temporary files documentation](https://docs.acquia.com/acquia-cloud-platform/manage-apps/files/temporary#section-important-considerations)
@@ -72,10 +75,10 @@ priority:
 ## Onboarding
 
 Acquia onboarding is part of the project setup flow. See
-[Set up integrations](/docs/installation?hosting-provider=acquia#4-set-up-hosting)
+[Set up hosting](/docs/installation?hosting-provider=acquia#4-set-up-hosting)
 in the Installation guide and select **Acquia**.
 
-## Routine Operations
+## Routine operations
 
 ### Fetch database
 

@@ -4,7 +4,14 @@ https://github.com/zavoloklom/docker-compose-linter
 
 > A command-line tool for validating and enforcing best practices in Docker Compose files.
 
-**Vortex** does not install DCLint. Please follow the [instructions](https://github.com/zavoloklom/docker-compose-linter#installation) to install it on your system.
+:::note
+
+**Vortex** does not install DCLint locally. Follow the [instructions](https://github.com/zavoloklom/docker-compose-linter#installation)
+to install it on your system.
+
+In CI, DCLint runs from its official Docker image.
+
+:::
 
 DCLint is selected by default during installation. Deselecting it in the
 `Development tools` question removes the `.dclintrc` configuration file and the
@@ -13,8 +20,15 @@ continuous integration step from every supported provider.
 ## Usage
 
 ```shell
-dclint docker-compose.yml
+dclint .
 ```
+
+## Configuration
+
+Global configuration takes place in the [`.dclintrc`](https://github.com/drevops/vortex/blob/main/.dclintrc)
+file. Beyond the defaults, it defines a `service-keys-order` rule group that
+keeps the keys of every service in `docker-compose.yml` in a consistent order,
+so diffs stay small and services stay easy to compare.
 
 ## Ignoring
 
@@ -22,26 +36,26 @@ To ignore **all DCLint rules** within a file, place in the file header:
 
 ```yaml
 # dclint disable
-version: '3.8'
 services:
-  app:
-    image: ubuntu
+  cli:
+    build: .
 ```
 
-To ignore only **specific rules**:
+To ignore **specific rules** for a single line, place a `disable-line`
+directive on its own line immediately above it:
 
 ```yaml
-version: '3.8'
 services:
-  # dclint disable-next-line no-version-field
-  app:
-    image: ubuntu
+  nginx:
+    ports:
+      # dclint disable-line require-quotes-in-ports
+      - 8080:8080
 ```
 
 ## Ignoring fail in continuous integration pipeline
 
-This tool runs in continuous integration pipeline by default and fails the build
-if there are any violations.
+This tool runs in the continuous integration pipeline by default and fails the
+build if there are any violations.
 
-Set `VORTEX_CI_DCLINT_IGNORE_FAILURE` environment variable to `1` to ignore
+Set the `VORTEX_CI_DCLINT_IGNORE_FAILURE` environment variable to `1` to ignore
 failures. The tool will still run and report violations, if any.
