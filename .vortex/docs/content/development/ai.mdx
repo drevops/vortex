@@ -99,10 +99,7 @@ description: Use when importing legacy content from the CSV exports
 Instructions the agent follows when the skill is invoked.
 ```
 
-The shipped `.gitignore` ignores everything under `.claude/` except
-`settings.json`, so new skills stay local by default. To share skills with
-your team, un-ignore the directory in your `.gitignore`:
-
-```text
-!.claude/skills/
-```
+The shipped `.gitignore` tracks `.claude/skills/` alongside
+`.claude/settings.json`, so a skill is shared with the team as soon as it is
+committed. Everything else under `.claude/` stays ignored, which keeps
+machine-local Claude state out of the repository.

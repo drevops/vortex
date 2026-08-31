@@ -32,6 +32,21 @@ trait GitTrait {
   }
 
   /**
+   * Point a repository at an empty global excludes file.
+   *
+   * The file lives inside '.git' so it never appears as an untracked file.
+   *
+   * @param string $path
+   *   Path to the repository directory.
+   */
+  protected function gitDisableGlobalExcludes(string $path): void {
+    $excludes = $path . DIRECTORY_SEPARATOR . '.git' . DIRECTORY_SEPARATOR . 'empty-excludes';
+    File::dump($excludes);
+
+    (new Git())->open($path)->run('config', ['core.excludesFile', $excludes]);
+  }
+
+  /**
    * Checkout branch.
    *
    * @param string $path
