@@ -296,6 +296,10 @@ const config = {
             to: '/docs/contributing',
           },
           {
+            from: '/docs/drupal/test-mode',
+            to: '/docs/drupal/testmode',
+          },
+          {
             from: '/docs/contributing/maintenance/scripts',
             to: '/docs/contributing/maintenance/template',
           },

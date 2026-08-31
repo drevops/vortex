@@ -1,6 +1,6 @@
 ---
 sidebar_label: composer.json
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 # composer.json
@@ -67,121 +67,60 @@ The [`repositories`](https://getcomposer.org/doc/04-schema.md#repositories)
 section defines custom package repositories, essential for accessing packages
 outside the default Packagist repository.
 
-- [`drupal`](https://www.drupal.org/docs/develop/using-composer/using-packagesdrupalorg):
-  Serves as the official source for Drupal modules, themes, and distributions.
-  It's crucial for a Drupal project using Composer, as it allows access to
-  Drupal-specific packages not available on Packagist.
-- `drevops/vortex-tooling` (path): A local
-  [path repository](https://getcomposer.org/doc/05-repositories.md#path)
-  pointing at `.vortex/tooling`, used only inside the **Vortex** repository so
-  the in-tree tooling package resolves during development. The CLI install command strips
-  this entry during site creation, so your project installs
-  [`drevops/vortex-tooling`](https://github.com/drevops/vortex-tooling) from
-  Packagist instead.
+| Repository | Type | Description |
+|------------|------|-------------|
+| [`packages.drupal.org/8`](https://www.drupal.org/docs/develop/using-composer/using-packagesdrupalorg) | `composer` | The official source for Drupal modules, themes and distributions, which are not published on Packagist. |
+| [`.vortex/tooling`](https://getcomposer.org/doc/05-repositories.md#path) | `path` | Resolves the in-tree tooling package while developing **Vortex** itself. The CLI install command removes this entry during site creation, so your project installs [`drevops/vortex-tooling`](https://github.com/drevops/vortex-tooling) from Packagist instead. |
 
 ### `require`
 
 The [`require`](https://getcomposer.org/doc/04-schema.md#require) section
-specifies the essential packages and libraries your project needs. Many of the
-Drupal modules listed below ship with [pre-configured settings](settings.mdx) so
-they work out of the box.
+specifies the essential packages and libraries your project needs.
 
-- `php`: Specifies the minimum PHP version required to run this project. This
-  should be specified as a range rather than an exact version number.
-  E.g. `>=8.4` and not `8.4.0`.
-- [`composer/installers`](https://github.com/composer/installers): Allows to
-  install packages to the correct location based on the specified package type
-  such as `drupal-module`, `drupal-theme`, `drupal-profile`, etc.
-- [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches):
-  Enables git-based patching of Composer packages, useful for incorporating fixes
-  not yet in official releases. Version 2.x uses `git apply` for cross-platform
-  consistency and generates a `patches.lock.json` file to ensure reproducible
-  builds with SHA-256 checksums.
-  ➡️ See [Development > Composer > Patching](../development/composer#patching)
-- [`drevops/vortex-tooling`](https://github.com/drevops/vortex-tooling): Ships
-  the **Vortex** operational scripts - build, provision, deployment, and
-  notification tooling - exposed as Composer binaries under
-  `vendor/bin/vortex-*` (backed by `vendor/drevops/vortex-tooling/src/`).
-- [`drupal/clamav`](https://www.drupal.org/project/clamav): Scans uploaded files
-  for malware with the ClamAV engine before they are saved.
-- [`drupal/coffee`](https://www.drupal.org/project/coffee): Adds a keyboard
-  shortcut to jump straight to any administration page by typing its name.
-- [`drupal/config_split`](https://www.drupal.org/project/config_split): Splits
-  configuration into sets that are conditionally imported, enabling
-  environment-specific configuration such as development-only modules.
-- [`drupal/config_update`](https://www.drupal.org/project/config_update):
-  Provides tools and Drush commands to report, revert, and import configuration
-  changes relative to the defaults shipped by modules.
-- [`drupal/core-composer-scaffold`](https://www.drupal.org/docs/develop/using-composer/using-drupals-composer-scaffold):
-  Allows downloading and placing **Drupal Scaffold** files (like `index.php`,
-  `update.php`, etc.) from the `drupal/core` project into their desired location
-  inside the web root.
-- [`drupal/core-recommended`](https://github.com/drupal/core-recommended): A
-  package that provides a carefully selected set of dependencies, including
-  specific versions, which are tested and recommended for a particular Drupal
-  core version. It simplifies dependency management by ensuring compatibility
-  and stability, as these dependencies are maintained and curated by the Drupal
-  community.
-- [`drupal/deploy_steps`](https://www.drupal.org/project/deploy_steps): Provides
-  a structured way to define and run ordered deployment operations during the
-  site provisioning phase, replacing ad-hoc post-deployment scripts.
-- [`drupal/devel`](https://www.drupal.org/project/devel): A suite of development
-  tools for inspecting variables, entities, and the service container while
-  debugging.
-- [`drupal/drupal_helpers`](https://www.drupal.org/project/drupal_helpers): A
-  collection of helper functions that simplify writing update hooks and
-  deployment operations.
-- [`drupal/environment_indicator`](https://www.drupal.org/project/environment_indicator):
-  Shows a colored banner identifying the current environment to prevent
-  accidental changes on the wrong site.
-- [`drupal/generated_content`](https://www.drupal.org/project/generated_content):
-  Generates realistic placeholder content from declarative definitions for
-  development and testing.
-- [`drupal/migrate_plus`](https://www.drupal.org/project/migrate_plus): Extends
-  the core Migrate API with extra source and process plugins and
-  configuration-entity migrations.
-- [`drupal/migrate_tools`](https://www.drupal.org/project/migrate_tools):
-  Provides Drush commands and a UI to run, roll back, and monitor migrations.
-- [`drupal/navigation_extra_tools`](https://www.drupal.org/project/navigation_extra_tools):
-  Adds administration shortcuts - clear caches, run cron, run database updates -
-  to the core Navigation module.
-- [`drupal/pathauto`](https://www.drupal.org/project/pathauto): Automatically
-  generates URL aliases for content based on configurable patterns.
-- [`drupal/redirect`](https://www.drupal.org/project/redirect): Manages URL
-  redirects and creates them automatically when content URLs change.
-- [`drupal/redis`](https://www.drupal.org/project/redis): Integrates Drupal with
-  the Redis in-memory store for cache and lock backends.
-- [`drupal/reroute_email`](https://www.drupal.org/project/reroute_email):
-  Reroutes all outbound email to a configured address on non-production
-  environments to avoid emailing real users.
-- [`drupal/robotstxt`](https://www.drupal.org/project/robotstxt): Manages the
-  `robots.txt` file from the admin UI, useful when it cannot be placed on disk
-  (for example, in multisite setups).
-- [`drupal/sdc_devel`](https://www.drupal.org/project/sdc_devel): Development and
-  validation tooling for Single Directory Components (SDC), reporting issues in
-  component definitions and templates.
-- [`drupal/search_api`](https://www.drupal.org/project/search_api): Provides a
-  framework for building search experiences with pluggable indexing backends.
-- [`drupal/search_api_solr`](https://www.drupal.org/project/search_api_solr): A
-  Search API backend that integrates Apache Solr for fast, scalable search.
-- [`drupal/seckit`](https://www.drupal.org/project/seckit): Adds configurable
-  security-hardening HTTP headers, including Content Security Policy and
-  anti-framing protection.
-- [`drupal/shield`](https://www.drupal.org/project/shield): Protects
-  non-production environments behind HTTP basic authentication.
-- [`drupal/stage_file_proxy`](https://www.drupal.org/project/stage_file_proxy):
-  Fetches media files from a remote site on demand, so local environments do not
-  need a full copy of the files directory.
-- [`drupal/testmode`](https://www.drupal.org/project/testmode): Adjusts site
-  behavior during automated tests, for example by filtering out generated
-  content from listings.
-- [`drupal/xmlsitemap`](https://www.drupal.org/project/xmlsitemap): Generates a
-  multilingual XML sitemap to help search engines index the site.
-- [`drush/drush`](https://github.com/drush-ops/drush): A command-line shell and
-  scripting interface for Drupal, providing a wide range of utilities to manage
-  and interact with your Drupal sites.
-- [`webflo/drupal-finder`](https://github.com/webflo/drupal-finder): Locates
-  Drupal installations in a directory structure.
+The **Documentation** column links to the page covering that package in more
+depth. A [Settings](settings.mdx#per-module-overrides) link means **Vortex**
+ships a per-module override file that applies environment-aware defaults for
+that module. Some modules still need a running service or environment-specific
+values on top of those defaults.
+
+➡️ See [Modules](modules.mdx) for what each override actually configures and
+where each module is installed.
+
+| Package | Description | Documentation |
+|---------|-------------|---------------|
+| `php` | The minimum PHP version required to run this project. Specify a range such as `>=8.4` rather than an exact version such as `8.4.0`. | |
+| [`composer/installers`](https://github.com/composer/installers) | Installs packages into the correct location based on their package type, such as `drupal-module`, `drupal-theme` or `drupal-profile`. | |
+| [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches) | Patches Composer packages with `git apply`, incorporating fixes that are not yet in an official release. Patch metadata and SHA-256 checksums are recorded in `patches.lock.json` for reproducible builds. | [Patching](../development/composer.mdx#patching) |
+| [`drevops/vortex-tooling`](https://github.com/drevops/vortex-tooling) | Ships the **Vortex** operational scripts - build, provision, deployment and notification tooling - that your site runs from `vendor/drevops/vortex-tooling/src/`. | |
+| [`drupal/clamav`](https://www.drupal.org/project/clamav) | Scans uploaded files for malware with the ClamAV engine before they are saved. | [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/coffee`](https://www.drupal.org/project/coffee) | Adds a keyboard shortcut to jump straight to any administration page by typing its name. | |
+| [`drupal/config_split`](https://www.drupal.org/project/config_split) | Splits configuration into sets that are conditionally imported, enabling environment-specific configuration such as development-only modules. | [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/config_update`](https://www.drupal.org/project/config_update) | Provides tools and Drush commands to report, revert and import configuration changes relative to the defaults shipped by modules. | |
+| [`drupal/core-composer-scaffold`](https://www.drupal.org/docs/develop/using-composer/using-drupals-composer-scaffold) | Downloads **Drupal Scaffold** files such as `index.php` and `update.php` from the `drupal/core` project and places them inside the web root. | |
+| [`drupal/core-recommended`](https://github.com/drupal/core-recommended) | Pins the set of dependency versions that the Drupal community tests and recommends for a particular core version, ensuring compatibility and stability. | |
+| [`drupal/deploy_steps`](https://www.drupal.org/project/deploy_steps) | Defines and runs ordered deployment operations during site provisioning, replacing ad-hoc post-deployment scripts. | [Provision](provision.mdx) |
+| [`drupal/devel`](https://www.drupal.org/project/devel) | A suite of development tools for inspecting variables, entities and the service container while debugging. | [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/drupal_helpers`](https://www.drupal.org/project/drupal_helpers) | A collection of helper functions that simplify writing update hooks and deployment operations. | [Drupal helpers](drupal-helpers.mdx) |
+| [`drupal/environment_indicator`](https://www.drupal.org/project/environment_indicator) | Shows a colored banner identifying the current environment to prevent accidental changes on the wrong site. | [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/generated_content`](https://www.drupal.org/project/generated_content) | Generates deterministic placeholder content from declarative definitions for development and testing. | [Generated content](generated-content.mdx), [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/migrate_plus`](https://www.drupal.org/project/migrate_plus) | Extends the core Migrate API with extra source and process plugins and configuration-entity migrations. | [Migrations](migrations.mdx) |
+| [`drupal/migrate_tools`](https://www.drupal.org/project/migrate_tools) | Provides Drush commands and a UI to run, roll back and monitor migrations. | [Migrations](migrations.mdx) |
+| [`drupal/navigation_extra_tools`](https://www.drupal.org/project/navigation_extra_tools) | Adds administration shortcuts - clear caches, run cron, run database updates - to the core Navigation module. | |
+| [`drupal/pathauto`](https://www.drupal.org/project/pathauto) | Automatically generates URL aliases for content based on configurable patterns. | |
+| [`drupal/redirect`](https://www.drupal.org/project/redirect) | Manages URL redirects and creates them automatically when content URLs change. | |
+| [`drupal/redis`](https://www.drupal.org/project/redis) | Integrates Drupal with the Redis in-memory store for cache and lock backends. | [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/reroute_email`](https://www.drupal.org/project/reroute_email) | Reroutes all outbound email to a configured address on non-production environments to avoid emailing real users. | [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/robotstxt`](https://www.drupal.org/project/robotstxt) | Manages the `robots.txt` file from the admin UI, useful when it cannot be placed on disk (for example, in multisite setups). | [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/sdc_devel`](https://www.drupal.org/project/sdc_devel) | Development and validation tooling for Single Directory Components (SDC), reporting issues in component definitions and templates. | |
+| [`drupal/search_api`](https://www.drupal.org/project/search_api) | Provides a framework for building search experiences with pluggable indexing backends. | |
+| [`drupal/search_api_solr`](https://www.drupal.org/project/search_api_solr) | A Search API backend that integrates Apache Solr for fast, scalable search. | |
+| [`drupal/seckit`](https://www.drupal.org/project/seckit) | Adds configurable security-hardening HTTP headers, including Content Security Policy and anti-framing protection. | [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/shield`](https://www.drupal.org/project/shield) | Protects non-production environments behind HTTP basic authentication. | [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/stage_file_proxy`](https://www.drupal.org/project/stage_file_proxy) | Fetches media files from a remote site on demand, so local environments do not need a full copy of the files directory. | [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/testmode`](https://www.drupal.org/project/testmode) | Adjusts site behavior during automated tests, for example by filtering out generated content from listings. | [Testmode](testmode.mdx), [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/xmlsitemap`](https://www.drupal.org/project/xmlsitemap) | Generates a multilingual XML sitemap to help search engines index the site. | [Settings](settings.mdx#per-module-overrides) |
+| [`drush/drush`](https://github.com/drush-ops/drush) | A command-line shell and scripting interface for Drupal, providing a wide range of utilities to manage and interact with your Drupal sites. | [Drush](../tools/drush.mdx) |
+| [`webflo/drupal-finder`](https://github.com/webflo/drupal-finder) | Locates Drupal installations in a directory structure. | |
 
 ### `require-dev`
 
@@ -192,83 +131,32 @@ production environments. This distinction helps to keep the production
 deployment streamlined and efficient, while still supporting a comprehensive and
 effective development environment.
 
-- [`behat/behat`](https://github.com/Behat/Behat): A PHP framework for
-  Behavior-Driven Development (BDD), allowing you to write human-readable
-  stories that describe the behavior of your application. It facilitates
-  communication between developers, stakeholders, and clients.
-- [`dantleech/gherkin-lint`](https://github.com/dantleech/gherkin-lint): A
-  linting tool for Gherkin feature files used in Behat tests. Ensures
-  consistency and quality in BDD test scenarios by checking syntax and
-  formatting.
-- [`dealerdirect/phpcodesniffer-composer-installer`](https://github.com/Dealerdirect/phpcodesniffer-composer-installer):
-  This tool automatically configures PHP_CodeSniffer to use the coding
-  standards (like PSR-2 or Drupal coding standards) installed in a project.
-- [`drevops/behat-format-progress-fail`](https://github.com/drevops/behat-format-progress-fail):
-  Enhances the output format of Behat tests, focusing specifically on progress
-  and failure scenarios. This makes it easier to spot and address test failures.
-- [`drevops/behat-screenshot`](https://github.com/drevops/behat-screenshot): An
-  extension for Behat that automatically captures screenshots when tests fail.
-  This is helpful for debugging and understanding why a test failed.
-- [`drevops/behat-steps`](https://github.com/drevops/behat-steps): Provides a
-  collection of pre-defined step definitions for Behat. This package speeds up
-  the process of writing new Behat tests by providing common step
-  implementations.
-- [`drevops/phpcs-standard`](https://github.com/drevops/phpcs-standard): A
-  custom PHP_CodeSniffer coding standard that extends Drupal coding standards
-  with additional rules and best practices specific to DrevOps projects.
-- [`drupal/coder`](https://www.drupal.org/project/coder): Provides
-  PHP_CodeSniffer rules for Drupal coding standards. Version 9.x supports
-  PHP_CodeSniffer 4.x and includes updated rules for modern Drupal development.
-- [`drupal/drupal-extension`](https://github.com/jhedstrom/drupalextension): A
-  Behat extension that provides integration with Drupal, offering step
-  definitions specific to Drupal functionality. It facilitates the creation and
-  management of Drupal sites for testing purposes.
-- [`ergebnis/composer-normalize`](https://github.com/ergebnis/composer-normalize): A
-  composer plugin for normalizing `composer.json`.
-- [`lullabot/mink-selenium2-driver`](https://github.com/lullabot/mink-selenium2-driver):
-  A maintained fork of the Mink Selenium2 driver that lets Behat control real
-  browsers through Selenium WebDriver.
-- [`lullabot/php-webdriver`](https://github.com/lullabot/php-webdriver): A
-  maintained fork of the PHP WebDriver client used by the Mink Selenium2 driver
-  to communicate with browsers.
-- [`mglaman/phpstan-drupal`](https://github.com/mglaman/phpstan-drupal):
-  Integrates PHPStan static analysis with Drupal-specific code, helping identify
-  potential issues and bugs in Drupal modules and themes.
-- [`mikey179/vfsstream`](https://github.com/bovigo/vfsStream): A virtual file
-  system for PHPUnit tests, allowing file operations to be exercised without
-  touching the real file system.
-- [`palantirnet/drupal-rector`](https://github.com/palantirnet/drupal-rector):
-  Automates the process of updating deprecated code, making Drupal upgrade
-  processes more efficient.
-- [`phpcompatibility/php-compatibility`](https://github.com/PHPCompatibility/PHPCompatibility):
-  Provides a collection of sniffs for PHP_CodeSniffer to check PHP code for
-  compatibility with different PHP versions, crucial for ensuring long-term
-  maintainability. Version 10.x supports PHP_CodeSniffer 4.x.
-- [`phpspec/prophecy-phpunit`](https://github.com/phpspec/prophecy-phpunit):
-  Integrates the Prophecy mocking library with PHPUnit to provide advanced
-  mocking capabilities in tests.
-- [`phpstan/extension-installer`](https://github.com/phpstan/extension-installer):
-  This package automatically installs and enables PHPStan extensions,
-  streamlining the setup process for PHPStan in your project.
-- [`phpstan/phpstan`](https://github.com/phpstan/phpstan): A static analysis
-  tool for PHP that focuses on finding bugs in code without running it. Helps
-  catch type errors, incorrect method calls, and other potential issues during
-  development.
-- [`phpunit/phpunit`](https://github.com/sebastianbergmann/phpunit): The
-  industry-standard testing framework for PHP. Provides a comprehensive set of
-  tools for writing and running unit tests, integration tests, and functional
-  tests.
-- [`pyrech/composer-changelogs`](https://github.com/pyrech/composer-changelogs):
-  Provides a summary of package changes (like updates, removals, and additions)
-  after running `composer update`, improving the visibility of package changes
-  and updates in your project.
-- [`rector/rector`](https://github.com/rectorphp/rector): An automated
-  refactoring tool that instantly upgrades and refactors PHP code. Helps with
-  code modernization, framework migrations, and automated application of coding
-  standards.
-- [`vincentlanglet/twig-cs-fixer`](https://github.com/VincentLanglet/Twig-CS-Fixer): This tool
-  ensures that Twig templates adhere to a set coding standard, helping maintain
-  consistency and readability in template files.
+| Package | Description | Documentation |
+|---------|-------------|---------------|
+| [`behat/behat`](https://github.com/Behat/Behat) | A PHP framework for Behavior-Driven Development (BDD), running human-readable stories that describe the behavior of your application. It facilitates communication between developers, stakeholders and clients. | [Behat](../tools/behat.mdx) |
+| [`dantleech/gherkin-lint`](https://github.com/dantleech/gherkin-lint) | Lints the Gherkin feature files used in Behat tests, checking syntax and formatting for consistency. | [Gherkin Lint](../tools/gherkin-lint.mdx) |
+| [`dealerdirect/phpcodesniffer-composer-installer`](https://github.com/Dealerdirect/phpcodesniffer-composer-installer) | Registers the coding standards installed through Composer with PHP_CodeSniffer, so they can be referenced by name. | [PHPCS](../tools/phpcs.mdx) |
+| [`drevops/behat-format-progress-fail`](https://github.com/drevops/behat-format-progress-fail) | A Behat output formatter that prints compact progress and expands the detail only for failing scenarios. | [Behat](../tools/behat.mdx) |
+| [`drevops/behat-screenshot`](https://github.com/drevops/behat-screenshot) | Automatically captures a screenshot when a Behat scenario fails, which helps to understand why a test failed. | [Behat](../tools/behat.mdx) |
+| [`drevops/behat-steps`](https://github.com/drevops/behat-steps) | A collection of pre-defined Behat step definitions for Drupal, speeding up the process of writing new tests. | [Behat](../tools/behat.mdx) |
+| [`drevops/phpcs-standard`](https://github.com/drevops/phpcs-standard) | A PHP_CodeSniffer coding standard that extends the Drupal coding standards with additional rules and best practices. | [PHPCS](../tools/phpcs.mdx) |
+| [`drupal/coder`](https://www.drupal.org/project/coder) | Provides the PHP_CodeSniffer rules for the Drupal coding standards. The 9.x line targets PHP_CodeSniffer 4.x. | [PHPCS](../tools/phpcs.mdx) |
+| [`drupal/drupal-extension`](https://github.com/jhedstrom/drupalextension) | A Behat extension that integrates with Drupal, offering Drupal-specific step definitions and bootstrapping the site for testing. | [Behat](../tools/behat.mdx) |
+| [`ergebnis/composer-normalize`](https://github.com/ergebnis/composer-normalize) | A Composer plugin that normalizes the formatting and key order of `composer.json`. | |
+| [`lullabot/mink-selenium2-driver`](https://github.com/lullabot/mink-selenium2-driver) | A maintained fork of the Mink Selenium2 driver that lets Behat control real browsers through Selenium WebDriver. | [Behat](../tools/behat.mdx) |
+| [`lullabot/php-webdriver`](https://github.com/lullabot/php-webdriver) | A maintained fork of the PHP WebDriver client used by the Mink Selenium2 driver to communicate with browsers. | [Behat](../tools/behat.mdx) |
+| [`mglaman/phpstan-drupal`](https://github.com/mglaman/phpstan-drupal) | Teaches PHPStan about Drupal APIs, so static analysis understands hooks, services and entities in modules and themes. | [PHPStan](../tools/phpstan.mdx) |
+| [`mikey179/vfsstream`](https://github.com/bovigo/vfsStream) | A virtual file system for PHPUnit tests, allowing file operations to be exercised without touching the real file system. | [PHPUnit](../tools/phpunit.mdx) |
+| [`palantirnet/drupal-rector`](https://github.com/palantirnet/drupal-rector) | Rector rules that rewrite deprecated Drupal code, making core upgrades more efficient. | [Rector](../tools/rector.mdx) |
+| [`phpcompatibility/php-compatibility`](https://github.com/PHPCompatibility/PHPCompatibility) | PHP_CodeSniffer sniffs that check code for compatibility with specific PHP versions. The 10.x line targets PHP_CodeSniffer 4.x. | [PHPCS](../tools/phpcs.mdx) |
+| [`phpspec/prophecy-phpunit`](https://github.com/phpspec/prophecy-phpunit) | Integrates the Prophecy mocking library with PHPUnit to provide advanced mocking capabilities in tests. | [PHPUnit](../tools/phpunit.mdx) |
+| [`phpstan/extension-installer`](https://github.com/phpstan/extension-installer) | Automatically registers the installed PHPStan extensions, removing the need to wire them up by hand. | [PHPStan](../tools/phpstan.mdx) |
+| [`phpstan/phpstan`](https://github.com/phpstan/phpstan) | A static analysis tool that finds type errors, incorrect method calls and other bugs without running the code. | [PHPStan](../tools/phpstan.mdx) |
+| [`phpunit/phpunit`](https://github.com/sebastianbergmann/phpunit) | The industry-standard PHP testing framework, used here for unit, kernel and functional tests. | [PHPUnit](../tools/phpunit.mdx) |
+| [`pyrech/composer-changelogs`](https://github.com/pyrech/composer-changelogs) | Prints a summary of package additions, updates and removals after running `composer update`. | |
+| [`rector/rector`](https://github.com/rectorphp/rector) | An automated refactoring tool that upgrades and modernizes PHP code. | [Rector](../tools/rector.mdx) |
+| [`softcreatr/jsonpath`](https://github.com/SoftCreatR/JSONPath) | A JSONPath implementation required by the `drevops/behat-steps` JSON assertion steps. | [Behat](../tools/behat.mdx) |
+| [`vincentlanglet/twig-cs-fixer`](https://github.com/VincentLanglet/Twig-CS-Fixer) | Checks and fixes Twig templates against a coding standard, keeping template files consistent and readable. | [Twig CS Fixer](../tools/twig-cs-fixer.mdx) |
 
 ### `conflict`
 
