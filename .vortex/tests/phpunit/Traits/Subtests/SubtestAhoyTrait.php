@@ -17,7 +17,7 @@ trait SubtestAhoyTrait {
     $this->logSubstep('Assert lock files presence/absence before build');
     $composerlock_present = file_exists('composer.lock');
     $this->logNote('`composer.lock` file exists before build: ' . ($composerlock_present ? 'Yes' : 'No'));
-    $this->assertFileExists('yarn.lock', 'Yarn lock file should exist before build');
+    $this->assertFileExists('package-lock.json', 'npm lock file should exist before build');
     if ($build_theme) {
       $this->assertThemeFilesPresent($webroot);
     }
@@ -34,7 +34,7 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Assert lock files presence/absence after build');
     $this->assertFileExists('composer.lock', 'Composer lock file should exist after build');
-    $this->assertFileExists('yarn.lock', 'Yarn lock file should exist after build');
+    $this->assertFileExists('package-lock.json', 'npm lock file should exist after build');
     if ($build_theme) {
       $this->assertThemeFilesPresent($webroot);
     }

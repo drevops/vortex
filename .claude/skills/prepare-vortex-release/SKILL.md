@@ -92,8 +92,8 @@ Work through each checklist item from the release process doc:
      repo). **After bumping, grep the whole repo for the previous tooling version**
      (e.g. `grep -rn "vortex-tooling.*<old-version>" --exclude-dir=vendor`) - this is the
      authoritative check, since new pin spots have been added over time.
-5. **Theme dependencies** - Run `yarn upgrade` in `web/themes/custom/your_site_theme/`.
-   Use yarn, NOT npm.
+5. **Theme dependencies** - Run `npm update` in `web/themes/custom/your_site_theme/`.
+   Use npm, NOT yarn.
 6. **CI runner PHP** - Ensure the CI runner PHP matches `config.platform.php`
    (see item 3): the `cimg/php` tag in `.circleci/config.yml` and the `setup-php`
    `php-version` in the GitHub Actions workflows.

@@ -94,7 +94,7 @@ trait SubtestDeploymentTrait {
     // Theme development files should not exist.
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/postcss.config.js', 'Theme postcss.config.js should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/package.json', 'Theme package.json should not exist in deployment');
-    $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/yarn.lock', 'Theme yarn.lock should not exist in deployment');
+    $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/package-lock.json', 'Theme package-lock.json should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/.eslintrc.json', 'Theme .eslintrc.json should not exist in deployment');
     $this->assertDirectoryDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/node_modules', 'Theme node_modules should not exist in deployment');
 

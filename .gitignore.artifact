@@ -84,7 +84,6 @@ web/sites/simpletest
 /package-lock.json
 /patches
 /patches.lock.json
-/yarn.lock
 web/themes/**/node_modules
 
 # Custom theme asset sources - only compiled assets in 'build' are deployed.
@@ -93,9 +92,9 @@ web/themes/custom/your_site_theme/fonts
 web/themes/custom/your_site_theme/images
 web/themes/custom/your_site_theme/js
 web/themes/custom/your_site_theme/package.json
+web/themes/custom/your_site_theme/package-lock.json
 web/themes/custom/your_site_theme/postcss.config.js
 web/themes/custom/your_site_theme/scss
-web/themes/custom/your_site_theme/yarn.lock
 
 # Caches, data, logs and temporary artifacts.
 .artifacts

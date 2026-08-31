@@ -365,9 +365,9 @@ YAML,
     usage: Lint front-end code.
     cmd: |
       ahoy cli vendor/bin/twig-cs-fixer lint
-      ahoy cli "yarn run lint"
+      ahoy cli "npm run lint"
       #;< DRUPAL_THEME
-      ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+      ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
       #;> DRUPAL_THEME
 
   lint-tests:
@@ -386,9 +386,9 @@ YAML,
     usage: Lint front-end code.
     cmd: |
       ahoy cli vendor/bin/twig-cs-fixer lint
-      ahoy cli "yarn run lint"
+      ahoy cli "npm run lint"
       #;< DRUPAL_THEME
-      ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+      ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
       #;> DRUPAL_THEME
 
   lint-tests:
