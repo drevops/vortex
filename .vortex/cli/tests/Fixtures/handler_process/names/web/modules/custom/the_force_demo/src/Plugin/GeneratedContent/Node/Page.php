@@ -37,10 +37,14 @@ class Page extends GeneratedContentPluginBase {
         'status' => 1,
       ]);
 
-      $node->set('body', [
-        'value' => $this->helper::staticRichText(3),
-        'format' => 'full_html',
-      ]);
+      // The content model differs between install profiles, so a field the
+      // demo populates is only set when the bundle actually carries it.
+      if ($node->hasField('body')) {
+        $node->set('body', [
+          'value' => $this->helper::staticRichText(3),
+          'format' => 'full_html',
+        ]);
+      }
 
       // When Content Moderation is attached to the bundle, 'status' alone
       // leaves the node as an unpublished draft, so the state must be set
