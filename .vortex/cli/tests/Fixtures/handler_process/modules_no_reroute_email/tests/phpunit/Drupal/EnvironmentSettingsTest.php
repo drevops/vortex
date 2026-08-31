@@ -38,9 +38,9 @@
      $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
      $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-@@ -354,9 +342,6 @@
-     $config['xmlsitemap_engines.settings']['submit'] = FALSE;
+@@ -355,9 +343,6 @@
      $config['system.logging']['error_level'] = 'all';
+     $config['system.mail']['interface']['default'] = 'test_mail_collector';
      $config['system.performance']['cache']['page']['max_age'] = 900;
 -    $config['reroute_email.settings']['enable'] = FALSE;
 -    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';

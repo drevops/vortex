@@ -1,4 +1,4 @@
-@@ -56,6 +56,16 @@
+@@ -57,6 +57,16 @@
    DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
    # Redis integration flag.
    DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
@@ -15,7 +15,7 @@
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -153,6 +163,19 @@
+@@ -154,6 +164,19 @@
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -35,7 +35,7 @@
    cache:
      image: uselagoon/valkey-8:__VERSION__
  
-@@ -196,11 +219,13 @@
+@@ -197,11 +220,13 @@
      depends_on:
        - antivirus
        - database

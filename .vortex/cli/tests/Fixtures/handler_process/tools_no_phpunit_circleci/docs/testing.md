@@ -6,7 +6,7 @@
 -
 -Unit, Kernel, Functional tests.
 -
--See [documentation](https://www.vortextemplate.com/docs/development/phpunit)
+-See [documentation](https://www.vortextemplate.com/docs/development/testing/phpunit)
 -on how to run tests, configure environment variables and code coverage, and use
 -test reports in continuous integration pipeline.
 -

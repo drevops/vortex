@@ -13,13 +13,17 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+# Matches the Prettier 'printWidth' in .prettierrc.json.
+[*.js]
+max_line_length = 160
+
 [*.{json,lock}]
 indent_size = 4
 
 [*.xml]
 indent_size = 4
 
-[.eslintrc.json]
+[eslint.config.mjs]
 indent_size = 2
 
 [.prettierrc.json]

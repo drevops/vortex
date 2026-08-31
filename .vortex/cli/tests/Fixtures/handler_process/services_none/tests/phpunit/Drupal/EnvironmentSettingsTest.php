@@ -34,7 +34,7 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -359,8 +351,6 @@
+@@ -360,8 +352,6 @@
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
      $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
      $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;

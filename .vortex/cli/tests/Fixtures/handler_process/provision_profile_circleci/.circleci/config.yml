@@ -131,7 +131,7 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
               if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
 
       - run:
           name: Validate Composer configuration is normalized
@@ -159,13 +159,13 @@ jobs:
 
       - run:
           name: Lint module code with NodeJS linters
-          command: docker compose exec -T cli bash -c "yarn run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: docker compose exec -T cli bash -c "npm run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Lint theme code with NodeJS linters
           command: |
             [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
-            docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+            docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
   # Audit job runs in its own workflow, independently of the commit workflow.
   audit:
@@ -177,12 +177,13 @@ jobs:
       - *step_setup_remote_docker
 
       - run:
-          name: Scan for committed secrets with Gitleaks
-          command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
           name: Audit Composer packages
           command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Scan for committed secrets with Gitleaks
+          when: always
+          command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
 
   # Test the provisioned site. Runs in parallel with the lint and build jobs.
   # Provisioning and testing happen within the same job to save time on
@@ -197,6 +198,28 @@ jobs:
       - checkout
       - *step_process_codebase_for_ci
       - *load_variables_from_dotenv
+
+      - run:
+          name: Set test runner roles
+          command: |
+            # Which tools run on this node. Tools that only need to run once are
+            # pinned to the first node. Add a line for every additional tool and
+            # reference it in that tool's step.
+            # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
+            {
+              echo "export VORTEX_CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
+              echo "export VORTEX_CI_RUNNER_TOTAL=${CIRCLE_NODE_TOTAL:-1}"
+              echo "export VORTEX_CI_IS_JEST_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+              echo "export VORTEX_CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+              echo "export VORTEX_CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
+              # Runs on every node, using the `p<node index - offset>` profile.
+              echo "export VORTEX_CI_IS_BEHAT_RUNNER=1"
+              # Subtracted from the node index to derive the profile number.
+              # Raise it by one for every leading node that does not run
+              # Behat, so the first Behat node still selects the `p0`
+              # catch-all profile.
+              echo "export VORTEX_CI_BEHAT_PROFILE_OFFSET=0"
+            } >> "${BASH_ENV}"
 
       - run:
           name: Validate Composer configuration
@@ -223,7 +246,7 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
               if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
 
       - run:
           name: Provision site
@@ -232,7 +255,7 @@ jobs:
             # container to avoid holding two copies for the rest of the job.
             if [ -f .data/db.sql ]; then
               docker compose exec cli mkdir -p .data
-              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+              docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
               rm -f .data/db.sql
             fi
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
@@ -240,27 +263,29 @@ jobs:
 
       - run:
           name: Test with Jest
-          command: docker compose exec -T cli bash -c "yarn test" || [ "${VORTEX_CI_JEST_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: |
+            [ "${VORTEX_CI_IS_JEST_RUNNER:-1}" = "1" ] || exit 0
+            docker compose exec -T cli bash -c "npm test" || [ "${VORTEX_CI_JEST_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Test with PHPUnit
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${VORTEX_CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
             docker compose exec -T cli vendor/bin/phpunit || [ "${VORTEX_CI_PHPUNIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Process PHPUnit logs and coverage
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${VORTEX_CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
             mkdir -p "${VORTEX_CI_ARTIFACTS}"
             if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-               docker compose cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
+               docker compose --progress quiet cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
             fi
 
       - run:
           name: Extract code coverage
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${VORTEX_CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
             RATE=$(grep -om1 'line-rate="[0-9.]*"' /tmp/artifacts/coverage/phpunit/cobertura.xml | tr -cd '0-9.')
             PERCENT=$(awk "BEGIN {printf \"%.2f\", $RATE*100}")
             echo "Coverage: $PERCENT% (threshold: ${VORTEX_CI_CODE_COVERAGE_THRESHOLD:-90}%)"
@@ -269,14 +294,14 @@ jobs:
       - run:
           name: Post coverage summary as PR comment
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${VORTEX_CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
             [ "${VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP:-0}" = "1" ] && exit 0
             .circleci/post-coverage-comment.sh /tmp/artifacts/coverage/phpunit/coverage.txt
 
       - run:
           name: Check code coverage threshold
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${VORTEX_CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
             if [ "${COVERAGE_PERCENT//.}" -lt "$((${VORTEX_CI_CODE_COVERAGE_THRESHOLD:-90}*100))" ]; then
               echo "FAIL: coverage ${COVERAGE_PERCENT}% is below threshold ${VORTEX_CI_CODE_COVERAGE_THRESHOLD:-90}%"
               exit 1
@@ -285,7 +310,7 @@ jobs:
       - run:
           name: Validate Single Directory Components
           command: |
-            [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && exit 0
+            [ "${VORTEX_CI_IS_SDC_DEVEL_RUNNER:-1}" = "1" ] || exit 0
             [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
             output=$(docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}" 2>&1)
             echo "${output}"
@@ -297,10 +322,11 @@ jobs:
       - run:
           name: Test with Behat
           command: |
-            if [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${CIRCLE_NODE_INDEX}}"; fi
+            [ "${VORTEX_CI_IS_BEHAT_RUNNER:-1}" = "1" ] || exit 0
+            if [ "${VORTEX_CI_RUNNER_TOTAL:-1}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p$((VORTEX_CI_RUNNER_INDEX - VORTEX_CI_BEHAT_PROFILE_OFFSET))}"; fi
             echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
-            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
-              docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
+            docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
+              docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
               [ "${VORTEX_CI_BEHAT_IGNORE_FAILURE:-0}" -eq 1 ]
           no_output_timeout: 30m
 
@@ -309,9 +335,9 @@ jobs:
           command: |
             mkdir -p "${VORTEX_CI_TEST_RESULTS}" "${VORTEX_CI_ARTIFACTS}"
             if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-               docker compose cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
+               docker compose --progress quiet cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
               if docker compose exec -T cli sh -c '[ -d /app/.logs/test_results/ ]'; then
-                 docker compose cp cli:/app/.logs/test_results/. "${VORTEX_CI_TEST_RESULTS}/"
+                 docker compose --progress quiet cp cli:/app/.logs/test_results/. "${VORTEX_CI_TEST_RESULTS}/"
               fi
             fi
           when: always

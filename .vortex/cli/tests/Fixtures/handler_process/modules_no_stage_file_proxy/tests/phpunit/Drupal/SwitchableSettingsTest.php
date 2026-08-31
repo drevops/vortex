@@ -127,6 +127,6 @@
 -  }
 -
 -  /**
-    * Test trusted host patterns settings.
+    * Test mail collector config.
     */
-   #[DataProvider('dataProviderTrustedHostPatterns')]
+   #[DataProvider('dataProviderMailCollector')]

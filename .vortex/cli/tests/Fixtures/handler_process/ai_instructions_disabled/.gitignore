@@ -1,10 +1,12 @@
-@@ -34,10 +34,6 @@
+@@ -34,12 +34,6 @@
  recipes/*
  !recipes/page
  
--# Ignore all Claude files by default. Custom files should be added explicitly.
+-# Claude writes machine-local state into '.claude/', so it stays an allow
+-# list: un-ignore only the files shared with the team.
 -.claude/*
 -!.claude/settings.json
+-!.claude/skills/
 -
  # Dependencies.
  /vendor

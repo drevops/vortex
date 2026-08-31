@@ -30,7 +30,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -367,7 +363,6 @@
+@@ -368,7 +364,6 @@
      $settings['config_exclude_modules'] = [
        'devel',
        'generated_content',

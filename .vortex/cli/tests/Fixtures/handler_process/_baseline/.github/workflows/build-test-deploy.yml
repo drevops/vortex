@@ -125,7 +125,7 @@ jobs:
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
             if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
 
       - name: Validate Composer configuration is normalized
         run: docker compose exec -T cli composer normalize --dry-run
@@ -152,12 +152,12 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
 
       - name: Lint module code with NodeJS linters
-        run: docker compose exec -T cli bash -c "yarn run lint"
+        run: docker compose exec -T cli bash -c "npm run lint"
         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 
       - name: Lint theme code with NodeJS linters
         if: ${{ vars.VORTEX_FRONTEND_BUILD_SKIP != '1' }}
-        run: docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
+        run: docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 
   test:
@@ -193,8 +193,34 @@ jobs:
       VORTEX_CI_DB_CACHE_FALLBACK: "yes"
       # Which branch to use as a source of DB caches.
       VORTEX_CI_DB_CACHE_BRANCH: "develop"
+      # Which tools run on this instance. Tools that only need to run once are
+      # pinned to the first instance. Add a line for every additional tool and
+      # reference it in that tool's step.
+      # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
+      VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
+      VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+      VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+      VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+      VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+      # Runs on every instance, using the `p<instance index - offset>` profile.
+      VORTEX_CI_IS_BEHAT_RUNNER: true
+      # Subtracted from the instance index to derive the profile number. Raise
+      # it by one for every leading instance that does not run Behat, so the
+      # first Behat instance still selects the `p0` catch-all profile.
+      VORTEX_CI_BEHAT_PROFILE_OFFSET: 0
 
     steps:
+      # Frees disk space by removing preinstalled toolchains unused by this project.
+      - name: Free up disk space on the runner
+        if: ${{ vars.VORTEX_CI_FREE_DISK_SPACE == '1' }}
+        run: |
+          set -- /usr/local/.ghcup /usr/share/swift /usr/local/share/powershell /usr/share/dotnet /opt/hostedtoolcache/CodeQL
+          # set -- "$@" /usr/local/lib/android # Removes about 10GB more, but takes about 50s. Uncomment to enable.
+          sudo rm -rf "$@" || true
+
+      - name: Report disk usage
+        run: df -h
+
       - name: Check out code
         uses: actions/checkout@__HASH__ # __VERSION__
         with:
@@ -270,10 +296,10 @@ jobs:
       - name: Export DB after fetch
         run: |
           if [ ! -f /tmp/fetch-db-success ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
-          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+          docker compose exec cli mkdir -p .data && docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql || true
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
           ./vendor/bin/vortex-export-db db.sql
-          docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
+          docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
         timeout-minutes: 30
 
       # Save the clean DB dump to cache from the primary parallel runner only,
@@ -290,7 +316,7 @@ jobs:
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
             if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
 
       - name: Provision site
         run: |
@@ -298,32 +324,32 @@ jobs:
           # container to avoid holding two copies for the rest of the job.
           if [ -f .data/db.sql ]; then
             docker compose exec cli mkdir -p .data
-            docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+            docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
             rm -f .data/db.sql
           fi
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
         timeout-minutes: 30
 
       - name: Test with Jest
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
-        run: docker compose exec -T cli bash -c "yarn test"
+        if: ${{ env.VORTEX_CI_IS_JEST_RUNNER == 'true' }}
+        run: docker compose exec -T cli bash -c "npm test"
         continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
 
       - name: Test with PHPUnit
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
         run: docker compose exec -T cli vendor/bin/phpunit
         continue-on-error: ${{ vars.VORTEX_CI_PHPUNIT_IGNORE_FAILURE == '1' }}
 
       - name: Process PHPUnit logs and coverage
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
         run: |
           mkdir -p ".logs"
           if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-             docker compose cp cli:/app/.logs/. ".logs/"
+             docker compose --progress quiet cp cli:/app/.logs/. ".logs/"
           fi
 
       - name: Extract code coverage
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
         run: |
           RATE=$(grep -om1 'line-rate="[0-9.]*"' .logs/coverage/phpunit/cobertura.xml | tr -cd '0-9.')
           PERCENT=$(awk "BEGIN {printf \"%.2f\", $RATE*100}")
@@ -341,7 +367,7 @@ jobs:
           VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 
       - name: Post coverage summary as PR comment
-        if: ${{ github.event_name == 'pull_request' && (matrix.instance == 0 || strategy.job-total == 1) && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
+        if: ${{ github.event_name == 'pull_request' && env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
         uses: marocchino/sticky-pull-request-comment@__HASH__ # __VERSION__
         with:
           header: coverage-gha
@@ -360,7 +386,7 @@ jobs:
           hide_and_recreate: true
 
       - name: Check code coverage threshold
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
         run: |
           if [ "${COVERAGE_PERCENT//.}" -lt "$((VORTEX_CI_CODE_COVERAGE_THRESHOLD*100))" ]; then
             echo "FAIL: coverage ${COVERAGE_PERCENT}% is below threshold ${VORTEX_CI_CODE_COVERAGE_THRESHOLD}%"
@@ -370,7 +396,7 @@ jobs:
           VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 
       - name: Validate Single Directory Components
-        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+        if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
         run: |
           [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
           output=$(docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}" 2>&1)
@@ -382,16 +408,15 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
 
       - name: Test with Behat
+        if: ${{ env.VORTEX_CI_IS_BEHAT_RUNNER == 'true' }}
         run: |
           # shellcheck disable=SC2170
-          if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p${STRATEGY_JOB_INDEX}}"; fi
+          if [ "${VORTEX_CI_RUNNER_TOTAL}" -gt 1 ]; then export VORTEX_CI_BEHAT_PROFILE="${VORTEX_CI_BEHAT_PROFILE:-p$((VORTEX_CI_RUNNER_INDEX - VORTEX_CI_BEHAT_PROFILE_OFFSET))}"; fi
           echo "Running with ${VORTEX_CI_BEHAT_PROFILE:-default} profile"
-          docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
-            docker compose exec -T cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}"
+          docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --profile="${VORTEX_CI_BEHAT_PROFILE:-default}" || \
+            docker compose exec -T -e BEHAT_SCREENSHOT_ANIMATION_SKIP=1 cli php -d memory_limit=-1 vendor/bin/behat --colors --strict --rerun --profile="${VORTEX_CI_BEHAT_PROFILE:-default}"
         env:
           VORTEX_CI_BEHAT_PROFILE: ${{ vars.VORTEX_CI_BEHAT_PROFILE }}
-          STRATEGY_JOB_TOTAL: ${{ strategy.job-total }}
-          STRATEGY_JOB_INDEX: ${{ strategy.job-index }}
         continue-on-error: ${{ vars.VORTEX_CI_BEHAT_IGNORE_FAILURE == '1' }}
         timeout-minutes: 30
 
@@ -400,7 +425,7 @@ jobs:
         run: |
           mkdir -p ".logs"
           if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-             docker compose cp cli:/app/.logs/. ".logs/"
+             docker compose --progress quiet cp cli:/app/.logs/. ".logs/"
           fi
 
       - name: Upload test artifacts
@@ -449,6 +474,17 @@ jobs:
       VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
 
     steps:
+      # Frees disk space by removing preinstalled toolchains unused by this project.
+      - name: Free up disk space on the runner
+        if: ${{ vars.VORTEX_CI_FREE_DISK_SPACE == '1' }}
+        run: |
+          set -- /usr/local/.ghcup /usr/share/swift /usr/local/share/powershell /usr/share/dotnet /opt/hostedtoolcache/CodeQL
+          # set -- "$@" /usr/local/lib/android # Removes about 10GB more, but takes about 50s. Uncomment to enable.
+          sudo rm -rf "$@" || true
+
+      - name: Report disk usage
+        run: df -h
+
       - name: Check out code
         uses: actions/checkout@__HASH__ # __VERSION__
         with:
