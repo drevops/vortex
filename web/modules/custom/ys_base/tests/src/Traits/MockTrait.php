@@ -48,17 +48,17 @@ trait MockTrait {
 
     foreach ($methods_map as $method => $value) {
       if ($value instanceof Stub) {
-        $mock->expects($this->any())
+        $mock
           ->method($method)
           ->will($value);
       }
       elseif (is_callable($value)) {
-        $mock->expects($this->any())
+        $mock
           ->method($method)
           ->willReturnCallback($value);
       }
       else {
-        $mock->expects($this->any())
+        $mock
           ->method($method)
           ->willReturn($value);
       }
