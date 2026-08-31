@@ -1,9 +1,18 @@
-@@ -369,18 +369,6 @@
+@@ -201,7 +201,6 @@
+       VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+       VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-      VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       # Runs on every instance, using the `p<instance index - offset>` profile.
+       VORTEX_CI_IS_BEHAT_RUNNER: true
+       # Subtracted from the instance index to derive the profile number. Raise
+@@ -394,18 +393,6 @@
+           fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
- 
+-
 -      - name: Validate Single Directory Components
--        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+-        if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
 -        run: |
 -          [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
 -          output=$(docker compose exec -T cli vendor/bin/drush sdc-devel:validate "${DRUPAL_THEME}" 2>&1)
@@ -13,7 +22,6 @@
 -            exit 1
 -          fi
 -        continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
--
+ 
        - name: Test with Behat
-         run: |
-           # shellcheck disable=SC2170
+         if: ${{ env.VORTEX_CI_IS_BEHAT_RUNNER == 'true' }}

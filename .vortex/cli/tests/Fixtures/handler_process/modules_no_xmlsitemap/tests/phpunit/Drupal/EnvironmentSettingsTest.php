@@ -37,4 +37,4 @@
 -    $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-     $config['system.performance']['cache']['page']['max_age'] = 900;
+     $config['system.mail']['interface']['default'] = 'test_mail_collector';

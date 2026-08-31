@@ -19,7 +19,7 @@
          "phpspec/prophecy-phpunit": "__VERSION__",
          "phpstan/extension-installer": "__VERSION__",
          "phpstan/phpstan": "__VERSION__",
-@@ -82,7 +78,6 @@
+@@ -83,7 +79,6 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,

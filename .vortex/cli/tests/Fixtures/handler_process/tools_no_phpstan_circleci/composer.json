@@ -12,7 +12,7 @@
          "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
          "rector/rector": "__VERSION__",
-@@ -86,7 +83,6 @@
+@@ -87,7 +84,6 @@
              "drupal/core-composer-scaffold": true,
              "ergebnis/composer-normalize": true,
              "php-http/discovery": true,

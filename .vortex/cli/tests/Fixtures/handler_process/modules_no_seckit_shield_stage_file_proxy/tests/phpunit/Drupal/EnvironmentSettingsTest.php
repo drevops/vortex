@@ -56,7 +56,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -357,8 +348,6 @@
+@@ -358,8 +349,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';

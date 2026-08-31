@@ -1,4 +1,7 @@
+# check=skip=SecretsUsedInArgOrEnv
 # Database container.
+#
+# The check skipped above is BuildKit's twin of DL3064, ignored inline below.
 #
 # @see https://hub.docker.com/r/uselagoon/mysql-8.4/tags
 # @see https://github.com/uselagoon/lagoon-images/tree/main/images/mysql
@@ -10,8 +13,9 @@ FROM ${IMAGE}
 
 # hadolint ignore=DL3066 # named account provided by the base image
 USER root
-COPY ./.docker/config/database/my.cnf /etc/my.cnf.d/server.cnf
-RUN fix-permissions /etc/my.cnf.d/
+COPY ./.docker/config/database/my.cnf /etc/mysql/conf.d/server.cnf
+# The entrypoint rewrites files in this directory before starting the server.
+RUN fix-permissions /etc/mysql/conf.d/
 
 # hadolint ignore=DL3064 # local development credentials only
 ENV MYSQL_DATABASE=drupal \

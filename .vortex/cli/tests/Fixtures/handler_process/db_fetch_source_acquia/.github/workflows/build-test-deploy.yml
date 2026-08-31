@@ -1,4 +1,4 @@
-@@ -256,6 +256,9 @@
+@@ -282,6 +282,9 @@
            VORTEX_FETCH_DB_SEMAPHORE=/tmp/fetch-db-success ./vendor/bin/vortex-fetch-db
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30

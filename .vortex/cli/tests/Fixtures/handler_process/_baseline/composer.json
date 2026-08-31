@@ -60,6 +60,7 @@
         "phpunit/phpunit": "__VERSION__",
         "pyrech/composer-changelogs": "__VERSION__",
         "rector/rector": "__VERSION__",
+        "softcreatr/jsonpath": "^0.10 || ^1.0",
         "vincentlanglet/twig-cs-fixer": "__VERSION__"
     },
     "conflict": {

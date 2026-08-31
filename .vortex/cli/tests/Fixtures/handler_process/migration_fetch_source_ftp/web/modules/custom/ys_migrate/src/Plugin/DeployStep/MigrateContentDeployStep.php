@@ -96,7 +96,35 @@ final class MigrateContentDeployStep extends DeployStepBase {
       $options['update'] = TRUE;
     }
 
+    // Indexing each migrated entity as it is saved makes the import slower and
+    // leaves the index holding intermediate states, so the search server is
+    // disabled for the duration of the run and the index is rebuilt after it.
+    $disable_search = $this->searchDisabled();
+
+    if ($disable_search) {
+      $this->drush('search-api:server-disable', ['solr']);
+    }
+
     $this->drush('migrate:import', [], $options);
+
+    if ($disable_search) {
+      $this->drush('search-api:server-enable', ['solr']);
+      $this->drush('search-api:enable-all');
+    }
+  }
+
+  /**
+   * Checks whether the search server should be disabled during the import.
+   *
+   * @return bool
+   *   TRUE when the Solr server is present and disabling it was not opted out.
+   */
+  protected function searchDisabled(): bool {
+    if ($this->env('DRUPAL_MIGRATION_SEARCH_DISABLE', '1') !== '1') {
+      return FALSE;
+    }
+
+    return $this->moduleHandler->moduleExists('search_api_solr');
   }
 
   /**

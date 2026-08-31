@@ -1,6 +1,6 @@
 @@ -242,27 +242,6 @@
-       ahoy cli "yarn run lint-fix"
-       ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
+       ahoy cli "npm run lint-fix"
+       ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
  
 -  test:
 -    usage: Run all PHPUnit tests.
@@ -25,4 +25,4 @@
 -
    test-js:
      usage: Run Jest JavaScript unit tests.
-     cmd: ahoy cli "yarn test"
+     cmd: ahoy cli "npm test"

@@ -8,8 +8,8 @@
 -        "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
          "rector/rector": "__VERSION__",
-         "vincentlanglet/twig-cs-fixer": "__VERSION__"
-@@ -73,11 +71,6 @@
+         "softcreatr/jsonpath": "^0.10 || ^1.0",
+@@ -74,11 +72,6 @@
      ],
      "minimum-stability": "stable",
      "prefer-stable": true,
