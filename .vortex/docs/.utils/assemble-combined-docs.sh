@@ -143,7 +143,8 @@ EOF
     sed -E "${sed_opts[@]}" "s%raw-loader!@site/\.\./\.\./%raw-loader!@site/_external/${tag}/%g" {} +
 }
 
-rm -rf "${COMBINED_DIR}"mkdir -p "${COMBINED_DIR}"
+rm -rf "${COMBINED_DIR}"
+mkdir -p "${COMBINED_DIR}"
 
 # The combined site is a copy of this one, so it builds with the same config,
 # components and sidebars. Generated and installed directories are excluded and
