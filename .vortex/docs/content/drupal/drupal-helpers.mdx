@@ -1,5 +1,5 @@
 ---
-sidebar_position: 6
+sidebar_position: 10
 ---
 
 # Drupal helpers
@@ -7,6 +7,10 @@ sidebar_position: 6
 [Drupal helpers](https://www.drupal.org/project/drupal_helpers) is a utility
 library that provides static facade helpers for common Drupal development tasks,
 primarily intended for use within deploy hooks and update scripts.
+
+This page covers how **Vortex** uses the module. The
+[module documentation](https://git.drupalcode.org/project/drupal_helpers/-/blob/HEAD/README.md)
+is the reference for its full API.
 
 ## Helper facade
 
@@ -26,36 +30,50 @@ Helper::menu()->createTree('main', [
 ]);
 
 // Delete all entities of a type.
-Helper::entity()->deleteAll('node', 'article');
+Helper::entity()->deleteAll('node', 'page');
 ```
+
+Each facade throws a `RuntimeException` when the helper needs a module that is
+not installed, so a deploy hook fails loudly rather than half-applying.
 
 ## Available helpers
 
-| Helper | Access | Common operations |
-|--------|--------|-------------------|
+Every facade is listed below. The **Examples** column shows a few of the methods
+each one exposes, not the complete set - see the module documentation for that.
+
+| Helper | Access | Examples |
+|--------|--------|----------|
 | Term | `Helper::term()` | `createTree()`, `deleteAll()`, `find()` |
 | Menu | `Helper::menu()` | `createTree()`, `deleteTree()`, `findItem()`, `updateItem()` |
-| Entity | `Helper::entity()` | `deleteAll()`, `batch()` |
-| Config | `Helper::config()` | Import and manage config YAML |
-| User | `Helper::user()` | Create accounts, assign roles |
-| Redirect | `Helper::redirect()` | Create redirects, import from CSV |
-| Field | `Helper::field()` | Delete fields with data purging |
+| Entity | `Helper::entity()` | `deleteAll()` |
+| Config | `Helper::config()` | `get()`, `set()`, `import()`, `setFrontPage()` |
+| User | `Helper::user()` | `create()`, `createMultiple()`, `assignRoles()`, `removeRoles()` |
+| Redirect | `Helper::redirect()` | `create()`, `deleteBySource()`, `importFromCsv()` |
+| Field | `Helper::field()` | `delete()`, `deleteInstance()` |
 
 ## Batched operations
 
-For large datasets, pass a `$sandbox` array to enable automatic batching:
+Every facade except `Helper::config()` accepts a `$sandbox` array, which turns
+on `batch()` and `batchEntity()` so large datasets are processed across multiple
+deploy hook passes:
 
 ```php
-function ys_base_deploy_update_articles(array &$sandbox): ?string {
-  return Helper::entity($sandbox)->batch('node', 'article', function ($node) {
+function ys_base_deploy_update_pages(array &$sandbox): ?string {
+  return Helper::entity($sandbox)->batchEntity('node', 'page', function ($node) {
     $node->set('field_migrated', TRUE);
     $node->save();
   });
 }
 ```
 
+`batchEntity()` queries the entity IDs itself; `batch()` takes an arbitrary
+array of items instead. Both return the progress message Drush prints, and the
+batch size defaults to 50 - pass a second argument to the facade to change it,
+for example `Helper::entity($sandbox, 100)`.
+
 ## Example in Vortex
 
 The [`ys_demo.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.deploy.php)
-file demonstrates using drupal_helpers to create a menu link for the articles
-page during deployment.
+file uses `Helper::menu()` to add a `Pages` link to the main navigation during
+deployment, guarding the operation with `findItem()` so re-running the hook does
+not create a duplicate.
