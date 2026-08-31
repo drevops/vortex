@@ -3,18 +3,14 @@ sidebar_label: Overview
 sidebar_position: 1
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+# Continuous integration
 
-# Continuous Integration
+**Vortex** offers continuous integration configurations for [GitHub Actions](./github-actions.mdx)
+and [CircleCI](./circleci.mdx) that automate the process of building, testing,
+and deploying your site.
 
-**Vortex** offers continuous integration configurations for [GitHub Actions](/docs/continuous-integration/github-actions)
-and [CircleCI](/docs/continuous-integration/circleci) providers that allow you to
-automate the process of building, testing, and deploying your site.
-
-The workflow configuration is identical for both continuous integration
-providers. You would need to choose one of them and follow the setup
-instructions.
+The workflow structure is identical for both continuous integration providers.
+Choose one of them and follow its setup instructions.
 
 The continuous integration pipeline consists of multiple jobs executed on the
 CI provider's standard environment - a CircleCI convenience image or a
@@ -44,9 +40,9 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Validates Composer configuration
 - Assembles the codebase by installing dependencies
 - Provisions a website
-- Runs PHPUnit tests (first instance only)
-- Checks code coverage and posts PR comment (first instance only)
-- Runs BDD tests (distributed across all instances)
+- Runs PHPUnit and Jest tests (first container only)
+- Checks code coverage and posts a PR comment (first container only)
+- Runs BDD tests (distributed across all containers - see [Test parallelism](./parallelism.mdx))
 - Collects and stores test results and artifacts
 
 ### 3. Build
@@ -61,29 +57,41 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Runs after successful completion of the `lint`, `test`, and `build` jobs
 - Uses the built codebase without development dependencies from the `build` job
 - Adds required secrets and environment variables
-- Triggers a deployment using a router script
+- Triggers a deployment using a router script - see [Deployment](../deployment/README.mdx)
 
 ## Security audit
 
-Security checks run in their own workflow, separate from the pipeline above, so that a failing audit is never confused with a failing linter and can be re-run on its own:
+Security checks run in their own workflow, separate from the pipeline above, so
+that a failing audit is never confused with a failing linter and can be re-run
+on its own:
 
 | Provider | Location |
 |----------|----------|
 | GitHub Actions | The `Security audit` workflow in `.github/workflows/audit.yml` |
 | CircleCI | The `audit` workflow in `.circleci/config.yml` |
 
-The workflow runs the same two checks in both providers, and needs neither the application containers nor installed dependencies:
+The workflow runs the same 2 checks in both providers, and needs neither the
+application containers nor installed dependencies:
 
 - `composer audit --locked` checks the packages pinned in `composer.lock` against published security advisories
-- [Gitleaks](/docs/tools/gitleaks) scans the codebase for committed secrets
+- [Gitleaks](../tools/gitleaks.mdx) scans the codebase for committed secrets
 
-Every check runs even if an earlier one failed, so a single run reports all the findings at once. The workflow fails if any of the checks failed, unless that check's `_IGNORE_FAILURE` variable is set to `1`.
+Every check runs even if an earlier one failed, so a single run reports all the
+findings at once. The workflow fails if any of the checks failed, unless that
+check's `_IGNORE_FAILURE` variable (see [Ignore tool failures](#ignore-tool-failures))
+is set to `1`.
 
-It is triggered by the same pushes, pull requests and tags as the main pipeline, and can also be started on demand - in GitHub Actions from **Actions → Security audit → Run workflow**, and in CircleCI by re-running the `audit` workflow from the pipeline view.
+It is triggered by the same pushes, pull requests and tags as the main
+pipeline, and can also be started on demand - in GitHub Actions from
+**Actions → Security audit → Run workflow**, and in CircleCI by re-running the
+`audit` workflow from the pipeline view.
 
 :::note
 
-Because the audit is a separate workflow, it is not a dependency of the `deploy` job - a failing audit does not by itself stop a deployment. To block merges and deployments on it, add its check to the repository's branch protection rules as a required status check.
+Because the audit is a separate workflow, it is not a dependency of the
+`deploy` job - a failing audit does not by itself stop a deployment. To block
+merges and deployments on it, add its check to the repository's branch
+protection rules as a required status check.
 
 :::
 
@@ -92,26 +100,29 @@ Because the audit is a separate workflow, it is not a dependency of the `deploy`
 The database is fetched on the first continuous integration run of the day and cached so that
 the remaining runs on the same day reuse the cached database dump.
 
-By default, the database is cached per-branch for 24 hours. If cache is not
-available, the fallback default branch is used.
+The cache key is built from a configured cache source branch (the
+`VORTEX_CI_DB_CACHE_BRANCH` variable, `develop` by default) and a daily
+timestamp - every run on any branch reads the same shared cache. If no cache
+exists for the current day, the previous day's cache for the same source branch
+is used as a fallback.
 
 :::note
 
-Database caching is a very powerful feature that allows to speed up the
-continuous integration runs on large projects with a lot of data.
+Database caching speeds up continuous integration runs considerably on projects
+with a lot of data.
 
 In case of a project with a large database >1GB, the database import itself may
 take a long time, so it may be worth looking into either packaging the database
 dump into a container image or using a sanitized database dump with
 only the required data for the tests.
 
-**Vortex** supports both creating and using a database container image with embedded
-data. You may use [MariaDB data container for Drupal with database captured as Docker layers](https://github.com/drevops/mariadb-drupal-data) to create
-an initial database image.
+**Vortex** supports both creating and using a database container image with
+embedded data. You may use [MariaDB data container for Drupal with database captured as Docker layers](https://github.com/drevops/mariadb-drupal-data)
+to create an initial database image.
 
-There are other tools also available for this purpose, such as [Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper)
-that allows to remove data from the database dump during Drush database
-export command without the need for an intermediate database import step.
+Other tools serve the same goal: [Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper),
+for example, removes data during the Drush database export itself, without an
+intermediate database import step.
 
 :::
 
@@ -123,9 +134,9 @@ cache keys:
 
 ```yaml
 # Before
-v25.11.0
+v26.8.0
 # After
-v25.11.1
+v26.8.1
 ```
 
 The version tag is the **Vortex** release version (CalVer). Bumping only its
@@ -134,7 +145,9 @@ shipped by a future **Vortex** update.
 
 ## Trigger conditions
 
-The continuous integration pipeline is triggered by:
+Both providers build on branch pushes, pull requests, tags matching semantic
+version (`1.2.3`, `1.2.3-rc.1`) or date-based (`2023-04-17`) patterns, and a
+nightly schedule that refreshes the database cache.
 
 - **Push events** to the following branches:
   - `production`, `main`, `master`, `develop`
@@ -344,9 +357,14 @@ by setting the `VORTEX_DEBUG` variable to `1` in your CI provider's settings.
 
 ### Runner disk space
 
-Continuous integration jobs run on hosted runners with a fixed amount of disk space - a fixed allocation on CircleCI, and on GitHub Actions a root volume that is largely consumed before the job starts. Measured on one `ubuntu-latest` image, preinstalled software occupied 59 GB of a 72 GB volume, leaving the job around 13 GB. Pulled container images, database dumps, and every file created while provisioning share what is left.
+Hosted runners come with a fixed amount of disk space, and running out of it is
+easy to misread: the runner is terminated from the outside, the step that was
+running never reports an error, and the failure looks like a hang rather than a
+disk problem. If a build dies during provisioning without reporting an error,
+suspect the disk first.
 
-When it runs out, the runner is terminated from the outside: the step that was running never reports an error and the log archive may be lost entirely, so the failure looks like a hang rather than a disk problem.
+The most reliable fix is to reduce what has to fit: a sanitized dump or a
+[database container image](#caching-strategy) instead of a full dump.
 
 **Vortex** keeps the build within that budget:
 
@@ -385,42 +403,27 @@ Sometimes you may want to allow builds to pass despite linter and test failures.
 Set the corresponding `VORTEX_CI_*_IGNORE_FAILURE` variable to `1` to ignore
 failures (but still run the tool and see the results in the logs):
 
-| Tool                                                        | Purpose                                  | Variable                                      |
-|-------------------------------------------------------------|------------------------------------------|-----------------------------------------------|
-| [Behat](/docs/tools/behat)                                  | Run BDD acceptance tests                 | `VORTEX_CI_BEHAT_IGNORE_FAILURE`              |
-| Composer normalize                                          | Ensure `composer.json` is sorted         | `VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE` |
-| Composer security audit                                     | Check dependencies for vulnerabilities   | `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`     |
-| Composer validate                                           | Validate `composer.json` and lock file   | `VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE`  |
-| [DCLint](/docs/tools/dclint)                                | Lint Docker Compose files                | `VORTEX_CI_DCLINT_IGNORE_FAILURE`             |
-| [ESLint](/docs/tools/eslint)                                | Run ESLint and Stylelint                 | `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE`        |
-| [Gherkin Lint](/docs/tools/gherkin-lint)                    | Lint Behat feature files                 | `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE`       |
-| [Hadolint](/docs/tools/hadolint)                            | Lint Dockerfiles for best practices      | `VORTEX_CI_HADOLINT_IGNORE_FAILURE`           |
-| [PHPCS](/docs/tools/phpcs)                                  | Check PHP coding standards               | `VORTEX_CI_PHPCS_IGNORE_FAILURE`              |
-| [PHPStan](/docs/tools/phpstan)                              | Static analysis for PHP                  | `VORTEX_CI_PHPSTAN_IGNORE_FAILURE`            |
-| [PHPUnit](/docs/tools/phpunit)                              | Run unit, kernel, and functional tests   | `VORTEX_CI_PHPUNIT_IGNORE_FAILURE`            |
-| [Rector](/docs/tools/rector)                                | Check for automated refactoring rules    | `VORTEX_CI_RECTOR_IGNORE_FAILURE`             |
-| [Twig CS Fixer](/docs/tools/twig-cs-fixer)                  | Lint Twig templates                      | `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE`      |
+| Tool                                                | Purpose                                  | Variable                                      |
+|-----------------------------------------------------|------------------------------------------|-----------------------------------------------|
+| [Behat](../tools/behat.mdx)                   | Run BDD acceptance tests                 | `VORTEX_CI_BEHAT_IGNORE_FAILURE`              |
+| Composer normalize                                  | Ensure `composer.json` is sorted         | `VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE` |
+| Composer security audit                             | Check dependencies for vulnerabilities   | `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`     |
+| Composer validate                                   | Validate `composer.json` and lock file   | `VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE`  |
+| [DCLint](../tools/dclint.mdx)                       | Lint Docker Compose files                | `VORTEX_CI_DCLINT_IGNORE_FAILURE`             |
+| [ESLint](../tools/eslint.mdx) and Stylelint | Lint JavaScript and CSS  | `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE`        |
+| [Gherkin Lint](../tools/gherkin-lint.mdx)           | Lint Behat feature files                 | `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE`       |
+| [Gitleaks](../tools/gitleaks.mdx)                   | Scan the codebase for committed secrets  | `VORTEX_CI_GITLEAKS_IGNORE_FAILURE`           |
+| [Hadolint](../tools/hadolint.mdx)                   | Lint Dockerfiles for best practices      | `VORTEX_CI_HADOLINT_IGNORE_FAILURE`           |
+| [Jest](../tools/jest.mdx)                     | Run JavaScript unit tests                | `VORTEX_CI_JEST_IGNORE_FAILURE`               |
+| [PHPCS](../tools/phpcs.mdx)                         | Check PHP coding standards               | `VORTEX_CI_PHPCS_IGNORE_FAILURE`              |
+| [PHPStan](../tools/phpstan.mdx)                     | Static analysis for PHP                  | `VORTEX_CI_PHPSTAN_IGNORE_FAILURE`            |
+| [PHPUnit](../tools/phpunit.mdx)               | Run unit, kernel, and functional tests   | `VORTEX_CI_PHPUNIT_IGNORE_FAILURE`            |
+| [Rector](../tools/rector.mdx)                       | Check for automated refactoring rules    | `VORTEX_CI_RECTOR_IGNORE_FAILURE`             |
+| [SDC Devel](../drupal/theme-scaffold.mdx#single-directory-components)                 | Validate Single Directory Components     | `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE`          |
+| [Twig CS Fixer](../tools/twig-cs-fixer.mdx)         | Lint Twig templates                      | `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE`      |
 
 ### Configure deployment skip conditions
 
-Sometimes it may be necessary to skip deployments for specific branches or pull
-requests. For example, you may want to temporarily avoid deploying more changes
-into already deployed environments which still run CI checks on new commits.
-
-To skip deployments for specific branches, set the `VORTEX_DEPLOY_SKIP_BRANCHES`
-variable to a comma-separated list of exact branch names:
-
-```shell
-VORTEX_DEPLOY_ALLOW_SKIP=1 # Enable deployment skipping
-VORTEX_DEPLOY_SKIP_BRANCHES="feature/test,hotfix/urgent,project/experimental"
-```
-
-To skip deployments for specific pull requests, set the `VORTEX_DEPLOY_SKIP_PRS`
-variable to a comma-separated list of PR numbers:
-
-```shell
-VORTEX_DEPLOY_ALLOW_SKIP=1 # Enable deployment skipping
-VORTEX_DEPLOY_SKIP_PRS="123,456,789"
-```
-
-To skip all deployments entirely, set `VORTEX_DEPLOY_SKIP=1`.
+Deployments can be skipped for specific branches or pull requests while their
+CI checks keep running - see
+[Deployment > Skipping deployments](../deployment/README.mdx#skipping-deployments).

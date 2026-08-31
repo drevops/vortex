@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 # CircleCI
@@ -13,14 +13,14 @@ For general CircleCI documentation, refer to the
 :::info
 
 For information about the CI workflow structure, jobs, and caching strategy,
-see the [CI overview](/docs/continuous-integration).
+see the [Continuous integration overview](./README.mdx).
 
 :::
 
 ## Onboarding
 
 CircleCI onboarding is part of the project setup flow. See
-[Set up integrations](/docs/installation?ci-provider=circleci#5-set-up-continuous-integration)
+[Set up continuous integration](/docs/installation?ci-provider=circleci#5-set-up-continuous-integration)
 in the Installation guide and select **CircleCI**.
 
 ## Maintenance
@@ -42,6 +42,7 @@ only runs for specific branch patterns, controlled by a regex filter in the
 | `bugfix/**` | Non-urgent bug fix branches (e.g., `bugfix/fix-auth`, `bugfix/456-crash`) |
 | `project/**` | Long-lived project branches for large initiatives |
 | `ci*` | Temporary CI testing branches (e.g., `ci`, `ci-debug`) |
+| `N.x` | Major version branches (e.g., `1.x`, `2.x`) |
 
 To modify which branches trigger deployments, update the `only` filter regex
 in the `deploy` job.
@@ -73,7 +74,7 @@ resource_class: large  # Options: small, medium, large, xlarge
 
 Resource classes scale CPU and memory only. Disk space is not tied to the
 resource class, so upgrading it will not help a job that runs out of space -
-see [Runner disk space](/docs/continuous-integration#runner-disk-space).
+see [Runner disk space](./README.mdx#runner-disk-space).
 
 ### Change test parallelism
 
@@ -87,16 +88,9 @@ test:
 ```
 
 Every added container that runs Behat also needs a matching `pN` profile in
-`behat.yml` - without it, Behat fails with `profile 'p2' does not exist`. A
-container excluded from Behat needs no profile. Then distribute Behat scenarios
-across the containers using profile tags (`@p0`, `@p1`, `@p2`, etc.) in your
-feature files. Since the first container also runs Jest, PHPUnit, coverage, and
-Single Directory Component validation, assign more Behat scenarios to the
-additional containers to keep build times balanced.
-
-See [Adding more containers](/docs/continuous-integration#adding-more-containers)
-for the full procedure, and [Choosing which container runs what](/docs/continuous-integration#choosing-which-container-runs-what)
-to move a tool onto a different container.
+`behat.yml`. See [Test parallelism](./parallelism.mdx) for the full procedure,
+how scenarios are balanced across containers, and how to move a tool onto a
+different container.
 
 ### SSH access for debugging
 
@@ -128,5 +122,5 @@ is `90` (percent).
 
 Coverage reports can be posted as PR comments. This requires a `GITHUB_TOKEN`
 environment variable with permission to post comments. Each new report replaces
-the previous one — older comments are minimized to keep the PR timeline clean.
+the previous one - older comments are minimized to keep the PR timeline clean.
 To disable PR comments, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.

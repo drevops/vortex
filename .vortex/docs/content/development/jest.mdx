@@ -1,6 +1,6 @@
 ---
 sidebar_label: Jest
-sidebar_position: 6
+sidebar_position: 7
 ---
 
 # Jest
@@ -81,7 +81,7 @@ Set globals in `beforeEach` and clean them up in `afterEach`:
 
 | Global | Setup | When needed |
 |--------|-------|-------------|
-| `Drupal` | `global.Drupal = { behaviors: {} }` | Always — required by all Drupal behaviors |
+| `Drupal` | `global.Drupal = { behaviors: {} }` | Always - required by all Drupal behaviors |
 | `jQuery` | `global.jQuery = require('jquery')` or a mock | When the source file uses `jQuery` or `$` |
 | `drupalSettings` | `global.drupalSettings = { path: { baseUrl: '/' } }` | When the source file reads `drupalSettings` |
 | `localStorage` | Provided by jsdom; call `localStorage.clear()` | When the source file uses `localStorage` |

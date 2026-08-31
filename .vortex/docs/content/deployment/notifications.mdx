@@ -1,15 +1,16 @@
 ---
 sidebar_label: Notifications
-sidebar_position: 6
+sidebar_position: 5
 ---
 
 # Notifications
 
-**Vortex** provides a flexible notification system that sends updates
-across multiple channels when deployments occur.
+**Vortex** provides a notification system that sends updates across multiple
+channels when deployments occur.
 
-Notifications are triggered automatically during deployment to a
-hosting environment.
+Notifications are dispatched by the `vendor/bin/vortex-notify` router script,
+which the _hosting platform_ runs around a deployment - from Lagoon
+post-rollout tasks or Acquia Cloud Hooks - rather than by the CI `deploy` job.
 
 ## Channels
 
@@ -25,7 +26,9 @@ Available channels: `diffy`, `email`, `github`, `jira`, `newrelic`, `slack`, `we
 ## Global environment variables
 
 These variables apply to all notification channels unless overridden by
-channel-specific settings.
+channel-specific settings. The full generated list of `VORTEX_NOTIFY_*`
+variables with their source scripts is in the
+[Variables reference](../development/variables.mdx).
 
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
@@ -45,6 +48,9 @@ notification script.
 | `VORTEX_NOTIFY_SHA` | **Yes** | Git commit SHA |
 | `VORTEX_NOTIFY_PR_NUMBER` | No | Pull request number (empty for branch deployments) |
 | `VORTEX_NOTIFY_LABEL` | **Yes** | Human-readable deployment label |
+| `VORTEX_NOTIFY_ENVIRONMENT_URL` | **Yes** | URL of the deployed environment, used by the `%environment_url%` token |
+| `VORTEX_NOTIFY_LOGIN_URL` | No | Login URL for the `%login_url%` token; defaults to `<environment_url>/user/login` |
+| `VORTEX_NOTIFY_EVENT` | No | Deployment event: `post_deployment` (default) or `pre_deployment`; any other value fails the run |
 
 ## Branch filtering
 

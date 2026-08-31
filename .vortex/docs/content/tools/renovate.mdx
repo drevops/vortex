@@ -2,7 +2,7 @@
 sidebar_label: Renovate
 ---
 
-# Renovate - Automated updates
+# Renovate - automated updates
 
 **Vortex** uses [Renovate](https://renovatebot.com) for automated dependency updates.
 
@@ -37,7 +37,7 @@ All other groups open PRs for manual review.
 
 ### Disabled updates
 
-These are intentionally skipped by Renovate — update them manually:
+These are intentionally skipped by Renovate - update them manually:
 
 | Group | What is skipped | Why |
 |---|---|---|
@@ -62,73 +62,76 @@ These are intentionally skipped by Renovate — update them manually:
 ## Self-hosted vs GitHub app
 
 Renovate can run as a hosted GitHub app or as a standalone self-hosted service
-in CircleCI or GitHub Actions.
+in CircleCI or GitHub Actions. A self-hosted service suits projects that
+restrict third-party access to their repositories.
 
-A self-hosted service can be beneficial when your project is restricted in terms
-of third-party access.
+:::note
 
-**Note**: If the `RENOVATE_TOKEN` is not provided and the job is configured, the job will still run but the Renovate
-update steps will be skipped gracefully without causing a build failure.
+If the job is configured but a required variable is not provided, the job
+still runs and the Renovate update steps are skipped gracefully without
+failing the build. On GitHub Actions the required variables are
+`RENOVATE_TOKEN` and `RENOVATE_GIT_AUTHOR`; CircleCI additionally requires
+`RENOVATE_REPOSITORIES`, since it has no repository to default to.
 
-### Setting up Renovate self-hosted in CircleCI
+:::
 
-#### Required environment variables
+### Setting up the self-hosted service
 
-The following environment variables **must** be manually created in the CircleCI project settings:
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-1. `RENOVATE_TOKEN` (required): GitHub access token with repository write permissions
-2. `RENOVATE_REPOSITORIES` (required): Repository to run Renovate on in format `yourorg/repo`
-3. `RENOVATE_GIT_AUTHOR` (required): Author for Renovate commits in format `Name <email@example.com>` (e.g., `Renovate Bot <renovate@example.com>`)
+<Tabs queryString="ci-provider" groupId="ci-provider">
+<TabItem value="gha" label="GitHub Actions" default>
 
-#### Optional environment variables
+**Required variables**, created in the GitHub repository settings:
 
-These can be created to customize behavior (will use defaults if not set):
+- `RENOVATE_TOKEN`: GitHub access token with repository write permissions.
+  *Location: Settings > Secrets and variables > Actions > Repository secrets.*
+- `RENOVATE_GIT_AUTHOR`: Author for Renovate commits in the format
+  `Name <email@example.com>` (e.g., `Renovate Bot <renovate@example.com>`).
+  *Location: Settings > Secrets and variables > Actions > Repository variables.*
 
-- `RENOVATE_DRY_RUN`: Set to `true` to test runs without making changes (default: `false`)
-- `RENOVATE_DEPENDENCY_DASHBOARD`: Set to `true` to enable the dependency dashboard (default: `false`)
+**Optional variables** (defaults apply if not set):
 
-Note that triggering actions from the self-hosted service is not supported.
+- `RENOVATE_REPOSITORIES`: Repository to run Renovate on in the format
+  `yourorg/repo` (default: the current repository).
+- `RENOVATE_DRY_RUN`: Set to `true` to test runs without making changes
+  (default: `false`).
+- `RENOVATE_DEPENDENCY_DASHBOARD`: Set to `true` to enable the dependency
+  dashboard (default: `false`).
 
-#### Manual trigger
+**Manual trigger:** run the workflow from the **Actions** tab using the
+workflow dispatch feature.
 
-The Renovate job in CircleCI can be triggered manually from the CircleCI pipeline UI.
+**Debug logging:** set the `LOG_LEVEL` environment variable to `debug` in the
+workflow configuration.
 
-#### Debug logging
+</TabItem>
+<TabItem value="circleci" label="CircleCI">
 
-Debug logging is enabled by default with `LOG_LEVEL: 'debug'` to provide detailed
-information about the Renovate execution process. This helps with troubleshooting
-dependency update issues and understanding why certain updates might be skipped.
+**Required variables**, created in the CircleCI project settings:
 
-### Setting up Renovate self-hosted in GitHub Actions
+- `RENOVATE_TOKEN`: GitHub access token with repository write permissions.
+- `RENOVATE_REPOSITORIES`: Repository to run Renovate on in the format
+  `yourorg/repo`.
+- `RENOVATE_GIT_AUTHOR`: Author for Renovate commits in the format
+  `Name <email@example.com>` (e.g., `Renovate Bot <renovate@example.com>`).
 
-#### Required environment variables
+**Optional variables** (defaults apply if not set):
 
-The following **must** be manually created in the GitHub repository settings:
+- `RENOVATE_DRY_RUN`: Set to `true` to test runs without making changes
+  (default: `false`).
+- `RENOVATE_DEPENDENCY_DASHBOARD`: Set to `true` to enable the dependency
+  dashboard (default: `false`).
 
-1. `RENOVATE_TOKEN` (required): GitHub access token with repository write permissions
-   *Location: Settings > Secrets and variables > Actions > Repository secrets*
-2. `RENOVATE_GIT_AUTHOR` (required): Author for Renovate commits in format `Name <email@example.com>` (e.g., `Renovate Bot <renovate@example.com>`)
-   *Location: Settings > Secrets and variables > Actions > Repository variables*
+**Manual trigger:** trigger the Renovate job from the CircleCI pipeline UI.
 
-#### Optional environment variables
+**Debug logging:** enabled by default with `LOG_LEVEL: 'debug'`.
 
-These can be created to customize behavior (will use defaults if not set):
+</TabItem>
+</Tabs>
 
-- `RENOVATE_REPOSITORIES`: Repository to run Renovate on in format `yourorg/repo` (default: uses current repository)
-- `RENOVATE_DRY_RUN`: Set to `true` to test runs without making changes (default: `false`)
-- `RENOVATE_DEPENDENCY_DASHBOARD`: Set to `true` to enable the dependency dashboard (default: `false`)
-
-Note that triggering actions from the self-hosted service is not supported.
-
-#### Manual trigger
-
-The Renovate job in GitHub Actions can be triggered manually from the Actions tab
-in the GitHub repository UI using the workflow dispatch feature.
-
-#### Debug logging
-
-Debug logging is available and can be enabled by setting the `LOG_LEVEL` environment
-variable to `debug` in the workflow configuration for detailed troubleshooting.
+Triggering GitHub Actions from the self-hosted service is not supported.
 
 ## Dependency dashboard
 

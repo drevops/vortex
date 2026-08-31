@@ -1,40 +1,48 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # Documentation
 
-There are 2 types of the documentation that **Vortex** provides:
+There are 2 types of documentation that **Vortex** provides:
 
-1. **Vortex template documentation** (this site) - Generic information on
-   **how** to perform operations, applicable to all projects built with Vortex.
-   Deployed to https://www.vortextemplate.com/docs/
-2. **Per-project documentation** - Project-specific information on **what** the
-   project does, distributed in the `docs/` directory when Vortex is installed.
+1. **Vortex template documentation** (this site) - generic information on
+   **how** to perform operations, applicable to all projects built with
+   **Vortex**. Deployed to https://www.vortextemplate.com/docs/
+2. **Per-project documentation** - project-specific information on **what**
+   the project does, distributed in the `docs/` directory when **Vortex** is
+   installed.
 
 The key relationship: per-project documentation describes **what** (coding
 standards, testing requirements, release configuration) while referencing the
-Vortex documentation for **how** to perform specific operations.
+**Vortex** documentation for **how** to perform specific operations.
 
 ## www.vortextemplate.com
 
 This documentation provides generic "how-to" guides suitable for any project
-using the Vortex template. It covers tooling, automation, and operations that
-are common across all Vortex-based projects.
+using the **Vortex** template. It covers tooling, automation, and operations
+that are common across all **Vortex**-based projects.
 
-The source is written in Markdown and located in
-[`.vortex/docs`](https://github.com/drevops/vortex/blob/main/.vortex/docs)
+The source is written in Markdown and located in the
+[`.vortex/docs`](https://github.com/drevops/vortex/tree/main/.vortex/docs)
 directory. This is removed when you install **Vortex** for a consumer site.
 
 ### Local build
 
+Run the docs commands from the `.vortex/` directory:
+
 ```shell
-cd .vortex/docs
-ahoy build
+cd .vortex
+
+# Start the local development server with live reload.
+ahoy docs
+
+# Build the production site. The build fails on broken internal links.
+ahoy build-docs
 ```
 
 Parts of the documentation are generated automatically from the codebase.
-To update it, run:
+To update them, run:
 
 ```shell
 cd .vortex
@@ -44,43 +52,53 @@ ahoy update-docs
 If you have the documentation site running locally, the content changes will
 be available immediately.
 
-### Check spelling and links
+### Lint, spellcheck and test
 
 ```shell
 cd .vortex
+
+# Lint the Markdown and check American English spelling.
+ahoy lint-docs
+
+# Run the Jest component tests and the spellcheck.
 ahoy test-docs
 ```
 
-If required, add spelling exclusions to `.vortex/docs/cspell.json`
-file.
+If required, add spelling exclusions to the `.vortex/docs/cspell.json` file.
+
+Internal links are not checked by these commands - the Docusaurus build is the
+link checker, failing on broken internal links (`ahoy build-docs`).
+
+### Documentation videos
+
+The 6 terminal demo videos embedded in the docs are regenerated with
+`ahoy update-videos [names]` from `.vortex/` - see
+[Installer > Installer video](installer.mdx#installer-video) for the pipeline.
 
 ### Publishing
 
-An automated continuous integration build publishes this documentation.
+Automated continuous integration builds publish this documentation:
 
-- on tag, publishes to https://www.vortextemplate.com/docs/
-- on every commit to a branch that contains `release-docs` string publishes to https://www.vortextemplate.com/docs/
-- on every push to `develop`, publishes to development version of documentation https://vortex-docs.netlify.app
-- on every push or tag, publishes to the temporary version of documentation with a link added to the PR as a comment.
+- on every tag, to https://www.vortextemplate.com/docs/
+- on every commit to a branch whose name contains `release-docs`, to https://www.vortextemplate.com/docs/
+- on every push to `main`, to the development version at https://vortex-docs.netlify.app
+- for pull request branches whose test workflows pass, to a temporary preview, with the link posted to the PR as a comment
 
 ## Consumer site documentation
 
-**Vortex** provides a scaffold of the consumer site documentation in the
-[`docs`](https://github.com/drevops/vortex/blob/main/docs) directory.
+**Vortex** ships a scaffold of consumer site documentation in the
+[`docs`](https://github.com/drevops/vortex/tree/main/docs) directory. It is
+installed into every consumer site, where the site maintainers keep it
+up-to-date with their project.
 
-After **Vortex** is installed into the consumer site, these docs are
-intended to be used by the site maintainers and stay up-to-date with the
-project changes.
-
-This documentation describes the **what** for the project:
+The scaffold covers the **what** of a project:
 
 - Coding standards and agreements specific to the project
 - Testing requirements and configuration
 - Release and deployment configuration
 - Project-specific procedures and decisions
 
-When describing **how** to perform an operation, per-project documentation
-should reference the relevant page on https://www.vortextemplate.com/docs/
-rather than duplicating instructions. This keeps project docs focused on
-decisions and configuration while leveraging the maintained Vortex
-documentation for operational details.
+The scaffold references this site for the **how** of each operation instead of
+duplicating instructions - so when maintaining the template, keep the scaffold
+pointing at the right pages here, and keep the **how** content on this site
+rather than in the shipped `docs/` files.

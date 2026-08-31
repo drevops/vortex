@@ -45,7 +45,8 @@ ahoy mycommand -- myarg1 myarg2 --myoption1 --myoption2=myvalue
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli drush uli
+    # Unblocks user 1 and generates a one-time login link, like `ahoy login`.
+    docker compose exec cli ./vendor/bin/vortex-login
     ```
   </TabItem>
 </Tabs>
@@ -185,7 +186,7 @@ Provided that your stack is already running:
 
 <!-- markdownlint-enable MD046 -->
 
-## How to just import a database?
+## How to import a database without running updates?
 
 Provided that your stack is already running:
 
@@ -208,7 +209,7 @@ Provided that your stack is already running:
 
 <!-- markdownlint-enable MD046 -->
 
-## How to add Drupal modules
+## How to add Drupal modules?
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -223,38 +224,43 @@ Provided that your stack is already running:
   </TabItem>
 </Tabs>
 
-## How to add patches for Drupal modules
+## How to add patches for Drupal modules?
 
-1. Add `title` to patch on https://drupal.org to the `patches` array in `extra`
-   section in `composer.json`.
+1. Add the patch to the `patches` array in the `extra` section of
+   `composer.json`, with the patch title as the key:
 
    ```json
    "extra": {
        "patches": {
            "drupal/somepackage": {
-               "Remote patch description": "https://www.drupal.org/files/issues/issue.patch"
+               "Remote patch description": "https://www.drupal.org/files/issues/issue.patch",
                "Local patch description": "patches/package-description.patch"
            }
        }
    }
    ```
 
-2. Run
+2. Regenerate the patches lock file and re-apply the patches:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    ahoy composer require drupal/somepackage
+    ahoy composer patches-relock
+    ahoy composer patches-repatch
+    ahoy composer update --lock
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli composer require drupal/somepackage
+    docker compose exec cli composer patches-relock
+    docker compose exec cli composer patches-repatch
+    docker compose exec cli composer update --lock
     ```
   </TabItem>
 </Tabs>
 
-➡️ See [Composer > Patching](composer.mdx#patching)
+➡️ See [Composer > Patching](composer.mdx#patching) for the full patching
+workflow, including removing patches.
 
 ## What should I do when `composer audit` reports a security vulnerability?
 

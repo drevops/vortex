@@ -5,6 +5,9 @@ sidebar_position: 4
 
 # Debugging
 
+This page covers 3 debugging aids: step-debugging PHP with Xdebug, testing
+authenticated pages with curl, and inspecting the containers directly.
+
 ## Xdebug
 
 https://xdebug.org/
@@ -15,10 +18,10 @@ https://xdebug.org/
 **Vortex** comes with Xdebug pre-installed and configured for local development
 thanks to [Lagoon images](https://github.com/uselagoon/lagoon-images).
 
-Xdebug is also configured to work in coverage mode, allowing to run tests with
-code coverage enabled.
+Xdebug is also configured to work in coverage mode, so tests can run with code
+coverage enabled.
 
-➡️ See [PHPUnit](phpunit)
+➡️ See [PHPUnit](phpunit.mdx)
 
 ### Usage
 
@@ -199,9 +202,9 @@ docker compose ps
 docker compose logs [service_name]
 # Examples:
 docker compose logs cli
-docker compose logs mariadb
+docker compose logs database
 
 # Access container shell
 docker compose exec cli bash
-docker compose exec mariadb mysql -u drupal -p drupal
+docker compose exec database mysql -u drupal -p drupal
 ```

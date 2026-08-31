@@ -15,8 +15,8 @@ that make this possible.
 
 :::info
 
-Lagoon images are **production-grade** and are used in production environments.
-They receive regular updates and are maintained by the Lagoon team.
+Lagoon images run in production environments, receive regular updates, and are
+maintained by the Lagoon team.
 
 If you are using Lagoon as your hosting provider, then all of your
 environments are using identical images to run the project.
@@ -32,31 +32,28 @@ see the official documentation.
 
 :::
 
-Docker is a technology that allows to define services such as a web server or
-a database server as standalone _containers_, which are then run in an isolated
-environment and can talk to each other.
+Docker lets you define services such as a web server or a database server as
+standalone _containers_, which then run in an isolated environment and can talk
+to each other.
 
 The containers are started from _images_ - templates that define what is
-installed
-in the container and how it is configured. _Images_ allow to run _containers_
+installed in the container and how it is configured - so every container starts
 with consistent content and configuration.
 
-Docker is an engine that runs containers, built from images, allowing them to
-share host system resources and communicate to each other. When run locally,
-Docker can be controlled with Docker CLI command, called `docker`.
+Docker is the engine that runs containers built from images, letting them share
+host system resources and communicate with each other. When run locally, Docker
+is controlled with the Docker CLI command, `docker`.
 
-Docker Compose is a tool that allows to define and run multi-container Docker
-applications in a single `docker-compose.yml` file: multiple containers that
-work together can be described in a single file, which makes it easier to
-manage them.
+Docker Compose describes a multi-container Docker application in a single
+`docker-compose.yml` file: all the containers that work together are defined in
+one place, which makes them easier to manage.
 
-When working with Drupal, which requires multiple service containers to run, a
-developer would normally use Docker Compose CLI commands (rather than Docker CLI
-commands) called `docker compose`. Note that this
-commands runs in the context of the current directory, so it is important to
-run them from the project root directory. This means that the issued commands
-will only affect the containers defined in the `docker-compose.yml` file in the
-current directory and will not affect any other containers running on the host.
+When working with Drupal, which requires multiple service containers, a
+developer would normally use the Docker Compose CLI (`docker compose`) rather
+than the Docker CLI. These commands run in the context of the current
+directory, so run them from the project root: they only affect the containers
+defined in the `docker-compose.yml` file there, not other containers running on
+the host.
 
 When a project is fully configured, the usage of Docker-based application comes
 down to a handful of commands to manage the state of the containers (per
@@ -80,7 +77,7 @@ and in the continuous integration pipeline.
 Some of the commands are wrapped in the Ahoy script as a shorthand. But all
 the commands can be run directly using `docker compose` command.
 
-Specific commands are described in the relevant [Development](/docs/development)
+Specific commands are described in the relevant [Development](../development/README.mdx)
 documentation.
 
 ## Understanding `docker-compose.yml`
@@ -114,7 +111,7 @@ There are 2 volumes defined:
   is where a PHP engine accesses the application code.
 - Files directory `./web/sites/default/files` maps
   to `/app/web/sites/default/files` directory within a container as an override
-  to the default volume definition. This allows to use different type of syncing
+  to the default volume definition. This allows a different type of syncing
   to optimize performance, because files are not changed as often as the code.
 
 There are 2 more volumes defined and commented out - these are used in
@@ -122,7 +119,7 @@ environments without volume mounting support, such as CircleCI. These volumes
 definitions are automatically uncommented in the continuous integration
 environment, and they replace the host volume mounting, which is removed.
 
-`VOLUME_FLAGS` environment variable allows to define the consistency of the data
+The `VOLUME_FLAGS` environment variable defines the consistency of the data
 within mounted volumes. The values are:
 
 - `default`: Equivalent to `consistent`.
@@ -133,8 +130,9 @@ within mounted volumes. The values are:
 - `delegated`: The container runtime's view of the mount is authoritative. There
   may be delays before updates made in a container are visible on the host.
 
-The default value is `delegated`, so that any changes done in the container are
-immediately visible on the host.
+The default value is `delegated`: it prioritizes the container's write
+performance for heavy operations like dependency installation, at the cost of
+container-made changes taking a moment to appear on the host.
 
 ### Default user
 
@@ -142,14 +140,13 @@ The default user is defined as `1000` - this is the user ID that is used in the
 container to run the application. This is the same user ID as the host user, so
 that the files created in the container are owned by the host user.
 
-Changes this value if your user ID is different.
+Change this value if your user ID is different.
 
 ### Environment variables
 
-By default, the Docker Composer reads environment variables from the `.env`
-file. **Vortex** provides an additional capability to read files from `.env.local`
-file as well. This allows to override the environment variables locally without
-modifying the `.env` file.
+By default, Docker Compose reads environment variables from the `.env`
+file. **Vortex** additionally reads the `.env.local` file, so you can override
+environment variables locally without modifying the `.env` file.
 
 The variables read from `.env` and `.env.local` files then passed into the
 containers.
@@ -195,12 +192,12 @@ the [official documentation](https://docs.docker.com/compose/environment-variabl
 Services section describes the configuration for each container.
 
 The following services are defined in the `docker-compose.yml` file provided by
-Vortex:
+**Vortex**:
 
 - `cli` - a container that runs a shell. This container is used to run commands
   in the context of the project, such as `composer` or `drush`. This is also a
   container where cron jobs are run within a hosting environment (if that
-  environment supports containerisation).
+  environment supports containerization).
 - `webserver` - a container that runs a web server. This container is used to serve
   the application and pass requests to the appserver container.
 - `appserver` - a container that runs a PHP engine. This container is used to run the
@@ -211,8 +208,12 @@ Vortex:
 - `database` - a container that runs a database server. This container is used to
   store the application data. It can be accessed from the host via a randomly
   assigned port - run `docker compose port database 3306` to get the port number.
-- `cache` - an optional container that runs a Redis server. This container is
-  used to store the application cache.
+- `database2` - an optional second database container holding the source
+  database for [migrations](../drupal/migrations.mdx). It is only present when
+  the migration feature is enabled.
+- `cache` - an optional container that runs a Redis-compatible
+  ([Valkey](https://valkey.io/)) server. This container is used to store the
+  application cache.
 - `search` - an optional container that runs Apache Solr 9 search server. This container
   is used to store the application search index and provide full-text search
   capabilities. It uses the `uselagoon/solr-drupal-9` image which includes
@@ -259,7 +260,8 @@ Excluded from the image build context:
 - Host-installed dependencies, which are reinstalled during the build (`vendor`,
   `node_modules`, `web/themes/**/node_modules`).
 - Composer-generated Drupal directories, which are regenerated during the build
-  (`web/core`, `web/modules/contrib`, `drush/Commands/contrib`).
+  (`web/core`, `web/libraries`, `web/modules/contrib`, `web/profiles/contrib`,
+  `web/themes/contrib`, `drush/Commands/contrib`).
 - Content files, caches, logs, and compiled theme assets (`web/sites/*/files`,
   `.data`, `.logs`, `web/themes/**/build`).
 
@@ -275,7 +277,5 @@ After updating the `docker-compose.yml` file, it is useful sometimes to validate
 it before running the build. This can be done with the following command:
 
 ```shell
-
 docker compose -f docker-compose.yml config
-
 ```

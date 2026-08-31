@@ -20,13 +20,13 @@ During installation, you can choose between Calendar Versioning (CalVer), Semant
 ### Why CalVer
 
 - **Release frequency transparency**: When you have multiple releases per month, dates make it easy to identify when a release happened
-- **Intuitive tracking**: Stakeholders can immediately understand "this is from January 2025" vs memorizing version numbers
-- **Natural progression**: No ambiguity about major vs minor changes - just the chronological order
-- **Marketing alignment**: Easier to communicate to non-technical audiences ("our Q1 2025 release")
+- **Intuitive tracking**: Stakeholders can immediately understand "this is from January 2025" without memorizing version numbers
+- **Natural progression**: No ambiguity about major vs minor changes - the order is chronological
+- **Stakeholder communication**: Easier to reference for non-technical audiences ("our Q1 2025 release")
 
 ### Examples
 
-- ✅ Correct: `25.1.0`, `25.11.1`, `25.1.10`, `25.10.1`, `9.12.0`
+- ✅ Correct: `25.1.0`, `25.11.1`, `25.1.10`, `25.10.1`
 - ❌ Incorrect: `25.0.0` (no month 0), `2025.1.1` (full year), `25.01.0` (leading zero), `01.1.0` (leading zero in year)
 
 Learn more: [CalVer.org](https://calver.org/)
@@ -67,9 +67,10 @@ VORTEX_RELEASE_VERSION_SCHEME=calver  # or semver, or other
 
 ### Release notes publishing
 
-For CalVer and SemVer projects, **Vortex** provides a GitHub Actions workflow to automate release notes drafting:
+**Vortex** provides a GitHub Actions workflow to automate release notes drafting:
 
 - **Draft release notes** are automatically updated when commits are pushed to the `develop` branch
-- Next version is calculated based on your version scheme
+- The next version number is proposed per your scheme: computed from the current date for CalVer, and resolved by [release-drafter](https://github.com/release-drafter/release-drafter) (minor increment by default) for SemVer
+- The workflow reads the scheme from the `VORTEX_RELEASE_VERSION_SCHEME` **repository variable**, defaulting to `calver` when the variable is unset - set it in your repository settings to match your project's scheme, since the `.env` value does not drive this workflow
 - Release notes accumulate changes until the release is finalized
 - On release finish, you can use the draft to publish the final release notes

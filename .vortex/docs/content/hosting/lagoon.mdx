@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 # Lagoon
@@ -11,16 +11,19 @@ Kubernetes.
 For general Lagoon documentation, refer to the
 [Lagoon Documentation](https://docs.lagoon.sh/).
 
+This page covers how the site behaves once it runs on Lagoon. For how code gets
+there from CI, see [Lagoon deployment](../deployment/lagoon.mdx).
+
 ## Integration
 
-Vortex provides the following integration with Lagoon:
+**Vortex** provides the following integration with Lagoon:
 
 ### Tasks
 
-With Vortex, you can:
+With **Vortex**, you can:
 
 - **Fetch a database** from a Lagoon environment for local development or CI
-- **Trigger deployments** to Lagoon environments
+- **Trigger deployments** to Lagoon environments - see [Lagoon deployment](../deployment/lagoon.mdx)
 - **Run custom commands** on Lagoon environments
 
 When running these tasks, your `.env` and `.env.local` files are used as the
@@ -28,15 +31,14 @@ source for the project name and SSH configuration.
 
 ### Deployment automation
 
-When code is deployed, Vortex automatically:
+When code is deployed, **Vortex** automatically:
 
 1. **Provisions the site** - Runs database updates, imports configuration, clears caches
 2. **Sends notifications** - Notifies configured channels about the deployment
 
 This is implemented using post-rollout tasks defined in the
 [`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
-configuration file, which also defines Docker image mappings and
-environment-specific configurations.
+configuration file, which also defines per-environment cron jobs and routes.
 
 ### Environment detection
 
@@ -49,10 +51,10 @@ and environment variables provided by the platform.
 ## Onboarding
 
 Lagoon onboarding is part of the project setup flow. See
-[Set up integrations](/docs/installation?hosting-provider=lagoon#4-set-up-hosting)
+[Set up hosting](/docs/installation?hosting-provider=lagoon#4-set-up-hosting)
 in the Installation guide and select **Lagoon**.
 
-## Routine Operations
+## Routine operations
 
 ### Fetch database
 
@@ -91,3 +93,19 @@ always the fallback when no reusable dump is available. Force a new dump with:
 ```shell
 ahoy fetch-db --fresh
 ```
+
+### Run a custom task
+
+Run an arbitrary command in a Lagoon environment through the platform-agnostic
+task runner, which drives the Lagoon CLI:
+
+```shell
+VORTEX_PLATFORM=lagoon \
+VORTEX_TASK_CUSTOM_LAGOON_BRANCH=develop \
+VORTEX_TASK_CUSTOM_LAGOON_COMMAND="drush cron" \
+./vendor/bin/vortex-task custom
+```
+
+The task reads the project name and SSH configuration from your `.env` and
+`.env.local` files; `VORTEX_TASK_CUSTOM_LAGOON_BRANCH` selects the environment
+and `VORTEX_TASK_CUSTOM_LAGOON_COMMAND` is the command to run there.

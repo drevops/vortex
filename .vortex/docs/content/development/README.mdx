@@ -32,13 +32,13 @@ import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 ## Common commands
 
 The most common day-to-day commands. Each video is a live recording captured on
-a fresh **Vortex** project; re-record them with `ahoy update-videos`.
+a fresh **Vortex** project.
 
 ### Build the project
 
-```shell title="Build"
-ahoy build
-```
+`ahoy build` rebuilds the whole stack from scratch: it recreates the
+containers, installs the Composer and front-end dependencies, compiles the
+theme assets, and provisions the site from the database dump.
 
 <AsciinemaPlayer
   src="/img/build.json"
@@ -53,9 +53,9 @@ ahoy build
 
 ### Re-provision the site
 
-```shell title="Provision"
-ahoy provision
-```
+`ahoy provision` re-imports the database dump from `.data/db.sql` into the
+running stack and applies the provisioning steps: database updates,
+configuration import, cache rebuilds and deploy hooks.
 
 <AsciinemaPlayer
   src="/img/provision.json"
@@ -70,9 +70,9 @@ ahoy provision
 
 ### Run linters
 
-```shell title="Lint"
-ahoy lint
-```
+`ahoy lint` runs all the code quality checks: back-end (PHPCS, PHPStan,
+Rector), front-end (Twig CS Fixer, ESLint, Stylelint) and test linting
+(Gherkin Lint).
 
 <AsciinemaPlayer
   src="/img/lint.json"
@@ -87,9 +87,8 @@ ahoy lint
 
 ### Run unit, kernel and functional tests
 
-```shell title="Test"
-ahoy test
-```
+`ahoy test` runs all the PHPUnit test suites: unit, kernel, functional and
+functional JavaScript.
 
 <AsciinemaPlayer
   src="/img/test.json"
@@ -104,9 +103,8 @@ ahoy test
 
 ### Run BDD tests
 
-```shell title="Test BDD"
-ahoy test-bdd
-```
+`ahoy test-bdd` runs the Behat tests against the provisioned site, driving a
+real browser inside the container stack.
 
 <AsciinemaPlayer
   src="/img/test-bdd.json"
@@ -223,12 +221,13 @@ all containers and downloaded dependency packages (`vendor`, `node_modules` etc.
 To update environment variables in your local development environment:
 
 1. Edit variables in `.env.local` file
-2. Apply changes by restarting containers:
+2. Apply changes by re-creating the containers (a plain restart does not
+   re-read the `.env` files):
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    ahoy restart
+    ahoy up
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -238,36 +237,9 @@ To update environment variables in your local development environment:
   </TabItem>
 </Tabs>
 
-➡️ See [Variables](./variables.mdx) for comprehensive variable reference.
+➡️ See [Variables](variables.mdx) for the full variable reference.
 
-## Performance optimization
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    # Enable CSS/JS aggregation
-    ahoy drush config:set system.performance css.preprocess 1
-    ahoy drush config:set system.performance js.preprocess 1
-    # Clear render cache
-    ahoy drush cache:rebuild-external
-    # Check database updates needed
-    ahoy drush updatedb:status
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    # Enable CSS/JS aggregation
-    docker compose exec cli drush config:set system.performance css.preprocess 1
-    docker compose exec cli drush config:set system.performance js.preprocess 1
-    # Clear render cache
-    docker compose exec cli drush cache:rebuild-external
-    # Check database updates needed
-    docker compose exec cli drush updatedb:status
-    ```
-  </TabItem>
-</Tabs>
-
-## Common issues & solutions
+## Common issues and solutions
 
 ### Site not loading
 
@@ -293,14 +265,14 @@ To update environment variables in your local development environment:
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    docker compose ps      # Check if database container is running
-    ahoy reset             # Nuclear option: rebuild everything
+    docker compose ps      # Check if the database container is running
+    ahoy reset             # Last resort: rebuild everything
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose ps      # Check if database container is running
-    docker compose down --volumes && docker compose up -d  # Nuclear option
+    docker compose ps      # Check if the database container is running
+    docker compose down --volumes && docker compose up -d  # Last resort
     ```
   </TabItem>
 </Tabs>
@@ -312,39 +284,24 @@ To update environment variables in your local development environment:
 sudo chown -R $USER:$USER .
 ```
 
-### Memory issues during composer install
+## Reading logs
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    # Increase PHP memory temporarily
-    ahoy composer install --no-dev --optimize-autoloader
-    ```
-  </TabItem>
-  <TabItem value="docker-compose" label="Docker Compose">
-    ```shell
-    # Increase PHP memory temporarily
-    docker compose exec cli composer install --no-dev --optimize-autoloader
-    ```
-  </TabItem>
-</Tabs>
-
-## Log files
-
-<Tabs>
-  <TabItem value="ahoy" label="Ahoy" default>
-    ```shell
-    # View ahoy logs
+    # Show container logs
     ahoy logs
-    # Check container logs
-    docker compose logs --tail=50 cli
+    # Check recent logs of a single container
+    ahoy logs -- --tail=50 cli
     # View Drupal watchdog logs
     ahoy drush watchdog:show --count=20
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    # Check container logs
+    # Show container logs
+    docker compose logs
+    # Check recent logs of a single container
     docker compose logs --tail=50 cli
     # View Drupal watchdog logs
     docker compose exec cli drush watchdog:show --count=20
@@ -367,8 +324,13 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 | Topic | Description |
 |-------|-------------|
-| [Database](database) | Fetching, refreshing, and exporting databases |
-| [Composer](composer) | Managing packages, patching, security auditing |
-| [Debugging](debugging) | Xdebug, curl testing, container access |
-| [PHPUnit](phpunit) | Unit, Kernel, and Functional testing |
-| [Behat](behat) | Behavior-Driven Development (BDD) testing |
+| [Database](database.mdx) | Fetching, refreshing, and exporting databases |
+| [Composer](composer.mdx) | Managing packages, patching, security auditing |
+| [Debugging](debugging.mdx) | Xdebug, curl testing, container access |
+| [PHPUnit](phpunit.mdx) | Unit, kernel, and functional testing |
+| [Behat](behat.mdx) | Behavior-driven (BDD) testing |
+| [Jest](jest.mdx) | JavaScript unit testing |
+| [Visual regression](visual-regression.mdx) | Diffy-powered visual regression on deployments |
+| [AI](ai.mdx) | The AI agent configuration files |
+| [FAQs](faqs.mdx) | Answers to common operational questions |
+| [Variables](variables.mdx) | The full environment variable reference |

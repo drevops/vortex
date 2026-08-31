@@ -7,26 +7,28 @@ sidebar_position: 1
 
 **Vortex** provides the following Drupal features:
 
-1. [Composer configuration](composer-json)
-2. [Settings management](settings)
-3. [Provision script](provision)
-4. [Update hooks](update-hooks)
-5. [Migrations](migrations)
-6. [Module scaffold](module-scaffold)
-7. [Theme scaffold](theme-scaffold)
+| Topic | Description |
+|-------|-------------|
+| [composer.json](composer-json.mdx) | Every key of the root `composer.json`, with the full package tables |
+| [Settings](settings.mdx) | Environment type detection and per-module settings overrides |
+| [Provision](provision.mdx) | The provision script: database import, updates, config import, custom scripts |
+| [Update hooks](update-hooks.mdx) | The Drupal hook types that run during deployments |
+| [Migrations](migrations.mdx) | The optional second database powering Drupal migrations |
+| [Module scaffold](module-scaffold.mdx) | The `ys_base` example module and its siblings |
+| [Theme scaffold](theme-scaffold.mdx) | The `your_site_theme` example theme and its build system |
 
 ## Included modules
 
-Please note that **Vortex** is not a Drupal distribution, and it does not aim
-to provide a full Drupal installation profile or a set of recipes. Instead, it
-provides you with a minimal set of modules and dependencies to get you started.
+**Vortex** is not a Drupal distribution, and it does not aim to provide a full
+installation profile. It ships a minimal set of modules and dependencies to get
+you started - the only content model it carries is the small `recipes/page`
+recipe that the provisioning process applies to build the demo site. You would
+add more modules and themes once you finish the initial setup.
 
-You would need to add more modules and themes once you finish the initial setup.
+Every shipped module is listed in [Modules](modules.mdx), together with what it
+does and what configuration **Vortex** provides for it. 3 of them have a page
+of their own:
 
-Every shipped module is listed in [Modules](modules), together with what it
-does and what configuration **Vortex** provides for it. Three of them have a
-page of their own:
-
-- [Drupal helpers](drupal-helpers)
-- [Generated content](generated-content)
-- [Testmode](testmode)
+- [Drupal helpers](drupal-helpers.mdx) - utility facades for update hooks
+- [Generated content](generated-content.mdx) - plugin-based demo content generation
+- [Testmode](testmode.mdx) - content filtering during Behat test runs
