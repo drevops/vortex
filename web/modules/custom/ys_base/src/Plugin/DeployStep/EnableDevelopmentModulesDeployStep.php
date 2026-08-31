@@ -123,6 +123,18 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
     // phpcs:ignore #;< CUSTOM_MODULE_DEMO
     $this->moduleInstaller->install(['ys_demo']);
     // phpcs:ignore #;> CUSTOM_MODULE_DEMO
+
+    // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+    // The module creates its content while it installs, and only when
+    // GENERATED_CONTENT_CREATE is set, so it installs after the modules that
+    // supply the generated content plugins.
+    if (getenv('DRUPAL_GENERATED_CONTENT_SKIP') !== '1') {
+      putenv('GENERATED_CONTENT_CREATE=1');
+    }
+
+    $this->moduleInstaller->install(['generated_content']);
+    putenv('GENERATED_CONTENT_CREATE');
+    // phpcs:ignore #;> MODULE_GENERATED_CONTENT
   }
 
 }
