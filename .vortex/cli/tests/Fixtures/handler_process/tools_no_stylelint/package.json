@@ -1,25 +1,26 @@
 @@ -9,11 +9,9 @@
    },
    "scripts": {
-     "lint-js": "eslint web/modules/custom --ext .js --max-warnings=0 --no-error-on-unmatched-pattern",
+     "lint-js": "eslint web/modules/custom --max-warnings=0 --no-error-on-unmatched-pattern",
 -    "lint-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\"",
--    "lint": "yarn run lint-js && yarn run lint-css",
-+    "lint": "yarn run lint-js",
-     "lint-fix-js": "eslint web/modules/custom --ext .js --no-error-on-unmatched-pattern --fix",
+-    "lint": "npm run lint-js && npm run lint-css",
++    "lint": "npm run lint-js",
+     "lint-fix-js": "eslint web/modules/custom --no-error-on-unmatched-pattern --fix",
 -    "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" --fix",
--    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css",
-+    "lint-fix": "yarn run lint-fix-js",
+-    "lint-fix": "npm run lint-fix-js && npm run lint-fix-css",
++    "lint-fix": "npm run lint-fix-js",
      "test": "jest --coverage --passWithNoTests"
    },
    "devDependencies": {
-@@ -28,9 +26,6 @@
-     "eslint-plugin-no-jquery": "__VERSION__",
+@@ -30,10 +28,7 @@
      "eslint-plugin-prettier": "__VERSION__",
      "eslint-plugin-yml": "__VERSION__",
+     "globals": "__VERSION__",
 -    "prettier": "__VERSION__",
 -    "stylelint": "__VERSION__",
 -    "stylelint-config-standard": "__VERSION__",
 -    "stylelint-order": "__VERSION__"
 +    "prettier": "__VERSION__"
-   }
- }
+   },
+   "overrides": {
+     "test-exclude": "__VERSION__",

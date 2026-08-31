@@ -1,0 +1,25 @@
+@@ -22,11 +22,6 @@
+     "postcss-cli": "__VERSION__",
+     "prettier": "__VERSION__",
+     "sass": "__VERSION__",
+-    "stylelint": "__VERSION__",
+-    "stylelint-config-standard": "__VERSION__",
+-    "stylelint-config-standard-scss": "__VERSION__",
+-    "stylelint-order": "__VERSION__",
+-    "stylelint-scss": "__VERSION__",
+     "terser": "__VERSION__"
+   },
+   "browserslist": [
+@@ -42,10 +37,8 @@
+     "copy": "npm run copy:images && npm run copy:fonts",
+     "copy:fonts": "mkdir -p build/fonts && cp -r fonts/* build/fonts/ 2>/dev/null || true",
+     "copy:images": "mkdir -p build/images && cp -r images/* build/images/ 2>/dev/null || true",
+-    "lint": "npm run lint-js && npm run lint-css",
+-    "lint-css": "stylelint 'scss/**/*.scss'",
+-    "lint-css-fix": "stylelint 'scss/**/*.scss' --fix",
+-    "lint-fix": "npm run lint-js-fix && npm run lint-css-fix",
++    "lint": "npm run lint-js",
++    "lint-fix": "npm run lint-js-fix",
+     "lint-js": "eslint 'js/**/*.js' --ignore-pattern '*.min.js'",
+     "lint-js-fix": "eslint 'js/**/*.js' --ignore-pattern '*.min.js' --fix",
+     "postcss:dev": "postcss build/css/star_wars.min.css -o build/css/star_wars.min.css --map",

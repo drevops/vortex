@@ -1,6 +1,6 @@
 @@ -14,10 +14,6 @@
   * environments.
-  * @see https://www.vortextemplate.com/docs/drupal/settings
+  * @see https://www.vortextemplate.com/docs/development/settings
   *
 - * phpcs:disable Drupal.Commenting.InlineComment.NoSpaceBefore
 - * phpcs:disable Drupal.Commenting.InlineComment.SpacingAfter

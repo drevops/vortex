@@ -1,4 +1,4 @@
-@@ -192,29 +192,13 @@
+@@ -192,29 +192,11 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
@@ -17,9 +17,9 @@
      usage: Lint front-end code.
      cmd: |
 -      ahoy cli vendor/bin/twig-cs-fixer lint
--      ahoy cli "yarn run lint"
-       ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
- 
+-      ahoy cli "npm run lint"
+-      ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+-
 -  lint-tests:
 -    usage: Lint tests code.
 -    cmd: |
@@ -28,7 +28,7 @@
    lint-sdc:
      usage: Validate Single Directory Components (requires a provisioned site).
      cmd: |
-@@ -226,51 +210,12 @@
+@@ -226,52 +208,11 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
@@ -45,8 +45,8 @@
      usage: Fix lint issues of front-end code.
      cmd: |
 -      ahoy cli vendor/bin/twig-cs-fixer lint --fix
--      ahoy cli "yarn run lint-fix"
-       ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
+-      ahoy cli "npm run lint-fix"
+-      ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
 -
 -  test:
 -    usage: Run all PHPUnit tests.
@@ -71,12 +71,13 @@
 -
 -  test-js:
 -    usage: Run Jest JavaScript unit tests.
--    cmd: ahoy cli "yarn test"
+-    cmd: ahoy cli "npm test"
 -
 -  test-bdd:
 -    usage: Run BDD tests.
 -    aliases: [test-behat]
 -    cmd: ahoy cli php -d memory_limit=-1 vendor/bin/behat --colors "$@"
- 
+-
    debug:
      usage: Enable PHP Xdebug.
+     aliases: [xdebug]
