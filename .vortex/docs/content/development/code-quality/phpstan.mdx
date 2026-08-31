@@ -1,0 +1,107 @@
+---
+sidebar_label: PHPStan
+---
+
+# PHPStan - PHP static analysis tool
+
+https://phpstan.org/user-guide/getting-started
+
+> PHPStan focuses on finding errors in your code without actually running it.
+> It catches whole classes of bugs even before you write tests for the code.
+> It moves PHP closer to compiled languages in the sense that the correctness
+> of each line of the code can be checked before you run the actual line.
+
+**Vortex** comes with a [pre-configured PHPStan ruleset](https://github.com/drevops/vortex/blob/main/phpstan.neon)
+for Drupal projects.
+
+## Usage
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy lint-be
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/phpstan
+    ```
+  </TabItem>
+</Tabs>
+
+:::note
+
+PHPStan does not fix code. It only reports errors. To fix errors, use
+Rector.
+
+➡️ See [Rector](rector.mdx)
+
+:::
+
+## Configuration
+
+See [configuration reference](https://phpstan.org/config-reference).
+
+All global configuration takes place in
+the [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon)
+file.
+
+The analysis runs at [level 7](https://phpstan.org/user-guide/rule-levels)
+against the PHP version pinned in the `composer.json` key
+`config.platform.php`, and checks with the Drupal context in mind thanks to
+[mglaman/phpstan-drupal](https://github.com/mglaman/phpstan-drupal).
+
+Targets include custom modules and themes, settings, tests and scripts.
+
+Adding or removing targets:
+
+```yaml
+parameters:
+  paths:
+    - path/to/dir_or_file
+  excludePaths:
+    - path/to/exclude/all_dir_files/*
+    - path/to/exclude/a_file.php
+```
+
+## Ignoring
+
+Ignoring rules **globally** takes place in
+the [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon) file:
+
+```yaml
+parameters:
+  ignoreErrors:
+    - # Comment about why this rule is excluded.
+      # 'message' is a regular expression with `#` as begin and end delimiters.
+      message: '#.*no value type specified in iterable type array.#'
+      paths:
+        - path/to/exclude/all_dir_files/*
+        - path/to/exclude/a_file.php
+```
+
+PHPStan does not support ignoring all rules within a file, ignoring a specific
+rule within a file, or ignoring [code blocks](https://github.com/phpstan/phpstan/issues/4452) -
+inline suppression is per-line only.
+
+To ignore only the **next line**:
+
+```php
+// @phpstan-ignore-next-line
+$a = 1;
+```
+
+## Continuous integration
+
+PHPStan runs in the `lint` job of the [continuous integration pipeline](../../continuous-integration/README.mdx)
+and fails the build on violations.
+
+### Ignoring failures
+
+Set the `VORTEX_CI_PHPSTAN_IGNORE_FAILURE` environment variable to `1`. The
+tool still runs and reports violations.
+
+➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)

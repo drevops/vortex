@@ -1,6 +1,6 @@
 ---
 sidebar_label: AI
-sidebar_position: 9
+sidebar_position: 14
 ---
 
 # AI
@@ -52,3 +52,57 @@ Key sections include:
 The [`CLAUDE.md`](https://github.com/drevops/vortex/blob/main/CLAUDE.md) file
 is automatically loaded by Claude Code at the start of every session. It
 references `AGENTS.md` for the full development guide.
+
+### `.claude/settings.json`
+
+The [`.claude/settings.json`](https://github.com/drevops/vortex/blob/main/.claude/settings.json)
+file is a checked-in Claude Code settings file that pre-approves the stack
+commands, so an agent can build, provision, lint and test through `ahoy`
+without asking for confirmation on every call:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(ahoy:*)"
+    ],
+    "deny": []
+  }
+}
+```
+
+Personal, machine-local settings belong in `.claude/settings.local.json`,
+which is not tracked.
+
+## Custom skills
+
+Skills are reusable instruction sets that teach an agent a repeatable,
+project-specific task - for example, a release checklist or a legacy content
+import procedure.
+
+Add a skill by creating a `SKILL.md` file in its own directory under
+`.claude/skills/`:
+
+```text
+.claude/
+└── skills/
+    └── import-legacy-content/
+        └── SKILL.md
+```
+
+```markdown
+---
+name: import-legacy-content
+description: Use when importing legacy content from the CSV exports
+---
+
+Instructions the agent follows when the skill is invoked.
+```
+
+The shipped `.gitignore` ignores everything under `.claude/` except
+`settings.json`, so new skills stay local by default. To share skills with
+your team, un-ignore the directory in your `.gitignore`:
+
+```text
+!.claude/skills/
+```

@@ -3,6 +3,9 @@ sidebar_label: Overview
 sidebar_position: 1
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Continuous integration
 
 **Vortex** offers continuous integration configurations for [GitHub Actions](./github-actions.mdx)
@@ -42,7 +45,7 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Provisions a website
 - Runs PHPUnit and Jest tests (first container only)
 - Checks code coverage and posts a PR comment (first container only)
-- Runs BDD tests (distributed across all containers - see [Test parallelism](./parallelism.mdx))
+- Runs BDD tests (distributed across all containers - see [Test parallelism](#test-parallelism))
 - Collects and stores test results and artifacts
 
 ### 3. Build
@@ -74,7 +77,7 @@ The workflow runs the same 2 checks in both providers, and needs neither the
 application containers nor installed dependencies:
 
 - `composer audit --locked` checks the packages pinned in `composer.lock` against published security advisories
-- [Gitleaks](../tools/gitleaks.mdx) scans the codebase for committed secrets
+- [Gitleaks](../development/security/secret-scanning.mdx) scans the codebase for committed secrets
 
 Every check runs even if an earlier one failed, so a single run reports all the
 findings at once. The workflow fails if any of the checks failed, unless that
@@ -171,10 +174,10 @@ parallelism settings.
 
 | Task | First container | Other containers |
 |------|:---:|:---:|
-| Jest tests | ✓ | — |
-| PHPUnit tests | ✓ | — |
-| Code coverage check and PR comment | ✓ | — |
-| Single Directory Component validation | ✓ | — |
+| Jest tests | ✓ | - |
+| PHPUnit tests | ✓ | - |
+| Code coverage check and PR comment | ✓ | - |
+| Single Directory Component validation | ✓ | - |
 | Behat tests | ✓ (profile `p0`) | ✓ (profile `p1`, `p2`, ...) |
 
 Everything except Behat runs exclusively on the first container to avoid
@@ -321,8 +324,8 @@ container count itself, and a matching Behat profile for every new container.
 
 1. Increase the container count. See the provider-specific pages:
 
-   - [CircleCI — Change test parallelism](/docs/continuous-integration/circleci#change-test-parallelism)
-   - [GitHub Actions — Change test parallelism](/docs/continuous-integration/github-actions#change-test-parallelism)
+   - [GitHub Actions > Change test parallelism](./github-actions.mdx#change-test-parallelism)
+   - [CircleCI > Change test parallelism](./circleci.mdx#change-test-parallelism)
 
 2. Add a profile to `behat.yml` for each new container that runs Behat.
    **Vortex** ships with `p0` and `p1` only, and Behat fails with
@@ -354,6 +357,18 @@ Scenarios tagged `@smoke` run on every container by design, so they stay out of
 the balancing arithmetic.
 
 ## Maintenance
+
+### Pin SSH host keys
+
+Strict host-key checking is disabled by default for the SSH connections the
+pipeline makes to the hosting provider. To enable it, add the verified host
+keys as a `VORTEX_SSH_KNOWN_HOSTS` variable in your provider's settings - on
+GitHub Actions as a repository variable mapped into the workflow `env` block,
+on CircleCI as an environment variable with multiple entries joined with `\n`.
+The steps that load the SSH keys skip their `known_hosts` file by default; set
+the `VORTEX_FETCH_DB_SSH_KNOWN_HOSTS` (database fetch) and
+`VORTEX_DEPLOY_SSH_KNOWN_HOSTS` (deployment) variables to pin those host keys
+too.
 
 ### Enable debug mode
 
@@ -408,24 +423,24 @@ Sometimes you may want to allow builds to pass despite linter and test failures.
 Set the corresponding `VORTEX_CI_*_IGNORE_FAILURE` variable to `1` to ignore
 failures (but still run the tool and see the results in the logs):
 
-| Tool                                                | Purpose                                  | Variable                                      |
-|-----------------------------------------------------|------------------------------------------|-----------------------------------------------|
-| [Behat](../tools/behat.mdx)                   | Run BDD acceptance tests                 | `VORTEX_CI_BEHAT_IGNORE_FAILURE`              |
-| Composer normalize                                  | Ensure `composer.json` is sorted         | `VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE` |
-| Composer security audit                             | Check dependencies for vulnerabilities   | `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`     |
-| Composer validate                                   | Validate `composer.json` and lock file   | `VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE`  |
-| [DCLint](../tools/dclint.mdx)                       | Lint Docker Compose files                | `VORTEX_CI_DCLINT_IGNORE_FAILURE`             |
-| [ESLint](../tools/eslint.mdx) and Stylelint | Lint JavaScript and CSS  | `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE`        |
-| [Gherkin Lint](../tools/gherkin-lint.mdx)           | Lint Behat feature files                 | `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE`       |
-| [Gitleaks](../tools/gitleaks.mdx)                   | Scan the codebase for committed secrets  | `VORTEX_CI_GITLEAKS_IGNORE_FAILURE`           |
-| [Hadolint](../tools/hadolint.mdx)                   | Lint Dockerfiles for best practices      | `VORTEX_CI_HADOLINT_IGNORE_FAILURE`           |
-| [Jest](../tools/jest.mdx)                     | Run JavaScript unit tests                | `VORTEX_CI_JEST_IGNORE_FAILURE`               |
-| [PHPCS](../tools/phpcs.mdx)                         | Check PHP coding standards               | `VORTEX_CI_PHPCS_IGNORE_FAILURE`              |
-| [PHPStan](../tools/phpstan.mdx)                     | Static analysis for PHP                  | `VORTEX_CI_PHPSTAN_IGNORE_FAILURE`            |
-| [PHPUnit](../tools/phpunit.mdx)               | Run unit, kernel, and functional tests   | `VORTEX_CI_PHPUNIT_IGNORE_FAILURE`            |
-| [Rector](../tools/rector.mdx)                       | Check for automated refactoring rules    | `VORTEX_CI_RECTOR_IGNORE_FAILURE`             |
-| [SDC Devel](../drupal/theme-scaffold.mdx#single-directory-components)                 | Validate Single Directory Components     | `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE`          |
-| [Twig CS Fixer](../tools/twig-cs-fixer.mdx)         | Lint Twig templates                      | `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE`      |
+| Tool                                                          | Purpose                                 | Variable                                      |
+|---------------------------------------------------------------|-----------------------------------------|-----------------------------------------------|
+| [Behat](../development/testing/behat.mdx)                    | Run BDD acceptance tests                | `VORTEX_CI_BEHAT_IGNORE_FAILURE`              |
+| Composer normalize                                            | Ensure `composer.json` is sorted        | `VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE` |
+| [Composer security audit](../development/security/dependency-audit.mdx) | Check dependencies for vulnerabilities  | `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`     |
+| Composer validate                                             | Validate `composer.json` and lock file  | `VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE`  |
+| [DCLint](../development/code-quality/dclint.mdx)             | Lint Docker Compose files               | `VORTEX_CI_DCLINT_IGNORE_FAILURE`             |
+| [ESLint](../development/code-quality/eslint.mdx) and [Stylelint](../development/code-quality/stylelint.mdx) | Lint JavaScript and CSS | `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE` |
+| [Gherkin Lint](../development/code-quality/gherkin-lint.mdx) | Lint Behat feature files                | `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE`       |
+| [Gitleaks](../development/security/secret-scanning.mdx)      | Scan the codebase for committed secrets | `VORTEX_CI_GITLEAKS_IGNORE_FAILURE`           |
+| [Hadolint](../development/code-quality/hadolint.mdx)         | Lint Dockerfiles for best practices     | `VORTEX_CI_HADOLINT_IGNORE_FAILURE`           |
+| [Jest](../development/testing/jest.mdx)                      | Run JavaScript unit tests               | `VORTEX_CI_JEST_IGNORE_FAILURE`               |
+| [PHPCS](../development/code-quality/phpcs.mdx)               | Check PHP coding standards              | `VORTEX_CI_PHPCS_IGNORE_FAILURE`              |
+| [PHPStan](../development/code-quality/phpstan.mdx)           | Static analysis for PHP                 | `VORTEX_CI_PHPSTAN_IGNORE_FAILURE`            |
+| [PHPUnit](../development/testing/phpunit.mdx)                | Run unit, kernel, and functional tests  | `VORTEX_CI_PHPUNIT_IGNORE_FAILURE`            |
+| [Rector](../development/code-quality/rector.mdx)             | Check for automated refactoring rules   | `VORTEX_CI_RECTOR_IGNORE_FAILURE`             |
+| [SDC Devel](../development/code-quality/sdc-devel.mdx)       | Validate Single Directory Components    | `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE`          |
+| [Twig CS Fixer](../development/code-quality/twig-cs-fixer.mdx) | Lint Twig templates                   | `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE`      |
 
 ### Configure deployment skip conditions
 

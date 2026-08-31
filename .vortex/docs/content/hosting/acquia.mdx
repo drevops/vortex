@@ -75,7 +75,7 @@ three-tier priority:
 ## Onboarding
 
 Acquia onboarding is part of the project setup flow. See
-[Set up hosting](/docs/installation?hosting-provider=acquia#4-set-up-hosting)
+[Set up hosting](/docs/installation?hosting-provider=acquia#6-set-up-hosting)
 in the Installation guide and select **Acquia**.
 
 ## Routine operations
@@ -139,3 +139,9 @@ VORTEX_PLATFORM=acquia ./vendor/bin/vortex-task copy-db
 
 Each operation reads its configuration - application name, API credentials, and
 source and destination environments - from your `.env` and `.env.local` files.
+
+### Run Drush against remote environments
+
+To run Drush commands against Acquia environments, download your Drush aliases
+from the Acquia Cloud UI - see
+[Using Drush aliases](https://docs.acquia.com/acquia-cloud-platform/using-drush-aliases).

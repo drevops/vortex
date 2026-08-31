@@ -1,0 +1,38 @@
+---
+sidebar_label: Pygmy
+sidebar_position: 3
+---
+
+# Pygmy
+
+- https://pygmy.readthedocs.io/
+- https://github.com/pygmystack/pygmy
+
+> `pygmy` is the single tool needed to get the local amazee.io Docker Drupal
+> Development Environment running on your Linux based system. It is built to work
+> with Docker for Mac! (quite a lot for such a small whale 🐳)
+
+Pygmy provides the shared services the **Vortex** container stack relies on:
+
+- An HTTP reverse proxy for readable URLs and HTTPS offloading.
+- A DNS system, so services are addressed by name instead of IP address.
+- SSH agents, so SSH keys are available within containers.
+- A local mail catcher that receives and displays outgoing mail at http://mailhog.docker.amazee.io/.
+
+The `docker-compose.yml` shipped with **Vortex** attaches its services to the
+external `amazeeio-network` that Pygmy creates, so Pygmy must be running before
+`ahoy up` can start the stack - [`ahoy doctor`](doctor.mdx) checks for it.
+
+## Installation
+
+Follow the [official installation instructions](https://github.com/pygmystack/pygmy/tree/main#installation).
+
+## Usage
+
+```shell
+pygmy up       # Start the services. Required to run only once per system boot.
+pygmy down     # Stop the services.
+pygmy restart  # Restart the services.
+pygmy status   # Show the status of the services.
+pygmy clean    # Stop and remove all services. Useful if you have issues with pygmy.
+```
