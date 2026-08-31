@@ -16,7 +16,6 @@
 
 declare(strict_types=1);
 
-use DrupalFinder\DrupalFinderComposerRuntime;
 use DrupalRector\Set\DrupalSetProvider;
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
@@ -81,9 +80,9 @@ return RectorConfig::configure()
     '*/vendor/*',
     '*/node_modules/*',
   ])
-  // PHP version upgrade sets - modernizes syntax to PHP 8.4.
-  // Includes all rules from PHP 5.3 through 8.4.
-  ->withPhpSets(php84: TRUE)
+  // PHP version upgrade sets. Called without an argument, the target version
+  // comes from `composer.json`, so the sets follow the project's PHP version.
+  ->withPhpSets()
   // Behat attribute sets - converts annotations to PHP 8 attributes.
   ->withAttributesSets(behat: TRUE)
   // Code quality improvement sets.
@@ -95,39 +94,17 @@ return RectorConfig::configure()
     privatization: TRUE,
     typeDeclarations: TRUE,
   )
-  // Drupal-specific deprecation fixes. The provider binds each set to a
-  // `drupal/core` version and only the sets the installed core satisfies are
-  // loaded, so the set tracks core upgrades without changing this
-  // configuration. Both calls are required: the provider supplies the sets,
-  // `withComposerBased()` enables the group.
+  // Deprecation fixes for the installed versions of Drupal, Twig, PHPUnit and
+  // Symfony. Both calls are required: the provider supplies the sets,
+  // `withComposerBased()` enables the group. The Drupal sets carry the autoload
+  // paths and the file extensions Drupal executes PHP from, so this file
+  // declares neither.
   ->withSetProviders(DrupalSetProvider::class)
-  ->withComposerBased(drupal: TRUE)
+  ->withComposerBased(twig: TRUE, phpunit: TRUE, symfony: TRUE, drupal: TRUE)
   // Additional rules.
   ->withRules([
     DeclareStrictTypesRector::class,
     YieldDataProviderRector::class,
-  ])
-  // Configure Drupal autoloading.
-  ->withAutoloadPaths((function (): array {
-    $drupalFinder = new DrupalFinderComposerRuntime();
-    $drupalRoot = $drupalFinder->getDrupalRoot();
-
-    return [
-      $drupalRoot . '/core',
-      $drupalRoot . '/modules',
-      $drupalRoot . '/themes',
-      $drupalRoot . '/profiles',
-    ];
-  })())
-  // Drupal file extensions.
-  ->withFileExtensions([
-    'php',
-    'module',
-    'install',
-    'profile',
-    'theme',
-    'inc',
-    'engine',
   ])
   // Import configuration.
   ->withImportNames(importNames: FALSE, importDocBlockNames: FALSE);

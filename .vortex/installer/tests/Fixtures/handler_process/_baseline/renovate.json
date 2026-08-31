@@ -50,6 +50,18 @@
             "enabled": false
         },
         {
+            "groupName": "Rector - Held below __VERSION__ - Skipped to update manually",
+            "groupSlug": "php-rector",
+            "description": "Rector __VERSION__ disabled 'withSetProviders()' and prefixed 'DrupalRector\\Set\\DrupalSetList' during scoping, so neither route to the Drupal sets works. Tracked in https://github.com/drevops/vortex/issues/3070.",
+            "matchDepNames": [
+                "rector/rector"
+            ],
+            "matchManagers": [
+                "composer"
+            ],
+            "enabled": false
+        },
+        {
             "description": "Workaround for https://github.com/renovatebot/renovate/issues/24993: avoid bumping constraints with stability flags.",
             "matchManagers": [
                 "composer"
