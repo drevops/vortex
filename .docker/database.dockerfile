@@ -10,8 +10,9 @@ FROM ${IMAGE}
 
 # hadolint ignore=DL3066 # named account provided by the base image
 USER root
-COPY ./.docker/config/database/my.cnf /etc/my.cnf.d/server.cnf
-RUN fix-permissions /etc/my.cnf.d/
+COPY ./.docker/config/database/my.cnf /etc/mysql/conf.d/server.cnf
+# The entrypoint rewrites files in this directory before starting the server.
+RUN fix-permissions /etc/mysql/conf.d/
 
 # hadolint ignore=DL3064 # local development credentials only
 ENV MYSQL_DATABASE=drupal \
