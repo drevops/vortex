@@ -458,6 +458,48 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyLintBeRector(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    // Rector reports success when its rule sets load nothing, so a passing
+    // `ahoy lint-be` is not evidence that the Drupal rules ran. Seed a
+    // deprecation that only those rules rewrite: the run has to fail, and the
+    // failure has to name the rule that caught it, because an unrelated rule
+    // firing on this file would otherwise mask a set that stopped loading.
+    $this->logSubstep('Assert that the Drupal Rector rule sets are loaded');
+    $test_file = $webroot . '/modules/custom/sw_base/src/RectorCanary.php';
+    $canary = <<<'PHP'
+      <?php
+
+      declare(strict_types=1);
+
+      namespace Drupal\sw_base;
+
+      /**
+       * Holds a deprecated call for the Rector rule set assertion.
+       */
+      class RectorCanary {
+
+        /**
+         * Returns the maximum severity of the passed requirements.
+         */
+        public function severity(): int {
+          return drupal_requirements_severity([]);
+        }
+
+      }
+
+      PHP;
+    File::dump($test_file, $canary);
+    $this->syncToContainer($test_file);
+
+    $this->cmdFail('ahoy cli vendor/bin/rector --dry-run --clear-cache', ['* FunctionToStaticRector'], tio: 300, ito: 180, txt: '`rector` fails and names the rule that rewrote a deprecated Drupal call');
+
+    $this->removePathHostAndContainer($test_file);
+
+    $this->logStepFinish();
+  }
+
   protected function subtestAhoyLintFe(string $webroot = 'web'): void {
     $this->logStepStart();
 

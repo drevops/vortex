@@ -7,7 +7,7 @@
          "phpstan/phpstan": "__VERSION__",
 -        "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
-         "rector/rector": "__VERSION__",
+         "rector/rector": ">=__VERSION__ <__VERSION__",
          "softcreatr/jsonpath": "^0.10 || ^1.0",
 @@ -72,11 +70,6 @@
      ],

@@ -11,7 +11,7 @@
 -        "phpstan/phpstan": "__VERSION__",
          "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
-         "rector/rector": "__VERSION__",
+         "rector/rector": ">=__VERSION__ <__VERSION__",
 @@ -85,7 +82,6 @@
              "drupal/core-composer-scaffold": true,
              "ergebnis/composer-normalize": true,
