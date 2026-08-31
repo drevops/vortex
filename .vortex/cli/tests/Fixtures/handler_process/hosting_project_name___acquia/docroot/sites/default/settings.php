@@ -12,7 +12,7 @@
  * through environment variables and module-specific settings files instead.
  * This allows for better portability and easier management of settings across
  * environments.
- * @see https://www.vortextemplate.com/docs/drupal/settings
+ * @see https://www.vortextemplate.com/docs/development/settings
  *
  * phpcs:disable Drupal.Commenting.InlineComment.NoSpaceBefore
  * phpcs:disable Drupal.Commenting.InlineComment.SpacingAfter
@@ -25,7 +25,7 @@ declare(strict_types=1);
 ////////////////////////////////////////////////////////////////////////////////
 ///                               DATABASE                                   ///
 ////////////////////////////////////////////////////////////////////////////////
-// @see https://www.vortextemplate.com/docs/drupal/settings#database
+// @see https://www.vortextemplate.com/docs/development/settings#database
 
 $databases = [
   'default' =>
@@ -48,7 +48,7 @@ $databases = [
 ////////////////////////////////////////////////////////////////////////////////
 ///                               GENERAL                                    ///
 ////////////////////////////////////////////////////////////////////////////////
-// @see https://www.vortextemplate.com/docs/drupal/settings#general
+// @see https://www.vortextemplate.com/docs/development/settings#general
 
 $app_root ??= DRUPAL_ROOT;
 $site_path ??= 'sites/default';
@@ -100,7 +100,7 @@ $settings['entity_update_batch_size'] = 50;
 ////////////////////////////////////////////////////////////////////////////////
 ///                       ENVIRONMENT TYPE DETECTION                         ///
 ////////////////////////////////////////////////////////////////////////////////
-// @see https://www.vortextemplate.com/docs/drupal/settings#environment-type-detection
+// @see https://www.vortextemplate.com/docs/development/settings#environment-type-detection
 
 // Detect the environment type from the hosting platform and apply the
 // platform-related settings.
@@ -109,7 +109,7 @@ require $app_root . '/../vendor/drevops/environment-detector/environment.drupal.
 ////////////////////////////////////////////////////////////////////////////////
 ///                       PER-MODULE OVERRIDES                               ///
 ////////////////////////////////////////////////////////////////////////////////
-// @see https://www.vortextemplate.com/docs/drupal/settings#per-module-overrides
+// @see https://www.vortextemplate.com/docs/development/settings#per-module-overrides
 
 if (file_exists($app_root . '/' . $site_path . '/includes/modules')) {
   $files = glob($app_root . '/' . $site_path . '/includes/modules/settings.*.php');
@@ -123,7 +123,7 @@ if (file_exists($app_root . '/' . $site_path . '/includes/modules')) {
 ////////////////////////////////////////////////////////////////////////////////
 ///                          LOCAL OVERRIDE                                  ///
 ////////////////////////////////////////////////////////////////////////////////
-// @see https://www.vortextemplate.com/docs/drupal/settings#local-overrides
+// @see https://www.vortextemplate.com/docs/development/settings#local-overrides
 
 // Load local override configuration, if available.
 //

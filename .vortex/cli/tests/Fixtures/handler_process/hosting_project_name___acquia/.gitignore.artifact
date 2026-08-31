@@ -31,8 +31,6 @@ docroot/sites/simpletest
 /.docker
 /.dockerignore
 /.editorconfig
-/.eslintignore
-/.eslintrc.json
 /.gitattributes
 /.github
 /.gitignore.artifact
@@ -45,6 +43,7 @@ docroot/sites/simpletest
 /AGENTS.md
 /CLAUDE.md
 /docker-compose.yml
+/eslint.config.mjs
 /renovate.json
 
 # Database cache key files written into the workspace by the CI workflow.
@@ -76,18 +75,17 @@ docroot/sites/simpletest
 /package-lock.json
 /patches
 /patches.lock.json
-/yarn.lock
 docroot/themes/**/node_modules
 
 # Custom theme asset sources - only compiled assets in 'build' are deployed.
-docroot/themes/custom/star_wars/.eslintrc.json
+docroot/themes/custom/star_wars/eslint.config.mjs
 docroot/themes/custom/star_wars/fonts
 docroot/themes/custom/star_wars/images
 docroot/themes/custom/star_wars/js
 docroot/themes/custom/star_wars/package.json
+docroot/themes/custom/star_wars/package-lock.json
 docroot/themes/custom/star_wars/postcss.config.js
 docroot/themes/custom/star_wars/scss
-docroot/themes/custom/star_wars/yarn.lock
 
 # Caches, data, logs and temporary artifacts.
 .artifacts

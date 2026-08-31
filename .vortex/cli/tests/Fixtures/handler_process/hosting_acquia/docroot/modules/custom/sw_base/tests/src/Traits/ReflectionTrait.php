@@ -68,18 +68,18 @@ trait ReflectionTrait {
    * Get protected value from the object.
    *
    * @param object $object
-   *   Object to set the value on.
+   *   Object to get the value from.
    * @param string $property
    *   Property name to get the value. Property should exists in the object.
    *
    * @return mixed
    *   Protected property value.
    */
-  protected static function getProtectedValue($object, $property): mixed {
+  protected static function getProtectedValue(object $object, string $property): mixed {
     $class = new \ReflectionClass($object::class);
     $property = $class->getProperty($property);
 
-    return $property->getValue($class);
+    return $property->getValue($object);
   }
 
 }

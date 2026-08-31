@@ -50,9 +50,9 @@
  
    /**
 @@ -384,6 +428,349 @@
+     $settings['maintenance_theme'] = 'claro';
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';
-     $settings['suspend_mail_send'] = TRUE;
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
 +      '^127\.0\.0\.1$',
