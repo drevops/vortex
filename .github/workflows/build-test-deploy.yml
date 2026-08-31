@@ -375,7 +375,7 @@ jobs:
           #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
           if [ "${STRATEGY_JOB_TOTAL}" -gt 1 ] && [ "${STRATEGY_JOB_INDEX}" -ne 0 ]; then export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=0; fi
           #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
-          docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+          docker compose exec cli mkdir -p .data && docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql || true
           docker compose exec cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
           #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
           grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
@@ -384,7 +384,7 @@ jobs:
           #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
           if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/bin/vortex-push-db-image; fi
           #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
-          docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
+          docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
         timeout-minutes: 30
         #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
         env:
@@ -417,13 +417,13 @@ jobs:
           # container to avoid holding two copies for the rest of the job.
           if [ -f .data/db.sql ]; then
             docker compose exec cli mkdir -p .data
-            docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+            docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
             rm -f .data/db.sql
           fi
           #;< MIGRATION
           if [ -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" ]; then
             docker compose exec -T cli mkdir -p .data
-            docker compose cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
+            docker compose --progress quiet cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
             rm -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
           fi
           #;> MIGRATION
@@ -448,7 +448,7 @@ jobs:
         run: |
           mkdir -p ".logs"
           if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-             docker compose cp cli:/app/.logs/. ".logs/"
+             docker compose --progress quiet cp cli:/app/.logs/. ".logs/"
           fi
 
       - name: Extract code coverage
@@ -548,7 +548,7 @@ jobs:
         run: |
           mkdir -p ".logs"
           if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-             docker compose cp cli:/app/.logs/. ".logs/"
+             docker compose --progress quiet cp cli:/app/.logs/. ".logs/"
           fi
 
       - name: Upload test artifacts
@@ -646,7 +646,7 @@ jobs:
         if: ${{ contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         run: |
           mkdir -p "/tmp/workspace/code" "/tmp/artifacts"
-          docker compose cp -L cli:"/app/." "/tmp/workspace/code"
+          docker compose --progress quiet cp -L cli:"/app/." "/tmp/workspace/code"
           tar -C /tmp/workspace -cpf /tmp/artifacts/code.tar code
           du -sh "/tmp/artifacts"
 

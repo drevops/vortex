@@ -233,7 +233,7 @@ jobs:
             #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=0
             #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
-            docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+            docker compose exec cli mkdir -p .data && docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
             #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
@@ -242,7 +242,7 @@ jobs:
             #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
             if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/bin/vortex-push-db-image; fi
             #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
-            docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
+            docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 
       # Save the clean DB dump to the cache before the slow dev-dependency
@@ -296,13 +296,13 @@ jobs:
             # container to avoid holding two copies for the rest of the job.
             if [ -f .data/db.sql ]; then
               docker compose exec cli mkdir -p .data
-              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+              docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
               rm -f .data/db.sql
             fi
             #;< MIGRATION
             if [ -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" ]; then
               docker compose exec -T cli mkdir -p .data
-              docker compose cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
+              docker compose --progress quiet cp -L ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}" cli:"/app/.data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
               rm -f ".data/${VORTEX_FETCH_DB2_FILE:-db2.sql}"
             fi
             #;> MIGRATION
@@ -330,7 +330,7 @@ jobs:
             [ "${VORTEX_CI_IS_PHPUNIT_RUNNER:-1}" = "1" ] || exit 0
             mkdir -p "${VORTEX_CI_ARTIFACTS}"
             if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-               docker compose cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
+               docker compose --progress quiet cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
             fi
 
       - run:
@@ -405,9 +405,9 @@ jobs:
           command: |
             mkdir -p "${VORTEX_CI_TEST_RESULTS}" "${VORTEX_CI_ARTIFACTS}"
             if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
-               docker compose cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
+               docker compose --progress quiet cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
               if docker compose exec -T cli sh -c '[ -d /app/.logs/test_results/ ]'; then
-                 docker compose cp cli:/app/.logs/test_results/. "${VORTEX_CI_TEST_RESULTS}/"
+                 docker compose --progress quiet cp cli:/app/.logs/test_results/. "${VORTEX_CI_TEST_RESULTS}/"
               fi
             fi
           when: always
@@ -461,12 +461,12 @@ jobs:
           name: Export DB after fetch
           command: |
             [ ! -f /tmp/fetch-db-success ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
-            docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+            docker compose exec cli mkdir -p .data && docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
             ./vendor/bin/vortex-export-db db.sql
             if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/bin/vortex-push-db-image; fi
-            docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
+            docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 
   vortex-dev-didi-build-fi:
@@ -520,12 +520,12 @@ jobs:
           name: Export DB after fetch
           command: |
             [ ! -f /tmp/fetch-db-success ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
-            docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+            docker compose exec cli mkdir -p .data && docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
             ./vendor/bin/vortex-export-db db.sql
             if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/bin/vortex-push-db-image; fi
-            docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
+            docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 
   vortex-dev-didi-build-ii:
