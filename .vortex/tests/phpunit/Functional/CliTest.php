@@ -55,13 +55,13 @@ class CliTest extends FunctionalTestCase {
 
     $this->logSubstep('Adding new commits to Vortex');
 
-    File::append(static::$repo . '/docker-compose.yml', "\n# Update 1 to Vortex in docker-compose.yml");
-    File::append(static::$repo . '/web/themes/custom/your_site_theme/.eslintrc.json', "\n# Update 1 to Vortex in .eslintrc.json");
+    File::append(static::$repo . '/docker-compose.yml', "\n// Update 1 to Vortex in docker-compose.yml");
+    File::append(static::$repo . '/web/themes/custom/your_site_theme/eslint.config.mjs', "\n// Update 1 to Vortex in eslint.config.mjs");
     $latest_commit1 = $this->gitCommitAll(static::$repo, 'Added update 1 to Vortex');
     $this->logNote(sprintf('Update 1 Vortex version commit hash: %s', $latest_commit1));
 
-    File::append(static::$repo . '/docker-compose.yml', "\n# Update 2 to Vortex in docker-compose.yml");
-    File::append(static::$repo . '/web/themes/custom/your_site_theme/.eslintrc.json', "\n# Update 2 to Vortex in .eslintrc.json");
+    File::append(static::$repo . '/docker-compose.yml', "\n// Update 2 to Vortex in docker-compose.yml");
+    File::append(static::$repo . '/web/themes/custom/your_site_theme/eslint.config.mjs', "\n// Update 2 to Vortex in eslint.config.mjs");
     $latest_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
     $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_commit2));
 
@@ -81,10 +81,10 @@ class CliTest extends FunctionalTestCase {
     $this->assertCommonFilesPresent(vortex_version: 'develop');
 
     $this->logSubstep('Assert that committed files were updated');
-    $this->assertFileContainsString('docker-compose.yml', '# Update 1 to Vortex in docker-compose.yml', 'docker-compose.yml should contain update 1 changes');
-    $this->assertFileContainsString('docker-compose.yml', '# Update 2 to Vortex in docker-compose.yml', 'docker-compose.yml should contain update 2 changes');
-    $this->assertFileContainsString('web/themes/custom/star_wars/.eslintrc.json', '# Update 1 to Vortex in .eslintrc.json', 'Theme .eslintrc.json should contain update 1 changes');
-    $this->assertFileContainsString('web/themes/custom/star_wars/.eslintrc.json', '# Update 2 to Vortex in .eslintrc.json', 'Theme .eslintrc.json should contain update 2 changes');
+    $this->assertFileContainsString('docker-compose.yml', '// Update 1 to Vortex in docker-compose.yml', 'docker-compose.yml should contain update 1 changes');
+    $this->assertFileContainsString('docker-compose.yml', '// Update 2 to Vortex in docker-compose.yml', 'docker-compose.yml should contain update 2 changes');
+    $this->assertFileContainsString('web/themes/custom/star_wars/eslint.config.mjs', '// Update 1 to Vortex in eslint.config.mjs', 'Theme eslint.config.mjs should contain update 1 changes');
+    $this->assertFileContainsString('web/themes/custom/star_wars/eslint.config.mjs', '// Update 2 to Vortex in eslint.config.mjs', 'Theme eslint.config.mjs should contain update 2 changes');
 
     $this->logSubstep('Assert that new changes need to be manually resolved');
     $this->gitAssertNotClean(static::$sut, 'Git working tree should not be clean after Vortex update');
@@ -115,13 +115,13 @@ class CliTest extends FunctionalTestCase {
 
     $this->logSubstep('Adding new commits to Vortex');
 
-    File::append(static::$repo . '/docker-compose.yml', "\n# Update 1 to Vortex in docker-compose.yml");
-    File::append(static::$repo . '/web/themes/custom/your_site_theme/.eslintrc.json', "\n# Update 1 to Vortex in .eslintrc.json");
+    File::append(static::$repo . '/docker-compose.yml', "\n// Update 1 to Vortex in docker-compose.yml");
+    File::append(static::$repo . '/web/themes/custom/your_site_theme/eslint.config.mjs', "\n// Update 1 to Vortex in eslint.config.mjs");
     $latest_commit1 = $this->gitCommitAll(static::$repo, 'Added update 1 to Vortex');
     $this->logNote(sprintf('Update 1 Vortex version commit hash: %s', $latest_commit1));
 
-    File::append(static::$repo . '/docker-compose.yml', "\n# Update 2 to Vortex in docker-compose.yml");
-    File::append(static::$repo . '/web/themes/custom/your_site_theme/.eslintrc.json', "\n# Update 2 to Vortex in .eslintrc.json");
+    File::append(static::$repo . '/docker-compose.yml', "\n// Update 2 to Vortex in docker-compose.yml");
+    File::append(static::$repo . '/web/themes/custom/your_site_theme/eslint.config.mjs', "\n// Update 2 to Vortex in eslint.config.mjs");
     $latest_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
     $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_commit2));
 
@@ -139,10 +139,10 @@ class CliTest extends FunctionalTestCase {
     $this->assertCommonFilesPresent(vortex_version: $latest_commit1);
 
     $this->logSubstep('Assert that committed files were updated');
-    $this->assertFileContainsString('docker-compose.yml', '# Update 1 to Vortex in docker-compose.yml', 'docker-compose.yml should contain update 1 changes');
-    $this->assertFileNotContainsString('docker-compose.yml', '# Update 2 to Vortex in docker-compose.yml', 'docker-compose.yml should not contain update 2 changes');
-    $this->assertFileContainsString('web/themes/custom/star_wars/.eslintrc.json', '# Update 1 to Vortex in .eslintrc.json', 'Theme .eslintrc.json should contain update 1 changes');
-    $this->assertFileNotContainsString('web/themes/custom/star_wars/.eslintrc.json', '# Update 2 to Vortex in .eslintrc.json', 'Theme .eslintrc.json should not contain update 2 changes');
+    $this->assertFileContainsString('docker-compose.yml', '// Update 1 to Vortex in docker-compose.yml', 'docker-compose.yml should contain update 1 changes');
+    $this->assertFileNotContainsString('docker-compose.yml', '// Update 2 to Vortex in docker-compose.yml', 'docker-compose.yml should not contain update 2 changes');
+    $this->assertFileContainsString('web/themes/custom/star_wars/eslint.config.mjs', '// Update 1 to Vortex in eslint.config.mjs', 'Theme eslint.config.mjs should contain update 1 changes');
+    $this->assertFileNotContainsString('web/themes/custom/star_wars/eslint.config.mjs', '// Update 2 to Vortex in eslint.config.mjs', 'Theme eslint.config.mjs should not contain update 2 changes');
 
     $this->logSubstep('Assert that new changes need to be manually resolved');
     $this->gitAssertNotClean(static::$sut, 'Git working tree should not be clean after Vortex update');
