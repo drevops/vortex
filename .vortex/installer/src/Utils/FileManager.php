@@ -130,7 +130,9 @@ class FileManager {
 
       // The destination arrives from a CLI option, the environment or a config
       // file, so it is escaped rather than interpolated into the shell string.
-      $command = sprintf('git --work-tree=%s --git-dir=%s init > /dev/null', escapeshellarg($destination), escapeshellarg($destination . '/.git'));
+      // 'git init' writes the initial branch advice to stderr when
+      // 'init.defaultBranch' is unset, and passthru() draws it inside the TUI.
+      $command = sprintf('git -c advice.defaultBranchName=false --work-tree=%s --git-dir=%s init > /dev/null', escapeshellarg($destination), escapeshellarg($destination . '/.git'));
       passthru($command, $exit_code);
 
       if ($exit_code !== 0 || !File::exists($destination . '/.git')) {

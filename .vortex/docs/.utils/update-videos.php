@@ -486,4 +486,13 @@ function main(array $argv): int {
   return 0;
 }
 
-exit(main($argv));
+// A failure inside main() reports itself before it is thrown, so the message
+// alone is the whole error.
+try {
+  exit(main($argv));
+}
+catch (Throwable $exception) {
+  fwrite(STDERR, $exception->getMessage() . "\n");
+
+  exit(1);
+}
