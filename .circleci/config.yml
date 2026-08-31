@@ -214,7 +214,6 @@ jobs:
       - run:
           name: Lint module code with NodeJS linters
           command: docker compose exec -T cli bash -c "npm run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
-      #;> TOOL_ESLINT_STYLELINT
 
       #;< DRUPAL_THEME
       - run:
@@ -223,6 +222,7 @@ jobs:
             [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
             docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> DRUPAL_THEME
+      #;> TOOL_ESLINT_STYLELINT
 
   # Audit job runs in its own workflow, independently of the commit workflow.
   audit:
