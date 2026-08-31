@@ -1,0 +1,18 @@
+@@ -207,8 +207,6 @@
+     usage: Lint front-end code.
+     cmd: |
+       ahoy cli vendor/bin/twig-cs-fixer lint
+-      ahoy cli "npm run lint"
+-      ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+ 
+   lint-tests:
+     usage: Lint tests code.
+@@ -239,8 +237,6 @@
+     usage: Fix lint issues of front-end code.
+     cmd: |
+       ahoy cli vendor/bin/twig-cs-fixer lint --fix
+-      ahoy cli "npm run lint-fix"
+-      ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
+ 
+   test:
+     usage: Run all PHPUnit tests.

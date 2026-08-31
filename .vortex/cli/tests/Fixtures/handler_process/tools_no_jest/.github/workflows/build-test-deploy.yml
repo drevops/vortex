@@ -1,20 +1,28 @@
-@@ -290,7 +290,6 @@
+@@ -199,7 +199,6 @@
+       # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
+       VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
+       VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+-      VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+       # Runs on every instance, using the `p<instance index - offset>` profile.
+@@ -316,7 +315,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
--          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+-          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
  
        - name: Provision site
          run: |
-@@ -303,11 +302,6 @@
+@@ -329,11 +327,6 @@
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
 -
 -      - name: Test with Jest
--        if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
--        run: docker compose exec -T cli bash -c "yarn test"
+-        if: ${{ env.VORTEX_CI_IS_JEST_RUNNER == 'true' }}
+-        run: docker compose exec -T cli bash -c "npm test"
 -        continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
        - name: Test with PHPUnit
-         if: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
+         if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}

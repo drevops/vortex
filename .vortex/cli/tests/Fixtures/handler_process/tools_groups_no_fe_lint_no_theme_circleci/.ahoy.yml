@@ -15,25 +15,25 @@
 -    usage: Install front-end assets.
 -    aliases: [fe-install]
 -    cmd: |
--      ahoy cli "yarn install --frozen-lockfile"
--      ahoy cli "yarn --cwd=${WEBROOT}/themes/custom/${DRUPAL_THEME} install --frozen-lockfile"
+-      ahoy cli "npm ci"
+-      ahoy cli "npm --prefix=${WEBROOT}/themes/custom/${DRUPAL_THEME} ci"
 -
 -  fe:
 -    usage: Build front-end assets.
 -    aliases: [fe-build]
--    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && yarn run build"
+-    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build"
 -
 -  fed:
 -    usage: Build front-end assets for development.
 -    aliases: [fe-build-dev]
--    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && yarn run build-dev"
+-    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run build-dev"
 -
 -  few:
 -    usage: Watch front-end assets during development.
 -    aliases: [fe-watch]
 -    cmd: |
 -      ahoy cli "pkill -9 -f grunt" || true
--      ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && yarn run watch"
+-      ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run watch"
 -
    lint:
      usage: Lint back-end and front-end code.
@@ -42,8 +42,8 @@
      usage: Lint front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
--      ahoy cli "yarn run lint"
--      ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
+-      ahoy cli "npm run lint"
+-      ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
  
    lint-tests:
      usage: Lint tests code.
@@ -66,8 +66,8 @@
      usage: Fix lint issues of front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
--      ahoy cli "yarn run lint-fix"
--      ahoy cli "yarn run --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
+-      ahoy cli "npm run lint-fix"
+-      ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
  
    test:
      usage: Run all PHPUnit tests.
@@ -78,7 +78,7 @@
 -
 -  test-js:
 -    usage: Run Jest JavaScript unit tests.
--    cmd: ahoy cli "yarn test"
+-    cmd: ahoy cli "npm test"
  
    test-bdd:
      usage: Run BDD tests.
