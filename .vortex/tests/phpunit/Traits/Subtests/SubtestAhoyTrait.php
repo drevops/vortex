@@ -131,6 +131,47 @@ trait SubtestAhoyTrait {
       txt: '`ahoy cli` forwards a host ENVIRONMENT_TYPE into the container'
     );
 
+    // Prefixes are matched at the start of the name, so a host variable that
+    // merely contains one is not forwarded.
+    $this->cmdFail(
+      "ahoy cli 'printenv MY_DRUPAL_SECRET'",
+      '! unforwardedvar',
+      env: ['MY_DRUPAL_SECRET' => 'unforwardedvar'],
+      txt: '`ahoy cli` does not forward a host variable that contains an allowed prefix mid-name'
+    );
+
+    // 'LOCALDEV_URL' is matched in full: the exact name is forwarded, a name
+    // ending with it is not.
+    $this->cmdFail(
+      "ahoy cli 'printenv MY_LOCALDEV_URL'",
+      '! unforwardedvar',
+      env: ['MY_LOCALDEV_URL' => 'unforwardedvar'],
+      txt: '`ahoy cli` does not forward a host variable that ends with an allowed name'
+    );
+
+    $this->cmd(
+      "ahoy cli 'printenv LOCALDEV_URL'",
+      'anchoredlocaldevurl',
+      env: ['LOCALDEV_URL' => 'anchoredlocaldevurl'],
+      txt: '`ahoy cli` forwards an exact host LOCALDEV_URL into the container'
+    );
+
+    // 'TERM' is matched in full, so terminal variables built around it are not
+    // forwarded, while 'TERM' itself still is.
+    $this->cmdFail(
+      "ahoy cli 'printenv ITERM_PROFILE'",
+      '! unforwardedvar',
+      env: ['ITERM_PROFILE' => 'unforwardedvar'],
+      txt: '`ahoy cli` does not forward a host variable that contains TERM'
+    );
+
+    $this->cmd(
+      "ahoy cli 'printenv TERM'",
+      'anchoredtermvar',
+      env: ['TERM' => 'anchoredtermvar'],
+      txt: '`ahoy cli` forwards a host TERM into the container'
+    );
+
     $this->logStepFinish();
   }
 
