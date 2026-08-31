@@ -273,7 +273,14 @@ class Tools extends AbstractHandler {
   }
 
   protected function updateNpmManifest(string $manifest, callable $callback): void {
-    JsonManipulator::updateFile($manifest, $callback);
+    $json = JsonManipulator::fromFile($manifest);
+
+    if (!$json instanceof JsonManipulator) {
+      return;
+    }
+
+    $callback($json);
+    file_put_contents($manifest, $json->getContents());
 
     // A lock file that still lists the removed dependencies makes 'npm ci'
     // abort on the first build.
