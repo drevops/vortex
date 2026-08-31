@@ -226,12 +226,8 @@ describe('Drupal.behaviors.ysDemo', () => {
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
       const blocks = document.querySelectorAll('[data-the-force-demo-counter]');
-      expect(blocks[0].classList.contains('the-force-demo-counter-processed')).toBe(
-        true,
-      );
-      expect(blocks[1].classList.contains('the-force-demo-counter-processed')).toBe(
-        true,
-      );
+      expect(blocks[0].classList.contains('the-force-demo-counter-processed')).toBe(true);
+      expect(blocks[1].classList.contains('the-force-demo-counter-processed')).toBe(true);
     });
   });
 
