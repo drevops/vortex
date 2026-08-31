@@ -30,7 +30,7 @@ class ExportDbFileTest extends UnitTestCase {
 
     // Drush sql:dump.
     $this->mockPassthru([
-      'cmd' => './vendor/bin/drush -y sql:dump --skip-tables-key=common --structure-tables-list=\'cache*\' --result-file=' . escapeshellarg($dump_file_drush) . ' -q',
+      'cmd' => "./vendor/bin/drush -y sql:dump --skip-tables-key=common --structure-tables-list='cache*' --result-file=" . escapeshellarg($dump_file_drush) . ' -q',
       'result_code' => 0,
     ]);
 
@@ -52,7 +52,7 @@ class ExportDbFileTest extends UnitTestCase {
 
     // Drush sql:dump.
     $this->mockPassthru([
-      'cmd' => './vendor/bin/drush -y sql:dump --skip-tables-key=common --structure-tables-list=\'cache*\' --result-file=' . escapeshellarg($dump_file_drush) . ' -q',
+      'cmd' => "./vendor/bin/drush -y sql:dump --skip-tables-key=common --structure-tables-list='cache*' --result-file=" . escapeshellarg($dump_file_drush) . ' -q',
       'result_code' => 0,
     ]);
 
@@ -78,7 +78,7 @@ class ExportDbFileTest extends UnitTestCase {
 
     // Drush sql:dump succeeds but file not created.
     $this->mockPassthru([
-      'cmd' => './vendor/bin/drush -y sql:dump --skip-tables-key=common --structure-tables-list=\'cache*\' --result-file=' . escapeshellarg($dump_file_drush) . ' -q',
+      'cmd' => "./vendor/bin/drush -y sql:dump --skip-tables-key=common --structure-tables-list='cache*' --result-file=" . escapeshellarg($dump_file_drush) . ' -q',
       'result_code' => 0,
     ]);
 
@@ -96,7 +96,7 @@ class ExportDbFileTest extends UnitTestCase {
 
     // Drush sql:dump.
     $this->mockPassthru([
-      'cmd' => './vendor/bin/drush -y sql:dump --skip-tables-key=common --structure-tables-list=\'cache*\' --result-file=' . escapeshellarg($dump_file_drush) . ' -q',
+      'cmd' => "./vendor/bin/drush -y sql:dump --skip-tables-key=common --structure-tables-list='cache*' --result-file=" . escapeshellarg($dump_file_drush) . ' -q',
       'result_code' => 0,
     ]);
 
@@ -116,7 +116,7 @@ class ExportDbFileTest extends UnitTestCase {
     $dump_file_drush = $dump_file;
 
     $this->mockPassthru([
-      'cmd' => './vendor/bin/drush -y sql:dump --skip-tables-key=common --structure-tables-list=\'cache*\' --result-file=' . escapeshellarg($dump_file_drush) . ' -q',
+      'cmd' => "./vendor/bin/drush -y sql:dump --skip-tables-key=common --structure-tables-list='cache*' --result-file=" . escapeshellarg($dump_file_drush) . ' -q',
       'result_code' => 1,
     ]);
 
@@ -134,7 +134,7 @@ class ExportDbFileTest extends UnitTestCase {
     $dump_file_drush = $dump_file;
 
     $this->mockPassthru([
-      'cmd' => './vendor/bin/drush -y sql:dump --skip-tables-key=common --structure-tables-list=\'cache*\' --result-file=' . escapeshellarg($dump_file_drush) . ' -q',
+      'cmd' => "./vendor/bin/drush -y sql:dump --skip-tables-key=common --structure-tables-list='cache*' --result-file=" . escapeshellarg($dump_file_drush) . ' -q',
       'result_code' => 0,
     ]);
 
