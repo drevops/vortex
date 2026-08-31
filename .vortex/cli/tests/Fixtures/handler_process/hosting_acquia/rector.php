@@ -17,8 +17,8 @@
      RenameVariableToMatchNewTypeRector::class,
      SimplifyEmptyCheckOnEmptyArrayRector::class,
      StringClassNameToClassConstantRector::class => [
--      __DIR__ . '/web/sites/default/includes/**/*',
-+      __DIR__ . '/docroot/sites/default/includes/**/*',
+-      __DIR__ . '/web/sites/default/includes/*',
++      __DIR__ . '/docroot/sites/default/includes/*',
      ],
      // Directories to skip.
      '*/vendor/*',

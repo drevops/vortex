@@ -10,7 +10,6 @@ describe('Drupal.behaviors.ysDemo', () => {
     jest.spyOn(console, 'log').mockImplementation(() => {});
 
     jest.resetModules();
-    // eslint-disable-next-line global-require
     require('../sw_demo.js');
   });
 
@@ -152,9 +151,7 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const incrementBtn = document.querySelector(
-        '[data-counter-action="increment"]',
-      );
+      const incrementBtn = document.querySelector('[data-counter-action="increment"]');
       incrementBtn.click();
 
       const value = document.querySelector('[data-counter-value]');
@@ -165,9 +162,7 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const decrementBtn = document.querySelector(
-        '[data-counter-action="decrement"]',
-      );
+      const decrementBtn = document.querySelector('[data-counter-action="decrement"]');
       decrementBtn.click();
 
       const value = document.querySelector('[data-counter-value]');
@@ -178,9 +173,7 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const incrementBtn = document.querySelector(
-        '[data-counter-action="increment"]',
-      );
+      const incrementBtn = document.querySelector('[data-counter-action="increment"]');
       incrementBtn.click();
       incrementBtn.click();
       incrementBtn.click();
@@ -196,9 +189,7 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const incrementBtn = document.querySelector(
-        '[data-counter-action="increment"]',
-      );
+      const incrementBtn = document.querySelector('[data-counter-action="increment"]');
       incrementBtn.click();
       incrementBtn.click();
 
@@ -210,9 +201,7 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.initCounterBlock(document);
 
-      const incrementBtn = document.querySelector(
-        '[data-counter-action="increment"]',
-      );
+      const incrementBtn = document.querySelector('[data-counter-action="increment"]');
       incrementBtn.click();
 
       const value = document.querySelector('[data-counter-value]');
@@ -261,9 +250,7 @@ describe('Drupal.behaviors.ysDemo', () => {
       document.body.innerHTML = createCounterBlockHtml();
       Drupal.behaviors.ysDemo.attach(document);
 
-      const incrementBtn = document.querySelector(
-        '[data-counter-action="increment"]',
-      );
+      const incrementBtn = document.querySelector('[data-counter-action="increment"]');
       incrementBtn.click();
 
       const value = document.querySelector('[data-counter-value]');
