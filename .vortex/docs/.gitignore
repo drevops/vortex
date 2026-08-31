@@ -4,8 +4,10 @@
 # Production
 /build
 
-# Generated files
+# Generated files. `yarn start` writes to `.docusaurus-dev` so a concurrent
+# `yarn build` cannot overwrite the files the dev server compiles from.
 .docusaurus
+.docusaurus-dev
 .cache-loader
 
 # Assembled docs versions - created by the CI publish step (or a local
