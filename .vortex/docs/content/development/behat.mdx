@@ -104,6 +104,12 @@ tag never orphans a test.
 You can add more `p*` profiles in your `behat.yml` by copying the existing `p1`
 profile and changing several lines of configuration.
 
+Profile numbers count from the first runner that runs Behat: the CI
+configuration subtracts `VORTEX_CI_BEHAT_PROFILE_OFFSET` (`0` by default) from
+the runner index to pick the profile, so dedicating leading runners to other
+tools requires no profile renumbering or feature re-tagging. See
+[Test parallelism](../continuous-integration#giving-a-tool-its-own-container).
+
 If the pipeline has only one runner and `VORTEX_CI_BEHAT_PROFILE` is unset,
 the `default` profile is used and all tests run there except those tagged
 `@skipped`. An explicitly set `VORTEX_CI_BEHAT_PROFILE` stays active even on a
