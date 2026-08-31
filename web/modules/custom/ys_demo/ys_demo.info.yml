@@ -8,5 +8,4 @@ dependencies:
   - drupal:node
   - drupal:views
   - drupal_helpers:drupal_helpers
-  - generated_content:generated_content
   - testmode:testmode

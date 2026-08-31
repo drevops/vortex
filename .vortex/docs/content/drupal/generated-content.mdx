@@ -92,6 +92,12 @@ on module install. Optionally filter:
 GENERATED_CONTENT_ITEMS="taxonomy_term-tags,node-article"
 ```
 
+### Provisioning
+
+**Vortex** installs the module from the development modules deploy step in the `local`, `ci`, `dev` and `stage` environments, passing `GENERATED_CONTENT_CREATE=1` so the content is created as part of the install. Setting `DRUPAL_GENERATED_CONTENT_SKIP=1` installs the module without the content.
+
+➡️ See [Provision](provision)
+
 ## Example in Vortex
 
 The `ys_demo` module ships two generated content plugins:
