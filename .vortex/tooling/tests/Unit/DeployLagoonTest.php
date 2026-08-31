@@ -188,8 +188,14 @@ class DeployLagoonTest extends UnitTestCase {
     ]);
 
     $this->mockPassthru([
-      'cmd' => $this->getLagoonCommand("update variable --environment 'develop' --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"),
-      'output' => 'Variable updated',
+      'cmd' => $this->getLagoonCommand("list variables --environment 'develop' --reveal --output-json"),
+      'output' => '{"data":[{"name":"OTHER_VARIABLE","value":"other","scope":"global"}]}',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand("add variable --environment 'develop' --name VORTEX_PROVISION_OVERRIDE_DB --value '0' --scope global"),
+      'output' => 'Variable added',
       'result_code' => 0,
     ]);
 
@@ -199,11 +205,19 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand("delete variable --environment 'develop' --name VORTEX_PROVISION_OVERRIDE_DB"),
+      'output' => 'Variable deleted',
+      'result_code' => 0,
+    ]);
+
     $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Found already deployed environment for branch "develop".', $output);
-    $this->assertStringContainsString('Setting a database overwrite flag to 0.', $output);
+    $this->assertStringContainsString('No existing database import override flag found.', $output);
+    $this->assertStringContainsString('Adding a database import override flag with value 0.', $output);
     $this->assertStringContainsString('Redeploying environment: project test-project, branch: develop.', $output);
+    $this->assertStringContainsString('Removing a database import override flag.', $output);
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
@@ -246,13 +260,13 @@ class DeployLagoonTest extends UnitTestCase {
     ]);
 
     $this->mockPassthru([
-      'cmd' => $this->getLagoonCommand("update variable --environment 'develop' --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"),
-      'output' => 'Variable updated',
+      'cmd' => $this->getLagoonCommand("list variables --environment 'develop' --reveal --output-json"),
+      'output' => '{"data":[{"name":"VORTEX_PROVISION_OVERRIDE_DB","value":"0","scope":"build"}]}',
       'result_code' => 0,
     ]);
 
     $this->mockPassthru([
-      'cmd' => $this->getLagoonCommand("update variable --environment 'develop' --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global"),
+      'cmd' => $this->getLagoonCommand("update variable --environment 'develop' --name VORTEX_PROVISION_OVERRIDE_DB --value '1' --scope 'build'"),
       'output' => 'Variable updated',
       'result_code' => 0,
     ]);
@@ -264,16 +278,17 @@ class DeployLagoonTest extends UnitTestCase {
     ]);
 
     $this->mockPassthru([
-      'cmd' => $this->getLagoonCommand("update variable --environment 'develop' --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"),
+      'cmd' => $this->getLagoonCommand("update variable --environment 'develop' --name VORTEX_PROVISION_OVERRIDE_DB --value '0' --scope 'build'"),
       'output' => 'Variable updated',
       'result_code' => 0,
     ]);
 
     $output = $this->runScript('src/vortex-deploy-lagoon');
 
-    $this->assertStringContainsString('Adding a database import override flag for the current deployment.', $output);
+    $this->assertStringContainsString('Found an existing database import override flag with value "0" and scope "build".', $output);
+    $this->assertStringContainsString('Updating a database import override flag to 1.', $output);
     $this->assertStringContainsString('Waiting for deployment to be queued.', $output);
-    $this->assertStringContainsString('Removing a database import override flag for the current deployment.', $output);
+    $this->assertStringContainsString('Restoring a database import override flag to 0.', $output);
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
@@ -376,8 +391,14 @@ class DeployLagoonTest extends UnitTestCase {
     ]);
 
     $this->mockPassthru([
-      'cmd' => $this->getLagoonCommand("update variable --environment 'pr-123' --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"),
-      'output' => 'Variable updated',
+      'cmd' => $this->getLagoonCommand("list variables --environment 'pr-123' --reveal --output-json"),
+      'output' => '{"data":[]}',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand("add variable --environment 'pr-123' --name VORTEX_PROVISION_OVERRIDE_DB --value '0' --scope global"),
+      'output' => 'Variable added',
       'result_code' => 0,
     ]);
 
@@ -387,11 +408,19 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand("delete variable --environment 'pr-123' --name VORTEX_PROVISION_OVERRIDE_DB"),
+      'output' => 'Variable deleted',
+      'result_code' => 0,
+    ]);
+
     $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Found already deployed environment for PR "123".', $output);
-    $this->assertStringContainsString('Setting a database overwrite flag to 0.', $output);
+    $this->assertStringContainsString('No existing database import override flag found.', $output);
+    $this->assertStringContainsString('Adding a database import override flag with value 0.', $output);
     $this->assertStringContainsString('Redeploying environment: project test-project, PR: 123.', $output);
+    $this->assertStringContainsString('Removing a database import override flag.', $output);
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
@@ -680,16 +709,16 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Set DB overwrite flag to 0.
+    // Read the flag the environment already carries.
     $this->mockPassthru([
-      'cmd' => $this->getLagoonCommand("update variable --environment 'pr-123' --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"),
-      'output' => 'Variable updated',
+      'cmd' => $this->getLagoonCommand("list variables --environment 'pr-123' --reveal --output-json"),
+      'output' => '{"data":[{"name":"VORTEX_PROVISION_OVERRIDE_DB","value":"1","scope":"global"}]}',
       'result_code' => 0,
     ]);
 
-    // Set DB overwrite flag to 1 for this deployment.
+    // Borrow the flag for this deployment.
     $this->mockPassthru([
-      'cmd' => $this->getLagoonCommand("update variable --environment 'pr-123' --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global"),
+      'cmd' => $this->getLagoonCommand("update variable --environment 'pr-123' --name VORTEX_PROVISION_OVERRIDE_DB --value '1' --scope 'global'"),
       'output' => 'Variable updated',
       'result_code' => 0,
     ]);
@@ -701,9 +730,9 @@ class DeployLagoonTest extends UnitTestCase {
       'result_code' => 0,
     ]);
 
-    // Reset DB overwrite flag after deployment.
+    // Return the flag to the value it was discovered with.
     $this->mockPassthru([
-      'cmd' => $this->getLagoonCommand("update variable --environment 'pr-123' --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope global"),
+      'cmd' => $this->getLagoonCommand("update variable --environment 'pr-123' --name VORTEX_PROVISION_OVERRIDE_DB --value '1' --scope 'global'"),
       'output' => 'Variable updated',
       'result_code' => 0,
     ]);
@@ -711,10 +740,123 @@ class DeployLagoonTest extends UnitTestCase {
     $output = $this->runScript('src/vortex-deploy-lagoon');
 
     $this->assertStringContainsString('Found already deployed environment for PR "123".', $output);
-    $this->assertStringContainsString('Adding a database import override flag for the current deployment.', $output);
+    $this->assertStringContainsString('Found an existing database import override flag with value "1" and scope "global".', $output);
+    $this->assertStringContainsString('Updating a database import override flag to 1.', $output);
     $this->assertStringContainsString('Redeploying environment: project test-project, PR: 123.', $output);
     $this->assertStringContainsString('Waiting for deployment to be queued.', $output);
-    $this->assertStringContainsString('Removing a database import override flag for the current deployment.', $output);
+    $this->assertStringContainsString('Restoring a database import override flag to 1.', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
+  }
+
+  public function testRedeploymentWithUnreadableVariables(): void {
+    $this->createFakeLagoonBinary();
+
+    $this->mockQuit(0);
+
+    $this->expectException(QuitSuccessException::class);
+
+    $this->mockPassthru([
+      'cmd' => $this->getSetupSshPath(),
+      'output' => 'SSH setup complete',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonConfigAddCommand(),
+      'output' => 'Config added',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('list environments --output-json --pretty'),
+      'output' => '{"data":[{"name":"develop","deploytype":"branch"}]}',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand("list variables --environment 'develop' --reveal --output-json"),
+      'output' => 'Error: permission denied',
+      'result_code' => 1,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand("deploy latest --environment 'develop'"),
+      'output' => 'Deploy queued',
+      'result_code' => 0,
+    ]);
+
+    $output = $this->runScript('src/vortex-deploy-lagoon');
+
+    $this->assertStringContainsString('WARNING: Could not read environment variables.', $output);
+    $this->assertStringNotContainsString('Adding a database import override flag', $output);
+    $this->assertStringNotContainsString('Removing a database import override flag', $output);
+    $this->assertStringContainsString('Finished Lagoon deployment.', $output);
+  }
+
+  public function testRedeploymentWithMalformedVariables(): void {
+    $this->createFakeLagoonBinary();
+
+    $this->mockQuit(0);
+
+    $this->expectException(QuitSuccessException::class);
+
+    $this->mockPassthru([
+      'cmd' => $this->getSetupSshPath(),
+      'output' => 'SSH setup complete',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonConfigAddCommand(),
+      'output' => 'Config added',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getVersionCommand(),
+      'output' => 'v0.32.0',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('whoami'),
+      'output' => 'tester',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand('list environments --output-json --pretty'),
+      'output' => '{"data":[{"name":"develop","deploytype":"branch"}]}',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand("list variables --environment 'develop' --reveal --output-json"),
+      'output' => 'not json',
+      'result_code' => 0,
+    ]);
+
+    $this->mockPassthru([
+      'cmd' => $this->getLagoonCommand("deploy latest --environment 'develop'"),
+      'output' => 'Deploy queued',
+      'result_code' => 0,
+    ]);
+
+    $output = $this->runScript('src/vortex-deploy-lagoon');
+
+    $this->assertStringContainsString('WARNING: Could not read environment variables.', $output);
     $this->assertStringContainsString('Finished Lagoon deployment.', $output);
   }
 
