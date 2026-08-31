@@ -116,6 +116,14 @@ In continuous integration pipeline, screenshots are stored as build artifacts.
 In GitHub Actions, they can be downloaded from the `Summary` tab.
 In CircleCI they are accessible in the `Artifacts` tab.
 
+### Animated screenshots
+
+Per-step screenshots are combined into an animated GIF for each scenario, making a failing test easier to follow. This is enabled in `behat.yml` under the `animation` key of the `DrevOps\BehatScreenshotExtension` block.
+
+Animation forces a full-page capture after every passed step, so its cost grows with the number of steps and roughly doubles the wall time of a run. **Vortex** passes `BEHAT_SCREENSHOT_ANIMATION_SKIP=1` into the Behat step in continuous integration to skip animation there, while keeping it available for local runs where a recording is worth the wait.
+
+Set `animation.enabled` to `false` in `behat.yml` to disable animation everywhere, or tag an individual scenario or feature with `@screenshots:animated:skip` to exempt it.
+
 ## Format
 
 Out of the box, **Vortex** comes with [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail)
