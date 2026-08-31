@@ -168,9 +168,9 @@ jest.useRealTimers();
 
 ### ESLint compatibility
 
-The `.eslintrc.json` includes an override for `*.test.js` files that enables
-the `jest` environment and allows `global-require`. No additional ESLint
-configuration is needed for test files.
+The `eslint.config.mjs` includes an override for `*.test.js` files that adds the
+Jest globals and relaxes the nesting limit that test suites routinely exceed. No
+additional ESLint configuration is needed for test files.
 
 ### Boilerplate
 
