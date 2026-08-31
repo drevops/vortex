@@ -7,7 +7,7 @@
         "php": ">=8.4",
         "composer/installers": "^2.3",
         "cweagans/composer-patches": "^2.0",
-        "drevops/vortex-tooling": "~1.5.0",
+        "drevops/vortex-tooling": "~1.4.0",
         "drupal/clamav": "^2.1",
         "drupal/coffee": "^2.0.1",
         "drupal/config_split": "^2.0.2",
@@ -76,7 +76,7 @@
             "url": ".vortex/tooling",
             "options": {
                 "versions": {
-                    "drevops/vortex-tooling": "1.5.0"
+                    "drevops/vortex-tooling": "1.4.0"
                 }
             }
         }

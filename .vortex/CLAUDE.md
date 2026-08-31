@@ -96,7 +96,7 @@ pass "Disabled Search API Solr server."
 
 **Publishing**: the version is injected at publish time - never hardcode
 `version` in the package `composer.json`. The path repository in the template's
-root `composer.json` declares `"versions": {"drevops/vortex-tooling": "1.5.0"}`
+root `composer.json` declares `"versions": {"drevops/vortex-tooling": "1.4.0"}`
 so the in-repo copy resolves during development; the installer strips that entry
 from consumer sites so they resolve from Packagist.
 

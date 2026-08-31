@@ -85,7 +85,7 @@ echo "{\"require\":{\"drevops/vortex-tooling\":\"${version}\"}}" >vendor-temp/co
 # In dev mode the package is not yet on Packagist, so add a path repository
 # pointing at the in-tree copy. The installer strips this VORTEX_DEV-fenced
 # block from consumer sites.
-composer_run --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"1.5.0"}}}'
+composer_run --working-dir=vendor-temp config repositories.vortex-tooling --json '{"type":"path","url":"../.vortex/tooling","options":{"symlink":false,"versions":{"drevops/vortex-tooling":"1.4.0"}}}'
 #;> VORTEX_DEV
 
 # Carry over inline patches declared for our package, if any.
