@@ -20,8 +20,11 @@ require_once __DIR__ . '/VideoRecorder.php';
  *
  * Output is hardcoded to .vortex/docs/static/img/<name>.{json,svg,png,gif}.
  *
+ * Every cast is decoded to plain text at .artifacts/videos/<name>.txt and is
+ * not rendered when that text reports an error, a warning or a failure.
+ *
  * Usage:
- *   php update-videos.php                          # wipe + bootstrap + record all six
+ *   php update-videos.php                          # wipe + bootstrap + record all
  *   php update-videos.php lint provision           # wipe + bootstrap + record lint, provision
  *   php update-videos.php lint,test                # commas also accepted
  *   php update-videos.php --keep lint              # reuse workspace, record lint only
@@ -38,6 +41,15 @@ const ASPECT_RATIO = 2560 / 1600;
 const PROMPT_DELAY = 1;
 
 const WORKSPACE_REL = '.artifacts/tmp/videos-workspace';
+
+/**
+ * Where the plain text decoded from each cast is written.
+ *
+ * The output check reports line numbers against this text, so it is kept for
+ * inspection. It is working material and not a published artifact, so it lives
+ * outside the docs static directory.
+ */
+const TRANSCRIPT_REL = '.artifacts/videos';
 
 const COMPOSE_PROJECT = 'vortex_videos';
 
@@ -135,6 +147,10 @@ function usage(): void {
   fwrite(STDERR, "\n");
   fwrite(STDERR, "--keep reuses the existing workspace and skips the bootstrap. Requires the\n");
   fwrite(STDERR, "Docker stack to be running (the script probes and exits cleanly otherwise).\n");
+  fwrite(STDERR, "\n");
+  fwrite(STDERR, "Each recording is decoded to '.artifacts/videos/<name>.txt' and is not\n");
+  fwrite(STDERR, "rendered when that text reports an error, a warning or a failure. There is\n");
+  fwrite(STDERR, "no override: fix the command that emits the output and record again.\n");
   fwrite(STDERR, "\n");
   fwrite(STDERR, "Video names may be space or comma separated (lint test = lint,test).\n");
 }
@@ -285,6 +301,11 @@ function render_video(VideoRecorder $recorder, string $name, string $workspace, 
   if ((float) $cfg['speed'] !== 1.0) {
     $recorder->applyTimeScale($cast, 1.0 / (float) $cfg['speed']);
   }
+
+  // Decoded from the post-processed cast, so the transcript carries the
+  // anonymised paths and masked credentials rather than what was recorded.
+  $text = $recorder->writeTranscript($cast, $recorder->project_root . '/' . TRANSCRIPT_REL . "/$name.txt");
+  $recorder->assertNoIssues($name, $text);
 
   $recorder->renderSvg($cast, $docs_static_dir . "/$name.svg");
   $recorder->renderPng($cast, $docs_static_dir . "/$name.png", $cfg['poster_ms'] === NULL ? NULL : (int) $cfg['poster_ms']);
