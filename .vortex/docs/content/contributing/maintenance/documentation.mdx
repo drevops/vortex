@@ -75,6 +75,42 @@ The 6 terminal demo videos embedded in the docs are regenerated with
 `ahoy update-videos [names]` from `.vortex/` - see
 [Installer > Installer video](installer.mdx#installer-video) for the pipeline.
 
+### Combined site
+
+The published site serves two majors at once. The branch that ships the current
+major - selected by the `VORTEX_CURRENT_MAJOR` repository variable, default `1` -
+is snapshotted as the default version at `/docs`, and the other major's `{N}.x`
+branch content is served at `/docs/v{N}`.
+
+Each branch writes its content against the bare `/docs` mount, so an absolute
+link such as `/docs/tools/behat` points at the current major. When that content
+is assembled under `/docs/v{N}`, those links are re-pointed at the major they
+were written for, and a link that already names a version is left alone. Write
+links the way they read on their own branch.
+
+Static assets work the same way. Both majors record their own demo videos and
+diagrams under the same `static/img` names, so the other major's `static/` is
+served from `/v{N}` and its asset references are re-pointed to match. Each
+version therefore shows its own screenshots and recordings. Reference assets the
+way they read on their own branch, from the bare `/img`.
+
+To build and browse the combined site locally:
+
+```shell
+cd .vortex
+
+# Build both majors into 'docs_combined'. Fails on broken internal links.
+ahoy docs-combined
+
+# Serve the result on port 4000. Pass a port to override.
+ahoy docs-combined-serve
+```
+
+Everything the build writes stays inside `docs_combined`, a git-ignored copy of
+`docs` that is rebuilt from scratch on every run and safe to delete at any time.
+The tracked `docs` directory is only ever read, so `ahoy docs` and
+`ahoy build-docs` keep working on this branch's documentation alone.
+
 ### Publishing
 
 Automated continuous integration builds publish this documentation:

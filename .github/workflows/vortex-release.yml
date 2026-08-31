@@ -146,7 +146,6 @@ jobs:
 
     env:
       CURRENT_MAJOR: ${{ vars.VORTEX_CURRENT_MAJOR || '1' }}
-      OTHER_MAJOR: ${{ (vars.VORTEX_CURRENT_MAJOR || '1') == '1' && '2' || '1' }}
 
     steps:
       - name: Checkout code
@@ -214,23 +213,12 @@ jobs:
         run: yarn install --frozen-lockfile
         working-directory: .vortex/docs
 
-      # Assemble the multi-version site for production: snapshot this ref's docs
-      # as the current major (served at the bare '/docs') and pull the other
-      # major's '{N}.x' branch docs in at '/docs/v{other}'. All driven by
-      # 'VORTEX_CURRENT_MAJOR'. Mirrors the same step in 'vortex-test-docs.yml'
-      # (development / Netlify).
-      - name: Assemble versioned docs
-        run: |
-          yarn docusaurus docs:version "${CURRENT_MAJOR}.x"
-          git -C "${{ github.workspace }}" fetch origin "${OTHER_MAJOR}.x" --depth=1 || { echo "Failed to fetch the ${OTHER_MAJOR}.x branch."; exit 1; }
-          git -C "${{ github.workspace }}" rev-parse --verify "origin/${OTHER_MAJOR}.x" || { echo "The ${OTHER_MAJOR}.x branch does not exist."; exit 1; }
-          rm -rf content
-          git -C "${{ github.workspace }}" checkout "origin/${OTHER_MAJOR}.x" -- .vortex/docs/content || { echo "Failed to check out content from ${OTHER_MAJOR}.x."; exit 1; }
-        working-directory: .vortex/docs
-
-      - name: Build documentation site
-        run: yarn run build
-        working-directory: .vortex/docs
+      # Production (GitHub Pages) serves the same combined site that
+      # 'vortex-test-docs.yml' builds for development deploys and previews. The
+      # binaries copied above are picked up from 'docs/static'.
+      - name: Build the combined documentation site
+        run: ./docs/.utils/assemble-combined-docs.sh
+        working-directory: .vortex
         env:
           VORTEX_CURRENT_MAJOR: ${{ env.CURRENT_MAJOR }}
 
@@ -251,7 +239,7 @@ jobs:
       - name: Upload documentation site
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
-          path: .vortex/docs/build
+          path: .vortex/docs_combined/build
 
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5

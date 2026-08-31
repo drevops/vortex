@@ -35,6 +35,18 @@ commands:
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
       yarn --cwd=docs run build
 
+  docs-combined:
+    usage: Build the combined site serving both majors into the disposable 'docs_combined' directory.
+    cmd: ./docs/.utils/assemble-combined-docs.sh
+
+  docs-combined-serve:
+    usage: Serve the built combined site on port 4000. Pass a port as the first argument to override.
+    cmd: |
+      [ -d ./docs_combined/build ] || { echo "No combined site found. Run 'ahoy docs-combined' first."; exit 1; }
+      port="${1:-4000}"
+      echo "Serving the combined documentation site at http://localhost:${port}"
+      php -S "localhost:${port}" -t ./docs_combined/build ./docs/.utils/serve-router.php
+
   build-cli:
     name: Build the Vortex CLI PHAR.
     cmd: |
