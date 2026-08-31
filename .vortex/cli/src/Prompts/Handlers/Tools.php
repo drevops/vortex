@@ -312,16 +312,18 @@ class Tools extends AbstractHandler {
       self::ESLINT => [
         'title' => 'ESLint',
         'present' => fn(): mixed => File::contains($this->dstDir . '/package.json', '"eslint":') ||
-          File::exists($this->dstDir . '/.eslintrc.json'),
+          File::exists($this->dstDir . '/eslint.config.mjs'),
         'package.json' => function (JsonManipulator $pj): void {
+          $pj->removeSubNode('devDependencies', '@eslint/compat');
+          $pj->removeSubNode('devDependencies', '@eslint/js');
           $pj->removeSubNode('devDependencies', 'eslint');
-          $pj->removeSubNode('devDependencies', 'eslint-config-airbnb-base');
           $pj->removeSubNode('devDependencies', 'eslint-config-prettier');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-import');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-jsdoc');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-no-jquery');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-prettier');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-yml');
+          $pj->removeSubNode('devDependencies', 'globals');
           $pj->removeSubNode('devDependencies', 'prettier');
           $pj->removeSubNode('devDependencies', '@homer0/prettier-plugin-jsdoc');
           $pj->removeSubNode('scripts', 'lint-js');
@@ -329,7 +331,9 @@ class Tools extends AbstractHandler {
           $pj->addSubNode('scripts', 'lint', 'npm run lint-css');
           $pj->addSubNode('scripts', 'lint-fix', 'npm run lint-fix-css');
         },
-        'files' => ['.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore'],
+        // A project created before the move to flat config still carries the
+        // legacy files, which linger unread once the tool is deselected.
+        'files' => ['eslint.config.mjs', '.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore'],
       ],
 
       self::STYLELINT => [

@@ -38,7 +38,7 @@ function fallbackCopy(text) {
 
   try {
     ok = document.execCommand('copy');
-  } catch (e) {
+  } catch {
     ok = false;
   }
 
