@@ -98,8 +98,52 @@ populate() {
   }
 }
 
-rm -rf "${COMBINED_DIR}"
-mkdir -p "${COMBINED_DIR}"
+##
+# Materialise the repository files a major's documentation reads verbatim.
+#
+# A page pulls a shipped file in with '!!raw-loader!@site/../../<path>', which
+# resolves against the checkout the build runs in rather than the branch the
+# page came from. The two majors do not ship the same files, so each major's
+# targets are extracted from its own ref and the imports are re-pointed at
+# those copies.
+#
+# $1 - directory holding the major's documentation.
+# $2 - git ref the documentation came from, or empty to read this checkout.
+# $3 - subdirectory of the combined site to hold the extracted files.
+##
+externalise() {
+  local dir="${1}"
+  local ref="${2}"
+  local tag="${3}"
+  local target="${COMBINED_DIR}/_external/${tag}"
+
+  local paths
+  paths="$(grep -rhoE "raw-loader!@site/\.\./\.\./[^']+" "${dir}" 2>/dev/null | sed -E 's%raw-loader!@site/\.\./\.\./%%' | sort -u)"
+
+  [ -n "${paths}" ] || return 0
+
+  mkdir -p "${target}"
+
+  local path
+  while IFS= read -r path; do
+    [ -n "${path}" ] || continue
+
+    mkdir -p "${target}/$(dirname "${path}")"
+
+    if [ -z "${ref}" ]; then
+      cp "${ROOT_DIR}/${path}" "${target}/${path}"
+    else
+      git -C "${ROOT_DIR}" show "${ref}:${path}" >"${target}/${path}"
+    fi
+  done <<EOF
+${paths}
+EOF
+
+  find "${dir}" -type f \( -name '*.md' -o -name '*.mdx' \) -exec \
+    sed -E "${sed_opts[@]}" "s%raw-loader!@site/\.\./\.\./%raw-loader!@site/_external/${tag}/%g" {} +
+}
+
+rm -rf "${COMBINED_DIR}"mkdir -p "${COMBINED_DIR}"
 
 # The combined site is a copy of this one, so it builds with the same config,
 # components and sidebars. Generated and installed directories are excluded and
@@ -117,6 +161,7 @@ yarn --cwd="${COMBINED_DIR}" install --frozen-lockfile
 # Snapshot the current major, whose assets stay at the bare static root.
 populate "${COMBINED_DIR}/content" content "${default_ref}"
 populate "${COMBINED_DIR}/static" static "${default_ref}"
+externalise "${COMBINED_DIR}/content" "${default_ref}" "v${VORTEX_CURRENT_MAJOR}"
 
 # 'VORTEX_DOCS_COMBINED' stays unset here: the snapshot the combined config
 # expects does not exist until this command creates it.
@@ -136,6 +181,7 @@ staged_other_install="${DOCS_DIR}/static/v${other_major}/install"
 
 populate "${COMBINED_DIR}/content" content "${other_ref}"
 populate "${other_static_dir}" static "${other_ref}"
+externalise "${COMBINED_DIR}/content" "${other_ref}" "v${other_major}"
 
 [ -z "${staged_other_install}" ] || cp "${staged_other_install}" "${other_static_dir}/install"
 
