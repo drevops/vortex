@@ -108,13 +108,24 @@ Add the `@skipped` tag to a feature or scenario to exclude it from the test run.
 
 **Vortex** provides BDD [tests boilerplate](https://github.com/drevops/vortex/blob/main/tests/behat/features)
 covering core user journeys ([homepage](https://github.com/drevops/vortex/blob/main/tests/behat/features/homepage.feature),
-[login](https://github.com/drevops/vortex/blob/main/tests/behat/features/login.feature), search)
+[login](https://github.com/drevops/vortex/blob/main/tests/behat/features/login.feature),
+[password reset](https://github.com/drevops/vortex/blob/main/tests/behat/features/password_reset.feature), search)
 and the shipped module integrations (Redis, ClamAV, redirects, `robots.txt`,
 XML sitemap, accessibility). The homepage and login features are tagged
 `@smoke`.
 
 These boilerplate tests run in the continuous integration pipeline when you
 install **Vortex** and can be used as a starting point for writing your own.
+
+### Email
+
+Tag a scenario `@email` to capture outgoing messages instead of delivering them, then assert on their recipients and content with the steps from [`EmailTrait`](https://github.com/drevops/behat-steps/blob/main/src/Drupal/EmailTrait.php). The [password reset feature](https://github.com/drevops/vortex/blob/main/tests/behat/features/password_reset.feature) can be used as a starting point.
+
+In the `ci` environment, [`settings.system.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.system.php) makes the same mail collector the default backend for every message, so an automated test run cannot deliver a message to a real recipient even when a scenario is not tagged. The collector is set as a settings override rather than as stored configuration, so nothing running inside the site can switch the collector off. [Reroute Email](../modules/contributed-modules.mdx#reroute-email) is disabled in `ci` so that each stored message keeps its intended recipient, rather than the rerouting address.
+
+The collector covers `interface.default`, which is the only interface the shipped configuration defines. A site that routes a module through its own interface (`interface.<module>` or `interface.<module>_<key>`, as [Symfony Mailer](https://www.drupal.org/project/symfony_mailer) and [Mail System](https://www.drupal.org/project/mailsystem) do) bypasses the collector for those messages, so `docker-compose.yml` also points `SSMTP_MAILHUB` at a closed port in CI. Delivery then fails at the transport no matter which mail plugin produced the message.
+
+The bare `When I clear the test email system queue` step still requires the `@email` tag, and each tagged scenario clears the queue as it starts.
 
 ### Project conventions
 

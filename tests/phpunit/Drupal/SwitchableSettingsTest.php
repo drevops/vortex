@@ -986,6 +986,77 @@ class SwitchableSettingsTest extends SettingsTestCase {
   // phpcs:ignore #;> MODULE_STAGE_FILE_PROXY
 
   /**
+   * Test mail collector config.
+   */
+  #[DataProvider('dataProviderMailCollector')]
+  public function testMailCollector(string $env, array $expected_present, array $expected_absent = []): void {
+    $this->setEnvVars(['ENVIRONMENT_TYPE' => $env]);
+
+    $this->requireSettingsFile();
+
+    $this->assertConfigContains($expected_present);
+    $this->assertConfigNotContains($expected_absent);
+  }
+
+  /**
+   * Data provider for testMailCollector().
+   */
+  public static function dataProviderMailCollector(): \Iterator {
+    // CI: messages are collected instead of being handed to the transport.
+    yield [
+      self::ENVIRONMENT_CI,
+      [
+        'system.mail' => ['interface' => ['default' => 'test_mail_collector']],
+      ],
+    ];
+
+    // Local: the mail catcher of the local stack receives the message.
+    yield [
+      self::ENVIRONMENT_LOCAL,
+      [],
+      [
+        'system.mail' => ['interface' => ['default' => 'test_mail_collector']],
+      ],
+    ];
+
+    // Dev: rerouted, then delivered to the rerouting address.
+    yield [
+      self::ENVIRONMENT_DEV,
+      [],
+      [
+        'system.mail' => ['interface' => ['default' => 'test_mail_collector']],
+      ],
+    ];
+
+    // SUT: a custom environment is rerouted, not collected.
+    yield [
+      self::ENVIRONMENT_SUT,
+      [],
+      [
+        'system.mail' => ['interface' => ['default' => 'test_mail_collector']],
+      ],
+    ];
+
+    // Stage: delivered to the original recipients.
+    yield [
+      self::ENVIRONMENT_STAGE,
+      [],
+      [
+        'system.mail' => ['interface' => ['default' => 'test_mail_collector']],
+      ],
+    ];
+
+    // Prod: delivered to the original recipients.
+    yield [
+      self::ENVIRONMENT_PROD,
+      [],
+      [
+        'system.mail' => ['interface' => ['default' => 'test_mail_collector']],
+      ],
+    ];
+  }
+
+  /**
    * Test trusted host patterns settings.
    */
   #[DataProvider('dataProviderTrustedHostPatterns')]

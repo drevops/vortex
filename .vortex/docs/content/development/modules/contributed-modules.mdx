@@ -170,18 +170,24 @@ tested.
 
 [`settings.reroute_email.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.reroute_email.php) enables rerouting in every environment except `local`, `ci`, `stage` and `prod`.
 
+Rerouting replaces the recipient of an outgoing message with the configured address, unless that recipient matches `DRUPAL_REROUTE_EMAIL_ALLOWED`. With rerouting disabled, every message reaches its intended recipient. Rerouting is therefore disabled only where that delivery is either wanted or already intercepted by other means.
+
 **Environment behavior:**
 
-| Environment | Rerouting enabled | Reason                                                        |
-|-------------|-------------------|---------------------------------------------------------------|
-| Local       | No                | Emails are typically not sent in local development            |
-| CI          | No                | Automated tests do not send real emails                       |
-| Dev         | **Yes**           | Prevents accidental delivery to real users                    |
-| Stage       | No                | Stage may require real email delivery for UAT                 |
-| Prod        | No                | Production emails must reach actual recipients                |
+| Environment | Rerouting enabled | Reason                                                          |
+|-------------|-------------------|-----------------------------------------------------------------|
+| Local       | No                | [Pygmy](../environment/pygmy.mdx) already catches outgoing mail  |
+| CI          | No                | The [mail collector](../testing/behat.mdx#email) stores messages instead of sending them |
+| Dev         | **Yes**           | Prevents accidental delivery to real users                      |
+| Stage       | No                | Stage may require real email delivery for UAT                   |
+| Prod        | No                | Production emails must reach actual recipients                  |
 
 Rerouting is also enabled in any custom environments (e.g., PR environments)
 that do not match the standard environment types listed above.
+
+Rerouting is off in `ci` so that tests can assert on the address a message was sent to. With rerouting on, every message would carry the rerouting address instead of the intended one.
+
+A site that deselects this module during [installation](../../installation.mdx) still sends no mail from `ci`, because the mail collector stores messages there regardless. That site does send mail to real recipients in `dev` and in custom environments.
 
 **Environment variables:**
 
