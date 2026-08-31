@@ -111,6 +111,11 @@ It handles:
 - Corruption detection (probes for a known table to verify the database)
 - Running Drupal migrations via `drush migrate:import` (in a memory-bounded, resumable subprocess)
 - Optional rollback before import
+- Disabling the Solr search server while the migrations run
+
+On projects with the Solr service, the plugin disables the search server before the migrations and enables it again afterward, so migrated entities are not indexed one at a time. The `RebuildSearchIndex` deploy step rebuilds the index straight after.
+
+Set `DRUPAL_MIGRATION_SEARCH_DISABLE=0` to leave the search server running and index entities as they are migrated.
 
 ### Configuration variables
 
@@ -125,6 +130,7 @@ The plugin reads these environment variables (via `getenv()`):
 | `DRUPAL_MIGRATION_FEEDBACK` | `50` | Progress feedback frequency |
 | `DRUPAL_MIGRATION_SOURCE_DB_IMPORT` | `$VORTEX_PROVISION_OVERRIDE_DB` | Import source database (`1` to import, `0` to skip) |
 | `DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE` | `categories` | Table name to probe for corruption detection |
+| `DRUPAL_MIGRATION_SEARCH_DISABLE` | `1` | Disable the Solr search server while migrations run (`0` to keep indexing) |
 
 ### Adding migrations
 
