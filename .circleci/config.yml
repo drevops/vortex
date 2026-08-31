@@ -173,7 +173,7 @@ jobs:
               if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
             #;< TOOL_ESLINT_STYLELINT
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
             #;> TOOL_ESLINT_STYLELINT
 
       - run:
@@ -213,7 +213,7 @@ jobs:
       #;< TOOL_ESLINT_STYLELINT
       - run:
           name: Lint module code with NodeJS linters
-          command: docker compose exec -T cli bash -c "yarn run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: docker compose exec -T cli bash -c "npm run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> TOOL_ESLINT_STYLELINT
 
       #;< DRUPAL_THEME
@@ -221,7 +221,7 @@ jobs:
           name: Lint theme code with NodeJS linters
           command: |
             [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
-            docker compose exec -T cli bash -c "yarn --cwd=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+            docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> DRUPAL_THEME
 
   # Audit job runs in its own workflow, independently of the commit workflow.
@@ -429,7 +429,7 @@ jobs:
               if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
             #;< TOOL_JEST
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "yarn install --frozen-lockfile"
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
             #;> TOOL_JEST
 
       - run:
@@ -457,7 +457,7 @@ jobs:
           name: Test with Jest
           command: |
             [ "${VORTEX_CI_IS_JEST_RUNNER:-1}" = "1" ] || exit 0
-            docker compose exec -T cli bash -c "yarn test" || [ "${VORTEX_CI_JEST_IGNORE_FAILURE:-0}" -eq 1 ]
+            docker compose exec -T cli bash -c "npm test" || [ "${VORTEX_CI_JEST_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> TOOL_JEST
 
       #;< TOOL_PHPUNIT

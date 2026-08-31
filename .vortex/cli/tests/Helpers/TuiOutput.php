@@ -11,7 +11,7 @@ class TuiOutput {
 
   const BUILD_ASSEMBLE_COMPOSER = 'Downloading drupal/core';
 
-  const BUILD_ASSEMBLE_YARN = 'yarn install';
+  const BUILD_ASSEMBLE_NPM = 'npm ci';
 
   const BUILD_PROVISION_START = '[INFO] Started site provisioning.';
 
@@ -212,7 +212,7 @@ class TuiOutput {
       self::echo([
         self::BUILD_ASSEMBLE_DOCKER,
         self::BUILD_ASSEMBLE_COMPOSER,
-        self::BUILD_ASSEMBLE_YARN,
+        self::BUILD_ASSEMBLE_NPM,
         self::BUILD_PROVISION_START,
         self::BUILD_PROVISION_PROJECT_INFO,
         self::BUILD_PROVISION_TYPE_DB,
@@ -235,7 +235,7 @@ class TuiOutput {
       self::echo([
         self::BUILD_ASSEMBLE_DOCKER,
         self::BUILD_ASSEMBLE_COMPOSER,
-        self::BUILD_ASSEMBLE_YARN,
+        self::BUILD_ASSEMBLE_NPM,
         self::BUILD_PROVISION_START,
         self::BUILD_PROVISION_PROJECT_INFO,
         self::BUILD_PROVISION_TYPE_PROFILE,
@@ -258,7 +258,7 @@ class TuiOutput {
       self::echo([
         self::BUILD_ASSEMBLE_DOCKER,
         self::BUILD_ASSEMBLE_COMPOSER,
-        self::BUILD_ASSEMBLE_YARN,
+        self::BUILD_ASSEMBLE_NPM,
         self::BUILD_PROVISION_START,
       ]);
       return RunnerInterface::EXIT_FAILURE;

@@ -44,25 +44,25 @@ with Autoprefixer, [Terser](https://terser.org/) and
 cd web/themes/custom/your_site_theme
 
 # Install dependencies
-yarn install
+npm ci
 
 # Build production assets
-yarn run build
+npm run build
 
 # Build development assets (unminified)
-yarn run build-dev
+npm run build-dev
 
 # Run linting
-yarn run lint
+npm run lint
 
 # Auto-fix linting issues
-yarn run lint-fix
+npm run lint-fix
 
 # Watch for changes during development
-yarn run watch
+npm run watch
 ```
 
-Ahoy commands are configured to call the appropriate Yarn scripts from the
+Ahoy commands are configured to call the appropriate npm scripts from the
 theme directory:
 
 ```shell

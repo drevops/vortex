@@ -4,16 +4,16 @@
   "license": "proprietary",
   "private": true,
   "engines": {
-    "yarn": ">= 1.22.22",
+    "npm": ">= 10.8.0",
     "node": ">= 20.20.0"
   },
   "scripts": {
     "lint-js": "eslint web/modules/custom --ext .js --max-warnings=0 --no-error-on-unmatched-pattern",
     "lint-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\"",
-    "lint": "yarn run lint-js && yarn run lint-css",
+    "lint": "npm run lint-js && npm run lint-css",
     "lint-fix-js": "eslint web/modules/custom --ext .js --no-error-on-unmatched-pattern --fix",
     "lint-fix-css": "stylelint --allow-empty-input \"web/modules/custom/**/*.css\" --fix",
-    "lint-fix": "yarn run lint-fix-js && yarn run lint-fix-css",
+    "lint-fix": "npm run lint-fix-js && npm run lint-fix-css",
     "test": "jest --coverage --passWithNoTests"
   },
   "devDependencies": {
