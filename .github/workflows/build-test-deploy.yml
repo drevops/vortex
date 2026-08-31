@@ -230,6 +230,17 @@ jobs:
       #;> !PROVISION_TYPE_PROFILE
 
     steps:
+      # Frees disk space by removing preinstalled toolchains unused by this project.
+      - name: Free up disk space on the runner
+        if: ${{ vars.VORTEX_CI_FREE_DISK_SPACE == '1' }}
+        run: |
+          set -- /usr/local/.ghcup /usr/share/swift /usr/local/share/powershell /usr/share/dotnet /opt/hostedtoolcache/CodeQL
+          # set -- "$@" /usr/local/lib/android # Removes about 10GB more, but takes about 50s. Uncomment to enable.
+          sudo rm -rf "$@" || true
+
+      - name: Report disk usage
+        run: df -h
+
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -565,6 +576,17 @@ jobs:
       VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
 
     steps:
+      # Frees disk space by removing preinstalled toolchains unused by this project.
+      - name: Free up disk space on the runner
+        if: ${{ vars.VORTEX_CI_FREE_DISK_SPACE == '1' }}
+        run: |
+          set -- /usr/local/.ghcup /usr/share/swift /usr/local/share/powershell /usr/share/dotnet /opt/hostedtoolcache/CodeQL
+          # set -- "$@" /usr/local/lib/android # Removes about 10GB more, but takes about 50s. Uncomment to enable.
+          sudo rm -rf "$@" || true
+
+      - name: Report disk usage
+        run: df -h
+
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
