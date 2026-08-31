@@ -97,6 +97,14 @@ Prettier is integrated via `eslint-plugin-prettier` and provides automatic code 
 
 When you run `ahoy lint-fe-fix`, both ESLint's `--fix` and Prettier's formatting are applied automatically.
 
+#### Line width
+
+**Vortex** sets `printWidth` to `160` in [`.prettierrc.json`](https://github.com/drevops/vortex/blob/main/.prettierrc.json) instead of the Prettier default of `80`, so a statement stays on one line unless it is genuinely long. Documentation blocks are held to `80` columns through `jsdocPrintWidth`, matching the width the PHP coding standard applies to comments.
+
+CSS carries its own `printWidth` override so that declarations are never wrapped. Prettier only reaches CSS when it is invoked directly, such as from an editor on save - within **Vortex**, stylesheets are linted by Stylelint.
+
+The custom theme ships a second `.prettierrc.json` with the same settings, because a theme carries its own front-end tooling and can be moved into a separate repository.
+
 ## Ignoring
 
 ### Global ignoring
