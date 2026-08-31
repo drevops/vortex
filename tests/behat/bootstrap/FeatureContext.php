@@ -11,6 +11,7 @@ use DrevOps\BehatSteps\AccessibilityTrait;
 use DrevOps\BehatSteps\CookieTrait;
 use DrevOps\BehatSteps\DateTrait;
 use DrevOps\BehatSteps\Drupal\BlockTrait;
+use DrevOps\BehatSteps\Drupal\CacheTrait;
 use DrevOps\BehatSteps\Drupal\ContentBlockTrait;
 use DrevOps\BehatSteps\Drupal\ContentTrait;
 use DrevOps\BehatSteps\Drupal\DraggableviewsTrait;
@@ -22,6 +23,9 @@ use DrevOps\BehatSteps\Drupal\MenuTrait;
 use DrevOps\BehatSteps\MetatagTrait;
 use DrevOps\BehatSteps\Drupal\OverrideTrait;
 use DrevOps\BehatSteps\Drupal\ParagraphsTrait;
+// phpcs:ignore #;< MODULE_REDIRECT
+use DrevOps\BehatSteps\Drupal\RedirectTrait;
+// phpcs:ignore #;> MODULE_REDIRECT
 use DrevOps\BehatSteps\Drupal\SearchApiTrait;
 use DrevOps\BehatSteps\Drupal\TaxonomyTrait;
 use DrevOps\BehatSteps\Drupal\TestmodeTrait;
@@ -30,12 +34,17 @@ use DrevOps\BehatSteps\Drupal\WatchdogTrait;
 use DrevOps\BehatSteps\ElementTrait;
 use DrevOps\BehatSteps\FieldTrait;
 use DrevOps\BehatSteps\FileDownloadTrait;
+use DrevOps\BehatSteps\IframeTrait;
 use DrevOps\BehatSteps\JavascriptTrait;
+use DrevOps\BehatSteps\JsonTrait;
 use DrevOps\BehatSteps\KeyboardTrait;
 use DrevOps\BehatSteps\LinkTrait;
 use DrevOps\BehatSteps\PathTrait;
 use DrevOps\BehatSteps\ResponseTrait;
+use DrevOps\BehatSteps\ResponsiveTrait;
+use DrevOps\BehatSteps\RestTrait;
 use DrevOps\BehatSteps\WaitTrait;
+use DrevOps\BehatSteps\XmlTrait;
 use Drupal\DrupalExtension\Context\DrupalContext;
 
 /**
@@ -45,6 +54,7 @@ class FeatureContext extends DrupalContext {
 
   use AccessibilityTrait;
   use BlockTrait;
+  use CacheTrait;
   use ContentBlockTrait;
   use ContentTrait;
   use CookieTrait;
@@ -56,7 +66,9 @@ class FeatureContext extends DrupalContext {
   use FieldTrait;
   use FileDownloadTrait;
   use FileTrait;
+  use IframeTrait;
   use JavascriptTrait;
+  use JsonTrait;
   use KeyboardTrait;
   use LinkTrait;
   use MediaTrait;
@@ -65,12 +77,18 @@ class FeatureContext extends DrupalContext {
   use OverrideTrait;
   use ParagraphsTrait;
   use PathTrait;
+  // phpcs:ignore #;< MODULE_REDIRECT
+  use RedirectTrait;
+  // phpcs:ignore #;> MODULE_REDIRECT
   use ResponseTrait;
+  use ResponsiveTrait;
+  use RestTrait;
   use SearchApiTrait;
   use TaxonomyTrait;
   use TestmodeTrait;
   use UserTrait;
   use WaitTrait;
   use WatchdogTrait;
+  use XmlTrait;
 
 }
