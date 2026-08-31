@@ -96,16 +96,20 @@ default:
     # Show explicit fail information and continue the test run.
     DrevOps\BehatFormatProgressFail\FormatExtension: ~
 
-# Profile for parallel testing.
-# Runs all tests not tagged with 'smoke' or '@p1' and not tagged with '@skipped'.
-# This is a 'catch-all' profile that runs any tests not tagged with '@pX'.
+# Profiles for parallel testing. CI runs the profile named after the index of
+# the runner it is on, so 'pN' requires a runner N. Adding a runner means adding
+# a matching profile here and excluding its tag from the 'p0' catch-all below.
+# https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
+
+# Runs all tests tagged with '@smoke' or not tagged with '@p1', and not tagged
+# with '@skipped'. This is a 'catch-all' profile that runs any tests not tagged
+# with '@pX'.
 p0:
   gherkin:
     cache: '/tmp/behat_gherkin_cache'
     filters:
       tags: '@smoke,~@p1&&~@skipped'
 
-# Profile for parallel testing.
 # Runs all tests tagged with '@smoke' or '@p1' and not tagged with '@skipped'.
 p1:
   gherkin:
