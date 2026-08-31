@@ -374,7 +374,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $latest_commit1 = $this->gitCommitAll(static::$repo, 'Added update 1 to Vortex');
     $this->logNote(sprintf('Update 1 Vortex version commit hash: %s', $latest_commit1));
 
-    File::append(static::$repo . '/docker-compose.yml', "\n// Update 2 to Vortex in docker-compose.yml");
+    File::append(static::$repo . '/docker-compose.yml', "\n# Update 2 to Vortex in docker-compose.yml");
     File::append(static::$repo . '/web/themes/custom/your_site_theme/eslint.config.mjs', "\n// Update 2 to Vortex in eslint.config.mjs");
     $latest_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
     $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_commit2));
@@ -454,7 +454,7 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $latest_commit1 = $this->gitCommitAll(static::$repo, 'Added update 1 to Vortex');
     $this->logNote(sprintf('Update 1 Vortex version commit hash: %s', $latest_commit1));
 
-    File::append(static::$repo . '/docker-compose.yml', "\n// Update 2 to Vortex in docker-compose.yml");
+    File::append(static::$repo . '/docker-compose.yml', "\n# Update 2 to Vortex in docker-compose.yml");
     File::append(static::$repo . '/web/themes/custom/your_site_theme/eslint.config.mjs', "\n// Update 2 to Vortex in eslint.config.mjs");
     $latest_commit2 = $this->gitCommitAll(static::$repo, 'Added update 2 to Vortex');
     $this->logNote(sprintf('Update 2 Vortex version commit hash: %s', $latest_commit2));
