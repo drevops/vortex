@@ -1,0 +1,72 @@
+---
+sidebar_label: Overview
+sidebar_position: 1
+---
+
+# Code quality
+
+import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
+
+**Vortex** ships pre-configured linters for PHP, Twig, JavaScript, CSS,
+Gherkin, Docker Compose files and Dockerfiles. Each tool has its own
+configuration file with defaults that work for Drupal projects out of the box.
+
+| Tool                               | Checks                                                | Command                         |
+|------------------------------------|-------------------------------------------------------|---------------------------------|
+| [DCLint](dclint.mdx)               | Docker Compose files                                  | `dclint .`                      |
+| [ESLint](eslint.mdx)               | JavaScript in custom modules                          | `ahoy lint-fe`                  |
+| [Gherkin Lint](gherkin-lint.mdx)   | Behat feature files                                   | `ahoy lint-tests`               |
+| [Hadolint](hadolint.mdx)           | Dockerfiles                                           | `hadolint .docker/*.dockerfile` |
+| [PHPCS](phpcs.mdx)                 | PHP coding standards                                  | `ahoy lint-be`                  |
+| [PHPStan](phpstan.mdx)             | PHP static analysis                                   | `ahoy lint-be`                  |
+| [Rector](rector.mdx)               | Deprecated PHP and Drupal code, automated refactoring | `ahoy lint-be`                  |
+| [SDC Devel](sdc-devel.mdx)         | Single Directory Components                           | `ahoy lint-sdc`                 |
+| [Stylelint](stylelint.mdx)         | CSS in custom modules, SCSS in the custom theme       | `ahoy lint-fe`                  |
+| [Twig CS Fixer](twig-cs-fixer.mdx) | Twig templates                                        | `ahoy lint-fe`                  |
+
+## Running
+
+`ahoy lint` runs all the code quality checks: back-end (PHPCS, PHPStan,
+Rector), front-end (Twig CS Fixer, ESLint, Stylelint) and test linting
+(Gherkin Lint).
+
+<AsciinemaPlayer
+  src="/img/lint.json"
+  poster="npt:0:1"
+  autoPlay={false}
+  loop={false}
+  preload={true}
+  controls={true}
+  theme="asciinema"
+  terminalLineHeight={1.0}
+/>
+
+The checks are grouped into Ahoy commands, each with a matching fix command
+where the tools support automatic fixes:
+
+| Command           | Tools                                                                        | Fix command        |
+|-------------------|------------------------------------------------------------------------------|--------------------|
+| `ahoy lint`       | Everything below except `ahoy lint-sdc`                                      | `ahoy lint-fix`    |
+| `ahoy lint-be`    | PHPCS, PHPStan, Rector                                                       | `ahoy lint-be-fix` |
+| `ahoy lint-fe`    | Twig CS Fixer, ESLint, Stylelint (custom modules and the custom theme)       | `ahoy lint-fe-fix` |
+| `ahoy lint-tests` | Gherkin Lint                                                                 | -                  |
+| `ahoy lint-sdc`   | SDC Devel (requires a provisioned site)                                      | -                  |
+
+`ahoy lint-be-fix` runs Rector and then PHPCBF; `ahoy lint-fe-fix` runs Twig
+CS Fixer, ESLint and Stylelint with their fix flags. PHPStan and Gherkin Lint
+only report problems.
+
+DCLint and Hadolint are not installed locally and have no Ahoy commands. Install
+them on your system to run them by hand; in continuous integration they run
+from their official Docker images.
+
+## Continuous integration
+
+The linters run in the `lint` job of the
+[continuous integration pipeline](../../continuous-integration/README.mdx) and
+fail the build on violations. SDC Devel runs in the `build` job instead, after
+the site is provisioned.
+
+Set the tool's `VORTEX_CI_*_IGNORE_FAILURE` variable to `1` to let the build
+pass while the tool still runs and reports violations - see
+[Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).

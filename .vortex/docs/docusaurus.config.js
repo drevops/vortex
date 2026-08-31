@@ -273,7 +273,7 @@ const config = {
           },
           {
             from: ['/drupal'],
-            to: '/docs/drupal',
+            to: '/docs/development',
           },
           {
             from: ['/hosting'],
@@ -281,7 +281,7 @@ const config = {
           },
           {
             from: ['/tools'],
-            to: '/docs/tools',
+            to: '/docs/development',
           },
           {
             from: ['/workflows'],
@@ -297,7 +297,7 @@ const config = {
           },
           {
             from: '/docs/drupal/test-mode',
-            to: '/docs/drupal/testmode',
+            to: '/docs/development/modules/testmode',
           },
           {
             from: '/docs/contributing/maintenance/scripts',
@@ -341,11 +341,11 @@ const config = {
           },
           {
             from: '/docs/workflows/testing/phpunit',
-            to: '/docs/development/phpunit',
+            to: '/docs/development/testing/phpunit',
           },
           {
             from: '/docs/workflows/testing/behat',
-            to: '/docs/development/behat',
+            to: '/docs/development/testing/behat',
           },
           {
             from: '/docs/workflows/development',
@@ -353,19 +353,19 @@ const config = {
           },
           {
             from: '/docs/workflows/development/phpunit',
-            to: '/docs/development/phpunit',
+            to: '/docs/development/testing/phpunit',
           },
           {
             from: '/docs/workflows/development/behat',
-            to: '/docs/development/behat',
+            to: '/docs/development/testing/behat',
           },
           {
             from: '/docs/workflows/development/database',
-            to: '/docs/development/database',
+            to: '/docs/development/provision',
           },
           {
             from: '/docs/workflows/development/debugging',
-            to: '/docs/development/debugging',
+            to: '/docs/development/environment/debugging',
           },
           {
             from: '/docs/workflows/development/composer',
@@ -385,27 +385,27 @@ const config = {
           },
           {
             from: '/docs/workflows/notifications/email',
-            to: '/docs/deployment/notifications',
+            to: '/docs/deployment/notifications/email',
           },
           {
             from: '/docs/workflows/notifications/github',
-            to: '/docs/deployment/notifications',
+            to: '/docs/deployment/notifications/github',
           },
           {
             from: '/docs/workflows/notifications/jira',
-            to: '/docs/deployment/notifications',
+            to: '/docs/deployment/notifications/jira',
           },
           {
             from: '/docs/workflows/notifications/newrelic',
-            to: '/docs/deployment/notifications',
+            to: '/docs/deployment/notifications/newrelic',
           },
           {
             from: '/docs/workflows/notifications/slack',
-            to: '/docs/deployment/notifications',
+            to: '/docs/deployment/notifications/slack',
           },
           {
             from: '/docs/workflows/notifications/webhook',
-            to: '/docs/deployment/notifications',
+            to: '/docs/deployment/notifications/webhook',
           },
           {
             from: '/docs/workflows/releasing',
@@ -437,7 +437,163 @@ const config = {
           },
           {
             from: '/docs/drupal/composer',
-            to: '/docs/drupal/composer-json',
+            to: '/docs/development/composer',
+          },
+          {
+            from: '/docs/tools',
+            to: '/docs/development',
+          },
+          {
+            from: '/docs/tools/ahoy',
+            to: '/docs/development/environment/ahoy',
+          },
+          {
+            from: '/docs/tools/behat',
+            to: '/docs/development/testing/behat',
+          },
+          {
+            from: '/docs/tools/dclint',
+            to: '/docs/development/code-quality/dclint',
+          },
+          {
+            from: '/docs/tools/diffy',
+            to: '/docs/development/visual-regression#diffy',
+          },
+          {
+            from: '/docs/tools/docker',
+            to: '/docs/development/environment/docker',
+          },
+          {
+            from: '/docs/tools/doctor',
+            to: '/docs/development/environment/doctor',
+          },
+          {
+            from: '/docs/tools/drush',
+            to: '/docs/development/environment/drush',
+          },
+          {
+            from: '/docs/tools/eslint',
+            to: '/docs/development/code-quality/eslint',
+          },
+          {
+            from: '/docs/tools/gherkin-lint',
+            to: '/docs/development/code-quality/gherkin-lint',
+          },
+          {
+            from: '/docs/tools/git-artifact',
+            to: '/docs/deployment/artifact',
+          },
+          {
+            from: '/docs/tools/gitleaks',
+            to: '/docs/development/security/secret-scanning',
+          },
+          {
+            from: '/docs/tools/hadolint',
+            to: '/docs/development/code-quality/hadolint',
+          },
+          {
+            from: '/docs/tools/jest',
+            to: '/docs/development/testing/jest',
+          },
+          {
+            from: '/docs/tools/phpcs',
+            to: '/docs/development/code-quality/phpcs',
+          },
+          {
+            from: '/docs/tools/phpstan',
+            to: '/docs/development/code-quality/phpstan',
+          },
+          {
+            from: '/docs/tools/phpunit',
+            to: '/docs/development/testing/phpunit',
+          },
+          {
+            from: '/docs/tools/pygmy',
+            to: '/docs/development/environment/pygmy',
+          },
+          {
+            from: '/docs/tools/rector',
+            to: '/docs/development/code-quality/rector',
+          },
+          {
+            from: '/docs/tools/renovate',
+            to: '/docs/development/dependency-updates',
+          },
+          {
+            from: '/docs/tools/twig-cs-fixer',
+            to: '/docs/development/code-quality/twig-cs-fixer',
+          },
+          {
+            from: '/docs/drupal',
+            to: '/docs/development',
+          },
+          {
+            from: '/docs/drupal/composer-json',
+            to: '/docs/development/composer',
+          },
+          {
+            from: '/docs/drupal/settings',
+            to: '/docs/development/settings',
+          },
+          {
+            from: '/docs/drupal/provision',
+            to: '/docs/development/provision',
+          },
+          {
+            from: '/docs/drupal/update-hooks',
+            to: '/docs/development/provision',
+          },
+          {
+            from: '/docs/drupal/migrations',
+            to: '/docs/development/migrations',
+          },
+          {
+            from: '/docs/drupal/module-scaffold',
+            to: '/docs/development/modules/module-scaffold',
+          },
+          {
+            from: '/docs/drupal/theme-scaffold',
+            to: '/docs/development/themes',
+          },
+          {
+            from: '/docs/drupal/modules',
+            to: '/docs/development/modules',
+          },
+          {
+            from: '/docs/drupal/drupal-helpers',
+            to: '/docs/development/modules/drupal-helpers',
+          },
+          {
+            from: '/docs/drupal/generated-content',
+            to: '/docs/development/modules/generated-content',
+          },
+          {
+            from: '/docs/drupal/testmode',
+            to: '/docs/development/modules/testmode',
+          },
+          {
+            from: '/docs/development/database',
+            to: '/docs/development/provision',
+          },
+          {
+            from: '/docs/development/debugging',
+            to: '/docs/development/environment/debugging',
+          },
+          {
+            from: '/docs/development/phpunit',
+            to: '/docs/development/testing/phpunit',
+          },
+          {
+            from: '/docs/development/behat',
+            to: '/docs/development/testing/behat',
+          },
+          {
+            from: '/docs/development/jest',
+            to: '/docs/development/testing/jest',
+          },
+          {
+            from: '/docs/continuous-integration/parallelism',
+            to: '/docs/continuous-integration',
           },
         ],
       },

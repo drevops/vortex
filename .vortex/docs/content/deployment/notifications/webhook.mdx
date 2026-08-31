@@ -1,0 +1,39 @@
+---
+sidebar_label: Webhook
+sidebar_position: 7
+---
+
+# Webhook
+
+Send HTTP requests to arbitrary webhook URLs.
+
+## Setup
+
+1. Add `VORTEX_NOTIFY_WEBHOOK_URL` to your `.env` file or hosting environment variables.
+
+## Environment variables
+
+| Variable | Required | Default | Location | Description |
+|----------|----------|---------|----------|-------------|
+| `VORTEX_NOTIFY_WEBHOOK_URL` | **Yes** | | `.env` or Hosting | Webhook endpoint URL |
+| `VORTEX_NOTIFY_WEBHOOK_METHOD` | No | `POST` | `.env` | HTTP method |
+| `VORTEX_NOTIFY_WEBHOOK_HEADERS` | No | `Content-Type: application/json` | `.env` | Pipe-separated headers |
+| `VORTEX_NOTIFY_WEBHOOK_PAYLOAD` | No | Default template | `.env` | JSON payload |
+| `VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS` | No | `200` | `.env` | Expected HTTP status |
+| `VORTEX_NOTIFY_WEBHOOK_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
+
+## Default payload template
+
+```json
+{
+  "channel": "Channel 1",
+  "message": "%message%",
+  "project": "%project%",
+  "label": "%label%",
+  "timestamp": "%timestamp%",
+  "environment_url": "%environment_url%",
+  "login_url": "%login_url%"
+}
+```
+
+The `%message%` token expands to the full deployment message with all other tokens replaced.

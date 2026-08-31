@@ -1,0 +1,32 @@
+---
+sidebar_label: Logs
+sidebar_position: 7
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Logs
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Show container logs
+    ahoy logs
+    # Check recent logs of a single container
+    ahoy logs -- --tail=50 cli
+    # View Drupal watchdog logs
+    ahoy drush watchdog:show --count=20
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Show container logs
+    docker compose logs
+    # Check recent logs of a single container
+    docker compose logs --tail=50 cli
+    # View Drupal watchdog logs
+    docker compose exec cli drush watchdog:show --count=20
+    ```
+  </TabItem>
+</Tabs>

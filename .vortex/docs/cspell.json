@@ -89,6 +89,8 @@
         "softcreatr",
         "solrcore",
         "sqldump",
+        "starwars",
+        "tablespaces",
         "testmode",
         "toml",
         "updatedb",

@@ -1,0 +1,24 @@
+---
+sidebar_label: Email
+sidebar_position: 2
+---
+
+# Email
+
+Send deployment notification via email.
+
+## Setup
+
+1. Add `VORTEX_NOTIFY_EMAIL_FROM` variable to `.env` file with the sender email address.
+2. Add `VORTEX_NOTIFY_EMAIL_RECIPIENTS` variable to `.env` file with recipients
+   in format `email|name` (comma-separated for multiple).
+
+## Environment variables
+
+| Variable | Required | Default | Location | Description |
+|----------|----------|---------|----------|-------------|
+| `VORTEX_NOTIFY_EMAIL_FROM` | **Yes** | | `.env` | Sender email address |
+| `VORTEX_NOTIFY_EMAIL_RECIPIENTS` | **Yes** | | `.env` | Recipients (format: `email\|name`) |
+| `VORTEX_NOTIFY_EMAIL_PROJECT` | No | `VORTEX_NOTIFY_PROJECT` | `.env` | Project name for email |
+| `VORTEX_NOTIFY_EMAIL_MESSAGE` | No | Default template | `.env` | Custom message template |
+| `VORTEX_NOTIFY_EMAIL_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |

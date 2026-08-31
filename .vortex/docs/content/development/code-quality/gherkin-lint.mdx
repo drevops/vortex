@@ -1,0 +1,78 @@
+---
+sidebar_label: Gherkin Lint
+---
+
+# Gherkin Lint
+
+https://github.com/dantleech/gherkin-lint-php
+
+> Provides a Gherkin linter for PHP.
+
+**Vortex** comes with [Gherkin Lint configuration](https://github.com/drevops/vortex/blob/main/gherkinlint.json) for Behat tests.
+
+## Usage
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy lint-tests
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/gherkinlint lint tests/behat/features
+    ```
+  </TabItem>
+</Tabs>
+
+## Configuration
+
+See [configuration reference](https://github.com/dantleech/gherkin-lint-php?tab=readme-ov-file#configuration) and [rules](https://github.com/dantleech/gherkin-lint-php/blob/master/docs/rules.md).
+
+All global configuration takes place in the [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json) file.
+The values are merged with the default configuration.
+
+To check enabled rules, run:
+
+```shell
+ahoy cli vendor/bin/gherkinlint rules
+```
+
+## Ignoring
+
+Ignoring rules **globally** takes place in the [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json) file.
+
+```json
+{
+    "rules": {
+        "filename": {
+            "enabled": false
+        }
+    }
+}
+```
+
+To ignore **a specific rule** within a file, place in the file header:
+
+```yaml
+# @gherkinlint-disable-rule keyword-order, someother-rule
+```
+
+Gherkin Lint does not support ignoring all rules within a file, ignoring code
+blocks, or ignoring individual lines - per-file rule suppression is the only
+inline mechanism.
+
+## Continuous integration
+
+Gherkin Lint runs in the `lint` job of the [continuous integration pipeline](../../continuous-integration/README.mdx)
+and fails the build on violations.
+
+### Ignoring failures
+
+Set the `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE` environment variable to `1`.
+The tool still runs and reports violations.
+
+➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)

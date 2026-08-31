@@ -82,7 +82,7 @@
 - [ ] Aligned the CI runner PHP version with `config.platform` (the `cimg/php` tag in `.circleci/config.yml` and the `setup-php` `php-version` in the GitHub Actions workflows).
 - [ ] Incremented the cache version in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
 - [ ] Updated documentation.
-- [ ] Regenerated the installer snapshots.
+- [ ] Regenerated the CLI snapshots.
 - [ ] Re-recorded the demo videos.
 - [ ] Tagged the Vortex release.
 
