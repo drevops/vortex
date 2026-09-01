@@ -192,18 +192,28 @@ Summary paragraph (1-3 sentences).
 ### 🌀 Template
 
 - ✨ **New**
- - [#ISSUE] Title from commit/PR. @author (#PR_NUMBER)
-    Description paragraph explaining what changed and why it matters to users.
+
+  - **[#ISSUE] Title from commit/PR. @author (#PR_NUMBER)**
+     **What it does:** ...
+     **How to use it:** ...
+
+  - **[#ISSUE] Next entry. @author (#PR_NUMBER)**
+     **What it does:** ...
+     **How to use it:** ...
 
 - 🛠 **Changed**
- - ...
+
+  - ...
 
 - 🐞 **Fixed**
- - ...
+
+  - ...
 
 - ⬆️ **Updated**
- - Title. @author (#PR_NUMBER)
- - Title. @[renovate[bot]](https://github.com/apps/renovate) (#PR_NUMBER)
+
+  - **Title. @author (#PR_NUMBER)**
+
+  - **Title. @[renovate[bot]](https://github.com/apps/renovate) (#PR_NUMBER)**
 
 ---
 
@@ -253,6 +263,7 @@ Concrete examples:
 (Renovate Updated-section entries: bold the title only - they have no `What it does` / `How to use it` body.)
 
 Key rules:
+- **Blank lines are mandatory, not cosmetic.** Put a blank line after every group header (`- ✨ **New**`, `- 🛠 **Changed**`, `- 🐞 **Fixed**`, `- ⬆️ **Updated**`) and between every pair of entries within a group, including single-line entries in the Updated section. Without them the notes render as an unbroken wall of text that nobody reads. The `What it does:` and `How to use it:` lines of a single entry stay tight against their title line with no blank line between them - the separation is between entries, not inside one.
 - The first line is the PR title with issue reference, author attribution, and PR number, wrapped in `**...**`.
 - The body must contain **two pieces of information** for any non-trivial entry:
   1. **What the change does** (the behaviour, the new feature, the bug that was fixed).
