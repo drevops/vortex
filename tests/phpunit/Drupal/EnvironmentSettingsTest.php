@@ -1142,7 +1142,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^nginx\-php$',
       '^.+\.amazee\.io$',
       '^example1\.com$',
-      '^example2\/com$',
+      '^example2$',
     ];
     $this->assertSettings($settings);
   }
@@ -1211,7 +1211,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^nginx\-php$',
       '^.+\.amazee\.io$',
       '^example1\.com$',
-      '^example2\/com$',
+      '^example2$',
     ];
     $this->assertSettings($settings);
   }
@@ -1280,7 +1280,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^nginx\-php$',
       '^.+\.amazee\.io$',
       '^example1\.com$',
-      '^example2\/com$',
+      '^example2$',
     ];
     $this->assertSettings($settings);
   }
@@ -1347,7 +1347,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^nginx\-php$',
       '^.+\.amazee\.io$',
       '^example1\.com$',
-      '^example2\/com$',
+      '^example2$',
     ];
     $this->assertSettings($settings);
   }
