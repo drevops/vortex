@@ -49,7 +49,7 @@
    }
  
    /**
-@@ -398,6 +442,325 @@
+@@ -403,6 +447,331 @@
      $settings['maintenance_theme'] = 'claro';
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';
@@ -90,6 +90,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
@@ -142,6 +143,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
@@ -194,6 +196,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
@@ -243,6 +246,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
@@ -296,6 +300,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['config_sync_directory'] = 'custom_acquia_config';
@@ -356,6 +361,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['config_sync_directory'] = '/var/www/site-php/mysite/config';

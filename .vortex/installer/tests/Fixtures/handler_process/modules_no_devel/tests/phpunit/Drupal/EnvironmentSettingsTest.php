@@ -4,37 +4,37 @@
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
+       'sdc_devel',
        'testmode',
-     ];
-@@ -169,7 +168,6 @@
+@@ -170,7 +169,6 @@
      // Verify settings overrides.
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
+       'sdc_devel',
        'testmode',
-     ];
-@@ -225,7 +223,6 @@
+@@ -227,7 +225,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
+       'sdc_devel',
        'testmode',
-     ];
-@@ -281,7 +278,6 @@
+@@ -284,7 +281,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
+       'sdc_devel',
        'testmode',
-     ];
-@@ -380,7 +376,6 @@
+@@ -384,7 +380,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
+       'sdc_devel',
        'testmode',
-     ];

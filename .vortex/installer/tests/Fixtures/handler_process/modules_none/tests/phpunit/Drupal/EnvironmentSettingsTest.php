@@ -1,4 +1,4 @@
-@@ -70,26 +70,12 @@
+@@ -70,27 +70,12 @@
  
      $this->requireSettingsFile();
  
@@ -21,11 +21,12 @@
      $settings['config_exclude_modules'] = [
 -      'devel',
 -      'generated_content',
+-      'sdc_devel',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -151,18 +137,7 @@
+@@ -152,18 +137,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
@@ -44,17 +45,18 @@
      $config['system.performance']['cache']['page']['max_age'] = 1800;
      $this->assertConfig($config);
  
-@@ -169,9 +144,6 @@
+@@ -170,10 +144,6 @@
      // Verify settings overrides.
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
 -      'generated_content',
+-      'sdc_devel',
 -      'testmode',
      ];
      $settings['config_sync_directory'] = 'custom_config';
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -204,30 +176,13 @@
+@@ -206,31 +176,13 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -81,11 +83,12 @@
      $settings['config_exclude_modules'] = [
 -      'devel',
 -      'generated_content',
+-      'sdc_devel',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -260,30 +215,13 @@
+@@ -263,31 +215,13 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -112,11 +115,12 @@
      $settings['config_exclude_modules'] = [
 -      'devel',
 -      'generated_content',
+-      'sdc_devel',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -358,31 +296,14 @@
+@@ -362,32 +296,14 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -144,6 +148,7 @@
      $settings['config_exclude_modules'] = [
 -      'devel',
 -      'generated_content',
+-      'sdc_devel',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';

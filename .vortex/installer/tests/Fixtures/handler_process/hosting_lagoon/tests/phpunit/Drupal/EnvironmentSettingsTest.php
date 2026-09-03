@@ -185,7 +185,7 @@
    }
  
    /**
-@@ -402,6 +582,279 @@
+@@ -407,6 +587,283 @@
        '^localhost$',
      ];
      $this->assertSettings($settings);
@@ -227,6 +227,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['config_sync_directory'] = '../config/default';
@@ -290,6 +291,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['config_sync_directory'] = '../config/default';
@@ -353,6 +355,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['config_sync_directory'] = '../config/default';
@@ -414,6 +417,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['config_sync_directory'] = '../config/default';
