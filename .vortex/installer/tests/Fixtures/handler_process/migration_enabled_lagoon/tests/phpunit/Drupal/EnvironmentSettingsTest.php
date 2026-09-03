@@ -185,7 +185,7 @@
    }
  
    /**
-@@ -148,6 +328,13 @@
+@@ -149,6 +329,13 @@
      $databases['default']['default']['collation'] = 'utf8_general_ci';
      $databases['default']['default']['driver'] = 'mysql';
      $databases['default']['default']['prefix'] = '';
@@ -199,7 +199,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
-@@ -402,6 +589,279 @@
+@@ -407,6 +594,283 @@
        '^localhost$',
      ];
      $this->assertSettings($settings);
@@ -241,6 +241,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['config_sync_directory'] = '../config/default';
@@ -304,6 +305,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['config_sync_directory'] = '../config/default';
@@ -367,6 +369,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['config_sync_directory'] = '../config/default';
@@ -428,6 +431,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'sdc_devel',
 +      'testmode',
 +    ];
 +    $settings['config_sync_directory'] = '../config/default';

@@ -89,6 +89,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [
       'devel',
       'generated_content',
+      'sdc_devel',
       'testmode',
     ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
@@ -171,6 +172,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [
       'devel',
       'generated_content',
+      'sdc_devel',
       'testmode',
     ];
     $settings['config_sync_directory'] = 'custom_config';
@@ -227,6 +229,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [
       'devel',
       'generated_content',
+      'sdc_devel',
       'testmode',
     ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
@@ -283,6 +286,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [
       'devel',
       'generated_content',
+      'sdc_devel',
       'testmode',
     ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
@@ -382,6 +386,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [
       'devel',
       'generated_content',
+      'sdc_devel',
       'testmode',
     ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';

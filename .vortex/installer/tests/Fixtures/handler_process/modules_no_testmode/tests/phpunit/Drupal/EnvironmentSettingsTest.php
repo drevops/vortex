@@ -1,39 +1,39 @@
-@@ -89,7 +89,6 @@
-     $settings['config_exclude_modules'] = [
+@@ -90,7 +90,6 @@
        'devel',
        'generated_content',
+       'sdc_devel',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -171,7 +170,6 @@
-     $settings['config_exclude_modules'] = [
+@@ -173,7 +172,6 @@
        'devel',
        'generated_content',
+       'sdc_devel',
 -      'testmode',
      ];
      $settings['config_sync_directory'] = 'custom_config';
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -227,7 +225,6 @@
-     $settings['config_exclude_modules'] = [
+@@ -230,7 +228,6 @@
        'devel',
        'generated_content',
+       'sdc_devel',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -283,7 +280,6 @@
-     $settings['config_exclude_modules'] = [
+@@ -287,7 +284,6 @@
        'devel',
        'generated_content',
+       'sdc_devel',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -382,7 +378,6 @@
-     $settings['config_exclude_modules'] = [
+@@ -387,7 +383,6 @@
        'devel',
        'generated_content',
+       'sdc_devel',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
