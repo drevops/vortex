@@ -1,0 +1,6 @@
+paths:
+  .github/workflows/**/*.yml:
+    ignore:
+      # The steps that load '.env' source an environment snapshot from a path
+      # created at runtime, which shellcheck cannot resolve.
+      - 'shellcheck reported issue in this script: SC1090:.+'
