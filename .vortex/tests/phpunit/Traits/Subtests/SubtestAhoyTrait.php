@@ -286,9 +286,9 @@ trait SubtestAhoyTrait {
     $this->assertFileContainsString('config/default/core.extension.yml', 'search_api', 'Module "search_api" should appear in the exported extension list');
     $this->assertFileContainsString('config/default/core.extension.yml', 'shield', 'Module "shield" should appear in the exported extension list');
     $this->assertFileContainsString('config/default/core.extension.yml', 'stage_file_proxy', 'Module "stage_file_proxy" should appear in the exported extension list');
-    $this->assertFileContainsString('config/default/core.extension.yml', 'ys_base', 'Module "ys_base" should appear in the exported extension list');
-    $this->assertFileContainsString('config/default/core.extension.yml', 'ys_demo', 'Module "ys_demo" should appear in the exported extension list');
-    $this->assertFileContainsString('config/default/core.extension.yml', 'ys_search', 'Module "ys_search" should appear in the exported extension list');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'sw_base', 'Module "sw_base" should appear in the exported extension list');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'sw_demo', 'Module "sw_demo" should appear in the exported extension list');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'sw_search', 'Module "sw_search" should appear in the exported extension list');
 
     $this->seedCacheTableRow();
 
