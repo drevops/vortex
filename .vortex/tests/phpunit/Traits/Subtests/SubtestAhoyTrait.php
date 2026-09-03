@@ -272,7 +272,7 @@ trait SubtestAhoyTrait {
     $this->assertFilesWildcardExists('config/default/*.yml');
 
     $this->logSubstep('Assert development modules are excluded from the exported configuration');
-    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', ['* devel', '* generated_content', '* sdc_devel', '* testmode'], 'Development modules should be enabled after provisioning');
+    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=json', ['* "devel":', '* "generated_content":', '* "sdc_devel":', '* "testmode":'], 'Development modules should be enabled after provisioning');
     $this->assertFileNotContainsString('config/default/core.extension.yml', 'devel', 'Excluded module "devel" should not appear in the exported extension list');
     $this->assertFileNotContainsString('config/default/core.extension.yml', 'generated_content', 'Excluded module "generated_content" should not appear in the exported extension list');
     $this->assertFileNotContainsString('config/default/core.extension.yml', 'sdc_devel', 'Excluded module "sdc_devel" should not appear in the exported extension list');
