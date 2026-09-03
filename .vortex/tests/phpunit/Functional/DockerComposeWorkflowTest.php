@@ -128,11 +128,20 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
     $this->assertFileContainsString('composer.json', 'drevops/test-private-package', 'composer.json should contain private package');
     File::remove('composer.lock');
 
+    $this->logSubstep('Adding a decoy auth.json to the build context');
+    // The bogus token leaves both build outcomes unchanged, so the assertion
+    // below tests only whether the file reaches the image.
+    File::dump('auth.json', json_encode(['github-oauth' => ['github.com' => 'decoy-token']], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+
     $this->logSubstep('Building without PACKAGE_TOKEN - should fail');
     $this->cmdFail('docker compose build cli --no-cache', '* did not complete successfully', txt: 'Build stack images without token should fail', env: ['PACKAGE_TOKEN' => FALSE], tio: 900);
 
     $this->logSubstep('Building with PACKAGE_TOKEN - should succeed');
     $this->cmd('docker compose build cli --no-cache', txt: 'Build stack images with token should succeed', env: ['PACKAGE_TOKEN' => $package_token], tio: 900);
+
+    $this->logSubstep('Asserting that auth.json is absent from the built image');
+    $this->assertFileExists('auth.json', 'auth.json should still exist in the build context');
+    $this->cmd('docker compose run --rm --no-deps -T --entrypoint bash cli -c "test ! -f /app/auth.json"', txt: 'Built image should not contain auth.json');
   }
 
 }
