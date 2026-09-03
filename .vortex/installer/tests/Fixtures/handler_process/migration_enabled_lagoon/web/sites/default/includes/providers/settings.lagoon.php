@@ -58,7 +58,10 @@ if (!empty(getenv('LAGOON_KUBERNETES'))) {
   if ($lagoon_routes) {
     $lagoon_route_urls = array_map(trim(...), explode(',', $lagoon_routes));
     foreach ($lagoon_route_urls as $lagoon_route_url) {
-      $lagoon_route_host = strtolower(str_replace(['https://', 'http://'], '', $lagoon_route_url));
+      // parse_url() reads a scheme-less value as a path, so re-parse with '//'
+      // prepended to yield the host.
+      $lagoon_route_host = parse_url($lagoon_route_url, PHP_URL_HOST) ?: parse_url('//' . $lagoon_route_url, PHP_URL_HOST);
+      $lagoon_route_host = strtolower((string) $lagoon_route_host);
       if (!empty($lagoon_route_host)) {
         $settings['trusted_host_patterns'][] = '^' . preg_quote($lagoon_route_host, '/') . '$';
       }

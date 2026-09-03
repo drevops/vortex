@@ -251,7 +251,7 @@
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
 +      '^example1\.com$',
-+      '^example2\/com$',
++      '^example2$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -314,7 +314,7 @@
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
 +      '^example1\.com$',
-+      '^example2\/com$',
++      '^example2$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -377,7 +377,7 @@
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
 +      '^example1\.com$',
-+      '^example2\/com$',
++      '^example2$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -438,7 +438,7 @@
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
 +      '^example1\.com$',
-+      '^example2\/com$',
++      '^example2$',
      ];
      $this->assertSettings($settings);
    }
