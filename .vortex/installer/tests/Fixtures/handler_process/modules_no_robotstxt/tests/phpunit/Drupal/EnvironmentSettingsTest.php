@@ -30,7 +30,7 @@
      $config['shield.settings']['shield_enable'] = FALSE;
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
-@@ -344,7 +340,6 @@
+@@ -364,7 +360,6 @@
      $config['environment_indicator.indicator']['name'] = self::ENVIRONMENT_CI;
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
