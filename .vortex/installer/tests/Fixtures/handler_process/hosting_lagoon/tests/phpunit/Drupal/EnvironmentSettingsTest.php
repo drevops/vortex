@@ -185,12 +185,10 @@
    }
  
    /**
-@@ -380,6 +560,256 @@
-     $settings['config_sync_directory'] = '../config/default';
-     $settings['trusted_host_patterns'] = [
+@@ -402,6 +582,279 @@
        '^localhost$',
-+    ];
-+    $this->assertSettings($settings);
+     ];
+     $this->assertSettings($settings);
 +  }
 +
 +  /**
@@ -251,7 +249,7 @@
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
 +      '^example1\.com$',
-+      '^example2\/com$',
++      '^example2$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -314,7 +312,7 @@
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
 +      '^example1\.com$',
-+      '^example2\/com$',
++      '^example2$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -377,7 +375,7 @@
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
 +      '^example1\.com$',
-+      '^example2\/com$',
++      '^example2$',
 +    ];
 +    $this->assertSettings($settings);
 +  }
@@ -438,7 +436,32 @@
 +      '^nginx\-php$',
 +      '^.+\.amazee\.io$',
 +      '^example1\.com$',
-+      '^example2\/com$',
-     ];
-     $this->assertSettings($settings);
++      '^example2$',
++    ];
++    $this->assertSettings($settings);
++  }
++
++  /**
++   * Test trusted host patterns for Lagoon routes without a scheme.
++   */
++  public function testEnvironmentLagoonSchemelessRoutes(): void {
++    $this->setEnvVars([
++      'LAGOON_KUBERNETES' => 1,
++      'LAGOON_ENVIRONMENT_TYPE' => 'development',
++      'LAGOON_ROUTES' => 'Example1.com:8443 , example2.com/subpath',
++    ]);
++
++    $this->requireSettingsFile();
++
++    $this->assertSettingsContains([
++      'trusted_host_patterns' => [
++        '^localhost$',
++        '^nginx\-php$',
++        '^.+\.amazee\.io$',
++        '^example1\.com$',
++        '^example2\.com$',
++      ],
++    ]);
    }
+ 
+ }

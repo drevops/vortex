@@ -49,7 +49,7 @@
    }
  
    /**
-@@ -378,6 +422,325 @@
+@@ -398,6 +442,325 @@
      $settings['maintenance_theme'] = 'claro';
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';

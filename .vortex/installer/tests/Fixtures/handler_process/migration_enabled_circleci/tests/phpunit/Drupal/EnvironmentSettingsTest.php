@@ -12,7 +12,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
-@@ -328,9 +335,9 @@
+@@ -348,9 +355,9 @@
    }
  
    /**
