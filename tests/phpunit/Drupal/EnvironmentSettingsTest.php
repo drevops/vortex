@@ -588,6 +588,26 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       ],
     ]);
   }
+
+  /**
+   * Test trusted host patterns for container provider URLs without a scheme.
+   */
+  public function testEnvironmentLocalContainerSchemelessUrls(): void {
+    $this->setEnvVars([
+      'LOCALDEV_URL' => 'Example-Site.docker.amazee.io:8080 , second-site.docker.amazee.io/subpath',
+    ]);
+
+    $this->requireSettingsFile();
+
+    $this->assertSettingsContains([
+      'trusted_host_patterns' => [
+        '^localhost$',
+        '^example\-site\.docker\.amazee\.io$',
+        '^second\-site\.docker\.amazee\.io$',
+        '^nginx$',
+      ],
+    ]);
+  }
   // phpcs:ignore #;> SETTINGS_PROVIDER_CONTAINER
 
   // phpcs:ignore #;< SETTINGS_PROVIDER_CIRCLECI
@@ -1350,6 +1370,29 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^example2$',
     ];
     $this->assertSettings($settings);
+  }
+
+  /**
+   * Test trusted host patterns for Lagoon routes without a scheme.
+   */
+  public function testEnvironmentLagoonSchemelessRoutes(): void {
+    $this->setEnvVars([
+      'LAGOON_KUBERNETES' => 1,
+      'LAGOON_ENVIRONMENT_TYPE' => 'development',
+      'LAGOON_ROUTES' => 'Example1.com:8443 , example2.com/subpath',
+    ]);
+
+    $this->requireSettingsFile();
+
+    $this->assertSettingsContains([
+      'trusted_host_patterns' => [
+        '^localhost$',
+        '^nginx\-php$',
+        '^.+\.amazee\.io$',
+        '^example1\.com$',
+        '^example2\.com$',
+      ],
+    ]);
   }
   // phpcs:ignore #;> SETTINGS_PROVIDER_LAGOON
 
