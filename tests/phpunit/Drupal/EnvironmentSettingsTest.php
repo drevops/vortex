@@ -342,6 +342,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -445,6 +448,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -513,6 +519,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -582,6 +591,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -654,6 +666,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -725,6 +740,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -792,6 +810,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -856,6 +877,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -920,6 +944,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -981,6 +1008,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -1046,6 +1076,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -1118,6 +1151,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -1190,6 +1226,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -1264,6 +1303,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -1338,6 +1380,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -1410,6 +1455,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
