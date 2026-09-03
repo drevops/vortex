@@ -271,10 +271,24 @@ trait SubtestAhoyTrait {
     $this->syncToHost('config');
     $this->assertFilesWildcardExists('config/default/*.yml');
 
-    $this->logSubstep('Assert demo-only modules are excluded from the exported configuration');
-    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', ['* generated_content', '* testmode'], 'Demo-only modules should be enabled after provisioning with demo content');
+    $this->logSubstep('Assert development modules are excluded from the exported configuration');
+    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', ['* devel', '* generated_content', '* sdc_devel', '* testmode'], 'Development modules should be enabled after provisioning');
+    $this->assertFileNotContainsString('config/default/core.extension.yml', 'devel', 'Excluded module "devel" should not appear in the exported extension list');
     $this->assertFileNotContainsString('config/default/core.extension.yml', 'generated_content', 'Excluded module "generated_content" should not appear in the exported extension list');
+    $this->assertFileNotContainsString('config/default/core.extension.yml', 'sdc_devel', 'Excluded module "sdc_devel" should not appear in the exported extension list');
     $this->assertFileNotContainsString('config/default/core.extension.yml', 'testmode', 'Excluded module "testmode" should not appear in the exported extension list');
+
+    $this->logSubstep('Assert provisioned modules are captured in the exported configuration');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'config_split', 'Module "config_split" should appear in the exported extension list');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'environment_indicator', 'Module "environment_indicator" should appear in the exported extension list');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'pathauto', 'Module "pathauto" should appear in the exported extension list');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'redirect', 'Module "redirect" should appear in the exported extension list');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'search_api', 'Module "search_api" should appear in the exported extension list');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'shield', 'Module "shield" should appear in the exported extension list');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'stage_file_proxy', 'Module "stage_file_proxy" should appear in the exported extension list');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'ys_base', 'Module "ys_base" should appear in the exported extension list');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'ys_demo', 'Module "ys_demo" should appear in the exported extension list');
+    $this->assertFileContainsString('config/default/core.extension.yml', 'ys_search', 'Module "ys_search" should appear in the exported extension list');
 
     $this->seedCacheTableRow();
 
