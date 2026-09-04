@@ -14,7 +14,7 @@ use DrevOps\VortexInstaller\Utils\Validator;
  */
 final readonly class Artifact {
 
-  const INVALID_REF_MESSAGE = 'Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.';
+  const string INVALID_REF_MESSAGE = 'Invalid git reference: "%s". Reference must be a valid git tag, branch, or commit hash.';
 
   /**
    * Constructor - use a factory method instead.
