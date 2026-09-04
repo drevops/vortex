@@ -48,13 +48,13 @@ class FunctionalTestCase extends UnitTestCase {
     $this->fixtureExportCodebase(static::$root, static::$repo);
 
     // Always show logger information.
-    $this->loggerSetVerbose(TRUE);
+    $this->logSetVerbose(TRUE);
 
     // Show process output based on the debug flags.
-    $this->processStreamOutput = static::isDebug();
+    $this->processStreamingOutput = static::isDebug();
 
     // Setting up logger step method prefix.
-    static::$loggerStepMethodPrefix = 'subtest';
+    static::$logStepMethodPrefix = 'subtest';
 
     static::logSection('TEST START | ' . $this->name(), double_border: TRUE);
 

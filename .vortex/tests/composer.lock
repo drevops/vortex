@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "43c2a9cb304d3a2106c1755b346d762e",
+    "content-hash": "70ec44f09d7fd777086e52c0c0a2d020",
     "packages": [
         {
             "name": "cweagans/composer-configurable-plugin",
@@ -188,32 +188,33 @@
         },
         {
             "name": "alexskrypnyk/file",
-            "version": "0.19.0",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "4f8bece45ccf32c09ada458c066d3c8046858aba"
+                "reference": "d7a62771959804dfca14f829d21d3b7f05d32001"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/4f8bece45ccf32c09ada458c066d3c8046858aba",
-                "reference": "4f8bece45ccf32c09ada458c066d3c8046858aba",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/d7a62771959804dfca14f829d21d3b7f05d32001",
+                "reference": "d7a62771959804dfca14f829d21d3b7f05d32001",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2",
-                "symfony/filesystem": "^7.2"
+                "php": ">=8.3",
+                "symfony/filesystem": "^7.4.18"
             },
             "require-dev": {
-                "alexskrypnyk/phpunit-helpers": "^0.15.0",
-                "dealerdirect/phpcodesniffer-composer-installer": "^1",
-                "drevops/phpcs-standard": "^0.6",
-                "drupal/coder": "^8.3",
-                "ergebnis/composer-normalize": "^2.42",
-                "phpbench/phpbench": "^1.4",
-                "phpstan/phpstan": "^2",
-                "phpunit/phpunit": "^11",
-                "rector/rector": "^2"
+                "alexskrypnyk/phpunit-helpers": "^0.16.0",
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
+                "drevops/phpcs-standard": "^0.7",
+                "drupal/coder": "^9.0.1",
+                "ergebnis/composer-normalize": "^2.52.0",
+                "mikey179/vfsstream": "^1.6.12",
+                "phpbench/phpbench": "^1.7.0",
+                "phpstan/phpstan": "^2.2.13",
+                "phpunit/phpunit": "^11.5.56",
+                "rector/rector": "^2.6.6"
             },
             "suggest": {
                 "phpunit/phpunit": "Required for using FileAssertionsTrait and DirectoryAssertionsTrait (^11)"
@@ -252,38 +253,38 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-12-23T00:38:01+00:00"
+            "time": "2026-09-04T07:32:17+00:00"
         },
         {
             "name": "alexskrypnyk/phpunit-helpers",
-            "version": "0.15.0",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
-                "reference": "60242281d31b5abe2d2e025522dbdefadb227f03"
+                "reference": "ec265d1aae02d49de77a103bdc6bba319a68619d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/60242281d31b5abe2d2e025522dbdefadb227f03",
-                "reference": "60242281d31b5abe2d2e025522dbdefadb227f03",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/ec265d1aae02d49de77a103bdc6bba319a68619d",
+                "reference": "ec265d1aae02d49de77a103bdc6bba319a68619d",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2",
-                "phpunit/phpunit": "^11 || ^12",
+                "php": ">=8.3",
+                "phpunit/phpunit": "^12.5.24 || ^13",
                 "symfony/filesystem": "^6.4 || ^7.2",
                 "symfony/finder": "^6.4 || ^7.2",
                 "symfony/process": "^6.4 || ^7.2"
             },
             "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^1",
-                "drevops/phpcs-standard": "^0.6",
-                "drupal/coder": "^8.3",
-                "ergebnis/composer-normalize": "^2.42",
-                "laravel/serializable-closure": "^2.0",
-                "phpstan/phpstan": "^2",
-                "rector/rector": "^2",
-                "squizlabs/php_codesniffer": "^3.7",
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
+                "drevops/phpcs-standard": "^0.7",
+                "drupal/coder": "^9.0.1",
+                "ergebnis/composer-normalize": "^2.52.0",
+                "laravel/serializable-closure": "^2.0.16",
+                "phpstan/phpstan": "^2.2.13",
+                "rector/rector": "^2.6.6",
+                "squizlabs/php_codesniffer": "^4.0.4",
                 "symfony/console": "^6.4 || ^7.2"
             },
             "type": "library",
@@ -320,7 +321,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-11-28T12:21:28+00:00"
+            "time": "2026-09-04T22:10:18+00:00"
         },
         {
             "name": "alexskrypnyk/shellvar",
