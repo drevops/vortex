@@ -271,9 +271,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       }
     }
 
-    if (!isset($data[$section])) {
-      $data[$section] = [];
-    }
+    $data[$section] ??= [];
 
     $data[$section] = array_merge($data[$section], $dependencies);
 
