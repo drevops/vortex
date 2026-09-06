@@ -76,7 +76,7 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
 
     $baseline = File::dir(static::$fixtures . '/../' . self::BASELINE_DIR);
     $this->replaceVersions(static::$sut);
-    $this->assertSnapshotMatchesBaseline(static::$sut, $baseline, static::$fixtures);
+    $this->assertSnapshotMatchesBaseline($baseline, static::$fixtures, static::$sut);
 
     $this->assertCommon();
 

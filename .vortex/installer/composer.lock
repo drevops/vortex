@@ -4,36 +4,37 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "09fe1b396c9087da12b519b5bf9b83d3",
+    "content-hash": "3a2a50f4b24e55877d80af86b192e517",
     "packages": [
         {
             "name": "alexskrypnyk/file",
-            "version": "0.19.0",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "4f8bece45ccf32c09ada458c066d3c8046858aba"
+                "reference": "d7a62771959804dfca14f829d21d3b7f05d32001"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/4f8bece45ccf32c09ada458c066d3c8046858aba",
-                "reference": "4f8bece45ccf32c09ada458c066d3c8046858aba",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/d7a62771959804dfca14f829d21d3b7f05d32001",
+                "reference": "d7a62771959804dfca14f829d21d3b7f05d32001",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2",
-                "symfony/filesystem": "^7.2"
+                "php": ">=8.3",
+                "symfony/filesystem": "^7.4.18"
             },
             "require-dev": {
-                "alexskrypnyk/phpunit-helpers": "^0.15.0",
-                "dealerdirect/phpcodesniffer-composer-installer": "^1",
-                "drevops/phpcs-standard": "^0.6",
-                "drupal/coder": "^8.3",
-                "ergebnis/composer-normalize": "^2.42",
-                "phpbench/phpbench": "^1.4",
-                "phpstan/phpstan": "^2",
-                "phpunit/phpunit": "^11",
-                "rector/rector": "^2"
+                "alexskrypnyk/phpunit-helpers": "^0.16.0",
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
+                "drevops/phpcs-standard": "^0.7",
+                "drupal/coder": "^9.0.1",
+                "ergebnis/composer-normalize": "^2.52.0",
+                "mikey179/vfsstream": "^1.6.12",
+                "phpbench/phpbench": "^1.7.0",
+                "phpstan/phpstan": "^2.2.13",
+                "phpunit/phpunit": "^11.5.56",
+                "rector/rector": "^2.6.6"
             },
             "suggest": {
                 "phpunit/phpunit": "Required for using FileAssertionsTrait and DirectoryAssertionsTrait (^11)"
@@ -72,7 +73,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-12-23T00:38:01+00:00"
+            "time": "2026-09-04T07:32:17+00:00"
         },
         {
             "name": "alexskrypnyk/str2name",
@@ -3585,34 +3586,37 @@
         },
         {
             "name": "alexskrypnyk/snapshot",
-            "version": "1.4.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/snapshot.git",
-                "reference": "0bf31021a30a3e28dbe965e600d3694bb4785f8b"
+                "reference": "c7575d620d78c0160939d275f89d51877fc6e5db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/snapshot/zipball/0bf31021a30a3e28dbe965e600d3694bb4785f8b",
-                "reference": "0bf31021a30a3e28dbe965e600d3694bb4785f8b",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/snapshot/zipball/c7575d620d78c0160939d275f89d51877fc6e5db",
+                "reference": "c7575d620d78c0160939d275f89d51877fc6e5db",
                 "shasum": ""
             },
             "require": {
-                "alexskrypnyk/file": "^0.19.0",
-                "php": ">=8.2",
+                "alexskrypnyk/file": "^1.2.0",
+                "php": ">=8.3",
                 "sebastian/diff": "^6.0 || ^7.0"
             },
             "require-dev": {
-                "alexskrypnyk/phpunit-helpers": "^0.16.0",
-                "dealerdirect/phpcodesniffer-composer-installer": "^1",
+                "alexskrypnyk/phpunit-helpers": "^1.0.0",
+                "composer": ">=2.10",
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
                 "drevops/phpcs-standard": "^0.7",
-                "drupal/coder": "^9.0.1@alpha",
+                "drupal/coder": "^9.0.1",
                 "ergebnis/composer-normalize": "^2.52.0",
                 "phpbench/phpbench": "^1.7.0",
-                "phpstan/phpstan": "^2",
-                "phpunit/phpunit": "^11.5.56",
-                "rector/rector": "^2"
+                "phpstan/phpstan": "^2.2.13",
+                "phpunit/phpunit": "^12.5.34",
+                "rector/rector": "^2.6.6",
+                "symfony/process": "^7.4.18"
             },
+            "default-branch": true,
             "bin": [
                 "bin/update-snapshots"
             ],
@@ -3624,7 +3628,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "GPL-2.0-or-later"
+                "GPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -3650,7 +3654,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2026-07-24T03:44:56+00:00"
+            "time": "2026-09-06T03:28:06+00:00"
         },
         {
             "name": "bamarni/composer-bin-plugin",
@@ -6645,6 +6649,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "alexskrypnyk/snapshot": 20,
         "drupal/coder": 15
     },
     "prefer-stable": false,

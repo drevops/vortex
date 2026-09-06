@@ -18,7 +18,7 @@
     },
     "require": {
         "php": ">=8.3",
-        "alexskrypnyk/file": "^0.19.0",
+        "alexskrypnyk/file": "^1.2.0",
         "alexskrypnyk/str2name": "^1.6.0",
         "composer/composer": "^2.10.3",
         "cweagans/composer-patches": "^2",
@@ -34,7 +34,7 @@
     },
     "require-dev": {
         "alexskrypnyk/phpunit-helpers": "^1.0",
-        "alexskrypnyk/snapshot": "^1.4.0",
+        "alexskrypnyk/snapshot": "dev-main",
         "bamarni/composer-bin-plugin": "^1.9.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
         "drevops/phpcs-standard": "^0.6.2",
