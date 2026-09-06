@@ -1,4 +1,4 @@
-@@ -43,10 +43,10 @@
+@@ -45,10 +45,10 @@
  
  return RectorConfig::configure()
    ->withPaths([
@@ -13,7 +13,7 @@
      __DIR__ . '/tests',
    ])
    ->withSkip([
-@@ -64,8 +64,8 @@
+@@ -68,8 +68,8 @@
      PrivatizeLocalGetterToPropertyRector::class,
      RemoveAlwaysTrueIfConditionRector::class,
      RemoveUnusedPublicMethodParameterRector::class => [
@@ -24,7 +24,7 @@
      ],
      RenameForeachValueVariableToMatchExprVariableRector::class,
      RenameForeachValueVariableToMatchMethodCallReturnTypeRector::class,
-@@ -74,7 +74,7 @@
+@@ -78,7 +78,7 @@
      RenameVariableToMatchNewTypeRector::class,
      SimplifyEmptyCheckOnEmptyArrayRector::class,
      StringClassNameToClassConstantRector::class => [

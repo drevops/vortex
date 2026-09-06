@@ -1,8 +1,4 @@
-@@ -38,26 +38,17 @@
-     "require-dev": {
-         "behat/behat": "__VERSION__",
-         "dantleech/gherkin-lint": "__VERSION__",
--        "dealerdirect/phpcodesniffer-composer-installer": "__VERSION__",
+@@ -40,17 +40,10 @@
          "drevops/behat-format-progress-fail": "__VERSION__",
          "drevops/behat-screenshot": "__VERSION__",
          "drevops/behat-steps": "__VERSION__",
@@ -10,8 +6,6 @@
 -        "drupal/coder": "__VERSION__",
          "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
-         "lullabot/mink-selenium2-driver": "__VERSION__",
-         "lullabot/php-webdriver": "__VERSION__",
 -        "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
 -        "palantirnet/drupal-rector": "__VERSION__",
@@ -21,11 +15,8 @@
 -        "phpstan/phpstan": "__VERSION__",
          "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
--        "rector/rector": ">=__VERSION__ <__VERSION__",
          "softcreatr/jsonpath": "^0.10 || ^1.0",
-         "vincentlanglet/twig-cs-fixer": "__VERSION__"
-     },
-@@ -81,11 +72,9 @@
+@@ -76,11 +69,9 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,

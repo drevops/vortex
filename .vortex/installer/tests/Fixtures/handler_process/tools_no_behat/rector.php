@@ -1,4 +1,4 @@
-@@ -83,8 +83,6 @@
+@@ -87,8 +87,6 @@
    // PHP version upgrade sets. Called without an argument, the target version
    // comes from `composer.json`, so the sets follow the project's PHP version.
    ->withPhpSets()
