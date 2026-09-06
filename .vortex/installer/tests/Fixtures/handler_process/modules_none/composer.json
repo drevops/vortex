@@ -25,6 +25,6 @@
 -        "drupal/stage_file_proxy": "__VERSION__",
 -        "drupal/testmode": "__VERSION__",
 -        "drupal/xmlsitemap": "__VERSION__",
-         "drush/drush": "__VERSION__",
-         "webflo/drupal-finder": "__VERSION__"
+         "drush/drush": "__VERSION__"
      },
+     "require-dev": {
