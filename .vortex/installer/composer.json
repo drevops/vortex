@@ -34,7 +34,7 @@
     },
     "require-dev": {
         "alexskrypnyk/phpunit-helpers": "^1.0",
-        "alexskrypnyk/snapshot": "dev-main",
+        "alexskrypnyk/snapshot": "^1.5.0",
         "bamarni/composer-bin-plugin": "^1.9.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
         "drevops/phpcs-standard": "^0.6.2",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3a2a50f4b24e55877d80af86b192e517",
+    "content-hash": "22d2f78c658d6cca9b96a7e77b535f62",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -3586,7 +3586,7 @@
         },
         {
             "name": "alexskrypnyk/snapshot",
-            "version": "dev-main",
+            "version": "1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/snapshot.git",
@@ -3616,7 +3616,6 @@
                 "rector/rector": "^2.6.6",
                 "symfony/process": "^7.4.18"
             },
-            "default-branch": true,
             "bin": [
                 "bin/update-snapshots"
             ],
@@ -6649,7 +6648,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "alexskrypnyk/snapshot": 20,
         "drupal/coder": 15
     },
     "prefer-stable": false,
