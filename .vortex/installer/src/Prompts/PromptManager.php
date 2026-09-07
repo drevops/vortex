@@ -261,6 +261,19 @@ class PromptManager {
 
     $this->responses = $this->normalizeResponses($responses);
 
+    // A conditional prompt this run skips never reaches args(), so its handler
+    // is asked directly. Otherwise the answer describing the destination would
+    // be replaced by the one describing this run.
+    foreach ($this->handlers as $id => $handler) {
+      if (!isset($this->discoveredResponses[$id])) {
+        $discovered = $handler->discover();
+
+        if ($discovered !== NULL) {
+          $this->discoveredResponses[$id] = $discovered;
+        }
+      }
+    }
+
     // Discovery covers only the handlers that read the destination, so the
     // collected answers fill the rest.
     $this->discoveredResponses = $this->normalizeResponses(array_replace($responses, $this->discoveredResponses));

@@ -320,7 +320,7 @@ class FileManager {
       // diff the project's copy against.
       $previous = $this->previousDir . '/' . $path;
 
-      $registry->add($path, is_file($previous) ? File::read($previous) : '', File::read($project), File::read($next));
+      $registry->add($path, is_file($previous) ? File::read($previous) : NULL, File::read($project), File::read($next));
     }
 
     $this->registryFile = $registry->write((string) $this->previousRef, (string) $this->config->get(Config::VERSION), date('Y-m-d H:i:s'));
@@ -403,9 +403,13 @@ class FileManager {
       // The location of shipped Vortex scripts before they were extracted
       // into the 'drevops/vortex-tooling' Composer package.
       'scripts/vortex',
-      // Install-time bookkeeping, derived at run time instead.
-      '.vortex-manifest.json',
     ];
+
+    // Install-time bookkeeping, derived at run time instead. Only a project
+    // that already runs Vortex can hold one the installer wrote.
+    if ($this->config->isVortexProject()) {
+      $obsolete[] = '.vortex-manifest.json';
+    }
 
     foreach ($obsolete as $relative) {
       $path = $destination . '/' . $relative;

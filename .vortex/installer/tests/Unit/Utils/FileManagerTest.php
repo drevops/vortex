@@ -356,6 +356,7 @@ class FileManagerTest extends UnitTestCase {
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
 
     $config = new Config('/tmp/root', $destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
     file_put_contents(File::mkdir($destination) . '/.vortex-manifest.json', '{"composer.json":"abc"}');
@@ -363,6 +364,21 @@ class FileManagerTest extends UnitTestCase {
     $fm->copyFiles();
 
     $this->assertFileDoesNotExist($destination . '/.vortex-manifest.json', 'A manifest an earlier install left behind is removed.');
+  }
+
+  public function testCopyFilesKeepsManifestInDestinationThatIsNotVortexProject(): void {
+    $src = self::$sut . '/src_foreign_manifest';
+    $destination = self::$sut . '/dst_foreign_manifest';
+    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $fm = new FileManager($config);
+
+    file_put_contents(File::mkdir($destination) . '/.vortex-manifest.json', '{"owned":"by the project"}');
+
+    $fm->copyFiles();
+
+    $this->assertFileExists($destination . '/.vortex-manifest.json', 'A destination that never ran Vortex keeps its own file.');
   }
 
   public function testCopyFilesKeepsPathsTheTemplateNeverShipped(): void {

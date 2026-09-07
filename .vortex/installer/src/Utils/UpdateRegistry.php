@@ -39,7 +39,7 @@ class UpdateRegistry {
   /**
    * Replaced content, keyed by template-relative path.
    *
-   * @var array<string, array{previous: string, project: string, next: string}>
+   * @var array<string, array{previous: string|null, project: string, next: string}>
    */
   protected array $entries = [];
 
@@ -52,15 +52,15 @@ class UpdateRegistry {
    *
    * @param string $path
    *   Template-relative path.
-   * @param string $previous
-   *   Content the version the project runs installed, empty when it shipped
+   * @param string|null $previous
+   *   Content the version the project runs installed, or NULL when it shipped
    *   no such path.
    * @param string $project
    *   Content the project holds.
    * @param string $next
    *   Content the update installs.
    */
-  public function add(string $path, string $previous, string $project, string $next): void {
+  public function add(string $path, ?string $previous, string $project, string $next): void {
     $this->entries[$path] = ['previous' => $previous, 'project' => $project, 'next' => $next];
   }
 
@@ -110,7 +110,7 @@ class UpdateRegistry {
    *
    * @param string $path
    *   Template-relative path.
-   * @param array{previous: string, project: string, next: string} $contents
+   * @param array{previous: string|null, project: string, next: string} $contents
    *   The three versions of the file's content.
    *
    * @return string
@@ -119,7 +119,7 @@ class UpdateRegistry {
   protected function renderEntry(string $path, array $contents): string {
     $content = sprintf('### %s', $path) . PHP_EOL . PHP_EOL;
 
-    foreach ($contents as $side) {
+    foreach (array_filter($contents, is_string(...)) as $side) {
       if (str_contains($side, "\0")) {
         return $content . 'Binary file. Recover the project copy from version control.' . PHP_EOL . PHP_EOL;
       }
@@ -129,7 +129,7 @@ class UpdateRegistry {
       }
     }
 
-    if ($contents['previous'] === '') {
+    if ($contents['previous'] === NULL) {
       $content .= 'The version the project runs did not ship this file. Project content that the update replaced:' . PHP_EOL . PHP_EOL;
 
       return $content . $this->renderDiff($contents['project'], $contents['next'], 'project', 'update');
@@ -165,8 +165,15 @@ class UpdateRegistry {
   protected function renderDiff(string $from, string $to, string $from_label, string $to_label): string {
     $header = sprintf('--- %s', $from_label) . PHP_EOL . sprintf('+++ %s', $to_label) . PHP_EOL;
     $differ = new Differ(new UnifiedDiffOutputBuilder($header));
+    $diff = rtrim($differ->diff($from, $to));
 
-    return '```diff' . PHP_EOL . rtrim($differ->diff($from, $to)) . PHP_EOL . '```' . PHP_EOL . PHP_EOL;
+    // The template ships Markdown that itself contains fences, and a diff
+    // renders an unchanged line with a single leading space, which Markdown
+    // still reads as a closing fence.
+    preg_match_all('/`{3,}/', $diff, $matches);
+    $fence = str_repeat('`', $matches[0] === [] ? 3 : max(3, max(array_map(strlen(...), $matches[0])) + 1));
+
+    return $fence . 'diff' . PHP_EOL . $diff . PHP_EOL . $fence . PHP_EOL . PHP_EOL;
   }
 
 }

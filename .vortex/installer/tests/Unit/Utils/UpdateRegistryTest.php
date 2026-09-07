@@ -76,7 +76,7 @@ class UpdateRegistryTest extends UnitTestCase {
 
   public function testWriteRendersProjectAuthoredPath(): void {
     $registry = new UpdateRegistry(self::$sut);
-    $registry->add('phpstan.neon', '', "level: 8\n", "level: 9\n");
+    $registry->add('phpstan.neon', NULL, "level: 8\n", "level: 9\n");
 
     $file = (string) $registry->write('1.40.0', '1.41.0', '2026-09-07 09:31:22');
 
@@ -84,6 +84,28 @@ class UpdateRegistryTest extends UnitTestCase {
     $this->assertFileContainsString($file, '-level: 8');
     $this->assertFileContainsString($file, '+level: 9');
     $this->assertFileNotContainsString($file, 'Change that the update brings:');
+  }
+
+  public function testWriteDiffsAgainstAnEmptyInstalledFile(): void {
+    $registry = new UpdateRegistry(self::$sut);
+    $registry->add('.env.local.example', '', "ADDED=1\n", "SHIPPED=1\n");
+
+    $file = (string) $registry->write('1.40.0', '1.41.0', '2026-09-07 09:31:22');
+
+    $this->assertFileNotContainsString($file, 'The version the project runs did not ship this file.', 'A file shipped empty is not reported as never shipped.');
+    $this->assertFileContainsString($file, 'Project change that the update replaced:');
+    $this->assertFileContainsString($file, 'Change that the update brings:');
+  }
+
+  public function testWriteWidensFenceAroundContentWithFences(): void {
+    $registry = new UpdateRegistry(self::$sut);
+    $registry->add('README.md', "# Title\n```php\n\$a = 1;\n```\n", "# Title\n```php\n\$a = 2;\n```\n", "# Title\n```php\n\$a = 3;\n```\n");
+
+    $file = (string) $registry->write('1.40.0', '1.41.0', '2026-09-07 09:31:22');
+
+    $this->assertFileContainsString($file, '````diff', 'The fence outgrows the longest backtick run in the diff.');
+    $this->assertFileContainsString($file, PHP_EOL . '````' . PHP_EOL, 'The closing fence matches the opening one.');
+    $this->assertStringNotContainsString('```' . PHP_EOL . '```diff', File::read($file), 'No entry opens with a fence the diff can close.');
   }
 
   public function testWriteSortsEntriesByPath(): void {
