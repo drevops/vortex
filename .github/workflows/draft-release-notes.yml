@@ -46,3 +46,8 @@ jobs:
           tag: ${{ steps.calver.outputs.version }}
           name: ${{ steps.calver.outputs.version }}
           version: ${{ steps.calver.outputs.version }}
+          #;< VORTEX_DEV
+          # The previous release is the numerically highest one, so the range
+          # excludes the releases left behind by the switch from CalVer.
+          filter-by-range: '>=1.0.0 <7.0.0'
+          #;> VORTEX_DEV
