@@ -10,8 +10,9 @@ use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\FileManager;
+use DrevOps\VortexInstaller\Utils\Git;
+use DrevOps\VortexInstaller\Utils\UpdateRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Process\ExecutableFinder;
 
 /**
@@ -19,143 +20,132 @@ use Symfony\Component\Process\ExecutableFinder;
  */
 #[CoversClass(FileManager::class)]
 #[CoversClass(InstallCommand::class)]
+#[CoversClass(UpdateRegistry::class)]
 class InstallExcludedPathsTest extends FunctionalTestCase {
+
+  /**
+   * Selection that keeps every tool.
+   */
+  const PROMPTS_ALL_TOOLS = '{"tools":["behat","dclint","eslint","hadolint","jest","phpcs","phpstan","phpunit","rector","stylelint","twig_cs_fixer"]}';
 
   /**
    * Selection that drops Jest, PHPStan and PHPUnit but keeps PHPCS and Behat.
    */
   const PROMPTS_WITHOUT_TEST_TOOLS = '{"tools":["behat","dclint","eslint","hadolint","phpcs","rector","stylelint","twig_cs_fixer"]}';
 
-  #[DataProvider('dataProviderExcludedPaths')]
-  public function testExcludedPaths(bool $is_vortex_project, array $existing, array $recorded, string $prompts, array $absent, array $present): void {
-    foreach ($existing as $path => $contents) {
+  public function testUpdateRemovesUnmodifiedExcludedPaths(): void {
+    $ref = $this->templateRef();
+
+    $this->runInstall(self::PROMPTS_ALL_TOOLS, $ref);
+    $this->assertFileExists(static::$sut . '/jest.config.js', 'A selected tool ships its configuration.');
+    $this->assertFileExists(static::$sut . '/phpstan.neon', 'A selected tool ships its configuration.');
+
+    $this->runInstall(self::PROMPTS_WITHOUT_TEST_TOOLS, $ref);
+
+    $this->assertFileDoesNotExist(static::$sut . '/jest.config.js', 'A deselected tool loses its unmodified configuration.');
+    $this->assertFileDoesNotExist(static::$sut . '/phpstan.neon', 'A deselected tool loses its unmodified configuration.');
+    $this->assertFileExists(static::$sut . '/phpcs.xml', 'A tool that stayed selected keeps its configuration.');
+    $this->assertFileExists(static::$sut . '/behat.yml', 'A tool that stayed selected keeps its configuration.');
+  }
+
+  public function testUpdateKeepsModifiedExcludedPaths(): void {
+    $ref = $this->templateRef();
+
+    $this->runInstall(self::PROMPTS_ALL_TOOLS, $ref);
+
+    $modified = "parameters:\n  level: 8\n";
+    File::dump(static::$sut . '/phpstan.neon', $modified);
+
+    $this->runInstall(self::PROMPTS_WITHOUT_TEST_TOOLS, $ref);
+
+    $this->assertFileExists(static::$sut . '/phpstan.neon', 'A file the project edited is never removed.');
+    $this->assertStringEqualsFile(static::$sut . '/phpstan.neon', $modified, 'The project edit is left untouched.');
+    $this->assertFileDoesNotExist(static::$sut . '/jest.config.js', 'Unmodified siblings are still removed.');
+  }
+
+  public function testUpdateKeepsProjectAuthoredPaths(): void {
+    $ref = $this->templateRef();
+
+    $this->runInstall(self::PROMPTS_ALL_TOOLS, $ref);
+
+    $project_files = [
+      'custom-notes.md' => "Project notes.\n",
+      'scripts/custom-deploy.sh' => "echo deploy\n",
+      'web/modules/custom/mymodule/mymodule.info.yml' => "name: My module\n",
+      // Matched only by a glob over project content, not by a shipped path.
+      'web/modules/custom/mymodule/js/mymodule.test.js' => "test('kept', () => {});\n",
+    ];
+    foreach ($project_files as $path => $contents) {
       File::dump(static::$sut . '/' . $path, $contents);
     }
 
-    if ($recorded !== []) {
-      $hashes = array_map(fn(string $contents): string => hash('sha256', $contents), $recorded);
-      File::dump(static::$sut . '/' . FileManager::MANIFEST_FILE, (string) json_encode($hashes, JSON_PRETTY_PRINT));
-    }
+    $this->runInstall(self::PROMPTS_WITHOUT_TEST_TOOLS, $ref);
 
-    if ($is_vortex_project) {
-      File::dump(static::$sut . '/README.md', '[![Vortex](https://img.shields.io/badge/Vortex-1.40.0-65ACBC.svg)](https://github.com/drevops/vortex)');
-    }
-
-    $this->runInstall($prompts);
-
-    foreach ($absent as $path) {
-      $this->assertFileDoesNotExist(static::$sut . '/' . $path, sprintf('Path "%s" removed from the destination.', $path));
-    }
-
-    foreach ($present as $path => $contents) {
-      $this->assertFileExists(static::$sut . '/' . $path, sprintf('Path "%s" kept in the destination.', $path));
-
-      if ($contents !== NULL) {
-        $this->assertStringEqualsFile(static::$sut . '/' . $path, $contents, sprintf('Path "%s" kept its contents.', $path));
-      }
+    foreach ($project_files as $path => $contents) {
+      $this->assertFileExists(static::$sut . '/' . $path, sprintf('Project-authored "%s" kept in the destination.', $path));
+      $this->assertStringEqualsFile(static::$sut . '/' . $path, $contents, sprintf('Project-authored "%s" kept its contents.', $path));
     }
   }
 
-  public static function dataProviderExcludedPaths(): \Iterator {
+  public function testUpdateRecordsReplacedProjectChanges(): void {
+    $ref = $this->templateRef();
+
+    $this->runInstall(self::PROMPTS_ALL_TOOLS, $ref);
+
+    // A file the template keeps shipping, so the update replaces it.
+    $shipped = File::read(static::$sut . '/.ahoy.yml');
+    File::dump(static::$sut . '/.ahoy.yml', $shipped . PHP_EOL . '# Project addition.' . PHP_EOL);
+
+    $this->runInstall(self::PROMPTS_WITHOUT_TEST_TOOLS, $ref);
+
+    $registry = static::$sut . '/' . UpdateRegistry::FILE;
+
+    $this->assertFileExists($registry, 'A replaced project change is recorded.');
+    $this->assertFileContainsString($registry, '### .ahoy.yml');
+    $this->assertFileContainsString($registry, '+# Project addition.');
+    $this->assertFileNotContainsString(static::$sut . '/.ahoy.yml', '# Project addition.', 'The update still replaces the project file.');
+  }
+
+  public function testUpdateRemovesCommittedManifest(): void {
+    $ref = $this->templateRef();
+
+    $this->runInstall(self::PROMPTS_ALL_TOOLS, $ref);
+    $this->assertFileDoesNotExist(static::$sut . '/.vortex-manifest.json', 'Install records nothing in the project.');
+
+    File::dump(static::$sut . '/.vortex-manifest.json', '{"composer.json":"abc"}');
+
+    $this->runInstall(self::PROMPTS_WITHOUT_TEST_TOOLS, $ref);
+
+    $this->assertFileDoesNotExist(static::$sut . '/.vortex-manifest.json', 'A manifest an earlier install left behind is removed.');
+  }
+
+  public function testNothingRemovedFromDestinationThatIsNotVortexProject(): void {
     $shipped = [
       'phpstan.neon' => 'parameters: []',
-      'phpunit.xml' => '<phpunit/>',
       'jest.config.js' => 'module.exports = {};',
-      'tests/phpunit/bootstrap.php' => '<?php // Shipped.',
     ];
+    foreach ($shipped as $path => $contents) {
+      File::dump(static::$sut . '/' . $path, $contents);
+    }
 
-    yield 'unmodified excluded paths removed' => [
-      TRUE,
-      $shipped,
-      $shipped,
-      self::PROMPTS_WITHOUT_TEST_TOOLS,
-      [
-        'phpstan.neon',
-        'phpunit.xml',
-        'jest.config.js',
-        'tests/phpunit/bootstrap.php',
-      ],
-      [
-        // A tool that stayed selected keeps its shipped configuration.
-        'phpcs.xml' => NULL,
-        'behat.yml' => NULL,
-      ],
-    ];
-    yield 'modified excluded paths kept with their contents' => [
-      TRUE,
-      [
-        'phpstan.neon' => "parameters:\n  level: 8",
-        'phpunit.xml' => '<phpunit/>',
-      ],
-      $shipped,
-      self::PROMPTS_WITHOUT_TEST_TOOLS,
-      [
-        // Unmodified, so still removed.
-        'phpunit.xml',
-      ],
-      [
-        'phpstan.neon' => "parameters:\n  level: 8",
-      ],
-    ];
-    yield 'excluded paths kept when nothing was recorded' => [
-      TRUE,
-      $shipped,
-      [],
-      self::PROMPTS_WITHOUT_TEST_TOOLS,
-      [],
-      [
-        'phpstan.neon' => 'parameters: []',
-        'jest.config.js' => 'module.exports = {};',
-      ],
-    ];
-    yield 'project-authored paths kept' => [
-      TRUE,
-      [
-        'custom-notes.md' => 'Project notes.',
-        'scripts/custom-deploy.sh' => 'echo deploy',
-        'web/modules/custom/mymodule/mymodule.info.yml' => 'name: My module',
-        'web/modules/custom/mymodule/js/mymodule.test.js' => "test('kept', () => {});",
-      ],
-      $shipped,
-      self::PROMPTS_WITHOUT_TEST_TOOLS,
-      [],
-      [
-        // Never shipped by the template, so never a candidate for removal.
-        'custom-notes.md' => 'Project notes.',
-        'scripts/custom-deploy.sh' => 'echo deploy',
-        'web/modules/custom/mymodule/mymodule.info.yml' => 'name: My module',
-        // Matched only by a glob over project content, not by a shipped path.
-        'web/modules/custom/mymodule/js/mymodule.test.js' => "test('kept', () => {});",
-      ],
-    ];
-    yield 'harness paths kept' => [
-      TRUE,
-      ['.vortex/CLAUDE.md' => 'Project owned.'],
-      ['.vortex/CLAUDE.md' => 'Project owned.'],
-      self::PROMPTS_WITHOUT_TEST_TOOLS,
-      [],
-      [
-        // The harness is stripped unconditionally rather than by selection.
-        '.vortex/CLAUDE.md' => 'Project owned.',
-      ],
-    ];
-    yield 'nothing removed from a destination that is not a Vortex project' => [
-      FALSE,
-      $shipped,
-      $shipped,
-      self::PROMPTS_WITHOUT_TEST_TOOLS,
-      [],
-      [
-        'phpstan.neon' => 'parameters: []',
-        'jest.config.js' => 'module.exports = {};',
-      ],
-    ];
+    $this->runInstall(self::PROMPTS_WITHOUT_TEST_TOOLS, $this->templateRef());
+
+    foreach ($shipped as $path => $contents) {
+      $this->assertStringEqualsFile(static::$sut . '/' . $path, $contents, sprintf('Path "%s" kept its contents.', $path));
+    }
+  }
+
+  /**
+   * Get the reference the template is installed from.
+   */
+  protected function templateRef(): string {
+    return (new Git(File::dir(static::$root)))->getLastShortCommitId();
   }
 
   /**
    * Run a non-interactive install into the system under test.
    */
-  protected function runInstall(string $prompts): void {
+  protected function runInstall(string $prompts, string $ref): void {
     $executable_finder = $this->createMock(ExecutableFinder::class);
     $executable_finder->method('find')->willReturnCallback(fn(string $command): string => '/usr/bin/' . $command);
 
@@ -168,7 +158,7 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
 
     $this->applicationRun([
       '--' . InstallCommand::OPTION_NO_INTERACTION => TRUE,
-      '--' . InstallCommand::OPTION_URI => File::dir(static::$root),
+      '--' . InstallCommand::OPTION_URI => sprintf('%s#%s', File::dir(static::$root), $ref),
       '--' . InstallCommand::OPTION_DESTINATION => static::$sut,
       '--' . InstallCommand::OPTION_PROMPTS => $prompts,
     ]);

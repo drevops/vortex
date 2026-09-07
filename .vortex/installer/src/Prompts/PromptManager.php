@@ -349,6 +349,26 @@ class PromptManager {
   }
 
   /**
+   * Render a template download using the responses this run collected.
+   *
+   * @param string $dir
+   *   Directory holding an unprocessed template download.
+   * @param string $version
+   *   Version to stamp into the rendered content.
+   */
+  public function renderTemplate(string $dir, string $version): void {
+    $config = clone $this->config;
+    $config->set(Config::TMP, $dir, TRUE);
+    $config->set(Config::VERSION, $version, TRUE);
+
+    // Handlers bind to the directory they are constructed with, so rendering
+    // into a directory other than this run's staging copy needs its own set.
+    $manager = new self($config);
+    $manager->responses = $this->responses;
+    $manager->runProcessors();
+  }
+
+  /**
    * Run all post-build processors.
    *
    * @param string $result
