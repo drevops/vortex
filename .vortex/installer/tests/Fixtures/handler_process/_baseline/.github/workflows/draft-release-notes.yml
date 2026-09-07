@@ -37,9 +37,33 @@ jobs:
           echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
           echo "Version set to ${VERSION}"
 
+      # The previous release is the numerically highest of all releases, so
+      # releases left behind by a superseded versioning scheme outrank the
+      # current ones and both the resolved version and the change list are
+      # then computed from the wrong release.
+      - name: Resolve release version filter
+        id: filter
+        env:
+          VORTEX_RELEASE_VERSION_FILTER_OVERRIDE: ${{ vars.VORTEX_RELEASE_VERSION_FILTER }}
+        run: |
+          RANGE="${VORTEX_RELEASE_VERSION_FILTER_OVERRIDE:-${VORTEX_RELEASE_VERSION_FILTER}}"
+          if [ -z "${RANGE}" ]; then
+            case "${VORTEX_RELEASE_VERSION_SCHEME}" in
+              # CalVer years and SemVer majors share the number space, so 20
+              # splits them: SemVer stays below it, CalVer short years from
+              # 2020 onwards stay above it.
+              *calver*) RANGE='>=__VERSION__' ;;
+              *semver*) RANGE='<__VERSION__' ;;
+              *) RANGE='*' ;;
+            esac
+          fi
+          echo "range=${RANGE}" >> "${GITHUB_OUTPUT}"
+          echo "Release version filter set to ${RANGE}"
+
       - name: Draft release notes
         uses: release-drafter/release-drafter@__HASH__ # __VERSION__
         with:
           tag: ${{ steps.calver.outputs.version }}
           name: ${{ steps.calver.outputs.version }}
           version: ${{ steps.calver.outputs.version }}
+          filter-by-range: ${{ steps.filter.outputs.range }}
