@@ -94,7 +94,7 @@ class InstallerTest extends FunctionalTestCase {
     $this->logSubstep('Install the SUT from the version that ships the script');
     $this->installSutFrom($commit_with_script);
     $this->assertFileExists('scripts/provision-50-legacy.sh', 'Template-owned script installed into the SUT');
-    $this->assertFileExists('.vortex-manifest.json', 'Install records what it wrote');
+    $this->assertFileDoesNotExist('.vortex-manifest.json', 'Install records nothing in the project');
     $this->gitCommitAll(static::$sut, 'Init Vortex');
 
     $commit_without_script = $this->dropLegacyScriptFromTemplate();

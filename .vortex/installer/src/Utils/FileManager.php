@@ -26,21 +26,31 @@ class FileManager {
   protected array $templatePaths = [];
 
   /**
-   * Name of the file recording what the installer wrote into the project.
-   */
-  const MANIFEST_FILE = '.vortex-manifest.json';
-
-  /**
    * Algorithm used to detect project edits to shipped files.
    */
   const HASH_ALGO = 'sha256';
 
   /**
-   * Content hashes shipped by the version the project currently runs.
+   * Content hashes the version the project currently runs installed.
    *
    * @var array<string, string>
    */
   protected array $previousTemplateHashes = [];
+
+  /**
+   * Directory holding the rendered version the project currently runs.
+   */
+  protected ?string $previousDir = NULL;
+
+  /**
+   * Reference of the version the project currently runs.
+   */
+  protected ?string $previousRef = NULL;
+
+  /**
+   * Path of the registry of project changes this update replaced.
+   */
+  protected ?string $registryFile = NULL;
 
   public function __construct(
     protected Config $config,
@@ -67,12 +77,18 @@ class FileManager {
   }
 
   /**
-   * Record the paths shipped by the version the project currently runs.
+   * Record what the version the project currently runs installed.
    *
    * A path the template has stopped shipping altogether is absent from the
-   * incoming download, so the selection diff alone cannot see it. Listing the
-   * project's own version restores it as a candidate, which is what makes a
-   * file dropped between releases removable rather than permanent.
+   * incoming download, so the selection diff alone cannot see it. Rendering
+   * the project's own version restores it as a candidate, which is what makes
+   * a file dropped between releases removable rather than permanent.
+   *
+   * The download is rendered rather than hashed as it arrives, resolving the
+   * token replacements and directory renames that leave the template's own
+   * files matching nothing in the project. Rendering it as the destination
+   * has it installed, rather than as this run would install it, is what keeps
+   * a path this run drops recognisable as template-owned.
    *
    * Failure is not fatal: the recorded reference may no longer resolve, in
    * which case only the selection diff applies.
@@ -81,8 +97,11 @@ class FileManager {
    *   The repository downloader.
    * @param \DrevOps\VortexInstaller\Downloader\Artifact $artifact
    *   The artifact identifying the repository to read the reference from.
+   * @param callable|null $render
+   *   Callback turning the download into installable content, receiving the
+   *   directory and the reference.
    */
-  public function snapshotPreviousTemplate(RepositoryDownloader $downloader, Artifact $artifact): void {
+  public function snapshotPreviousTemplate(RepositoryDownloader $downloader, Artifact $artifact, ?callable $render = NULL): void {
     if (!$this->config->isVortexProject()) {
       return;
     }
@@ -100,12 +119,18 @@ class FileManager {
       File::remove($dir);
       File::mkdir($dir);
       $downloader->download(Artifact::create($artifact->getRepo(), $ref), $dir);
+
+      if ($render !== NULL) {
+        $render($dir, $ref);
+      }
+
       $this->previousTemplateHashes = $this->hashDirectory($dir);
+      $this->previousDir = $dir;
+      $this->previousRef = $ref;
     }
     catch (\Exception) {
       $this->previousTemplateHashes = [];
-    }
-    finally {
+      $this->previousDir = NULL;
       File::remove($dir);
     }
   }
@@ -148,15 +173,10 @@ class FileManager {
     $destination = $this->config->getDestination();
 
     // What the project should hold for a path this install no longer ships.
-    // The manifest is authoritative because it records the processed content
-    // that was actually written; the previous version's own files stand in for
-    // projects installed before manifests existed, and match only where the
-    // installer copied the file through unchanged.
     $expected = $this->previousTemplateHashes;
-    $expected = $this->readManifest() + $expected;
 
-    // Anything either version of the template ships, or the last install
-    // wrote, but the staged copy no longer holds.
+    // Anything the version the project runs installed, or either version of
+    // the template ships, but the staged copy no longer holds.
     $shipped = array_merge(array_keys($expected), $this->templatePaths);
     $excluded = array_diff($shipped, $this->relativePaths($src));
 
@@ -188,6 +208,8 @@ class FileManager {
       File::rmdirIfEmpty($dir);
     }
 
+    $this->recordReplacedChanges($src);
+
     if (is_dir($src) && !File::dirIsEmpty($src)) {
       File::copy($src, $destination);
     }
@@ -199,7 +221,7 @@ class FileManager {
 
     $this->removeExcludedPaths($excluded, $expected);
     $this->removeObsoletePaths();
-    $this->writeManifest($src);
+    $this->cleanupPreviousTemplate();
   }
 
   /**
@@ -215,7 +237,7 @@ class FileManager {
    * @param array<string> $paths
    *   Template-relative paths absent from the staged copy.
    * @param array<string, string> $expected
-   *   Content hashes the template last wrote, keyed by path.
+   *   Content hashes the template last installed, keyed by path.
    */
   protected function removeExcludedPaths(array $paths, array $expected): void {
     if (!$this->config->isVortexProject()) {
@@ -260,47 +282,68 @@ class FileManager {
   }
 
   /**
-   * Record what this install wrote, so the next one can detect project edits.
+   * Record the project changes that the copy is about to replace.
    *
-   * The staged copy at this point holds exactly the processed content that was
-   * copied into the destination, which is what a later run has to compare the
-   * project's files against.
+   * The copy overlays the staged content without regard for what the project
+   * put there, so a change the project made to a shipped file is lost. The
+   * content of all three sides is only available before the overlay, which is
+   * where the registry has to be built.
    *
    * @param string $src
    *   The staged template directory.
    */
-  protected function writeManifest(string $src): void {
-    $hashes = $this->hashDirectory($src);
-
-    if ($hashes === []) {
+  protected function recordReplacedChanges(string $src): void {
+    if ($this->previousDir === NULL) {
       return;
     }
 
-    ksort($hashes);
+    $destination = (string) $this->config->getDestination();
+    $registry = new UpdateRegistry($destination);
 
-    File::dump($this->config->getDestination() . '/' . self::MANIFEST_FILE, json_encode($hashes, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
+    foreach ($this->relativePaths($src) as $path) {
+      $project = $destination . '/' . $path;
+
+      if (!is_file($project)) {
+        continue;
+      }
+
+      $next = $src . '/' . $path;
+      $project_hash = hash_file(self::HASH_ALGO, $project);
+
+      // The file still holds what the template put there, or already holds
+      // what the copy would put there, so the copy replaces nothing.
+      if ($project_hash === ($this->previousTemplateHashes[$path] ?? NULL) || $project_hash === hash_file(self::HASH_ALGO, $next)) {
+        continue;
+      }
+
+      // A path the version the project runs never shipped has no content to
+      // diff the project's copy against.
+      $previous = $this->previousDir . '/' . $path;
+
+      $registry->add($path, is_file($previous) ? File::read($previous) : NULL, File::read($project), File::read($next));
+    }
+
+    $this->registryFile = $registry->write((string) $this->previousRef, (string) $this->config->get(Config::VERSION), date('Y-m-d H:i:s'));
   }
 
   /**
-   * Read the hashes recorded by the previous install.
-   *
-   * @return array<string, string>
-   *   Content hashes keyed by path, empty when the project has no manifest.
+   * Remove the rendered copy of the version the project currently runs.
    */
-  protected function readManifest(): array {
-    $file = $this->config->getDestination() . '/' . self::MANIFEST_FILE;
-
-    if (!is_file($file)) {
-      return [];
+  protected function cleanupPreviousTemplate(): void {
+    if ($this->previousDir !== NULL) {
+      File::remove($this->previousDir);
+      $this->previousDir = NULL;
     }
+  }
 
-    $data = json_decode((string) file_get_contents($file), TRUE);
-
-    if (!is_array($data)) {
-      return [];
-    }
-
-    return array_filter($data, fn(mixed $hash, mixed $path): bool => is_string($path) && is_string($hash), ARRAY_FILTER_USE_BOTH);
+  /**
+   * Get the registry of project changes this update replaced.
+   *
+   * @return string|null
+   *   Path of the registry, or NULL when no project change was replaced.
+   */
+  public function getRegistryFile(): ?string {
+    return $this->registryFile;
   }
 
   /**
@@ -356,12 +399,17 @@ class FileManager {
   public function removeObsoletePaths(): void {
     $destination = $this->config->getDestination();
 
-    // 'scripts/vortex/' was the location of shipped Vortex scripts before
-    // they were extracted into the 'drevops/vortex-tooling' Composer package.
-    // Consumer projects updated from older Vortex versions still have it.
     $obsolete = [
+      // The location of shipped Vortex scripts before they were extracted
+      // into the 'drevops/vortex-tooling' Composer package.
       'scripts/vortex',
     ];
+
+    // Install-time bookkeeping, derived at run time instead. Only a project
+    // that already runs Vortex can hold one the installer wrote.
+    if ($this->config->isVortexProject()) {
+      $obsolete[] = '.vortex-manifest.json';
+    }
 
     foreach ($obsolete as $relative) {
       $path = $destination . '/' . $relative;

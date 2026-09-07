@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
+use DrevOps\VortexInstaller\Downloader\Artifact;
 use DrevOps\VortexInstaller\Downloader\Downloader;
+use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\FileManager;
+use DrevOps\VortexInstaller\Utils\UpdateRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
@@ -175,7 +178,7 @@ class FileManagerTest extends UnitTestCase {
     // A previous install wrote both, unmodified since.
     file_put_contents(File::mkdir($destination) . '/phpstan.neon', 'parameters: []');
     file_put_contents(File::mkdir($destination . '/.circleci') . '/config.yml', 'version: 2.1');
-    $this->stubManifest($destination, [
+    $this->stubPreviousTemplate($fm, $destination, [
       'phpstan.neon' => 'parameters: []',
       '.circleci/config.yml' => 'version: 2.1',
     ]);
@@ -206,7 +209,7 @@ class FileManagerTest extends UnitTestCase {
 
     // The project edited the file after the previous install wrote it.
     file_put_contents(File::mkdir($destination) . '/phpstan.neon', "parameters:\n  level: 8");
-    $this->stubManifest($destination, ['phpstan.neon' => 'parameters: []']);
+    $this->stubPreviousTemplate($fm, $destination, ['phpstan.neon' => 'parameters: []']);
 
     $fm->snapshotTemplate();
     File::remove($src . '/phpstan.neon');
@@ -228,7 +231,7 @@ class FileManagerTest extends UnitTestCase {
     $fm = new FileManager($config);
     $fm->snapshotTemplate();
 
-    // No manifest and no previous version, so ownership cannot be established.
+    // No previous version, so ownership cannot be established.
     file_put_contents(File::mkdir($destination) . '/phpstan.neon', 'parameters: []');
     File::remove($src . '/phpstan.neon');
 
@@ -237,9 +240,9 @@ class FileManagerTest extends UnitTestCase {
     $this->assertFileExists($destination . '/phpstan.neon', 'Without a recorded hash the file is left alone.');
   }
 
-  public function testCopyFilesWritesTheManifest(): void {
-    $src = self::$sut . '/src_manifest';
-    $destination = self::$sut . '/dst_manifest';
+  public function testCopyFilesWritesNoManifest(): void {
+    $src = self::$sut . '/src_no_manifest';
+    $destination = self::$sut . '/dst_no_manifest';
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
     file_put_contents(File::mkdir($src . '/scripts') . '/provision.sh', 'echo 1');
 
@@ -249,11 +252,133 @@ class FileManagerTest extends UnitTestCase {
 
     $fm->copyFiles();
 
-    $manifest = json_decode((string) file_get_contents($destination . '/' . FileManager::MANIFEST_FILE), TRUE);
+    $this->assertFileDoesNotExist($destination . '/.vortex-manifest.json', 'Install records nothing in the project.');
+  }
 
-    $this->assertIsArray($manifest);
-    $this->assertArrayHasKey('scripts/provision.sh', $manifest, 'Manifest records every shipped path.');
-    $this->assertEquals(hash('sha256', 'echo 1'), $manifest['scripts/provision.sh'], 'Manifest records the content that was written.');
+  public function testCopyFilesRemovesExcludedPathsMatchedOnlyAfterRendering(): void {
+    $src = self::$sut . '/src_rendered';
+    $destination = self::$sut . '/dst_rendered';
+    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+    file_put_contents($src . '/rector.php', 'paths: your_site');
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $fm = new FileManager($config);
+
+    // The project holds the rendered content, which the download never has.
+    file_put_contents(File::mkdir($destination) . '/rector.php', 'paths: star_wars');
+    $this->stubPreviousTemplate($fm, $destination, ['rector.php' => 'paths: your_site'], function (string $dir): void {
+      File::dump($dir . '/rector.php', 'paths: star_wars');
+    });
+
+    $fm->snapshotTemplate();
+    File::remove($src . '/rector.php');
+
+    $fm->copyFiles();
+
+    $this->assertFileDoesNotExist($destination . '/rector.php', 'Rendering resolves tokens that the download itself does not match.');
+  }
+
+  public function testCopyFilesRemovesExcludedPathsDeselectedByThisRun(): void {
+    $src = self::$sut . '/src_deselected';
+    $destination = self::$sut . '/dst_deselected';
+    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+    file_put_contents($src . '/jest.config.js', 'module.exports = {};');
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $fm = new FileManager($config);
+
+    file_put_contents(File::mkdir($destination) . '/jest.config.js', 'module.exports = {};');
+
+    // Discovery answers describe the project, which still has the tool, so
+    // the render keeps the file even though this run deselects it.
+    $this->stubPreviousTemplate($fm, $destination, ['jest.config.js' => 'module.exports = {};']);
+
+    $fm->snapshotTemplate();
+    File::remove($src . '/jest.config.js');
+
+    $fm->copyFiles();
+
+    $this->assertFileDoesNotExist($destination . '/jest.config.js', 'A tool the project has is still removable when this run deselects it.');
+  }
+
+  public function testCopyFilesRecordsReplacedProjectChanges(): void {
+    $src = self::$sut . '/src_registry';
+    $destination = self::$sut . '/dst_registry';
+    file_put_contents(File::mkdir($src) . '/phpstan.neon', "parameters:\n  level: 9\n");
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $config->set(Config::VERSION, '1.41.0', TRUE);
+    $fm = new FileManager($config);
+
+    // The project edited the file the previous version installed.
+    file_put_contents(File::mkdir($destination) . '/phpstan.neon', "parameters:\n  level: 8\n");
+    $this->stubPreviousTemplate($fm, $destination, ['phpstan.neon' => "parameters:\n  level: 5\n"]);
+
+    $fm->snapshotTemplate();
+    $fm->copyFiles();
+
+    $registry = $destination . '/' . UpdateRegistry::FILE;
+
+    $this->assertEquals($registry, $fm->getRegistryFile());
+    $this->assertStringEqualsFile($destination . '/phpstan.neon', "parameters:\n  level: 9\n", 'The update still replaces the project file.');
+    $this->assertFileContainsString($registry, '## 1.40.0 to 1.41.0');
+    $this->assertFileContainsString($registry, '### phpstan.neon');
+    $this->assertFileContainsString($registry, '-  level: 5');
+    $this->assertFileContainsString($registry, '+  level: 8');
+    $this->assertFileContainsString($registry, '+  level: 9');
+  }
+
+  public function testCopyFilesRecordsNothingWithoutProjectChanges(): void {
+    $src = self::$sut . '/src_no_registry';
+    $destination = self::$sut . '/dst_no_registry';
+    file_put_contents(File::mkdir($src) . '/phpstan.neon', "parameters:\n  level: 9\n");
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $fm = new FileManager($config);
+
+    file_put_contents(File::mkdir($destination) . '/phpstan.neon', "parameters:\n  level: 5\n");
+    $this->stubPreviousTemplate($fm, $destination, ['phpstan.neon' => "parameters:\n  level: 5\n"]);
+
+    $fm->snapshotTemplate();
+    $fm->copyFiles();
+
+    $this->assertNull($fm->getRegistryFile());
+    $this->assertFileDoesNotExist($destination . '/' . UpdateRegistry::FILE, 'An untouched file leaves nothing to reconcile.');
+  }
+
+  public function testCopyFilesRemovesCommittedManifest(): void {
+    $src = self::$sut . '/src_stale_manifest';
+    $destination = self::$sut . '/dst_stale_manifest';
+    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $fm = new FileManager($config);
+
+    file_put_contents(File::mkdir($destination) . '/.vortex-manifest.json', '{"composer.json":"abc"}');
+
+    $fm->copyFiles();
+
+    $this->assertFileDoesNotExist($destination . '/.vortex-manifest.json', 'A manifest an earlier install left behind is removed.');
+  }
+
+  public function testCopyFilesKeepsManifestInDestinationThatIsNotVortexProject(): void {
+    $src = self::$sut . '/src_foreign_manifest';
+    $destination = self::$sut . '/dst_foreign_manifest';
+    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+
+    $config = new Config('/tmp/root', $destination, $src);
+    $fm = new FileManager($config);
+
+    file_put_contents(File::mkdir($destination) . '/.vortex-manifest.json', '{"owned":"by the project"}');
+
+    $fm->copyFiles();
+
+    $this->assertFileExists($destination . '/.vortex-manifest.json', 'A destination that never ran Vortex keeps its own file.');
   }
 
   public function testCopyFilesKeepsPathsTheTemplateNeverShipped(): void {
@@ -349,17 +474,30 @@ class FileManagerTest extends UnitTestCase {
   }
 
   /**
-   * Write a manifest recording what a previous install wrote.
+   * Snapshot a stubbed download of the version the project runs.
    *
+   * @param \DrevOps\VortexInstaller\Utils\FileManager $fm
+   *   The file manager to snapshot into.
    * @param string $destination
    *   The project directory.
    * @param array<string, string> $files
-   *   Content the previous install wrote, keyed by relative path.
+   *   Content the previous version installed, keyed by relative path.
+   * @param callable|null $render
+   *   Callback turning the download into installable content.
    */
-  protected function stubManifest(string $destination, array $files): void {
-    $hashes = array_map(fn(string $contents): string => hash('sha256', $contents), $files);
+  protected function stubPreviousTemplate(FileManager $fm, string $destination, array $files, ?callable $render = NULL): void {
+    File::dump($destination . '/README.md', '[![Vortex](https://img.shields.io/badge/Vortex-1.40.0-65ACBC.svg)](https://github.com/drevops/vortex)');
 
-    File::dump($destination . '/' . FileManager::MANIFEST_FILE, (string) json_encode($hashes, JSON_PRETTY_PRINT));
+    $downloader = $this->createStub(RepositoryDownloader::class);
+    $downloader->method('download')->willReturnCallback(function (Artifact $artifact, ?string $dir = NULL) use ($files): string {
+      foreach ($files as $path => $contents) {
+        File::dump($dir . '/' . $path, $contents);
+      }
+
+      return $artifact->getRef();
+    });
+
+    $fm->snapshotPreviousTemplate($downloader, Artifact::create('https://github.com/drevops/vortex.git', '1.40.0'), $render);
   }
 
   /**

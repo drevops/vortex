@@ -224,7 +224,13 @@ EOF
           $version = $this->getRepositoryDownloader()->download($this->artifact, $this->config->get(Config::TMP), $release_prefix);
           $this->config->set(Config::VERSION, $version);
           $this->fileManager->snapshotTemplate();
-          $this->fileManager->snapshotPreviousTemplate($this->getRepositoryDownloader(), $this->artifact);
+          $this->fileManager->snapshotPreviousTemplate(
+            $this->getRepositoryDownloader(),
+            $this->artifact,
+            function (string $dir, string $ref): void {
+              $this->promptManager->renderAsInstalled($dir, $ref);
+            },
+          );
           return $version;
         },
         hint: fn(): string => sprintf('Downloading from "%s" repository at ref "%s"', $this->artifact->getRepo(), $this->artifact->getRef()),
@@ -262,7 +268,7 @@ EOF
       return Command::FAILURE;
     }
 
-    $this->presenter->footer();
+    $this->presenter->footer($this->fileManager->getRegistryFile());
 
     $should_build = TRUE;
     $requested_build = (bool) $this->config->get(Config::BUILD_NOW);

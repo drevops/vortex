@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Prompts;
 use DrevOps\VortexInstaller\Downloader\Artifact;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Tui;
 use Symfony\Component\Process\ExecutableFinder;
@@ -122,13 +123,26 @@ EOT;
     Tui::box($content, $title);
   }
 
-  public function footer(): void {
+  /**
+   * Display the footer after the installation finished.
+   *
+   * @param string|null $registry_file
+   *   Path of the registry of project changes the update replaced, or NULL
+   *   when the update replaced none.
+   */
+  public function footer(?string $registry_file = NULL): void {
     $output = '';
     $prefix = '  ';
 
     if ($this->config->isVortexProject()) {
       $title = 'Finished updating Vortex';
       $output .= 'Please review the changes and commit the required files.';
+
+      if ($registry_file !== NULL) {
+        $output .= PHP_EOL . PHP_EOL;
+        $output .= 'Project changes replaced by this update are recorded in:' . PHP_EOL;
+        $output .= $prefix . File::toRelative($registry_file, (string) $this->config->getDestination()) . PHP_EOL;
+      }
     }
     else {
       $title = 'Finished installing Vortex';
