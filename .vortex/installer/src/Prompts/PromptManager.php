@@ -73,6 +73,14 @@ class PromptManager {
   protected array $responses = [];
 
   /**
+   * Responses describing the destination as the handlers found it.
+   *
+   * Collected while the prompts run, so each value is the one discovery
+   * produced with the same preceding responses in context.
+   */
+  protected array $discoveredResponses = [];
+
+  /**
    * Current response index.
    *
    * Used to display the progress of the prompts.
@@ -247,6 +255,27 @@ class PromptManager {
     // Filter out elements with numeric keys returned by intro() calls.
     $responses = array_filter($responses, fn($key): bool => !is_numeric($key), ARRAY_FILTER_USE_KEY);
 
+    if ($this->config->getNoInteraction()) {
+      Tui::output()->setVerbosity($original_verbosity);
+    }
+
+    $this->responses = $this->normalizeResponses($responses);
+
+    // Discovery covers only the handlers that read the destination, so the
+    // collected answers fill the rest.
+    $this->discoveredResponses = $this->normalizeResponses(array_replace($responses, $this->discoveredResponses));
+  }
+
+  /**
+   * Fold internal answers into the responses they qualify.
+   *
+   * @param array $responses
+   *   Raw responses keyed by handler ID.
+   *
+   * @return array
+   *   The responses with internal answers merged and removed.
+   */
+  protected function normalizeResponses(array $responses): array {
     if (isset($responses[Profile::id()]) && $responses[Profile::id()] === Profile::CUSTOM && isset($responses[ProfileCustom::id()])) {
       $responses[Profile::id()] = $responses[ProfileCustom::id()];
     }
@@ -270,11 +299,7 @@ class PromptManager {
       $responses[Starter::id()] = Starter::LOAD_DATABASE_DEMO;
     }
 
-    if ($this->config->getNoInteraction()) {
-      Tui::output()->setVerbosity($original_verbosity);
-    }
-
-    $this->responses = $responses;
+    return $responses;
   }
 
   /**
@@ -349,14 +374,19 @@ class PromptManager {
   }
 
   /**
-   * Render a template download using the responses this run collected.
+   * Render a template download as the destination has it installed.
+   *
+   * The answers come from discovery against the destination rather than from
+   * the choices this run collected, so the render reproduces the project's
+   * current configuration even where this run changes it. That is what makes
+   * the result comparable to the project's own files.
    *
    * @param string $dir
    *   Directory holding an unprocessed template download.
    * @param string $version
    *   Version to stamp into the rendered content.
    */
-  public function renderTemplate(string $dir, string $version): void {
+  public function renderAsInstalled(string $dir, string $version): void {
     $config = clone $this->config;
     $config->set(Config::TMP, $dir, TRUE);
     $config->set(Config::VERSION, $version, TRUE);
@@ -364,7 +394,7 @@ class PromptManager {
     // Handlers bind to the directory they are constructed with, so rendering
     // into a directory other than this run's staging copy needs its own set.
     $manager = new self($config);
-    $manager->responses = $this->responses;
+    $manager->responses = $this->discoveredResponses;
     $manager->runProcessors();
   }
 
@@ -679,6 +709,10 @@ class PromptManager {
     $default_from_prompts = $this->promptOverrides[$id] ?? NULL;
     $default_from_discovery = $handler->discover();
 
+    if ($default_from_discovery !== NULL) {
+      $this->discoveredResponses[$id] = $default_from_discovery;
+    }
+
     if ($default_from_prompts !== NULL) {
       $default = $default_from_prompts;
     }
@@ -722,6 +756,10 @@ class PromptManager {
       if ($message) {
         Tui::success($message);
       }
+
+      // A resolved value is read from the destination, so it stands in for
+      // discovery for handlers that never reach a prompt.
+      $this->discoveredResponses[$handler_id] = $resolved;
 
       return $resolved;
     }

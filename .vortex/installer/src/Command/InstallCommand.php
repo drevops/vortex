@@ -228,7 +228,7 @@ EOF
             $this->getRepositoryDownloader(),
             $this->artifact,
             function (string $dir, string $ref): void {
-              $this->promptManager->renderTemplate($dir, $ref);
+              $this->promptManager->renderAsInstalled($dir, $ref);
             },
           );
           return $version;

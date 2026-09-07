@@ -102,6 +102,10 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
 
     $this->assertFileExists($registry, 'A replaced project change is recorded.');
     $this->assertFileContainsString($registry, '### .ahoy.yml');
+    // Rendering the installed version reproduces token replacements and the
+    // theme directory rename, so files the project left alone match it.
+    $this->assertFileNotContainsString($registry, '### composer.json', 'A token-processed file the project did not change is not recorded.');
+    $this->assertFileNotContainsString($registry, '### web/themes/custom/star_wars/package.json', 'A file under a renamed directory is not recorded.');
     $this->assertFileContainsString($registry, '+# Project addition.');
     $this->assertFileNotContainsString(static::$sut . '/.ahoy.yml', '# Project addition.', 'The update still replaces the project file.');
   }

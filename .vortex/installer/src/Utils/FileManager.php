@@ -31,9 +31,9 @@ class FileManager {
   const HASH_ALGO = 'sha256';
 
   /**
-   * Content hashes the version the project currently runs could have written.
+   * Content hashes the version the project currently runs installed.
    *
-   * @var array<string, array<int, string>>
+   * @var array<string, string>
    */
   protected array $previousTemplateHashes = [];
 
@@ -84,11 +84,11 @@ class FileManager {
    * the project's own version restores it as a candidate, which is what makes
    * a file dropped between releases removable rather than permanent.
    *
-   * The download is hashed both as it arrives and once rendered. Rendering
-   * resolves token replacements and directory renames, which the download's
-   * own files cannot match; rendering also applies this run's answers, which
-   * strips whatever the current selection drops. Either hash therefore stands
-   * for content the project could hold, so both are kept as candidates.
+   * The download is rendered rather than hashed as it arrives, resolving the
+   * token replacements and directory renames that leave the template's own
+   * files matching nothing in the project. Rendering it as the destination
+   * has it installed, rather than as this run would install it, is what keeps
+   * a path this run drops recognisable as template-owned.
    *
    * Failure is not fatal: the recorded reference may no longer resolve, in
    * which case only the selection diff applies.
@@ -120,17 +120,11 @@ class FileManager {
       File::mkdir($dir);
       $downloader->download(Artifact::create($artifact->getRepo(), $ref), $dir);
 
-      $hashes = array_map(fn(string $hash): array => [$hash], $this->hashDirectory($dir));
-
       if ($render !== NULL) {
         $render($dir, $ref);
-
-        foreach ($this->hashDirectory($dir) as $path => $hash) {
-          $hashes[$path][] = $hash;
-        }
       }
 
-      $this->previousTemplateHashes = array_map(fn(array $candidates): array => array_values(array_unique($candidates)), $hashes);
+      $this->previousTemplateHashes = $this->hashDirectory($dir);
       $this->previousDir = $dir;
       $this->previousRef = $ref;
     }
@@ -242,8 +236,8 @@ class FileManager {
    *
    * @param array<string> $paths
    *   Template-relative paths absent from the staged copy.
-   * @param array<string, array<int, string>> $expected
-   *   Content hashes the template could have written, keyed by path.
+   * @param array<string, string> $expected
+   *   Content hashes the template last installed, keyed by path.
    */
   protected function removeExcludedPaths(array $paths, array $expected): void {
     if (!$this->config->isVortexProject()) {
@@ -268,7 +262,7 @@ class FileManager {
 
       // Without a recorded hash there is nothing to compare the project's copy
       // against, so ownership cannot be established.
-      if (!isset($expected[$path]) || !in_array(hash_file(self::HASH_ALGO, $target), $expected[$path], TRUE)) {
+      if (!isset($expected[$path]) || hash_file(self::HASH_ALGO, $target) !== $expected[$path]) {
         continue;
       }
 
@@ -318,7 +312,7 @@ class FileManager {
 
       // The file still holds what the template put there, or already holds
       // what the copy would put there, so the copy replaces nothing.
-      if (in_array($project_hash, $this->previousTemplateHashes[$path] ?? [], TRUE) || $project_hash === hash_file(self::HASH_ALGO, $next)) {
+      if ($project_hash === ($this->previousTemplateHashes[$path] ?? NULL) || $project_hash === hash_file(self::HASH_ALGO, $next)) {
         continue;
       }
 

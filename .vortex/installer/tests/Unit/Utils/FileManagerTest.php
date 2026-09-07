@@ -276,10 +276,10 @@ class FileManagerTest extends UnitTestCase {
 
     $fm->copyFiles();
 
-    $this->assertFileDoesNotExist($destination . '/rector.php', 'Rendering resolves tokens that the download itself cannot match.');
+    $this->assertFileDoesNotExist($destination . '/rector.php', 'Rendering resolves tokens that the download itself does not match.');
   }
 
-  public function testCopyFilesRemovesExcludedPathsDroppedByRendering(): void {
+  public function testCopyFilesRemovesExcludedPathsDeselectedByThisRun(): void {
     $src = self::$sut . '/src_deselected';
     $destination = self::$sut . '/dst_deselected';
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
@@ -291,18 +291,16 @@ class FileManagerTest extends UnitTestCase {
 
     file_put_contents(File::mkdir($destination) . '/jest.config.js', 'module.exports = {};');
 
-    // This run deselected the tool, so rendering the previous version with
-    // these answers drops the file the project still holds.
-    $this->stubPreviousTemplate($fm, $destination, ['jest.config.js' => 'module.exports = {};'], function (string $dir): void {
-      File::remove($dir . '/jest.config.js');
-    });
+    // Discovery answers describe the project, which still has the tool, so
+    // the render keeps the file even though this run deselects it.
+    $this->stubPreviousTemplate($fm, $destination, ['jest.config.js' => 'module.exports = {};']);
 
     $fm->snapshotTemplate();
     File::remove($src . '/jest.config.js');
 
     $fm->copyFiles();
 
-    $this->assertFileDoesNotExist($destination . '/jest.config.js', "The download's own hash establishes ownership when rendering drops the file.");
+    $this->assertFileDoesNotExist($destination . '/jest.config.js', 'A tool the project has is still removable when this run deselects it.');
   }
 
   public function testCopyFilesRecordsReplacedProjectChanges(): void {
