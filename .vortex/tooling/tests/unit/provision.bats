@@ -196,7 +196,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
+    "-       Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
@@ -362,7 +362,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "-       Fresh database detected. Performing additional example operations."
-    "Existing database detected. Performing additional example operations."
+    "      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
@@ -537,7 +537,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
+    "-       Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
@@ -727,7 +727,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
+    "-       Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
@@ -968,7 +968,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
+    "-       Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
@@ -1137,7 +1137,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "-       Fresh database detected. Performing additional example operations."
-    "Existing database detected. Performing additional example operations."
+    "      Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
@@ -1313,7 +1313,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
+    "-       Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
@@ -1672,7 +1672,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
+    "-       Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
@@ -1845,7 +1845,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
+    "-       Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
@@ -2138,7 +2138,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
+    "-       Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
@@ -2329,7 +2329,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
+    "-       Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
@@ -2572,7 +2572,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
+    "-       Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
@@ -2902,7 +2902,7 @@ assert_provision_info() {
     "    > Performing an example operation."
     # Assert that VORTEX_PROVISION_OVERRIDE_DB is correctly passed to the script.
     "      Fresh database detected. Performing additional example operations."
-    "-      Existing database detected. Performing additional example operations."
+    "-       Existing database detected. Performing additional example operations."
     "  ==> Finished example operations."
     'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
 
