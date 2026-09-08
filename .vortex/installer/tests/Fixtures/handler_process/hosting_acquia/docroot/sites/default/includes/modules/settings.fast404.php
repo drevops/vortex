@@ -7,8 +7,6 @@
 
 declare(strict_types=1);
 
-// The 'drupal/fast_404' package installs into 'fast_404', while its include
-// file is named 'fast404.inc'.
 if (file_exists($contrib_path . '/fast_404/fast404.inc')) {
   $settings['fast404_exts'] = '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
   $settings['fast404_allow_anon_imagecache'] = TRUE;
