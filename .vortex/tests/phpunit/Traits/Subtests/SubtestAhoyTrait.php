@@ -1044,6 +1044,10 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Assert that a missing page without an extension is left to Drupal');
     $this->assertWebpageNotContains('/some-missing-page', $error_page, 'Path checking is disabled, so Drupal answers paths that carry no file extension');
+    // The settings script only ever appears on a page Drupal itself rendered,
+    // so it separates a Drupal 404 from a web server one.
+    $this->assertWebpageContains('/some-missing-page', 'drupal-settings-json', 'Drupal should render the 404 page for a path that carries no file extension');
+    $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://nginx:8080/some-missing-page | grep -q 404', txt: 'Missing page should be answered with a 404 status');
 
     $this->logStepFinish();
   }
