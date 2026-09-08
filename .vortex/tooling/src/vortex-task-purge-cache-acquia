@@ -139,7 +139,7 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
       break
     fi
 
-    echo -n "     > Checking task status: "
+    printf "       Checking task status: "
     task_completed=0
     # shellcheck disable=SC2034
     for i in $(seq 1 "${VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES}"); do

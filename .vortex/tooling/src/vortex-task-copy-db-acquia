@@ -104,7 +104,7 @@ task "Copying database from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_C
 task_status_json=$(curl -X POST -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d "{\"source\":\"${src_env_id}\", \"name\":\"${VORTEX_TASK_COPY_DB_ACQUIA_NAME}\"}" "https://cloud.acquia.com/api/environments/${dst_env_id}/databases")
 notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href")
 
-echo -n "     > Checking task status: "
+printf "       Checking task status: "
 task_completed=0
 # shellcheck disable=SC2034
 for i in $(seq 1 "${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES}"); do
