@@ -17,6 +17,7 @@
         "drupal/devel": "^5.5",
         "drupal/drupal_helpers": "^2.1.1",
         "drupal/environment_indicator": "^4.0.25",
+        "drupal/fast_404": "^3.7",
         "drupal/generated_content": "^2.1.1",
         "drupal/migrate_plus": "^6.0.10",
         "drupal/migrate_tools": "^6.1.4",

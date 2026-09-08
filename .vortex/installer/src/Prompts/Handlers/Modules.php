@@ -159,6 +159,7 @@ class Modules extends AbstractHandler {
       'devel' => 'Devel',
       'drupal_helpers' => 'Drupal helpers',
       'environment_indicator' => 'Environment indicator',
+      'fast_404' => 'Fast 404',
       'generated_content' => 'Generated content',
       'navigation_extra_tools' => 'Navigation extra tools',
       'pathauto' => 'Pathauto',

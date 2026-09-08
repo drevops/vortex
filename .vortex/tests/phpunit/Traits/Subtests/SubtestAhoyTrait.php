@@ -1024,22 +1024,11 @@ trait SubtestAhoyTrait {
   protected function subtestAhoyFast404(): void {
     $this->logStepStart();
 
-    // Drupal core serves a near-identical 404 page for the same extensions,
-    // so the DOCTYPE from `settings.fast404.php` is what tells the two apart.
-    $error_page_marker = '-//W3C//DTD XHTML+RDFa 1.0//EN';
-
-    $this->logSubstep('Assert that the preboot error page is not served while the module is absent');
-    $this->assertWebpageNotContains('/missing.png', $error_page_marker, 'Error page from `settings.fast404.php` should not be served without the module');
-
-    $this->logSubstep('Install the Fast 404 module');
-    $this->cmd('ahoy composer require drupal/fast_404', txt: '`drupal/fast_404` should be installed');
-
     $this->logSubstep('Assert that the preboot error page is served for a missing asset');
-    $this->assertWebpageContains('/missing.png', $error_page_marker, 'Error page from `settings.fast404.php` should be served once the module is installed');
+    // Drupal core serves a near-identical 404 page for the same extensions,
+    // so the DOCTYPE from `settings.fast_404.php` is what tells the two apart.
+    $this->assertWebpageContains('/missing.png', '-//W3C//DTD XHTML+RDFa 1.0//EN', 'Error page from `settings.fast_404.php` should be served');
     $this->assertWebpageContains('/missing.png', 'The requested URL "/missing.png" was not found on this server.', 'Error page should report the request path resolved before Drupal bootstraps');
-
-    $this->logSubstep('Cleanup after test');
-    $this->cmd('ahoy composer remove drupal/fast_404');
 
     $this->logStepFinish();
   }

@@ -347,6 +347,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -451,6 +455,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^localhost$',
     ];
 
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -519,6 +527,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -590,6 +602,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^example\-site\.docker\.amazee\.io$',
       '^nginx$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -701,6 +717,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
   // phpcs:ignore #;> SETTINGS_PROVIDER_CIRCLECI
@@ -772,6 +792,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
   // phpcs:ignore #;> SETTINGS_PROVIDER_GHA
@@ -838,6 +862,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -902,6 +930,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -966,6 +998,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -1027,6 +1063,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -1092,6 +1132,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -1165,6 +1209,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['trusted_host_patterns'] = [
       '^localhost$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -1242,6 +1290,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^example1\.com$',
       '^example2$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -1317,6 +1369,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^example1\.com$',
       '^example2$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -1392,6 +1448,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^example1\.com$',
       '^example2$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -1465,6 +1525,10 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       '^example1\.com$',
       '^example2$',
     ];
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings += static::expectedFast404Settings();
+    // phpcs:ignore #;> MODULE_FAST_404
+
     $this->assertSettings($settings);
   }
 
@@ -1491,5 +1555,22 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     ]);
   }
   // phpcs:ignore #;> SETTINGS_PROVIDER_LAGOON
+
+  // phpcs:ignore #;< MODULE_FAST_404
+
+  /**
+   * Settings applied by the Fast 404 override in every environment.
+   */
+  protected static function expectedFast404Settings(): array {
+    return [
+      'fast404_exts' => '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i',
+      'fast404_allow_anon_imagecache' => TRUE,
+      'fast404_whitelist' => ['index.php', 'rss.xml', 'install.php', 'cron.php', 'update.php', 'xmlrpc.php'],
+      'fast404_string_whitelisting' => ['/advagg_'],
+      'fast404_html' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>',
+    ];
+  }
+
+  // phpcs:ignore #;> MODULE_FAST_404
 
 }
