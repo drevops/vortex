@@ -10,9 +10,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Tests for Artifact class.
- */
 #[CoversClass(Artifact::class)]
 class ArtifactTest extends TestCase {
 
@@ -32,11 +29,7 @@ class ArtifactTest extends TestCase {
     }
   }
 
-  /**
-   * Data provider for testFromUri().
-   */
   public static function dataProviderFromUri(): \Iterator {
-    // Default URI cases.
     yield 'null uri defaults to default repo and stable ref' => [
       NULL,
       RepositoryDownloader::DEFAULT_REPO,
@@ -47,7 +40,6 @@ class ArtifactTest extends TestCase {
       RepositoryDownloader::DEFAULT_REPO,
       RepositoryDownloader::REF_STABLE,
     ];
-    // GitHub HTTPS patterns.
     yield 'https url with #ref' => [
       'https://github.com/drevops/vortex.git#1.0.0',
       'https://github.com/drevops/vortex.git',
@@ -73,7 +65,6 @@ class ArtifactTest extends TestCase {
       'https://github.com/drevops/vortex',
       'abc123def',
     ];
-    // Git SSH patterns.
     yield 'git@ scp-style with #ref' => [
       'git@github.com:drevops/vortex#stable',
       'git@github.com:drevops/vortex',
@@ -84,7 +75,6 @@ class ArtifactTest extends TestCase {
       'git@github.com:drevops/vortex',
       'HEAD',
     ];
-    // SSH and Git protocol URLs.
     yield 'ssh:// url with #ref' => [
       'ssh://git@github.com/drevops/vortex#develop',
       'ssh://git@github.com/drevops/vortex',
@@ -115,7 +105,6 @@ class ArtifactTest extends TestCase {
       'http://github.com/drevops/vortex',
       'HEAD',
     ];
-    // Local path patterns.
     yield 'local path with #ref' => [
       '/path/to/repo#develop',
       '/path/to/repo',
@@ -141,7 +130,6 @@ class ArtifactTest extends TestCase {
       '/path/to/repo',
       'HEAD',
     ];
-    // Invalid ref format.
     yield 'invalid ref with space' => [
       'https://github.com/drevops/vortex.git#invalid ref',
       '',
@@ -163,7 +151,6 @@ class ArtifactTest extends TestCase {
       \RuntimeException::class,
       'Invalid git reference: "feature//name"',
     ];
-    // Invalid URI formats.
     yield 'invalid https format - missing path structure' => [
       'https://github.com',
       '',
@@ -236,9 +223,6 @@ class ArtifactTest extends TestCase {
     }
   }
 
-  /**
-   * Data provider for testCreate().
-   */
   public static function dataProviderCreate(): \Iterator {
     yield 'valid remote repo and ref' => [
       'https://github.com/drevops/vortex.git',
@@ -268,9 +252,6 @@ class ArtifactTest extends TestCase {
     $this->assertEquals($expected, $artifact->isRemote());
   }
 
-  /**
-   * Data provider for testIsRemote().
-   */
   public static function dataProviderIsRemote(): \Iterator {
     yield 'https url' => ['https://github.com/drevops/vortex.git', TRUE];
     yield 'http url' => ['http://github.com/drevops/vortex.git', TRUE];
@@ -288,9 +269,6 @@ class ArtifactTest extends TestCase {
     $this->assertEquals($expected, $artifact->isLocal());
   }
 
-  /**
-   * Data provider for testIsLocal().
-   */
   public static function dataProviderIsLocal(): \Iterator {
     yield 'https url' => ['https://github.com/drevops/vortex.git', FALSE];
     yield 'http url' => ['http://github.com/drevops/vortex.git', FALSE];
@@ -308,9 +286,6 @@ class ArtifactTest extends TestCase {
     $this->assertEquals($expected, $artifact->isDefault());
   }
 
-  /**
-   * Data provider for testIsDefault().
-   */
   public static function dataProviderIsDefault(): \Iterator {
     yield 'default repo with stable ref' => [
       RepositoryDownloader::DEFAULT_REPO,
@@ -350,9 +325,6 @@ class ArtifactTest extends TestCase {
     $this->assertEquals($expected_url, $artifact->getRepoUrl());
   }
 
-  /**
-   * Data provider for testGetRepoUrl().
-   */
   public static function dataProviderGetRepoUrl(): \Iterator {
     yield 'https url with .git' => [
       'https://github.com/drevops/vortex.git',
@@ -378,9 +350,6 @@ class ArtifactTest extends TestCase {
     $this->assertEquals($expected, $artifact->isStable());
   }
 
-  /**
-   * Data provider for testIsStable().
-   */
   public static function dataProviderIsStable(): \Iterator {
     yield 'stable ref' => ['https://github.com/drevops/vortex.git', 'stable', TRUE];
     yield 'HEAD ref' => ['https://github.com/drevops/vortex.git', 'HEAD', FALSE];
@@ -394,9 +363,6 @@ class ArtifactTest extends TestCase {
     $this->assertEquals($expected, $artifact->isDevelopment());
   }
 
-  /**
-   * Data provider for testIsDevelopment().
-   */
   public static function dataProviderIsDevelopment(): \Iterator {
     yield 'HEAD ref' => ['https://github.com/drevops/vortex.git', 'HEAD', TRUE];
     yield 'stable ref' => ['https://github.com/drevops/vortex.git', 'stable', FALSE];

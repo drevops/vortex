@@ -122,7 +122,6 @@ final readonly class Artifact {
    * Check if this artifact uses default repository and reference.
    */
   public function isDefault(): bool {
-    // Check if using default repository (with or without .git).
     $default_repo_without_git = self::normalizeRepoUrl(RepositoryDownloader::DEFAULT_REPO);
     $is_default_repo = ($this->repo === RepositoryDownloader::DEFAULT_REPO || $this->repo === $default_repo_without_git);
 
@@ -168,7 +167,6 @@ final readonly class Artifact {
       $src = $matches[1] . '#' . $matches[2];
     }
 
-    // Try GitHub-specific patterns first.
     $github_pattern = self::detectGitHubUrlPattern($src);
     if ($github_pattern !== NULL) {
       [$repo, $ref] = $github_pattern;
@@ -180,7 +178,6 @@ final readonly class Artifact {
       return [$repo, $ref];
     }
 
-    // Fall back to #ref parsing (standard git reference syntax).
     if (str_starts_with($src, 'https://') || str_starts_with($src, 'http://')) {
       if (!preg_match('~^(https?://[^/]+/[^/]+/[^#]+)(?:#(.+))?$~', $src, $matches)) {
         throw new \RuntimeException(sprintf('Invalid remote repository format: "%s". Use # to specify a reference (e.g., repo.git#tag).', $src));

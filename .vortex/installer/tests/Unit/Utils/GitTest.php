@@ -4,74 +4,16 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
-use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
+use CzProject\GitPhp\GitRepository;
 use CzProject\GitPhp\RunnerResult;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
+use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Git;
-use CzProject\GitPhp\GitRepository;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-/**
- * Class GitTest.
- *
- * GitTest fixture class.
- */
 #[CoversClass(Git::class)]
 class GitTest extends UnitTestCase {
-
-  /**
-   * Create a temporary git repository for testing.
-   *
-   * @param bool $with_remote
-   *   Whether to add a remote to the repository.
-   * @param bool $with_commits
-   *   Whether to add commits to the repository.
-   *
-   * @return array{string, \DrevOps\VortexInstaller\Utils\Git}
-   *   Array with temp directory path and Git object.
-   */
-  protected function createTempGitRepo(bool $with_remote = FALSE, bool $with_commits = FALSE): array {
-    $temp_dir = sys_get_temp_dir() . '/git_test_' . uniqid();
-    mkdir($temp_dir);
-
-    // Initialize the git repository and create our Git wrapper.
-    Git::init($temp_dir);
-    $repo = new Git($temp_dir);
-
-    if ($with_commits) {
-      // Set git config locally for this repository to avoid CI issues.
-      $repo->run('config', 'user.name', 'Test User');
-      $repo->run('config', 'user.email', 'test@example.com');
-
-      // Create a test file and make initial commit.
-      file_put_contents($temp_dir . '/test.txt', 'test content');
-      $repo->addAllChanges();
-      $repo->commit('Initial commit');
-
-      // Add another file and commit.
-      file_put_contents($temp_dir . '/another.txt', 'another test');
-      $repo->addAllChanges();
-      $repo->commit('Second commit');
-    }
-
-    if ($with_remote) {
-      // Add test remotes.
-      $repo->addRemote('origin', 'https://github.com/owner/repo.git');
-      $repo->addRemote('upstream', 'https://github.com/upstream/repo.git');
-    }
-
-    return [$temp_dir, $repo];
-  }
-
-  /**
-   * Clean up temporary git repository.
-   */
-  protected function cleanupTempGitRepo(string $temp_dir): void {
-    if (is_dir($temp_dir)) {
-      File::remove($temp_dir);
-    }
-  }
 
   #[DataProvider('dataProviderExtractOwnerRepo')]
   public function testExtractOwnerRepo(string $uri, ?string $expected): void {
@@ -108,11 +50,9 @@ class GitTest extends UnitTestCase {
     [$temp_dir, $repo] = $this->createTempGitRepo(FALSE, TRUE);
 
     try {
-      // Test that run method works and adds --no-pager.
       $result = $repo->run('status', '--porcelain');
       $this->assertInstanceOf(RunnerResult::class, $result);
 
-      // Test with another command.
       $result = $repo->run('log', '--oneline', '--max-count=1');
       $this->assertInstanceOf(RunnerResult::class, $result);
     }
@@ -199,6 +139,50 @@ class GitTest extends UnitTestCase {
     }
     finally {
       $this->cleanupTempGitRepo($temp_dir);
+    }
+  }
+
+  /**
+   * @param bool $with_remote
+   *   Whether to add a remote to the repository.
+   * @param bool $with_commits
+   *   Whether to add commits to the repository.
+   *
+   * @return array{string, \DrevOps\VortexInstaller\Utils\Git}
+   *   Array with temp directory path and Git object.
+   */
+  protected function createTempGitRepo(bool $with_remote = FALSE, bool $with_commits = FALSE): array {
+    $temp_dir = sys_get_temp_dir() . '/git_test_' . uniqid();
+    mkdir($temp_dir);
+
+    Git::init($temp_dir);
+    $repo = new Git($temp_dir);
+
+    if ($with_commits) {
+      // CI runners have no global git identity, so commits need local config.
+      $repo->run('config', 'user.name', 'Test User');
+      $repo->run('config', 'user.email', 'test@example.com');
+
+      file_put_contents($temp_dir . '/test.txt', 'test content');
+      $repo->addAllChanges();
+      $repo->commit('Initial commit');
+
+      file_put_contents($temp_dir . '/another.txt', 'another test');
+      $repo->addAllChanges();
+      $repo->commit('Second commit');
+    }
+
+    if ($with_remote) {
+      $repo->addRemote('origin', 'https://github.com/owner/repo.git');
+      $repo->addRemote('upstream', 'https://github.com/upstream/repo.git');
+    }
+
+    return [$temp_dir, $repo];
+  }
+
+  protected function cleanupTempGitRepo(string $temp_dir): void {
+    if (is_dir($temp_dir)) {
+      File::remove($temp_dir);
     }
   }
 

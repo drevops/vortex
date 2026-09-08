@@ -36,7 +36,6 @@ class CommandRunner extends AbstractRunner {
     $input_args = array_merge($args, $inputs);
     $this->command = $this->buildCommandString($command, $args, $inputs);
 
-    // Validate command existence and prepare input (also validated).
     $symfony_command = $this->application->find($command);
     $input = new ArrayInput($input_args);
 

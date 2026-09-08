@@ -89,9 +89,6 @@ extract_json_first_value() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$first=reset(\$data); isset(\$first[\"${key}\"]) ? print trim(json_encode(\$first[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-#
-# Function to extract keyed value from JSON object passed via STDIN.
-#
 extract_json_value() {
   local key=${1}
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
@@ -123,7 +120,6 @@ echo json_encode([
 
   deployment_id="$(echo "${payload}" | extract_json_value "id" || true)"
 
-  # Check deployment ID.
   if [ -z "${deployment_id}" ] || [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; then
     note "Wait for GitHub checks to finish and try again."
     fail "Unable to get a deployment ID for a ${VORTEX_NOTIFY_GITHUB_EVENT} operation. Payload: ${payload}"
@@ -133,7 +129,7 @@ echo json_encode([
 else
   [ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL."
 
-  # Returns all deployment for this ref sorted from the latest to the oldest.
+  # The API returns all deployments for this ref sorted from latest to oldest.
   payload="$(curl \
     -X GET \
     -H "Authorization: token ${VORTEX_NOTIFY_GITHUB_TOKEN}" \
@@ -143,7 +139,6 @@ else
 
   deployment_id="$(echo "${payload}" | extract_json_first_value "id" || true)"
 
-  # Check deployment ID.
   if [ -z "${deployment_id}" ] || [ "${#deployment_id}" -lt 9 ] || [ "${#deployment_id}" -gt 11 ] || [ "$(expr "x${deployment_id}" : "x[0-9]*$")" -eq 0 ]; then
     note "Check that a pre_deployment notification was dispatched."
     fail "Unable to get a deployment ID for a ${VORTEX_NOTIFY_GITHUB_EVENT} operation. Payload: ${payload}"
@@ -157,7 +152,6 @@ else
   note "Deployment ID      : ${deployment_id}"
   note "Event              : ${VORTEX_NOTIFY_GITHUB_EVENT}"
 
-  # Post status update.
   body="$(VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL="${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL}" php -r '
 echo json_encode([
   "state" => "success",

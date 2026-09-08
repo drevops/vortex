@@ -255,7 +255,7 @@ abstract class AbstractRunner implements RunnerInterface {
         if ($current !== '' || $has_content) {
           if (!$end_of_options_found && $current === '--') {
             $end_of_options_found = TRUE;
-            // Add the -- marker to the parts array so it reaches the command.
+            // Keep the -- marker in the parts so the command receives it.
             $parts[] = $current;
             $current = '';
             $has_content = FALSE;
@@ -335,10 +335,7 @@ abstract class AbstractRunner implements RunnerInterface {
       return "''";
     }
 
-    // Check if argument needs quoting (contains spaces, quotes, or shell
-    // special chars).
     if (preg_match('/[\s"\'\\\\$`!*?#~<>|;&(){}[\]]/', $argument)) {
-      // Use single quotes and escape any single quotes within.
       $escaped = str_replace("'", "'\\''", $argument);
       return "'" . $escaped . "'";
     }

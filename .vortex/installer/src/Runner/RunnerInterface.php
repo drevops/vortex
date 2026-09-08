@@ -13,13 +13,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 interface RunnerInterface extends LoggerAwareInterface {
 
   // @see https://tldp.org/LDP/abs/html/exitcodes.html
-  public const EXIT_SUCCESS = 0;
+  const EXIT_SUCCESS = 0;
 
-  public const EXIT_FAILURE = 1;
+  const EXIT_FAILURE = 1;
 
-  public const EXIT_INVALID = 2;
+  const EXIT_INVALID = 2;
 
-  public const EXIT_COMMAND_NOT_FOUND = 127;
+  const EXIT_COMMAND_NOT_FOUND = 127;
 
   /**
    * Run a command.

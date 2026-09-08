@@ -40,14 +40,12 @@ class Yaml extends SymfonyYaml {
       ];
     }
 
-    // Track current literal block state to avoid repeated lookups.
     $current_block_indent = -1;
     $current_block_start = -1;
 
     for ($i = 0; $i < $line_count; $i++) {
       $data = $line_data[$i];
 
-      // Update block state when encountering literal block starts.
       if ($data['is_literal_start'] >= 0) {
         $current_block_indent = $data['is_literal_start'];
         $current_block_start = $i;
@@ -59,7 +57,6 @@ class Yaml extends SymfonyYaml {
       }
 
       if ($data['is_empty']) {
-        // If not in a literal block, keep the line.
         if ($current_block_indent < 0) {
           $result_lines[] = $data['line'];
           continue;
@@ -79,7 +76,6 @@ class Yaml extends SymfonyYaml {
           }
         }
 
-        // Keep line if block ends, skip if within block.
         if ($block_ends) {
           $result_lines[] = $data['line'];
         }

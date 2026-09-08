@@ -108,8 +108,6 @@ for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} i
 
 info "Started New Relic notification."
 
-# Auto-generate revision if not provided.
-# Use SHA if available, otherwise fall back to LABEL-TIMESTAMP.
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_REVISION}" ]; then
   if [ -n "${VORTEX_NOTIFY_NEWRELIC_SHA}" ]; then
     VORTEX_NOTIFY_NEWRELIC_REVISION="${VORTEX_NOTIFY_NEWRELIC_SHA}"
@@ -121,28 +119,23 @@ if [ -z "${VORTEX_NOTIFY_NEWRELIC_REVISION}" ]; then
   note "Auto-generated revision: ${VORTEX_NOTIFY_NEWRELIC_REVISION}"
 fi
 
-# Skip if this is a pre-deployment event (New Relic only for post-deployment).
 if [ "${VORTEX_NOTIFY_NEWRELIC_EVENT}" = "pre_deployment" ]; then
   pass "Skipped New Relic notification for pre_deployment event."
   exit 0
 fi
 
-# Set default description template if not provided.
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" ]; then
   VORTEX_NOTIFY_NEWRELIC_DESCRIPTION="Site %project% %label% has been deployed at %timestamp% and is available at %environment_url%"
 fi
 
-# Build message by replacing tokens.
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
 
-# Replace tokens in description template.
 VORTEX_NOTIFY_NEWRELIC_DESCRIPTION=$(REPLACEMENT="${VORTEX_NOTIFY_NEWRELIC_PROJECT}" TEMPLATE="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" php -r 'echo str_replace("%project%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 VORTEX_NOTIFY_NEWRELIC_DESCRIPTION=$(REPLACEMENT="${VORTEX_NOTIFY_NEWRELIC_LABEL}" TEMPLATE="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" php -r 'echo str_replace("%label%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 VORTEX_NOTIFY_NEWRELIC_DESCRIPTION=$(REPLACEMENT="${timestamp}" TEMPLATE="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" php -r 'echo str_replace("%timestamp%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 VORTEX_NOTIFY_NEWRELIC_DESCRIPTION=$(REPLACEMENT="${VORTEX_NOTIFY_NEWRELIC_ENVIRONMENT_URL}" TEMPLATE="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" php -r 'echo str_replace("%environment_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 VORTEX_NOTIFY_NEWRELIC_DESCRIPTION=$(REPLACEMENT="${VORTEX_NOTIFY_NEWRELIC_LOGIN_URL}" TEMPLATE="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}" php -r 'echo str_replace("%login_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 
-# Build changelog if not provided (defaults to description).
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_CHANGELOG}" ]; then
   VORTEX_NOTIFY_NEWRELIC_CHANGELOG="${VORTEX_NOTIFY_NEWRELIC_DESCRIPTION}"
 fi
@@ -157,8 +150,6 @@ fi
 
 pass "Completed application ID discovery."
 
-# Check if the VORTEX_NOTIFY_NEWRELIC_APPID variable is empty OR
-# if the variable doesn't contain only numeric values and exit.
 task "Checking if the application ID is valid."
 if [ -z "${VORTEX_NOTIFY_NEWRELIC_APPID}" ] || [ "$(expr "x${VORTEX_NOTIFY_NEWRELIC_APPID}" : "x[0-9]*$")" -eq 0 ]; then
   pass "Notification skipped: No New Relic application ID found for ${VORTEX_NOTIFY_NEWRELIC_APP_NAME}. This is expected for non-configured environments."

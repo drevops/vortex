@@ -113,20 +113,20 @@ DOC;
    * {@inheritdoc}
    */
   public function process(): void {
-    $selected = $this->getResponseAsArray();
+    $v = $this->getResponseAsArray();
     $t = $this->tmpDir;
     $w = $this->webroot;
 
     // The search module cannot function without Solr, so remove it from the
     // selection when the Solr service was not selected.
-    if (in_array(self::SEARCH, $selected) && isset($this->responses[Services::id()])) {
+    if (in_array(self::SEARCH, $v) && isset($this->responses[Services::id()])) {
       $services = $this->responses[Services::id()];
       if (is_array($services) && !in_array(Services::SOLR, $services)) {
-        $selected = array_values(array_diff($selected, [self::SEARCH]));
+        $v = array_values(array_diff($v, [self::SEARCH]));
       }
     }
 
-    if (!in_array(self::BASE, $selected)) {
+    if (!in_array(self::BASE, $v)) {
       File::removeTokenAsync('CUSTOM_MODULE_BASE');
 
       $locations = [
@@ -144,7 +144,7 @@ DOC;
       }
     }
 
-    if (!in_array(self::DEMO, $selected)) {
+    if (!in_array(self::DEMO, $v)) {
       File::removeTokenAsync('CUSTOM_MODULE_DEMO');
 
       $locations = [
@@ -164,7 +164,7 @@ DOC;
       self::removeDemoBehatFeatures($t);
     }
 
-    if (!in_array(self::SEARCH, $selected)) {
+    if (!in_array(self::SEARCH, $v)) {
       File::removeTokenAsync('CUSTOM_MODULE_SEARCH');
 
       $locations = [
@@ -185,7 +185,7 @@ DOC;
     // The 'page' content model is shared: the demo module attaches behavior to
     // the content type and the search tests index content of that type. It is
     // only removed once neither of them remains.
-    if (!in_array(self::DEMO, $selected) && !in_array(self::SEARCH, $selected)) {
+    if (!in_array(self::DEMO, $v) && !in_array(self::SEARCH, $v)) {
       File::removeTokenAsync('CONTENT_MODEL');
       File::remove($t . '/recipes/page');
     }

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Functional\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
+use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(HostingProjectName::class)]
@@ -13,7 +13,7 @@ class HostingProjectNameHandlerProcessTest extends AbstractHandlerProcessTestCas
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'hosting_project_name___acquia' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[HostingProvider::id()] = HostingProvider::ACQUIA;
           $test->prompts[HostingProjectName::id()] = 'my_custom_acquia-project';
       }),
@@ -24,7 +24,7 @@ class HostingProjectNameHandlerProcessTest extends AbstractHandlerProcessTestCas
       }),
     ];
     yield 'hosting_project_name___lagoon' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[HostingProvider::id()] = HostingProvider::LAGOON;
           $test->prompts[HostingProjectName::id()] = 'my_custom_lagoon-project';
       }),

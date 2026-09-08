@@ -50,28 +50,20 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
-# Pre-flight checks.
 for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 info "Started cache purging in Acquia."
 
-#
-# Extract last value from JSON object passed via STDIN.
-#
 extract_json_last_value() {
   local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-#
-# Extract keyed value from JSON object passed via STDIN.
-#
 extract_json_value() {
   local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-# Check that all required variables are present.
 [ -z "${VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY}" ] && fail "Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY or VORTEX_ACQUIA_KEY."
 [ -z "${VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET}" ] && fail "Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
 [ -z "${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME}" ] && fail "Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME."
@@ -103,7 +95,8 @@ task "Compiling a list of domains."
 target_env="${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV}"
 domain_list=()
 while read -r domain; do
-  # Special variable to remap target env to the sub-domain prefix based on UI name.
+  # TARGET_ENV_REMAP maps the target env to the sub-domain prefix based on
+  # the UI name.
   TARGET_ENV_REMAP="${target_env}"
   # Strip placeholder for PROD environment.
   if [ "${target_env}" = "prod" ]; then
@@ -121,11 +114,9 @@ while read -r domain; do
     TARGET_ENV_REMAP=""
   fi
 
-  # Proceed only if the environment was provided.
   if [ -n "${TARGET_ENV_REMAP}" ]; then
     # Interpolate variables in domain name.
     domain="$(eval echo "${domain}")"
-    # Add domain to list.
     domain_list+=("${domain}")
   fi
 done <"${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}"
@@ -133,16 +124,15 @@ done <"${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}"
 pass "Compiled a list of ${#domain_list[@]} domains."
 
 if [ "${#domain_list[@]}" -gt 0 ]; then
-  # Acquia API stops clearing purging caches if at least 1 domain fails, so
-  # we are clearing caches for every domain separately and not failing if
-  # the domain is not found.
+  # The Acquia API aborts a batched purge when any domain fails, so caches
+  # are cleared per domain and a missing domain is not a failure.
   for domain in "${domain_list[@]}"; do
     task "Purging cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
     task_status_json=$(curl -X POST -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d "{\"domains\":[\"${domain}\"]}" "https://cloud.acquia.com/api/environments/${ENV_ID}/domains/actions/clear-varnish")
     notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href") || true
 
-    # If domain does not exist - notification will be empty; we are skipping
-    # non-existing domains without a failure.
+    # A missing domain yields an empty notification URL and is skipped
+    # without a failure.
     if [ -z "${notification_url}" ]; then
       note "Warning: Unable to purge cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain} as it does not exist."
       pass "Completed cache purging for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."

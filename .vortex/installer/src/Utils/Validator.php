@@ -65,7 +65,6 @@ class Validator {
    * @see https://git-scm.com/docs/git-check-ref-format
    */
   public static function isGitRef(string $value): bool {
-    // Reserved keywords have special meaning.
     if (in_array($value, ['stable', 'HEAD'], TRUE)) {
       return TRUE;
     }

@@ -33,7 +33,6 @@ class DownloaderTest extends UnitTestCase {
     $downloader = new Downloader($mock_http_client);
     $downloader->download('https://example.com/file.sql', $destination);
 
-    // If we got here without exception, the download was successful.
     $this->addToAssertionCount(1);
   }
 
@@ -75,7 +74,6 @@ class DownloaderTest extends UnitTestCase {
   }
 
   public function testDownloadWithDefaultClient(): void {
-    // Test that the class can be instantiated without providing an HTTP client.
     $downloader = new Downloader();
     $this->assertInstanceOf(Downloader::class, $downloader);
   }

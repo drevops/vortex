@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
-use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Tools::class)]
@@ -15,7 +14,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'tools_none' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Tools::id()] = [];
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -58,12 +57,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_phpcs' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'phpcs',
         'phpcbf',
         'dealerdirect/phpcodesniffer-composer-installer',
@@ -72,12 +71,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_phpcs_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'phpcs',
         'phpcbf',
         'dealerdirect/phpcodesniffer-composer-installer',
@@ -86,75 +85,75 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_phpstan' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPSTAN]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'phpstan',
         'phpstan/phpstan',
         'mglaman/phpstan-drupal',
       ])),
     ];
     yield 'tools_no_phpstan_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPSTAN]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'phpstan',
         'phpstan/phpstan',
         'mglaman/phpstan-drupal',
       ])),
     ];
     yield 'tools_no_rector' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::RECTOR]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'rector',
         'rector/rector',
       ])),
     ];
     yield 'tools_no_rector_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::RECTOR]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'rector',
         'rector/rector',
       ])),
     ];
     yield 'tools_no_twig' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::TWIG_CS_FIXER]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'twig-cs-fixer',
         'vincentlanglet/twig-cs-fixer',
       ])),
     ];
     yield 'tools_no_twig_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::TWIG_CS_FIXER]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'twig-cs-fixer',
         'vincentlanglet/twig-cs-fixer',
       ])),
     ];
     yield 'tools_no_dclint' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::DCLINT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
@@ -167,7 +166,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_dclint_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::DCLINT]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
@@ -180,7 +179,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_hadolint' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::HADOLINT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
@@ -197,7 +196,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_hadolint_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::HADOLINT]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
@@ -212,7 +211,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_docker_linters' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::DCLINT, Tools::HADOLINT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
@@ -227,7 +226,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_docker_linters_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::DCLINT, Tools::HADOLINT]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
@@ -242,7 +241,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_eslint' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
@@ -279,7 +278,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_eslint_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
@@ -304,7 +303,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_stylelint' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::STYLELINT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
@@ -332,7 +331,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_eslint_no_stylelint' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
@@ -369,7 +368,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_stylelint_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::STYLELINT]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
@@ -385,12 +384,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_phpunit' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPUNIT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'phpunit',
         'ahoy test-unit',
         'ahoy test-kernel',
@@ -398,12 +397,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_phpunit_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPUNIT]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'phpunit',
         'ahoy test-unit',
         'ahoy test-kernel',
@@ -411,12 +410,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_behat' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::BEHAT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'behat',
         'behat/behat',
         'drupal/drupal-extension',
@@ -428,12 +427,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_behat_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::BEHAT]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'behat',
         'behat/behat',
         'drupal/drupal-extension',
@@ -444,12 +443,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_groups_no_be_lint' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS, Tools::PHPSTAN, Tools::RECTOR]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'phpcs',
         'phpcbf',
         'dealerdirect/phpcodesniffer-composer-installer',
@@ -463,12 +462,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_groups_no_be_lint_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS, Tools::PHPSTAN, Tools::RECTOR]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'phpcs',
         'phpcbf',
         'dealerdirect/phpcodesniffer-composer-installer',
@@ -482,7 +481,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_no_jest' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::JEST]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
@@ -501,7 +500,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_jest_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::JEST]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
@@ -516,7 +515,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_groups_no_fe_lint' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
@@ -532,7 +531,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_groups_no_fe_lint_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
@@ -548,12 +547,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_groups_no_be_tests' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'phpunit',
         'ahoy test-unit',
         'ahoy test-kernel',
@@ -569,12 +568,12 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_groups_no_be_tests_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'phpunit',
         'ahoy test-unit',
         'ahoy test-kernel',
@@ -590,7 +589,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'tools_groups_no_fe_lint_no_theme' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
@@ -613,7 +612,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_groups_no_fe_lint_no_theme_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT, Tools::STYLELINT, Tools::JEST]));
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
@@ -636,7 +635,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_stylelint_no_theme' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::STYLELINT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
@@ -654,7 +653,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'tools_no_eslint_no_theme' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $tools = array_keys(Tools::getToolDefinitions('tools'));
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::ESLINT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;

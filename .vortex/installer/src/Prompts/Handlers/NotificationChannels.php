@@ -10,17 +10,17 @@ use DrevOps\VortexInstaller\Utils\File;
 
 class NotificationChannels extends AbstractHandler {
 
-  public const EMAIL = 'email';
+  const EMAIL = 'email';
 
-  public const GITHUB = 'github';
+  const GITHUB = 'github';
 
-  public const JIRA = 'jira';
+  const JIRA = 'jira';
 
-  public const NEWRELIC = 'newrelic';
+  const NEWRELIC = 'newrelic';
 
-  public const SLACK = 'slack';
+  const SLACK = 'slack';
 
-  public const WEBHOOK = 'webhook';
+  const WEBHOOK = 'webhook';
 
   /**
    * {@inheritdoc}
@@ -66,6 +66,7 @@ class NotificationChannels extends AbstractHandler {
     if (!empty($channels)) {
       $channels = Converter::fromList($channels);
       sort($channels);
+
       return $channels;
     }
 

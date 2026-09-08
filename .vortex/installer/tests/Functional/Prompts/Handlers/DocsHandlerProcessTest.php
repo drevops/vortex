@@ -12,10 +12,10 @@ class DocsHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'preserve_docs_project_enabled' => [
-      static::cw(fn($test): true => $test->prompts[PreserveDocsProject::id()] = TRUE),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): true => $test->prompts[PreserveDocsProject::id()] = TRUE),
     ];
     yield 'preserve_docs_project_disabled' => [
-      static::cw(fn($test): false => $test->prompts[PreserveDocsProject::id()] = FALSE),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): false => $test->prompts[PreserveDocsProject::id()] = FALSE),
     ];
   }
 

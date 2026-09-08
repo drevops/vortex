@@ -13,10 +13,10 @@ class CodeCoverageProviderHandlerProcessTest extends AbstractHandlerProcessTestC
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'code_coverage_provider_codecov' => [
-      static::cw(fn($test): string => $test->prompts[CodeCoverageProvider::id()] = CodeCoverageProvider::CODECOV),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[CodeCoverageProvider::id()] = CodeCoverageProvider::CODECOV),
     ];
     yield 'code_coverage_provider_codecov_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[CodeCoverageProvider::id()] = CodeCoverageProvider::CODECOV;
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),

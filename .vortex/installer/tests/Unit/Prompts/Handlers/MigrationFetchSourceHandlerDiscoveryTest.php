@@ -6,8 +6,8 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(MigrationFetchSource::class)]
 class MigrationFetchSourceHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {

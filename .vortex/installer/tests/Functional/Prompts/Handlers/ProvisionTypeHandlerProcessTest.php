@@ -14,17 +14,17 @@ class ProvisionTypeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'provision_database' => [
-      static::cw(fn($test): string => $test->prompts[ProvisionType::id()] = ProvisionType::DATABASE),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[ProvisionType::id()] = ProvisionType::DATABASE),
     ];
     yield 'provision_database_lagoon' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[ProvisionType::id()] = ProvisionType::DATABASE;
           $test->prompts[HostingProvider::id()] = HostingProvider::LAGOON;
           $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
     ];
     yield 'provision_profile' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[ProvisionType::id()] = ProvisionType::PROFILE;
           $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),

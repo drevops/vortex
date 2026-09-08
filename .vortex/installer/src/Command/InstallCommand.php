@@ -218,7 +218,7 @@ EOF
         action: function (): string {
           $release_prefix = Version::releasePrefix($this->getApplication()->getVersion());
           // The staging directory can be pointed at a reused location, and the
-          // download unpacks into it rather than replacing it, so anything a
+          // download unpacks into it rather than replacing it. Anything a
           // previous run left behind would be treated as shipped by this one.
           $this->fileManager->resetStaging();
           $version = $this->getRepositoryDownloader()->download($this->artifact, $this->config->get(Config::TMP), $release_prefix);
@@ -304,8 +304,8 @@ EOF
       $this->presenter->footerBuildSkipped();
     }
 
-    // Cleanup should take place only in case of the successful installation.
-    // Otherwise, the user should be able to re-run the installer.
+    // Cleanup runs only on successful installation; after a failure the user
+    // can re-run the installer.
     register_shutdown_function([$this, 'cleanup']);
 
     return Command::SUCCESS;
@@ -448,7 +448,7 @@ EOF
    * Get the repository downloader.
    *
    * Provides a default RepositoryDownloader instance or returns the injected
-   * one. This allows tests to inject mocks via setRepositoryDownloader().
+   * one.
    *
    * @return \DrevOps\VortexInstaller\Downloader\RepositoryDownloader
    *   The repository downloader.
@@ -471,7 +471,6 @@ EOF
    * Get the file downloader.
    *
    * Provides a default Downloader instance or returns the injected one.
-   * This allows tests to inject mocks via setFileDownloader().
    *
    * @return \DrevOps\VortexInstaller\Downloader\Downloader
    *   The file downloader.

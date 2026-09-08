@@ -10,8 +10,8 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Yaml;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Migration::class)]
 class MigrationHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {

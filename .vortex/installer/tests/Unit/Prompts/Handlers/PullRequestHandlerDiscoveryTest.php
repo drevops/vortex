@@ -8,8 +8,8 @@ use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(AssignAuthorPr::class)]
 #[CoversClass(LabelMergeConflictsPr::class)]

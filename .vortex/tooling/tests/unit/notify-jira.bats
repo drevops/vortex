@@ -52,7 +52,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_LOGIN_URL="https://develop.testproject.com/user/login"
   export VORTEX_NOTIFY_JIRA_TRANSITION="QA"
   export VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL="jane.doe@example.com"
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   steps_run "assert" "${mocks[@]}"
@@ -72,7 +72,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="feature/proj-1234-some-description"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -97,7 +97,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_JIRA_BRANCHES="main,develop"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -117,7 +117,7 @@ load ../_helper.bash
   unset VORTEX_NOTIFY_BRANCH
   export VORTEX_NOTIFY_JIRA_BRANCHES="main,develop"
 
-  run ./.vortex/tooling/src/vortex-notify-jira
+  run .vortex/tooling/src/vortex-notify-jira
   assert_success
 
   assert_output_contains 'Skipped JIRA notification for branch "".'
@@ -157,11 +157,11 @@ load ../_helper.bash
   # Ensure test file doesn't exist before
   rm -f /tmp/injected_jira_test
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   # Verify the injection file was NOT created (injection did not execute)
-  [ ! -f /tmp/injected_jira_test ]
+  assert_file_not_exists "/tmp/injected_jira_test"
 
   # Verify the malicious string is treated as literal text
   assert_output_contains "test'); file_put_contents('/tmp/injected_jira_test', 'HACKED'); //"
@@ -193,7 +193,7 @@ load ../_helper.bash
 at %timestamp% to %environment_url%
 Login: %login_url%"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   run mock_get_call_args "${mock_curl}" 2
@@ -245,7 +245,7 @@ Login: %login_url%"
   export VORTEX_NOTIFY_JIRA_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   # The whole log is added to the comment as an ADF code block.

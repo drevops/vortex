@@ -184,14 +184,14 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->assertWebpageNotContains('/', 'This test page is sourced from the Vortex database container image', 'Homepage should not show initial test content after config change');
 
     $this->logSubstep('Reload database from the container image and assert that the initial content is restored');
-    $this->cmd('ahoy reload-db', txt: "`ahoy reload-db` restarts the stack fast", tio: 60);
+    $this->cmd('ahoy reload-db', txt: '`ahoy reload-db` restarts the stack fast', tio: 60);
     // @note Redis caches are not flushed automatically on cache clear as it
     // may be clearing too much.
     // For now, we are manually clearing Redis cache after DB reload. A human
     // operator would make a call to do it manually depending on the hosting,
     // website size, traffic, etc.
     // @see https://www.drupal.org/project/redis/issues/2765895
-    $this->cmd('ahoy flush-redis', txt: "`ahoy flush-redis` flushes Redis cache after database reload", tio: 30);
+    $this->cmd('ahoy flush-redis', txt: '`ahoy flush-redis` flushes Redis cache after database reload', tio: 30);
     $this->subtestAhoyInfo(db_image: self::VORTEX_DB_IMAGE_TEST);
     $this->assertWebpageContains('/', 'This test page is sourced from the Vortex database container image', 'Homepage should show initial test content after database reload');
 

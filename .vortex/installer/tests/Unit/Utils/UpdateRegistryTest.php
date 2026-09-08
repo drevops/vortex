@@ -9,9 +9,6 @@ use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\UpdateRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * Tests for the UpdateRegistry class.
- */
 #[CoversClass(UpdateRegistry::class)]
 class UpdateRegistryTest extends UnitTestCase {
 

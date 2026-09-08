@@ -104,7 +104,6 @@ fi
 
 info "Started JIRA notification."
 
-# Skip if this is a pre-deployment event (JIRA only processes post-deployment).
 if [ "${VORTEX_NOTIFY_JIRA_EVENT}" = "pre_deployment" ]; then
   pass "Skipped JIRA notification for pre_deployment event."
   exit 0
@@ -118,17 +117,11 @@ extract_json_first_value() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$first=reset(\$data); isset(\$first[\"${key}\"]) ? print trim(json_encode(\$first[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-#
-# Function to extract keyed value from JSON object passed via STDIN.
-#
 extract_json_value() {
   local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-#
-# Function to extract keyed value from JSON object passed via STDIN.
-#
 extract_json_value_by_value() {
   local key="${1}"
   local value="${2}"
@@ -173,14 +166,12 @@ task "Posting a comment."
 [ -z "${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL."
 [ -z "${VORTEX_NOTIFY_JIRA_LOGIN_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_JIRA_LOGIN_URL."
 
-# Generate timestamp.
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
 
-# Read the deployment log (when enabled) to include it in the comment.
 log_file=""
 [ "${VORTEX_NOTIFY_JIRA_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_JIRA_LOG_FILE}"
 
-# Build JIRA Atlassian Document Format (ADF) from the message using PHP with proper escaping.
+# The comment body is JIRA Atlassian Document Format (ADF).
 # shellcheck disable=SC2016
 comment_body=$(VORTEX_NOTIFY_JIRA_PROJECT="${VORTEX_NOTIFY_JIRA_PROJECT}" VORTEX_NOTIFY_JIRA_LABEL="${VORTEX_NOTIFY_JIRA_LABEL}" timestamp="${timestamp}" VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL="${VORTEX_NOTIFY_JIRA_ENVIRONMENT_URL}" VORTEX_NOTIFY_JIRA_LOGIN_URL="${VORTEX_NOTIFY_JIRA_LOGIN_URL}" VORTEX_NOTIFY_JIRA_MESSAGE="${VORTEX_NOTIFY_JIRA_MESSAGE}" LOG_FILE="${log_file}" php -r '
 $project = getenv("VORTEX_NOTIFY_JIRA_PROJECT");
@@ -193,8 +184,7 @@ $log_file = getenv("LOG_FILE");
 $log = ($log_file !== "" && is_file($log_file)) ? rtrim((string) file_get_contents($log_file), "\r\n") : "";
 
 if ($message !== "") {
-  // A configured template replaces the default body. Tokens are substituted
-  // and newlines become hard breaks so the text keeps its shape in JIRA.
+  // Newlines become hardBreak nodes so line breaks render in JIRA.
   $message = str_replace(
     ["%project%", "%label%", "%timestamp%", "%environment_url%", "%login_url%"],
     [$project, $label, $timestamp, $env_url, $login_url],

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
+use DrevOps\VortexInstaller\Utils\Validator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use DrevOps\VortexInstaller\Utils\Validator;
 
 /**
  * Class InstallerHelpersTest.
@@ -104,13 +104,11 @@ class ValidatorTest extends UnitTestCase {
   }
 
   public static function dataProviderIsGitCommitSha(): \Iterator {
-    // Valid SHA-1 hashes (40 hexadecimal characters)
     yield 'valid lowercase SHA' => ['a1b2c3d4e5f6789012345678901234567890abcd', TRUE];
     yield 'valid uppercase SHA' => ['A1B2C3D4E5F6789012345678901234567890ABCD', TRUE];
     yield 'valid mixed case SHA' => ['a1B2c3D4e5F6789012345678901234567890AbCd', TRUE];
     yield 'valid all numbers SHA' => ['1234567890123456789012345678901234567890', TRUE];
     yield 'valid all letters SHA' => ['abcdefabcdefabcdefabcdefabcdefabcdefabcd', TRUE];
-    // Invalid SHA hashes.
     yield 'invalid too short' => ['a1b2c3d4e5f6789012345678901234567890abc', FALSE];
     yield 'invalid too long' => ['a1b2c3d4e5f6789012345678901234567890abcdef', FALSE];
     yield 'invalid with non-hex characters' => ['a1b2c3d4e5f6789012345678901234567890abcg', FALSE];
@@ -129,7 +127,6 @@ class ValidatorTest extends UnitTestCase {
   }
 
   public static function dataProviderIsGitCommitShaShort(): \Iterator {
-    // Valid short SHA-1 hashes (7 hexadecimal characters)
     yield 'valid lowercase short SHA' => ['a1b2c3d', TRUE];
     yield 'valid uppercase short SHA' => ['A1B2C3D', TRUE];
     yield 'valid mixed case short SHA' => ['a1B2c3D', TRUE];
@@ -137,7 +134,6 @@ class ValidatorTest extends UnitTestCase {
     yield 'valid all letters short SHA' => ['abcdef0', TRUE];
     yield 'valid with f characters' => ['fffffff', TRUE];
     yield 'valid with 0 characters' => ['0000000', TRUE];
-    // Invalid short SHA hashes.
     yield 'invalid too short (6 chars)' => ['a1b2c3', FALSE];
     yield 'invalid too short (1 char)' => ['a', FALSE];
     yield 'invalid too long (8 chars)' => ['a1b2c3d4', FALSE];
@@ -160,13 +156,10 @@ class ValidatorTest extends UnitTestCase {
   }
 
   public static function dataProviderIsGitRef(): \Iterator {
-    // Special keywords.
     yield 'special keyword stable' => ['stable', TRUE];
     yield 'special keyword HEAD' => ['HEAD', TRUE];
-    // Commit hashes (already tested, but included for completeness).
     yield 'valid 40-char commit hash' => ['a1b2c3d4e5f6789012345678901234567890abcd', TRUE];
     yield 'valid 7-char commit hash' => ['a1b2c3d', TRUE];
-    // Semantic versioning tags.
     yield 'semver without prefix' => ['1.2.3', TRUE];
     yield 'semver with v prefix' => ['v1.2.3', TRUE];
     yield 'semver with patch zero' => ['2.0.0', TRUE];
@@ -176,30 +169,24 @@ class ValidatorTest extends UnitTestCase {
     yield 'semver with build metadata' => ['1.2.3+20130313144700', TRUE];
     yield 'semver with build metadata simple' => ['1.2.3+build', TRUE];
     yield 'semver with pre-release and build' => ['1.2.3-alpha.1+build.123', TRUE];
-    // Calendar versioning tags.
     yield 'calver YY.MM.PATCH' => ['24.10.0', TRUE];
     yield 'calver YY.MM.PATCH with higher version' => ['25.11.0', TRUE];
     yield 'calver YYYY.MM.PATCH' => ['2024.12.3', TRUE];
-    // Drupal-style versioning.
     yield 'drupal 8.x version' => ['8.x-1.10', TRUE];
     yield 'drupal 9.x version' => ['9.x-2.3', TRUE];
     yield 'drupal 10.x version' => ['10.x-1.0', TRUE];
-    // Hybrid versioning (SemVer with CalVer build metadata).
     yield 'semver+calver hybrid' => ['1.0.0+2025.11.0', TRUE];
     yield 'semver+calver hybrid v2' => ['1.2.0+2025.12.0', TRUE];
     yield 'semver+calver with pre-release' => ['1.0.0-beta+2025.11.0', TRUE];
-    // Pre-release tags.
     yield 'pre-release rc' => ['1.x-rc1', TRUE];
     yield 'pre-release beta' => ['2.0.0-beta', TRUE];
     yield 'pre-release alpha' => ['3.0.0-alpha', TRUE];
-    // Branch names.
     yield 'branch main' => ['main', TRUE];
     yield 'branch master' => ['master', TRUE];
     yield 'branch develop' => ['develop', TRUE];
     yield 'branch feature with slash' => ['feature/my-feature', TRUE];
     yield 'branch bugfix with slash' => ['bugfix/fix-123', TRUE];
     yield 'branch release with slash' => ['release/1.0', TRUE];
-    // Invalid formats - special characters.
     yield 'invalid with @' => ['invalid@ref', FALSE];
     yield 'invalid with ^' => ['invalid^ref', FALSE];
     yield 'invalid with ~' => ['invalid~ref', FALSE];
@@ -210,14 +197,12 @@ class ValidatorTest extends UnitTestCase {
     yield 'invalid with space' => ['invalid ref', FALSE];
     yield 'invalid with backslash' => ['invalid\ref', FALSE];
     yield 'invalid with @{' => ['invalid@{ref', FALSE];
-    // Invalid formats - starting/ending patterns.
     yield 'invalid starting with dot' => ['.invalid', FALSE];
     yield 'invalid starting with hyphen' => ['-invalid', FALSE];
     yield 'invalid ending with .lock' => ['invalid.lock', FALSE];
     yield 'invalid containing ..' => ['invalid..ref', FALSE];
     yield 'invalid trailing slash' => ['feature/', FALSE];
     yield 'invalid consecutive slashes' => ['feature//name', FALSE];
-    // Empty and edge cases.
     yield 'invalid empty string' => ['', FALSE];
     yield 'invalid only spaces' => ['   ', FALSE];
   }

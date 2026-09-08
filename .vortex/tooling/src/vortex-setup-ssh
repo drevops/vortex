@@ -89,7 +89,6 @@ if [ -n "${fingerprint-}" ]; then
     done
   fi
 
-  # Cleanup the fingerprint and create a file name.
   file="${fingerprint//:/}"
   file="${HOME}/.ssh/id_rsa_${file//\"/}"
 fi
@@ -131,9 +130,9 @@ if [ -n "${VORTEX_SSH_KNOWN_HOSTS-}" ]; then
   task "Pinning SSH host keys to known_hosts."
   mkdir -p "${HOME}/.ssh/"
 
-  # Strip insecure directives that an earlier run with strict checking disabled
-  # may have left in the SSH config, so the pinned host keys are actually
-  # enforced rather than bypassed by a stale "UserKnownHostsFile /dev/null".
+  # An earlier run with strict checking disabled may have left insecure
+  # directives in the SSH config; strip them so the pinned host keys are
+  # enforced.
   if [ -f "${HOME}/.ssh/config" ]; then
     grep -v -E '^[[:space:]]*(StrictHostKeyChecking[[:space:]]+no|UserKnownHostsFile[[:space:]]+/dev/null)[[:space:]]*$' "${HOME}/.ssh/config" >"${HOME}/.ssh/config.tmp" || true
     mv "${HOME}/.ssh/config.tmp" "${HOME}/.ssh/config"

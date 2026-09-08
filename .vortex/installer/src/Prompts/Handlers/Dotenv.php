@@ -16,7 +16,6 @@ class Dotenv extends AbstractHandler {
   }
 
   public function discover(): null|string|bool|array {
-
     return NULL;
   }
 
@@ -29,7 +28,6 @@ class Dotenv extends AbstractHandler {
         Env::writeValueDotenv($name, $value, $t . '/.env');
       }
     }
-
   }
 
 }

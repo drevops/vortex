@@ -15,26 +15,26 @@ class DatabaseFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestCa
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'db_fetch_source_url' => [
-      static::cw(fn($test): string => $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::URL),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::URL),
     ];
     yield 'db_fetch_source_ftp' => [
-      static::cw(fn($test): string => $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::FTP),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::FTP),
     ];
     yield 'db_fetch_source_acquia' => [
-      static::cw(fn($test): string => $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::ACQUIA),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::ACQUIA),
     ];
     yield 'db_fetch_source_lagoon' => [
-      static::cw(fn($test): string => $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::LAGOON),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::LAGOON),
     ];
     yield 'db_fetch_source_container_registry' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::CONTAINER_REGISTRY;
           $test->prompts[DatabaseImage::id()] = 'the_empire/star_wars:latest';
           $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
     ];
     yield 'db_fetch_source_s3' => [
-      static::cw(fn($test): string => $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::S3),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::S3),
     ];
   }
 

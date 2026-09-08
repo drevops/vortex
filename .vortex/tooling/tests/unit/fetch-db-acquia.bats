@@ -75,7 +75,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -137,7 +137,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -200,7 +200,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -264,7 +264,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -294,7 +294,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -328,7 +328,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -366,7 +366,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -408,7 +408,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -450,7 +450,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -528,7 +528,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
   assert_file_exists ".data/db.sql"
@@ -575,7 +575,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -619,7 +619,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -668,7 +668,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -726,7 +726,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -778,7 +778,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -830,7 +830,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -882,7 +882,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -940,7 +940,7 @@ bats_require_minimum_version 1.5.0
 
   mocks="$(steps_run "setup")"
   run --separate-stderr .vortex/tooling/src/vortex-fetch-db-acquia
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 

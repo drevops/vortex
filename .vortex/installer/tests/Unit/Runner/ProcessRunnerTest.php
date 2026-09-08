@@ -12,15 +12,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-/**
- * Tests for ProcessRunner class.
- */
 #[CoversClass(ProcessRunner::class)]
 class ProcessRunnerTest extends UnitTestCase {
 
-  /**
-   * Test run with simple shell command.
-   */
   #[DataProvider('dataProviderRun')]
   public function testRun(string $command, array $args, string $expected_output_pattern, int $expected_exit_code, ?string $expected_exception, ?string $expected_message): void {
     if ($expected_exception !== NULL) {
@@ -32,7 +26,6 @@ class ProcessRunnerTest extends UnitTestCase {
     $runner = new ProcessRunner();
     $runner->setCwd(self::$tmp);
 
-    // Initialize Tui for output.
     $output = new BufferedOutput();
     Tui::init($output);
 
@@ -47,9 +40,6 @@ class ProcessRunnerTest extends UnitTestCase {
     }
   }
 
-  /**
-   * Data provider for run command tests.
-   */
   public static function dataProviderRun(): \Iterator {
     yield 'simple echo command' => [
       'command' => 'echo',
@@ -93,9 +83,6 @@ class ProcessRunnerTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test run with output streaming.
-   */
   #[DataProvider('dataProviderRunWithStreaming')]
   public function testRunWithStreaming(bool $streaming_enabled, bool $should_have_output_in_stream): void {
     $runner = new ProcessRunner();
@@ -124,9 +111,6 @@ class ProcessRunnerTest extends UnitTestCase {
     $this->assertStringContainsString('test output', is_string($runner_output) ? $runner_output : implode(PHP_EOL, $runner_output));
   }
 
-  /**
-   * Data provider for streaming modes.
-   */
   public static function dataProviderRunWithStreaming(): \Iterator {
     yield 'streaming enabled' => [
       'streaming_enabled' => TRUE,
@@ -138,9 +122,6 @@ class ProcessRunnerTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test resolveCommand with various command types.
-   */
   #[DataProvider('dataProviderResolveCommand')]
   public function testResolveCommand(string $command, bool $expect_success, ?string $expected_exception, ?string $expected_message): void {
     if ($expected_exception !== NULL) {
@@ -160,9 +141,6 @@ class ProcessRunnerTest extends UnitTestCase {
     }
   }
 
-  /**
-   * Data provider for resolveCommand tests.
-   */
   public static function dataProviderResolveCommand(): \Iterator {
     yield 'simple command (echo)' => [
       'command' => 'echo',
@@ -196,9 +174,6 @@ class ProcessRunnerTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test prepareArguments method.
-   */
   #[DataProvider('dataProviderPrepareArguments')]
   public function testPrepareArguments(array $parsed_args, array $additional_args, array $expected, ?string $expected_exception, ?string $expected_message): void {
     if ($expected_exception !== NULL) {
@@ -216,9 +191,6 @@ class ProcessRunnerTest extends UnitTestCase {
     }
   }
 
-  /**
-   * Data provider for prepareArguments tests.
-   */
   public static function dataProviderPrepareArguments(): \Iterator {
     yield 'merge parsed and additional args' => [
       'parsed_args' => ['arg1', 'arg2'],
@@ -250,9 +222,6 @@ class ProcessRunnerTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test validateEnvironmentVars method.
-   */
   #[DataProvider('dataProviderValidateEnvironmentVars')]
   public function testValidateEnvironmentVars(array $env, ?string $expected_exception, ?string $expected_message): void {
     if ($expected_exception !== NULL) {
@@ -270,9 +239,6 @@ class ProcessRunnerTest extends UnitTestCase {
     }
   }
 
-  /**
-   * Data provider for environment variables tests.
-   */
   public static function dataProviderValidateEnvironmentVars(): \Iterator {
     yield 'valid scalar env vars' => [
       'env' => ['VAR1' => 'value1', 'VAR2' => 'value2'],
@@ -291,9 +257,6 @@ class ProcessRunnerTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test run with environment variables.
-   */
   public function testRunWithEnvironmentVariables(): void {
     $runner = new ProcessRunner();
     $runner->setCwd(self::$tmp);
@@ -301,8 +264,7 @@ class ProcessRunnerTest extends UnitTestCase {
     $output = new BufferedOutput();
     Tui::init($output);
 
-    // Use printenv command which is more reliable for testing env vars.
-    // On Windows, we skip this test as printenv may not be available.
+    // The printenv binary may be absent on Windows.
     if (PHP_OS_FAMILY === 'Windows') {
       $this->markTestSkipped('Environment variable test not compatible with Windows.');
     }
@@ -313,9 +275,6 @@ class ProcessRunnerTest extends UnitTestCase {
     $this->assertStringContainsString('test_value', is_string($output) ? $output : implode(PHP_EOL, $output));
   }
 
-  /**
-   * Test run with working directory.
-   */
   public function testRunWithWorkingDirectory(): void {
     $runner = new ProcessRunner();
     $test_dir = self::$tmp . '/test_subdir';
@@ -332,15 +291,11 @@ class ProcessRunnerTest extends UnitTestCase {
     $this->assertStringContainsString($test_dir, is_string($output) ? $output : implode(PHP_EOL, $output));
   }
 
-  /**
-   * Test resolveCommand with relative path.
-   */
   public function testResolveCommandWithRelativePath(): void {
     $runner = new TestableProcessRunner();
     $test_dir = self::$tmp . '/test_scripts';
     File::mkdir($test_dir);
 
-    // Create an executable script.
     $script_path = $test_dir . '/test_script.sh';
     File::dump($script_path, "#!/bin/sh\necho 'test'\n");
     chmod($script_path, 0755);
@@ -353,20 +308,12 @@ class ProcessRunnerTest extends UnitTestCase {
     $this->assertEmpty($parsed);
   }
 
-  /**
-   * Test prepareArguments with object that can't be cast to scalar.
-   */
   public function testPrepareArgumentsWithNonScalarAfterFormatting(): void {
     $runner = new TestableProcessRunner();
 
-    // Create a test object that formatArgs will add to the array,
-    // but which will fail the scalar check.
-    // However, formatArgs will cast it to string first, so this is hard
-    // to trigger.
-    // Let's test with an actual non-scalar after formatArgs processes it.
-    // Since formatArgs always produces strings, line 126 might be unreachable
-    // through normal usage. Let's document this.
-    // For now, just test that normal args work.
+    // formatArgs() casts every value to a string, so the non-scalar check
+    // after formatting may be unreachable through normal usage; only normal
+    // arguments are exercised here.
     $result = $runner->prepareArgumentsPublic(['test'], ['arg1', 'arg2']);
 
     $this->assertEquals(['test', 'arg1', 'arg2'], $result);
@@ -374,28 +321,16 @@ class ProcessRunnerTest extends UnitTestCase {
 
 }
 
-/**
- * Testable ProcessRunner that exposes protected methods.
- */
 class TestableProcessRunner extends ProcessRunner {
 
-  /**
-   * Public wrapper for resolveCommand.
-   */
   public function resolveCommandPublic(string $command): array {
     return $this->resolveCommand($command);
   }
 
-  /**
-   * Public wrapper for prepareArguments.
-   */
   public function prepareArgumentsPublic(array $parsed_args, array $additional_args): array {
     return $this->prepareArguments($parsed_args, $additional_args);
   }
 
-  /**
-   * Public wrapper for validateEnvironmentVars.
-   */
   public function validateEnvironmentVarsPublic(array $env): void {
     $this->validateEnvironmentVars($env);
   }

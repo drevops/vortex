@@ -12,10 +12,10 @@ class GitleaksHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'gitleaks_enabled' => [
-      static::cw(fn($test): true => $test->prompts[Gitleaks::id()] = TRUE),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): true => $test->prompts[Gitleaks::id()] = TRUE),
     ];
     yield 'gitleaks_disabled' => [
-      static::cw(fn($test): false => $test->prompts[Gitleaks::id()] = FALSE),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): false => $test->prompts[Gitleaks::id()] = FALSE),
     ];
   }
 

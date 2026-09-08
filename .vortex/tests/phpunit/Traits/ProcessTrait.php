@@ -9,8 +9,6 @@ use AlexSkrypnyk\PhpunitHelpers\Traits\ProcessTrait as UpstreamProcessTrait;
 use Symfony\Component\Process\Process;
 
 /**
- * Trait ProcessTrait.
- *
  * Runs a test process and provides assertions for its output.
  */
 trait ProcessTrait {
@@ -34,22 +32,20 @@ trait ProcessTrait {
     $env += [
       'AHOY_CONFIRM_RESPONSE' => 'y',
       'AHOY_CONFIRM_WAIT_SKIP' => 1,
-      // Credentials for the test container registry to allow fetching public
-      // images to overcome the throttle limit of Docker Hub, and also used
-      // for pushing images during the build.
+      // Credentials for the test container registry allow fetching public
+      // images past the Docker Hub throttle limit. The build also uses them
+      // for pushing images.
       'VORTEX_CONTAINER_REGISTRY_USER' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_USER') ?: '',
       'VORTEX_CONTAINER_REGISTRY_PASS' => getenv('TEST_VORTEX_CONTAINER_REGISTRY_PASS') ?: '',
       // GitHub token for API calls to avoid rate limiting.
       'GITHUB_TOKEN' => getenv('TEST_GITHUB_TOKEN') ?: '',
     ];
 
-    // If process streaming is disabled, also silence the output of the
-    // commands.
     if (!$this->processStreamingOutput) {
       // Silence the output of the Composer commands (but still output errors).
       $env += ['SHELL_VERBOSITY' => -1];
 
-      // Silence the output of the Docker Composer commands.
+      // Silence the output of the 'docker compose' commands.
       if (str_starts_with($command, 'docker compose') && !str_contains($command, '--progress')) {
         $command = str_replace('docker compose', 'docker compose --progress quiet', $command);
       }

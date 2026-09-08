@@ -20,11 +20,12 @@ VORTEX_PROVISION_LOG="${VORTEX_PROVISION_LOG:-0}"
 # own '<name>.log' here and 'vortex-notify' collects them all.
 VORTEX_NOTIFY_LOG_DIR="${VORTEX_NOTIFY_LOG_DIR:-/tmp/vortex-logs}"
 
-# When enabled, re-run this script once through 'tee' to capture this run's output
-# into the shared log directory (truncated fresh each run) while still streaming to
-# the console. PIPESTATUS returns the provision (not tee) exit code and 'errexit' is
-# disabled around the pipeline, so a logging failure never masks a deployment failure.
-# Collected logs may contain secrets, so the directory and log file are owner-only.
+# The script re-runs itself once through 'tee' to capture this run's output
+# into the shared log directory (truncated fresh each run) while still
+# streaming to the console. PIPESTATUS returns the provision (not tee) exit
+# code and 'errexit' is disabled around the pipeline, so a logging failure
+# never masks a deployment failure. Collected logs may contain secrets, so the
+# directory and log file are owner-only.
 if [ "${VORTEX_PROVISION_LOG}" = "1" ] && [ -z "${VORTEX_PROVISION_LOG_ACTIVE:-}" ]; then
   export VORTEX_PROVISION_LOG_ACTIVE=1
   set +e
@@ -129,7 +130,6 @@ if [ "${VORTEX_PROVISION_SKIP}" = "1" ]; then
   exit 0
 fi
 
-# Convert DB dir starting with './' to a full path.
 [ "${VORTEX_PROVISION_DB_DIR#./}" != "${VORTEX_PROVISION_DB_DIR}" ] && VORTEX_PROVISION_DB_DIR="$(pwd)${VORTEX_PROVISION_DB_DIR#.}"
 
 if [ -z "${VORTEX_PROVISION_DB}" ]; then
@@ -140,18 +140,13 @@ drush_version="$(drush --version | cut -d' ' -f4)"
 drupal_version="$(drush status --field=drupal-version 2>/dev/null || echo "Unknown")"
 site_is_installed="$(drush status --fields=bootstrap 2>/dev/null | grep -q "Successful" && echo "1" || echo "0")"
 
-# Discover the configuration directory path from the Drupal settings.
 config_path="$(drush php:eval 'print realpath(\Drupal\Core\Site\Settings::get("config_sync_directory"));')"
 [ -z "${config_path}" ] && fail "Config directory was not found in the Drupal settings."
 [ ! -d "${config_path}" ] && fail "Config directory \"${config_path:-<empty>}\" does not exist."
 site_has_config_files="$(test "$(ls -1 ${config_path}/*.yml 2>/dev/null | wc -l | tr -d ' ')" -gt 0 && echo "1" || echo "0")"
 
-# Normalize the provision type.
 [ "${VORTEX_PROVISION_TYPE}" = "profile" ] || VORTEX_PROVISION_TYPE=database
 
-################################################################################
-# Print provisioning information.
-################################################################################
 echo
 note "Drupal core version            : ${drupal_version}"
 note "Drush version                  : ${drush_version}"
@@ -178,15 +173,11 @@ note "Skip post-provision operations : $(yesno "${VORTEX_PROVISION_POST_OPERATIO
 note "Verify config after update     : $(yesno "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}")"
 note "Use maintenance mode           : $(yesno "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}")"
 echo
-################################################################################
 
 if [ "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}" = "1" ]; then
   for cmd in diff mktemp; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 fi
 
-#
-# Provision site by importing the database from the dump file.
-#
 provision_from_db() {
   if [ ! -f "${VORTEX_PROVISION_DB}" ]; then
     if [ "${VORTEX_PROVISION_FALLBACK_TO_PROFILE}" = "1" ]; then
@@ -205,9 +196,6 @@ provision_from_db() {
   "$(dirname "${BASH_SOURCE[0]}")/vortex-import-db-file" "${VORTEX_PROVISION_DB}"
 }
 
-#
-# Provision site from the profile.
-#
 provision_from_profile() {
   local is_fallback="${1:-0}"
   local has_config="${2:-0}"
@@ -231,8 +219,8 @@ provision_from_profile() {
 
   drush site:install "${opts[@]}"
 
-  # On fallback, enable Shield to protect the site and skip post-provision
-  # operations since the site was installed from profile without configuration.
+  # A fallback install has no real content or configuration, so Shield
+  # protects the site and post-provision operations are skipped.
   if [ "${is_fallback}" = "1" ]; then
     drush pm:install shield
     export VORTEX_PROVISION_POST_OPERATIONS_SKIP=1
@@ -241,11 +229,6 @@ provision_from_profile() {
   pass "Installed a site from the profile."
 }
 
-# Provision site from DB dump or profile.
-#
-# The code block below has explicit if-else conditions and verbose output to
-# ensure that this significant operation is executed correctly and has
-# sufficient output for debugging.
 if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
   info "Provisioning site from the database dump file."
   note "Dump file path: ${VORTEX_PROVISION_DB}"
@@ -256,8 +239,8 @@ if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
     if [ -n "${VORTEX_PROVISION_DB_IMAGE-}" ]; then
       note "Database is baked into the container image."
       note "Site content will be preserved."
-      # Container image restarts with a fresh database. Let the downstream
-      # scripts know that the database is fresh.
+      # The container image restarts with a fresh database. The exported flag
+      # tells downstream scripts that the database is fresh.
       export VORTEX_PROVISION_OVERRIDE_DB=1
     elif [ "${VORTEX_PROVISION_OVERRIDE_DB}" = "1" ]; then
       note "Existing site content will be removed and fresh content will be imported from the database dump file."
@@ -283,7 +266,7 @@ if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
     else
       note "Fresh site content will be imported from the database dump file."
       provision_from_db
-      # Let the downstream scripts know that the database is fresh.
+      # The exported flag tells downstream scripts that the database is fresh.
       export VORTEX_PROVISION_OVERRIDE_DB=1
     fi
   fi
@@ -297,7 +280,7 @@ else
     if [ "${VORTEX_PROVISION_OVERRIDE_DB}" = "1" ]; then
       note "Existing site content will be removed and new content will be created from the profile."
       provision_from_profile 0 "${site_has_config_files}"
-      # Let the downstream scripts know that the database is fresh.
+      # The exported flag tells downstream scripts that the database is fresh.
       export VORTEX_PROVISION_OVERRIDE_DB=1
     else
       note "Site content will be preserved."
@@ -333,7 +316,6 @@ if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
   echo
 fi
 
-# Set site UUID from configuration if config files are present.
 if [ "${site_has_config_files}" = "1" ]; then
   if [ -f "${config_path}/system.site.yml" ]; then
     config_uuid="$(awk '/^uuid:/ {print $2; exit}' "${config_path}/system.site.yml")"
@@ -390,7 +372,6 @@ else
   echo
 fi
 
-# Import configuration if config files are present.
 if [ "${site_has_config_files}" = "1" ]; then
   task "Importing configuration."
   drush config:import
@@ -404,7 +385,6 @@ if [ "${site_has_config_files}" = "1" ]; then
     echo
   fi
 
-  # Import config_split configuration if the module is installed.
   # Drush deploy does not import config_split configuration on the first run.
   # @see https://github.com/drush-ops/drush/issues/2449
   # @see https://www.drupal.org/project/drupal/issues/3241439
@@ -426,7 +406,6 @@ drush deploy:hook
 pass "Completed deployment hooks."
 echo
 
-# Sanitize database.
 if [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP}" != "1" ]; then
   "$(dirname "${BASH_SOURCE[0]}")/vortex-provision-sanitize-db"
 else
@@ -434,9 +413,6 @@ else
   echo
 fi
 
-# Run custom provision scripts.
-# The files should be located in VORTEX_PROVISION_SCRIPTS_DIR directory,
-# must have "provision-" prefix and ".sh" extension.
 if [ -d "${VORTEX_PROVISION_SCRIPTS_DIR}" ]; then
   for file in "${VORTEX_PROVISION_SCRIPTS_DIR}"/provision-*.sh; do
     if [ -f "${file}" ]; then

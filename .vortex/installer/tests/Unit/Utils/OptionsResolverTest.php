@@ -13,9 +13,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Process\ExecutableFinder;
 
-/**
- * Tests for the OptionsResolver class.
- */
 #[CoversClass(OptionsResolver::class)]
 class OptionsResolverTest extends UnitTestCase {
 
@@ -33,7 +30,6 @@ class OptionsResolverTest extends UnitTestCase {
 
     OptionsResolver::checkRequirements($finder);
 
-    // No exception means success.
     $this->addToAssertionCount(1);
   }
 
@@ -205,7 +201,6 @@ class OptionsResolverTest extends UnitTestCase {
 
     [$config] = OptionsResolver::resolve($options);
 
-    // The SUT directory should not be a Vortex project.
     $this->assertNotNull($config->get(Config::IS_VORTEX_PROJECT));
   }
 
@@ -228,7 +223,6 @@ class OptionsResolverTest extends UnitTestCase {
   }
 
   public function testResolveDestinationPriority(): void {
-    // Option takes priority over root.
     $destination = self::$sut;
     $options = self::defaultOptions([
       'destination' => $destination,
@@ -241,8 +235,6 @@ class OptionsResolverTest extends UnitTestCase {
   }
 
   /**
-   * Build a default options array with overrides.
-   *
    * @param array<string, mixed> $overrides
    *   Options to override.
    *

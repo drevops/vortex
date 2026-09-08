@@ -11,8 +11,8 @@ use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(HostingProvider::class)]
 class HostingProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {

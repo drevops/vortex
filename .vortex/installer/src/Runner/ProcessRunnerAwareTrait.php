@@ -17,8 +17,6 @@ trait ProcessRunnerAwareTrait {
   /**
    * Get the process runner.
    *
-   * Factory method that returns existing runner or creates new one.
-   *
    * @return \DrevOps\VortexInstaller\Runner\ProcessRunner
    *   The process runner instance.
    */
@@ -28,8 +26,6 @@ trait ProcessRunnerAwareTrait {
 
   /**
    * Set the process runner.
-   *
-   * Allows dependency injection for testing.
    *
    * @param \DrevOps\VortexInstaller\Runner\ProcessRunner $runner
    *   The process runner instance.

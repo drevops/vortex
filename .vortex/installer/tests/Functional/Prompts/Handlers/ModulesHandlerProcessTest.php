@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Modules;
-use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Modules::class)]
@@ -13,49 +12,49 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'modules_no_coffee' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('coffee');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('coffee')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('coffee')),
     ];
     yield 'modules_no_config_split' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('config_split');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('config_split')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('config_split')),
     ];
     yield 'modules_no_config_update' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('config_update');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('config_update')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('config_update')),
     ];
     yield 'modules_no_devel' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('devel');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/devel')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/devel')),
     ];
     yield 'modules_no_drupal_helpers' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('drupal_helpers');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/drupal_helpers')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/drupal_helpers')),
     ];
     yield 'modules_no_environment_indicator' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('environment_indicator');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('environment_indicator')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('environment_indicator')),
     ];
     yield 'modules_no_fast_404' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('fast_404');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('fast_404')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('fast_404')),
     ];
     yield 'modules_no_generated_content' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('generated_content');
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -67,28 +66,28 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'modules_no_navigation_extra_tools' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('navigation_extra_tools');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/navigation_extra_tools')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/navigation_extra_tools')),
     ];
     yield 'modules_no_pathauto' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('pathauto');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/pathauto')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/pathauto')),
     ];
     yield 'modules_no_redirect' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('redirect');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'drupal/redirect',
         'RedirectTrait',
       ])),
     ];
     yield 'modules_no_reroute_email' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('reroute_email');
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -100,37 +99,37 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'modules_no_robotstxt' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('robotstxt');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('robotstxt')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('robotstxt')),
     ];
     yield 'modules_no_sdc_devel' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('sdc_devel');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/sdc_devel')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/sdc_devel')),
     ];
     yield 'modules_no_seckit' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('seckit');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('seckit')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('seckit')),
     ];
     yield 'modules_no_shield' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('shield');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('shield')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('shield')),
     ];
     yield 'modules_no_stage_file_proxy' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('stage_file_proxy');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('stage_file_proxy')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('stage_file_proxy')),
     ];
     yield 'modules_no_testmode' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('testmode');
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -145,23 +144,23 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'modules_no_xmlsitemap' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('xmlsitemap');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/xmlsitemap')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/xmlsitemap')),
     ];
     yield 'modules_no_seckit_shield_stage_file_proxy' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept(['seckit', 'shield', 'stage_file_proxy']);
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'seckit',
         'shield',
         'stage_file_proxy',
       ])),
     ];
     yield 'modules_no_devel_sdc_devel' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept(['devel', 'sdc_devel']);
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -173,7 +172,7 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'modules_no_devel_sdc_devel_generated_content' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept(['devel', 'sdc_devel', 'generated_content']);
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -185,7 +184,7 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'modules_no_devel_sdc_devel_generated_content_testmode' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept(['devel', 'sdc_devel', 'generated_content', 'testmode']);
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -197,7 +196,7 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'modules_no_devel_sdc_devel_generated_content_testmode_reroute_email' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept(['devel', 'sdc_devel', 'generated_content', 'testmode', 'reroute_email']);
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -206,7 +205,7 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'modules_none' => [
-      static::cw(fn($test): array => $test->prompts[Modules::id()] = []),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): array => $test->prompts[Modules::id()] = []),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
         foreach (array_keys(Modules::getAvailableModules()) as $module) {
           // Cannot assert by the module name alone, as some module names

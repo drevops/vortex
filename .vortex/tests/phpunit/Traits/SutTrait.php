@@ -16,8 +16,8 @@ trait SutTrait {
   /**
    * URL to the test demo database.
    *
-   * Tests use demo database and 'ahoy fetch-db' command, so we need
-   * to set the CURL DB to test DB.
+   * Tests use the demo database via 'ahoy fetch-db', so the fetch URL is
+   * pointed at the test database.
    */
   const VORTEX_INSTALLER_DEMO_DB_TEST = 'https://github.com/drevops/vortex/releases/download/1.40.0/db.test.sql';
 
@@ -36,7 +36,7 @@ trait SutTrait {
    *
    * @var array <string, string|int|float|bool>
    */
-  protected static $sutInstallerEnv = [];
+  protected static array $sutInstallerEnv = [];
 
   /**
    * Prompt values to pass via --prompts option.
@@ -87,12 +87,14 @@ trait SutTrait {
    * SUT's composer.json so consumer sites resolve drevops/vortex-tooling
    * from packagist. Until the package is published, the SUT cannot resolve
    * it, so the workflow tests would fail at the Dockerfile's composer
-   * install step. This method copies the in-tree tooling into the SUT at
-   * '.tooling-source' (deliberately outside '.vortex/' so the SUT keeps no
-   * '.vortex/' directory at runtime), re-injects the path repository into
-   * composer.json, re-injects the COPY into cli.dockerfile, and adjusts
-   * '.dockerignore' and '.gitignore.artifact' so the tooling source enters
-   * the build context but never the deployment artifact.
+   * install step.
+   *
+   * The method copies the in-tree tooling into the SUT at '.tooling-source',
+   * outside '.vortex/' so the SUT keeps no '.vortex/' directory at runtime.
+   * It re-injects the path repository into composer.json and the COPY into
+   * cli.dockerfile. It adjusts '.dockerignore' and '.gitignore.artifact' so
+   * the tooling source enters the build context but never the deployment
+   * artifact.
    *
    * @todo Remove once drevops/vortex-tooling is published to packagist.
    */
@@ -244,15 +246,12 @@ trait SutTrait {
         // of the Vortex codebase. During development, ensure any pending
         // changes are committed to the template repository.
         'VORTEX_INSTALLER_TEMPLATE_REPO' => static::locationsRoot(),
-        // Tests use the demo database and the 'ahoy fetch-db' command,
-        // so we need to point CURL to the test database instead.
+        // Tests use the demo database via 'ahoy fetch-db', so the URL points
+        // to the test demo database. The "star wars" assertions expect its
+        // data set.
         //
-        // This overrides the *demo database* with the *test demo database*,
-        // which is required for running test assertions ("star wars")
-        // against an expected data set.
-        //
-        // The installer will load this environment variable, and it will
-        // take precedence over the value in the .env file.
+        // The installer loads this variable, and it takes precedence over
+        // the value in the .env file.
         'VORTEX_FETCH_DB_URL' => static::VORTEX_INSTALLER_DEMO_DB_TEST,
       ],
       txt: 'Run the installer'
@@ -325,10 +324,9 @@ trait SutTrait {
   /**
    * Adjust the codebase for unmounted volumes.
    *
-   * This method modifies the codebase files to ensure
-   * that the project can be built and run without mounted Docker volumes in
-   * environments such as CI/CD pipelines (which also replicate some hosting
-   * environments).
+   * The method modifies the codebase files so the project can be built and
+   * run without mounted Docker volumes in environments such as CI/CD
+   * pipelines, which also replicate some hosting environments.
    */
   protected function adjustCodebaseForUnmountedVolumes(): void {
     if ($this->volumesMounted()) {
@@ -350,10 +348,9 @@ trait SutTrait {
   /**
    * Adjust Ahoy configuration for unmounted volumes.
    *
-   * This is similar to adjustCodebaseForUnmountedVolumes() but is called only
-   * for local Ahoy-based workflows. We need to do this to allow testing local
-   * workflows where the volumes are mounted in the CI environment where the
-   * volumes are not mounted.
+   * Similar to adjustCodebaseForUnmountedVolumes(), but called only for
+   * local Ahoy-based workflows. This allows testing local workflows, which
+   * mount volumes, in the CI environment where volumes are not mounted.
    */
   protected function adjustAhoyForUnmountedVolumes(): void {
     if ($this->volumesMounted()) {
@@ -392,7 +389,6 @@ trait SutTrait {
 
     $this->assertFileContainsString('README.md', 'This repository was created using the [Vortex](https://github.com/drevops/vortex) Drupal project template', 'Assert that Vortex footnote remains.');
 
-    // Assert Drupal files are present.
     $this->assertDrupalFilesPresent($webroot);
   }
 
@@ -542,7 +538,6 @@ trait SutTrait {
       $this->assertFileNotContainsString('README.md', '# Vortex');
     }
 
-    // Check directory doesn't contain .vortex references.
     $this->assertDirectoryNotContainsString('.', '/\.vortex');
   }
 
@@ -626,8 +621,8 @@ trait SutTrait {
 
   protected function assertFilesTrackedInGit(string $webroot = 'web', bool $skip_commit = FALSE): void {
     // Modified or new files in the webroot at this point mean that the
-    // committed Drupal Scaffold files drifted from the files shipped with the
-    // installed Drupal core version and have to be re-committed.
+    // committed Drupal Scaffold files drifted from the files shipped with
+    // the installed Drupal core version. They have to be re-committed.
     $this->gitAssertCleanPath($webroot, message: 'Drupal Scaffold files in the webroot should not be modified or added by the build');
 
     $this->createDevelopmentSettings($webroot);
@@ -752,7 +747,7 @@ EOT;
 
     File::dump($webroot . '/sites/default/services.local.yml');
     File::dump($webroot . '/sites/default/settings.local.php');
-    File::dump("docker-compose.override.yml", 'version: "2.3"');
+    File::dump('docker-compose.override.yml', 'version: "2.3"');
   }
 
 }

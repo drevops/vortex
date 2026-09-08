@@ -6,7 +6,6 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
-use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Utils\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -15,8 +14,8 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'theme_olivero' => [
-      static::cw(fn($test): string => $test->prompts[Theme::id()] = Theme::OLIVERO),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[Theme::id()] = Theme::OLIVERO),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
         '.gitignore',
         'scripts/vortex',
         'composer.json',
@@ -25,8 +24,8 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'theme_claro' => [
-      static::cw(fn($test): string => $test->prompts[Theme::id()] = Theme::CLARO),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[Theme::id()] = Theme::CLARO),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
         '.gitignore',
         'scripts/vortex',
         'composer.json',
@@ -35,8 +34,8 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'theme_stark' => [
-      static::cw(fn($test): string => $test->prompts[Theme::id()] = Theme::STARK),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[Theme::id()] = Theme::STARK),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
         '.gitignore',
         'scripts/vortex',
         'composer.json',
@@ -45,11 +44,11 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       ])),
     ];
     yield 'theme_custom' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Theme::id()] = Theme::CUSTOM;
           $test->prompts[ThemeCustom::id()] = 'light_saber';
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'your_site_theme')),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'your_site_theme')),
     ];
     yield 'theme_custom_non_vortex' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {

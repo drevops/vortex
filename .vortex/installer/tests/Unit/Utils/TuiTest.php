@@ -11,28 +11,22 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-/**
- * Tests for the Tui class.
- */
 #[CoversClass(Tui::class)]
 class TuiTest extends UnitTestCase {
 
   public function testInit(): void {
     $output = new BufferedOutput();
 
-    // Test basic initialization.
     Tui::init($output);
     $this->assertSame($output, Tui::output());
 
-    // Test with non-interactive mode.
     Tui::init($output, FALSE);
     $this->assertSame($output, Tui::output());
   }
 
   public function testOutputNotInitialized(): void {
-    // Since the output property is typed and doesn't allow null,
-    // we can't easily test the uninitialized state.
-    // Instead, we'll test that init properly sets the output.
+    // The typed output property cannot hold NULL, so the uninitialized state
+    // is not reachable; init() setting the output is asserted instead.
     $output = new BufferedOutput();
     Tui::init($output);
     $this->assertSame($output, Tui::output());
@@ -113,8 +107,7 @@ INPUT,
   }
 
   public function testEscapeMultilineViaPublicMethod(): void {
-    // Since escapeMultiline is protected, test it via public methods that
-    // use it.
+    // escapeMultiline() is protected, so green() exercises it.
     $text = <<<'TEXT'
 Line 1
 Line 2
@@ -161,7 +154,6 @@ TEXT;
     $output = new BufferedOutput();
     Tui::init($output);
 
-    // Mock terminal width if specified.
     if ($terminal_width !== NULL) {
       static::envSet('COLUMNS', (string) $terminal_width);
     }
@@ -175,7 +167,6 @@ TEXT;
 
     $actual = $output->fetch();
 
-    // Strip ANSI color codes using the same method as Strings::strlenPlain()
     $actual_clean = Strings::stripAnsiColors($actual);
     $expected_clean = Strings::stripAnsiColors($expected_output);
 
@@ -507,7 +498,6 @@ EXPECTED,
     ?string $term_program,
     string $expected_padding,
   ): void {
-    // Set test environment variables.
     if ($terminal_emulator !== NULL) {
       static::envSet('TERMINAL_EMULATOR', $terminal_emulator);
     }
@@ -522,7 +512,6 @@ EXPECTED,
       static::envUnset('TERM_PROGRAM');
     }
 
-    // Use reflection to access the protected method.
     $reflection = new \ReflectionClass(Tui::class);
     $method = $reflection->getMethod('utfPadding');
 
@@ -531,7 +520,6 @@ EXPECTED,
   }
 
   public static function dataProviderUtfPadding(): \Iterator {
-    // JetBrains terminal conditions.
     yield 'JetBrains with 1-byte UTF-8 char' => [
     // 2 bytes, 1 mb_strlen
       'char' => 'é',
@@ -559,7 +547,6 @@ EXPECTED,
       'term_program' => NULL,
       'expected_padding' => '',
     ];
-    // Apple Terminal conditions.
     yield 'Apple Terminal with multi-byte char under 8 bytes' => [
       // 2 chars × 3 bytes = 6 bytes total, mblen=2, len=6 < 8
       'char' => 'あい',
@@ -581,7 +568,6 @@ EXPECTED,
       'term_program' => 'Apple_Terminal',
       'expected_padding' => '',
     ];
-    // No special terminal conditions.
     yield 'No special terminal with UTF-8' => [
       'char' => '🌟',
       'terminal_emulator' => NULL,
@@ -594,7 +580,6 @@ EXPECTED,
       'term_program' => NULL,
       'expected_padding' => '',
     ];
-    // Both terminals set - JetBrains takes precedence.
     yield 'Both JetBrains and Apple set' => [
       'char' => 'é',
       'terminal_emulator' => 'JetBrains-IDE',
@@ -602,7 +587,6 @@ EXPECTED,
       // JetBrains condition should trigger first.
       'expected_padding' => ' ',
     ];
-    // Empty/null environment values.
     yield 'Empty environment values' => [
       'char' => 'é',
       'terminal_emulator' => '',
@@ -622,9 +606,6 @@ EXPECTED,
     $this->assertSame($expected, $actual);
   }
 
-  /**
-   * Data provider for testCenter.
-   */
   public static function dataProviderCenter(): \Iterator {
     yield 'single line text with default width' => [
       'text' => 'Hello',
@@ -769,7 +750,6 @@ EXPECTED,
   }
 
   public static function dataProviderNormalizeText(): \Iterator {
-    // Test whitespace collapsing.
     yield 'multiple spaces' => [
       'input' => 'Hello    world',
       'expected' => 'Hello world',
@@ -787,7 +767,6 @@ EXPECTED,
       'input' => 'éHello    world',
       'expected' => 'éHello    world',
     ];
-    // Test ASCII text processing (with UTF padding).
     yield 'simple ASCII text' => [
       'input' => 'Hello world',
       'expected' => 'Hello world',
@@ -810,9 +789,6 @@ EXPECTED,
     ];
   }
 
-  /**
-   * Test setOutput method.
-   */
   public function testSetOutput(): void {
     $output1 = new BufferedOutput();
     $output2 = new BufferedOutput();
@@ -824,9 +800,6 @@ EXPECTED,
     $this->assertSame($output2, Tui::output());
   }
 
-  /**
-   * Test success method.
-   */
   public function testSuccess(): void {
     $output = new BufferedOutput();
     Tui::init($output);
@@ -837,9 +810,6 @@ EXPECTED,
     $this->assertStringContainsString('Operation succeeded', $actual);
   }
 
-  /**
-   * Test line method.
-   */
   public function testLine(): void {
     $output = new BufferedOutput();
     Tui::init($output);
@@ -850,9 +820,6 @@ EXPECTED,
     $this->assertStringContainsString('Test line', $actual);
   }
 
-  /**
-   * Test line method with custom padding.
-   */
   public function testLineWithPadding(): void {
     $output = new BufferedOutput();
     Tui::init($output);
@@ -863,14 +830,10 @@ EXPECTED,
     $this->assertStringContainsString('     Test line', $actual);
   }
 
-  /**
-   * Test confirm in non-interactive mode (returns default).
-   */
   public function testConfirmNonInteractive(): void {
     $output = new BufferedOutput();
     Tui::init($output, FALSE);
 
-    // In non-interactive mode, confirm should return the default value.
     $result = Tui::confirm('Confirm action?', TRUE);
     $this->assertTrue($result);
 
@@ -878,14 +841,10 @@ EXPECTED,
     $this->assertFalse($result);
   }
 
-  /**
-   * Test getChar in non-interactive mode.
-   */
   public function testGetCharNonInteractive(): void {
     $output = new BufferedOutput();
     Tui::init($output, FALSE);
 
-    // In non-interactive mode, getChar should return empty string.
     $result = Tui::getChar();
     $this->assertEquals('', $result);
   }

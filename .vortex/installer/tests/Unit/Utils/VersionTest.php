@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
-use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use AlexSkrypnyk\File\File;
+use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Version;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -19,8 +19,6 @@ class VersionTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testMajor().
-   *
    * @return \Iterator<string, array{(string | null), (int | null)}>
    *   Test data.
    */
@@ -44,8 +42,6 @@ class VersionTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testReleasePrefix().
-   *
    * @return \Iterator<string, array{(string | null), (string | null)}>
    *   Test data.
    */
@@ -63,8 +59,6 @@ class VersionTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testMajorFromConstraint().
-   *
    * @return \Iterator<string, array{(string | null), (int | null)}>
    *   Test data.
    */
@@ -92,8 +86,6 @@ class VersionTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testDetectProjectMajor().
-   *
    * @return \Iterator<string, array{(string | null), (int | null)}>
    *   Test data.
    */

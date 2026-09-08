@@ -105,11 +105,11 @@ class OptionsResolver {
 
     $config->set(Config::IS_VORTEX_PROJECT, File::contains($config->getDestination() . '/README.md', '/badge\/Vortex-/'));
 
-    // Flag to proceed with installation. If FALSE - the installation will only
-    // print resolved values and will not proceed.
+    // Flag to proceed with installation. If FALSE, the installation only
+    // prints the resolved values and does not proceed.
     $config->set(Config::PROCEED, TRUE);
 
-    // Internal flag to enforce DEMO mode. If not set, the demo mode will be
+    // Internal flag to enforce demo mode. If not set, demo mode is
     // discovered automatically.
     if (Env::get(Config::IS_DEMO) !== NULL) {
       $config->set(Config::IS_DEMO, (bool) Env::get(Config::IS_DEMO));

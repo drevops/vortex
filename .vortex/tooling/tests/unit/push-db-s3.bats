@@ -38,7 +38,7 @@ load ../_helper.bash
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -77,7 +77,7 @@ load ../_helper.bash
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -120,7 +120,7 @@ load ../_helper.bash
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -158,7 +158,7 @@ load ../_helper.bash
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -197,7 +197,7 @@ load ../_helper.bash
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -237,7 +237,7 @@ load ../_helper.bash
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_success
 
@@ -273,7 +273,7 @@ load ../_helper.bash
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -300,7 +300,7 @@ load ../_helper.bash
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -325,7 +325,7 @@ load ../_helper.bash
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -350,7 +350,7 @@ load ../_helper.bash
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -375,7 +375,7 @@ load ../_helper.bash
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 
@@ -405,7 +405,7 @@ load ../_helper.bash
 
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-push-db-s3
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   assert_failure
 

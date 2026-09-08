@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
-use PHPUnit\Framework\Attributes\DataProvider;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Class InstallerDotEnvTest.
@@ -21,15 +21,11 @@ use DrevOps\VortexInstaller\Utils\File;
 class EnvTest extends UnitTestCase {
 
   /**
-   * Backup value of the $GLOBALS['_SERVER'] variable.
-   *
    * @var array
    */
   protected $backupServer;
 
   /**
-   * Backup value of the $GLOBALS['_ENV'] variable.
-   *
    * @var array
    */
   protected $backupEnv;
@@ -142,9 +138,7 @@ class EnvTest extends UnitTestCase {
     Env::writeValueDotenv('BOOL_VAR', 'false', $actual_file);
     Env::writeValueDotenv('PATH_VAR', '/path/to/new file', $actual_file);
     Env::writeValueDotenv('EMAIL_VAR', 'new user@domain.com', $actual_file);
-    // Remove this variable.
     Env::writeValueDotenv('REMOVE_VAR', NULL, $actual_file);
-    // Add new variable.
     Env::writeValueDotenv('NEW_VAR', 'new_added_value', $actual_file);
 
     $this->assertDirectoriesIdentical(static::$sut, $fixture_dir . '/after');
@@ -199,12 +193,10 @@ class EnvTest extends UnitTestCase {
     yield ['command`substitution', '"command`substitution"'];
     yield ["single'quote", '"single\'quote"'];
     yield ['double"quote', '"double\\"quote"'];
-    // Combined cases (whitespace + special characters).
     yield ['value with "quotes"', '"value with \\"quotes\\""'];
     yield ['email|name with spaces', '"email|name with spaces"'];
     yield ['command; with spaces', '"command; with spaces"'];
     yield ['path with spaces & special', '"path with spaces & special"'];
-    // Edge cases.
     // = is not a special character, so no quoting needed.
     yield ['key=value', 'key=value'];
     yield ['webmaster@your-site-domain.example|Webmaster', '"webmaster@your-site-domain.example|Webmaster"'];
@@ -229,16 +221,13 @@ class EnvTest extends UnitTestCase {
   }
 
   public static function dataProviderParseDotenv(): \Iterator {
-    // Valid .env content.
     yield ['VAR1=value1', ['VAR1' => 'value1'], NULL];
     yield ["VAR1=value1\nVAR2=value2", ['VAR1' => 'value1', 'VAR2' => 'value2'], NULL];
     yield ['VAR="quoted value"', ['VAR' => 'quoted value'], NULL];
     yield ['VAR=', ['VAR' => ''], NULL];
     yield ['', [], NULL];
-    // Valid content with comments.
     yield ["VAR1=value1\n# This is a comment\nVAR2=value2", ['VAR1' => 'value1', 'VAR2' => 'value2'], NULL];
     yield ['VAR="value with # in quotes"', ['VAR' => 'value with # in quotes'], NULL];
-    // Invalid .env content that should throw exceptions.
     yield ['VAR[invalid', NULL, 'Unable to parse file'];
     yield ['VAR=value1' . "\n" . 'INVALID[bracket', NULL, 'Unable to parse file'];
     yield ["VAR1=value1\nVAR2[invalid=value2", NULL, 'Unable to parse file'];
@@ -250,14 +239,12 @@ class EnvTest extends UnitTestCase {
   }
 
   public function testParseDotenvFileReadFailure(): void {
-    // Create a file we can't read.
     $filename = $this->createFixtureEnvFile('VAR=value');
     chmod($filename, 0000);
 
     $result = Env::parseDotenv($filename);
     $this->assertEquals([], $result);
 
-    // Clean up.
     chmod($filename, 0644);
     File::remove($filename);
   }
@@ -269,18 +256,14 @@ class EnvTest extends UnitTestCase {
   }
 
   public static function dataProviderToValue(): \Iterator {
-    // String constants.
     yield ['true', TRUE];
     yield ['false', FALSE];
     yield ['null', NULL];
-    // Numeric values.
     yield ['123', 123];
     yield ['0', 0];
     yield ['-456', -456];
-    // Regular strings.
     yield ['regular_string', 'regular_string'];
     yield ['non-numeric', 'non-numeric'];
-    // List values (contains comma).
     yield ['item1,item2,item3', ['item1', 'item2', 'item3']];
     yield ['single,item', ['single', 'item']];
   }
@@ -301,16 +284,13 @@ class EnvTest extends UnitTestCase {
   }
 
   public function testGetFromDotenvReturnsParsedValue(): void {
-    // Test the case when environment variable is not set but .env file exists.
     $content = "TEST_VAR=dotenv_value";
     $filename = $this->createFixtureEnvFile($content);
     $dir = dirname($filename);
 
-    // Move the temp file to be named .env in the directory.
     $dotenv_file = $dir . '/.env';
     rename($filename, $dotenv_file);
 
-    // Ensure no environment variable is set by clearing any existing value.
     static::envUnset('TEST_VAR');
 
     $result = Env::getFromDotenv('TEST_VAR', $dir);
@@ -327,7 +307,6 @@ class EnvTest extends UnitTestCase {
   }
 
   public function testWriteValueDotenvFileReadFailure(): void {
-    // Create a file we can't read.
     $filename = $this->createFixtureEnvFile('VAR=value');
     chmod($filename, 0000);
 
@@ -338,14 +317,12 @@ class EnvTest extends UnitTestCase {
       Env::writeValueDotenv('TEST_VAR', 'value', $filename);
     }
     finally {
-      // Clean up.
       chmod($filename, 0644);
       File::remove($filename);
     }
   }
 
   public function testWriteValueDotenvAddNewVariableToFileWithoutNewline(): void {
-    // No trailing newline.
     $filename = $this->createFixtureEnvFile('EXISTING_VAR=value');
 
     Env::writeValueDotenv('NEW_VAR', 'new_value', $filename);
@@ -358,7 +335,6 @@ class EnvTest extends UnitTestCase {
   }
 
   public function testWriteValueDotenvReplaceVariableToFileWithoutNewline(): void {
-    // No trailing newline.
     $filename = $this->createFixtureEnvFile('EXISTING_VAR=old_value');
 
     Env::writeValueDotenv('NEW_VAR', 'new value with spaces', $filename);
@@ -373,7 +349,6 @@ class EnvTest extends UnitTestCase {
   public function testWriteValueDotenvAddEmptyVariable(): void {
     $filename = $this->createFixtureEnvFile("EXISTING_VAR=value\n");
 
-    // Test adding a variable that doesn't exist with null value.
     Env::writeValueDotenv('NEW_VAR', NULL, $filename);
 
     $content = file_get_contents($filename);
@@ -384,11 +359,8 @@ class EnvTest extends UnitTestCase {
   }
 
   public function testWriteValueDotenvAddEmptyVariableToFileWithoutNewline(): void {
-    // No trailing newline.
     $filename = $this->createFixtureEnvFile('EXISTING_VAR=value');
 
-    // Test adding a variable that doesn't exist with null value to a file
-    // without newline.
     Env::writeValueDotenv('NEW_VAR', NULL, $filename);
 
     $content = file_get_contents($filename);
@@ -411,7 +383,6 @@ class EnvTest extends UnitTestCase {
   }
 
   public static function dataProviderWriteValueDotenvWithEnabled(): \Iterator {
-    // Test commenting out an active variable.
     yield 'disable active variable' => [
       "VAR=active_value\n",
       'VAR',
@@ -419,7 +390,6 @@ class EnvTest extends UnitTestCase {
       FALSE,
       "# VAR=active_value\n",
     ];
-    // Test activating a commented variable.
     yield 'enable commented variable' => [
       "# VAR=commented_value\n",
       'VAR',
@@ -427,7 +397,6 @@ class EnvTest extends UnitTestCase {
       TRUE,
       "VAR=new_value\n",
     ];
-    // Test updating and commenting out an active variable.
     yield 'disable and update active variable' => [
       "VAR=old_value\n",
       'VAR',
@@ -435,7 +404,6 @@ class EnvTest extends UnitTestCase {
       FALSE,
       "# VAR=new_value\n",
     ];
-    // Test updating and activating a commented variable.
     yield 'enable and update commented variable' => [
       "# VAR=old_value\n",
       'VAR',
@@ -443,7 +411,6 @@ class EnvTest extends UnitTestCase {
       TRUE,
       "VAR=new_value\n",
     ];
-    // Test adding new disabled variable.
     yield 'add new disabled variable' => [
       "EXISTING=value\n",
       'NEW_VAR',
@@ -451,7 +418,6 @@ class EnvTest extends UnitTestCase {
       FALSE,
       "EXISTING=value\n# NEW_VAR=new_value\n",
     ];
-    // Test adding new active variable (default behavior).
     yield 'add new active variable' => [
       "EXISTING=value\n",
       'NEW_VAR',
@@ -459,7 +425,6 @@ class EnvTest extends UnitTestCase {
       TRUE,
       "EXISTING=value\nNEW_VAR=new_value\n",
     ];
-    // Test with commented variable with spaces after #.
     yield 'update variable commented with spaces' => [
       "#  VAR=old_value\n",
       'VAR',
@@ -467,7 +432,6 @@ class EnvTest extends UnitTestCase {
       TRUE,
       "VAR=new_value\n",
     ];
-    // Test disabled with NULL value (empty).
     yield 'disabled empty variable' => [
       "EXISTING=value\n",
       'NEW_VAR',
@@ -475,7 +439,6 @@ class EnvTest extends UnitTestCase {
       FALSE,
       "EXISTING=value\n# NEW_VAR=\n",
     ];
-    // Test active with NULL value (empty).
     yield 'active empty variable' => [
       "EXISTING=value\n",
       'NEW_VAR',
@@ -483,7 +446,6 @@ class EnvTest extends UnitTestCase {
       TRUE,
       "EXISTING=value\nNEW_VAR=\n",
     ];
-    // Test disabling variable with special characters.
     yield 'disable variable with special chars' => [
       "VAR=value\n",
       'VAR',
@@ -491,7 +453,6 @@ class EnvTest extends UnitTestCase {
       FALSE,
       "# VAR=\"value with spaces\"\n",
     ];
-    // Test enabling variable with special characters.
     yield 'enable variable with special chars' => [
       "# VAR=old\n",
       'VAR',
@@ -499,7 +460,6 @@ class EnvTest extends UnitTestCase {
       TRUE,
       "VAR=\"value with spaces\"\n",
     ];
-    // Test with multiple variables, disable one.
     yield 'disable one among multiple variables' => [
       "VAR1=value1\nVAR2=value2\nVAR3=value3\n",
       'VAR2',
@@ -507,7 +467,6 @@ class EnvTest extends UnitTestCase {
       FALSE,
       "VAR1=value1\n# VAR2=new_value2\nVAR3=value3\n",
     ];
-    // Test with multiple variables, enable commented one.
     yield 'enable one among multiple variables' => [
       "VAR1=value1\n# VAR2=value2\nVAR3=value3\n",
       'VAR2',
@@ -518,8 +477,7 @@ class EnvTest extends UnitTestCase {
   }
 
   public function testParseDotenvFileGetContentsFailure(): void {
-    // Create a directory instead of a file (will cause file_get_contents
-    // to fail).
+    // A directory in place of the file makes file_get_contents() fail.
     $dirname = tempnam(sys_get_temp_dir(), '.env');
     File::remove($dirname);
     mkdir($dirname);

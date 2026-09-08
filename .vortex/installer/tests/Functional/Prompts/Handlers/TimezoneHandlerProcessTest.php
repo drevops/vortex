@@ -13,7 +13,7 @@ class TimezoneHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'timezone_gha' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Timezone::id()] = 'America/New_York';
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
@@ -37,7 +37,7 @@ class TimezoneHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'timezone_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Timezone::id()] = 'America/New_York';
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),

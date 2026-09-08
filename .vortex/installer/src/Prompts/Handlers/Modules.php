@@ -80,7 +80,7 @@ class Modules extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    $selected_modules = $this->getResponseAsArray();
+    $v = $this->getResponseAsArray();
     $all_modules = self::getAvailableModules();
 
     $t = $this->tmpDir;
@@ -89,7 +89,7 @@ class Modules extends AbstractHandler {
     $removed_packages = [];
 
     foreach (array_keys($all_modules) as $module_name) {
-      if (!in_array($module_name, $selected_modules)) {
+      if (!in_array($module_name, $v)) {
         $removed_packages[] = 'drupal/' . $module_name;
 
         File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.' . $module_name . '.php');
@@ -126,19 +126,19 @@ class Modules extends AbstractHandler {
     }
 
     // The only scenario in the demo pages feature asserts Testmode filtering,
-    // so the feature does not survive without the module. It is not named after
+    // so the feature has no purpose without the module. It is not named after
     // the module, so the removal above does not cover it.
-    if (!in_array('testmode', $selected_modules)) {
+    if (!in_array('testmode', $v)) {
       File::remove($t . '/tests/behat/features/pages.feature');
     }
 
     // Without any of the modules it drives, the script has no operations to
     // perform, so it is removed.
-    if (count(array_intersect(self::DEV_MODULES, $selected_modules)) === 0) {
+    if (count(array_intersect(self::DEV_MODULES, $v)) === 0) {
       File::remove($t . '/scripts/provision-10-enable-dev-modules.sh');
     }
 
-    if (count($selected_modules) === 0) {
+    if (count($v) === 0) {
       File::removeTokenAsync('MODULE');
     }
   }

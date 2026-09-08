@@ -17,8 +17,6 @@ trait LoggerAwareTrait {
   /**
    * Get the logger.
    *
-   * Factory method that returns existing logger or creates new one.
-   *
    * @return \DrevOps\VortexInstaller\Logger\FileLoggerInterface
    *   The logger instance.
    */
@@ -28,8 +26,6 @@ trait LoggerAwareTrait {
 
   /**
    * Set the logger.
-   *
-   * Allows dependency injection for testing.
    *
    * @param \DrevOps\VortexInstaller\Logger\FileLoggerInterface $logger
    *   The logger instance.

@@ -100,9 +100,6 @@ final class Config {
     return $this->get(self::DESTINATION);
   }
 
-  /**
-   * Shorthand to get the value of whether install should be quiet.
-   */
   public function isQuiet(): bool {
     return (bool) $this->get(self::QUIET, FALSE);
   }

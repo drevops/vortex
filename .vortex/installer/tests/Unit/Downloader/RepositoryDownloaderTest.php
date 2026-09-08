@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Downloader;
 
 use AlexSkrypnyk\File\File;
-use DrevOps\VortexInstaller\Downloader\Artifact;
 use DrevOps\VortexInstaller\Downloader\ArchiverInterface;
+use DrevOps\VortexInstaller\Downloader\Artifact;
 use DrevOps\VortexInstaller\Downloader\Downloader;
 use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Runner\ProcessRunner;
@@ -127,7 +127,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
         $mock_body->method('getContents')->willReturn($release_json);
         $mock_response->method('getStatusCode')->willReturn(200);
 
-        // Only the API call uses httpClient now.
         $mock_http_client->method('request')->willReturn($mock_response);
       }
     }
@@ -157,8 +156,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testDiscoverLatestReleaseRemote().
-   *
    * @return \Iterator<string, array<string, mixed>>
    *   Test data.
    */
@@ -352,8 +349,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testDownloadWithNullDestination().
-   *
    * @return \Iterator<string, array<string, string>>
    *   Test data.
    */
@@ -374,7 +369,8 @@ class RepositoryDownloaderTest extends UnitTestCase {
     $destination = self::$tmp . '/dest_' . uniqid();
     File::mkdir($destination);
 
-    // Handle the special case where we need to get the actual commit hash.
+    // The 'COMMIT_HASH' sentinel resolves to the repository's actual commit
+    // hash at run time.
     if ($ref === 'COMMIT_HASH') {
       $output = self::gitRunner($temp_repo_dir)->run('git rev-parse HEAD', output: new NullOutput())->getOutput();
       $this->assertIsString($output, 'Failed to get commit hash from git repository');
@@ -393,8 +389,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testDownloadFromLocal().
-   *
    * @return \Iterator<string, array<string, string>>
    *   Test data.
    */
@@ -445,7 +439,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
       return $mock_response;
     });
     $mock_archiver = $this->createMock(ArchiverInterface::class);
-    // File downloader should receive the token in headers.
     $mock_file_downloader = $this->createMock(Downloader::class);
     $mock_file_downloader->expects($this->once())->method('download')->willReturnCallback(function ($url, $dest, array $headers): void {
       $this->assertArrayHasKey('Authorization', $headers);
@@ -463,7 +456,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
     static::envSet('GITHUB_TOKEN', 'test_token_67890');
     $mock_http_client = $this->createMock(ClientInterface::class);
     $mock_archiver = $this->createMock(ArchiverInterface::class);
-    // File downloader should receive the token in headers.
     $mock_file_downloader = $this->createMock(Downloader::class);
     $mock_file_downloader->expects($this->once())->method('download')->willReturnCallback(function ($url, $dest, array $headers): void {
       $this->assertArrayHasKey('Authorization', $headers);
@@ -475,74 +467,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
     $downloader = new RepositoryDownloader($mock_http_client, $mock_archiver, NULL, $mock_file_downloader);
     $version = $downloader->download(Artifact::create('https://github.com/user/repo', 'HEAD'), $destination);
     $this->assertEquals('develop', $version);
-  }
-
-  protected function createMockHttpClient(int $status_code = 200, string $body_content = 'mock content'): ClientInterface {
-    $mock_client = $this->createMock(ClientInterface::class);
-    $mock_response = $this->createMock(ResponseInterface::class);
-    $mock_body = $this->createMock(StreamInterface::class);
-    $mock_response->method('getBody')->willReturn($mock_body);
-    $mock_body->method('getContents')->willReturn($body_content);
-    $mock_response->method('getStatusCode')->willReturn($status_code);
-    $mock_client->method('request')->willReturn($mock_response);
-    return $mock_client;
-  }
-
-  protected function createMockArchiver(): MockObject {
-    return $this->createMock(ArchiverInterface::class);
-  }
-
-  protected function createGitRepo(bool $with_composer_json = TRUE): string {
-    $temp_repo_dir = self::$tmp . '/test_git_repo_' . uniqid();
-    File::mkdir($temp_repo_dir);
-
-    $runner = self::gitRunner($temp_repo_dir);
-    $runner->run('git init', output: new NullOutput());
-    $runner->run('git', args: ['config', 'user.email', 'test@example.com'], output: new NullOutput());
-    $runner->run('git', args: ['config', 'user.name', 'Test User'], output: new NullOutput());
-
-    File::dump($temp_repo_dir . '/test.txt', 'test content');
-    $runner->run('git add .', output: new NullOutput());
-    $runner->run('git', args: ['commit', '-m', 'Initial commit'], output: new NullOutput());
-
-    if ($with_composer_json) {
-      File::dump($temp_repo_dir . '/composer.json', '{}');
-      $runner->run('git add composer.json', output: new NullOutput());
-      $runner->run('git', args: ['commit', '-m', 'Add composer.json'], output: new NullOutput());
-    }
-
-    return $temp_repo_dir;
-  }
-
-  /**
-   * Create a runner that operates on a repository without writing a log.
-   */
-  protected static function gitRunner(string $repo_dir): ProcessRunner {
-    $runner = new ProcessRunner();
-    $runner->getLogger()->disable();
-
-    return $runner->setCwd($repo_dir);
-  }
-
-  protected function removeGitRepo(string $repo_dir): void {
-    File::remove($repo_dir);
-  }
-
-  protected function createMockArchiverWithExtract(): MockObject {
-    $mock_archiver = $this->createMockArchiver();
-    $mock_archiver->expects($this->once())->method('validate');
-    $mock_archiver->expects($this->once())->method('extract')->willReturnCallback(function ($archive, string $dest): void {
-      File::dump($dest . '/composer.json', '{}');
-    });
-    return $mock_archiver;
-  }
-
-  /**
-   * @return \PHPUnit\Framework\MockObject\MockObject&\DrevOps\VortexInstaller\Downloader\Downloader
-   *   Mock file downloader.
-   */
-  protected function createMockFileDownloader(): MockObject {
-    return $this->createMock(Downloader::class);
   }
 
   public function testValidateRemoteRepositoryExistsWithNotFoundError(): void {
@@ -666,6 +590,71 @@ class RepositoryDownloaderTest extends UnitTestCase {
     $downloader->validate($artifact);
     $this->expectNotToPerformAssertions();
     $this->removeGitRepo($temp_repo_dir);
+  }
+
+  protected function createMockHttpClient(int $status_code = 200, string $body_content = 'mock content'): ClientInterface {
+    $mock_client = $this->createMock(ClientInterface::class);
+    $mock_response = $this->createMock(ResponseInterface::class);
+    $mock_body = $this->createMock(StreamInterface::class);
+    $mock_response->method('getBody')->willReturn($mock_body);
+    $mock_body->method('getContents')->willReturn($body_content);
+    $mock_response->method('getStatusCode')->willReturn($status_code);
+    $mock_client->method('request')->willReturn($mock_response);
+    return $mock_client;
+  }
+
+  protected function createMockArchiver(): MockObject {
+    return $this->createMock(ArchiverInterface::class);
+  }
+
+  protected function createGitRepo(bool $with_composer_json = TRUE): string {
+    $temp_repo_dir = self::$tmp . '/test_git_repo_' . uniqid();
+    File::mkdir($temp_repo_dir);
+
+    $runner = self::gitRunner($temp_repo_dir);
+    $runner->run('git init', output: new NullOutput());
+    $runner->run('git', args: ['config', 'user.email', 'test@example.com'], output: new NullOutput());
+    $runner->run('git', args: ['config', 'user.name', 'Test User'], output: new NullOutput());
+
+    File::dump($temp_repo_dir . '/test.txt', 'test content');
+    $runner->run('git add .', output: new NullOutput());
+    $runner->run('git', args: ['commit', '-m', 'Initial commit'], output: new NullOutput());
+
+    if ($with_composer_json) {
+      File::dump($temp_repo_dir . '/composer.json', '{}');
+      $runner->run('git add composer.json', output: new NullOutput());
+      $runner->run('git', args: ['commit', '-m', 'Add composer.json'], output: new NullOutput());
+    }
+
+    return $temp_repo_dir;
+  }
+
+  protected static function gitRunner(string $repo_dir): ProcessRunner {
+    $runner = new ProcessRunner();
+    $runner->getLogger()->disable();
+
+    return $runner->setCwd($repo_dir);
+  }
+
+  protected function removeGitRepo(string $repo_dir): void {
+    File::remove($repo_dir);
+  }
+
+  protected function createMockArchiverWithExtract(): MockObject {
+    $mock_archiver = $this->createMockArchiver();
+    $mock_archiver->expects($this->once())->method('validate');
+    $mock_archiver->expects($this->once())->method('extract')->willReturnCallback(function ($archive, string $dest): void {
+      File::dump($dest . '/composer.json', '{}');
+    });
+    return $mock_archiver;
+  }
+
+  /**
+   * @return \PHPUnit\Framework\MockObject\MockObject&\DrevOps\VortexInstaller\Downloader\Downloader
+   *   Mock file downloader.
+   */
+  protected function createMockFileDownloader(): MockObject {
+    return $this->createMock(Downloader::class);
   }
 
 }

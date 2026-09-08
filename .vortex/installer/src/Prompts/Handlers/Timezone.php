@@ -642,14 +642,13 @@ class Timezone extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    $value = NULL;
-
     $from_env = Env::getFromDotenv('TZ', $this->destinationDir);
+
     if ($from_env) {
       return $from_env;
     }
 
-    return $value;
+    return NULL;
   }
 
   /**

@@ -19,9 +19,6 @@ class MockTraitTest extends TestCase {
 
   use MockTrait;
 
-  /**
-   * Tests that mapped methods return their configured values.
-   */
   public function testPrepareMockReturnsMappedValues(): void {
     $mock = $this->prepareMock(MockSubject::class, [
       'greet' => 'mocked greeting',
@@ -33,9 +30,6 @@ class MockTraitTest extends TestCase {
     $this->assertSame(42, $mock->total());
   }
 
-  /**
-   * Tests that unmapped methods keep their original behaviour.
-   */
   public function testPrepareMockLeavesUnmappedMethods(): void {
     $mock = $this->prepareMock(MockSubject::class, ['greet' => 'mocked greeting']);
     $this->assertInstanceOf(MockSubject::class, $mock);
@@ -43,9 +37,6 @@ class MockTraitTest extends TestCase {
     $this->assertSame(0, $mock->total());
   }
 
-  /**
-   * Tests that a callable value is used as a return callback.
-   */
   public function testPrepareMockAcceptsCallable(): void {
     $mock = $this->prepareMock(MockSubject::class, ['echoBack' => strtoupper(...)]);
     $this->assertInstanceOf(MockSubject::class, $mock);
@@ -63,9 +54,6 @@ class MockTraitTest extends TestCase {
     $this->assertSame(['name' => ''], $mock->constructorArgs());
   }
 
-  /**
-   * Tests that constructor arguments are passed through.
-   */
   public function testPrepareMockPassesConstructorArguments(): void {
     $mock = $this->prepareMock(MockSubject::class, ['greet' => 'mocked greeting'], ['name' => 'constructed name']);
     $this->assertInstanceOf(MockSubject::class, $mock);
@@ -73,9 +61,6 @@ class MockTraitTest extends TestCase {
     $this->assertSame(['name' => 'constructed name'], $mock->constructorArgs());
   }
 
-  /**
-   * Tests that FALSE disables the original constructor.
-   */
   public function testPrepareMockDisablesConstructor(): void {
     $mock = $this->prepareMock(MockSubject::class, ['greet' => 'mocked greeting'], FALSE);
     $this->assertInstanceOf(MockSubject::class, $mock);
@@ -83,9 +68,6 @@ class MockTraitTest extends TestCase {
     $this->assertNull($mock->constructorArgs());
   }
 
-  /**
-   * Tests mocking a class that does not exist.
-   */
   public function testPrepareMockMissingClass(): void {
     $this->expectException(\InvalidArgumentException::class);
     $this->expectExceptionMessage('Class NoSuchClass does not exist');
@@ -95,9 +77,6 @@ class MockTraitTest extends TestCase {
 
 }
 
-/**
- * Subject class used to exercise mock preparation.
- */
 class MockSubject {
 
   /**
@@ -107,9 +86,6 @@ class MockSubject {
    */
   protected ?array $constructorArgs = NULL;
 
-  /**
-   * Constructs the subject.
-   */
   public function __construct(string $name = '') {
     $this->constructorArgs = ['name' => $name];
   }
@@ -124,23 +100,14 @@ class MockSubject {
     return $this->constructorArgs;
   }
 
-  /**
-   * Returns a fixed greeting.
-   */
   public function greet(): string {
     return 'original greeting';
   }
 
-  /**
-   * Returns a fixed total.
-   */
   public function total(): int {
     return 0;
   }
 
-  /**
-   * Returns the given value unchanged.
-   */
   public function echoBack(string $value): string {
     return $value;
   }

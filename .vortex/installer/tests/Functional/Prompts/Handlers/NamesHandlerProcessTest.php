@@ -19,7 +19,7 @@ class NamesHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'names' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
         $test->prompts[Name::id()] = 'New hope';
         $test->prompts[MachineName::id()] = 'the_new_hope';
         $test->prompts[Org::id()] = 'Jedi Order';

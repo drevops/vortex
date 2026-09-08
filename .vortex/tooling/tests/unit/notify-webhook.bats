@@ -24,7 +24,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_WEBHOOK_HEADERS="Content-type: application/json|Authorization: Bearer API_KEY"
   export VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"channel": "Test channel 1", "message": "Test channel 1 message"}'
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -56,7 +56,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_WEBHOOK_HEADERS="Content-type: application/json|Authorization: Bearer API_KEY"
   export VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"channel": "Test channel 1", "message": "Test channel 1 message"}'
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_failure
 
   popd >/dev/null || exit 1
@@ -76,7 +76,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_WEBHOOK_METHOD="POST"
   export VORTEX_NOTIFY_WEBHOOK_HEADERS="Content-type: application/json|Authorization: Bearer API_KEY"
   export VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"channel": "Test channel 1", "message": "Test channel 1 message"}'
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -101,7 +101,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_WEBHOOK_HEADERS="Content-type: application/json"
   export VORTEX_NOTIFY_WEBHOOK_BRANCHES="main,develop"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -121,7 +121,7 @@ load ../_helper.bash
   unset VORTEX_NOTIFY_BRANCH
   export VORTEX_NOTIFY_WEBHOOK_BRANCHES="main,develop"
 
-  run ./.vortex/tooling/src/vortex-notify-webhook
+  run .vortex/tooling/src/vortex-notify-webhook
   assert_success
 
   assert_output_contains 'Skipped webhook notification for branch "".'
@@ -148,11 +148,11 @@ load ../_helper.bash
   # Ensure test file doesn't exist before
   rm -f /tmp/injected_webhook_test
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   # Verify the injection file was NOT created (injection did not execute)
-  [ ! -f /tmp/injected_webhook_test ]
+  assert_file_not_exists "/tmp/injected_webhook_test"
 
   # Verify the malicious string is treated as literal text in the payload
   assert_output_contains "test'); file_put_contents('/tmp/injected_webhook_test', 'HACKED'); //"
@@ -180,7 +180,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_WEBHOOK_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   # The whole log is JSON-escaped into the default payload's message.
@@ -212,7 +212,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_WEBHOOK_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   run mock_get_call_args "${mock_curl}" 1

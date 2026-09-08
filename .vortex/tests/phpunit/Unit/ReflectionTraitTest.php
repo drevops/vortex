@@ -15,9 +15,6 @@ class ReflectionTraitTest extends TestCase {
 
   use ReflectionTrait;
 
-  /**
-   * Tests reading a protected instance property.
-   */
   #[DataProvider('dataProviderGetProtectedValue')]
   public function testGetProtectedValue(mixed $value): void {
     $object = new ReflectionStub();
@@ -26,9 +23,6 @@ class ReflectionTraitTest extends TestCase {
     $this->assertSame($value, static::getProtectedValue($object, 'instanceValue'));
   }
 
-  /**
-   * Data provider for testGetProtectedValue().
-   */
   public static function dataProviderGetProtectedValue(): \Iterator {
     yield ['instance value'];
     yield [42];
@@ -39,9 +33,6 @@ class ReflectionTraitTest extends TestCase {
     yield [new \stdClass()];
   }
 
-  /**
-   * Tests that the value is read from the given instance.
-   */
   public function testGetProtectedValueReadsGivenInstance(): void {
     $first = new ReflectionStub();
     $first->setInstanceValue('first value');
@@ -53,18 +44,12 @@ class ReflectionTraitTest extends TestCase {
     $this->assertSame('second value', static::getProtectedValue($second, 'instanceValue'));
   }
 
-  /**
-   * Tests reading a protected static property.
-   */
   public function testGetProtectedValueStaticProperty(): void {
     $object = new ReflectionStub();
 
     $this->assertSame('static value', static::getProtectedValue($object, 'staticValue'));
   }
 
-  /**
-   * Tests reading a protected property declared on a parent class.
-   */
   public function testGetProtectedValueInheritedProperty(): void {
     $object = new ReflectionChildStub();
     $object->setInstanceValue('inherited value');
@@ -73,9 +58,6 @@ class ReflectionTraitTest extends TestCase {
     $this->assertSame('child value', static::getProtectedValue($object, 'childValue'));
   }
 
-  /**
-   * Tests reading a property that the object does not declare.
-   */
   public function testGetProtectedValueMissingProperty(): void {
     $object = new ReflectionStub();
 
@@ -85,9 +67,6 @@ class ReflectionTraitTest extends TestCase {
     static::getProtectedValue($object, 'missingValue');
   }
 
-  /**
-   * Tests writing a protected instance property.
-   */
   public function testSetProtectedValue(): void {
     $object = new ReflectionStub();
 
@@ -96,9 +75,6 @@ class ReflectionTraitTest extends TestCase {
     $this->assertSame('assigned value', static::getProtectedValue($object, 'instanceValue'));
   }
 
-  /**
-   * Tests writing a protected property declared on a parent class.
-   */
   public function testSetProtectedValueInheritedProperty(): void {
     $object = new ReflectionChildStub();
 
@@ -107,18 +83,12 @@ class ReflectionTraitTest extends TestCase {
     $this->assertSame('assigned to parent', static::getProtectedValue($object, 'instanceValue'));
   }
 
-  /**
-   * Tests calling a protected instance method.
-   */
   public function testCallProtectedMethod(): void {
     $object = new ReflectionStub();
 
     $this->assertSame('instance: first, second', static::callProtectedMethod($object, 'concatenate', ['first', 'second']));
   }
 
-  /**
-   * Tests calling a protected static method on an object and on a class name.
-   */
   public function testCallProtectedMethodStatic(): void {
     $object = new ReflectionStub();
 
@@ -126,9 +96,6 @@ class ReflectionTraitTest extends TestCase {
     $this->assertSame('static: value', static::callProtectedMethod(ReflectionStub::class, 'prefix', ['value']));
   }
 
-  /**
-   * Tests calling a protected method on a class that does not exist.
-   */
   public function testCallProtectedMethodMissingClass(): void {
     $this->expectException(\InvalidArgumentException::class);
     $this->expectExceptionMessage('Class NoSuchClass does not exist');
@@ -136,9 +103,6 @@ class ReflectionTraitTest extends TestCase {
     static::callProtectedMethod('NoSuchClass', 'prefix');
   }
 
-  /**
-   * Tests calling a protected method that the class does not declare.
-   */
   public function testCallProtectedMethodMissingMethod(): void {
     $this->expectException(\InvalidArgumentException::class);
     $this->expectExceptionMessage('Method missingMethod does not exist');
@@ -146,9 +110,6 @@ class ReflectionTraitTest extends TestCase {
     static::callProtectedMethod(new ReflectionStub(), 'missingMethod');
   }
 
-  /**
-   * Tests calling a non-static protected method without an instance.
-   */
   public function testCallProtectedMethodWithoutInstance(): void {
     $this->expectException(\InvalidArgumentException::class);
     $this->expectExceptionMessage('An object instance is required for non-static methods');
@@ -158,9 +119,6 @@ class ReflectionTraitTest extends TestCase {
 
 }
 
-/**
- * Stub with protected members to reach through reflection.
- */
 class ReflectionStub {
 
   /**
@@ -173,32 +131,20 @@ class ReflectionStub {
    */
   protected mixed $instanceValue = 'instance value';
 
-  /**
-   * Assigns the protected instance property.
-   */
   public function setInstanceValue(mixed $value): void {
     $this->instanceValue = $value;
   }
 
-  /**
-   * Joins the given arguments.
-   */
   protected function concatenate(string $first, string $second): string {
     return sprintf('instance: %s, %s', $first, $second);
   }
 
-  /**
-   * Prefixes the given argument.
-   */
   protected static function prefix(string $value): string {
     return sprintf('static: %s', $value);
   }
 
 }
 
-/**
- * Stub inheriting the protected members of its parent.
- */
 class ReflectionChildStub extends ReflectionStub {
 
   /**

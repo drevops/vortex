@@ -12,10 +12,10 @@ class VisualRegressionHandlerProcessTest extends AbstractHandlerProcessTestCase 
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'visual_regression_enabled' => [
-      static::cw(fn($test): true => $test->prompts[VisualRegression::id()] = TRUE),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): true => $test->prompts[VisualRegression::id()] = TRUE),
     ];
     yield 'visual_regression_disabled' => [
-      static::cw(fn($test): false => $test->prompts[VisualRegression::id()] = FALSE),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): false => $test->prompts[VisualRegression::id()] = FALSE),
     ];
   }
 

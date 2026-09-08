@@ -167,9 +167,9 @@ class UpdateRegistry {
     $differ = new Differ(new UnifiedDiffOutputBuilder($header));
     $diff = rtrim($differ->diff($from, $to));
 
-    // The template ships Markdown that itself contains fences, and a diff
-    // renders an unchanged line with a single leading space, which Markdown
-    // still reads as a closing fence.
+    // The template ships Markdown that itself contains fences. A diff renders
+    // an unchanged line with a single leading space, which Markdown still
+    // reads as a closing fence.
     preg_match_all('/`{3,}/', $diff, $matches);
     $fence = str_repeat('`', $matches[0] === [] ? 3 : max(3, max(array_map(strlen(...), $matches[0])) + 1));
 

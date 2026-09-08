@@ -62,7 +62,6 @@ local_file="${VORTEX_PUSH_DB_S3_DB_DIR}/${VORTEX_PUSH_DB_S3_DB_FILE}"
 
 info "Started database dump push to S3."
 
-# Ensure prefix ends with a trailing slash if non-empty.
 [ -n "${VORTEX_PUSH_DB_S3_PREFIX}" ] && VORTEX_PUSH_DB_S3_PREFIX="${VORTEX_PUSH_DB_S3_PREFIX%/}/"
 
 request_type="PUT"

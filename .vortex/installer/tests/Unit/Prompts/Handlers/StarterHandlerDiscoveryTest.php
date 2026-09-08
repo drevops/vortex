@@ -29,7 +29,6 @@ class StarterHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
         Starter::id() => Starter::INSTALL_PROFILE_DRUPALCMS,
         Profile::id() => Starter::INSTALL_PROFILE_DRUPALCMS_PATH,
       ] + $expected_defaults,
-
     ];
     yield 'starter - discovery' => [
       [],

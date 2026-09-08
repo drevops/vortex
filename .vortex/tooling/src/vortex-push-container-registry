@@ -13,8 +13,8 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 
 set -eu
 
-# Xtrace (VORTEX_DEBUG=1) is intentionally enabled only after the registry
-# login below, so the registry password is never written to the trace output.
+# Xtrace (VORTEX_DEBUG=1) is enabled only after the registry login below, so
+# the registry password is never written to the trace output.
 
 # Comma-separated map of container services and images to push in
 # format "service1=org/image1,service2=org/image2".
@@ -49,8 +49,8 @@ for cmd in docker; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is 
 
 info "Started container registry push."
 
-# Only push if the map was provided, but do not fail if it has not as this
-# may be called as a part of another task.
+# An empty map skips the push without failing: the script may run as a part
+# of another task.
 # @todo: Handle this better - empty $VORTEX_PUSH_CONTAINER_REGISTRY_MAP should use defaults.
 if [ -z "${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}" ]; then
   note "Services map is not specified in VORTEX_PUSH_CONTAINER_REGISTRY_MAP variable. Container registry push will not continue."
@@ -63,7 +63,6 @@ fi
 
 services=()
 images=()
-# Parse and validate map.
 IFS=',' read -r -a values <<<"${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}"
 for value in "${values[@]}"; do
   IFS='=' read -r -a parts <<<"${value}"
@@ -86,7 +85,6 @@ for key in "${!services[@]}"; do
   image="${images[${key}]}"
 
   task "Processing service ${service}."
-  # Check if the service is running.
   cid=$(docker compose ps -q "${service}")
 
   [ -z "${cid}" ] && fail "Service \"${service}\" is not running."

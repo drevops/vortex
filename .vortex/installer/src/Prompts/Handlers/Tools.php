@@ -106,12 +106,12 @@ class Tools extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    $selected_tools = $this->getResponseAsArray();
+    $v = $this->getResponseAsArray();
 
     $tools = self::getToolDefinitions('tools');
     $groups = self::getToolDefinitions('groups');
 
-    $missing_tools = array_diff_key($tools, array_flip($selected_tools));
+    $missing_tools = array_diff_key($tools, array_flip($v));
 
     foreach (array_keys($missing_tools) as $name) {
       $this->processTool($name);
@@ -124,7 +124,7 @@ class Tools extends AbstractHandler {
     // Remove fei: command and its call when all FE tools and custom
     // theme are absent, as there are no front-end dependencies to install.
     $fe_all_group = $groups['frontend_all'] ?? NULL;
-    if ($fe_all_group && isset($fe_all_group['tools']) && !array_intersect($fe_all_group['tools'], $selected_tools)) {
+    if ($fe_all_group && isset($fe_all_group['tools']) && !array_intersect($fe_all_group['tools'], $v)) {
       $theme = $this->responses[Theme::id()] ?? NULL;
       if (in_array($theme, [Theme::OLIVERO, Theme::CLARO, Theme::STARK])) {
         File::replaceContentInFile($this->tmpDir . '/.ahoy.yml', Replacement::create('ahoy_fei', function (string $content): string {
@@ -173,9 +173,9 @@ class Tools extends AbstractHandler {
 
   protected function processGroup(string $name): void {
     $config = self::getToolDefinitions('groups')[$name];
-    $selected_tools = $this->getResponseAsArray();
+    $v = $this->getResponseAsArray();
 
-    if (!isset($config['tools']) || array_intersect($config['tools'], $selected_tools)) {
+    if (!isset($config['tools']) || array_intersect($config['tools'], $v)) {
       return;
     }
 
@@ -389,7 +389,7 @@ class Tools extends AbstractHandler {
           $pj->addSubNode('scripts', 'lint-fix', 'npm run lint-css-fix');
         },
         // A project created before the move to flat config still carries the
-        // legacy files, which linger unread once the tool is deselected.
+        // legacy files, and nothing reads them once the tool is deselected.
         'files' => ['eslint.config.mjs', '.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore'],
       ],
 

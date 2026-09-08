@@ -170,46 +170,6 @@ class InstallerTest extends FunctionalTestCase {
     }
   }
 
-  /**
-   * Add a template-owned script to the template repository.
-   */
-  protected function addLegacyScriptToTemplate(): string {
-    $this->logSubstep('Add a template-owned script to the Vortex template repository');
-    File::dump(static::$repo . '/scripts/provision-50-legacy.sh', "#!/usr/bin/env bash\necho 'Legacy provision step.'\n");
-    $commit = $this->gitCommitAll(static::$repo, 'Added a legacy provision script to Vortex');
-    $this->logNote(sprintf('Vortex version with the script: %s', $commit));
-
-    return $commit;
-  }
-
-  /**
-   * Drop the template-owned script from the template repository.
-   */
-  protected function dropLegacyScriptFromTemplate(): string {
-    $this->logSubstep('Drop the script from the Vortex template repository');
-    File::remove(static::$repo . '/scripts/provision-50-legacy.sh');
-    $commit = $this->gitCommitAll(static::$repo, 'Removed the legacy provision script from Vortex');
-    $this->logNote(sprintf('Vortex version without the script: %s', $commit));
-
-    return $commit;
-  }
-
-  /**
-   * Install the SUT from a given template reference.
-   */
-  protected function installSutFrom(string $ref): void {
-    $this->gitInitRepo(static::$sut);
-    // The shipped '.gitignore' is the only ignore source these tests assert
-    // on, so the developer's global excludes file must not reach the SUT.
-    $this->gitDisableGlobalExcludes(static::$sut);
-
-    static::$sutInstallerEnv = [
-      'VORTEX_INSTALLER_TEMPLATE_REPO' => FALSE,
-      'SHELL_VERBOSITY' => FALSE,
-    ];
-    $this->runInstaller([sprintf('--uri=%s#%s', static::$repo, $ref)]);
-  }
-
   #[Group('p3')]
   public function testInstallFromRef(): void {
     $this->logSubstep('Add custom files to SUT');
@@ -266,6 +226,46 @@ class InstallerTest extends FunctionalTestCase {
 
     $this->logSubstep('Assert that new changes need to be manually resolved');
     $this->gitAssertNotClean(static::$sut, 'Git working tree should not be clean after Vortex update');
+  }
+
+  /**
+   * Add a template-owned script to the template repository.
+   */
+  protected function addLegacyScriptToTemplate(): string {
+    $this->logSubstep('Add a template-owned script to the Vortex template repository');
+    File::dump(static::$repo . '/scripts/provision-50-legacy.sh', "#!/usr/bin/env bash\necho 'Legacy provision step.'\n");
+    $commit = $this->gitCommitAll(static::$repo, 'Added a legacy provision script to Vortex');
+    $this->logNote(sprintf('Vortex version with the script: %s', $commit));
+
+    return $commit;
+  }
+
+  /**
+   * Drop the template-owned script from the template repository.
+   */
+  protected function dropLegacyScriptFromTemplate(): string {
+    $this->logSubstep('Drop the script from the Vortex template repository');
+    File::remove(static::$repo . '/scripts/provision-50-legacy.sh');
+    $commit = $this->gitCommitAll(static::$repo, 'Removed the legacy provision script from Vortex');
+    $this->logNote(sprintf('Vortex version without the script: %s', $commit));
+
+    return $commit;
+  }
+
+  /**
+   * Install the SUT from a given template reference.
+   */
+  protected function installSutFrom(string $ref): void {
+    $this->gitInitRepo(static::$sut);
+    // The shipped '.gitignore' is the only ignore source these tests assert
+    // on, so the developer's global excludes file must not reach the SUT.
+    $this->gitDisableGlobalExcludes(static::$sut);
+
+    static::$sutInstallerEnv = [
+      'VORTEX_INSTALLER_TEMPLATE_REPO' => FALSE,
+      'SHELL_VERBOSITY' => FALSE,
+    ];
+    $this->runInstaller([sprintf('--uri=%s#%s', static::$repo, $ref)]);
   }
 
 }

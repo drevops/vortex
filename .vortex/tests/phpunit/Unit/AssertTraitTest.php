@@ -16,17 +16,11 @@ class AssertTraitTest extends TestCase {
 
   use AssertTrait;
 
-  /**
-   * Tests that a matching string passes the assertion.
-   */
   #[DataProvider('dataProviderAssertArrayContainsString')]
   public function testAssertArrayContainsString(string $needle, array $haystack): void {
     $this->assertArrayContainsString($needle, $haystack);
   }
 
-  /**
-   * Data provider for testAssertArrayContainsString().
-   */
   public static function dataProviderAssertArrayContainsString(): \Iterator {
     yield 'exact match' => ['first', ['first', 'second']];
 
@@ -41,9 +35,6 @@ class AssertTraitTest extends TestCase {
     yield 'stringable element cast to string' => ['first', [new AssertStringableStub()]];
   }
 
-  /**
-   * Tests that a missing string fails the assertion.
-   */
   #[DataProvider('dataProviderAssertArrayContainsStringFails')]
   public function testAssertArrayContainsStringFails(string $needle, array $haystack): void {
     $this->expectException(AssertionFailedError::class);
@@ -52,9 +43,6 @@ class AssertTraitTest extends TestCase {
     $this->assertArrayContainsString($needle, $haystack);
   }
 
-  /**
-   * Data provider for testAssertArrayContainsStringFails().
-   */
   public static function dataProviderAssertArrayContainsStringFails(): \Iterator {
     yield 'empty haystack' => ['first', []];
 
@@ -65,14 +53,8 @@ class AssertTraitTest extends TestCase {
 
 }
 
-/**
- * Stub returning a string from its string conversion.
- */
 class AssertStringableStub implements \Stringable {
 
-  /**
-   * Returns the value the assertion searches.
-   */
   public function __toString(): string {
     return 'first';
   }

@@ -69,8 +69,8 @@ EOT;
     $logo = Tui::cyan($logo);
 
     // Depending on how the installer is run, the version is either the actual
-    // version or the placeholder (the PHAR packager replaces the placeholder
-    // with the actual version).
+    // version or the placeholder. The PHAR packager replaces the placeholder
+    // with the actual version.
     if (str_contains($version, 'vortex-installer-version')) {
       $version = str_replace('@vortex-installer-version@', 'development', $version);
     }

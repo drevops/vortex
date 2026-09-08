@@ -17,7 +17,6 @@ trait CommandRunnerAwareTrait {
   /**
    * Get the command runner.
    *
-   * Factory method that returns existing runner or creates new one.
    * Requires getApplication() method from Symfony Command class.
    *
    * @return \DrevOps\VortexInstaller\Runner\CommandRunner
@@ -30,8 +29,6 @@ trait CommandRunnerAwareTrait {
 
   /**
    * Set the command runner.
-   *
-   * Allows dependency injection for testing.
    *
    * @param \DrevOps\VortexInstaller\Runner\CommandRunner $runner
    *   The command runner instance.

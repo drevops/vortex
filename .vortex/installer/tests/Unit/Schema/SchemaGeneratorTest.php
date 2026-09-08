@@ -8,11 +8,11 @@ use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
-use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
@@ -38,22 +38,6 @@ class SchemaGeneratorTest extends UnitTestCase {
    * Handler instances cache.
    */
   protected static ?array $handlers = NULL;
-
-  /**
-   * Get the generated schema (cached).
-   */
-  protected function getSchema(): array {
-    if (static::$schema === NULL) {
-      $config = Config::fromString('{}');
-      $prompt_manager = new PromptManager($config);
-      static::$handlers = $prompt_manager->getHandlers();
-
-      $generator = new SchemaGenerator(static::$handlers);
-      static::$schema = $generator->generate();
-    }
-
-    return static::$schema;
-  }
 
   public function testGenerateSchema(): void {
     $schema = $this->getSchema();
@@ -152,6 +136,22 @@ class SchemaGeneratorTest extends UnitTestCase {
     $expected_count = count(array_filter(array_keys(static::$handlers), fn(string $id): bool => !in_array($id, $excluded, TRUE)));
 
     $this->assertCount($expected_count, $schema['prompts'], 'Schema prompt count should match handlers minus excluded.');
+  }
+
+  /**
+   * Get the generated schema (cached).
+   */
+  protected function getSchema(): array {
+    if (static::$schema === NULL) {
+      $config = Config::fromString('{}');
+      $prompt_manager = new PromptManager($config);
+      static::$handlers = $prompt_manager->getHandlers();
+
+      $generator = new SchemaGenerator(static::$handlers);
+      static::$schema = $generator->generate();
+    }
+
+    return static::$schema;
   }
 
   /**

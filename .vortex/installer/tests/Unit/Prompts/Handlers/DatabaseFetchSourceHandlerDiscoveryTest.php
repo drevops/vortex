@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Laravel\Prompts\Key;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(DatabaseFetchSource::class)]
 class DatabaseFetchSourceHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {

@@ -14,9 +14,6 @@ use Seld\JsonLint\ParsingException;
 #[CoversClass(JsonManipulator::class)]
 class JsonManipulatorTest extends UnitTestCase {
 
-  /**
-   * Sample JSON content for testing.
-   */
   protected const SAMPLE_JSON = '{
     "name": "test/package",
     "description": "A test package",
@@ -38,23 +35,11 @@ class JsonManipulatorTest extends UnitTestCase {
     }
   }';
 
-  /**
-   * Invalid JSON content for testing error cases.
-   */
   protected const INVALID_JSON = '{
     "name": "test/package",
     "description": "A test package"
     "invalid": missing comma
   }';
-
-  /**
-   * Create a temporary JSON file for testing.
-   */
-  protected function createTempJsonFile(string $content): string {
-    $temp_file = tempnam(sys_get_temp_dir(), 'json_test_');
-    file_put_contents($temp_file, $content);
-    return $temp_file;
-  }
 
   public function testConstructor(): void {
     $manipulator = new JsonManipulator(self::SAMPLE_JSON);
@@ -113,17 +98,14 @@ class JsonManipulatorTest extends UnitTestCase {
   }
 
   public static function dataProviderGetProperty(): \Iterator {
-    // Top-level properties.
     yield 'name property' => ['name', 'test/package'];
     yield 'description property' => ['description', 'A test package'];
     yield 'version property' => ['version', '1.0.0'];
-    // Nested object properties.
     yield 'require.php' => ['require.php', '^8.1'];
     yield 'require.symfony/console' => ['require.symfony/console', '^6.0'];
     yield 'require-dev.phpunit/phpunit' => ['require-dev.phpunit/phpunit', '^9.0'];
     yield 'autoload.psr-4.Test\\' => ['autoload.psr-4.Test\\', 'src/'];
     yield 'scripts.test' => ['scripts.test', 'phpunit'];
-    // Entire objects.
     yield 'require object' => [
       'require',
       ['php' => '^8.1', 'symfony/console' => '^6.0'],
@@ -132,12 +114,10 @@ class JsonManipulatorTest extends UnitTestCase {
       'autoload.psr-4',
       ['Test\\' => 'src/'],
     ];
-    // Non-existent properties.
     yield 'nonexistent top-level' => ['nonexistent', NULL];
     yield 'nonexistent nested' => ['require.nonexistent', NULL];
     yield 'nonexistent deep nested' => ['require.nested.deep', NULL];
     yield 'empty property name' => ['', NULL];
-    // Edge cases with dots.
     yield 'property with trailing dot' => ['require.', NULL];
     yield 'property with multiple dots' => ['require..php', NULL];
   }
@@ -214,21 +194,24 @@ class JsonManipulatorTest extends UnitTestCase {
 
     $manipulator = new JsonManipulator($json_with_arrays);
 
-    // Should return the entire array.
     $users = $manipulator->getProperty('users');
     $this->assertIsArray($users);
     $this->assertCount(2, $users);
 
-    // Test accessing array indices with dot notation.
     $result = $manipulator->getProperty('users.0');
     $this->assertSame(['name' => 'John', 'age' => 30], $result);
 
-    // Test accessing primitive values inside objects inside arrays.
     $john_name = $manipulator->getProperty('users.0.name');
     $this->assertSame('John', $john_name);
 
     $jane_age = $manipulator->getProperty('users.1.age');
     $this->assertSame(25, $jane_age);
+  }
+
+  protected function createTempJsonFile(string $content): string {
+    $temp_file = tempnam(sys_get_temp_dir(), 'json_test_');
+    file_put_contents($temp_file, $content);
+    return $temp_file;
   }
 
 }

@@ -87,7 +87,6 @@ fi
 
 info "Started email notification."
 
-# Set default message template if not provided.
 if [ -z "${VORTEX_NOTIFY_EMAIL_MESSAGE}" ]; then
   VORTEX_NOTIFY_EMAIL_MESSAGE="## This is an automated message ##
 
@@ -98,7 +97,6 @@ Login at: %login_url%
 %deployment_log%"
 fi
 
-# Skip if this is a pre-deployment event (email only for post-deployment).
 if [ "${VORTEX_NOTIFY_EMAIL_EVENT}" = "pre_deployment" ]; then
   pass "Skipped email notification for pre_deployment event."
   exit 0
@@ -116,11 +114,9 @@ else
   fail "Neither mail nor sendmail commands are available."
 fi
 
-# Build message by replacing tokens.
 timestamp=$(date '+%d/%m/%Y %H:%M:%S %Z')
 subject="${VORTEX_NOTIFY_EMAIL_PROJECT} deployment notification of ${VORTEX_NOTIFY_EMAIL_LABEL}"
 
-# Replace tokens in message template.
 content="${VORTEX_NOTIFY_EMAIL_MESSAGE}"
 content=$(REPLACEMENT="${VORTEX_NOTIFY_EMAIL_PROJECT}" TEMPLATE="${content}" php -r 'echo str_replace("%project%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 content=$(REPLACEMENT="${VORTEX_NOTIFY_EMAIL_LABEL}" TEMPLATE="${content}" php -r 'echo str_replace("%label%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
@@ -128,9 +124,9 @@ content=$(REPLACEMENT="${timestamp}" TEMPLATE="${content}" php -r 'echo str_repl
 content=$(REPLACEMENT="${VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL}" TEMPLATE="${content}" php -r 'echo str_replace("%environment_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 content=$(REPLACEMENT="${VORTEX_NOTIFY_EMAIL_LOGIN_URL}" TEMPLATE="${content}" php -r 'echo str_replace("%login_url%", getenv("REPLACEMENT"), getenv("TEMPLATE"));')
 
-# Replace the deployment log token last. The log file is read inside PHP (never
-# interpolated into the shell) and inserted as literal text, so arbitrary log
-# content cannot break out or re-trigger earlier token replacements.
+# Replace the deployment log token last. The log file is read inside PHP and
+# inserted as literal text, so log content cannot re-trigger earlier token
+# replacements or reach the shell.
 log_file=""
 [ "${VORTEX_NOTIFY_EMAIL_LOG}" = "1" ] && log_file="${VORTEX_NOTIFY_EMAIL_LOG_FILE}"
 content=$(TEMPLATE="${content}" LOG_FILE="${log_file}" php -r '

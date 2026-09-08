@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
+use DrevOps\VortexInstaller\Utils\Yaml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use DrevOps\VortexInstaller\Utils\Yaml;
 
 #[CoversClass(Yaml::class)]
 class YamlTest extends UnitTestCase {
@@ -29,14 +29,6 @@ class YamlTest extends UnitTestCase {
     }
   }
 
-  public function testValidateFileNonExistent(): void {
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('File does not exist or is not readable');
-
-    $non_existent_file = sys_get_temp_dir() . '/non_existent_file.yml';
-    Yaml::validateFile($non_existent_file);
-  }
-
   public static function dataProviderValidateFile(): \Iterator {
     yield 'valid YAML file' => [
         <<<YAML
@@ -53,6 +45,14 @@ invalid_yaml: [
   missing_closing_bracket
 YAML, 'Malformed inline YAML string',
     ];
+  }
+
+  public function testValidateFileNonExistent(): void {
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('File does not exist or is not readable');
+
+    $non_existent_file = sys_get_temp_dir() . '/non_existent_file.yml';
+    Yaml::validateFile($non_existent_file);
   }
 
   #[DataProvider('dataProviderValidate')]
