@@ -47,15 +47,6 @@ class JsonManipulatorTest extends UnitTestCase {
     "invalid": missing comma
   }';
 
-  /**
-   * Create a temporary JSON file for testing.
-   */
-  protected function createTempJsonFile(string $content): string {
-    $temp_file = tempnam(sys_get_temp_dir(), 'json_test_');
-    file_put_contents($temp_file, $content);
-    return $temp_file;
-  }
-
   public function testConstructor(): void {
     $manipulator = new JsonManipulator(self::SAMPLE_JSON);
     $this->assertInstanceOf(JsonManipulator::class, $manipulator);
@@ -229,6 +220,15 @@ class JsonManipulatorTest extends UnitTestCase {
 
     $jane_age = $manipulator->getProperty('users.1.age');
     $this->assertSame(25, $jane_age);
+  }
+
+  /**
+   * Create a temporary JSON file for testing.
+   */
+  protected function createTempJsonFile(string $content): string {
+    $temp_file = tempnam(sys_get_temp_dir(), 'json_test_');
+    file_put_contents($temp_file, $content);
+    return $temp_file;
   }
 
 }

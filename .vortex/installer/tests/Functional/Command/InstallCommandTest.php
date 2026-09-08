@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Functional\Command;
 
-use DrevOps\VortexInstaller\Logger\FileLoggerInterface;
 use DrevOps\VortexInstaller\Command\BuildCommand;
 use DrevOps\VortexInstaller\Command\CheckRequirementsCommand;
 use DrevOps\VortexInstaller\Command\InstallCommand;
 use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
+use DrevOps\VortexInstaller\Logger\FileLoggerInterface;
 use DrevOps\VortexInstaller\Prompts\InstallerPresenter;
 use DrevOps\VortexInstaller\Runner\ProcessRunner;
 use DrevOps\VortexInstaller\Runner\RunnerInterface;

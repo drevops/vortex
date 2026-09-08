@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Task;
 
-use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Task\Task;
+use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Tui;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

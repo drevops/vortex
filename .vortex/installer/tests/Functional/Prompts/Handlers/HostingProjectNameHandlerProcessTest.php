@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Functional\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
+use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(HostingProjectName::class)]

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Runner;
 
-use DrevOps\VortexInstaller\Utils\Tui;
 use DrevOps\VortexInstaller\Logger\FileLogger;
 use DrevOps\VortexInstaller\Logger\FileLoggerInterface;
 use DrevOps\VortexInstaller\Runner\AbstractRunner;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
+use DrevOps\VortexInstaller\Utils\Tui;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Output\OutputInterface;

@@ -474,33 +474,6 @@ class FileManagerTest extends UnitTestCase {
   }
 
   /**
-   * Snapshot a stubbed download of the version the project runs.
-   *
-   * @param \DrevOps\VortexInstaller\Utils\FileManager $fm
-   *   The file manager to snapshot into.
-   * @param string $destination
-   *   The project directory.
-   * @param array<string, string> $files
-   *   Content the previous version installed, keyed by relative path.
-   * @param callable|null $render
-   *   Callback turning the download into installable content.
-   */
-  protected function stubPreviousTemplate(FileManager $fm, string $destination, array $files, ?callable $render = NULL): void {
-    File::dump($destination . '/README.md', '[![Vortex](https://img.shields.io/badge/Vortex-1.40.0-65ACBC.svg)](https://github.com/drevops/vortex)');
-
-    $downloader = $this->createStub(RepositoryDownloader::class);
-    $downloader->method('download')->willReturnCallback(function (Artifact $artifact, ?string $dir = NULL) use ($files): string {
-      foreach ($files as $path => $contents) {
-        File::dump($dir . '/' . $path, $contents);
-      }
-
-      return $artifact->getRef();
-    });
-
-    $fm->snapshotPreviousTemplate($downloader, Artifact::create('https://github.com/drevops/vortex.git', '1.40.0'), $render);
-  }
-
-  /**
    * Tests for prepareDemo().
    */
   public function testPrepareDemoNotDemoMode(): void {
@@ -607,6 +580,33 @@ class FileManagerTest extends UnitTestCase {
       }
     }
     $this->assertTrue($has_created_msg);
+  }
+
+  /**
+   * Snapshot a stubbed download of the version the project runs.
+   *
+   * @param \DrevOps\VortexInstaller\Utils\FileManager $fm
+   *   The file manager to snapshot into.
+   * @param string $destination
+   *   The project directory.
+   * @param array<string, string> $files
+   *   Content the previous version installed, keyed by relative path.
+   * @param callable|null $render
+   *   Callback turning the download into installable content.
+   */
+  protected function stubPreviousTemplate(FileManager $fm, string $destination, array $files, ?callable $render = NULL): void {
+    File::dump($destination . '/README.md', '[![Vortex](https://img.shields.io/badge/Vortex-1.40.0-65ACBC.svg)](https://github.com/drevops/vortex)');
+
+    $downloader = $this->createStub(RepositoryDownloader::class);
+    $downloader->method('download')->willReturnCallback(function (Artifact $artifact, ?string $dir = NULL) use ($files): string {
+      foreach ($files as $path => $contents) {
+        File::dump($dir . '/' . $path, $contents);
+      }
+
+      return $artifact->getRef();
+    });
+
+    $fm->snapshotPreviousTemplate($downloader, Artifact::create('https://github.com/drevops/vortex.git', '1.40.0'), $render);
   }
 
 }

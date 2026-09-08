@@ -221,7 +221,6 @@ class BuildCommandTest extends FunctionalTestCase {
             TuiOutput::BUILD_EXPORT_DATABASE,
           ]),
       ),
-
     ];
     // -----------------------------------------------------------------------
     // Profile flag scenarios.
