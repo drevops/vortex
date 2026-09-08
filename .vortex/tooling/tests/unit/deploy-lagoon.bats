@@ -127,13 +127,11 @@ load ../_helper.bash
     "Updated a database import override flag to 0."
     "Redeploying environment: project: test_project, branch: test-branch."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy latest --environment test-branch"
-    "Requested redeployment of environment: project: test_project, branch: test-branch."
     "Waiting for deployment to be queued."
     "@sleep 10"
-    "Waited for deployment to be queued."
-    "Restoring a database import override flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope GLOBAL"
     "Restored a database import override flag to 0."
+    "Requested redeployment of environment: project: test_project, branch: test-branch."
     "Finished Lagoon deployment."
   )
 
@@ -179,13 +177,11 @@ load ../_helper.bash
     "Updated a database import override flag to 1."
     "Redeploying environment: project: test_project, branch: test-branch."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy latest --environment test-branch"
-    "Requested redeployment of environment: project: test_project, branch: test-branch."
     "Waiting for deployment to be queued."
     "@sleep 10"
-    "Waited for deployment to be queued."
-    "Restoring a database import override flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope GLOBAL"
     "Restored a database import override flag to 0."
+    "Requested redeployment of environment: project: test_project, branch: test-branch."
     "Finished Lagoon deployment."
   )
 
@@ -228,7 +224,6 @@ load ../_helper.bash
     "Added a database import override flag with value 1."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy latest --environment test-branch"
     "@sleep 10"
-    "Removing a database import override flag."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project delete variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB"
     "Removed a database import override flag."
     "Finished Lagoon deployment."
@@ -266,7 +261,6 @@ load ../_helper.bash
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope BUILD"
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy latest --environment test-branch"
     "@sleep 10"
-    "Restoring a database import override flag to 1."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope BUILD"
     "Restored a database import override flag to 1."
     "Finished Lagoon deployment."
@@ -396,13 +390,11 @@ load ../_helper.bash
     "Updated a database import override flag to 0."
     "Redeploying environment: project: test_project, PR: 123."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 123 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-123"
-    "Requested redeployment of environment: project: test_project, PR: 123."
     "Waiting for deployment to be queued."
     "@sleep 10"
-    "Waited for deployment to be queued."
-    "Restoring a database import override flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-123 --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope GLOBAL"
     "Restored a database import override flag to 0."
+    "Requested redeployment of environment: project: test_project, PR: 123."
     "Finished Lagoon deployment."
   )
 
@@ -452,13 +444,11 @@ load ../_helper.bash
     "Updated a database import override flag to 1."
     "Redeploying environment: project: test_project, PR: 456."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 456 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-456"
-    "Requested redeployment of environment: project: test_project, PR: 456."
     "Waiting for deployment to be queued."
     "@sleep 10"
-    "Waited for deployment to be queued."
-    "Restoring a database import override flag to 0."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope GLOBAL"
     "Restored a database import override flag to 0."
+    "Requested redeployment of environment: project: test_project, PR: 456."
     "Finished Lagoon deployment."
   )
 
@@ -498,7 +488,6 @@ load ../_helper.bash
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project add variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope global"
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 456 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-456"
     "@sleep 10"
-    "Removing a database import override flag."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project delete variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB"
     "Removed a database import override flag."
     "Finished Lagoon deployment."
@@ -539,7 +528,6 @@ load ../_helper.bash
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope BUILD"
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy pullrequest --number 456 --base-branch-name develop --base-branch-ref origin/develop --head-branch-name feature-branch --head-branch-ref origin/feature-branch --title pr-456"
     "@sleep 10"
-    "Restoring a database import override flag to 1."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment pr-456 --name VORTEX_PROVISION_OVERRIDE_DB --value 1 --scope BUILD"
     "Restored a database import override flag to 1."
     "Finished Lagoon deployment."
@@ -697,7 +685,7 @@ load ../_helper.bash
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 1 # ${limit_error}"
     "- Requested deployment of environment: project: test_project, branch: test-branch."
     "Lagoon environment limit exceeded."
-    "[FAIL] Lagoon deployment completed with errors."
+    "[FAIL] Failed to request deployment of environment: project: test_project, branch: test-branch."
     "would exceed the configured limit"
   )
 
@@ -803,7 +791,7 @@ load ../_helper.bash
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 1 # ${deploy_error}"
     "Error: deployment rejected by policy."
-    "[FAIL] Lagoon deployment completed with errors."
+    "[FAIL] Failed to request deployment of environment: project: test_project, branch: test-branch."
   )
 
   mocks="$(steps_run "setup")"
@@ -836,7 +824,7 @@ load ../_helper.bash
     "Deploying environment: project: test_project, branch: test-branch."
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 1 # ${deploy_error}"
     "- Requested deployment of environment: project: test_project, branch: test-branch."
-    "[FAIL] Lagoon deployment completed with errors."
+    "[FAIL] Failed to request deployment of environment: project: test_project, branch: test-branch."
     "Error: deployment rejected by policy."
   )
 
@@ -849,7 +837,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "Failure: deploy error survives the tasks that follow a failed redeploy" {
+@test "Failure: failed redeploy restores the override flag before reporting the failure" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   fixture_ssh_key_prepare
@@ -877,7 +865,7 @@ load ../_helper.bash
     "@sleep 10"
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project update variable --environment test-branch --name VORTEX_PROVISION_OVERRIDE_DB --value 0 --scope GLOBAL"
     "Restored a database import override flag to 0."
-    "[FAIL] Lagoon deployment completed with errors."
+    "[FAIL] Failed to request redeployment of environment: project: test_project, branch: test-branch."
     "Error: deployment rejected by policy."
   )
 
@@ -905,7 +893,7 @@ load ../_helper.bash
     "@lagoon config add --force --lagoon amazeeio --graphql https://api.lagoon.amazeeio.cloud/graphql --hostname ssh.lagoon.amazeeio.cloud --port 32222"
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project list environments --output-json --pretty # {\"data\":[]}"
     "@lagoon --force --skip-update-check --ssh-key ${HOME}/.ssh/id_rsa --lagoon amazeeio --project test_project deploy branch --branch test-branch # 1"
-    "[FAIL] Lagoon deployment completed with errors."
+    "[FAIL] Failed to request deployment of environment: project: test_project, branch: test-branch."
   )
 
   mocks="$(steps_run "setup")"
