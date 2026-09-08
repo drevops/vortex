@@ -1,4 +1,13 @@
-@@ -20,22 +20,6 @@
+@@ -4,8 +4,6 @@
+ 
+ namespace Drupal;
+ 
+-use PHPUnit\Framework\Attributes\PreserveGlobalState;
+-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+ use PHPUnit\Framework\Attributes\DataProvider;
+ use PHPUnit\Framework\Attributes\Group;
+ 
+@@ -22,22 +20,6 @@
  class SwitchableSettingsTest extends SettingsTestCase {
  
    /**
@@ -21,7 +30,7 @@
     * Test ClamAV configs in Daemon mode with defaults.
     */
    public function testClamavDaemonCustom(): void {
-@@ -237,105 +221,6 @@
+@@ -239,105 +221,6 @@
          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
        ],
      ];
@@ -34,8 +43,8 @@
 -   * declaration and its invocation marker is conclusive.
 -   */
 -  #[DataProvider('dataProviderFast404')]
--  #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
--  #[\PHPUnit\Framework\Attributes\PreserveGlobalState(FALSE)]
+-  #[RunInSeparateProcess]
+-  #[PreserveGlobalState(FALSE)]
 -  public function testFast404(bool $module_installed, array $expected_present, array $expected_absent = []): void {
 -    $contrib_path = $this->createContribFixture($module_installed);
 -
