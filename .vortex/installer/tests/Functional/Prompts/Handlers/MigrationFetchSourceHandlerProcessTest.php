@@ -14,7 +14,7 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'migration_fetch_source_url' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Migration::id()] = TRUE;
           $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::URL;
       }),
@@ -26,7 +26,7 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
       }),
     ];
     yield 'migration_fetch_source_ftp' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Migration::id()] = TRUE;
           $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::FTP;
       }),
@@ -38,7 +38,7 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
       }),
     ];
     yield 'migration_fetch_source_acquia' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Migration::id()] = TRUE;
           $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::ACQUIA;
       }),
@@ -50,7 +50,7 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
       }),
     ];
     yield 'migration_fetch_source_lagoon' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Migration::id()] = TRUE;
           $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::LAGOON;
       }),
@@ -62,7 +62,7 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
       }),
     ];
     yield 'migration_fetch_source_s3' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Migration::id()] = TRUE;
           $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::S3;
       }),
@@ -74,7 +74,7 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
       }),
     ];
     yield 'migration_fetch_source_container_registry' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Migration::id()] = TRUE;
           $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::CONTAINER_REGISTRY;
           $test->prompts[MigrationImage::id()] = 'the_empire/star_wars-migration:latest';

@@ -12,7 +12,7 @@ class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCas
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'ai_instructions_enabled' => [
-      static::cw(fn($test): true => $test->prompts[AiCodeInstructions::id()] = TRUE),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): true => $test->prompts[AiCodeInstructions::id()] = TRUE),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileExists(static::$sut . '/AGENTS.md');
           $test->assertFileExists(static::$sut . '/CLAUDE.md');
@@ -20,7 +20,7 @@ class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCas
       }),
     ];
     yield 'ai_instructions_disabled' => [
-      static::cw(fn($test): false => $test->prompts[AiCodeInstructions::id()] = FALSE),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): false => $test->prompts[AiCodeInstructions::id()] = FALSE),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/AGENTS.md');
           $test->assertFileDoesNotExist(static::$sut . '/CLAUDE.md');

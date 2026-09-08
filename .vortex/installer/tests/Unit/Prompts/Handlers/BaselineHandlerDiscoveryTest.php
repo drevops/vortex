@@ -35,7 +35,7 @@ class BaselineHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     yield 'installed project' => [
       [],
       $expected_installed,
-      function (BaselineHandlerDiscoveryTest $test, Config $config): void {
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubComposerJsonValue('type', 'drupal-project');
         $test->stubComposerJsonValue('name', 'myproject_org/myproject');
         $test->stubVortexProject($config);
@@ -44,7 +44,7 @@ class BaselineHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     yield 'installed project - minimal' => [
       [],
       $expected_installed,
-      function (BaselineHandlerDiscoveryTest $test, Config $config): void {
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubComposerJsonValue('name', 'myproject_org/myproject');
         $test->stubVortexProject($config);
       },

@@ -13,19 +13,19 @@ class DependencyUpdatesProviderHandlerProcessTest extends AbstractHandlerProcess
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'deps_updates_provider_ci_gha' => [
-      static::cw(fn($test): string => $test->prompts[DependencyUpdatesProvider::id()] = DependencyUpdatesProvider::RENOVATEBOT_CI),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[DependencyUpdatesProvider::id()] = DependencyUpdatesProvider::RENOVATEBOT_CI),
     ];
     yield 'deps_updates_provider_ci_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[DependencyUpdatesProvider::id()] = DependencyUpdatesProvider::RENOVATEBOT_CI;
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
     ];
     yield 'deps_updates_provider_app' => [
-      static::cw(fn($test): string => $test->prompts[DependencyUpdatesProvider::id()] = DependencyUpdatesProvider::RENOVATEBOT_APP),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[DependencyUpdatesProvider::id()] = DependencyUpdatesProvider::RENOVATEBOT_APP),
     ];
     yield 'deps_updates_provider_none' => [
-      static::cw(fn($test): string => $test->prompts[DependencyUpdatesProvider::id()] = DependencyUpdatesProvider::NONE),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[DependencyUpdatesProvider::id()] = DependencyUpdatesProvider::NONE),
     ];
   }
 

@@ -12,7 +12,7 @@ class VersionSchemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'version_scheme_calver' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[VersionScheme::id()] = VersionScheme::CALVER;
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -23,7 +23,7 @@ class VersionSchemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'version_scheme_semver' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[VersionScheme::id()] = VersionScheme::SEMVER;
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -34,7 +34,7 @@ class VersionSchemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'version_scheme_other' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[VersionScheme::id()] = VersionScheme::OTHER;
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {

@@ -13,7 +13,7 @@ class CiProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'ciprovider_gha' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
           $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
@@ -23,7 +23,7 @@ class CiProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'ciprovider_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
           $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),

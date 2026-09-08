@@ -13,28 +13,28 @@ class DeployTypesHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'deploy_types_artifact' => [
-      static::cw(fn($test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::ARTIFACT]),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::ARTIFACT]),
     ];
     yield 'deploy_types_lagoon' => [
-      static::cw(fn($test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::LAGOON]),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::LAGOON]),
     ];
     yield 'deploy_types_webhook' => [
-      static::cw(fn($test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::WEBHOOK]),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::WEBHOOK]),
     ];
     yield 'deploy_types_all_gha' => [
-      static::cw(fn($test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::WEBHOOK, DeployTypes::LAGOON, DeployTypes::ARTIFACT]),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): array => $test->prompts[DeployTypes::id()] = [DeployTypes::WEBHOOK, DeployTypes::LAGOON, DeployTypes::ARTIFACT]),
     ];
     yield 'deploy_types_all_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[DeployTypes::id()] = [DeployTypes::WEBHOOK, DeployTypes::LAGOON, DeployTypes::ARTIFACT];
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
     ];
     yield 'deploy_types_none_gha' => [
-      static::cw(fn($test): array => $test->prompts[DeployTypes::id()] = []),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): array => $test->prompts[DeployTypes::id()] = []),
     ];
     yield 'deploy_types_none_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[DeployTypes::id()] = [];
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),

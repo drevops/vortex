@@ -13,10 +13,10 @@ class ProfileHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'profile_minimal' => [
-      static::cw(fn($test): string => $test->prompts[Profile::id()] = Profile::MINIMAL),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[Profile::id()] = Profile::MINIMAL),
     ];
     yield 'profile_the_empire' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Profile::id()] = Profile::CUSTOM;
           $test->prompts[ProfileCustom::id()] = 'the_empire';
       }),

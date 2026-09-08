@@ -14,7 +14,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'migration_enabled' => [
-      static::cw(fn($test): true => $test->prompts[Migration::id()] = TRUE),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): true => $test->prompts[Migration::id()] = TRUE),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           // Files and directories created by the handler.
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
@@ -35,7 +35,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'migration_enabled_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Migration::id()] = TRUE;
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
@@ -49,7 +49,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'migration_disabled' => [
-      static::cw(fn($test): false => $test->prompts[Migration::id()] = FALSE),
+      static::cw(fn(AbstractHandlerProcessTestCase $test): false => $test->prompts[Migration::id()] = FALSE),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           // Files and directories removed by the handler.
           $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/settings.migration.php');
@@ -70,7 +70,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'migration_disabled_circleci' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Migration::id()] = FALSE;
           $test->prompts[CiProvider::id()] = CiProvider::CIRCLECI;
       }),
@@ -84,7 +84,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'migration_enabled_lagoon' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Migration::id()] = TRUE;
           $test->prompts[HostingProvider::id()] = HostingProvider::LAGOON;
       }),
@@ -98,7 +98,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
     ];
     yield 'migration_disabled_lagoon' => [
-      static::cw(function ($test): void {
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Migration::id()] = FALSE;
           $test->prompts[HostingProvider::id()] = HostingProvider::LAGOON;
       }),
