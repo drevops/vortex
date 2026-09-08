@@ -1,4 +1,4 @@
-@@ -227,8 +227,6 @@
+@@ -246,8 +246,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
@@ -7,7 +7,7 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -287,8 +285,6 @@
+@@ -316,8 +314,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
@@ -16,7 +16,7 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -390,8 +386,6 @@
+@@ -429,8 +425,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
