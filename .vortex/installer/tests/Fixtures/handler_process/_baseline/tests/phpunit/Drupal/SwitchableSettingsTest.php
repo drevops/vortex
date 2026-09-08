@@ -1112,7 +1112,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
     ];
 
-    // Stage: delivered to the original recipients.
+    // Stage: rerouted, then delivered to the rerouting address.
     yield [
       self::ENVIRONMENT_STAGE,
       [],
