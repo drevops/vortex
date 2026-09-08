@@ -80,7 +80,7 @@ mkdir -p "$(dirname "${archive_file}")"
 docker save -o "${archive_file}" "${new_image}"
 
 if [ -f "${archive_file}" ] && [ -s "${archive_file}" ]; then
-  note "Exported database image saved to archive file ${archive_file}."
+  pass "Exported database image saved to archive file ${archive_file}."
 else
   # LCOV_EXCL_START
   fail "Unable to save database image archive file ${archive_file}."

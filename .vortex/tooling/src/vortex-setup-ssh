@@ -78,15 +78,22 @@ if [ -n "${fingerprint-}" ]; then
 
   if [ "${fingerprint#SHA256:}" != "${fingerprint}" ]; then
     task "Searching for MD5 hash as fingerprint starts with SHA256."
+    matched_file=""
     for existing_file in "${HOME}"/.ssh/id_rsa*; do
       fingerprint_sha256=$(ssh-keygen -l -E sha256 -f "${existing_file}" | awk '{print $2}')
       if [ "${fingerprint_sha256}" = "${fingerprint}" ]; then
-        pass "Found matching existing key file ${existing_file}."
+        matched_file="${existing_file}"
         fingerprint=$(ssh-keygen -l -E md5 -f "${existing_file}" | awk '{print $2}')
         fingerprint="${fingerprint#MD5:}"
         break
       fi
     done
+
+    if [ -n "${matched_file}" ]; then
+      pass "Found matching existing key file ${matched_file}."
+    else
+      pass "Did not find a matching existing key file."
+    fi
   fi
 
   file="${fingerprint//:/}"
@@ -109,7 +116,7 @@ fi
 if ssh-add -l | grep -q "${file}"; then
   note "SSH agent already has ${file} key loaded."
 else
-  task "SSH agent does not have a required key loaded. Trying to load."
+  note "SSH agent does not have a required key loaded. Trying to load."
 
   if [ "${VORTEX_SSH_REMOVE_ALL_KEYS-}" = "1" ]; then
     task "Removing all keys from the SSH agent."
@@ -117,6 +124,7 @@ else
     pass "Removed all keys from the SSH agent."
   fi
 
+  task "Loading key ${file} into the SSH agent."
   ssh-add "${file}"
   ssh-add -l
   pass "Loaded key ${file} into the SSH agent."

@@ -243,6 +243,7 @@ class DeploymentTest extends FunctionalTestCase {
       '* Copying git repo files meta file to the deploy code repo.',
       '* Copying deployment .gitignore as it may not exist in deploy code source files.',
       '* Running artifact builder.',
+      '* Ran artifact builder.',
       '* Finished artifact deployment.',
     ], txt: 'Artifact deployment should complete successfully', env: [
       'VORTEX_DEPLOY_TYPES' => 'artifact',

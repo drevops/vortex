@@ -84,7 +84,7 @@ for key in "${!services[@]}"; do
   service="${services[${key}]}"
   image="${images[${key}]}"
 
-  task "Processing service ${service}."
+  note "Processing service ${service}."
   cid=$(docker compose ps -q "${service}")
 
   [ -z "${cid}" ] && fail "Service \"${service}\" is not running."
@@ -106,7 +106,7 @@ for key in "${!services[@]}"; do
   docker push "${new_image}"
   pass "Pushed container image to the registry."
 
-  pass "Processed service ${service}."
+  note "Processed service ${service}."
 done
 
 pass "Finished container registry push."
