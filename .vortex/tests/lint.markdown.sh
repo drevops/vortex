@@ -33,3 +33,5 @@ done
   "${ROOT_DIR}"/README.md \
   "${ROOT_DIR}"/README.dist.md \
   "${ROOT_DIR}"/SECURITY.md
+
+# LCOV_EXCL_STOP

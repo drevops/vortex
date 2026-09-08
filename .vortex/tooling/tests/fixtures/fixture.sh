@@ -6,3 +6,5 @@ set -eu
 curl -L -s -o /dev/null -w "%{http_code}" example.com
 
 curl example.com
+
+# LCOV_EXCL_STOP

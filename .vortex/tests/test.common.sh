@@ -39,3 +39,5 @@ bats() {
 }
 
 bats "${BATS_DIR}/unit"
+
+# LCOV_EXCL_STOP

@@ -36,3 +36,5 @@ for file in "${targets[@]}"; do
     docker run --rm -i hadolint/hadolint:v2.15.1 <"${file}"
   fi
 done
+
+# LCOV_EXCL_STOP
