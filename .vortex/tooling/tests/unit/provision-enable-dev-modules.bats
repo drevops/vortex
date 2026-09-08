@@ -25,6 +25,7 @@ load ../_helper.bash
     "@drush -y pm:install sdc_devel"
     "@drush -y pm:install devel"
     "@drush -y pm:install testmode"
+    "@drush -y pm:install reroute_email"
 
     # Content generation. Both branches install the module with the same
     # arguments, so the side effect records the environment that distinguishes
@@ -40,6 +41,8 @@ load ../_helper.bash
     "Installed Devel module."
     "Installing Testmode module."
     "Installed Testmode module."
+    "Installing Reroute Email module."
+    "Installed Reroute Email module."
     "Installing Generated content module."
     "Installed Generated content module."
     "Finished development modules operations."
@@ -73,6 +76,7 @@ load ../_helper.bash
     "@drush -y pm:install sdc_devel"
     "@drush -y pm:install devel"
     "@drush -y pm:install testmode"
+    "@drush -y pm:install reroute_email"
 
     # The module is installed either way; only the content is skipped.
     '@drush -y pm:install generated_content # 0 #  # echo "${GENERATED_CONTENT_CREATE:-unset}" >./generated_content_create.txt'
@@ -115,6 +119,7 @@ load ../_helper.bash
     "- Installing Single Directory Component development tools."
     "- Installing Devel module."
     "- Installing Testmode module."
+    "- Installing Reroute Email module."
     "- Installing Generated content module."
     "- Finished development modules operations."
   )
@@ -146,6 +151,7 @@ load ../_helper.bash
     "- Installing Single Directory Component development tools."
     "- Installing Devel module."
     "- Installing Testmode module."
+    "- Installing Reroute Email module."
     "- Installing Generated content module."
     "- Finished development modules operations."
   )
