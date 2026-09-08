@@ -15,13 +15,13 @@ sidebar_position: 2
 
 ### Configuration
 
-[`settings.clamav.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.clamav.php) selects daemon or executable mode and points the daemon at the ClamAV service, but only when `DRUPAL_CLAMAV_ENABLED` is set.
+[`settings.clamav.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.clamav.php) selects daemon or executable mode and points the daemon at the ClamAV service, but only when `DRUPAL_CLAMAV_ENABLED` is set to `1`.
 
-| Variable                     | Purpose                            |
-|------------------------------|------------------------------------|
-| `DRUPAL_CLAMAV_ENABLED`      | Applies the override only when set |
-| `DRUPAL_CLAMAV_MODE`         | Selects daemon or executable mode  |
-| `CLAMAV_HOST`, `CLAMAV_PORT` | Daemon host and port               |
+| Variable                     | Purpose                                   |
+|------------------------------|-------------------------------------------|
+| `DRUPAL_CLAMAV_ENABLED`      | Applies the override only when set to `1` |
+| `DRUPAL_CLAMAV_MODE`         | Selects daemon or executable mode         |
+| `CLAMAV_HOST`, `CLAMAV_PORT` | Daemon host and port                      |
 
 ## Coffee
 
@@ -163,10 +163,10 @@ No settings override.
 
 [`settings.redis.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.redis.php) makes Redis the default cache backend, registers the module container YAML files and swaps the bootstrap container over - all gated on `DRUPAL_REDIS_ENABLED` and on the `redis` PHP extension being loaded, so a two-stage deployment can provision the service before switching the cache.
 
-| Variable                           | Purpose                            |
-|------------------------------------|------------------------------------|
-| `DRUPAL_REDIS_ENABLED`             | Applies the override only when set |
-| `REDIS_HOST`, `REDIS_SERVICE_PORT` | Connection host and port           |
+| Variable                           | Purpose                                   |
+|------------------------------------|-------------------------------------------|
+| `DRUPAL_REDIS_ENABLED`             | Applies the override only when set to `1` |
+| `REDIS_HOST`, `REDIS_SERVICE_PORT` | Connection host and port                  |
 
 ## Reroute Email
 
@@ -212,9 +212,9 @@ A site that deselects this module during [installation](../../installation.mdx) 
 
 **Overriding default behavior:**
 
-Set `DRUPAL_REROUTE_EMAIL_DISABLED` to any non-empty value to completely disable
-email rerouting in an environment where it would otherwise be enabled. This is
-the supported way for a `stage` environment to send real mail during UAT.
+Set `DRUPAL_REROUTE_EMAIL_DISABLED` to `1` to completely disable email rerouting
+in an environment where it would otherwise be enabled. This is the supported way
+for a `stage` environment to send real mail during UAT.
 
 <details>
 <summary>Example of the `Reroute Email` module `settings.reroute_email.php` file</summary>
@@ -292,14 +292,13 @@ No settings override.
 | `DRUPAL_SHIELD_USER`                 |         | HTTP authentication username                        |
 | `DRUPAL_SHIELD_PASS`                 |         | HTTP authentication password                        |
 | `DRUPAL_SHIELD_PRINT`                |         | Message shown in the authentication popup (module default when unset) |
-| `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` |         | Set to any non-empty value to keep the `/.well-known/acme-challenge/*` path open for Let's Encrypt certificate generation |
+| `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` |         | Set to `1` to keep the `/.well-known/acme-challenge/*` path open for Let's Encrypt certificate generation |
 
 **Overriding default behavior:**
 
-Set `DRUPAL_SHIELD_DISABLED` to any non-empty value to completely disable Shield
-in an environment where it would otherwise be enabled. This is useful for
-temporary access during debugging or when an environment does not require
-protection.
+Set `DRUPAL_SHIELD_DISABLED` to `1` to completely disable Shield in an
+environment where it would otherwise be enabled. This is useful for temporary
+access during debugging or when an environment does not require protection.
 
 <details>
 <summary>Example of the `Shield` module `settings.shield.php` file</summary>

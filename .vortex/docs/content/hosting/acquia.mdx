@@ -62,7 +62,7 @@ by setting the `DRUPAL_ACQUIA_SETTINGS_FILE` environment variable.
 three-tier priority:
 
 1. **Default**: `/tmp`
-2. **Shared GFS mount**: If `DRUPAL_TMP_PATH_IS_SHARED` is set, uses
+2. **Shared GFS mount**: If `DRUPAL_TMP_PATH_IS_SHARED` is set to `1`, uses
    `/mnt/gfs/{group}.{env}/tmp` - a per-head mounted directory on Acquia's
    shared filesystem. This is useful for operations like bulk uploads that
    require a shared temporary directory across web heads. See
