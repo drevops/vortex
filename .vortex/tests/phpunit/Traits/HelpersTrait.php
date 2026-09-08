@@ -38,7 +38,6 @@ trait HelpersTrait {
       $rel_path = ltrim($path, '/');
       $container_abs = '/app/' . $rel_path;
 
-      // Probe container to check if directory, file, or missing.
       $path_type_cmd = sprintf(
         'docker compose exec -T cli bash -lc %s',
         escapeshellarg(

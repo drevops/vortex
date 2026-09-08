@@ -9,9 +9,6 @@ use DrevOps\VortexInstaller\Utils\Strings;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-/**
- * Tests for the Strings class.
- */
 #[CoversClass(Strings::class)]
 class StringsTest extends UnitTestCase {
 
@@ -531,7 +528,6 @@ class StringsTest extends UnitTestCase {
 
   public static function dataProviderIsRegex(): \Iterator {
     yield ['', FALSE];
-    // Valid regular expressions.
     yield ["/^[a-z]$/", TRUE];
     yield ["#[a-z]*#i", TRUE];
     // Invalid regular expressions (wrong delimiters or syntax).
@@ -543,12 +539,9 @@ class StringsTest extends UnitTestCase {
     yield ["[a-z]+/", FALSE];
     yield ["{[a-z]*", FALSE];
     yield ["(a-z]", FALSE];
-    // Edge cases.
     // Valid, but '*' as delimiter would be invalid.
     yield ["/a*/", TRUE];
-    // Empty string.
     yield ["", FALSE];
-    // Just delimiters, no pattern.
     yield ["//", FALSE];
     yield ['web/', FALSE];
     yield ['web\/', FALSE];

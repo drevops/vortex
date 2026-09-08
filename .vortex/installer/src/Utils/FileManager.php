@@ -80,15 +80,15 @@ class FileManager {
    * Record what the version the project currently runs installed.
    *
    * A path the template has stopped shipping altogether is absent from the
-   * incoming download, so the selection diff alone cannot see it. Rendering
-   * the project's own version restores it as a candidate, which is what makes
-   * a file dropped between releases removable rather than permanent.
+   * incoming download, so the selection diff alone cannot identify it.
+   * Rendering the version the project runs restores such a path as a
+   * candidate, so a file dropped between releases is removable rather than
+   * permanent.
    *
-   * The download is rendered rather than hashed as it arrives, resolving the
-   * token replacements and directory renames that leave the template's own
-   * files matching nothing in the project. Rendering it as the destination
-   * has it installed, rather than as this run would install it, is what keeps
-   * a path this run drops recognisable as template-owned.
+   * The download is rendered before hashing: token replacements and directory
+   * renames leave the raw template files matching nothing in the project. It
+   * is rendered as the destination has it installed, not as this run would
+   * install it, so a path this run drops stays recognisable as template-owned.
    *
    * Failure is not fatal: the recorded reference may no longer resolve, in
    * which case only the selection diff applies.
@@ -214,7 +214,6 @@ class FileManager {
       File::copy($src, $destination);
     }
 
-    // Special case for .env.local as it may exist.
     if (!file_exists($destination . '/.env.local') && file_exists($destination . '/.env.local.example')) {
       File::copy($destination . '/.env.local.example', $destination . '/.env.local');
     }
@@ -232,7 +231,7 @@ class FileManager {
    * as an active feature. A path is only removed when the project's copy still
    * matches what the template put there: a project that edited the file owns
    * it, and an edit that cannot be ruled out is treated as one. Only projects
-   * already running Vortex are pruned at all.
+   * already running Vortex are pruned.
    *
    * @param array<string> $paths
    *   Template-relative paths absent from the staged copy.
@@ -286,8 +285,8 @@ class FileManager {
    *
    * The copy overlays the staged content without regard for what the project
    * put there, so a change the project made to a shipped file is lost. The
-   * content of all three sides is only available before the overlay, which is
-   * where the registry has to be built.
+   * content of all three sides is only available before the overlay, so the
+   * registry is built first.
    *
    * @param string $src
    *   The staged template directory.
@@ -437,7 +436,6 @@ class FileManager {
       return sprintf('%s is set. Skipping demo database fetch.', Config::IS_DEMO_DB_FETCH_SKIP);
     }
 
-    // Reload variables from destination's .env.
     Env::putFromDotenv($this->config->getDestination() . '/.env');
 
     $url = Env::get('VORTEX_FETCH_DB_URL');

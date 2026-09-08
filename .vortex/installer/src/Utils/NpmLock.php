@@ -10,7 +10,7 @@ namespace DrevOps\VortexInstaller\Utils;
 class NpmLock {
 
   /**
-   * Name of the lock file sitting next to a manifest.
+   * Name of the lock file next to a manifest.
    */
   const FILE = 'package-lock.json';
 
@@ -25,7 +25,7 @@ class NpmLock {
   ];
 
   /**
-   * Bring the lock file next to a manifest back in line with it.
+   * Reconcile the lock file with the manifest next to it.
    *
    * The lock's root entry is reconciled with the manifest's dependency blocks
    * and every package no longer reachable from a root is dropped.

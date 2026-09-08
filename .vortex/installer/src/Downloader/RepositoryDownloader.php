@@ -31,11 +31,11 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   Optional HTTP client for API calls (e.g., discovering releases).
    *   If not provided, a default Guzzle client will be created.
    * @param \DrevOps\VortexInstaller\Downloader\ArchiverInterface|null $archiver
-   *   Optional Archiver instance for testing. If not provided, a default
-   *   Archiver will be created.
+   *   Optional Archiver instance. If not provided, a default Archiver will be
+   *   created.
    * @param \DrevOps\VortexInstaller\Utils\Git|null $git
-   *   Optional Git instance for testing. If not provided, will be created
-   *   when needed for local repository operations.
+   *   Optional Git instance. If not provided, will be created when needed for
+   *   local repository operations.
    * @param \DrevOps\VortexInstaller\Downloader\Downloader|null $fileDownloader
    *   Optional Downloader instance for downloading archive files.
    *   If not provided, a default Downloader will be created.
@@ -316,8 +316,6 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     $options = ['headers' => self::requestHeaders($archive_url), 'http_errors' => FALSE];
 
     try {
-      // Use HEAD request to check if the archive URL exists without
-      // downloading.
       $response = $this->httpClient->request('HEAD', $archive_url, $options);
       $status_code = $response->getStatusCode();
 

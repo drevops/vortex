@@ -145,14 +145,12 @@ class FileLogger implements FileLoggerInterface {
   protected function buildFilename(string $command, array $args = []): string {
     $parts = [$command];
 
-    // Only include positional arguments, not options (starting with -).
     foreach ($args as $arg) {
       if (!str_starts_with($arg, '-')) {
         $parts[] = $arg;
       }
     }
 
-    // Sanitize for use in filename.
     $name = implode('-', $parts);
     $name = (string) preg_replace('/[^a-zA-Z0-9\-_]/', '-', $name);
     $name = (string) preg_replace('/-+/', '-', $name);

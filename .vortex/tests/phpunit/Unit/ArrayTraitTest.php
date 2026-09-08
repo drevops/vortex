@@ -15,17 +15,11 @@ class ArrayTraitTest extends TestCase {
 
   use ArrayTrait;
 
-  /**
-   * Tests replacing values throughout an array.
-   */
   #[DataProvider('dataProviderArrayReplaceValue')]
   public function testArrayReplaceValue(array $array, callable $callback, array $expected): void {
     $this->assertSame($expected, static::arrayReplaceValue($array, $callback));
   }
 
-  /**
-   * Data provider for testArrayReplaceValue().
-   */
   public static function dataProviderArrayReplaceValue(): \Iterator {
     $upper = static fn(mixed $value): mixed => is_string($value) ? strtoupper($value) : $value;
 
@@ -42,9 +36,6 @@ class ArrayTraitTest extends TestCase {
     yield 'empty nested array preserved' => [['first', []], $upper, ['FIRST', []]];
   }
 
-  /**
-   * Tests that the callback receives every leaf value.
-   */
   public function testArrayReplaceValuePassesEveryLeafToCallback(): void {
     $seen = [];
 

@@ -55,26 +55,18 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 info "Started database copying between environments in Acquia."
 
-#
-# Extract last value from JSON object passed via STDIN.
-#
 extract_json_last_value() {
   local key=${1}
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-#
-# Extract keyed value from JSON object passed via STDIN.
-#
 extract_json_value() {
   local key=${1}
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-# Pre-flight checks.
 for cmd in curl php; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
-# Check that all required variables are present.
 [ -z "${VORTEX_TASK_COPY_DB_ACQUIA_KEY}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY."
 [ -z "${VORTEX_TASK_COPY_DB_ACQUIA_SECRET}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
 [ -z "${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME."

@@ -24,9 +24,6 @@ use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
 use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * Tests for the SchemaValidator class.
- */
 #[CoversClass(SchemaValidator::class)]
 class SchemaValidatorTest extends UnitTestCase {
 
@@ -80,7 +77,6 @@ class SchemaValidatorTest extends UnitTestCase {
     $error_prompts = array_column($result['errors'], 'prompt');
     $this->assertContains(HostingProvider::id(), $error_prompts);
 
-    // Find the specific error for hosting_provider.
     $hosting_error = NULL;
     foreach ($result['errors'] as $error) {
       if ($error['prompt'] === HostingProvider::id()) {
@@ -111,7 +107,7 @@ class SchemaValidatorTest extends UnitTestCase {
 
     $result = $this->validator->validate($config);
 
-    // Empty config is valid — prompts not provided are skipped.
+    // Prompts not provided are skipped, so an empty config is valid.
     $this->assertTrue($result['valid']);
     $this->assertEmpty($result['errors']);
     $this->assertEmpty($result['resolved']);
@@ -126,7 +122,6 @@ class SchemaValidatorTest extends UnitTestCase {
     $result = $this->validator->validate($config);
 
     // DatabaseFetchSource depends on ProvisionType=database.
-    // Both provided and condition met = OK.
     $db_errors = array_filter($result['errors'], fn(array $e): bool => $e['prompt'] === DatabaseFetchSource::id());
     $this->assertEmpty($db_errors);
     $this->assertSame(DatabaseFetchSource::URL, $result['resolved'][DatabaseFetchSource::id()] ?? NULL);
@@ -141,7 +136,6 @@ class SchemaValidatorTest extends UnitTestCase {
     $result = $this->validator->validate($config);
 
     // DatabaseFetchSource depends on ProvisionType=database.
-    // ProvisionType=profile means condition not met + value provided = warning.
     $warning_prompts = array_column($result['warnings'], 'prompt');
     $this->assertContains(DatabaseFetchSource::id(), $warning_prompts);
   }
@@ -154,7 +148,6 @@ class SchemaValidatorTest extends UnitTestCase {
     $result = $this->validator->validate($config);
 
     // MigrationFetchSource depends on Migration=true.
-    // Condition met + no value provided + not required = OK (skip).
     $this->assertTrue($result['valid']);
     $error_prompts = array_column($result['errors'], 'prompt');
     $this->assertNotContains(MigrationFetchSource::id(), $error_prompts);
@@ -168,7 +161,6 @@ class SchemaValidatorTest extends UnitTestCase {
     $result = $this->validator->validate($config);
 
     // MigrationFetchSource depends on Migration=true.
-    // Condition not met + no value provided = OK (skip).
     $error_prompts = array_column($result['errors'], 'prompt');
     $this->assertNotContains(MigrationFetchSource::id(), $error_prompts);
   }
@@ -198,7 +190,6 @@ class SchemaValidatorTest extends UnitTestCase {
     $this->assertTrue($result['valid']);
     $this->assertSame(HostingProvider::LAGOON, $result['resolved'][HostingProvider::id()]);
     $this->assertSame('test-project', $result['resolved'][HostingProjectName::id()]);
-    // Unprovided prompts should not appear in resolved.
     $this->assertArrayNotHasKey(Migration::id(), $result['resolved']);
   }
 

@@ -19,8 +19,6 @@ trait ExecutableFinderAwareTrait {
   /**
    * Get the executable finder.
    *
-   * Factory method that returns existing finder or creates new one.
-   *
    * @return \Symfony\Component\Process\ExecutableFinder
    *   The executable finder instance.
    */
@@ -30,8 +28,6 @@ trait ExecutableFinderAwareTrait {
 
   /**
    * Set the executable finder.
-   *
-   * Allows dependency injection for testing.
    *
    * @param \Symfony\Component\Process\ExecutableFinder $finder
    *   The executable finder instance.

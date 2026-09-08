@@ -75,10 +75,9 @@ DOC;
     }
 
     // The 'diffy' channel in the notify router is gated by
-    // VORTEX_NOTIFY_CHANNELS so it is inactive unless explicitly
-    // enabled. The token markers around it in notify are intentionally
-    // left in place even when VR is off - the channel is shipped as
-    // part of the vortex-tooling Composer package, not the consumer
+    // VORTEX_NOTIFY_CHANNELS, so it is inactive unless explicitly enabled.
+    // Its token markers in notify stay even when VR is off: the channel
+    // ships in the vortex-tooling Composer package, not the consumer
     // template, and the marker comments document the block boundary.
   }
 

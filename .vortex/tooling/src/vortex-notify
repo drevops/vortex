@@ -67,13 +67,11 @@ info "Started dispatching notifications."
 
 [ -n "${VORTEX_NOTIFY_SKIP:-}" ] && pass "Skipped dispatching notifications." && exit 0
 
-# Validate required variables.
 [ -z "${VORTEX_NOTIFY_BRANCH}" ] && fail "Missing required value for VORTEX_NOTIFY_BRANCH."
 [ -z "${VORTEX_NOTIFY_SHA}" ] && fail "Missing required value for VORTEX_NOTIFY_SHA."
 [ -z "${VORTEX_NOTIFY_LABEL}" ] && fail "Missing required value for VORTEX_NOTIFY_LABEL."
 [ -z "${VORTEX_NOTIFY_ENVIRONMENT_URL}" ] && fail "Missing required value for VORTEX_NOTIFY_ENVIRONMENT_URL."
 
-# Auto-generate LOGIN_URL if not provided.
 if [ -z "${VORTEX_NOTIFY_LOGIN_URL}" ]; then
   VORTEX_NOTIFY_LOGIN_URL="${VORTEX_NOTIFY_ENVIRONMENT_URL}/user/login"
 fi
@@ -82,14 +80,13 @@ fi
 # collected.
 VORTEX_NOTIFY_LOG_FILE=""
 
-# All producer logs from the shared directory are combined into one file, each as
-# its own titled section. Best-effort: a failure here must not abort dispatching.
+# Log collection is best-effort, so failures here do not abort dispatching.
 if [ "${VORTEX_NOTIFY_LOG}" = "1" ] && [ -d "${VORTEX_NOTIFY_LOG_DIR}" ]; then
   set +e
   _combined="${VORTEX_NOTIFY_LOG_DIR}/combined"
   # Only publish the combined file when it was freshly truncated, so a failed
-  # write can never leave a previous run's log to be sent. It is owner-only, as it
-  # may aggregate logs containing secrets.
+  # write can never leave a previous run's log to be sent. It is owner-only,
+  # as it may aggregate logs containing secrets.
   if : >"${_combined}"; then
     chmod 600 "${_combined}" 2>/dev/null
     for _log in "${VORTEX_NOTIFY_LOG_DIR}"/*.log; do
@@ -105,7 +102,6 @@ if [ "${VORTEX_NOTIFY_LOG}" = "1" ] && [ -d "${VORTEX_NOTIFY_LOG_DIR}" ]; then
   set -e
 fi
 
-# Export variables so notification scripts can use them.
 export VORTEX_NOTIFY_BRANCH
 export VORTEX_NOTIFY_SHA
 export VORTEX_NOTIFY_PR_NUMBER
@@ -116,7 +112,6 @@ export VORTEX_NOTIFY_LOG
 export VORTEX_NOTIFY_LOG_DIR
 export VORTEX_NOTIFY_LOG_FILE
 
-# Validate event type (scripts will handle event-specific logic).
 if [ "${VORTEX_NOTIFY_EVENT}" != "pre_deployment" ] && [ "${VORTEX_NOTIFY_EVENT}" != "post_deployment" ]; then
   fail "Unsupported event ${VORTEX_NOTIFY_EVENT} provided."
 fi

@@ -38,9 +38,7 @@ class FileTest extends UnitTestCase {
   }
 
   public static function dataProviderToRelative(): \Iterator {
-    // Get the current working directory for test cases.
     $cwd = getcwd();
-    // Test cases with explicit base path.
     yield 'absolute path with base' => [
       '/var/www/project/file.txt',
       '/var/www',
@@ -71,7 +69,6 @@ class FileTest extends UnitTestCase {
       '/var/www/project',
       '/var/www/other/file.php',
     ];
-    // Test cases with NULL base (should use current working directory).
     yield 'absolute path with null base' => [
       $cwd . '/test/file.txt',
       NULL,
@@ -92,7 +89,6 @@ class FileTest extends UnitTestCase {
       NULL,
       'test/file.txt',
     ];
-    // Edge cases.
     yield 'empty path with base - resolves to base' => [
       '',
       '/var/www',

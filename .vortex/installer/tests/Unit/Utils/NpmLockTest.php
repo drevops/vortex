@@ -226,8 +226,6 @@ class NpmLockTest extends UnitTestCase {
   }
 
   /**
-   * Write a manifest and its lock file into a directory of their own.
-   *
    * @return string
    *   Path to the manifest.
    */

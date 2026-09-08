@@ -11,34 +11,22 @@ use AlexSkrypnyk\File\File;
  */
 trait DeploymentTrait {
 
-  /**
-   * Prepare deployment source directory.
-   */
   protected function prepareDeploymentSource(string $src_dir): void {
     $this->logNote('Preparing deployment source at: ' . $src_dir);
     File::mkdir($src_dir);
   }
 
-  /**
-   * Prepare remote repository for artifact deployment.
-   */
   protected function prepareRemoteRepository(string $remote_dir): void {
     $this->logNote('Preparing remote repository at: ' . $remote_dir);
     File::mkdir($remote_dir);
     $this->gitInitRepo($remote_dir);
     // Configure git to accept pushes to the checked-out branch.
     shell_exec('git -C ' . escapeshellarg($remote_dir) . ' config receive.denyCurrentBranch updateInstead');
-    // Create an initial file so we can commit.
+    // Create an initial file so there is something to commit.
     File::dump($remote_dir . '/.gitkeep', '');
     $this->gitCommitAll($remote_dir, 'Initial commit');
   }
 
-  /**
-   * Assert deployment artifact files are present.
-   *
-   * These are the files that should exist in a deployment artifact after
-   * the build process has completed.
-   */
   protected function assertDeploymentFilesPresent(string $dir, string $webroot = 'web'): void {
     $this->logNote('Asserting deployment files are present in: ' . $dir);
 
@@ -130,7 +118,6 @@ trait DeploymentTrait {
     $this->assertDirectoryDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/fonts', 'Fonts source directory should not exist in deployment');
     $this->assertDirectoryDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/images', 'Images source directory should not exist in deployment');
 
-    // Config directory should exist.
     $this->assertDirectoryExists($dir . '/config/default', 'Config directory should exist');
 
     // Composer.json should exist for autoloading.

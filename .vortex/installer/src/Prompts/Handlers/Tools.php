@@ -389,7 +389,7 @@ class Tools extends AbstractHandler {
           $pj->addSubNode('scripts', 'lint-fix', 'npm run lint-css-fix');
         },
         // A project created before the move to flat config still carries the
-        // legacy files, which linger unread once the tool is deselected.
+        // legacy files, and nothing reads them once the tool is deselected.
         'files' => ['eslint.config.mjs', '.eslintrc.json', '.eslintignore', '.prettierrc.json', '.prettierignore'],
       ],
 

@@ -18,9 +18,6 @@ use DrevOps\Vortex\Tests\Traits\SutTrait;
 use PHPUnit\Framework\TestStatus\Error;
 use PHPUnit\Framework\TestStatus\Failure;
 
-/**
- * Base class for all functional tests.
- */
 class FunctionalTestCase extends UnitTestCase {
 
   use AssertArrayTrait;
@@ -37,23 +34,18 @@ class FunctionalTestCase extends UnitTestCase {
     // Initialize locations with the project root as the base directory.
     self::locationsInit(File::cwd() . '/../..');
 
-    // We use 'Star Wars'-themed test assertions, so we need to create a named
-    // SUT directory for the installer to gather the answers from the directory
-    // name.
+    // Test assertions are 'Star Wars'-themed, so the SUT directory is given
+    // a name the installer gathers the answers from.
     static::$sut = static::locationsMkdir(static::$workspace . '/star_wars');
 
-    // Export the current codebase to a fixture remote repository.
-    // Any uncommitted changes will not be included, so make sure to commit
-    // any changes you want to test against.
+    // The export takes only the committed state, so changes under test must
+    // be committed first.
     $this->fixtureExportCodebase(static::$root, static::$repo);
 
-    // Always show logger information.
     $this->logSetVerbose(TRUE);
 
-    // Show process output based on the debug flags.
     $this->processStreamingOutput = static::isDebug();
 
-    // Setting up logger step method prefix.
     static::$logStepMethodPrefix = 'subtest';
 
     static::logSection('TEST START | ' . $this->name(), double_border: TRUE);
@@ -78,7 +70,6 @@ class FunctionalTestCase extends UnitTestCase {
       $this->log(static::locationsInfo());
     }
     else {
-      // Test passed and debug mode is off → cleanup.
       $this->dockerCleanup();
       $this->processTearDown();
     }

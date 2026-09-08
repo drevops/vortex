@@ -22,8 +22,8 @@ class Downloader {
    * Constructs a new Downloader instance.
    *
    * @param \GuzzleHttp\ClientInterface|null $httpClient
-   *   Optional HTTP client for testing. If not provided, a default Guzzle
-   *   client will be created.
+   *   Optional HTTP client. If not provided, a default Guzzle client will be
+   *   created.
    */
   public function __construct(
     protected ?ClientInterface $httpClient = new Client(self::CLIENT_OPTIONS),

@@ -10,16 +10,12 @@ use DrevOps\VortexInstaller\Utils\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
-/**
- * Tests for the Config class.
- */
 #[CoversClass(Config::class)]
 class ConfigTest extends UnitTestCase {
 
   protected function setUp(): void {
     parent::setUp();
 
-    // Clear any existing environment variables that could interfere with tests.
     static::envUnsetPrefix('VORTEX_INSTALLER');
   }
 
@@ -56,7 +52,6 @@ class ConfigTest extends UnitTestCase {
     $config = Config::fromString($json);
 
     if (empty($expected_values)) {
-      // For empty JSON, just assert that config was created successfully.
       $this->assertInstanceOf(Config::class, $config);
     }
     else {
@@ -136,12 +131,9 @@ class ConfigTest extends UnitTestCase {
   public function testGetAndSet(string $name, mixed $value, mixed $default, mixed $expected): void {
     $config = new Config();
 
-    // Test default behavior.
     $this->assertEquals($default, $config->get($name, $default));
 
-    // Test setting and getting.
     $result = $config->set($name, $value);
-    // Test fluent interface.
     $this->assertSame($config, $result);
     $this->assertEquals($expected, $config->get($name));
   }
@@ -162,10 +154,8 @@ class ConfigTest extends UnitTestCase {
     $env_value = 'env_value';
     $set_value = 'set_value';
 
-    // Set environment variable.
     static::envSet($env_key, $env_value);
 
-    // Environment variable should take precedence.
     $config->set($env_key, $set_value);
     $this->assertEquals($env_value, $config->get($env_key));
   }
@@ -176,10 +166,8 @@ class ConfigTest extends UnitTestCase {
     $env_value = 'env_value';
     $set_value = 'set_value';
 
-    // Set environment variable.
     static::envSet($env_key, $env_value);
 
-    // Skip environment check.
     $config->set($env_key, $set_value, TRUE);
     $this->assertEquals($set_value, $config->get($env_key));
   }
@@ -223,15 +211,12 @@ class ConfigTest extends UnitTestCase {
   public function testSetQuiet(): void {
     $config = new Config();
 
-    // Test default parameter (true).
     $config->setQuiet();
     $this->assertTrue($config->isQuiet());
 
-    // Test explicit false.
     $config->setQuiet(FALSE);
     $this->assertFalse($config->isQuiet());
 
-    // Test explicit true.
     $config->setQuiet(TRUE);
     $this->assertTrue($config->isQuiet());
   }
@@ -259,15 +244,12 @@ class ConfigTest extends UnitTestCase {
   public function testSetNoInteraction(): void {
     $config = new Config();
 
-    // Test default parameter (true).
     $config->setNoInteraction();
     $this->assertTrue($config->getNoInteraction());
 
-    // Test explicit false.
     $config->setNoInteraction(FALSE);
     $this->assertFalse($config->getNoInteraction());
 
-    // Test explicit true.
     $config->setNoInteraction(TRUE);
     $this->assertTrue($config->getNoInteraction());
   }
@@ -293,7 +275,6 @@ class ConfigTest extends UnitTestCase {
   }
 
   public function testConstants(): void {
-    // Test that all constants are defined and have expected values.
     $this->assertEquals('VORTEX_INSTALLER_ROOT_DIR', Config::ROOT);
     $this->assertEquals('VORTEX_INSTALLER_DST_DIR', Config::DESTINATION);
     $this->assertEquals('VORTEX_INSTALLER_TMP_DIR', Config::TMP);
@@ -311,7 +292,6 @@ class ConfigTest extends UnitTestCase {
   }
 
   public function testEnvironmentVariablePrecedenceInConstructor(): void {
-    // Set environment variables.
     static::envSetMultiple([
       Config::ROOT => '/env/root',
       Config::DESTINATION => '/env/dst',
@@ -320,7 +300,6 @@ class ConfigTest extends UnitTestCase {
 
     $config = new Config('/param/root', '/param/dst', '/param/tmp');
 
-    // Environment variables should take precedence for ROOT and TMP.
     $this->assertEquals('/env/root', $config->getRoot());
     // DESTINATION is set with skip_env=TRUE, so the param value wins.
     $this->assertEquals('/param/dst', $config->getDestination());
@@ -344,7 +323,6 @@ class ConfigTest extends UnitTestCase {
   public function testDefaultValues(): void {
     $config = new Config();
 
-    // Test default values for boolean methods.
     $this->assertFalse($config->isQuiet());
     $this->assertFalse($config->getNoInteraction());
     $this->assertFalse($config->isVortexProject());

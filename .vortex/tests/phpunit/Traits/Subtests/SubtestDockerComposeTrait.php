@@ -82,8 +82,8 @@ trait SubtestDockerComposeTrait {
 
     // Lagoon images have a ~/.bashrc that loads changes made to .env file on
     // every new shell session like `docker compose exec bash -c "..."`.
-    // This is a bit different from the usual Docker behaviour where env
-    // variables are loaded only by Docker Compose and only on container start.
+    // This differs from the usual Docker behaviour where env variables are
+    // loaded only by Docker Compose and only on container start.
     //
     // The order of variables loading is:
     // - Docker (re-)start: variables defined in docker-compose.yml file are
@@ -104,7 +104,7 @@ trait SubtestDockerComposeTrait {
     //     (defined in the docker-compose.yml and .env) are available to the
     //     process.
     //
-    // We need to test a matrix of:
+    // The test covers a matrix of:
     // - variable type: docker-compose-mapped vs custom
     //   - docker-compose-mapped variable is set in the docker-compose.yml
     //     file and is automatically populated from the .env file on container
@@ -177,12 +177,10 @@ trait SubtestDockerComposeTrait {
     $this->cmd('docker compose exec -T cli php -r "echo getenv(\'DRUPAL_SHIELD_USER\') ?: \'Not set\';"', ['* my_custom_shield_user1', '! Not set'], 'Docker-compose-mapped variable has value in PHP script after container restarts.');
     $this->cmd('docker compose exec -T cli bash -c "printenv|sort"', 'my_custom_var_value1', 'Custom variable exists inside of container after container restarts.');
     $this->cmd('docker compose exec -T cli bash -c \'echo $MY_CUSTOM_VAR1\'', 'my_custom_var_value1', 'Custom variable exists and has a value inside of container after container restarts.');
-    // Important: getenv() uses variables available in the environments when the
-    // PHP process starts. Using `docker compose exec -T cli php` rather than
-    // `docker compose exec -T cli bash -c "php"` means that PHP is
-    // started directly by Docker Compose and not via bash, so the ~/.bashrc
-    // is not loaded and the custom variable is not available in the PHP
-    // process environment.
+    // getenv() reads the environment the PHP process started with. `docker
+    // compose exec -T cli php` starts PHP directly by Docker Compose rather
+    // than via bash, so ~/.bashrc is not loaded and the custom variable is
+    // absent from the PHP process environment.
     $this->cmd('docker compose exec -T cli php -r "echo getenv(\'MY_CUSTOM_VAR1\') ?: \'Not set\';"', ['! my_custom_var_value1', '* Not set'], 'Custom variable does not exist and has no value in PHP script after container restarts.');
 
     $this->fileRestore('.env');
@@ -234,12 +232,10 @@ trait SubtestDockerComposeTrait {
     $this->cmd('docker compose exec -T cli php -r "echo getenv(\'DRUPAL_SHIELD_PASS\') ?: \'Not set\';"', ['* my_custom_shield_pass1', '! Not set'], 'Docker-compose-mapped variable has value in PHP script after container restarts.');
     $this->cmd('docker compose exec -T cli bash -c "printenv|sort"', 'my_custom_var_value2', 'Custom variable exists inside of container after container restarts.');
     $this->cmd('docker compose exec -T cli bash -c \'echo $MY_CUSTOM_VAR2\'', 'my_custom_var_value2', 'Custom variable exists and has a value inside of container after container restarts.');
-    // Important: getenv() uses variables available in the environments when the
-    // PHP process starts. Using `docker compose exec -T cli php` rather than
-    // `docker compose exec -T cli bash -c "php"` means that PHP is
-    // started directly by Docker Compose and not via bash, so the ~/.bashrc
-    // is not loaded and the custom variable is not available in the PHP
-    // process environment.
+    // getenv() reads the environment the PHP process started with. `docker
+    // compose exec -T cli php` starts PHP directly by Docker Compose rather
+    // than via bash, so ~/.bashrc is not loaded and the custom variable is
+    // absent from the PHP process environment.
     $this->cmd('docker compose exec -T cli php -r "echo getenv(\'MY_CUSTOM_VAR2\') ?: \'Not set\';"', ['! my_custom_var_value2', '* Not set'], 'Custom variable does not exist and has no value in PHP script after container restarts.');
 
     $this->fileRestore('.env');
@@ -325,9 +321,9 @@ trait SubtestDockerComposeTrait {
   protected function subtestDockerComposeDatabaseConfig(): void {
     $this->logStepStart();
 
-    // Asserting the effective value rather than the file contents: the config
-    // file is copied to a path the database image reads only if the copy
-    // destination in the Dockerfile matches the engine's include directory.
+    // Assert the effective value rather than the file contents. The config
+    // file takes effect only if the copy destination in the Dockerfile
+    // matches the engine's include directory.
     $this->cmd(
       'docker compose exec -T database mysql -udrupal -pdrupal -e "SHOW VARIABLES LIKE \'innodb_redo_log_capacity\';"',
       '1073741824',

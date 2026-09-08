@@ -201,7 +201,6 @@ class BuildCommand extends Command implements ProcessRunnerAwareInterface, Comma
 
     Tui::line('');
 
-    // Show last 10 lines of output for context.
     $runner_output = $this->processRunner->getOutput(as_array: TRUE);
 
     if (!is_array($runner_output)) {

@@ -126,7 +126,7 @@ class Modules extends AbstractHandler {
     }
 
     // The only scenario in the demo pages feature asserts Testmode filtering,
-    // so the feature does not survive without the module. It is not named after
+    // so the feature has no purpose without the module. It is not named after
     // the module, so the removal above does not cover it.
     if (!in_array('testmode', $v)) {
       File::remove($t . '/tests/behat/features/pages.feature');

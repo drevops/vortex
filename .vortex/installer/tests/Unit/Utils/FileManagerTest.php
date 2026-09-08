@@ -14,9 +14,6 @@ use DrevOps\VortexInstaller\Utils\FileManager;
 use DrevOps\VortexInstaller\Utils\UpdateRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * Tests for the FileManager class.
- */
 #[CoversClass(FileManager::class)]
 class FileManagerTest extends UnitTestCase {
 
@@ -35,9 +32,6 @@ class FileManagerTest extends UnitTestCase {
     $this->assertInstanceOf(FileManager::class, $fm);
   }
 
-  /**
-   * Tests for prepareDestination().
-   */
   public function testPrepareDestinationExistingDirWithGit(): void {
     $destination = self::$sut;
     mkdir($destination . '/.git', 0777, TRUE);
@@ -88,9 +82,6 @@ class FileManagerTest extends UnitTestCase {
     $this->assertTrue($has_git_msg);
   }
 
-  /**
-   * Tests for copyFiles().
-   */
   public function testCopyFilesCopiesToDestination(): void {
     $src = self::$sut . '/src_copy';
     $destination = self::$sut . '/dst_copy';
@@ -158,7 +149,6 @@ class FileManagerTest extends UnitTestCase {
     $config = new Config('/tmp/root', $destination, $src);
     $fm = new FileManager($config);
 
-    // Should not throw.
     $fm->copyFiles();
 
     $this->addToAssertionCount(1);
@@ -438,10 +428,9 @@ class FileManagerTest extends UnitTestCase {
   }
 
   public function testCopyFilesRemovesObsoleteScriptsVortex(): void {
-    // Simulate an upgrade from a Vortex version that shipped scripts at
-    // 'scripts/vortex/' before they were extracted into the
-    // 'drevops/vortex-tooling' Composer package. The legacy directory must
-    // be removed from the destination after the copy.
+    // The destination mimics an upgrade from a Vortex version that shipped
+    // scripts at 'scripts/vortex/'; the 'drevops/vortex-tooling' Composer
+    // package ships them instead, so the copy removes the legacy directory.
     $src = self::$sut . '/src_obsolete';
     $destination = self::$sut . '/dst_obsolete';
     mkdir($src, 0777, TRUE);
@@ -467,15 +456,11 @@ class FileManagerTest extends UnitTestCase {
     $config = new Config('/tmp/root', $destination, '/tmp/tmp');
     $fm = new FileManager($config);
 
-    // Should not throw when there is nothing to remove.
     $fm->removeObsoletePaths();
 
     $this->addToAssertionCount(1);
   }
 
-  /**
-   * Tests for prepareDemo().
-   */
   public function testPrepareDemoNotDemoMode(): void {
     $config = new Config('/tmp/root', self::$sut, '/tmp/tmp');
     $fm = new FileManager($config);

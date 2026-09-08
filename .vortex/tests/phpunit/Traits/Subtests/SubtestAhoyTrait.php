@@ -82,7 +82,6 @@ trait SubtestAhoyTrait {
     $this->assertFileNotContainsString('.env', 'my_custom_var_value', '.env does not contain test values');
     $this->cmdFail('ahoy cli "printenv | grep -q MY_CUSTOM_VAR"', txt: 'Custom variable does not exist inside of container.');
     $this->cmdFail('ahoy cli \'echo $MY_CUSTOM_VAR | grep -q my_custom_var_value\'', '! my_custom_var_value', txt: 'Custom variable does not exist and has no value inside of container.');
-    // Add variable to the .env file and apply the change to container.
     $this->fileAddVar('.env', 'MY_CUSTOM_VAR', 'my_custom_var_value');
     $this->cmd('ahoy up cli');
     $this->syncToContainer('.env');
@@ -349,9 +348,9 @@ trait SubtestAhoyTrait {
   protected function seedCacheTableRow(): void {
     $this->logSubstep('Seed a cache table row before the export');
 
-    // Drupal creates its cache tables lazily and which bins reach the database
-    // depends on the configured backends, so the row proving that the export
-    // drops cache data is written into a table this suite owns.
+    // Drupal creates its cache tables lazily, and which bins reach the
+    // database depends on the configured backends. The row proving that the
+    // export drops cache data is written into a table this suite owns.
     $seed_file = '.data/probe-cache-seed.sql';
     File::dump($seed_file, "CREATE TABLE IF NOT EXISTS cache_vortex_probe (cid VARCHAR(255) NOT NULL PRIMARY KEY, data LONGBLOB);\nINSERT INTO cache_vortex_probe (cid, data) VALUES ('SEEDED_CACHE_ROW_MARKER', 'probe');\n");
     $this->syncToContainer($seed_file);
@@ -395,8 +394,8 @@ trait SubtestAhoyTrait {
       txt: 'Export database dump ' . ($has_argument ? sprintf("to file '%s'", $filename) : 'to a default file')
     );
 
-    // File export happens inside the container, so we need to sync the
-    // .data folder. Image export happens on the host, so no need to sync.
+    // File export happens inside the container, so the .data folder is
+    // synced. Image export happens on the host, so no sync is needed.
     if (!$is_container_image_archive) {
       $this->syncToHost('.data');
     }
@@ -476,10 +475,10 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     // Rector reports success when its rule sets load nothing, so a passing
-    // `ahoy lint-be` is not evidence that the Drupal rules ran. Seed a
-    // deprecation that only those rules rewrite: the run has to fail, and the
-    // failure has to name the rule that caught it, because an unrelated rule
-    // firing on this file would otherwise mask a set that stopped loading.
+    // `ahoy lint-be` is not evidence that the Drupal rules ran. The canary
+    // seeds a deprecation that only those rules rewrite. The run has to fail
+    // and name the rule that caught it; an unrelated rule firing on this
+    // file would otherwise mask a set that stopped loading.
     $this->logSubstep('Assert that the Drupal Rector rule sets are loaded');
     $test_file = $webroot . '/modules/custom/sw_base/src/RectorCanary.php';
     $canary = <<<'PHP'
@@ -906,7 +905,6 @@ trait SubtestAhoyTrait {
     sleep(10);
 
     $this->logSubstep('Assert expected files and directories present or absent after reset');
-    // Assert that initial Vortex files have not been removed.
     $this->assertCommonFilesPresent($webroot);
 
     $this->assertDirectoryDoesNotExist($webroot . '/modules/contrib', 'Contributed modules directory has been removed.');
@@ -920,7 +918,6 @@ trait SubtestAhoyTrait {
     $this->assertFileExists('.idea/idea_file.txt', 'IDE config file still exists.');
     $this->assertDirectoryExists('.git', 'Project is still a Git repository.');
 
-    // Cleanup.
     $this->removeDevelopmentSettings($webroot);
 
     $this->logStepFinish();
@@ -961,7 +958,6 @@ trait SubtestAhoyTrait {
     $this->assertFileExists('.idea/idea_file.txt', 'IDE config file still exists.');
     $this->assertDirectoryExists('.git', 'Project is still a Git repository.');
 
-    // Cleanup.
     $this->removeDevelopmentSettings($webroot);
 
     $this->logStepFinish();
@@ -1025,7 +1021,7 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     // Drupal core serves a near-identical 404 page for the same extensions,
-    // so the DOCTYPE from `settings.fast_404.php` is what tells the two apart.
+    // so the DOCTYPE from `settings.fast_404.php` distinguishes the two.
     $error_page = '-//W3C//DTD XHTML+RDFa 1.0//EN';
     $derivative = '/sites/default/files/styles/large/public/missing.jpg';
 

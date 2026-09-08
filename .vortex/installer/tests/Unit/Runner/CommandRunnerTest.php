@@ -16,15 +16,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Tests for CommandRunner class.
- */
 #[CoversClass(CommandRunner::class)]
 class CommandRunnerTest extends UnitTestCase {
 
-  /**
-   * Test constructor accepts Application instance.
-   */
   public function testConstructor(): void {
     $application = new Application();
     $runner = new CommandRunner($application);
@@ -32,9 +26,6 @@ class CommandRunnerTest extends UnitTestCase {
     $this->assertInstanceOf(CommandRunner::class, $runner);
   }
 
-  /**
-   * Test run with valid command.
-   */
   public function testRunWithValidCommand(): void {
     $application = new Application();
     $command = new TestCommand('test:command');
@@ -54,9 +45,6 @@ class CommandRunnerTest extends UnitTestCase {
     $this->assertStringContainsString('Test output', is_string($runner_output) ? $runner_output : implode(PHP_EOL, $runner_output));
   }
 
-  /**
-   * Test run with streaming enabled/disabled.
-   */
   #[DataProvider('dataProviderRunWithStreaming')]
   public function testRunWithStreaming(bool $streaming_enabled, bool $should_have_output): void {
     $application = new Application();
@@ -89,9 +77,6 @@ class CommandRunnerTest extends UnitTestCase {
     $this->assertStringContainsString('Test output', is_string($output) ? $output : implode(PHP_EOL, $output));
   }
 
-  /**
-   * Data provider for streaming modes.
-   */
   public static function dataProviderRunWithStreaming(): \Iterator {
     yield 'streaming enabled' => [
       'streaming_enabled' => TRUE,
@@ -103,9 +88,6 @@ class CommandRunnerTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test createCompositeOutput method using reflection.
-   */
   public function testCreateCompositeOutput(): void {
     $application = new Application();
     $runner = new CommandRunner($application);
@@ -116,7 +98,6 @@ class CommandRunnerTest extends UnitTestCase {
     $logger->setDir(self::$tmp);
     $logger->open('test');
 
-    // Use reflection to access protected method.
     $reflection = new \ReflectionClass($runner);
     $method = $reflection->getMethod('createCompositeOutput');
 
@@ -125,7 +106,6 @@ class CommandRunnerTest extends UnitTestCase {
     $this->assertInstanceOf(OutputInterface::class, $composite_output);
     $this->assertInstanceOf(BufferedOutput::class, $buffered_output);
 
-    // Test composite output behavior.
     $composite_output->write('Test message');
     $this->assertStringContainsString('Test message', $buffered_output->fetch());
 
@@ -135,9 +115,6 @@ class CommandRunnerTest extends UnitTestCase {
     $logger->close();
   }
 
-  /**
-   * Test composite output with iterable messages.
-   */
   public function testCompositeOutputWithIterableMessages(): void {
     $application = new Application();
     $runner = new CommandRunner($application);
@@ -148,13 +125,11 @@ class CommandRunnerTest extends UnitTestCase {
     $logger->setDir(self::$tmp);
     $logger->open('test');
 
-    // Use reflection to access protected method.
     $reflection = new \ReflectionClass($runner);
     $method = $reflection->getMethod('createCompositeOutput');
 
     [$composite_output, $buffered_output] = $method->invoke($runner, $output, $logger);
 
-    // Test with iterable messages.
     $composite_output->write(['Line 1', 'Line 2']);
     $content = $buffered_output->fetch();
     $this->assertStringContainsString('Line 1', $content);
@@ -168,9 +143,6 @@ class CommandRunnerTest extends UnitTestCase {
     $logger->close();
   }
 
-  /**
-   * Test run with options.
-   */
   public function testRunWithOptions(): void {
     $application = new Application();
     $command = new TestCommand('test:command');
@@ -182,15 +154,12 @@ class CommandRunnerTest extends UnitTestCase {
     $output = new BufferedOutput();
     Tui::init($output);
 
-    // Test without options since test command doesn't define any.
+    // TestCommand defines no options, so run() is called without any.
     $runner->run('test:command', []);
 
     $this->assertEquals(0, $runner->getExitCode());
   }
 
-  /**
-   * Test run captures exit code.
-   */
   public function testRunCapturesExitCode(): void {
     $application = new Application();
     $command = new TestCommandWithExitCode('test:error');
@@ -209,9 +178,6 @@ class CommandRunnerTest extends UnitTestCase {
 
 }
 
-/**
- * Test command for testing CommandRunner.
- */
 class TestCommand extends Command {
 
   /**
@@ -224,9 +190,6 @@ class TestCommand extends Command {
 
 }
 
-/**
- * Test command that returns non-zero exit code.
- */
 class TestCommandWithExitCode extends Command {
 
   /**

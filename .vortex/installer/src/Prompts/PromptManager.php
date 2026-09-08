@@ -391,8 +391,8 @@ class PromptManager {
    *
    * The answers come from discovery against the destination rather than from
    * the choices this run collected, so the render reproduces the project's
-   * current configuration even where this run changes it. That is what makes
-   * the result comparable to the project's own files.
+   * current configuration even where this run changes it. This keeps the
+   * result comparable to the project's own files.
    *
    * @param string $dir
    *   Directory holding an unprocessed template download.

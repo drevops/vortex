@@ -28,8 +28,6 @@ class ArchiverTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testDetectFormat().
-   *
    * @return \Iterator<string, array<string, string|callable>>
    *   Test data.
    */
@@ -69,8 +67,6 @@ class ArchiverTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testValidateValidArchive().
-   *
    * @return \Iterator<string, array<string, string>>
    *   Test data.
    */
@@ -98,8 +94,6 @@ class ArchiverTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testValidateInvalid().
-   *
    * @return \Iterator<string, array<string, string|null>>
    *   Test data.
    */
@@ -138,8 +132,6 @@ class ArchiverTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testExtract().
-   *
    * @return \Iterator<string, array<string, string|bool>>
    *   Test data.
    */
@@ -185,8 +177,6 @@ class ArchiverTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testExtractErrors().
-   *
    * @return \Iterator<string, array<string, string|bool|null>>
    *   Test data.
    */

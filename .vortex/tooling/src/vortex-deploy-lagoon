@@ -87,8 +87,6 @@ task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev
 pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 
-# Check if error output contains Lagoon environment limit exceeded message.
-# Returns 0 if limit exceeded error found, 1 otherwise.
 is_lagoon_env_limit_exceeded() {
   local error_output="${1:-}"
   echo "${error_output}" | grep -q "exceed"
@@ -114,12 +112,8 @@ run_lagoon_deploy() {
     [ "${VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED}" = "0" ] && exit_code=0
   fi
 
-  # The CLI output is the only record of why a deploy failed, so retain it
-  # rather than making the failure reproducible only with debug enabled.
   [ "${exit_code}" != "0" ] && deploy_error="${deploy_output}"
 
-  # A deploy that did not fail has nothing to explain, so its output remains
-  # verbose-only.
   [ "${exit_code}" = "0" ] && [ "${VORTEX_DEBUG-}" = "1" ] && [ -n "${deploy_output}" ] && printf '%s\n' "${deploy_output}"
 
   # Always succeed: the outcome is carried in ${exit_code}. Leaking the status
@@ -136,14 +130,12 @@ deploy_error=""
 
 info "Started Lagoon deployment."
 
-# Lagoon does not support tag deployments. Exit successfully with a message.
 if [ "${VORTEX_DEPLOY_MODE}" = "tag" ]; then
   note "Lagoon does not support tag deployments. Skipped."
   pass "Finished Lagoon deployment."
   exit 0
 fi
 
-## Check all required values.
 [ -z "${VORTEX_DEPLOY_LAGOON_PROJECT}" ] && fail "Missing required value for VORTEX_DEPLOY_LAGOON_PROJECT or LAGOON_PROJECT."
 { [ -z "${VORTEX_DEPLOY_LAGOON_BRANCH}" ] && [ -z "${VORTEX_DEPLOY_LAGOON_PR}" ]; } && fail "Missing required value for VORTEX_DEPLOY_LAGOON_BRANCH or VORTEX_DEPLOY_BRANCH or VORTEX_DEPLOY_LAGOON_PR or VORTEX_DEPLOY_PR."
 
@@ -176,21 +168,16 @@ pass "Configured Lagoon instance."
 
 lagoon() { command lagoon --force --skip-update-check --ssh-key "${VORTEX_DEPLOY_LAGOON_SSH_FILE}" --lagoon "${VORTEX_DEPLOY_LAGOON_INSTANCE}" --project "${VORTEX_DEPLOY_LAGOON_PROJECT}" "$@"; }
 
-# ACTION: 'destroy'
-# Explicitly specifying "destroy" action as a failsafe.
+# The "destroy" action is matched explicitly as a failsafe.
 if [ "${VORTEX_DEPLOY_LAGOON_ACTION}" = "destroy" ]; then
   task "Destroying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
   lagoon delete environment --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" || true
   pass "Destroyed environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
 
-# ACTION: 'deploy' OR 'deploy_override_db'
 else
-  # Deploy PR.
   if [ -n "${VORTEX_DEPLOY_LAGOON_PR:-}" ]; then
     deploy_pr_full="pr-${VORTEX_DEPLOY_LAGOON_PR}"
 
-    # Discover all available environments to check if this is a fresh deployment
-    # or a re-deployment of the existing environment.
     task "Discovering existing environments for PR deployments."
     lagoon list environments --output-json --pretty >/tmp/lagoon-envs.json
     names="$(jq -r '.data[] | select(.deploytype | contains("pullrequest")) | .name' /tmp/lagoon-envs.json /dev/null 2>&1 || echo '')"
@@ -207,7 +194,6 @@ else
     [ "${is_redeploy:-}" = "0" ] && note "No existing environment found for PR \"${VORTEX_DEPLOY_LAGOON_PR}\"."
     pass "Completed environment discovery."
 
-    # Re-deployment of the existing environment.
     if [ "${is_redeploy:-}" = "1" ]; then
       # The flag value this deployment needs while Lagoon queues the build.
       if [ "${VORTEX_DEPLOY_LAGOON_ACTION}" = "deploy_override_db" ]; then
@@ -216,9 +202,8 @@ else
         override_db_value=0
       fi
 
-      # A deployment borrows the flag for a single build and then returns the
-      # environment to the state it was found in, so an environment that had no
-      # flag is not left with one.
+      # The flag is set for a single build and then restored to its previous
+      # state, so an environment that had no flag is not left with one.
       task "Discovering a database import override flag."
       override_db_state="unknown"
       override_db_original=""
@@ -237,10 +222,9 @@ else
       fi
 
       if [ "${override_db_state}" = "unknown" ]; then
-        # An unreadable variable list is not an absent flag. Adding one and
+        # An unreadable variable list is not an absent flag: adding one and
         # deleting it afterwards would destroy a flag that already exists, so
-        # the flag is left alone. The build then runs against whatever value the
-        # environment already carries, which may not be the requested one.
+        # the flag is left alone.
         note "WARNING: Could not read environment variables. A database import override flag was left unchanged and may not match the requested deployment action."
       elif [ "${override_db_state}" = "absent" ]; then
         note "No existing database import override flag found."
@@ -261,8 +245,8 @@ else
 
       task "Redeploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
       run_lagoon_deploy deploy pullrequest --number "${VORTEX_DEPLOY_LAGOON_PR}" --base-branch-name "${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_LAGOON_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_LAGOON_PR_HEAD}" --title "${deploy_pr_full}"
-      # A failed deploy is reported by the final status line, after the override
-      # flag has been returned to the state it was found in.
+      # A failed deploy is reported by the final status line, after the
+      # override flag is restored.
       [ "${exit_code}" = "0" ] && pass "Requested redeployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
 
       # Lagoon reads the flag when it queues the build.
@@ -282,7 +266,8 @@ else
 
     # Deployment of the fresh environment.
     else
-      # If PR deployments are not configured in Lagoon - it will filter it out and will not deploy.
+      # Lagoon filters out the request and does not deploy when PR deployments
+      # are not configured for the project.
       task "Deploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
       run_lagoon_deploy deploy pullrequest --number "${VORTEX_DEPLOY_LAGOON_PR}" --base-branch-name "${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_LAGOON_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_LAGOON_PR_HEAD}" --title "${deploy_pr_full}"
       [ "${exit_code}" = "0" ] && pass "Requested deployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
@@ -290,8 +275,6 @@ else
 
   # Deploy branch.
   else
-    # Discover all available environments to check if this is a fresh deployment
-    # or a re-deployment of the existing environment.
     task "Discovering existing environments for branch deployments."
     lagoon list environments --output-json --pretty >/tmp/lagoon-envs.json
     names="$(jq -r '.data[] | select(.deploytype | contains("branch")) | .name' /tmp/lagoon-envs.json /dev/null 2>&1 || echo '')"
@@ -308,7 +291,6 @@ else
     [ "${is_redeploy:-}" = "0" ] && note "No existing environment found for branch \"${VORTEX_DEPLOY_LAGOON_BRANCH}\"."
     pass "Completed environment discovery."
 
-    # Re-deployment of the existing environment.
     if [ "${is_redeploy:-}" = "1" ]; then
       # The flag value this deployment needs while Lagoon queues the build.
       if [ "${VORTEX_DEPLOY_LAGOON_ACTION}" = "deploy_override_db" ]; then
@@ -317,9 +299,8 @@ else
         override_db_value=0
       fi
 
-      # A deployment borrows the flag for a single build and then returns the
-      # environment to the state it was found in, so an environment that had no
-      # flag is not left with one.
+      # The flag is set for a single build and then restored to its previous
+      # state, so an environment that had no flag is not left with one.
       task "Discovering a database import override flag."
       override_db_state="unknown"
       override_db_original=""
@@ -338,10 +319,9 @@ else
       fi
 
       if [ "${override_db_state}" = "unknown" ]; then
-        # An unreadable variable list is not an absent flag. Adding one and
+        # An unreadable variable list is not an absent flag: adding one and
         # deleting it afterwards would destroy a flag that already exists, so
-        # the flag is left alone. The build then runs against whatever value the
-        # environment already carries, which may not be the requested one.
+        # the flag is left alone.
         note "WARNING: Could not read environment variables. A database import override flag was left unchanged and may not match the requested deployment action."
       elif [ "${override_db_state}" = "absent" ]; then
         note "No existing database import override flag found."
@@ -362,8 +342,8 @@ else
 
       task "Redeploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
       run_lagoon_deploy deploy latest --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}"
-      # A failed deploy is reported by the final status line, after the override
-      # flag has been returned to the state it was found in.
+      # A failed deploy is reported by the final status line, after the
+      # override flag is restored.
       [ "${exit_code}" = "0" ] && pass "Requested redeployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
 
       # Lagoon reads the flag when it queues the build.
@@ -383,7 +363,8 @@ else
 
     # Deployment of the fresh environment.
     else
-      # If current branch deployments does not match a regex in Lagoon - it will filter it out and will not deploy.
+      # Lagoon filters out the request and does not deploy when the branch does
+      # not match the configured deployment regex.
       task "Deploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
       run_lagoon_deploy deploy branch --branch "${VORTEX_DEPLOY_LAGOON_BRANCH}"
       [ "${exit_code}" = "0" ] && pass "Requested deployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."

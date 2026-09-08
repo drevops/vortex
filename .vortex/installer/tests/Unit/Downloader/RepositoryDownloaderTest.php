@@ -127,7 +127,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
         $mock_body->method('getContents')->willReturn($release_json);
         $mock_response->method('getStatusCode')->willReturn(200);
 
-        // Only the API call uses httpClient now.
         $mock_http_client->method('request')->willReturn($mock_response);
       }
     }
@@ -157,8 +156,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testDiscoverLatestReleaseRemote().
-   *
    * @return \Iterator<string, array<string, mixed>>
    *   Test data.
    */
@@ -352,8 +349,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testDownloadWithNullDestination().
-   *
    * @return \Iterator<string, array<string, string>>
    *   Test data.
    */
@@ -374,7 +369,8 @@ class RepositoryDownloaderTest extends UnitTestCase {
     $destination = self::$tmp . '/dest_' . uniqid();
     File::mkdir($destination);
 
-    // Handle the special case where we need to get the actual commit hash.
+    // The 'COMMIT_HASH' sentinel resolves to the repository's actual commit
+    // hash at run time.
     if ($ref === 'COMMIT_HASH') {
       $output = self::gitRunner($temp_repo_dir)->run('git rev-parse HEAD', output: new NullOutput())->getOutput();
       $this->assertIsString($output, 'Failed to get commit hash from git repository');
@@ -393,8 +389,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   /**
-   * Data provider for testDownloadFromLocal().
-   *
    * @return \Iterator<string, array<string, string>>
    *   Test data.
    */
@@ -445,7 +439,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
       return $mock_response;
     });
     $mock_archiver = $this->createMock(ArchiverInterface::class);
-    // File downloader should receive the token in headers.
     $mock_file_downloader = $this->createMock(Downloader::class);
     $mock_file_downloader->expects($this->once())->method('download')->willReturnCallback(function ($url, $dest, array $headers): void {
       $this->assertArrayHasKey('Authorization', $headers);
@@ -463,7 +456,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
     static::envSet('GITHUB_TOKEN', 'test_token_67890');
     $mock_http_client = $this->createMock(ClientInterface::class);
     $mock_archiver = $this->createMock(ArchiverInterface::class);
-    // File downloader should receive the token in headers.
     $mock_file_downloader = $this->createMock(Downloader::class);
     $mock_file_downloader->expects($this->once())->method('download')->willReturnCallback(function ($url, $dest, array $headers): void {
       $this->assertArrayHasKey('Authorization', $headers);
@@ -637,9 +629,6 @@ class RepositoryDownloaderTest extends UnitTestCase {
     return $temp_repo_dir;
   }
 
-  /**
-   * Create a runner that operates on a repository without writing a log.
-   */
   protected static function gitRunner(string $repo_dir): ProcessRunner {
     $runner = new ProcessRunner();
     $runner->getLogger()->disable();

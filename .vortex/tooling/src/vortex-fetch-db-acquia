@@ -87,23 +87,16 @@ for cmd in php curl gunzip; do command -v "${cmd}" >/dev/null || fail "Command $
 
 info "Started database dump fetch from Acquia."
 
-#
-# Extract last value from JSON object passed via STDIN.
-#
 extract_json_last_value() {
   local key=${1}
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-#
-# Extract keyed value from JSON object passed via STDIN.
-#
 extract_json_value() {
   local key=${1}
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-# Check that all required variables are present.
 [ -z "${VORTEX_FETCH_DB_ACQUIA_KEY}" ] && fail "Missing required value for VORTEX_FETCH_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY."
 [ -z "${VORTEX_FETCH_DB_ACQUIA_SECRET}" ] && fail "Missing required value for VORTEX_FETCH_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
 [ -z "${VORTEX_FETCH_DB_ACQUIA_APP_NAME}" ] && fail "Missing required value for VORTEX_FETCH_DB_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME."
@@ -116,7 +109,6 @@ task "Retrieving authentication token."
 token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_FETCH_DB_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_FETCH_DB_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Token API response received (token redacted)."
 
-# Check for HTTP errors in response
 if echo "${token_json}" | grep -q '"error"'; then
   fail "Authentication failed. Check VORTEX_FETCH_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_FETCH_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: ${token_json}"
 fi
@@ -130,7 +122,6 @@ task "Retrieving ${VORTEX_FETCH_DB_ACQUIA_APP_NAME} application UUID."
 app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_FETCH_DB_ACQUIA_APP_NAME/ /%20}")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Application API response: ${app_uuid_json}"
 
-# Check for empty items array (application not found)
 if echo "${app_uuid_json}" | grep -q '"items":\[\]'; then
   fail "Application \"${VORTEX_FETCH_DB_ACQUIA_APP_NAME}\" not found. Check application name and access permissions."
 fi
@@ -144,7 +135,6 @@ task "Retrieving ${VORTEX_FETCH_DB_ENVIRONMENT} environment ID."
 envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_FETCH_DB_ENVIRONMENT}")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Environments API response: ${envs_json}"
 
-# Check for empty items array (environment not found)
 if echo "${envs_json}" | grep -q '"items":\[\]'; then
   fail "Environment \"${VORTEX_FETCH_DB_ENVIRONMENT}\" not found in application \"${VORTEX_FETCH_DB_ACQUIA_APP_NAME}\". Check environment name."
 fi
@@ -154,20 +144,16 @@ env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_val
 [ -z "${env_id}" ] && fail "Unable to retrieve an environment ID for \"${VORTEX_FETCH_DB_ENVIRONMENT}\". API response: ${envs_json}"
 pass "Retrieved ${VORTEX_FETCH_DB_ENVIRONMENT} environment ID."
 
-# If fresh backup requested, create a new backup and wait for it to complete.
 if [ "${VORTEX_FETCH_DB_FRESH}" = "1" ]; then
   task "Creating new database backup for ${VORTEX_FETCH_DB_ACQUIA_DB_NAME}."
 
-  # Trigger backup creation
   create_backup_json=$(curl -s -L -X POST -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_FETCH_DB_ACQUIA_DB_NAME}/backups")
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Create backup API response: ${create_backup_json}"
 
-  # Check for errors
   if echo "${create_backup_json}" | grep -q '"error"'; then
     fail "Unable to create backup for database \"${VORTEX_FETCH_DB_ACQUIA_DB_NAME}\". API response: ${create_backup_json}"
   fi
 
-  # Extract notification URL for status checking
   notification_url=$(echo "${create_backup_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href")
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Notification URL: ${notification_url}"
 
@@ -186,7 +172,6 @@ if [ "${VORTEX_FETCH_DB_FRESH}" = "1" ]; then
     sleep "${wait_interval}"
     elapsed=$((elapsed + wait_interval))
 
-    # Check backup status
     status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "${notification_url}")
     [ "${VORTEX_DEBUG-}" = "1" ] && note "Status check (${elapsed}s): ${status_json}"
 
@@ -213,12 +198,10 @@ task "Discovering latest backup ID for database ${VORTEX_FETCH_DB_ACQUIA_DB_NAME
 backups_json=$(curl --progress-bar -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_FETCH_DB_ACQUIA_DB_NAME}/backups?sort=created")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Backups API response: ${backups_json}"
 
-# Check for HTTP errors or database not found
 if echo "${backups_json}" | grep -q '"error"'; then
   fail "Database \"${VORTEX_FETCH_DB_ACQUIA_DB_NAME}\" not found in environment \"${VORTEX_FETCH_DB_ENVIRONMENT}\". Check database name. API response: ${backups_json}"
 fi
 
-# Check for empty items array (no backups found)
 if echo "${backups_json}" | grep -q '"items":\[\]'; then
   fail "No backups found for database \"${VORTEX_FETCH_DB_ACQUIA_DB_NAME}\" in environment \"${VORTEX_FETCH_DB_ENVIRONMENT}\". Try creating a backup first."
 fi
@@ -228,7 +211,6 @@ backup_id=$(echo "${backups_json}" | extract_json_value "_embedded" | extract_js
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted backup ID: ${backup_id}"
 [ -z "${backup_id}" ] && fail "Unable to discover backup ID for database \"${VORTEX_FETCH_DB_ACQUIA_DB_NAME}\". API response: ${backups_json}"
 
-# Insert backup id as a suffix.
 file_extension="${VORTEX_FETCH_DB_ACQUIA_DB_FILE##*.}"
 file_prefix="${VORTEX_FETCH_DB_ACQUIA_DB_NAME}_backup_"
 file_name="${VORTEX_FETCH_DB_ACQUIA_DB_DIR}/${file_prefix}${backup_id}.${file_extension}"
@@ -242,18 +224,15 @@ pass "Discovered latest backup ID ${backup_id} for database ${VORTEX_FETCH_DB_AC
 if [ -f "${file_name_discovered}" ]; then
   note "Found existing cached database file \"${file_name_discovered}\" for database \"${VORTEX_FETCH_DB_ACQUIA_DB_NAME}\"."
 else
-  # If the gzipped version exists, then we don't need to re-fetch it.
   if [ ! -f "${file_name_compressed}" ]; then
     note "Using the latest backup ID ${backup_id} for database ${VORTEX_FETCH_DB_ACQUIA_DB_NAME}."
 
     [ ! -d "${VORTEX_FETCH_DB_ACQUIA_DB_DIR:-}" ] && note "Creating dump directory ${VORTEX_FETCH_DB_ACQUIA_DB_DIR}." && mkdir -p "${VORTEX_FETCH_DB_ACQUIA_DB_DIR}"
 
     task "Discovering backup URL."
-    # The Acquia API responds with a 200 and a JSON body containing the
-    # temporary, pre-signed S3 download URL under the "url" key. Fetch the
-    # body and extract that URL. The Authorization header is required only to
-    # query the Acquia API; the returned S3 URL is pre-signed and is fetched
-    # later without it.
+    # The response carries a temporary pre-signed S3 download URL under the
+    # "url" key. The Authorization header applies only to this API call; the
+    # pre-signed URL is fetched later without it.
     backup_url_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/databases/${VORTEX_FETCH_DB_ACQUIA_DB_NAME}/backups/${backup_id}/actions/download")
     [ "${VORTEX_DEBUG-}" = "1" ] && note "Download action API response: ${backup_url_json}"
     backup_url=$(echo "${backup_url_json}" | extract_json_value "url")
@@ -268,8 +247,7 @@ else
     # shellcheck disable=SC2181
     [ "${download_result}" -ne 0 ] && fail "Unable to fetch database ${VORTEX_FETCH_DB_ACQUIA_DB_NAME}. curl exit code: ${download_result}"
 
-    # Check if the fetched file exists and has content. Leave the file in
-    # place on failure so it can be inspected.
+    # The file is left in place on failure so it can be inspected.
     if [ ! -f "${file_name_compressed}" ] || [ ! -s "${file_name_compressed}" ]; then
       fail "Fetched file is empty or missing: ${file_name_compressed}"
     fi
@@ -283,8 +261,7 @@ else
   task "Expanding database file ${file_name_compressed} into ${file_name}."
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Starting decompression of ${file_name_compressed}."
 
-  # Test the gzip file first to ensure it's valid. Leave the file in place
-  # on failure so it can be inspected.
+  # The file is left in place on failure so it can be inspected.
   if ! gunzip -t "${file_name_compressed}" 2>/dev/null; then
     fail "Fetched file is not a valid gzip archive: ${file_name_compressed}"
   fi
@@ -293,8 +270,7 @@ else
   decompress_result=$?
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Decompression result: ${decompress_result}"
 
-  # Check decompression result and file validity. Leave both files in place
-  # on failure so they can be inspected.
+  # Both files are left in place on failure so they can be inspected.
   if [ "${decompress_result}" != 0 ] || [ ! -f "${file_name}" ] || [ ! -s "${file_name}" ]; then
     fail "Unable to process database dump file \"${file_name}\". Decompression exit code: ${decompress_result}"
   fi

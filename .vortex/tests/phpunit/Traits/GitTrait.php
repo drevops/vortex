@@ -11,8 +11,6 @@ use CzProject\GitPhp\GitException;
 use CzProject\GitPhp\GitRepository;
 
 /**
- * Trait GitTrait.
- *
  * Helpers to work with Git repositories.
  */
 trait GitTrait {
@@ -67,7 +65,6 @@ trait GitTrait {
         $output = $git_exception->getRunnerResult()->getErrorOutput();
       }
 
-      // Re-throw exception if it is not one of the allowed ones.
       if (!isset($output) || empty(array_intersect($output, $allowed_fails))) {
         throw $git_exception;
       }
@@ -136,7 +133,7 @@ trait GitTrait {
    * Get a range of commits.
    *
    * @param array<int> $range
-   *   Array of commit indexes, stating from 1.
+   *   Array of commit indexes, starting from 1.
    * @param string $path
    *   Path to the repository directory.
    *
@@ -189,9 +186,6 @@ trait GitTrait {
     }
   }
 
-  /**
-   * Assert if path is a Git repository.
-   */
   protected function gitAssertIsRepository(?string $path = NULL): void {
     $path = $path ?: File::cwd();
 
@@ -200,7 +194,6 @@ trait GitTrait {
     $git_dir = $path . DIRECTORY_SEPARATOR . '.git';
     $this->assertDirectoryExists($git_dir, sprintf('Directory %s exists, but it is not a git repository', $path));
 
-    // Run git status to verify it's a valid git repository.
     $command = sprintf('git --work-tree=%s --git-dir=%s status 2>&1',
       escapeshellarg($path),
       escapeshellarg($git_dir)

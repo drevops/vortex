@@ -13,15 +13,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Tests for AbstractRunner class.
- */
 #[CoversClass(AbstractRunner::class)]
 class AbstractRunnerTest extends UnitTestCase {
 
-  /**
-   * Test getLogger creates FileLogger instance lazily.
-   */
   public function testGetLoggerCreatesInstanceLazily(): void {
     $runner = new ConcreteRunner();
 
@@ -32,9 +26,6 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertSame($logger1, $logger2, 'getLogger() should return the same instance on subsequent calls');
   }
 
-  /**
-   * Test getCwd returns current directory by default.
-   */
   public function testGetCwdReturnsCurrentDirectory(): void {
     $runner = new ConcreteRunner();
 
@@ -42,9 +33,6 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertEquals(getcwd(), $cwd);
   }
 
-  /**
-   * Test setCwd sets custom directory.
-   */
   public function testSetCwdSetsCustomDirectory(): void {
     $runner = new ConcreteRunner();
 
@@ -53,9 +41,6 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertInstanceOf(AbstractRunner::class, $result, 'setCwd() should return self for method chaining');
   }
 
-  /**
-   * Test setCwd updates logger directory.
-   */
   public function testSetCwdUpdatesLoggerDirectory(): void {
     $runner = new ConcreteRunner();
     $logger = $runner->getLogger();
@@ -65,9 +50,6 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertEquals(self::$tmp, $logger->getDir());
   }
 
-  /**
-   * Test setLogger replaces the lazily created logger.
-   */
   public function testSetLoggerReplacesInstance(): void {
     $runner = new ConcreteRunner();
     $this->assertInstanceOf(FileLogger::class, $runner->getLogger());
@@ -78,13 +60,9 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertSame($logger, $runner->getLogger());
   }
 
-  /**
-   * Test enableStreaming sets internal flag.
-   */
   public function testEnableStreaming(): void {
     $runner = new ConcreteRunner();
 
-    // Streaming is enabled by default.
     $this->assertTrue($runner->shouldStream());
 
     $runner->disableStreaming();
@@ -95,9 +73,6 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertInstanceOf(AbstractRunner::class, $result, 'enableStreaming() should return self for method chaining');
   }
 
-  /**
-   * Test disableStreaming sets internal flag.
-   */
   public function testDisableStreaming(): void {
     $runner = new ConcreteRunner();
 
@@ -108,36 +83,24 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertInstanceOf(AbstractRunner::class, $result, 'disableStreaming() should return self for method chaining');
   }
 
-  /**
-   * Test getCommand returns NULL initially.
-   */
   public function testGetCommandInitiallyNull(): void {
     $runner = new ConcreteRunner();
 
     $this->assertNull($runner->getCommand());
   }
 
-  /**
-   * Test getExitCode returns 0 initially.
-   */
   public function testGetExitCodeInitiallyZero(): void {
     $runner = new ConcreteRunner();
 
     $this->assertEquals(0, $runner->getExitCode());
   }
 
-  /**
-   * Test getOutput returns empty string initially.
-   */
   public function testGetOutputInitiallyEmpty(): void {
     $runner = new ConcreteRunner();
 
     $this->assertEquals('', $runner->getOutput());
   }
 
-  /**
-   * Test parseCommand with various formats.
-   */
   #[DataProvider('dataProviderParseCommand')]
   public function testParseCommand(string $command, array $expected, ?string $expected_exception, ?string $expected_message): void {
     if ($expected_exception !== NULL) {
@@ -154,9 +117,6 @@ class AbstractRunnerTest extends UnitTestCase {
     }
   }
 
-  /**
-   * Data provider for parseCommand.
-   */
   public static function dataProviderParseCommand(): \Iterator {
     yield 'simple command' => [
       'command' => 'echo',
@@ -346,9 +306,6 @@ class AbstractRunnerTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test reset method.
-   */
   public function testReset(): void {
     $runner = new ConcreteRunner();
 
@@ -367,9 +324,6 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertEquals(0, $runner->getExitCode());
   }
 
-  /**
-   * Test initLogger sets correct directory and opens log.
-   */
   public function testInitLogger(): void {
     $runner = new ConcreteRunner();
     $runner->setCwd(self::$tmp);
@@ -388,13 +342,9 @@ class AbstractRunnerTest extends UnitTestCase {
     $logger->close();
   }
 
-  /**
-   * Test resolveOutput with NULL uses default.
-   */
   public function testResolveOutputWithNull(): void {
     $runner = new ConcreteRunner();
 
-    // Initialize Tui with a mock output first.
     $mock_output = $this->createMock(OutputInterface::class);
     Tui::init($mock_output);
 
@@ -404,9 +354,6 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertSame($mock_output, $output);
   }
 
-  /**
-   * Test resolveOutput with provided output.
-   */
   public function testResolveOutputWithProvided(): void {
     $runner = new ConcreteRunner();
     $mock_output = $this->createMock(OutputInterface::class);
@@ -416,9 +363,6 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertSame($mock_output, $output);
   }
 
-  /**
-   * Test getOutput with as_array parameter.
-   */
   #[DataProvider('dataProviderGetOutputVariations')]
   public function testGetOutputVariations(string $output, bool $as_array, ?int $lines, string|array $expected): void {
     $runner = new ConcreteRunner();
@@ -429,9 +373,6 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertEquals($expected, $result);
   }
 
-  /**
-   * Data provider for getOutput variations.
-   */
   public static function dataProviderGetOutputVariations(): \Iterator {
     yield 'string output, as_array=false, no limit' => [
       'output' => "Line 1\nLine 2\nLine 3",
@@ -471,9 +412,6 @@ class AbstractRunnerTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test buildCommandString with various arguments.
-   */
   #[DataProvider('dataProviderBuildCommandString')]
   public function testBuildCommandString(string $command, array $args, array $opts, string $expected): void {
     $runner = new ConcreteRunner();
@@ -483,9 +421,6 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertEquals($expected, $result);
   }
 
-  /**
-   * Data provider for buildCommandString.
-   */
   public static function dataProviderBuildCommandString(): \Iterator {
     yield 'command only' => [
       'command' => 'echo',
@@ -525,9 +460,6 @@ class AbstractRunnerTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test quoteArgument method.
-   */
   #[DataProvider('dataProviderQuoteArgument')]
   public function testQuoteArgument(string $argument, string $expected): void {
     $runner = new ConcreteRunner();
@@ -537,9 +469,6 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertEquals($expected, $result);
   }
 
-  /**
-   * Data provider for quoteArgument.
-   */
   public static function dataProviderQuoteArgument(): \Iterator {
     yield 'simple string (no quoting)' => [
       'argument' => 'hello',
@@ -571,9 +500,6 @@ class AbstractRunnerTest extends UnitTestCase {
     ];
   }
 
-  /**
-   * Test formatArgs method.
-   */
   #[DataProvider('dataProviderFormatArgs')]
   public function testFormatArgs(array $args, array $expected): void {
     $runner = new ConcreteRunner();
@@ -583,9 +509,6 @@ class AbstractRunnerTest extends UnitTestCase {
     $this->assertEquals($expected, $result);
   }
 
-  /**
-   * Data provider for formatArgs.
-   */
   public static function dataProviderFormatArgs(): \Iterator {
     yield 'positional args' => [
       'args' => ['arg1', 'arg2'],
@@ -619,93 +542,56 @@ class AbstractRunnerTest extends UnitTestCase {
 
 }
 
-/**
- * Concrete runner implementation for testing AbstractRunner.
- */
 class ConcreteRunner extends AbstractRunner {
 
   /**
    * {@inheritdoc}
    */
   public function run(string $command, array $args = [], array $inputs = [], array $env = [], ?OutputInterface $output = NULL): static {
-    // Simple implementation for testing.
     $this->command = $command;
     return $this;
   }
 
-  /**
-   * Public wrapper for parseCommand.
-   */
   public function parseCommandPublic(string $command): array {
     return $this->parseCommand($command);
   }
 
-  /**
-   * Public wrapper for buildCommandString.
-   */
   public function buildCommandStringPublic(string $command, array $args = [], array $opts = []): string {
     return $this->buildCommandString($command, $args, $opts);
   }
 
-  /**
-   * Public wrapper for quoteArgument.
-   */
   public function quoteArgumentPublic(string $argument): string {
     return $this->quoteArgument($argument);
   }
 
-  /**
-   * Public wrapper for formatArgs.
-   */
   public function formatArgsPublic(array $args): array {
     return $this->formatArgs($args);
   }
 
-  /**
-   * Public wrapper for reset.
-   */
   public function resetPublic(): void {
     $this->reset();
   }
 
-  /**
-   * Public setter for command (for testing).
-   */
   public function setCommand(string $command): void {
     $this->command = $command;
   }
 
-  /**
-   * Public setter for output (for testing).
-   */
   public function setOutput(string $output): void {
     $this->output = $output;
   }
 
-  /**
-   * Public wrapper for setExitCode.
-   */
   public function setExitCodePublic(int $exit_code): void {
     $this->setExitCode($exit_code);
   }
 
-  /**
-   * Public getter for shouldStream (for testing).
-   */
   public function shouldStream(): bool {
     return $this->shouldStream;
   }
 
-  /**
-   * Public wrapper for initLogger.
-   */
   public function initLoggerPublic(string $command, array $args = []): FileLoggerInterface {
     return $this->initLogger($command, $args);
   }
 
-  /**
-   * Public wrapper for resolveOutput.
-   */
   public function resolveOutputPublic(?OutputInterface $output): OutputInterface {
     return $this->resolveOutput($output);
   }
