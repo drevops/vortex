@@ -153,7 +153,7 @@
     * Test Redis settings.
     */
    public function testRedis(): void {
-@@ -293,639 +145,6 @@
+@@ -293,650 +145,6 @@
      unset($this->settings['bootstrap_container_definition']);
  
      $this->assertSettingsContains($settings);
@@ -581,12 +581,12 @@
 -      ],
 -    ];
 -
--    // Stage: disabled by default.
+-    // Stage: enabled by default.
 -    yield [
 -      self::ENVIRONMENT_STAGE,
 -      [],
 -      [
--        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
+-        'reroute_email.settings' => ['enable' => TRUE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
 -      ],
 -    ];
 -
@@ -613,6 +613,17 @@
 -    // SUT with DRUPAL_REROUTE_EMAIL_DISABLED: forced off.
 -    yield [
 -      self::ENVIRONMENT_SUT,
+-      [
+-        'DRUPAL_REROUTE_EMAIL_DISABLED' => 1,
+-      ],
+-      [
+-        'reroute_email.settings' => ['enable' => FALSE],
+-      ],
+-    ];
+-
+-    // Stage with DRUPAL_REROUTE_EMAIL_DISABLED: forced off.
+-    yield [
+-      self::ENVIRONMENT_STAGE,
 -      [
 -        'DRUPAL_REROUTE_EMAIL_DISABLED' => 1,
 -      ],

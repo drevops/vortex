@@ -8,7 +8,7 @@
  # ------------------------------------------------------------------------------
  
  # @formatter:off
-@@ -37,25 +34,8 @@
+@@ -37,14 +34,6 @@
    exit 0
  fi
  
@@ -23,6 +23,10 @@
  task "Installing Testmode module."
  drush pm:install testmode
  pass "Installed Testmode module."
+@@ -52,14 +41,5 @@
+ task "Installing Reroute Email module."
+ drush pm:install reroute_email
+ pass "Installed Reroute Email module."
 -
 -task "Installing Generated content module."
 -if [ "${DRUPAL_GENERATED_CONTENT_SKIP}" = "1" ]; then

@@ -38,8 +38,8 @@
        self::ENVIRONMENT_STAGE,
        [],
        [
--        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
-+        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@death-star.com', 'allowed' => '*@death-star.com'],
+-        'reroute_email.settings' => ['enable' => TRUE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
++        'reroute_email.settings' => ['enable' => TRUE, 'address' => 'webmaster@death-star.com', 'allowed' => '*@death-star.com'],
        ],
      ];
  

@@ -89,6 +89,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [
       'devel',
       'generated_content',
+      'reroute_email',
       'sdc_devel',
       'testmode',
     ];
@@ -172,6 +173,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [
       'devel',
       'generated_content',
+      'reroute_email',
       'sdc_devel',
       'testmode',
     ];
@@ -229,6 +231,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [
       'devel',
       'generated_content',
+      'reroute_email',
       'sdc_devel',
       'testmode',
     ];
@@ -286,6 +289,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [
       'devel',
       'generated_content',
+      'reroute_email',
       'sdc_devel',
       'testmode',
     ];
@@ -386,6 +390,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_exclude_modules'] = [
       'devel',
       'generated_content',
+      'reroute_email',
       'sdc_devel',
       'testmode',
     ];
