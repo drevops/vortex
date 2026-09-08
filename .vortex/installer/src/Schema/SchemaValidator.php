@@ -42,10 +42,7 @@ class SchemaValidator {
     $known_ids = array_keys($this->handlers);
     foreach (array_keys($normalized) as $key) {
       if (!in_array($key, $known_ids, TRUE)) {
-        $errors[] = [
-          'prompt' => $key,
-          'message' => sprintf('Unknown prompt "%s".', $key),
-        ];
+        $errors[] = ['prompt' => $key, 'message' => sprintf('Unknown prompt "%s".', $key)];
       }
     }
 

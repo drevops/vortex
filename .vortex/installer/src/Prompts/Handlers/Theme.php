@@ -147,15 +147,7 @@ class Theme extends AbstractHandler {
 
     $file_dst = self::findThemeFile($this->destinationDir, $w, $v);
 
-    if (
-      $this->isInstalled()
-      &&
-      (
-        empty($file_dst)
-        ||
-        !self::isVortexTheme(dirname($file_dst))
-      )
-    ) {
+    if ($this->isInstalled() && (empty($file_dst) || !self::isVortexTheme(dirname($file_dst)))) {
       $file_tmpl = self::findThemeFile($t, $w);
       if (!empty($file_tmpl) && is_readable($file_tmpl)) {
         File::remove(dirname($file_tmpl));

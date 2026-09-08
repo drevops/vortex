@@ -16,12 +16,7 @@ trait DestinationAwareTrait {
    * Add the destination option to the command.
    */
   protected function addDestinationOption(): void {
-    $this->addOption(
-      'destination',
-      'd',
-      InputOption::VALUE_REQUIRED,
-      'Target directory for the operation. Defaults to current directory.'
-    );
+    $this->addOption('destination', 'd', InputOption::VALUE_REQUIRED, 'Target directory for the operation. Defaults to current directory.');
   }
 
   /**

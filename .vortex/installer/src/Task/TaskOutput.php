@@ -13,9 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class TaskOutput implements OutputInterface {
 
-  public function __construct(
-    protected OutputInterface $wrapped,
-  ) {
+  public function __construct(protected OutputInterface $wrapped) {
   }
 
   /**
