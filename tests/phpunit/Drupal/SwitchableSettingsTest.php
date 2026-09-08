@@ -6,8 +6,6 @@ namespace Drupal;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * Class ToggleableSettingsTest.
@@ -20,6 +18,8 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
  */
 #[Group('drupal_settings')]
 class SwitchableSettingsTest extends SettingsTestCase {
+
+  // phpcs:ignore #;< MODULE_FAST_404
 
   /**
    * Path to the contrib modules directory fixture.
@@ -37,6 +37,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
     parent::tearDown();
   }
 
+  // phpcs:ignore #;> MODULE_FAST_404
   // phpcs:ignore #;< SERVICE_CLAMAV
 
   /**
@@ -250,6 +251,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   // phpcs:ignore #;> MODULE_ENVIRONMENT_INDICATOR
+  // phpcs:ignore #;< MODULE_FAST_404
 
   /**
    * Test Fast 404 settings.
@@ -258,8 +260,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
    * declaration and its invocation marker is conclusive.
    */
   #[DataProvider('dataProviderFast404')]
-  #[RunInSeparateProcess]
-  #[PreserveGlobalState(FALSE)]
+  #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+  #[\PHPUnit\Framework\Attributes\PreserveGlobalState(FALSE)]
   public function testFast404(bool $module_installed, array $expected_present, array $expected_absent = []): void {
     $contrib_path = $this->createContribFixture($module_installed);
 
@@ -350,6 +352,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
     rmdir($path);
   }
 
+  // phpcs:ignore #;> MODULE_FAST_404
   // phpcs:ignore #;< SERVICE_REDIS
 
   /**
