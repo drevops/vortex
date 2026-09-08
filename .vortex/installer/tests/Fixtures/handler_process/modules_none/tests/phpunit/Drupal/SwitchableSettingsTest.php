@@ -1,4 +1,4 @@
-@@ -76,154 +76,6 @@
+@@ -102,154 +102,6 @@
    }
  
    /**
@@ -150,10 +150,10 @@
 -  }
 -
 -  /**
-    * Test Redis settings.
+    * Test Fast 404 settings.
     */
-   public function testRedis(): void {
-@@ -293,650 +145,6 @@
+   #[DataProvider('dataProviderFast404')]
+@@ -397,650 +249,6 @@
      unset($this->settings['bootstrap_container_definition']);
  
      $this->assertSettingsContains($settings);

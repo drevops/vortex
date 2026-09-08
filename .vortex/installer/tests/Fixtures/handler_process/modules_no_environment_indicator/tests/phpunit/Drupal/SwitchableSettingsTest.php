@@ -1,4 +1,4 @@
-@@ -161,69 +161,6 @@
+@@ -187,69 +187,6 @@
    }
  
    /**
@@ -65,6 +65,6 @@
 -  }
 -
 -  /**
-    * Test Redis settings.
+    * Test Fast 404 settings.
     */
-   public function testRedis(): void {
+   #[DataProvider('dataProviderFast404')]
