@@ -19,6 +19,32 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('drupal_settings')]
 class SwitchableSettingsTest extends SettingsTestCase {
 
+  /**
+   * Path to the contrib modules directory fixture.
+   */
+  protected ?string $contribFixture = NULL;
+
+  /**
+   * Path to the module stub within the contrib modules directory fixture.
+   */
+  protected ?string $contribFixtureStub = NULL;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function tearDown(): void {
+    if (!is_null($this->contribFixtureStub)) {
+      unlink($this->contribFixtureStub);
+      rmdir(dirname($this->contribFixtureStub));
+    }
+
+    if (!is_null($this->contribFixture)) {
+      rmdir($this->contribFixture);
+    }
+
+    parent::tearDown();
+  }
+
   // phpcs:ignore #;< SERVICE_CLAMAV
 
   /**
@@ -232,6 +258,85 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   // phpcs:ignore #;> MODULE_ENVIRONMENT_INDICATOR
+
+  /**
+   * Test Fast 404 settings.
+   */
+  #[DataProvider('dataProviderFast404')]
+  public function testFast404(bool $module_installed, array $expected_present, array $expected_absent = []): void {
+    $this->requireModuleSettingsFile('fast404', $this->createContribFixture($module_installed));
+
+    $this->assertSettingsContains($expected_present);
+    $this->assertSettingsNotContains($expected_absent);
+  }
+
+  /**
+   * Data provider for testFast404().
+   */
+  public static function dataProviderFast404(): \Iterator {
+    yield 'module installed' => [
+      TRUE,
+      [
+        'fast404_exts' => '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i',
+        'fast404_allow_anon_imagecache' => TRUE,
+        'fast404_whitelist' => ['index.php', 'rss.xml', 'install.php', 'cron.php', 'update.php', 'xmlrpc.php'],
+        'fast404_string_whitelisting' => ['/advagg_'],
+        'fast404_html' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>',
+      ],
+    ];
+    yield 'module not installed' => [
+      FALSE,
+      [],
+      [
+        'fast404_exts' => NULL,
+        'fast404_allow_anon_imagecache' => NULL,
+        'fast404_whitelist' => NULL,
+        'fast404_string_whitelisting' => NULL,
+        'fast404_html' => NULL,
+      ],
+    ];
+  }
+
+  /**
+   * Create a contrib modules directory fixture.
+   *
+   * The Fast 404 module is not required by the project, so its settings file
+   * guard can only be satisfied by a stub.
+   *
+   * @param bool $with_fast404
+   *   Create a stub of the Fast 404 module within the fixture.
+   *
+   * @return string
+   *   Path to the contrib modules directory fixture.
+   */
+  protected function createContribFixture(bool $with_fast404): string {
+    $this->contribFixture = getcwd() . '/.artifacts/tmp/' . uniqid('contrib-');
+
+    mkdir($this->contribFixture, 0777, TRUE);
+
+    if ($with_fast404) {
+      // The real include file may already be loaded on a site that has the
+      // module installed.
+      $stub = <<<'PHP'
+        <?php
+
+        if (!function_exists('fast404_preboot')) {
+
+          function fast404_preboot(array $settings = []): void {}
+
+        }
+
+        PHP;
+
+      $this->contribFixtureStub = $this->contribFixture . '/fast_404/fast404.inc';
+
+      mkdir(dirname($this->contribFixtureStub));
+      file_put_contents($this->contribFixtureStub, $stub);
+    }
+
+    return $this->contribFixture;
+  }
+
   // phpcs:ignore #;< SERVICE_REDIS
 
   /**
