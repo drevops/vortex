@@ -57,26 +57,20 @@ install it and run the shipped scripts from `vendor/bin/vortex-*`.
 - **Manual** - `tooling/playground/` holds scripts that hit live services
   (Slack, JIRA, New Relic). Not automated; see `tooling/playground/README.md`.
 
-**Script pattern** (shipped tooling scripts and `scripts/` provision subscripts):
+**Script pattern**: the structure, the variable block and the five output
+helpers live in the boilerplate at
+`.vortex/docs/content/contributing/maintenance/script-boilerplate.sh`. Copy
+them from there - every script in `tooling/src/` matches it byte for byte.
 
-```bash
-#!/usr/bin/env bash
-# Environment loading
-t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && rm "${t}"
+The boilerplate leaves out two things the repository's scripts carry:
 
-set -eu
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
-
-# Variables with defaults
-VAR="${VAR:-default}"
-
-# Helpers
-info() { printf "[INFO] %s\n" "${1}"; }
-task() { printf "    > %s\n" "${1}"; }
-note() { printf "      %s\n" "${1}"; }
-
-# Main execution
-```
+- Scripts in `tooling/src/` begin with an `.env` loading line placed above
+  `set -eu`. Copy it verbatim from any script in that directory.
+- The `scripts/provision-*.sh` subscripts define the same five helpers with
+  indented arrow prefixes instead of the boilerplate's `[INFO]`, `[TASK]`,
+  `[ OK ]` and `[FAIL]` labels. Copy them from an existing subscript such as
+  `scripts/provision-30-search-index.sh`; converting them to the boilerplate
+  form changes stdout that the tests assert on.
 
 **Output helpers** - every `task` MUST be closed by a `pass` or a `fail`. A
 task announces work that is starting, so it always reports its outcome; a `task`
