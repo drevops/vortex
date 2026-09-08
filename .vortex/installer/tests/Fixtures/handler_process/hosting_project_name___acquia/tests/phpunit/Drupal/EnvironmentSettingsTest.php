@@ -1,4 +1,27 @@
-@@ -58,6 +58,50 @@
+@@ -24,6 +24,22 @@
+ class EnvironmentSettingsTest extends SettingsTestCase {
+ 
+   /**
++   * Path to the Acquia settings file fixture.
++   */
++  protected ?string $acquiaSettingsFixture = NULL;
++
++  /**
++   * {@inheritdoc}
++   */
++  protected function tearDown(): void {
++    if (!is_null($this->acquiaSettingsFixture)) {
++      unlink($this->acquiaSettingsFixture);
++    }
++
++    parent::tearDown();
++  }
++
++  /**
+    * Test the detection of the resulting environment type.
+    */
+   #[DataProvider('dataProviderEnvironmentTypeDetection')]
+@@ -58,6 +74,50 @@
        self::ENVIRONMENT_LOCAL,
      ];
  
@@ -49,15 +72,10 @@
    }
  
    /**
-@@ -471,6 +515,415 @@
-     $settings['maintenance_theme'] = 'claro';
-     $settings['skip_permissions_hardening'] = TRUE;
-     $settings['config_sync_directory'] = '../config/default';
-+    $settings['trusted_host_patterns'] = [
-+      '^localhost$',
-+    ];
-+
-+    $this->assertSettings($settings);
+@@ -476,6 +536,480 @@
+     ];
+ 
+     $this->assertSettings($settings);
 +  }
 +
 +  /**
@@ -462,6 +480,76 @@
 +    ];
 +    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
 +    $settings['maintenance_theme'] = 'claro';
-     $settings['trusted_host_patterns'] = [
-       '^localhost$',
-     ];
++    $settings['trusted_host_patterns'] = [
++      '^localhost$',
++    ];
++
++    $this->assertSettings($settings);
++  }
++
++  /**
++   * Test the temporary file path resolution on Acquia.
++   */
++  #[DataProvider('dataProviderEnvironmentAcquiaTempPath')]
++  public function testEnvironmentAcquiaTempPath(array $vars, string $expected_path): void {
++    $this->acquiaSettingsFixture = getcwd() . '/.artifacts/tmp/' . uniqid('acquia-settings-') . '.inc';
++    file_put_contents($this->acquiaSettingsFixture, "<?php\n");
++
++    $this->setEnvVars($vars + ['DRUPAL_ACQUIA_SETTINGS_FILE' => $this->acquiaSettingsFixture]);
++
++    $this->requireSettingsFile();
++
++    $this->assertSettingsContains(['file_temp_path' => $expected_path]);
++  }
++
++  /**
++   * Data provider for testEnvironmentAcquiaTempPath().
++   */
++  public static function dataProviderEnvironmentAcquiaTempPath(): \Iterator {
++    yield 'default' => [
++      ['AH_SITE_ENVIRONMENT' => 'dev', 'AH_SITE_GROUP' => 'mysite'],
++      '/tmp',
++    ];
++
++    yield 'shared mount' => [
++      ['AH_SITE_ENVIRONMENT' => 'dev', 'AH_SITE_GROUP' => 'mysite', 'DRUPAL_TMP_PATH_IS_SHARED' => '1'],
++      '/mnt/gfs/mysite.dev/tmp',
++    ];
++
++    yield 'shared mount without a site group' => [
++      ['AH_SITE_ENVIRONMENT' => 'dev', 'DRUPAL_TMP_PATH_IS_SHARED' => '1'],
++      '/tmp',
++    ];
++
++    yield 'shared mount variable set to an empty value' => [
++      ['AH_SITE_ENVIRONMENT' => 'dev', 'AH_SITE_GROUP' => 'mysite', 'DRUPAL_TMP_PATH_IS_SHARED' => ''],
++      '/tmp',
++    ];
++
++    yield 'shared mount variable set to zero' => [
++      ['AH_SITE_ENVIRONMENT' => 'dev', 'AH_SITE_GROUP' => 'mysite', 'DRUPAL_TMP_PATH_IS_SHARED' => '0'],
++      '/tmp',
++    ];
++
++    yield 'shared mount variable set to a non-numeric truthy value' => [
++      ['AH_SITE_ENVIRONMENT' => 'dev', 'AH_SITE_GROUP' => 'mysite', 'DRUPAL_TMP_PATH_IS_SHARED' => 'true'],
++      '/tmp',
++    ];
++
++    yield 'explicit override' => [
++      ['AH_SITE_ENVIRONMENT' => 'dev', 'AH_SITE_GROUP' => 'mysite', 'DRUPAL_TMP_PATH' => '/custom/tmp'],
++      '/custom/tmp',
++    ];
++
++    yield 'explicit override wins over the shared mount' => [
++      ['AH_SITE_ENVIRONMENT' => 'dev', 'AH_SITE_GROUP' => 'mysite', 'DRUPAL_TMP_PATH_IS_SHARED' => '1', 'DRUPAL_TMP_PATH' => '/custom/tmp'],
++      '/custom/tmp',
++    ];
++
++    yield 'explicit override set to an empty value' => [
++      ['AH_SITE_ENVIRONMENT' => 'dev', 'AH_SITE_GROUP' => 'mysite', 'DRUPAL_TMP_PATH' => ''],
++      '/tmp',
++    ];
+   }
+ 
+ }

@@ -14,9 +14,9 @@
 
 declare(strict_types=1);
 
-if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
+$ah_site_env = getenv('AH_SITE_ENVIRONMENT');
+if (!empty($ah_site_env)) {
   $ah_site_group = getenv('AH_SITE_GROUP');
-  $ah_site_env = getenv('AH_SITE_ENVIRONMENT');
 
   // Delay the initial database connection.
   $config['acquia_hosting_settings_autoconnect'] = FALSE;
@@ -34,7 +34,7 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // Default all environments to 'dev', including ODE environments.
   $settings['environment'] = ENVIRONMENT_DEV;
 
-  switch (getenv('AH_SITE_ENVIRONMENT')) {
+  switch ($ah_site_env) {
     case 'prod':
       $settings['environment'] = ENVIRONMENT_PROD;
       break;
@@ -64,12 +64,13 @@ if (!empty(getenv('AH_SITE_ENVIRONMENT'))) {
   // @see https://docs.acquia.com/acquia-cloud-platform/manage-apps/files/temporary#section-important-considerations
   $settings['file_temp_path'] = '/tmp';
 
-  if (!empty($ah_site_group) && getenv('DRUPAL_TMP_PATH_IS_SHARED')) {
+  if (!empty($ah_site_group) && getenv('DRUPAL_TMP_PATH_IS_SHARED') === '1') {
     // @see https://acquia.my.site.com/s/article/360054835954-Bulk-Upload-Not-Working-Correctly
     $settings['file_temp_path'] = sprintf('/mnt/gfs/%s.%s/tmp', $ah_site_group, $ah_site_env);
   }
 
-  if (getenv('DRUPAL_TMP_PATH')) {
-    $settings['file_temp_path'] = getenv('DRUPAL_TMP_PATH');
+  $acquia_tmp_path = getenv('DRUPAL_TMP_PATH');
+  if (!empty($acquia_tmp_path)) {
+    $settings['file_temp_path'] = $acquia_tmp_path;
   }
 }
