@@ -1,4 +1,4 @@
-@@ -161,69 +161,6 @@
+@@ -179,69 +179,6 @@
    }
  
    /**
@@ -65,6 +65,6 @@
 -  }
 -
 -  /**
-    * Test Redis settings.
-    */
-   public function testRedis(): void {
+    * Test Fast 404 settings.
+    *
+    * Runs isolated so that the module stub owns the 'fast404_preboot()'

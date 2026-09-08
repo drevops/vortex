@@ -1,6 +1,6 @@
-@@ -18,6 +18,8 @@
-         "drupal/drupal_helpers": "__VERSION__",
+@@ -19,6 +19,8 @@
          "drupal/environment_indicator": "__VERSION__",
+         "drupal/fast_404": "__VERSION__",
          "drupal/generated_content": "__VERSION__",
 +        "drupal/migrate_plus": "__VERSION__",
 +        "drupal/migrate_tools": "__VERSION__",

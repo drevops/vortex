@@ -75,6 +75,7 @@
         "phpcompatibility",
         "phpspec",
         "phpstorm",
+        "preboot",
         "pyrech",
         "redis",
         "renovatebot",

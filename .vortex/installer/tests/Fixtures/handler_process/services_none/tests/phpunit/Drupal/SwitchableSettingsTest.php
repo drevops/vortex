@@ -1,5 +1,5 @@
-@@ -20,62 +20,6 @@
- class SwitchableSettingsTest extends SettingsTestCase {
+@@ -38,62 +38,6 @@
+   }
  
    /**
 -   * Test ClamAV configs in Daemon mode with defaults.
@@ -61,10 +61,10 @@
     * Test Config Split config.
     */
    #[DataProvider('dataProviderConfigSplit')]
-@@ -221,78 +165,6 @@
-         'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
-       ],
-     ];
+@@ -336,78 +280,6 @@
+     }
+ 
+     rmdir($path);
 -  }
 -
 -  /**

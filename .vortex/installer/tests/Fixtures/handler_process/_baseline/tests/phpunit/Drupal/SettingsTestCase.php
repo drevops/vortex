@@ -210,6 +210,47 @@ abstract class SettingsTestCase extends TestCase {
   }
 
   /**
+   * Require a per-module settings file with an explicit contrib path.
+   *
+   * Per-module settings files guarded by the presence of a module directory
+   * are unreachable through the site's own contrib path when the module is not
+   * required by the project.
+   *
+   * @param string $module
+   *   Module name as it appears in the `settings.<module>.php` file name.
+   * @param string $contrib_path
+   *   Path to the contrib modules directory to expose to the settings file.
+   * @param array $pre_settings
+   *   Array of settings to pre-populate.
+   * @param array $pre_config
+   *   Array of configs to pre-populate.
+   */
+  protected function requireModuleSettingsFile(string $module, string $contrib_path, array $pre_settings = [], array $pre_config = []): void {
+    $app_root = getcwd() . '/web';
+
+    if (!file_exists($app_root)) {
+      throw new \RuntimeException('Could not determine application root.');
+    }
+
+    $site_path = 'sites/default';
+    $file = implode(DIRECTORY_SEPARATOR, [$app_root, $site_path, 'includes', 'modules', sprintf('settings.%s.php', $module)]);
+
+    if (!file_exists($file)) {
+      throw new \RuntimeException(sprintf('Settings file %s does not exist.', $file));
+    }
+
+    $config = $pre_config;
+    $settings = $pre_settings;
+
+    require $file;
+
+    $this->app_root = $app_root;
+    $this->site_path = $site_path;
+    $this->config = $config;
+    $this->settings = $settings;
+  }
+
+  /**
    * Assert that config retrieved from the real settings file match test data.
    *
    * @param array $expected

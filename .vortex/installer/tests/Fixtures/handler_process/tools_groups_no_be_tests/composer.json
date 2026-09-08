@@ -1,4 +1,4 @@
-@@ -35,23 +35,15 @@
+@@ -36,23 +36,15 @@
          "drush/drush": "__VERSION__"
      },
      "require-dev": {
@@ -22,7 +22,7 @@
          "pyrech/composer-changelogs": "__VERSION__",
          "softcreatr/jsonpath": "^0.10 || ^1.0",
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
-@@ -67,11 +59,6 @@
+@@ -68,11 +60,6 @@
      ],
      "minimum-stability": "stable",
      "prefer-stable": true,

@@ -1,5 +1,5 @@
-@@ -20,62 +20,6 @@
- class SwitchableSettingsTest extends SettingsTestCase {
+@@ -38,62 +38,6 @@
+   }
  
    /**
 -   * Test ClamAV configs in Daemon mode with defaults.

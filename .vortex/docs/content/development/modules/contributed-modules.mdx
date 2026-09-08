@@ -77,6 +77,16 @@ No settings override.
 
 [`settings.environment_indicator.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.environment_indicator.php) names the indicator after the detected environment and colors it per environment - red for production, yellow for stage, green for dev - with the toolbar integration and favicon marker turned on.
 
+## Fast 404
+
+[Fast 404](https://www.drupal.org/project/fast_404) answers requests for missing files without bootstrapping Drupal. Drupal core already returns a lightweight 404 for the same file extensions, but only after a full bootstrap, so on a site serving many such requests the saving is the bootstrap itself.
+
+- **Installed:** Never enabled as a Drupal module. The handler runs from the settings file during the settings load, before the module system exists, so requiring the package is all that is needed.
+
+### Configuration
+
+[`settings.fast_404.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.fast_404.php) sets the file extensions to intercept, whitelists the front controller and the other entry-point scripts, allows anonymous access to image style derivatives, and calls `fast404_preboot()` with those settings.
+
 ## Generated Content
 
 [Generated content](https://www.drupal.org/project/generated_content) generates deterministic placeholder content from declarative definitions for development and testing.

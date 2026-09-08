@@ -1021,6 +1021,22 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyFast404(): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Assert that the preboot error page is served for a missing asset');
+    // Drupal core serves a near-identical 404 page for the same extensions,
+    // so the DOCTYPE from `settings.fast_404.php` is what tells the two apart.
+    $this->assertWebpageContains('/missing.png', '-//W3C//DTD XHTML+RDFa 1.0//EN', 'Error page from `settings.fast_404.php` should be served');
+    $this->assertWebpageContains('/missing.png', 'The requested URL "/missing.png" was not found on this server.', 'Error page should report the request path resolved before Drupal bootstraps');
+
+    $this->logSubstep('Assert that a route served by Drupal is not intercepted');
+    $this->assertWebpageNotContains('/robots.txt', '-//W3C//DTD XHTML+RDFa 1.0//EN', '`robots.txt` is served by a module, so the preboot handler must let it through');
+    $this->assertWebpageContains('/robots.txt', 'User-agent: *', '`robots.txt` should be served by Drupal');
+
+    $this->logStepFinish();
+  }
+
   protected function substepWarmCaches(): void {
     $this->logNote('Warming up caches');
     $this->cmd('ahoy drush cr');

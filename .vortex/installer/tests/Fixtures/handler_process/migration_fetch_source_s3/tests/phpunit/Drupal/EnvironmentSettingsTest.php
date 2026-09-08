@@ -1,4 +1,4 @@
-@@ -150,6 +150,13 @@
+@@ -162,6 +162,13 @@
      $databases['default']['default']['collation'] = 'utf8_general_ci';
      $databases['default']['default']['driver'] = 'mysql';
      $databases['default']['default']['prefix'] = '';
