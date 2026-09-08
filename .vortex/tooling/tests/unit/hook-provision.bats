@@ -26,12 +26,36 @@ fixture_variables() {
   popd >/dev/null || exit 1
 }
 
+@test "hook-provision: empty site argument" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_variables
+
+  run ./hooks/library/provision.sh "" dev
+  assert_failure
+  assert_output_contains "Missing required site name."
+
+  popd >/dev/null || exit 1
+}
+
 @test "hook-provision: missing target environment argument" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   fixture_variables
 
   run ./hooks/library/provision.sh star_wars
+  assert_failure
+  assert_output_contains "Missing required target environment name."
+
+  popd >/dev/null || exit 1
+}
+
+@test "hook-provision: empty target environment argument" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_variables
+
+  run ./hooks/library/provision.sh star_wars ""
   assert_failure
   assert_output_contains "Missing required target environment name."
 

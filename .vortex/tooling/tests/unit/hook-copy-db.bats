@@ -40,12 +40,36 @@ assert_guard() {
   popd >/dev/null || exit 1
 }
 
+@test "hook-copy-db: empty site argument" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_variables
+
+  run ./hooks/library/copy-db.sh "" dev
+  assert_failure
+  assert_output_contains "Missing required site name."
+
+  popd >/dev/null || exit 1
+}
+
 @test "hook-copy-db: missing target environment argument" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   fixture_variables
 
   run ./hooks/library/copy-db.sh star_wars
+  assert_failure
+  assert_output_contains "Missing required target environment name."
+
+  popd >/dev/null || exit 1
+}
+
+@test "hook-copy-db: empty target environment argument" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_variables
+
+  run ./hooks/library/copy-db.sh star_wars ""
   assert_failure
   assert_output_contains "Missing required target environment name."
 

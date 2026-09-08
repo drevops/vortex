@@ -29,12 +29,36 @@ fixture_variables() {
   popd >/dev/null || exit 1
 }
 
+@test "hook-notify-deployment: empty site argument" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_variables
+
+  run ./hooks/library/notify-deployment.sh "" dev main abc123
+  assert_failure
+  assert_output_contains "Missing required site name."
+
+  popd >/dev/null || exit 1
+}
+
 @test "hook-notify-deployment: missing target environment argument" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   fixture_variables
 
   run ./hooks/library/notify-deployment.sh star_wars
+  assert_failure
+  assert_output_contains "Missing required target environment name."
+
+  popd >/dev/null || exit 1
+}
+
+@test "hook-notify-deployment: empty target environment argument" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_variables
+
+  run ./hooks/library/notify-deployment.sh star_wars "" main abc123
   assert_failure
   assert_output_contains "Missing required target environment name."
 
@@ -53,12 +77,36 @@ fixture_variables() {
   popd >/dev/null || exit 1
 }
 
+@test "hook-notify-deployment: empty branch argument" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_variables
+
+  run ./hooks/library/notify-deployment.sh star_wars dev "" abc123
+  assert_failure
+  assert_output_contains "Missing required branch name."
+
+  popd >/dev/null || exit 1
+}
+
 @test "hook-notify-deployment: missing commit reference argument" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   fixture_variables
 
   run ./hooks/library/notify-deployment.sh star_wars dev main
+  assert_failure
+  assert_output_contains "Missing required commit reference."
+
+  popd >/dev/null || exit 1
+}
+
+@test "hook-notify-deployment: empty commit reference argument" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_variables
+
+  run ./hooks/library/notify-deployment.sh star_wars dev main ""
   assert_failure
   assert_output_contains "Missing required commit reference."
 
