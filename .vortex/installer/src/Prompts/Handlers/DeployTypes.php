@@ -90,13 +90,13 @@ class DeployTypes extends AbstractHandler {
    * {@inheritdoc}
    */
   public function process(): void {
-    $types = $this->getResponseAsArray();
+    $v = $this->getResponseAsArray();
     $t = $this->tmpDir;
 
-    if (!empty($types)) {
-      Env::writeValueDotenv('VORTEX_DEPLOY_TYPES', Converter::toList($types), $t . '/.env');
+    if (!empty($v)) {
+      Env::writeValueDotenv('VORTEX_DEPLOY_TYPES', Converter::toList($v), $t . '/.env');
 
-      if (!in_array(self::ARTIFACT, $types)) {
+      if (!in_array(self::ARTIFACT, $v)) {
         File::remove($t . '/.gitignore.deployment');
         File::remove($t . '/.gitignore.artifact');
       }
