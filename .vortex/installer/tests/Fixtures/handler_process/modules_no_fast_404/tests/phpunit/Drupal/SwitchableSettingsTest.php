@@ -62,7 +62,7 @@
 -    yield 'module installed' => [
 -      TRUE,
 -      [
--        'fast404_exts' => '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i',
+-        'fast404_exts' => '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i',
 -        'fast404_allow_anon_imagecache' => TRUE,
 -        'fast404_whitelist' => ['index.php', 'rss.xml', 'install.php', 'cron.php', 'update.php', 'xmlrpc.php'],
 -        'fast404_string_whitelisting' => ['/advagg_'],
