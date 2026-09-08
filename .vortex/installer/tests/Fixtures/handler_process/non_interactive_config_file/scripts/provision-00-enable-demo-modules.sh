@@ -1,5 +1,5 @@
 @@ -66,10 +66,6 @@
- drush pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect reroute_email robotstxt shield stage_file_proxy xmlsitemap
+ drush pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap
  pass "Installed contrib modules."
  
 -task "Installing Redis module."

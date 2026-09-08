@@ -353,7 +353,7 @@ e.g., `provision-50-custom.sh`, `provision-60-another-custom.sh`.
 | Script                                | Purpose                                                  | Present when                                                                                               |
 |---------------------------------------|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
 | `provision-00-enable-demo-modules.sh` | Enables the modules and content model the demo site uses | Always; the installer trims its operations to the selected modules                                          |
-| `provision-10-enable-dev-modules.sh`  | Enables the development modules and generates content    | Any of `devel`, `sdc_devel`, `generated_content` or `testmode` is selected; removed by the installer otherwise |
+| `provision-10-enable-dev-modules.sh`  | Enables the development modules and generates content    | Any of `devel`, `sdc_devel`, `generated_content`, `testmode` or `reroute_email` is selected; removed by the installer otherwise |
 | `provision-20-migration.sh`           | Runs the content migration                               | The migration feature is selected; removed by the installer otherwise                                       |
 | `provision-30-search-index.sh`        | Rebuilds the search index                                | The Solr service is selected; removed by the installer otherwise                                            |
 | `provision-40-example.sh`             | A runnable example that performs no operations           | Always; copy it as a starting point or remove it                                                            |
@@ -413,15 +413,21 @@ relying on the demo content.
 **Vortex** ships a `scripts/provision-10-enable-dev-modules.sh` custom script that
 installs the development modules - [Devel](https://www.drupal.org/project/devel),
 [SDC Devel](https://www.drupal.org/project/sdc_devel) and
-[Testmode](https://www.drupal.org/project/testmode).
+[Testmode](https://www.drupal.org/project/testmode) - and the
+[Reroute Email](https://www.drupal.org/project/reroute_email) safety net.
 
-Development modules live in their own script so that they stay enabled after the
-demo and example scripts are adapted or removed. They are also the modules kept
-out of the exported configuration, so provisioning is the only place that can
+These modules live in their own script so that they stay enabled after the demo
+and example scripts are adapted or removed. They are also the modules kept out
+of the exported configuration, so provisioning is the only place that can
 install them.
 
-Both scripts run only in the `local`, `ci`, `dev` and `stage` environments. To
-opt out of either set of modules, remove the corresponding script.
+Both scripts run only in the `local`, `ci`, `dev` and `stage` environments, and
+skip every other environment type. A project that introduces a custom
+environment type has to add it to both scripts to have these modules installed
+there, including the email rerouting that
+[the settings file](modules/contributed-modules.mdx#reroute-email) enables for
+every environment outside `local`, `ci` and `prod`. To opt out of either set of
+modules, remove the corresponding script.
 
 ### Generated content
 

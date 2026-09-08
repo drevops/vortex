@@ -1,4 +1,4 @@
-@@ -70,27 +70,12 @@
+@@ -70,28 +70,12 @@
  
      $this->requireSettingsFile();
  
@@ -21,12 +21,13 @@
      $settings['config_exclude_modules'] = [
 -      'devel',
 -      'generated_content',
+-      'reroute_email',
 -      'sdc_devel',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -152,18 +137,7 @@
+@@ -153,18 +137,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
@@ -45,18 +46,19 @@
      $config['system.performance']['cache']['page']['max_age'] = 1800;
      $this->assertConfig($config);
  
-@@ -170,10 +144,6 @@
+@@ -171,11 +144,6 @@
      // Verify settings overrides.
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
 -      'generated_content',
+-      'reroute_email',
 -      'sdc_devel',
 -      'testmode',
      ];
      $settings['config_sync_directory'] = 'custom_config';
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -206,31 +176,13 @@
+@@ -208,32 +176,13 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -83,12 +85,13 @@
      $settings['config_exclude_modules'] = [
 -      'devel',
 -      'generated_content',
+-      'reroute_email',
 -      'sdc_devel',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -263,31 +215,13 @@
+@@ -266,32 +215,13 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -115,12 +118,13 @@
      $settings['config_exclude_modules'] = [
 -      'devel',
 -      'generated_content',
+-      'reroute_email',
 -      'sdc_devel',
 -      'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -362,32 +296,14 @@
+@@ -366,33 +296,14 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -148,6 +152,7 @@
      $settings['config_exclude_modules'] = [
 -      'devel',
 -      'generated_content',
+-      'reroute_email',
 -      'sdc_devel',
 -      'testmode',
      ];

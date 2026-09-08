@@ -717,12 +717,12 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
     ];
 
-    // Stage: disabled by default.
+    // Stage: enabled by default.
     yield [
       self::ENVIRONMENT_STAGE,
       [],
       [
-        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
+        'reroute_email.settings' => ['enable' => TRUE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
       ],
     ];
 
@@ -749,6 +749,17 @@ class SwitchableSettingsTest extends SettingsTestCase {
     // SUT with DRUPAL_REROUTE_EMAIL_DISABLED: forced off.
     yield [
       self::ENVIRONMENT_SUT,
+      [
+        'DRUPAL_REROUTE_EMAIL_DISABLED' => 1,
+      ],
+      [
+        'reroute_email.settings' => ['enable' => FALSE],
+      ],
+    ];
+
+    // Stage with DRUPAL_REROUTE_EMAIL_DISABLED: forced off.
+    yield [
+      self::ENVIRONMENT_STAGE,
       [
         'DRUPAL_REROUTE_EMAIL_DISABLED' => 1,
       ],

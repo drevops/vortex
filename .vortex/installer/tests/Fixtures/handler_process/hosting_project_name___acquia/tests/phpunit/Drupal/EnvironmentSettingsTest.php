@@ -49,7 +49,7 @@
    }
  
    /**
-@@ -403,6 +447,331 @@
+@@ -408,6 +452,337 @@
      $settings['maintenance_theme'] = 'claro';
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';
@@ -90,6 +90,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'reroute_email',
 +      'sdc_devel',
 +      'testmode',
 +    ];
@@ -143,6 +144,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'reroute_email',
 +      'sdc_devel',
 +      'testmode',
 +    ];
@@ -183,7 +185,7 @@
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
-+    $config['reroute_email.settings']['enable'] = FALSE;
++    $config['reroute_email.settings']['enable'] = TRUE;
 +    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
 +    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 +    $config['shield.settings']['shield_enable'] = TRUE;
@@ -196,6 +198,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'reroute_email',
 +      'sdc_devel',
 +      'testmode',
 +    ];
@@ -246,6 +249,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'reroute_email',
 +      'sdc_devel',
 +      'testmode',
 +    ];
@@ -300,6 +304,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'reroute_email',
 +      'sdc_devel',
 +      'testmode',
 +    ];
@@ -361,6 +366,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'reroute_email',
 +      'sdc_devel',
 +      'testmode',
 +    ];

@@ -1,49 +1,54 @@
-@@ -87,9 +87,7 @@
+@@ -87,10 +87,8 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
+       'reroute_email',
 -      'sdc_devel',
        'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -170,9 +168,7 @@
+@@ -171,10 +169,8 @@
      // Verify settings overrides.
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
+       'reroute_email',
 -      'sdc_devel',
        'testmode',
      ];
      $settings['config_sync_directory'] = 'custom_config';
-@@ -227,9 +223,7 @@
+@@ -229,10 +225,8 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
+       'reroute_email',
 -      'sdc_devel',
        'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -284,9 +278,7 @@
+@@ -287,10 +281,8 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
+       'reroute_email',
 -      'sdc_devel',
        'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -384,9 +376,7 @@
+@@ -388,10 +380,8 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
+       'reroute_email',
 -      'sdc_devel',
        'testmode',
      ];

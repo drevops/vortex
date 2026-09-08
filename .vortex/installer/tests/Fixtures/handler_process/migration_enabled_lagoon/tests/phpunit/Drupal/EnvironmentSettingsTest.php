@@ -185,7 +185,7 @@
    }
  
    /**
-@@ -149,6 +329,13 @@
+@@ -150,6 +330,13 @@
      $databases['default']['default']['collation'] = 'utf8_general_ci';
      $databases['default']['default']['driver'] = 'mysql';
      $databases['default']['default']['prefix'] = '';
@@ -199,7 +199,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
-@@ -407,6 +594,283 @@
+@@ -412,6 +599,287 @@
        '^localhost$',
      ];
      $this->assertSettings($settings);
@@ -241,6 +241,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'reroute_email',
 +      'sdc_devel',
 +      'testmode',
 +    ];
@@ -305,6 +306,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'reroute_email',
 +      'sdc_devel',
 +      'testmode',
 +    ];
@@ -355,7 +357,7 @@
 +    $config['environment_indicator.settings']['favicon'] = TRUE;
 +    $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
 +    $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
-+    $config['reroute_email.settings']['enable'] = FALSE;
++    $config['reroute_email.settings']['enable'] = TRUE;
 +    $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
 +    $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
 +    $config['shield.settings']['shield_enable'] = TRUE;
@@ -369,6 +371,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'reroute_email',
 +      'sdc_devel',
 +      'testmode',
 +    ];
@@ -431,6 +434,7 @@
 +    $settings['config_exclude_modules'] = [
 +      'devel',
 +      'generated_content',
++      'reroute_email',
 +      'sdc_devel',
 +      'testmode',
 +    ];
