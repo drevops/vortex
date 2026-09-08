@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Functional\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Command\InstallCommand;
+use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
@@ -29,7 +31,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Utils\Config;
-use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Git;
 use DrevOps\VortexInstaller\Utils\Tui;
@@ -85,7 +86,7 @@ class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
             // Test overriding array value.
             Services::id() => [Services::SOLR, Services::CLAMAV],
           ]));
-          $test->installOptions['prompts'] = $prompts_file;
+          $test->installOptions[InstallCommand::OPTION_PROMPTS] = $prompts_file;
       }),
       NULL,
       ['Welcome to the Vortex non-interactive installer'],
@@ -98,7 +99,7 @@ class BaselineHandlerProcessTest extends AbstractHandlerProcessTestCase {
             // Test overriding array value.
             Services::id() => [Services::SOLR, Services::REDIS],
           ]);
-          $test->installOptions['prompts'] = $prompts_string;
+          $test->installOptions[InstallCommand::OPTION_PROMPTS] = $prompts_string;
       }),
       NULL,
       ['Welcome to the Vortex non-interactive installer'],

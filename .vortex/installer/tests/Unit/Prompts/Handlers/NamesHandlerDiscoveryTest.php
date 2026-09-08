@@ -140,7 +140,7 @@ class NamesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [OrgMachineName::id() => 'prompted_org'],
       [OrgMachineName::id() => 'prompted_org'] + $expected_defaults,
     ];
-    yield 'org machine name - invalid ' => [
+    yield 'org machine name - invalid' => [
       [OrgMachineName::id() => 'a word'],
       'Please enter a valid organization machine name: only lowercase letters, numbers, and underscores are allowed.',
     ];

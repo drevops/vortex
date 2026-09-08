@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DrevOps\VortexInstaller\Tests\Helpers;
 
 use DrevOps\VortexInstaller\Runner\RunnerInterface;

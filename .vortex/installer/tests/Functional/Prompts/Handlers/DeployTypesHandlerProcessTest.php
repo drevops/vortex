@@ -9,7 +9,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(DeployTypes::class)]
-class DeployTypeHandlerProcessTest extends AbstractHandlerProcessTestCase {
+class DeployTypesHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'deploy_types_artifact' => [

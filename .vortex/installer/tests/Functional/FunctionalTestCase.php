@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Functional;
 
+use AlexSkrypnyk\File\Replacer\Replacement;
 use AlexSkrypnyk\PhpunitHelpers\Traits\ApplicationTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait as UpstreamTuiTrait;
 use DrevOps\VortexInstaller\Command\InstallCommand;
@@ -11,7 +12,6 @@ use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
-use AlexSkrypnyk\File\Replacer\Replacement;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Strings;
 
@@ -37,7 +37,7 @@ abstract class FunctionalTestCase extends UnitTestCase {
    * {@inheritdoc}
    */
   protected function tearDown(): void {
-    static::tuiTearDown();
+    static::tuiTeardown();
 
     if (empty(static::$fixtures)) {
       throw new \RuntimeException('Fixtures directory is not set.');
