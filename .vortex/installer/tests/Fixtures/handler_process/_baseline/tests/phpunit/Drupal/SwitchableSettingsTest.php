@@ -6,6 +6,8 @@ namespace Drupal;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * Class ToggleableSettingsTest.
@@ -25,21 +27,11 @@ class SwitchableSettingsTest extends SettingsTestCase {
   protected ?string $contribFixture = NULL;
 
   /**
-   * Path to the module stub within the contrib modules directory fixture.
-   */
-  protected ?string $contribFixtureStub = NULL;
-
-  /**
    * {@inheritdoc}
    */
   protected function tearDown(): void {
-    if (!is_null($this->contribFixtureStub)) {
-      unlink($this->contribFixtureStub);
-      rmdir(dirname($this->contribFixtureStub));
-    }
-
     if (!is_null($this->contribFixture)) {
-      rmdir($this->contribFixture);
+      $this->removeContribFixture($this->contribFixture);
     }
 
     parent::tearDown();
@@ -251,13 +243,21 @@ class SwitchableSettingsTest extends SettingsTestCase {
 
   /**
    * Test Fast 404 settings.
+   *
+   * Runs isolated so that the module stub owns the 'fast404_preboot()'
+   * declaration and its invocation marker is conclusive.
    */
   #[DataProvider('dataProviderFast404')]
+  #[RunInSeparateProcess]
+  #[PreserveGlobalState(FALSE)]
   public function testFast404(bool $module_installed, array $expected_present, array $expected_absent = []): void {
-    $this->requireModuleSettingsFile('fast404', $this->createContribFixture($module_installed));
+    $contrib_path = $this->createContribFixture($module_installed);
+
+    $this->requireModuleSettingsFile('fast404', $contrib_path);
 
     $this->assertSettingsContains($expected_present);
     $this->assertSettingsNotContains($expected_absent);
+    $this->assertSame($module_installed, file_exists($contrib_path . '/fast_404/preboot'), 'Preboot invocation');
   }
 
   /**
@@ -294,7 +294,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
    * guard can only be satisfied by a stub.
    *
    * @param bool $with_fast404
-   *   Create a stub of the Fast 404 module within the fixture.
+   *   Create a stub of the Fast 404 module within the fixture. The stub marks
+   *   the directory when its preboot function is called.
    *
    * @return string
    *   Path to the contrib modules directory fixture.
@@ -305,26 +306,38 @@ class SwitchableSettingsTest extends SettingsTestCase {
     mkdir($this->contribFixture, 0777, TRUE);
 
     if ($with_fast404) {
-      // The real include file may already be loaded on a site that has the
-      // module installed.
       $stub = <<<'PHP'
         <?php
 
-        if (!function_exists('fast404_preboot')) {
-
-          function fast404_preboot(array $settings = []): void {}
-
+        function fast404_preboot(array $settings = []): void {
+          touch(__DIR__ . '/preboot');
         }
 
         PHP;
 
-      $this->contribFixtureStub = $this->contribFixture . '/fast_404/fast404.inc';
-
-      mkdir(dirname($this->contribFixtureStub));
-      file_put_contents($this->contribFixtureStub, $stub);
+      mkdir($this->contribFixture . '/fast_404');
+      file_put_contents($this->contribFixture . '/fast_404/fast404.inc', $stub);
     }
 
     return $this->contribFixture;
+  }
+
+  /**
+   * Remove the contrib modules directory fixture.
+   *
+   * @param string $path
+   *   Path to the contrib modules directory fixture.
+   */
+  protected function removeContribFixture(string $path): void {
+    foreach (glob($path . '/*/*') ?: [] as $file) {
+      unlink($file);
+    }
+
+    foreach (glob($path . '/*', GLOB_ONLYDIR) ?: [] as $dir) {
+      rmdir($dir);
+    }
+
+    rmdir($path);
   }
 
   /**

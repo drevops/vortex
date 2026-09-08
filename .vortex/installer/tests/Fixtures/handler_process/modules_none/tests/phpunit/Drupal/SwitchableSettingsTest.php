@@ -1,4 +1,4 @@
-@@ -102,154 +102,6 @@
+@@ -94,154 +94,6 @@
    }
  
    /**
@@ -151,9 +151,9 @@
 -
 -  /**
     * Test Fast 404 settings.
-    */
-   #[DataProvider('dataProviderFast404')]
-@@ -397,650 +249,6 @@
+    *
+    * Runs isolated so that the module stub owns the 'fast404_preboot()'
+@@ -410,650 +262,6 @@
      unset($this->settings['bootstrap_container_definition']);
  
      $this->assertSettingsContains($settings);

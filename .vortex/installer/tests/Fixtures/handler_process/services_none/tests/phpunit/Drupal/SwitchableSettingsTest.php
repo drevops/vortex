@@ -1,4 +1,4 @@
-@@ -46,62 +46,6 @@
+@@ -38,62 +38,6 @@
    }
  
    /**
@@ -61,10 +61,10 @@
     * Test Config Split config.
     */
    #[DataProvider('dataProviderConfigSplit')]
-@@ -325,78 +269,6 @@
+@@ -338,78 +282,6 @@
      }
  
-     return $this->contribFixture;
+     rmdir($path);
 -  }
 -
 -  /**

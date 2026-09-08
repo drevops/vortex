@@ -1,4 +1,4 @@
-@@ -187,69 +187,6 @@
+@@ -179,69 +179,6 @@
    }
  
    /**
@@ -66,5 +66,5 @@
 -
 -  /**
     * Test Fast 404 settings.
-    */
-   #[DataProvider('dataProviderFast404')]
+    *
+    * Runs isolated so that the module stub owns the 'fast404_preboot()'
