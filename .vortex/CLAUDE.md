@@ -73,15 +73,13 @@ The boilerplate leaves out two things the repository's scripts carry:
   `scripts/provision-30-search-index.sh`; converting them to the boilerplate
   form changes stdout that the tests assert on.
 
-**Output helpers** - every `task` MUST be closed by a `pass` or a `fail`. A
-task announces work that is starting, so it always reports its outcome; a `task`
-with no closing line leaves the reader unable to tell whether the step
-succeeded. This holds even when the work itself cannot fail (e.g. a command
-suffixed with `|| true`) - close it with `pass`.
+**Output helpers** - every `task` MUST be closed by exactly one `pass` or `fail`, on every path through the script. A task announces work that is starting, so it always reports its outcome; a `task` with no closing line leaves the reader unable to tell whether the step succeeded. This holds even when the work itself cannot fail (e.g. a command suffixed with `|| true`) - close it with `pass`.
 
-Use the other helpers for what they are: `info` for the banners that open and
-close an operation, `note` for a standalone remark that starts no task, and
-`fail` to abort.
+A `task` MUST NOT open while another is open. A step that runs inside an open task is a `note`, and a loop body that repeats work under one task reports each iteration with `note`.
+
+The rule is one-directional: a closing line does not need an opening `task`. A check reports `pass` when it holds and `fail` when it does not, and an operation that is skipped or finished reports `pass` on its own.
+
+Use the other helpers for what they are: `info` for the banners that open and close an operation, `note` for a standalone remark that starts no task, and `fail` to abort.
 
 ```bash
 task "Disabling Search API Solr server."
