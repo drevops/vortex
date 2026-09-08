@@ -13,16 +13,16 @@ class Modules extends AbstractHandler {
   /**
    * Modules driven by the development modules provision script.
    *
-   * These modules are development and testing tools that are deliberately kept
-   * out of the exported configuration, so the provision script is the only
-   * place that can install them. Adding a module here also requires a fenced
+   * These modules are not installed in production and are deliberately kept out
+   * of the exported configuration, so the provision script is the only place
+   * that can install them. Adding a module here also requires a fenced
    * 'MODULE_<NAME>' block in the script.
    *
    * The script has operations to perform while any one of these is selected.
    *
    * @var string[]
    */
-  protected const DEV_MODULES = ['devel', 'sdc_devel', 'generated_content', 'testmode'];
+  protected const DEV_MODULES = ['devel', 'sdc_devel', 'generated_content', 'testmode', 'reroute_email'];
 
   /**
    * {@inheritdoc}

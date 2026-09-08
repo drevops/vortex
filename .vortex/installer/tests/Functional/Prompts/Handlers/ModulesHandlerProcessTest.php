@@ -85,7 +85,13 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function ($test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('reroute_email');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/reroute_email')),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertSutNotContains('drupal/reroute_email');
+        // The development modules still install from the script, so it survives
+        // with only the email rerouting install removed.
+        $test->assertFileExists(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
+        $test->assertFileNotContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'pm:install reroute_email');
+      }),
     ];
     yield 'modules_no_robotstxt' => [
       static::cw(function ($test): void {
@@ -178,6 +184,18 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
         $test->assertSutNotContains(['drupal/devel', 'drupal/sdc_devel', 'drupal/generated_content', 'testmode']);
+        // Reroute Email still installs from the script, so it survives with
+        // only the development module installs removed.
+        $test->assertFileExists(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
+        $test->assertFileContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'pm:install reroute_email');
+      }),
+    ];
+    yield 'modules_no_devel_sdc_devel_generated_content_testmode_reroute_email' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept(['devel', 'sdc_devel', 'generated_content', 'testmode', 'reroute_email']);
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertSutNotContains(['drupal/devel', 'drupal/sdc_devel', 'drupal/generated_content', 'testmode', 'drupal/reroute_email']);
         $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
       }),
     ];
