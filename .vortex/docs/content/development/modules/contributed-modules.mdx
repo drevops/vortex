@@ -181,7 +181,7 @@ Rerouting replaces the recipient of an outgoing message with the configured addr
 | Local       | No                | [Pygmy](../environment/pygmy.mdx) already catches outgoing mail  |
 | CI          | No                | The [mail collector](../testing/behat.mdx#email) stores messages instead of sending them |
 | Dev         | **Yes**           | Prevents accidental delivery to real users                      |
-| Stage       | **Yes**           | Stage runs a copy of production content, so any address that survives sanitisation is a real one |
+| Stage       | **Yes**           | Stage runs a copy of production content, so any address that survives database sanitization is a real one |
 | Prod        | No                | Production emails must reach actual recipients                  |
 
 Rerouting is the fall-through default, so it is also enabled in any custom
