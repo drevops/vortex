@@ -4,7 +4,7 @@ ahoyapi: v2
 commands:
 
   install:
-    name: Install test dependencies.
+    usage: Install test dependencies.
     cmd: |
       [ -d ./tests/vendor ] && rm -rf ./tests/vendor
       composer --working-dir tests install
@@ -18,19 +18,19 @@ commands:
       yarn --cwd=docs install --frozen-lockfile
 
   docs:
-    name: Start documentation server.
+    usage: Start documentation server.
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
       yarn --cwd=docs run start
 
   docs-serve:
-    name: Serve built documentation.
+    usage: Serve built documentation.
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
       yarn --cwd=docs run start
 
   build-docs:
-    name: Build documentation.
+    usage: Build documentation.
     cmd: |
       [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
       yarn --cwd=docs run build
@@ -48,13 +48,13 @@ commands:
       php -S "localhost:${port}" -t ./docs_combined/build ./docs/.utils/serve-router.php
 
   build-installer:
-    name: Build documentation.
+    usage: Build documentation.
     cmd: |
       [ ! -d ./installer/vendor ] && composer --working-dir installer install
       composer --working-dir installer build
 
   lint:
-    name: Lint Vortex project.
+    usage: Lint Vortex project.
     cmd: |
       ahoy lint-installer
       ahoy lint-tests
@@ -65,7 +65,7 @@ commands:
       ahoy lint-ci
 
   lint-fix:
-    name: Fix linting issues in Vortex project.
+    usage: Fix linting issues in Vortex project.
     cmd: |
       ahoy lint-installer-fix
       ahoy lint-tests-fix
@@ -106,13 +106,13 @@ commands:
   lint-docs:
     cmd: |
       yarn --cwd=docs run lint
-      yarn --cwd=./docs run spellcheck
+      yarn --cwd=docs run spellcheck
 
   lint-docs-fix:
     cmd: yarn --cwd=docs run lint-fix
 
   test:
-    name: Test Vortex project.
+    usage: Test Vortex project.
     cmd: |
       ahoy test-common
       ahoy test-docs
@@ -127,17 +127,17 @@ commands:
 
   test-docs:
     cmd: |
-      [ ! -d ./docs/node_modules ] && yarn --cwd=./docs install --frozen-lockfile
-      yarn --cwd=./docs run test
-      yarn --cwd=./docs run spellcheck
+      [ ! -d ./docs/node_modules ] && yarn --cwd=docs install --frozen-lockfile
+      yarn --cwd=docs run test
+      yarn --cwd=docs run spellcheck
 
   # If there are changes to the snapshots - this command will re-run twice reporting error the first time.
   update-snapshots:
     aliases: [us]
     cmd: |
       export XDEBUG_MODE=off
-      composer --working-dir=tests update-snapshots
-      composer --working-dir=installer update-snapshots -- --jobs=8
+      composer --working-dir tests update-snapshots
+      composer --working-dir installer update-snapshots -- --jobs=8
 
   update-snapshots-install:
     aliases: [usi]
