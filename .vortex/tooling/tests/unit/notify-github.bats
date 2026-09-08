@@ -112,7 +112,7 @@ load ../_helper.bash
     '@curl -X POST -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments -d {"ref":"nonexistingbranch","environment":"nonexistingbranch","auto_merge":false,"required_contexts":[]} # {"message": "No ref found for: nonexistingbranch","documentation_url": "https://docs.github.com/rest/deployments/deployments#create-a-deployment","status": "422"}'
     "Unable to get a deployment ID for a pre_deployment operation. Payload:"
     "Wait for GitHub checks to finish and try again."
-    "-Marked deployment as finished."
+    "- Marked deployment as finished."
   )
 
   mocks="$(steps_run "setup")"
@@ -210,7 +210,7 @@ load ../_helper.bash
     "@curl -X GET -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments?ref=nonexistingbranch # []"
     "Unable to get a deployment ID for a post_deployment operation. Payload:"
     "Check that a pre_deployment notification was dispatched."
-    "-Marked deployment as finished."
+    "- Marked deployment as finished."
   )
   mocks="$(steps_run "setup")"
 
@@ -311,7 +311,7 @@ load ../_helper.bash
     "@curl -X GET -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments?ref=existingbranch # [{\"id\": \"${app_id}\", \"othervar\": \"54321\"},{\"id\": \"98765432101\", \"othervar\": \"12345\"}]"
     "@curl -X POST -H Accept: application/vnd.github.v3+json -H Authorization: token token12345 https://api.github.com/repos/myorg/myrepo/deployments/${app_id}/statuses -s -d {\"state\":\"success\",\"environment_url\":\"https://develop.testproject.com\"} # {\"state\": \"notsuccess\", \"othervar\": \"54321\"}"
     "Previous deployment was found, but was unable to update the deployment status. Payload:"
-    "-Marked deployment as finished."
+    "- Marked deployment as finished."
   )
   mocks="$(steps_run "setup")"
 
