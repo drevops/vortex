@@ -185,7 +185,7 @@
    }
  
    /**
-@@ -150,6 +330,13 @@
+@@ -152,6 +332,13 @@
      $databases['default']['default']['collation'] = 'utf8_general_ci';
      $databases['default']['default']['driver'] = 'mysql';
      $databases['default']['default']['prefix'] = '';
@@ -199,9 +199,9 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
-@@ -412,6 +599,287 @@
-       '^localhost$',
-     ];
+@@ -422,6 +609,295 @@
+     $settings += static::expectedFast404Settings();
+ 
      $this->assertSettings($settings);
 +  }
 +
@@ -267,6 +267,8 @@
 +      '^example1\.com$',
 +      '^example2$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -332,6 +334,8 @@
 +      '^example1\.com$',
 +      '^example2$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -397,6 +401,8 @@
 +      '^example1\.com$',
 +      '^example2$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -460,6 +466,8 @@
 +      '^example1\.com$',
 +      '^example2$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -486,4 +494,4 @@
 +    ]);
    }
  
- }
+   /**

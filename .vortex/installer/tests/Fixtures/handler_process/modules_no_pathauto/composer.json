@@ -1,5 +1,5 @@
-@@ -19,7 +19,6 @@
-         "drupal/environment_indicator": "__VERSION__",
+@@ -20,7 +20,6 @@
+         "drupal/fast_404": "__VERSION__",
          "drupal/generated_content": "__VERSION__",
          "drupal/navigation_extra_tools": "__VERSION__",
 -        "drupal/pathauto": "__VERSION__",

@@ -253,7 +253,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
   public function testFast404(bool $module_installed, array $expected_present, array $expected_absent = []): void {
     $contrib_path = $this->createContribFixture($module_installed);
 
-    $this->requireModuleSettingsFile('fast404', $contrib_path);
+    $this->requireModuleSettingsFile('fast_404', $contrib_path);
 
     $this->assertSettingsContains($expected_present);
     $this->assertSettingsNotContains($expected_absent);

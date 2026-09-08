@@ -6,7 +6,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -175,7 +174,6 @@
+@@ -177,7 +176,6 @@
        'generated_content',
        'reroute_email',
        'sdc_devel',
@@ -14,7 +14,7 @@
      ];
      $settings['config_sync_directory'] = 'custom_config';
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -233,7 +231,6 @@
+@@ -237,7 +235,6 @@
        'generated_content',
        'reroute_email',
        'sdc_devel',
@@ -22,7 +22,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -291,7 +288,6 @@
+@@ -297,7 +294,6 @@
        'generated_content',
        'reroute_email',
        'sdc_devel',
@@ -30,7 +30,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -392,7 +388,6 @@
+@@ -400,7 +396,6 @@
        'generated_content',
        'reroute_email',
        'sdc_devel',

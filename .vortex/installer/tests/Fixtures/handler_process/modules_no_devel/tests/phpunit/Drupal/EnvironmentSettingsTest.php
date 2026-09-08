@@ -6,7 +6,7 @@
        'generated_content',
        'reroute_email',
        'sdc_devel',
-@@ -171,7 +170,6 @@
+@@ -173,7 +172,6 @@
      // Verify settings overrides.
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -14,7 +14,7 @@
        'generated_content',
        'reroute_email',
        'sdc_devel',
-@@ -229,7 +227,6 @@
+@@ -233,7 +231,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -22,7 +22,7 @@
        'generated_content',
        'reroute_email',
        'sdc_devel',
-@@ -287,7 +284,6 @@
+@@ -293,7 +290,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -30,7 +30,7 @@
        'generated_content',
        'reroute_email',
        'sdc_devel',
-@@ -388,7 +384,6 @@
+@@ -396,7 +392,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [

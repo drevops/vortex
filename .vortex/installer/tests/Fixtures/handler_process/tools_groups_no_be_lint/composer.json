@@ -1,4 +1,4 @@
-@@ -40,17 +40,10 @@
+@@ -41,17 +41,10 @@
          "drevops/behat-format-progress-fail": "__VERSION__",
          "drevops/behat-screenshot": "__VERSION__",
          "drevops/behat-steps": "__VERSION__",
@@ -16,7 +16,7 @@
          "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
          "softcreatr/jsonpath": "^0.10 || ^1.0",
-@@ -76,11 +69,9 @@
+@@ -77,11 +70,9 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,

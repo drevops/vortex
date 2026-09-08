@@ -185,9 +185,9 @@
    }
  
    /**
-@@ -412,6 +592,287 @@
-       '^localhost$',
-     ];
+@@ -422,6 +602,295 @@
+     $settings += static::expectedFast404Settings();
+ 
      $this->assertSettings($settings);
 +  }
 +
@@ -253,6 +253,8 @@
 +      '^example1\.com$',
 +      '^example2$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -318,6 +320,8 @@
 +      '^example1\.com$',
 +      '^example2$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -383,6 +387,8 @@
 +      '^example1\.com$',
 +      '^example2$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -446,6 +452,8 @@
 +      '^example1\.com$',
 +      '^example2$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -472,4 +480,4 @@
 +    ]);
    }
  
- }
+   /**

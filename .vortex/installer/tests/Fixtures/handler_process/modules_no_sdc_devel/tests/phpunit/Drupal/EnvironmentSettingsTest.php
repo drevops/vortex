@@ -6,7 +6,7 @@
        'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -174,7 +173,6 @@
+@@ -176,7 +175,6 @@
        'devel',
        'generated_content',
        'reroute_email',
@@ -14,7 +14,7 @@
        'testmode',
      ];
      $settings['config_sync_directory'] = 'custom_config';
-@@ -232,7 +230,6 @@
+@@ -236,7 +234,6 @@
        'devel',
        'generated_content',
        'reroute_email',
@@ -22,7 +22,7 @@
        'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -290,7 +287,6 @@
+@@ -296,7 +293,6 @@
        'devel',
        'generated_content',
        'reroute_email',
@@ -30,7 +30,7 @@
        'testmode',
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -391,7 +387,6 @@
+@@ -399,7 +395,6 @@
        'devel',
        'generated_content',
        'reroute_email',

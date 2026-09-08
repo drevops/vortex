@@ -6,7 +6,7 @@
          "drupal/coffee": "__VERSION__",
          "drupal/config_split": "__VERSION__",
          "drupal/config_update": "__VERSION__",
-@@ -32,7 +33,9 @@
+@@ -33,7 +34,9 @@
          "drupal/stage_file_proxy": "__VERSION__",
          "drupal/testmode": "__VERSION__",
          "drupal/xmlsitemap": "__VERSION__",
@@ -17,7 +17,7 @@
      },
      "require-dev": {
          "behat/behat": "__VERSION__",
-@@ -65,7 +68,7 @@
+@@ -66,7 +69,7 @@
              "url": "https://packages.drupal.org/8"
          }
      ],
@@ -26,7 +26,7 @@
      "prefer-stable": true,
      "autoload-dev": {
          "classmap": [
-@@ -83,7 +86,11 @@
+@@ -84,7 +87,11 @@
              "phpstan/extension-installer": true,
              "pyrech/composer-changelogs": true,
              "symfony/runtime": true,
@@ -39,7 +39,7 @@
          },
          "bump-after-update": true,
          "discard-changes": true,
-@@ -158,6 +165,17 @@
+@@ -159,6 +166,17 @@
          "patchLevel": {
              "drupal/core": "-p2"
          },

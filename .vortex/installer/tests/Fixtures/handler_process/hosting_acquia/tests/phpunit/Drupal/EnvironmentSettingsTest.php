@@ -49,13 +49,15 @@
    }
  
    /**
-@@ -408,6 +452,337 @@
+@@ -416,6 +460,349 @@
      $settings['maintenance_theme'] = 'claro';
      $settings['skip_permissions_hardening'] = TRUE;
      $settings['config_sync_directory'] = '../config/default';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -110,6 +112,8 @@
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -164,6 +168,8 @@
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -218,6 +224,8 @@
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -269,6 +277,8 @@
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +
@@ -324,6 +334,8 @@
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
 +    ];
++    $settings += static::expectedFast404Settings();
++
 +    $this->assertSettings($settings);
 +  }
 +

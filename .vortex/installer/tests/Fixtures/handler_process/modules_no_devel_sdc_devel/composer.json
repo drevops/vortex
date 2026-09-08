@@ -5,8 +5,8 @@
 -        "drupal/devel": "__VERSION__",
          "drupal/drupal_helpers": "__VERSION__",
          "drupal/environment_indicator": "__VERSION__",
-         "drupal/generated_content": "__VERSION__",
-@@ -24,7 +23,6 @@
+         "drupal/fast_404": "__VERSION__",
+@@ -25,7 +24,6 @@
          "drupal/redis": "__VERSION__",
          "drupal/reroute_email": "__VERSION__",
          "drupal/robotstxt": "__VERSION__",

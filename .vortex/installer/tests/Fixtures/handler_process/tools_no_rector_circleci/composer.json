@@ -1,4 +1,4 @@
-@@ -46,7 +46,6 @@
+@@ -47,7 +47,6 @@
          "ergebnis/composer-normalize": "__VERSION__",
          "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",

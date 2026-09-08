@@ -9,7 +9,7 @@
   */
  #[Group('drupal_settings')]
  class EnvironmentSettingsTest extends SettingsTestCase {
-@@ -356,9 +352,9 @@
+@@ -364,9 +360,9 @@
    }
  
    /**

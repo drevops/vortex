@@ -1,4 +1,4 @@
-@@ -53,8 +53,7 @@
+@@ -54,8 +54,7 @@
          "phpstan/phpstan": "__VERSION__",
          "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
