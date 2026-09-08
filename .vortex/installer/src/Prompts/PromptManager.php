@@ -119,9 +119,8 @@ class PromptManager {
   /**
    * Run prompts to get responses.
    *
-   * In non-interactive mode, every prompt resolves to its default: the
-   * --prompts override, then the value discovered from the existing codebase,
-   * then the handler's own default.
+   * In non-interactive mode, each prompt returns its default, which includes
+   * values discovered from the existing codebase.
    */
   public function runPrompts(): void {
     // Quiet the TUI output in non-interactive mode; the original verbosity is

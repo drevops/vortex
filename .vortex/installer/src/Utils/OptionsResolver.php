@@ -40,8 +40,9 @@ class OptionsResolver {
    *
    * Installer configuration is a set of internal installer variables
    * prefixed with "VORTEX_INSTALLER_" and used to control the installation.
-   * Each is read from the environment with Env::get() and stored in Config
-   * under the same name, so a config key and its environment variable match.
+   * Each is resolved from the CLI options, the --config JSON and the
+   * environment, and stored in Config under the name of its environment
+   * variable.
    *
    * @param array<mixed> $options
    *   Array of CLI options.
