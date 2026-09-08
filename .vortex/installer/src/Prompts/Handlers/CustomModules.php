@@ -211,8 +211,8 @@ DOC;
   /**
    * Remove Behat feature files tagged with @demo.
    *
-   * Scans the Behat features directory for .feature files whose first line
-   * contains the @demo tag and removes them.
+   * Removes every file in the Behat features directory that contains
+   * the @demo tag anywhere in its contents.
    *
    * @param string $dir
    *   The base directory to search in.

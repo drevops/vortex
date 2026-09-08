@@ -32,8 +32,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Run command.
- *
  * Install command.
  */
 class InstallCommand extends Command implements CommandRunnerAwareInterface, ExecutableFinderAwareInterface {

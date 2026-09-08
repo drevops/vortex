@@ -119,8 +119,9 @@ class PromptManager {
   /**
    * Run prompts to get responses.
    *
-   * If non-interactive mode is used, the values provided by $this->default()
-   * method, including discovery from the existing codebase, will be used.
+   * In non-interactive mode, every prompt resolves to its default: the
+   * --prompts override, then the value discovered from the existing codebase,
+   * then the handler's own default.
    */
   public function runPrompts(): void {
     // Quiet the TUI output in non-interactive mode; the original verbosity is
@@ -628,9 +629,8 @@ class PromptManager {
   /**
    * Resolve prompt overrides from --prompts CLI option.
    *
-   * Reads the raw prompt array from Config, normalizes keys to handler IDs,
-   * validates values against handler types and options, and stores the
-   * validated overrides.
+   * Reads the raw prompt array from Config, validates values against handler
+   * types and options, and stores the validated overrides.
    *
    * @throws \RuntimeException
    *   If any prompt value is invalid.
@@ -650,7 +650,6 @@ class PromptManager {
       throw new \RuntimeException(sprintf('Invalid --prompts values: %s.', implode('; ', $messages)));
     }
 
-    // Use the resolved values which include defaults for missing prompts.
     foreach ($raw as $key => $value) {
       if (isset($this->handlers[$key])) {
         $this->promptOverrides[$key] = $value;
@@ -682,7 +681,6 @@ class PromptManager {
    *
    * @param string $handler_class
    *   The handler class name.
-   *   The handler id.
    * @param mixed $default_override
    *   Optional override for the default value (for response dependencies).
    * @param array $responses

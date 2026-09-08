@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Utils;
 
-/**
- * Installer configuration.
- *
- * Installer config is a config of this installer script.
- */
 final class Normalizer {
 
   /**
