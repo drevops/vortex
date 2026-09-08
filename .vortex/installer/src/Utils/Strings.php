@@ -7,7 +7,7 @@ namespace DrevOps\VortexInstaller\Utils;
 class Strings {
 
   public static function isAsciiStart(string $string): bool {
-    return preg_match('/^[\x00-\x7F]/', $string) === 1;
+    return (bool) preg_match('/^[\x00-\x7F]/', $string);
   }
 
   public static function strlenPlain(string $text): int {

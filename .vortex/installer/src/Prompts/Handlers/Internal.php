@@ -126,7 +126,6 @@ class Internal extends AbstractHandler {
         }
       }
     });
-
   }
 
   /**

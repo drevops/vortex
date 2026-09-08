@@ -79,6 +79,7 @@ class DeployTypes extends AbstractHandler {
     if (!empty($types)) {
       $types = Converter::fromList($types);
       sort($types);
+
       return $types;
     }
 

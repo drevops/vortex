@@ -55,7 +55,7 @@ class HostingProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    return 'none';
+    return self::NONE;
   }
 
   /**
