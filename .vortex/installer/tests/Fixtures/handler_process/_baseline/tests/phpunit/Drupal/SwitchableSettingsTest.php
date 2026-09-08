@@ -6,8 +6,6 @@ namespace Drupal;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * Class ToggleableSettingsTest.
@@ -248,8 +246,8 @@ class SwitchableSettingsTest extends SettingsTestCase {
    * declaration and its invocation marker is conclusive.
    */
   #[DataProvider('dataProviderFast404')]
-  #[RunInSeparateProcess]
-  #[PreserveGlobalState(FALSE)]
+  #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+  #[\PHPUnit\Framework\Attributes\PreserveGlobalState(FALSE)]
   public function testFast404(bool $module_installed, array $expected_present, array $expected_absent = []): void {
     $contrib_path = $this->createContribFixture($module_installed);
 
