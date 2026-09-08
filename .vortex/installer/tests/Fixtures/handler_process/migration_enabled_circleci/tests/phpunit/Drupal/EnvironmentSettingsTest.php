@@ -1,4 +1,4 @@
-@@ -162,6 +162,13 @@
+@@ -163,6 +163,13 @@
      $databases['default']['default']['collation'] = 'utf8_general_ci';
      $databases['default']['default']['driver'] = 'mysql';
      $databases['default']['default']['prefix'] = '';
@@ -12,7 +12,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
-@@ -403,9 +410,9 @@
+@@ -407,9 +414,9 @@
    }
  
    /**

@@ -61,7 +61,7 @@
     * Test Config Split config.
     */
    #[DataProvider('dataProviderConfigSplit')]
-@@ -336,78 +280,6 @@
+@@ -342,78 +286,6 @@
      }
  
      rmdir($path);

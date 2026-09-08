@@ -10,7 +10,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -183,11 +179,7 @@
+@@ -184,11 +180,7 @@
      // Verify settings overrides.
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -22,7 +22,7 @@
      ];
      $settings['config_sync_directory'] = 'custom_config';
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-@@ -252,11 +244,7 @@
+@@ -254,11 +246,7 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -34,7 +34,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -322,11 +310,7 @@
+@@ -325,11 +313,7 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
@@ -46,7 +46,7 @@
      ];
      $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
      $settings['entity_update_batch_size'] = 50;
-@@ -435,11 +419,7 @@
+@@ -439,11 +423,7 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [

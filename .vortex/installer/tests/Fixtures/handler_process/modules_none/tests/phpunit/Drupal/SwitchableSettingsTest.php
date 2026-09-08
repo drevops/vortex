@@ -30,7 +30,7 @@
     * Test ClamAV configs in Daemon mode with defaults.
     */
    public function testClamavDaemonCustom(): void {
-@@ -94,251 +76,6 @@
+@@ -94,257 +76,6 @@
    }
  
    /**
@@ -208,8 +208,11 @@
 -      TRUE,
 -      [
 -        'fast404_exts' => '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i',
--        'fast404_allow_anon_imagecache' => TRUE,
--        'fast404_whitelist' => ['index.php', 'rss.xml', 'install.php', 'cron.php', 'update.php', 'xmlrpc.php'],
+-        'fast404_allow_anon_imagecache' => FALSE,
+-        'fast404_url_whitelisting' => TRUE,
+-        'fast404_whitelist' => ['index.php', 'rss.xml', 'cron.php', 'xmlrpc.php'],
+-        'fast404_path_check' => FALSE,
+-        'fast404_respect_redirect' => FALSE,
 -        'fast404_html' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>',
 -      ],
 -    ];
@@ -219,7 +222,10 @@
 -      [
 -        'fast404_exts' => NULL,
 -        'fast404_allow_anon_imagecache' => NULL,
+-        'fast404_url_whitelisting' => NULL,
 -        'fast404_whitelist' => NULL,
+-        'fast404_path_check' => NULL,
+-        'fast404_respect_redirect' => NULL,
 -        'fast404_html' => NULL,
 -      ],
 -    ];
@@ -282,7 +288,7 @@
     * Test Redis settings.
     */
    public function testRedis(): void {
-@@ -408,650 +145,6 @@
+@@ -414,650 +145,6 @@
      unset($this->settings['bootstrap_container_definition']);
  
      $this->assertSettingsContains($settings);

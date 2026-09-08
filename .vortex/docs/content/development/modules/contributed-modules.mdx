@@ -85,7 +85,7 @@ No settings override.
 
 ### Configuration
 
-[`settings.fast_404.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.fast_404.php) sets the file extensions to intercept, whitelists the front controller and the other entry-point scripts, allows anonymous access to image style derivatives, and calls `fast404_preboot()` with those settings.
+[`settings.fast_404.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.fast_404.php) sets the file extensions to intercept, whitelists the front controller and the other entry-point scripts, brings image style derivatives under the same rules so anonymous requests cannot force derivative generation, and calls `fast404_preboot()` with those settings. Path checking against the router and the URL aliases is off, as it queries the database before Drupal has connected to it.
 
 ## Generated Content
 

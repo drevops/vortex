@@ -6,7 +6,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['reroute_email.settings']['enable'] = TRUE;
-@@ -171,7 +170,6 @@
+@@ -172,7 +171,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -14,7 +14,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['reroute_email.settings']['enable'] = TRUE;
-@@ -238,7 +236,6 @@
+@@ -240,7 +238,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -22,7 +22,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -308,7 +305,6 @@
+@@ -311,7 +308,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -30,7 +30,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -420,7 +416,6 @@
+@@ -424,7 +420,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
