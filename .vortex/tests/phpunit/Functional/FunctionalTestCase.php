@@ -28,10 +28,10 @@ class FunctionalTestCase extends UnitTestCase {
   use EnvTrait;
   use FileAssertionsTrait;
   use GitTrait;
+  use HelpersTrait;
   use LocationsTrait;
   use ProcessTrait;
   use SutTrait;
-  use HelpersTrait;
 
   protected function setUp(): void {
     // Initialize locations with the project root as the base directory.

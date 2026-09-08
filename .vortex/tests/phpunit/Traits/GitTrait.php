@@ -92,7 +92,7 @@ trait GitTrait {
    * @param string $path
    *   Path to the repo.
    */
-  protected function gitReset($path): void {
+  protected function gitReset(string $path): void {
     $repo = (new Git())->open($path);
     $repo->run('reset', ['--hard']);
     $repo->run('clean', ['-dfx']);

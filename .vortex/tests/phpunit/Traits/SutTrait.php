@@ -36,7 +36,7 @@ trait SutTrait {
    *
    * @var array <string, string|int|float|bool>
    */
-  protected static $sutInstallerEnv = [];
+  protected static array $sutInstallerEnv = [];
 
   /**
    * Prompt values to pass via --prompts option.
@@ -752,7 +752,7 @@ EOT;
 
     File::dump($webroot . '/sites/default/services.local.yml');
     File::dump($webroot . '/sites/default/settings.local.php');
-    File::dump("docker-compose.override.yml", 'version: "2.3"');
+    File::dump('docker-compose.override.yml', 'version: "2.3"');
   }
 
 }
