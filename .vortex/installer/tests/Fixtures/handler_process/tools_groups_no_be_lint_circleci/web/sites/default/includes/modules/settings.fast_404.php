@@ -1,7 +1,7 @@
-@@ -20,6 +20,5 @@
-   ];
-   $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
-   include_once $contrib_path . '/fast_404/fast404.inc';
+@@ -55,6 +55,5 @@
+   // the module passes an array where an exception is expected. Patch it with
+   // https://www.drupal.org/files/issues/2023-08-24/fast_404_3x-3194034-10.patch
+   // @see https://www.drupal.org/project/fast_404/issues/3194034
 -  // @phpstan-ignore-next-line
    fast404_preboot($settings);
  }

@@ -1024,15 +1024,30 @@ trait SubtestAhoyTrait {
   protected function subtestAhoyFast404(): void {
     $this->logStepStart();
 
-    $this->logSubstep('Assert that the preboot error page is served for a missing asset');
     // Drupal core serves a near-identical 404 page for the same extensions,
     // so the DOCTYPE from `settings.fast_404.php` is what tells the two apart.
-    $this->assertWebpageContains('/missing.png', '-//W3C//DTD XHTML+RDFa 1.0//EN', 'Error page from `settings.fast_404.php` should be served');
+    $error_page = '-//W3C//DTD XHTML+RDFa 1.0//EN';
+    $derivative = '/sites/default/files/styles/large/public/missing.jpg';
+
+    $this->logSubstep('Assert that the preboot error page is served for a missing asset');
+    $this->assertWebpageContains('/missing.png', $error_page, 'Error page from `settings.fast_404.php` should be served');
     $this->assertWebpageContains('/missing.png', 'The requested URL "/missing.png" was not found on this server.', 'Error page should report the request path resolved before Drupal bootstraps');
+    $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://nginx:8080/missing.png | grep -q 404', txt: 'Missing asset should be answered with a 404 status');
+
+    $this->logSubstep('Assert that a missing image derivative is served the error page');
+    $this->assertWebpageContains($derivative, $error_page, 'Image derivatives should fall under the static file rules for anonymous users');
+    $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://nginx:8080' . $derivative . ' | grep -q 404', txt: 'Missing image derivative should be answered with a 404 status');
 
     $this->logSubstep('Assert that a route served by Drupal is not intercepted');
-    $this->assertWebpageNotContains('/robots.txt', '-//W3C//DTD XHTML+RDFa 1.0//EN', '`robots.txt` is served by a module, so the preboot handler must let it through');
+    $this->assertWebpageNotContains('/robots.txt', $error_page, '`robots.txt` is served by a module, so the preboot handler must let it through');
     $this->assertWebpageContains('/robots.txt', 'User-agent: *', '`robots.txt` should be served by Drupal');
+
+    $this->logSubstep('Assert that a missing page without an extension is left to Drupal');
+    $this->assertWebpageNotContains('/some-missing-page', $error_page, 'Path checking is disabled, so Drupal answers paths that carry no file extension');
+    // The settings script only ever appears on a page Drupal itself rendered,
+    // so it separates a Drupal 404 from a web server one.
+    $this->assertWebpageContains('/some-missing-page', 'drupal-settings-json', 'Drupal should render the 404 page for a path that carries no file extension');
+    $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://nginx:8080/some-missing-page | grep -q 404', txt: 'Missing page should be answered with a 404 status');
 
     $this->logStepFinish();
   }
