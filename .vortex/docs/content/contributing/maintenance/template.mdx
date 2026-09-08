@@ -97,21 +97,36 @@ Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of w
     pass "Finished GitHub notification for operation ${VORTEX_NOTIFY_EVENT}."
     ```
 
-11. MUST use uppercase global variables.
-12. MUST use lowercase local variables.
-13. MUST use long options instead of short options for readability. I.e., `drush cache:rebuild` instead of `drush cr`.
-14. MUST use `VORTEX_` prefix for variables, unless it is a known 3-rd party
+11. MUST close every `task` message with exactly one `pass` or `fail` message,
+    on every path through the script, e.g.:
+
+    ```shell
+    task "Disabling Search API Solr server."
+    drush search-api:server-disable solr || true
+    pass "Disabled Search API Solr server."
+    ```
+
+12. MUST NOT open a `task` message while another one is open. A step that runs
+    inside an open task, including each iteration of a loop, uses a `note`
+    message.
+13. MAY use a `pass` or a `fail` message on its own. A check reports `pass` when
+    it holds and `fail` when it does not, and an operation that is skipped or
+    finished reports `pass` without announcing a `task` first.
+14. MUST use uppercase global variables.
+15. MUST use lowercase local variables.
+16. MUST use long options instead of short options for readability. I.e., `drush cache:rebuild` instead of `drush cr`.
+17. MUST use `VORTEX_` prefix for variables, unless it is a known 3-rd party
     variable like `PACKAGE_TOKEN` or `COMPOSER`.
-15. MUST use a script-specific prefix. I.e., for `vortex-notify`, the variable
+18. MUST use a script-specific prefix. I.e., for `vortex-notify`, the variable
     to skip notifications should start with `VORTEX_NOTIFY_`.
-16. MAY rely on variables from the external scripts (not prefixed with a
+19. MAY rely on variables from the external scripts (not prefixed with a
     script-specific prefix), but MUST declare such variables in the header of
     the file.
-17. MAY call other **Vortex** scripts (discouraged), but MUST source them rather
+20. MAY call other **Vortex** scripts (discouraged), but MUST source them rather
     than creating a sub-process. This is to allow passing environment variables
     down the call stack.
-18. SHOULD use `note` messages for informing about the script progress.
-19. MUST use variables in the form of `${VAR}`.
+21. SHOULD use `note` messages for informing about the script progress.
+22. MUST use variables in the form of `${VAR}`.
 
 ### Variables
 
