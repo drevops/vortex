@@ -1029,9 +1029,11 @@ trait SubtestAhoyTrait {
     // so the DOCTYPE from `settings.fast_404.php` is what tells the two apart.
     $this->assertWebpageContains('/missing.png', '-//W3C//DTD XHTML+RDFa 1.0//EN', 'Error page from `settings.fast_404.php` should be served');
     $this->assertWebpageContains('/missing.png', 'The requested URL "/missing.png" was not found on this server.', 'Error page should report the request path resolved before Drupal bootstraps');
+    $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://nginx:8080/missing.png | grep -q 404', txt: 'Missing asset should be answered with a 404 status');
 
     $this->logSubstep('Assert that a missing image derivative is served the error page');
     $this->assertWebpageContains('/sites/default/files/styles/large/public/missing.jpg', '-//W3C//DTD XHTML+RDFa 1.0//EN', 'Image derivatives should fall under the static file rules for anonymous users');
+    $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://nginx:8080/sites/default/files/styles/large/public/missing.jpg | grep -q 404', txt: 'Missing image derivative should be answered with a 404 status');
 
     $this->logSubstep('Assert that a route served by Drupal is not intercepted');
     $this->assertWebpageNotContains('/robots.txt', '-//W3C//DTD XHTML+RDFa 1.0//EN', '`robots.txt` is served by a module, so the preboot handler must let it through');
