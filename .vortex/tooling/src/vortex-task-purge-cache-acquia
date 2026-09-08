@@ -100,8 +100,8 @@ while read -r domain; do
   TARGET_ENV_REMAP="${target_env}"
   # Strip placeholder for PROD environment.
   if [ "${target_env}" = "prod" ]; then
-    domain="${domain//\$target_env_remap./}"
-    domain="${domain//\$target_env./}"
+    domain="${domain//\$TARGET_ENV_REMAP./}"
+    domain="${domain//\$TARGET_ENV./}"
   fi
 
   # Re-map 'test' to 'stage' as seen in UI.
