@@ -44,6 +44,7 @@ class ModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
           'drupal/devel' => '^5.5',
           'drupal/drupal_helpers' => '^2.0.1',
           'drupal/environment_indicator' => '^4.0.25',
+          'drupal/fast_404' => '^3.7',
           'drupal/generated_content' => '^2.0.1',
           'drupal/navigation_extra_tools' => '^1.3.2',
           'drupal/pathauto' => '^1.14',
