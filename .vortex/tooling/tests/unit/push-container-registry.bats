@@ -5,16 +5,6 @@
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155,SC2034
 
 load ../_helper.bash
-setup_robo_fixture() {
-  export HOME="${BUILD_DIR}"
-  fixture_prepare_dir "${HOME}/.composer/vendor/bin"
-  touch "${HOME}/.composer/vendor/bin/robo"
-  chmod +x "${HOME}/.composer/vendor/bin/robo"
-
-  # Also create a mock for git-artifact
-  touch "${HOME}/.composer/vendor/bin/git-artifact"
-  chmod +x "${HOME}/.composer/vendor/bin/git-artifact"
-}
 
 @test "Missing VORTEX_PUSH_CONTAINER_REGISTRY_MAP - push should not proceed" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
@@ -105,7 +95,7 @@ setup_robo_fixture() {
 
   mocks="$(steps_run "setup")"
 
-  run ./.vortex/tooling/src/vortex-push-container-registry
+  run .vortex/tooling/src/vortex-push-container-registry
   assert_success
   steps_run "assert" "${mocks[@]}"
 
@@ -136,7 +126,7 @@ setup_robo_fixture() {
 
   mocks="$(steps_run "setup")"
 
-  run ./.vortex/tooling/src/vortex-push-container-registry
+  run .vortex/tooling/src/vortex-push-container-registry
   assert_failure
   steps_run "assert" "${mocks[@]}"
 
@@ -157,7 +147,7 @@ setup_robo_fixture() {
   # No key/value pair
   export VORTEX_PUSH_CONTAINER_REGISTRY_MAP="service1"
 
-  run ./.vortex/tooling/src/vortex-push-container-registry
+  run .vortex/tooling/src/vortex-push-container-registry
   assert_failure
   assert_output_contains 'Invalid key/value pair "service1" provided.'
 
@@ -225,7 +215,7 @@ setup_robo_fixture() {
 
   mocks="$(steps_run "setup")"
 
-  run ./.vortex/tooling/src/vortex-push-container-registry
+  run .vortex/tooling/src/vortex-push-container-registry
   assert_success
   steps_run "assert" "${mocks[@]}"
 
@@ -254,7 +244,7 @@ setup_robo_fixture() {
 
   mocks="$(steps_run "setup")"
 
-  run ./.vortex/tooling/src/vortex-push-container-registry
+  run .vortex/tooling/src/vortex-push-container-registry
   assert_success
   assert_output_not_contains "supersecretpass"
 

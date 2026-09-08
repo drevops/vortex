@@ -18,7 +18,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
   # VORTEX_NOTIFY_NEWRELIC_ENABLED is intentionally not set
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -49,7 +49,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_LABEL="main"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -96,7 +96,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_LABEL="main"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_failure
 
   assert_output_contains "Missing required value for VORTEX_NOTIFY_NEWRELIC_USER_KEY"
@@ -121,7 +121,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="main"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -146,7 +146,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
   # VORTEX_NOTIFY_NEWRELIC_BRANCHES defaults to "main,master,develop"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -167,7 +167,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_NEWRELIC_ENABLED=true
   export VORTEX_NOTIFY_NEWRELIC_BRANCHES="main,develop"
 
-  run ./.vortex/tooling/src/vortex-notify-newrelic
+  run .vortex/tooling/src/vortex-notify-newrelic
   assert_success
 
   assert_output_contains 'Skipped New Relic notification for branch "".'
@@ -195,7 +195,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://test.example.com"
   export VORTEX_NOTIFY_NEWRELIC_BRANCHES="main,staging"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -228,11 +228,11 @@ load ../_helper.bash
   # Ensure test file doesn't exist before
   rm -f /tmp/injected_newrelic_test
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   # Verify the injection file was NOT created (injection did not execute)
-  [ ! -f /tmp/injected_newrelic_test ]
+  assert_file_not_exists "/tmp/injected_newrelic_test"
 
   # Verify the malicious string is treated as literal text in the description
   assert_output_contains "test'); file_put_contents('/tmp/injected_newrelic_test', 'HACKED'); //"

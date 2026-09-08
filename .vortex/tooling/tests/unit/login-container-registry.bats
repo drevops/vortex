@@ -79,7 +79,7 @@ load ../_helper.bash
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-login-container-registry
   assert_success
-  steps_run "assert" "${mocks}"
+  steps_run "assert" "${mocks[@]}"
 
   popd >/dev/null
 }

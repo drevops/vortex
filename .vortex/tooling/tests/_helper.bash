@@ -405,3 +405,12 @@ ${global_bin} "\$@"
 EOL
   chmod +x "${path_with_bin}"
 }
+
+# Replaces a sibling tooling script with a stub that prints a marker. The script
+# dispatches to siblings by explicit path, so a PATH-based mock cannot intercept
+# them - the file itself must be replaced.
+stub_sibling() {
+  mkdir -p .vortex/tooling/src
+  printf '#!/usr/bin/env bash\necho "%s"\n' "${2}" >".vortex/tooling/src/${1}"
+  chmod +x ".vortex/tooling/src/${1}"
+}

@@ -17,7 +17,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -47,7 +47,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_PR_NUMBER="123"
   export VORTEX_NOTIFY_LABEL="PR-123"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -77,7 +77,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_SHA="abc123def456"
   export VORTEX_NOTIFY_LABEL="develop"
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -102,7 +102,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
   export VORTEX_NOTIFY_EMAIL_BRANCHES="main,develop"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Started dispatching notifications."
@@ -122,7 +122,7 @@ load ../_helper.bash
   unset VORTEX_NOTIFY_BRANCH
   export VORTEX_NOTIFY_EMAIL_BRANCHES="main,develop"
 
-  run ./.vortex/tooling/src/vortex-notify-email
+  run .vortex/tooling/src/vortex-notify-email
   assert_success
 
   assert_output_contains 'Skipped email notification for branch "".'
@@ -147,11 +147,11 @@ load ../_helper.bash
   # Ensure test file doesn't exist before
   rm -f /tmp/injected_email_test
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   # Verify the injection file was NOT created (injection did not execute)
-  [ ! -f /tmp/injected_email_test ]
+  assert_file_not_exists "/tmp/injected_email_test"
 
   # Verify the malicious string is treated as literal text in the message
   assert_output_contains "test'); file_put_contents('/tmp/injected_email_test', 'HACKED'); //"
@@ -177,7 +177,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EMAIL_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   # Each collected log is a titled section, below the login URL.
@@ -203,7 +203,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EMAIL_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/nologs"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Site testproject develop has been deployed"
@@ -230,7 +230,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EMAIL_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_contains "Site testproject develop has been deployed"
@@ -260,7 +260,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EMAIL_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   # The log body keeps the %project% token and the command substitution as literal
@@ -292,7 +292,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EMAIL_LOG=0
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_not_contains "Provision line one"
@@ -319,7 +319,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_EMAIL_LOG=1
   export VORTEX_NOTIFY_LOG_DIR="${BATS_TEST_TMPDIR}/logs"
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   # A custom template's %deployment_log% token is substituted with the log.
@@ -349,7 +349,7 @@ load ../_helper.bash
   export VORTEX_NOTIFY_LOG=1
   export VORTEX_NOTIFY_EMAIL_LOG=0
 
-  run ./.vortex/tooling/src/vortex-notify
+  run .vortex/tooling/src/vortex-notify
   assert_success
 
   assert_output_not_contains "Provision line one"
