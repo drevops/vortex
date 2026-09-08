@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for fetch-db-container-registry.sh
+# Unit tests for the 'vortex-fetch-db-container-registry' script.
 #
 # shellcheck disable=SC2030,SC2031
 

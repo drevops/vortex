@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Test for login-container-registry.sh.
+# Unit tests for the 'vortex-login-container-registry' script.
 #
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155
 

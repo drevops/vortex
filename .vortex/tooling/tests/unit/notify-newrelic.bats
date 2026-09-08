@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for NewRelic notifications (notify.sh).
+# Unit tests for the 'vortex-notify-newrelic' script.
 #
 #shellcheck disable=SC2030,SC2031,SC2034
 

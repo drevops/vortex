@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for the Acquia cache purge task.
+# Unit tests for the 'vortex-task-purge-cache-acquia' script.
 #
 # shellcheck disable=SC2030,SC2031,SC2034
 

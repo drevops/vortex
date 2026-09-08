@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for update-vortex.sh
+# Unit tests for the 'vortex-update' script.
 #
 # shellcheck disable=SC2030,SC2031,SC2034
 

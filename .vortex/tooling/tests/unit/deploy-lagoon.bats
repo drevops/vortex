@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Tests for .vortex/tooling/src/vortex-deploy-lagoon script.
+# Unit tests for the 'vortex-deploy-lagoon' script.
 #
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155
 

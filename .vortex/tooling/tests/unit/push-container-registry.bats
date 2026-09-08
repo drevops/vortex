@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Tests for .vortex/tooling/src/vortex-push-container-registry script.
+# Unit tests for the 'vortex-push-container-registry' script.
 #
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155,SC2034
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for email notifications (notify.sh).
+# Unit tests for the 'vortex-notify-email' script.
 #
 #shellcheck disable=SC2030,SC2031,SC2034
 

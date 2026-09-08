@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for provision-30-search-index.sh
+# Unit tests for the 'scripts/provision-30-search-index.sh' script.
 #
 #shellcheck disable=SC2030,SC2031,SC2034
 

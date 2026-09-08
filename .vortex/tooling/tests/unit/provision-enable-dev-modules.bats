@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for provision-10-enable-dev-modules.sh
+# Unit tests for the 'scripts/provision-10-enable-dev-modules.sh' script.
 #
 #
 # The mock side effects expand when the mock runs, not when the step is defined,

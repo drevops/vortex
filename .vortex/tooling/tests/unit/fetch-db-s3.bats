@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for fetch-db-s3.sh
+# Unit tests for the 'vortex-fetch-db-s3' script.
 #
 # shellcheck disable=SC2030,SC2031,SC2034
 

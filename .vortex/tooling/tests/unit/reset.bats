@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for the reset script.
+# Unit tests for the 'vortex-reset' script.
 #
 # shellcheck disable=SC2030,SC2031
 

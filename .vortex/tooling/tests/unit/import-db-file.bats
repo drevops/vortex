@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for import-db-file worker script.
+# Unit tests for the 'vortex-import-db-file' script.
 #
 # shellcheck disable=SC2030,SC2031,SC2034
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for Diffy notifications (notify-diffy).
+# Unit tests for the 'vortex-notify-diffy' script.
 #
 #shellcheck disable=SC2030,SC2031,SC2034
 

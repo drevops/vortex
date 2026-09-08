@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for push-db-s3.sh
+# Unit tests for the 'vortex-push-db-s3' script.
 #
 # shellcheck disable=SC2030,SC2031,SC2034
 

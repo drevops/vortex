@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for the task router.
+# Unit tests for the 'vortex-task' script.
 #
 # The router resolves a platform-agnostic operation to the
 # 'task-<operation>-<platform>' sibling that implements it; these tests cover
