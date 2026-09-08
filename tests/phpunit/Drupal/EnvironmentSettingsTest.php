@@ -34,7 +34,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
    * {@inheritdoc}
    */
   protected function tearDown(): void {
-    if (!is_null($this->acquiaSettingsFixture)) {
+    if (!is_null($this->acquiaSettingsFixture) && file_exists($this->acquiaSettingsFixture)) {
       unlink($this->acquiaSettingsFixture);
     }
 
@@ -1372,8 +1372,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
    */
   #[DataProvider('dataProviderEnvironmentAcquiaTempPath')]
   public function testEnvironmentAcquiaTempPath(array $vars, string $expected_path): void {
-    $this->acquiaSettingsFixture = getcwd() . '/.artifacts/tmp/' . uniqid('acquia-settings-') . '.inc';
-    file_put_contents($this->acquiaSettingsFixture, "<?php\n");
+    $this->acquiaSettingsFixture = $this->createAcquiaSettingsFixture();
 
     $this->setEnvVars($vars + ['DRUPAL_ACQUIA_SETTINGS_FILE' => $this->acquiaSettingsFixture]);
 
@@ -1430,6 +1429,28 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       ['AH_SITE_ENVIRONMENT' => 'dev', 'AH_SITE_GROUP' => 'mysite', 'DRUPAL_TMP_PATH' => ''],
       '/tmp',
     ];
+  }
+
+  /**
+   * Create an Acquia settings file fixture.
+   *
+   * The settings file is required when a site group is set, so the shared
+   * mount branch can only be reached through a file that exists.
+   *
+   * @return string
+   *   Path to the settings file fixture.
+   */
+  protected function createAcquiaSettingsFixture(): string {
+    $dir = getcwd() . '/.artifacts/tmp';
+
+    if (!is_dir($dir)) {
+      mkdir($dir, 0777, TRUE);
+    }
+
+    $file = $dir . '/' . uniqid('acquia-settings-') . '.inc';
+    file_put_contents($file, "<?php\n");
+
+    return $file;
   }
 
   // phpcs:ignore #;> SETTINGS_PROVIDER_ACQUIA
