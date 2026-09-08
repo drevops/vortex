@@ -60,7 +60,8 @@ install it and run the shipped scripts from `vendor/bin/vortex-*`.
 **Script pattern**: the structure, the variable block and the five output
 helpers live in the boilerplate at
 `.vortex/docs/content/contributing/maintenance/script-boilerplate.sh`. Copy
-them from there - every script in `tooling/src/` matches it byte for byte.
+them from there - the five helper definitions are byte-identical in the
+boilerplate and in every script in `tooling/src/`.
 
 The boilerplate leaves out two things the repository's scripts carry:
 
