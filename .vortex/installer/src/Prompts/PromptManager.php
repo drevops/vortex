@@ -547,7 +547,9 @@ class PromptManager {
     $handler = $this->handler($handler_id);
     $resolved = $handler->resolvedValue($responses);
 
-    if (is_string($resolved)) {
+    // The handler reports an undetermined answer as an empty value of its own
+    // type, so the prompt is skipped only for a value with content.
+    if (!in_array($resolved, [NULL, '', FALSE, []], TRUE)) {
       $message = $handler->resolvedMessage($responses, $resolved);
 
       if ($message) {
