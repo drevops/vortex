@@ -58,7 +58,37 @@ setup_variables() {
   popd >/dev/null || exit 1
 }
 
-@test "task-copy-files-acquia: refreshes the token while the task is still running" {
+@test "task-copy-files-acquia: polls with the refreshed token after the first poll" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token"}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Ddev # {"_embedded":{"items":[{"id":"src-env-id"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dtest # {"_embedded":{"items":[{"id":"dst-env-id"}]}}'
+    '@curl -X POST -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token -H Content-Type: application/json -d {"source":"src-env-id"} https://cloud.acquia.com/api/environments/dst-env-id/files # {"_links":{"notification":{"href":"https://cloud.acquia.com/api/notifications/notif-123"}}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/notifications/notif-123 # {"status":"in-progress"}'
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"refreshed-token"}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer refreshed-token https://cloud.acquia.com/api/notifications/notif-123 # {"status":"completed"}'
+
+    "Refreshed authentication token."
+    "[ OK ] Copied files from dev to test environment."
+    "[ OK ] Finished files copying between environments in Acquia."
+  )
+
+  setup_variables
+  export VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES="2"
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-task-copy-files-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_success
+
+  popd >/dev/null || exit 1
+}
+
+@test "task-copy-files-acquia: fails when the task never completes" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
@@ -70,7 +100,6 @@ setup_variables() {
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/notifications/notif-123 # {"status":"in-progress"}'
     '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"refreshed-token"}'
 
-    "Refreshed authentication token."
     "[FAIL] Unable to copy files from dev to test environment."
   )
 
@@ -91,7 +120,7 @@ setup_variables() {
   declare -a STEPS=(
     "Retrieving authentication token."
     '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"error":"invalid_client"}'
-    "[FAIL] Authentication failed. Check VORTEX_TASK_COPY_FILES_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_COPY_FILES_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
+    '[FAIL] Authentication failed. Check VORTEX_TASK_COPY_FILES_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_COPY_FILES_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: {"error":"invalid_client"}'
   )
 
   setup_variables
