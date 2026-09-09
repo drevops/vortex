@@ -25,9 +25,9 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
-info "Started database file import."
-
 drush() { ./vendor/bin/drush -y "$@"; }
+
+info "Started database file import."
 
 dump_file="${1:-${VORTEX_IMPORT_DB_FILE_DIR}/${VORTEX_IMPORT_DB_FILE}}"
 

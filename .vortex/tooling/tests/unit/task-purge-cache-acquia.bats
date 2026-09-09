@@ -213,3 +213,73 @@ assert_purge_domain() {
 
   popd >/dev/null || exit 1
 }
+
+@test "task-purge-cache-acquia: reports the rejected credentials" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    "Retrieving authentication token."
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"error":"invalid_client"}'
+    '[FAIL] Authentication failed. Check VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: {"error":"invalid_client"}'
+  )
+
+  export VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY="test-key"
+  export VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET="test-secret"
+  export VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME="testapp"
+  export VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV="prod"
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-task-purge-cache-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null || exit 1
+}
+
+@test "task-purge-cache-acquia: reports the missing application" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token"}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[]}}'
+    '[FAIL] Application "testapp" not found. Check application name and access permissions.'
+  )
+
+  export VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY="test-key"
+  export VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET="test-secret"
+  export VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME="testapp"
+  export VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV="prod"
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-task-purge-cache-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null || exit 1
+}
+
+@test "task-purge-cache-acquia: reports the missing environment" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token"}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[]}}'
+    '[FAIL] Environment "prod" not found in application "testapp". Check environment name.'
+  )
+
+  export VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY="test-key"
+  export VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET="test-secret"
+  export VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME="testapp"
+  export VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV="prod"
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-task-purge-cache-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null || exit 1
+}

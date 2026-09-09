@@ -83,19 +83,19 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
-for cmd in php curl gunzip; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
-
-info "Started database dump fetch from Acquia."
-
 extract_json_last_value() {
-  local key=${1}
+  local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
 extract_json_value() {
-  local key=${1}
+  local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
+
+for cmd in php curl gunzip; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
+
+info "Started database dump fetch from Acquia."
 
 [ -z "${VORTEX_FETCH_DB_ACQUIA_KEY}" ] && fail "Missing required value for VORTEX_FETCH_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY."
 [ -z "${VORTEX_FETCH_DB_ACQUIA_SECRET}" ] && fail "Missing required value for VORTEX_FETCH_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
@@ -113,7 +113,7 @@ if echo "${token_json}" | grep -q '"error"'; then
   fail "Authentication failed. Check VORTEX_FETCH_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_FETCH_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: ${token_json}"
 fi
 
-token="$(echo "${token_json}" | extract_json_value "access_token")"
+token=$(echo "${token_json}" | extract_json_value "access_token")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Access token extracted (value redacted)."
 [ -z "${token}" ] && fail "Unable to retrieve a token. API response: ${token_json}"
 pass "Retrieved authentication token."
@@ -141,7 +141,7 @@ fi
 
 env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted environment ID: ${env_id}"
-[ -z "${env_id}" ] && fail "Unable to retrieve an environment ID for \"${VORTEX_FETCH_DB_ENVIRONMENT}\". API response: ${envs_json}"
+[ -z "${env_id}" ] && fail "Unable to retrieve environment ID for \"${VORTEX_FETCH_DB_ENVIRONMENT}\". API response: ${envs_json}"
 pass "Retrieved ${VORTEX_FETCH_DB_ENVIRONMENT} environment ID."
 
 if [ "${VORTEX_FETCH_DB_FRESH}" = "1" ]; then

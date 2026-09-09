@@ -64,6 +64,16 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
+extract_json_first_value() {
+  local key="${1}"
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$first=reset(\$data); isset(\$first[\"${key}\"]) ? print trim(json_encode(\$first[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+}
+
+extract_json_value() {
+  local key="${1}"
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+}
+
 for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 if [ -n "${VORTEX_NOTIFY_GITHUB_BRANCHES}" ]; then
@@ -80,19 +90,6 @@ fi
 [ -z "${VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE}" ] && fail "Missing required value for VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE."
 
 info "Started GitHub notification for ${VORTEX_NOTIFY_GITHUB_EVENT} event."
-
-#
-# Function to extract last value from JSON object passed via STDIN.
-#
-extract_json_first_value() {
-  local key=${1}
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$first=reset(\$data); isset(\$first[\"${key}\"]) ? print trim(json_encode(\$first[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
-}
-
-extract_json_value() {
-  local key=${1}
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
-}
 
 if [ "${VORTEX_NOTIFY_GITHUB_EVENT}" = "pre_deployment" ]; then
   info "GitHub pre-deployment notification summary:"
