@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\Env;
 
 /**
@@ -14,6 +15,27 @@ use DrevOps\VortexInstaller\Utils\Env;
  * theme build and assets are built on the host or as part of deployment.
  */
 class FrontendBuild extends AbstractHandler {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function section(): ?PromptSection {
+    return PromptSection::Drupal;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 140;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function processWeight(): int {
+    return 340;
+  }
 
   /**
    * {@inheritdoc}

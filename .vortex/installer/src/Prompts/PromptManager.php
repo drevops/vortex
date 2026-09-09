@@ -16,13 +16,11 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
-use DrevOps\VortexInstaller\Prompts\Handlers\Dotenv;
 use DrevOps\VortexInstaller\Prompts\Handlers\FrontendBuild;
 use DrevOps\VortexInstaller\Prompts\Handlers\Gitleaks;
 use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
-use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
@@ -59,13 +57,6 @@ use function Laravel\Prompts\form;
  * Centralized place for providing prompts and their processing.
  */
 class PromptManager {
-
-  /**
-   * Total number of top-level responses.
-   *
-   * Used to display the progress of the prompts.
-   */
-  const TOTAL_RESPONSES = 36;
 
   /**
    * Array of responses.
@@ -130,125 +121,26 @@ class PromptManager {
       Tui::output()->setVerbosity(OutputInterface::VERBOSITY_QUIET);
     }
 
-    // @formatter:off
-    // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
-    // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
-    // phpcs:disable Drupal.WhiteSpace.ObjectOperatorIndent.Indent
-    // phpcs:disable Drupal.WhiteSpace.ScopeIndent.IncorrectExact
-    $form = form()
-      ->intro('General information')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(Name::class), Name::id())
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(MachineName::class, $r), MachineName::id())
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(Org::class, $r), Org::id())
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(OrgMachineName::class, $r), OrgMachineName::id())
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(Domain::class, $r), Domain::id())
+    $form = form();
+    $section = NULL;
 
-      ->intro('Drupal')
-      ->addIf(
-          fn(array $r): bool => $this->handler(Starter::id())->shouldRun($r),
-          fn(array $r, $pr, $n): mixed => $this->prompt(Starter::class, $r),
-          Starter::id()
-        )
-      ->add(
-          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Profile::id(), $r, fn(): mixed => $this->prompt(Profile::class)),
-          Profile::id()
-        )
-        ->addIf(
-            fn(array $r): bool => $this->handler(ProfileCustom::id())->shouldRun($r),
-            fn($r, $pr, $n): mixed => $this->prompt(ProfileCustom::class),
-            ProfileCustom::id()
-          )
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(Modules::class, $r), Modules::id())
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(ModulePrefix::class, $r), ModulePrefix::id())
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(CustomModules::class, $r), CustomModules::id())
-      ->add(
-          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Theme::id(), $r, fn(): mixed => $this->prompt(Theme::class)),
-          Theme::id()
-        )
-        ->addIf(
-            fn(array $r): bool => $this->handler(ThemeCustom::id())->shouldRun($r),
-            fn(array $r, $pr, $n): mixed => $this->prompt(ThemeCustom::class, $r),
-            ThemeCustom::id()
-          )
-        ->addIf(
-            fn(array $r): bool => $this->handler(FrontendBuild::id())->shouldRun($r),
-            fn(array $r, $pr, $n): mixed => $this->prompt(FrontendBuild::class, $r),
-            FrontendBuild::id()
-          )
+    foreach ($this->getPromptHandlers() as $id => $handler) {
+      $handler_section = $handler::section();
 
-      ->intro('Code repository')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(CodeProvider::class), CodeProvider::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(VersionScheme::class), VersionScheme::id())
+      if ($handler_section instanceof PromptSection && $handler_section !== $section) {
+        $section = $handler_section;
+        $form->intro($section->value);
+      }
 
-      ->intro('Environment')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(Timezone::class), Timezone::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(Services::class), Services::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(Tools::class), Tools::id())
+      $step = fn(array $responses, mixed $previous, ?string $name): mixed => $this->promptOrResolve($id, $responses);
 
-      ->intro('Hosting')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(HostingProvider::class), HostingProvider::id())
-      ->addIf(
-          fn(array $r): bool => $this->handler(HostingProjectName::id())->shouldRun($r),
-          fn(array $r, $pr, $n): mixed => $this->prompt(HostingProjectName::class, $r),
-          HostingProjectName::id()
-        )
-      ->add(
-          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Webroot::id(), $r, fn(): mixed => $this->prompt(Webroot::class, $r)),
-          Webroot::id()
-        )
-
-      ->intro('Deployment')
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(DeployTypes::class, $r), DeployTypes::id())
-
-      ->intro('Workflow')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(ProvisionType::class), ProvisionType::id())
-      ->addIf(
-          fn(array $r): bool => $this->handler(DatabaseFetchSource::id())->shouldRun($r),
-          fn(array $r, $pr, $n): mixed => $this->prompt(DatabaseFetchSource::class, $r),
-          DatabaseFetchSource::id()
-        )
-        ->addIf(
-            fn(array $r): bool => $this->handler(DatabaseImage::id())->shouldRun($r),
-            fn(array $r, $pr, $n): mixed => $this->prompt(DatabaseImage::class, $r),
-            DatabaseImage::id()
-          )
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(Migration::class), Migration::id())
-      ->addIf(
-          fn(array $r): bool => $this->handler(MigrationFetchSource::id())->shouldRun($r),
-          fn(array $r, $pr, $n): mixed => $this->prompt(MigrationFetchSource::class, $r),
-          MigrationFetchSource::id()
-        )
-        ->addIf(
-            fn(array $r): bool => $this->handler(MigrationImage::id())->shouldRun($r),
-            fn(array $r, $pr, $n): mixed => $this->prompt(MigrationImage::class, $r),
-            MigrationImage::id()
-          )
-
-      ->intro('Notifications')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(NotificationChannels::class), NotificationChannels::id())
-
-      ->intro('Continuous Integration')
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(CiProvider::class, $r), CiProvider::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(VisualRegression::class), VisualRegression::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(Gitleaks::class), Gitleaks::id())
-
-      ->intro('Automations')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(DependencyUpdatesProvider::class), DependencyUpdatesProvider::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(CodeCoverageProvider::class), CodeCoverageProvider::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(AssignAuthorPr::class), AssignAuthorPr::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(LabelMergeConflictsPr::class), LabelMergeConflictsPr::id())
-
-      ->intro('Documentation')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(PreserveDocsProject::class), PreserveDocsProject::id())
-
-      ->intro('AI')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(AiCodeInstructions::class), AiCodeInstructions::id());
-
-    // @formatter:on
-    // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
-    // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
-    // phpcs:enable Drupal.WhiteSpace.ObjectOperatorIndent.Indent
-    // phpcs:enable Drupal.WhiteSpace.ScopeIndent.IncorrectExact
+      if ($handler->dependsOn() === NULL) {
+        $form->add($step, $id);
+      }
+      else {
+        $form->addIf(fn(array $responses): bool => $handler->shouldRun($responses), $step, $id);
+      }
+    }
 
     $responses = $form->submit();
 
@@ -330,56 +222,8 @@ class PromptManager {
    * Run all processors.
    */
   public function runProcessors(): void {
-    // Dotenv and Webroot run first; Dotenv has no prompt of its own. The rest
-    // run in reverse of the order defined in runPrompts(), so string
-    // replacements process more specific values before more generic ones.
-    $ids = [
-      Dotenv::id(),
-      Webroot::id(),
-      AiCodeInstructions::id(),
-      PreserveDocsProject::id(),
-      LabelMergeConflictsPr::id(),
-      AssignAuthorPr::id(),
-      CodeCoverageProvider::id(),
-      DependencyUpdatesProvider::id(),
-      Gitleaks::id(),
-      VisualRegression::id(),
-      CiProvider::id(),
-      MigrationImage::id(),
-      MigrationFetchSource::id(),
-      Migration::id(),
-      DatabaseImage::id(),
-      DatabaseFetchSource::id(),
-      ProvisionType::id(),
-      NotificationChannels::id(),
-      DeployTypes::id(),
-      HostingProvider::id(),
-      Tools::id(),
-      Services::id(),
-      Timezone::id(),
-      VersionScheme::id(),
-      CodeProvider::id(),
-      Modules::id(),
-      Starter::id(),
-      ProfileCustom::id(),
-      Profile::id(),
-      Domain::id(),
-      HostingProjectName::id(),
-      CustomModules::id(),
-      ModulePrefix::id(),
-      FrontendBuild::id(),
-      ThemeCustom::id(),
-      Theme::id(),
-      OrgMachineName::id(),
-      MachineName::id(),
-      Org::id(),
-      Name::id(),
-      // Always last.
-      Internal::id(),
-    ];
-
-    foreach ($ids as $id) {
-      $this->handler($id)->setResponses($this->responses)->process();
+    foreach ($this->getProcessHandlers() as $handler) {
+      $handler->setResponses($this->responses)->process();
     }
 
     // Handlers only queue file operations; this is where they are applied.
@@ -423,14 +267,8 @@ class PromptManager {
   public function runPostBuild(string $result): string {
     $output = '';
 
-    $ids = [
-      Starter::id(),
-      HostingProvider::id(),
-      CiProvider::id(),
-    ];
-
-    foreach ($ids as $id) {
-      $handler_output = $this->handler($id)->postBuild($result);
+    foreach ($this->getOrderedHandlers() as $handler) {
+      $handler_output = $handler->postBuild($result);
 
       if (is_string($handler_output) && !empty($handler_output)) {
         $output .= $handler_output;
@@ -565,6 +403,44 @@ class PromptManager {
   }
 
   /**
+   * Get all handlers ordered by their prompt chain weight.
+   *
+   * @return array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
+   *   An associative array of handler instances keyed by handler ID.
+   */
+  public function getOrderedHandlers(): array {
+    $handlers = $this->handlers;
+
+    uasort($handlers, fn(HandlerInterface $a, HandlerInterface $b): int => $a::weight() <=> $b::weight());
+
+    return $handlers;
+  }
+
+  /**
+   * Get the handlers that have a prompt, in the order they are prompted.
+   *
+   * @return array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
+   *   An associative array of handler instances keyed by handler ID.
+   */
+  public function getPromptHandlers(): array {
+    return array_filter($this->getOrderedHandlers(), fn(HandlerInterface $handler): bool => $handler::section() instanceof PromptSection);
+  }
+
+  /**
+   * Get all handlers in the order they are processed.
+   *
+   * @return array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
+   *   An associative array of handler instances keyed by handler ID.
+   */
+  public function getProcessHandlers(): array {
+    $handlers = $this->handlers;
+
+    uasort($handlers, fn(HandlerInterface $a, HandlerInterface $b): int => $a::processWeight() <=> $b::processWeight());
+
+    return $handlers;
+  }
+
+  /**
    * Generate a label for a prompt.
    *
    * @param string $text
@@ -582,7 +458,7 @@ class PromptManager {
 
     $suffix = $suffix !== NULL ? $this->currentResponseIndex . '.' . $suffix : $this->currentResponseIndex;
 
-    return $text . ' ' . Tui::dim('(' . $suffix . '/' . self::TOTAL_RESPONSES . ')');
+    return $text . ' ' . Tui::dim('(' . $suffix . '/' . count($this->getPromptHandlers()) . ')');
   }
 
   /**
@@ -657,20 +533,52 @@ class PromptManager {
   }
 
   /**
+   * Use the handler's own value when it has one, otherwise prompt for it.
+   *
+   * @param string $handler_id
+   *   The handler ID.
+   * @param array $responses
+   *   Current form responses for context-aware methods.
+   *
+   * @return mixed
+   *   The resolved value or the prompt result.
+   */
+  protected function promptOrResolve(string $handler_id, array $responses): mixed {
+    $handler = $this->handler($handler_id);
+    $resolved = $handler->resolvedValue($responses);
+
+    if (is_string($resolved)) {
+      $message = $handler->resolvedMessage($responses, $resolved);
+
+      if ($message) {
+        Tui::success($message);
+      }
+
+      // A resolved value is read from the destination, so it stands in for
+      // discovery for handlers that never reach a prompt.
+      $this->discoveredResponses[$handler_id] = $resolved;
+
+      return $resolved;
+    }
+
+    return $this->prompt($handler_id, $responses);
+  }
+
+  /**
    * Dispatch a prompt using the handler's type enum.
    *
-   * @param string $handler_class
-   *   The handler class name.
+   * @param string $handler_id
+   *   The handler ID.
    * @param array $responses
    *   Current form responses for context-aware methods.
    *
    * @return mixed
    *   The prompt result.
    */
-  protected function prompt(string $handler_class, array $responses = []): mixed {
-    $fn = $this->handler($handler_class::id())->type()->promptFunction();
+  protected function prompt(string $handler_id, array $responses = []): mixed {
+    $fn = $this->handler($handler_id)->type()->promptFunction();
 
-    return $fn(...$this->args($handler_class, NULL, $responses));
+    return $fn(...$this->args($handler_id, NULL, $responses));
   }
 
   /**
@@ -678,8 +586,8 @@ class PromptManager {
    *
    * Kept deliberately unoptimized to ease debugging and future changes.
    *
-   * @param string $handler_class
-   *   The handler class name.
+   * @param string $handler_id
+   *   The handler ID.
    * @param mixed $default_override
    *   Optional override for the default value (for response dependencies).
    * @param array $responses
@@ -688,9 +596,8 @@ class PromptManager {
    * @return array
    *   Array of prompt arguments suitable for Laravel prompts.
    */
-  protected function args(string $handler_class, mixed $default_override = NULL, array $responses = []): array {
-    $id = $handler_class::id();
-    $handler = $this->handler($id);
+  protected function args(string $handler_id, mixed $default_override = NULL, array $responses = []): array {
+    $handler = $this->handler($handler_id);
 
     $args = [
       'label' => $this->label($handler->label()),
@@ -716,11 +623,11 @@ class PromptManager {
     }
 
     $default_from_handler = $handler->default($responses);
-    $default_from_prompts = $this->promptOverrides[$id] ?? NULL;
+    $default_from_prompts = $this->promptOverrides[$handler_id] ?? NULL;
     $default_from_discovery = $handler->discover();
 
     if ($default_from_discovery !== NULL) {
-      $this->discoveredResponses[$id] = $default_from_discovery;
+      $this->discoveredResponses[$handler_id] = $default_from_discovery;
     }
 
     if ($default_from_prompts !== NULL) {
@@ -741,40 +648,6 @@ class PromptManager {
     }
 
     return array_filter($args, fn($value): bool => $value !== NULL);
-  }
-
-  /**
-   * Resolve a value via handler or prompt the user.
-   *
-   * @param string $handler_id
-   *   The handler ID.
-   * @param array $r
-   *   Current form responses for context-aware methods.
-   * @param callable $prompt
-   *   The prompt callable to use if the value is not resolved.
-   *
-   * @return string
-   *   The resolved value.
-   */
-  protected function resolveOrPrompt(string $handler_id, array $r, callable $prompt): string {
-    $handler = $this->handler($handler_id);
-    $resolved = $handler->resolvedValue($r);
-
-    if (is_string($resolved)) {
-      $message = $handler->resolvedMessage($r, $resolved);
-
-      if ($message) {
-        Tui::success($message);
-      }
-
-      // A resolved value is read from the destination, so it stands in for
-      // discovery for handlers that never reach a prompt.
-      $this->discoveredResponses[$handler_id] = $resolved;
-
-      return $resolved;
-    }
-
-    return (string) $prompt();
   }
 
   /**

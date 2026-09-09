@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use AlexSkrypnyk\File\Replacer\Replacement;
+use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\JsonManipulator;
 
@@ -23,6 +24,27 @@ class Modules extends AbstractHandler {
    * @var string[]
    */
   protected const DEV_MODULES = ['devel', 'sdc_devel', 'generated_content', 'testmode', 'reroute_email'];
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function section(): ?PromptSection {
+    return PromptSection::Drupal;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 90;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function processWeight(): int {
+    return 260;
+  }
 
   /**
    * {@inheritdoc}

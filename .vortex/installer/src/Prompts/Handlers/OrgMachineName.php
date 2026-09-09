@@ -4,11 +4,33 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\JsonManipulator;
 
 class OrgMachineName extends AbstractHandler {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function section(): ?PromptSection {
+    return PromptSection::General;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 40;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function processWeight(): int {
+    return 370;
+  }
 
   /**
    * {@inheritdoc}

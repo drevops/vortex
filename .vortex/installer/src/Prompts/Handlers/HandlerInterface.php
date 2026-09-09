@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Prompts\PromptType;
 
 /**
@@ -33,6 +34,37 @@ interface HandlerInterface {
    *   The environment variable name in the format VORTEX_INSTALLER_PROMPT_*.
    */
   public static function envName(): string;
+
+  /**
+   * Get the section of the prompt chain this handler belongs to.
+   *
+   * @return \DrevOps\VortexInstaller\Prompts\PromptSection|null
+   *   The section, or NULL when the handler has no prompt.
+   */
+  public static function section(): ?PromptSection;
+
+  /**
+   * Get the position of this handler in the prompt chain.
+   *
+   * Handlers are prompted from the lowest weight up. The value is unused when
+   * section() returns NULL.
+   *
+   * @return int
+   *   The weight.
+   */
+  public static function weight(): int;
+
+  /**
+   * Get the position of this handler in the processing chain.
+   *
+   * Handlers are processed from the lowest weight up. The processing order is
+   * broadly the reverse of the prompt order, so that string replacements
+   * process more specific values before more generic ones.
+   *
+   * @return int
+   *   The weight.
+   */
+  public static function processWeight(): int;
 
   /**
    * Get the prompt type for this handler.

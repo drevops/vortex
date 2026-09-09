@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 
@@ -16,6 +17,27 @@ class Profile extends AbstractHandler {
   const DEMO_UMAMI = 'demo_umami';
 
   const CUSTOM = 'custom';
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function section(): ?PromptSection {
+    return PromptSection::Drupal;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 70;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function processWeight(): int {
+    return 290;
+  }
 
   /**
    * {@inheritdoc}

@@ -63,10 +63,10 @@ Requires `asciinema`, `expect`, `php`, `composer`, `npx` on PATH. Produces
 permission before running.
 
 Triggers that require re-recording:
-- New `Handlers/*.php` class or handler removal.
+- New `Handlers/*.php` class or handler removal, which also moves the progress
+  denominator.
 - Wording change to `label()` or `hint()` of any existing handler.
-- Reordering prompts inside `PromptManager::runPrompts()`.
-- Change to `TOTAL_RESPONSES` constant.
+- Change to `section()` or `weight()` of any handler, which reorders the prompts.
 
 ## Conditional Token System
 
@@ -129,6 +129,21 @@ Content removed if feature not selected
 - `CiProvider.php`, `HostingProvider.php`, `Services.php`, `Theme.php`
 
 ## Handler Development
+
+### Ordering
+
+`PromptManager` registers handlers by scanning the `Handlers` directory and
+derives both chains from the handler itself:
+
+- `section()` - the `PromptSection` the prompt is introduced under, or `NULL`
+  for a handler that only processes.
+- `weight()` - position in the prompt chain, and the denominator of the
+  progress indicator.
+- `processWeight()` - position in the processing chain, which runs broadly in
+  reverse so that string replacements process more specific values first.
+
+All three are declared on `HandlerInterface` with no default, so a new handler
+does not compile until it states where it belongs.
 
 ### Key Pattern
 

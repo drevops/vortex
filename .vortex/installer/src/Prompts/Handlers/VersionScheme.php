@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Tui;
@@ -15,6 +16,27 @@ class VersionScheme extends AbstractHandler {
   const SEMVER = 'semver';
 
   const OTHER = 'other';
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function section(): ?PromptSection {
+    return PromptSection::CodeRepository;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 160;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function processWeight(): int {
+    return 240;
+  }
 
   /**
    * {@inheritdoc}

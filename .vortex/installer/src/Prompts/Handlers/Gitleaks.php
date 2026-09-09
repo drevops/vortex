@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\File;
 
 /**
@@ -14,6 +15,27 @@ use DrevOps\VortexInstaller\Utils\File;
  * Gitleaks configuration file are removed.
  */
 class Gitleaks extends AbstractHandler {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function section(): ?PromptSection {
+    return PromptSection::ContinuousIntegration;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 330;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function processWeight(): int {
+    return 90;
+  }
 
   /**
    * {@inheritdoc}

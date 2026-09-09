@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use DrevOps\VortexInstaller\Utils\Tui;
 
@@ -16,6 +17,27 @@ class Starter extends AbstractHandler {
   const LOAD_DATABASE_DEMO = 'load_demodb';
 
   const INSTALL_PROFILE_DRUPALCMS_PATH = '../recipes/drupal_cms_starter';
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function section(): ?PromptSection {
+    return PromptSection::Drupal;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function weight(): int {
+    return 60;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function processWeight(): int {
+    return 270;
+  }
 
   /**
    * {@inheritdoc}

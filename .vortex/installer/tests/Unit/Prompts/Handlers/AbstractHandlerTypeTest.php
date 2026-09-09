@@ -10,6 +10,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeCoverageProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
@@ -100,6 +101,7 @@ class AbstractHandlerTypeTest extends UnitTestCase {
     yield 'code_coverage_provider' => [CodeCoverageProvider::id(), PromptType::Select];
     // MultiSelect handlers.
     yield 'modules' => [Modules::id(), PromptType::MultiSelect];
+    yield 'custom_modules' => [CustomModules::id(), PromptType::MultiSelect];
     yield 'services' => [Services::id(), PromptType::MultiSelect];
     yield 'tools' => [Tools::id(), PromptType::MultiSelect];
     yield 'deploy_types' => [DeployTypes::id(), PromptType::MultiSelect];
