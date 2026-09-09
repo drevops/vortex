@@ -1,4 +1,4 @@
-@@ -70,44 +70,16 @@
+@@ -70,18 +70,7 @@
  
      $this->requireSettingsFile();
  
@@ -17,33 +17,7 @@
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $this->assertConfig($config);
  
-     $settings['auto_create_htaccess'] = FALSE;
-     $settings['config_exclude_modules'] = [
--      'devel',
--      'generated_content',
--      'reroute_email',
--      'sdc_devel',
--      'testmode',
-     ];
-     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-     $settings['entity_update_batch_size'] = 50;
-     $settings['environment'] = self::ENVIRONMENT_SUT;
--    $settings['fast404_allow_anon_imagecache'] = FALSE;
--    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
--    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
--    $settings['fast404_path_check'] = FALSE;
--    $settings['fast404_respect_redirect'] = FALSE;
--    $settings['fast404_url_whitelisting'] = TRUE;
--    $settings['fast404_whitelist'] = [
--      'index.php',
--      'rss.xml',
--      'cron.php',
--      'xmlrpc.php',
--    ];
-     $settings['file_public_path'] = 'sites/default/files';
-     $settings['file_private_path'] = 'sites/default/files/private';
-     $settings['file_temp_path'] = '/tmp';
-@@ -166,18 +138,7 @@
+@@ -131,18 +120,7 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
@@ -62,36 +36,7 @@
      $config['system.performance']['cache']['page']['max_age'] = 1800;
      $this->assertConfig($config);
  
-@@ -184,28 +145,11 @@
-     // Verify settings overrides.
-     $settings['auto_create_htaccess'] = FALSE;
-     $settings['config_exclude_modules'] = [
--      'devel',
--      'generated_content',
--      'reroute_email',
--      'sdc_devel',
--      'testmode',
-     ];
-     $settings['config_sync_directory'] = 'custom_config';
-     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-     $settings['entity_update_batch_size'] = 50;
-     $settings['environment'] = self::ENVIRONMENT_SUT;
--    $settings['fast404_allow_anon_imagecache'] = FALSE;
--    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
--    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
--    $settings['fast404_path_check'] = FALSE;
--    $settings['fast404_respect_redirect'] = FALSE;
--    $settings['fast404_url_whitelisting'] = TRUE;
--    $settings['fast404_whitelist'] = [
--      'index.php',
--      'rss.xml',
--      'cron.php',
--      'xmlrpc.php',
--    ];
-     $settings['file_public_path'] = 'custom_public';
-     $settings['file_private_path'] = 'custom_private';
-     $settings['file_temp_path'] = 'custom_temp';
-@@ -233,48 +177,17 @@
+@@ -169,23 +147,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -114,33 +59,8 @@
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
  
-     $settings['auto_create_htaccess'] = FALSE;
-     $settings['config_exclude_modules'] = [
--      'devel',
--      'generated_content',
--      'reroute_email',
--      'sdc_devel',
--      'testmode',
-     ];
-     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-     $settings['entity_update_batch_size'] = 50;
-     $settings['environment'] = self::ENVIRONMENT_LOCAL;
--    $settings['fast404_allow_anon_imagecache'] = FALSE;
--    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
--    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
--    $settings['fast404_path_check'] = FALSE;
--    $settings['fast404_respect_redirect'] = FALSE;
--    $settings['fast404_url_whitelisting'] = TRUE;
--    $settings['fast404_whitelist'] = [
--      'index.php',
--      'rss.xml',
--      'cron.php',
--      'xmlrpc.php',
--    ];
-     $settings['file_public_path'] = 'sites/default/files';
-     $settings['file_private_path'] = 'sites/default/files/private';
-     $settings['file_temp_path'] = '/tmp';
-@@ -304,48 +217,17 @@
+     $settings = $this->expectedSettings(self::ENVIRONMENT_LOCAL);
+@@ -205,23 +169,9 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -163,33 +83,8 @@
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
  
-     $settings['auto_create_htaccess'] = FALSE;
-     $settings['config_exclude_modules'] = [
--      'devel',
--      'generated_content',
--      'reroute_email',
--      'sdc_devel',
--      'testmode',
-     ];
-     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-     $settings['entity_update_batch_size'] = 50;
-     $settings['environment'] = self::ENVIRONMENT_LOCAL;
--    $settings['fast404_allow_anon_imagecache'] = FALSE;
--    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
--    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
--    $settings['fast404_path_check'] = FALSE;
--    $settings['fast404_respect_redirect'] = FALSE;
--    $settings['fast404_url_whitelisting'] = TRUE;
--    $settings['fast404_whitelist'] = [
--      'index.php',
--      'rss.xml',
--      'cron.php',
--      'xmlrpc.php',
--    ];
-     $settings['file_public_path'] = 'sites/default/files';
-     $settings['file_private_path'] = 'sites/default/files/private';
-     $settings['file_temp_path'] = '/tmp';
-@@ -417,49 +299,18 @@
+     $settings = $this->expectedSettings(self::ENVIRONMENT_LOCAL);
+@@ -286,24 +236,10 @@
      $this->requireSettingsFile();
  
      $config['automated_cron.settings']['interval'] = 0;
@@ -213,29 +108,33 @@
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
  
-     $settings['auto_create_htaccess'] = FALSE;
-     $settings['config_exclude_modules'] = [
--      'devel',
--      'generated_content',
--      'reroute_email',
--      'sdc_devel',
--      'testmode',
-     ];
-     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
-     $settings['entity_update_batch_size'] = 50;
-     $settings['environment'] = self::ENVIRONMENT_CI;
--    $settings['fast404_allow_anon_imagecache'] = FALSE;
--    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
--    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
--    $settings['fast404_path_check'] = FALSE;
--    $settings['fast404_respect_redirect'] = FALSE;
--    $settings['fast404_url_whitelisting'] = TRUE;
--    $settings['fast404_whitelist'] = [
--      'index.php',
--      'rss.xml',
--      'cron.php',
--      'xmlrpc.php',
--    ];
-     $settings['file_public_path'] = 'sites/default/files';
-     $settings['file_private_path'] = 'sites/default/files/private';
-     $settings['file_temp_path'] = '/tmp';
+     $settings = $this->expectedSettings(self::ENVIRONMENT_CI);
+@@ -327,28 +263,11 @@
+     return [
+       'auto_create_htaccess' => FALSE,
+       'config_exclude_modules' => [
+-        'devel',
+-        'generated_content',
+-        'reroute_email',
+-        'sdc_devel',
+-        'testmode',
+       ],
+       'config_sync_directory' => '../config/default',
+       'container_yamls' => [$this->app_root . '/' . $this->site_path . '/services.yml'],
+       'entity_update_batch_size' => 50,
+       'environment' => $environment,
+-      'fast404_allow_anon_imagecache' => FALSE,
+-      'fast404_exts' => '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i',
+-      'fast404_html' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>',
+-      'fast404_path_check' => FALSE,
+-      'fast404_respect_redirect' => FALSE,
+-      'fast404_url_whitelisting' => TRUE,
+-      'fast404_whitelist' => [
+-        'index.php',
+-        'rss.xml',
+-        'cron.php',
+-        'xmlrpc.php',
+-      ],
+       'file_private_path' => 'sites/default/files/private',
+       'file_public_path' => 'sites/default/files',
+       'file_scan_ignore_directories' => [

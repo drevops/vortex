@@ -6,7 +6,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['reroute_email.settings']['enable'] = TRUE;
-@@ -172,7 +171,6 @@
+@@ -137,7 +136,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -14,7 +14,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['reroute_email.settings']['enable'] = TRUE;
-@@ -240,7 +238,6 @@
+@@ -176,7 +174,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -22,7 +22,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -248,8 +245,6 @@
+@@ -184,8 +181,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
@@ -30,8 +30,8 @@
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
  
-     $settings['auto_create_htaccess'] = FALSE;
-@@ -311,7 +306,6 @@
+     $settings = $this->expectedSettings(self::ENVIRONMENT_LOCAL);
+@@ -212,7 +207,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -39,7 +39,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -319,8 +313,6 @@
+@@ -220,8 +214,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
@@ -47,8 +47,8 @@
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
  
-     $settings['auto_create_htaccess'] = FALSE;
-@@ -424,7 +416,6 @@
+     $settings = $this->expectedSettings(self::ENVIRONMENT_LOCAL);
+@@ -293,7 +285,6 @@
      $config['environment_indicator.settings']['favicon'] = TRUE;
      $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
      $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
@@ -56,7 +56,7 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
-@@ -433,8 +424,6 @@
+@@ -302,8 +293,6 @@
      $config['reroute_email.settings']['enable'] = FALSE;
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
@@ -64,4 +64,4 @@
 -    $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $this->assertConfig($config);
  
-     $settings['auto_create_htaccess'] = FALSE;
+     $settings = $this->expectedSettings(self::ENVIRONMENT_CI);
