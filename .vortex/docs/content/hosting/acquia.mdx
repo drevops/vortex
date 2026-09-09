@@ -43,6 +43,20 @@ pre-configured scripts in the [`hooks/`](https://github.com/drevops/vortex/tree/
 directory that trigger on code deployments, code updates, and database copy
 operations.
 
+Each hook is turned off by setting its skip variable to `1` in the Acquia UI:
+
+| Hook                   | Variable                             |
+|------------------------|--------------------------------------|
+| `provision.sh`         | `VORTEX_PROVISION_ACQUIA_SKIP`       |
+| `purge-cache.sh`       | `VORTEX_PURGE_CACHE_ACQUIA_SKIP`     |
+| `notify-deployment.sh` | `VORTEX_NOTIFY_ACQUIA_SKIP`          |
+| `copy-db.sh`           | `VORTEX_TASK_COPY_DB_ACQUIA_SKIP`    |
+| `copy-files.sh`        | `VORTEX_TASK_COPY_FILES_ACQUIA_SKIP` |
+
+A hook stops with an error when a value it requires is unset or empty, so a
+blank field in the Acquia UI aborts the hook rather than running it with a
+missing value.
+
 ### Environment detection
 
 **Vortex** automatically detects when running on Acquia and loads appropriate
