@@ -36,6 +36,32 @@ class OptionsResolver {
   }
 
   /**
+   * Read a JSON option given either as a file path or as a literal value.
+   *
+   * @param string $value
+   *   The option value.
+   * @param string $option
+   *   The option name, for the error message.
+   *
+   * @return string
+   *   The JSON string.
+   *
+   * @throws \RuntimeException
+   *   When the value names an existing path whose contents cannot be read.
+   */
+  public static function readJsonOption(string $value, string $option): string {
+    if (!File::exists($value)) {
+      return $value;
+    }
+
+    if (!File::isReadable($value)) {
+      throw new \RuntimeException(sprintf('Unable to read %s file: "%s".', $option, $value));
+    }
+
+    return File::read($value);
+  }
+
+  /**
    * Instantiate configuration from CLI options and environment variables.
    *
    * Installer configuration is a set of internal installer variables
@@ -53,8 +79,7 @@ class OptionsResolver {
   public static function resolve(array $options): array {
     $config_json = '{}';
     if (isset($options['config']) && is_scalar($options['config'])) {
-      $config_candidate = (string) $options['config'];
-      $config_json = File::isReadable($config_candidate) ? File::read($config_candidate) : $config_candidate;
+      $config_json = self::readJsonOption((string) $options['config'], '--config');
     }
 
     $config = Config::fromString($config_json);
@@ -117,16 +142,7 @@ class OptionsResolver {
     $config->set(Config::IS_DEMO_DB_FETCH_SKIP, (bool) Env::get(Config::IS_DEMO_DB_FETCH_SKIP, FALSE));
 
     if (isset($options['prompts']) && is_scalar($options['prompts'])) {
-      $prompts_candidate = (string) $options['prompts'];
-      if (File::exists($prompts_candidate)) {
-        if (!File::isReadable($prompts_candidate)) {
-          throw new \RuntimeException(sprintf('Unable to read --prompts file: "%s".', $prompts_candidate));
-        }
-        $prompts_json = File::read($prompts_candidate);
-      }
-      else {
-        $prompts_json = $prompts_candidate;
-      }
+      $prompts_json = self::readJsonOption((string) $options['prompts'], '--prompts');
       $prompts = json_decode($prompts_json, TRUE);
 
       if (!is_array($prompts)) {

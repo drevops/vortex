@@ -333,7 +333,7 @@ EOF
       return Command::FAILURE;
     }
 
-    $prompts_json = File::isReadable($prompts_option) ? File::read($prompts_option) : $prompts_option;
+    $prompts_json = OptionsResolver::readJsonOption($prompts_option, '--prompts');
     $decoded = json_decode($prompts_json);
 
     if (!$decoded instanceof \stdClass) {

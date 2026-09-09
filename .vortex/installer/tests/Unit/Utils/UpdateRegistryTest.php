@@ -137,4 +137,18 @@ class UpdateRegistryTest extends UnitTestCase {
     $this->assertFileContainsString($file, '### behat.yml');
   }
 
+  public function testWriteRefusesToReplaceUnreadableRegistry(): void {
+    // A directory at the registry path exists but cannot be read as a file,
+    // which is the condition that would otherwise discard the entries.
+    File::mkdir(self::$sut . '/' . UpdateRegistry::FILE);
+
+    $registry = new UpdateRegistry(self::$sut);
+    $registry->add('phpstan.neon', "level: 5\n", "level: 8\n", "level: 9\n");
+
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('Unable to read the update registry');
+
+    $registry->write('1.40.0', '1.41.0', '2026-09-07 09:31:22');
+  }
+
 }
