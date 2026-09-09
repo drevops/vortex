@@ -471,3 +471,34 @@ load ../_helper.bash
 
   popd >/dev/null
 }
+
+@test "Key provided, SHA256 fingerprint, No matching key file => failure" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DEBUG=1
+
+  fixture_ssh_key_prepare
+  fixture_ssh_key
+  export VORTEX_SSH_PREFIX="TEST"
+  export VORTEX_TEST_SSH_FINGERPRINT="SHA256:NOTAREALFINGERPRINT"
+
+  # Override the values that could be coming from the environment with defaults.
+  export VORTEX_SSH_REMOVE_ALL_KEYS="0"
+  export VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING="0"
+
+  # shellcheck disable=SC2034
+  declare -a STEPS=(
+    "Using fingerprint-based deploy key because fingerprint was provided."
+    "Searching for MD5 hash as fingerprint starts with SHA256."
+    "Did not find a matching existing key file."
+    "- Found matching existing key file"
+    "SSH key file ${HOME}/.ssh/id_rsa_SHA256NOTAREALFINGERPRINT does not exist."
+  )
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-setup-ssh
+  assert_failure
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null
+}

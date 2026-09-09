@@ -104,7 +104,7 @@ task "Copying database from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_C
 task_status_json=$(curl -X POST -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d "{\"source\":\"${src_env_id}\", \"name\":\"${VORTEX_TASK_COPY_DB_ACQUIA_NAME}\"}" "https://cloud.acquia.com/api/environments/${dst_env_id}/databases")
 notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href")
 
-echo -n "     > Checking task status: "
+printf "       Checking task status: "
 task_completed=0
 # shellcheck disable=SC2034
 for i in $(seq 1 "${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES}"); do
@@ -114,11 +114,10 @@ for i in $(seq 1 "${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES}"); do
   task_state=$(echo "${task_status_json}" | extract_json_value "status")
   [ "${task_state}" = "completed" ] && task_completed=1 && break
 
-  task "Retrieving authentication token."
   token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_COPY_DB_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_COPY_DB_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
   token=$(echo "${token_json}" | extract_json_value "access_token")
   [ -z "${token}" ] && fail "Unable to retrieve a token."
-  pass "Retrieved authentication token."
+  note "Refreshed authentication token."
 done
 
 echo

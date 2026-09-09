@@ -167,6 +167,7 @@ if [ "${VORTEX_FETCH_DB_FRESH}" = "1" ]; then
   max_wait="${VORTEX_FETCH_DB_ACQUIA_BACKUP_MAX_WAIT}"
   wait_interval="${VORTEX_FETCH_DB_ACQUIA_BACKUP_WAIT_INTERVAL}"
   elapsed=0
+  backup_completed=0
 
   while [ ${elapsed} -lt "${max_wait}" ]; do
     sleep "${wait_interval}"
@@ -178,7 +179,7 @@ if [ "${VORTEX_FETCH_DB_FRESH}" = "1" ]; then
     status=$(echo "${status_json}" | extract_json_value "status")
 
     if [ "${status}" = "completed" ]; then
-      pass "Backup completed successfully."
+      backup_completed=1
       break
     elif [ "${status}" = "failed" ]; then
       fail "Backup creation failed. API response: ${status_json}"
@@ -187,9 +188,11 @@ if [ "${VORTEX_FETCH_DB_FRESH}" = "1" ]; then
     note "Backup in progress (${elapsed}s elapsed)..."
   done
 
-  if [ ${elapsed} -ge "${max_wait}" ]; then
+  if [ "${backup_completed}" = "0" ]; then
     fail "Backup creation timed out after ${max_wait} seconds."
   fi
+
+  pass "Backup completed successfully."
 
   note "Fresh backup will be fetched."
 fi

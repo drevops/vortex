@@ -156,6 +156,7 @@ load ../_helper.bash
     "Copying deployment .gitignore as it may not exist in deploy code source files."
     "Copied deployment .gitignore."
     "Running artifact builder."
+    "Ran artifact builder."
     "Finished artifact deployment."
   )
   mocks="$(steps_run "setup")"
@@ -207,6 +208,7 @@ load ../_helper.bash
     "@sha256sum -c"
     "@chmod +x ${TMPDIR:-/tmp}/git-artifact"
     "Running artifact builder."
+    "Ran artifact builder."
     "Finished artifact deployment."
   )
   mocks="$(steps_run "setup")"

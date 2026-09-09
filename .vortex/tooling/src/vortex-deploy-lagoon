@@ -95,7 +95,7 @@ is_lagoon_env_limit_exceeded() {
 
 # Run a Lagoon deploy command, surface its output, and translate an
 # environment-limit error into a controlled outcome. The reason for a failed
-# deploy is carried in ${deploy_error} to be shown with the final status.
+# deploy is carried in ${deploy_error} to be shown with the outcome.
 run_lagoon_deploy() {
   local deploy_output
 
@@ -117,15 +117,31 @@ run_lagoon_deploy() {
   [ "${exit_code}" = "0" ] && [ "${VORTEX_DEBUG-}" = "1" ] && [ -n "${deploy_output}" ] && printf '%s\n' "${deploy_output}"
 
   # Always succeed: the outcome is carried in ${exit_code}. Leaking the status
-  # of the checks above would trip 'set -e' at the call site and skip the final
-  # deployment status line.
+  # of the checks above would trip 'set -e' at the call site before the deploy
+  # task is closed.
   return 0
 }
 
-# Track deploy status to report at the end.
+# Close the open deploy task with the outcome carried in ${exit_code}. The
+# argument is the noun phrase naming the deployment, used in both the success
+# and the failure line.
+close_deploy() {
+  if [ "${exit_code}" = "0" ]; then
+    pass "Requested ${1}"
+    return 0
+  fi
+
+  if [ -n "${deploy_error}" ]; then
+    printf '%s\n' "${deploy_error}"
+  fi
+
+  fail "Failed to request ${1}" "${exit_code}"
+}
+
+# Deploy status, carried from run_lagoon_deploy to close_deploy.
 exit_code=0
 
-# Raw CLI output of a failed deploy, printed with the final status.
+# Raw CLI output of a failed deploy, printed with the failure line.
 deploy_error=""
 
 info "Started Lagoon deployment."
@@ -245,24 +261,22 @@ else
 
       task "Redeploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
       run_lagoon_deploy deploy pullrequest --number "${VORTEX_DEPLOY_LAGOON_PR}" --base-branch-name "${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_LAGOON_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_LAGOON_PR_HEAD}" --title "${deploy_pr_full}"
-      # A failed deploy is reported by the final status line, after the
-      # override flag is restored.
-      [ "${exit_code}" = "0" ] && pass "Requested redeployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
 
-      # Lagoon reads the flag when it queues the build.
-      task "Waiting for deployment to be queued."
+      # Lagoon reads the flag while it queues the build, so the flag is restored
+      # only once the build has been queued. A failed deploy is reported after
+      # the restore.
+      note "Waiting for deployment to be queued."
       sleep 10
-      pass "Waited for deployment to be queued."
 
       if [ "${override_db_state}" = "absent" ]; then
-        task "Removing a database import override flag."
         lagoon delete variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB || true
-        pass "Removed a database import override flag."
+        note "Removed a database import override flag."
       elif [ "${override_db_state}" = "present" ]; then
-        task "Restoring a database import override flag to ${override_db_original}."
         lagoon update variable --environment "${deploy_pr_full}" --name VORTEX_PROVISION_OVERRIDE_DB --value "${override_db_original}" --scope "${override_db_scope}" || true
-        pass "Restored a database import override flag to ${override_db_original}."
+        note "Restored a database import override flag to ${override_db_original}."
       fi
+
+      close_deploy "redeployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
 
     # Deployment of the fresh environment.
     else
@@ -270,7 +284,7 @@ else
       # are not configured for the project.
       task "Deploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
       run_lagoon_deploy deploy pullrequest --number "${VORTEX_DEPLOY_LAGOON_PR}" --base-branch-name "${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --base-branch-ref "origin/${VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH}" --head-branch-name "${VORTEX_DEPLOY_LAGOON_BRANCH}" --head-branch-ref "${VORTEX_DEPLOY_LAGOON_PR_HEAD}" --title "${deploy_pr_full}"
-      [ "${exit_code}" = "0" ] && pass "Requested deployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
+      close_deploy "deployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, PR: ${VORTEX_DEPLOY_LAGOON_PR}."
     fi
 
   # Deploy branch.
@@ -342,24 +356,22 @@ else
 
       task "Redeploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
       run_lagoon_deploy deploy latest --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}"
-      # A failed deploy is reported by the final status line, after the
-      # override flag is restored.
-      [ "${exit_code}" = "0" ] && pass "Requested redeployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
 
-      # Lagoon reads the flag when it queues the build.
-      task "Waiting for deployment to be queued."
+      # Lagoon reads the flag while it queues the build, so the flag is restored
+      # only once the build has been queued. A failed deploy is reported after
+      # the restore.
+      note "Waiting for deployment to be queued."
       sleep 10
-      pass "Waited for deployment to be queued."
 
       if [ "${override_db_state}" = "absent" ]; then
-        task "Removing a database import override flag."
         lagoon delete variable --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --name VORTEX_PROVISION_OVERRIDE_DB || true
-        pass "Removed a database import override flag."
+        note "Removed a database import override flag."
       elif [ "${override_db_state}" = "present" ]; then
-        task "Restoring a database import override flag to ${override_db_original}."
         lagoon update variable --environment "${VORTEX_DEPLOY_LAGOON_BRANCH}" --name VORTEX_PROVISION_OVERRIDE_DB --value "${override_db_original}" --scope "${override_db_scope}" || true
-        pass "Restored a database import override flag to ${override_db_original}."
+        note "Restored a database import override flag to ${override_db_original}."
       fi
+
+      close_deploy "redeployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
 
     # Deployment of the fresh environment.
     else
@@ -367,17 +379,9 @@ else
       # not match the configured deployment regex.
       task "Deploying environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
       run_lagoon_deploy deploy branch --branch "${VORTEX_DEPLOY_LAGOON_BRANCH}"
-      [ "${exit_code}" = "0" ] && pass "Requested deployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
+      close_deploy "deployment of environment: project: ${VORTEX_DEPLOY_LAGOON_PROJECT}, branch: ${VORTEX_DEPLOY_LAGOON_BRANCH}."
     fi
   fi
-fi
-
-if [ "${exit_code}" != "0" ]; then
-  if [ -n "${deploy_error}" ]; then
-    printf '%s\n' "${deploy_error}"
-  fi
-
-  fail "Lagoon deployment completed with errors." "${exit_code}"
 fi
 
 pass "Finished Lagoon deployment."

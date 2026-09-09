@@ -733,6 +733,84 @@ bats_require_minimum_version 1.5.0
   popd >/dev/null
 }
 
+@test "fetch-db-acquia: Fresh backup completing on the last allowed poll is not a timeout" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  rm -rf .data
+  mkdir -p .data
+
+  declare -a STEPS=(
+    "[INFO] Started database dump fetch from Acquia."
+
+    # Authentication
+    "[TASK] Retrieving authentication token."
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token","expires_in":3600}'
+
+    # Application UUID
+    "[TASK] Retrieving testapp application UUID."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123","name":"testapp"}]}}'
+
+    # Environment ID
+    "[TASK] Retrieving prod environment ID."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
+
+    # Create backup
+    "[TASK] Creating new database backup for testdb."
+    '@curl -s -L -X POST -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups # {"_links":{"notification":{"href":"https://cloud.acquia.com/api/notifications/notification-uuid-123"}}}'
+
+    # Wait for backup - completes on the poll that exhausts the wait budget.
+    "[TASK] Waiting for backup to complete."
+    '@sleep 5 # 0'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/notifications/notification-uuid-123 # {"status":"in-progress"}'
+    "       Backup in progress (5s elapsed)..."
+    '@sleep 5 # 0'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/notifications/notification-uuid-123 # {"status":"completed"}'
+    "[ OK ] Backup completed successfully."
+    "- Backup creation timed out"
+    "       Fresh backup will be fetched."
+
+    # Continue with normal download flow
+    "[TASK] Discovering latest backup ID for database testdb."
+    '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups?sort=created # {"_embedded":{"items":[{"id":"backup-id-new-123","completed":"2024-01-02T00:00:00+00:00"}]}}'
+
+    "[TASK] Discovering backup URL."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-new-123/actions/download # {"url":"https://backup.example.com/db-fresh.sql.gz"}'
+
+    "[TASK] Fetching database dump into file .data/testdb_backup_backup-id-new-123.sql.gz."
+    '@curl --progress-bar -L https://backup.example.com/db-fresh.sql.gz -o .data/testdb_backup_backup-id-new-123.sql.gz # 0 #  # echo "CREATE TABLE fresh (id INT);" | gzip > .data/testdb_backup_backup-id-new-123.sql.gz'
+
+    "[TASK] Expanding database file .data/testdb_backup_backup-id-new-123.sql.gz into .data/testdb_backup_backup-id-new-123.sql."
+    "@gunzip -t .data/testdb_backup_backup-id-new-123.sql.gz # 0"
+    "@gunzip -c .data/testdb_backup_backup-id-new-123.sql.gz # 0 # CREATE TABLE fresh (id INT);"
+
+    '[TASK] Renaming file ".data/testdb_backup_backup-id-new-123.sql" to ".data/db.sql".'
+    '@mv .data/testdb_backup_backup-id-new-123.sql .data/db.sql # 0 #  # echo "CREATE TABLE fresh (id INT);" > .data/db.sql'
+
+    "[ OK ] Finished database dump fetch from Acquia."
+  )
+
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_FRESH="1"
+  export VORTEX_FETCH_DB_ACQUIA_BACKUP_MAX_WAIT="10"
+  export VORTEX_FETCH_DB_ACQUIA_BACKUP_WAIT_INTERVAL="5"
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-fetch-db-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_success
+  assert_file_exists ".data/db.sql"
+
+  rm -rf .data
+  popd >/dev/null
+}
+
 @test "fetch-db-acquia: Backup URL discovery fails when response has no URL" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

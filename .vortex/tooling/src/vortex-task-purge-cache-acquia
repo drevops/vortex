@@ -139,7 +139,7 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
       break
     fi
 
-    echo -n "     > Checking task status: "
+    printf "       Checking task status: "
     task_completed=0
     # shellcheck disable=SC2034
     for i in $(seq 1 "${VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES}"); do
@@ -153,11 +153,10 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
         break 1
       fi
 
-      task "Retrieving authentication token."
       token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
       token=$(echo "${token_json}" | extract_json_value "access_token")
       [ -z "${token}" ] && fail "Unable to retrieve a token."
-      pass "Retrieved authentication token."
+      note "Refreshed authentication token."
     done
     echo
 
