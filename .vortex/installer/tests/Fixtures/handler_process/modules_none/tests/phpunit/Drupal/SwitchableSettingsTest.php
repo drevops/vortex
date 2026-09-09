@@ -27,10 +27,10 @@
 -  }
 -
 -  /**
-    * Test ClamAV configs in Daemon mode with defaults.
+    * Test ClamAV config.
     */
-   public function testClamavDaemonCustom(): void {
-@@ -94,257 +76,6 @@
+   #[DataProvider('dataProviderClamav')]
+@@ -119,257 +101,6 @@
    }
  
    /**
@@ -287,11 +287,12 @@
 -  /**
     * Test Redis settings.
     */
-   public function testRedis(): void {
-@@ -414,650 +145,6 @@
-     unset($this->settings['bootstrap_container_definition']);
- 
-     $this->assertSettingsContains($settings);
+   #[DataProvider('dataProviderRedis')]
+@@ -445,692 +176,6 @@
+       ['DRUPAL_REDIS_ENABLED' => 'true', 'VORTEX_REDIS_EXTENSION_LOADED' => 1],
+       FALSE,
+       $disabled_settings,
+-    ];
 -  }
 -
 -  /**
@@ -479,7 +480,7 @@
 -        'DRUPAL_SHIELD_DISABLED' => 'false',
 -      ],
 -      [
--        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
 -      ],
 -    ];
 -    yield [
@@ -491,7 +492,19 @@
 -        'DRUPAL_SHIELD_DISABLED' => 'true',
 -      ],
 -      [
--        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+-        'DRUPAL_SHIELD_DISABLED' => '01',
+-      ],
+-      [
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
 -      ],
 -    ];
 -
@@ -595,6 +608,24 @@
 -        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
 -        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
 -        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 0,
+-      ],
+-      [
+-        'shield.settings' => [
+-          'shield_enable' => TRUE,
+-          'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
+-        ],
+-      ],
+-      [
+-        'shield.settings' => ['method' => NULL, 'paths' => NULL],
+-      ],
+-    ];
+-    // ACME challenge with a non-numeric truthy value - should not set.
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 'true',
 -      ],
 -      [
 -        'shield.settings' => [
@@ -811,6 +842,18 @@
 -        'reroute_email.settings' => ['enable' => FALSE],
 -      ],
 -    ];
+-
+-    // DRUPAL_REROUTE_EMAIL_DISABLED with a non-numeric truthy value: not
+-    // disabled.
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_REROUTE_EMAIL_DISABLED' => 'true',
+-      ],
+-      [
+-        'reroute_email.settings' => ['enable' => TRUE],
+-      ],
+-    ];
 -  }
 -
 -  /**
@@ -935,7 +978,6 @@
 -        'stage_file_proxy.settings' => ['hotlink' => FALSE, 'origin' => 'https://drupal_shield_user:drupal_shield_pass@example.com/'],
 -      ],
 -      [],
--    ];
+     ];
    }
  
-   /**

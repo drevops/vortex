@@ -1,60 +1,85 @@
-@@ -38,62 +38,6 @@
+@@ -38,87 +38,6 @@
    }
  
    /**
--   * Test ClamAV configs in Daemon mode with defaults.
+-   * Test ClamAV config.
 -   */
--  public function testClamavDaemonCustom(): void {
--    $this->setEnvVars([
--      'DRUPAL_CLAMAV_ENABLED' => TRUE,
--      'DRUPAL_CLAMAV_MODE' => 'daemon',
--      'CLAMAV_HOST' => 'custom_clamav_host',
--      'CLAMAV_PORT' => 3333,
--    ]);
+-  #[DataProvider('dataProviderClamav')]
+-  public function testClamav(array $vars, array $expected_present, array $expected_absent = []): void {
+-    $this->setEnvVars($vars);
 -
 -    $this->requireSettingsFile();
 -
--    $config['clamav.settings']['scan_mode'] = 0;
--    $config['clamav.settings']['mode_daemon_tcpip']['hostname'] = 'custom_clamav_host';
--    $config['clamav.settings']['mode_daemon_tcpip']['port'] = 3333;
--
--    $this->assertConfigContains($config);
+-    $this->assertConfigContains($expected_present);
+-    $this->assertConfigNotContains($expected_absent);
 -  }
 -
 -  /**
--   * Test ClamAV configs in Executable mode.
+-   * Data provider for testClamav().
 -   */
--  public function testClamavExecutable(): void {
--    $this->setEnvVars([
--      'DRUPAL_CLAMAV_ENABLED' => TRUE,
--      'CLAMAV_HOST' => 'custom_clamav_host',
--      'CLAMAV_PORT' => 3333,
--    ]);
+-  public static function dataProviderClamav(): \Iterator {
+-    yield 'daemon mode with custom host and port' => [
+-      [
+-        'DRUPAL_CLAMAV_ENABLED' => 1,
+-        'DRUPAL_CLAMAV_MODE' => 'daemon',
+-        'CLAMAV_HOST' => 'custom_clamav_host',
+-        'CLAMAV_PORT' => 3333,
+-      ],
+-      [
+-        'clamav.settings' => [
+-          'scan_mode' => 0,
+-          'mode_daemon_tcpip' => ['hostname' => 'custom_clamav_host', 'port' => 3333],
+-        ],
+-      ],
+-    ];
 -
--    $this->requireSettingsFile();
+-    yield 'daemon mode with defaults' => [
+-      [
+-        'DRUPAL_CLAMAV_ENABLED' => 1,
+-        'DRUPAL_CLAMAV_MODE' => 'daemon',
+-      ],
+-      [
+-        'clamav.settings' => [
+-          'scan_mode' => 0,
+-          'mode_daemon_tcpip' => ['hostname' => 'clamav', 'port' => 3310],
+-        ],
+-      ],
+-    ];
 -
--    $config['clamav.settings']['scan_mode'] = 1;
--    $config['clamav.settings']['executable_path'] = '/usr/bin/clamscan';
+-    yield 'executable mode' => [
+-      [
+-        'DRUPAL_CLAMAV_ENABLED' => 1,
+-        'CLAMAV_HOST' => 'custom_clamav_host',
+-        'CLAMAV_PORT' => 3333,
+-      ],
+-      [
+-        'clamav.settings' => ['scan_mode' => 1, 'executable_path' => '/usr/bin/clamscan'],
+-      ],
+-    ];
 -
--    $this->assertConfigContains($config);
--  }
+-    yield 'variable not set' => [
+-      [],
+-      [],
+-      ['clamav.settings' => ['scan_mode' => NULL]],
+-    ];
 -
--  /**
--   * Test ClamAV configs in Daemon mode with defaults.
--   */
--  public function testClamavDaemonDefaults(): void {
--    $this->setEnvVars([
--      'DRUPAL_CLAMAV_ENABLED' => TRUE,
--      'DRUPAL_CLAMAV_MODE' => 'daemon',
--    ]);
+-    yield 'variable set to an empty value' => [
+-      ['DRUPAL_CLAMAV_ENABLED' => ''],
+-      [],
+-      ['clamav.settings' => ['scan_mode' => NULL]],
+-    ];
 -
--    $this->requireSettingsFile();
+-    yield 'variable set to zero' => [
+-      ['DRUPAL_CLAMAV_ENABLED' => '0'],
+-      [],
+-      ['clamav.settings' => ['scan_mode' => NULL]],
+-    ];
 -
--    $config['clamav.settings']['scan_mode'] = 0;
--    $config['clamav.settings']['mode_daemon_tcpip']['hostname'] = 'clamav';
--    $config['clamav.settings']['mode_daemon_tcpip']['port'] = 3310;
--
--    $this->assertConfigContains($config);
+-    yield 'variable set to a non-numeric truthy value' => [
+-      ['DRUPAL_CLAMAV_ENABLED' => 'true'],
+-      [],
+-      ['clamav.settings' => ['scan_mode' => NULL]],
+-    ];
 -  }
 -
 -  /**

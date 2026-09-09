@@ -27,10 +27,10 @@
 -  }
 -
 -  /**
-    * Test ClamAV configs in Daemon mode with defaults.
+    * Test ClamAV config.
     */
-   public function testClamavDaemonCustom(): void {
-@@ -239,109 +221,6 @@
+   #[DataProvider('dataProviderClamav')]
+@@ -264,109 +246,6 @@
          'environment_indicator.settings' => ['toolbar_integration' => [TRUE], 'favicon' => TRUE],
        ],
      ];

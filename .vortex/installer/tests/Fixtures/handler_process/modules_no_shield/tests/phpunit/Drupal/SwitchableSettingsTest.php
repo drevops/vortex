@@ -1,4 +1,4 @@
-@@ -417,375 +417,6 @@
+@@ -449,405 +449,6 @@
    }
  
    /**
@@ -186,7 +186,7 @@
 -        'DRUPAL_SHIELD_DISABLED' => 'false',
 -      ],
 -      [
--        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
 -      ],
 -    ];
 -    yield [
@@ -198,7 +198,19 @@
 -        'DRUPAL_SHIELD_DISABLED' => 'true',
 -      ],
 -      [
--        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+-        'DRUPAL_SHIELD_DISABLED' => '01',
+-      ],
+-      [
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
 -      ],
 -    ];
 -
@@ -302,6 +314,24 @@
 -        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
 -        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
 -        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 0,
+-      ],
+-      [
+-        'shield.settings' => [
+-          'shield_enable' => TRUE,
+-          'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
+-        ],
+-      ],
+-      [
+-        'shield.settings' => ['method' => NULL, 'paths' => NULL],
+-      ],
+-    ];
+-    // ACME challenge with a non-numeric truthy value - should not set.
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 'true',
 -      ],
 -      [
 -        'shield.settings' => [

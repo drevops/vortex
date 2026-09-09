@@ -349,6 +349,32 @@ Prefix all such variables with `DRUPAL_` (e.g. `DRUPAL_MY_SETTING`) to
 distinguish them from other environment variables.<br/>
 Always define a default hardcoded value for each environment variable.
 
+- **Guard a variable by what it holds.**<br/>
+A _boolean flag_ - a variable whose only job is to switch behavior on - is read
+with `getenv('DRUPAL_MY_FLAG') === '1'`. Every other value, including an unset
+variable, an empty string, `0`, `true` and `yes`, leaves the behavior off.<br/>
+A _value carrier_ - a variable whose value is used - is read with
+`!empty(getenv('DRUPAL_MY_VALUE'))`. Assign it to a variable first when the
+value is needed after the guard.<br/>
+Compare with `===` and `!==`, never with `==`.
+
+:::warning Flags accept only `1`
+
+An environment that sets a shipped flag to `true`, `yes`, `on` or any other
+non-empty value gets the behavior turned **off**. Set every flag below to `1`
+in your hosting provider's environment variables: `DRUPAL_CLAMAV_ENABLED`,
+`DRUPAL_REDIS_ENABLED`, `DRUPAL_REROUTE_EMAIL_DISABLED`,
+`DRUPAL_SHIELD_DISABLED`, `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE`,
+`DRUPAL_TMP_PATH_IS_SHARED` and `DRUPAL_SETTINGS_LOCAL_SKIP`.
+
+:::
+
+- **Gate on the presence of a contributed module only when the file needs it.**<br/>
+`file_exists($contrib_path . '/my_module')` belongs in an override file that
+loads a file from the module directory or registers its paths. An override file
+that only writes `$config` or `$settings` needs no such guard, because Drupal
+ignores overrides for a module that is not installed.
+
 - **Use conditions based on _environment type_ within per-module override files.**<br/>
 This allows for environment-specific configuration without cluttering the main
 `settings.php` file.<br/>

@@ -24,7 +24,7 @@ else {
 }
 
 // Allow an environment to opt out of the rerouting set above.
-if (!empty(getenv('DRUPAL_REROUTE_EMAIL_DISABLED'))) {
+if (getenv('DRUPAL_REROUTE_EMAIL_DISABLED') === '1') {
   // Deliver every message to its intended recipient.
   $config['reroute_email.settings']['enable'] = FALSE;
 }

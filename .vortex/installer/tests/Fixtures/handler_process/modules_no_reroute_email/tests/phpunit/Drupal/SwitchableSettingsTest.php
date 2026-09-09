@@ -1,4 +1,4 @@
-@@ -786,156 +786,6 @@
+@@ -848,168 +848,6 @@
    }
  
    /**
@@ -147,6 +147,18 @@
 -      ],
 -      [
 -        'reroute_email.settings' => ['enable' => FALSE],
+-      ],
+-    ];
+-
+-    // DRUPAL_REROUTE_EMAIL_DISABLED with a non-numeric truthy value: not
+-    // disabled.
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_REROUTE_EMAIL_DISABLED' => 'true',
+-      ],
+-      [
+-        'reroute_email.settings' => ['enable' => TRUE],
 -      ],
 -    ];
 -  }

@@ -38,59 +38,84 @@ class SwitchableSettingsTest extends SettingsTestCase {
   }
 
   /**
-   * Test ClamAV configs in Daemon mode with defaults.
+   * Test ClamAV config.
    */
-  public function testClamavDaemonCustom(): void {
-    $this->setEnvVars([
-      'DRUPAL_CLAMAV_ENABLED' => TRUE,
-      'DRUPAL_CLAMAV_MODE' => 'daemon',
-      'CLAMAV_HOST' => 'custom_clamav_host',
-      'CLAMAV_PORT' => 3333,
-    ]);
+  #[DataProvider('dataProviderClamav')]
+  public function testClamav(array $vars, array $expected_present, array $expected_absent = []): void {
+    $this->setEnvVars($vars);
 
     $this->requireSettingsFile();
 
-    $config['clamav.settings']['scan_mode'] = 0;
-    $config['clamav.settings']['mode_daemon_tcpip']['hostname'] = 'custom_clamav_host';
-    $config['clamav.settings']['mode_daemon_tcpip']['port'] = 3333;
-
-    $this->assertConfigContains($config);
+    $this->assertConfigContains($expected_present);
+    $this->assertConfigNotContains($expected_absent);
   }
 
   /**
-   * Test ClamAV configs in Executable mode.
+   * Data provider for testClamav().
    */
-  public function testClamavExecutable(): void {
-    $this->setEnvVars([
-      'DRUPAL_CLAMAV_ENABLED' => TRUE,
-      'CLAMAV_HOST' => 'custom_clamav_host',
-      'CLAMAV_PORT' => 3333,
-    ]);
+  public static function dataProviderClamav(): \Iterator {
+    yield 'daemon mode with custom host and port' => [
+      [
+        'DRUPAL_CLAMAV_ENABLED' => 1,
+        'DRUPAL_CLAMAV_MODE' => 'daemon',
+        'CLAMAV_HOST' => 'custom_clamav_host',
+        'CLAMAV_PORT' => 3333,
+      ],
+      [
+        'clamav.settings' => [
+          'scan_mode' => 0,
+          'mode_daemon_tcpip' => ['hostname' => 'custom_clamav_host', 'port' => 3333],
+        ],
+      ],
+    ];
 
-    $this->requireSettingsFile();
+    yield 'daemon mode with defaults' => [
+      [
+        'DRUPAL_CLAMAV_ENABLED' => 1,
+        'DRUPAL_CLAMAV_MODE' => 'daemon',
+      ],
+      [
+        'clamav.settings' => [
+          'scan_mode' => 0,
+          'mode_daemon_tcpip' => ['hostname' => 'clamav', 'port' => 3310],
+        ],
+      ],
+    ];
 
-    $config['clamav.settings']['scan_mode'] = 1;
-    $config['clamav.settings']['executable_path'] = '/usr/bin/clamscan';
+    yield 'executable mode' => [
+      [
+        'DRUPAL_CLAMAV_ENABLED' => 1,
+        'CLAMAV_HOST' => 'custom_clamav_host',
+        'CLAMAV_PORT' => 3333,
+      ],
+      [
+        'clamav.settings' => ['scan_mode' => 1, 'executable_path' => '/usr/bin/clamscan'],
+      ],
+    ];
 
-    $this->assertConfigContains($config);
-  }
+    yield 'variable not set' => [
+      [],
+      [],
+      ['clamav.settings' => ['scan_mode' => NULL]],
+    ];
 
-  /**
-   * Test ClamAV configs in Daemon mode with defaults.
-   */
-  public function testClamavDaemonDefaults(): void {
-    $this->setEnvVars([
-      'DRUPAL_CLAMAV_ENABLED' => TRUE,
-      'DRUPAL_CLAMAV_MODE' => 'daemon',
-    ]);
+    yield 'variable set to an empty value' => [
+      ['DRUPAL_CLAMAV_ENABLED' => ''],
+      [],
+      ['clamav.settings' => ['scan_mode' => NULL]],
+    ];
 
-    $this->requireSettingsFile();
+    yield 'variable set to zero' => [
+      ['DRUPAL_CLAMAV_ENABLED' => '0'],
+      [],
+      ['clamav.settings' => ['scan_mode' => NULL]],
+    ];
 
-    $config['clamav.settings']['scan_mode'] = 0;
-    $config['clamav.settings']['mode_daemon_tcpip']['hostname'] = 'clamav';
-    $config['clamav.settings']['mode_daemon_tcpip']['port'] = 3310;
-
-    $this->assertConfigContains($config);
+    yield 'variable set to a non-numeric truthy value' => [
+      ['DRUPAL_CLAMAV_ENABLED' => 'true'],
+      [],
+      ['clamav.settings' => ['scan_mode' => NULL]],
+    ];
   }
 
   /**
@@ -347,73 +372,80 @@ class SwitchableSettingsTest extends SettingsTestCase {
   /**
    * Test Redis settings.
    */
-  public function testRedis(): void {
-    $this->setEnvVars([
-      'DRUPAL_REDIS_ENABLED' => 1,
-      'REDIS_HOST' => 'redis_host',
-      'REDIS_SERVICE_PORT' => 1234,
-      'VORTEX_REDIS_EXTENSION_LOADED' => 1,
-    ]);
+  #[DataProvider('dataProviderRedis')]
+  public function testRedis(array $vars, bool $expected_enabled, array $expected_settings): void {
+    $this->setEnvVars($vars);
 
     $this->requireSettingsFile();
 
-    $settings['redis.connection']['interface'] = 'PhpRedis';
-    $settings['redis.connection']['host'] = 'redis_host';
-    $settings['redis.connection']['port'] = 1234;
-    $settings['cache']['default'] = 'cache.backend.redis';
-
-    $this->assertArrayHasKey('bootstrap_container_definition', $this->settings);
+    $this->assertSame($expected_enabled, array_key_exists('bootstrap_container_definition', $this->settings), 'Bootstrap container definition');
     unset($this->settings['bootstrap_container_definition']);
 
-    $this->assertSettingsContains($settings);
+    if ($expected_enabled) {
+      $this->assertSettingsContains($expected_settings);
+
+      return;
+    }
+
+    $this->assertSettingsNotContains($expected_settings);
   }
 
   /**
-   * Test Redis settings with REDIS_* environment variables.
+   * Data provider for testRedis().
    */
-  public function testRedisVariables(): void {
-    $this->setEnvVars([
-      'DRUPAL_REDIS_ENABLED' => 1,
-      'REDIS_HOST' => 'redis_host',
-      'REDIS_SERVICE_PORT' => 6380,
-      'VORTEX_REDIS_EXTENSION_LOADED' => 1,
-    ]);
+  public static function dataProviderRedis(): \Iterator {
+    $disabled_settings = ['redis.connection' => ['interface' => NULL], 'cache' => ['default' => NULL]];
 
-    $this->requireSettingsFile();
+    yield 'default port' => [
+      [
+        'DRUPAL_REDIS_ENABLED' => 1,
+        'REDIS_HOST' => 'redis_host',
+        'VORTEX_REDIS_EXTENSION_LOADED' => 1,
+      ],
+      TRUE,
+      [
+        'redis.connection' => ['interface' => 'PhpRedis', 'host' => 'redis_host', 'port' => '6379'],
+        'cache' => ['default' => 'cache.backend.redis'],
+      ],
+    ];
 
-    $settings['redis.connection']['interface'] = 'PhpRedis';
-    $settings['redis.connection']['host'] = 'redis_host';
-    $settings['redis.connection']['port'] = 6380;
-    $settings['cache']['default'] = 'cache.backend.redis';
+    yield 'custom host and port' => [
+      [
+        'DRUPAL_REDIS_ENABLED' => 1,
+        'REDIS_HOST' => 'custom_redis_host',
+        'REDIS_SERVICE_PORT' => 6380,
+        'VORTEX_REDIS_EXTENSION_LOADED' => 1,
+      ],
+      TRUE,
+      [
+        'redis.connection' => ['interface' => 'PhpRedis', 'host' => 'custom_redis_host', 'port' => 6380],
+        'cache' => ['default' => 'cache.backend.redis'],
+      ],
+    ];
 
-    $this->assertArrayHasKey('bootstrap_container_definition', $this->settings);
-    unset($this->settings['bootstrap_container_definition']);
+    yield 'variable not set' => [
+      ['VORTEX_REDIS_EXTENSION_LOADED' => 1],
+      FALSE,
+      $disabled_settings,
+    ];
 
-    $this->assertSettingsContains($settings);
-  }
+    yield 'variable set to an empty value' => [
+      ['DRUPAL_REDIS_ENABLED' => '', 'VORTEX_REDIS_EXTENSION_LOADED' => 1],
+      FALSE,
+      $disabled_settings,
+    ];
 
-  /**
-   * Test Redis settings with custom port.
-   */
-  public function testRedisCustomPort(): void {
-    $this->setEnvVars([
-      'DRUPAL_REDIS_ENABLED' => 1,
-      'REDIS_HOST' => 'custom_redis_host',
-      'REDIS_SERVICE_PORT' => 6380,
-      'VORTEX_REDIS_EXTENSION_LOADED' => 1,
-    ]);
+    yield 'variable set to zero' => [
+      ['DRUPAL_REDIS_ENABLED' => '0', 'VORTEX_REDIS_EXTENSION_LOADED' => 1],
+      FALSE,
+      $disabled_settings,
+    ];
 
-    $this->requireSettingsFile();
-
-    $settings['redis.connection']['interface'] = 'PhpRedis';
-    $settings['redis.connection']['host'] = 'custom_redis_host';
-    $settings['redis.connection']['port'] = 6380;
-    $settings['cache']['default'] = 'cache.backend.redis';
-
-    $this->assertArrayHasKey('bootstrap_container_definition', $this->settings);
-    unset($this->settings['bootstrap_container_definition']);
-
-    $this->assertSettingsContains($settings);
+    yield 'variable set to a non-numeric truthy value' => [
+      ['DRUPAL_REDIS_ENABLED' => 'true', 'VORTEX_REDIS_EXTENSION_LOADED' => 1],
+      FALSE,
+      $disabled_settings,
+    ];
   }
 
   /**
@@ -601,7 +633,7 @@ class SwitchableSettingsTest extends SettingsTestCase {
         'DRUPAL_SHIELD_DISABLED' => 'false',
       ],
       [
-        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
       ],
     ];
     yield [
@@ -613,7 +645,19 @@ class SwitchableSettingsTest extends SettingsTestCase {
         'DRUPAL_SHIELD_DISABLED' => 'true',
       ],
       [
-        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+      ],
+    ];
+    yield [
+      self::ENVIRONMENT_DEV,
+      [
+        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+        'DRUPAL_SHIELD_DISABLED' => '01',
+      ],
+      [
+        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
       ],
     ];
 
@@ -717,6 +761,24 @@ class SwitchableSettingsTest extends SettingsTestCase {
         'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
         'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
         'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 0,
+      ],
+      [
+        'shield.settings' => [
+          'shield_enable' => TRUE,
+          'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
+        ],
+      ],
+      [
+        'shield.settings' => ['method' => NULL, 'paths' => NULL],
+      ],
+    ];
+    // ACME challenge with a non-numeric truthy value - should not set.
+    yield [
+      self::ENVIRONMENT_DEV,
+      [
+        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 'true',
       ],
       [
         'shield.settings' => [
@@ -931,6 +993,18 @@ class SwitchableSettingsTest extends SettingsTestCase {
       ],
       [
         'reroute_email.settings' => ['enable' => FALSE],
+      ],
+    ];
+
+    // DRUPAL_REROUTE_EMAIL_DISABLED with a non-numeric truthy value: not
+    // disabled.
+    yield [
+      self::ENVIRONMENT_DEV,
+      [
+        'DRUPAL_REROUTE_EMAIL_DISABLED' => 'true',
+      ],
+      [
+        'reroute_email.settings' => ['enable' => TRUE],
       ],
     ];
   }

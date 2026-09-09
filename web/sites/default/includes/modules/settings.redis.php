@@ -22,7 +22,7 @@ declare(strict_types=1);
 // can be set as a per-project variable and the per-environment variables
 // removed; the next deployment (#3) uses the project-wide variable with the
 // same value '1', so behavior does not change.
-if (file_exists($contrib_path . '/redis') && !empty(getenv('DRUPAL_REDIS_ENABLED'))) {
+if (file_exists($contrib_path . '/redis') && getenv('DRUPAL_REDIS_ENABLED') === '1') {
   // Some providers use `REDIS_`-prefixed environment variables.
   $settings['redis.connection']['host'] = getenv('REDIS_HOST') ?: 'redis';
   $settings['redis.connection']['port'] = getenv('REDIS_SERVICE_PORT') ?: '6379';
