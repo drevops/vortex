@@ -139,13 +139,13 @@ close_deploy() {
 }
 
 # Read the database import override flag on an environment into
-# ${override_db_state}, ${override_db_original} and ${override_db_scope}.
+# ${override_db_state}, ${override_db_original} and ${override_db_scope}. The
+# flag is set for a single build and then restored to its previous state, so an
+# environment that had no flag is not left with one.
 discover_override_db() {
   local environment="${1}"
   local override_db_vars override_db_count
 
-  # The flag is set for a single build and then restored to its previous
-  # state, so an environment that had no flag is not left with one.
   task "Discovering a database import override flag."
   override_db_state="unknown"
   override_db_original=""
