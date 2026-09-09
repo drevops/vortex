@@ -267,7 +267,7 @@ class PromptManager {
   public function runPostBuild(string $result): string {
     $output = '';
 
-    foreach ($this->getOrderedHandlers() as $handler) {
+    foreach ($this->getHandlersByWeight() as $handler) {
       $handler_output = $handler->postBuild($result);
 
       if (is_string($handler_output) && !empty($handler_output)) {
@@ -403,27 +403,13 @@ class PromptManager {
   }
 
   /**
-   * Get all handlers ordered by their prompt chain weight.
-   *
-   * @return array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
-   *   An associative array of handler instances keyed by handler ID.
-   */
-  public function getOrderedHandlers(): array {
-    $handlers = $this->handlers;
-
-    uasort($handlers, fn(HandlerInterface $a, HandlerInterface $b): int => $a::weight() <=> $b::weight());
-
-    return $handlers;
-  }
-
-  /**
    * Get the handlers that have a prompt, in the order they are prompted.
    *
    * @return array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
    *   An associative array of handler instances keyed by handler ID.
    */
   public function getPromptHandlers(): array {
-    return array_filter($this->getOrderedHandlers(), fn(HandlerInterface $handler): bool => $handler::section() instanceof PromptSection);
+    return array_filter($this->getHandlersByWeight(), fn(HandlerInterface $handler): bool => $handler::section() instanceof PromptSection);
   }
 
   /**
@@ -436,6 +422,20 @@ class PromptManager {
     $handlers = $this->handlers;
 
     uasort($handlers, fn(HandlerInterface $a, HandlerInterface $b): int => $a::processWeight() <=> $b::processWeight());
+
+    return $handlers;
+  }
+
+  /**
+   * Get all handlers sorted by their prompt chain weight.
+   *
+   * @return array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
+   *   An associative array of handler instances keyed by handler ID.
+   */
+  protected function getHandlersByWeight(): array {
+    $handlers = $this->handlers;
+
+    uasort($handlers, fn(HandlerInterface $a, HandlerInterface $b): int => $a::weight() <=> $b::weight());
 
     return $handlers;
   }

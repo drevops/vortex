@@ -46,8 +46,8 @@ interface HandlerInterface {
   /**
    * Get the position of this handler in the prompt chain.
    *
-   * Handlers are prompted from the lowest weight up. The value is unused when
-   * section() returns NULL.
+   * Handlers are prompted from the lowest weight up. A handler with no section
+   * is not prompted, and its weight only orders it among the others.
    *
    * @return int
    *   The weight.
