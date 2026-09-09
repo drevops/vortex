@@ -555,6 +555,9 @@ class PromptManager {
    * Count the prompts a form defines.
    *
    * Steps added by intro() carry no name, so the named steps are the prompts.
+   * Conditional steps are counted as well, because whether they run depends on
+   * answers the run has not collected yet, so the result is the most prompts a
+   * run can ask.
    *
    * @param \Laravel\Prompts\FormBuilder $form
    *   The form built in runPrompts().
