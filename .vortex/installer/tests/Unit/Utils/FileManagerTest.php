@@ -41,6 +41,10 @@ class FileManagerTest extends UnitTestCase {
   }
 
   /**
+   * @param string $subdir
+   *   Path appended to the test directory to form the destination.
+   * @param bool $with_git
+   *   Create a repository in the destination before preparing it.
    * @param array<int, string> $expected_messages
    *   Substrings every returned message set must contain.
    */
@@ -457,6 +461,8 @@ class FileManagerTest extends UnitTestCase {
    *   Content for the project's '.env', or NULL to write none.
    * @param bool $with_database_file
    *   Seed the data directory with an already-fetched database dump.
+   * @param string $expected_message
+   *   Substring the returned messages must contain.
    */
   #[DataProvider('dataProviderPrepareDemo')]
   public function testPrepareDemo(array $config_values, ?string $dotenv, bool $with_database_file, string $expected_message): void {

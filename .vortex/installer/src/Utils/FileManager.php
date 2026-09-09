@@ -160,7 +160,7 @@ class FileManager {
       $command = sprintf('git -c advice.defaultBranchName=false --work-tree=%s --git-dir=%s init > /dev/null', escapeshellarg($destination), escapeshellarg($destination . '/.git'));
       passthru($command, $exit_code);
 
-      if ($exit_code !== 0 || !File::exists($destination . '/.git')) {
+      if ($exit_code !== 0) {
         throw new \RuntimeException(sprintf('Unable to initialize Git repository in directory "%s".', $destination));
       }
     }

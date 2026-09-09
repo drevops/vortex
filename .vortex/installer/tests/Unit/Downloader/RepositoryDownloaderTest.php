@@ -473,6 +473,10 @@ class RepositoryDownloaderTest extends UnitTestCase {
    * @param \Closure(self):array{0:?\GuzzleHttp\ClientInterface,1:string} $setup
    *   Builds the HTTP client (NULL for a local repository) and the repository
    *   to download from.
+   * @param string $ref
+   *   Reference to download.
+   * @param string $expected_message
+   *   Substring the thrown message must contain.
    */
   #[DataProvider('dataProviderValidateFailure')]
   public function testValidateFailure(\Closure $setup, string $ref, string $expected_message): void {
