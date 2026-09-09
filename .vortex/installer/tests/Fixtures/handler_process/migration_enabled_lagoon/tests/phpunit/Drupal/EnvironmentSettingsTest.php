@@ -185,7 +185,7 @@
    }
  
    /**
-@@ -128,6 +308,13 @@
+@@ -163,6 +343,13 @@
      $databases['default']['default']['collation'] = 'utf8_general_ci';
      $databases['default']['default']['driver'] = 'mysql';
      $databases['default']['default']['prefix'] = '';
@@ -199,8 +199,8 @@
      $this->assertEquals($databases, $this->databases);
  
      // Verify key config overrides.
-@@ -310,6 +497,211 @@
-     $settings['skip_permissions_hardening'] = TRUE;
+@@ -476,6 +663,339 @@
+     ];
  
      $this->assertSettings($settings);
 +  }
@@ -236,15 +236,47 @@
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
-+    $settings = $this->expectedSettings(self::ENVIRONMENT_DEV);
++    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_test_branch';
++    $settings['config_exclude_modules'] = [
++      'devel',
++      'generated_content',
++      'reroute_email',
++      'sdc_devel',
++      'testmode',
++    ];
++    $settings['config_sync_directory'] = '../config/default';
++    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
++    $settings['entity_update_batch_size'] = 50;
++    $settings['environment'] = self::ENVIRONMENT_DEV;
++    $settings['fast404_allow_anon_imagecache'] = FALSE;
++    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
++    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
++    $settings['fast404_path_check'] = FALSE;
++    $settings['fast404_respect_redirect'] = FALSE;
++    $settings['fast404_url_whitelisting'] = TRUE;
++    $settings['fast404_whitelist'] = [
++      'index.php',
++      'rss.xml',
++      'cron.php',
++      'xmlrpc.php',
++    ];
++    $settings['file_public_path'] = 'sites/default/files';
++    $settings['file_private_path'] = 'sites/default/files/private';
++    $settings['file_temp_path'] = '/tmp';
++    $settings['file_scan_ignore_directories'] = [
++      'node_modules',
++      'bower_components',
++    ];
++    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
++    $settings['maintenance_theme'] = 'claro';
 +    $settings['reverse_proxy'] = TRUE;
 +    $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
-+      '^nginx\\-php$',
-+      '^.+\\.amazee\\.io$',
-+      '^example1\\.com$',
++      '^nginx\-php$',
++      '^.+\.amazee\.io$',
++      '^example1\.com$',
 +      '^example2$',
 +    ];
 +
@@ -282,15 +314,47 @@
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
-+    $settings = $this->expectedSettings(self::ENVIRONMENT_DEV);
++    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_develop';
++    $settings['config_exclude_modules'] = [
++      'devel',
++      'generated_content',
++      'reroute_email',
++      'sdc_devel',
++      'testmode',
++    ];
++    $settings['config_sync_directory'] = '../config/default';
++    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
++    $settings['entity_update_batch_size'] = 50;
++    $settings['environment'] = self::ENVIRONMENT_DEV;
++    $settings['fast404_allow_anon_imagecache'] = FALSE;
++    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
++    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
++    $settings['fast404_path_check'] = FALSE;
++    $settings['fast404_respect_redirect'] = FALSE;
++    $settings['fast404_url_whitelisting'] = TRUE;
++    $settings['fast404_whitelist'] = [
++      'index.php',
++      'rss.xml',
++      'cron.php',
++      'xmlrpc.php',
++    ];
++    $settings['file_public_path'] = 'sites/default/files';
++    $settings['file_private_path'] = 'sites/default/files/private';
++    $settings['file_temp_path'] = '/tmp';
++    $settings['file_scan_ignore_directories'] = [
++      'node_modules',
++      'bower_components',
++    ];
++    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
++    $settings['maintenance_theme'] = 'claro';
 +    $settings['reverse_proxy'] = TRUE;
 +    $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
-+      '^nginx\\-php$',
-+      '^.+\\.amazee\\.io$',
-+      '^example1\\.com$',
++      '^nginx\-php$',
++      '^.+\.amazee\.io$',
++      '^example1\.com$',
 +      '^example2$',
 +    ];
 +
@@ -328,15 +392,47 @@
 +    $config['system.performance']['cache']['page']['max_age'] = 900;
 +    $this->assertConfig($config);
 +
-+    $settings = $this->expectedSettings(self::ENVIRONMENT_STAGE);
++    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_master';
++    $settings['config_exclude_modules'] = [
++      'devel',
++      'generated_content',
++      'reroute_email',
++      'sdc_devel',
++      'testmode',
++    ];
++    $settings['config_sync_directory'] = '../config/default';
++    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
++    $settings['entity_update_batch_size'] = 50;
++    $settings['environment'] = self::ENVIRONMENT_STAGE;
++    $settings['fast404_allow_anon_imagecache'] = FALSE;
++    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
++    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
++    $settings['fast404_path_check'] = FALSE;
++    $settings['fast404_respect_redirect'] = FALSE;
++    $settings['fast404_url_whitelisting'] = TRUE;
++    $settings['fast404_whitelist'] = [
++      'index.php',
++      'rss.xml',
++      'cron.php',
++      'xmlrpc.php',
++    ];
++    $settings['file_public_path'] = 'sites/default/files';
++    $settings['file_private_path'] = 'sites/default/files/private';
++    $settings['file_temp_path'] = '/tmp';
++    $settings['file_scan_ignore_directories'] = [
++      'node_modules',
++      'bower_components',
++    ];
++    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
++    $settings['maintenance_theme'] = 'claro';
 +    $settings['reverse_proxy'] = TRUE;
 +    $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
-+      '^nginx\\-php$',
-+      '^.+\\.amazee\\.io$',
-+      '^example1\\.com$',
++      '^nginx\-php$',
++      '^.+\.amazee\.io$',
++      '^example1\.com$',
 +      '^example2$',
 +    ];
 +
@@ -372,15 +468,47 @@
 +    $config['system.performance']['js']['preprocess'] = TRUE;
 +    $this->assertConfig($config);
 +
-+    $settings = $this->expectedSettings(self::ENVIRONMENT_PROD);
++    $settings['auto_create_htaccess'] = FALSE;
 +    $settings['cache_prefix']['default'] = 'test_project_production';
++    $settings['config_exclude_modules'] = [
++      'devel',
++      'generated_content',
++      'reroute_email',
++      'sdc_devel',
++      'testmode',
++    ];
++    $settings['config_sync_directory'] = '../config/default';
++    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
++    $settings['entity_update_batch_size'] = 50;
++    $settings['environment'] = self::ENVIRONMENT_PROD;
++    $settings['fast404_allow_anon_imagecache'] = FALSE;
++    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
++    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
++    $settings['fast404_path_check'] = FALSE;
++    $settings['fast404_respect_redirect'] = FALSE;
++    $settings['fast404_url_whitelisting'] = TRUE;
++    $settings['fast404_whitelist'] = [
++      'index.php',
++      'rss.xml',
++      'cron.php',
++      'xmlrpc.php',
++    ];
++    $settings['file_public_path'] = 'sites/default/files';
++    $settings['file_private_path'] = 'sites/default/files/private';
++    $settings['file_temp_path'] = '/tmp';
++    $settings['file_scan_ignore_directories'] = [
++      'node_modules',
++      'bower_components',
++    ];
++    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
++    $settings['maintenance_theme'] = 'claro';
 +    $settings['reverse_proxy'] = TRUE;
 +    $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
 +    $settings['trusted_host_patterns'] = [
 +      '^localhost$',
-+      '^nginx\\-php$',
-+      '^.+\\.amazee\\.io$',
-+      '^example1\\.com$',
++      '^nginx\-php$',
++      '^.+\.amazee\.io$',
++      '^example1\.com$',
 +      '^example2$',
 +    ];
 +
@@ -410,4 +538,4 @@
 +    ]);
    }
  
-   /**
+ }
