@@ -655,6 +655,10 @@ class RepositoryDownloaderTest extends UnitTestCase {
     $runner->run('git add .', output: new NullOutput());
     $runner->run('git', args: ['commit', '-m', 'Initial commit'], output: new NullOutput());
 
+    // 'git init' names the first branch after the machine's
+    // 'init.defaultBranch', so the tests that resolve 'main' pin it here.
+    $runner->run('git', args: ['branch', '-M', 'main'], output: new NullOutput());
+
     if ($with_composer_json) {
       File::dump($temp_repo_dir . '/composer.json', '{}');
       $runner->run('git add composer.json', output: new NullOutput());
