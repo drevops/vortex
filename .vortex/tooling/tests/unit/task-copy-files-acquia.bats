@@ -125,6 +125,27 @@ setup_variables() {
   popd >/dev/null || exit 1
 }
 
+@test "task-copy-files-acquia: reports the missing source environment" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token"}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Ddev # {"_embedded":{"items":[]}}'
+    '[FAIL] Environment "dev" not found in application "testapp". Check environment name.'
+  )
+
+  setup_variables
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-task-copy-files-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null || exit 1
+}
+
 @test "task-copy-files-acquia: reports the missing destination environment" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
