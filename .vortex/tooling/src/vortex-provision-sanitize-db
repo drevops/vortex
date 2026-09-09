@@ -34,9 +34,9 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
-info "Sanitizing database."
-
 drush() { ./vendor/bin/drush -y "$@"; }
+
+info "Sanitizing database."
 
 drush sql:sanitize --sanitize-password="${VORTEX_PROVISION_SANITIZE_DB_PASSWORD}" --sanitize-email="${VORTEX_PROVISION_SANITIZE_DB_EMAIL}"
 pass "Sanitized database using drush sql:sanitize."
