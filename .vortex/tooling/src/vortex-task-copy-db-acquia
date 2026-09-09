@@ -63,9 +63,9 @@ extract_json_value() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
-info "Started database copying between environments in Acquia."
+for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
-for cmd in curl php; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
+info "Started database copying between environments in Acquia."
 
 [ -z "${VORTEX_TASK_COPY_DB_ACQUIA_KEY}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY."
 [ -z "${VORTEX_TASK_COPY_DB_ACQUIA_SECRET}" ] && fail "Missing required value for VORTEX_TASK_COPY_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."

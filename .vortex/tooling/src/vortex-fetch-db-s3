@@ -59,6 +59,27 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
+hash_sha256() { printf '%s' "${1}" | openssl dgst -sha256 | sed 's/^.* //'; }
+hmac_sha256() { printf '%s' "${2}" | openssl dgst -sha256 -mac HMAC -macopt "${1}" | sed 's/^.* //'; }
+
+# Sign a string with a key derived for the given date, region and service, as
+# AWS Signature Version 4 requires.
+aws_signature() {
+  local secret_key="${1}"
+  local date="${2}"
+  local region="${3}"
+  local service_name="${4}"
+  local string_to_sign="${5}"
+
+  local date_key region_key service_key signing_key
+  date_key=$(hmac_sha256 "key:AWS4${secret_key}" "${date}")
+  region_key=$(hmac_sha256 "hexkey:${date_key}" "${region}")
+  service_key=$(hmac_sha256 "hexkey:${region_key}" "${service_name}")
+  signing_key=$(hmac_sha256 "hexkey:${service_key}" "aws4_request")
+
+  hmac_sha256 "hexkey:${signing_key}" "${string_to_sign}"
+}
+
 for cmd in curl openssl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 [ -z "${VORTEX_FETCH_DB_S3_ACCESS_KEY}" ] && fail "Missing required value for VORTEX_FETCH_DB_S3_ACCESS_KEY."
@@ -89,10 +110,7 @@ note "S3 bucket:   ${VORTEX_FETCH_DB_S3_BUCKET}"
 note "S3 region:   ${VORTEX_FETCH_DB_S3_REGION}"
 [ -n "${VORTEX_FETCH_DB_S3_PREFIX}" ] && note "S3 prefix:   ${VORTEX_FETCH_DB_S3_PREFIX}"
 
-hash_sha256() { printf '%b' "${1}" | openssl dgst -sha256 | sed 's/^.* //'; }
-hmac_sha256() { printf '%s' "${2}" | openssl dgst -sha256 -mac HMAC -macopt "${1}" | sed 's/^.* //'; }
-
-payload_hash="$(printf "" | openssl dgst -sha256 | sed 's/^.* //')"
+payload_hash=$(hash_sha256 "")
 
 headers="content-type:${content_type}
 host:${host}
@@ -100,23 +118,21 @@ x-amz-content-sha256:${payload_hash}
 x-amz-date:${date_long}"
 
 signed_headers="content-type;host;x-amz-content-sha256;x-amz-date"
-request="${request_type}
-${uri}\n
-${headers}\n
+
+canonical_request="${request_type}
+${uri}
+
+${headers}
+
 ${signed_headers}
 ${payload_hash}"
 
-create_signature() {
-  string_to_sign="${auth_type}\n${date_long}\n${date_short}/${VORTEX_FETCH_DB_S3_REGION}/${service}/aws4_request\n$(hash_sha256 "${request}")"
-  date_key=$(hmac_sha256 key:"AWS4${VORTEX_FETCH_DB_S3_SECRET_KEY}" "${date_short}")
-  region_key=$(hmac_sha256 hexkey:"${date_key}" "${VORTEX_FETCH_DB_S3_REGION}")
-  service_key=$(hmac_sha256 hexkey:"${region_key}" "${service}")
-  signing_key=$(hmac_sha256 hexkey:"${service_key}" "aws4_request")
+string_to_sign="${auth_type}
+${date_long}
+${date_short}/${VORTEX_FETCH_DB_S3_REGION}/${service}/aws4_request
+$(hash_sha256 "${canonical_request}")"
 
-  printf '%b' "${string_to_sign}" | openssl dgst -sha256 -mac HMAC -macopt hexkey:"${signing_key}" | sed 's/(stdin)= //' | sed 's/SHA2-256//'
-}
-
-signature="$(create_signature)"
+signature=$(aws_signature "${VORTEX_FETCH_DB_S3_SECRET_KEY}" "${date_short}" "${VORTEX_FETCH_DB_S3_REGION}" "${service}" "${string_to_sign}")
 auth_header="\
 ${auth_type} Credential=${VORTEX_FETCH_DB_S3_ACCESS_KEY}/${date_short}/\
 ${VORTEX_FETCH_DB_S3_REGION}/${service}/aws4_request, \
