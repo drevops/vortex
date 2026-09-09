@@ -33,7 +33,7 @@ class Env {
     }
 
     $file = $dir . '/.env';
-    if (!is_readable($file)) {
+    if (!File::isReadable($file)) {
       return NULL;
     }
 
@@ -82,7 +82,7 @@ class Env {
    *   Array of parsed values, key is the variable name.
    */
   public static function parseDotenv(string $filename = '.env'): array {
-    if (!is_file($filename) || !is_readable($filename)) {
+    if (!File::isReadable($filename)) {
       return [];
     }
 
@@ -140,7 +140,7 @@ class Env {
    *   Array of parsed values after modification.
    */
   public static function writeValueDotenv(string $name, ?string $value = NULL, string $filename = '.env', bool $enabled = TRUE): array {
-    if (!is_readable($filename)) {
+    if (!File::isReadable($filename)) {
       throw new \RuntimeException(sprintf('File "%s" is not readable.', $filename));
     }
 

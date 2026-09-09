@@ -185,7 +185,7 @@ class Modules extends AbstractHandler {
    *   Array of module machine names (without drupal/ prefix), or NULL on error.
    */
   protected function getModulesFromComposerFile(string $composer_file): ?array {
-    if (!file_exists($composer_file)) {
+    if (!File::isReadable($composer_file)) {
       return NULL;
     }
 

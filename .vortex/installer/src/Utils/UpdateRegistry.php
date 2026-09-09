@@ -98,7 +98,7 @@ class UpdateRegistry {
     }
 
     $file = $this->destination . '/' . self::FILE;
-    $existing = is_file($file) ? File::read($file) : self::HEADING . PHP_EOL;
+    $existing = File::isReadable($file) ? File::read($file) : self::HEADING . PHP_EOL;
 
     File::dump($file, $existing . $content);
 

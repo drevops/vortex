@@ -37,7 +37,7 @@ class PreserveDocsProject extends AbstractHandler {
       return NULL;
     }
 
-    return file_exists($this->destinationDir . '/docs/README.md');
+    return File::exists($this->destinationDir . '/docs/README.md');
   }
 
   /**

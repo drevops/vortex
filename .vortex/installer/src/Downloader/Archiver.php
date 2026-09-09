@@ -53,7 +53,7 @@ class Archiver implements ArchiverInterface {
    * {@inheritdoc}
    */
   public function validate(string $archive_path): void {
-    if (!file_exists($archive_path)) {
+    if (!File::exists($archive_path)) {
       throw new \RuntimeException(sprintf('Archive file does not exist: "%s".', $archive_path));
     }
 

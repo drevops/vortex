@@ -333,7 +333,7 @@ EOF
       return Command::FAILURE;
     }
 
-    $prompts_json = is_file($prompts_option) ? (string) file_get_contents($prompts_option) : $prompts_option;
+    $prompts_json = File::isReadable($prompts_option) ? File::read($prompts_option) : $prompts_option;
     $decoded = json_decode($prompts_json);
 
     if (!$decoded instanceof \stdClass) {
@@ -437,7 +437,7 @@ EOF
     }
 
     $phar_path = \Phar::running(FALSE);
-    if (!empty($phar_path) && file_exists($phar_path)) {
+    if (!empty($phar_path) && File::exists($phar_path)) {
       File::remove($phar_path);
     }
   }

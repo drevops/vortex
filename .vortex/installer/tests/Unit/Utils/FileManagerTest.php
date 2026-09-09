@@ -13,6 +13,7 @@ use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\FileManager;
 use DrevOps\VortexInstaller\Utils\UpdateRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 #[CoversClass(FileManager::class)]
 class FileManagerTest extends UnitTestCase {
@@ -25,61 +26,49 @@ class FileManagerTest extends UnitTestCase {
     static::envUnsetPrefix('VORTEX_DB');
   }
 
+  /**
+   * Create a config for a destination, staging from a source when given.
+   */
+  protected function createConfig(string $destination, ?string $src = NULL): Config {
+    return new Config(static::$tmp . '/root', $destination, $src ?? static::$tmp . '/staged');
+  }
+
   public function testConstructor(): void {
-    $config = new Config('/tmp/root', self::$sut, '/tmp/tmp');
+    $config = $this->createConfig(self::$sut);
     $fm = new FileManager($config);
 
     $this->assertInstanceOf(FileManager::class, $fm);
   }
 
-  public function testPrepareDestinationExistingDirWithGit(): void {
-    $destination = self::$sut;
-    mkdir($destination . '/.git', 0777, TRUE);
+  /**
+   * @param array<int, string> $expected_messages
+   *   Substrings every returned message set must contain.
+   */
+  #[DataProvider('dataProviderPrepareDestination')]
+  public function testPrepareDestination(string $subdir, bool $with_git, array $expected_messages): void {
+    $destination = self::$sut . $subdir;
 
-    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
-    $fm = new FileManager($config);
+    if ($with_git) {
+      File::mkdir($destination . '/.git');
+    }
 
-    $messages = $fm->prepareDestination();
-
-    $this->assertEmpty($messages);
-  }
-
-  public function testPrepareDestinationExistingDirWithoutGit(): void {
-    $destination = self::$sut;
-
-    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
-    $fm = new FileManager($config);
-
-    $messages = $fm->prepareDestination();
-
-    $this->assertNotEmpty($messages);
-    $this->assertDirectoryExists($destination . '/.git');
-    $this->assertStringContainsString('Initializing a new Git repository', $messages[0]);
-  }
-
-  public function testPrepareDestinationCreatesNewDir(): void {
-    $destination = self::$sut . '/new_subdir';
-
-    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
-    $fm = new FileManager($config);
+    $fm = new FileManager($this->createConfig($destination));
 
     $messages = $fm->prepareDestination();
 
     $this->assertDirectoryExists($destination);
     $this->assertDirectoryExists($destination . '/.git');
+    $this->assertCount(count($expected_messages), $messages);
 
-    $has_created_msg = FALSE;
-    $has_git_msg = FALSE;
-    foreach ($messages as $message) {
-      if (str_contains($message, 'Created directory')) {
-        $has_created_msg = TRUE;
-      }
-      if (str_contains($message, 'Initializing a new Git repository')) {
-        $has_git_msg = TRUE;
-      }
+    foreach ($expected_messages as $index => $expected_message) {
+      $this->assertStringContainsString($expected_message, $messages[$index]);
     }
-    $this->assertTrue($has_created_msg);
-    $this->assertTrue($has_git_msg);
+  }
+
+  public static function dataProviderPrepareDestination(): \Iterator {
+    yield 'existing directory with a repository' => ['', TRUE, []];
+    yield 'existing directory without a repository' => ['', FALSE, ['Initializing a new Git repository']];
+    yield 'directory created by the install' => ['/new_subdir', FALSE, ['Created directory', 'Initializing a new Git repository']];
   }
 
   public function testCopyFilesCopiesToDestination(): void {
@@ -89,7 +78,7 @@ class FileManagerTest extends UnitTestCase {
     mkdir($destination, 0777, TRUE);
     file_put_contents($src . '/test.txt', 'content');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
 
     $fm->copyFiles();
@@ -105,7 +94,7 @@ class FileManagerTest extends UnitTestCase {
     mkdir($destination, 0777, TRUE);
     file_put_contents($src . '/test.txt', 'content');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
 
     $fm->copyFiles();
@@ -132,7 +121,7 @@ class FileManagerTest extends UnitTestCase {
     file_put_contents($destination . '/.env.local', 'EXISTING=1');
     file_put_contents($destination . '/.env.local.example', 'EXAMPLE=1');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
 
     $fm->copyFiles();
@@ -146,7 +135,7 @@ class FileManagerTest extends UnitTestCase {
     mkdir($src, 0777, TRUE);
     mkdir($destination, 0777, TRUE);
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
 
     $fm->copyFiles();
@@ -161,7 +150,7 @@ class FileManagerTest extends UnitTestCase {
     file_put_contents($src . '/phpstan.neon', 'parameters: []');
     file_put_contents(File::mkdir($src . '/.circleci') . '/config.yml', 'version: 2.1');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
@@ -193,7 +182,7 @@ class FileManagerTest extends UnitTestCase {
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
     file_put_contents($src . '/phpstan.neon', 'parameters: []');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
@@ -216,7 +205,7 @@ class FileManagerTest extends UnitTestCase {
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
     file_put_contents($src . '/phpstan.neon', 'parameters: []');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
     $fm->snapshotTemplate();
@@ -236,7 +225,7 @@ class FileManagerTest extends UnitTestCase {
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
     file_put_contents(File::mkdir($src . '/scripts') . '/provision.sh', 'echo 1');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
     $fm->snapshotTemplate();
 
@@ -251,7 +240,7 @@ class FileManagerTest extends UnitTestCase {
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
     file_put_contents($src . '/rector.php', 'paths: your_site');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
@@ -275,7 +264,7 @@ class FileManagerTest extends UnitTestCase {
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
     file_put_contents($src . '/jest.config.js', 'module.exports = {};');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
@@ -298,7 +287,7 @@ class FileManagerTest extends UnitTestCase {
     $destination = self::$sut . '/dst_registry';
     file_put_contents(File::mkdir($src) . '/phpstan.neon', "parameters:\n  level: 9\n");
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $config->set(Config::VERSION, '1.41.0', TRUE);
     $fm = new FileManager($config);
@@ -326,7 +315,7 @@ class FileManagerTest extends UnitTestCase {
     $destination = self::$sut . '/dst_no_registry';
     file_put_contents(File::mkdir($src) . '/phpstan.neon', "parameters:\n  level: 9\n");
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
@@ -345,7 +334,7 @@ class FileManagerTest extends UnitTestCase {
     $destination = self::$sut . '/dst_stale_manifest';
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
@@ -361,7 +350,7 @@ class FileManagerTest extends UnitTestCase {
     $destination = self::$sut . '/dst_foreign_manifest';
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
 
     file_put_contents(File::mkdir($destination) . '/.vortex-manifest.json', '{"owned":"by the project"}');
@@ -376,7 +365,7 @@ class FileManagerTest extends UnitTestCase {
     $destination = self::$sut . '/dst_unknown';
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
     $fm->snapshotTemplate();
@@ -396,7 +385,7 @@ class FileManagerTest extends UnitTestCase {
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
     file_put_contents($src . '/phpstan.neon', 'parameters: []');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
     $fm->snapshotTemplate();
 
@@ -414,7 +403,7 @@ class FileManagerTest extends UnitTestCase {
     file_put_contents(File::mkdir($src) . '/composer.json', '{}');
     file_put_contents(File::mkdir($src . '/.vortex') . '/CLAUDE.md', 'harness');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
     $fm->snapshotTemplate();
@@ -439,7 +428,7 @@ class FileManagerTest extends UnitTestCase {
     file_put_contents($destination . '/scripts/vortex/legacy.sh', 'legacy');
     file_put_contents($destination . '/scripts/keep.sh', 'custom');
 
-    $config = new Config('/tmp/root', $destination, $src);
+    $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
 
     $fm->copyFiles();
@@ -453,7 +442,7 @@ class FileManagerTest extends UnitTestCase {
     $destination = self::$sut . '/dst_no_obsolete';
     mkdir($destination, 0777, TRUE);
 
-    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
+    $config = $this->createConfig($destination);
     $fm = new FileManager($config);
 
     $fm->removeObsoletePaths();
@@ -461,110 +450,61 @@ class FileManagerTest extends UnitTestCase {
     $this->addToAssertionCount(1);
   }
 
-  public function testPrepareDemoNotDemoMode(): void {
-    $config = new Config('/tmp/root', self::$sut, '/tmp/tmp');
-    $fm = new FileManager($config);
-
-    $downloader = $this->createMock(Downloader::class);
-    $result = $fm->prepareDemo($downloader);
-
-    $this->assertEquals('Not a demo mode.', $result);
-  }
-
-  public function testPrepareDemoWithFetchSkip(): void {
-    $config = new Config('/tmp/root', self::$sut, '/tmp/tmp');
-    $config->set(Config::IS_DEMO, TRUE);
-    $config->set(Config::IS_DEMO_DB_FETCH_SKIP, TRUE);
-    $fm = new FileManager($config);
-
-    $downloader = $this->createMock(Downloader::class);
-    $result = $fm->prepareDemo($downloader);
-
-    $this->assertIsString($result);
-    $this->assertStringContainsString('Skipping demo database fetch', $result);
-  }
-
-  public function testPrepareDemoNoUrl(): void {
+  /**
+   * @param array<string, bool|null> $config_values
+   *   Config keys to set before preparing, keyed by constant.
+   * @param string|null $dotenv
+   *   Content for the project's '.env', or NULL to write none.
+   * @param bool $with_database_file
+   *   Seed the data directory with an already-fetched database dump.
+   */
+  #[DataProvider('dataProviderPrepareDemo')]
+  public function testPrepareDemo(array $config_values, ?string $dotenv, bool $with_database_file, string $expected_message): void {
     $destination = self::$sut;
-    file_put_contents($destination . '/.env', '');
 
-    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
-    $config->set(Config::IS_DEMO, TRUE);
-    $fm = new FileManager($config);
+    if ($dotenv !== NULL) {
+      File::dump($destination . '/.env', $dotenv);
+    }
 
-    $downloader = $this->createMock(Downloader::class);
-    $result = $fm->prepareDemo($downloader);
+    if ($with_database_file) {
+      File::dump(File::mkdir($destination . '/.data') . '/db.sql', 'existing');
+    }
 
-    $this->assertIsString($result);
-    $this->assertStringContainsString('No database fetch URL provided', $result);
+    $config = $this->createConfig($destination);
+    foreach ($config_values as $name => $value) {
+      $config->set($name, $value);
+    }
+
+    $result = (new FileManager($config))->prepareDemo($this->createMock(Downloader::class));
+
+    $messages = is_array($result) ? $result : [$result];
+    $this->assertStringContainsString($expected_message, implode(PHP_EOL, array_map(strval(...), $messages)));
   }
 
-  public function testPrepareDemoExistingDatabaseFile(): void {
-    $destination = self::$sut;
-    $data_dir = $destination . '/.data';
-    mkdir($data_dir, 0777, TRUE);
-    file_put_contents($data_dir . '/db.sql', 'existing');
-    file_put_contents($destination . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
+  public static function dataProviderPrepareDemo(): \Iterator {
+    $dotenv = "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n";
 
-    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
-    $config->set(Config::IS_DEMO, TRUE);
-    $fm = new FileManager($config);
-
-    $downloader = $this->createMock(Downloader::class);
-    $result = $fm->prepareDemo($downloader);
-
-    $this->assertIsString($result);
-    $this->assertStringContainsString('already exists', $result);
+    yield 'not a demo' => [[], NULL, FALSE, 'Not a demo mode.'];
+    yield 'fetch skipped' => [[Config::IS_DEMO => TRUE, Config::IS_DEMO_DB_FETCH_SKIP => TRUE], NULL, FALSE, 'Skipping demo database fetch'];
+    yield 'no fetch url' => [[Config::IS_DEMO => TRUE], '', FALSE, 'No database fetch URL provided'];
+    yield 'database already fetched' => [[Config::IS_DEMO => TRUE], $dotenv, TRUE, 'already exists'];
+    yield 'data directory created' => [[Config::IS_DEMO => TRUE], $dotenv, FALSE, 'Created data directory'];
+    yield 'database fetched' => [[Config::IS_DEMO => TRUE], $dotenv, FALSE, 'Fetched demo database'];
   }
 
-  public function testPrepareDemoFetchesDatabase(): void {
+  public function testPrepareDemoDownloadsFromTheConfiguredUrl(): void {
     $destination = self::$sut;
-    file_put_contents($destination . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
+    File::dump($destination . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
 
-    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
+    $config = $this->createConfig($destination);
     $config->set(Config::IS_DEMO, TRUE);
-    $fm = new FileManager($config);
 
     $downloader = $this->createMock(Downloader::class);
     $downloader->expects($this->once())
       ->method('download')
       ->with('https://example.com/db.sql', $this->stringContains('db.sql'));
 
-    $result = $fm->prepareDemo($downloader);
-
-    $this->assertIsArray($result);
-    $this->assertNotEmpty($result);
-
-    $has_download_msg = FALSE;
-    foreach ($result as $msg) {
-      if (str_contains((string) $msg, 'Fetched demo database')) {
-        $has_download_msg = TRUE;
-      }
-    }
-    $this->assertTrue($has_download_msg);
-  }
-
-  public function testPrepareDemoCreatesDataDir(): void {
-    $destination = self::$sut;
-    file_put_contents($destination . '/.env', "VORTEX_FETCH_DB_URL=https://example.com/db.sql\nVORTEX_DB_DIR=./.data\nVORTEX_DB_FILE=db.sql\n");
-
-    $config = new Config('/tmp/root', $destination, '/tmp/tmp');
-    $config->set(Config::IS_DEMO, TRUE);
-    $fm = new FileManager($config);
-
-    $downloader = $this->createMock(Downloader::class);
-    $result = $fm->prepareDemo($downloader);
-
-    $this->assertIsArray($result);
-    $this->assertDirectoryExists($destination . '/.data');
-
-    $has_created_msg = FALSE;
-    foreach ($result as $msg) {
-      if (str_contains((string) $msg, 'Created data directory')) {
-        $has_created_msg = TRUE;
-      }
-    }
-    $this->assertTrue($has_created_msg);
+    (new FileManager($config))->prepareDemo($downloader);
   }
 
   /**

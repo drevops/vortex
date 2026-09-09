@@ -10,7 +10,7 @@ use Symfony\Component\Yaml\Yaml as SymfonyYaml;
 class Yaml extends SymfonyYaml {
 
   public static function validateFile(string $path): void {
-    if (!file_exists($path) || !is_readable($path)) {
+    if (!File::isReadable($path)) {
       throw new \RuntimeException(sprintf('File does not exist or is not readable: "%s".', $path));
     }
 

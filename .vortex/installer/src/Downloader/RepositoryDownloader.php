@@ -56,7 +56,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $version = $this->downloadFromLocal($artifact, $destination);
     }
 
-    if (!is_readable($destination . '/composer.json')) {
+    if (!File::isReadable($destination . '/composer.json')) {
       throw new \RuntimeException('The downloaded repository does not contain a composer.json file.');
     }
 
@@ -177,7 +177,6 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     $release_url = sprintf('https://api.github.com/repos/%s/releases', $path);
 
     $headers = self::requestHeaders($release_url, ['Accept' => 'application/vnd.github.v3+json']);
-    $github_token = Env::get('GITHUB_TOKEN');
 
     try {
       $response = $this->httpClient->request('GET', $release_url, ['headers' => $headers]);
@@ -188,7 +187,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     }
 
     if ($release_contents === '' || $release_contents === '0') {
-      $message = sprintf('Unable to download release information from "%s"%s.', $release_url, $github_token ? ' (GitHub token was used)' : '');
+      $message = sprintf('Unable to download release information from "%s"%s.', $release_url, isset($headers['Authorization']) ? ' (GitHub token was used)' : '');
       throw new \RuntimeException($message);
     }
 
@@ -228,7 +227,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $this->fileDownloader->download($url, $temp_file, self::requestHeaders($url));
     }
     catch (\RuntimeException $e) {
-      if (file_exists($temp_file)) {
+      if (File::exists($temp_file)) {
         File::remove($temp_file);
       }
       throw new \RuntimeException(sprintf('Unable to download archive from "%s": %s.', $url, $e->getMessage()), $e->getCode(), $e);
@@ -261,12 +260,12 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     try {
       $this->git->run('archive', '--format=tar', $ref, '-o', $temp_file);
 
-      if (!file_exists($temp_file) || filesize($temp_file) === 0) {
+      if (!File::exists($temp_file) || filesize($temp_file) === 0) {
         throw new \RuntimeException('Archive creation produced empty file.');
       }
     }
     catch (\Exception $e) {
-      if (file_exists($temp_file)) {
+      if (File::exists($temp_file)) {
         File::remove($temp_file);
       }
       throw new \RuntimeException(sprintf('Unable to create archive from local repository "%s": %s.', $repo, $e->getMessage()), $e->getCode(), $e);

@@ -127,7 +127,7 @@ class Theme extends AbstractHandler {
 
     if (in_array($v, [self::OLIVERO, self::CLARO, self::STARK])) {
       $file_tmpl = self::findThemeFile($t, $w);
-      if (!empty($file_tmpl) && is_readable($file_tmpl)) {
+      if (!empty($file_tmpl) && File::exists($file_tmpl)) {
         File::remove(dirname($file_tmpl));
         File::rmdirIfEmpty(dirname($file_tmpl));
 
@@ -149,7 +149,7 @@ class Theme extends AbstractHandler {
 
     if ($this->isInstalled() && (empty($file_dst) || !self::isVortexTheme(dirname($file_dst)))) {
       $file_tmpl = self::findThemeFile($t, $w);
-      if (!empty($file_tmpl) && is_readable($file_tmpl)) {
+      if (!empty($file_tmpl) && File::exists($file_tmpl)) {
         File::remove(dirname($file_tmpl));
       }
     }
@@ -211,8 +211,8 @@ class Theme extends AbstractHandler {
   }
 
   protected static function isVortexTheme(string $dir): bool {
-    $c1 = file_exists($dir . '/scss/_variables.scss');
-    $c2 = file_exists($dir . '/package.json');
+    $c1 = File::exists($dir . '/scss/_variables.scss');
+    $c2 = File::exists($dir . '/package.json');
     $c3 = File::contains($dir . '/package.json', 'build-dev');
 
     return $c1 && $c2 && $c3;

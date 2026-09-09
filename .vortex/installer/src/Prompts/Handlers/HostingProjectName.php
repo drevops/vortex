@@ -81,7 +81,7 @@ class HostingProjectName extends AbstractHandler {
     // instead of a hardcoded project name. Kept for backward compatibility
     // with older installations.
     $acquia_settings_file = $this->destinationDir . sprintf('/%s/sites/default/includes/providers/settings.acquia.php', $this->webroot);
-    if (file_exists($acquia_settings_file)) {
+    if (File::exists($acquia_settings_file)) {
       $content = file_get_contents($acquia_settings_file);
       // Require '/var/www/site-php/your_site/your_site-settings.inc';.
       if ($content !== FALSE && preg_match('/require\s+[\'"]\/var\/www\/site-php\/([a-z0-9_]+)\/[a-z0-9_]+-settings\.inc[\'"]\s*;/', $content, $matches) && !empty($matches[1])) {
@@ -95,7 +95,7 @@ class HostingProjectName extends AbstractHandler {
     }
 
     $lagoon_site_file = $this->destinationDir . '/drush/sites/lagoon.site.yml';
-    if (file_exists($lagoon_site_file)) {
+    if (File::exists($lagoon_site_file)) {
       $content = file_get_contents($lagoon_site_file);
       if ($content !== FALSE && preg_match('/user:\s*([a-z0-9_]+)-/', $content, $matches) && (!empty($matches[1]) && $matches[1] !== 'your_site')) {
         return $matches[1];

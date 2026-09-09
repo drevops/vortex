@@ -41,7 +41,7 @@ class NpmLock {
   public static function sync(string $manifest_file): void {
     $lock_file = dirname($manifest_file) . DIRECTORY_SEPARATOR . self::FILE;
 
-    if (!is_file($lock_file)) {
+    if (!File::isReadable($lock_file)) {
       return;
     }
 

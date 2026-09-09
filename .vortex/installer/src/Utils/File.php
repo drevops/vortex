@@ -31,6 +31,16 @@ class File extends UpstreamFile {
   }
 
   /**
+   * Check if path is a regular file with readable contents.
+   *
+   * Distinct from exists(), which is also TRUE for a directory: this answers
+   * whether the path can be passed to read().
+   */
+  public static function isReadable(string $path): bool {
+    return is_file($path) && is_readable($path);
+  }
+
+  /**
    * Get list of internal paths.
    */
   protected static function internalPaths(): array {

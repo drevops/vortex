@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Utils\Env;
+use DrevOps\VortexInstaller\Utils\File;
 
 class Dotenv extends AbstractHandler {
 
@@ -22,7 +23,7 @@ class Dotenv extends AbstractHandler {
   public function process(): void {
     $t = $this->tmpDir;
 
-    if (is_readable($this->destinationDir . '/.env')) {
+    if (File::exists($this->destinationDir . '/.env')) {
       $variables = Env::parseDotenv($this->destinationDir . '/.env');
       foreach ($variables as $name => $value) {
         Env::writeValueDotenv($name, $value, $t . '/.env');

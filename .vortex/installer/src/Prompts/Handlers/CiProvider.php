@@ -60,11 +60,11 @@ class CiProvider extends AbstractHandler {
       return NULL;
     }
 
-    if (is_readable($this->destinationDir . '/.github/workflows/build-test-deploy.yml')) {
+    if (File::exists($this->destinationDir . '/.github/workflows/build-test-deploy.yml')) {
       return self::GITHUB_ACTIONS;
     }
 
-    if (is_readable($this->destinationDir . '/.circleci/config.yml')) {
+    if (File::exists($this->destinationDir . '/.circleci/config.yml')) {
       return self::CIRCLECI;
     }
 

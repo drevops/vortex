@@ -54,11 +54,11 @@ class DependencyUpdatesProvider extends AbstractHandler {
       return NULL;
     }
 
-    if (!is_readable($this->destinationDir . '/renovate.json')) {
+    if (!File::exists($this->destinationDir . '/renovate.json')) {
       return self::NONE;
     }
 
-    if (file_exists($this->destinationDir . '/.github/workflows/update-dependencies.yml')) {
+    if (File::exists($this->destinationDir . '/.github/workflows/update-dependencies.yml')) {
       return self::RENOVATEBOT_CI;
     }
 

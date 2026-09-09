@@ -60,7 +60,7 @@ DOC;
       return NULL;
     }
 
-    return file_exists($this->destinationDir . '/.github/workflows/test-vr.yml');
+    return File::exists($this->destinationDir . '/.github/workflows/test-vr.yml');
   }
 
   /**

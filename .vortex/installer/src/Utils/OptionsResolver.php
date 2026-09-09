@@ -54,7 +54,7 @@ class OptionsResolver {
     $config_json = '{}';
     if (isset($options['config']) && is_scalar($options['config'])) {
       $config_candidate = (string) $options['config'];
-      $config_json = is_file($config_candidate) ? (string) file_get_contents($config_candidate) : $config_candidate;
+      $config_json = File::isReadable($config_candidate) ? File::read($config_candidate) : $config_candidate;
     }
 
     $config = Config::fromString($config_json);
@@ -102,7 +102,7 @@ class OptionsResolver {
       throw new \RuntimeException(sprintf('Invalid repository URI: %s.', $e->getMessage()), $e->getCode(), $e);
     }
 
-    $config->set(Config::IS_VORTEX_PROJECT, File::contains($config->getDestination() . '/README.md', '/badge\/Vortex-/'));
+    $config->set(Config::IS_VORTEX_PROJECT, File::contains($config->getDestination() . '/README.md', Version::BADGE_REGEX));
 
     // Flag to proceed with installation. If FALSE, the installation only
     // prints the resolved values and does not proceed.
@@ -118,11 +118,11 @@ class OptionsResolver {
 
     if (isset($options['prompts']) && is_scalar($options['prompts'])) {
       $prompts_candidate = (string) $options['prompts'];
-      if (is_file($prompts_candidate)) {
-        if (!is_readable($prompts_candidate)) {
+      if (File::exists($prompts_candidate)) {
+        if (!File::isReadable($prompts_candidate)) {
           throw new \RuntimeException(sprintf('Unable to read --prompts file: "%s".', $prompts_candidate));
         }
-        $prompts_json = (string) file_get_contents($prompts_candidate);
+        $prompts_json = File::read($prompts_candidate);
       }
       else {
         $prompts_json = $prompts_candidate;

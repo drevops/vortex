@@ -14,7 +14,7 @@ class JsonManipulator extends ComposerJsonManipulator {
   }
 
   public static function fromFile(string $composer_json): ?self {
-    if (!is_readable($composer_json) || !is_file($composer_json)) {
+    if (!File::isReadable($composer_json)) {
       return NULL;
     }
 

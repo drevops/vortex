@@ -469,127 +469,162 @@ class RepositoryDownloaderTest extends UnitTestCase {
     $this->assertEquals('develop', $version);
   }
 
-  public function testValidateRemoteRepositoryExistsWithNotFoundError(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_response = $this->createMock(ResponseInterface::class);
-    $mock_response->method('getStatusCode')->willReturn(404);
-    $mock_http_client->method('request')->willReturn($mock_response);
+  /**
+   * @param \Closure(self):array{0:?\GuzzleHttp\ClientInterface,1:string} $setup
+   *   Builds the HTTP client (NULL for a local repository) and the repository
+   *   to download from.
+   */
+  #[DataProvider('dataProviderValidateFailure')]
+  public function testValidateFailure(\Closure $setup, string $ref, string $expected_message): void {
+    [$http_client, $repo] = $setup($this);
+
     $destination = self::$tmp . '/destination_' . uniqid();
     File::mkdir($destination);
-    $downloader = new RepositoryDownloader($mock_http_client);
+
+    $downloader = new RepositoryDownloader($http_client);
+
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Repository not found or not accessible: "https://github.com/user/nonexistent" (HTTP 404)');
-    $downloader->download(Artifact::create('https://github.com/user/nonexistent', '1.0.0'), $destination);
+    $this->expectExceptionMessage($expected_message);
+
+    $downloader->download(Artifact::create($repo, $ref), $destination);
   }
 
-  public function testValidateRemoteRefExistsWithNotFoundError(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
+  public static function dataProviderValidateFailure(): \Iterator {
+    yield 'remote repository not found' => [
+      static fn(self $test): array => [$test->stubStatusClient(404), 'https://github.com/user/nonexistent'],
+      '1.0.0',
+      'Repository not found or not accessible: "https://github.com/user/nonexistent" (HTTP 404)',
+    ];
+
+    yield 'remote ref not found' => [
+      static fn(self $test): array => [$test->stubRefClient(404), 'https://github.com/user/repo'],
+      'nonexistent-tag',
+      'Reference "nonexistent-tag" not found in repository "https://github.com/user/repo"',
+    ];
+
+    yield 'remote repository unreachable' => [
+      static fn(self $test): array => [$test->stubThrowingClient('Connection timeout'), 'https://github.com/user/repo'],
+      '1.0.0',
+      'Unable to access repository "https://github.com/user/repo": Connection timeout.',
+    ];
+
+    yield 'remote ref unverifiable' => [
+      static fn(self $test): array => [$test->stubRefClient(NULL, 'Network error'), 'https://github.com/user/repo'],
+      'test-tag',
+      'Unable to verify reference "test-tag" in repository "https://github.com/user/repo": Network error.',
+    ];
+
+    yield 'local path missing' => [
+      static function (self $test): array {
+        $path = self::$tmp . '/nonexistent_repo_' . uniqid();
+
+        return [NULL, $path];
+      },
+      'main',
+      'Local repository path does not exist: ',
+    ];
+
+    yield 'local path not a git repository' => [
+      static function (self $test): array {
+        $path = self::$tmp . '/non_git_dir_' . uniqid();
+        File::mkdir($path);
+
+        return [NULL, $path];
+      },
+      'main',
+      'Path is not a git repository: ',
+    ];
+  }
+
+  /**
+   * Stub a client answering every request with a single status code.
+   */
+  protected function stubStatusClient(int $status_code): ClientInterface {
+    $client = $this->createMock(ClientInterface::class);
+    $response = $this->createMock(ResponseInterface::class);
+    $response->method('getStatusCode')->willReturn($status_code);
+    $client->method('request')->willReturn($response);
+
+    return $client;
+  }
+
+  /**
+   * Stub a client where the repository resolves and the archive request fails.
+   *
+   * @param int|null $status_code
+   *   Status code for the archive request, or NULL to throw instead.
+   * @param string|null $exception_message
+   *   Message for the thrown request exception when no status code is given.
+   */
+  protected function stubRefClient(?int $status_code, ?string $exception_message = NULL): ClientInterface {
+    $client = $this->createMock(ClientInterface::class);
     $repo_response = $this->createMock(ResponseInterface::class);
     $repo_response->method('getStatusCode')->willReturn(200);
-    $ref_response = $this->createMock(ResponseInterface::class);
-    $ref_response->method('getStatusCode')->willReturn(404);
-    $mock_http_client->method('request')->willReturnCallback(function ($method, $url) use ($repo_response, $ref_response): ResponseInterface {
-      if (str_contains($url, '/archive/')) {
-        return $ref_response;
+
+    $ref_response = NULL;
+    if ($status_code !== NULL) {
+      $ref_response = $this->createMock(ResponseInterface::class);
+      $ref_response->method('getStatusCode')->willReturn($status_code);
+    }
+
+    $request = $this->createMock(RequestInterface::class);
+    $client->method('request')->willReturnCallback(function ($method, $url) use ($repo_response, $ref_response, $exception_message, $request): ResponseInterface {
+      if (!str_contains($url, '/archive/')) {
+        return $repo_response;
       }
-      return $repo_response;
-    });
-    $destination = self::$tmp . '/destination_' . uniqid();
-    File::mkdir($destination);
-    $downloader = new RepositoryDownloader($mock_http_client);
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Reference "nonexistent-tag" not found in repository "https://github.com/user/repo"');
-    $downloader->download(Artifact::create('https://github.com/user/repo', 'nonexistent-tag'), $destination);
-  }
 
-  public function testValidateLocalRepositoryExistsWithNonexistentPath(): void {
-    $nonexistent_path = self::$tmp . '/nonexistent_repo_' . uniqid();
-    $destination = self::$tmp . '/destination_' . uniqid();
-    File::mkdir($destination);
-    $downloader = new RepositoryDownloader();
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage(sprintf('Local repository path does not exist: "%s"', $nonexistent_path));
-    $downloader->download(Artifact::create($nonexistent_path, 'main'), $destination);
-  }
-
-  public function testValidateLocalRepositoryExistsWithNonGitDirectory(): void {
-    $non_git_path = self::$tmp . '/non_git_dir_' . uniqid();
-    File::mkdir($non_git_path);
-    $destination = self::$tmp . '/destination_' . uniqid();
-    File::mkdir($destination);
-    $downloader = new RepositoryDownloader();
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage(sprintf('Path is not a git repository: "%s"', $non_git_path));
-    $downloader->download(Artifact::create($non_git_path, 'main'), $destination);
-  }
-
-  public function testValidateRemoteRepositoryExistsWithRequestException(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_http_client->method('request')->willThrowException(new RequestException('Connection timeout', $this->createMock(RequestInterface::class)));
-    $destination = self::$tmp . '/destination_' . uniqid();
-    File::mkdir($destination);
-    $downloader = new RepositoryDownloader($mock_http_client);
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Unable to access repository "https://github.com/user/repo": Connection timeout.');
-    $downloader->download(Artifact::create('https://github.com/user/repo', '1.0.0'), $destination);
-  }
-
-  public function testValidateRemoteRefExistsWithRequestException(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $repo_response = $this->createMock(ResponseInterface::class);
-    $repo_response->method('getStatusCode')->willReturn(200);
-    $mock_http_client->method('request')->willReturnCallback(function ($method, $url) use ($repo_response): ResponseInterface {
-      if (str_contains($url, '/archive/')) {
-        throw new RequestException('Network error', $this->createMock(RequestInterface::class));
+      if (!$ref_response instanceof ResponseInterface) {
+        throw new RequestException((string) $exception_message, $request);
       }
-      return $repo_response;
+
+      return $ref_response;
     });
-    $destination = self::$tmp . '/destination_' . uniqid();
-    File::mkdir($destination);
-    $downloader = new RepositoryDownloader($mock_http_client);
-    $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage('Unable to verify reference "test-tag" in repository "https://github.com/user/repo": Network error.');
-    $downloader->download(Artifact::create('https://github.com/user/repo', 'test-tag'), $destination);
+
+    return $client;
   }
 
-  public function testValidateRemoteArtifactWithStableRef(): void {
+  /**
+   * Stub a client that fails every request with a transport error.
+   */
+  protected function stubThrowingClient(string $message): ClientInterface {
+    $client = $this->createMock(ClientInterface::class);
+    $client->method('request')->willThrowException(new RequestException($message, $this->createMock(RequestInterface::class)));
+
+    return $client;
+  }
+
+  #[DataProvider('dataProviderValidateRemoteArtifact')]
+  public function testValidateRemoteArtifact(string $ref): void {
     $mock_http_client = $this->createMock(ClientInterface::class);
     $mock_response = $this->createMock(ResponseInterface::class);
     $mock_response->method('getStatusCode')->willReturn(200);
     $mock_http_client->method('request')->willReturn($mock_response);
     $downloader = new RepositoryDownloader($mock_http_client);
-    $artifact = Artifact::create('https://github.com/user/repo', 'stable');
-    $downloader->validate($artifact);
+
+    $downloader->validate(Artifact::create('https://github.com/user/repo', $ref));
+
     $this->expectNotToPerformAssertions();
   }
 
-  public function testValidateRemoteArtifactWithCustomRef(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_response = $this->createMock(ResponseInterface::class);
-    $mock_response->method('getStatusCode')->willReturn(200);
-    $mock_http_client->method('request')->willReturn($mock_response);
-    $downloader = new RepositoryDownloader($mock_http_client);
-    $artifact = Artifact::create('https://github.com/user/repo', 'v1.0.0');
-    $downloader->validate($artifact);
-    $this->expectNotToPerformAssertions();
+  public static function dataProviderValidateRemoteArtifact(): \Iterator {
+    yield 'stable ref' => ['stable'];
+    yield 'custom ref' => ['v1.0.0'];
   }
 
-  public function testValidateLocalArtifactWithHeadRef(): void {
+  #[DataProvider('dataProviderValidateLocalArtifact')]
+  public function testValidateLocalArtifact(string $ref): void {
     $temp_repo_dir = $this->createGitRepo();
     $downloader = new RepositoryDownloader();
-    $artifact = Artifact::create($temp_repo_dir, 'HEAD');
-    $downloader->validate($artifact);
+
+    $downloader->validate(Artifact::create($temp_repo_dir, $ref));
+
     $this->expectNotToPerformAssertions();
     $this->removeGitRepo($temp_repo_dir);
   }
 
-  public function testValidateLocalArtifactWithCustomRef(): void {
-    $temp_repo_dir = $this->createGitRepo();
-    $downloader = new RepositoryDownloader();
-    $artifact = Artifact::create($temp_repo_dir, 'main');
-    $downloader->validate($artifact);
-    $this->expectNotToPerformAssertions();
-    $this->removeGitRepo($temp_repo_dir);
+  public static function dataProviderValidateLocalArtifact(): \Iterator {
+    yield 'HEAD ref' => ['HEAD'];
+    yield 'custom ref' => ['main'];
   }
 
   protected function createMockHttpClient(int $status_code = 200, string $body_content = 'mock content'): ClientInterface {

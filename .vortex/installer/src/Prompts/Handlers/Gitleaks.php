@@ -44,7 +44,7 @@ class Gitleaks extends AbstractHandler {
       return NULL;
     }
 
-    return file_exists($this->destinationDir . '/.gitleaks.toml');
+    return File::exists($this->destinationDir . '/.gitleaks.toml');
   }
 
   /**
