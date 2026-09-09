@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
-use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
 use Laravel\Prompts\Key;
@@ -33,7 +32,7 @@ class CustomModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
     ];
     yield 'custom_modules - discovery - base only' => [
       [],
-      [CustomModules::id() => [CustomModules::BASE], Services::id() => [Services::CLAMAV, Services::REDIS]] + $expected_installed,
+      [CustomModules::id() => [CustomModules::BASE]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         File::mkdir(static::$sut . '/web/modules/custom/mypr_base');
@@ -41,7 +40,7 @@ class CustomModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
     ];
     yield 'custom_modules - discovery - base and demo' => [
       [],
-      [CustomModules::id() => [CustomModules::BASE, CustomModules::DEMO], Services::id() => [Services::CLAMAV, Services::REDIS]] + $expected_installed,
+      [CustomModules::id() => [CustomModules::BASE, CustomModules::DEMO]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         File::mkdir(static::$sut . '/web/modules/custom/mypr_base');

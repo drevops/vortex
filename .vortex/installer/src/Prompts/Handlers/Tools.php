@@ -6,7 +6,6 @@ namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use AlexSkrypnyk\File\ContentFile\ContentFile;
 use AlexSkrypnyk\File\Replacer\Replacement;
-use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\JsonManipulator;
 use DrevOps\VortexInstaller\Utils\NpmLock;
@@ -37,20 +36,6 @@ class Tools extends AbstractHandler {
   const DCLINT = 'dclint';
 
   const HADOLINT = 'hadolint';
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function section(): ?PromptSection {
-    return PromptSection::Environment;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 190;
-  }
 
   /**
    * {@inheritdoc}

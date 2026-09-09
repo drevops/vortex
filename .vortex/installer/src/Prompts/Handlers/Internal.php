@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use AlexSkrypnyk\File\ContentFile\ContentFile;
-use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
@@ -14,20 +13,6 @@ use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Yaml;
 
 class Internal extends AbstractHandler {
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function section(): ?PromptSection {
-    return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 410;
-  }
 
   /**
    * {@inheritdoc}

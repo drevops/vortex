@@ -4,26 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\Validator;
 
 class MigrationImage extends AbstractHandler {
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function section(): ?PromptSection {
-    return PromptSection::Workflow;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 290;
-  }
 
   /**
    * {@inheritdoc}

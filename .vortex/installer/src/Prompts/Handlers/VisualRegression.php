@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\File;
 
 /**
@@ -16,20 +15,6 @@ use DrevOps\VortexInstaller\Utils\File;
  * arbitrary URL.
  */
 class VisualRegression extends AbstractHandler {
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function section(): ?PromptSection {
-    return PromptSection::ContinuousIntegration;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 320;
-  }
 
   /**
    * {@inheritdoc}

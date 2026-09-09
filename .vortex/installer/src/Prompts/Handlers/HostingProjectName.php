@@ -4,26 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 
 class HostingProjectName extends AbstractHandler {
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function section(): ?PromptSection {
-    return PromptSection::Hosting;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 210;
-  }
 
   /**
    * {@inheritdoc}

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\File;
 
 class DependencyUpdatesProvider extends AbstractHandler {
@@ -14,20 +13,6 @@ class DependencyUpdatesProvider extends AbstractHandler {
   const RENOVATEBOT_CI = 'renovatebot_ci';
 
   const RENOVATEBOT_APP = 'renovatebot_app';
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function section(): ?PromptSection {
-    return PromptSection::Automations;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 340;
-  }
 
   /**
    * {@inheritdoc}

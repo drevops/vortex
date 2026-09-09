@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\File;
 
 class CodeCoverageProvider extends AbstractHandler {
@@ -12,20 +11,6 @@ class CodeCoverageProvider extends AbstractHandler {
   const NONE = 'none';
 
   const CODECOV = 'codecov';
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function section(): ?PromptSection {
-    return PromptSection::Automations;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 350;
-  }
 
   /**
    * {@inheritdoc}

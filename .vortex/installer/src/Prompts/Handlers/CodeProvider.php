@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
-use DrevOps\VortexInstaller\Prompts\PromptSection;
 use DrevOps\VortexInstaller\Utils\File;
 
 class CodeProvider extends AbstractHandler {
@@ -12,20 +11,6 @@ class CodeProvider extends AbstractHandler {
   const GITHUB = 'github';
 
   const OTHER = 'other';
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function section(): ?PromptSection {
-    return PromptSection::CodeRepository;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function weight(): int {
-    return 150;
-  }
 
   /**
    * {@inheritdoc}

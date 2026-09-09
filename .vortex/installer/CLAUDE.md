@@ -63,10 +63,10 @@ Requires `asciinema`, `expect`, `php`, `composer`, `npx` on PATH. Produces
 permission before running.
 
 Triggers that require re-recording:
-- New `Handlers/*.php` class or handler removal, which also moves the progress
-  denominator.
+- New `Handlers/*.php` class or handler removal.
 - Wording change to `label()` or `hint()` of any existing handler.
-- Change to `section()` or `weight()` of any handler, which reorders the prompts.
+- Adding, removing or reordering prompts inside `PromptManager::runPrompts()`,
+  which also moves the progress denominator.
 
 ## Conditional Token System
 
@@ -132,18 +132,15 @@ Content removed if feature not selected
 
 ### Ordering
 
-`PromptManager` registers handlers by scanning the `Handlers` directory and
-derives both chains from the handler itself:
+`PromptManager::runPrompts()` is the catalogue of prompts: the `form()` chain
+lists every prompt, in order, under its section heading. Add a new prompt
+there, and the progress denominator follows automatically.
 
-- `section()` - the `PromptSection` the prompt is introduced under, or `NULL`
-  for a handler that only processes.
-- `weight()` - position in the prompt chain, and the denominator of the
-  progress indicator.
-- `processWeight()` - position in the processing chain, which runs broadly in
-  reverse so that string replacements process more specific values first.
-
-All three are declared on `HandlerInterface` with no default, so a new handler
-does not compile until it states where it belongs.
+Processing runs in a different order, so each handler declares its own
+`processWeight()` - lowest first, broadly the reverse of the prompt order so
+that string replacements process more specific values before more generic
+ones. It is declared on `HandlerInterface` with no default, so a new handler
+does not compile until it states where it processes.
 
 ### Key Pattern
 

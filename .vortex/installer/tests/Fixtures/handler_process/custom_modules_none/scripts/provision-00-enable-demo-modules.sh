@@ -16,16 +16,7 @@
  task "Setting site name."
  drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'star wars')->save();"
  pass "Set site name."
-@@ -75,20 +64,12 @@
- drush config:set clamav.settings mode_daemon_tcpip.hostname clamav
- pass "Installed and configured ClamAV."
- 
--task "Installing Solr search modules."
--drush pm:install search_api search_api_solr
--pass "Installed Solr search modules."
--
- # Enable custom site module and run its deployment hooks.
- #
+@@ -84,11 +73,7 @@
  # Note that deployment hooks for already enabled modules have run in the
  # parent "provision.sh" script.
  task "Installing custom site modules."
