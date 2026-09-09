@@ -333,7 +333,54 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_SUT);
+    $settings['auto_create_htaccess'] = FALSE;
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_SUT;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
+    $settings['trusted_host_patterns'] = [
+      '^localhost$',
+    ];
 
     $this->assertSettings($settings);
   }
@@ -404,13 +451,54 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $this->assertConfig($config);
 
     // Verify settings overrides.
-    $settings = $this->expectedSettings(self::ENVIRONMENT_SUT);
+    $settings['auto_create_htaccess'] = FALSE;
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = 'custom_config';
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_SUT;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'custom_public';
     $settings['file_private_path'] = 'custom_private';
     $settings['file_temp_path'] = 'custom_temp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
     $settings['hash_salt'] = 'custom_hash_salt';
     $settings['maintenance_theme'] = 'custom_theme';
+    $settings['trusted_host_patterns'] = [
+      '^localhost$',
+    ];
 
     $this->assertSettings($settings);
   }
@@ -445,8 +533,55 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_LOCAL);
+    $settings['auto_create_htaccess'] = FALSE;
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_LOCAL;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
     $settings['skip_permissions_hardening'] = TRUE;
+    $settings['trusted_host_patterns'] = [
+      '^localhost$',
+    ];
 
     $this->assertSettings($settings);
   }
@@ -482,11 +617,55 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_LOCAL);
+    $settings['auto_create_htaccess'] = FALSE;
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_LOCAL;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
     $settings['skip_permissions_hardening'] = TRUE;
     $settings['trusted_host_patterns'] = [
       '^localhost$',
-      '^example\\-site\\.docker\\.amazee\\.io$',
+      '^example\-site\.docker\.amazee\.io$',
       '^nginx$',
     ];
 
@@ -566,8 +745,55 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_CI);
+    $settings['auto_create_htaccess'] = FALSE;
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_CI;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
     $settings['skip_permissions_hardening'] = TRUE;
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['trusted_host_patterns'] = [
+      '^localhost$',
+    ];
 
     $this->assertSettings($settings);
   }
@@ -605,8 +831,55 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_CI);
+    $settings['auto_create_htaccess'] = FALSE;
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_CI;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
     $settings['skip_permissions_hardening'] = TRUE;
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['trusted_host_patterns'] = [
+      '^localhost$',
+    ];
 
     $this->assertSettings($settings);
   }
@@ -640,8 +913,54 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_DEV);
     $settings['auto_create_htaccess'] = TRUE;
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_DEV;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
+    $settings['trusted_host_patterns'] = [
+      '^localhost$',
+    ];
 
     $this->assertSettings($settings);
   }
@@ -673,8 +992,54 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_DEV);
     $settings['auto_create_htaccess'] = TRUE;
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_DEV;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
+    $settings['trusted_host_patterns'] = [
+      '^localhost$',
+    ];
 
     $this->assertSettings($settings);
   }
@@ -706,8 +1071,54 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_STAGE);
     $settings['auto_create_htaccess'] = TRUE;
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_STAGE;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
+    $settings['trusted_host_patterns'] = [
+      '^localhost$',
+    ];
 
     $this->assertSettings($settings);
   }
@@ -736,8 +1147,54 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['js']['preprocess'] = TRUE;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_PROD);
     $settings['auto_create_htaccess'] = TRUE;
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_PROD;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
+    $settings['trusted_host_patterns'] = [
+      '^localhost$',
+    ];
 
     $this->assertSettings($settings);
   }
@@ -770,9 +1227,54 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_DEV);
     $settings['auto_create_htaccess'] = TRUE;
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = 'custom_acquia_config';
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_DEV;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
+    $settings['trusted_host_patterns'] = [
+      '^localhost$',
+    ];
 
     $this->assertSettings($settings);
   }
@@ -812,10 +1314,55 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_DEV);
     $settings['auto_create_htaccess'] = TRUE;
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
     $settings['config_sync_directory'] = '/var/www/site-php/mysite/config';
     $settings['config_vcs_directory'] = '/var/www/site-php/mysite/config';
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_DEV;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
+    $settings['trusted_host_patterns'] = [
+      '^localhost$',
+    ];
 
     $this->assertSettings($settings);
   }
@@ -939,15 +1486,59 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_DEV);
+    $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_test_branch';
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_DEV;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
     $settings['reverse_proxy'] = TRUE;
     $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
     $settings['trusted_host_patterns'] = [
       '^localhost$',
-      '^nginx\\-php$',
-      '^.+\\.amazee\\.io$',
-      '^example1\\.com$',
+      '^nginx\-php$',
+      '^.+\.amazee\.io$',
+      '^example1\.com$',
       '^example2$',
     ];
 
@@ -985,15 +1576,59 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_DEV);
+    $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_develop';
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_DEV;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
     $settings['reverse_proxy'] = TRUE;
     $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
     $settings['trusted_host_patterns'] = [
       '^localhost$',
-      '^nginx\\-php$',
-      '^.+\\.amazee\\.io$',
-      '^example1\\.com$',
+      '^nginx\-php$',
+      '^.+\.amazee\.io$',
+      '^example1\.com$',
       '^example2$',
     ];
 
@@ -1031,15 +1666,59 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['cache']['page']['max_age'] = 900;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_STAGE);
+    $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_master';
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_STAGE;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
     $settings['reverse_proxy'] = TRUE;
     $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
     $settings['trusted_host_patterns'] = [
       '^localhost$',
-      '^nginx\\-php$',
-      '^.+\\.amazee\\.io$',
-      '^example1\\.com$',
+      '^nginx\-php$',
+      '^.+\.amazee\.io$',
+      '^example1\.com$',
       '^example2$',
     ];
 
@@ -1075,15 +1754,59 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['system.performance']['js']['preprocess'] = TRUE;
     $this->assertConfig($config);
 
-    $settings = $this->expectedSettings(self::ENVIRONMENT_PROD);
+    $settings['auto_create_htaccess'] = FALSE;
     $settings['cache_prefix']['default'] = 'test_project_production';
+    $settings['config_exclude_modules'] = [
+      // phpcs:ignore #;< MODULE_DEVEL
+      'devel',
+      // phpcs:ignore #;> MODULE_DEVEL
+      // phpcs:ignore #;< MODULE_GENERATED_CONTENT
+      'generated_content',
+      // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
+      // phpcs:ignore #;< MODULE_SDC_DEVEL
+      'sdc_devel',
+      // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< MODULE_TESTMODE
+      'testmode',
+      // phpcs:ignore #;> MODULE_TESTMODE
+    ];
+    $settings['config_sync_directory'] = '../config/default';
+    $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    $settings['entity_update_batch_size'] = 50;
+    $settings['environment'] = self::ENVIRONMENT_PROD;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = FALSE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_path_check'] = FALSE;
+    $settings['fast404_respect_redirect'] = FALSE;
+    $settings['fast404_url_whitelisting'] = TRUE;
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'cron.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
+    $settings['file_public_path'] = 'sites/default/files';
+    $settings['file_private_path'] = 'sites/default/files/private';
+    $settings['file_temp_path'] = '/tmp';
+    $settings['file_scan_ignore_directories'] = [
+      'node_modules',
+      'bower_components',
+    ];
+    $settings['hash_salt'] = hash('sha256', getenv('DATABASE_HOST') ?: 'localhost');
+    $settings['maintenance_theme'] = 'claro';
     $settings['reverse_proxy'] = TRUE;
     $settings['reverse_proxy_header'] = 'HTTP_TRUE_CLIENT_IP';
     $settings['trusted_host_patterns'] = [
       '^localhost$',
-      '^nginx\\-php$',
-      '^.+\\.amazee\\.io$',
-      '^example1\\.com$',
+      '^nginx\-php$',
+      '^.+\.amazee\.io$',
+      '^example1\.com$',
       '^example2$',
     ];
 
@@ -1113,69 +1836,5 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     ]);
   }
   // phpcs:ignore #;> SETTINGS_PROVIDER_LAGOON
-
-  /**
-   * Settings that every environment produces.
-   *
-   * Each test overrides only the entries its environment changes.
-   *
-   * @param string $environment
-   *   The environment type the settings are expected to report.
-   *
-   * @return array
-   *   Array of expected settings.
-   */
-  protected function expectedSettings(string $environment): array {
-    return [
-      'auto_create_htaccess' => FALSE,
-      'config_exclude_modules' => [
-        // phpcs:ignore #;< MODULE_DEVEL
-        'devel',
-        // phpcs:ignore #;> MODULE_DEVEL
-        // phpcs:ignore #;< MODULE_GENERATED_CONTENT
-        'generated_content',
-        // phpcs:ignore #;> MODULE_GENERATED_CONTENT
-        // phpcs:ignore #;< MODULE_REROUTE_EMAIL
-        'reroute_email',
-        // phpcs:ignore #;> MODULE_REROUTE_EMAIL
-        // phpcs:ignore #;< MODULE_SDC_DEVEL
-        'sdc_devel',
-        // phpcs:ignore #;> MODULE_SDC_DEVEL
-        // phpcs:ignore #;< MODULE_TESTMODE
-        'testmode',
-        // phpcs:ignore #;> MODULE_TESTMODE
-      ],
-      'config_sync_directory' => '../config/default',
-      'container_yamls' => [$this->app_root . '/' . $this->site_path . '/services.yml'],
-      'entity_update_batch_size' => 50,
-      'environment' => $environment,
-      // phpcs:ignore #;< MODULE_FAST_404
-      'fast404_allow_anon_imagecache' => FALSE,
-      'fast404_exts' => '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i',
-      'fast404_html' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>',
-      'fast404_path_check' => FALSE,
-      'fast404_respect_redirect' => FALSE,
-      'fast404_url_whitelisting' => TRUE,
-      'fast404_whitelist' => [
-        'index.php',
-        'rss.xml',
-        'cron.php',
-        'xmlrpc.php',
-      ],
-      // phpcs:ignore #;> MODULE_FAST_404
-      'file_private_path' => 'sites/default/files/private',
-      'file_public_path' => 'sites/default/files',
-      'file_scan_ignore_directories' => [
-        'node_modules',
-        'bower_components',
-      ],
-      'file_temp_path' => '/tmp',
-      'hash_salt' => hash('sha256', getenv('DATABASE_HOST') ?: 'localhost'),
-      'maintenance_theme' => 'claro',
-      'trusted_host_patterns' => [
-        '^localhost$',
-      ],
-    ];
-  }
 
 }
