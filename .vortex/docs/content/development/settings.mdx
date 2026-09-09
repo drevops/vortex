@@ -358,6 +358,17 @@ A _value carrier_ - a variable whose value is used - is read with
 value is needed after the guard.<br/>
 Compare with `===` and `!==`, never with `==`.
 
+:::warning Flags accept only `1`
+
+An environment that sets a shipped flag to `true`, `yes`, `on` or any other
+non-empty value gets the behavior turned **off**. Set every flag below to `1`
+in your hosting provider's environment variables: `DRUPAL_CLAMAV_ENABLED`,
+`DRUPAL_REDIS_ENABLED`, `DRUPAL_REROUTE_EMAIL_DISABLED`,
+`DRUPAL_SHIELD_DISABLED`, `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE`,
+`DRUPAL_TMP_PATH_IS_SHARED` and `DRUPAL_SETTINGS_LOCAL_SKIP`.
+
+:::
+
 - **Gate on the presence of a contributed module only when the file needs it.**<br/>
 `file_exists($contrib_path . '/my_module')` belongs in an override file that
 loads a file from the module directory or registers its paths. An override file
