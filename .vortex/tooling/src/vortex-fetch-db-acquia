@@ -113,7 +113,7 @@ if echo "${token_json}" | grep -q '"error"'; then
   fail "Authentication failed. Check VORTEX_FETCH_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_FETCH_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: ${token_json}"
 fi
 
-token="$(echo "${token_json}" | extract_json_value "access_token")"
+token=$(echo "${token_json}" | extract_json_value "access_token")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Access token extracted (value redacted)."
 [ -z "${token}" ] && fail "Unable to retrieve a token. API response: ${token_json}"
 pass "Retrieved authentication token."
@@ -141,7 +141,7 @@ fi
 
 env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted environment ID: ${env_id}"
-[ -z "${env_id}" ] && fail "Unable to retrieve an environment ID for \"${VORTEX_FETCH_DB_ENVIRONMENT}\". API response: ${envs_json}"
+[ -z "${env_id}" ] && fail "Unable to retrieve environment ID for \"${VORTEX_FETCH_DB_ENVIRONMENT}\". API response: ${envs_json}"
 pass "Retrieved ${VORTEX_FETCH_DB_ENVIRONMENT} environment ID."
 
 if [ "${VORTEX_FETCH_DB_FRESH}" = "1" ]; then
