@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for export-db router script.
+# Unit tests for the 'vortex-export-db' script.
 #
 # shellcheck disable=SC2030,SC2031
 

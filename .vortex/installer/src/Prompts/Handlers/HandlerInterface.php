@@ -118,7 +118,7 @@ interface HandlerInterface {
    *   Array of collected responses.
    *
    * @return bool
-   *   The condition callback, or null if not conditional.
+   *   TRUE if the handler should run, FALSE otherwise.
    */
   public function shouldRun(array $responses): bool;
 
@@ -134,10 +134,10 @@ interface HandlerInterface {
   public function default(array $responses): null|string|bool|array;
 
   /**
-   * Discover the value from the environment.
+   * Discover the value from the existing codebase.
    *
    * @return null|string|bool|array
-   *   The value of the environment variable.
+   *   The discovered value, or NULL if it could not be discovered.
    */
   public function discover(): null|string|bool|array;
 
@@ -176,8 +176,7 @@ interface HandlerInterface {
   /**
    * Get a message to display when showing the resolved value.
    *
-   * This is used by handlerManager to show an appropriate message (via
-   * info(), ok(), etc.) when using a resolved value instead of handlering
+   * The message is shown when a resolved value is used instead of prompting
    * for input.
    *
    * @param array $responses

@@ -2,7 +2,8 @@
 ##
 # Notification dispatch to email recipients.
 #
-# Notification dispatch to email recipients.
+# Sends deployment notifications by email using the 'sendmail' or 'mail'
+# command.
 #
 # Usage:
 # VORTEX_NOTIFY_PROJECT="Site Name" \
@@ -10,7 +11,7 @@
 # VORTEX_NOTIFY_EMAIL_RECIPIENTS="to1@example.com|Jane Doe, to2@example.com|John Doe" \
 # VORTEX_NOTIFY_LABEL="main" \
 # VORTEX_NOTIFY_ENVIRONMENT_URL="https://environment-url-example.com" \
-# ./notify-email
+# vortex-notify-email
 #
 # shellcheck disable=SC1090,SC1091,SC2016
 

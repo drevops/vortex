@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Unit tests for fetch-db-acquia.sh
+# Unit tests for the 'vortex-fetch-db-acquia' script.
 #
 # shellcheck disable=SC2030,SC2031,SC2034
 

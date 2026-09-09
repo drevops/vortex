@@ -11,11 +11,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
-/**
- * Class InstallerDotEnvTest.
- *
- * InstallerDotEnvTest fixture class.
- */
 #[CoversClass(Env::class)]
 #[RunTestsInSeparateProcesses]
 class EnvTest extends UnitTestCase {

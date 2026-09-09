@@ -79,3 +79,5 @@ for file in "${targets[@]}"; do
     fi
   fi
 done
+
+# LCOV_EXCL_STOP

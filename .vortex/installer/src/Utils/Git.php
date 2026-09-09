@@ -53,7 +53,7 @@ class Git extends GitRepository {
         continue;
         // @codeCoverageIgnoreEnd
       }
-      // Remove the trailing (fetch) or (push) from the remote name.
+      // Remove the trailing (fetch) or (push) from the remote URL.
       $parts[1] = preg_replace('/ \(.*\)$/', '', $parts[1]);
       $remotes[$parts[0]] = $parts[1];
     }

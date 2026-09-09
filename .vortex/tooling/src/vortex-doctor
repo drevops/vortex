@@ -2,8 +2,8 @@
 #
 # Check project requirements or print info.
 #
-# doctor.sh - check project requirements.
-# doctor.sh info - show system information.
+# vortex-doctor - check project requirements.
+# vortex-doctor info - show system information.
 #
 # IMPORTANT! This script runs outside the container on the host system.
 #

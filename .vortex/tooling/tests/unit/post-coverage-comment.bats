@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for .circleci/post-coverage-comment.sh
+# Unit tests for the '.circleci/post-coverage-comment.sh' script.
 #
 # shellcheck disable=SC2030,SC2031,SC2034
 

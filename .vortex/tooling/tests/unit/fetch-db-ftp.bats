@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for fetch-db-ftp.sh
+# Unit tests for the 'vortex-fetch-db-ftp' script.
 #
 # shellcheck disable=SC2030,SC2031
 

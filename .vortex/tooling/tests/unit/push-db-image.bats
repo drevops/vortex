@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for push-db-image script.
+# Unit tests for the 'vortex-push-db-image' script.
 #
 # The stub map markers use single quotes on purpose: the `${...}` must reach the
 # generated stub literally and expand when the stub runs, not when the test

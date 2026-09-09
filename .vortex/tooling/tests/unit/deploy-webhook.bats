@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Test for webhook deployments.
+# Unit tests for the 'vortex-deploy-webhook' script.
 #
 # shellcheck disable=SC2030,SC2031,SC2129,SC2155
 

@@ -26,6 +26,7 @@ setup() {
   # NOTE: If Docker tests fail, re-run with custom temporary directory
   # (must be pre-created): TMPDIR=${HOME}/.bats-tmp bats <testfile>'
 
+  # LCOV_EXCL_START
   if [ -n "${DOCKER_DEFAULT_PLATFORM:-}" ]; then
     if [ "${BATS_VERBOSE_RUN:-}" = "1" ] || [ "${TEST_VORTEX_DEBUG:-}" = "1" ]; then
       echo "Using ${DOCKER_DEFAULT_PLATFORM} platform architecture."

@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Utils;
 
-/**
- * Converter.
- *
- * Convert strings to different formats.
- */
 class Validator {
 
   public static function isContainerImage(string $value): bool {
@@ -51,10 +46,11 @@ class Validator {
    * - Branch names: "main", "develop", "feature/my-feature"
    *
    * Follows git reference naming rules:
-   * - Can contain alphanumeric, dot, hyphen, underscore, slash
+   * - Can contain alphanumeric, dot, hyphen, underscore, slash, plus
    * - Cannot start with dot or hyphen
    * - Cannot contain: @, ^, ~, :, ?, *, [, space, \, @{
-   * - Cannot end with .lock or contain
+   * - Cannot contain .. or //
+   * - Cannot end with .lock or /
    *
    * @param string $value
    *   The reference string to validate.
@@ -73,11 +69,6 @@ class Validator {
       return TRUE;
     }
 
-    // Git ref naming rules (simplified):
-    // - Can contain alphanumeric, dot, hyphen, underscore, slash, plus.
-    // - Cannot start with dot or hyphen.
-    // - Cannot contain .. or end with .lock.
-    // - Cannot end with / or contain //.
     $pattern = '/^(?![.\-])(?!.*\.\.)[a-zA-Z0-9._\/+-]+(?<!\.lock)$/';
 
     if (!preg_match($pattern, $value)) {

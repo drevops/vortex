@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for import-db router script.
+# Unit tests for the 'vortex-import-db' script.
 #
 # shellcheck disable=SC2030,SC2031
 

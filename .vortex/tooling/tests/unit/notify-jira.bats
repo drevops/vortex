@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for JIRA notifications (notify.sh).
+# Unit tests for the 'vortex-notify-jira' script.
 #
 #shellcheck disable=SC2030,SC2031,SC2034
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for provision-00-enable-demo-modules.sh
+# Unit tests for the 'scripts/provision-00-enable-demo-modules.sh' script.
 #
 # The environment-matching branch is covered end-to-end by 'provision.bats';
 # this file covers the boundary that those scenarios do not reach.

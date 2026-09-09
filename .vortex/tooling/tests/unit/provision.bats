@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for provision.sh
+# Unit tests for the 'vortex-provision' script.
 #
 #shellcheck disable=SC2030,SC2031,SC2034
 

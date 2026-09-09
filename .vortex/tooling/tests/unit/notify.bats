@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 ##
-# Unit tests for general notify.sh functionality.
+# Unit tests for the 'vortex-notify' script.
 #
 # Notification-specific tests are in separate files:
 # - notify-email.bats

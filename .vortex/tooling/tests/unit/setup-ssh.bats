@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Test for setup-ssh.sh script.
+# Unit tests for the 'vortex-setup-ssh' script.
 #
 # IMPORTANT! This test uses mocks for ssd-add, so do not try to assert
 # the actual key presence in the agent.

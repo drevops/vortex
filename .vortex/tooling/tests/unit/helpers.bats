@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Tests for Vortex Bats helpers.
+# Unit tests for the Vortex BATS helpers.
 #
 # shellcheck disable=SC2129
 
