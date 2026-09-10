@@ -50,7 +50,7 @@ class FileLogger implements FileLoggerInterface {
     $this->path = $this->getDir() . '/' . self::LOG_DIR . '/' . $name . '-' . date('Y-m-d-His') . '.log';
 
     $log_dir = dirname($this->path);
-    if (!is_dir($log_dir)) {
+    if (!File::isDir($log_dir)) {
       File::mkdir($log_dir);
     }
 

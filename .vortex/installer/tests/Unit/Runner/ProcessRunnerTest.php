@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Runner;
 
-use AlexSkrypnyk\File\File;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Runner\ProcessRunner;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Tui;
@@ -298,7 +298,7 @@ class ProcessRunnerTest extends UnitTestCase {
 
     $script_path = $test_dir . '/test_script.sh';
     File::dump($script_path, "#!/bin/sh\necho 'test'\n");
-    chmod($script_path, 0755);
+    File::chmod($script_path, 0755);
 
     $runner->setCwd(self::$tmp);
 

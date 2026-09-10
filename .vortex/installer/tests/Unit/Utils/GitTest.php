@@ -35,13 +35,13 @@ class GitTest extends UnitTestCase {
   }
 
   public function testInit(): void {
-    $temp_dir = sys_get_temp_dir() . '/git_test_init_' . uniqid();
-    mkdir($temp_dir);
+    $temp_dir = static::$tmp . '/git_test_init_' . uniqid();
+    File::mkdir($temp_dir);
 
     $repo = Git::init($temp_dir);
 
     $this->assertInstanceOf(GitRepository::class, $repo);
-    $this->assertTrue(is_dir($temp_dir . '/.git'));
+    $this->assertTrue(File::isDir($temp_dir . '/.git'));
 
     $this->cleanupTempGitRepo($temp_dir);
   }
@@ -89,8 +89,8 @@ class GitTest extends UnitTestCase {
   }
 
   public function testGetTrackedFilesNonGitDirectory(): void {
-    $temp_dir = sys_get_temp_dir() . '/non_git_' . uniqid();
-    mkdir($temp_dir);
+    $temp_dir = static::$tmp . '/non_git_' . uniqid();
+    File::mkdir($temp_dir);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('The directory is not a Git repository.');
@@ -152,8 +152,8 @@ class GitTest extends UnitTestCase {
    *   Array with temp directory path and Git object.
    */
   protected function createTempGitRepo(bool $with_remote = FALSE, bool $with_commits = FALSE): array {
-    $temp_dir = sys_get_temp_dir() . '/git_test_' . uniqid();
-    mkdir($temp_dir);
+    $temp_dir = static::$tmp . '/git_test_' . uniqid();
+    File::mkdir($temp_dir);
 
     Git::init($temp_dir);
     $repo = new Git($temp_dir);
@@ -163,11 +163,11 @@ class GitTest extends UnitTestCase {
       $repo->run('config', 'user.name', 'Test User');
       $repo->run('config', 'user.email', 'test@example.com');
 
-      file_put_contents($temp_dir . '/test.txt', 'test content');
+      File::dump($temp_dir . '/test.txt', 'test content');
       $repo->addAllChanges();
       $repo->commit('Initial commit');
 
-      file_put_contents($temp_dir . '/another.txt', 'another test');
+      File::dump($temp_dir . '/another.txt', 'another test');
       $repo->addAllChanges();
       $repo->commit('Second commit');
     }
@@ -181,7 +181,7 @@ class GitTest extends UnitTestCase {
   }
 
   protected function cleanupTempGitRepo(string $temp_dir): void {
-    if (is_dir($temp_dir)) {
+    if (File::isDir($temp_dir)) {
       File::remove($temp_dir);
     }
   }

@@ -145,12 +145,12 @@ class FileManager {
     $messages = [];
 
     $destination = $this->config->getDestination();
-    if (!is_dir($destination)) {
+    if (!File::isDir($destination)) {
       $destination = File::mkdir($destination);
       $messages[] = sprintf('Created directory "%s".', $destination);
     }
 
-    if (!is_readable($destination . '/.git')) {
+    if (!File::exists($destination . '/.git')) {
       $messages[] = sprintf('Initializing a new Git repository in directory "%s".', $destination);
 
       // The destination arrives from a CLI option, the environment or a config
@@ -160,7 +160,7 @@ class FileManager {
       $command = sprintf('git -c advice.defaultBranchName=false --work-tree=%s --git-dir=%s init > /dev/null', escapeshellarg($destination), escapeshellarg($destination . '/.git'));
       passthru($command, $exit_code);
 
-      if ($exit_code !== 0 || !File::exists($destination . '/.git')) {
+      if ($exit_code !== 0) {
         throw new \RuntimeException(sprintf('Unable to initialize Git repository in directory "%s".', $destination));
       }
     }
@@ -199,7 +199,7 @@ class FileManager {
     }
 
     foreach ($ignored_files as $ignored_file) {
-      if (is_readable($ignored_file)) {
+      if (File::exists($ignored_file)) {
         File::remove($ignored_file);
       }
     }
@@ -210,11 +210,11 @@ class FileManager {
 
     $this->recordReplacedChanges($src);
 
-    if (is_dir($src) && !File::dirIsEmpty($src)) {
+    if (File::isDir($src) && !File::dirIsEmpty($src)) {
       File::copy($src, $destination);
     }
 
-    if (!file_exists($destination . '/.env.local') && file_exists($destination . '/.env.local.example')) {
+    if (!File::exists($destination . '/.env.local') && File::exists($destination . '/.env.local.example')) {
       File::copy($destination . '/.env.local.example', $destination . '/.env.local');
     }
 
@@ -255,7 +255,7 @@ class FileManager {
 
       $target = $destination . '/' . $path;
 
-      if (!is_file($target)) {
+      if (!File::isReadable($target)) {
         continue;
       }
 
@@ -302,7 +302,7 @@ class FileManager {
     foreach ($this->relativePaths($src) as $path) {
       $project = $destination . '/' . $path;
 
-      if (!is_file($project)) {
+      if (!File::isReadable($project)) {
         continue;
       }
 
@@ -319,7 +319,7 @@ class FileManager {
       // diff the project's copy against.
       $previous = $this->previousDir . '/' . $path;
 
-      $registry->add($path, is_file($previous) ? File::read($previous) : NULL, File::read($project), File::read($next));
+      $registry->add($path, File::isReadable($previous) ? File::read($previous) : NULL, File::read($project), File::read($next));
     }
 
     $this->registryFile = $registry->write((string) $this->previousRef, (string) $this->config->get(Config::VERSION), date('Y-m-d H:i:s'));
@@ -360,7 +360,7 @@ class FileManager {
     foreach ($this->relativePaths($directory) as $path) {
       $file = $directory . '/' . $path;
 
-      if (is_file($file)) {
+      if (File::isReadable($file)) {
         $hashes[$path] = (string) hash_file(self::HASH_ALGO, $file);
       }
     }
@@ -378,7 +378,7 @@ class FileManager {
    *   Relative file paths.
    */
   protected function relativePaths(string $directory): array {
-    if (!is_dir($directory)) {
+    if (!File::isDir($directory)) {
       return [];
     }
 
@@ -411,7 +411,7 @@ class FileManager {
 
     foreach ($obsolete as $relative) {
       $path = $destination . '/' . $relative;
-      if (file_exists($path)) {
+      if (File::exists($path)) {
         File::remove($path);
       }
     }
@@ -445,12 +445,12 @@ class FileManager {
     $data_dir = $this->config->getDestination() . '/' . Env::get('VORTEX_DB_DIR', './.data');
     $db_file = Env::get('VORTEX_DB_FILE', 'db.sql');
 
-    if (file_exists($data_dir . '/' . $db_file)) {
+    if (File::exists($data_dir . '/' . $db_file)) {
       return 'Database dump file already exists. Skipping demo database fetch.';
     }
 
     $messages = [];
-    if (!file_exists($data_dir)) {
+    if (!File::exists($data_dir)) {
       $data_dir = File::mkdir($data_dir);
       $messages[] = sprintf('Created data directory "%s".', $data_dir);
     }

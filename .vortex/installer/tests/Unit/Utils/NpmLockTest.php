@@ -167,7 +167,7 @@ class NpmLockTest extends UnitTestCase {
 
     NpmLock::sync($manifest_file);
 
-    $contents = (string) file_get_contents(dirname($manifest_file) . '/package-lock.json');
+    $contents = File::read(dirname($manifest_file) . '/package-lock.json');
 
     $this->assertStringContainsString("\n  \"lockfileVersion\": 3,", $contents);
     $this->assertStringContainsString("\n    \"node_modules/keep\": {", $contents);
@@ -182,7 +182,7 @@ class NpmLockTest extends UnitTestCase {
 
     NpmLock::sync($manifest_file);
 
-    $this->assertStringContainsString('"bin": {}', (string) file_get_contents(dirname($manifest_file) . '/package-lock.json'));
+    $this->assertStringContainsString('"bin": {}', File::read(dirname($manifest_file) . '/package-lock.json'));
   }
 
   #[DataProvider('dataProviderSyncThrows')]
@@ -217,7 +217,7 @@ class NpmLockTest extends UnitTestCase {
       ['packages' => ['' => ['dependencies' => ['keep' => '^1.0.0']]]]
     );
 
-    chmod(dirname($manifest_file) . '/package-lock.json', 0444);
+    File::chmod(dirname($manifest_file) . '/package-lock.json', 0444);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessageMatches('/Unable to write a JSON file/');
@@ -242,7 +242,7 @@ class NpmLockTest extends UnitTestCase {
   }
 
   protected function readLock(string $manifest_file): array {
-    return (array) json_decode((string) file_get_contents(dirname($manifest_file) . '/package-lock.json'), TRUE, 512, JSON_THROW_ON_ERROR);
+    return (array) json_decode(File::read(dirname($manifest_file) . '/package-lock.json'), TRUE, 512, JSON_THROW_ON_ERROR);
   }
 
 }

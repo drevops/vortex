@@ -44,7 +44,7 @@ class LabelMergeConflictsPr extends AbstractHandler {
       return NULL;
     }
 
-    return file_exists($this->destinationDir . '/.github/workflows/label-merge-conflict.yml');
+    return File::exists($this->destinationDir . '/.github/workflows/label-merge-conflict.yml');
   }
 
   /**

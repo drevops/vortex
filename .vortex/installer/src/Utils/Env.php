@@ -33,7 +33,7 @@ class Env {
     }
 
     $file = $dir . '/.env';
-    if (!is_readable($file)) {
+    if (!File::isReadable($file)) {
       return NULL;
     }
 
@@ -82,16 +82,11 @@ class Env {
    *   Array of parsed values, key is the variable name.
    */
   public static function parseDotenv(string $filename = '.env'): array {
-    if (!is_file($filename) || !is_readable($filename)) {
+    if (!File::isReadable($filename)) {
       return [];
     }
 
-    $contents = file_get_contents($filename);
-    if ($contents === FALSE) {
-      // @codeCoverageIgnoreStart
-      return [];
-      // @codeCoverageIgnoreEnd
-    }
+    $contents = File::read($filename);
 
     // Replace all # not inside quotes.
     $contents = preg_replace('/#(?=(?:(?:[^"]*"){2})*[^"]*$)/', ';', $contents);
@@ -140,16 +135,11 @@ class Env {
    *   Array of parsed values after modification.
    */
   public static function writeValueDotenv(string $name, ?string $value = NULL, string $filename = '.env', bool $enabled = TRUE): array {
-    if (!is_readable($filename)) {
+    if (!File::isReadable($filename)) {
       throw new \RuntimeException(sprintf('File "%s" is not readable.', $filename));
     }
 
-    $contents = file_get_contents($filename);
-    if ($contents === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to read file "%s".', $filename));
-      // @codeCoverageIgnoreEnd
-    }
+    $contents = File::read($filename);
 
     // Pattern to match the variable name and its value, including multiline
     // quoted values. Matches both normal and commented-out variables.
@@ -185,11 +175,7 @@ class Env {
       }
     }
 
-    if (file_put_contents($filename, $contents) === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to write to file "%s".', $filename));
-      // @codeCoverageIgnoreEnd
-    }
+    File::dump($filename, $contents);
 
     return self::parseDotenv($filename);
   }

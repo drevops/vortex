@@ -98,7 +98,14 @@ class UpdateRegistry {
     }
 
     $file = $this->destination . '/' . self::FILE;
-    $existing = is_file($file) ? File::read($file) : self::HEADING . PHP_EOL;
+
+    // A registry that exists but cannot be read would otherwise be replaced by
+    // the heading, discarding every entry recorded before this run.
+    if (File::exists($file) && !File::isReadable($file)) {
+      throw new \RuntimeException(sprintf('Unable to read the update registry "%s".', $file));
+    }
+
+    $existing = File::exists($file) ? File::read($file) : self::HEADING . PHP_EOL;
 
     File::dump($file, $existing . $content);
 

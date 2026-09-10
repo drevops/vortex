@@ -44,7 +44,7 @@ class AssignAuthorPr extends AbstractHandler {
       return NULL;
     }
 
-    return file_exists($this->destinationDir . '/.github/workflows/assign-author.yml');
+    return File::exists($this->destinationDir . '/.github/workflows/assign-author.yml');
   }
 
   /**

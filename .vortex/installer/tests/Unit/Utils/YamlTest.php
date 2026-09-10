@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Yaml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -19,8 +20,8 @@ class YamlTest extends UnitTestCase {
       $this->expectExceptionMessage($expected_exception_message);
     }
 
-    $temp_file = tempnam(sys_get_temp_dir(), 'yaml_test_');
-    file_put_contents($temp_file, $yaml_content);
+    $temp_file = static::$tmp . '/' . uniqid('yaml_test_');
+    File::dump($temp_file, $yaml_content);
 
     Yaml::validateFile($temp_file);
 
@@ -51,7 +52,7 @@ YAML, 'Malformed inline YAML string',
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage('File does not exist or is not readable');
 
-    $non_existent_file = sys_get_temp_dir() . '/non_existent_file.yml';
+    $non_existent_file = static::$tmp . '/non_existent_file.yml';
     Yaml::validateFile($non_existent_file);
   }
 

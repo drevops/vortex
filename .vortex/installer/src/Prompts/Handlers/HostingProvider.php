@@ -69,11 +69,11 @@ class HostingProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    if (is_readable($this->destinationDir . '/hooks') || Env::getFromDotenv('VORTEX_FETCH_DB_SOURCE', $this->destinationDir) === DatabaseFetchSource::ACQUIA) {
+    if (File::exists($this->destinationDir . '/hooks') || Env::getFromDotenv('VORTEX_FETCH_DB_SOURCE', $this->destinationDir) === DatabaseFetchSource::ACQUIA) {
       return self::ACQUIA;
     }
 
-    if (is_readable($this->destinationDir . '/.lagoon.yml')) {
+    if (File::exists($this->destinationDir . '/.lagoon.yml')) {
       return self::LAGOON;
     }
 

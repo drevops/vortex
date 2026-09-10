@@ -14,20 +14,11 @@ class JsonManipulator extends ComposerJsonManipulator {
   }
 
   public static function fromFile(string $composer_json): ?self {
-    if (!is_readable($composer_json) || !is_file($composer_json)) {
+    if (!File::isReadable($composer_json)) {
       return NULL;
     }
 
-    $contents = file_get_contents($composer_json);
-    if ($contents === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf(
-        'Unable to read composer.json from %s: %s',
-        $composer_json,
-        error_get_last()['message'] ?? 'unknown error'
-      ));
-      // @codeCoverageIgnoreEnd
-    }
+    $contents = File::read($composer_json);
 
     try {
       $instance = new self($contents);
@@ -62,9 +53,7 @@ class JsonManipulator extends ComposerJsonManipulator {
     $callback($instance);
 
     $contents = $instance->getContents();
-    if (file_put_contents($file, $contents) !== strlen($contents)) {
-      throw new \RuntimeException(sprintf('Unable to write a JSON file at "%s".', $file));
-    }
+    File::dump($file, $contents);
   }
 
   /**

@@ -84,8 +84,8 @@ class Internal extends AbstractHandler {
       return $content;
     });
 
-    if (file_exists($t . '/README.dist.md')) {
-      rename($t . '/README.dist.md', $t . '/README.md');
+    if (File::exists($t . '/README.dist.md')) {
+      File::rename($t . '/README.dist.md', $t . '/README.md');
     }
 
     // Remove Vortex internal files.
@@ -169,7 +169,7 @@ class Internal extends AbstractHandler {
         $is_demo = FALSE;
       }
       elseif ($responses[ProvisionType::id()] === ProvisionType::DATABASE) {
-        $db_file_exists = file_exists(Env::get('VORTEX_DB_DIR', './.data') . '/' . Env::get('VORTEX_DB_FILE', 'db.sql'));
+        $db_file_exists = File::exists(Env::get('VORTEX_DB_DIR', './.data') . '/' . Env::get('VORTEX_DB_FILE', 'db.sql'));
         $has_comment = File::contains($this->destinationDir . '/.env', 'Override project-specific values for demonstration purposes');
 
         // Demo mode applies only to the URL and container registry download

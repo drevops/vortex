@@ -32,14 +32,14 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testConstructor(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
     $this->assertInstanceOf(InstallerPresenter::class, $presenter);
   }
 
   public function testSetPromptManager(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
@@ -51,7 +51,7 @@ class InstallerPresenterTest extends UnitTestCase {
 
   #[DataProvider('dataProviderHeaderWithStableArtifact')]
   public function testHeaderWithStableArtifact(bool $is_vortex_project, bool $no_interaction): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $config->set(Config::IS_VORTEX_PROJECT, $is_vortex_project);
     $config->setNoInteraction($no_interaction);
     $presenter = new InstallerPresenter($config);
@@ -73,7 +73,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testHeaderWithDevelopmentArtifact(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
     $artifact = Artifact::fromUri(RepositoryDownloader::DEFAULT_REPO . '#' . RepositoryDownloader::REF_HEAD);
@@ -84,7 +84,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testHeaderWithCustomArtifact(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
     $artifact = Artifact::fromUri('https://github.com/drevops/vortex.git#abc123');
@@ -96,7 +96,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testHeaderVersionPlaceholderReplacement(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
     $artifact = Artifact::fromUri(NULL);
@@ -108,7 +108,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testHeaderInteractiveShowsControls(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $config->setNoInteraction(FALSE);
     $presenter = new InstallerPresenter($config);
 
@@ -121,7 +121,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testHeaderNonInteractiveHidesControls(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $config->setNoInteraction(TRUE);
     $presenter = new InstallerPresenter($config);
 
@@ -135,7 +135,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testHeaderExistingVortexProject(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $config->set(Config::IS_VORTEX_PROJECT, TRUE);
     $presenter = new InstallerPresenter($config);
 
@@ -147,7 +147,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testFooterNewProject(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $config->set(Config::IS_VORTEX_PROJECT, FALSE);
     $presenter = new InstallerPresenter($config);
 
@@ -160,7 +160,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testFooterExistingProject(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $config->set(Config::IS_VORTEX_PROJECT, TRUE);
     $presenter = new InstallerPresenter($config);
 
@@ -173,7 +173,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testFooterBuildSucceeded(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
@@ -191,7 +191,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testFooterBuildSucceededWithHandlerOutput(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
@@ -208,7 +208,7 @@ class InstallerPresenterTest extends UnitTestCase {
 
   #[DataProvider('dataProviderFooterBuildSkipped')]
   public function testFooterBuildSkipped(string $starter, bool $expect_profile_command, bool $expect_export_db): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
@@ -258,7 +258,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testFooterBuildSkippedDefaultsToDemo(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
@@ -274,7 +274,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testFooterBuildFailed(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
@@ -295,7 +295,7 @@ class InstallerPresenterTest extends UnitTestCase {
   }
 
   public function testFooterBuildFailedWithHandlerOutput(): void {
-    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
@@ -319,6 +319,13 @@ class InstallerPresenterTest extends UnitTestCase {
     yield 'success' => [InstallerPresenter::BUILD_RESULT_SUCCESS, 'success'];
     yield 'skipped' => [InstallerPresenter::BUILD_RESULT_SKIPPED, 'skipped'];
     yield 'failed' => [InstallerPresenter::BUILD_RESULT_FAILED, 'failed'];
+  }
+
+  /**
+   * Create a config with paths the presenter never reads from disk.
+   */
+  protected function createConfig(): Config {
+    return new Config(static::$tmp . '/root', static::$tmp . '/dst', static::$tmp . '/tmp');
   }
 
 }

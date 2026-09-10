@@ -16,6 +16,14 @@ namespace DrevOps\VortexInstaller\Utils;
 class Version {
 
   /**
+   * Pattern matching the Vortex badge in a project README.
+   *
+   * The capture group holds the git reference the badge was stamped with, so
+   * a README that matches is one a reference can be read from.
+   */
+  const BADGE_REGEX = '#badge/Vortex-(.+?)-65ACBC\.svg#';
+
+  /**
    * Extract the major version number from a version string.
    *
    * @param string|null $version
@@ -85,13 +93,13 @@ class Version {
   public static function detectProjectRef(string $dir): ?string {
     $readme = $dir . '/README.md';
 
-    if (!is_file($readme)) {
+    if (!File::isReadable($readme)) {
       return NULL;
     }
 
-    $contents = (string) file_get_contents($readme);
+    $contents = File::read($readme);
 
-    if (!preg_match('#badge/Vortex-(.+?)-65ACBC\.svg#', $contents, $matches)) {
+    if (!preg_match(self::BADGE_REGEX, $contents, $matches)) {
       return NULL;
     }
 
@@ -117,11 +125,11 @@ class Version {
   public static function detectProjectMajor(string $dir): ?int {
     $composer_json = $dir . '/composer.json';
 
-    if (!is_file($composer_json)) {
+    if (!File::isReadable($composer_json)) {
       return NULL;
     }
 
-    $data = json_decode((string) file_get_contents($composer_json), TRUE);
+    $data = json_decode(File::read($composer_json), TRUE);
     if (!is_array($data)) {
       return NULL;
     }

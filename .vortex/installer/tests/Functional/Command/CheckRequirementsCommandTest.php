@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Functional\Command;
 
-use AlexSkrypnyk\File\File;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Command\CheckRequirementsCommand;
 use DrevOps\VortexInstaller\Runner\ProcessRunner;
 use DrevOps\VortexInstaller\Runner\RunnerInterface;

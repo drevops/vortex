@@ -61,11 +61,11 @@ class CodeProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function discover(): null|string|bool|array {
-    if (file_exists($this->destinationDir . '/.github')) {
+    if (File::exists($this->destinationDir . '/.github')) {
       return self::GITHUB;
     }
 
-    return $this->isInstalled() && file_exists($this->destinationDir . '/.git') ? self::OTHER : NULL;
+    return $this->isInstalled() && File::exists($this->destinationDir . '/.git') ? self::OTHER : NULL;
   }
 
   /**
@@ -78,8 +78,8 @@ class CodeProvider extends AbstractHandler {
     if ($v === self::GITHUB) {
       File::remove($t . '/.github/PULL_REQUEST_TEMPLATE.md');
 
-      if (file_exists($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md')) {
-        rename($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md', $t . '/.github/PULL_REQUEST_TEMPLATE.md');
+      if (File::exists($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md')) {
+        File::rename($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md', $t . '/.github/PULL_REQUEST_TEMPLATE.md');
       }
     }
     else {

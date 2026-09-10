@@ -523,8 +523,8 @@ class InstallCommandTest extends FunctionalTestCase {
     // Pre-populate the destination so it looks like an existing Vortex project:
     // the README badge flags it as a Vortex project and the composer.json
     // 'drevops/vortex-tooling' constraint carries the project's major.
-    $this->assertNotFalse(file_put_contents(self::$sut . '/README.md', '[![Vortex](https://img.shields.io/badge/Vortex-1.40.0-65ACBC.svg)](https://github.com/drevops/vortex)'));
-    $this->assertNotFalse(file_put_contents(self::$sut . '/composer.json', $composer_json));
+    File::dump(self::$sut . '/README.md', '[![Vortex](https://img.shields.io/badge/Vortex-1.40.0-65ACBC.svg)](https://github.com/drevops/vortex)');
+    File::dump(self::$sut . '/composer.json', $composer_json);
 
     static::applicationInitFromCommand($install_command);
 

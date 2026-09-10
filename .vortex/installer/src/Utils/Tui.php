@@ -156,7 +156,7 @@ class Tui {
 
   public static function caretEol(string $text): string {
     $lines = explode(PHP_EOL, $text);
-    $longest = max(array_map(strlen(...), $lines));
+    $longest = max(array_map(Strings::strlenPlain(...), $lines));
 
     return "\033[" . $longest . "C";
   }

@@ -41,7 +41,7 @@ class NpmLock {
   public static function sync(string $manifest_file): void {
     $lock_file = dirname($manifest_file) . DIRECTORY_SEPARATOR . self::FILE;
 
-    if (!is_file($lock_file)) {
+    if (!File::isReadable($lock_file)) {
       return;
     }
 
@@ -160,13 +160,7 @@ class NpmLock {
    * Decode a JSON file into objects.
    */
   protected static function read(string $file): \stdClass {
-    $contents = file_get_contents($file);
-
-    if ($contents === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to read a JSON file at "%s".', $file));
-      // @codeCoverageIgnoreEnd
-    }
+    $contents = File::read($file);
 
     try {
       $decoded = json_decode($contents, FALSE, 512, JSON_THROW_ON_ERROR);
@@ -201,9 +195,11 @@ class NpmLock {
 
     $json .= "\n";
 
-    if (!is_writable($file) || file_put_contents($file, $json) !== strlen($json)) {
+    if (!File::isWritable($file)) {
       throw new \RuntimeException(sprintf('Unable to write a JSON file at "%s".', $file));
     }
+
+    File::dump($file, $json);
   }
 
 }

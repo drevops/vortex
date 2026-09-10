@@ -10,6 +10,7 @@ use AlexSkrypnyk\PhpunitHelpers\Traits\EnvTrait;
 use AlexSkrypnyk\PhpunitHelpers\Traits\SerializableClosureTrait;
 use AlexSkrypnyk\PhpunitHelpers\UnitTestCase as UpstreamUnitTestCase;
 use AlexSkrypnyk\Snapshot\Testing\SnapshotTrait;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Yaml;
 
 /**
@@ -64,12 +65,7 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   protected function assertJsonFileIsValid(string $filename): void {
     $this->assertFileExists($filename);
 
-    $content = file_get_contents($filename);
-    if ($content === FALSE) {
-      $this->fail(sprintf('Failed to read JSON file "%s".', $filename));
-    }
-
-    $this->assertJson($content, sprintf('JSON validation for file %s failed: %s', $filename, json_last_error_msg()));
+    $this->assertJson(File::read($filename), sprintf('JSON validation for file %s failed: %s', $filename, json_last_error_msg()));
   }
 
 }

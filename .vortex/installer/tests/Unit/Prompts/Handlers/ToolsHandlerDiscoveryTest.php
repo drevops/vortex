@@ -38,7 +38,7 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
           'vincentlanglet/twig-cs-fixer' => '*',
         ];
         $test->stubComposerJsonDependencies($dependencies, TRUE);
-        file_put_contents(static::$sut . '/package.json', json_encode(['devDependencies' => ['eslint' => '*', 'jest' => '*', 'stylelint' => '*']], JSON_PRETTY_PRINT));
+        File::dump(static::$sut . '/package.json', (string) json_encode(['devDependencies' => ['eslint' => '*', 'jest' => '*', 'stylelint' => '*']], JSON_PRETTY_PRINT));
         File::dump(static::$sut . '/.dclintrc');
         File::dump(static::$sut . '/.circleci/config.yml', 'docker run --rm -i hadolint/hadolint');
       },
@@ -182,7 +182,7 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Tools::id() => [Tools::JEST]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        file_put_contents(static::$sut . '/package.json', json_encode(['devDependencies' => ['jest' => '*']], JSON_PRETTY_PRINT));
+        File::dump(static::$sut . '/package.json', (string) json_encode(['devDependencies' => ['jest' => '*']], JSON_PRETTY_PRINT));
       },
     ];
     yield 'tools - discovery - jest, alt' => [
@@ -198,7 +198,7 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Tools::id() => [Tools::ESLINT]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        file_put_contents(static::$sut . '/package.json', json_encode(['devDependencies' => ['eslint' => '*']], JSON_PRETTY_PRINT));
+        File::dump(static::$sut . '/package.json', (string) json_encode(['devDependencies' => ['eslint' => '*']], JSON_PRETTY_PRINT));
       },
     ];
     yield 'tools - discovery - eslint, alt' => [
@@ -214,7 +214,7 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Tools::id() => [Tools::STYLELINT]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        file_put_contents(static::$sut . '/package.json', json_encode(['devDependencies' => ['stylelint' => '*']], JSON_PRETTY_PRINT));
+        File::dump(static::$sut . '/package.json', (string) json_encode(['devDependencies' => ['stylelint' => '*']], JSON_PRETTY_PRINT));
       },
     ];
     yield 'tools - discovery - stylelint, alt' => [

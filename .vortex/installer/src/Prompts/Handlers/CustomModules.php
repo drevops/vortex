@@ -99,15 +99,15 @@ DOC;
 
     $module_dir = $this->destinationDir . '/' . $this->webroot . '/modules/custom';
 
-    if (is_dir($module_dir . '/' . $prefix . '_base')) {
+    if (File::isDir($module_dir . '/' . $prefix . '_base')) {
       $modules[] = self::BASE;
     }
 
-    if (is_dir($module_dir . '/' . $prefix . '_demo')) {
+    if (File::isDir($module_dir . '/' . $prefix . '_demo')) {
       $modules[] = self::DEMO;
     }
 
-    if (is_dir($module_dir . '/' . $prefix . '_search')) {
+    if (File::isDir($module_dir . '/' . $prefix . '_search')) {
       $modules[] = self::SEARCH;
     }
 
@@ -227,7 +227,7 @@ DOC;
   protected static function removeDemoBehatFeatures(string $dir): void {
     $features_dir = $dir . '/tests/behat/features';
 
-    if (!is_dir($features_dir)) {
+    if (!File::isDir($features_dir)) {
       return;
     }
 
