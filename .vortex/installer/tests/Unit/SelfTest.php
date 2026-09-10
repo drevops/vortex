@@ -14,14 +14,25 @@ class SelfTest extends UnitTestCase {
 
   const LEAKED_VAR = 'VORTEX_TEST_LEAKED_VAR';
 
+  /**
+   * @var string|false
+   */
+  protected static $ambientOriginal;
+
   public static function setUpBeforeClass(): void {
     parent::setUpBeforeClass();
 
+    static::$ambientOriginal = getenv(self::AMBIENT_VAR);
     putenv(self::AMBIENT_VAR . '=ambient');
   }
 
   public static function tearDownAfterClass(): void {
-    putenv(self::AMBIENT_VAR);
+    if (static::$ambientOriginal === FALSE) {
+      putenv(self::AMBIENT_VAR);
+    }
+    else {
+      putenv(self::AMBIENT_VAR . '=' . static::$ambientOriginal);
+    }
 
     parent::tearDownAfterClass();
   }
