@@ -130,10 +130,15 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     $url = sprintf(self::ARCHIVE_URL_TEMPLATE, $repo_url, $ref);
 
     $archive_path = $this->downloadArchive($url);
-    $this->archiver->validate($archive_path);
-    $this->archiver->extract($archive_path, $destination, TRUE);
-    // The archive is created inside a temporary directory of its own.
-    File::remove(dirname($archive_path));
+
+    try {
+      $this->archiver->validate($archive_path);
+      $this->archiver->extract($archive_path, $destination, TRUE);
+    }
+    finally {
+      // The archive is created inside a temporary directory of its own.
+      File::remove(dirname($archive_path));
+    }
 
     return $version;
   }
@@ -160,10 +165,15 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     }
 
     $archive_path = $this->archiveFromLocal($artifact->getRepo(), $ref);
-    $this->archiver->validate($archive_path);
-    $this->archiver->extract($archive_path, $destination, FALSE);
-    // The archive is created inside a temporary directory of its own.
-    File::remove(dirname($archive_path));
+
+    try {
+      $this->archiver->validate($archive_path);
+      $this->archiver->extract($archive_path, $destination, FALSE);
+    }
+    finally {
+      // The archive is created inside a temporary directory of its own.
+      File::remove(dirname($archive_path));
+    }
 
     return $version;
   }
