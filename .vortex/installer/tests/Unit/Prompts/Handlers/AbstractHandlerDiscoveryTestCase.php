@@ -68,6 +68,8 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
   protected function setUp(): void {
     parent::setUp();
 
+    static::envUnsetProjectVars();
+
     static::tuiSetUp();
 
     static::$sut = File::mkdir(static::$sut . DIRECTORY_SEPARATOR . 'myproject');

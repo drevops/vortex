@@ -36,11 +36,7 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
   protected function setUp(): void {
     parent::setUp();
 
-    static::envUnsetPrefix('VORTEX_');
-    static::envUnsetPrefix('DRUPAL_');
-    static::envUnsetPrefix('LAGOON_');
-    static::envUnset('WEBROOT');
-    static::envUnset('TZ');
+    static::envUnsetProjectVars();
 
     static::applicationInitFromCommand(InstallCommand::class);
 
