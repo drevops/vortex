@@ -132,7 +132,8 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     $archive_path = $this->downloadArchive($url);
     $this->archiver->validate($archive_path);
     $this->archiver->extract($archive_path, $destination, TRUE);
-    File::remove($archive_path);
+    // The archive is created inside a temporary directory of its own.
+    File::remove(dirname($archive_path));
 
     return $version;
   }
@@ -161,7 +162,8 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
     $archive_path = $this->archiveFromLocal($artifact->getRepo(), $ref);
     $this->archiver->validate($archive_path);
     $this->archiver->extract($archive_path, $destination, FALSE);
-    File::remove($archive_path);
+    // The archive is created inside a temporary directory of its own.
+    File::remove(dirname($archive_path));
 
     return $version;
   }
@@ -218,18 +220,14 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   If download fails.
    */
   protected function downloadArchive(string $url): string {
-    $temp_file = tempnam(sys_get_temp_dir(), 'vortex_archive_');
-    if ($temp_file === FALSE) {
-      throw new \RuntimeException('Unable to create temporary file for archive download.');
-    }
+    $temp_dir = File::tmpdir(prefix: 'vortex_archive_');
+    $temp_file = $temp_dir . DIRECTORY_SEPARATOR . 'archive.tar.gz';
 
     try {
       $this->fileDownloader->download($url, $temp_file, self::requestHeaders($url));
     }
     catch (\RuntimeException $e) {
-      if (File::exists($temp_file)) {
-        File::remove($temp_file);
-      }
+      File::remove($temp_dir);
       throw new \RuntimeException(sprintf('Unable to download archive from "%s": %s.', $url, $e->getMessage()), $e->getCode(), $e);
     }
 
@@ -255,19 +253,18 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
       $this->git = new Git($repo);
     }
 
-    $temp_file = sys_get_temp_dir() . '/vortex_local_archive_' . uniqid() . '.tar';
+    $temp_dir = File::tmpdir(prefix: 'vortex_local_archive_');
+    $temp_file = $temp_dir . DIRECTORY_SEPARATOR . 'archive.tar';
 
     try {
       $this->git->run('archive', '--format=tar', $ref, '-o', $temp_file);
 
-      if (!File::exists($temp_file) || filesize($temp_file) === 0) {
+      if (!File::exists($temp_file) || File::size($temp_file) === 0) {
         throw new \RuntimeException('Archive creation produced empty file.');
       }
     }
     catch (\Exception $e) {
-      if (File::exists($temp_file)) {
-        File::remove($temp_file);
-      }
+      File::remove($temp_dir);
       throw new \RuntimeException(sprintf('Unable to create archive from local repository "%s": %s.', $repo, $e->getMessage()), $e->getCode(), $e);
     }
 
@@ -341,11 +338,11 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   If the repository does not exist or is not a valid git repository.
    */
   protected function validateLocalRepositoryExists(string $repo): void {
-    if (!is_dir($repo)) {
+    if (!File::isDir($repo)) {
       throw new \RuntimeException(sprintf('Local repository path does not exist: "%s".', $repo));
     }
 
-    if (!is_dir($repo . '/.git')) {
+    if (!File::isDir($repo . '/.git')) {
       throw new \RuntimeException(sprintf('Path is not a git repository: "%s".', $repo));
     }
   }
@@ -362,7 +359,7 @@ class RepositoryDownloader implements RepositoryDownloaderInterface {
    *   If the reference does not exist.
    */
   protected function validateLocalRefExists(string $repo, string $ref): void {
-    $repo_path = (string) realpath($repo);
+    $repo_path = File::realpath($repo);
 
     if (!$this->git instanceof Git || $this->git->getRepositoryPath() !== $repo_path) {
       $this->git = new Git($repo);

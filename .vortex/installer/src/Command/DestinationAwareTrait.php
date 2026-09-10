@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Command;
 
+use DrevOps\VortexInstaller\Utils\File;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -42,13 +43,13 @@ trait DestinationAwareTrait {
       throw new \InvalidArgumentException('Destination must be a string.');
     }
 
-    if (!is_dir($destination)) {
+    if (!File::isDir($destination)) {
       throw new \InvalidArgumentException(
         sprintf('Destination directory does not exist: %s', $destination)
       );
     }
 
-    return realpath($destination) ?: $destination;
+    return File::realpath($destination);
   }
 
 }

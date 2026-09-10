@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Utils;
 
 use AlexSkrypnyk\File\ContentFile\ContentFile;
+use AlexSkrypnyk\File\Exception\FileException;
 use AlexSkrypnyk\File\File as UpstreamFile;
+use Symfony\Component\Filesystem\Filesystem;
 
 class File extends UpstreamFile {
 
@@ -38,6 +40,52 @@ class File extends UpstreamFile {
    */
   public static function isReadable(string $path): bool {
     return is_file($path) && is_readable($path);
+  }
+
+  /**
+   * Check if an existing path can be written to.
+   *
+   * dump() replaces a file by renaming a temporary one over it, which succeeds
+   * on a read-only file whose directory is writable, so a caller that must
+   * respect the file's own permissions checks them here first.
+   */
+  public static function isWritable(string $path): bool {
+    return is_writable($path);
+  }
+
+  /**
+   * Check if path is a directory.
+   *
+   * Distinct from exists(), which is also TRUE for a file.
+   */
+  public static function isDir(string $path): bool {
+    return is_dir($path);
+  }
+
+  /**
+   * Get the size of a file in bytes.
+   *
+   * @throws \AlexSkrypnyk\File\Exception\FileException
+   *   When the size cannot be read.
+   */
+  public static function size(string $path): int {
+    $size = @filesize($path);
+
+    if ($size === FALSE) {
+      throw new FileException(sprintf('Unable to read the size of "%s".', $path));
+    }
+
+    return $size;
+  }
+
+  /**
+   * Move a file or directory.
+   *
+   * @throws \Symfony\Component\Filesystem\Exception\IOException
+   *   When the move fails.
+   */
+  public static function rename(string $origin, string $target, bool $overwrite = FALSE): void {
+    (new Filesystem())->rename($origin, $target, $overwrite);
   }
 
   /**

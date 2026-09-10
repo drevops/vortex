@@ -90,7 +90,7 @@ class Git extends GitRepository {
    * @todo Refactor to use GitPhp.
    */
   public static function getTrackedFiles(string $dir): array {
-    if (!is_dir($dir . '/.git')) {
+    if (!File::isDir($dir . '/.git')) {
       throw new \RuntimeException('The directory is not a Git repository.');
     }
 

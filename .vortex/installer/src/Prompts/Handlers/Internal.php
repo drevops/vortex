@@ -78,7 +78,7 @@ class Internal extends AbstractHandler {
     });
 
     if (File::exists($t . '/README.dist.md')) {
-      rename($t . '/README.dist.md', $t . '/README.md');
+      File::rename($t . '/README.dist.md', $t . '/README.md');
     }
 
     // Remove Vortex internal files.

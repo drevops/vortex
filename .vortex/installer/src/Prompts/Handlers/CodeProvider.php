@@ -72,7 +72,7 @@ class CodeProvider extends AbstractHandler {
       File::remove($t . '/.github/PULL_REQUEST_TEMPLATE.md');
 
       if (File::exists($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md')) {
-        rename($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md', $t . '/.github/PULL_REQUEST_TEMPLATE.md');
+        File::rename($t . '/.github/PULL_REQUEST_TEMPLATE.dist.md', $t . '/.github/PULL_REQUEST_TEMPLATE.md');
       }
     }
     else {

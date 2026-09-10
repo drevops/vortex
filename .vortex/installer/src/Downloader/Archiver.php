@@ -57,7 +57,7 @@ class Archiver implements ArchiverInterface {
       throw new \RuntimeException(sprintf('Archive file does not exist: "%s".', $archive_path));
     }
 
-    if (filesize($archive_path) === 0) {
+    if (File::size($archive_path) === 0) {
       throw new \RuntimeException('Archive is empty.');
     }
 
@@ -125,7 +125,7 @@ class Archiver implements ArchiverInterface {
       throw new \RuntimeException(sprintf('Unable to extract tar archive to "%s": %s.', $destination, $e->getMessage()), $e->getCode(), $e);
     }
     finally {
-      if ($strip_first_level && is_dir($temp_dir)) {
+      if ($strip_first_level && File::isDir($temp_dir)) {
         File::remove($temp_dir);
       }
     }
@@ -167,7 +167,7 @@ class Archiver implements ArchiverInterface {
       throw new \RuntimeException(sprintf('Unable to extract ZIP archive to "%s": %s.', $destination, $e->getMessage()), $e->getCode(), $e);
     }
     finally {
-      if ($strip_first_level && is_dir($temp_dir)) {
+      if ($strip_first_level && File::isDir($temp_dir)) {
         File::remove($temp_dir);
       }
     }

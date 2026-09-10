@@ -145,7 +145,7 @@ class FileManager {
     $messages = [];
 
     $destination = $this->config->getDestination();
-    if (!is_dir($destination)) {
+    if (!File::isDir($destination)) {
       $destination = File::mkdir($destination);
       $messages[] = sprintf('Created directory "%s".', $destination);
     }
@@ -210,7 +210,7 @@ class FileManager {
 
     $this->recordReplacedChanges($src);
 
-    if (is_dir($src) && !File::dirIsEmpty($src)) {
+    if (File::isDir($src) && !File::dirIsEmpty($src)) {
       File::copy($src, $destination);
     }
 
@@ -378,7 +378,7 @@ class FileManager {
    *   Relative file paths.
    */
   protected function relativePaths(string $directory): array {
-    if (!is_dir($directory)) {
+    if (!File::isDir($directory)) {
       return [];
     }
 

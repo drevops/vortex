@@ -86,12 +86,7 @@ class Env {
       return [];
     }
 
-    $contents = file_get_contents($filename);
-    if ($contents === FALSE) {
-      // @codeCoverageIgnoreStart
-      return [];
-      // @codeCoverageIgnoreEnd
-    }
+    $contents = File::read($filename);
 
     // Replace all # not inside quotes.
     $contents = preg_replace('/#(?=(?:(?:[^"]*"){2})*[^"]*$)/', ';', $contents);
@@ -144,12 +139,7 @@ class Env {
       throw new \RuntimeException(sprintf('File "%s" is not readable.', $filename));
     }
 
-    $contents = file_get_contents($filename);
-    if ($contents === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to read file "%s".', $filename));
-      // @codeCoverageIgnoreEnd
-    }
+    $contents = File::read($filename);
 
     // Pattern to match the variable name and its value, including multiline
     // quoted values. Matches both normal and commented-out variables.
@@ -185,11 +175,7 @@ class Env {
       }
     }
 
-    if (file_put_contents($filename, $contents) === FALSE) {
-      // @codeCoverageIgnoreStart
-      throw new \RuntimeException(sprintf('Unable to write to file "%s".', $filename));
-      // @codeCoverageIgnoreEnd
-    }
+    File::dump($filename, $contents);
 
     return self::parseDotenv($filename);
   }
