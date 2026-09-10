@@ -15,30 +15,6 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 #[RunTestsInSeparateProcesses]
 class EnvTest extends UnitTestCase {
 
-  /**
-   * @var array
-   */
-  protected $backupServer;
-
-  /**
-   * @var array
-   */
-  protected $backupEnv;
-
-  protected function setUp(): void {
-    $this->backupEnv = $GLOBALS['_ENV'];
-    $this->backupServer = $GLOBALS['_SERVER'];
-
-    parent::setUp();
-  }
-
-  protected function tearDown(): void {
-    $GLOBALS['_ENV'] = $this->backupEnv;
-    $GLOBALS['_SERVER'] = $this->backupServer;
-
-    parent::tearDown();
-  }
-
   #[DataProvider('dataProviderGet')]
   public function testGet(string $name, string $value, ?string $default, ?string $expected): void {
     static::envSet($name, $expected);

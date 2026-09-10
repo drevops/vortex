@@ -26,9 +26,34 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   use EnvTrait;
 
   /**
+   * The process environment before the test ran.
+   *
+   * @var array<string,string>
+   */
+  protected array $processEnvBackup;
+
+  /**
+   * The $_ENV superglobal before the test ran.
+   *
+   * @var array<string,mixed>
+   */
+  protected array $globalEnvBackup;
+
+  /**
+   * The $_SERVER superglobal before the test ran.
+   *
+   * @var array<string,mixed>
+   */
+  protected array $globalServerBackup;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
+    $this->processEnvBackup = getenv();
+    $this->globalEnvBackup = $_ENV;
+    $this->globalServerBackup = $_SERVER;
+
     $cwd = getcwd();
     if ($cwd === FALSE) {
       throw new \RuntimeException('Failed to determine current working directory.');
@@ -43,7 +68,47 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
    */
   protected function tearDown(): void {
     static::envReset();
+    $this->envRestore();
     parent::tearDown();
+  }
+
+  /**
+   * Restore the process environment captured before the test ran.
+   *
+   * EnvTrait::envReset() only reverses names recorded by envSet(). Code under
+   * test can call putenv() directly, and those values would otherwise be read
+   * by every later test in the same process.
+   */
+  protected function envRestore(): void {
+    foreach (array_keys(getenv()) as $name) {
+      if (!array_key_exists($name, $this->processEnvBackup)) {
+        putenv($name);
+      }
+    }
+
+    foreach ($this->processEnvBackup as $name => $value) {
+      if (getenv($name) !== $value) {
+        putenv($name . '=' . $value);
+      }
+    }
+
+    $_ENV = $this->globalEnvBackup;
+    $_SERVER = $this->globalServerBackup;
+  }
+
+  /**
+   * Unset the environment variables that a project's .env file defines.
+   *
+   * Handlers read the environment before the project's .env file, so a
+   * variable exported by the shell running the suite would win over the
+   * fixture.
+   */
+  protected static function envUnsetProjectVars(): void {
+    static::envUnsetPrefix('VORTEX_');
+    static::envUnsetPrefix('DRUPAL_');
+    static::envUnsetPrefix('LAGOON_');
+    static::envUnset('WEBROOT');
+    static::envUnset('TZ');
   }
 
   /**
