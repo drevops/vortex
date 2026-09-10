@@ -19,6 +19,13 @@ class VisualRegression extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 100;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Visual regression testing with Diffy?';
   }

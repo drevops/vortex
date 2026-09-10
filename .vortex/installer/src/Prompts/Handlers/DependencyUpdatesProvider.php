@@ -17,6 +17,13 @@ class DependencyUpdatesProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 80;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Dependency updates provider';
   }

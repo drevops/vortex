@@ -26,6 +26,13 @@ class DatabaseFetchSource extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 160;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Database source';
   }

@@ -17,6 +17,13 @@ class Internal extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 410;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Internal processing';
   }

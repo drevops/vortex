@@ -24,6 +24,13 @@ class MigrationFetchSource extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 130;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Migration database source';
   }

@@ -11,6 +11,13 @@ class AssignAuthorPr extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 60;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Auto-assign the author to their PR?';
   }

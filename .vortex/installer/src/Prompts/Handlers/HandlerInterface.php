@@ -35,6 +35,18 @@ interface HandlerInterface {
   public static function envName(): string;
 
   /**
+   * Get the position of this handler in the processing chain.
+   *
+   * Handlers are processed from the lowest weight up, broadly in reverse of
+   * the order they are prompted in, so that string replacements process more
+   * specific values before more generic ones.
+   *
+   * @return int
+   *   The weight.
+   */
+  public static function processWeight(): int;
+
+  /**
    * Get the prompt type for this handler.
    *
    * @return \DrevOps\VortexInstaller\Prompts\PromptType

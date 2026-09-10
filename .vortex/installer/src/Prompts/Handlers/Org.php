@@ -13,6 +13,13 @@ class Org extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 390;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Organization name';
   }

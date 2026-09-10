@@ -14,6 +14,13 @@ class MachineName extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 380;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Site machine name';
   }

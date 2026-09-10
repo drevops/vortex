@@ -15,6 +15,13 @@ class CodeProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 250;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Repository provider';
   }

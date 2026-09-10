@@ -65,8 +65,8 @@ permission before running.
 Triggers that require re-recording:
 - New `Handlers/*.php` class or handler removal.
 - Wording change to `label()` or `hint()` of any existing handler.
-- Reordering prompts inside `PromptManager::runPrompts()`.
-- Change to `TOTAL_RESPONSES` constant.
+- Adding, removing or reordering prompts inside `PromptManager::runPrompts()`,
+  which also moves the progress denominator.
 
 ## Conditional Token System
 
@@ -129,6 +129,18 @@ Content removed if feature not selected
 - `CiProvider.php`, `HostingProvider.php`, `Services.php`, `Theme.php`
 
 ## Handler Development
+
+### Ordering
+
+`PromptManager::runPrompts()` is the catalogue of prompts: the `form()` chain
+lists every prompt, in order, under its section heading. Add a new prompt
+there, and the progress denominator follows automatically.
+
+Processing runs in a different order, so each handler declares its own
+`processWeight()` - lowest first, broadly the reverse of the prompt order so
+that string replacements process more specific values before more generic
+ones. It is declared on `HandlerInterface` with no default, so a new handler
+does not compile until it states where it processes.
 
 ### Key Pattern
 

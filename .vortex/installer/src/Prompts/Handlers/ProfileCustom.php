@@ -11,6 +11,13 @@ class ProfileCustom extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 280;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Custom profile machine name';
   }

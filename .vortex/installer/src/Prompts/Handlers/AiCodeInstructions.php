@@ -11,6 +11,13 @@ class AiCodeInstructions extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 30;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Provide AI agent instructions?';
   }

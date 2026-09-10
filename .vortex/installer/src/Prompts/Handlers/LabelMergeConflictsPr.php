@@ -11,6 +11,13 @@ class LabelMergeConflictsPr extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 50;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Auto-add a CONFLICT label to a PR when conflicts occur?';
   }

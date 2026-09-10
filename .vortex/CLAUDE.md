@@ -144,7 +144,7 @@ When updating template files (settings, configs, Dockerfiles, etc.):
 
 When the installer prompt flow changes (any change under
 `.vortex/installer/src/Prompts/` - new or removed handler, reordered or reworded
-prompt, `TOTAL_RESPONSES` bump), also run `ahoy update-videos installer` to
+prompt), also run `ahoy update-videos installer` to
 re-record the demo, since the video records the live prompt flow.
 `update-snapshots` commits automatically; `update-videos` does not - stage and
 commit its output manually. Run both after the code change is committed.

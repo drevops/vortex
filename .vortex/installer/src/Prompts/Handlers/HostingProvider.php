@@ -21,6 +21,13 @@ class HostingProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 200;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Hosting provider';
   }

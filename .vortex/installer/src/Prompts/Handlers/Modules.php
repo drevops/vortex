@@ -27,6 +27,13 @@ class Modules extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 260;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Modules';
   }

@@ -20,6 +20,13 @@ class Starter extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 270;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'How would you like your site to be created on the first run?';
   }

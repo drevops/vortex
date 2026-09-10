@@ -11,6 +11,13 @@ class PreserveDocsProject extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 40;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Preserve project documentation?';
   }

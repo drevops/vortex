@@ -21,6 +21,13 @@ class Theme extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 360;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Theme';
   }

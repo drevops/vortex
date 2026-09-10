@@ -17,6 +17,13 @@ class ProvisionType extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 170;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Provision type';
   }

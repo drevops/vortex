@@ -25,6 +25,13 @@ class NotificationChannels extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 180;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Notification channels';
   }

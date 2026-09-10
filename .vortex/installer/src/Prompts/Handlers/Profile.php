@@ -20,6 +20,13 @@ class Profile extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 290;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Profile';
   }

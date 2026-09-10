@@ -13,6 +13,13 @@ class MigrationImage extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 120;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'What is your migration database container image name and a tag?';
   }

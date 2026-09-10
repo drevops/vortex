@@ -13,6 +13,13 @@ class Name extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 400;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Site name';
   }

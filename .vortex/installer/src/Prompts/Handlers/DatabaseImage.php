@@ -13,6 +13,13 @@ class DatabaseImage extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 150;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'What is your database container image name and a tag?';
   }

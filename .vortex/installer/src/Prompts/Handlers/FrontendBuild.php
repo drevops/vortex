@@ -18,6 +18,13 @@ class FrontendBuild extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 340;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Build front-end assets in the container?';
   }

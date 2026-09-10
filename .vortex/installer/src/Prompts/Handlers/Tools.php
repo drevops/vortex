@@ -40,6 +40,13 @@ class Tools extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 210;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Development tools';
   }

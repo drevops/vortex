@@ -613,6 +613,13 @@ class Timezone extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 230;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Timezone';
   }

@@ -18,6 +18,13 @@ class Webroot extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 20;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Custom web root directory';
   }

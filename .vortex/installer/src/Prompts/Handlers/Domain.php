@@ -14,6 +14,13 @@ class Domain extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 300;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Public domain';
   }

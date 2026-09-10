@@ -13,6 +13,13 @@ class OrgMachineName extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 370;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Organization machine name';
   }

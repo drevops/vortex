@@ -16,13 +16,11 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
-use DrevOps\VortexInstaller\Prompts\Handlers\Dotenv;
 use DrevOps\VortexInstaller\Prompts\Handlers\FrontendBuild;
 use DrevOps\VortexInstaller\Prompts\Handlers\Gitleaks;
 use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
-use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
@@ -52,6 +50,8 @@ use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Tui;
+use Laravel\Prompts\FormBuilder;
+use Laravel\Prompts\FormStep;
 use Symfony\Component\Console\Output\OutputInterface;
 use function Laravel\Prompts\form;
 
@@ -63,9 +63,10 @@ class PromptManager {
   /**
    * Total number of top-level responses.
    *
-   * Used to display the progress of the prompts.
+   * Counted from the form in runPrompts() and used to display the progress of
+   * the prompts.
    */
-  const TOTAL_RESPONSES = 36;
+  protected int $totalResponses = 0;
 
   /**
    * Array of responses.
@@ -250,6 +251,8 @@ class PromptManager {
     // phpcs:enable Drupal.WhiteSpace.ObjectOperatorIndent.Indent
     // phpcs:enable Drupal.WhiteSpace.ScopeIndent.IncorrectExact
 
+    $this->totalResponses = $this->countPrompts($form);
+
     $responses = $form->submit();
 
     // Filter out elements with numeric keys returned by intro() calls.
@@ -330,56 +333,8 @@ class PromptManager {
    * Run all processors.
    */
   public function runProcessors(): void {
-    // Dotenv and Webroot run first; Dotenv has no prompt of its own. The rest
-    // run in reverse of the order defined in runPrompts(), so string
-    // replacements process more specific values before more generic ones.
-    $ids = [
-      Dotenv::id(),
-      Webroot::id(),
-      AiCodeInstructions::id(),
-      PreserveDocsProject::id(),
-      LabelMergeConflictsPr::id(),
-      AssignAuthorPr::id(),
-      CodeCoverageProvider::id(),
-      DependencyUpdatesProvider::id(),
-      Gitleaks::id(),
-      VisualRegression::id(),
-      CiProvider::id(),
-      MigrationImage::id(),
-      MigrationFetchSource::id(),
-      Migration::id(),
-      DatabaseImage::id(),
-      DatabaseFetchSource::id(),
-      ProvisionType::id(),
-      NotificationChannels::id(),
-      DeployTypes::id(),
-      HostingProvider::id(),
-      Tools::id(),
-      Services::id(),
-      Timezone::id(),
-      VersionScheme::id(),
-      CodeProvider::id(),
-      Modules::id(),
-      Starter::id(),
-      ProfileCustom::id(),
-      Profile::id(),
-      Domain::id(),
-      HostingProjectName::id(),
-      CustomModules::id(),
-      ModulePrefix::id(),
-      FrontendBuild::id(),
-      ThemeCustom::id(),
-      Theme::id(),
-      OrgMachineName::id(),
-      MachineName::id(),
-      Org::id(),
-      Name::id(),
-      // Always last.
-      Internal::id(),
-    ];
-
-    foreach ($ids as $id) {
-      $this->handler($id)->setResponses($this->responses)->process();
+    foreach ($this->getProcessHandlers() as $handler) {
+      $handler->setResponses($this->responses)->process();
     }
 
     // Handlers only queue file operations; this is where they are applied.
@@ -423,14 +378,11 @@ class PromptManager {
   public function runPostBuild(string $result): string {
     $output = '';
 
-    $ids = [
-      Starter::id(),
-      HostingProvider::id(),
-      CiProvider::id(),
-    ];
-
-    foreach ($ids as $id) {
-      $handler_output = $this->handler($id)->postBuild($result);
+    // Every handler is asked; those with nothing to report return NULL. The
+    // reverse of the processing order asks them in roughly the order they were
+    // prompted, so HostingProvider reports before CiProvider.
+    foreach (array_reverse($this->getProcessHandlers()) as $handler) {
+      $handler_output = $handler->postBuild($result);
 
       if (is_string($handler_output) && !empty($handler_output)) {
         $output .= $handler_output;
@@ -565,6 +517,20 @@ class PromptManager {
   }
 
   /**
+   * Get all handlers in the order they are processed.
+   *
+   * @return array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
+   *   An associative array of handler instances keyed by handler ID.
+   */
+  public function getProcessHandlers(): array {
+    $handlers = $this->handlers;
+
+    uasort($handlers, fn(HandlerInterface $a, HandlerInterface $b): int => $a::processWeight() <=> $b::processWeight());
+
+    return $handlers;
+  }
+
+  /**
    * Generate a label for a prompt.
    *
    * @param string $text
@@ -582,7 +548,28 @@ class PromptManager {
 
     $suffix = $suffix !== NULL ? $this->currentResponseIndex . '.' . $suffix : $this->currentResponseIndex;
 
-    return $text . ' ' . Tui::dim('(' . $suffix . '/' . self::TOTAL_RESPONSES . ')');
+    return $text . ' ' . Tui::dim('(' . $suffix . '/' . $this->totalResponses . ')');
+  }
+
+  /**
+   * Count the prompts a form defines.
+   *
+   * Steps added by intro() carry no name, so the named steps are the prompts.
+   * Conditional steps are counted as well, because whether they run depends on
+   * answers the run has not collected yet, so the result is the most prompts a
+   * run can ask.
+   *
+   * @param \Laravel\Prompts\FormBuilder $form
+   *   The form built in runPrompts().
+   *
+   * @return int
+   *   The number of prompts.
+   */
+  protected function countPrompts(FormBuilder $form): int {
+    /** @var array<int, \Laravel\Prompts\FormStep> $steps */
+    $steps = (new \ReflectionProperty($form, 'steps'))->getValue($form);
+
+    return count(array_filter($steps, fn(FormStep $step): bool => $step->name !== NULL));
   }
 
   /**

@@ -13,6 +13,13 @@ class HostingProjectName extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 310;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Hosting project name';
   }

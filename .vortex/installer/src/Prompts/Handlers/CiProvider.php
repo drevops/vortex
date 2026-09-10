@@ -17,6 +17,13 @@ class CiProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 110;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Continuous Integration provider';
   }

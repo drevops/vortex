@@ -19,6 +19,13 @@ class DeployTypes extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 190;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Deployment types';
   }

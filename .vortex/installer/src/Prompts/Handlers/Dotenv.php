@@ -11,6 +11,13 @@ class Dotenv extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 10;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return '.env processing';
   }

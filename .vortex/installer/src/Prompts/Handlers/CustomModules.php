@@ -18,6 +18,13 @@ class CustomModules extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 320;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Custom modules';
   }

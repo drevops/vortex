@@ -19,6 +19,13 @@ class VersionScheme extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 240;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Release versioning scheme';
   }

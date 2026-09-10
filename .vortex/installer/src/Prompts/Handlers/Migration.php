@@ -13,6 +13,13 @@ class Migration extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 140;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Use a second database for migrations?';
   }

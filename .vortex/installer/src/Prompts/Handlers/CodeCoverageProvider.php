@@ -15,6 +15,13 @@ class CodeCoverageProvider extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 70;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Code coverage provider';
   }

@@ -18,6 +18,13 @@ class Gitleaks extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 90;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Scan for committed secrets with Gitleaks?';
   }

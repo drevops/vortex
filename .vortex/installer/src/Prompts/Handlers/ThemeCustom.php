@@ -11,6 +11,13 @@ class ThemeCustom extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 350;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Custom theme machine name';
   }

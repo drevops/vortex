@@ -12,6 +12,13 @@ class ModulePrefix extends AbstractHandler {
   /**
    * {@inheritdoc}
    */
+  public static function processWeight(): int {
+    return 330;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function label(): string {
     return 'Custom modules prefix';
   }
