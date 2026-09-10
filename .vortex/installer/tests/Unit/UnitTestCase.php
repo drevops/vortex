@@ -75,9 +75,9 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   /**
    * Restore the process environment captured before the test ran.
    *
-   * envReset() only reverses names recorded by envSet(). Code under test can
-   * call putenv() directly, and those values would otherwise be read by every
-   * later test in the same process.
+   * EnvTrait::envReset() only reverses names recorded by envSet(). Code under
+   * test can call putenv() directly, and those values would otherwise be read
+   * by every later test in the same process.
    */
   protected function envRestore(): void {
     foreach (array_keys(getenv()) as $name) {
