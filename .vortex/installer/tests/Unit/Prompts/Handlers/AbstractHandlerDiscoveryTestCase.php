@@ -253,7 +253,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
 
   protected function stubComposerJsonValue(string $name, mixed $value): string {
     $composer_json = static::$sut . DIRECTORY_SEPARATOR . 'composer.json';
-    file_put_contents($composer_json, json_encode([$name => $value], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    File::dump($composer_json, (string) json_encode([$name => $value], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     return $composer_json;
   }
@@ -263,9 +263,8 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
     $section = $is_dev ? 'require-dev' : 'require';
 
     $data = [];
-    if (file_exists($composer_json)) {
-      $contents = file_get_contents($composer_json);
-      $existing = $contents !== FALSE ? json_decode($contents, TRUE) : NULL;
+    if (File::exists($composer_json)) {
+      $existing = json_decode(File::read($composer_json), TRUE);
       if ($existing) {
         $data = $existing;
       }
@@ -275,7 +274,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
 
     $data[$section] = array_merge($data[$section], $dependencies);
 
-    file_put_contents($composer_json, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    File::dump($composer_json, (string) json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
     return $composer_json;
   }
@@ -283,7 +282,12 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
   protected function stubDotenvValue(string $name, mixed $value, string $filename = '.env'): string {
     $dotenv = static::$sut . DIRECTORY_SEPARATOR . $filename;
 
-    file_put_contents($dotenv, sprintf('%s=%s', $name, $value) . PHP_EOL, FILE_APPEND);
+    // append() requires the file to exist, and each stub may be the first.
+    if (!File::exists($dotenv)) {
+      File::dump($dotenv);
+    }
+
+    File::append($dotenv, sprintf('%s=%s', $name, $value) . PHP_EOL);
 
     return $dotenv;
   }
@@ -292,7 +296,12 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
     // Add a README.md file with a Vortex badge.
     $readme = static::$sut . DIRECTORY_SEPARATOR . 'README.md';
     $repo_url = str_replace('.git', '', RepositoryDownloader::DEFAULT_REPO);
-    file_put_contents($readme, sprintf('[![Vortex](https://img.shields.io/badge/Vortex-1.2.3-65ACBC.svg)](%s/tree/1.2.3)', $repo_url) . PHP_EOL, FILE_APPEND);
+
+    if (!File::exists($readme)) {
+      File::dump($readme);
+    }
+
+    File::append($readme, sprintf('[![Vortex](https://img.shields.io/badge/Vortex-1.2.3-65ACBC.svg)](%s/tree/1.2.3)', $repo_url) . PHP_EOL);
 
     $config->set(Config::IS_VORTEX_PROJECT, TRUE);
   }

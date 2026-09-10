@@ -45,9 +45,9 @@ class File extends UpstreamFile {
   /**
    * Check if an existing path can be written to.
    *
-   * dump() replaces a file by renaming a temporary one over it, which succeeds
-   * on a read-only file whose directory is writable, so a caller that must
-   * respect the file's own permissions checks them here first.
+   * A dump() replaces a file by renaming a temporary one over it, which
+   * succeeds on a read-only file whose directory is writable, so a caller that
+   * must respect the file's own permissions checks them here first.
    */
   public static function isWritable(string $path): bool {
     return is_writable($path);
@@ -81,11 +81,24 @@ class File extends UpstreamFile {
   /**
    * Move a file or directory.
    *
+   * An existing target is replaced by default, as rename() does; pass FALSE to
+   * fail instead.
+   *
    * @throws \Symfony\Component\Filesystem\Exception\IOException
    *   When the move fails.
    */
-  public static function rename(string $origin, string $target, bool $overwrite = FALSE): void {
+  public static function rename(string $origin, string $target, bool $overwrite = TRUE): void {
     (new Filesystem())->rename($origin, $target, $overwrite);
+  }
+
+  /**
+   * Change the mode of a file or directory.
+   *
+   * @throws \Symfony\Component\Filesystem\Exception\IOException
+   *   When the mode cannot be changed.
+   */
+  public static function chmod(string $path, int $mode, bool $recursive = FALSE): void {
+    (new Filesystem())->chmod($path, $mode, 0000, $recursive);
   }
 
   /**

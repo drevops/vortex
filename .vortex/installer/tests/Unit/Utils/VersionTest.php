@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
-use AlexSkrypnyk\File\File;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Version;
 use PHPUnit\Framework\Attributes\CoversClass;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Logger;
 
-use AlexSkrypnyk\File\File;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Logger\FileLogger;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -178,7 +178,7 @@ class FileLoggerTest extends UnitTestCase {
       $logger->close();
       $path = $logger->getPath();
 
-      $written_content = file_get_contents((string) $path);
+      $written_content = File::read((string) $path);
       $expected_content = str_repeat($content, $expected_writes);
       $this->assertEquals($expected_content, $written_content, 'Written content should match expected content');
 
@@ -238,7 +238,7 @@ class FileLoggerTest extends UnitTestCase {
     // empty.
     $logger->write('should not be written');
 
-    $content = file_get_contents($path);
+    $content = File::read($path);
     $this->assertEquals('', $content, 'No content should be written after close()');
 
     $logger->close();

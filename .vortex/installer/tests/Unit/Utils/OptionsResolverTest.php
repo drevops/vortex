@@ -8,6 +8,7 @@ use DrevOps\VortexInstaller\Downloader\Artifact;
 use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\OptionsResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -125,7 +126,7 @@ class OptionsResolverTest extends UnitTestCase {
 
   public function testResolveWithConfigJsonFile(): void {
     $config_file = self::$sut . '/config.json';
-    file_put_contents($config_file, '{"VORTEX_PROJECT_NAME":"file_project"}');
+    File::dump($config_file, '{"VORTEX_PROJECT_NAME":"file_project"}');
 
     $options = self::defaultOptions([
       'config' => $config_file,

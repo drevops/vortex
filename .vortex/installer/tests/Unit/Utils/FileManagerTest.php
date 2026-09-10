@@ -78,9 +78,9 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesCopiesToDestination(): void {
     $src = self::$sut . '/src_copy';
     $destination = self::$sut . '/dst_copy';
-    mkdir($src, 0777, TRUE);
-    mkdir($destination, 0777, TRUE);
-    file_put_contents($src . '/test.txt', 'content');
+    File::mkdir($src);
+    File::mkdir($destination);
+    File::dump($src . '/test.txt', 'content');
 
     $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
@@ -88,15 +88,15 @@ class FileManagerTest extends UnitTestCase {
     $fm->copyFiles();
 
     $this->assertFileExists($destination . '/test.txt');
-    $this->assertEquals('content', file_get_contents($destination . '/test.txt'));
+    $this->assertEquals('content', File::read($destination . '/test.txt'));
   }
 
   public function testCopyFilesCreatesEnvLocal(): void {
     $src = self::$sut . '/src_envlocal';
     $destination = self::$sut . '/dst_envlocal';
-    mkdir($src, 0777, TRUE);
-    mkdir($destination, 0777, TRUE);
-    file_put_contents($src . '/test.txt', 'content');
+    File::mkdir($src);
+    File::mkdir($destination);
+    File::dump($src . '/test.txt', 'content');
 
     $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
@@ -104,40 +104,40 @@ class FileManagerTest extends UnitTestCase {
     $fm->copyFiles();
 
     // Create the .env.local.example after copy.
-    file_put_contents($destination . '/.env.local.example', 'EXAMPLE=1');
+    File::dump($destination . '/.env.local.example', 'EXAMPLE=1');
 
     // Re-run to trigger the .env.local creation.
     // Recreate src for the second run.
-    mkdir($src, 0777, TRUE);
-    file_put_contents($src . '/dummy.txt', 'dummy');
+    File::mkdir($src);
+    File::dump($src . '/dummy.txt', 'dummy');
     $fm->copyFiles();
 
     $this->assertFileExists($destination . '/.env.local');
-    $this->assertEquals('EXAMPLE=1', file_get_contents($destination . '/.env.local'));
+    $this->assertEquals('EXAMPLE=1', File::read($destination . '/.env.local'));
   }
 
   public function testCopyFilesSkipsEnvLocalIfExists(): void {
     $src = self::$sut . '/src_envexist';
     $destination = self::$sut . '/dst_envexist';
-    mkdir($src, 0777, TRUE);
-    mkdir($destination, 0777, TRUE);
-    file_put_contents($src . '/test.txt', 'content');
-    file_put_contents($destination . '/.env.local', 'EXISTING=1');
-    file_put_contents($destination . '/.env.local.example', 'EXAMPLE=1');
+    File::mkdir($src);
+    File::mkdir($destination);
+    File::dump($src . '/test.txt', 'content');
+    File::dump($destination . '/.env.local', 'EXISTING=1');
+    File::dump($destination . '/.env.local.example', 'EXAMPLE=1');
 
     $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
 
     $fm->copyFiles();
 
-    $this->assertEquals('EXISTING=1', file_get_contents($destination . '/.env.local'));
+    $this->assertEquals('EXISTING=1', File::read($destination . '/.env.local'));
   }
 
   public function testCopyFilesHandlesEmptySrc(): void {
     $src = self::$sut . '/src_empty';
     $destination = self::$sut . '/dst_empty';
-    mkdir($src, 0777, TRUE);
-    mkdir($destination, 0777, TRUE);
+    File::mkdir($src);
+    File::mkdir($destination);
 
     $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
@@ -150,17 +150,17 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesRemovesUnmodifiedExcludedPaths(): void {
     $src = self::$sut . '/src_excluded';
     $destination = self::$sut . '/dst_excluded';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
-    file_put_contents($src . '/phpstan.neon', 'parameters: []');
-    file_put_contents(File::mkdir($src . '/.circleci') . '/config.yml', 'version: 2.1');
+    File::dump(File::mkdir($src) . '/composer.json', '{}');
+    File::dump($src . '/phpstan.neon', 'parameters: []');
+    File::dump(File::mkdir($src . '/.circleci') . '/config.yml', 'version: 2.1');
 
     $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
     // A previous install wrote both, unmodified since.
-    file_put_contents(File::mkdir($destination) . '/phpstan.neon', 'parameters: []');
-    file_put_contents(File::mkdir($destination . '/.circleci') . '/config.yml', 'version: 2.1');
+    File::dump(File::mkdir($destination) . '/phpstan.neon', 'parameters: []');
+    File::dump(File::mkdir($destination . '/.circleci') . '/config.yml', 'version: 2.1');
     $this->stubPreviousTemplate($fm, $destination, [
       'phpstan.neon' => 'parameters: []',
       '.circleci/config.yml' => 'version: 2.1',
@@ -183,15 +183,15 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesKeepsModifiedExcludedPaths(): void {
     $src = self::$sut . '/src_modified';
     $destination = self::$sut . '/dst_modified';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
-    file_put_contents($src . '/phpstan.neon', 'parameters: []');
+    File::dump(File::mkdir($src) . '/composer.json', '{}');
+    File::dump($src . '/phpstan.neon', 'parameters: []');
 
     $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
     // The project edited the file after the previous install wrote it.
-    file_put_contents(File::mkdir($destination) . '/phpstan.neon', "parameters:\n  level: 8");
+    File::dump(File::mkdir($destination) . '/phpstan.neon', "parameters:\n  level: 8");
     $this->stubPreviousTemplate($fm, $destination, ['phpstan.neon' => 'parameters: []']);
 
     $fm->snapshotTemplate();
@@ -206,8 +206,8 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesKeepsExcludedPathsWithoutRecordedHash(): void {
     $src = self::$sut . '/src_unverifiable';
     $destination = self::$sut . '/dst_unverifiable';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
-    file_put_contents($src . '/phpstan.neon', 'parameters: []');
+    File::dump(File::mkdir($src) . '/composer.json', '{}');
+    File::dump($src . '/phpstan.neon', 'parameters: []');
 
     $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
@@ -215,7 +215,7 @@ class FileManagerTest extends UnitTestCase {
     $fm->snapshotTemplate();
 
     // No previous version, so ownership cannot be established.
-    file_put_contents(File::mkdir($destination) . '/phpstan.neon', 'parameters: []');
+    File::dump(File::mkdir($destination) . '/phpstan.neon', 'parameters: []');
     File::remove($src . '/phpstan.neon');
 
     $fm->copyFiles();
@@ -226,8 +226,8 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesWritesNoManifest(): void {
     $src = self::$sut . '/src_no_manifest';
     $destination = self::$sut . '/dst_no_manifest';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
-    file_put_contents(File::mkdir($src . '/scripts') . '/provision.sh', 'echo 1');
+    File::dump(File::mkdir($src) . '/composer.json', '{}');
+    File::dump(File::mkdir($src . '/scripts') . '/provision.sh', 'echo 1');
 
     $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
@@ -241,15 +241,15 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesRemovesExcludedPathsMatchedOnlyAfterRendering(): void {
     $src = self::$sut . '/src_rendered';
     $destination = self::$sut . '/dst_rendered';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
-    file_put_contents($src . '/rector.php', 'paths: your_site');
+    File::dump(File::mkdir($src) . '/composer.json', '{}');
+    File::dump($src . '/rector.php', 'paths: your_site');
 
     $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
     // The project holds the rendered content, which the download never has.
-    file_put_contents(File::mkdir($destination) . '/rector.php', 'paths: star_wars');
+    File::dump(File::mkdir($destination) . '/rector.php', 'paths: star_wars');
     $this->stubPreviousTemplate($fm, $destination, ['rector.php' => 'paths: your_site'], function (string $dir): void {
       File::dump($dir . '/rector.php', 'paths: star_wars');
     });
@@ -265,14 +265,14 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesRemovesExcludedPathsDeselectedByThisRun(): void {
     $src = self::$sut . '/src_deselected';
     $destination = self::$sut . '/dst_deselected';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
-    file_put_contents($src . '/jest.config.js', 'module.exports = {};');
+    File::dump(File::mkdir($src) . '/composer.json', '{}');
+    File::dump($src . '/jest.config.js', 'module.exports = {};');
 
     $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
-    file_put_contents(File::mkdir($destination) . '/jest.config.js', 'module.exports = {};');
+    File::dump(File::mkdir($destination) . '/jest.config.js', 'module.exports = {};');
 
     // Discovery answers describe the project, which still has the tool, so
     // the render keeps the file even though this run deselects it.
@@ -289,7 +289,7 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesRecordsReplacedProjectChanges(): void {
     $src = self::$sut . '/src_registry';
     $destination = self::$sut . '/dst_registry';
-    file_put_contents(File::mkdir($src) . '/phpstan.neon', "parameters:\n  level: 9\n");
+    File::dump(File::mkdir($src) . '/phpstan.neon', "parameters:\n  level: 9\n");
 
     $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
@@ -297,7 +297,7 @@ class FileManagerTest extends UnitTestCase {
     $fm = new FileManager($config);
 
     // The project edited the file the previous version installed.
-    file_put_contents(File::mkdir($destination) . '/phpstan.neon', "parameters:\n  level: 8\n");
+    File::dump(File::mkdir($destination) . '/phpstan.neon', "parameters:\n  level: 8\n");
     $this->stubPreviousTemplate($fm, $destination, ['phpstan.neon' => "parameters:\n  level: 5\n"]);
 
     $fm->snapshotTemplate();
@@ -317,13 +317,13 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesRecordsNothingWithoutProjectChanges(): void {
     $src = self::$sut . '/src_no_registry';
     $destination = self::$sut . '/dst_no_registry';
-    file_put_contents(File::mkdir($src) . '/phpstan.neon', "parameters:\n  level: 9\n");
+    File::dump(File::mkdir($src) . '/phpstan.neon', "parameters:\n  level: 9\n");
 
     $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
-    file_put_contents(File::mkdir($destination) . '/phpstan.neon', "parameters:\n  level: 5\n");
+    File::dump(File::mkdir($destination) . '/phpstan.neon', "parameters:\n  level: 5\n");
     $this->stubPreviousTemplate($fm, $destination, ['phpstan.neon' => "parameters:\n  level: 5\n"]);
 
     $fm->snapshotTemplate();
@@ -336,13 +336,13 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesRemovesCommittedManifest(): void {
     $src = self::$sut . '/src_stale_manifest';
     $destination = self::$sut . '/dst_stale_manifest';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+    File::dump(File::mkdir($src) . '/composer.json', '{}');
 
     $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
 
-    file_put_contents(File::mkdir($destination) . '/.vortex-manifest.json', '{"composer.json":"abc"}');
+    File::dump(File::mkdir($destination) . '/.vortex-manifest.json', '{"composer.json":"abc"}');
 
     $fm->copyFiles();
 
@@ -352,12 +352,12 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesKeepsManifestInDestinationThatIsNotVortexProject(): void {
     $src = self::$sut . '/src_foreign_manifest';
     $destination = self::$sut . '/dst_foreign_manifest';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+    File::dump(File::mkdir($src) . '/composer.json', '{}');
 
     $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
 
-    file_put_contents(File::mkdir($destination) . '/.vortex-manifest.json', '{"owned":"by the project"}');
+    File::dump(File::mkdir($destination) . '/.vortex-manifest.json', '{"owned":"by the project"}');
 
     $fm->copyFiles();
 
@@ -367,15 +367,15 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesKeepsPathsTheTemplateNeverShipped(): void {
     $src = self::$sut . '/src_unknown';
     $destination = self::$sut . '/dst_unknown';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
+    File::dump(File::mkdir($src) . '/composer.json', '{}');
 
     $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
     $fm->snapshotTemplate();
 
-    file_put_contents(File::mkdir($destination) . '/phpstan.neon', 'project owned');
-    file_put_contents(File::mkdir($destination . '/web/modules/custom/mymodule') . '/mymodule.info.yml', 'name: My module');
+    File::dump(File::mkdir($destination) . '/phpstan.neon', 'project owned');
+    File::dump(File::mkdir($destination . '/web/modules/custom/mymodule') . '/mymodule.info.yml', 'name: My module');
 
     $fm->copyFiles();
 
@@ -386,14 +386,14 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesKeepsExcludedPathsForNonVortexProject(): void {
     $src = self::$sut . '/src_fresh';
     $destination = self::$sut . '/dst_fresh';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
-    file_put_contents($src . '/phpstan.neon', 'parameters: []');
+    File::dump(File::mkdir($src) . '/composer.json', '{}');
+    File::dump($src . '/phpstan.neon', 'parameters: []');
 
     $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
     $fm->snapshotTemplate();
 
-    file_put_contents(File::mkdir($destination) . '/phpstan.neon', 'project owned');
+    File::dump(File::mkdir($destination) . '/phpstan.neon', 'project owned');
     File::remove($src . '/phpstan.neon');
 
     $fm->copyFiles();
@@ -404,15 +404,15 @@ class FileManagerTest extends UnitTestCase {
   public function testCopyFilesKeepsHarnessPaths(): void {
     $src = self::$sut . '/src_harness';
     $destination = self::$sut . '/dst_harness';
-    file_put_contents(File::mkdir($src) . '/composer.json', '{}');
-    file_put_contents(File::mkdir($src . '/.vortex') . '/CLAUDE.md', 'harness');
+    File::dump(File::mkdir($src) . '/composer.json', '{}');
+    File::dump(File::mkdir($src . '/.vortex') . '/CLAUDE.md', 'harness');
 
     $config = $this->createConfig($destination, $src);
     $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
     $fm = new FileManager($config);
     $fm->snapshotTemplate();
 
-    file_put_contents(File::mkdir($destination . '/.vortex') . '/CLAUDE.md', 'project owned');
+    File::dump(File::mkdir($destination . '/.vortex') . '/CLAUDE.md', 'project owned');
     File::remove($src . '/.vortex');
 
     $fm->copyFiles();
@@ -426,11 +426,11 @@ class FileManagerTest extends UnitTestCase {
     // package ships them instead, so the copy removes the legacy directory.
     $src = self::$sut . '/src_obsolete';
     $destination = self::$sut . '/dst_obsolete';
-    mkdir($src, 0777, TRUE);
-    mkdir($destination . '/scripts/vortex', 0777, TRUE);
-    file_put_contents($src . '/test.txt', 'new');
-    file_put_contents($destination . '/scripts/vortex/legacy.sh', 'legacy');
-    file_put_contents($destination . '/scripts/keep.sh', 'custom');
+    File::mkdir($src);
+    File::mkdir($destination . '/scripts/vortex');
+    File::dump($src . '/test.txt', 'new');
+    File::dump($destination . '/scripts/vortex/legacy.sh', 'legacy');
+    File::dump($destination . '/scripts/keep.sh', 'custom');
 
     $config = $this->createConfig($destination, $src);
     $fm = new FileManager($config);
@@ -444,7 +444,7 @@ class FileManagerTest extends UnitTestCase {
 
   public function testRemoveObsoletePathsSilentOnMissing(): void {
     $destination = self::$sut . '/dst_no_obsolete';
-    mkdir($destination, 0777, TRUE);
+    File::mkdir($destination);
 
     $config = $this->createConfig($destination);
     $fm = new FileManager($config);

@@ -84,7 +84,7 @@ class PharTest extends FunctionalTestCase {
 
   protected static function buildPhar(string $destination): void {
     fwrite(STDERR, 'Building installer PHAR file...');
-    if (!file_exists('vendor')) {
+    if (!File::exists('vendor')) {
       $exit_code = 0;
       passthru('composer install --no-dev --optimize-autoloader >/dev/null 2>&1 ', $exit_code);
       if ($exit_code !== 0) {

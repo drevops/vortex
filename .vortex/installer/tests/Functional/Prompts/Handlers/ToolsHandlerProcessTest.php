@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
+use DrevOps\VortexInstaller\Utils\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Tools::class)]
@@ -718,7 +719,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
   protected static function readJson(string $file): array {
     self::assertFileExists($file);
 
-    return (array) json_decode((string) file_get_contents($file), TRUE, 512, JSON_THROW_ON_ERROR);
+    return (array) json_decode(File::read($file), TRUE, 512, JSON_THROW_ON_ERROR);
   }
 
 }

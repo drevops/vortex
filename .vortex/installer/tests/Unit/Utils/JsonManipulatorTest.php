@@ -65,21 +65,21 @@ class JsonManipulatorTest extends UnitTestCase {
 
   public function testFromFileWithNonReadableFile(): void {
     $temp_file = $this->createTempJsonFile(self::SAMPLE_JSON);
-    chmod($temp_file, 0000);
+    File::chmod($temp_file, 0000);
 
     try {
       $manipulator = JsonManipulator::fromFile($temp_file);
       $this->assertNull($manipulator);
     }
     finally {
-      chmod($temp_file, 0644);
+      File::chmod($temp_file, 0644);
       File::remove($temp_file);
     }
   }
 
   public function testFromFileWithDirectory(): void {
-    $temp_dir = sys_get_temp_dir() . '/json_test_dir_' . uniqid();
-    mkdir($temp_dir);
+    $temp_dir = static::$tmp . '/json_test_dir_' . uniqid();
+    File::mkdir($temp_dir);
 
     try {
       $manipulator = JsonManipulator::fromFile($temp_dir);
@@ -209,8 +209,8 @@ class JsonManipulatorTest extends UnitTestCase {
   }
 
   protected function createTempJsonFile(string $content): string {
-    $temp_file = tempnam(sys_get_temp_dir(), 'json_test_');
-    file_put_contents($temp_file, $content);
+    $temp_file = static::$tmp . '/' . uniqid('json_test_');
+    File::dump($temp_file, $content);
     return $temp_file;
   }
 

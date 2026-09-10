@@ -117,7 +117,7 @@ class EnvTest extends UnitTestCase {
   public function testWriteValueDotenv(): void {
     $fixture_dir = dirname(__DIR__) . '/Fixtures/env';
     $actual_file = static::$sut . '/.env';
-    copy($fixture_dir . '/_baseline/.env', $actual_file);
+    File::copy($fixture_dir . '/_baseline/.env', $actual_file);
 
     // Apply updates to every variable to transform it to the after state.
     Env::writeValueDotenv('SIMPLE_VAR', 'new_simple_value', $actual_file);
@@ -235,12 +235,12 @@ class EnvTest extends UnitTestCase {
 
   public function testParseDotenvFileReadFailure(): void {
     $filename = $this->createFixtureEnvFile('VAR=value');
-    chmod($filename, 0000);
+    File::chmod($filename, 0000);
 
     $result = Env::parseDotenv($filename);
     $this->assertEquals([], $result);
 
-    chmod($filename, 0644);
+    File::chmod($filename, 0644);
     File::remove($filename);
   }
 
@@ -284,7 +284,7 @@ class EnvTest extends UnitTestCase {
     $dir = dirname($filename);
 
     $dotenv_file = $dir . '/.env';
-    rename($filename, $dotenv_file);
+    File::rename($filename, $dotenv_file);
 
     static::envUnset('TEST_VAR');
 
@@ -303,7 +303,7 @@ class EnvTest extends UnitTestCase {
 
   public function testWriteValueDotenvFileReadFailure(): void {
     $filename = $this->createFixtureEnvFile('VAR=value');
-    chmod($filename, 0000);
+    File::chmod($filename, 0000);
 
     $this->expectException(\RuntimeException::class);
     $this->expectExceptionMessage(sprintf('File "%s" is not readable.', $filename));
@@ -312,7 +312,7 @@ class EnvTest extends UnitTestCase {
       Env::writeValueDotenv('TEST_VAR', 'value', $filename);
     }
     finally {
-      chmod($filename, 0644);
+      File::chmod($filename, 0644);
       File::remove($filename);
     }
   }
@@ -322,7 +322,7 @@ class EnvTest extends UnitTestCase {
 
     Env::writeValueDotenv('NEW_VAR', 'new_value', $filename);
 
-    $content = file_get_contents($filename);
+    $content = File::read($filename);
     $expected = "EXISTING_VAR=value\nNEW_VAR=new_value\n";
     $this->assertEquals($expected, $content);
 
@@ -334,7 +334,7 @@ class EnvTest extends UnitTestCase {
 
     Env::writeValueDotenv('NEW_VAR', 'new value with spaces', $filename);
 
-    $content = file_get_contents($filename);
+    $content = File::read($filename);
     $expected = "EXISTING_VAR=old_value\nNEW_VAR=\"new value with spaces\"\n";
     $this->assertEquals($expected, $content);
 
@@ -346,7 +346,7 @@ class EnvTest extends UnitTestCase {
 
     Env::writeValueDotenv('NEW_VAR', NULL, $filename);
 
-    $content = file_get_contents($filename);
+    $content = File::read($filename);
     $expected = "EXISTING_VAR=value\nNEW_VAR=\n";
     $this->assertEquals($expected, $content);
 
@@ -358,7 +358,7 @@ class EnvTest extends UnitTestCase {
 
     Env::writeValueDotenv('NEW_VAR', NULL, $filename);
 
-    $content = file_get_contents($filename);
+    $content = File::read($filename);
     $expected = "EXISTING_VAR=value\nNEW_VAR=\n";
     $this->assertEquals($expected, $content);
 
@@ -371,7 +371,7 @@ class EnvTest extends UnitTestCase {
 
     Env::writeValueDotenv($name, $value, $filename, $enabled);
 
-    $content = file_get_contents($filename);
+    $content = File::read($filename);
     $this->assertEquals($expected_content, $content);
 
     File::remove($filename);
@@ -472,10 +472,9 @@ class EnvTest extends UnitTestCase {
   }
 
   public function testParseDotenvFileGetContentsFailure(): void {
-    // A directory in place of the file makes file_get_contents() fail.
-    $dirname = tempnam(sys_get_temp_dir(), '.env');
-    File::remove($dirname);
-    mkdir($dirname);
+    // A directory in place of the file is not readable as one.
+    $dirname = static::$tmp . '/' . uniqid('.env');
+    File::mkdir($dirname);
 
     $result = Env::parseDotenv($dirname);
     $this->assertEquals([], $result);
@@ -484,15 +483,9 @@ class EnvTest extends UnitTestCase {
   }
 
   protected function createFixtureEnvFile(string $content): string {
-    $filename = tempnam(sys_get_temp_dir(), '.env');
+    $filename = static::$tmp . '/' . uniqid('.env');
 
-    if ($filename === FALSE) {
-      throw new \RuntimeException('Failed to create temporary file.');
-    }
-
-    if (file_put_contents($filename, $content) === FALSE) {
-      throw new \RuntimeException('Failed to write to temporary file.');
-    }
+    File::dump($filename, $content);
 
     return $filename;
   }

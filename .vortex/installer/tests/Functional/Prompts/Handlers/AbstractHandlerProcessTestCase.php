@@ -89,7 +89,7 @@ abstract class AbstractHandlerProcessTestCase extends FunctionalTestCase {
   abstract public static function dataProviderHandlerProcess(): \Iterator;
 
   protected function assertCommon(): void {
-    if (file_exists(static::$root . '/scripts/vortex.yml')) {
+    if (File::exists(static::$root . '/scripts/vortex.yml')) {
       $this->assertFileEquals(static::$root . '/tests/behat/fixtures/image.jpg', static::$sut . '/tests/behat/fixtures/image.jpg', 'Binary files were not modified.');
     }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Downloader;
 
-use AlexSkrypnyk\File\File;
+use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Downloader\Archiver;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -124,7 +124,7 @@ class ArchiverTest extends UnitTestCase {
     $this->archiver->extract($archive_path, $destination, $strip);
 
     $this->assertFileExists($destination . $expected_path);
-    $this->assertEquals('Test content', file_get_contents($destination . $expected_path));
+    $this->assertEquals('Test content', File::read($destination . $expected_path));
 
     if ($strip) {
       $this->assertFileDoesNotExist($destination . '/test_archive');
@@ -224,7 +224,7 @@ class ArchiverTest extends UnitTestCase {
     $phar->buildFromDirectory($temp_dir);
     $phar->compress(\Phar::GZ);
 
-    rename($temp_dir . '/test.tar.gz', $archive_path);
+    File::rename($temp_dir . '/test.tar.gz', $archive_path);
 
     return $archive_path;
   }
