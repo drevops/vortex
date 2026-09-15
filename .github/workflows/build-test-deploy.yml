@@ -565,7 +565,7 @@ jobs:
 
       #;< CODE_COVERAGE_PROVIDER_CODECOV
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        uses: codecov/codecov-action@0b35c9ecc4f0529d0eb674914510c22f85b196b4 # v7
         if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' && env.CODECOV_TOKEN != '' }}
         continue-on-error: true
         with:
