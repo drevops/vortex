@@ -38,10 +38,10 @@
  
        - name: Provision site
          run: |
-@@ -434,11 +422,6 @@
-           fi
-           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
-         timeout-minutes: 30
+@@ -438,11 +426,6 @@
+       - name: Check that the build left a clean working tree
+         run: ./vendor/bin/vortex-check-worktree
+         continue-on-error: ${{ vars.VORTEX_CI_WORKTREE_IGNORE_FAILURE == '1' }}
 -
 -      - name: Test with Jest
 -        if: ${{ env.VORTEX_CI_IS_JEST_RUNNER == 'true' }}
