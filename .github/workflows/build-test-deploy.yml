@@ -226,7 +226,7 @@ jobs:
         if: always()
         run: |
           mkdir -p ".logs"
-          if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec cli test -d /app/.logs; then
+          if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec -T cli test -d /app/.logs; then
              docker compose --progress quiet cp cli:/app/.logs/. ".logs/"
           fi
           # Reports name files by their path inside the container, which does
