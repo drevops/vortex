@@ -251,7 +251,8 @@ Rector annotates through its own GitHub output format and writes no report,
 because it offers neither a checkstyle nor a JUnit formatter.
 
 Each tool keeps its console output and its
-`VORTEX_CI_<TOOL>_IGNORE_FAILURE` behavior. Publishing is skipped on pull
-requests from forks, where the workflow token cannot create a check. To disable
-it everywhere, set `VORTEX_CI_LINT_RESULTS_SKIP` to `1` in **Settings → Secrets
-and variables → Actions → Variables**.
+`VORTEX_CI_<TOOL>_IGNORE_FAILURE` behavior. A pull request from a fork carries a
+read-only token that cannot create a check, so there the publishing step reports
+a warning and the job continues. To disable publishing, set
+`VORTEX_CI_LINT_RESULTS_SKIP` to `1` in **Settings → Secrets and variables →
+Actions → Variables**.
