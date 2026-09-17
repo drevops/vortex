@@ -579,6 +579,12 @@ class Tools extends AbstractHandler {
           '/^\h*lint:\R\h*usage:\h*Lint back-end and front-end code\.\R\h*cmd:\h*\|\h*\R\h*$\R\h*$/um',
         ],
       ],
+      // Tools that write a checkstyle report for the CI annotation steps.
+      // Rector is absent: it has no checkstyle or JUnit output format.
+      'code_quality_reports' => [
+        'tools' => [self::PHPCS, self::PHPSTAN, self::TWIG_CS_FIXER],
+        'token' => 'TOOL_PHPCS_PHPSTAN_TWIG_CS_FIXER',
+      ],
       'test' => [
         'tools' => [self::PHPUNIT, self::BEHAT],
         'ahoy' => [

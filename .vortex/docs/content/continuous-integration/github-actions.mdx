@@ -238,3 +238,20 @@ Tests run across parallel build instances, so a separate check is created for
 each instance (for example, `Test results (0)` and `Test results (1)`). To
 disable publishing, set `VORTEX_CI_TEST_RESULTS_SKIP` to `1` in **Settings →
 Secrets and variables → Actions → Variables**.
+
+### Code quality results
+
+PHPCS, PHPStan and Twig CS Fixer write a checkstyle report to `.logs/lint/`,
+and [reviewdog](https://github.com/reviewdog/reviewdog) publishes each one as a
+check. Every finding is annotated against its file and line in the pull request
+diff, so a coding-standards failure no longer needs the job log to locate it.
+The reports are also uploaded as the `lint-artifacts` artifact.
+
+Rector annotates through its own GitHub output format and writes no report,
+because it offers neither a checkstyle nor a JUnit formatter.
+
+Each tool keeps its console output and its
+`VORTEX_CI_<TOOL>_IGNORE_FAILURE` behaviour. Publishing is skipped on pull
+requests from forks, where the workflow token cannot create a check. To disable
+it everywhere, set `VORTEX_CI_LINT_RESULTS_SKIP` to `1` in **Settings → Secrets
+and variables → Actions → Variables**.

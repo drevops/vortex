@@ -133,3 +133,12 @@ Coverage reports can be posted as PR comments. This requires a `GITHUB_TOKEN`
 environment variable with permission to post comments. Each new report replaces
 the previous one - older comments are minimized to keep the PR timeline clean.
 To disable PR comments, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
+
+### Code quality results
+
+PHPCS, PHPStan and Twig CS Fixer write a checkstyle report to `.logs/lint/`,
+which the `lint` job stores as build artifacts. Each tool keeps its console
+output and its `VORTEX_CI_<TOOL>_IGNORE_FAILURE` behaviour.
+
+CircleCI has no check annotations, so the reports are read from the
+**Artifacts** tab. The same reports are annotated inline on GitHub Actions.
