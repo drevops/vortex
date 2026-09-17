@@ -617,7 +617,8 @@ class Tools extends AbstractHandler {
       ],
       'frontend_all' => [
         'tools' => [self::ESLINT, self::STYLELINT, self::JEST],
-        'files' => ['package.json', 'package-lock.json'],
+        'files' => ['package.json', 'package-lock.json', '.npmrc'],
+        'token' => 'TOOL_ESLINT_STYLELINT_JEST',
       ],
     ];
 
