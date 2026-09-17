@@ -164,11 +164,11 @@ jobs:
           name: Validate Composer configuration is normalized
           command: docker compose exec -T cli composer normalize --dry-run || [ "${VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE:-0}" -eq 1 ]
 
-      #;< TOOL_PHPCS_PHPSTAN_TWIG_CS_FIXER
+      #;< TOOL_CODE_QUALITY_REPORTS
       - run:
           name: Prepare code quality report directory
           command: docker compose exec -T cli mkdir -p .logs/lint
-      #;> TOOL_PHPCS_PHPSTAN_TWIG_CS_FIXER
+      #;> TOOL_CODE_QUALITY_REPORTS
 
       #;< TOOL_PHPCS
       - run:
@@ -222,7 +222,7 @@ jobs:
       #;> DRUPAL_THEME
       #;> TOOL_ESLINT_STYLELINT
 
-      #;< TOOL_PHPCS_PHPSTAN_TWIG_CS_FIXER
+      #;< TOOL_CODE_QUALITY_REPORTS
       - run:
           name: Process code quality reports
           command: |
@@ -239,7 +239,7 @@ jobs:
 
       - store_artifacts:
           path: *artifacts
-      #;> TOOL_PHPCS_PHPSTAN_TWIG_CS_FIXER
+      #;> TOOL_CODE_QUALITY_REPORTS
 
   # Audit job runs in its own workflow, independently of the commit workflow.
   audit:

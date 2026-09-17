@@ -87,11 +87,11 @@ jobs:
     if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
     #;> !PROVISION_TYPE_PROFILE
 
-    #;< TOOL_PHPCS_PHPSTAN_TWIG_CS_FIXER
+    #;< TOOL_CODE_QUALITY_REPORTS
     permissions:
       contents: read
       checks: write
-    #;> TOOL_PHPCS_PHPSTAN_TWIG_CS_FIXER
+    #;> TOOL_CODE_QUALITY_REPORTS
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
@@ -163,10 +163,10 @@ jobs:
         run: docker compose exec -T cli composer normalize --dry-run
         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
 
-      #;< TOOL_PHPCS_PHPSTAN_TWIG_CS_FIXER
+      #;< TOOL_CODE_QUALITY_REPORTS
       - name: Prepare code quality report directory
         run: docker compose exec -T cli mkdir -p .logs/lint
-      #;> TOOL_PHPCS_PHPSTAN_TWIG_CS_FIXER
+      #;> TOOL_CODE_QUALITY_REPORTS
 
       #;< TOOL_PHPCS
       - name: Lint code with PHPCS
@@ -221,7 +221,7 @@ jobs:
       #;> DRUPAL_THEME
       #;> TOOL_ESLINT_STYLELINT
 
-      #;< TOOL_PHPCS_PHPSTAN_TWIG_CS_FIXER
+      #;< TOOL_CODE_QUALITY_REPORTS
       - name: Process code quality reports
         if: always()
         run: |
@@ -247,7 +247,7 @@ jobs:
       - name: Install reviewdog
         if: ${{ !cancelled() && vars.VORTEX_CI_LINT_RESULTS_SKIP != '1' }}
         uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f # v1.5.0
-      #;> TOOL_PHPCS_PHPSTAN_TWIG_CS_FIXER
+      #;> TOOL_CODE_QUALITY_REPORTS
 
       #;< TOOL_PHPCS
       - name: Publish PHPCS results to GitHub Checks

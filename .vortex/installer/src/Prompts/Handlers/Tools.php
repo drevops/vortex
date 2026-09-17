@@ -583,7 +583,7 @@ class Tools extends AbstractHandler {
       // Rector is absent: it has no checkstyle or JUnit output format.
       'code_quality_reports' => [
         'tools' => [self::PHPCS, self::PHPSTAN, self::TWIG_CS_FIXER],
-        'token' => 'TOOL_PHPCS_PHPSTAN_TWIG_CS_FIXER',
+        'token' => 'TOOL_CODE_QUALITY_REPORTS',
       ],
       'test' => [
         'tools' => [self::PHPUNIT, self::BEHAT],
