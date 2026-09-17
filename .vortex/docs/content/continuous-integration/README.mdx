@@ -50,11 +50,11 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Validates Composer configuration
 - Assembles the codebase by installing dependencies
 - Provisions a website
-- Checks that the build left a clean working tree - see [Working tree check](#working-tree-check)
 - Runs PHPUnit and Jest tests (first container only)
 - Checks code coverage and posts a PR comment (first container only)
 - Runs BDD tests (distributed across all containers - see [Test parallelism](#test-parallelism))
 - Collects and stores test results and artifacts
+- Checks that the build left a clean working tree - see [Working tree check](#working-tree-check)
 
 ### 4. Deployment
 
@@ -108,17 +108,19 @@ configuration, compiled front-end assets, generated documentation, scaffolded
 files. Left unnoticed, the repository and the build output drift apart, and the
 next developer to run a build gets a dirty working tree they did not cause.
 
-The `build` job runs `vendor/bin/vortex-check-worktree` once the site is
-provisioned. The step fails when the working tree holds modified or untracked
-files, and prints each of them with its Git status:
+The `build` job runs `vendor/bin/vortex-check-worktree` as its last step, after
+the tests, so a dirty tree never suppresses the test results that would explain
+it. The step fails when the working tree holds modified or untracked files, and
+prints each of them with its Git status:
 
 ```shell
 [INFO] Started working tree check.
        Ignoring "docker-compose.yml".
+       Ignoring "*/docker-compose.yml".
        Ignoring "db_cache_*".
        The build modified or created these files:
  M config/default/core.extension.yml
-?? web/themes/custom/your_site_theme/build/css/styles.css
+?? config/default/views.view.recent_content.yml
        Run "ahoy build" locally and commit the resulting changes.
        Add paths that are generated during the build and are not committed to VORTEX_CHECK_WORKTREE_IGNORE.
 [FAIL] The build left changes in the working tree.
@@ -130,14 +132,14 @@ comma-separated list of [Git pathspec](https://git-scm.com/docs/gitglossary#def_
 patterns:
 
 ```shell
-VORTEX_CHECK_WORKTREE_IGNORE=docker-compose.yml,db_cache_*,web/sites/default/settings.generated.php
+VORTEX_CHECK_WORKTREE_IGNORE=docker-compose.yml,*/docker-compose.yml,db_cache_*,web/sites/default/settings.generated.php
 ```
 
-The default value covers the paths the pipeline itself writes:
-`docker-compose.yml`, which is rewritten in place to run in CI, and the
-`db_cache_*` database cache keys written by GitHub Actions. Setting the variable
-replaces the default rather than extending it, so keep those two entries when
-adding your own.
+The default value covers the paths the pipeline itself writes: every
+`docker-compose.yml` in the tree, which the `Process the codebase to run in CI`
+step rewrites in place, and the `db_cache_*` database cache keys GitHub Actions
+writes into the repository root. Setting the variable replaces the default
+rather than extending it, so keep those entries when adding your own.
 
 The check reads the working tree on the runner, not the codebase inside the
 `cli` container.

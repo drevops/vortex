@@ -63,11 +63,13 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   echo "# Processed to run in CI." >>docker-compose.yml
+  touch web/sites/default/docker-compose.yml
   touch db_cache_branch db_cache_timestamp
 
   run .vortex/tooling/src/vortex-check-worktree
   assert_success
   assert_output_contains 'Ignoring "docker-compose.yml".'
+  assert_output_contains 'Ignoring "*/docker-compose.yml".'
   assert_output_contains 'Ignoring "db_cache_*".'
   assert_output_contains "Finished working tree check."
 
