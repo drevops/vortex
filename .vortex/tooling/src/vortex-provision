@@ -68,6 +68,12 @@ VORTEX_PROVISION_POST_OPERATIONS_SKIP="${VORTEX_PROVISION_POST_OPERATIONS_SKIP:-
 # drush config:import from silently overwriting those changes.
 VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE="${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE:-0}"
 
+# Verify that configuration was not changed by post-provision operations.
+# If enabled and config files are present, the provision will fail if any
+# active configuration item differs from the exported configuration once
+# configuration imports, deployment hooks and custom provision scripts have run.
+VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION="${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION:-0}"
+
 # Skip cache rebuild after database updates.
 VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP="${VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP:-0}"
 
@@ -171,6 +177,7 @@ note "Overwrite existing DB          : $(yesno "${VORTEX_PROVISION_OVERRIDE_DB}"
 note "Skip DB sanitization           : $(yesno "${VORTEX_PROVISION_SANITIZE_DB_SKIP}")"
 note "Skip post-provision operations : $(yesno "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}")"
 note "Verify config after update     : $(yesno "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}")"
+note "Verify config after provision  : $(yesno "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION}")"
 note "Use maintenance mode           : $(yesno "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}")"
 echo
 
@@ -431,6 +438,24 @@ if [ "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}" = "1" ]; then
   task "Disabling maintenance mode."
   drush maint:set 0
   pass "Disabled maintenance mode."
+  echo
+fi
+
+# Only the 'Different' state is checked: a site may legitimately carry
+# configuration that exists in the database alone or in the sync directory alone.
+if [ "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION}" = "1" ] && [ "${site_has_config_files}" = "1" ]; then
+  task "Verifying that configuration was not changed by post-provision operations."
+
+  config_status="$(drush config:status --state=Different --format=list)"
+
+  if [ -n "${config_status}" ]; then
+    note "The following configuration items differ from the exported configuration:"
+    echo "${config_status}"
+    note "Review the changes and export the updated configuration."
+    fail "Configuration was changed by post-provision operations."
+  fi
+
+  pass "Verified that post-provision operations did not change configuration."
   echo
 fi
 
