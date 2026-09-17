@@ -410,10 +410,6 @@ jobs:
           no_output_timeout: 30m
 
       - run:
-          name: Check that the build left a clean working tree
-          command: ./vendor/bin/vortex-check-worktree || [ "${VORTEX_CI_WORKTREE_IGNORE_FAILURE:-0}" -eq 1 ]
-
-      - run:
           name: Test with Jest
           command: |
             [ "${VORTEX_CI_IS_JEST_RUNNER:-1}" = "1" ] || exit 0
@@ -512,6 +508,11 @@ jobs:
           root: /tmp/workspace
           paths:
             - code
+
+      # Placed after the test steps so a dirty tree never suppresses them.
+      - run:
+          name: Check that the build left a clean working tree
+          command: ./vendor/bin/vortex-check-worktree || [ "${VORTEX_CI_WORKTREE_IGNORE_FAILURE:-0}" -eq 1 ]
 
   # Deploy primary branches.
   deploy: &job_deploy

@@ -22,7 +22,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -515,19 +505,6 @@
+@@ -511,19 +501,6 @@
              exit 1
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}

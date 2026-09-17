@@ -82,9 +82,9 @@
  
        - name: Provision site
          run: |
-@@ -439,71 +389,6 @@
-         run: ./vendor/bin/vortex-check-worktree
-         continue-on-error: ${{ vars.VORTEX_CI_WORKTREE_IGNORE_FAILURE == '1' }}
+@@ -435,71 +385,6 @@
+           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
+         timeout-minutes: 30
  
 -      - name: Test with Jest
 -        if: ${{ env.VORTEX_CI_IS_JEST_RUNNER == 'true' }}
@@ -154,7 +154,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -516,19 +401,6 @@
+@@ -512,19 +397,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -174,7 +174,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -545,16 +417,6 @@
+@@ -541,16 +413,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
