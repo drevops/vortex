@@ -100,12 +100,12 @@ jobs:
         run: composer audit --locked
         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}
 
-      #;< TOOL_ESLINT_STYLELINT_JEST
+      #;< TOOL_NPM
       - name: Audit npm packages
         if: ${{ !cancelled() }}
         run: npm audit --package-lock-only
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
-      #;> TOOL_ESLINT_STYLELINT_JEST
+      #;> TOOL_NPM
 
       #;< DRUPAL_THEME
       - name: Audit npm packages of the theme

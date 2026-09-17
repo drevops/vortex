@@ -232,12 +232,12 @@ jobs:
           name: Audit Composer packages
           command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
-      #;< TOOL_ESLINT_STYLELINT_JEST
+      #;< TOOL_NPM
       - run:
           name: Audit npm packages
           when: always
           command: npm audit --package-lock-only || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
-      #;> TOOL_ESLINT_STYLELINT_JEST
+      #;> TOOL_NPM
 
       #;< DRUPAL_THEME
       - run:
