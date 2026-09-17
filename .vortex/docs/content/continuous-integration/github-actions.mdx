@@ -243,8 +243,8 @@ Secrets and variables → Actions → Variables**.
 
 PHPCS, PHPStan and Twig CS Fixer write a checkstyle report to `.logs/lint/`,
 and [reviewdog](https://github.com/reviewdog/reviewdog) publishes each one as a
-check. Every finding is annotated against its file and line in the pull request
-diff, so a coding-standards failure no longer needs the job log to locate it.
+check. Every finding is annotated against its own file and line, so a
+coding-standards failure no longer needs the job log to locate it.
 The reports are also uploaded as the `lint-artifacts` artifact.
 
 Rector annotates through its own GitHub output format and writes no report,
