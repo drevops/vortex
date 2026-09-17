@@ -50,6 +50,7 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Validates Composer configuration
 - Assembles the codebase by installing dependencies
 - Provisions a website
+- Checks that the build left a clean working tree - see [Working tree check](#working-tree-check)
 - Runs PHPUnit and Jest tests (first container only)
 - Checks code coverage and posts a PR comment (first container only)
 - Runs BDD tests (distributed across all containers - see [Test parallelism](#test-parallelism))
@@ -99,6 +100,50 @@ merges and deployments on it, add its check to the repository's branch
 protection rules as a required status check.
 
 :::
+
+## Working tree check
+
+A build can produce files that were meant to be committed - exported
+configuration, compiled front-end assets, generated documentation, scaffolded
+files. Left unnoticed, the repository and the build output drift apart, and the
+next developer to run a build gets a dirty working tree they did not cause.
+
+The `build` job runs `vendor/bin/vortex-check-worktree` once the site is
+provisioned. The step fails when the working tree holds modified or untracked
+files, and prints each of them with its Git status:
+
+```shell
+[INFO] Started working tree check.
+       Ignoring "docker-compose.yml".
+       Ignoring "db_cache_*".
+       The build modified or created these files:
+ M config/default/core.extension.yml
+?? web/themes/custom/your_site_theme/build/css/styles.css
+       Run "ahoy build" locally and commit the resulting changes.
+       Add paths that are generated during the build and are not committed to VORTEX_CHECK_WORKTREE_IGNORE.
+[FAIL] The build left changes in the working tree.
+```
+
+Files ignored by Git are never reported, so `.gitignore` already covers most
+generated output. Everything else goes into `VORTEX_CHECK_WORKTREE_IGNORE` - a
+comma-separated list of [Git pathspec](https://git-scm.com/docs/gitglossary#def_pathspec)
+patterns:
+
+```shell
+VORTEX_CHECK_WORKTREE_IGNORE=docker-compose.yml,db_cache_*,web/sites/default/settings.generated.php
+```
+
+The default value covers the paths the pipeline itself writes:
+`docker-compose.yml`, which is rewritten in place to run in CI, and the
+`db_cache_*` database cache keys written by GitHub Actions. Setting the variable
+replaces the default rather than extending it, so keep those two entries when
+adding your own.
+
+The check reads the working tree on the runner, not the codebase inside the
+`cli` container.
+
+Set `VORTEX_CI_WORKTREE_IGNORE_FAILURE` to `1` to report the findings without
+failing the build - see [Ignore tool failures](#ignore-tool-failures).
 
 ## Caching strategy
 
@@ -493,6 +538,7 @@ failures (but still run the tool and see the results in the logs):
 | [Rector](../development/code-quality/rector.mdx)             | Check for automated refactoring rules   | `VORTEX_CI_RECTOR_IGNORE_FAILURE`             |
 | [SDC Devel](../development/code-quality/sdc-devel.mdx)       | Validate Single Directory Components    | `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE`          |
 | [Twig CS Fixer](../development/code-quality/twig-cs-fixer.mdx) | Lint Twig templates                   | `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE`      |
+| [Working tree check](#working-tree-check)                     | Check for files left behind by the build | `VORTEX_CI_WORKTREE_IGNORE_FAILURE`          |
 
 ### Configure deployment skip conditions
 
