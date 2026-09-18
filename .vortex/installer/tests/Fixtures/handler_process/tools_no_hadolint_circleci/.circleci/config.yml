@@ -181,6 +181,7 @@ jobs:
 
       - run:
           name: Audit Composer packages
+          when: always
           command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
