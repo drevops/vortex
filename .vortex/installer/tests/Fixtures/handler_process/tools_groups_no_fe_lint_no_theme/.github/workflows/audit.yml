@@ -1,4 +1,4 @@
-@@ -83,16 +83,6 @@
+@@ -89,16 +89,6 @@
          run: composer audit --locked
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}
  
@@ -12,6 +12,6 @@
 -        run: npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}"
 -        continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
 -
-       - name: Scan for committed secrets with Gitleaks
+       - name: Convert Composer audit findings to SARIF
          if: ${{ !cancelled() }}
-         run: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner
+         # Reporting must not decide the workflow result; the audit step above
