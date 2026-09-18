@@ -105,12 +105,36 @@ jq \
     | if type == "object" then to_entries else [] end
     | map({package: .key, replacement: (if (.value | type) == "string" then .value else "" end)});
 
+  # Composer reports dependency policy matches - the built-in malware policy
+  # among them - under "filter", and they fail the audit like an advisory does.
+  def policies:
+    (.filter // {})
+    | if type == "object" then to_entries else [] end
+    | map(
+        (.key) as $package
+        | (.value) as $entries
+        | (if ($entries | type) == "array" then $entries else [] end)
+        | map(
+            select(type == "object")
+            | {
+                package: $package,
+                list: text("listName"; "policy"),
+                constraint: text("constraint"; "*"),
+                url: text("url"; ""),
+                reason: text("reason"; "")
+              }
+            | .rule = ("composer-audit/policy-" + .list)
+          )
+      )
+    | flatten;
+
   # A finding is identified by its advisory and package rather than by its
   # location, so alerts survive the lock file moving underneath them.
   def location($package): {physicalLocation: {artifactLocation: {uri: $lock_file}, region: {startLine: ($lock[$package] // 1)}}};
 
   advisories as $advisories
   | abandoned as $abandoned
+  | policies as $policies
   | {
       "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
       version: "2.1.0",
@@ -145,6 +169,20 @@ jq \
                     properties: {tags: ["maintainability", "composer"]}
                   }
                 ] end)
+                + ($policies | map(
+                  {
+                    id: .rule,
+                    shortDescription: {text: ("Dependency policy: " + .list)},
+                    fullDescription: {text: ("The package version matched the " + .list + " dependency policy declared by its repository.")},
+                    help: {
+                      text: ("The package version matched the " + .list + " dependency policy declared by its repository."),
+                      markdown: ("The package version matched the " + .list + " dependency policy declared by its repository.")
+                    },
+                    defaultConfiguration: {level: "error"},
+                    properties: {tags: ["security", "composer"]}
+                  }
+                  + (if .url == "" then {} else {helpUri: .url} end)
+                ) | map({key: .id, value: .}) | from_entries | to_entries | map(.value))
               )
             }
           },
@@ -162,6 +200,13 @@ jq \
               message: {text: (if .replacement == "" then .package + " is abandoned and suggests no replacement." else .package + " is abandoned. Use " + .replacement + " instead." end)},
               locations: [location(.package)],
               partialFingerprints: {"vortexComposerAudit/v1": ($abandoned_rule + "|" + .package)}
+            }))
+            + ($policies | map({
+              ruleId: .rule,
+              level: "error",
+              message: {text: (.package + " matched the " + .list + " dependency policy (" + .constraint + ")." + (if .reason == "" then "" else " " + .reason end))},
+              locations: [location(.package)],
+              partialFingerprints: {"vortexComposerAudit/v1": (.rule + "|" + .package)}
             }))
           )
         }

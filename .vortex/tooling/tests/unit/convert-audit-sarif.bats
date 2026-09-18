@@ -194,6 +194,40 @@ sarif() {
   popd >/dev/null || exit 1
 }
 
+@test "convert-audit-sarif: Reports dependency policy matches" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_audit_report '{
+    "advisories": [],
+    "abandoned": [],
+    "filter": {
+      "vendor/malicious": [
+        {"packageName": "vendor/malicious", "listName": "malware", "constraint": "== 1.0.0", "url": "https://example.com/malware", "reason": "Ships a backdoor.", "id": "MAL-1", "source": "packagist.org"}
+      ],
+      "vendor/blocked": [
+        {"packageName": "vendor/blocked", "listName": "internal", "constraint": "<2.0.0", "url": null, "reason": null, "id": null, "source": null}
+      ]
+    }
+  }'
+
+  run .vortex/tooling/src/vortex-convert-audit-sarif
+  assert_success
+
+  assert_output_contains "Findings:  2"
+
+  assert_equal "composer-audit/policy-malware" "$(sarif '.runs[0].results[0].ruleId')"
+  assert_equal "error" "$(sarif '.runs[0].results[0].level')"
+  assert_equal "vendor/malicious matched the malware dependency policy (== 1.0.0). Ships a backdoor." "$(sarif '.runs[0].results[0].message.text')"
+  assert_equal "composer-audit/policy-malware|vendor/malicious" "$(sarif '.runs[0].results[0].partialFingerprints["vortexComposerAudit/v1"]')"
+  assert_equal "https://example.com/malware" "$(sarif '.runs[0].tool.driver.rules[0].helpUri')"
+
+  assert_equal "composer-audit/policy-internal" "$(sarif '.runs[0].results[1].ruleId')"
+  assert_equal "vendor/blocked matched the internal dependency policy (<2.0.0)." "$(sarif '.runs[0].results[1].message.text')"
+  assert_equal "null" "$(sarif '.runs[0].tool.driver.rules[1].helpUri')"
+
+  popd >/dev/null || exit 1
+}
+
 @test "convert-audit-sarif: Skips ignored advisories and malformed entries" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
