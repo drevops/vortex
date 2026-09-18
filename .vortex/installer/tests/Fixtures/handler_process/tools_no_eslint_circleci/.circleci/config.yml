@@ -177,7 +177,18 @@ jobs:
 
       - run:
           name: Audit Composer packages
+          when: always
           command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Audit npm packages
+          when: always
+          command: npm audit --package-lock-only || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Audit npm packages of the theme
+          when: always
+          command: npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}" || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Scan for committed secrets with Gitleaks

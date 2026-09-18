@@ -615,9 +615,13 @@ class Tools extends AbstractHandler {
         'tools' => [self::JEST],
         'token' => 'TOOL_JEST',
       ],
+      // Token removal matches a marker line by substring, so a name built from
+      // the member tools - 'TOOL_ESLINT_STYLELINT_JEST' - is also matched by
+      // the 'TOOL_ESLINT' removal of the single tool.
       'frontend_all' => [
         'tools' => [self::ESLINT, self::STYLELINT, self::JEST],
-        'files' => ['package.json', 'package-lock.json'],
+        'files' => ['package.json', 'package-lock.json', '.npmrc'],
+        'token' => 'TOOL_NPM',
       ],
     ];
 

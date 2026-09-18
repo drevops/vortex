@@ -73,10 +73,12 @@ on its own:
 | GitHub Actions | The `Security audit` workflow in `.github/workflows/audit.yml` |
 | CircleCI | The `audit` workflow in `.circleci/config.yml` |
 
-The workflow runs the same 2 checks in both providers, and needs neither the
+The workflow runs the same 4 checks in both providers, and needs neither the
 application containers nor installed dependencies:
 
 - `composer audit --locked` checks the packages pinned in `composer.lock` against published security advisories
+- `npm audit --package-lock-only` checks the packages pinned in `package-lock.json` against published security advisories
+- the same `npm audit` runs against the custom theme's own `package-lock.json`
 - [Gitleaks](../development/security/secret-scanning.mdx) scans the codebase for committed secrets
 
 Every check runs even if an earlier one failed, so a single run reports all the
@@ -476,7 +478,7 @@ failures (but still run the tool and see the results in the logs):
 |---------------------------------------------------------------|-----------------------------------------|-----------------------------------------------|
 | [Behat](../development/testing/behat.mdx)                    | Run BDD acceptance tests                | `VORTEX_CI_BEHAT_IGNORE_FAILURE`              |
 | Composer normalize                                            | Ensure `composer.json` is sorted        | `VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE` |
-| [Composer security audit](../development/security/dependency-audit.mdx) | Check dependencies for vulnerabilities  | `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`     |
+| [Composer security audit](../development/security/dependency-audit.mdx#php-dependencies) | Check PHP dependencies for vulnerabilities | `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`     |
 | Composer validate                                             | Validate `composer.json` and lock file  | `VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE`  |
 | [DCLint](../development/code-quality/dclint.mdx)             | Lint Docker Compose files               | `VORTEX_CI_DCLINT_IGNORE_FAILURE`             |
 | [ESLint](../development/code-quality/eslint.mdx) and [Stylelint](../development/code-quality/stylelint.mdx) | Lint JavaScript and CSS | `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE` |
@@ -484,6 +486,7 @@ failures (but still run the tool and see the results in the logs):
 | [Gitleaks](../development/security/secret-scanning.mdx)      | Scan the codebase for committed secrets | `VORTEX_CI_GITLEAKS_IGNORE_FAILURE`           |
 | [Hadolint](../development/code-quality/hadolint.mdx)         | Lint Dockerfiles for best practices     | `VORTEX_CI_HADOLINT_IGNORE_FAILURE`           |
 | [Jest](../development/testing/jest.mdx)                      | Run JavaScript unit tests               | `VORTEX_CI_JEST_IGNORE_FAILURE`               |
+| [npm security audit](../development/security/dependency-audit.mdx#javascript-dependencies) | Check JavaScript dependencies for vulnerabilities | `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` |
 | [PHPCS](../development/code-quality/phpcs.mdx)               | Check PHP coding standards              | `VORTEX_CI_PHPCS_IGNORE_FAILURE`              |
 | [PHPStan](../development/code-quality/phpstan.mdx)           | Static analysis for PHP                 | `VORTEX_CI_PHPSTAN_IGNORE_FAILURE`            |
 | [PHPUnit](../development/testing/phpunit.mdx)                | Run unit, kernel, and functional tests  | `VORTEX_CI_PHPUNIT_IGNORE_FAILURE`            |
