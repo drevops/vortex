@@ -117,7 +117,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@0b35c9ecc4f0529d0eb674914510c22f85b196b4 # v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         continue-on-error: true
         with:
           directory: /tmp/.vortex-coverage-html
@@ -234,7 +234,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload coverage report to Codecov
-        uses: codecov/codecov-action@0b35c9ecc4f0529d0eb674914510c22f85b196b4 # v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         continue-on-error: true
         with:
           directory: /tmp/.vortex-coverage-html
