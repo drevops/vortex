@@ -1,0 +1,177 @@
+#!/usr/bin/env bash
+##
+# Convert a 'composer audit' JSON report into a SARIF report.
+#
+# SARIF is the interchange format GitHub code scanning ingests, and
+# 'composer audit' has no SARIF formatter of its own.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Path to the 'composer audit --format=json' report to convert.
+VORTEX_CONVERT_AUDIT_SARIF_FILE="${VORTEX_CONVERT_AUDIT_SARIF_FILE:-.artifacts/audit/composer-audit.json}"
+
+# Path of the SARIF report to write.
+VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE="${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE:-.artifacts/audit/composer-audit.sarif}"
+
+# Path to the lock file that findings are located in.
+VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE="${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE:-composer.lock}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+# Map each package to the line it is declared on in the lock file, so a finding
+# points at the package entry rather than at the top of the file. The first
+# declaration wins, which is why the merge runs over the reversed list.
+lock_lines() {
+  if [ ! -f "${1}" ]; then
+    printf '{}'
+    return
+  fi
+
+  grep -nE '^[[:space:]]*"name": "[^"/]+/[^"]+",$' "${1}" |
+    sed -E 's/^([0-9]+):[[:space:]]*"name": "([^"]+)",$/{"\2":\1}/' |
+    jq -s 'reverse | add // {}'
+}
+
+info "Started Composer audit report conversion."
+
+command -v jq >/dev/null || fail "jq command is not available."
+
+[ -f "${VORTEX_CONVERT_AUDIT_SARIF_FILE}" ] || fail "Audit report ${VORTEX_CONVERT_AUDIT_SARIF_FILE} does not exist."
+jq -e . "${VORTEX_CONVERT_AUDIT_SARIF_FILE}" >/dev/null 2>&1 || fail "Audit report ${VORTEX_CONVERT_AUDIT_SARIF_FILE} is not valid JSON."
+
+note "Report:    ${VORTEX_CONVERT_AUDIT_SARIF_FILE}"
+note "Lock file: ${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}"
+
+task "Converting audit findings to SARIF."
+
+mkdir -p "$(dirname "${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE}")"
+
+# Advisories already dismissed through 'config.policy' arrive under
+# 'ignored-advisories' and are left out, so the report holds the same set of
+# findings the audit itself fails on.
+jq \
+  --argjson lock "$(lock_lines "${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}")" \
+  --arg lock_file "${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}" \
+  --arg abandoned_rule "composer-audit/abandoned-package" \
+  '
+  def text($key; $default): (.[$key] // null) as $v | if ($v | type) == "string" then $v else $default end;
+
+  def advisories:
+    (.advisories // {})
+    | if type == "object" then [.[] | select(type == "array") | .[] | select(type == "object")] else [] end
+    | map(
+        {
+          id: text("advisoryId"; "composer-audit/advisory"),
+          package: text("packageName"; "unknown package"),
+          title: text("title"; "Known security advisory"),
+          versions: text("affectedVersions"; "*"),
+          cve: text("cve"; ""),
+          link: text("link"; ""),
+          severity: (text("severity"; "") | ascii_downcase)
+        }
+        | .reference = (if .cve != "" then .cve else .id end)
+        | .link = (
+            if .link != "" then .link
+            elif (.id | startswith("PKSA-")) then "https://packagist.org/security-advisories/" + .id
+            elif .cve != "" then "https://www.cve.org/CVERecord?id=" + .cve
+            else "" end
+          )
+        | .level = (if .severity == "critical" or .severity == "high" then "error" else "warning" end)
+        | .score = (
+            if .severity == "critical" then "9.5"
+            elif .severity == "high" then "8.0"
+            elif .severity == "medium" or .severity == "moderate" then "5.5"
+            elif .severity == "low" then "3.0"
+            else null end
+          )
+        | .description = (.package + " is affected by " + .reference + ". Affected versions: " + .versions + ".")
+      );
+
+  def abandoned:
+    (.abandoned // {})
+    | if type == "object" then to_entries else [] end
+    | map({package: .key, replacement: (if (.value | type) == "string" then .value else "" end)});
+
+  # A finding is identified by its advisory and package rather than by its
+  # location, so alerts survive the lock file moving underneath them.
+  def location($package): {physicalLocation: {artifactLocation: {uri: $lock_file}, region: {startLine: ($lock[$package] // 1)}}};
+
+  advisories as $advisories
+  | abandoned as $abandoned
+  | {
+      "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+      version: "2.1.0",
+      runs: [
+        {
+          tool: {
+            driver: {
+              name: "Composer Audit",
+              informationUri: "https://getcomposer.org/doc/03-cli.md#audit",
+              rules: (
+                ($advisories | map(
+                  {
+                    id: .id,
+                    shortDescription: {text: .title},
+                    fullDescription: {text: .description},
+                    help: {
+                      text: .description,
+                      markdown: (if .link == "" then .description else .description + " See [" + .reference + "](" + .link + ")." end)
+                    },
+                    defaultConfiguration: {level: .level},
+                    properties: ({tags: ["security", "composer"]} + (if .score == null then {} else {"security-severity": .score} end))
+                  }
+                  + (if .link == "" then {} else {helpUri: .link} end)
+                ) | map({key: .id, value: .}) | from_entries | to_entries | map(.value))
+                + (if ($abandoned | length) == 0 then [] else [
+                  {
+                    id: $abandoned_rule,
+                    shortDescription: {text: "Abandoned package"},
+                    fullDescription: {text: "The package is no longer maintained by its author."},
+                    help: {text: "The package is no longer maintained by its author.", markdown: "The package is no longer maintained by its author."},
+                    defaultConfiguration: {level: "note"},
+                    properties: {tags: ["maintainability", "composer"]}
+                  }
+                ] end)
+              )
+            }
+          },
+          results: (
+            ($advisories | map({
+              ruleId: .id,
+              level: .level,
+              message: {text: (.package + ": " + .title + " (affects " + .versions + ").")},
+              locations: [location(.package)],
+              partialFingerprints: {"vortexComposerAudit/v1": (.id + "|" + .package)}
+            }))
+            + ($abandoned | map({
+              ruleId: $abandoned_rule,
+              level: "note",
+              message: {text: (if .replacement == "" then .package + " is abandoned and suggests no replacement." else .package + " is abandoned. Use " + .replacement + " instead." end)},
+              locations: [location(.package)],
+              partialFingerprints: {"vortexComposerAudit/v1": ($abandoned_rule + "|" + .package)}
+            }))
+          )
+        }
+      ]
+    }
+  ' "${VORTEX_CONVERT_AUDIT_SARIF_FILE}" >"${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE}" || fail "Unable to convert ${VORTEX_CONVERT_AUDIT_SARIF_FILE}."
+
+pass "Converted audit findings to SARIF."
+
+note "Findings:  $(jq '.runs[0].results | length' "${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE}")"
+note "Report:    ${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE}"
+
+pass "Finished Composer audit report conversion."

@@ -1,4 +1,4 @@
-@@ -83,11 +83,6 @@
+@@ -89,11 +89,6 @@
          run: composer audit --locked
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}
  

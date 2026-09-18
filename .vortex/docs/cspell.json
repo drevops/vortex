@@ -84,6 +84,7 @@
         "ruleset",
         "runsheet",
         "runsheets",
+        "sarif",
         "sdc",
         "seckit",
         "shellvar",

@@ -64,6 +64,12 @@ jobs:
   audit:
     runs-on: ubuntu-latest
 
+    permissions:
+      # The code scanning upload reads the workflow run in a private repository.
+      actions: read
+      contents: read
+      security-events: write
+
     container:
       # https://hub.docker.com/r/drevops/ci-runner
       image: drevops/ci-runner:26.8.0@sha256:80be478cfff66d81fa804ccc707dbeae478655d8b850f1ae06824c194bd6528e
@@ -114,9 +120,53 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
       #;> DRUPAL_THEME
 
+      - name: Convert Composer audit findings to SARIF
+        if: ${{ !cancelled() }}
+        # Reporting must not decide the workflow result; the audit step above
+        # is what fails on findings.
+        continue-on-error: true
+        run: |
+          mkdir -p .artifacts/audit
+          composer audit --locked --format=json > .artifacts/audit/composer-audit.json || true
+          ./scripts/vortex-tooling.sh
+          ./vendor/bin/vortex-convert-audit-sarif
+
+      - name: Upload Composer audit findings to code scanning
+        if: ${{ !cancelled() && hashFiles('.artifacts/audit/composer-audit.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
+        # The upload fails without a code scanning entitlement, and on fork
+        # pull requests where the token is read-only. The audit step above is
+        # what reports the findings and fails the workflow.
+        continue-on-error: true
+        with:
+          sarif_file: .artifacts/audit/composer-audit.sarif
+          category: composer-audit
+
       #;< CI_GITLEAKS
       - name: Scan for committed secrets with Gitleaks
         if: ${{ !cancelled() }}
-        run: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 dir . --no-banner
+        # The runner host has no path matching the container's workspace, so a
+        # bind mount of the working directory would scan nothing.
+        # '--volumes-from' gives the scanner this container's own mounts.
+        run: |
+          mkdir -p .artifacts/audit
+          docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" ghcr.io/gitleaks/gitleaks:v8.30.1 dir . --no-banner --report-format sarif --report-path .artifacts/audit/gitleaks.sarif
         continue-on-error: ${{ vars.VORTEX_CI_GITLEAKS_IGNORE_FAILURE == '1' }}
+
+      - name: Upload Gitleaks findings to code scanning
+        if: ${{ !cancelled() && hashFiles('.artifacts/audit/gitleaks.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
+        continue-on-error: true
+        with:
+          sarif_file: .artifacts/audit/gitleaks.sarif
+          category: gitleaks
       #;> CI_GITLEAKS
+
+      - name: Upload security findings as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: security-findings
+          path: .artifacts/audit
+          include-hidden-files: true
+          if-no-files-found: ignore
