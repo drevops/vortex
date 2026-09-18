@@ -87,12 +87,6 @@ jobs:
     if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
     #;> !PROVISION_TYPE_PROFILE
 
-    #;< TOOL_CODE_QUALITY_REPORTS
-    permissions:
-      contents: read
-      checks: write
-    #;> TOOL_CODE_QUALITY_REPORTS
-
     container:
       # https://hub.docker.com/r/drevops/ci-runner
       image: drevops/ci-runner:26.8.0@sha256:80be478cfff66d81fa804ccc707dbeae478655d8b850f1ae06824c194bd6528e
@@ -176,29 +170,30 @@ jobs:
 
       #;< TOOL_PHPSTAN
       - name: Lint code with PHPStan
-        # PHPStan emits one format per run, so the console run is repeated to
-        # carry the step's exit code.
+        # PHPStan emits one format per run, so the annotating run is repeated
+        # to carry the step's exit code.
         run: |
           docker compose exec -T cli sh -c 'vendor/bin/phpstan --no-progress --error-format=checkstyle > .logs/lint/phpstan.xml' || true
-          docker compose exec -T cli vendor/bin/phpstan
+          docker compose exec -T cli vendor/bin/phpstan --no-progress --error-format=github
         continue-on-error: ${{ vars.VORTEX_CI_PHPSTAN_IGNORE_FAILURE == '1' }}
       #;> TOOL_PHPSTAN
 
       #;< TOOL_RECTOR
       - name: Lint code with Rector
-        # Rector has no checkstyle or JUnit formatter, so its own GitHub
-        # formatter produces the annotations instead of a report file.
+        # Rector has no checkstyle or JUnit formatter, so it annotates without
+        # writing a report.
         run: docker compose exec -T cli vendor/bin/rector --dry-run --output-format=github
         continue-on-error: ${{ vars.VORTEX_CI_RECTOR_IGNORE_FAILURE == '1' }}
       #;> TOOL_RECTOR
 
       #;< TOOL_TWIG_CS_FIXER
       - name: Lint code with Twig CS Fixer
-        # Twig CS Fixer emits one format per run, so the console run is
-        # repeated to carry the step's exit code.
+        # Twig CS Fixer emits one format per run, so the annotating run is
+        # repeated to carry the step's exit code. It names files by their path
+        # inside the container, which does not exist outside it.
         run: |
           docker compose exec -T cli sh -c 'vendor/bin/twig-cs-fixer --report=checkstyle > .logs/lint/twig-cs-fixer.xml' || true
-          docker compose exec -T cli vendor/bin/twig-cs-fixer
+          docker compose exec -T cli vendor/bin/twig-cs-fixer --report=github | sed 's|file=/app/|file=|'
         continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
       #;> TOOL_TWIG_CS_FIXER
 
@@ -243,40 +238,7 @@ jobs:
           path: .logs
           include-hidden-files: true
           if-no-files-found: warn
-
-      - name: Install reviewdog
-        if: ${{ !cancelled() && vars.VORTEX_CI_LINT_RESULTS_SKIP != '1' }}
-        uses: reviewdog/action-setup@d8a7baabd7f3e8544ee4dbde3ee41d0011c3a93f # v1.5.0
       #;> TOOL_CODE_QUALITY_REPORTS
-
-      #;< TOOL_PHPCS
-      - name: Publish PHPCS results to GitHub Checks
-        if: ${{ !cancelled() && vars.VORTEX_CI_LINT_RESULTS_SKIP != '1' && hashFiles('.logs/lint/phpcs.xml') != '' }}
-        run: reviewdog -f=checkstyle -name="PHPCS" -reporter=github-check -filter-mode=nofilter -fail-level=none < .logs/lint/phpcs.xml
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # A pull request from a fork carries a read-only token that cannot
-        # create a check.
-        continue-on-error: true
-      #;> TOOL_PHPCS
-
-      #;< TOOL_PHPSTAN
-      - name: Publish PHPStan results to GitHub Checks
-        if: ${{ !cancelled() && vars.VORTEX_CI_LINT_RESULTS_SKIP != '1' && hashFiles('.logs/lint/phpstan.xml') != '' }}
-        run: reviewdog -f=checkstyle -name="PHPStan" -reporter=github-check -filter-mode=nofilter -fail-level=none < .logs/lint/phpstan.xml
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
-      #;> TOOL_PHPSTAN
-
-      #;< TOOL_TWIG_CS_FIXER
-      - name: Publish Twig CS Fixer results to GitHub Checks
-        if: ${{ !cancelled() && vars.VORTEX_CI_LINT_RESULTS_SKIP != '1' && hashFiles('.logs/lint/twig-cs-fixer.xml') != '' }}
-        run: reviewdog -f=checkstyle -name="Twig CS Fixer" -reporter=github-check -filter-mode=nofilter -fail-level=none < .logs/lint/twig-cs-fixer.xml
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
-      #;> TOOL_TWIG_CS_FIXER
 
   #;< !PROVISION_TYPE_PROFILE
   database:

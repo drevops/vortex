@@ -241,18 +241,18 @@ Secrets and variables → Actions → Variables**.
 
 ### Code quality results
 
-PHPCS, PHPStan and Twig CS Fixer write a checkstyle report to `.logs/lint/`,
-and [reviewdog](https://github.com/reviewdog/reviewdog) publishes each one as a
-check. Every finding is annotated against its own file and line, so a
-coding-standards failure no longer needs the job log to locate it.
-The reports are also uploaded as the `lint-artifacts` artifact.
+PHPStan, Rector and Twig CS Fixer run with their own GitHub Actions output
+format, so each finding is annotated against its own file and line and a
+coding-standards failure no longer needs the job log to locate it. No extra
+action or token is involved: the annotation is the tool's own output.
 
-Rector annotates through its own GitHub output format and writes no report,
-because it offers neither a checkstyle nor a JUnit formatter.
+PHPCS, PHPStan and Twig CS Fixer also write a checkstyle report to
+`.logs/lint/`, uploaded as the `lint-artifacts` artifact. Rector writes no
+report, because it offers neither a checkstyle nor a JUnit formatter.
 
-Each tool keeps its console output and its
-`VORTEX_CI_<TOOL>_IGNORE_FAILURE` behavior. A pull request from a fork carries a
-read-only token that cannot create a check, so there the publishing step reports
-a warning and the job continues. To disable publishing, set
-`VORTEX_CI_LINT_RESULTS_SKIP` to `1` in **Settings → Secrets and variables →
-Actions → Variables**.
+PHPCS is the one tool with no GitHub output format, so its findings are read
+from the artifact rather than from an annotation.
+
+Each tool keeps its `VORTEX_CI_<TOOL>_IGNORE_FAILURE` behavior. The annotating
+tools print the annotation format instead of their usual table, so the job log
+lists the same findings that appear on the diff.
