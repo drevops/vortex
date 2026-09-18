@@ -1,11 +1,11 @@
-@@ -138,10 +138,6 @@
-         run: docker compose exec -T cli composer normalize --dry-run
-         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE == '1' }}
+@@ -141,10 +141,6 @@
+       - name: Prepare code quality report directory
+         run: docker compose exec -T cli mkdir -p .logs/lint
  
 -      - name: Lint code with PHPCS
--        run: docker compose exec -T cli vendor/bin/phpcs
+-        run: docker compose exec -T cli vendor/bin/phpcs --report-full --report-checkstyle=.logs/lint/phpcs.xml
 -        continue-on-error: ${{ vars.VORTEX_CI_PHPCS_IGNORE_FAILURE == '1' }}
 -
        - name: Lint code with PHPStan
-         run: docker compose exec -T cli vendor/bin/phpstan
-         continue-on-error: ${{ vars.VORTEX_CI_PHPSTAN_IGNORE_FAILURE == '1' }}
+         # PHPStan emits one format per run, so the annotating run is repeated
+         # to carry the step's exit code.

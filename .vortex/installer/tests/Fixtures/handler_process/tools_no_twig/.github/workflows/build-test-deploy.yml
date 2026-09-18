@@ -1,9 +1,14 @@
-@@ -150,10 +150,6 @@
-         run: docker compose exec -T cli vendor/bin/rector --dry-run
+@@ -159,15 +159,6 @@
+         run: docker compose exec -T cli vendor/bin/rector --dry-run --output-format=github
          continue-on-error: ${{ vars.VORTEX_CI_RECTOR_IGNORE_FAILURE == '1' }}
  
 -      - name: Lint code with Twig CS Fixer
--        run: docker compose exec -T cli vendor/bin/twig-cs-fixer
+-        # Twig CS Fixer emits one format per run, so the annotating run is
+-        # repeated to carry the step's exit code. It names files by their path
+-        # inside the container, which does not exist outside it.
+-        run: |
+-          docker compose exec -T cli sh -c 'vendor/bin/twig-cs-fixer --report=checkstyle > .logs/lint/twig-cs-fixer.xml' || true
+-          docker compose exec -T cli vendor/bin/twig-cs-fixer --report=github | sed 's|file=/app/|file=|'
 -        continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
 -
        - name: Lint code with Gherkin Lint

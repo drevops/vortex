@@ -1,4 +1,4 @@
-@@ -310,7 +310,6 @@
+@@ -346,7 +346,6 @@
        # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
        VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
        VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
@@ -6,7 +6,7 @@
        VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        # Runs on every instance, using the `p<instance index - offset>` profile.
-@@ -421,7 +420,6 @@
+@@ -457,7 +456,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -14,7 +14,7 @@
  
        - name: Provision site
          run: |
-@@ -434,11 +432,6 @@
+@@ -470,11 +468,6 @@
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30

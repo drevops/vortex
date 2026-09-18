@@ -6,7 +6,7 @@
  
        - name: Validate Composer configuration is normalized
          run: docker compose exec -T cli composer normalize --dry-run
-@@ -157,15 +156,6 @@
+@@ -171,15 +170,6 @@
        - name: Lint code with Gherkin Lint
          run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
          continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
@@ -20,5 +20,5 @@
 -        run: docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
 -        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
-   database:
-     runs-on: ubuntu-latest
+       - name: Process code quality reports
+         if: always()

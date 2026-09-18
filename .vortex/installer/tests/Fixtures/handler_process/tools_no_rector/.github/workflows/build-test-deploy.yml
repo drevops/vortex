@@ -1,11 +1,13 @@
-@@ -146,10 +146,6 @@
-         run: docker compose exec -T cli vendor/bin/phpstan
+@@ -153,12 +153,6 @@
+           docker compose exec -T cli vendor/bin/phpstan --no-progress --error-format=github
          continue-on-error: ${{ vars.VORTEX_CI_PHPSTAN_IGNORE_FAILURE == '1' }}
  
 -      - name: Lint code with Rector
--        run: docker compose exec -T cli vendor/bin/rector --dry-run
+-        # Rector has no checkstyle or JUnit formatter, so it annotates without
+-        # writing a report.
+-        run: docker compose exec -T cli vendor/bin/rector --dry-run --output-format=github
 -        continue-on-error: ${{ vars.VORTEX_CI_RECTOR_IGNORE_FAILURE == '1' }}
 -
        - name: Lint code with Twig CS Fixer
-         run: docker compose exec -T cli vendor/bin/twig-cs-fixer
-         continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
+         # Twig CS Fixer emits one format per run, so the annotating run is
+         # repeated to carry the step's exit code. It names files by their path

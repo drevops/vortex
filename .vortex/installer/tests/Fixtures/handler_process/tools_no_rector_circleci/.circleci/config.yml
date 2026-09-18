@@ -148,16 +148,28 @@ jobs:
           command: docker compose exec -T cli composer normalize --dry-run || [ "${VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
+          name: Prepare code quality report directory
+          command: docker compose exec -T cli mkdir -p .logs/lint
+
+      - run:
           name: Lint code with PHPCS
-          command: docker compose exec -T cli vendor/bin/phpcs || [ "${VORTEX_CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: docker compose exec -T cli vendor/bin/phpcs --report-full --report-checkstyle=.logs/lint/phpcs.xml || [ "${VORTEX_CI_PHPCS_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Lint code with PHPStan
-          command: docker compose exec -T cli vendor/bin/phpstan || [ "${VORTEX_CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
+          # PHPStan emits one format per run, so the console run is repeated to
+          # carry the step's exit code.
+          command: |
+            docker compose exec -T cli sh -c 'vendor/bin/phpstan --no-progress --error-format=checkstyle > .logs/lint/phpstan.xml' || true
+            docker compose exec -T cli vendor/bin/phpstan || [ "${VORTEX_CI_PHPSTAN_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Lint code with Twig CS Fixer
-          command: docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]
+          # Twig CS Fixer emits one format per run, so the console run is
+          # repeated to carry the step's exit code.
+          command: |
+            docker compose exec -T cli sh -c 'vendor/bin/twig-cs-fixer --report=checkstyle > .logs/lint/twig-cs-fixer.xml' || true
+            docker compose exec -T cli vendor/bin/twig-cs-fixer || [ "${VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Lint code with Gherkin Lint
@@ -172,6 +184,23 @@ jobs:
           command: |
             [ "${VORTEX_FRONTEND_BUILD_SKIP:-0}" -eq 1 ] && exit 0
             docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint" || [ "${VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Process code quality reports
+          command: |
+            mkdir -p "${VORTEX_CI_ARTIFACTS}"
+            if docker compose ps --services --filter "status=running" | grep -q cli && docker compose exec -T cli test -d /app/.logs; then
+               docker compose --progress quiet cp cli:/app/.logs/. "${VORTEX_CI_ARTIFACTS}/"
+            fi
+            # Reports name files by their path inside the container, which
+            # does not exist outside it.
+            if [ -d "${VORTEX_CI_ARTIFACTS}/lint" ]; then
+              find "${VORTEX_CI_ARTIFACTS}/lint" -name '*.xml' -exec sed -i 's| name="/app/| name="|g' {} +
+            fi
+          when: always
+
+      - store_artifacts:
+          path: *artifacts
 
   # Audit job runs in its own workflow, independently of the commit workflow.
   audit:

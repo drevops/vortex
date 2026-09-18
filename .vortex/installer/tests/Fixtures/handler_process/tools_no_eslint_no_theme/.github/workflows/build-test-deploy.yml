@@ -6,7 +6,7 @@
  
        - name: Validate Composer configuration is normalized
          run: docker compose exec -T cli composer normalize --dry-run
-@@ -158,15 +157,6 @@
+@@ -172,15 +171,6 @@
          run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
          continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
  
@@ -19,10 +19,10 @@
 -        run: docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
 -        continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
 -
-   database:
-     runs-on: ubuntu-latest
-     if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
-@@ -312,7 +302,6 @@
+       - name: Process code quality reports
+         if: always()
+         run: |
+@@ -348,7 +338,6 @@
        VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
        VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -30,7 +30,7 @@
        # Runs on every instance, using the `p<instance index - offset>` profile.
        VORTEX_CI_IS_BEHAT_RUNNER: true
        # Subtracted from the instance index to derive the profile number. Raise
-@@ -499,18 +488,6 @@
+@@ -535,18 +524,6 @@
            fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
