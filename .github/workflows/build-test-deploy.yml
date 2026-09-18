@@ -657,6 +657,11 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+      # Placed after the test steps so a dirty tree never suppresses them.
+      - name: Check that the build left a clean working tree
+        run: ./vendor/bin/vortex-check-worktree-changes
+        continue-on-error: ${{ vars.VORTEX_CI_WORKTREE_CHANGES_IGNORE_FAILURE == '1' }}
+
       - name: Setup tmate session
         if: ${{ !cancelled() && github.event.inputs.enable_terminal }}
         uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 # v3

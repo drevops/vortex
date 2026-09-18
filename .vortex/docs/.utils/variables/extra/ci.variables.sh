@@ -78,6 +78,9 @@ VORTEX_CI_BEHAT_PROFILE=
 # Ignore Jest test failures.
 VORTEX_CI_JEST_IGNORE_FAILURE=0
 
+# Ignore working tree check failures.
+VORTEX_CI_WORKTREE_CHANGES_IGNORE_FAILURE=0
+
 # Directory to store test results in CI.
 VORTEX_CI_TEST_RESULTS=/tmp/tests
 

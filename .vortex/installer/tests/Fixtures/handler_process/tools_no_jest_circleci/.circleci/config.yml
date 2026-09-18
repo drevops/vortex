@@ -493,6 +493,11 @@ jobs:
           paths:
             - code
 
+      # Placed after the test steps so a dirty tree never suppresses them.
+      - run:
+          name: Check that the build left a clean working tree
+          command: ./vendor/bin/vortex-check-worktree-changes || [ "${VORTEX_CI_WORKTREE_CHANGES_IGNORE_FAILURE:-0}" -eq 1 ]
+
   # Deploy primary branches.
   deploy: &job_deploy
     <<: *runner_config

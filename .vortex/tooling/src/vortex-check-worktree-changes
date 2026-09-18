@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+##
+# Check that the working tree has no uncommitted or untracked files.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Paths excluded from the check as a comma-separated list of Git pathspec
+# patterns.
+#
+# The defaults cover what the CI pipeline itself drops into the working tree and
+# nothing else: every `docker-compose.yml`, which is rewritten in place to run in
+# CI; the `db_cache_*` database cache keys; and the `codecov` uploader with its
+# two signature files. These exist only during a CI run, so they are listed here
+# rather than in `.gitignore`, which a checkout carries everywhere. Paths ignored
+# by Git are never reported and need no entry.
+VORTEX_CHECK_WORKTREE_CHANGES_IGNORE="${VORTEX_CHECK_WORKTREE_CHANGES_IGNORE:-docker-compose.yml,*/docker-compose.yml,db_cache_*,codecov,codecov.SHA256SUM,codecov.SHA256SUM.sig}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+# shellcheck disable=SC2043
+for cmd in git; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
+
+info "Started working tree check."
+
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || fail "The current directory is not a Git repository."
+
+git_args=(status --porcelain -- .)
+
+while IFS= read -r pattern; do
+  pattern="$(echo "${pattern}" | xargs)"
+  [ -z "${pattern}" ] && continue
+  git_args+=(":(exclude)${pattern}")
+  note "Ignoring \"${pattern}\"."
+done <<<"$(echo "${VORTEX_CHECK_WORKTREE_CHANGES_IGNORE}" | tr ',' '\n')"
+
+changes="$(git "${git_args[@]}")"
+
+if [ -n "${changes}" ]; then
+  note "The build modified or created these files:"
+  printf "%s\n" "${changes}"
+  note 'Run "ahoy build" locally and commit the resulting changes.'
+  note "Add paths that are generated during the build and are not committed to VORTEX_CHECK_WORKTREE_CHANGES_IGNORE."
+  fail "The build left changes in the working tree."
+fi
+
+pass "Finished working tree check."

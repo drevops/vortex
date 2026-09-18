@@ -20,6 +20,7 @@
         "php": ">=8.2"
     },
     "bin": [
+        "src/vortex-check-worktree-changes",
         "src/vortex-deploy",
         "src/vortex-doctor",
         "src/vortex-export-db",
