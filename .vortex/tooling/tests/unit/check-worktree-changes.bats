@@ -65,13 +65,29 @@ load ../_helper.bash
   echo "# Processed to run in CI." >>docker-compose.yml
   touch web/sites/default/docker-compose.yml
   touch db_cache_branch db_cache_timestamp
+  touch codecov codecov.SHA256SUM codecov.SHA256SUM.sig
 
   run .vortex/tooling/src/vortex-check-worktree-changes
   assert_success
   assert_output_contains 'Ignoring "docker-compose.yml".'
   assert_output_contains 'Ignoring "*/docker-compose.yml".'
   assert_output_contains 'Ignoring "db_cache_*".'
+  assert_output_contains 'Ignoring "codecov".'
+  assert_output_contains 'Ignoring "codecov.SHA256SUM".'
+  assert_output_contains 'Ignoring "codecov.SHA256SUM.sig".'
   assert_output_contains "Finished working tree check."
+
+  popd >/dev/null
+}
+
+@test "check-worktree-changes: shipped ignore list does not cover the Codecov config file" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  touch codecov.yml
+
+  run .vortex/tooling/src/vortex-check-worktree-changes
+  assert_failure
+  assert_output_contains "?? codecov.yml"
 
   popd >/dev/null
 }

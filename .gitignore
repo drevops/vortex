@@ -67,13 +67,6 @@ web/themes/**/build
 .phpunit.cache
 .twig-cs-fixer.cache
 
-#;< CODE_COVERAGE_PROVIDER_CODECOV
-# Uploader binary that the Codecov action downloads into the workspace root.
-/codecov
-/codecov.SHA256SUM
-/codecov.SHA256SUM.sig
-#;> CODE_COVERAGE_PROVIDER_CODECOV
-
 # Local override files.
 /docker-compose.override.yml
 /.env.local

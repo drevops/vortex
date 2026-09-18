@@ -118,6 +118,9 @@ untracked files, and prints each of them with its Git status:
        Ignoring "docker-compose.yml".
        Ignoring "*/docker-compose.yml".
        Ignoring "db_cache_*".
+       Ignoring "codecov".
+       Ignoring "codecov.SHA256SUM".
+       Ignoring "codecov.SHA256SUM.sig".
        The build modified or created these files:
  M config/default/core.extension.yml
 ?? config/default/views.view.recent_content.yml
@@ -132,14 +135,16 @@ generated output. Everything else goes into
 [Git pathspec](https://git-scm.com/docs/gitglossary#def_pathspec) patterns:
 
 ```shell
-VORTEX_CHECK_WORKTREE_CHANGES_IGNORE=docker-compose.yml,*/docker-compose.yml,db_cache_*,web/sites/default/settings.generated.php
+VORTEX_CHECK_WORKTREE_CHANGES_IGNORE=docker-compose.yml,*/docker-compose.yml,db_cache_*,codecov,codecov.SHA256SUM,codecov.SHA256SUM.sig,web/sites/default/settings.generated.php
 ```
 
-The default value covers the paths the pipeline itself writes: every
-`docker-compose.yml` in the tree, which the `Process the codebase to run in CI`
-step rewrites in place, and the `db_cache_*` database cache keys GitHub Actions
-writes into the repository root. Setting the variable replaces the default
-rather than extending it, so keep those entries when adding your own.
+The default value covers what the pipeline itself drops into the working tree:
+every `docker-compose.yml` in the tree, which the
+`Process the codebase to run in CI` step rewrites in place; the `db_cache_*`
+database cache keys; and the `codecov` uploader with its two signature files.
+Those exist only during a continuous integration run, which is why they are
+excluded here rather than in `.gitignore`. Setting the variable replaces the
+default rather than extending it, so keep those entries when adding your own.
 
 The check reads the working tree on the runner, not the codebase inside the
 `cli` container.

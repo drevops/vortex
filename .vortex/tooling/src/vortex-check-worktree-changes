@@ -14,11 +14,13 @@ set -eu
 # Paths excluded from the check as a comma-separated list of Git pathspec
 # patterns.
 #
-# The defaults cover the paths the CI pipeline itself writes: it rewrites every
-# `docker-compose.yml` in the tree in place to run in CI and, on GitHub Actions,
-# writes the database cache keys into the repository root. Paths ignored by Git
-# are never reported, so they need no entry here.
-VORTEX_CHECK_WORKTREE_CHANGES_IGNORE="${VORTEX_CHECK_WORKTREE_CHANGES_IGNORE:-docker-compose.yml,*/docker-compose.yml,db_cache_*}"
+# The defaults cover what the CI pipeline itself drops into the working tree and
+# nothing else: every `docker-compose.yml`, which is rewritten in place to run in
+# CI; the `db_cache_*` database cache keys; and the `codecov` uploader with its
+# two signature files. These exist only during a CI run, so they are listed here
+# rather than in `.gitignore`, which a checkout carries everywhere. Paths ignored
+# by Git are never reported and need no entry.
+VORTEX_CHECK_WORKTREE_CHANGES_IGNORE="${VORTEX_CHECK_WORKTREE_CHANGES_IGNORE:-docker-compose.yml,*/docker-compose.yml,db_cache_*,codecov,codecov.SHA256SUM,codecov.SHA256SUM.sig}"
 
 # ------------------------------------------------------------------------------
 
