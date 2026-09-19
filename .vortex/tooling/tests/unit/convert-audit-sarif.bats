@@ -9,13 +9,23 @@ load ../_helper.bash
 # Writes a 'composer audit' report fixture at the path the script reads by
 # default.
 fixture_audit_report() {
-  mkdir -p .artifacts/audit
-  printf '%s' "${1}" >.artifacts/audit/composer-audit.json
+  mkdir -p .logs/audit
+  printf '%s' "${1}" >.logs/audit/composer-audit.json
+}
+
+# Writes an 'npm audit --json' report fixture and points the script at it.
+fixture_npm_report() {
+  mkdir -p .logs/audit
+  printf '%s' "${1}" >.logs/audit/npm-audit.json
+
+  export VORTEX_CONVERT_AUDIT_SARIF_FORMAT="npm"
+  export VORTEX_CONVERT_AUDIT_SARIF_FILE=".logs/audit/npm-audit.json"
+  export VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE=".logs/audit/composer-audit.sarif"
 }
 
 # Reads a value out of the produced SARIF report.
 sarif() {
-  jq -r "${1}" .artifacts/audit/composer-audit.sarif
+  jq -r "${1}" .logs/audit/composer-audit.sarif
 }
 
 @test "convert-audit-sarif: Converts an advisory carrying a link, a CVE and a severity" {
@@ -41,11 +51,11 @@ sarif() {
   run .vortex/tooling/src/vortex-convert-audit-sarif
   assert_success
 
-  assert_output_contains "Started Composer audit report conversion."
+  assert_output_contains "Started audit report conversion."
   assert_output_contains "Findings:  1"
-  assert_output_contains "Finished Composer audit report conversion."
+  assert_output_contains "Finished audit report conversion."
 
-  assert_file_exists ".artifacts/audit/composer-audit.sarif"
+  assert_file_exists ".logs/audit/composer-audit.sarif"
 
   assert_equal "2.1.0" "$(sarif '.version')"
   assert_equal "Composer Audit" "$(sarif '.runs[0].tool.driver.name')"
@@ -54,7 +64,7 @@ sarif() {
   assert_equal "error" "$(sarif '.runs[0].results[0].level')"
   assert_equal "drupal/core: Access bypass (affects >=11.0.0,<11.4.6)." "$(sarif '.runs[0].results[0].message.text')"
   assert_equal "composer.lock" "$(sarif '.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri')"
-  assert_equal "PKSA-1111-2222-3333|drupal/core" "$(sarif '.runs[0].results[0].partialFingerprints["vortexComposerAudit/v1"]')"
+  assert_equal "PKSA-1111-2222-3333|drupal/core" "$(sarif '.runs[0].results[0].partialFingerprints["vortexAudit/v1"]')"
 
   assert_equal "Access bypass" "$(sarif '.runs[0].tool.driver.rules[0].shortDescription.text')"
   assert_equal "drupal/core is affected by CVE-2026-0001. Affected versions: >=11.0.0,<11.4.6." "$(sarif '.runs[0].tool.driver.rules[0].fullDescription.text')"
@@ -218,7 +228,7 @@ sarif() {
   assert_equal "composer-audit/policy-malware" "$(sarif '.runs[0].results[0].ruleId')"
   assert_equal "error" "$(sarif '.runs[0].results[0].level')"
   assert_equal "vendor/malicious matched the malware dependency policy (== 1.0.0). Ships a backdoor." "$(sarif '.runs[0].results[0].message.text')"
-  assert_equal "composer-audit/policy-malware|vendor/malicious" "$(sarif '.runs[0].results[0].partialFingerprints["vortexComposerAudit/v1"]')"
+  assert_equal "composer-audit/policy-malware|vendor/malicious" "$(sarif '.runs[0].results[0].partialFingerprints["vortexAudit/v1"]')"
   assert_equal "https://example.com/malware" "$(sarif '.runs[0].tool.driver.rules[0].helpUri')"
 
   assert_equal "composer-audit/policy-internal" "$(sarif '.runs[0].results[1].ruleId')"
@@ -322,13 +332,123 @@ sarif() {
   popd >/dev/null || exit 1
 }
 
+@test "convert-audit-sarif: Converts an npm report, splitting the via array into findings" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_npm_report '{
+    "auditReportVersion": 2,
+    "vulnerabilities": {
+      "minimist": {
+        "name": "minimist",
+        "severity": "critical",
+        "via": [
+          {"title": "Prototype Pollution", "url": "https://github.com/advisories/GHSA-vh95-rmgr-6w4m", "severity": "moderate", "cvss": {"score": 5.6}, "range": ">=1.0.0 <1.2.3"},
+          {"title": "Prototype Pollution", "url": "https://github.com/advisories/GHSA-xvch-5gv4-984h", "severity": "critical", "cvss": {"score": 9.8}, "range": ">=1.0.0 <1.2.6"},
+          "another-package"
+        ]
+      }
+    }
+  }'
+
+  run .vortex/tooling/src/vortex-convert-audit-sarif
+  assert_success
+
+  assert_output_contains "Format:    npm"
+  assert_output_contains "Findings:  2"
+
+  assert_equal "npm audit" "$(sarif '.runs[0].tool.driver.name')"
+
+  assert_equal "GHSA-vh95-rmgr-6w4m" "$(sarif '.runs[0].results[0].ruleId')"
+  assert_equal "warning" "$(sarif '.runs[0].results[0].level')"
+  assert_equal "5.6" "$(sarif '.runs[0].tool.driver.rules[0].properties["security-severity"]')"
+  assert_equal "security npm" "$(sarif '.runs[0].tool.driver.rules[0].properties.tags | join(" ")')"
+  assert_equal "https://github.com/advisories/GHSA-vh95-rmgr-6w4m" "$(sarif '.runs[0].tool.driver.rules[0].helpUri')"
+
+  assert_equal "GHSA-xvch-5gv4-984h" "$(sarif '.runs[0].results[1].ruleId')"
+  assert_equal "error" "$(sarif '.runs[0].results[1].level')"
+  assert_equal "9.8" "$(sarif '.runs[0].tool.driver.rules[1].properties["security-severity"]')"
+  assert_equal "minimist: Prototype Pollution (affects >=1.0.0 <1.2.6)." "$(sarif '.runs[0].results[1].message.text')"
+  assert_equal "GHSA-xvch-5gv4-984h|minimist" "$(sarif '.runs[0].results[1].partialFingerprints["vortexAudit/v1"]')"
+
+  unset VORTEX_CONVERT_AUDIT_SARIF_FORMAT VORTEX_CONVERT_AUDIT_SARIF_FILE VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE
+
+  popd >/dev/null || exit 1
+}
+
+@test "convert-audit-sarif: Falls back to the npm severity word when there is no CVSS score" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_npm_report '{
+    "auditReportVersion": 2,
+    "vulnerabilities": {
+      "thing": {
+        "name": "thing",
+        "severity": "info",
+        "via": [
+          {"title": "Informational", "url": "https://github.com/advisories/GHSA-0000-0000-0000", "severity": "info", "range": "*"}
+        ]
+      }
+    }
+  }'
+
+  run .vortex/tooling/src/vortex-convert-audit-sarif
+  assert_success
+
+  assert_equal "note" "$(sarif '.runs[0].results[0].level')"
+  assert_equal "null" "$(sarif '.runs[0].tool.driver.rules[0].properties["security-severity"]')"
+
+  unset VORTEX_CONVERT_AUDIT_SARIF_FORMAT VORTEX_CONVERT_AUDIT_SARIF_FILE VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE
+
+  popd >/dev/null || exit 1
+}
+
+@test "convert-audit-sarif: Locates an npm finding at its lock file entry" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  printf '%s\n' '{' '    "lockfileVersion": 3,' '    "packages": {' '        "": {},' '        "node_modules/minimist": {' '            "version": "1.2.0"' '        }' '    }' '}' >npm.lock.json
+
+  fixture_npm_report '{
+    "auditReportVersion": 2,
+    "vulnerabilities": {
+      "minimist": {"name": "minimist", "severity": "critical", "via": [{"title": "Issue", "url": "https://github.com/advisories/GHSA-1", "severity": "critical", "range": "*"}]}
+    }
+  }'
+
+  export VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE="npm.lock.json"
+
+  run .vortex/tooling/src/vortex-convert-audit-sarif
+  assert_success
+
+  assert_equal "npm.lock.json" "$(sarif '.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri')"
+  assert_equal "5" "$(sarif '.runs[0].results[0].locations[0].physicalLocation.region.startLine')"
+
+  unset VORTEX_CONVERT_AUDIT_SARIF_FORMAT VORTEX_CONVERT_AUDIT_SARIF_FILE VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE
+
+  popd >/dev/null || exit 1
+}
+
+@test "convert-audit-sarif: Fails on an unknown report format" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_CONVERT_AUDIT_SARIF_FORMAT="yarn"
+
+  run .vortex/tooling/src/vortex-convert-audit-sarif
+  assert_failure
+
+  assert_output_contains "Unknown report format yarn. Use 'composer' or 'npm'."
+
+  unset VORTEX_CONVERT_AUDIT_SARIF_FORMAT
+
+  popd >/dev/null || exit 1
+}
+
 @test "convert-audit-sarif: Fails when the audit report is missing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   run .vortex/tooling/src/vortex-convert-audit-sarif
   assert_failure
 
-  assert_output_contains "Audit report .artifacts/audit/composer-audit.json does not exist."
+  assert_output_contains "Audit report .logs/audit/composer-audit.json does not exist."
 
   popd >/dev/null || exit 1
 }
@@ -341,7 +461,7 @@ sarif() {
   run .vortex/tooling/src/vortex-convert-audit-sarif
   assert_failure
 
-  assert_output_contains "Audit report .artifacts/audit/composer-audit.json is not valid JSON."
+  assert_output_contains "Audit report .logs/audit/composer-audit.json is not valid JSON."
 
   popd >/dev/null || exit 1
 }

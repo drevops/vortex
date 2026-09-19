@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 ##
-# Convert a 'composer audit' JSON report into a SARIF report.
+# Convert a dependency audit JSON report into a SARIF report.
 #
-# SARIF is the interchange format GitHub code scanning ingests, and
-# 'composer audit' has no SARIF formatter of its own.
+# SARIF is the interchange format GitHub code scanning ingests, and neither
+# 'composer audit' nor 'npm audit' has a SARIF formatter of its own.
 #
 # shellcheck disable=SC1090,SC1091
 
@@ -12,13 +12,17 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# Path to the 'composer audit --format=json' report to convert.
-VORTEX_CONVERT_AUDIT_SARIF_FILE="${VORTEX_CONVERT_AUDIT_SARIF_FILE:-.artifacts/audit/composer-audit.json}"
+# Format of the report to convert. Either 'composer' or 'npm'.
+VORTEX_CONVERT_AUDIT_SARIF_FORMAT="${VORTEX_CONVERT_AUDIT_SARIF_FORMAT:-composer}"
+
+# Path to the audit report to convert.
+VORTEX_CONVERT_AUDIT_SARIF_FILE="${VORTEX_CONVERT_AUDIT_SARIF_FILE:-.logs/audit/composer-audit.json}"
 
 # Path of the SARIF report to write.
-VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE="${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE:-.artifacts/audit/composer-audit.sarif}"
+VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE="${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE:-.logs/audit/composer-audit.sarif}"
 
-# Path to the lock file that findings are located in.
+# Path to the lock file that findings are located in. Set this to the npm lock
+# file when converting an npm report.
 VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE="${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE:-composer.lock}"
 
 # ------------------------------------------------------------------------------
@@ -32,26 +36,40 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 # @formatter:on
 
 # Map each package to the line it is declared on in the lock file, so a finding
-# points at the package entry rather than at the top of the file. The first
-# declaration wins, which is why the merge runs over the reversed list.
+# points at the package entry rather than at the top of the file. Composer
+# names a package in a "name" member, npm keys it by its install path. The
+# first declaration wins, which is why the merge runs over the reversed list.
 lock_lines() {
   if [ ! -f "${1}" ]; then
     printf '{}'
     return
   fi
 
+  if [ "${2}" = "npm" ]; then
+    grep -nE '^[[:space:]]*"node_modules/[^"]+": \{$' "${1}" |
+      sed -E 's#^([0-9]+):[[:space:]]*"node_modules/([^"]+)": \{$#{"\2":\1}#' |
+      jq -s 'reverse | add // {}'
+    return
+  fi
+
   grep -nE '^[[:space:]]*"name": "[^"/]+/[^"]+",$' "${1}" |
-    sed -E 's/^([0-9]+):[[:space:]]*"name": "([^"]+)",$/{"\2":\1}/' |
+    sed -E 's#^([0-9]+):[[:space:]]*"name": "([^"]+)",$#{"\2":\1}#' |
     jq -s 'reverse | add // {}'
 }
 
-info "Started Composer audit report conversion."
+info "Started audit report conversion."
 
 command -v jq >/dev/null || fail "jq command is not available."
+
+case "${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}" in
+  composer | npm) ;;
+  *) fail "Unknown report format ${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}. Use 'composer' or 'npm'." ;;
+esac
 
 [ -f "${VORTEX_CONVERT_AUDIT_SARIF_FILE}" ] || fail "Audit report ${VORTEX_CONVERT_AUDIT_SARIF_FILE} does not exist."
 jq -e . "${VORTEX_CONVERT_AUDIT_SARIF_FILE}" >/dev/null 2>&1 || fail "Audit report ${VORTEX_CONVERT_AUDIT_SARIF_FILE} is not valid JSON."
 
+note "Format:    ${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}"
 note "Report:    ${VORTEX_CONVERT_AUDIT_SARIF_FILE}"
 note "Lock file: ${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}"
 
@@ -59,17 +77,29 @@ task "Converting audit findings to SARIF."
 
 mkdir -p "$(dirname "${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE}")"
 
-# Advisories already dismissed through 'config.policy' arrive under
+# Composer advisories already dismissed through 'config.policy' arrive under
 # 'ignored-advisories' and are left out, so the report holds the same set of
 # findings the audit itself fails on.
 jq \
-  --argjson lock "$(lock_lines "${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}")" \
+  --argjson lock "$(lock_lines "${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}" "${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}")" \
   --arg lock_file "${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}" \
+  --arg format "${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}" \
   --arg abandoned_rule "composer-audit/abandoned-package" \
   '
   def text($key; $default): (.[$key] // null) as $v | if ($v | type) == "string" then $v else $default end;
 
-  def advisories:
+  def severity_level: if . == "critical" or . == "high" then "error" elif . == "info" then "note" else "warning" end;
+
+  def severity_score:
+    if . == "critical" then "9.5"
+    elif . == "high" then "8.0"
+    elif . == "medium" or . == "moderate" then "5.5"
+    elif . == "low" then "3.0"
+    else null end;
+
+  # Composer groups advisories by package and names the advisory itself; the
+  # identifier falls back through CVE to the Packagist advisory id.
+  def composer_findings:
     (.advisories // {})
     | if type == "object" then [.[] | select(type == "array") | .[] | select(type == "object")] else [] end
     | map(
@@ -89,16 +119,38 @@ jq \
             elif .cve != "" then "https://www.cve.org/CVERecord?id=" + .cve
             else "" end
           )
-        | .level = (if .severity == "critical" or .severity == "high" then "error" else "warning" end)
-        | .score = (
-            if .severity == "critical" then "9.5"
-            elif .severity == "high" then "8.0"
-            elif .severity == "medium" or .severity == "moderate" then "5.5"
-            elif .severity == "low" then "3.0"
-            else null end
-          )
-        | .description = (.package + " is affected by " + .reference + ". Affected versions: " + .versions + ".")
+        | .level = (.severity | severity_level)
+        | .score = (.severity | severity_score)
       );
+
+  # npm nests advisories under each package in "via", where an entry is either
+  # an advisory object or the name of the package that pulls it in.
+  def npm_findings:
+    (.vulnerabilities // {})
+    | if type == "object" then to_entries else [] end
+    | map(
+        (.key) as $package
+        | ((.value // {}) | .via // [])
+        | (if type == "array" then . else [] end)
+        | map(
+            select(type == "object")
+            | {
+                package: $package,
+                link: text("url"; ""),
+                title: text("title"; "Known security advisory"),
+                versions: text("range"; "*"),
+                severity: (text("severity"; "") | ascii_downcase),
+                cvss: ((.cvss.score? // null) | if type == "number" then . else null end)
+              }
+            | .id = (if .link == "" then "npm-audit/advisory" else (.link | split("/") | last) end)
+            | .reference = .id
+            | .level = (.severity | severity_level)
+            | .score = (if .cvss == null then (.severity | severity_score) else (.cvss | tostring) end)
+          )
+      )
+    | flatten;
+
+  def findings: if $format == "npm" then npm_findings else composer_findings end;
 
   def abandoned:
     (.abandoned // {})
@@ -132,7 +184,7 @@ jq \
   # location, so alerts survive the lock file moving underneath them.
   def location($package): {physicalLocation: {artifactLocation: {uri: $lock_file}, region: {startLine: ($lock[$package] // 1)}}};
 
-  advisories as $advisories
+  findings as $findings
   | abandoned as $abandoned
   | policies as $policies
   | {
@@ -142,20 +194,21 @@ jq \
         {
           tool: {
             driver: {
-              name: "Composer Audit",
-              informationUri: "https://getcomposer.org/doc/03-cli.md#audit",
+              name: (if $format == "npm" then "npm audit" else "Composer Audit" end),
+              informationUri: (if $format == "npm" then "https://docs.npmjs.com/cli/commands/npm-audit" else "https://getcomposer.org/doc/03-cli.md#audit" end),
               rules: (
-                ($advisories | map(
-                  {
+                ($findings | map(
+                  (.package + " is affected by " + .reference + ". Affected versions: " + .versions + ".") as $description
+                  | {
                     id: .id,
                     shortDescription: {text: .title},
-                    fullDescription: {text: .description},
+                    fullDescription: {text: $description},
                     help: {
-                      text: .description,
-                      markdown: (if .link == "" then .description else .description + " See [" + .reference + "](" + .link + ")." end)
+                      text: $description,
+                      markdown: (if .link == "" then $description else $description + " See [" + .reference + "](" + .link + ")." end)
                     },
                     defaultConfiguration: {level: .level},
-                    properties: ({tags: ["security", "composer"]} + (if .score == null then {} else {"security-severity": .score} end))
+                    properties: ({tags: ["security", $format]} + (if .score == null then {} else {"security-severity": .score} end))
                   }
                   + (if .link == "" then {} else {helpUri: .link} end)
                 ) | map({key: .id, value: .}) | from_entries | to_entries | map(.value))
@@ -187,26 +240,26 @@ jq \
             }
           },
           results: (
-            ($advisories | map({
+            ($findings | map({
               ruleId: .id,
               level: .level,
               message: {text: (.package + ": " + .title + " (affects " + .versions + ").")},
               locations: [location(.package)],
-              partialFingerprints: {"vortexComposerAudit/v1": (.id + "|" + .package)}
+              partialFingerprints: {"vortexAudit/v1": (.id + "|" + .package)}
             }))
             + ($abandoned | map({
               ruleId: $abandoned_rule,
               level: "note",
               message: {text: (if .replacement == "" then .package + " is abandoned and suggests no replacement." else .package + " is abandoned. Use " + .replacement + " instead." end)},
               locations: [location(.package)],
-              partialFingerprints: {"vortexComposerAudit/v1": ($abandoned_rule + "|" + .package)}
+              partialFingerprints: {"vortexAudit/v1": ($abandoned_rule + "|" + .package)}
             }))
             + ($policies | map({
               ruleId: .rule,
               level: "error",
               message: {text: (.package + " matched the " + .list + " dependency policy (" + .constraint + ")." + (if .reason == "" then "" else " " + .reason end))},
               locations: [location(.package)],
-              partialFingerprints: {"vortexComposerAudit/v1": (.rule + "|" + .package)}
+              partialFingerprints: {"vortexAudit/v1": (.rule + "|" + .package)}
             }))
           )
         }
@@ -219,4 +272,4 @@ pass "Converted audit findings to SARIF."
 note "Findings:  $(jq '.runs[0].results | length' "${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE}")"
 note "Report:    ${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE}"
 
-pass "Finished Composer audit report conversion."
+pass "Finished audit report conversion."
