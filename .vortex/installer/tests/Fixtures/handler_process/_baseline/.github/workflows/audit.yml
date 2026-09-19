@@ -55,6 +55,12 @@ jobs:
   audit:
     runs-on: ubuntu-latest
 
+    permissions:
+      # The code scanning upload reads the workflow run in a private repository.
+      actions: read
+      contents: read
+      security-events: write
+
     container:
       # https://hub.docker.com/r/drevops/ci-runner
       image: drevops/ci-runner:__VERSION__
@@ -78,22 +84,91 @@ jobs:
       - name: Load environment variables from .env
         run: t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && set +a && . "${t}" && env >> "$GITHUB_ENV"
 
+      - name: Create the directory for the audit reports
+        if: ${{ !cancelled() }}
+        run: mkdir -p .logs/audit
+
       - name: Audit Composer packages
         if: ${{ !cancelled() }}
-        run: composer audit --locked
+        run: composer audit --locked --format=json | tee .logs/audit/composer-audit.json
         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}
 
       - name: Audit npm packages
         if: ${{ !cancelled() }}
-        run: npm audit --package-lock-only
+        run: npm audit --package-lock-only --json | tee .logs/audit/npm-audit.json
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
 
       - name: Audit npm packages of the theme
         if: ${{ !cancelled() }}
-        run: npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}"
+        run: npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}" --json | tee .logs/audit/npm-audit-theme.json
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
+
+      - name: Install Vortex tooling
+        if: ${{ !cancelled() }}
+        run: ./scripts/vortex-tooling.sh
+
+      - name: Convert Composer audit findings to SARIF
+        if: ${{ !cancelled() }}
+        # Reporting must not decide the workflow result; the audit steps above
+        # are what fail on findings.
+        continue-on-error: true
+        run: ./vendor/bin/vortex-convert-audit-sarif .logs/audit/composer-audit.json composer
+
+      - name: Upload Composer audit findings to code scanning
+        if: ${{ !cancelled() && hashFiles('.logs/audit/composer-audit.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@__HASH__ # __VERSION__
+        # The upload fails without a code scanning entitlement, and on fork
+        # pull requests where the token is read-only. The audit steps above are
+        # what report the findings and fail the workflow.
+        continue-on-error: true
+        with:
+          sarif_file: .logs/audit/composer-audit.sarif
+          category: composer-audit
+
+      - name: Convert npm audit findings to SARIF
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
+
+      - name: Upload npm audit findings to code scanning
+        if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@__HASH__ # __VERSION__
+        continue-on-error: true
+        with:
+          sarif_file: .logs/audit/npm-audit.sarif
+          category: npm-audit
+
+      - name: Convert theme npm audit findings to SARIF
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        run: ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit-theme.json npm "${WEBROOT}/themes/custom/${DRUPAL_THEME}/package-lock.json"
+
+      - name: Upload theme npm audit findings to code scanning
+        if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit-theme.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@__HASH__ # __VERSION__
+        continue-on-error: true
+        with:
+          sarif_file: .logs/audit/npm-audit-theme.sarif
+          category: npm-audit-theme
 
       - name: Scan for committed secrets with Gitleaks
         if: ${{ !cancelled() }}
-        run: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner
+        run: docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner --report-format sarif --report-path .logs/audit/gitleaks.sarif
         continue-on-error: ${{ vars.VORTEX_CI_GITLEAKS_IGNORE_FAILURE == '1' }}
+
+      - name: Upload Gitleaks findings to code scanning
+        if: ${{ !cancelled() && hashFiles('.logs/audit/gitleaks.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@__HASH__ # __VERSION__
+        continue-on-error: true
+        with:
+          sarif_file: .logs/audit/gitleaks.sarif
+          category: gitleaks
+
+      - name: Upload security findings as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@__HASH__ # __VERSION__
+        with:
+          name: security-findings
+          path: .logs/audit
+          include-hidden-files: true
+          if-no-files-found: ignore

@@ -74,8 +74,8 @@ on its own:
 | GitHub Actions | The `Security audit` workflow in `.github/workflows/audit.yml` |
 | CircleCI | The `audit` workflow in `.circleci/config.yml` |
 
-The workflow runs the same 4 checks in both providers, and needs neither the
-application containers nor installed dependencies:
+The workflow runs the same 4 checks in both providers, and no check needs the
+application containers or installed dependencies:
 
 - `composer audit --locked` checks the packages pinned in `composer.lock` against published security advisories
 - `npm audit --package-lock-only` checks the packages pinned in `package-lock.json` against published security advisories
@@ -100,6 +100,29 @@ merges and deployments on it, add its check to the repository's branch
 protection rules as a required status check.
 
 :::
+
+### Code scanning
+
+In GitHub Actions, every check also writes its findings as [SARIF](https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning) and uploads them to the repository's **Security → Code scanning** tab, each under its own category:
+
+| Category | Findings |
+|----------|----------|
+| `composer-audit` | `composer audit` advisories, abandoned packages and dependency policy matches |
+| `npm-audit` | `npm audit` advisories for the root `package-lock.json` |
+| `npm-audit-theme` | `npm audit` advisories for the custom theme's `package-lock.json` |
+| `gitleaks` | Committed secrets |
+
+Code scanning keeps a history of every finding, tracks whether it is open or fixed, and lets a false positive be dismissed with a recorded reason instead of a committed ignore entry.
+
+Gitleaks writes SARIF itself. Neither `composer audit` nor `npm audit` has a SARIF formatter, so each check runs once with its JSON format and pipes the output through `tee` - the report reaches the job log and a file in `.logs/audit/` in the same run. The `vortex-convert-audit-sarif` script from the [Vortex tooling package](../contributing/maintenance/tooling.mdx) then converts that file, reading the format from [`VORTEX_CONVERT_AUDIT_SARIF_FORMAT`](../development/variables.mdx#vortex_convert_audit_sarif_format).
+
+Nothing in the reporting path decides whether the build passes. The four check steps are what fail the workflow on findings, and they run before the conversion and upload steps and independently of them.
+
+Code scanning has to be available on the repository - it is included on public repositories and on private repositories with GitHub Advanced Security. Where it is not available, and on pull requests from forks where the workflow token is read-only, the upload step fails without failing the workflow. No finding is lost: the checks above still report them in the job log and still fail the workflow, and every report is attached to the run as the `security-findings` artifact.
+
+CircleCI has no code scanning destination, so the two providers are deliberately asymmetric here. Under CircleCI the same checks run and fail the `audit` workflow, but their findings live only in the job log.
+
+➡️ See [Dependency audit](../development/security/dependency-audit.mdx#dismissing-a-finding) and [Secret scanning](../development/security/secret-scanning.mdx#dismissing-a-finding) for what dismissing a finding does and does not change.
 
 ## Working tree check
 

@@ -132,6 +132,20 @@ one-off bypass while a known advisory is being addressed.
 
 ➡️ See [Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).
 
+### Where findings appear
+
+In GitHub Actions, the audit findings are also uploaded to the repository's **Security → Code scanning** tab under the `composer-audit` category. Each advisory becomes an alert carrying its severity, its affected version range and a link to the advisory, located at the package's entry in `composer.lock`. Abandoned packages are reported there as well, at note severity, and so are dependency policy matches - including Composer's built-in `malware` policy, which is active by default - since `composer audit` fails on all three.
+
+Advisories already listed under `ignore-id` are not uploaded, so the code scanning inventory holds the same set of findings the audit fails on.
+
+➡️ See [Code scanning](../../continuous-integration/README.mdx#code-scanning).
+
+### Dismissing a finding
+
+Dismissing an alert in the **Security → Code scanning** tab records a reason against that finding and removes it from the open list, which is the right tool for tracking an assessment.
+
+It does not change what the audit does. `composer audit` still reports the advisory and still fails the workflow until the advisory is added to `ignore-id` as described in [Ignoring](#ignoring). Dismiss the alert to record the assessment, and add the `ignore-id` entry to stop the build failing.
+
 ## JavaScript dependencies
 
 `npm audit` checks the packages resolved from `package-lock.json` against the advisories published in the npm registry.
@@ -210,3 +224,11 @@ one-off bypass while a known advisory is being addressed. The finding is still
 printed, so a tolerated advisory stays visible in the job log.
 
 ➡️ See [Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).
+
+#### Where npm findings appear
+
+In GitHub Actions, the two trees are uploaded to **Security → Code scanning** under separate categories, `npm-audit` for the root and `npm-audit-theme` for the custom theme, so a finding can be traced back to the tree it came from. Each entry in a package's `via` list becomes its own alert, identified by its GHSA advisory, carrying the advisory's own CVSS score and located at the package's entry in that tree's `package-lock.json`.
+
+Dismissing an alert records the assessment but does not stop the check failing; that still needs the affected version removed from the tree, as described in [Ignoring](#ignoring-1).
+
+➡️ See [Code scanning](../../continuous-integration/README.mdx#code-scanning).

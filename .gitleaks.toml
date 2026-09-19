@@ -15,6 +15,7 @@ paths = [
   '''(^|/)\.artifacts/''',
   '''(^|/)\.data/''',
   '''(^|/)\.git/''',
+  '''(^|/)\.logs/''',
   #;< VORTEX_DEV
   '''(^|/)\.vortex/''',
   #;> VORTEX_DEV
