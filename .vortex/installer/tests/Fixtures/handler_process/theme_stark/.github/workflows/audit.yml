@@ -1,18 +1,16 @@
-@@ -98,13 +98,6 @@
-           npm audit --package-lock-only --json | tee .logs/audit/npm-audit.json
+@@ -98,11 +98,6 @@
+         run: npm audit --package-lock-only --json | tee .logs/audit/npm-audit.json
          continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
  
 -      - name: Audit npm packages of the theme
 -        if: ${{ !cancelled() }}
--        run: |
--          mkdir -p .logs/audit
--          npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}" --json | tee .logs/audit/npm-audit-theme.json
+-        run: npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}" --json | tee .logs/audit/npm-audit-theme.json
 -        continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
 -
        - name: Install Vortex tooling
          if: ${{ !cancelled() }}
          run: ./scripts/vortex-tooling.sh
-@@ -149,24 +142,6 @@
+@@ -147,24 +142,6 @@
          with:
            sarif_file: .logs/audit/npm-audit.sarif
            category: npm-audit
