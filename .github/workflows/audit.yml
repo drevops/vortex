@@ -181,9 +181,6 @@ jobs:
       #;< CI_GITLEAKS
       - name: Scan for committed secrets with Gitleaks
         if: ${{ !cancelled() }}
-        # The runner host has no path matching the container's workspace, so a
-        # bind mount of the working directory would scan nothing.
-        # '--volumes-from' gives the scanner this container's own mounts.
         run: docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" ghcr.io/gitleaks/gitleaks:v8.30.1 dir . --no-banner --report-format sarif --report-path .logs/audit/gitleaks.sarif
         continue-on-error: ${{ vars.VORTEX_CI_GITLEAKS_IGNORE_FAILURE == '1' }}
 
