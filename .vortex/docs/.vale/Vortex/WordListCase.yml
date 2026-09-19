@@ -1,0 +1,12 @@
+extends: Google.WordListCase
+level: error
+swap-:
+  - "(?:e-mail|Email|E-mail)"
+  - "(?:file ?path|path ?name)"
+  - "(?:kill|terminate|abort)"
+  - admin
+  - application
+  - content type
+  - disabled?
+  - stylesheet
+  - tablet

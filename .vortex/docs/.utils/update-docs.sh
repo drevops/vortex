@@ -88,6 +88,10 @@ echo >>"${OUTPUT_FILE}"
 
 printf '%s\n' "${table}" >>"${OUTPUT_FILE}"
 
+# The 'Anchor' component registers each link target with the Docusaurus
+# broken-anchor check.
+sed "${sed_opts[@]}" 's/<a id="\([^"]*\)"><\/a>/<Anchor id="\1" \/>/g' "${OUTPUT_FILE}"
+
 sed "${sed_opts[@]}" "s/.vortex\/docs\/.utils\/variables\/extra\/environment.variables.sh/ENVIRONMENT/g" "${OUTPUT_FILE}"
 sed "${sed_opts[@]}" "s/.vortex\/docs\/.utils\/variables\/extra\/acquia.variables.sh/ACQUIA ENVIRONMENT/g" "${OUTPUT_FILE}"
 sed "${sed_opts[@]}" "s/.vortex\/docs\/.utils\/variables\/extra\/lagoon.variables.sh/LAGOON ENVIRONMENT/g" "${OUTPUT_FILE}"

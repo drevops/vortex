@@ -1,0 +1,9 @@
+extends: existence
+message: "'%s' delays the point. Remove it."
+level: error
+ignorecase: true
+tokens:
+  - as mentioned above
+  - it should be noted
+  - keep in mind
+  - please note

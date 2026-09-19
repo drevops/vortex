@@ -1,0 +1,55 @@
+extends: script
+message: "Format 'Vortex' in bold in prose: '**Vortex**'."
+level: error
+scope: raw
+script: |
+  text := import("text")
+
+  matches := []
+
+  // Markup that is not rendered as prose, or that is already bold.
+  patterns := [
+    "(?s)\\A---\\n.*?\\n---\\n",
+    "(?ms)^[ \\t]*(```|~~~).*?^[ \\t]*(```|~~~)[ \\t]*$",
+    "(?m)^[ \\t]*#{1,6} .*$",
+    "(?m)^(import|export) .*$",
+    "(?m)^[ \\t]*:::.*$",
+    "(?m)^[ \\t]*>.*$",
+    "(?m)^[ \\t]*<.*$",
+    "`[^`\\n]*`",
+    "\\*\\*[^*\\n]+\\*\\*",
+    "\\[[^\\]\\n]*\\]\\([^)\\n]*\\)",
+    "https?://[^\\s)]+"
+  ]
+
+  ignored := []
+
+  for pattern in patterns {
+    found := text.re_find(pattern, scope, -1)
+
+    if !is_undefined(found) {
+      for groups in found {
+        ignored = append(ignored, groups[0])
+      }
+    }
+  }
+
+  names := text.re_find("\\bVortex\\b", scope, -1)
+
+  if !is_undefined(names) {
+    for groups in names {
+      name := groups[0]
+      is_ignored := false
+
+      for span in ignored {
+        if name.begin >= span.begin && name.end <= span.end {
+          is_ignored = true
+          break
+        }
+      }
+
+      if !is_ignored {
+        matches = append(matches, {begin: name.begin, end: name.end})
+      }
+    }
+  }

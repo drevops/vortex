@@ -1,0 +1,16 @@
+extends: Google.Acronyms
+exceptions+:
+  - BATS
+  - BDD
+  - FTP
+  - JIRA
+  - MAY
+  - MUST
+  - NOT
+  - PHAR
+  - PHPCS
+  - SDC
+  - SHA
+  - SHOULD
+  - UTC
+  - UUID

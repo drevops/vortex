@@ -1,0 +1,7 @@
+extends: existence
+message: "Write '%s' as a digit."
+level: error
+ignorecase: true
+nonword: true
+tokens:
+  - '(?<![-\w])(?:two|three|four|five|six|seven|eight|nine|ten)(?![-\w])'

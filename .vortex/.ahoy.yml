@@ -107,6 +107,7 @@ commands:
     cmd: |
       yarn --cwd=docs run lint
       yarn --cwd=docs run spellcheck
+      yarn --cwd=docs run lint-prose
 
   lint-docs-fix:
     cmd: yarn --cwd=docs run lint-fix
