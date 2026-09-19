@@ -1,17 +1,64 @@
-@@ -89,16 +89,6 @@
-         run: composer audit --locked
+@@ -91,20 +91,6 @@
+           composer audit --locked --format=json | tee .logs/audit/composer-audit.json
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}
  
 -      - name: Audit npm packages
 -        if: ${{ !cancelled() }}
--        run: npm audit --package-lock-only
+-        run: |
+-          mkdir -p .logs/audit
+-          npm audit --package-lock-only --json | tee .logs/audit/npm-audit.json
 -        continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
 -
 -      - name: Audit npm packages of the theme
 -        if: ${{ !cancelled() }}
--        run: npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}"
+-        run: |
+-          mkdir -p .logs/audit
+-          npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}" --json | tee .logs/audit/npm-audit-theme.json
 -        continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
 -
-       - name: Convert Composer audit findings to SARIF
+       - name: Install Vortex tooling
          if: ${{ !cancelled() }}
-         # Reporting must not decide the workflow result; the audit step above
+         run: ./scripts/vortex-tooling.sh
+@@ -131,42 +117,6 @@
+         with:
+           sarif_file: .logs/audit/composer-audit.sarif
+           category: composer-audit
+-
+-      - name: Convert npm audit findings to SARIF
+-        if: ${{ !cancelled() }}
+-        continue-on-error: true
+-        env:
+-          VORTEX_CONVERT_AUDIT_SARIF_FORMAT: npm
+-          VORTEX_CONVERT_AUDIT_SARIF_FILE: .logs/audit/npm-audit.json
+-          VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE: .logs/audit/npm-audit.sarif
+-          VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE: package-lock.json
+-        run: ./vendor/bin/vortex-convert-audit-sarif
+-
+-      - name: Upload npm audit findings to code scanning
+-        if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit.sarif') != '' }}
+-        uses: github/codeql-action/upload-sarif@__HASH__ # __VERSION__
+-        continue-on-error: true
+-        with:
+-          sarif_file: .logs/audit/npm-audit.sarif
+-          category: npm-audit
+-
+-      - name: Convert theme npm audit findings to SARIF
+-        if: ${{ !cancelled() }}
+-        continue-on-error: true
+-        env:
+-          VORTEX_CONVERT_AUDIT_SARIF_FORMAT: npm
+-          VORTEX_CONVERT_AUDIT_SARIF_FILE: .logs/audit/npm-audit-theme.json
+-          VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE: .logs/audit/npm-audit-theme.sarif
+-          VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE: ${{ env.WEBROOT }}/themes/custom/${{ env.DRUPAL_THEME }}/package-lock.json
+-        run: ./vendor/bin/vortex-convert-audit-sarif
+-
+-      - name: Upload theme npm audit findings to code scanning
+-        if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit-theme.sarif') != '' }}
+-        uses: github/codeql-action/upload-sarif@__HASH__ # __VERSION__
+-        continue-on-error: true
+-        with:
+-          sarif_file: .logs/audit/npm-audit-theme.sarif
+-          category: npm-audit-theme
+ 
+       - name: Scan for committed secrets with Gitleaks
+         if: ${{ !cancelled() }}
