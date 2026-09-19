@@ -1,6 +1,6 @@
-@@ -121,24 +121,6 @@
-           sarif_file: .artifacts/audit/composer-audit.sarif
-           category: composer-audit
+@@ -168,24 +168,6 @@
+           sarif_file: .logs/audit/npm-audit-theme.sarif
+           category: npm-audit-theme
  
 -      - name: Scan for committed secrets with Gitleaks
 -        if: ${{ !cancelled() }}
@@ -8,16 +8,16 @@
 -        # bind mount of the working directory would scan nothing.
 -        # '--volumes-from' gives the scanner this container's own mounts.
 -        run: |
--          mkdir -p .artifacts/audit
--          docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner --report-format sarif --report-path .artifacts/audit/gitleaks.sarif
+-          mkdir -p .logs/audit
+-          docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner --report-format sarif --report-path .logs/audit/gitleaks.sarif
 -        continue-on-error: ${{ vars.VORTEX_CI_GITLEAKS_IGNORE_FAILURE == '1' }}
 -
 -      - name: Upload Gitleaks findings to code scanning
--        if: ${{ !cancelled() && hashFiles('.artifacts/audit/gitleaks.sarif') != '' }}
+-        if: ${{ !cancelled() && hashFiles('.logs/audit/gitleaks.sarif') != '' }}
 -        uses: github/codeql-action/upload-sarif@__HASH__ # __VERSION__
 -        continue-on-error: true
 -        with:
--          sarif_file: .artifacts/audit/gitleaks.sarif
+-          sarif_file: .logs/audit/gitleaks.sarif
 -          category: gitleaks
 -
        - name: Upload security findings as an artifact
