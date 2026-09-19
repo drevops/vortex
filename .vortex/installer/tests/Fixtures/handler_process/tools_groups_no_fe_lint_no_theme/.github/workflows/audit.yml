@@ -1,25 +1,21 @@
-@@ -91,20 +91,6 @@
-           composer audit --locked --format=json | tee .logs/audit/composer-audit.json
+@@ -93,16 +93,6 @@
+         run: composer audit --locked --format=json | tee .logs/audit/composer-audit.json
          continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}
  
 -      - name: Audit npm packages
 -        if: ${{ !cancelled() }}
--        run: |
--          mkdir -p .logs/audit
--          npm audit --package-lock-only --json | tee .logs/audit/npm-audit.json
+-        run: npm audit --package-lock-only --json | tee .logs/audit/npm-audit.json
 -        continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
 -
 -      - name: Audit npm packages of the theme
 -        if: ${{ !cancelled() }}
--        run: |
--          mkdir -p .logs/audit
--          npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}" --json | tee .logs/audit/npm-audit-theme.json
+-        run: npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}" --json | tee .logs/audit/npm-audit-theme.json
 -        continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
 -
        - name: Install Vortex tooling
          if: ${{ !cancelled() }}
          run: ./scripts/vortex-tooling.sh
-@@ -131,42 +117,6 @@
+@@ -129,42 +119,6 @@
          with:
            sarif_file: .logs/audit/composer-audit.sarif
            category: composer-audit

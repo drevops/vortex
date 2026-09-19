@@ -1,4 +1,4 @@
-@@ -168,24 +168,6 @@
+@@ -166,22 +166,6 @@
            sarif_file: .logs/audit/npm-audit-theme.sarif
            category: npm-audit-theme
  
@@ -7,9 +7,7 @@
 -        # The runner host has no path matching the container's workspace, so a
 -        # bind mount of the working directory would scan nothing.
 -        # '--volumes-from' gives the scanner this container's own mounts.
--        run: |
--          mkdir -p .logs/audit
--          docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner --report-format sarif --report-path .logs/audit/gitleaks.sarif
+-        run: docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner --report-format sarif --report-path .logs/audit/gitleaks.sarif
 -        continue-on-error: ${{ vars.VORTEX_CI_GITLEAKS_IGNORE_FAILURE == '1' }}
 -
 -      - name: Upload Gitleaks findings to code scanning
