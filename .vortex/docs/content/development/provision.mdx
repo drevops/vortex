@@ -45,19 +45,19 @@ section.
 │  │                                              │
 │  │                                              ├─ Dump file exists? ──► 🛢️ Import DB
 │  │                                              └─ Dump file missing?
-│  │                                                  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
+│  │                                                  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓ (then ⑤ = Yes)
 │  │                                                  └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
 │  └─ else ──► preserve content, ⑩ skip sanitization
 │
 └─ 💡 Existing site found = NO
    ├─ Container image set?
-   │  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
+   │  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓ (then ⑤ = Yes)
    │  └─ ④ Fallback? ──No───► 🏁 EXIT 1 ("corrupted image") ✗
    └─ Container image not set? ──► 🗑️ Drop DB ──► 🛢️ Attempt import from dump
                                                      │
                                                      ├─ Dump file exists? ──► 🛢️ Import DB
                                                      └─ Dump file missing?
-                                                         ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
+                                                         ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓ (then ⑤ = Yes)
                                                          └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
 
 ── after provisioning (both DB and profile paths) ──

@@ -198,7 +198,8 @@ branch, target URL, label, and source environment - **no PR number, no
 commit SHA**. The workflow itself extracts the PR number from the
 deployed environment URL by matching the `pr-<number>` segment - for
 example, `https://pr-123.example.com/` resolves to PR #123. It also
-verifies the `VR` label is present (case-insensitive). If the target URL
+verifies the label set by `VR_DIFFY_PR_LABEL` (`VR` by default) is present
+(case-insensitive). If the target URL
 has no `pr-<number>` segment, the deployment isn't a PR environment. In
 that case, the workflow skips the run unless the deployed branch is opted
 in - see [Release and other non-PR
@@ -259,10 +260,10 @@ be the sole gate.
 ## Automated dependency PRs
 
 PRs raised by Renovate (or any other automated dependency-update bot)
-typically don't carry the `VR` label - they carry their own bot label
+typically don't carry the configured label - they carry their own bot label
 (for example, `Dependencies`). To still run visual regression on them, the
 workflow consults `VR_DIFFY_PR_SKIP_BRANCHES`: a comma-separated glob
-list of PR head branches that skip the `VR` label gate.
+list of PR head branches that skip the label gate.
 
 The default value is `deps/*`, matching **Vortex**'s Renovate `branchPrefix`
 configuration. Other common values:
@@ -357,7 +358,7 @@ If the target URL has no `pr-<number>` segment, the workflow treats it as
 
 ## Missed-window behavior
 
-If the `VR` label is added to a PR **after** the deployment completes,
+If the configured label is added to a PR **after** the deployment completes,
 no comparison is run. This is deliberate: a late-applied label shouldn't
 silently launch a Diffy job against a stale environment.
 

@@ -72,7 +72,7 @@ Configure the policy in your `composer.json` under the `config` section:
 
 **Vortex** sets the following values:
 
-- **`advisories.block`** to `false`: security advisories don't block `composer install`, `composer update`, or `composer require`, so builds and deployments stay reproducible even when a new advisory is published upstream against an existing dependency. (Composer's own default is `true`.)
+- **`advisories.block`** to `false`: security advisories don't block `composer update`, `composer require`, or `composer remove`, so dependency updates stay reproducible even when a new advisory is published upstream against an existing dependency. `composer install` resolves nothing from the lock file, so this setting never affects it. (Composer's own default is `true`.)
 - **`advisories.audit`** to `fail`: the `composer audit` command still fails when an advisory is found, keeping vulnerabilities visible locally and in CI.
 - **`abandoned.audit`** to `report`: abandoned packages are reported as warnings but don't fail the audit. (Composer's own default is `fail`.)
 
@@ -84,11 +84,11 @@ Each section accepts `block` (refuse affected versions during `composer update`/
 
 :::
 
-#### Why advisories don't block installation
+#### Why advisories don't block dependency updates
 
-Coupling installation to advisory publication makes builds non-deterministic. A newly published advisory against an already-installed dependency can fail every build - including work unrelated to security - until the advisory is assessed and ignored. **Vortex** decouples installation from advisory publication by setting `advisories.block` to `false` while keeping `advisories.audit` at `fail`. This keeps installs and updates reproducible while `composer audit` and the CI security audit workflow still surface vulnerabilities.
+Coupling dependency resolution to advisory publication makes updates non-deterministic. A newly published advisory against an already-installed dependency can fail every `composer update` or `composer require` - including work unrelated to security - until the advisory is assessed and ignored. **Vortex** decouples resolution from advisory publication by setting `advisories.block` to `false` while keeping `advisories.audit` at `fail`. This keeps updates reproducible while `composer audit` and the CI security audit workflow still surface vulnerabilities.
 
-If your project requires installation to hard-stop on advisories - for example, a production site with strict supply-chain controls - set `advisories.block` to `true`.
+If your project requires dependency resolution to hard-stop on advisories - for example, a production site with strict supply-chain controls - set `advisories.block` to `true`.
 
 ### Ignoring
 
