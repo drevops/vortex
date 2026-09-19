@@ -11,29 +11,29 @@ import TabItem from '@theme/TabItem';
 The local environment is a Docker Compose stack built from
 [Lagoon container images](https://github.com/uselagoon/lagoon-images), with
 Ahoy wrapping the longer `docker compose` commands into short, memorable ones.
-This section covers every layer of that stack: Docker and the anatomy of
-`docker-compose.yml`, the shared services provided by Pygmy, the Doctor
-project checks, the Ahoy and Drush command wrappers, logs, debugging, and
-troubleshooting - each on its own page below. The day-to-day operations of
-switching branches, resetting, working with environment variables and ignored
-files stay on this page.
+This section covers every layer of that stack, each on its own page below. The
+layers are Docker and the anatomy of `docker-compose.yml`, the shared services
+provided by Pygmy, the Doctor project checks, the Ahoy and Drush command wrappers,
+logs, debugging, and troubleshooting. The day-to-day operations of switching
+branches, resetting, and working with environment variables and ignored files
+stay on this page.
 
 ## In this section
 
 | Page | What it covers |
 |------|----------------|
 | [Docker](docker.mdx) | The container stack and the `docker-compose.yml` anatomy |
-| [Pygmy](pygmy.mdx) | The shared proxy, DNS and mail catcher services |
-| [Ahoy](ahoy.mdx) | Command shortcuts, configuration and running CLI commands |
+| [Pygmy](pygmy.mdx) | The shared proxy, DNS, and mail catcher services |
+| [Ahoy](ahoy.mdx) | Command shortcuts, configuration, and running CLI commands |
 | [Doctor](doctor.mdx) | Stack diagnostics and system information |
-| [Drush](drush.mdx) | The Drupal CLI, its configuration and aliases |
+| [Drush](drush.mdx) | The Drupal CLI, its configuration, and aliases |
 | [Logs](logs.mdx) | Container logs |
-| [Debugging](debugging.mdx) | Xdebug, authenticated requests and container debugging |
+| [Debugging](debugging.mdx) | Xdebug, authenticated requests, and container debugging |
 | [Troubleshooting](troubleshooting.mdx) | Common local stack failures and fixes |
 
 ## Ignored files
 
-**Vortex** manages three ignore files as **deny lists**: nothing is excluded
+**Vortex** manages 3 ignore files as **deny lists**: nothing is excluded
 by default, and each file lists only what must be kept out of its target.
 This is the opposite of an allow list, where everything is excluded by default
 and every addition has to be explicitly re-included. The deny-list model follows
@@ -44,23 +44,23 @@ The `.gitignore` file controls which paths Git ignores in the project
 repository - committing a file is still what puts it there. It
 excludes Composer- and npm-generated directories (`web/core`,
 `web/modules/contrib`, `vendor`, `node_modules`), local setting overrides,
-caches, and content files. Two sections stay as small allow lists because a deny
-rule cannot express them:
+caches, and content files. It keeps 2 sections as small allow lists because a
+deny rule can't express them:
 
 - `recipes/` - Composer installs contributed recipes next to your custom ones,
   so each custom recipe is un-ignored explicitly.
 - `.claude/` - Claude writes machine-local state here, so only
   `.claude/settings.json` and `.claude/skills/` are un-ignored by default.
 
-The other two ignore files apply the same deny-list model to different targets:
+The other 2 ignore files apply the same deny-list model to different targets:
 
 - `.dockerignore` controls the container image build context.
-  ➡️ See [Build context and .dockerignore](docker.mdx#build-context-and-dockerignore)
+  ➡️ See [Build context and `.dockerignore`](docker.mdx#build-context-and-dockerignore)
 - `.gitignore.artifact` controls the deployment artifact.
   ➡️ See [Deployment > Artifact](../../deployment/artifact.mdx#artifact-file-control)
 
-A new file or directory added to the project is subject to no exclusion: once
-committed, it is part of the repository, and it enters the image build and the
+A new file or directory added to the project is subject to no exclusion. Once
+committed, it's part of the repository, and it enters the image build and the
 deployment artifact automatically. Add an entry to one of these ignore files
 only when a file must be kept out of that particular target.
 
@@ -95,7 +95,7 @@ on what changed:
 
 ## Resetting
 
-To reset the local environment, use the reset command. This will stop and remove
+To reset the local environment, use the reset command. This stops and removes
 all containers and downloaded dependency packages (`vendor`, `node_modules` etc.).
 
 <Tabs>
@@ -124,7 +124,7 @@ all containers and downloaded dependency packages (`vendor`, `node_modules` etc.
 To update environment variables in your local development environment:
 
 1. Edit variables in `.env.local` file
-2. Apply changes by re-creating the containers (a plain restart does not
+2. Apply changes by re-creating the containers (a plain restart doesn't
    re-read the `.env` files):
 
 <Tabs>

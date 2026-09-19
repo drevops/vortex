@@ -8,7 +8,7 @@ sidebar_position: 3
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-A project carries two dependency trees, each audited by its own package manager: `composer audit` for the PHP packages and `npm audit` for the JavaScript packages. Both run locally and in the CI security audit workflow.
+A project carries 2 dependency trees, each audited by its own package manager: `composer audit` for the PHP packages and `npm audit` for the JavaScript packages. Both run locally and in the CI security audit workflow.
 
 ## PHP dependencies
 
@@ -72,9 +72,9 @@ Configure the policy in your `composer.json` under the `config` section:
 
 **Vortex** sets the following values:
 
-- **`advisories.block`** to `false`: security advisories do not block `composer install`, `composer update`, or `composer require`, so builds and deployments stay reproducible even when a new advisory is published upstream against an existing dependency. (Composer's own default is `true`.)
+- **`advisories.block`** to `false`: security advisories don't block `composer install`, `composer update`, or `composer require`, so builds and deployments stay reproducible even when a new advisory is published upstream against an existing dependency. (Composer's own default is `true`.)
 - **`advisories.audit`** to `fail`: the `composer audit` command still fails when an advisory is found, keeping vulnerabilities visible locally and in CI.
-- **`abandoned.audit`** to `report`: abandoned packages are reported as warnings but do not fail the audit. (Composer's own default is `fail`.)
+- **`abandoned.audit`** to `report`: abandoned packages are reported as warnings but don't fail the audit. (Composer's own default is `fail`.)
 
 Each section accepts `block` (refuse affected versions during `composer update`/`require`/`remove`), `audit` (`ignore`, `report`, or `fail` for the `composer audit` command), and `ignore`/`ignore-id`/`ignore-severity` for assessed exceptions.
 
@@ -84,9 +84,9 @@ Each section accepts `block` (refuse affected versions during `composer update`/
 
 :::
 
-#### Why advisories do not block installation
+#### Why advisories don't block installation
 
-Coupling installation to advisory publication makes builds non-deterministic: a newly published advisory against an already-installed dependency can fail every build - including work unrelated to security - until the advisory is assessed and ignored. **Vortex** decouples the two by setting `advisories.block` to `false` while keeping `advisories.audit` at `fail`, so installs and updates remain reproducible while vulnerabilities are still surfaced by `composer audit` and the CI security audit workflow.
+Coupling installation to advisory publication makes builds non-deterministic. A newly published advisory against an already-installed dependency can fail every build - including work unrelated to security - until the advisory is assessed and ignored. **Vortex** decouples installation from advisory publication by setting `advisories.block` to `false` while keeping `advisories.audit` at `fail`. This keeps installs and updates reproducible while `composer audit` and the CI security audit workflow still surface vulnerabilities.
 
 If your project requires installation to hard-stop on advisories - for example, a production site with strict supply-chain controls - set `advisories.block` to `true`.
 
@@ -111,7 +111,7 @@ When you've assessed an advisory and determined it doesn't affect your project, 
 
 :::tip Document your decisions
 
-Record the reason for each ignored advisory in your Git commit message. This helps your team understand why a vulnerability was deemed acceptable and makes the decision easy to review later.
+Record the reason for each ignored advisory in your Git commit message. This helps your team understand why a vulnerability was deemed acceptable and review the decision later.
 
 :::
 
@@ -121,7 +121,7 @@ Record the reason for each ignored advisory in your Git commit message. This hel
 [security audit workflow](../../continuous-integration/README.mdx#security-audit),
 so the audited set is exactly what `composer.lock` pins. Because
 `advisories.audit` is `fail`, the audit reports vulnerabilities and the
-workflow fails when any are found - even though installs and updates are not
+workflow fails when any are found - even though installs and updates aren't
 blocked.
 
 #### Ignoring failures
@@ -136,7 +136,7 @@ one-off bypass while a known advisory is being addressed.
 
 `npm audit` checks the packages resolved from `package-lock.json` against the advisories published in the npm registry.
 
-A project has two JavaScript dependency trees, each with its own `package.json` and lock file: the root one for the custom modules' tooling and the test runner, and the custom theme's one for the front-end build. They are audited separately.
+A project has 2 JavaScript dependency trees, each with its own `package.json` and lock file. The root one is for the custom modules' tooling and the test runner, and the custom theme's one is for the front-end build. They're audited separately.
 
 ### Usage
 
@@ -171,7 +171,7 @@ npm fails the audit on any advisory by default. A development dependency tree of
 audit-level=high
 ```
 
-npm reads the project configuration from the directory of the `package.json` it audits, so both `.npmrc` files carry the setting - the one in the project root and the one in the custom theme. The accepted values are `info`, `low`, `moderate`, `high`, `critical` and `none`; lower the value to widen what fails the build.
+npm reads the project configuration from the directory of the `package.json` it audits, so both `.npmrc` files carry the setting - one in the project root and one in the custom theme. The accepted values are `info`, `low`, `moderate`, `high`, `critical`, and `none`; lower the value to widen what fails the build.
 
 The threshold is deliberately not a **Vortex** variable: it belongs to npm's own configuration, where a project changes it without a template variable existing for it.
 
@@ -191,7 +191,7 @@ npm then resolves every dependent to the pinned version. Run `npm install` to up
 
 :::tip Document your decisions
 
-Record the advisory that each `overrides` entry addresses in your Git commit message, the same as for the Composer exceptions above.
+Record the advisory that each `overrides` entry addresses in your Git commit message, the same as for the Composer exceptions described earlier.
 
 :::
 

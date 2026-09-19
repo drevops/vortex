@@ -4,7 +4,7 @@ sidebar_position: 5
 
 # Documentation
 
-There are 2 types of documentation that **Vortex** provides:
+**Vortex** provides 2 types of documentation:
 
 1. **Vortex template documentation** (this site) - generic information on
    **how** to perform operations, applicable to all projects built with
@@ -49,15 +49,15 @@ cd .vortex
 ahoy update-docs
 ```
 
-If you have the documentation site running locally, the content changes will
-be available immediately.
+If you have the documentation site running locally, the content changes are
+available immediately.
 
-### Lint, spellcheck and test
+### Lint, spellcheck, and test
 
 ```shell
 cd .vortex
 
-# Lint the Markdown and check American English spelling.
+# Lint the Markdown, check American English spelling, and check the prose style.
 ahoy lint-docs
 
 # Run the Jest component tests and the spellcheck.
@@ -66,18 +66,54 @@ ahoy test-docs
 
 If required, add spelling exclusions to the `.vortex/docs/cspell.json` file.
 
-Internal links are not checked by these commands - the Docusaurus build is the
+Internal links aren't checked by these commands - the Docusaurus build is the
 link checker, failing on broken internal links (`ahoy build-docs`).
+
+### Prose style
+
+[Vale](https://vale.sh) checks the prose of every page against the house style.
+It enforces product names and their casing, sentence-case headings,
+contractions, the Oxford comma, inline code formatting, and bold **Vortex**. It
+also warns about long sentences and wordy phrases. Errors fail the run and the
+continuous integration build. Warnings are advisory.
+
+The rules come from 3 places:
+
+- The `Google` and `write-good` style packages. They're pinned by release URL in
+  `.vortex/docs/.vale.ini` and downloaded by `vale sync` when you run
+  `yarn install`.
+- The house style in `.vortex/docs/.vale/Vortex/`, with one small YAML file for
+  each rule. A rule that adjusts a `Google` rule inherits it with `extends` and
+  edits its word lists, and `.vale.ini` switches the original off.
+- The vocabulary in `.vortex/docs/.vale/config/vocabularies/Vortex/accept.txt`,
+  which lists product names with their exact casing.
+
+To lint a single page while you write:
+
+```shell
+cd .vortex/docs
+yarn lint-prose --glob='content/installation.mdx'
+```
+
+When a rule blocks a correct sentence, fix the rule instead of silencing the
+alert. Add the product name to the vocabulary, add the proper noun to
+`Headings.yml`, or remove the word from the rule's list.
+`tests/unit/vale-rules.test.js` runs every rule against a valid and an invalid
+fixture page, so update the fixtures together with the rule.
+
+Block quotes are skipped because they quote upstream projects verbatim. The
+generated table in `development/variables.mdx` is skipped too, while the prose
+before the table is linted.
 
 ### Documentation videos
 
-The 6 terminal demo videos embedded in the docs are regenerated with
+The 9 terminal demo videos embedded in the docs are regenerated with
 `ahoy update-videos [names]` from `.vortex/` - see
 [Installer > Installer video](installer.mdx#installer-video) for the pipeline.
 
 ### Combined site
 
-The published site serves two majors at once. The branch that ships the current
+The published site serves 2 majors at once. The branch that ships the current
 major - selected by the `VORTEX_CURRENT_MAJOR` repository variable, default `1` -
 is snapshotted as the default version at `/docs`, and the other major's `{N}.x`
 branch content is served at `/docs/v{N}`.
@@ -107,7 +143,7 @@ ahoy docs-combined-serve
 ```
 
 Everything the build writes stays inside `docs_combined`, a git-ignored copy of
-`docs` that is rebuilt from scratch on every run and safe to delete at any time.
+`docs` that's rebuilt from scratch on every run and safe to delete at any time.
 The tracked `docs` directory is only ever read, so `ahoy docs` and
 `ahoy build-docs` keep working on this branch's documentation alone.
 
@@ -123,7 +159,7 @@ Automated continuous integration builds publish this documentation:
 ## Consumer site documentation
 
 **Vortex** ships a scaffold of consumer site documentation in the
-[`docs`](https://github.com/drevops/vortex/tree/main/docs) directory. It is
+[`docs`](https://github.com/drevops/vortex/tree/main/docs) directory. It's
 installed into every consumer site, where the site maintainers keep it
 up-to-date with their project.
 
@@ -135,6 +171,6 @@ The scaffold covers the **what** of a project:
 - Project-specific procedures and decisions
 
 The scaffold references this site for the **how** of each operation instead of
-duplicating instructions - so when maintaining the template, keep the scaffold
-pointing at the right pages here, and keep the **how** content on this site
-rather than in the shipped `docs/` files.
+duplicating instructions. So when maintaining the template, keep the scaffold
+pointing at the right pages here. Keep the **how** content on this site rather
+than in the shipped `docs/` files.

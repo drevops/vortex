@@ -23,7 +23,7 @@ there from CI, see [Artifact deployment](../deployment/artifact.mdx).
 With **Vortex**, you can:
 
 - **Fetch a database** from an Acquia environment for local development or CI
-- **Copy the database** between Acquia environments (e.g., refresh staging from production)
+- **Copy the database** between Acquia environments (for example, refresh staging from production)
 - **Copy files** between environments to synchronize uploaded content
 - **Purge the Varnish cache** to ensure visitors see fresh content
 
@@ -53,9 +53,9 @@ Each hook is turned off by setting its skip variable to `1` in the Acquia UI:
 | `copy-db.sh`           | `VORTEX_TASK_COPY_DB_ACQUIA_SKIP`    |
 | `copy-files.sh`        | `VORTEX_TASK_COPY_FILES_ACQUIA_SKIP` |
 
-A hook stops with an error when a value it requires is unset or empty, so a
-blank field in the Acquia UI aborts the hook rather than running it with a
-missing value.
+A hook stops with an error when a value it requires is unset or empty. As a
+result, a blank field in the Acquia UI aborts the hook rather than running it
+with a missing value.
 
 ### Environment detection
 
@@ -72,7 +72,7 @@ by setting the `DRUPAL_ACQUIA_SETTINGS_FILE` environment variable.
 
 #### Temporary file path
 
-**Vortex** configures the temporary file path (`file_temp_path`) with a
+**Vortex** configures the path for temporary files (`file_temp_path`) with a
 three-tier priority:
 
 1. **Default**: `/tmp`
@@ -105,7 +105,7 @@ ahoy fetch-db
 ### Run a hosting task
 
 Copying databases or files between environments and purging the edge cache run
-through a single, platform-agnostic task runner that dispatches each operation
+through a single, platform-agnostic task runner. It dispatches each operation
 to the implementation for the configured hosting platform:
 
 ```shell

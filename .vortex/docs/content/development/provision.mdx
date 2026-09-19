@@ -10,13 +10,14 @@ import TabItem from '@theme/TabItem';
 import CodeBlock from '@theme/CodeBlock';
 import ProvisionScriptExample from '!!raw-loader!@site/../../scripts/provision-40-example.sh';
 
-The provisioning process, handled by the `provision` script shipped via the
+The provisioning process sets up a Drupal site on an already assembled
+codebase. It either imports an existing database from the dump or installs a
+fresh instance of Drupal using a profile. It then runs the necessary
+configuration import and database updates.
+
+The `provision` script handles this process. It ships via the
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
-Composer package (installed at `vendor/bin/vortex-provision`),
-sets up a Drupal site on already assembled codebase by either importing an
-existing database from the dump or installing a fresh instance of Drupal using a
-profile, followed by running the necessary configuration import and database
-updates.
+Composer package and is installed at `vendor/bin/vortex-provision`.
 
 The main purpose of the script is to automate the setup of a Drupal site
 in every environment, ensuring consistency and eliminating manual steps.
@@ -101,17 +102,17 @@ section.
 
 You can control the provisioning flow using the following environment variables:
 
-1. `VORTEX_PROVISION_SKIP=1`<br/>Kill-switch to completely skip provisioning. The script will exit immediately after start. Useful in emergencies when any kind of automation needs to be disabled.<br/><br/>
+1. `VORTEX_PROVISION_SKIP=1`<br/>Kill-switch to skip provisioning. The script exits immediately after start. Useful in emergencies when any kind of automation needs to be disabled.<br/><br/>
 2. `VORTEX_PROVISION_TYPE=profile`<br/>Install from a Drupal `profile` instead of importing from a `database` dump. Useful for building sites without the persistent DB and/or test profile configuration installation.<br/><br/>
 3. `VORTEX_PROVISION_OVERRIDE_DB=1`<br/>Drop an existing database before importing from dump/installing from profile. This is useful when an already provisioned environment requires a fresh database to be imported.<br/><br/>
-4. `VORTEX_PROVISION_FALLBACK_TO_PROFILE=1`<br/>Automatically fall back to installing from profile if the database dump file or container image is not available. The site is installed from the configured profile, the Shield module is enabled to protect the environment, and all post-provision operations (configuration import, database updates, deployment hooks, etc.) are skipped. This provides a minimal working Drupal site when no database is available.<br/><br/>
+4. `VORTEX_PROVISION_FALLBACK_TO_PROFILE=1`<br/>Automatically fall back to installing from profile if the database dump file or container image isn't available. The site is installed from the configured profile, and the Shield module is enabled to protect the environment. All post-provision operations (configuration import, database updates, deployment hooks, etc.) are skipped. This provides a minimal working Drupal site when no database is available.<br/><br/>
 5. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>Skip configuration imports, database updates, and other post-provisioning steps. This is useful when you want to provision a site without running any additional operations.<br/><br/>
-6. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>Enable maintenance mode right after the site is bootstrappable and disable it at the end. Useful when you want to prevent users from accessing the site while it is being provisioned.<br/><br/>
-7. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1`<br/>Verify that active configuration was not changed by database updates. When enabled and config files are present, the provision will fail if `drush updatedb` modifies active configuration, preventing `drush config:import` from silently overwriting those changes.<br/><br/>
+6. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>Enable maintenance mode right after the site is bootstrappable and disable it at the end. Useful when you want to prevent users from accessing the site while it's being provisioned.<br/><br/>
+7. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1`<br/>Verify that active configuration wasn't changed by database updates. When enabled and config files are present, the provision fails if `drush updatedb` modifies active configuration, preventing `drush config:import` from silently overwriting those changes.<br/><br/>
 8. `VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP=1`<br/>Skip the cache rebuild that runs between database updates and configuration import. By default, caches are rebuilt after `drush updatedb` to ensure a clean state before importing configuration.<br/><br/>
-9. `VORTEX_PROVISION_CONFIG_IMPORT_REPEAT=1`<br/>Repeat the configuration import after the initial import. Useful when database update hooks introduce new configuration that affects subsequent configuration imports (e.g., new config_split settings). Disabled by default.<br/><br/>
+9. `VORTEX_PROVISION_CONFIG_IMPORT_REPEAT=1`<br/>Repeat the configuration import after the initial import. Useful when database update hooks introduce new configuration that affects later configuration imports (for example, new config_split settings). Disabled by default.<br/><br/>
 10. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>Disable database sanitization.<br/><br/>
-11. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION=1`<br/>Verify that active configuration was not changed by the post-provision operations. When enabled and config files are present, the provision will fail if any configuration item reported by `drush config:status` is in the `Different` state once the configuration imports, deployment hooks and custom provision scripts have run. Items that exist only in the database or only in the sync directory are not treated as a failure.
+11. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION=1`<br/>Verify that active configuration wasn't changed by the post-provision operations. When enabled and config files are present, the provision fails if any configuration item reported by `drush config:status` is in the `Different` state. The check runs after the configuration imports, deployment hooks, and custom provision scripts have finished. Items that exist only in the database or only in the sync directory aren't treated as a failure.
 
 :::tip
 
@@ -123,7 +124,7 @@ in your CI or hosting provider's specific environment based on your needs.
 ### Maintenance mode
 
 During the provisioning process, you may want to enable maintenance mode to
-prevent users from accessing the site while it is being updated.
+prevent users from accessing the site while it's being updated.
 
 To enable maintenance mode, set the `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`
 environment variable in your `.env` file to apply it globally or set it in your
@@ -144,10 +145,11 @@ Sanitization takes place only after the database is **imported**, so anyone
 with access to the dump file can still see sensitive data.
 
 If your database has highly sensitive data, consider sanitizing the database
-dump before it can be downloaded (sanitize on export). There are tools
-available for this purpose, such as [Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper)
-or [MTK](https://github.com/skpr/mtk). These tools can be integrated into
-**Vortex**-based projects without changing the provisioning process.
+dump before it can be downloaded (sanitize on export). Tools such as
+[Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper)
+or [MTK](https://github.com/skpr/mtk) are available for this purpose. These
+tools can be integrated into **Vortex**-based projects without changing the
+provisioning process.
 
 :::
 
@@ -204,9 +206,9 @@ fetch the latest database dump into the `.data` directory.
 :::note
 
 The database dump is stored in the `.data` directory instead of being directly
-imported into the local environment to allow for caching and reusing the
-database dump without needing to fetch it every time you need to refresh
-the local environment.
+imported into the local environment. This allows for caching and reusing the
+database dump, so you don't need to fetch it every time you refresh the local
+environment.
 
 You can manually fetch the database dump from the production environment,
 name it `db.sql`, and place it in the `.data` directory.
@@ -215,8 +217,8 @@ name it `db.sql`, and place it in the `.data` directory.
 
 ### Refreshing database
 
-There are 2 distinct ways to load the dump from `.data` into the running
-database container - pick the one matching what you need.
+You can load the dump from `.data` into the running database container in 2
+distinct ways - pick the one matching what you need.
 
 #### Import and run updates (`ahoy provision`)
 
@@ -248,7 +250,7 @@ a fully configured site ready for development or deployment.
 #### Import only (`ahoy import-db`)
 
 `ahoy import-db` imports the raw dump **without** running any updates,
-configuration imports or scripts:
+configuration imports, or scripts:
 
 - Imports the database dump
 - Skips configuration imports
@@ -329,7 +331,7 @@ profile.
 enforcing fresh database imports, or using maintenance mode.
 - **Enforcing consistency:** The same provisioning logic runs across local, CI, staging, and production
 environments, eliminating "it works on my machine" issues.
-- **Supporting extensibility:** It allows for custom post-provisioning scripts, making it easy to layer in
+- **Supporting extensibility:** It allows for custom post-provisioning scripts, so you can layer in
 project-specific logic like enabling test modules or running migrations.
 
 In short, `provision` orchestrates standalone Drush commands in a consistent,
@@ -345,19 +347,19 @@ specific order.
 
 To run custom scripts, create a new file in the `scripts` directory with the
 `provision-` prefix and the `.sh` extension, and make it executable with
-`chmod +x scripts/provision-50-custom.sh`. The script will be automatically
+`chmod +x scripts/provision-50-custom.sh`. The script is automatically
 discovered and executed. (The discovery directory can be changed with the
 `VORTEX_PROVISION_SCRIPTS_DIR` variable, default `./scripts`.)
 
-It is recommended to use a 2-digit suffix to control the order of execution:
-e.g., `provision-50-custom.sh`, `provision-60-another-custom.sh`.
+We recommend using a 2-digit suffix to control the order of execution - for
+example, `provision-50-custom.sh` and `provision-60-another-custom.sh`.
 
 **Vortex** ships the following scripts:
 
 | Script                                | Purpose                                                  | Present when                                                                                               |
 |---------------------------------------|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
 | `provision-00-enable-demo-modules.sh` | Enables the modules and content model the demo site uses | Always; the installer trims its operations to the selected modules                                          |
-| `provision-10-enable-dev-modules.sh`  | Enables the development modules and generates content    | Any of `devel`, `sdc_devel`, `generated_content`, `testmode` or `reroute_email` is selected; removed by the installer otherwise |
+| `provision-10-enable-dev-modules.sh`  | Enables the development modules and generates content    | Any of `devel`, `sdc_devel`, `generated_content`, `testmode`, or `reroute_email` is selected; removed by the installer otherwise |
 | `provision-20-migration.sh`           | Runs the content migration                               | The migration feature is selected; removed by the installer otherwise                                       |
 | `provision-30-search-index.sh`        | Rebuilds the search index                                | The Solr service is selected; removed by the installer otherwise                                            |
 | `provision-40-example.sh`             | A runnable example that performs no operations           | Always; copy it as a starting point or remove it                                                            |
@@ -403,10 +405,10 @@ starting point for your custom scripts:
 ### Demo modules
 
 **Vortex** ships a `scripts/provision-00-enable-demo-modules.sh` custom script
-that stands up the demo site: it creates the content model, sets the site name,
-switches the administration interface to the core Navigation module, and installs
-the contrib, service and custom site modules before running their deployment
-hooks.
+that stands up the demo site. It creates the content model, sets the site name,
+and switches the administration interface to the core Navigation module. It
+also installs the contrib, service, and custom site modules before running
+their deployment hooks.
 
 It runs first so that the content model exists before the modules that depend on
 it are installed. Replace its operations with your own once the site stops
@@ -421,22 +423,22 @@ installs the development modules - [Devel](https://www.drupal.org/project/devel)
 [Reroute Email](https://www.drupal.org/project/reroute_email) safety net.
 
 These modules live in their own script so that they stay enabled after the demo
-and example scripts are adapted or removed. They are also the modules kept out
+and example scripts are adapted or removed. They're also the modules kept out
 of the exported configuration, so provisioning is the only place that can
 install them.
 
-Both scripts run only in the `local`, `ci`, `dev` and `stage` environments, and
+Both scripts run only in the `local`, `ci`, `dev`, and `stage` environments, and
 skip every other environment type. A project that introduces a custom
 environment type has to add it to both scripts to have these modules installed
-there, including the email rerouting that
+there. This includes the email rerouting that
 [the settings file](modules/contributed-modules.mdx#reroute-email) enables for
-every environment outside `local`, `ci` and `prod`. To opt out of either set of
+every environment outside `local`, `ci`, and `prod`. To opt out of either set of
 modules, remove the corresponding script.
 
-### Generated content
+### Generated Content
 
 Projects with the
-[Generated content](https://www.drupal.org/project/generated_content) module
+[Generated Content](https://www.drupal.org/project/generated_content) module
 install it from the same `scripts/provision-10-enable-dev-modules.sh` custom
 script, after the development modules and before the search index is rebuilt.
 
@@ -451,22 +453,22 @@ file or in your hosting provider's specific environment. The module is still
 installed, so content can be generated later from the admin interface or with
 `drush generated-content:create-content`.
 
-Installing a module that is already installed does nothing, so provisioning a
+Installing a module that's already installed does nothing, so provisioning a
 site that already holds the module leaves its content untouched. This also means
-the content is created only on the provision that first installs the module: a
-site provisioned once with `DRUPAL_GENERATED_CONTENT_SKIP=1` does not gain the
+the content is created only on the provision that first installs the module. A
+site provisioned once with `DRUPAL_GENERATED_CONTENT_SKIP=1` doesn't gain the
 content by unsetting the variable and provisioning again.
 
 ### Migration
 
 Projects with the migration feature ship a `scripts/provision-20-migration.sh`
-custom script that runs the content migration: it imports the migration source
+custom script that runs the content migration. It imports the migration source
 database dump into the `database2` container, probes it for corruption, and
 runs the migrations via `drush migrate:import`, with an optional rollback
 before the import.
 
 On projects with the Solr service, the script disables the search server while
-the migrations run, so migrated entities are not indexed one at a time - the
+the migrations run, so migrated entities aren't indexed one at a time. The
 search indexing script rebuilds the index straight after.
 
 ➡️ See [Migrations](migrations.mdx#provision-script) for the script's
@@ -475,11 +477,11 @@ configuration variables and how to add your own migrations.
 ### Search indexing
 
 Projects with the Solr service ship with a `scripts/provision-30-search-index.sh`
-custom script that rebuilds the search index at the end of provisioning: it
+custom script that rebuilds the search index at the end of provisioning. It
 resets the Search API index tracker and re-indexes the site content.
 
-The script runs only in the `local`, `ci`, `dev` and `stage` environments, as
-these environments receive a database with an index tracker state that does not
+The script runs only in the `local`, `ci`, `dev`, and `stage` environments, as
+these environments receive a database with an index tracker state that doesn't
 match their own (empty) search backend. Other environments are skipped to
 preserve the existing index.
 
@@ -503,7 +505,7 @@ differences helps you choose the right one for a deployment task.
 | `hook_post_update_NAME()` | Entity updates and other module operations | <code>drush&nbsp;updatedb</code> | `MODULE.post_update.php` |
 | `hook_deploy_NAME()`      | Environment-specific deployment tasks      | <code>drush&nbsp;deploy:hook</code> | `MODULE.deploy.php`   |
 
-All of these hooks run automatically during the
+All these hooks run automatically during the
 [provisioning process](#provisioning-flow): `drush updatedb` runs the update and
 post-update hooks, and `drush deploy:hook` runs the deploy hooks.
 
@@ -546,8 +548,8 @@ function ys_base_deploy_create_about_page(): string {
 ```
 
 The shipped [Drupal helpers](modules/drupal-helpers.mdx) module provides static
-facade helpers for the common deploy hook operations, so a hook stays a few
-lines instead of repeating the entity API boilerplate every time:
+facade helpers for the common deploy hook operations. With them, a hook stays a
+few lines instead of repeating the entity API boilerplate every time:
 
 ```php
 use Drupal\drupal_helpers\Helper;

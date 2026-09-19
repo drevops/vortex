@@ -31,15 +31,16 @@ project-level decisions first, then **Vortex**-level procedures.
 ### `AGENTS.md`
 
 The [`AGENTS.md`](https://github.com/drevops/vortex/blob/main/AGENTS.md) file
-in the project root is the primary configuration for AI coding agents. It is
+in the project root is the primary configuration for AI coding agents. It's
 an agent-agnostic file that any AI tool can use.
 
 Key sections include:
 
 - **Daily development tasks** - a reference of `ahoy` commands for building,
   testing, and managing the local environment.
-- **Critical rules** - constraints that agents must always follow (e.g., never
-  modify `vendor/drevops/vortex-tooling/src/`, always export config after admin UI changes).
+- **Critical rules** - constraints that agents must always follow (for example,
+  never modify `vendor/drevops/vortex-tooling/src/`, always export config after
+  admin UI changes).
 - **Key directories** - the project's directory layout.
 - **Documentation** - instructions for agents to check `docs/` files for
   project-specific decisions and to fetch operational documentation from
@@ -57,7 +58,7 @@ references `AGENTS.md` for the full development guide.
 
 The [`.claude/settings.json`](https://github.com/drevops/vortex/blob/main/.claude/settings.json)
 file is a checked-in Claude Code settings file that pre-approves the stack
-commands, so an agent can build, provision, lint and test through `ahoy`
+commands. This lets an agent build, provision, lint, and test through `ahoy`
 without asking for confirmation on every call:
 
 ```json
@@ -72,13 +73,13 @@ without asking for confirmation on every call:
 ```
 
 Personal, machine-local settings belong in `.claude/settings.local.json`,
-which is not tracked.
+which isn't tracked.
 
 ## Custom skills
 
 Skills are reusable instruction sets that teach an agent a repeatable,
-project-specific task - for example, a release checklist or a legacy content
-import procedure.
+project-specific task, such as a release checklist or a legacy content import
+procedure.
 
 Add a skill by creating a `SKILL.md` file in its own directory under
 `.claude/skills/`:
@@ -100,6 +101,6 @@ Instructions the agent follows when the skill is invoked.
 ```
 
 The shipped `.gitignore` tracks `.claude/skills/` alongside
-`.claude/settings.json`, so a skill is shared with the team as soon as it is
+`.claude/settings.json`, so a skill is shared with the team as soon as it's
 committed. Everything else under `.claude/` stays ignored, which keeps
 machine-local Claude state out of the repository.

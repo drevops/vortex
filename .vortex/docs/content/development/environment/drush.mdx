@@ -25,7 +25,7 @@ shorthand commands that wrap the common tasks:
 
 - `ahoy fetch-db` - fetch the database dump from the remote environment
 - `ahoy import-db` - import the database dump into the local environment
-- `ahoy provision` - import the database and run updates, config imports and cache rebuilds
+- `ahoy provision` - import the database and run updates, config imports, and cache rebuilds
 
 ## Usage
 
@@ -77,13 +77,13 @@ behavior of those processes.
 
 The leading colon in the `PHP_INI_SCAN_DIR` value preserves the default scan
 directories. On Acquia, this ensures that the hosting provider's own PHP ini
-overrides (such as `sendmail_path`) are not lost.
+overrides (such as `sendmail_path`) aren't lost.
 
 :::
 
 ## Memory limit
 
-The shipped configuration raises the PHP memory limit above the platform
+The shipped configuration sets the PHP memory limit higher than the platform
 default:
 
 ```ini
@@ -93,12 +93,12 @@ memory_limit = 1G
 
 This value is sized for database imports and configuration synchronization on
 large sites. It applies to PHP CLI processes that load this scan path,
-including Drush, and does not change the memory limit used to serve web
+including Drush, and doesn't change the memory limit used to serve web
 requests.
 
 If a Drush command exhausts this limit, profile the command before raising the
 value. An exhausted 1G limit usually points to a memory leak in custom code
-rather than a limit set too low, and raising the ceiling hides the leak until a
+rather than a limit set too low. Raising the ceiling hides the leak until a
 larger dataset reaches the new limit.
 
 To grant more memory to a single command without changing the default:
@@ -124,7 +124,7 @@ file defines a wildcard alias, so every environment resolves as
 `@lagoon.<branch-or-pr>` without per-environment entries. The aliases can be
 used either from the host machine or from within the container.
 
-The project name is hardcoded in the alias file because Drush does not load
+The project name is hardcoded in the alias file because Drush doesn't load
 variables from `.env` files - this keeps the aliases working identically on
 the host and in the container.
 

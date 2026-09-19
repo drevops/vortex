@@ -2,7 +2,7 @@
 
 Answers to the questions teams ask when deciding whether to adopt **Vortex**.
 For operational questions once you're working in a project - clearing caches,
-using Xdebug, adding modules and patches - see the
+using Xdebug, or adding modules and patches - see the
 [Development FAQs](development/faqs.mdx).
 
 ## Why use Vortex instead of the Drupal Composer template?
@@ -15,9 +15,9 @@ everything works together correctly.
 You also need to watch for _false negatives_ - faulty tests that pass silently
 in CI but fail at release time, blocking your deployment.
 
-And you need to maintain all of this across every project you run.
+And you need to maintain all this across every project you run.
 
-**Vortex** handles all of this out of the box. You can override anything in
+**Vortex** handles all this out of the box. You can override anything in
 your project while still receiving future updates. Your team gets centralized
 documentation and consistent tooling across all projects.
 
@@ -39,8 +39,8 @@ provider.
 ## Can I change things I don't like?
 
 Yes, you can change anything you want. **Vortex** is a template, so you can
-disable or remove any feature. Keep in mind that you'll need to maintain those
-changes yourself going forward.
+disable or remove any feature. You need to maintain those changes yourself
+going forward.
 
 Feel free to [open an issue](https://github.com/drevops/vortex/issues) to
 discuss any of the decisions made in **Vortex**.
@@ -71,10 +71,10 @@ Run the update command to pull in the latest **Vortex** version. The command
 updates the boilerplate code automatically. You then resolve any conflicts
 manually - similar to merging changes between projects, but automated.
 
-Any customizations your team made will also need manual resolution. This is a
-trade-off between relying on an upgradable project template, where you have full
-control, and a dependency package, where someone else has full control of the
-code that drives your project.
+Any customizations your team made also need manual resolution. This is a
+trade-off between relying on an upgradable project template and relying on a
+dependency package. With a template, you have full control. With a package,
+someone else has full control of the code that drives your project.
 
 :::note
 
@@ -88,4 +88,4 @@ override scaffolded code.
 **Vortex** provides an [installer](installation.mdx) that lets you choose the features
 that you need interactively.
 
-It is usually used as a part of the project creation process.
+It's usually used as a part of the project creation process.

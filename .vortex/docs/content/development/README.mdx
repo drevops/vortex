@@ -7,13 +7,13 @@ sidebar_position: 1
 
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
-This section covers the day-to-day work on a **Vortex** project: running the
-local environment, managing the database and dependencies, working with the
-Drupal application, and checking your code with linters and tests.
+This section covers the day-to-day work on a **Vortex** project. That means
+running the local environment, managing the database and dependencies, working
+with the Drupal application, and checking your code with linters and tests.
 
-Each page owns one task or tool and carries everything about it - daily usage,
-configuration, and how it behaves in the continuous integration pipeline - so
-there is one place to look. Larger topics are subsections whose overview page
+Each page owns one task or tool and carries everything about it: daily usage,
+configuration, and how it behaves in the continuous integration pipeline. That
+gives you one place to look. Larger topics are subsections whose overview page
 ties their pages together. This page describes the overall process and points
 to the right page for each task.
 
@@ -62,7 +62,7 @@ theme assets, and provisions the site from the database dump.
 ### Show project information
 
 `ahoy info` shows the current project information: the site URL, container
-status and ports.
+status, and ports.
 
 <AsciinemaPlayer
   src="/img/info.json"
@@ -78,7 +78,7 @@ status and ports.
 ### Run linters
 
 `ahoy lint` runs all the code quality checks: back-end (PHPCS, PHPStan,
-Rector), front-end (Twig CS Fixer, ESLint, Stylelint) and test linting
+Rector), front-end (Twig CS Fixer, ESLint, Stylelint), and test linting
 (Gherkin Lint).
 
 <AsciinemaPlayer
@@ -92,9 +92,9 @@ Rector), front-end (Twig CS Fixer, ESLint, Stylelint) and test linting
   terminalLineHeight={1.0}
 />
 
-### Run unit, kernel and functional tests
+### Run unit, kernel, and functional tests
 
-`ahoy test` runs all the PHPUnit test suites: unit, kernel, functional and
+`ahoy test` runs all the PHPUnit test suites: unit, kernel, functional, and
 functional JavaScript.
 
 <AsciinemaPlayer
@@ -128,7 +128,7 @@ real browser inside the container stack.
 
 `ahoy provision` re-imports the database dump from `.data/db.sql` into the
 running stack and applies the provisioning steps: database updates,
-configuration import, cache rebuilds and deploy hooks.
+configuration import, cache rebuilds, and deploy hooks.
 
 <AsciinemaPlayer
   src="/img/provision.json"
@@ -164,7 +164,7 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 | [Themes](themes.mdx) | The theme scaffold and its build system |
 | [Migrations](migrations.mdx) | The optional second database powering Drupal migrations |
 | [Code quality](code-quality/README.mdx) | The linters and how to run them |
-| [Testing](testing/README.mdx) | PHPUnit, Behat and Jest |
+| [Testing](testing/README.mdx) | PHPUnit, Behat, and Jest |
 | [Security](security/README.mdx) | Secret scanning, dependency auditing, environment access |
 | [Visual regression](visual-regression.mdx) | Diffy-powered visual regression on deployments |
 | [Dependency updates](dependency-updates.mdx) | Automated dependency updates with Renovate |
@@ -174,7 +174,7 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 ## Tools
 
-Every tool **Vortex** ships, and where it is documented.
+Every tool **Vortex** ships, and where it's documented.
 
 | Tool | Documented in |
 |------|---------------|

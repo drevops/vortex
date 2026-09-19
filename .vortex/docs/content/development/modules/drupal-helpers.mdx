@@ -34,8 +34,8 @@ Helper::menu()->createTree('main', [
 Helper::entity()->deleteAll('node', 'page');
 ```
 
-Each facade throws a `RuntimeException` when the helper needs a module that is
-not installed, so a deploy hook fails loudly rather than half-applying.
+Each facade throws a `RuntimeException` when the helper needs a module that
+isn't installed, so a deploy hook fails loudly rather than half-applying.
 
 ## Available helpers
 
@@ -76,5 +76,5 @@ for example `Helper::entity($sandbox, 100)`.
 
 The [`ys_demo.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.deploy.php)
 file uses `Helper::menu()` to add a `Pages` link to the main navigation during
-deployment, guarding the operation with `findItem()` so re-running the hook does
-not create a duplicate.
+deployment, guarding the operation with `findItem()` so re-running the hook
+doesn't create a duplicate.

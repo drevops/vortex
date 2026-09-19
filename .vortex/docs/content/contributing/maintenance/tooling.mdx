@@ -6,7 +6,7 @@ sidebar_position: 4
 # Tooling
 
 The operational shell scripts that consumer projects run - build, provision,
-database, deployment and notification commands - live in `.vortex/tooling/`
+database, deployment, and notification commands - live in `.vortex/tooling/`
 and are published as the standalone
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
 Composer package. Consumer projects install the package and run the scripts
@@ -18,29 +18,29 @@ from `vendor/bin/vortex-*`.
 |------|---------|
 | `src/` | The shipped scripts - the only directory in the published archive |
 | `tests/unit/` | BATS unit tests covering the shipped scripts |
-| `playground/` | Manual scripts that hit live services (Slack, JIRA, New Relic); not automated |
+| `playground/` | Manual scripts that hit live services (Slack, Jira, New Relic); not automated |
 
 `tests/` and `playground/` are stripped from the published archive via
 `.gitattributes` `export-ignore`.
 
 While developing **Vortex** itself, the template's root `composer.json`
 resolves the package from the in-tree copy through a `path` repository with a
-pinned version; the installer strips that entry so consumer sites resolve the
+pinned version. The installer strips that entry so consumer sites resolve the
 published package from Packagist.
 
 ## Script conventions
 
-Every shipped script follows the same pattern: an environment-loading header
-that reads `.env` and `.env.local` while letting real environment variables
-win, `set -eu` with an opt-in `VORTEX_DEBUG=1` trace, variables with defaults,
-and the shared output helpers.
+Every shipped script follows the same pattern: an environment-loading header,
+`set -eu` with an opt-in `VORTEX_DEBUG=1` trace, variables with defaults, and
+the shared output helpers. The header reads `.env` and `.env.local` while
+letting real environment variables win.
 
 The output helpers have a strict contract:
 
 - `info` opens and closes an operation.
-- `task` announces work that is starting - and every `task` **must** be closed
-  by a `pass` or a `fail`, even when the work itself cannot fail, so the reader
-  can always tell whether a step succeeded.
+- `task` announces work that's starting. Every `task` **must** be closed by a
+  `pass` or a `fail`, even when the work itself can't fail, so the reader can
+  always tell whether a step succeeded.
 - `note` is a standalone remark that starts no task.
 - `fail` reports the failure and aborts.
 
@@ -51,8 +51,8 @@ pass "Disabled Search API Solr server."
 ```
 
 The `|| true` in this example is deliberate: the disable is best-effort
-because the Solr server is not enabled in every environment, and the contract
-still requires the closing `pass` so the step reports an outcome.
+because the Solr server isn't enabled in every environment. The contract still
+requires the closing `pass` so the step reports an outcome.
 
 See [Template > Authoring scripts](template.mdx#authoring-scripts) for the full
 authoring requirements shared by all shell scripts in the template.
@@ -76,7 +76,7 @@ The scripts are tested at 3 levels:
   PHPUnit functional tests in `.vortex/tests/` - see
   [Template > Testing](template.mdx#testing).
 - **Manual** - `tooling/playground/` holds scripts that hit live services.
-  They are not automated; see `tooling/playground/README.md`.
+  They aren't automated; see `tooling/playground/README.md`.
 
 ## Publishing
 
@@ -91,6 +91,6 @@ The package version is injected at publish time - never hardcode a `version`
 in the package `composer.json`.
 
 Releases of the package are tagged on the mirror repository. When the tooling
-changed since the last release, it is tagged **before** the **Vortex** release,
+changed since the last release, it's tagged **before** the **Vortex** release,
 so the template can require the new tag - see
 [Release > Tagging](release.mdx#tagging).

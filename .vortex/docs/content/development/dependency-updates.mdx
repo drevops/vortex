@@ -16,26 +16,26 @@ Assignees can be configured in the `assignees` field.
 
 | Group | Packages | Update types | Schedule |
 |---|---|---|---|
-| **Drupal core** | `drupal/core-recommended`, `drupal/core-composer-scaffold` and other `drupal/core-*` packages | Minor, patch | Daily before 2 AM UTC |
+| **Drupal core** | `drupal/core-recommended`, `drupal/core-composer-scaffold`, and other `drupal/core-*` packages | Minor, patch | Daily before 2 AM UTC |
 | **Drupal contrib and PHP packages (non-core)** | All Drupal contrib modules and non-Drupal Packagist packages | Minor, patch | Weekly, Sunday before 2 AM UTC |
 | **JS packages** | All npm packages (root `package.json` only) | Minor, patch | Weekly, Sunday before 2 AM UTC |
 | **Container images** | All images in `.docker/` and `docker-compose.yml` | Major, minor, patch | Daily before 3 AM UTC |
 | **GitHub Actions** | All actions (pinned to digests) | Major, minor, patch | Daily before 3 AM UTC |
 
 Updates in the **GitHub Actions** group are auto-merged after CI passes. This
-requires two repository settings:
+requires 2 repository settings:
 
 1. **"Allow auto-merge"** enabled under *Settings > General > Pull Requests*.
 2. **"Require status checks to pass before merging"** configured in the base
    branch's branch protection rules, with at least one required status check
-   selected - otherwise GitHub may merge even if CI is red.
+   selected. Otherwise, GitHub may merge even if CI is red.
 
 All other groups open PRs for manual review.
 
 ## Configuration
 
-The configuration is stored in [`renovate.json`](https://github.com/drevops/vortex/blob/main/renovate.json). It is
-based on [Renovate configuration for automated Drupal dependency updates](https://github.com/drevops/renovate-drupal)
+The configuration is stored in [`renovate.json`](https://github.com/drevops/vortex/blob/main/renovate.json). It's
+based on the [Renovate configuration for automated Drupal dependency updates](https://github.com/drevops/renovate-drupal)
 project.
 
 ### PR throughput and presentation
@@ -43,7 +43,7 @@ project.
 - **Concurrent PR limit:** `prConcurrentLimit: 10` - at most 10 open PRs
   across all groups at any time.
 - **Hourly PR limit:** `prHourlyLimit: 0` - no hourly cap; the per-group
-  schedules above provide throttling.
+  schedules listed earlier provide throttling.
 - **Commit body table:** `commitBodyTable: true` - grouped update commits
   include a version-comparison table in the commit message body.
 - **Dashboard labels:** the Renovate dependency dashboard issue is labeled
@@ -53,9 +53,9 @@ project.
 
 These are intentionally skipped by Renovate - update them manually:
 
-| Group | What is skipped | Why |
+| Group | What's skipped | Why |
 |---|---|---|
-| Drupal core major | `drupal/core-recommended`, `drupal/core-composer-scaffold` and other `drupal/core-*` packages | Major version upgrades may introduce breaking changes |
+| Drupal core major | `drupal/core-recommended`, `drupal/core-composer-scaffold`, and other `drupal/core-*` packages | Major version upgrades may introduce breaking changes |
 | PHP and Drupal contrib major | All Drupal contrib modules and non-Drupal Packagist packages | Major version upgrades may introduce breaking changes |
 | JS major | All npm packages | Major version upgrades may introduce breaking changes |
 | PHP language version | `php` constraint in `composer.json` | Major version upgrades may introduce breaking changes |
@@ -70,7 +70,7 @@ restrict third-party access to their repositories.
 
 :::note
 
-If the job is configured but a required variable is not provided, the job
+If the job is configured but a required variable isn't provided, the job
 still runs and the Renovate update steps are skipped gracefully without
 failing the build. On GitHub Actions the required variables are
 `RENOVATE_TOKEN` and `RENOVATE_GIT_AUTHOR`; CircleCI additionally requires
@@ -91,7 +91,8 @@ import TabItem from '@theme/TabItem';
 - `RENOVATE_TOKEN`: GitHub access token with repository write permissions.
   *Location: Settings > Secrets and variables > Actions > Repository secrets.*
 - `RENOVATE_GIT_AUTHOR`: Author for Renovate commits in the format
-  `Name <email@example.com>` (e.g., `Renovate Bot <renovate@example.com>`).
+  `Name <email@example.com>` (for example,
+  `Renovate Bot <renovate@example.com>`).
   *Location: Settings > Secrets and variables > Actions > Repository variables.*
 
 **Optional variables** (defaults apply if not set):
@@ -118,7 +119,8 @@ workflow configuration.
 - `RENOVATE_REPOSITORIES`: Repository to run Renovate on in the format
   `yourorg/repo`.
 - `RENOVATE_GIT_AUTHOR`: Author for Renovate commits in the format
-  `Name <email@example.com>` (e.g., `Renovate Bot <renovate@example.com>`).
+  `Name <email@example.com>` (for example,
+  `Renovate Bot <renovate@example.com>`).
 
 **Optional variables** (defaults apply if not set):
 
@@ -138,7 +140,7 @@ and branch `develop`.
 </TabItem>
 </Tabs>
 
-Triggering GitHub Actions from the self-hosted service is not supported.
+Triggering GitHub Actions from the self-hosted service isn't supported.
 
 ### Dependency dashboard
 

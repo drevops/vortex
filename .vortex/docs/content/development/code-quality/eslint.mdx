@@ -65,7 +65,7 @@ See [configuration reference](https://eslint.org/docs/latest/use/configure/).
 
 All global configuration takes place in the [`eslint.config.mjs`](https://github.com/drevops/vortex/blob/main/eslint.config.mjs) file.
 
-By default, ESLint will check against the following rules:
+By default, ESLint checks against the following rules:
 
 - `@eslint/js` recommended - the rules ESLint itself ships
 - `eslint-plugin-import` recommended - module resolution and import order
@@ -76,7 +76,7 @@ By default, ESLint will check against the following rules:
   browser has an equivalent
 
 The configuration follows the one Drupal core adopts for its own JavaScript, so
-the two stay comparable as core evolves.
+the 2 configurations stay comparable as core evolves.
 
 The configuration includes Drupal-specific globals:
 
@@ -114,9 +114,9 @@ When you run `ahoy lint-fe-fix`, both ESLint's `--fix` and Prettier's formatting
 
 #### Line width
 
-**Vortex** sets `printWidth` to `160` in [`.prettierrc.json`](https://github.com/drevops/vortex/blob/main/.prettierrc.json) instead of the Prettier default of `80`, so a statement stays on one line unless it is genuinely long. Documentation blocks are held to `80` columns through `jsdocPrintWidth`, matching the width the PHP coding standard applies to comments.
+**Vortex** sets `printWidth` to `160` in [`.prettierrc.json`](https://github.com/drevops/vortex/blob/main/.prettierrc.json) instead of the Prettier default of `80`, so a statement stays on one line unless it's genuinely long. Documentation blocks are held to `80` columns through `jsdocPrintWidth`, matching the width the PHP coding standard applies to comments.
 
-CSS carries its own `printWidth` override so that declarations are never wrapped. Prettier only reaches CSS when it is invoked directly, such as from an editor on save - within **Vortex**, stylesheets are linted by [Stylelint](stylelint.mdx).
+CSS carries its own `printWidth` override so that declarations are never wrapped. Prettier only reaches CSS when it's invoked directly, such as from an editor on save - within **Vortex**, stylesheets are linted by [Stylelint](stylelint.mdx).
 
 The custom theme ships a second `.prettierrc.json` with the same settings, because a theme carries its own front-end tooling and can be moved into a separate repository.
 

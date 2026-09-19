@@ -95,12 +95,12 @@ Login at: %login_url%
 
 Deployment logs are collected from a shared directory and included in
 notifications. Each producing script writes its own `<name>.log` into
-`VORTEX_NOTIFY_LOG_DIR` - `vortex-provision` writes `provision.log` when
-`VORTEX_PROVISION_LOG=1`, truncated fresh each run - and when `VORTEX_NOTIFY_LOG=1`
-the notifier collects every log in that directory, each as its own titled section,
-and the **email**, **Slack**, **JIRA**, and **webhook** channels add them to their
+`VORTEX_NOTIFY_LOG_DIR`. `vortex-provision` writes `provision.log` when
+`VORTEX_PROVISION_LOG=1`, truncated fresh each run. When `VORTEX_NOTIFY_LOG=1`,
+the notifier collects every log in that directory, each as its own titled section.
+The **email**, **Slack**, **Jira**, and **webhook** channels add them to their
 message. The email and webhook message templates expose the collected logs as the
-`%deployment_log%` token; Slack adds them to the message attachment and JIRA as a
+`%deployment_log%` token; Slack adds them to the message attachment and Jira as a
 comment code block. Any future script that drops a `<name>.log` into the directory
 is collected automatically.
 
@@ -111,7 +111,7 @@ turned off with `VORTEX_NOTIFY_<CHANNEL>_LOG=0` (for example
 
 :::warning
 
-Deployment logs are included verbatim. Make sure producing scripts do not print
+Deployment logs are included verbatim. Make sure producing scripts don't print
 secrets, and enable the feature only for the channels and environments where
 exposing the full logs is acceptable.
 
@@ -119,7 +119,7 @@ Logs are written to `VORTEX_NOTIFY_LOG_DIR` (default `/tmp/vortex-logs`).
 `vortex-provision` creates its log directory and `provision.log` owner-only
 (`700`/`600`) on a best-effort basis; any other producing script controls the
 permissions of its own log file. If you point `VORTEX_NOTIFY_LOG_DIR` at a custom
-directory, make sure that location is not readable by other users.
+directory, make sure that location isn't readable by other users.
 
 :::
 

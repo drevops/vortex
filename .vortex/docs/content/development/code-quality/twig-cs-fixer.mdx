@@ -82,7 +82,7 @@ Every error has an identifier in the form `A.B:C:D`, where:
 - `C`: the line the error occurs on
 - `D`: the position of the token in that line
 
-All 4 parts are optional: `A`, `A.B`, `A.B:C`, `A.B:C:D`, `A:C`, `A:C:D` and
+All 4 parts are optional: `A`, `A.B`, `A.B:C`, `A.B:C:D`, `A:C`, `A:C:D`, and
 `A::D` all work. To find the identifier of an error you want to ignore, run
 the linter command with the `--debug` option.
 
@@ -98,7 +98,7 @@ To ignore **a specific rule** within a file, place in the file header:
 {# twig-cs-fixer-disable A.B:C:D #}
 ```
 
-Twig CS Fixer does not support ignoring of the **code blocks**.
+Twig CS Fixer doesn't support ignoring of the **code blocks**.
 
 To ignore only the **current line**:
 

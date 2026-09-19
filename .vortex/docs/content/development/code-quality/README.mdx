@@ -8,7 +8,7 @@ sidebar_position: 1
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
 **Vortex** ships pre-configured linters for PHP, Twig, JavaScript, CSS,
-Gherkin, Docker Compose files and Dockerfiles. Each tool has its own
+Gherkin, Docker Compose files, and Dockerfiles. Each tool has its own
 configuration file with defaults that work for Drupal projects out of the box.
 
 | Tool                               | Checks                                                | Command                         |
@@ -27,7 +27,7 @@ configuration file with defaults that work for Drupal projects out of the box.
 ## Running
 
 `ahoy lint` runs all the code quality checks: back-end (PHPCS, PHPStan,
-Rector), front-end (Twig CS Fixer, ESLint, Stylelint) and test linting
+Rector), front-end (Twig CS Fixer, ESLint, Stylelint), and test linting
 (Gherkin Lint).
 
 <AsciinemaPlayer
@@ -53,10 +53,10 @@ where the tools support automatic fixes:
 | `ahoy lint-sdc`   | SDC Devel (requires a provisioned site)                                      | -                  |
 
 `ahoy lint-be-fix` runs Rector and then PHPCBF; `ahoy lint-fe-fix` runs Twig
-CS Fixer, ESLint and Stylelint with their fix flags. PHPStan and Gherkin Lint
+CS Fixer, ESLint, and Stylelint with their fix flags. PHPStan and Gherkin Lint
 only report problems.
 
-DCLint and Hadolint are not installed locally and have no Ahoy commands. Install
+DCLint and Hadolint aren't installed locally and have no Ahoy commands. Install
 them on your system to run them by hand; in continuous integration they run
 from their official Docker images.
 

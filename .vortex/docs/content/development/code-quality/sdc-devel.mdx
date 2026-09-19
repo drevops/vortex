@@ -43,10 +43,10 @@ import TabItem from '@theme/TabItem';
 `ahoy lint-sdc` runs `drush sdc-devel:validate` for the theme named in the
 [`DRUPAL_THEME`](../variables.mdx#drupal_theme) variable. The Drush command
 lists the problems it finds in a table; the Ahoy command prints that output
-and exits with a non-zero code when it contains `Critical`, `Error(s)` or
+and exits with a non-zero code when it contains `Critical`, `Error(s)`, or
 `Warning(s)`.
 
-`ahoy lint` does not include `ahoy lint-sdc`; run it separately once the site
+`ahoy lint` doesn't include `ahoy lint-sdc`; run it separately once the site
 is provisioned.
 
 To validate a single component, pass its ID as the second argument:
@@ -63,7 +63,7 @@ The module also provides a "Components status report" in the site UI at
 SDC Devel has no configuration file of its own.
 
 The module is installed by the `scripts/provision-10-enable-dev-modules.sh`
-provisioning script in the `local`, `ci`, `dev` and `stage` environments and
+provisioning script in the `local`, `ci`, `dev`, and `stage` environments and
 is skipped in production.
 
 ➡️ See [Provision > Development modules](../provision.mdx#development-modules)

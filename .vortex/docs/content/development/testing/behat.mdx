@@ -67,7 +67,7 @@ container environment.
 
 ## Writing tests
 
-When writing tests, it is recommended to use the following structure:
+When writing tests, we recommend using the following structure:
 
 ```gherkin
 @tag_describing_feature_group
@@ -90,8 +90,8 @@ Feature: Short feature description
     Then I save screenshot
 ```
 
-Use the `@api` tag for tests that do not require JavaScript and `@api @javascript`
-for tests that require JavaScript.
+Use the `@api` tag for tests that don't require JavaScript and
+`@api @javascript` for tests that require JavaScript.
 
 :::tip
 
@@ -121,9 +121,9 @@ install **Vortex** and can be used as a starting point for writing your own.
 
 Tag a scenario `@email` to capture outgoing messages instead of delivering them, then assert on their recipients and content with the steps from [`EmailTrait`](https://github.com/drevops/behat-steps/blob/main/src/Drupal/EmailTrait.php). The [password reset feature](https://github.com/drevops/vortex/blob/main/tests/behat/features/password_reset.feature) can be used as a starting point.
 
-In the `ci` environment, [`settings.system.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.system.php) makes the same mail collector the default backend for every message, so an automated test run cannot deliver a message to a real recipient even when a scenario is not tagged. The collector is set as a settings override rather than as stored configuration, so nothing running inside the site can switch the collector off. [Reroute Email](../modules/contributed-modules.mdx#reroute-email) is disabled in `ci` so that each stored message keeps its intended recipient, rather than the rerouting address.
+In the `ci` environment, [`settings.system.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.system.php) makes the same mail collector the default backend for every message. As a result, an automated test run can't deliver a message to a real recipient, even when a scenario isn't tagged. The collector is set as a settings override rather than as stored configuration, so nothing running inside the site can switch the collector off. [Reroute Email](../modules/contributed-modules.mdx#reroute-email) is disabled in `ci` so that each stored message keeps its intended recipient, rather than the rerouting address.
 
-The collector covers `interface.default`, which is the only interface the shipped configuration defines. A site that routes a module through its own interface (`interface.<module>` or `interface.<module>_<key>`, as [Symfony Mailer](https://www.drupal.org/project/symfony_mailer) and [Mail System](https://www.drupal.org/project/mailsystem) do) bypasses the collector for those messages, so `docker-compose.yml` also points `SSMTP_MAILHUB` at a closed port in CI. Delivery then fails at the transport no matter which mail plugin produced the message.
+The collector covers `interface.default`, which is the only interface the shipped configuration defines. A site that routes a module through its own interface (`interface.<module>` or `interface.<module>_<key>`, as [Symfony Mailer](https://www.drupal.org/project/symfony_mailer) and [Mail System](https://www.drupal.org/project/mailsystem) do) bypasses the collector for those messages. For that reason, `docker-compose.yml` also points `SSMTP_MAILHUB` at a closed port in CI. Delivery then fails at the transport no matter which mail plugin produced the message.
 
 The bare `When I clear the test email system queue` step still requires the `@email` tag, and each tagged scenario clears the queue as it starts.
 
@@ -142,7 +142,7 @@ and its [configuration reference](https://docs.behat.org/en/latest/user_guide/co
 
 All global configuration takes place in the [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml) file.
 
-By default, Behat will run all tests defined in the `tests/behat/features`
+By default, Behat runs all tests defined in the `tests/behat/features`
 directory.
 
 Adding or removing test targets:
@@ -182,12 +182,12 @@ The configuration uses the following contexts and extensions:
 ### FeatureContext
 
 The [`FeatureContext.php`](https://github.com/drevops/vortex/blob/main/tests/behat/bootstrap/FeatureContext.php)
-file is a Behat custom context file that is loaded by default. This is where
-custom step definitions and hooks should be placed.
+file is a Behat custom context file loaded by default. This is where custom
+step definitions and hooks should be placed.
 
-It is recommended to use traits to organize step definitions and hooks and
-include those traits in the `FeatureContext.php` file. There are already
-several traits included from the [Behat Steps](https://github.com/drevops/behat-steps)
+We recommend using traits to organize step definitions and hooks, and
+including those traits in the `FeatureContext.php` file. The file already
+includes several traits from the [Behat Steps](https://github.com/drevops/behat-steps)
 package.
 
 ## Reports
@@ -233,26 +233,26 @@ using a browser thanks to the VNC server running in the container and [noVNC](ht
     ```shell
     ahoy info
     ```
-    2. Click on the link next to `Selenium VNC URL on host` to open the browser.
+    2. Click the link next to `Selenium VNC URL on host` to open the browser.
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     1. Get the port number:
     ```shell
     docker compose port chrome 7900
     ```
-    2. Replace `<port>` with the value above and open `http://localhost:<port>/?autoconnect=1&password=secret` in your browser.
+    2. Replace `<port>` with the value from the previous step and open `http://localhost:<port>/?autoconnect=1&password=secret` in your browser.
   </TabItem>
 </Tabs>
 
 :::tip
 
-When running tests, you can add `And I wait for 60 seconds` step to suspend
-the test execution for a minute and interact with the headless browser in a
-container through a browser on your host machine.
+When running tests, you can add an `And I wait for 60 seconds` step to suspend
+the test execution for a minute. That pause lets you interact with the headless
+browser in a container through a browser on your host machine.
 
 :::
 
-![behat-novnc.gif](/img/behat-novnc.gif)
+![Animated demo of observing a Behat test in the browser through noVNC](/img/behat-novnc.gif)
 
 ## Continuous integration
 
@@ -262,7 +262,7 @@ Behat runs with the `default` profile defined in `behat.yml`: it runs every
 scenario except those tagged `@skipped`.
 
 When the number of runners is greater than `1`, Behat tests run in parallel
-across the runners to increase the speed of the test suite, and Behat tags mark
+across the runners to increase the speed of the test suite. Behat tags mark
 which runner a feature or scenario lands on. Behat picks the profile named after
 the runner index, starting from `0`. Out of the box, **Vortex** provides support
 for unlimited parallel runners, but only 2 parallel profiles, `p0` and `p1`:
@@ -272,13 +272,13 @@ for unlimited parallel runners, but only 2 parallel profiles, `p0` and `p1`:
 - `p1` (the second runner) runs scenarios tagged `@p1`, plus all `@smoke`
   scenarios.
 
-In practice: leave a feature untagged to run it on the first runner, tag it
+In practice, leave a feature untagged to run it on the first runner. Tag it
 `@p1` to move it to the second runner, or tag it `@smoke` to run it on every
 runner. An untagged feature always lands on the first runner, so forgetting to
 tag never orphans a test.
 
-In the example below, with one runner Behat runs both scenarios; with 2
-runners the first scenario runs on the first runner (untagged scenarios stay
+In the example below, with one runner Behat runs both scenarios. With 2
+runners, the first scenario runs on the first runner (untagged scenarios stay
 there) and the second scenario runs on the second runner:
 
 ```gherkin
@@ -303,10 +303,10 @@ Feature: Homepage
 You can add more `p*` profiles in your `behat.yml` by copying the existing `p1`
 profile and changing several lines of configuration.
 
-Profile numbers count from the first runner that runs Behat: the CI
+Profile numbers count from the first runner that runs Behat. The CI
 configuration subtracts `VORTEX_CI_BEHAT_PROFILE_OFFSET` (`0` by default) from
-the runner index to pick the profile, so dedicating leading runners to other
-tools requires no profile renumbering or feature re-tagging. See
+the runner index to pick the profile. As a result, dedicating leading runners
+to other tools requires no profile renumbering or feature re-tagging. See
 [Test parallelism](../../continuous-integration/README.mdx#test-parallelism)
 for the container mechanics.
 
@@ -323,7 +323,7 @@ single runner.
 Both test results and screenshots are stored as artifacts when run in the
 continuous integration pipeline. The JUnit reports are used to track test
 performance and stability. In GitHub Actions, screenshots can be downloaded
-from the `Summary` tab. In CircleCI they are accessible in the `Artifacts` tab.
+from the `Summary` tab. In CircleCI, they're accessible in the `Artifacts` tab.
 
 **Vortex** passes `BEHAT_SCREENSHOT_ANIMATION_SKIP=1` into the Behat step in
 continuous integration to skip [animation](#animated-screenshots) there, while
@@ -334,8 +334,8 @@ keeping it available for local runs where a recording is worth the wait.
 Due to the size of your website and the available continuous integration runner
 resources, Behat tests may occasionally fail.
 
-To prevent the pipeline from failing as a result, any failed Behat test will be
-retried automatically.
+To prevent the pipeline from failing as a result, it automatically retries any
+failed Behat test.
 
 ### Ignoring failures
 
