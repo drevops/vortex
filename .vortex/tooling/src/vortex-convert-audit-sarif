@@ -12,18 +12,20 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# Format of the report to convert. Either 'composer' or 'npm'.
-VORTEX_CONVERT_AUDIT_SARIF_FORMAT="${VORTEX_CONVERT_AUDIT_SARIF_FORMAT:-composer}"
+# Path to the audit report to convert. Also accepted as the first argument.
+VORTEX_CONVERT_AUDIT_SARIF_FILE="${1:-${VORTEX_CONVERT_AUDIT_SARIF_FILE:-.logs/audit/composer-audit.json}}"
 
-# Path to the audit report to convert.
-VORTEX_CONVERT_AUDIT_SARIF_FILE="${VORTEX_CONVERT_AUDIT_SARIF_FILE:-.logs/audit/composer-audit.json}"
+# Format of the report to convert, 'composer' or 'npm'. Also accepted as the
+# second argument.
+VORTEX_CONVERT_AUDIT_SARIF_FORMAT="${2:-${VORTEX_CONVERT_AUDIT_SARIF_FORMAT:-composer}}"
 
-# Path of the SARIF report to write.
-VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE="${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE:-.logs/audit/composer-audit.sarif}"
+# Path to the lock file that findings are located in. Also accepted as the
+# third argument. Defaults to the lock file the report format uses.
+VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE="${3:-${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE:-}}"
 
-# Path to the lock file that findings are located in. Set this to the npm lock
-# file when converting an npm report.
-VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE="${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE:-composer.lock}"
+# Path of the SARIF report to write. Defaults to the report path with a
+# '.sarif' extension.
+VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE="${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE:-${VORTEX_CONVERT_AUDIT_SARIF_FILE%.json}.sarif}"
 
 # ------------------------------------------------------------------------------
 
@@ -65,6 +67,13 @@ case "${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}" in
   composer | npm) ;;
   *) fail "Unknown report format ${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}. Use 'composer' or 'npm'." ;;
 esac
+
+if [ -z "${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}" ]; then
+  case "${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}" in
+    npm) VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE="package-lock.json" ;;
+    *) VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE="composer.lock" ;;
+  esac
+fi
 
 [ -f "${VORTEX_CONVERT_AUDIT_SARIF_FILE}" ] || fail "Audit report ${VORTEX_CONVERT_AUDIT_SARIF_FILE} does not exist."
 jq -e . "${VORTEX_CONVERT_AUDIT_SARIF_FILE}" >/dev/null 2>&1 || fail "Audit report ${VORTEX_CONVERT_AUDIT_SARIF_FILE} is not valid JSON."

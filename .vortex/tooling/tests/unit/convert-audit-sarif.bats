@@ -13,19 +13,20 @@ fixture_audit_report() {
   printf '%s' "${1}" >.logs/audit/composer-audit.json
 }
 
-# Writes an 'npm audit --json' report fixture and points the script at it.
+# Writes an 'npm audit --json' report fixture.
 fixture_npm_report() {
   mkdir -p .logs/audit
   printf '%s' "${1}" >.logs/audit/npm-audit.json
-
-  export VORTEX_CONVERT_AUDIT_SARIF_FORMAT="npm"
-  export VORTEX_CONVERT_AUDIT_SARIF_FILE=".logs/audit/npm-audit.json"
-  export VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE=".logs/audit/composer-audit.sarif"
 }
 
-# Reads a value out of the produced SARIF report.
+# Reads a value out of the SARIF report produced from the Composer fixture.
 sarif() {
   jq -r "${1}" .logs/audit/composer-audit.sarif
+}
+
+# Reads a value out of the SARIF report produced from the npm fixture.
+sarif_npm() {
+  jq -r "${1}" .logs/audit/npm-audit.sarif
 }
 
 @test "convert-audit-sarif: Converts an advisory carrying a link, a CVE and a severity" {
@@ -319,15 +320,11 @@ sarif() {
     "abandoned": []
   }'
 
-  export VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE="nested/composer.lock"
-
-  run .vortex/tooling/src/vortex-convert-audit-sarif
+  run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/composer-audit.json composer nested/composer.lock
   assert_success
 
   assert_equal "nested/composer.lock" "$(sarif '.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri')"
   assert_equal "4" "$(sarif '.runs[0].results[0].locations[0].physicalLocation.region.startLine')"
-
-  unset VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE
 
   popd >/dev/null || exit 1
 }
@@ -350,27 +347,25 @@ sarif() {
     }
   }'
 
-  run .vortex/tooling/src/vortex-convert-audit-sarif
+  run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
   assert_success
 
   assert_output_contains "Format:    npm"
   assert_output_contains "Findings:  2"
 
-  assert_equal "npm audit" "$(sarif '.runs[0].tool.driver.name')"
+  assert_equal "npm audit" "$(sarif_npm '.runs[0].tool.driver.name')"
 
-  assert_equal "GHSA-vh95-rmgr-6w4m" "$(sarif '.runs[0].results[0].ruleId')"
-  assert_equal "warning" "$(sarif '.runs[0].results[0].level')"
-  assert_equal "5.6" "$(sarif '.runs[0].tool.driver.rules[0].properties["security-severity"]')"
-  assert_equal "security npm" "$(sarif '.runs[0].tool.driver.rules[0].properties.tags | join(" ")')"
-  assert_equal "https://github.com/advisories/GHSA-vh95-rmgr-6w4m" "$(sarif '.runs[0].tool.driver.rules[0].helpUri')"
+  assert_equal "GHSA-vh95-rmgr-6w4m" "$(sarif_npm '.runs[0].results[0].ruleId')"
+  assert_equal "warning" "$(sarif_npm '.runs[0].results[0].level')"
+  assert_equal "5.6" "$(sarif_npm '.runs[0].tool.driver.rules[0].properties["security-severity"]')"
+  assert_equal "security npm" "$(sarif_npm '.runs[0].tool.driver.rules[0].properties.tags | join(" ")')"
+  assert_equal "https://github.com/advisories/GHSA-vh95-rmgr-6w4m" "$(sarif_npm '.runs[0].tool.driver.rules[0].helpUri')"
 
-  assert_equal "GHSA-xvch-5gv4-984h" "$(sarif '.runs[0].results[1].ruleId')"
-  assert_equal "error" "$(sarif '.runs[0].results[1].level')"
-  assert_equal "9.8" "$(sarif '.runs[0].tool.driver.rules[1].properties["security-severity"]')"
-  assert_equal "minimist: Prototype Pollution (affects >=1.0.0 <1.2.6)." "$(sarif '.runs[0].results[1].message.text')"
-  assert_equal "GHSA-xvch-5gv4-984h|minimist" "$(sarif '.runs[0].results[1].partialFingerprints["vortexAudit/v1"]')"
-
-  unset VORTEX_CONVERT_AUDIT_SARIF_FORMAT VORTEX_CONVERT_AUDIT_SARIF_FILE VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE
+  assert_equal "GHSA-xvch-5gv4-984h" "$(sarif_npm '.runs[0].results[1].ruleId')"
+  assert_equal "error" "$(sarif_npm '.runs[0].results[1].level')"
+  assert_equal "9.8" "$(sarif_npm '.runs[0].tool.driver.rules[1].properties["security-severity"]')"
+  assert_equal "minimist: Prototype Pollution (affects >=1.0.0 <1.2.6)." "$(sarif_npm '.runs[0].results[1].message.text')"
+  assert_equal "GHSA-xvch-5gv4-984h|minimist" "$(sarif_npm '.runs[0].results[1].partialFingerprints["vortexAudit/v1"]')"
 
   popd >/dev/null || exit 1
 }
@@ -391,13 +386,11 @@ sarif() {
     }
   }'
 
-  run .vortex/tooling/src/vortex-convert-audit-sarif
+  run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
   assert_success
 
-  assert_equal "note" "$(sarif '.runs[0].results[0].level')"
-  assert_equal "null" "$(sarif '.runs[0].tool.driver.rules[0].properties["security-severity"]')"
-
-  unset VORTEX_CONVERT_AUDIT_SARIF_FORMAT VORTEX_CONVERT_AUDIT_SARIF_FILE VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE
+  assert_equal "note" "$(sarif_npm '.runs[0].results[0].level')"
+  assert_equal "null" "$(sarif_npm '.runs[0].tool.driver.rules[0].properties["security-severity"]')"
 
   popd >/dev/null || exit 1
 }
@@ -414,15 +407,11 @@ sarif() {
     }
   }'
 
-  export VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE="npm.lock.json"
-
-  run .vortex/tooling/src/vortex-convert-audit-sarif
+  run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm npm.lock.json
   assert_success
 
-  assert_equal "npm.lock.json" "$(sarif '.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri')"
-  assert_equal "5" "$(sarif '.runs[0].results[0].locations[0].physicalLocation.region.startLine')"
-
-  unset VORTEX_CONVERT_AUDIT_SARIF_FORMAT VORTEX_CONVERT_AUDIT_SARIF_FILE VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE
+  assert_equal "npm.lock.json" "$(sarif_npm '.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri')"
+  assert_equal "5" "$(sarif_npm '.runs[0].results[0].locations[0].physicalLocation.region.startLine')"
 
   popd >/dev/null || exit 1
 }
@@ -430,14 +419,10 @@ sarif() {
 @test "convert-audit-sarif: Fails on an unknown report format" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  export VORTEX_CONVERT_AUDIT_SARIF_FORMAT="yarn"
-
-  run .vortex/tooling/src/vortex-convert-audit-sarif
+  run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/composer-audit.json yarn
   assert_failure
 
   assert_output_contains "Unknown report format yarn. Use 'composer' or 'npm'."
-
-  unset VORTEX_CONVERT_AUDIT_SARIF_FORMAT
 
   popd >/dev/null || exit 1
 }
