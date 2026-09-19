@@ -18,15 +18,15 @@ in order: every step uses only what the previous steps produced.
 The installer asks for a **Site name**, a **Site machine name**, an
 **Organization name**, an **Organization machine name**, a
 **Custom modules prefix**, and a **Theme** name. Choose these deliberately
-before running it: the machine names end up in directory names, module names,
-and code across the whole project, so they are typed constantly and are costly
-to change later. Keep them short, easy to write, and clearly distinguishable
-from each other.
+before running it. The machine names end up in directory names, module names,
+and code across the whole project, so you type them constantly and they're
+costly to change later. Keep them short, quick to type, and distinct from each
+other.
 
-- **Custom modules prefix** - built from the first letters of the site name:
-  the first two letters for a single-word name (`Falcon` becomes `fa`), or the
-  first letter of each word for a multi-word name (`Star Wars` becomes `sw`).
-  Custom modules then read as `sw_base`, `sw_search`, and so on.
+- **Custom modules prefix** - built from the first letters of the site name.
+  Use the first 2 letters for a single-word name (`Falcon` becomes `fa`), or
+  the first letter of each word for a multi-word name (`Star Wars` becomes
+  `sw`). Custom modules then read as `sw_base`, `sw_search`, and so on.
 - **Theme** name - the whole site name, shortened as much as possible and
   without underscores where possible (`Star Wars` becomes `starwars`, `Falcon`
   becomes `falcon`). This keeps the theme name and the module prefix from
@@ -67,8 +67,9 @@ curl -SsL https://www.vortextemplate.com/install > installer.php && php installe
 
 :::tip Choosing a Vortex version
 
-The command above installs the current stable **Vortex** release (the `1.x` line
-today). To target a specific major version explicitly, use its dedicated path:
+The installer command shown earlier installs the current stable **Vortex**
+release (the `1.x` line today). To target a specific major version explicitly,
+use its dedicated path:
 
 - `https://www.vortextemplate.com/v1/install` - the current `1.x` line.
 - `https://www.vortextemplate.com/v2/install` - the `2.x` line, currently in development.
@@ -105,8 +106,8 @@ You can also generate 2 separate key pairs - one with read access for database
 fetches and one with write access for deployments - so that each can be revoked
 independently. The steps below note where each key is used.
 
-The public key (the `.pub` file) is registered with your hosting provider in
-the next step; the private key stays with you until the continuous integration
+You register the public key (the `.pub` file) with your hosting provider in
+the next step. The private key stays with you until the continuous integration
 setup and never goes anywhere else.
 
 ### 6. Set up hosting
@@ -122,15 +123,15 @@ the [Hosting](/docs/hosting) section.
    the automation can fetch databases and push code artifacts. When using
    separate keys, add both public keys.
 2. Add `VORTEX_ACQUIA_APP_NAME` with your Acquia application name (machine
-   name) to your `.env` file, commit and push.
+   name) to your `.env` file, then commit and push.
 3. Create an Acquia Cloud API key and secret for the account that runs the
-   automation, and keep both values at hand: the continuous integration setup
+   automation, and keep both values at hand. The continuous integration setup
    in the next step stores them as secrets.
 
 Acquia supplies a per-environment `hash_salt` through its platform settings
 file, which **Vortex** includes automatically (see
-[Acquia settings file](/docs/hosting/acquia#acquia-settings-file)), so you do
-not need to set `DRUPAL_HASH_SALT`.
+[Acquia settings file](/docs/hosting/acquia#acquia-settings-file)), so you
+don't need to set `DRUPAL_HASH_SALT`.
 
 </TabItem>
 <TabItem value="lagoon" label="Lagoon">
@@ -140,9 +141,9 @@ not need to set `DRUPAL_HASH_SALT`.
    automation can fetch databases and trigger deployments. When using separate
    keys, add both public keys.
 2. Add `LAGOON_PROJECT` with your Lagoon project name to your `.env` file,
-   commit and push.
+   then commit and push.
 3. Set a unique, long, random `DRUPAL_HASH_SALT` variable on every Lagoon
-   environment (dev, stage, production). Lagoon does not supply one: without
+   environment (dev, stage, production). Lagoon doesn't supply one. Without
    it, the salt is derived from the database host and changes when the host
    changes, silently invalidating outstanding one-time login and
    password-reset links.
@@ -161,8 +162,8 @@ structure, jobs, and caching, see the
 
 1. **Vortex** ships the workflow at
    [`.github/workflows/build-test-deploy.yml`](https://github.com/drevops/vortex/blob/main/.github/workflows/build-test-deploy.yml)
-   and GitHub Actions is on by default. Open the **Actions** tab to confirm it
-   is detected.
+   and GitHub Actions is on by default. Open the **Actions** tab to confirm
+   it's detected.
 2. Add the private key created in
    [step 5](#5-create-an-ssh-key-for-deployments) under
    **Settings → Secrets and variables → Actions** as 2 secrets:
@@ -204,7 +205,7 @@ configuration.
 
 ## Installing Vortex into an existing project
 
-The installer cannot predict the state of your project, so initialize
+The installer can't predict the state of your project, so initialize
 **Vortex** into a clean checkout and merge your existing project into it.
 
 :::warning
@@ -218,15 +219,15 @@ Back up your project before proceeding.
 The installer asks for a **Site name**, a **Site machine name**, an
 **Organization name**, an **Organization machine name**, a
 **Custom modules prefix**, and a **Theme** name. Choose these deliberately
-before running it: the machine names end up in directory names, module names,
-and code across the whole project, so they are typed constantly and are costly
-to change later. Keep them short, easy to write, and clearly distinguishable
-from each other.
+before running it. The machine names end up in directory names, module names,
+and code across the whole project, so you type them constantly and they're
+costly to change later. Keep them short, quick to type, and distinct from each
+other.
 
-- **Custom modules prefix** - built from the first letters of the site name:
-  the first two letters for a single-word name (`Falcon` becomes `fa`), or the
-  first letter of each word for a multi-word name (`Star Wars` becomes `sw`).
-  Custom modules then read as `sw_base`, `sw_search`, and so on.
+- **Custom modules prefix** - built from the first letters of the site name.
+  Use the first 2 letters for a single-word name (`Falcon` becomes `fa`), or
+  the first letter of each word for a multi-word name (`Star Wars` becomes
+  `sw`). Custom modules then read as `sw_base`, `sw_search`, and so on.
 - **Theme** name - the whole site name, shortened as much as possible and
   without underscores where possible (`Star Wars` becomes `starwars`, `Falcon`
   becomes `falcon`). This keeps the theme name and the module prefix from
@@ -261,7 +262,7 @@ git commit -m "Initial Vortex commit"
 
 Copy your files back from the temporary directory, overriding the installed
 ones. Review the diff and selectively keep changes: merge `composer.json` by
-hand, preserving **all** of **Vortex**'s entries, regenerate `composer.lock`
+hand, preserving **all** the **Vortex** entries, regenerate `composer.lock`
 with a reviewed `composer update`, and check the result with
 `composer validate`.
 
@@ -285,8 +286,8 @@ You can also generate 2 separate key pairs - one with read access for database
 fetches and one with write access for deployments - so that each can be revoked
 independently. The steps below note where each key is used.
 
-The public key (the `.pub` file) is registered with your hosting provider in
-the next step; the private key stays with you until the continuous integration
+You register the public key (the `.pub` file) with your hosting provider in
+the next step. The private key stays with you until the continuous integration
 setup and never goes anywhere else.
 
 ### 9. Set up hosting
@@ -302,15 +303,15 @@ the [Hosting](/docs/hosting) section.
    the automation can fetch databases and push code artifacts. When using
    separate keys, add both public keys.
 2. Add `VORTEX_ACQUIA_APP_NAME` with your Acquia application name (machine
-   name) to your `.env` file, commit and push.
+   name) to your `.env` file, then commit and push.
 3. Create an Acquia Cloud API key and secret for the account that runs the
-   automation, and keep both values at hand: the continuous integration setup
+   automation, and keep both values at hand. The continuous integration setup
    in the next step stores them as secrets.
 
 Acquia supplies a per-environment `hash_salt` through its platform settings
 file, which **Vortex** includes automatically (see
-[Acquia settings file](/docs/hosting/acquia#acquia-settings-file)), so you do
-not need to set `DRUPAL_HASH_SALT`.
+[Acquia settings file](/docs/hosting/acquia#acquia-settings-file)), so you
+don't need to set `DRUPAL_HASH_SALT`.
 
 </TabItem>
 <TabItem value="lagoon" label="Lagoon">
@@ -320,9 +321,9 @@ not need to set `DRUPAL_HASH_SALT`.
    automation can fetch databases and trigger deployments. When using separate
    keys, add both public keys.
 2. Add `LAGOON_PROJECT` with your Lagoon project name to your `.env` file,
-   commit and push.
+   then commit and push.
 3. Set a unique, long, random `DRUPAL_HASH_SALT` variable on every Lagoon
-   environment (dev, stage, production). Lagoon does not supply one: without
+   environment (dev, stage, production). Lagoon doesn't supply one. Without
    it, the salt is derived from the database host and changes when the host
    changes, silently invalidating outstanding one-time login and
    password-reset links.
@@ -341,8 +342,8 @@ structure, jobs, and caching, see the
 
 1. **Vortex** ships the workflow at
    [`.github/workflows/build-test-deploy.yml`](https://github.com/drevops/vortex/blob/main/.github/workflows/build-test-deploy.yml)
-   and GitHub Actions is on by default. Open the **Actions** tab to confirm it
-   is detected.
+   and GitHub Actions is on by default. Open the **Actions** tab to confirm
+   it's detected.
 2. Add the private key created in
    [step 8](#8-create-an-ssh-key-for-deployments) under
    **Settings → Secrets and variables → Actions** as 2 secrets:

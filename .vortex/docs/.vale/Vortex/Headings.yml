@@ -1,0 +1,37 @@
+extends: Google.Headings
+level: error
+exceptions+:
+  - Acquia Cloud
+  - BATS
+  - BDD
+  - CalVer
+  - Config Split
+  - Config Update
+  - CSS
+  - DOM
+  - Drupal Helpers
+  - FAQs
+  - FeatureContext
+  - Generated Content
+  - Gherkin Lint
+  - GitFlow
+  - JavaScript
+  - Migrate Plus
+  - Migrate Tools
+  - Navigation Extra Tools
+  - PHP
+  - PHP Code Sniffer
+  - PR
+  - PRs
+  - Reroute Email
+  - RobotsTxt
+  - SDC Devel
+  - Security Kit
+  - SemVer
+  - Single Directory Components
+  - SSH
+  - Stage File Proxy
+  - Twig CS Fixer
+  - vs
+  - www.vortextemplate.com
+  - XML Sitemap

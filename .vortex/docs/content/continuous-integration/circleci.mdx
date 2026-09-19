@@ -29,24 +29,24 @@ in the Installation guide and select **CircleCI**.
 
 All jobs in the `commit` and `audit` workflows (`database`, `lint`, `build`,
 `audit`) run on every branch. The `deploy` job only runs for specific branch
-patterns, controlled by a regex filter in the `workflows` section of
-`.circleci/config.yml`:
+patterns, controlled by a regular expression filter in the `workflows` section
+of `.circleci/config.yml`:
 
 | Pattern | Description |
 |---------|-------------|
 | `production` | Production environment branch |
 | `main`, `master` | Default development branches |
 | `develop` | Integration branch for ongoing work |
-| `release/**` | Release preparation branches (e.g., `release/1.2.3`, `release/2023-04-17`) |
-| `hotfix/**` | Urgent production fixes (e.g., `hotfix/1.2.4`, `hotfix/2023-04-17`) |
-| `feature/**` | New feature branches (e.g., `feature/login`, `feature/123-new-ui`) |
-| `bugfix/**` | Non-urgent bug fix branches (e.g., `bugfix/fix-auth`, `bugfix/456-crash`) |
+| `release/**` | Release preparation branches (for example, `release/1.2.3`, `release/2023-04-17`) |
+| `hotfix/**` | Urgent production fixes (for example, `hotfix/1.2.4`, `hotfix/2023-04-17`) |
+| `feature/**` | New feature branches (for example, `feature/login`, `feature/123-new-ui`) |
+| `bugfix/**` | Non-urgent bug fix branches (for example, `bugfix/fix-auth`, `bugfix/456-crash`) |
 | `project/**` | Long-lived project branches for large initiatives |
-| `ci*` | Temporary CI testing branches (e.g., `ci`, `ci-debug`) |
-| `N.x` | Major version branches (e.g., `1.x`, `2.x`) |
+| `ci*` | Temporary CI testing branches (for example, `ci`, `ci-debug`) |
+| `N.x` | Major version branches (for example, `1.x`, `2.x`) |
 
-To modify which branches trigger deployments, update the `only` filter regex
-in the `deploy` job.
+To modify which branches trigger deployments, update the regular expression in
+the `only` filter of the `deploy` job.
 
 2 special cases apply on top of the branch filter:
 
@@ -60,8 +60,8 @@ in the `deploy` job.
 ### Update nightly database schedule
 
 The nightly database workflow caches a fresh database dump for faster builds
-the next day. It is scheduled against the `develop` branch - change the branch
-filter of the `nightly-db` workflow if your project does not use one.
+the next day. It's scheduled against the `develop` branch - change the branch
+filter of the `nightly-db` workflow if your project doesn't use one.
 
 To change when it runs, update the `nightly_db_schedule` YAML anchor
 in `.circleci/config.yml`
@@ -81,8 +81,8 @@ the `runner_config` section. Note that this may affect your CircleCI billing:
 resource_class: large  # Options: small, medium, large, xlarge
 ```
 
-Resource classes scale CPU and memory only. Disk space is not tied to the
-resource class, so upgrading it will not help a job that runs out of space -
+Resource classes scale CPU and memory only. Disk space isn't tied to the
+resource class, so upgrading it doesn't help a job that runs out of space -
 see [Runner disk space](./README.mdx#runner-disk-space).
 
 ### Change test parallelism

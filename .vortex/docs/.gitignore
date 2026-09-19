@@ -20,6 +20,11 @@
 # Test outputs
 .logs
 
+# Vale style packages fetched by `vale sync`.
+/.vale/*
+!/.vale/Vortex
+!/.vale/config
+
 # Misc
 .env.local
 .env.development.local

@@ -1,0 +1,11 @@
+extends: existence
+message: "'%s' is a marketing adjective. State the fact instead."
+level: error
+ignorecase: true
+tokens:
+  - best-in-class
+  - blazing(?:ly)?
+  - elegant(?:ly)?
+  - powerful
+  - robust
+  - seamless(?:ly)?

@@ -19,7 +19,7 @@ Post deployment status to GitHub pull requests.
 |----------|----------|---------|----------|-------------|
 | `VORTEX_NOTIFY_GITHUB_TOKEN` | **Yes** | | Hosting | GitHub personal access token |
 | `VORTEX_NOTIFY_GITHUB_REPOSITORY` | **Yes** | | Hosting | Repository in `owner/repo` format |
-| `VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE` | No | `${VORTEX_NOTIFY_LABEL}` | `.env` | Environment name (defaults to label, e.g. `PR-123`) |
+| `VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE` | No | `${VORTEX_NOTIFY_LABEL}` | `.env` | Environment name (defaults to label, for example, `PR-123`) |
 | `VORTEX_NOTIFY_GITHUB_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
 
 ## Example
@@ -27,4 +27,4 @@ Post deployment status to GitHub pull requests.
 The pull request page shows deployment status with a **View deployment** button
 to quickly access the deployed environment.
 
-![notification-github-after.png](/img/notification-github-after.png)
+![GitHub pull request page showing a successful deployment with a View deployment button](/img/notification-github-after.png)

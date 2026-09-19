@@ -65,9 +65,9 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 ## Security audit
 
-Security checks run in their own workflow, separate from the pipeline above, so
-that a failing audit is never confused with a failing linter and can be re-run
-on its own:
+Security checks run in their own workflow, separate from the preceding
+pipeline. That way, a failing audit is never confused with a failing linter,
+and you can re-run it on its own:
 
 | Provider | Location |
 |----------|----------|
@@ -87,15 +87,15 @@ findings at once. The workflow fails if any of the checks failed, unless that
 check's `_IGNORE_FAILURE` variable (see [Ignore tool failures](#ignore-tool-failures))
 is set to `1`.
 
-It is triggered by the same pushes, pull requests and tags as the main
-pipeline, and can also be started on demand - in GitHub Actions from
-**Actions → Security audit → Run workflow**, and in CircleCI by re-running the
-`audit` workflow from the pipeline view.
+The workflow runs on the same pushes, pull requests, and tags as the main
+pipeline. You can also start it on demand. In GitHub Actions, use
+**Actions → Security audit → Run workflow**. In CircleCI, re-run the `audit`
+workflow from the pipeline view.
 
 :::note
 
-Because the audit is a separate workflow, it is not a dependency of the
-`deploy` job - a failing audit does not by itself stop a deployment. To block
+Because the audit is a separate workflow, it isn't a dependency of the
+`deploy` job - a failing audit doesn't by itself stop a deployment. To block
 merges and deployments on it, add its check to the repository's branch
 protection rules as a required status check.
 
@@ -106,7 +106,7 @@ protection rules as a required status check.
 A build can produce files that were meant to be committed - exported
 configuration, compiled front-end assets, generated documentation, scaffolded
 files. Left unnoticed, the repository and the build output drift apart, and the
-next developer to run a build gets a dirty working tree they did not cause.
+next developer to run a build gets a dirty working tree they didn't cause.
 
 The `build` job runs `vendor/bin/vortex-check-worktree-changes` as its last
 step, after the tests, so a dirty tree never suppresses the test results that
@@ -139,10 +139,12 @@ VORTEX_CHECK_WORKTREE_CHANGES_IGNORE=docker-compose.yml,*/docker-compose.yml,db_
 ```
 
 The default value covers what the pipeline itself drops into the working tree:
-every `docker-compose.yml` in the tree, which the
-`Process the codebase to run in CI` step rewrites in place; the `db_cache_*`
-database cache keys; and the `codecov` uploader with its two signature files.
-Those exist only during a continuous integration run, which is why they are
+
+- every `docker-compose.yml` in the tree, which the `Process the codebase to run in CI` step rewrites in place
+- the `db_cache_*` database cache keys
+- the `codecov` uploader with its 2 signature files
+
+Those exist only during a continuous integration run, which is why they're
 excluded here rather than in `.gitignore`. Setting the variable replaces the
 default rather than extending it, so keep those entries when adding your own.
 
@@ -154,9 +156,9 @@ without failing the build - see [Ignore tool failures](#ignore-tool-failures).
 
 ## Caching strategy
 
-The database is fetched overnight by a scheduled run and cached, so the
-follow-up continuous integration runs on the same day reuse the cached dump
-instead of downloading a fresh one.
+A scheduled run fetches the database overnight and caches it. The follow-up
+continuous integration runs on the same day reuse that cached dump instead of
+downloading a fresh one.
 
 The cache key is built from a configured cache source branch (the
 `VORTEX_CI_DB_CACHE_BRANCH` variable, `develop` by default) and a daily
@@ -170,7 +172,7 @@ Database caching speeds up continuous integration runs considerably on projects
 with a lot of data.
 
 For a project with a large database (over 1 GB), the database import itself may
-take a long time, so it may be worth packaging the database dump into a
+take a long time. It may then be worth packaging the database dump into a
 container image (overnight) or using a sanitized database dump with only the
 data the tests require.
 
@@ -186,9 +188,9 @@ intermediate database import step.
 
 ### Reset the cache
 
-If you need to force a fresh cache (e.g., to pull a new database dump outside
-of the regular schedule), increment the last segment of the version tag in the
-cache keys:
+To force a fresh cache (for example, to pull a new database dump outside the
+regular schedule), increment the last segment of the version tag in the cache
+keys:
 
 ```yaml
 # Before
@@ -224,7 +226,7 @@ The build job runs across multiple parallel containers (2 by default) to speed
 up test execution. Since each container runs the full build and provision
 steps, the test workload is distributed to make the best use of each container.
 
-Code linting runs in a separate `lint` job and is not affected by test
+Code linting runs in a separate `lint` job and isn't affected by test
 parallelism settings.
 
 ### What runs where
@@ -235,17 +237,17 @@ parallelism settings.
 | PHPUnit tests | ✓ | - |
 | Code coverage check and PR comment | ✓ | - |
 | Single Directory Component validation | ✓ | - |
-| Behat tests | ✓ (profile `p0`) | ✓ (profile `p1`, `p2`, ...) |
+| Behat tests | ✓ (profile `p0`) | ✓ (profile `p1`, `p2`, and so on) |
 
-Everything except Behat runs exclusively on the first container to avoid
-duplicate work. Behat tests run on all containers using profile-based
-distribution.
+Everything except Behat runs only on the first container to avoid duplicate
+work. Behat tests run on all containers using profile-based distribution.
 
 ### Choosing which container runs what
 
 Each tool reads a `VORTEX_CI_IS_<TOOL>_RUNNER` variable that decides whether it
-runs on the current container. All of them are declared together at the top of
-the build job, so the whole distribution is visible and editable in one place:
+runs on the current container. All these variables are declared together at the
+top of the build job, so the whole distribution is visible and editable in one
+place:
 
 <Tabs queryString="ci-provider" groupId="ci-provider">
 <TabItem value="gha" label="GitHub Actions">
@@ -329,8 +331,8 @@ echo "export VORTEX_CI_IS_CYPRESS_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 1 ] &
 Start by [adding a container](#adding-more-containers) for the tool to move
 onto - the default configuration has containers `0` and `1` only. Then point
 the tool's flag at the new container and exclude that container from Behat.
-With a third container added, that is (GitHub Actions shown - mirror the
-conditions in CircleCI's `Set test runner roles` step):
+With a third container added, that looks like this (GitHub Actions shown -
+mirror the conditions in CircleCI's `Set test runner roles` step):
 
 ```yaml
 VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 2 }}
@@ -350,10 +352,10 @@ Behat derives its profile number from the container index minus
 scenario without a `@pX` tag. With the dedicated container at the end, the
 offset stays `0`: the containers before it keep their profiles.
 
-To dedicate a **leading** container instead - for example, pinning every
-once-only tool to container `0` and keeping Behat off it - raise the offset by
-one for each leading container excluded from Behat, so the first Behat
-container still selects the `p0` catch-all:
+To dedicate a **leading** container instead, raise the offset by one for each
+leading container excluded from Behat, so the first Behat container still
+selects the `p0` catch-all. The following example pins every once-only tool to
+container `0` and keeps Behat off it:
 
 ```yaml
 VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 }}
@@ -385,7 +387,7 @@ the derivation entirely.
 
 ### Balancing Behat tests
 
-Because the first container handles Jest, PHPUnit and coverage in addition to
+Because the first container handles Jest, PHPUnit, and coverage as well as
 Behat tests, it has more work to do than the other containers. To keep the
 overall build time low, assign more Behat scenarios to the non-first containers.
 
@@ -410,7 +412,7 @@ tags.
 :::tip
 
 As a rule of thumb, keep lightweight scenarios on the first container and move
-heavier or more numerous scenarios to additional containers (`@p1`, `@p2`,
+heavier scenarios, or more of them, to additional containers (`@p1`, `@p2`,
 etc.). This keeps the total build time closer to the duration of the longest
 single container rather than the sum of all tests.
 
@@ -424,7 +426,7 @@ shipped profiles map tags to runners.
 
 ### Adding more containers
 
-Raising the container count takes two changes that must stay in step - the
+Raising the container count takes 2 changes that must stay in step - the
 container count itself, and a matching Behat profile for every new container.
 
 1. Increase the container count. See the provider-specific pages:
@@ -447,7 +449,7 @@ container count itself, and a matching Behat profile for every new container.
          tags: '@smoke,@p2&&~@skipped'
    ```
 
-3. Exclude the new tag from the `p0` catch-all, so its scenarios do not also run
+3. Exclude the new tag from the `p0` catch-all, so its scenarios don't also run
    on the first container:
 
    ```yaml title="behat.yml"
@@ -469,11 +471,11 @@ the balancing arithmetic.
 
 Strict host-key checking is disabled by default for the SSH connections the
 pipeline makes to the hosting provider. To enable it, add the verified host
-keys as a `VORTEX_SSH_KNOWN_HOSTS` variable in your provider's settings - on
-GitHub Actions as a repository variable mapped into the workflow `env` block,
-on CircleCI as an environment variable with multiple entries joined with `\n`.
-The steps that load the SSH keys skip their `known_hosts` file by default; set
-the `VORTEX_FETCH_DB_SSH_KNOWN_HOSTS` (database fetch) and
+keys as a `VORTEX_SSH_KNOWN_HOSTS` variable in your provider's settings. On
+GitHub Actions, add it as a repository variable mapped into the workflow `env`
+block. On CircleCI, add it as an environment variable with multiple entries
+joined with `\n`. The steps that load the SSH keys skip their `known_hosts`
+file by default; set the `VORTEX_FETCH_DB_SSH_KNOWN_HOSTS` (database fetch) and
 `VORTEX_DEPLOY_SSH_KNOWN_HOSTS` (deployment) variables to pin those host keys
 too.
 
@@ -484,11 +486,11 @@ by setting the `VORTEX_DEBUG` variable to `1` in your CI provider's settings.
 
 ### Runner disk space
 
-Hosted runners come with a fixed amount of disk space, and running out of it is
-easy to misread: the runner is terminated from the outside, the step that was
-running never reports an error, and the failure looks like a hang rather than a
-disk problem. If a build dies during provisioning without reporting an error,
-suspect the disk first.
+Hosted runners come with a fixed amount of disk space, and running out of it
+produces a misleading failure. The runner is terminated from the outside, the
+step that was running never reports an error, and the failure looks like a hang
+rather than a disk problem. If a build dies during provisioning without
+reporting an error, suspect the disk first.
 
 The most reliable fix is to reduce what has to fit: a sanitized dump or a
 [database container image](#caching-strategy) instead of a full dump.
@@ -496,7 +498,7 @@ The most reliable fix is to reduce what has to fit: a sanitized dump or a
 - On GitHub Actions, **Vortex** prints the disk state in every run and can
   reclaim space held by preinstalled toolchains - see
   [GitHub Actions > Runner disk space](./github-actions.mdx#runner-disk-space).
-- On CircleCI, disk space is not tied to the
+- On CircleCI, disk space isn't tied to the
   [resource class](./circleci.mdx#change-runner-resource-class), so upgrading
   it adds CPU and memory but no extra room for the build.
 
@@ -516,8 +518,8 @@ environment inconsistencies between local development and CI. It also speeds up
 builds by avoiding repetitive installation of common tools.
 
 To update to a newer version, change the image tag in your CI configuration
-file. The image follows [CalVer](https://calver.org/) versioning (e.g., `26.8.0`) with
-monthly releases.
+file. The image follows [CalVer](https://calver.org/) versioning (for example,
+`26.8.0`) with monthly releases.
 
 ### Ignore tool failures
 

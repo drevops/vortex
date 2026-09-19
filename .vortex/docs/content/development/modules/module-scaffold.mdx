@@ -9,8 +9,8 @@ sidebar_position: 6
 is an example of a Drupal module.
 
 We recommend creating a custom `ys_base` module for your project to hold
-general-purpose functionality that doesn't belong in a dedicated,
-feature-specific module.
+general-purpose code that doesn't belong in a dedicated, feature-specific
+module.
 
 The `ys` prefix is abbreviated from your project name (`your_site` in this case).
 We recommend using this technique to prefix all modules, and use the site
@@ -18,8 +18,8 @@ machine name for a theme name.
 
 :::info Token replacement
 
-The `your_site`, `ys` prefix and other similar tokens are placeholders. They
-will be replaced with your actual project prefix when you install **Vortex**.
+The `your_site`, `ys` prefix, and other similar tokens are placeholders. They're
+replaced with your actual project prefix when you install **Vortex**.
 
 :::
 
@@ -35,12 +35,12 @@ The `ys_demo` module demonstrates integration patterns for several contributed
 modules:
 
 - [Drupal helpers](drupal-helpers.mdx) - utility facades for deploy hooks
-- [Generated content](generated-content.mdx) - plugin-based content generation
+- [Generated Content](generated-content.mdx) - plugin-based content generation
 - [Testmode](testmode.mdx) - content filtering during Behat tests (declared as a dependency, so it installs together with `ys_demo`)
 
-The demo module ships a pages view at `/pages`, a generated content plugin that
-populates it, and the deploy hooks that place a counter block, add the `Pages`
-menu link, and register the view with testmode.
+The demo module ships a pages view at `/pages` and a generated content plugin
+that populates it. It also ships the deploy hooks that place a counter block,
+add the `Pages` menu link, and register the view with testmode.
 
 ## Other shipped modules
 
@@ -57,4 +57,4 @@ The `tests` directory contains working examples of tests that can be used as a
 starting point in your project.
 
 It also has a set of helper `Traits` that you may find useful when writing your
-tests. Remove them if you do not need them.
+tests. Remove them if you don't need them.

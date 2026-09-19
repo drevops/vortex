@@ -8,9 +8,9 @@ import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
 The **Vortex** installer is a self-contained Symfony Console application that
 customizes the template based on user selections. It lives inside the same
-repository as the template at `.vortex/installer/`, which allows changes to the
-template and installer to be combined within a single pull request - ensuring
-that template modifications and the corresponding installer logic stay in sync.
+repository as the template at `.vortex/installer/`. That way, a single pull
+request can combine changes to the template and the installer, so template
+modifications and the corresponding installer logic stay in sync.
 
 <AsciinemaPlayer
   src="/img/installer.json"
@@ -26,14 +26,13 @@ that template modifications and the corresponding installer logic stay in sync.
 ## Architecture
 
 The installer is a PHP application rather than a shell script because it
-touches many different parts of the template and requires complex management of
-different permutations of the template variants. Using PHP allows the installer
-to provide a terminal UI via
-[Laravel Prompts](https://github.com/laravel/prompts), where users are guided
-through a series of questions to customize their project. At the same time,
-the installer supports non-interactive installs (via the `--no-interaction`
-flag) for both new and existing projects, as well as updates - making it
-suitable for automated pipelines and CI environments.
+touches many parts of the template and requires complex management of the
+permutations of template variants. Using PHP allows the installer to provide a
+terminal UI via [Laravel Prompts](https://github.com/laravel/prompts), where
+users are guided through a series of questions to customize their project. At
+the same time, the installer supports non-interactive installs (via the
+`--no-interaction` flag) for both new and existing projects, as well as
+updates. This makes it suitable for automated pipelines and CI environments.
 
 Prompt answers can be provided from multiple sources, resolved in the following
 priority order:
@@ -41,7 +40,7 @@ priority order:
 1. **Configuration file** - a JSON file passed via the `--config` option.
 2. **Environment variables** - using the `VORTEX_INSTALLER_PROMPT_<handler_id>`
    naming convention.
-3. **Discovery** - auto-detection from existing project files (e.g.,
+3. **Discovery** - auto-detection from existing project files (for example,
    `composer.json`, `.env`, hosting-specific files like `.lagoon.yml`).
 4. **Handler defaults** - fallback values defined by each handler.
 
@@ -64,13 +63,13 @@ The core flow is:
 
 ### Conditional token system
 
-In addition to string substitution for handling simple replacements and
-additions, the installer uses a token system to conditionally exclude entire
-blocks of content from template files. This simplifies the management of
-optional features - rather than requiring complex logic to surgically remove
-lines from configuration files, scripts, or documentation, maintainers wrap
-the relevant content in token markers. When a feature is not selected
-during installation, the installer removes everything between the markers.
+The installer handles replacements and additions with string substitution. It
+also uses a token system to conditionally exclude entire blocks of content from
+template files. This simplifies the management of optional features - rather
+than requiring complex logic to surgically remove lines from configuration
+files, scripts, or documentation, maintainers wrap the relevant content in
+token markers. When a feature isn't selected during installation, the installer
+removes everything between the markers.
 
 **Markdown**:
 
@@ -104,10 +103,10 @@ is tested in isolation with mocks provided by
 
 For every test permutation, the installer *initiates a fresh project* from the
 **Vortex** template with a specific combination of user selections and runs
-assertions against the resulting files. Because a single template change can
-affect a hundred plus installation permutations, snapshot testing makes it easy
-to **review the impact of a change across all scenarios as diffs** - ensuring
-that regressions are caught before they reach consumers.
+assertions against the resulting files. A single template change can affect a
+hundred plus installation permutations. Snapshot testing lets you
+**review the impact of a change across all scenarios as diffs**, so regressions
+are caught before they reach consumers.
 
 Each handler has a dedicated functional test class extending
 `AbstractHandlerProcessTestCase`, covering every aspect of the installation
@@ -120,9 +119,9 @@ library for snapshot-based testing. The snapshot system works on a
 
 - `_baseline/` contains the *complete* reference installation - a full set of
   template files as they would appear after a default installation.
-- Each scenario directory (e.g., `services_no_clamav/`, `hosting_acquia/`,
-  `deploy_types_all_circleci/`) contains only the *delta* changes from the
-  baseline.
+- Each scenario directory (for example, `services_no_clamav/`,
+  `hosting_acquia/`, `deploy_types_all_circleci/`) contains only the *delta*
+  changes from the baseline.
 
 When a test runs, the snapshot library applies the scenario's diffs on top of
 the baseline and compares the result against the actual installer output. This
@@ -177,7 +176,7 @@ each scenario.
 
 Commit your template and installer changes **before** running
 `ahoy update-snapshots` - the snapshots regenerate from the committed
-baseline, so uncommitted changes are not picked up. `ahoy update-snapshots` is
+baseline, so uncommitted changes aren't picked up. `ahoy update-snapshots` is
 the only sanctioned way to regenerate fixtures: invoking the test suite with
 `UPDATE_SNAPSHOTS` by hand bypasses part of the workflow and produces partial,
 inconsistent fixtures.
@@ -187,7 +186,7 @@ inconsistent fixtures.
 ## Releasing
 
 The installer is packaged as a PHAR archive using
-[Box](https://github.com/box-project/box). It is released automatically on each
+[Box](https://github.com/box-project/box). It's released automatically on each
 **GitHub release** of the **Vortex** template and deployed to
 https://www.vortextemplate.com/install - the [release process](release.mdx)
 needs no separate installer step. Additionally, the installer is published for
@@ -197,7 +196,7 @@ which allows testing installer changes before a formal release.
 ## Installer video
 
 The documentation includes an interactive recording of the installer captured
-with [asciinema](https://asciinema.org/). It is one of the 6 terminal demo
+with [asciinema](https://asciinema.org/). It's one of the 9 terminal demo
 videos produced by the PHP orchestrator at
 `.vortex/docs/.utils/update-videos.php`, driven by the shared `VideoRecorder`
 class. For the installer video, the pipeline:
@@ -222,11 +221,11 @@ ahoy update-videos installer
 ```
 
 Re-record the installer video whenever the prompt flow changes - the recording
-captures the live prompts. The command does not commit its output - review the
+captures the live prompts. The command doesn't commit its output - review the
 diff under `.vortex/docs/static/img/` and commit manually.
 
 `sharp-cli`, which renders the PNG posters, is a declared dependency of
-`.vortex/docs`, so it is pinned by `yarn.lock` and installed by the existing
+`.vortex/docs`, so it's pinned by `yarn.lock` and installed by the existing
 `yarn install --frozen-lockfile`.
 
 `asciinema` is downloaded rather than installed from a lockfile, so the

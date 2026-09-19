@@ -15,7 +15,7 @@ integration points for each of them:
 
 1. **Release flow** - the sequence of environments code goes through from development to production
 2. **Versioning workflow** - the branching strategy, documented in [GitFlow](gitflow.mdx)
-3. **Version scheme** - the numbering system, chosen at install time and documented in [Versioning](versioning.mdx)
+3. **Version scheme** - the numbering system chosen at install time, documented in [Versioning](versioning.mdx)
 4. **Release documentation** - your project's own `docs/releasing.md`
 5. **Automated deployment** - the CI pipeline and hosting integrations that do the technical work
 
@@ -33,13 +33,13 @@ through the environments while the database moves "down":
 - **Stage** - pre-production environment. Mirrors production as closely as possible. Used for final release testing.
 - **Production** - the live customer-facing application. Stable and reliable. Source of truth for data.
 
-The production database is the primary source of truth - it is what code is
+The production database is the primary source of truth - it's what code is
 applied to. When performing a release, you are applying a new version of code
 to a database within a specific environment. To make sure code changes work
 with real data, lower environments test against a copy of the production
 database:
 
-1. The database is copied from a higher environment to a lower one (e.g., production → stage → development).
+1. The database is copied from a higher environment to a lower one (for example, production → stage → development).
 2. Code is deployed to that environment.
 3. Testing confirms everything works against the copied database.
 
@@ -54,7 +54,7 @@ all tests, so code changes are validated against real data structures too.
 
 The specific environment setup (dev/stage/production) should be agreed within
 your team and documented in your project. Some teams use additional
-environments (e.g., UAT, pre-prod) or different naming conventions.
+environments (for example, UAT, pre-prod) or different naming conventions.
 
 :::
 

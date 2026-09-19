@@ -9,7 +9,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 **Vortex** uses [PHPUnit](https://phpunit.de/) as a framework for unit, kernel,
-functional and functional JavaScript testing. PHPUnit tests verify that
+functional, and functional JavaScript testing. PHPUnit tests verify that
 individual components work correctly in isolation and when integrated with
 Drupal's systems.
 
@@ -80,9 +80,9 @@ public function testSomethingToSkip(): void {
 
 ### Boilerplate
 
-**Vortex** provides unit, kernel, functional and functional JavaScript tests
+**Vortex** provides unit, kernel, functional, and functional JavaScript tests
 boilerplate for custom [modules](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/tests/src),
-[themes](https://github.com/drevops/vortex/blob/main/web/themes/custom/your_site_theme/tests/src) and
+[themes](https://github.com/drevops/vortex/blob/main/web/themes/custom/your_site_theme/tests/src), and
 [scripts](https://github.com/drevops/vortex/blob/main/tests/phpunit).
 
 These boilerplate tests run in the continuous integration pipeline when you
@@ -92,22 +92,23 @@ install **Vortex** and can be used as a starting point for writing your own.
 
 **Vortex** provides [Drupal settings tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal)
 to check that Drupal settings are correct based on the environment type the site
-is running: with the number of custom modules multiplied by the number of
-environment types, it is easy to miss certain settings which may lead to
-unexpected issues when deploying a project to a different environment.
+is running. The number of custom modules multiplied by the number of
+environment types makes it likely that certain settings get missed. Missed
+settings may lead to unexpected issues when deploying a project to a different
+environment.
 
-They are intended to be used in your site and kept up-to-date with the
+They're intended to be used in your site and kept up-to-date with the
 changes made to the `settings.php` file.
 
 #### Continuous integration pipeline configuration tests
 
 **Vortex** provides [CircleCI configuration tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/CircleCiConfigTest.php)
-to check that the continuous integration configuration is correct. They are
+to check that the continuous integration configuration is correct. They're
 intended to be used in your site and kept up-to-date with the continuous
 integration configuration.
 
 For example, there are tests for regular expressions used to filter the branches
-and tags before they are deployed to the hosting environment.
+and tags before they're deployed to the hosting environment.
 
 ### Project conventions
 
@@ -129,7 +130,7 @@ file in the project root. It configures:
 - Environment variables for test execution
 - Code coverage settings
 
-By default, PHPUnit will run tests for custom modules and themes, Drupal
+By default, PHPUnit runs tests for custom modules and themes, Drupal
 settings, and the shipped CircleCI configuration test.
 
 ### Test suites
@@ -193,9 +194,9 @@ development.
 
 ### Ignoring lines from coverage
 
-Sometimes it is necessary to ignore lines from coverage. For example, when
-testing a module that uses a third-party library, it is not necessary to test
-the library itself.
+Sometimes you need to ignore lines from coverage. For example, when testing a
+module that uses a third-party library, you don't need to test the library
+itself.
 
 To ignore a method from coverage, add `@codeCoverageIgnore` annotation to the
 method docblock.

@@ -1,0 +1,6 @@
+extends: existence
+message: "'%s' stacks two hedges. Keep one."
+level: error
+ignorecase: true
+tokens:
+  - (?:can|could|may|might) (?:possibly|potentially)

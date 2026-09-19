@@ -15,7 +15,7 @@ for its Docker Compose files.
 
 :::note
 
-**Vortex** does not install DCLint locally. Follow the [instructions](https://github.com/zavoloklom/docker-compose-linter#installation)
+**Vortex** doesn't install DCLint locally. Follow the [instructions](https://github.com/zavoloklom/docker-compose-linter#installation)
 to install it on your system.
 
 In CI, DCLint runs from its official Docker image.
@@ -37,7 +37,7 @@ dclint .
 Global configuration takes place in the [`.dclintrc`](https://github.com/drevops/vortex/blob/main/.dclintrc)
 file. Beyond the defaults, it defines a `service-keys-order` rule group that
 keeps the keys of every service in `docker-compose.yml` in a consistent order,
-so diffs stay small and services stay easy to compare.
+so diffs stay small and services stay comparable.
 
 ## Ignoring
 
@@ -51,7 +51,7 @@ services:
 ```
 
 To ignore **specific rules** for a single line, place a `disable-line`
-directive on its own line immediately above it:
+directive on its own line immediately before it:
 
 ```yaml
 services:
