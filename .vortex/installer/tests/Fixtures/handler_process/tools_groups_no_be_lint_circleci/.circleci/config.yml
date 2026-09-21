@@ -397,7 +397,9 @@ jobs:
             echo "${VORTEX_DEPLOY_TYPES:-}" | grep -vq "artifact" && exit 0 || true
             [ "${VORTEX_CI_IS_EXPORT_RUNNER:-1}" = "1" ] || exit 0
             mkdir -p "/tmp/workspace/code"
-            docker compose --progress quiet cp -L cli:"/app/." "/tmp/workspace/code"
+            # Streamed through tar instead of 'docker compose cp' to leave out
+            # 'node_modules', which '.gitignore.artifact' excludes anyway.
+            docker compose exec -T cli tar -cf - -C /app --exclude=node_modules . | tar -xf - -C "/tmp/workspace/code"
             du -sh "/tmp/workspace/code"
 
       - run:

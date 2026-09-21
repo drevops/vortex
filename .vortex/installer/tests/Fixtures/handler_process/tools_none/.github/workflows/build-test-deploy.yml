@@ -74,7 +74,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -449,7 +400,6 @@
+@@ -451,7 +402,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -82,7 +82,7 @@
  
        - name: Provision site
          run: |
-@@ -463,71 +413,6 @@
+@@ -465,71 +415,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -154,7 +154,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -540,19 +425,6 @@
+@@ -542,19 +427,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -174,7 +174,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -569,16 +441,6 @@
+@@ -571,16 +443,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
