@@ -1,4 +1,4 @@
-@@ -116,17 +116,6 @@
+@@ -113,17 +113,6 @@
        - name: Login to container registry
          run: ./vendor/bin/vortex-login-container-registry
  
@@ -16,7 +16,7 @@
        - name: Build stack
          run: docker compose up --no-deps --detach cli
  
-@@ -135,41 +124,11 @@
+@@ -132,41 +121,11 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -58,9 +58,9 @@
    database:
      runs-on: ubuntu-latest
      if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
-@@ -321,15 +280,7 @@
-       # the tools that run once. Point it at the new last instance when adding
-       # instances to the matrix.
+@@ -314,15 +273,7 @@
+       # shares an instance with the tools that run once. Point it at the new
+       # last instance when adding instances to the matrix.
        VORTEX_CI_IS_EXPORT_RUNNER: ${{ matrix.instance == 1 || strategy.job-total == 1 }}
 -      VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -      VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -74,7 +74,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -450,7 +401,6 @@
+@@ -433,7 +384,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -82,7 +82,7 @@
  
        - name: Provision site
          run: |
-@@ -464,71 +414,6 @@
+@@ -447,71 +397,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -154,7 +154,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -541,19 +426,6 @@
+@@ -524,19 +409,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -174,7 +174,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -570,16 +442,6 @@
+@@ -553,16 +425,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

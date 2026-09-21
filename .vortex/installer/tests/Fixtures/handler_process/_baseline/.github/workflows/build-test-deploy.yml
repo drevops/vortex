@@ -84,9 +84,6 @@ jobs:
         TZ: ${{ vars.TZ || 'UTC' }}
         TERM: xterm-256color
         VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
-        # Container registry image used as a layer cache for the 'cli' image
-        # build. The image contains the codebase, so use a private repository.
-        VORTEX_CI_BUILD_CACHE_IMAGE: ${{ vars.VORTEX_CI_BUILD_CACHE_IMAGE }}
 
     steps:
       - name: Preserve $HOME set in the container
@@ -194,9 +191,6 @@ jobs:
         VORTEX_CI_DB_CACHE_FALLBACK: "yes"
         # Which branch to use as a source of DB caches.
         VORTEX_CI_DB_CACHE_BRANCH: "develop"
-        # Container registry image used as a layer cache for the 'cli' image
-        # build. The image contains the codebase, so use a private repository.
-        VORTEX_CI_BUILD_CACHE_IMAGE: ${{ vars.VORTEX_CI_BUILD_CACHE_IMAGE }}
 
     steps:
       # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
@@ -316,10 +310,9 @@ jobs:
       # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
       VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
       VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
-      # Exports of build products - the built codebase and the build cache
-      # image - run on the last instance, so they never share an instance with
-      # the tools that run once. Point it at the new last instance when adding
-      # instances to the matrix.
+      # The export of the built codebase runs on the last instance, so it never
+      # shares an instance with the tools that run once. Point it at the new
+      # last instance when adding instances to the matrix.
       VORTEX_CI_IS_EXPORT_RUNNER: ${{ matrix.instance == 1 || strategy.job-total == 1 }}
       VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
       VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -352,9 +345,6 @@ jobs:
         VORTEX_CI_DB_CACHE_FALLBACK: "yes"
         # Which branch to use as a source of DB caches.
         VORTEX_CI_DB_CACHE_BRANCH: "develop"
-        # Container registry image used as a layer cache for the 'cli' image
-        # build. The image contains the codebase, so use a private repository.
-        VORTEX_CI_BUILD_CACHE_IMAGE: ${{ vars.VORTEX_CI_BUILD_CACHE_IMAGE }}
 
     steps:
       # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
@@ -427,13 +417,6 @@ jobs:
           docker compose build
           wait
           docker compose up --detach && docker builder prune --all --force && docker image prune --force
-
-      # Pushed from the export instance only; every instance builds the same image.
-      - name: Push build cache image
-        if: ${{ env.VORTEX_CI_IS_EXPORT_RUNNER == 'true' }}
-        run: |
-          [ -z "${VORTEX_CI_BUILD_CACHE_IMAGE:-}" ] && echo "==> Build cache image is not set. Build cache image push will not proceed." && exit 0
-          docker tag "$(docker compose images --quiet cli)" "${VORTEX_CI_BUILD_CACHE_IMAGE}" && docker push --quiet "${VORTEX_CI_BUILD_CACHE_IMAGE}" || echo "==> Build cache image push failed. The next build will not use the cache."
 
       - name: Export built codebase
         if: ${{ env.VORTEX_CI_IS_EXPORT_RUNNER == 'true' && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}

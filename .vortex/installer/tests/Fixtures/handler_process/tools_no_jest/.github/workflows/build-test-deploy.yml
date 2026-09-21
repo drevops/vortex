@@ -1,12 +1,12 @@
-@@ -321,7 +321,6 @@
-       # the tools that run once. Point it at the new last instance when adding
-       # instances to the matrix.
+@@ -314,7 +314,6 @@
+       # shares an instance with the tools that run once. Point it at the new
+       # last instance when adding instances to the matrix.
        VORTEX_CI_IS_EXPORT_RUNNER: ${{ matrix.instance == 1 || strategy.job-total == 1 }}
 -      VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        # Runs on every instance, using the `p<instance index - offset>` profile.
-@@ -450,7 +449,6 @@
+@@ -433,7 +432,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -14,7 +14,7 @@
  
        - name: Provision site
          run: |
-@@ -463,11 +461,6 @@
+@@ -446,11 +444,6 @@
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30

@@ -54,10 +54,6 @@ aliases:
           VORTEX_CI_DB_CACHE_FALLBACK: "yes"
           # Which branch to use as a source of DB caches.
           VORTEX_CI_DB_CACHE_BRANCH: "develop"
-          # Container registry image used as a layer cache for the 'cli' image
-          # build. The image contains the codebase, so use a private repository.
-          # Uncomment and set to enable, or set it as a project environment variable.
-          # VORTEX_CI_BUILD_CACHE_IMAGE: star_wars_org/star_wars-build-cache
           # Directory to store test results.
           VORTEX_CI_TEST_RESULTS: &test_results /tmp/tests
           # Directory to store test artifacts.
@@ -333,9 +329,8 @@ jobs:
             {
               echo "export VORTEX_CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
               echo "export VORTEX_CI_RUNNER_TOTAL=${CIRCLE_NODE_TOTAL:-1}"
-              # Exports of build products - the built codebase and the build
-              # cache image - run on the last node, so they never share a node
-              # with the tools that run once.
+              # The export of the built codebase runs on the last node, so it
+              # never shares a node with the tools that run once.
               echo "export VORTEX_CI_IS_EXPORT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq "$((${CIRCLE_NODE_TOTAL:-1} - 1))" ] && echo 1 || echo 0)"
               echo "export VORTEX_CI_IS_JEST_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
               echo "export VORTEX_CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
@@ -386,14 +381,6 @@ jobs:
             docker compose build
             wait
             docker compose up --detach && docker builder prune --all --force && docker image prune --force
-
-      # Pushed from the export runner only; every runner builds the same image.
-      - run:
-          name: Push build cache image
-          command: |
-            [ -z "${VORTEX_CI_BUILD_CACHE_IMAGE:-}" ] && echo "==> Build cache image is not set. Build cache image push will not proceed." && exit 0
-            [ "${VORTEX_CI_IS_EXPORT_RUNNER:-1}" = "1" ] || exit 0
-            docker tag "$(docker compose images --quiet cli)" "${VORTEX_CI_BUILD_CACHE_IMAGE}" && docker push --quiet "${VORTEX_CI_BUILD_CACHE_IMAGE}" || echo "==> Build cache image push failed. The next build will not use the cache."
 
       - run:
           name: Export built codebase

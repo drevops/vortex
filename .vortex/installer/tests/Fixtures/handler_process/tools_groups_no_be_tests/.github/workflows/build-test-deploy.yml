@@ -1,4 +1,4 @@
-@@ -157,10 +157,6 @@
+@@ -154,10 +154,6 @@
          run: docker compose exec -T cli vendor/bin/twig-cs-fixer
          continue-on-error: ${{ vars.VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE == '1' }}
  
@@ -9,8 +9,8 @@
        - name: Lint module code with NodeJS linters
          run: docker compose exec -T cli bash -c "npm run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-@@ -322,14 +318,7 @@
-       # instances to the matrix.
+@@ -315,14 +311,7 @@
+       # last instance when adding instances to the matrix.
        VORTEX_CI_IS_EXPORT_RUNNER: ${{ matrix.instance == 1 || strategy.job-total == 1 }}
        VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -      VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -24,7 +24,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -469,66 +458,6 @@
+@@ -452,66 +441,6 @@
          run: docker compose exec -T cli bash -c "npm test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -91,7 +91,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -541,19 +470,6 @@
+@@ -524,19 +453,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -111,7 +111,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -570,16 +486,6 @@
+@@ -553,16 +469,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
