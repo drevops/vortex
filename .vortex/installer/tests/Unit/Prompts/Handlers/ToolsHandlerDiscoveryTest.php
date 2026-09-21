@@ -174,6 +174,14 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Tools::id() => [Tools::BEHAT]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
+        $test->stubComposerJsonDependencies(['drupal/drupal-extension' => '*'], TRUE);
+      },
+    ];
+    yield 'tools - discovery - behat, alt3' => [
+      [],
+      [Tools::id() => [Tools::BEHAT]] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
         File::dump(static::$sut . '/behat.yml');
       },
     ];
