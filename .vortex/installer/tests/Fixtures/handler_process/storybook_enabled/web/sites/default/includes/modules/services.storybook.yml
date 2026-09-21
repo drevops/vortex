@@ -1,0 +1,5 @@
+# Storybook services.
+#
+# Loaded from `settings.storybook.php` in non-production environments only.
+parameters:
+  storybook.development: true

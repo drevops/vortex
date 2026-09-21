@@ -1,0 +1,23 @@
+{#
+/**
+ * @file
+ * Button component stories.
+ *
+ * Compiled into "button.stories.json" by "drush storybook:generate-all-stories".
+ */
+#}
+{% stories button with {title: 'Components/Button'} %}
+
+  {% story default with {name: 'Default', args: {label: 'Read more'}} %}
+    {{ include('your_site_theme:button', {label: label}, with_context: false) }}
+  {% endstory %}
+
+  {% story link with {name: 'Link', args: {label: 'Read more', url: 'https://example.com'}} %}
+    {{ include('your_site_theme:button', {label: label, url: url}, with_context: false) }}
+  {% endstory %}
+
+  {% story secondary with {name: 'Secondary', args: {label: 'Read more', modifier: 'secondary'}} %}
+    {{ include('your_site_theme:button', {label: label, modifier: modifier}, with_context: false) }}
+  {% endstory %}
+
+{% endstories %}
