@@ -119,6 +119,8 @@ services:
         WEBROOT: "${WEBROOT:-web}"
       additional_contexts:
         cli: "service:cli"
+      ##cache_from: # The embedded 'cli' stage reuses the layers of the image pushed by a previous CI run. Automatically uncommented in CI.
+      ##  - "${VORTEX_CI_BUILD_CACHE_IMAGE:-}"
     environment:
       <<: *default-environment
     <<: [ *default-volumes, *default-user ]
@@ -137,6 +139,8 @@ services:
         CLI_IMAGE: *cli-image
       additional_contexts:
         cli: "service:cli"
+      ##cache_from: # The embedded 'cli' stage reuses the layers of the image pushed by a previous CI run. Automatically uncommented in CI.
+      ##  - "${VORTEX_CI_BUILD_CACHE_IMAGE:-}"
     environment:
       <<: *default-environment
     <<: [ *default-volumes, *default-user ]

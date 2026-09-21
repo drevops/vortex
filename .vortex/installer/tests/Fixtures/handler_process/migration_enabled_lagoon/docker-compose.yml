@@ -34,7 +34,7 @@
  
    nginx:
      build:
-@@ -127,6 +142,11 @@
+@@ -129,6 +144,11 @@
      networks:
        - default # This is a standard network and is used for all other environments, where requests routing is not required and/or not supported.
        - amazeeio-network ### This network is supported by Pygmy and used to route all requests to host machine locally. Removed in CI.
@@ -46,7 +46,7 @@
  
    # PHP FPM container. All web requests are going through this container.
    php:
-@@ -142,6 +162,11 @@
+@@ -146,6 +166,11 @@
      <<: [ *default-volumes, *default-user ]
      depends_on:
        - cli
@@ -58,7 +58,7 @@
  
    database:
      build:
-@@ -154,9 +179,26 @@
+@@ -158,9 +183,26 @@
      <<: *default-user
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
@@ -85,7 +85,7 @@
  
    solr:
      build:
-@@ -168,6 +210,8 @@
+@@ -172,6 +214,8 @@
        - solr:/var/solr
      ports:
        - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
@@ -94,7 +94,7 @@
  
    clamav:
      build:
-@@ -179,6 +223,10 @@
+@@ -183,6 +227,10 @@
        - '3310' # Find port on host with `docker compose port clamav 3310`.
      networks:
        - default
@@ -105,7 +105,7 @@
  
    # Chrome container, used for browser testing.
    chrome:
-@@ -191,6 +239,8 @@
+@@ -195,6 +243,8 @@
      ports:
        - '7900' # Find port on host with `docker compose port chrome 7900`.
      shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
@@ -114,7 +114,7 @@
  
    # Helper container to wait for services to become available.
    wait-for-dependencies:
-@@ -198,14 +248,18 @@
+@@ -202,14 +252,18 @@
      depends_on:
        - clamav
        - database
