@@ -33,6 +33,9 @@ npm ci
 | `npm run storybook-build` | Build the static Storybook application  |
 
 Stories are authored in Twig as `<component>.stories.twig` and compiled into
-`<component>.stories.json` by `drush storybook:generate-all-stories`.
+`<component>.stories.json` by
+`drush storybook:generate-all-stories --omit-server-url`. Without the option,
+each compiled story carries the Drush site URL and overrides the render
+endpoint resolved by `.storybook/preview.js`.
 
 [//]: # (#;> STORYBOOK)
