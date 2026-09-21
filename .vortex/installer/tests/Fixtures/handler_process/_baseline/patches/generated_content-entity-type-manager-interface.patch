@@ -1,0 +1,20 @@
+--- a/src/Helpers/GeneratedContentAssetGenerator.php
++++ b/src/Helpers/GeneratedContentAssetGenerator.php
+@@ -5,7 +5,7 @@
+ namespace Drupal\generated_content\Helpers;
+
+ use Drupal\Component\Utility\Random;
+-use Drupal\Core\Entity\EntityTypeManager;
++use Drupal\Core\Entity\EntityTypeManagerInterface;
+ use Drupal\Core\Extension\ModuleExtensionList;
+ use Drupal\Core\File\FileSystemInterface;
+ use Drupal\file\FileInterface;
+@@ -95,7 +95,7 @@
+     /**
+      * The entity type manager.
+      */
+-    protected EntityTypeManager $entityTypeManager,
++    protected EntityTypeManagerInterface $entityTypeManager,
+     /**
+      * The file repository.
+      */

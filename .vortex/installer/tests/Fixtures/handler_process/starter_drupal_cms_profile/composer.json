@@ -39,12 +39,11 @@
          },
          "bump-after-update": true,
          "discard-changes": true,
-@@ -159,6 +166,17 @@
-         "patchLevel": {
-             "drupal/core": "-p2"
-         },
--        "patches": {}
-+        "patches": {},
+@@ -163,6 +170,17 @@
+             "drupal/generated_content": {
+                 "Type-hint EntityTypeManagerInterface so a decorated entity type manager can be injected": "patches/generated_content-entity-type-manager-interface.patch"
+             }
++        },
 +        "merge-plugin": {
 +            "ignore-duplicates": false,
 +            "merge-false": true,
@@ -55,6 +54,6 @@
 +            "recurse": true,
 +            "replace": true,
 +            "require": ["vendor/drupal/cms/composer.json"]
-+        }
+         }
      }
  }
