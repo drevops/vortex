@@ -18,9 +18,9 @@ Feature: ClamAV Anti-virus
 
   @api
   Scenario: Upload EICAR test file to trigger virus detection
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And I go to "media/add/document"
-    When I attach the file "public://eicar_test.txt" to "files[field_media_document_0]"
+    And I attach the file "public://eicar_test.txt" to "files[field_media_document_0]"
     And I press "Upload"
     Then I should see "The specified file eicar_test.txt could not be uploaded."
     And I should see "A virus has been detected in the file. The file will be deleted."
@@ -29,9 +29,9 @@ Feature: ClamAV Anti-virus
 
   @api
   Scenario: Upload test file to ensure that file upload works
-    Given I log in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And I go to "media/add/document"
-    When I attach the file "public://test.txt" to "files[field_media_document_0]"
+    And I attach the file "public://test.txt" to "files[field_media_document_0]"
     And I press "Upload"
     Then I should not see "The specified file test.txt could not be uploaded."
     And I should not see "A virus has been detected in the file. The file will be deleted."
