@@ -9,9 +9,9 @@
        - name: Lint module code with NodeJS linters
          run: docker compose exec -T cli bash -c "npm run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
-@@ -317,14 +313,7 @@
-       VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
-       VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+@@ -322,14 +318,7 @@
+       # instances to the matrix.
+       VORTEX_CI_IS_EXPORT_RUNNER: ${{ matrix.instance == 1 || strategy.job-total == 1 }}
        VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -      VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -24,7 +24,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -463,66 +452,6 @@
+@@ -468,66 +457,6 @@
          run: docker compose exec -T cli bash -c "npm test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -91,7 +91,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -535,19 +464,6 @@
+@@ -540,19 +469,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -111,7 +111,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -564,16 +480,6 @@
+@@ -569,16 +485,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

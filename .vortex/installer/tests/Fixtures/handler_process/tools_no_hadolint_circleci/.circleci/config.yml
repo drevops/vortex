@@ -333,6 +333,10 @@ jobs:
             {
               echo "export VORTEX_CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
               echo "export VORTEX_CI_RUNNER_TOTAL=${CIRCLE_NODE_TOTAL:-1}"
+              # Exports of build products - the built codebase and the build
+              # cache image - run on the last node, so they never share a node
+              # with the tools that run once.
+              echo "export VORTEX_CI_IS_EXPORT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq "$((${CIRCLE_NODE_TOTAL:-1} - 1))" ] && echo 1 || echo 0)"
               echo "export VORTEX_CI_IS_JEST_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
               echo "export VORTEX_CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
               echo "export VORTEX_CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
@@ -383,12 +387,12 @@ jobs:
             wait
             docker compose up --detach && docker builder prune --all --force && docker image prune --force
 
-      # Pushed from the first runner only; every runner builds the same image.
+      # Pushed from the export runner only; every runner builds the same image.
       - run:
           name: Push build cache image
           command: |
             [ -z "${VORTEX_CI_BUILD_CACHE_IMAGE:-}" ] && echo "==> Build cache image is not set. Build cache image push will not proceed." && exit 0
-            [ "${VORTEX_CI_RUNNER_INDEX:-0}" -eq 0 ] || exit 0
+            [ "${VORTEX_CI_IS_EXPORT_RUNNER:-1}" = "1" ] || exit 0
             docker tag "$(docker compose config --images cli)" "${VORTEX_CI_BUILD_CACHE_IMAGE}"
             docker push --quiet "${VORTEX_CI_BUILD_CACHE_IMAGE}" || echo "==> Build cache image push failed. The next build will not use the cache."
 
@@ -396,6 +400,7 @@ jobs:
           name: Export built codebase
           command: |
             echo "${VORTEX_DEPLOY_TYPES:-}" | grep -vq "artifact" && exit 0 || true
+            [ "${VORTEX_CI_IS_EXPORT_RUNNER:-1}" = "1" ] || exit 0
             mkdir -p "/tmp/workspace/code"
             docker compose --progress quiet cp -L cli:"/app/." "/tmp/workspace/code"
             du -sh "/tmp/workspace/code"
@@ -406,7 +411,7 @@ jobs:
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
               if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
               COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
+            if [ "${VORTEX_CI_IS_JEST_RUNNER:-1}" = "1" ]; then docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"; fi
 
       - run:
           name: Provision site

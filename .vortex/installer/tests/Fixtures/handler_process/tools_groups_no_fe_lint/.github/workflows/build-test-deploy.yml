@@ -22,23 +22,23 @@
    database:
      runs-on: ubuntu-latest
      if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
-@@ -316,7 +306,6 @@
-       # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
-       VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
-       VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+@@ -321,7 +311,6 @@
+       # the tools that run once. Point it at the new last instance when adding
+       # instances to the matrix.
+       VORTEX_CI_IS_EXPORT_RUNNER: ${{ matrix.instance == 1 || strategy.job-total == 1 }}
 -      VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        # Runs on every instance, using the `p<instance index - offset>` profile.
-@@ -444,7 +433,6 @@
+@@ -449,7 +438,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
--          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
+-          if [ "${VORTEX_CI_IS_JEST_RUNNER}" = "true" ]; then docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"; fi
  
        - name: Provision site
          run: |
-@@ -457,11 +445,6 @@
+@@ -462,11 +450,6 @@
            fi
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30

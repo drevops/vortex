@@ -22,25 +22,25 @@
    database:
      runs-on: ubuntu-latest
      if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
-@@ -316,9 +306,7 @@
-       # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
-       VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
-       VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+@@ -321,9 +311,7 @@
+       # the tools that run once. Point it at the new last instance when adding
+       # instances to the matrix.
+       VORTEX_CI_IS_EXPORT_RUNNER: ${{ matrix.instance == 1 || strategy.job-total == 1 }}
 -      VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -      VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        # Runs on every instance, using the `p<instance index - offset>` profile.
        VORTEX_CI_IS_BEHAT_RUNNER: true
        # Subtracted from the instance index to derive the profile number. Raise
-@@ -444,7 +432,6 @@
+@@ -449,7 +437,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
--          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
+-          if [ "${VORTEX_CI_IS_JEST_RUNNER}" = "true" ]; then docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"; fi
  
        - name: Provision site
          run: |
-@@ -458,11 +445,6 @@
+@@ -463,11 +450,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -52,7 +52,7 @@
        - name: Test with PHPUnit
          if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
          run: docker compose exec -T cli vendor/bin/phpunit
-@@ -522,18 +504,6 @@
+@@ -527,18 +509,6 @@
            fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}

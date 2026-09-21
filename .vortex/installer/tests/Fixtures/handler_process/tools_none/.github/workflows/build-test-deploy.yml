@@ -58,10 +58,10 @@
    database:
      runs-on: ubuntu-latest
      if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
-@@ -316,15 +275,7 @@
-       # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
-       VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
-       VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+@@ -321,15 +280,7 @@
+       # the tools that run once. Point it at the new last instance when adding
+       # instances to the matrix.
+       VORTEX_CI_IS_EXPORT_RUNNER: ${{ matrix.instance == 1 || strategy.job-total == 1 }}
 -      VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
 -      VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -74,15 +74,15 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -444,7 +395,6 @@
+@@ -449,7 +400,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
--          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
+-          if [ "${VORTEX_CI_IS_JEST_RUNNER}" = "true" ]; then docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"; fi
  
        - name: Provision site
          run: |
-@@ -458,71 +408,6 @@
+@@ -463,71 +413,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -154,7 +154,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -535,19 +420,6 @@
+@@ -540,19 +425,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -174,7 +174,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -564,16 +436,6 @@
+@@ -569,16 +441,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
