@@ -281,16 +281,21 @@ parallelism settings.
 
 ### What runs where
 
-| Task | First container | Other containers |
-|------|:---:|:---:|
-| Jest tests | ✓ | - |
-| PHPUnit tests | ✓ | - |
-| Code coverage check and PR comment | ✓ | - |
-| Single Directory Component validation | ✓ | - |
-| Behat tests | ✓ (profile `p0`) | ✓ (profile `p1`, `p2`, and so on) |
+| Task | First container | Last container | Other containers |
+|------|:---:|:---:|:---:|
+| Jest tests | ✓ | - | - |
+| PHPUnit tests | ✓ | - | - |
+| Code coverage check and PR comment | ✓ | - | - |
+| Single Directory Component validation | ✓ | - | - |
+| Export of the built codebase for artifact deployment | - | ✓ | - |
+| Build cache image push | - | ✓ | - |
+| Behat tests | ✓ (profile `p0`) | ✓ (profile named after its index) | ✓ (profile `p1`, `p2`, and so on) |
 
-Everything except Behat runs only on the first container to avoid duplicate
-work. Behat tests run on all containers using profile-based distribution.
+The tools that run once are pinned to the first container. The build products
+that are exported once - the built codebase and the build cache image - go to
+the last container, so the heaviest once-only work never shares a container.
+With a single container, everything runs there. Behat tests run on all
+containers using profile-based distribution.
 
 ### Choosing which container runs what
 
@@ -306,6 +311,7 @@ place:
 env:
   VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
   VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+  VORTEX_CI_IS_EXPORT_RUNNER: ${{ matrix.instance == 1 || strategy.job-total == 1 }}
   VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
   VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
   VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -330,6 +336,7 @@ Each tool's step then reads its own flag:
       {
         echo "export VORTEX_CI_RUNNER_INDEX=${CIRCLE_NODE_INDEX:-0}"
         echo "export VORTEX_CI_RUNNER_TOTAL=${CIRCLE_NODE_TOTAL:-1}"
+        echo "export VORTEX_CI_IS_EXPORT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq "$((${CIRCLE_NODE_TOTAL:-1} - 1))" ] && echo 1 || echo 0)"
         echo "export VORTEX_CI_IS_JEST_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
         echo "export VORTEX_CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
         echo "export VORTEX_CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
@@ -483,6 +490,9 @@ container count itself, and a matching Behat profile for every new container.
 
    - [GitHub Actions > Change test parallelism](./github-actions.mdx#change-test-parallelism)
    - [CircleCI > Change test parallelism](./circleci.mdx#change-test-parallelism)
+
+   On GitHub Actions, also point `VORTEX_CI_IS_EXPORT_RUNNER` at the new last
+   instance. CircleCI derives it from the node count.
 
 2. Add a profile to `behat.yml` for each new container that runs Behat.
    **Vortex** ships with `p0` and `p1` only, and Behat fails with

@@ -363,6 +363,11 @@ jobs:
       # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
       VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
       VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
+      # Exports of build products - the built codebase and the build cache
+      # image - run on the last instance, so they never share an instance with
+      # the tools that run once. Point it at the new last instance when adding
+      # instances to the matrix.
+      VORTEX_CI_IS_EXPORT_RUNNER: ${{ matrix.instance == 1 || strategy.job-total == 1 }}
       #;< TOOL_JEST
       VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
       #;> TOOL_JEST
@@ -484,16 +489,16 @@ jobs:
           wait
           docker compose up --detach && docker builder prune --all --force && docker image prune --force
 
-      # Pushed from the first instance only; every instance builds the same image.
+      # Pushed from the export instance only; every instance builds the same image.
       - name: Push build cache image
-        if: ${{ matrix.instance == 0 }}
+        if: ${{ env.VORTEX_CI_IS_EXPORT_RUNNER == 'true' }}
         run: |
           [ -z "${VORTEX_CI_BUILD_CACHE_IMAGE:-}" ] && echo "==> Build cache image is not set. Build cache image push will not proceed." && exit 0
           docker tag "$(docker compose config --images cli)" "${VORTEX_CI_BUILD_CACHE_IMAGE}"
           docker push --quiet "${VORTEX_CI_BUILD_CACHE_IMAGE}" || echo "==> Build cache image push failed. The next build will not use the cache."
 
       - name: Export built codebase
-        if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
+        if: ${{ env.VORTEX_CI_IS_EXPORT_RUNNER == 'true' && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         run: |
           mkdir -p "/tmp/workspace/code" "/tmp/artifacts"
           docker compose --progress quiet cp -L cli:"/app/." "/tmp/workspace/code"
@@ -506,7 +511,7 @@ jobs:
             if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
           #;< TOOL_JEST
-          docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
+          if [ "${VORTEX_CI_IS_JEST_RUNNER}" = "true" ]; then docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"; fi
           #;> TOOL_JEST
 
       - name: Provision site
@@ -672,7 +677,7 @@ jobs:
 
       - name: Upload exported codebase as an artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
+        if: ${{ env.VORTEX_CI_IS_EXPORT_RUNNER == 'true' && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}
         with:
           name: code-artifact
           path: "/tmp/artifacts/code.tar"
