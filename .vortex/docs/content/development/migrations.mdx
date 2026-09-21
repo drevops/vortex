@@ -34,7 +34,7 @@ If you already have a **Vortex** project and want to add migration support:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `VORTEX_FETCH_DB2_FILE` | `db2.sql` | Migration database dump file name |
+| `VORTEX_FETCH_DB2_FILE` | `db2.sql` | Migration database dump filename |
 | `VORTEX_FETCH_DB2_SOURCE` | `url` | Fetch source (`url`, `ftp`, `acquia`, `lagoon`, `s3`) |
 | `VORTEX_FETCH_DB2_URL` | _(empty)_ | URL to fetch the migration database dump |
 | `DATABASE2_HOST` | `database2` | Migration database host |
@@ -89,11 +89,11 @@ which resolves to this connection.
 | `ahoy db2` | Open the migration database in Sequel Ace |
 
 The `fetch-db2` command reuses the existing `vendor/bin/vortex-fetch-db`
-tooling script with `VORTEX_DB_INDEX=2`, which makes all scripts resolve
-indexed variable names (e.g., `VORTEX_FETCH_DB2_SOURCE` instead of
-`VORTEX_FETCH_DB_SOURCE`, `VORTEX_DB2_IMAGE` instead of `VORTEX_DB_IMAGE`) so
-all existing fetch sources (URL, FTP, Acquia, Lagoon, S3) work for the
-migration database as well.
+tooling script with `VORTEX_DB_INDEX=2`. The index makes all scripts resolve
+indexed variable names (for example, `VORTEX_FETCH_DB2_SOURCE` instead of
+`VORTEX_FETCH_DB_SOURCE`, and `VORTEX_DB2_IMAGE` instead of `VORTEX_DB_IMAGE`).
+As a result, all existing fetch sources (URL, FTP, Acquia, Lagoon, S3) work for
+the migration database as well.
 
 ## Provision script
 
@@ -109,12 +109,12 @@ It handles:
 - Disabling the Solr search server while the migrations run
 
 On projects with the Solr service, the script disables the search server before
-the migrations and enables it again afterward, so migrated entities are not
+the migrations and enables it again afterward, so migrated entities aren't
 indexed one at a time. The `scripts/provision-30-search-index.sh` script rebuilds
 the index straight after.
 
 Set `DRUPAL_MIGRATION_SEARCH_DISABLE=0` to leave the search server running and
-index entities as they are migrated.
+index entities as they're migrated.
 
 ### Configuration variables
 

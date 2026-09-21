@@ -1,0 +1,6 @@
+extends: occurrence
+message: "Long sentence: %d words. Keep sentences to 30 words or fewer."
+level: warning
+scope: sentence
+max: 30
+token: \b\w+(?:['’]\w+)?\b

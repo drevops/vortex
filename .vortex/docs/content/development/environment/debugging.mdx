@@ -76,10 +76,10 @@ command you are trying to run for more details.
 By default, PhpStorm is configured to automatically interrupt on incoming
 unmapped debug connections when `Start listening for PHP Debug Connections`
 button (the one with a little bug) is activated. When interrupted, PhpStorm
-will ask you to map the incoming connection to a project.
+asks you to map the incoming connection to a project.
 
-In order to use Xdebug on the project for the first time, you need to follow
-these steps (assuming you already have a fully working site):
+To use Xdebug on the project for the first time, follow these steps (assuming
+you already have a fully working site):
 
 1. Install Xdebug helper extension for your browser:
      - [Chrome Xdebug Helper by JetBrains](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm)
@@ -95,14 +95,14 @@ these steps (assuming you already have a fully working site):
 4. Run `ahoy debug` or `XDEBUG_ENABLE=true docker compose up -d cli php nginx`
    to enable Xdebug.
 5. Refresh the page in your browser.
-6. PhpStorm will stop on your breakpoint and will ask you to map the incoming
-   connection to directory in your project. This is because the code runs in the
-   container, which qualifies as a remote server. You need to "tell"
-   Xdebug where to find the code on your local machine that corresponds to the
-   code running in the container. You would need to do it once and PhpStorm will
-   remember the mapping.
+6. PhpStorm stops on your breakpoint and asks you to map the incoming connection
+   to a directory in your project. This is because the code runs in the
+   container, which qualifies as a remote server. You need to "tell" Xdebug
+   where to find the code on your local machine that corresponds to the code
+   running in the container. You need to do it once, and PhpStorm remembers the
+   mapping.
 
-![xdebug-phpstorm.png](/img/xdebug-phpstorm.png)
+![PhpStorm server settings with the path mapping to the project root within the container](/img/xdebug-phpstorm.png)
 
 For more information see the following resources:
 
@@ -119,7 +119,7 @@ configurations in the PhpStorm IDE to make your life easier:
   - `Force break at first line when no path mapping specified`
   - `Force break at first line when a script is outside the project`
 - Increase the number in `Max. simultaneous connections` to `5` or more. This
-  will prevent hidden debug session being "stuck" without being visible in
+  prevents a hidden debug session from being "stuck" without being visible in
   the IDE.
 
 ## Testing authenticated pages with curl
@@ -187,7 +187,7 @@ is for ad-hoc debugging only - automated testing should use Behat or PHPUnit.
 
 ### Important notes
 
-- **Cookie storage**: Always use `.data/` directory - it is gitignored
+- **Cookie storage**: Always use `.data/` directory - it's gitignored
 - **Session expiry**: Cookies expire after session timeout; regenerate as needed
 - **Login URL format**: `http://SITE/user/reset/UID/TIMESTAMP/HASH/login`
 - **One-time use**: Login URLs from `ahoy login` can only be used once

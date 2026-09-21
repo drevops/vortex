@@ -18,8 +18,8 @@ maintainability:
   and avoids reinvention.
 - **Avoid silent errors**: Misconfigurations should fail loudly.
 - **Readability counts**: Code and configuration are meant to be understood.
-- **Explicit logging helps**: Scripts log every major step, so it's easy to
-  follow what's going on.
+- **Explicit logging helps**: Scripts log every major step, so you can follow
+  what's going on.
 
 ## Code lifecycle
 
@@ -42,7 +42,7 @@ hosting environments.
 
 To simplify command usage, we use [Ahoy](https://ahoy-cli.dev/) as a wrapper. It
 lets you run complex tasks like provisioning, testing, or database imports
-with short, easy-to-remember commands.
+with short, memorable commands.
 
 :::note Planned features
 
@@ -63,16 +63,16 @@ These scripts:
 
 - Run identically across local, CI, and hosting
 - Support environment variables to adapt behavior
-- Are modular and easy to extend
+- Are modular and extensible
 
-The scripts are not part of the template's own files: they are a dependency.
+The scripts aren't part of the template's own files: they're a dependency.
 Your project's `composer.json` requires `drevops/vortex-tooling` with a tilde
 constraint (`~1.4.0` in the shipped template), which accepts patch releases but
-holds the minor version, so a new minor release cannot reach your deployments
-until you raise the constraint yourself. Once installed, every script is
-available as a Composer binary at `vendor/bin/vortex-<script>` - for example
-`vendor/bin/vortex-provision` or `vendor/bin/vortex-deploy` - and the Ahoy
-commands wrap those binaries.
+holds the minor version. As a result, a new minor release can't reach your
+deployments until you raise the constraint yourself. Once installed, every
+script is available as a Composer binary at `vendor/bin/vortex-<script>` - for
+example `vendor/bin/vortex-provision` or `vendor/bin/vortex-deploy` - and the
+Ahoy commands wrap those binaries.
 
 The package repository on GitHub is a read-only mirror of the
 [`.vortex/tooling/`](https://github.com/drevops/vortex/tree/main/.vortex/tooling)
@@ -82,8 +82,8 @@ mirror.
 
 Never edit the files under `vendor/drevops/vortex-tooling/src/` - the next
 `composer update` discards the change. Adapt behavior through environment
-variables, add project logic as your own scripts under `scripts/` (the
-`provision` script discovers and runs `scripts/provision-*.sh`), and reach for a
+variables, and add project logic as your own scripts under `scripts/` (the
+`provision` script discovers and runs `scripts/provision-*.sh`). Reach for a
 [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches)
 patch only when a shipped script itself must change.
 
@@ -152,15 +152,15 @@ running migrations or creating demo content.
 **Vortex** includes a structured way to manage Drupal settings per environment.
 Here's how it works:
 
-- The environment type (e.g. local, CI, stage) is automatically detected based
-  on the environment provider settings located in `web/sites/default/includes/providers/`.
+- The environment type (for example, local, CI, stage) is automatically detected
+  based on the environment provider settings located in `web/sites/default/includes/providers/`.
 - Settings overrides are stored in `web/sites/default/includes/modules/` with logic per
   environment inside each module-specific file.
 
 This structure gives you clarity, avoids config sprawl, and lets you remove a
 module's settings cleanly when no longer needed.
 
-**Vortex** also includes tests for these settings to ensure they are loaded
+**Vortex** also includes tests for these settings to ensure they're loaded
 correctly in each environment.
 
 ➡️ See [Development > Settings](./development/settings)
@@ -183,7 +183,7 @@ and [Development > Themes](./development/themes)
 
 **Vortex** ships with pre-configured tools for maintaining code quality:
 
-- **PHP CodeSniffer (phpcs)**
+- **PHP CodeSniffer (PHPCS)**
 - **PHPStan**
 - **Rector**
 - **Twig CS Fixer**
@@ -229,7 +229,7 @@ project. These pipelines include:
 - Database fetch and caching (for faster builds)
 - Full site provisioning in CI
 - Running code quality checks
-- Running unit, functional and behavior tests
+- Running unit, functional, and behavior tests
 - Triggering deploys when tests pass
 
 Each continuous integration configuration mirrors what happens locally and in hosting to ensure
@@ -239,7 +239,7 @@ uniformity.
 
 ## Hosting integrations
 
-Out of the box, **Vortex** supports Acquia and Lagoon hosting. These integrations:
+**Vortex** supports Acquia and Lagoon hosting out of the box. These integrations:
 
 - Trigger provisioning with the same steps used locally and in CI
 - Provide deployment pipelines suited to each platform

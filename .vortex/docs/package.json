@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "postinstall": "vale sync",
     "docusaurus": "docusaurus",
     "start": "DOCUSAURUS_GENERATED_FILES_DIR_NAME=.docusaurus-dev docusaurus start",
     "build": "docusaurus build",
@@ -16,12 +17,13 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "yarn lint-js && yarn lint-docs-fix",
+    "lint": "yarn lint-js && yarn lint-docs",
     "lint-fix": "yarn lint-js-fix && yarn lint-docs-fix",
     "lint-js": "eslint src/ tests/ && prettier --check src/ tests/",
     "lint-js-fix": "eslint src/ tests/ --fix && prettier --write src/ tests/",
     "lint-docs": "markdownlint-cli2 \"content/**/*.mdx\"",
-    "lint-docs-fix": "markdownlint-cli2 \"content/**/*.mdx\" --fix"
+    "lint-docs-fix": "markdownlint-cli2 \"content/**/*.mdx\" --fix",
+    "lint-prose": "vale content"
   },
   "dependencies": {
     "@docusaurus/core": "^3.5",
@@ -49,6 +51,7 @@
     "@testing-library/jest-dom": "^5.16.0",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.0.0",
+    "@vvago/vale": "^3.22.0",
     "babel-jest": "^29.7.0",
     "cspell": "^8.6.1",
     "eslint": "^9.39.4",

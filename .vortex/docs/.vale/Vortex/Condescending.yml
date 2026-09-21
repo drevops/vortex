@@ -1,0 +1,15 @@
+extends: existence
+message: "'%s' can read as condescending. Remove it or state the fact."
+level: error
+scope: ~heading
+ignorecase: true
+tokens:
+  - clearly
+  - easily
+  - easy
+  - everyone knows
+  - just(?![ -](?:\w+ed|as|before|after|now|in case)\b)
+  - obvious
+  - obviously
+  - of course
+  - simply

@@ -1,11 +1,11 @@
 ---
-sidebar_label: Generated content
+sidebar_label: Generated Content
 sidebar_position: 4
 ---
 
-# Generated content
+# Generated Content
 
-[Generated content](https://www.drupal.org/project/generated_content) provides
+[Generated Content](https://www.drupal.org/project/generated_content) provides
 a plugin-based system for programmatically generating deterministic content
 entities. Unlike random dummy content, generated content produces reproducible
 sets useful for visual regression testing and consistent demo environments.
@@ -122,7 +122,7 @@ $node->set('field_author', $this->helper::staticUser());
 ```
 
 **Asset** helpers create managed files from the dummy assets that ship with the
-module, covering image, document, audio and video extensions:
+module, covering image, document, audio, and video extensions:
 
 ```php
 $node->set('field_image', $this->helper::createFile('png'));
@@ -155,12 +155,12 @@ GENERATED_CONTENT_ITEMS="taxonomy_term-tags,node-page"
 ### Provisioning
 
 **Vortex** installs the module from
-[`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) in the `local`, `ci`, `dev` and
+[`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) in the `local`, `ci`, `dev`, and
 `stage` environments, passing `GENERATED_CONTENT_CREATE=1` so the content is
 created as part of the install. Setting `DRUPAL_GENERATED_CONTENT_SKIP=1`
 installs the module without the content.
 
-➡️ See [Generated content](../provision.mdx#generated-content) in the provisioning
+➡️ See [Generated Content](../provision.mdx#generated-content) in the provisioning
 documentation.
 
 ## Example in Vortex

@@ -89,7 +89,7 @@ Connection details:
 - Username: `drupal`
 - Password: `drupal`
 - Database: `drupal`
-- Port: the port from the step above
+- Port: the port from the preceding step
 
 ➡️ See [Environment > Docker](environment/docker.mdx)
 
@@ -159,7 +159,7 @@ Connection details:
 
 ## What should I do to switch to a "clean" branch environment?
 
-Provided that your stack is already running:
+If your stack is already running:
 
 <!-- markdownlint-disable MD046 -->
 
@@ -169,8 +169,8 @@ Provided that your stack is already running:
     2. `composer install`
     3. `ahoy provision`
 
-    You do not need to rebuild the full stack using `ahoy build` every
-    time you switch branches. `ahoy provision` will update the environment
+    You don't need to rebuild the full stack using `ahoy build` every
+    time you switch branches. `ahoy provision` updates the environment
     to match the current branch.
 
     However, sometimes you would want to have an absolutely clean environment - in
@@ -181,8 +181,8 @@ Provided that your stack is already running:
     2. `docker compose exec cli composer install`
     3. `docker compose exec cli ./vendor/bin/vortex-provision`
 
-    You do not need to rebuild the full stack every time you switch branches.
-    The provision script will update the environment to match the current branch.
+    You don't need to rebuild the full stack every time you switch branches.
+    The provision script updates the environment to match the current branch.
 
     However, sometimes you would want to have an absolutely clean environment - in
     that case, run:
@@ -202,7 +202,7 @@ Provided that your stack is already running:
 
 ## How to import a database without running updates?
 
-Provided that your stack is already running:
+If your stack is already running:
 
 <!-- markdownlint-disable MD046 -->
 
@@ -296,22 +296,22 @@ workflow, including removing patches.
 
 ## What should I do when `composer audit` reports a security vulnerability?
 
-**Vortex** does not block installation on security advisories by default, so `composer install` and `composer update` keep working. Advisories are surfaced by `composer audit`, which runs locally and in the CI security audit workflow. When one appears:
+**Vortex** doesn't block installation on security advisories by default, so `composer install` and `composer update` keep working. Advisories are surfaced by `composer audit`, which runs locally and in the CI security audit workflow. When one appears:
 
 1. **Update the affected package**: try a newer version that resolves the advisory: `composer update vendor/package-name`.
 2. **Review the advisory**: run `composer audit` for details and assess whether it affects your project.
-3. **Record an assessed exception**: if no fixed version is available yet, or the vulnerability doesn't affect your use case, add the advisory to the `config.policy.advisories.ignore-id` list in your `composer.json` with a documented reason.
+3. **Record an assessed exception**: if no fixed version exists yet, or the vulnerability doesn't affect your use case, add the advisory to the `config.policy.advisories.ignore-id` list in `composer.json` with a documented reason.
 4. **Bypass CI for a known issue**: set `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` to let CI pass while the advisory is being addressed.
 
 ➡️ See [Security > Dependency audit](security/dependency-audit.mdx) for the full `config.policy` reference and guidance on choosing the right settings for your project.
 
 ## What should I do when `npm audit` reports a security vulnerability?
 
-The CI security audit workflow runs `npm audit` against the root and the theme dependency trees, failing on advisories rated `high` or above. When one appears:
+The CI security audit workflow runs `npm audit` against the root and the theme dependency trees, failing on advisories rated `high` or higher. When one appears:
 
 1. **Update the affected package**: try a newer version that resolves the advisory: `npm update <package-name>`.
 2. **Review the advisory**: run `npm audit` for details, including which direct dependency pulls the affected package in, and assess whether it affects your project.
-3. **Pin a patched transitive version**: when the affected package is not a direct dependency, add an `overrides` entry for it in `package.json` and run `npm install`. `npm audit` has no per-advisory ignore list, so this is how a specific advisory leaves the tree.
+3. **Pin a patched transitive version**: when the affected package isn't a direct dependency, add an `overrides` entry for it in `package.json` and run `npm install`. `npm audit` has no per-advisory ignore list, so this is how a specific advisory leaves the tree.
 4. **Bypass CI for a known issue**: set `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1` to let CI pass while the advisory is being addressed.
 
 ➡️ See [Security > Dependency audit](security/dependency-audit.mdx#javascript-dependencies) for the severity threshold and the `overrides` mechanism.
@@ -326,18 +326,18 @@ for updates), set the `DRUPAL_MAINTENANCE_THEME` environment variable:
 DRUPAL_MAINTENANCE_THEME=my_custom_theme
 ```
 
-This theme will be used when Drupal is in maintenance mode. If
-`DRUPAL_MAINTENANCE_THEME` is not set, the system will fall back to using the
-value of `DRUPAL_THEME`.
+Drupal uses this theme when it's in maintenance mode. If
+`DRUPAL_MAINTENANCE_THEME` isn't set, the system falls back to using the value
+of `DRUPAL_THEME`.
 
-The maintenance theme should be a valid Drupal theme that is already installed
+The maintenance theme should be a valid Drupal theme that's already installed
 and enabled on your site.
 
 ➡️ See [Environment > Environment variables](environment/README.mdx#environment-variables)
 
 ## Behat tests with `@javascript` tag sometimes get stuck
 
-Behat tests with `@javascript` tag sometimes get stuck for about 10min then
+Behat tests with `@javascript` tag sometimes get stuck for about 10 minutes then
 fail. The Chrome container randomly gets stuck for an unknown reason.
 
 Restart the Chrome container: `docker compose restart chrome`

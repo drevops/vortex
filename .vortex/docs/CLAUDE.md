@@ -18,6 +18,7 @@ yarn test         # Run Jest tests
 yarn spellcheck   # American English validation
 yarn lint         # Code quality checks
 yarn lint-fix     # Auto-fix issues
+yarn lint-prose   # Prose style checks (Vale)
 ```
 
 ## Key Directories
@@ -36,8 +37,23 @@ docs/
 - **American English** spelling throughout
 - **Sentence case** for headings (capitalize only first letter + proper nouns)
 - Proper nouns: Vortex, GitHub, Drupal, Docker Compose, CircleCI
-- **`Vortex` must always be bold** (`**Vortex**`) when it appears in prose. Applies to every `.mdx` file under `content/`. Exception: headings, code fences, and inline code (`` `Vortex` ``) where Markdown emphasis is not appropriate.
+- **`Vortex` must always be bold** (`**Vortex**`) when it appears in prose. Applies to every `.mdx` file under `content/`. Exception: headings, link labels, code fences, and inline code (`` `Vortex` ``) where Markdown emphasis is not appropriate.
 - Acronyms: CI/CD, SSH, API, BDD, PHPUnit
+- Contractions (`doesn't`, `it's`, `can't`), present tense, and `you` for the reader.
+- Digits for numbers from 2 to 10 (`2 majors`), the Oxford comma, and `for example` instead of `e.g.`.
+- Environment variables, file names, commands, and package names are inline code, in link labels too. Inside single-line JSX or HTML elements such as `<summary>`, use `<code>` tags instead of backticks.
+- No `easy`, `simply`, `just`, `clearly`, marketing adjectives, or em and en dashes (use a spaced hyphen).
+
+## Prose linting
+
+`yarn lint-prose` runs [Vale](https://vale.sh) over `content/**/*.mdx`. Errors fail the run and CI; warnings are advisory. Lint a single page with `yarn lint-prose --glob='content/faqs.mdx'`.
+
+- `.vale.ini` selects the rules. The `Google` and `write-good` packages are pinned there by release URL and downloaded into the git-ignored part of `.vale/` by `vale sync`, which runs on `yarn install`.
+- `.vale/Vortex/` is the committed house style. A rule that adjusts an upstream rule inherits it with `extends: Google.<Rule>` and edits its lists with `exceptions+`, `tokens-` or `swap-`; the upstream rule is then switched off in `.vale.ini`.
+- `.vale/config/vocabularies/Vortex/accept.txt` holds product names with their exact casing. Add a new product name there; it is then enforced in prose and accepted in headings.
+- A heading that fails sentence case because of a proper noun gets an entry in `.vale/Vortex/Headings.yml`.
+- Fix the prose or fix the rule. Do not silence an alert with Vale control comments.
+- Blockquotes are skipped because they quote upstream projects verbatim. The generated table in `content/development/variables.mdx` is skipped too; the hand-written prose above it is linted.
 
 ## Diagrams
 

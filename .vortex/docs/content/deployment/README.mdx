@@ -14,9 +14,10 @@ The script runs in the continuous integration pipeline's `deploy` job after the
 [manual deployment](../continuous-integration/github-actions.mdx#manual-deployment)
 can also run the `deploy` job on its own.)
 
-The script deploys the code to a remote location by calling the
-relevant scripts based on the type of deployment defined in the `$VORTEX_DEPLOY_TYPES`
-variable as a comma-separated list of one or multiple supported deployment types:
+The script deploys the code to a remote location by calling the relevant
+scripts for each type of deployment. The `$VORTEX_DEPLOY_TYPES` variable defines
+the types as a comma-separated list of one or multiple supported deployment
+types:
 
 - [`webhook`](webhook.mdx) - A webhook URL is called via CURL.
 - [`artifact`](artifact.mdx) - A code artifact is created and sent to a remote repository.
@@ -54,9 +55,9 @@ branches:
 This runs the deployment script to forward the code to the remote hosting
 platform and tell it to use the current branch's code for the deployment.
 
-When a pull request is raised against one of the branches above, a deployment
-runs for the pull request's branch. Depending on the hosting platform, this
-may create a temporary environment named after the pull request.
+When a pull request is raised against one of the preceding branches, a
+deployment runs for the pull request's branch. Depending on the hosting
+platform, this may create a temporary environment named after the pull request.
 
 Short-lived `feature/*` and `bugfix/*` branches deploy through their pull
 requests rather than through direct pushes - deploying both the push and the
@@ -64,8 +65,8 @@ PR would double every CI run and deployment. Branches created by automated
 dependency updates (`deps/*`) never deploy.
 
 `project/*` branches are long-lived branches typically used for larger
-features or projects spanning multiple pull requests - for example, a
-migration branch whose code and configuration are not ready to merge into
+features or projects spanning multiple pull requests. An example is a
+migration branch whose code and configuration aren't ready to merge into
 `develop` but need a remote environment for testing. Such branches are
 manually synced with `develop` and deploy on direct pushes.
 
@@ -138,7 +139,7 @@ VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent
 
 Skipping is subtractive - everything deploys unless you exclude it. The label
 gate is the opposite: it makes a pull request deployment **opt-in**, so a PR
-reaches an environment only when it is explicitly labeled for it. This is
+reaches an environment only when it's explicitly labeled for it. This is
 useful for controlling the number and cost of per-PR environments, or for
 keeping work-in-progress pull requests out of environments.
 
@@ -159,7 +160,7 @@ no associated pull request label and are never gated.
 The pull request's labels are read from `$VORTEX_DEPLOY_PR_LABELS`, a
 comma-separated list that the CI provider populates from the pull request
 event. On GitHub Actions this is wired up automatically. On CircleCI the
-labels are not available natively, so populate `$VORTEX_DEPLOY_PR_LABELS`
+labels aren't available natively, so populate `$VORTEX_DEPLOY_PR_LABELS`
 yourself (for example, from the GitHub API) to use the gate.
 
 The label gate and the skip lists can be combined. A skip-list match is

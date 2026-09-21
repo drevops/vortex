@@ -5,7 +5,7 @@ sidebar_position: 2
 # Template
 
 This page covers maintaining the **Vortex** template: authoring scripts and
-testing the template functionality.
+testing the template's features.
 
 ## Authoring scripts
 
@@ -17,7 +17,7 @@ subscripts.
 
 :::note
 
-Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of words `MUST`, `SHOULD` and `MAY`.
+Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of words `MUST`, `SHOULD`, and `MAY`.
 
 :::
 
@@ -38,7 +38,8 @@ Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of w
     [ "${VORTEX_DEBUG-}" = "1" ] && set -x
     ```
 
-4. MUST list all variables with their default values and descriptions. i.e.:
+4. MUST list all variables with their default values and descriptions. For
+   example:
 
     ```shell
     # Deployment reference, such as a git SHA.
@@ -53,11 +54,11 @@ Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of w
     ```
 
 6. SHOULD include formatting helper functions. `info` opens and closes an
-   operation, `task` announces work that is starting, `note` is a standalone
-   remark that starts no task, and `fail` prints the message and terminates
-   the script with status `1`, or with the status passed as its second
-   argument - it is always the last statement of a failure branch, and
-   anything that explains the failure runs before it:
+   operation, `task` announces work that's starting, and `note` is a standalone
+   remark that starts no task. `fail` prints the message and terminates the
+   script with status `1`, or with the status passed as its second argument.
+   It's always the last statement of a failure branch, and anything that
+   explains the failure runs before it:
 
     ```shell
     # @formatter:off
@@ -70,35 +71,38 @@ Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of w
     ```
 
    Every `task` MUST be closed by a `pass` or a `fail` - a task announces work
-   that is starting, so it always reports its outcome, even when the work
-   itself cannot fail.
+   that's starting, so it always reports its outcome, even when the work
+   itself can't fail.
 
-7. SHOULD include variable values checks with errors and early exit, i.e.:
+7. SHOULD include variable values checks with errors and early exit, for
+   example:
 
     ```shell
     [ -z "${VORTEX_NOTIFY_REF}" ] && fail "Missing required value for VORTEX_NOTIFY_REF."
     ```
 
-8. SHOULD include binaries checks if the script relies on them, i.e.:
+8. SHOULD include binaries checks if the script relies on them, for example:
 
     ```shell
     command -v curl > /dev/null || fail "curl command is not available."
     ```
 
-9. MUST contain an `info` message about the start of the script body, e.g.:
+9. MUST contain an `info` message about the start of the script body, for
+   example:
 
     ```shell
     info "Started GitHub notification for operation ${VORTEX_NOTIFY_EVENT}."
     ```
 
-10. MUST contain a `pass` message about the finish of the script body, e.g.:
+10. MUST contain a `pass` message about the finish of the script body, for
+    example:
 
     ```shell
     pass "Finished GitHub notification for operation ${VORTEX_NOTIFY_EVENT}."
     ```
 
 11. MUST close every `task` message with exactly one `pass` or `fail` message,
-    on every path through the script, e.g.:
+    on every path through the script, for example:
 
     ```shell
     task "Disabling Search API Solr server."
@@ -110,15 +114,16 @@ Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of w
     inside an open task, including each iteration of a loop, uses a `note`
     message.
 13. MAY use a `pass` or a `fail` message on its own. A check reports `pass` when
-    it holds and `fail` when it does not, and an operation that is skipped or
+    it holds and `fail` when it doesn't, and an operation that's skipped or
     finished reports `pass` without announcing a `task` first.
 14. MUST use uppercase global variables.
 15. MUST use lowercase local variables.
-16. MUST use long options instead of short options for readability. I.e., `drush cache:rebuild` instead of `drush cr`.
-17. MUST use `VORTEX_` prefix for variables, unless it is a known 3-rd party
+16. MUST use long options instead of short options for readability. For
+    example, `drush cache:rebuild` instead of `drush cr`.
+17. MUST use `VORTEX_` prefix for variables, unless it's a known 3-rd party
     variable like `PACKAGE_TOKEN` or `COMPOSER`.
-18. MUST use a script-specific prefix. I.e., for `vortex-notify`, the variable
-    to skip notifications should start with `VORTEX_NOTIFY_`.
+18. MUST use a script-specific prefix. For example, for `vortex-notify`, the
+    variable to skip notifications should start with `VORTEX_NOTIFY_`.
 19. MAY rely on variables from the external scripts (not prefixed with a
     script-specific prefix), but MUST declare such variables in the header of
     the file.
@@ -231,7 +236,7 @@ test, and deploy without issues after each upstream update.
 The website repository receives regular upstream updates from **Vortex**,
 including CI configuration, testing workflows, and infrastructure changes.
 This ensures that updates are validated against a real, long-lived codebase
-rather than just in test environments.
+rather than only in test environments.
 
 ## Running tests
 
@@ -273,9 +278,9 @@ layers.
 
 ## Updating test assets
 
-There are *demo* and *test* database dumps captured as *files* and *container
-images*. All flows are automated by `.vortex/tests/update-test-assets`, which
-prints every shell command it runs.
+The test assets are *demo* and *test* database dumps, captured as *files* and
+*container images*. All flows are automated by
+`.vortex/tests/update-test-assets`, which prints every shell command it runs.
 
 ```shell
 php .vortex/tests/update-test-assets [mode] [--tag <tag>]
@@ -292,7 +297,7 @@ Without arguments, runs `all` for a full refresh. Default tag is `latest`.
 | `test-dump` | Installs **Vortex** into `/tmp/star-wars`; builds; exports `/tmp/star-wars/.data/db.test.sql`. | Upload as `db_d11.test.sql` to the latest GitHub release. |
 | `test-image` | Installs **Vortex** into `/tmp/star-wars`; builds; pushes `drevops/vortex-dev-mariadb-drupal-data-test-11.x:<tag>`. | None. |
 | `destination-images` | Tags and pushes the local demo image to the didi destination tags (`vortex-dev-database-ii`, `vortex-dev-didi-database-fi`). | None. |
-| `all` | Optimized full refresh: builds the demo stack once for both demo modes and the test stack once for both test modes (2 stack builds instead of 4), then pushes images and tags destination images. Default when no mode is given. | Upload both dump files as above. |
+| `all` | Optimized full refresh: builds the demo stack once for both demo modes and the test stack once for both test modes (2 stack builds instead of 4). Then pushes images and tags destination images. Default when no mode is given. | Upload both dump files, as in the `demo-dump` and `test-dump` rows. |
 
 ### Options
 
@@ -304,7 +309,7 @@ Without arguments, runs `all` for a full refresh. Default tag is `latest`.
 
 - `docker`, `ahoy`, `curl`, `sed`, `php` available on `PATH`.
 - A Docker Hub session with push permission to `drevops/` for any image mode.
-- The `demo-image`, `test-image` and `all` modes download `seed.sh` from a pinned `drevops/mariadb-drupal-data` release and verify it against a recorded SHA-256 checksum. Adopting a newer release is a manual step: update `SEED_URL` and `SEED_SHA256` together.
+- The `demo-image`, `test-image`, and `all` modes download `seed.sh` from a pinned `drevops/mariadb-drupal-data` release and verify it against a recorded SHA-256 checksum. Adopting a newer release is a manual step: update `SEED_URL` and `SEED_SHA256` together.
 
 ### Caveats
 

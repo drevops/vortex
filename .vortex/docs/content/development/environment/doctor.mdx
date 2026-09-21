@@ -22,7 +22,7 @@ ahoy doctor
 Doctor performs a series of checks, each reported on its own line.
 
 <details>
-  <summary>Expand to see the video of ahoy doctor</summary>
+  <summary>Expand to see the video of <code>ahoy doctor</code></summary>
 
   <AsciinemaPlayer
     src="/img/doctor.json"
@@ -39,7 +39,7 @@ Doctor performs a series of checks, each reported on its own line.
 
 The checks, in order:
 
-1. **Tools** - Docker, Docker Compose, Pygmy and Ahoy are installed.
+1. **Tools** - Docker, Docker Compose, Pygmy, and Ahoy are installed.
 2. **Port** - port 80 on the host is either free or held by Docker (skipped on Linux).
 3. **Pygmy** - the [Pygmy](pygmy.mdx) services are running.
 4. **Containers** - all project containers are running.
@@ -60,7 +60,7 @@ to `0` or `1`.
 
 - `VORTEX_DOCTOR_CHECK_MINIMAL=1` - only the tools and containers checks; for
   environments without Pygmy or a routable web server.
-- `VORTEX_DOCTOR_CHECK_PREFLIGHT=1` - only the tools, port and Pygmy checks;
+- `VORTEX_DOCTOR_CHECK_PREFLIGHT=1` - only the tools, port, and Pygmy checks;
   for validating a machine before the stack is up.
 
 ## Getting system information
@@ -69,13 +69,13 @@ to `0` or `1`.
 ahoy doctor info
 ```
 
-Prints a system information report to attach to a support request: the
-operating system version, the Docker, Docker Compose, Pygmy and Ahoy binaries
-with their versions, and the Docker daemon details. Usernames, IDs, hashes and
-IP addresses are redacted, so the output is safe to share.
+Prints a system information report to attach to a support request. The report
+covers the operating system version, the Docker, Docker Compose, Pygmy, and Ahoy
+binaries with their versions, and the Docker daemon details. Usernames, IDs,
+hashes, and IP addresses are redacted, so the output is safe to share.
 
 <details>
-  <summary>Expand to see the video of ahoy doctor info</summary>
+  <summary>Expand to see the video of <code>ahoy doctor info</code></summary>
 
   <AsciinemaPlayer
     src="/img/doctor-info.json"

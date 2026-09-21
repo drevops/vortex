@@ -35,18 +35,18 @@ develop ──► git flow release start X.Y.Z
 - **`develop`** - development branch where features are integrated
 - **`main`** - production-ready code, always stable and tagged with releases
 - **`feature/*`** - individual feature development branches
-- **`release/*`** - release preparation branches (e.g., `release/25.1.0`)
-- **`hotfix/*`** - emergency fixes for production (e.g., `hotfix/25.1.1`)
+- **`release/*`** - release preparation branches (for example, `release/25.1.0`)
+- **`hotfix/*`** - emergency fixes for production (for example, `hotfix/25.1.1`)
 
 <details>
-  <summary>`production` branch</summary>
+  <summary><code>production</code> branch</summary>
 
   Most hosting providers support deploying specific git tags directly. In this
   case, no separate `production` branch is needed - you tag releases on
   `main` and deploy those tags.
 
   Some hosting providers (like **Lagoon**) require a git branch to deploy from,
-  so tag-based deployments are not supported. In this case, you must create a
+  so tag-based deployments aren't supported. In this case, you must create a
   `production` branch and sync code from `main` to `production` after each
   release.
 
@@ -68,8 +68,8 @@ reference on git-flow commands.
    git flow release start X.Y.Z
    ```
 
-   Creates a `release/X.Y.Z` branch from `develop`. It is recommended to push
-   the branch to remote.
+   Creates a `release/X.Y.Z` branch from `develop`. We recommend pushing the
+   branch to the remote.
 
 2. **Prepare the release**
    - Final bug fixes
@@ -89,7 +89,7 @@ reference on git-flow commands.
 
 4. **Deploy to production**
    - **Tag-based hosting:** deploy the tag directly
-   - **Branch-based hosting (e.g., Lagoon):** manually sync to the `production` branch
+   - **Branch-based hosting (for example, Lagoon):** manually sync to the `production` branch
 
      ```shell
      git push origin main:production
@@ -106,6 +106,6 @@ A successful release meets these criteria (they also ship in your project's
 4. The hash of the `HEAD` of the `main` branch exists in the `develop` branch
    - This ensures everything pushed to `main` exists in `develop`
    - Important if `main` had any hotfixes not yet merged to `develop`
-5. There are no open PRs in GitHub related to the release
+5. GitHub has no open PRs related to the release
 6. On branch-based hosting, the hash of the `HEAD` of the `production` branch
    matches the hash of the `HEAD` of the `main` branch

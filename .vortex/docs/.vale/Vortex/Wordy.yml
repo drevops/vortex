@@ -1,0 +1,33 @@
+extends: write-good.TooWordy
+message: "'%s' is wordy. Use a shorter form."
+tokens-:
+  - additional
+  - aggregate
+  - allocate
+  - alternatively
+  - authorize
+  - equivalent
+  - evaluate
+  - however
+  - implement
+  - in order to
+  - indicate
+  - it is
+  - it was
+  - maximum
+  - minimum
+  - modify
+  - monitor
+  - multiple
+  - objective
+  - overall
+  - previously
+  - prioritize
+  - regarding
+  - requirement
+  - retain
+  - similar to
+  - terminate
+  - therefore
+  - type of
+  - validate

@@ -16,9 +16,9 @@ More hosting provider integrations are planned - see the [roadmap](../contributi
 
 :::
 
-This section covers where your site _runs_: what each provider integration
-does, how the environment is detected, and the routine operations (fetching
-databases, copying files, purging caches) available on each platform.
+This section covers where your site _runs_. It explains what each provider
+integration does, how the environment is detected, and the routine operations
+(fetching databases, copying files, purging caches) available on each platform.
 
 How code _gets to_ a provider - deployment types, triggers, and skip rules - is
 covered in the [Deployment](../deployment/README.mdx) section.
@@ -36,8 +36,8 @@ your website deployment and releasing lifecycle: from local development to
 production. Multiple environments can exist on the same hosting provider.
 
 Hosting providers typically provide DEV, STAGE, and PROD environments. Some
-also support short-lived ephemeral environments - called "preview",
-"on-demand", or "feature" environments - that help to test new features or
+also support short-lived ephemeral environments, called "preview",
+"on-demand", or "feature" environments. These help to test new features or
 changes in isolation before merging them into the main codebase.
 
 **Vortex** detects the environment type at runtime and lets you configure your

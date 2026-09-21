@@ -11,8 +11,8 @@ hosting platform using the [Lagoon CLI](https://github.com/uselagoon/lagoon-cli)
 ## How it works
 
 When `lagoon` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script
-downloads the Lagoon CLI, points it at the configured Lagoon instance, and
-requests a deployment for the current branch or pull request over SSH. Lagoon
+downloads the Lagoon CLI and points it at the configured Lagoon instance. Over
+SSH, it requests a deployment for the current branch or pull request. Lagoon
 then:
 
 1. Pulls the latest code from your repository
@@ -20,8 +20,8 @@ then:
 3. Deploys containers to Kubernetes
 4. Runs post-rollout tasks defined in `.lagoon.yml`
 
-Tag deployments are not supported by Lagoon - the script reports this and
-skips the deployment.
+Lagoon doesn't support tag deployments - the script reports this and skips the
+deployment.
 
 ## Configuration
 
@@ -71,7 +71,7 @@ provision the site and send notifications - see
 
 The shipped [`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
 defines environment-specific settings (cron jobs, routes) for the `main` and
-`develop` branches, and treats an environment as production when Lagoon marks
+`develop` branches. It treats an environment as production when Lagoon marks
 it as such or when the branch matches `VORTEX_LAGOON_PRODUCTION_BRANCH`
 (default: `main`).
 

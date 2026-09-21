@@ -85,11 +85,11 @@ The following rules are set on top of the standard configuration:
   in alphabetical order
 - `at-rule-no-unknown` - unknown at-rules are reported, except the Sass
   at-rules `@extend`, `@at-root`, `@debug`, `@warn`, `@error`, `@if`, `@else`,
-  `@for`, `@each`, `@while`, `@include`, `@mixin`, `@function`, `@return` and
+  `@for`, `@each`, `@while`, `@include`, `@mixin`, `@function`, `@return`, and
   `@content`
-- `selector-class-pattern`, `selector-id-pattern`, `custom-property-pattern`
-  and `keyframes-name-pattern` - disabled, so class, ID, custom property and
-  keyframes names are not forced into a naming pattern
+- `selector-class-pattern`, `selector-id-pattern`, `custom-property-pattern`,
+  and `keyframes-name-pattern` - disabled, so class, ID, custom property, and
+  keyframes names aren't forced into a naming pattern
 - `no-descending-specificity` - disabled
 - `font-family-no-missing-generic-family-keyword` - disabled
 
@@ -115,7 +115,7 @@ Adding or removing targets in `package.json`:
 }
 ```
 
-The `stylelint`, `stylelint-config-standard` and `stylelint-order` packages
+The `stylelint`, `stylelint-config-standard`, and `stylelint-order` packages
 are declared in the `devDependencies` of the root `package.json` and installed
 by `ahoy fei`.
 
@@ -127,7 +127,7 @@ and can be moved into a separate repository.
 
 The theme configuration extends `stylelint-config-standard` and
 `stylelint-config-standard-scss`, loads the `stylelint-scss` plugin, uses the
-`string` formatter and sets the following rules:
+`string` formatter, and sets the following rules:
 
 - `scss/at-extend-no-missing-placeholder` - `@extend` must target a
   placeholder selector
@@ -136,7 +136,7 @@ The theme configuration extends `stylelint-config-standard` and
   `^_?[a-z]+([a-z0-9-]+[a-z0-9]+)?$`
 
 The theme's `lint-css` script targets `scss/**/*.scss`, and the configuration
-ignores `scss/_components.scss`, `fonts/**/*.scss` and `build/.*` through
+ignores `scss/_components.scss`, `fonts/**/*.scss`, and `build/.*` through
 the `ignoreFiles` key.
 
 ## Ignoring
