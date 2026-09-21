@@ -136,7 +136,13 @@ class Modules extends AbstractHandler {
 
         if (is_array($patches)) {
           $remaining = array_diff_key($patches, array_flip($removed_packages));
-          $cj->addSubNode('extra', 'patches', $remaining === [] ? new \stdClass() : $remaining);
+
+          if ($remaining === []) {
+            $cj->removeSubNode('extra', 'patches');
+          }
+          else {
+            $cj->addSubNode('extra', 'patches', $remaining);
+          }
         }
       });
     }
