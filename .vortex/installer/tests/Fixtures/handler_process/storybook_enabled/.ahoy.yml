@@ -1,4 +1,4 @@
-@@ -189,6 +189,20 @@
+@@ -189,6 +189,23 @@
        ahoy cli "pkill -9 -f grunt" || true
        ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run watch"
  
@@ -6,7 +6,10 @@
 +    usage: Start the Storybook development server.
 +    cmd: |
 +      echo "Storybook is available at http://localhost:$(docker compose port cli 6006 2>/dev/null | cut -d : -f 2)"
-+      ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && STORYBOOK_DRUPAL_URL=http://\${LOCALDEV_URL} npm run storybook"
++      ahoy cli " \
++        url=\$(echo \"\${LOCALDEV_URL%%,*}\" | tr -d '[:space:]'); \
++        case \"\${url}\" in *://*) ;; *) url=\"http://\${url}\";; esac; \
++        cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && STORYBOOK_DRUPAL_URL=\"\${url}\" npm run storybook"
 +
 +  storybook-build:
 +    usage: Build the static Storybook application.
