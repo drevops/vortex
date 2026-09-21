@@ -7,7 +7,7 @@ Feature: Pages listing
 
   @api @testmode
   Scenario: Pages view shows only test content when test mode is enabled
-    Given the following page content:
+    Given the following page content exist:
       | title                   | status | moderation_state |
       | [TEST] First test page  | 1      | published        |
       | [TEST] Second test page | 1      | published        |

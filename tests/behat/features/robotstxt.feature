@@ -7,7 +7,7 @@ Feature: Robots.txt file
 
   @api
   Scenario: Verify robots.txt exists and contains appropriate content in non-production
-    Given I am an anonymous user
+    Given the user is anonymous
     When I go to "/robots.txt"
     Then the response status code should be 200
     And the response header "content-type" should contain the value "text/plain"

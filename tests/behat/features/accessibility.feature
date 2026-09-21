@@ -7,7 +7,7 @@ Feature: Accessibility
 
   @api @javascript
   Scenario: Anonymous user visits an accessible homepage
-    Given I am an anonymous user
+    Given the user is anonymous
     When I go to the homepage
     Then the current page should pass accessibility checks
 
@@ -17,7 +17,7 @@ Feature: Accessibility
   # '.logs/test_results/accessibility/'.
   @api @javascript @accessibility:warning
   Scenario: Secondary pages are audited for the site-wide accessibility report
-    Given I am an anonymous user
+    Given the user is anonymous
     When I go to "/user/login"
     Then the current page should pass accessibility checks
     When I go to "/user/password"

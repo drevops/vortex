@@ -7,7 +7,7 @@ Feature: Redis cache functionality
 
   @api
   Scenario: Redis is working properly
-    Given I am logged in as a user with the "administrator" role
+    Given I log in as a user with the "administrator" role
     When I go to "/admin/reports/redis"
     Then the response status code should be 200
     And I should see "Connected, using the PhpRedis client"

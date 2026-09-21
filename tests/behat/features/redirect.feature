@@ -21,7 +21,7 @@ Feature: Redirects
     Given the following redirects exist:
       | from       | to          | status_code |
       | /old-login | /user/login | 301         |
-    And I am an anonymous user
+    And the user is anonymous
     When I go to "/old-login"
     Then the path should be "/user/login"
 
