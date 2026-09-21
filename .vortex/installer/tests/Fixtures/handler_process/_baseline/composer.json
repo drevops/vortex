@@ -159,10 +159,6 @@
         "patchLevel": {
             "drupal/core": "-p2"
         },
-        "patches": {
-            "drupal/generated_content": {
-                "Type-hint EntityTypeManagerInterface so a decorated entity type manager can be injected": "patches/generated_content-entity-type-manager-interface.patch"
-            }
-        }
+        "patches": {}
     }
 }
