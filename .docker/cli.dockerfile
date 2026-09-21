@@ -93,9 +93,10 @@ RUN --mount=type=secret,id=package_token \
 #;< DRUPAL_THEME
 # Copy files required for resolving the theme's Node.js dependencies. Placed
 # before the full source copy so changes elsewhere in the codebase do not
-# invalidate the install layer.
-COPY ${WEBROOT}/themes/custom/${DRUPAL_THEME}/package.json ${WEBROOT}/themes/custom/${DRUPAL_THEME}/package-lock.json ${WEBROOT}/themes/custom/${DRUPAL_THEME}/.npmrc /app/${WEBROOT}/themes/custom/${DRUPAL_THEME}/
-COPY ${WEBROOT}/themes/custom/${DRUPAL_THEME}/patches /app/${WEBROOT}/themes/custom/${DRUPAL_THEME}/patches
+# invalidate the install layer. The wildcards let a theme without '.npmrc' or
+# 'patches/' build.
+COPY ${WEBROOT}/themes/custom/${DRUPAL_THEME}/package.json ${WEBROOT}/themes/custom/${DRUPAL_THEME}/package-lock.json ${WEBROOT}/themes/custom/${DRUPAL_THEME}/.npmrc* /app/${WEBROOT}/themes/custom/${DRUPAL_THEME}/
+COPY ${WEBROOT}/themes/custom/${DRUPAL_THEME}/patches* /app/${WEBROOT}/themes/custom/${DRUPAL_THEME}/patches/
 
 RUN if [ "${VORTEX_FRONTEND_BUILD_SKIP}" != "1" ]; then \
       export npm_config_cache=/tmp/npm-cache; \
