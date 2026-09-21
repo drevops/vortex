@@ -496,6 +496,7 @@ class Tools extends AbstractHandler {
       self::BEHAT => [
         'title' => 'Behat',
         'present' => fn(): mixed => File::contains($this->destinationDir . '/composer.json', 'behat/behat') ||
+          File::contains($this->destinationDir . '/composer.json', 'lullabot/mink-selenium2-driver') ||
           File::contains($this->destinationDir . '/composer.json', 'drupal/drupal-extension') ||
           File::contains($this->destinationDir . '/composer.json', 'drevops/behat-format-progress-fail') ||
           File::contains($this->destinationDir . '/composer.json', 'drevops/behat-screenshot') ||
@@ -503,6 +504,8 @@ class Tools extends AbstractHandler {
           File::exists($this->destinationDir . '/behat.yml'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'behat/behat');
+          $cj->removeSubNode('require-dev', 'lullabot/mink-selenium2-driver');
+          // The 'strings' patterns key on "behat", which this name lacks.
           $cj->removeSubNode('require-dev', 'drupal/drupal-extension');
           $cj->removeSubNode('require-dev', 'dantleech/gherkin-lint');
           $cj->removeSubNode('require-dev', 'drevops/behat-format-progress-fail');

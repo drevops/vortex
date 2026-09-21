@@ -7,14 +7,14 @@ Feature: Homepage
 
   @api
   Scenario: Anonymous user visits homepage
-    Given I am an anonymous user
+    Given the user is anonymous
     When I go to the homepage
     Then the path should be "<front>"
     And I save screenshot
 
   @api @javascript
   Scenario: Anonymous user visits homepage using a real browser
-    Given I am an anonymous user
+    Given the user is anonymous
     When I go to the homepage
     Then the path should be "<front>"
     And I save screenshot

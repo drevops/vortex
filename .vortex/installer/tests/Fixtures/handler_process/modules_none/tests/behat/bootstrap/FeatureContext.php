@@ -1,24 +1,24 @@
-@@ -29,11 +29,9 @@
- use DrevOps\BehatSteps\Drupal\OverrideTrait;
- use DrevOps\BehatSteps\Drupal\ParagraphsTrait;
- use DrevOps\BehatSteps\Drupal\QueueTrait;
--use DrevOps\BehatSteps\Drupal\RedirectTrait;
- use DrevOps\BehatSteps\Drupal\SearchApiTrait;
- use DrevOps\BehatSteps\Drupal\StateTrait;
- use DrevOps\BehatSteps\Drupal\TaxonomyTrait;
--use DrevOps\BehatSteps\Drupal\TestmodeTrait;
- use DrevOps\BehatSteps\Drupal\UserTrait;
- use DrevOps\BehatSteps\Drupal\WatchdogTrait;
- use DrevOps\BehatSteps\ElementTrait;
-@@ -91,7 +89,6 @@
-   use ParagraphsTrait;
+@@ -28,11 +28,9 @@
+ use DrevOps\BehatSteps\Steps\Drupal\ModuleTrait;
+ use DrevOps\BehatSteps\Steps\Drupal\ParagraphsTrait;
+ use DrevOps\BehatSteps\Steps\Drupal\QueueTrait;
+-use DrevOps\BehatSteps\Steps\Drupal\RedirectTrait;
+ use DrevOps\BehatSteps\Steps\Drupal\SearchApiTrait;
+ use DrevOps\BehatSteps\Steps\Drupal\StateTrait;
+ use DrevOps\BehatSteps\Steps\Drupal\TaxonomyTrait;
+-use DrevOps\BehatSteps\Steps\Drupal\TestmodeTrait;
+ use DrevOps\BehatSteps\Steps\Drupal\UserTrait;
+ use DrevOps\BehatSteps\Steps\Drupal\WatchdogTrait;
+ use DrevOps\BehatSteps\Steps\Generic\AccessibilityTrait;
+@@ -108,7 +106,6 @@
    use PathTrait;
    use QueueTrait;
+   use RandomTrait;
 -  use RedirectTrait;
+   use RegionTrait;
    use ResponseTrait;
    use ResponsiveTrait;
-   use RestTrait;
-@@ -99,7 +96,6 @@
+@@ -117,7 +114,6 @@
    use StateTrait;
    use TableTrait;
    use TaxonomyTrait;

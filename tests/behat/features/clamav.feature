@@ -13,26 +13,26 @@ Feature: ClamAV Anti-virus
   https://en.wikipedia.org/wiki/EICAR_test_file
 
   Background:
-    Given the unmanaged file at the URI "public://eicar_test.txt" exists with "X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
-    And the unmanaged file at the URI "public://test.txt" exists with "some text content"
+    Given the unmanaged file at the URI "public://eicar_test.txt" exists with the content "X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
+    And the unmanaged file at the URI "public://test.txt" exists with the content "some text content"
 
   @api
   Scenario: Upload EICAR test file to trigger virus detection
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And I go to "media/add/document"
-    When I attach the file "public://eicar_test.txt" to "files[field_media_document_0]"
+    And I attach the file "public://eicar_test.txt" to "files[field_media_document_0]"
     And I press "Upload"
-    Then I should see the text "The specified file eicar_test.txt could not be uploaded."
-    And I should see the text "A virus has been detected in the file. The file will be deleted."
-    And I should not see the text "The anti-virus scanner could not check the file."
+    Then I should see "The specified file eicar_test.txt could not be uploaded."
+    And I should see "A virus has been detected in the file. The file will be deleted."
+    And I should not see "The anti-virus scanner could not check the file."
     And I save screenshot
 
   @api
   Scenario: Upload test file to ensure that file upload works
-    Given I am logged in as a user with the "administrator" role
+    When I log in as a user with the "administrator" role
     And I go to "media/add/document"
-    When I attach the file "public://test.txt" to "files[field_media_document_0]"
+    And I attach the file "public://test.txt" to "files[field_media_document_0]"
     And I press "Upload"
-    Then I should not see the text "The specified file test.txt could not be uploaded."
-    And I should not see the text "A virus has been detected in the file. The file will be deleted."
-    And I should not see the text "The anti-virus scanner could not check the file."
+    Then I should not see "The specified file test.txt could not be uploaded."
+    And I should not see "A virus has been detected in the file. The file will be deleted."
+    And I should not see "The anti-virus scanner could not check the file."
