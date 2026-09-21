@@ -138,7 +138,6 @@
         "cli": {
             "build": {
                 "args": {
-                    "BUILDKIT_INLINE_CACHE": "1",
                     "DRUPAL_PRIVATE_FILES": "sites/default/files/private",
                     "DRUPAL_PUBLIC_FILES": "sites/default/files",
                     "DRUPAL_TEMPORARY_FILES": "/tmp",
@@ -147,9 +146,6 @@
                     "VORTEX_FRONTEND_BUILD_SKIP": "",
                     "WEBROOT": "web"
                 },
-                "cache_from": [
-                    ""
-                ],
                 "context": "FIXTURE_CUR_DIR",
                 "dockerfile": ".docker/cli.dockerfile",
                 "secrets": [
@@ -337,9 +333,6 @@
                     "CLI_IMAGE": "star_wars",
                     "WEBROOT": "web"
                 },
-                "cache_from": [
-                    ""
-                ],
                 "context": "FIXTURE_CUR_DIR",
                 "dockerfile": ".docker/nginx-drupal.dockerfile"
             },
@@ -414,9 +407,6 @@
                 "args": {
                     "CLI_IMAGE": "star_wars"
                 },
-                "cache_from": [
-                    ""
-                ],
                 "context": "FIXTURE_CUR_DIR",
                 "dockerfile": ".docker/php.dockerfile"
             },
