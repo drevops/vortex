@@ -130,6 +130,10 @@ services:
       wait-for-dependencies:
         condition: service_completed_successfully
     user: root
+    #;< STORYBOOK
+    ports:
+      - '6006' # Storybook development server port in a container. Find port on host with `ahoy storybook` or `docker compose port cli 6006`.
+    #;> STORYBOOK
     #;< HOSTING_LAGOON
     labels:
       lagoon.type: cli-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/

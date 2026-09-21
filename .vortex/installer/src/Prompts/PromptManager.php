@@ -38,6 +38,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
+use DrevOps\VortexInstaller\Prompts\Handlers\Storybook;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
@@ -175,6 +176,11 @@ class PromptManager {
             fn(array $r): bool => $this->handler(FrontendBuild::id())->shouldRun($r),
             fn(array $r, $pr, $n): mixed => $this->prompt(FrontendBuild::class, $r),
             FrontendBuild::id()
+          )
+        ->addIf(
+            fn(array $r): bool => $this->handler(Storybook::id())->shouldRun($r),
+            fn(array $r, $pr, $n): mixed => $this->prompt(Storybook::class, $r),
+            Storybook::id()
           )
 
       ->intro('Code repository')
@@ -435,6 +441,9 @@ class PromptManager {
     $values['Theme machine name'] = $responses[Theme::id()] ?? '<empty>';
     if (isset($responses[FrontendBuild::id()])) {
       $values['Build front-end in container'] = Converter::bool($responses[FrontendBuild::id()]);
+    }
+    if (isset($responses[Storybook::id()])) {
+      $values['Storybook component library'] = Converter::bool($responses[Storybook::id()]);
     }
 
     $values['Code repository'] = Tui::LIST_SECTION_TITLE;

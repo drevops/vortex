@@ -54,6 +54,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -228,6 +229,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export CI=1
 
@@ -394,6 +396,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -569,6 +572,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -765,6 +769,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -831,6 +836,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -1006,6 +1012,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -1175,6 +1182,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -1351,6 +1359,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export CI=1
 
@@ -1489,6 +1498,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export CI=1
   export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
@@ -1537,6 +1547,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export CI=1
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
@@ -1708,6 +1719,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export CI=1
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
@@ -1881,6 +1893,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -1945,6 +1958,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export CI=1
   export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
@@ -2010,6 +2024,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -2174,6 +2189,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -2365,6 +2381,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export CI=1
 
@@ -2413,6 +2430,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -2611,6 +2629,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export CI=1
   export VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1
@@ -2700,6 +2719,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -2895,6 +2915,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1
@@ -3157,6 +3178,7 @@ assert_provision_info() {
   rm ./.env && touch ./.env
   rm -f ./scripts/provision-20-migration.sh
   rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
 
   export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
   export CI=1

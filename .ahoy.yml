@@ -233,6 +233,22 @@ commands:
     cmd: |
       ahoy cli "pkill -9 -f grunt" || true
       ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run watch"
+
+  #;< STORYBOOK
+  storybook:
+    usage: Start the Storybook development server.
+    cmd: |
+      echo "Storybook is available at http://localhost:$(docker compose port cli 6006 2>/dev/null | cut -d : -f 2)"
+      ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && STORYBOOK_DRUPAL_URL=http://\${LOCALDEV_URL} npm run storybook"
+
+  storybook-build:
+    usage: Build the static Storybook application.
+    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run storybook-build"
+
+  storybook-stories:
+    usage: Generate Storybook stories from Twig templates.
+    cmd: ahoy drush storybook:generate-all-stories --omit-server-url
+  #;> STORYBOOK
   #;> DRUPAL_THEME
 
   lint:

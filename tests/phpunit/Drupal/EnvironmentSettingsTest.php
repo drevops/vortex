@@ -347,6 +347,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -465,6 +468,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -547,11 +553,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
     ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    // phpcs:ignore #;< STORYBOOK
+    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
+    // phpcs:ignore #;> STORYBOOK
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_LOCAL;
     // phpcs:ignore #;< MODULE_FAST_404
@@ -631,11 +643,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
     ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    // phpcs:ignore #;< STORYBOOK
+    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
+    // phpcs:ignore #;> STORYBOOK
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_LOCAL;
     // phpcs:ignore #;< MODULE_FAST_404
@@ -759,11 +777,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
     ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    // phpcs:ignore #;< STORYBOOK
+    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
+    // phpcs:ignore #;> STORYBOOK
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_CI;
     // phpcs:ignore #;< MODULE_FAST_404
@@ -845,11 +869,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
     ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    // phpcs:ignore #;< STORYBOOK
+    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
+    // phpcs:ignore #;> STORYBOOK
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_CI;
     // phpcs:ignore #;< MODULE_FAST_404
@@ -927,11 +957,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
     ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    // phpcs:ignore #;< STORYBOOK
+    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
+    // phpcs:ignore #;> STORYBOOK
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
     // phpcs:ignore #;< MODULE_FAST_404
@@ -1006,11 +1042,17 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
     ];
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    // phpcs:ignore #;< STORYBOOK
+    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
+    // phpcs:ignore #;> STORYBOOK
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
     // phpcs:ignore #;< MODULE_FAST_404
@@ -1085,6 +1127,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -1161,6 +1206,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -1241,12 +1289,18 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
     ];
     $settings['config_sync_directory'] = 'custom_acquia_config';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    // phpcs:ignore #;< STORYBOOK
+    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
+    // phpcs:ignore #;> STORYBOOK
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
     // phpcs:ignore #;< MODULE_FAST_404
@@ -1328,6 +1382,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -1335,6 +1392,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['config_sync_directory'] = '/var/www/site-php/mysite/config';
     $settings['config_vcs_directory'] = '/var/www/site-php/mysite/config';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    // phpcs:ignore #;< STORYBOOK
+    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
+    // phpcs:ignore #;> STORYBOOK
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
     // phpcs:ignore #;< MODULE_FAST_404
@@ -1501,12 +1561,18 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
     ];
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    // phpcs:ignore #;< STORYBOOK
+    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
+    // phpcs:ignore #;> STORYBOOK
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
     // phpcs:ignore #;< MODULE_FAST_404
@@ -1591,12 +1657,18 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
     ];
     $settings['config_sync_directory'] = '../config/default';
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
+    // phpcs:ignore #;< STORYBOOK
+    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
+    // phpcs:ignore #;> STORYBOOK
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
     // phpcs:ignore #;< MODULE_FAST_404
@@ -1681,6 +1753,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
@@ -1769,6 +1844,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
       // phpcs:ignore #;< MODULE_TESTMODE
       'testmode',
       // phpcs:ignore #;> MODULE_TESTMODE
