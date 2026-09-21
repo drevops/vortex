@@ -7,8 +7,8 @@ Feature: Redis cache functionality
 
   @api
   Scenario: Redis is working properly
-    Given I log in as a user with the "administrator" role
-    When I go to "/admin/reports/redis"
+    When I log in as a user with the "administrator" role
+    And I go to "/admin/reports/redis"
     Then the response status code should be 200
     And I should see "Connected, using the PhpRedis client"
     And I should not see "0 tags with 0 invalidations"

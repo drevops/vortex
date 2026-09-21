@@ -80,10 +80,10 @@ Feature: Behat configuration
 
   @api
   Scenario: Region map configured correctly
-    Given I run the drush command "pm:enable" with the arguments "help"
+    When I run the drush command "pm:enable" with the arguments "help"
     And I log in as a user with the "administrator" role
     And I go to "/admin/structure/block"
-    When I follow "Demonstrate block regions"
+    And I follow "Demonstrate block regions"
     Then the element ".demo-block" should exist in the region "header"
     And the element ".demo-block" should exist in the region "primary_menu"
     And the element ".demo-block" should exist in the region "secondary_menu"

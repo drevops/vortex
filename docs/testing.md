@@ -201,7 +201,7 @@ Feature: Homepage
   Scenario: View homepage content
     Given I am on the homepage
     Then I should see "[TEST] Welcome Message"
-    And I should see "About Us" in the "navigation" region
+    And the region "navigation" should contain the text "About Us"
 ```
 
 ### Content type testing process
@@ -218,12 +218,12 @@ When writing tests that cover a whole content type:
 
   ```gherkin
   Background:
-    Given the following "tags" terms:
+    Given the following "tags" terms exist:
       | name              |
       | [TEST] Topic 1    |
       | [TEST] Topic 2    |
 
-    And the following media "image" exist:
+    And the following "image" media exist:
       | name                    |
       | [TEST] Featured Image 1 |
   ```
@@ -232,10 +232,10 @@ When writing tests that cover a whole content type:
 
   ```gherkin
   Scenario: View complete content with all fields
-    Given the following "page" content:
+    Given the following "page" content exist:
       | title                     | body                          | field_tags         |
       | [TEST] Complete Page Test | [TEST] This is the body text. | [TEST] Topic 1     |
-    When I visit "[TEST] Complete Page Test"
+    When I visit the "page" content page with the title "[TEST] Complete Page Test"
     Then I should see "[TEST] Complete Page Test"
     And I should see "[TEST] This is the body text."
     And I should see "[TEST] Topic 1"
