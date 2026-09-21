@@ -1,0 +1,25 @@
+@@ -7,6 +7,7 @@
+     "@eslint/compat": "__VERSION__",
+     "@eslint/js": "__VERSION__",
+     "@homer0/prettier-plugin-jsdoc": "__VERSION__",
++    "@storybook/server-webpack5": "__VERSION__",
+     "autoprefixer": "__VERSION__",
+     "chokidar-cli": "__VERSION__",
+     "eslint": "__VERSION__",
+@@ -22,6 +23,7 @@
+     "postcss-cli": "__VERSION__",
+     "prettier": "__VERSION__",
+     "sass": "__VERSION__",
++    "storybook": "__VERSION__",
+     "stylelint": "__VERSION__",
+     "stylelint-config-standard": "__VERSION__",
+     "stylelint-config-standard-scss": "__VERSION__",
+@@ -53,6 +55,8 @@
+     "postinstall": "patch-package",
+     "sass:dev": "sass scss/styles.scss build/css/star_wars.min.css --source-map --style=expanded",
+     "sass:prod": "sass scss/styles.scss build/css/star_wars.min.css --no-source-map --style=compressed",
++    "storybook": "storybook dev --port 6006 --host __VERSION__.0 --no-open",
++    "storybook-build": "storybook build --quiet",
+     "uglify": "terser build/js/star_wars.min.js -o build/js/star_wars.min.js -c drop_console=true -m reserved=['jQuery','Drupal'] 2>/dev/null || true",
+     "watch": "chokidar 'js/**/*.js' 'scss/**/*.scss' -c 'npm run build-dev'"
+   }
