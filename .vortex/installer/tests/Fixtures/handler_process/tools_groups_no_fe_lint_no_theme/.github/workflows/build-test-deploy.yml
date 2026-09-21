@@ -32,7 +32,7 @@
        # Runs on every instance, using the `p<instance index - offset>` profile.
        VORTEX_CI_IS_BEHAT_RUNNER: true
        # Subtracted from the instance index to derive the profile number. Raise
-@@ -438,7 +426,6 @@
+@@ -444,7 +432,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -40,7 +40,7 @@
  
        - name: Provision site
          run: |
-@@ -452,11 +439,6 @@
+@@ -458,11 +445,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -52,7 +52,7 @@
        - name: Test with PHPUnit
          if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
          run: docker compose exec -T cli vendor/bin/phpunit
-@@ -516,18 +498,6 @@
+@@ -522,18 +504,6 @@
            fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}

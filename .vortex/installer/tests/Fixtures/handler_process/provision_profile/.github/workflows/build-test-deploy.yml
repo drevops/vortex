@@ -194,7 +194,7 @@
        - name: Login to container registry
          run: ./vendor/bin/vortex-login-container-registry
  
-@@ -594,7 +435,6 @@
+@@ -600,7 +441,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: [build, lint]

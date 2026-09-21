@@ -375,7 +375,13 @@ jobs:
 
       - run:
           name: Build stack
-          command: docker compose up --detach && docker builder prune --all --force && docker image prune --force
+          command: |
+            # Image pulls and the image build do not depend on each other, so
+            # they run concurrently.
+            docker compose pull --ignore-buildable --quiet &
+            docker compose build
+            wait
+            docker compose up --detach && docker builder prune --all --force && docker image prune --force
 
       # Pushed from the first runner only; every runner builds the same image.
       - run:
