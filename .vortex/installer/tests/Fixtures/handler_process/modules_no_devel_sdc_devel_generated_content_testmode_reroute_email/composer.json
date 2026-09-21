@@ -23,10 +23,12 @@
          "drupal/xmlsitemap": "__VERSION__",
          "drush/drush": "__VERSION__"
      },
-@@ -160,9 +155,6 @@
-             "drupal/core": "-p2"
+@@ -158,11 +153,6 @@
          },
-         "patches": {
+         "patchLevel": {
+             "drupal/core": "-p2"
+-        },
+-        "patches": {
 -            "drupal/generated_content": {
 -                "Type-hint EntityTypeManagerInterface so a decorated entity type manager can be injected": "patches/generated_content-entity-type-manager-interface.patch"
 -            }

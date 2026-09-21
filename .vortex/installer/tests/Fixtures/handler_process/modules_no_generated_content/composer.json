@@ -6,10 +6,12 @@
          "drupal/navigation_extra_tools": "__VERSION__",
          "drupal/pathauto": "__VERSION__",
          "drupal/redirect": "__VERSION__",
-@@ -160,9 +159,6 @@
-             "drupal/core": "-p2"
+@@ -158,11 +157,6 @@
          },
-         "patches": {
+         "patchLevel": {
+             "drupal/core": "-p2"
+-        },
+-        "patches": {
 -            "drupal/generated_content": {
 -                "Type-hint EntityTypeManagerInterface so a decorated entity type manager can be injected": "patches/generated_content-entity-type-manager-interface.patch"
 -            }
