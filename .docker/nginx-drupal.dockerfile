@@ -19,6 +19,10 @@ RUN apk add --no-cache tzdata
 
 COPY ./.docker/config/nginx/redirects-map.conf /etc/nginx/redirects-map.conf
 
+#;< STORYBOOK
+COPY ./.docker/config/nginx/storybook.conf /etc/nginx/conf.d/drupal/location_append-storybook.conf
+#;> STORYBOOK
+
 RUN fix-permissions /etc/nginx
 
 COPY --from=cli /app /app

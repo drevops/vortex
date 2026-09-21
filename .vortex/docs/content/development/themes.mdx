@@ -104,10 +104,14 @@ static assets are trimmed for brevity):
 
 ```text
 your_site_theme/
+├── .storybook/                    # Storybook configuration
+│   ├── main.js                    # Story sources and framework
+│   └── preview.js                 # Story render endpoint
 ├── components/                    # Single Directory Components (SDC)
 │   └── button/                    # Sample button component
 │       ├── button.component.yml   # Component schema (props and slots)
 │       ├── button.twig            # Component template
+│       ├── button.stories.twig    # Component stories
 │       └── button.css             # Component styles
 ├── scss/                          # Sass source files
 │   ├── _variables.scss            # Theme variables
@@ -154,6 +158,50 @@ ahoy lint-sdc
 ```
 
 ➡️ See [SDC Devel](code-quality/sdc-devel.mdx) for how the validator is set up and where it runs.
+
+## Storybook
+
+[Storybook](https://storybook.js.org/) documents the theme's components and is
+enabled by selecting it during installation. Drupal renders every story through
+the [Storybook module](https://www.drupal.org/project/storybook), so the library
+shows the same markup the site renders.
+
+Stories are authored in Twig next to the component they document, as
+`<component>.stories.twig`, and compiled into `<component>.stories.json` by
+Drush. The compiled files are generated artifacts and are not committed.
+
+### Commands
+
+```shell
+# Start the development server on port 6006
+ahoy storybook
+
+# Generate the stories from the Twig sources
+ahoy storybook-stories
+
+# Build the static application
+ahoy storybook-build
+```
+
+The development server runs inside the CLI container and reaches Drupal through
+the `STORYBOOK_DRUPAL_URL` variable, which `ahoy storybook` sets to the local
+site URL.
+
+### Published component library
+
+Provisioning generates the stories, builds the static application and publishes
+it into the public files directory, where the web server serves it at
+`/storybook`. This runs in the `local`, `ci` and `dev` environments only, which
+are the environments where the story render route is reachable. Set
+`DRUPAL_STORYBOOK_SKIP=1` to skip the build and shorten provisioning.
+
+:::note
+
+The web server configuration in `.docker/config/nginx/storybook.conf` expects
+the public files directory at its default location, `sites/default/files`.
+Adjust the `alias` if the project overrides `DRUPAL_PUBLIC_FILES`.
+
+:::
 
 ## Tests scaffold
 
