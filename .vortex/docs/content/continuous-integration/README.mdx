@@ -112,17 +112,17 @@ In GitHub Actions, every check also writes its findings as [SARIF](https://docs.
 | `npm-audit-theme` | `npm audit` advisories for the custom theme's `package-lock.json` |
 | `gitleaks` | Committed secrets |
 
-Code scanning keeps a history of every finding, tracks whether it is open or fixed, and lets a false positive be dismissed with a recorded reason instead of a committed ignore entry.
+Code scanning keeps a history of every finding and tracks whether it's open or fixed. Dismissing a false positive records the reason in the alert instead of a committed ignore entry.
 
-Gitleaks writes SARIF itself. Neither `composer audit` nor `npm audit` has a SARIF formatter, so each check runs once with its JSON format and pipes the output through `tee` - the report reaches the job log and a file in `.logs/audit/` in the same run. The `vortex-convert-audit-sarif` script from the [Vortex tooling package](../contributing/maintenance/tooling.mdx) then converts that file, reading the format from [`VORTEX_CONVERT_AUDIT_SARIF_FORMAT`](../development/variables.mdx#vortex_convert_audit_sarif_format).
+Gitleaks writes SARIF itself. Neither `composer audit` nor `npm audit` has a SARIF formatter, so each check runs once with its JSON format and pipes the output through `tee`. The report reaches the job log and a file in `.logs/audit/` in the same run. The `vortex-convert-audit-sarif` script from the [Vortex tooling package](../contributing/maintenance/tooling.mdx) then converts that file, reading the format from [`VORTEX_CONVERT_AUDIT_SARIF_FORMAT`](../development/variables.mdx#vortex_convert_audit_sarif_format).
 
-Nothing in the reporting path decides whether the build passes. The four check steps are what fail the workflow on findings, and they run before the conversion and upload steps and independently of them.
+Nothing in the reporting path decides whether the build passes. The 4 check steps are what fail the workflow on findings, and they run before the conversion and upload steps and independently of them.
 
-Code scanning has to be available on the repository - it is included on public repositories and on private repositories with GitHub Advanced Security. Where it is not available, and on pull requests from forks where the workflow token is read-only, the upload step fails without failing the workflow. No finding is lost: the checks above still report them in the job log and still fail the workflow, and every report is attached to the run as the `security-findings` artifact.
+Code scanning has to be available on the repository - it's included on public repositories and on private repositories with GitHub Advanced Security. Where it's not available, and on pull requests from forks where the workflow token is read-only, the upload step fails without failing the workflow. No finding is lost: the preceding checks still report them in the job log and still fail the workflow, and every report is attached to the run as the `security-findings` artifact.
 
-CircleCI has no code scanning destination, so the two providers are deliberately asymmetric here. Under CircleCI the same checks run and fail the `audit` workflow, but their findings live only in the job log.
+CircleCI has no code scanning destination, so the providers are deliberately asymmetric here. Under CircleCI the same checks run and fail the `audit` workflow, but their findings live only in the job log.
 
-➡️ See [Dependency audit](../development/security/dependency-audit.mdx#dismissing-a-finding) and [Secret scanning](../development/security/secret-scanning.mdx#dismissing-a-finding) for what dismissing a finding does and does not change.
+➡️ See [Dependency audit](../development/security/dependency-audit.mdx#dismissing-a-finding) and [Secret scanning](../development/security/secret-scanning.mdx#dismissing-a-finding) for what dismissing a finding does and doesn't change.
 
 ## Working tree check
 
