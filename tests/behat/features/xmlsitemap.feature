@@ -7,8 +7,8 @@ Feature: XML Sitemap
 
   @api @drush
   Scenario: Verify sitemap.xml exists and is accessible
-    Given I run drush "xmlsitemap:regenerate"
-    And I am an anonymous user
+    Given I run the drush command "xmlsitemap:regenerate"
+    And the user is anonymous
     When I go to "/sitemap.xml"
     Then the response status code should be 200
     And the response should be in XML format
