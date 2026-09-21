@@ -8,51 +8,47 @@ use DrevOps\VortexInstaller\Prompts\Handlers\FrontendBuild;
 use DrevOps\VortexInstaller\Prompts\Handlers\Storybook;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\File;
 use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
-#[CoversClass(FrontendBuild::class)]
-class FrontendBuildHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
+#[CoversClass(Storybook::class)]
+class StorybookHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
 
   public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
 
-    // Core themes have no front-end build, so FrontendBuild is skipped and
-    // resolves to null.
+    // Core themes have no Storybook, so the prompt is skipped and resolves to
+    // null, as does the front-end build prompt beside it.
     $expected_defaults_core = $expected_defaults;
     $expected_defaults_core[FrontendBuild::id()] = NULL;
     $expected_defaults_core[Storybook::id()] = NULL;
 
-    yield 'frontend build - prompt' => [
-      [FrontendBuild::id() => Key::ENTER],
-      [FrontendBuild::id() => TRUE] + $expected_defaults,
+    yield 'storybook - prompt - disabled' => [
+      [Storybook::id() => Key::ENTER],
+      [Storybook::id() => FALSE] + $expected_defaults,
     ];
-    yield 'frontend build - not shown for core theme' => [
+    yield 'storybook - prompt - enabled' => [
+      [Storybook::id() => Key::LEFT . Key::ENTER],
+      [Storybook::id() => TRUE] + $expected_defaults,
+    ];
+    yield 'storybook - not shown for core theme' => [
       [Theme::id() => Key::DOWN . Key::ENTER],
       [Theme::id() => Theme::OLIVERO] + $expected_defaults_core,
     ];
-    yield 'frontend build - discovery - build in container' => [
+    yield 'storybook - discovery - provision script present' => [
       [],
-      [Theme::id() => 'discovered_project', FrontendBuild::id() => TRUE] + $expected_installed,
+      [Theme::id() => 'discovered_project', Storybook::id() => TRUE] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $test->stubDotenvValue('DRUPAL_THEME', 'discovered_project');
-        $test->stubDotenvValue('VORTEX_FRONTEND_BUILD_SKIP', '0');
+        File::dump(static::$sut . '/scripts/provision-50-storybook.sh');
       },
     ];
-    yield 'frontend build - discovery - skip' => [
+    yield 'storybook - discovery - provision script absent' => [
       [],
-      [Theme::id() => 'discovered_project', FrontendBuild::id() => FALSE] + $expected_installed,
-      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
-        $test->stubVortexProject($config);
-        $test->stubDotenvValue('DRUPAL_THEME', 'discovered_project');
-        $test->stubDotenvValue('VORTEX_FRONTEND_BUILD_SKIP', '1');
-      },
-    ];
-    yield 'frontend build - discovery - default when absent' => [
-      [],
-      [Theme::id() => 'discovered_project', FrontendBuild::id() => TRUE] + $expected_installed,
+      [Theme::id() => 'discovered_project', Storybook::id() => FALSE] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         $test->stubDotenvValue('DRUPAL_THEME', 'discovered_project');
