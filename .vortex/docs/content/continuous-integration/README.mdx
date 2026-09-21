@@ -209,7 +209,34 @@ intermediate database import step.
 
 :::
 
-### Reset the cache
+### Container image build cache
+
+Every job builds the `cli` container image, and on a typical commit nothing
+that feeds its dependency layers has changed. Setting the
+`VORTEX_CI_BUILD_CACHE_IMAGE` variable to a container registry image name (for
+example `your_org/your_site-build-cache`) turns those layers into a cache:
+
+- The first `build` container pushes the built `cli` image, with inline layer
+  cache metadata, to that image name right after the stack is up.
+- Every following build passes the image as `cache_from`. Unchanged layers -
+  the base image, the PHP extensions, `composer install`, and the theme's
+  `npm ci` - are pulled from the registry instead of being rebuilt.
+
+The image contains the whole codebase, so point the variable at a **private**
+repository. The push uses the registry credentials from the
+`VORTEX_CONTAINER_REGISTRY_USER` and `VORTEX_CONTAINER_REGISTRY_PASS`
+variables.
+
+Set the variable in the CI provider's project settings, or in the CI
+configuration next to the database cache variables. Leave it unset to build
+without a cache. A missing image or a failed push never fails the build: the
+run builds from scratch and reports it.
+
+On CircleCI, [Docker Layer Caching](https://circleci.com/docs/docker-layer-caching/)
+is a paid alternative that keeps the whole builder cache on the remote Docker
+host. Enable it with `docker_layer_caching: true` in `.circleci/config.yml`.
+
+### Reset the database cache
 
 To force a fresh cache (for example, to pull a new database dump outside the
 regular schedule), increment the last segment of the version tag in the cache

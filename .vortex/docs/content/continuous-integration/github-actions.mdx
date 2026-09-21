@@ -152,6 +152,13 @@ reduce what has to fit: a sanitized dump or a
 [database container image](./README.mdx#caching-strategy) instead of a full
 dump. A [larger runner](#change-runner-size) also comes with more disk.
 
+### Enable the build cache
+
+Set the `VORTEX_CI_BUILD_CACHE_IMAGE` variable in **Settings → Secrets and
+variables → Actions → Variables** to reuse the `cli` image layers between
+runs. See
+[Container image build cache](./README.mdx#container-image-build-cache).
+
 ### Change test parallelism
 
 To speed up test execution, you can increase the number of parallel runners in

@@ -85,6 +85,13 @@ Resource classes scale CPU and memory only. Disk space isn't tied to the
 resource class, so upgrading it doesn't help a job that runs out of space -
 see [Runner disk space](./README.mdx#runner-disk-space).
 
+### Enable the build cache
+
+Set `VORTEX_CI_BUILD_CACHE_IMAGE` in the `runner_config` environment of
+`.circleci/config.yml`, or as a project environment variable, to reuse the
+`cli` image layers between runs. See
+[Container image build cache](./README.mdx#container-image-build-cache).
+
 ### Change test parallelism
 
 To speed up test execution, you can increase the number of parallel runners in

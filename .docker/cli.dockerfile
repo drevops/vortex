@@ -90,6 +90,20 @@ RUN --mount=type=secret,id=package_token \
     if [ -n "${token}" ]; then export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"${token}\"}}"; fi && \
     COMPOSER_MEMORY_LIMIT=-1 composer install -n --no-dev --ansi --prefer-dist --optimize-autoloader
 
+#;< DRUPAL_THEME
+# Copy files required for resolving the theme's Node.js dependencies. Placed
+# before the full source copy so changes elsewhere in the codebase do not
+# invalidate the install layer.
+COPY ${WEBROOT}/themes/custom/${DRUPAL_THEME}/package.json ${WEBROOT}/themes/custom/${DRUPAL_THEME}/package-lock.json ${WEBROOT}/themes/custom/${DRUPAL_THEME}/.npmrc /app/${WEBROOT}/themes/custom/${DRUPAL_THEME}/
+COPY ${WEBROOT}/themes/custom/${DRUPAL_THEME}/patches /app/${WEBROOT}/themes/custom/${DRUPAL_THEME}/patches
+
+RUN if [ "${VORTEX_FRONTEND_BUILD_SKIP}" != "1" ]; then \
+      export npm_config_cache=/tmp/npm-cache; \
+      npm --prefix="/app/${WEBROOT}/themes/custom/${DRUPAL_THEME}" ci --no-progress --no-audit --no-fund && \
+      rm -rf /tmp/npm-cache; \
+    fi
+#;> DRUPAL_THEME
+
 # Copy all files into the application source directory. Existing files are
 # always overwritten.
 COPY . /app
@@ -99,12 +113,9 @@ COPY . /app
 RUN mkdir -p -m 2775 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
 
 #;< DRUPAL_THEME
+# hadolint ignore=DL3059 # the theme build is optional and fenced apart from the directory setup
 RUN if [ "${VORTEX_FRONTEND_BUILD_SKIP}" != "1" ]; then \
-      theme_path="/app/${WEBROOT}/themes/custom/${DRUPAL_THEME}"; \
-      export npm_config_cache=/tmp/npm-cache; \
-      npm --prefix="${theme_path}" ci --no-progress --no-audit --no-fund && \
-      npm --prefix="${theme_path}" run build && \
-      rm -rf /tmp/npm-cache; \
+      npm --prefix="/app/${WEBROOT}/themes/custom/${DRUPAL_THEME}" run build; \
     fi
 #;> DRUPAL_THEME
 

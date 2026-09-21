@@ -117,6 +117,9 @@ services:
         DRUPAL_TEMPORARY_FILES: ${DRUPAL_TEMPORARY_FILES:-/tmp}
         DRUPAL_THEME: ${DRUPAL_THEME:-}
         VORTEX_FRONTEND_BUILD_SKIP: ${VORTEX_FRONTEND_BUILD_SKIP:-}
+        ##BUILDKIT_INLINE_CACHE: 1 # Embed layer cache metadata into the image so a later build can reuse its layers. Automatically uncommented in CI.
+      ##cache_from: # Reuse layers of the image pushed by a previous CI run. Automatically uncommented in CI.
+      ##  - "${VORTEX_CI_BUILD_CACHE_IMAGE:-}"
       secrets:
         - package_token
     image: &cli-image ${COMPOSE_PROJECT_NAME:-example-site}
