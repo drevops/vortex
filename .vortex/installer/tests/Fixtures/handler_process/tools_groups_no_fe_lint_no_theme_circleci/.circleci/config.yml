@@ -54,6 +54,10 @@ aliases:
           VORTEX_CI_DB_CACHE_FALLBACK: "yes"
           # Which branch to use as a source of DB caches.
           VORTEX_CI_DB_CACHE_BRANCH: "develop"
+          # Container registry image used as a layer cache for the 'cli' image
+          # build. The image contains the codebase, so use a private repository.
+          # Uncomment and set to enable, or set it as a project environment variable.
+          # VORTEX_CI_BUILD_CACHE_IMAGE: star_wars_org/star_wars-build-cache
           # Directory to store test results.
           VORTEX_CI_TEST_RESULTS: &test_results /tmp/tests
           # Directory to store test artifacts.
@@ -356,6 +360,15 @@ jobs:
       - run:
           name: Build stack
           command: docker compose up --detach && docker builder prune --all --force && docker image prune --force
+
+      # Pushed from the first runner only; every runner builds the same image.
+      - run:
+          name: Push build cache image
+          command: |
+            [ -z "${VORTEX_CI_BUILD_CACHE_IMAGE:-}" ] && echo "==> Build cache image is not set. Build cache image push will not proceed." && exit 0
+            [ "${VORTEX_CI_RUNNER_INDEX:-0}" -eq 0 ] || exit 0
+            docker tag "$(docker compose config --images cli)" "${VORTEX_CI_BUILD_CACHE_IMAGE}"
+            docker push --quiet "${VORTEX_CI_BUILD_CACHE_IMAGE}" || echo "==> Build cache image push failed. The next build will not use the cache."
 
       - run:
           name: Export built codebase

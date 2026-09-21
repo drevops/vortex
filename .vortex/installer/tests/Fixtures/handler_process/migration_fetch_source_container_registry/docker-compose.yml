@@ -15,7 +15,7 @@
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -152,6 +162,19 @@
+@@ -155,6 +165,19 @@
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -35,7 +35,7 @@
    redis:
      image: uselagoon/valkey-8:__VERSION__
  
-@@ -195,11 +218,13 @@
+@@ -198,11 +221,13 @@
      depends_on:
        - clamav
        - database

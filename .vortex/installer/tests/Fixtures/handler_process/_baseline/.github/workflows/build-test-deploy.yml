@@ -84,6 +84,9 @@ jobs:
         TZ: ${{ vars.TZ || 'UTC' }}
         TERM: xterm-256color
         VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
+        # Container registry image used as a layer cache for the 'cli' image
+        # build. The image contains the codebase, so use a private repository.
+        VORTEX_CI_BUILD_CACHE_IMAGE: ${{ vars.VORTEX_CI_BUILD_CACHE_IMAGE }}
 
     steps:
       - name: Preserve $HOME set in the container
@@ -191,6 +194,9 @@ jobs:
         VORTEX_CI_DB_CACHE_FALLBACK: "yes"
         # Which branch to use as a source of DB caches.
         VORTEX_CI_DB_CACHE_BRANCH: "develop"
+        # Container registry image used as a layer cache for the 'cli' image
+        # build. The image contains the codebase, so use a private repository.
+        VORTEX_CI_BUILD_CACHE_IMAGE: ${{ vars.VORTEX_CI_BUILD_CACHE_IMAGE }}
 
     steps:
       # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
@@ -341,6 +347,9 @@ jobs:
         VORTEX_CI_DB_CACHE_FALLBACK: "yes"
         # Which branch to use as a source of DB caches.
         VORTEX_CI_DB_CACHE_BRANCH: "develop"
+        # Container registry image used as a layer cache for the 'cli' image
+        # build. The image contains the codebase, so use a private repository.
+        VORTEX_CI_BUILD_CACHE_IMAGE: ${{ vars.VORTEX_CI_BUILD_CACHE_IMAGE }}
 
     steps:
       # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
@@ -407,6 +416,14 @@ jobs:
 
       - name: Build stack
         run: docker compose up --detach && docker builder prune --all --force && docker image prune --force
+
+      # Pushed from the first instance only; every instance builds the same image.
+      - name: Push build cache image
+        if: ${{ matrix.instance == 0 }}
+        run: |
+          [ -z "${VORTEX_CI_BUILD_CACHE_IMAGE:-}" ] && echo "==> Build cache image is not set. Build cache image push will not proceed." && exit 0
+          docker tag "$(docker compose config --images cli)" "${VORTEX_CI_BUILD_CACHE_IMAGE}"
+          docker push --quiet "${VORTEX_CI_BUILD_CACHE_IMAGE}" || echo "==> Build cache image push failed. The next build will not use the cache."
 
       - name: Export built codebase
         if: ${{ matrix.instance == 0 && !startsWith(github.head_ref || github.ref_name, 'deps/') && contains(env.VORTEX_DEPLOY_TYPES, 'artifact') }}

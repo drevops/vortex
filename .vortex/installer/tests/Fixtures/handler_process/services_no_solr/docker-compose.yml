@@ -1,4 +1,4 @@
-@@ -155,17 +155,6 @@
+@@ -158,17 +158,6 @@
    redis:
      image: uselagoon/valkey-8:__VERSION__
  
@@ -16,7 +16,7 @@
    clamav:
      build:
        context: .
-@@ -196,13 +185,10 @@
+@@ -199,13 +188,10 @@
        - clamav
        - database
        - redis
@@ -30,7 +30,7 @@
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -211,7 +197,6 @@
+@@ -214,7 +200,6 @@
  volumes:
    app: {}
    files: {}

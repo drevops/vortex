@@ -1,4 +1,4 @@
-@@ -113,17 +113,6 @@
+@@ -116,17 +116,6 @@
        - name: Login to container registry
          run: ./vendor/bin/vortex-login-container-registry
  
@@ -16,7 +16,7 @@
        - name: Build stack
          run: docker compose up --no-deps --detach cli
  
-@@ -132,41 +121,11 @@
+@@ -135,41 +124,11 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -58,7 +58,7 @@
    database:
      runs-on: ubuntu-latest
      if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
-@@ -310,15 +269,7 @@
+@@ -316,15 +275,7 @@
        # https://www.vortextemplate.com/docs/continuous-integration#test-parallelism
        VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
        VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
@@ -74,7 +74,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -421,7 +372,6 @@
+@@ -438,7 +389,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -82,7 +82,7 @@
  
        - name: Provision site
          run: |
-@@ -435,71 +385,6 @@
+@@ -452,71 +402,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -154,7 +154,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -512,19 +397,6 @@
+@@ -529,19 +414,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -174,7 +174,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -541,16 +413,6 @@
+@@ -558,16 +430,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

@@ -23,7 +23,7 @@
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -106,6 +117,10 @@
+@@ -109,6 +120,10 @@
        wait-for-dependencies:
          condition: service_completed_successfully
      user: root
@@ -34,7 +34,7 @@
  
    nginx:
      build:
-@@ -124,6 +139,11 @@
+@@ -127,6 +142,11 @@
      networks:
        - default # This is a standard network and is used for all other environments, where requests routing is not required and/or not supported.
        - amazeeio-network ### This network is supported by Pygmy and used to route all requests to host machine locally. Removed in CI.
@@ -46,7 +46,7 @@
  
    # PHP FPM container. All web requests are going through this container.
    php:
-@@ -139,6 +159,11 @@
+@@ -142,6 +162,11 @@
      <<: [ *default-volumes, *default-user ]
      depends_on:
        - cli
@@ -58,7 +58,7 @@
  
    database:
      build:
-@@ -151,9 +176,26 @@
+@@ -154,9 +179,26 @@
      <<: *default-user
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
@@ -85,7 +85,7 @@
  
    solr:
      build:
-@@ -165,6 +207,8 @@
+@@ -168,6 +210,8 @@
        - solr:/var/solr
      ports:
        - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
@@ -94,7 +94,7 @@
  
    clamav:
      build:
-@@ -176,6 +220,10 @@
+@@ -179,6 +223,10 @@
        - '3310' # Find port on host with `docker compose port clamav 3310`.
      networks:
        - default
@@ -105,7 +105,7 @@
  
    # Chrome container, used for browser testing.
    chrome:
-@@ -188,6 +236,8 @@
+@@ -191,6 +239,8 @@
      ports:
        - '7900' # Find port on host with `docker compose port chrome 7900`.
      shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
@@ -114,7 +114,7 @@
  
    # Helper container to wait for services to become available.
    wait-for-dependencies:
-@@ -195,14 +245,18 @@
+@@ -198,14 +248,18 @@
      depends_on:
        - clamav
        - database
