@@ -6,18 +6,18 @@
  * Compiled into "button.stories.json" by "drush storybook:generate-all-stories".
  */
 #}
-{% stories button with { title: 'Components/Button' } %}
+{% stories button with {title: 'Components/Button'} %}
 
-  {% story default with { name: 'Default', args: { label: 'Read more' } } %}
-    {{ include('star_wars:button', { label: label }, with_context: false) }}
+  {% story default with {name: 'Default', args: {label: 'Read more'}} %}
+    {{ include('star_wars:button', {label: label}, with_context: false) }}
   {% endstory %}
 
-  {% story link with { name: 'Link', args: { label: 'Read more', url: 'https://example.com' } } %}
-    {{ include('star_wars:button', { label: label, url: url }, with_context: false) }}
+  {% story link with {name: 'Link', args: {label: 'Read more', url: 'https://example.com'}} %}
+    {{ include('star_wars:button', {label: label, url: url}, with_context: false) }}
   {% endstory %}
 
-  {% story secondary with { name: 'Secondary', args: { label: 'Read more', modifier: 'secondary' } } %}
-    {{ include('star_wars:button', { label: label, modifier: modifier }, with_context: false) }}
+  {% story secondary with {name: 'Secondary', args: {label: 'Read more', modifier: 'secondary'}} %}
+    {{ include('star_wars:button', {label: label, modifier: modifier}, with_context: false) }}
   {% endstory %}
 
 {% endstories %}
