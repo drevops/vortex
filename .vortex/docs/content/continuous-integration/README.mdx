@@ -52,6 +52,7 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 - Provisions a website
 - Runs PHPUnit and Jest tests (first container only)
 - Checks code coverage and posts a PR comment (first container only)
+- Exports the built codebase for artifact deployment and pushes the build cache image (last container only - see [Container image build cache](#container-image-build-cache))
 - Runs BDD tests (distributed across all containers - see [Test parallelism](#test-parallelism))
 - Collects and stores test results and artifacts
 - Checks that the build left a clean working tree - see [Working tree check](#working-tree-check)
