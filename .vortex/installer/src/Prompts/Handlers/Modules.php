@@ -129,21 +129,6 @@ class Modules extends AbstractHandler {
           $cj->removeSubNode('require', $removed_package);
           $cj->removeSubNode('require-dev', $removed_package);
         }
-
-        // Composer fails on a patch that targets a package it is not
-        // installing, so a patch cannot outlive the package it applies to.
-        $patches = $cj->getProperty('extra.patches');
-
-        if (is_array($patches)) {
-          $remaining = array_diff_key($patches, array_flip($removed_packages));
-
-          if ($remaining === []) {
-            $cj->removeSubNode('extra', 'patches');
-          }
-          else {
-            $cj->addSubNode('extra', 'patches', $remaining);
-          }
-        }
       });
     }
 
