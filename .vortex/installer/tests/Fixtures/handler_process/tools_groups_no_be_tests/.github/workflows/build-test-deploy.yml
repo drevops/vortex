@@ -24,7 +24,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -470,66 +459,6 @@
+@@ -469,66 +458,6 @@
          run: docker compose exec -T cli bash -c "npm test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -91,7 +91,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -542,19 +471,6 @@
+@@ -541,19 +470,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -111,7 +111,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -571,16 +487,6 @@
+@@ -570,16 +486,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

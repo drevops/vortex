@@ -405,8 +405,7 @@ jobs:
           command: |
             [ -z "${VORTEX_CI_BUILD_CACHE_IMAGE:-}" ] && echo "==> Build cache image is not set. Build cache image push will not proceed." && exit 0
             [ "${VORTEX_CI_IS_EXPORT_RUNNER:-1}" = "1" ] || exit 0
-            docker tag "$(docker compose config --images cli)" "${VORTEX_CI_BUILD_CACHE_IMAGE}"
-            docker push --quiet "${VORTEX_CI_BUILD_CACHE_IMAGE}" || echo "==> Build cache image push failed. The next build will not use the cache."
+            docker tag "$(docker compose images --quiet cli)" "${VORTEX_CI_BUILD_CACHE_IMAGE}" && docker push --quiet "${VORTEX_CI_BUILD_CACHE_IMAGE}" || echo "==> Build cache image push failed. The next build will not use the cache."
 
       - run:
           name: Export built codebase

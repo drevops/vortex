@@ -18,7 +18,7 @@
        # Runs on every instance, using the `p<instance index - offset>` profile.
        VORTEX_CI_IS_BEHAT_RUNNER: true
        # Subtracted from the instance index to derive the profile number. Raise
-@@ -529,18 +523,6 @@
+@@ -528,18 +522,6 @@
            fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
