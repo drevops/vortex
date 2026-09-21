@@ -21,7 +21,10 @@ class Storybook extends AbstractHandler {
    * {@inheritdoc}
    */
   public static function processWeight(): int {
-    return 345;
+    // The token markers sit on 'phpcs:ignore' lines that Tools deletes when
+    // PHP CodeSniffer is deselected, so the token is removed before Tools
+    // queues its own content edits.
+    return 205;
   }
 
   /**
