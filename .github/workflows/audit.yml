@@ -139,7 +139,7 @@ jobs:
 
       - name: Upload Composer audit findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/composer-audit.sarif') != '' }}
-        uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         # The upload fails without a code scanning entitlement, and on fork
         # pull requests where the token is read-only. The audit steps above are
         # what report the findings and fail the workflow.
@@ -156,7 +156,7 @@ jobs:
 
       - name: Upload npm audit findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit.sarif') != '' }}
-        uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         continue-on-error: true
         with:
           sarif_file: .logs/audit/npm-audit.sarif
@@ -171,7 +171,7 @@ jobs:
 
       - name: Upload theme npm audit findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit-theme.sarif') != '' }}
-        uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         continue-on-error: true
         with:
           sarif_file: .logs/audit/npm-audit-theme.sarif
@@ -186,7 +186,7 @@ jobs:
 
       - name: Upload Gitleaks findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/gitleaks.sarif') != '' }}
-        uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4
         continue-on-error: true
         with:
           sarif_file: .logs/audit/gitleaks.sarif
