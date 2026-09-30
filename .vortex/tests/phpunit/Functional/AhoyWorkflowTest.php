@@ -122,6 +122,24 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyResetHard();
   }
 
+  #[Group('p4')]
+  public function testAhoyWorkflowStorybook(): void {
+    static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
+    static::$sutInstallerPrompts = ['storybook' => TRUE];
+    $this->prepareSut();
+    $this->adjustAhoyForUnmountedVolumes();
+
+    $this->subtestAhoyBuild();
+
+    $this->assertFilesTrackedInGit();
+
+    $this->logSubstep('Assert that the compiled stories are generated but not committed');
+    $this->assertFileExists('web/themes/custom/star_wars/components/button/button.stories.json', 'Compiled stories should exist after the build');
+    $this->gitAssertFilesNotTracked('web/themes/custom/star_wars/components/button/button.stories.json');
+
+    $this->subtestAhoyStorybook();
+  }
+
   #[Group('p3')]
   public function testAhoyBuildIdempotence(): void {
     static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];

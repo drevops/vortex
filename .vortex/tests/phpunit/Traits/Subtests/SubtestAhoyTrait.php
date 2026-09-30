@@ -875,6 +875,75 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyStorybook(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $stories_file = $webroot . '/themes/custom/star_wars/components/button/button.stories.twig';
+    $added_story = "  {% story rebuilt with {name: 'Rebuilt', args: {label: 'Rebuilt'}} %}\n    {{ include('star_wars:button', {label: label}, with_context: false) }}\n  {% endstory %}\n\n{% endstories %}";
+
+    $this->logSubstep('Assert that the build published the Storybook application');
+    $this->assertStorybookServed($webroot);
+    $this->assertWebpageNotContains('/storybook/index.json', '"components-button--rebuilt"', 'Story index should not list a story that does not exist yet');
+
+    $this->logSubstep('Add a story and rebuild the Storybook application');
+    $this->fileBackup($stories_file);
+    File::replaceContentInFile($stories_file, '{% endstories %}', $added_story);
+    $this->syncToContainer($stories_file);
+    $this->cmd('ahoy storybook-build', '* Published the Storybook application.', '`ahoy storybook-build` should rebuild and publish the Storybook application', ito: 300);
+    $this->assertWebpageContains('/storybook/index.json', '"components-button--rebuilt"', 'Rebuilt story index should list the added story');
+    $this->assertStorybookServed($webroot);
+
+    $this->logSubstep('Remove the story and re-provision over the published application');
+    $this->fileRestore($stories_file);
+    $this->syncToContainer($stories_file);
+    $this->cmd('ahoy provision', '* Published the Storybook application.', '`ahoy provision` should rebuild and republish the Storybook application', ito: 300);
+    $this->assertWebpageNotContains('/storybook/index.json', '"components-button--rebuilt"', 'Re-provisioned story index should not list the removed story');
+    $this->assertStorybookServed($webroot);
+
+    $this->logStepFinish();
+  }
+
+  protected function assertStorybookServed(string $webroot = 'web'): void {
+    $this->cmd('docker compose exec -T cli curl -s -o /dev/null -D - http://nginx:8080/storybook', ['* 301 Moved Permanently', '* Location: /storybook/'], 'Storybook path without a trailing slash should redirect with a relative location');
+
+    $this->assertWebpageContains('/storybook/', 'storybook-root', 'Storybook application should be served at /storybook/');
+    $this->assertWebpageContains('/storybook/iframe.html', 'storybook-root', 'Storybook preview frame should be served');
+
+    $index = $this->fetchWebpageContent('/storybook/index.json');
+    foreach (['default', 'link', 'secondary'] as $story) {
+      $this->assertStringContainsString(sprintf('"components-button--%s"', $story), $index, sprintf('Story index should list the "%s" button story', $story));
+    }
+
+    $story_id = $this->fetchStorybookStoryId($webroot . '/themes/custom/star_wars/components/button/button.stories.json', 'Default');
+    $rendered = $this->fetchWebpageContent('/storybook/stories/render/' . $story_id . '?label=Rendered%20by%20Drupal');
+    $this->assertStringContainsString('class="button"', $rendered, 'Drupal should render the button component for the story');
+    $this->assertStringContainsString('Rendered by Drupal', $rendered, 'Drupal should render the story with the arguments from the request');
+  }
+
+  protected function fetchStorybookStoryId(string $stories_file, string $story_name): string {
+    $this->cmd('docker compose exec -T cli cat ' . escapeshellarg($stories_file), txt: 'Read the compiled stories');
+    $compiled = json_decode($this->processGet()->getOutput(), TRUE);
+    $this->assertIsArray($compiled, sprintf('Compiled stories in %s should be valid JSON', $stories_file));
+    $stories = $compiled['stories'] ?? NULL;
+    $this->assertIsArray($stories, sprintf('Compiled stories in %s should list stories', $stories_file));
+
+    foreach ($stories as $story) {
+      if (!is_array($story) || ($story['name'] ?? NULL) !== $story_name) {
+        continue;
+      }
+
+      $parameters = $story['parameters'] ?? NULL;
+      $server = is_array($parameters) ? ($parameters['server'] ?? NULL) : NULL;
+      $id = is_array($server) ? ($server['id'] ?? NULL) : NULL;
+
+      if (is_string($id) && $id !== '') {
+        return $id;
+      }
+    }
+
+    $this->fail(sprintf('Compiled stories in %s should contain the "%s" story with a server ID', $stories_file, $story_name));
+  }
+
   protected function subtestAhoyDebug(): void {
     $this->logStepStart();
 
