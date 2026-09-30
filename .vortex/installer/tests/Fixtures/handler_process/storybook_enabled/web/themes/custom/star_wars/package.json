@@ -14,7 +14,7 @@
      "stylelint": "__VERSION__",
      "stylelint-config-standard": "__VERSION__",
      "stylelint-config-standard-scss": "__VERSION__",
-@@ -53,6 +55,8 @@
+@@ -53,7 +55,12 @@
      "postinstall": "patch-package",
      "sass:dev": "sass scss/styles.scss build/css/star_wars.min.css --source-map --style=expanded",
      "sass:prod": "sass scss/styles.scss build/css/star_wars.min.css --no-source-map --style=compressed",
@@ -22,4 +22,8 @@
 +    "storybook-build": "storybook build --quiet",
      "uglify": "terser build/js/star_wars.min.js -o build/js/star_wars.min.js -c drop_console=true -m reserved=['jQuery','Drupal'] 2>/dev/null || true",
      "watch": "chokidar 'js/**/*.js' 'scss/**/*.scss' -c 'npm run build-dev'"
++  },
++  "overrides": {
++    "webpack-dev-middleware": "__VERSION__"
    }
+ }
