@@ -5,7 +5,7 @@
 +# Storybook
 +ahoy storybook         # Start the Storybook development server
 +ahoy storybook-stories # Generate stories from Twig templates
-+ahoy storybook-build   # Build the static Storybook application
++ahoy storybook-build   # Build and publish the static Storybook application
 +
  # PHPUnit testing
  ahoy test            # Run PHPUnit tests
