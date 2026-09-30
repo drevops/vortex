@@ -140,8 +140,8 @@ class Modules extends AbstractHandler {
     }
 
     // Without any of the modules it drives, the script has no operations to
-    // perform, so it is removed.
-    if (count(array_intersect(self::DEV_MODULES, $v)) === 0) {
+    // perform, so it is removed. The script also installs the Storybook module.
+    if (count(array_intersect(self::DEV_MODULES, $v)) === 0 && ($this->responses[Storybook::id()] ?? NULL) !== TRUE) {
       File::remove($t . '/scripts/provision-10-enable-dev-modules.sh');
     }
 

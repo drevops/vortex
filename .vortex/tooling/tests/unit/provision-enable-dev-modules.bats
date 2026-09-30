@@ -23,6 +23,7 @@ load ../_helper.bash
 
     # Development modules.
     "@drush -y pm:install sdc_devel"
+    "@drush -y pm:install storybook"
     "@drush -y pm:install devel"
     "@drush -y pm:install testmode"
     "@drush -y pm:install reroute_email"
@@ -37,6 +38,8 @@ load ../_helper.bash
     "Environment: local"
     "Installing Single Directory Component development tools."
     "Installed Single Directory Component development tools."
+    "Installing Storybook module."
+    "Installed Storybook module."
     "Installing Devel module."
     "Installed Devel module."
     "Installing Testmode module."
@@ -74,6 +77,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
     "@drush -y pm:install sdc_devel"
+    "@drush -y pm:install storybook"
     "@drush -y pm:install devel"
     "@drush -y pm:install testmode"
     "@drush -y pm:install reroute_email"
@@ -117,6 +121,7 @@ load ../_helper.bash
     "Skipped installing development modules in production environment."
 
     "- Installing Single Directory Component development tools."
+    "- Installing Storybook module."
     "- Installing Devel module."
     "- Installing Testmode module."
     "- Installing Reroute Email module."
@@ -149,6 +154,7 @@ load ../_helper.bash
     "Skipped installing development modules in production environment."
 
     "- Installing Single Directory Component development tools."
+    "- Installing Storybook module."
     "- Installing Devel module."
     "- Installing Testmode module."
     "- Installing Reroute Email module."

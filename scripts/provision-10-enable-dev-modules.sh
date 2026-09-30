@@ -45,6 +45,12 @@ drush pm:install sdc_devel
 pass "Installed Single Directory Component development tools."
 #;> MODULE_SDC_DEVEL
 
+#;< STORYBOOK
+task "Installing Storybook module."
+drush pm:install storybook
+pass "Installed Storybook module."
+#;> STORYBOOK
+
 #;< MODULE_DEVEL
 task "Installing Devel module."
 drush pm:install devel
