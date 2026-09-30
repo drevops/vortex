@@ -16,6 +16,9 @@ WEBROOT="${WEBROOT:-web}"
 # Drupal theme name.
 DRUPAL_THEME="${DRUPAL_THEME:-}"
 
+# Directory with the Storybook configuration and its npm scripts.
+VORTEX_STORYBOOK_DIR="${VORTEX_STORYBOOK_DIR:-./${WEBROOT}/themes/custom/${DRUPAL_THEME}}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -31,8 +34,6 @@ drush() { ./vendor/bin/drush -y "$@"; }
 # ------------------------------------------------------------------------------
 
 info "Started Storybook operations."
-
-theme_dir="./${WEBROOT}/themes/custom/${DRUPAL_THEME}"
 
 environment="$(drush php:eval "print \Drupal\Core\Site\Settings::get('environment');")"
 note "Environment: ${environment}"
@@ -53,19 +54,12 @@ if ! echo "${environment}" | grep -qxF -e local -e ci -e dev; then
   exit 0
 fi
 
-task "Generating stories."
-# Without '--force', templates older than their compiled stories are skipped.
-drush storybook:generate-all-stories --omit-server-url --force
-pass "Generated stories."
-
-if [ ! -x "${theme_dir}/node_modules/.bin/storybook" ]; then
+if [ ! -x "${VORTEX_STORYBOOK_DIR}/node_modules/.bin/storybook" ]; then
   note "Skipped building the Storybook application: theme dependencies are not installed."
   info "Finished Storybook operations."
   exit 0
 fi
 
-task "Building the Storybook application."
-npm --prefix="${theme_dir}" run storybook-build
-pass "Built the Storybook application."
+./vendor/bin/vortex-storybook build
 
 info "Finished Storybook operations."
