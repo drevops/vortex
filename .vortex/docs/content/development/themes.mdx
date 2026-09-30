@@ -170,22 +170,62 @@ Stories are authored in Twig next to the component they document, as
 `<component>.stories.twig`, and compiled into `<component>.stories.json` by
 Drush. The compiled files are generated artifacts and aren't committed.
 
-### Commands
+### Working with Storybook
+
+Like the other front-end commands, the Storybook commands run inside the CLI
+container, using the theme dependencies installed for it.
 
 ```shell
-# Start the development server on port 6006
+# Develop components: regenerate stories as they change and serve them live
 ahoy storybook
 
-# Generate the stories from the Twig sources
-ahoy storybook-stories
-
-# Build the static application served at /storybook
+# Refresh the component library served at /storybook
 ahoy storybook-build
 ```
 
-The development server runs inside the CLI container and reaches Drupal through
-the `STORYBOOK_DRUPAL_URL` variable, which `ahoy storybook` sets to the local
-site URL.
+`ahoy storybook` generates the stories, starts a development server and prints
+its address, such as `http://localhost:55197`, once the server is ready. It
+keeps running until you press `Ctrl+C`, and regenerates the stories whenever a
+`*.stories.twig` file changes, so new and edited stories appear without a
+restart. Docker assigns the port when the container starts, and `ahoy info`
+shows it next to the library address.
+
+The development server runs on its own origin, so `services.storybook.yml`
+shares story renders with `localhost` origins in the `local`, `ci`, and `dev`
+environments. It replaces the `cors.config` from `services.yml` there, so a
+site that already shares responses with other origins needs to list them in
+`services.storybook.yml` too.
+
+The component library at `/storybook` is a static copy built during
+provisioning, so it doesn't change while you work. Run `ahoy storybook-build`
+to regenerate the stories and rebuild it, for example before sharing a change
+for review.
+
+In the `local` environment, provisioning turns on Twig development mode. An edit
+to a component's template then shows up in the development server and the
+library on the next render, without a cache rebuild.
+
+### Running Storybook on the host
+
+The theme's `node_modules` directory is shared with the CLI container, and holds
+dependencies installed for the container's architecture. To run Storybook on
+the host instead, reinstall the dependencies there, keep the stories
+regenerating in the container, and point the development server at the site's
+local URL shown by `ahoy info`:
+
+```shell
+cd web/themes/custom/your_site_theme
+rm -rf node_modules && npm ci
+
+# In a second terminal: regenerate the stories as they change
+ahoy storybook-stories --watch
+
+STORYBOOK_DRUPAL_URL=http://your-site.docker.amazee.io npm run storybook
+```
+
+The development server is then available at `http://localhost:6006`. Run
+`ahoy fei` before using the `ahoy` front-end commands again, so the container
+gets its own dependencies back.
 
 ### Published component library
 
@@ -195,8 +235,7 @@ then generates the stories and builds the static application into the theme's
 build runs in the `local`, `ci`, and `dev` environments only, which are the
 environments where the story render route is reachable. Set
 `DRUPAL_STORYBOOK_SKIP=1` to skip the build and shorten provisioning, and run
-`ahoy storybook-stories` followed by `ahoy storybook-build` to rebuild it on
-demand.
+`ahoy storybook-build` to rebuild it on demand.
 
 In the `dev` environment, [Shield](modules/contributed-modules.mdx#shield)
 protects the story render route, so a story renders only after the browser
