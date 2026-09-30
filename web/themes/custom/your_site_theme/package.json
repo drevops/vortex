@@ -55,7 +55,7 @@
     "postinstall": "patch-package",
     "sass:dev": "sass scss/styles.scss build/css/your_site_theme.min.css --source-map --style=expanded",
     "sass:prod": "sass scss/styles.scss build/css/your_site_theme.min.css --no-source-map --style=compressed",
-    "storybook": "storybook dev --port 6006 --host 0.0.0.0 --no-open",
+    "storybook": "storybook dev --host 0.0.0.0 --no-open",
     "storybook-build": "storybook build --quiet",
     "uglify": "terser build/js/your_site_theme.min.js -o build/js/your_site_theme.min.js -c drop_console=true -m reserved=['jQuery','Drupal'] 2>/dev/null || true",
     "watch": "chokidar 'js/**/*.js' 'scss/**/*.scss' -c 'npm run build-dev'"
