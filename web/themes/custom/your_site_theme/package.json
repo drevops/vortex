@@ -59,5 +59,8 @@
     "storybook-build": "storybook build --quiet",
     "uglify": "terser build/js/your_site_theme.min.js -o build/js/your_site_theme.min.js -c drop_console=true -m reserved=['jQuery','Drupal'] 2>/dev/null || true",
     "watch": "chokidar 'js/**/*.js' 'scss/**/*.scss' -c 'npm run build-dev'"
+  },
+  "overrides": {
+    "webpack-dev-middleware": "^7.4.5"
   }
 }

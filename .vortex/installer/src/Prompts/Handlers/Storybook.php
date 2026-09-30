@@ -119,6 +119,8 @@ DOC;
         $pj->removeSubNode('devDependencies', 'storybook');
         $pj->removeSubNode('scripts', 'storybook');
         $pj->removeSubNode('scripts', 'storybook-build');
+        $pj->removeSubNode('overrides', 'webpack-dev-middleware');
+        $pj->removeMainKeyIfEmpty('overrides');
       });
 
       // A lock file that still lists the removed dependencies makes 'npm ci'
