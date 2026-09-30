@@ -158,6 +158,7 @@ services:
     <<: [ *default-volumes, *default-user ]
     depends_on:
       - cli
+      - php
     networks:
       - default # This is a standard network and is used for all other environments, where requests routing is not required and/or not supported.
       - amazeeio-network ### This network is supported by Pygmy and used to route all requests to host machine locally. Removed in CI.

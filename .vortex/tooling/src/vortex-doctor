@@ -137,7 +137,7 @@ main() {
     # Check that the key is injected into pygmy ssh-agent container.
     if ! pygmy status 2>&1 | grep -q "${VORTEX_SSH_FILE}"; then
       warn "SSH key is not added to pygmy."
-      note "The SSH key will not be available in the CLI container. Run 'pygmy restart' and then 'ahoy up'."
+      note "The SSH key will not be available in the CLI container. Run 'pygmy restart' and then 'ahoy up --no-deps --force-recreate cli'."
     else
       ssh_key_added_to_pygmy=1
     fi
@@ -155,7 +155,7 @@ main() {
 
     if [ "${ssh_key_added_to_pygmy}" = "1" ] && [ "${ssh_key_volume_mounted}" = "1" ]; then
       if ! docker compose exec -T cli bash -c "ssh-add -l >/dev/null 2>&1"; then
-        fail "SSH key was not added to the container. Run 'pygmy restart'."
+        fail "SSH key was not added to the container. Run 'ahoy up --no-deps --force-recreate cli'."
       else
         pass "SSH key is available within the CLI container."
       fi
