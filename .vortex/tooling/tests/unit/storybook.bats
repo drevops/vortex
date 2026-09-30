@@ -147,8 +147,8 @@ storybook_env_reset() {
   chmod +x "./web/themes/custom/your_site_theme/node_modules/.bin/chokidar"
 
   declare -a STEPS=(
-    "@pkill -f [s]torybook dev # 1"
-    "@pkill -f [c]hokidar .*storybook:generate-all-stories # 1"
+    "@pgrep -f storybook dev # 1"
+    "@pgrep -f chokidar .*storybook:generate-all-stories # 1"
     "@drush -y storybook:generate-all-stories --omit-server-url --force"
     '@npm --prefix=./web/themes/custom/your_site_theme run storybook -- --port 6006 --quiet --ci # 0 #  # echo "${STORYBOOK_SERVER_URL}" >./dev_server_url.txt'
     "@curl -s -o /dev/null http://localhost:6006 # 0"
@@ -187,8 +187,8 @@ storybook_env_reset() {
   chmod +x "./web/themes/custom/your_site_theme/node_modules/.bin/chokidar"
 
   declare -a STEPS=(
-    "@pkill -f [s]torybook dev # 1"
-    "@pkill -f [c]hokidar .*storybook:generate-all-stories # 1"
+    "@pgrep -f storybook dev # 1"
+    "@pgrep -f chokidar .*storybook:generate-all-stories # 1"
     "@drush -y storybook:generate-all-stories --omit-server-url --force"
     '@npm --prefix=./web/themes/custom/your_site_theme run dev -- --port 7007 --quiet --ci --smoke-test # 0 #  # echo "${STORYBOOK_SERVER_URL}" >./dev_server_url.txt'
     "@curl -s -o /dev/null http://localhost:7007 # 0"
