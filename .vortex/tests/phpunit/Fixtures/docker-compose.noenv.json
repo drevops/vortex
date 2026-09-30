@@ -341,6 +341,10 @@
                 "cli": {
                     "condition": "service_started",
                     "required": true
+                },
+                "php": {
+                    "condition": "service_started",
+                    "required": true
                 }
             },
             "entrypoint": null,
