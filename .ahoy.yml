@@ -245,8 +245,8 @@ commands:
         cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && STORYBOOK_DRUPAL_URL=\"\${url}\" npm run storybook"
 
   storybook-build:
-    usage: Build the static Storybook application.
-    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run storybook-build"
+    usage: Build and publish the static Storybook application.
+    cmd: ahoy cli "DRUPAL_STORYBOOK_SKIP=0 ./scripts/provision-50-storybook.sh"
 
   storybook-stories:
     usage: Generate Storybook stories from Twig templates.

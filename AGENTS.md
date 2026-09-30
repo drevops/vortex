@@ -67,7 +67,7 @@ ahoy lint-fix # Auto-fix code style
 # Storybook
 ahoy storybook         # Start the Storybook development server
 ahoy storybook-stories # Generate stories from Twig templates
-ahoy storybook-build   # Build the static Storybook application
+ahoy storybook-build   # Build and publish the static Storybook application
 #;> STORYBOOK
 
 # PHPUnit testing
