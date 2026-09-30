@@ -423,9 +423,10 @@ installs the development modules - [Devel](https://www.drupal.org/project/devel)
 [Testmode](https://www.drupal.org/project/testmode) - and the
 [Reroute Email](https://www.drupal.org/project/reroute_email) safety net.
 Projects with Storybook enabled also install the
-[Storybook](https://www.drupal.org/project/storybook) module here, and
-`scripts/provision-50-storybook.sh` only generates the stories and builds the
-component library.
+[Storybook](https://www.drupal.org/project/storybook) module here and, in the
+`local` environment, turn on Twig development mode, so component template edits
+show up without a cache rebuild. `scripts/provision-50-storybook.sh` only
+generates the stories and builds the component library.
 
 These modules live in their own script so that they stay enabled after the demo
 and example scripts are adapted or removed. They're also the modules kept out
