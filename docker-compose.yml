@@ -129,12 +129,19 @@ services:
     depends_on:
       wait-for-dependencies:
         condition: service_completed_successfully
+    #;< STORYBOOK
+    ports:
+      - '${VORTEX_STORYBOOK_PORT:-6006}' # Storybook development server port in a container. Find port on host with `ahoy info` or `docker compose port cli 6006`.
+    #;> STORYBOOK
     user: root
     #;< HOSTING_LAGOON
     labels:
       lagoon.type: cli-persistent # See https://docs.lagoon.sh/using-lagoon-advanced/service-types/
       lagoon.persistent.name: &lagoon-nginx-name nginx-php # Mount the persistent storage of nginx-php pod into this container.
       lagoon.persistent: &lagoon-persistent-files /app/web/sites/default/files/  # Location where the persistent storage should be mounted.
+      #;< STORYBOOK
+      lagoon.volumes.storybook.path: &lagoon-storybook-path /app/web/themes/custom/your_site_theme/storybook-static/
+      #;> STORYBOOK
     #;> HOSTING_LAGOON
 
   nginx:
@@ -160,6 +167,9 @@ services:
       lagoon.name: *lagoon-nginx-name
       lagoon.persistent: *lagoon-persistent-files
       lagoon.persistent.class: slow
+      #;< STORYBOOK
+      lagoon.volumes.storybook.path: *lagoon-storybook-path
+      #;> STORYBOOK
     #;> HOSTING_LAGOON
 
   # PHP FPM container. All web requests are going through this container.
@@ -320,6 +330,13 @@ networks:           ### Use external networks locally. Automatically removed in 
 volumes:
   app: {}
   files: {}
+  #;< STORYBOOK
+  #;< HOSTING_LAGOON
+  storybook:
+    labels:
+      lagoon.type: persistent # The CLI and web containers run in separate pods, so the build needs shared storage.
+  #;> HOSTING_LAGOON
+  #;> STORYBOOK
   #;< SERVICE_SOLR
   solr: {}
   #;> SERVICE_SOLR

@@ -48,6 +48,12 @@ web/themes/**/node_modules
 # Theme build assets are compiled during the image build.
 web/themes/**/build
 
+#;< STORYBOOK
+# Storybook stories and application are compiled during provisioning.
+web/themes/**/*.stories.json
+web/themes/**/storybook-static
+#;> STORYBOOK
+
 # Caches, data, logs and temporary artifacts.
 **/.artifacts
 **/.data

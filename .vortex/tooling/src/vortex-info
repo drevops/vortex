@@ -45,6 +45,10 @@ fi
 if [ -n "${VORTEX_HOST_SOLR_PORT:-}" ]; then
   note "Solr URL on host            : http://127.0.0.1:${VORTEX_HOST_SOLR_PORT}"
 fi
+if [ -n "${VORTEX_HOST_STORYBOOK_PORT:-}" ]; then
+  note "Storybook library URL       : http://${LOCALDEV_URL}/storybook"
+  note "Storybook dev server URL    : http://localhost:${VORTEX_HOST_STORYBOOK_PORT} ('ahoy storybook' to start)"
+fi
 if [ -n "${VORTEX_HOST_SELENIUM_VNC_PORT:-}" ]; then
   note "Selenium VNC URL on host    : http://localhost:${VORTEX_HOST_SELENIUM_VNC_PORT}/?autoconnect=1&password=secret"
 fi

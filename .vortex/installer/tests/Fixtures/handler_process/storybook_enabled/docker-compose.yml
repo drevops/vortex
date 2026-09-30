@@ -1,0 +1,9 @@
+@@ -105,6 +105,8 @@
+     depends_on:
+       wait-for-dependencies:
+         condition: service_completed_successfully
++    ports:
++      - '${VORTEX_STORYBOOK_PORT:-6006}' # Storybook development server port in a container. Find port on host with `ahoy info` or `docker compose port cli 6006`.
+     user: root
+ 
+   nginx:

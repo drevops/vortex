@@ -37,6 +37,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
+use DrevOps\VortexInstaller\Prompts\Handlers\Storybook;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexInstaller\Prompts\Handlers\Timezone;
@@ -115,6 +116,7 @@ class AbstractHandlerTypeTest extends UnitTestCase {
     yield 'visual_regression' => [VisualRegression::id(), PromptType::Confirm];
     yield 'gitleaks' => [Gitleaks::id(), PromptType::Confirm];
     yield 'frontend_build' => [FrontendBuild::id(), PromptType::Confirm];
+    yield 'storybook' => [Storybook::id(), PromptType::Confirm];
     // Suggest handlers.
     yield 'timezone' => [Timezone::id(), PromptType::Suggest];
   }

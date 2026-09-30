@@ -28,6 +28,7 @@ Pygmy
 Rector
 Renovate
 Solr
+Storybook
 Stylelint
 Twig
 Valkey

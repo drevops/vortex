@@ -60,6 +60,12 @@ web/themes/**/node_modules
 # Theme build assets.
 web/themes/**/build
 
+#;< STORYBOOK
+# Storybook stories and application compiled from the theme sources.
+web/themes/**/*.stories.json
+web/themes/**/storybook-static
+#;> STORYBOOK
+
 # Caches, data, logs and temporary artifacts.
 .artifacts
 .data

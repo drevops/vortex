@@ -94,6 +94,9 @@ web/themes/custom/your_site_theme/package.json
 web/themes/custom/your_site_theme/package-lock.json
 web/themes/custom/your_site_theme/postcss.config.js
 web/themes/custom/your_site_theme/scss
+#;< STORYBOOK
+web/themes/custom/your_site_theme/storybook-static
+#;> STORYBOOK
 
 # Caches, data, logs and temporary artifacts.
 .artifacts

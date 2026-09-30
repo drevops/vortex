@@ -359,10 +359,11 @@ example, `provision-50-custom.sh` and `provision-60-another-custom.sh`.
 | Script                                | Purpose                                                  | Present when                                                                                               |
 |---------------------------------------|----------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
 | `provision-00-enable-demo-modules.sh` | Enables the modules and content model the demo site uses | Always; the installer trims its operations to the selected modules                                          |
-| `provision-10-enable-dev-modules.sh`  | Enables the development modules and generates content    | Any of `devel`, `sdc_devel`, `generated_content`, `testmode`, or `reroute_email` is selected; removed by the installer otherwise |
+| `provision-10-enable-dev-modules.sh`  | Enables the development modules and generates content    | Any of `devel`, `sdc_devel`, `generated_content`, `testmode`, or `reroute_email` is selected, or Storybook is enabled; removed by the installer otherwise |
 | `provision-20-migration.sh`           | Runs the content migration                               | The migration feature is selected; removed by the installer otherwise                                       |
 | `provision-30-search-index.sh`        | Rebuilds the search index                                | The Solr service is selected; removed by the installer otherwise                                            |
 | `provision-40-example.sh`             | A runnable example that performs no operations           | Always; copy it as a starting point or remove it                                                            |
+| `provision-50-storybook.sh`           | Generates the stories and builds the Storybook component library | Storybook is selected; removed by the installer otherwise                                           |
 
 ### Conditional execution
 
@@ -421,6 +422,11 @@ installs the development modules - [Devel](https://www.drupal.org/project/devel)
 [SDC Devel](https://www.drupal.org/project/sdc_devel) and
 [Testmode](https://www.drupal.org/project/testmode) - and the
 [Reroute Email](https://www.drupal.org/project/reroute_email) safety net.
+Projects with Storybook enabled also install the
+[Storybook](https://www.drupal.org/project/storybook) module here and, in the
+`local` environment, turn on Twig development mode, so component template edits
+show up without a cache rebuild. `scripts/provision-50-storybook.sh` only
+generates the stories and builds the component library.
 
 These modules live in their own script so that they stay enabled after the demo
 and example scripts are adapted or removed. They're also the modules kept out

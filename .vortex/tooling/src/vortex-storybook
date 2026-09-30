@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+##
+# Generate Storybook stories, serve them or build the static component library.
+#
+# Usage:
+#   vortex-storybook dev [<storybook dev options>]
+#   vortex-storybook build
+#   vortex-storybook stories [--watch]
+#
+# 'dev' regenerates the stories whenever a Twig story template changes and
+# runs the development server until interrupted.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Name of the webroot directory with Drupal codebase.
+WEBROOT="${WEBROOT:-web}"
+
+# Drupal theme name.
+DRUPAL_THEME="${DRUPAL_THEME:-}"
+
+# Directory with the Storybook configuration and its npm scripts.
+VORTEX_STORYBOOK_DIR="${VORTEX_STORYBOOK_DIR:-./${WEBROOT}/themes/custom/${DRUPAL_THEME}}"
+
+# Path pattern of the Twig story templates to watch for changes.
+VORTEX_STORYBOOK_STORIES_PATTERN="${VORTEX_STORYBOOK_STORIES_PATTERN:-${VORTEX_STORYBOOK_DIR}/components/**/*.stories.twig}"
+
+# npm script that starts the Storybook development server.
+VORTEX_STORYBOOK_DEV_SCRIPT="${VORTEX_STORYBOOK_DEV_SCRIPT:-storybook}"
+
+# npm script that builds the static Storybook application.
+VORTEX_STORYBOOK_BUILD_SCRIPT="${VORTEX_STORYBOOK_BUILD_SCRIPT:-storybook-build}"
+
+# Port of the Storybook development server inside the container.
+VORTEX_STORYBOOK_PORT="${VORTEX_STORYBOOK_PORT:-6006}"
+
+# Port on the host that is mapped to the development server port.
+VORTEX_HOST_STORYBOOK_PORT="${VORTEX_HOST_STORYBOOK_PORT:-${VORTEX_STORYBOOK_PORT}}"
+
+# URL of the site that renders stories for the development server.
+#
+# Defaults to the first local site URL in LOCALDEV_URL.
+STORYBOOK_SERVER_URL="${STORYBOOK_SERVER_URL:-}"
+
+# URL of the site that renders stories for the static application.
+#
+# Empty to render stories from the site that serves the application.
+VORTEX_STORYBOOK_BUILD_SERVER_URL="${VORTEX_STORYBOOK_BUILD_SERVER_URL:-}"
+
+# Path at which the web server serves the static application.
+VORTEX_STORYBOOK_LIBRARY_PATH="${VORTEX_STORYBOOK_LIBRARY_PATH:-/storybook}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+drush() { ./vendor/bin/drush -y "$@"; }
+
+# Print the first local site URL, with a scheme.
+site_url() {
+  local url="${LOCALDEV_URL:-}"
+  url="${url%%,*}"
+  url="${url//[[:space:]]/}"
+  [ -z "${url}" ] && return 0
+  case "${url}" in *://*) ;; *) url="http://${url}" ;; esac
+  echo "${url}"
+}
+
+generate_stories() {
+  task "Generating stories."
+  # Without '--force', templates older than their compiled stories are skipped.
+  drush storybook:generate-all-stories --omit-server-url --force
+  pass "Generated stories."
+}
+
+watch_stories() {
+  # chokidar-cli runs its command through SHELL, which the CLI container does
+  # not export.
+  exec env SHELL=/bin/sh "${VORTEX_STORYBOOK_DIR}/node_modules/.bin/chokidar" "${VORTEX_STORYBOOK_STORIES_PATTERN}" -c "./vendor/bin/drush -y storybook:generate-all-stories --omit-server-url --force"
+}
+
+action="${1:-}"
+[ "$#" -gt 0 ] && shift
+
+case "${action}" in
+  stories)
+    watch=0
+    for arg in "$@"; do
+      if [ "${arg}" = "--watch" ]; then
+        watch=1
+      fi
+    done
+
+    generate_stories
+
+    if [ "${watch}" = "1" ]; then
+      watch_stories
+    fi
+    ;;
+
+  build)
+    info "Started Storybook build."
+
+    generate_stories
+
+    task "Building the Storybook application."
+    # An empty URL renders the stories from the site that serves the build.
+    STORYBOOK_SERVER_URL="${VORTEX_STORYBOOK_BUILD_SERVER_URL}" npm --prefix="${VORTEX_STORYBOOK_DIR}" run "${VORTEX_STORYBOOK_BUILD_SCRIPT}"
+    pass "Built the Storybook application."
+
+    note "Storybook library: $(site_url)${VORTEX_STORYBOOK_LIBRARY_PATH}"
+
+    pass "Finished Storybook build."
+    ;;
+
+  dev)
+    info "Started Storybook development server."
+
+    # A server or watcher left running by a previous session would hold the
+    # port. The patterns match the Node processes only, so neither this script
+    # nor a shell wrapping it matches.
+    pkill -f "node .*storybook dev" || true
+    pkill -f "node .*chokidar .*storybook:generate-all-stories" || true
+
+    generate_stories
+
+    trap 'kill $(jobs -p) 2>/dev/null || true' EXIT
+    trap 'exit 130' INT TERM
+
+    watch_stories &
+
+    task "Starting the Storybook development server."
+    STORYBOOK_SERVER_URL="${STORYBOOK_SERVER_URL:-$(site_url)}" npm --prefix="${VORTEX_STORYBOOK_DIR}" run "${VORTEX_STORYBOOK_DEV_SCRIPT}" -- --port "${VORTEX_STORYBOOK_PORT}" --quiet --ci "$@" &
+    pid=$!
+
+    ready=0
+    while true; do
+      if curl -s -o /dev/null "http://localhost:${VORTEX_STORYBOOK_PORT}"; then
+        ready=1
+        break
+      fi
+      kill -0 "${pid}" 2>/dev/null || break
+      sleep 1
+    done
+
+    if [ "${ready}" = "1" ]; then
+      pass "Storybook is ready at http://localhost:${VORTEX_HOST_STORYBOOK_PORT}"
+    fi
+
+    status=0
+    wait "${pid}" || status=$?
+
+    if [ "${ready}" = "0" ]; then
+      [ "${status}" -eq 0 ] || fail "Storybook development server did not start."
+      pass "Storybook development server exited."
+    fi
+
+    exit "${status}"
+    ;;
+
+  *)
+    fail "Unknown action '${action}'. Use 'dev', 'build' or 'stories'."
+    ;;
+esac

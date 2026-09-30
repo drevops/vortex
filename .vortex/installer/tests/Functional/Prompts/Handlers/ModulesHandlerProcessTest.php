@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Modules;
+use DrevOps\VortexInstaller\Prompts\Handlers\Storybook;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Modules::class)]
@@ -202,6 +203,17 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
         $test->assertSutNotContains(['drupal/devel', 'drupal/sdc_devel', 'drupal/generated_content', 'testmode', 'drupal/reroute_email']);
         $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
+      }),
+    ];
+    yield 'modules_no_dev_modules_storybook' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept(['devel', 'sdc_devel', 'generated_content', 'testmode', 'reroute_email']);
+          $test->prompts[Storybook::id()] = TRUE;
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertFileContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'drush pm:install storybook');
+        $test->assertFileNotContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'drush pm:install devel');
+        $test->assertFileNotContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'drush pm:install sdc_devel');
       }),
     ];
     yield 'modules_none' => [

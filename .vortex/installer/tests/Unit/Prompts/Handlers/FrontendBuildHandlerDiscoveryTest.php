@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\FrontendBuild;
+use DrevOps\VortexInstaller\Prompts\Handlers\Storybook;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Utils\Config;
 use Laravel\Prompts\Key;
@@ -21,6 +22,7 @@ class FrontendBuildHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
     // resolves to null.
     $expected_defaults_core = $expected_defaults;
     $expected_defaults_core[FrontendBuild::id()] = NULL;
+    $expected_defaults_core[Storybook::id()] = NULL;
 
     yield 'frontend build - prompt' => [
       [FrontendBuild::id() => Key::ENTER],

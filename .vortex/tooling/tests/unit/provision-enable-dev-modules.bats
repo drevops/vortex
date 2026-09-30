@@ -23,6 +23,9 @@ load ../_helper.bash
 
     # Development modules.
     "@drush -y pm:install sdc_devel"
+    "@drush -y pm:install storybook"
+    "@drush -y php:eval \Drupal::keyValue('development_settings')->setMultiple(['twig_debug' => TRUE, 'twig_cache_disable' => TRUE, 'disable_rendered_output_cache_bins' => TRUE]);"
+    "@drush -y cache:rebuild"
     "@drush -y pm:install devel"
     "@drush -y pm:install testmode"
     "@drush -y pm:install reroute_email"
@@ -37,6 +40,10 @@ load ../_helper.bash
     "Environment: local"
     "Installing Single Directory Component development tools."
     "Installed Single Directory Component development tools."
+    "Installing Storybook module."
+    "Installed Storybook module."
+    "Enabling Twig development mode."
+    "Enabled Twig development mode."
     "Installing Devel module."
     "Installed Devel module."
     "Installing Testmode module."
@@ -74,6 +81,9 @@ load ../_helper.bash
   declare -a STEPS=(
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
     "@drush -y pm:install sdc_devel"
+    "@drush -y pm:install storybook"
+    "@drush -y php:eval \Drupal::keyValue('development_settings')->setMultiple(['twig_debug' => TRUE, 'twig_cache_disable' => TRUE, 'disable_rendered_output_cache_bins' => TRUE]);"
+    "@drush -y cache:rebuild"
     "@drush -y pm:install devel"
     "@drush -y pm:install testmode"
     "@drush -y pm:install reroute_email"
@@ -102,6 +112,41 @@ load ../_helper.bash
   popd >/dev/null || exit 1
 }
 
+@test "Provision development modules: Twig development mode stays off outside the local environment" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  unset DRUPAL_GENERATED_CONTENT_SKIP
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -a STEPS=(
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
+    "@drush -y pm:install sdc_devel"
+    "@drush -y pm:install storybook"
+    "@drush -y pm:install devel"
+    "@drush -y pm:install testmode"
+    "@drush -y pm:install reroute_email"
+    "@drush -y pm:install generated_content"
+
+    "Started development modules operations."
+    "Environment: ci"
+    "Installed Storybook module."
+    "Finished development modules operations."
+
+    "- Enabling Twig development mode."
+    "- Enabled Twig development mode."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run ./scripts/provision-10-enable-dev-modules.sh
+  assert_success
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Provision development modules: environment name containing a development name skip" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -117,6 +162,7 @@ load ../_helper.bash
     "Skipped installing development modules in production environment."
 
     "- Installing Single Directory Component development tools."
+    "- Installing Storybook module."
     "- Installing Devel module."
     "- Installing Testmode module."
     "- Installing Reroute Email module."
@@ -149,6 +195,7 @@ load ../_helper.bash
     "Skipped installing development modules in production environment."
 
     "- Installing Single Directory Component development tools."
+    "- Installing Storybook module."
     "- Installing Devel module."
     "- Installing Testmode module."
     "- Installing Reroute Email module."

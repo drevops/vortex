@@ -1,0 +1,29 @@
+@@ -33,6 +33,7 @@
+       export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}}
+       export VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2)
+       export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
++      export VORTEX_HOST_STORYBOOK_PORT=$(docker compose port cli ${VORTEX_STORYBOOK_PORT:-6006} 2>/dev/null | cut -d : -f 2)
+       export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2)
+       export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
+       ahoy cli ./vendor/bin/vortex-info "$@"
+@@ -188,6 +189,20 @@
+     cmd: |
+       ahoy cli "pkill -9 -f grunt" || true
+       ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run watch"
++
++  storybook:
++    usage: Start Storybook for component development. Stories are regenerated as their Twig templates change.
++    cmd: |
++      export VORTEX_HOST_STORYBOOK_PORT=$(docker compose port cli ${VORTEX_STORYBOOK_PORT:-6006} 2>/dev/null | cut -d : -f 2)
++      ahoy cli ./vendor/bin/vortex-storybook dev "$@"
++
++  storybook-build:
++    usage: Build the Storybook component library served at /storybook.
++    cmd: ahoy cli ./vendor/bin/vortex-storybook build
++
++  storybook-stories:
++    usage: Generate Storybook stories from Twig templates. Run with "--watch" to regenerate them as they change.
++    cmd: ahoy cli ./vendor/bin/vortex-storybook stories "$@"
+ 
+   lint:
+     usage: Lint back-end and front-end code.
