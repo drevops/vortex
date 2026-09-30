@@ -91,7 +91,7 @@ class EnvTest extends UnitTestCase {
   }
 
   public function testWriteValueDotenv(): void {
-    $fixture_dir = dirname(__DIR__) . '/Fixtures/env';
+    $fixture_dir = __DIR__ . '/../Fixtures/env';
     $actual_file = static::$sut . '/.env';
     File::copy($fixture_dir . '/_baseline/.env', $actual_file);
 
