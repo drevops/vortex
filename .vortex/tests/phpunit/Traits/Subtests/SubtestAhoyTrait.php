@@ -889,14 +889,15 @@ trait SubtestAhoyTrait {
     $this->fileBackup($stories_file);
     File::replaceContentInFile($stories_file, '{% endstories %}', $added_story);
     $this->syncToContainer($stories_file);
-    $this->cmd('ahoy storybook-build', '* Published the Storybook application.', '`ahoy storybook-build` should rebuild and publish the Storybook application', ito: 300);
+    $this->cmd('ahoy storybook-stories', txt: '`ahoy storybook-stories` should compile the added story');
+    $this->cmd('ahoy storybook-build', txt: '`ahoy storybook-build` should rebuild the Storybook application in place', ito: 300);
     $this->assertWebpageContains('/storybook/index.json', '"components-button--rebuilt"', 'Rebuilt story index should list the added story');
     $this->assertStorybookServed($webroot);
 
     $this->logSubstep('Remove the story and re-provision over the published application');
     $this->fileRestore($stories_file);
     $this->syncToContainer($stories_file);
-    $this->cmd('ahoy provision', '* Published the Storybook application.', '`ahoy provision` should rebuild and republish the Storybook application', ito: 300);
+    $this->cmd('ahoy provision', ['* Generated stories.', '* Built the Storybook application.'], '`ahoy provision` should recompile the stories and rebuild the Storybook application', ito: 300);
     $this->assertWebpageNotContains('/storybook/index.json', '"components-button--rebuilt"', 'Re-provisioned story index should not list the removed story');
     $this->assertStorybookServed($webroot);
 

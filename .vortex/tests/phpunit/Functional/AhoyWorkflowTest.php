@@ -133,9 +133,14 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->assertFilesTrackedInGit();
 
-    $this->logSubstep('Assert that the compiled stories are generated but not committed');
+    $this->logSubstep('Assert that the development modules step installed the Storybook module');
+    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', '* storybook', 'Storybook module should be enabled after provisioning');
+
+    $this->logSubstep('Assert that the compiled stories and the built application are generated but not committed');
     $this->assertFileExists('web/themes/custom/star_wars/components/button/button.stories.json', 'Compiled stories should exist after the build');
     $this->gitAssertFilesNotTracked('web/themes/custom/star_wars/components/button/button.stories.json');
+    $this->assertFileExists('web/themes/custom/star_wars/storybook-static/index.html', 'Storybook application should be built into the theme');
+    $this->gitAssertFilesNotTracked('web/themes/custom/star_wars/storybook-static/index.html');
 
     $this->subtestAhoyStorybook();
   }
