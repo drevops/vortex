@@ -1,28 +1,48 @@
-@@ -189,6 +189,23 @@
+@@ -33,6 +33,7 @@
+       export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}}
+       export VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2)
+       export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
++      export VORTEX_HOST_STORYBOOK_PORT=$(docker compose port cli 6006 2>/dev/null | cut -d : -f 2)
+       export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2)
+       export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
+       ahoy cli ./vendor/bin/vortex-info "$@"
+@@ -189,6 +190,35 @@
        ahoy cli "pkill -9 -f grunt" || true
        ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run watch"
  
 +  storybook:
-+    usage: Start the Storybook development server.
++    usage: Start Storybook for component development. Stories are regenerated as their Twig templates change.
 +    cmd: |
-+      echo "Storybook is available at http://localhost:$(docker compose port cli 6006 2>/dev/null | cut -d : -f 2)"
++      ahoy cli "pkill -f '[s]torybook dev'; pkill -f '[c]hokidar .*stories.twig'" || true
++      ahoy storybook-stories
++      port=$(docker compose port cli 6006 2>/dev/null | cut -d : -f 2)
 +      ahoy cli " \
++        trap 'kill \$(jobs -p) 2>/dev/null' EXIT; trap 'exit 130' INT TERM; \
 +        url=\$(echo \"\${LOCALDEV_URL%%,*}\" | tr -d '[:space:]'); \
 +        case \"\${url}\" in *://*) ;; *) url=\"http://\${url}\";; esac; \
-+        cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && STORYBOOK_DRUPAL_URL=\"\${url}\" npm run storybook"
++        SHELL=/bin/sh ${WEBROOT}/themes/custom/${DRUPAL_THEME}/node_modules/.bin/chokidar '${WEBROOT}/themes/custom/${DRUPAL_THEME}/components/**/*.stories.twig' -c 'vendor/bin/drush storybook:generate-all-stories --omit-server-url --force' & \
++        STORYBOOK_DRUPAL_URL=\"\${url}\" npm --prefix=${WEBROOT}/themes/custom/${DRUPAL_THEME} run storybook -- --quiet --ci $* & \
++        pid=\$!; \
++        until curl -s -o /dev/null http://localhost:6006; do kill -0 \${pid} 2>/dev/null || break; sleep 1; done; \
++        kill -0 \${pid} 2>/dev/null && echo \"Storybook is ready at http://localhost:${port}\"; \
++        wait \${pid}"
 +
 +  storybook-build:
-+    usage: Build the static Storybook application.
-+    cmd: ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run storybook-build"
++    usage: Build the Storybook component library served at /storybook.
++    cmd: |
++      ahoy storybook-stories
++      ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run storybook-build && echo \"Storybook library is available at http://\${LOCALDEV_URL%%,*}/storybook\""
 +
 +  storybook-stories:
-+    usage: Generate Storybook stories from Twig templates.
-+    cmd: ahoy drush storybook:generate-all-stories --omit-server-url --force
++    usage: Generate Storybook stories from Twig templates. Run with "--watch" to regenerate them as they change.
++    cmd: |
++      ahoy drush storybook:generate-all-stories --omit-server-url --force
++      case " $* " in *" --watch "*) ahoy cli "SHELL=/bin/sh ${WEBROOT}/themes/custom/${DRUPAL_THEME}/node_modules/.bin/chokidar '${WEBROOT}/themes/custom/${DRUPAL_THEME}/components/**/*.stories.twig' -c 'vendor/bin/drush storybook:generate-all-stories --omit-server-url --force'" ;; esac
 +
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
-@@ -214,14 +231,6 @@
+@@ -214,14 +244,6 @@
      usage: Lint tests code.
      cmd: |
        ahoy cli vendor/bin/gherkinlint lint tests/behat/features
