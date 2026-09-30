@@ -205,6 +205,23 @@ In the `local` environment, provisioning turns on Twig development mode. An edit
 to a component's template then shows up in the development server and the
 library on the next render, without a cache rebuild.
 
+### Customizing locations
+
+The `ahoy` commands and provisioning run `vendor/bin/vortex-storybook`, which
+reads its locations from environment variables. A project that moves the theme
+or its stories sets them in `.env` instead of changing the commands:
+
+- `VORTEX_STORYBOOK_DIR` - the directory with the Storybook configuration and
+  its npm scripts
+- `VORTEX_STORYBOOK_STORIES_PATTERN` - the Twig story templates to watch
+- `VORTEX_STORYBOOK_DEV_SCRIPT` and `VORTEX_STORYBOOK_BUILD_SCRIPT` - the npm
+  scripts that start the development server and build the library
+- `VORTEX_STORYBOOK_PORT` - the development server port inside the container
+- `VORTEX_STORYBOOK_BUILD_SERVER_URL` - the site that renders stories for the
+  static library, when it isn't the site that serves it
+
+The [variables reference](variables.mdx) lists their defaults.
+
 ### Running Storybook on the host
 
 The theme's `node_modules` directory is shared with the CLI container, and holds
@@ -220,7 +237,7 @@ rm -rf node_modules && npm ci
 # In a second terminal: regenerate the stories as they change
 ahoy storybook-stories --watch
 
-STORYBOOK_DRUPAL_URL=http://your-site.docker.amazee.io npm run storybook
+STORYBOOK_SERVER_URL=http://your-site.docker.amazee.io npm run storybook
 ```
 
 The development server is then available at `http://localhost:6006`. Run

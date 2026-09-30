@@ -896,7 +896,7 @@ trait SubtestAhoyTrait {
     $this->fileBackup($stories_file);
     File::replaceContentInFile($stories_file, '{% endstories %}', $added_story);
     $this->syncToContainer($stories_file);
-    $this->cmd('ahoy storybook-build', '* Storybook library is available at http://star_wars.docker.amazee.io/storybook', '`ahoy storybook-build` should compile the added story and rebuild the Storybook application in place', ito: 300);
+    $this->cmd('ahoy storybook-build', ['* Generated stories.', '* Built the Storybook application.', '* Storybook library: http://star_wars.docker.amazee.io/storybook'], '`ahoy storybook-build` should compile the added story and rebuild the Storybook application in place', ito: 300);
     $this->assertWebpageContains('/storybook/index.json', '"components-button--rebuilt"', 'Rebuilt story index should list the added story');
     $this->assertStorybookServed($webroot);
 
