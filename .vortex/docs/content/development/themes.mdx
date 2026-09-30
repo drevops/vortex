@@ -198,6 +198,11 @@ environments where the story render route is reachable. Set
 `ahoy storybook-stories` followed by `ahoy storybook-build` to rebuild it on
 demand.
 
+In the `dev` environment, [Shield](modules/contributed-modules.mdx#shield)
+protects the story render route, so a story renders only after the browser
+has the Shield credentials. The web server serves the static application at
+`/storybook` and its story index directly, so Shield doesn't protect them.
+
 :::note
 
 On Lagoon, the CLI and web containers run in separate pods, so a dedicated
