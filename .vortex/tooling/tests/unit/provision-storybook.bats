@@ -19,32 +19,27 @@ load ../_helper.bash
   mkdir -p "./web/themes/custom/your_site_theme/node_modules/.bin"
   touch "./web/themes/custom/your_site_theme/node_modules/.bin/storybook"
   chmod +x "./web/themes/custom/your_site_theme/node_modules/.bin/storybook"
-  mkdir -p "./web/themes/custom/your_site_theme/storybook-static"
 
   declare -a STEPS=(
     # Get environment.
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
 
-    # Module, stories and application build.
-    "@drush -y pm:install storybook"
-    "@drush -y storybook:generate-all-stories --omit-server-url"
+    # Stories and application build.
+    "@drush -y storybook:generate-all-stories --omit-server-url --force"
     "@npm --prefix=./web/themes/custom/your_site_theme run storybook-build"
 
     # Expected output.
     "Started Storybook operations."
     "Environment: local"
     "Storybook skip: 0"
-    "Installing Storybook module."
-    "Installed Storybook module."
     "Generating stories."
     "Generated stories."
     "Building the Storybook application."
     "Built the Storybook application."
-    "Publishing the Storybook application."
-    "Published the Storybook application."
     "Finished Storybook operations."
 
     # Not expected.
+    "- Installing Storybook module."
     "- Skipped Storybook operations. DRUPAL_STORYBOOK_SKIP is set to 1."
     "- Skipped Storybook operations in non-development environment."
     "- Skipped building the Storybook application: theme dependencies are not installed."
@@ -56,9 +51,6 @@ load ../_helper.bash
   assert_success
 
   steps_run "assert" "${mocks[@]}"
-
-  assert_dir_exists "./web/sites/default/files/storybook"
-  assert_dir_not_exists "./web/themes/custom/your_site_theme/storybook-static"
 
   popd >/dev/null || exit 1
 }
@@ -81,8 +73,8 @@ load ../_helper.bash
     "Storybook skip: 1"
     "Skipped Storybook operations. DRUPAL_STORYBOOK_SKIP is set to 1."
 
-    "- Installing Storybook module."
     "- Generating stories."
+    "- Building the Storybook application."
     "- Finished Storybook operations."
   )
 
@@ -115,7 +107,6 @@ load ../_helper.bash
     "Skipped Storybook operations in non-development environment."
     "Finished Storybook operations."
 
-    "- Installing Storybook module."
     "- Generating stories."
     "- Building the Storybook application."
   )
@@ -149,7 +140,6 @@ load ../_helper.bash
     "Skipped Storybook operations in non-development environment."
     "Finished Storybook operations."
 
-    "- Installing Storybook module."
     "- Generating stories."
     "- Building the Storybook application."
   )
@@ -177,18 +167,15 @@ load ../_helper.bash
   declare -a STEPS=(
     "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # local"
 
-    "@drush -y pm:install storybook"
-    "@drush -y storybook:generate-all-stories --omit-server-url"
+    "@drush -y storybook:generate-all-stories --omit-server-url --force"
 
     "Started Storybook operations."
     "Environment: local"
-    "Installed Storybook module."
     "Generated stories."
     "Skipped building the Storybook application: theme dependencies are not installed."
     "Finished Storybook operations."
 
     "- Building the Storybook application."
-    "- Publishing the Storybook application."
   )
 
   mocks="$(steps_run "setup")"
@@ -197,8 +184,6 @@ load ../_helper.bash
   assert_success
 
   steps_run "assert" "${mocks[@]}"
-
-  assert_dir_not_exists "./web/sites/default/files/storybook"
 
   popd >/dev/null || exit 1
 }

@@ -12,7 +12,7 @@ use DrevOps\VortexInstaller\Utils\NpmLock;
  * Enable the Storybook component library for the custom theme.
  *
  * Ships the Storybook Drupal module, the theme-side Storybook configuration
- * and a provisioning step that compiles the stories and publishes a static
+ * and a provisioning step that compiles the stories and builds a static
  * application served by the site's own web server.
  */
 class Storybook extends AbstractHandler {
@@ -43,7 +43,7 @@ Component library for the custom theme, rendered by Drupal itself.
 
 Stories are authored in Twig next to each component, so the library shows the same markup the site renders.
 
-A development server runs on demand with `ahoy storybook`. A static build is published during provisioning and served at `/storybook` in local, CI and development environments.
+A development server runs on demand with `ahoy storybook`. A static build is produced during provisioning and served at `/storybook` in local, CI and development environments.
 DOC;
   }
 

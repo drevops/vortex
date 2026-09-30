@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##
-# Build and publish the Storybook component library.
+# Generate the Storybook stories and build the static component library.
 #
 # This script is called during site provisioning via the provision script.
 
@@ -15,9 +15,6 @@ WEBROOT="${WEBROOT:-web}"
 
 # Drupal theme name.
 DRUPAL_THEME="${DRUPAL_THEME:-}"
-
-# Public files directory relative to the webroot.
-DRUPAL_PUBLIC_FILES="${DRUPAL_PUBLIC_FILES:-sites/default/files}"
 
 # ------------------------------------------------------------------------------
 
@@ -36,7 +33,6 @@ drush() { ./vendor/bin/drush -y "$@"; }
 info "Started Storybook operations."
 
 theme_dir="./${WEBROOT}/themes/custom/${DRUPAL_THEME}"
-app_dir="./${WEBROOT}/${DRUPAL_PUBLIC_FILES}/storybook"
 
 environment="$(drush php:eval "print \Drupal\Core\Site\Settings::get('environment');")"
 note "Environment: ${environment}"
@@ -57,12 +53,9 @@ if ! echo "${environment}" | grep -qxF -e local -e ci -e dev; then
   exit 0
 fi
 
-task "Installing Storybook module."
-drush pm:install storybook
-pass "Installed Storybook module."
-
 task "Generating stories."
-drush storybook:generate-all-stories --omit-server-url
+# Without '--force', templates older than their compiled stories are skipped.
+drush storybook:generate-all-stories --omit-server-url --force
 pass "Generated stories."
 
 if [ ! -x "${theme_dir}/node_modules/.bin/storybook" ]; then
@@ -74,11 +67,5 @@ fi
 task "Building the Storybook application."
 npm --prefix="${theme_dir}" run storybook-build
 pass "Built the Storybook application."
-
-task "Publishing the Storybook application."
-rm -rf "${app_dir}"
-mkdir -p "$(dirname "${app_dir}")"
-mv "${theme_dir}/storybook-static" "${app_dir}"
-pass "Published the Storybook application."
 
 info "Finished Storybook operations."

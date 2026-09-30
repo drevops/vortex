@@ -179,7 +179,7 @@ ahoy storybook
 # Generate the stories from the Twig sources
 ahoy storybook-stories
 
-# Build the static application and publish it at /storybook
+# Build the static application served at /storybook
 ahoy storybook-build
 ```
 
@@ -189,18 +189,21 @@ site URL.
 
 ### Published component library
 
-Provisioning generates the stories, builds the static application and publishes
-it into the public files directory, where the web server serves it at
-`/storybook`. This runs in the `local`, `ci`, and `dev` environments only, which
-are the environments where the story render route is reachable. Set
-`DRUPAL_STORYBOOK_SKIP=1` to skip the build and shorten provisioning;
-`ahoy storybook-build` runs the same step on demand.
+Provisioning installs the Storybook module with the other development modules,
+then generates the stories and builds the static application into the theme's
+`storybook-static` directory, which the web server serves at `/storybook`. The
+build runs in the `local`, `ci`, and `dev` environments only, which are the
+environments where the story render route is reachable. Set
+`DRUPAL_STORYBOOK_SKIP=1` to skip the build and shorten provisioning, and run
+`ahoy storybook-stories` followed by `ahoy storybook-build` to rebuild it on
+demand.
 
 :::note
 
-The web server configuration in `.docker/config/nginx/storybook.conf` expects
-the public files directory at its default location, `sites/default/files`.
-Adjust the `alias` if the project overrides `DRUPAL_PUBLIC_FILES`.
+On Lagoon, the CLI and web containers run in separate pods, so a dedicated
+persistent `storybook` volume keeps the `storybook-static` directory shared
+between them. Acquia deployment artifacts carry no theme dependencies, so the
+application isn't built there.
 
 :::
 
