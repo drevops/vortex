@@ -7,8 +7,11 @@
 load ../_helper.bash
 
 # Runs the SSH check on its own: the helper disables every other host check
-# except the containers check.
+# except the containers check. The MINIMAL and PREFLIGHT presets override the
+# per-check flags, so a preset inherited from the environment is reset.
 fixture_variables() {
+  export VORTEX_DOCTOR_CHECK_MINIMAL=0
+  export VORTEX_DOCTOR_CHECK_PREFLIGHT=0
   export VORTEX_DOCTOR_CHECK_CONTAINERS=0
   export VORTEX_DOCTOR_CHECK_SSH=1
   export VORTEX_SSH_FILE="/home/user/.ssh/id_rsa"
