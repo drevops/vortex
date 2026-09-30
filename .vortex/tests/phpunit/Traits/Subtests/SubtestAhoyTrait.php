@@ -213,6 +213,7 @@ trait SubtestAhoyTrait {
         '* DB port                     : 3306',
         '* DB port on host             :',
         '* Solr URL on host            :',
+        '! Storybook library URL',
         '* Selenium VNC URL on host    :',
         '* Mailhog URL                 : http://mailhog.docker.amazee.io/',
         "* Xdebug                      : Disabled ('ahoy debug' to enable)",
@@ -885,12 +886,17 @@ trait SubtestAhoyTrait {
     $this->assertStorybookServed($webroot);
     $this->assertWebpageNotContains('/storybook/index.json', '"components-button--rebuilt"', 'Story index should not list a story that does not exist yet');
 
+    $this->logSubstep('Assert that project information lists the Storybook addresses');
+    $this->cmd('ahoy info', ['* Storybook library URL       : http://star_wars.docker.amazee.io/storybook', '* Storybook dev server URL    : http://localhost:'], '`ahoy info` should show the Storybook library and development server addresses');
+
+    $this->logSubstep('Start the development server and the story watcher in the container');
+    $this->cmd('ahoy storybook --smoke-test', ['* Watching', '* Smoke tests passed'], '`ahoy storybook` should start the story watcher and the development server in the container', ito: 300);
+
     $this->logSubstep('Add a story and rebuild the Storybook application');
     $this->fileBackup($stories_file);
     File::replaceContentInFile($stories_file, '{% endstories %}', $added_story);
     $this->syncToContainer($stories_file);
-    $this->cmd('ahoy storybook-stories', txt: '`ahoy storybook-stories` should compile the added story');
-    $this->cmd('ahoy storybook-build', txt: '`ahoy storybook-build` should rebuild the Storybook application in place', ito: 300);
+    $this->cmd('ahoy storybook-build', '* Storybook library is available at http://star_wars.docker.amazee.io/storybook', '`ahoy storybook-build` should compile the added story and rebuild the Storybook application in place', ito: 300);
     $this->assertWebpageContains('/storybook/index.json', '"components-button--rebuilt"', 'Rebuilt story index should list the added story');
     $this->assertStorybookServed($webroot);
 
@@ -919,6 +925,11 @@ trait SubtestAhoyTrait {
     $rendered = $this->fetchWebpageContent('/storybook/stories/render/' . $story_id . '?label=Rendered%20by%20Drupal');
     $this->assertStringContainsString('class="button"', $rendered, 'Drupal should render the button component for the story');
     $this->assertStringContainsString('Rendered by Drupal', $rendered, 'Drupal should render the story with the arguments from the request');
+
+    $render_url = escapeshellarg('http://nginx:8080/storybook/stories/render/' . $story_id);
+    $this->cmd('docker compose exec -T cli curl -s -o /dev/null -D - -H ' . escapeshellarg('Origin: http://localhost:6006') . ' ' . $render_url, '* Access-Control-Allow-Origin: http://localhost:6006', 'Story renders should be shared with the development server origin');
+    $this->cmd('docker compose exec -T cli curl -s -o /dev/null -D - -H ' . escapeshellarg('Origin: http://example.com') . ' ' . $render_url, '! Access-Control-Allow-Origin', 'Story renders should not be shared with other origins');
+    $this->cmd('docker compose exec -T cli curl -s -o /dev/null -D - http://nginx:8080/storybook/index.json', '* Cache-Control: no-cache', 'Storybook entry files should be revalidated so a rebuilt library is picked up');
   }
 
   protected function fetchStorybookStoryId(string $stories_file, string $story_name): string {

@@ -21,6 +21,7 @@ class StorybookHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/storybook');
           $test->assertFileContainsString(static::$sut . '/web/themes/custom/star_wars/package.json', '"webpack-dev-middleware"');
           $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'storybook-build');
+          $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'VORTEX_HOST_STORYBOOK_PORT');
           $test->assertFileContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'drush pm:install storybook');
       }),
     ];
@@ -36,7 +37,9 @@ class StorybookHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileNotContainsString(static::$sut . '/web/themes/custom/star_wars/package.json', '"overrides"');
           $test->assertFileNotContainsString(static::$sut . '/web/themes/custom/star_wars/package-lock.json', 'webpack-dev-middleware');
           $test->assertFileNotContainsString(static::$sut . '/.ahoy.yml', 'storybook-build');
+          $test->assertFileNotContainsString(static::$sut . '/.ahoy.yml', 'VORTEX_HOST_STORYBOOK_PORT');
           $test->assertFileNotContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'drush pm:install storybook');
+          $test->assertFileNotContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'development_settings');
       }),
     ];
   }
