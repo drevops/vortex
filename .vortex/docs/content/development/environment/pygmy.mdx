@@ -54,7 +54,7 @@ Recreate the CLI container to attach it to the current agent:
 ahoy up --no-deps --force-recreate cli
 ```
 
-Running `ahoy up` on its own doesn't help: it leaves a running container as it
-is while its configuration stays the same. [`ahoy doctor`](doctor.mdx) checks
-that the SSH key is available in the CLI container and prints this command when
-it isn't.
+Running `ahoy up` on its own isn't enough: Docker Compose leaves a running
+container alone when its configuration hasn't changed. [`ahoy doctor`](doctor.mdx)
+checks that the SSH key is available in the CLI container and prints this
+command when it isn't.
