@@ -83,20 +83,6 @@ generate_stories() {
   pass "Generated stories."
 }
 
-# Stop a development server or story watcher left running by a previous
-# session, which would otherwise hold the port.
-stop_previous_session() {
-  local pattern pid
-  for pattern in "storybook dev" "chokidar .*storybook:generate-all-stories"; do
-    for pid in $(pgrep -f "${pattern}" || true); do
-      # This script's own command line matches the first pattern.
-      if [ "${pid}" != "$$" ]; then
-        kill "${pid}" 2>/dev/null || true
-      fi
-    done
-  done
-}
-
 watch_stories() {
   # chokidar-cli runs its command through SHELL, which the CLI container does
   # not export.
@@ -140,7 +126,11 @@ case "${action}" in
   dev)
     info "Started Storybook development server."
 
-    stop_previous_session
+    # A server or watcher left running by a previous session would hold the
+    # port. The patterns match the Node processes only, so neither this script
+    # nor a shell wrapping it matches.
+    pkill -f "node .*storybook dev" || true
+    pkill -f "node .*chokidar .*storybook:generate-all-stories" || true
 
     generate_stories
 
