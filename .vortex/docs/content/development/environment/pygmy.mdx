@@ -36,3 +36,25 @@ pygmy restart  # Restart the services.
 pygmy status   # Show the status of the services.
 pygmy clean    # Stop and remove all services. Useful if you have issues with pygmy.
 ```
+
+## SSH key in the CLI container
+
+The CLI container uses the SSH agent from Pygmy's `amazeeio-ssh-agent`
+container. It mounts the agent's volume through `volumes_from` and links to the
+agent's socket only when the CLI container starts.
+
+`pygmy restart` removes the agent container and creates a new one. If the stack
+is running at the time, the CLI container stays attached to the previous agent,
+so the SSH key is no longer available inside it. The same happens when the
+stack starts before Pygmy.
+
+Recreate the CLI container to attach it to the current agent:
+
+```shell
+ahoy up --no-deps --force-recreate cli
+```
+
+Running `ahoy up` on its own doesn't help: it leaves a running container as it
+is while its configuration stays the same. [`ahoy doctor`](doctor.mdx) checks
+that the SSH key is available in the CLI container and prints this command when
+it isn't.
