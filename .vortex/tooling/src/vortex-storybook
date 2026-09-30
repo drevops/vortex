@@ -132,7 +132,7 @@ case "${action}" in
 
     generate_stories
 
-    trap 'kill $(jobs -p) 2>/dev/null' EXIT
+    trap 'kill $(jobs -p) 2>/dev/null || true' EXIT
     trap 'exit 130' INT TERM
 
     watch_stories &
