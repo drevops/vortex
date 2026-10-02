@@ -90,7 +90,7 @@ load ../_helper.bash
     "@git config --global user.email #"
     "@git config --global user.email ${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL} # 0 #"
     "@ssh-add -l # ${file}"
-    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
+    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.8.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
     "@sha256sum -c # 1"
     "SHA256 checksum verification failed for git-artifact binary."
     "- Finished artifact deployment."
@@ -130,6 +130,8 @@ load ../_helper.bash
   chmod +x "${TMPDIR:-/tmp}/git-artifact"
 
   mock_realpath=$(mock_command "realpath")
+  mock_set_output "${mock_realpath}" "${BUILD_DIR}/deploy_root" 1
+  mock_set_output "${mock_realpath}" "${BUILD_DIR}/deploy_src" 2
 
   declare -a STEPS=(
     "- Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE."
@@ -147,7 +149,7 @@ load ../_helper.bash
     "@ssh-add -l # ${file}"
     "SSH agent already has ${file} key loaded."
     "Installing artifact builder."
-    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
+    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.8.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
     "@sha256sum -c"
     "@chmod +x ${TMPDIR:-/tmp}/git-artifact"
     "Installed artifact builder."
@@ -164,9 +166,7 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-deploy-artifact
   assert_success
 
-  assert_output_not_contains "--cleanup-stale"
-  assert_output_not_contains "--cleanup-pattern"
-  assert_output_not_contains "--cleanup-age"
+  assert_output_contains "ARTIFACT_ARGS: git@github.com:yourorg/your-repo-destination.git --root=${BUILD_DIR}/deploy_root --source=${BUILD_DIR}/deploy_src --branch=main --gitignore=${BUILD_DIR}/deploy_src/.gitignore.artifact --log=deploy-report.txt -vvv"
 
   steps_run "assert" "${mocks[@]}"
   assert_equal "2" "$(mock_get_call_num "${mock_realpath}" 1)"
@@ -197,6 +197,8 @@ load ../_helper.bash
   local file=${HOME}/.ssh/id_rsa
 
   mock_realpath=$(mock_command "realpath")
+  mock_set_output "${mock_realpath}" "${BUILD_DIR}/deploy_root" 1
+  mock_set_output "${mock_realpath}" "${BUILD_DIR}/deploy_src" 2
 
   declare -a STEPS=(
     "@git config --global user.name #"
@@ -204,7 +206,7 @@ load ../_helper.bash
     "@git config --global user.email #"
     "@git config --global user.email ${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL} # 0 #"
     "@ssh-add -l # ${file}"
-    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
+    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.8.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
     "@sha256sum -c"
     "@chmod +x ${TMPDIR:-/tmp}/git-artifact"
     "Running artifact builder."
@@ -216,9 +218,7 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-deploy-artifact
   assert_success
 
-  assert_output_contains "--cleanup-stale"
-  assert_output_contains "--cleanup-pattern=feature/*,bugfix/*"
-  assert_output_contains "--cleanup-age=3"
+  assert_output_contains "ARTIFACT_ARGS: git@github.com:yourorg/your-repo-destination.git --root=${BUILD_DIR}/deploy_root --source=${BUILD_DIR}/deploy_src --branch=main --gitignore=${BUILD_DIR}/deploy_src/.gitignore.artifact --log=deploy-report.txt --cleanup-stale --cleanup-pattern=feature/*,bugfix/* --cleanup-age=3 -vvv"
 
   steps_run "assert" "${mocks[@]}"
 
