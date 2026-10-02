@@ -122,7 +122,7 @@ task "Running artifact builder."
 artifact_args=(
   "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}"
   --root="${VORTEX_DEPLOY_ARTIFACT_ROOT}"
-  --src="${VORTEX_DEPLOY_ARTIFACT_SRC}"
+  --source="${VORTEX_DEPLOY_ARTIFACT_SRC}"
   --branch="${VORTEX_DEPLOY_ARTIFACT_DST_BRANCH}"
   --gitignore="${VORTEX_DEPLOY_ARTIFACT_SRC}/.gitignore.artifact"
   --log="${VORTEX_DEPLOY_ARTIFACT_LOG}"

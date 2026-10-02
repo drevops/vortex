@@ -131,6 +131,8 @@ load ../_helper.bash
   chmod +x "${BUILD_DIR}/git-artifact"
 
   mock_realpath=$(mock_command "realpath")
+  mock_set_output "${mock_realpath}" "${BUILD_DIR}/deploy_root" 1
+  mock_set_output "${mock_realpath}" "${BUILD_DIR}/deploy_src" 2
 
   declare -a STEPS=(
     "- Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE."
@@ -164,9 +166,7 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-deploy-artifact
   assert_success
 
-  assert_output_not_contains "--cleanup-stale"
-  assert_output_not_contains "--cleanup-pattern"
-  assert_output_not_contains "--cleanup-age"
+  assert_output_contains "ARTIFACT_ARGS: git@github.com:yourorg/your-repo-destination.git --root=${BUILD_DIR}/deploy_root --source=${BUILD_DIR}/deploy_src --branch=main --gitignore=${BUILD_DIR}/deploy_src/.gitignore.artifact --log=deploy-report.txt -vvv"
 
   steps_run "assert" "${mocks[@]}"
   assert_equal "2" "$(mock_get_call_num "${mock_realpath}" 1)"
@@ -198,6 +198,8 @@ load ../_helper.bash
   local file=${HOME}/.ssh/id_rsa
 
   mock_realpath=$(mock_command "realpath")
+  mock_set_output "${mock_realpath}" "${BUILD_DIR}/deploy_root" 1
+  mock_set_output "${mock_realpath}" "${BUILD_DIR}/deploy_src" 2
 
   declare -a STEPS=(
     "@git config --global user.name #"
@@ -216,9 +218,7 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-deploy-artifact
   assert_success
 
-  assert_output_contains "--cleanup-stale"
-  assert_output_contains "--cleanup-pattern=feature/*,bugfix/*"
-  assert_output_contains "--cleanup-age=3"
+  assert_output_contains "ARTIFACT_ARGS: git@github.com:yourorg/your-repo-destination.git --root=${BUILD_DIR}/deploy_root --source=${BUILD_DIR}/deploy_src --branch=main --gitignore=${BUILD_DIR}/deploy_src/.gitignore.artifact --log=deploy-report.txt --cleanup-stale --cleanup-pattern=feature/*,bugfix/* --cleanup-age=3 -vvv"
 
   steps_run "assert" "${mocks[@]}"
 
