@@ -588,7 +588,7 @@
                 }
             },
             "entrypoint": null,
-            "image": "drevops/docker-wait-for-dependencies:canary",
+            "image": "drevops/docker-wait-for-dependencies:VERSION",
             "labels": {
                 "lagoon.type": "none"
             },
