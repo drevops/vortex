@@ -69,7 +69,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "Artifact deployment fails when git-artifact cannot be installed" {
+@test "Artifact deployment fails when SHA256 checksum does not match" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   fixture_ssh_key_prepare
@@ -90,9 +90,9 @@ load ../_helper.bash
     "@git config --global user.email #"
     "@git config --global user.email ${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL} # 0 #"
     "@ssh-add -l # ${file}"
-    "@composer create-project --no-dev --no-interaction --no-progress drevops/git-artifact:dev-main ${TMPDIR:-/tmp}/git-artifact-dev # 1"
-    "Unable to install git-artifact dev-main."
-    "- Installed artifact builder."
+    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
+    "@sha256sum -c # 1"
+    "SHA256 checksum verification failed for git-artifact binary."
     "- Finished artifact deployment."
   )
   mocks="$(steps_run "setup")"
@@ -125,10 +125,9 @@ load ../_helper.bash
   unset VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE
 
   # Echo git-artifact's arguments so the absence of cleanup flags can be
-  # asserted when no cleanup pattern is set. The 'composer' mock copies this
-  # stub into the install directory.
-  printf '#!/usr/bin/env bash\necho "ARTIFACT_ARGS: $*"\n' >"${BUILD_DIR}/git-artifact"
-  chmod +x "${BUILD_DIR}/git-artifact"
+  # asserted when no cleanup pattern is set.
+  printf '#!/usr/bin/env bash\necho "ARTIFACT_ARGS: $*"\n' >"${TMPDIR:-/tmp}/git-artifact"
+  chmod +x "${TMPDIR:-/tmp}/git-artifact"
 
   mock_realpath=$(mock_command "realpath")
   mock_set_output "${mock_realpath}" "${BUILD_DIR}/deploy_root" 1
@@ -150,8 +149,9 @@ load ../_helper.bash
     "@ssh-add -l # ${file}"
     "SSH agent already has ${file} key loaded."
     "Installing artifact builder."
-    "@composer create-project --no-dev --no-interaction --no-progress drevops/git-artifact:dev-main ${TMPDIR:-/tmp}/git-artifact-dev # 0 # # mkdir -p ${TMPDIR:-/tmp}/git-artifact-dev && cp ${BUILD_DIR}/git-artifact ${TMPDIR:-/tmp}/git-artifact-dev/git-artifact"
-    "@chmod +x ${TMPDIR:-/tmp}/git-artifact-dev/git-artifact"
+    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
+    "@sha256sum -c"
+    "@chmod +x ${TMPDIR:-/tmp}/git-artifact"
     "Installed artifact builder."
     "Copying git repo files meta file to the deploy code repo."
     "Copied git repo files meta file to the deploy code repo."
@@ -181,10 +181,9 @@ load ../_helper.bash
   fixture_ssh_key
   fixture_robo
 
-  # Echo git-artifact's arguments so the cleanup flags can be asserted. The
-  # 'composer' mock copies this stub into the install directory.
-  printf '#!/usr/bin/env bash\necho "ARTIFACT_ARGS: $*"\n' >"${BUILD_DIR}/git-artifact"
-  chmod +x "${BUILD_DIR}/git-artifact"
+  # Echo git-artifact's arguments so the cleanup flags can be asserted.
+  printf '#!/usr/bin/env bash\necho "ARTIFACT_ARGS: $*"\n' >"${TMPDIR:-/tmp}/git-artifact"
+  chmod +x "${TMPDIR:-/tmp}/git-artifact"
 
   export VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE="git@github.com:yourorg/your-repo-destination.git"
   export VORTEX_DEPLOY_ARTIFACT_DST_BRANCH="main"
@@ -207,8 +206,9 @@ load ../_helper.bash
     "@git config --global user.email #"
     "@git config --global user.email ${VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL} # 0 #"
     "@ssh-add -l # ${file}"
-    "@composer create-project --no-dev --no-interaction --no-progress drevops/git-artifact:dev-main ${TMPDIR:-/tmp}/git-artifact-dev # 0 # # mkdir -p ${TMPDIR:-/tmp}/git-artifact-dev && cp ${BUILD_DIR}/git-artifact ${TMPDIR:-/tmp}/git-artifact-dev/git-artifact"
-    "@chmod +x ${TMPDIR:-/tmp}/git-artifact-dev/git-artifact"
+    "@curl -sS -L https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact -o ${TMPDIR:-/tmp}/git-artifact"
+    "@sha256sum -c"
+    "@chmod +x ${TMPDIR:-/tmp}/git-artifact"
     "Running artifact builder."
     "Ran artifact builder."
     "Finished artifact deployment."

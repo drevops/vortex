@@ -51,8 +51,11 @@ VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT="${VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT
 # Default SSH file used if custom fingerprint is not provided.
 VORTEX_DEPLOY_ARTIFACT_SSH_FILE="${VORTEX_DEPLOY_ARTIFACT_SSH_FILE:-${VORTEX_DEPLOY_SSH_FILE:-${HOME}/.ssh/id_rsa}}"
 
-# Version of git-artifact to install, as a Composer version constraint.
-VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION="${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION:-dev-main}"
+# Version of git-artifact to download.
+VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION="${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION:-1.7.0}"
+
+# SHA256 checksum of the git-artifact binary.
+VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256="${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256:-bff9d061fb757051366d650c35e367d9b024b7146e22fbd831c734ff88f4af4d}"
 
 # Remote branches eligible for stale branch cleanup after a successful push:
 # comma-separated globs (e.g. "feature/*,bugfix/*") or a single regex literal.
@@ -76,7 +79,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 info "Started artifact deployment."
 
 # shellcheck disable=SC2043
-for cmd in composer; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
+for cmd in curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 [ -z "${VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE."
 [ -z "${VORTEX_DEPLOY_ARTIFACT_DST_BRANCH}" ] && fail "Missing required value for VORTEX_DEPLOY_ARTIFACT_DST_BRANCH."
@@ -93,12 +96,11 @@ export VORTEX_SSH_PREFIX="DEPLOY_ARTIFACT"
 . "$(dirname "${BASH_SOURCE[0]}")/vortex-setup-ssh"
 
 task "Installing artifact builder."
-git_artifact_dir="${TMPDIR:-/tmp}/git-artifact-dev"
-rm -rf "${git_artifact_dir}"
-if ! composer create-project --no-dev --no-interaction --no-progress "drevops/git-artifact:${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION}" "${git_artifact_dir}"; then
-  fail "Unable to install git-artifact ${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION}."
+curl -sS -L "https://github.com/drevops/git-artifact/releases/download/${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION}/git-artifact" -o "${TMPDIR:-/tmp}"/git-artifact
+if ! echo "${VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256}  ${TMPDIR:-/tmp}/git-artifact" | sha256sum -c; then
+  fail "SHA256 checksum verification failed for git-artifact binary."
 fi
-chmod +x "${git_artifact_dir}/git-artifact"
+chmod +x "${TMPDIR:-/tmp}"/git-artifact
 pass "Installed artifact builder."
 
 if command -v realpath >/dev/null 2>&1; then
@@ -133,7 +135,7 @@ if [ -n "${VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN}" ]; then
   artifact_args+=(--cleanup-stale --cleanup-pattern="${VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN}" --cleanup-age="${VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE}")
 fi
 
-"${git_artifact_dir}/git-artifact" "${artifact_args[@]}" -vvv
+"${TMPDIR:-/tmp}"/git-artifact "${artifact_args[@]}" -vvv
 pass "Ran artifact builder."
 
 pass "Finished artifact deployment."
