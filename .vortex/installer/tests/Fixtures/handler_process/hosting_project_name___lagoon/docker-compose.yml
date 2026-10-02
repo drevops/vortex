@@ -84,7 +84,7 @@
  
    # Helper container to wait for services to become available.
    wait-for-dependencies:
-@@ -205,6 +232,8 @@
+@@ -204,6 +231,8 @@
        - redis:6379
        - solr:8983
        - curl -s "http://solr:8983/solr/drupal/select?q=*:*&rows=0&wt=json" | grep response

@@ -1,8 +1,0 @@
-@@ -192,7 +192,6 @@
- 
-   # Helper container to wait for services to become available.
-   wait-for-dependencies:
--    # dclint disable-line service-image-require-explicit-tag
-     image: drevops/docker-wait-for-dependencies:__VERSION__
-     depends_on:
-       - clamav
