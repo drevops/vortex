@@ -114,7 +114,7 @@
  
    # Helper container to wait for services to become available.
    wait-for-dependencies:
-@@ -196,14 +246,18 @@
+@@ -197,14 +247,18 @@
      depends_on:
        - clamav
        - database

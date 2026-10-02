@@ -16,8 +16,8 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -194,12 +183,10 @@
-   wait-for-dependencies:
+@@ -195,12 +184,10 @@
+     # dclint disable-line service-image-require-explicit-tag
      image: drevops/docker-wait-for-dependencies:__VERSION__
      depends_on:
 -      - clamav

@@ -16,7 +16,7 @@
    clamav:
      build:
        context: .
-@@ -197,13 +186,10 @@
+@@ -198,13 +187,10 @@
        - clamav
        - database
        - redis
@@ -30,7 +30,7 @@
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -212,7 +198,6 @@
+@@ -213,7 +199,6 @@
  volumes:
    app: {}
    files: {}

@@ -39,8 +39,8 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -194,16 +167,9 @@
-   wait-for-dependencies:
+@@ -195,16 +168,9 @@
+     # dclint disable-line service-image-require-explicit-tag
      image: drevops/docker-wait-for-dependencies:__VERSION__
      depends_on:
 -      - clamav
@@ -56,7 +56,7 @@
  
  networks:           ### Use external networks locally. Automatically removed in CI.
    amazeeio-network: ### Automatically removed in CI.
-@@ -212,7 +178,6 @@
+@@ -213,7 +179,6 @@
  volumes:
    app: {}
    files: {}

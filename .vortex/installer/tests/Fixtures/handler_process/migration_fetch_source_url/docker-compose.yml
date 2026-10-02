@@ -35,7 +35,7 @@
    redis:
      image: uselagoon/valkey-8:__VERSION__
  
-@@ -196,11 +219,13 @@
+@@ -197,11 +220,13 @@
      depends_on:
        - clamav
        - database
