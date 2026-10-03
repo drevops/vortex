@@ -95,12 +95,21 @@ jobs:
 
       - name: Audit npm packages
         if: ${{ !cancelled() }}
-        run: npx --yes audit-ci@__VERSION__ --config audit-ci.jsonc
+        # The threshold is passed here rather than in 'audit-ci.jsonc', because
+        # audit-ci passes every advisory when no threshold is set.
+        run: |
+          config=()
+          [ -f audit-ci.jsonc ] && config=(--config audit-ci.jsonc)
+          npx --yes audit-ci@__VERSION__ --high --extra-args=--package-lock-only "${config[@]}"
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
 
       - name: Audit npm packages of the theme
         if: ${{ !cancelled() }}
-        run: npx --yes audit-ci@__VERSION__ --directory "${WEBROOT}/themes/custom/${DRUPAL_THEME}" --config "${WEBROOT}/themes/custom/${DRUPAL_THEME}/audit-ci.jsonc"
+        run: |
+          dir="${WEBROOT}/themes/custom/${DRUPAL_THEME}"
+          config=()
+          [ -f "${dir}/audit-ci.jsonc" ] && config=(--config "${dir}/audit-ci.jsonc")
+          npx --yes audit-ci@__VERSION__ --high --extra-args=--package-lock-only --directory "${dir}" "${config[@]}"
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
 
       - name: Install Vortex tooling
