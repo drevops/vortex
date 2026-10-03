@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+##
+# Audit npm packages, skipping the advisories accepted in 'package.json'.
+#
+# 'npm audit' has no list of accepted advisories, so the list is kept under the
+# 'auditIgnore' key of the audited 'package.json'. Each advisory ID maps to a
+# 'reason' and to an 'expires' date in the YYYY-MM-DD format:
+#
+#   "auditIgnore": {
+#     "GHSA-xxxx-xxxx-xxxx": {
+#       "reason": "Why the advisory does not affect the project.",
+#       "expires": "2026-12-31"
+#     }
+#   }
+#
+# The audit fails on any other advisory at or above the 'audit-level' that npm
+# reads for the audited directory, and on an entry that has expired or lacks a
+# reason or a valid date. An entry is still accepted on its expiry date. An
+# entry that matches no advisory is reported for removal.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Directory with the 'package.json' and 'package-lock.json' to audit. Also
+# accepted as the first argument.
+VORTEX_AUDIT_NPM_DIR="${1:-${VORTEX_AUDIT_NPM_DIR:-.}}"
+
+# Path of the JSON report to write, without the accepted advisories. Also
+# accepted as the second argument.
+VORTEX_AUDIT_NPM_REPORT_FILE="${2:-${VORTEX_AUDIT_NPM_REPORT_FILE:-.logs/audit/npm-audit.json}}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+# Split the advisories of the 'npm audit' report read from stdin by outcome,
+# validate the ignore entries, and keep the report without the accepted
+# advisories.
+evaluate() {
+  jq \
+    --argjson ignore "${1}" \
+    --arg today "${2}" \
+    --arg level "${3}" \
+    '
+    def rank: {"info": 0, "low": 1, "moderate": 2, "high": 3, "critical": 4, "none": 5}[.] // 0;
+
+    # npm links each advisory to its GitHub advisory page, so the last path
+    # segment is the GHSA ID that the ignore list is keyed by.
+    def advisory_id: if (.url | type) == "string" and .url != "" then (.url | split("/") | last) else "npm-\(.source)" end;
+
+    def text($value): if ($value | type) == "string" then $value else "" end;
+
+    ($ignore | to_entries | map(
+      (.value | if type == "object" then . else {} end) as $entry
+      | {id: .key, reason: text($entry.reason), expires: text($entry.expires)}
+      | .valid = (.reason != "" and (.expires | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")))
+      | .expired = (.valid and .expires < $today)
+    )) as $entries
+    | ($entries | map(select(.valid and (.expired | not))) | map({key: (.id | ascii_upcase), value: .}) | from_entries) as $active
+    | ([
+        (.vulnerabilities // {}) | to_entries[] | .key as $package
+        | (.value.via // []) | if type == "array" then .[] else empty end
+        | select(type == "object")
+        | {id: advisory_id, package: (.name // $package), severity: text(.severity), title: text(.title), url: text(.url)}
+        | .key = (.id | ascii_upcase)
+      ] | unique_by([.key, .package])) as $advisories
+    | ($advisories | map(.key)) as $reported
+    | ($advisories | map(select($active[.key] == null))) as $remaining
+    | {
+        accepted: ($advisories | map(select($active[.key] != null) | . + {expires: $active[.key].expires})),
+        below: ($remaining | map(select((.severity | rank) < ($level | rank)))),
+        blocking: ($remaining | map(select((.severity | rank) >= ($level | rank)))),
+        unused: ($active | to_entries | map(select(.key as $key | $reported | any(.[]; . == $key) | not) | .value)),
+        expired: ($entries | map(select(.expired))),
+        invalid: ($entries | map(select(.valid | not))),
+        report: (if (.vulnerabilities | type) == "object" then .vulnerabilities |= with_entries(.value.via |= (if type == "array" then map(select(type != "object" or $active[advisory_id | ascii_upcase] == null)) else . end)) else . end)
+      }
+    '
+}
+
+info "Started npm audit."
+
+command -v npm >/dev/null || fail "npm command is not available."
+command -v jq >/dev/null || fail "jq command is not available."
+
+manifest="${VORTEX_AUDIT_NPM_DIR}/package.json"
+
+[ -f "${manifest}" ] || fail "File ${manifest} does not exist."
+jq -e 'type == "object"' "${manifest}" >/dev/null 2>&1 || fail "File ${manifest} is not valid JSON."
+jq -e '(.auditIgnore // {}) | type == "object"' "${manifest}" >/dev/null || fail "The 'auditIgnore' value in ${manifest} is not an object keyed by advisory ID."
+
+# npm fails the audit on 'low' and above when no level is configured.
+level="$(npm config get audit-level --prefix="${VORTEX_AUDIT_NPM_DIR}")" || level=""
+case "${level}" in
+  info | low | moderate | high | critical | none) ;;
+  *) level="low" ;;
+esac
+
+note "Directory:   ${VORTEX_AUDIT_NPM_DIR}"
+note "Audit level: ${level}"
+note "Report:      ${VORTEX_AUDIT_NPM_REPORT_FILE}"
+
+task "Auditing npm packages."
+
+# 'npm audit' exits with a non-zero status whenever it finds an advisory, so
+# the report decides the outcome instead of the status.
+report="$(npm audit --package-lock-only --json --prefix="${VORTEX_AUDIT_NPM_DIR}")" || true
+
+if ! jq -e 'type == "object" and (has("error") | not)' >/dev/null 2>&1 <<<"${report}"; then
+  error="$(jq -r '.error.summary? // empty' 2>/dev/null <<<"${report}")" || error=""
+  fail "npm audit did not return a report.${error:+ ${error}}"
+fi
+
+pass "Audited npm packages."
+
+task "Checking advisories against the ignore list."
+
+ignore="$(jq -c '.auditIgnore // {}' "${manifest}")"
+today="$(date +%Y-%m-%d)"
+result="$(evaluate "${ignore}" "${today}" "${level}" <<<"${report}")"
+
+mkdir -p "$(dirname "${VORTEX_AUDIT_NPM_REPORT_FILE}")"
+jq '.report' <<<"${result}" >"${VORTEX_AUDIT_NPM_REPORT_FILE}"
+
+while IFS= read -r line; do
+  note "${line}"
+done < <(jq -r '
+  (.accepted[] | "Accepted until \(.expires): \(.id) in \(.package) - \(.title)"),
+  (.below[] | "Below the audit level: \(.id) (\(.severity)) in \(.package) - \(.title)"),
+  (.unused[] | "Unused: \(.id) matches no advisory. Remove it from auditIgnore."),
+  (.expired[] | "Expired: \(.id) expired on \(.expires). Resolve the advisory or renew the entry."),
+  (.invalid[] | "Invalid: \(.id) needs a reason and an expires date in the YYYY-MM-DD format."),
+  (.blocking[] | "Blocking: \(.id) (\(.severity)) in \(.package) - \(.title) \(.url)")
+' <<<"${result}")
+
+blocking="$(jq '.blocking | length' <<<"${result}")"
+broken="$(jq '(.expired | length) + (.invalid | length)' <<<"${result}")"
+
+if [ "${blocking}" -gt 0 ] || [ "${broken}" -gt 0 ]; then
+  fail "Found ${blocking} advisories at or above the '${level}' audit level and ${broken} expired or invalid ignore entries."
+fi
+
+pass "Found no advisories at or above the '${level}' audit level."
+
+pass "Finished npm audit."

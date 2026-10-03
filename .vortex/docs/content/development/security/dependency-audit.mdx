@@ -163,6 +163,9 @@ A project has 2 JavaScript dependency trees, each with its own `package.json` an
     ahoy cli "npm audit --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME}"
     # Audit from the lock file, without an installed tree
     ahoy cli "npm audit --package-lock-only"
+    # Audit the root and the theme packages as CI does, skipping accepted advisories
+    ahoy cli vendor/bin/vortex-audit-npm
+    ahoy cli "vendor/bin/vortex-audit-npm \${WEBROOT}/themes/custom/\${DRUPAL_THEME}"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -173,6 +176,9 @@ A project has 2 JavaScript dependency trees, each with its own `package.json` an
     docker compose exec cli bash -c "npm audit --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME}"
     # Audit from the lock file, without an installed tree
     docker compose exec cli npm audit --package-lock-only
+    # Audit the root and the theme packages as CI does, skipping accepted advisories
+    docker compose exec cli vendor/bin/vortex-audit-npm
+    docker compose exec cli bash -c "vendor/bin/vortex-audit-npm \${WEBROOT}/themes/custom/\${DRUPAL_THEME}"
     ```
   </TabItem>
 </Tabs>
@@ -185,13 +191,13 @@ npm fails the audit on any advisory by default. A development dependency tree of
 audit-level=high
 ```
 
-npm reads the project configuration from the directory of the `package.json` it audits, so both `.npmrc` files carry the setting - one in the project root and one in the custom theme. The accepted values are `info`, `low`, `moderate`, `high`, `critical`, and `none`; lower the value to widen what fails the build.
+npm reads the project configuration from the directory of the `package.json` it audits, so both `.npmrc` files carry the setting - one in the project root and one in the custom theme. The accepted values are `info`, `low`, `moderate`, `high`, `critical`, and `none`; lower the value to widen what fails the build. The `vortex-audit-npm` script that runs the audit in CI reads the same setting for each tree.
 
 The threshold is deliberately not a **Vortex** variable: it belongs to npm's own configuration, where a project changes it without a template variable existing for it.
 
 ### Ignoring
 
-`npm audit` has no per-advisory ignore list, so an advisory is excluded by removing the affected version from the tree. When the advisory is in a transitive dependency and a patched version exists, pin it with an `overrides` entry in `package.json`:
+When the advisory is in a transitive dependency and a patched version exists, remove the affected version from the tree by pinning the patched one with an `overrides` entry in `package.json`:
 
 ```json
 {
@@ -209,12 +215,36 @@ Record the advisory that each `overrides` entry addresses in your Git commit mes
 
 :::
 
+When no patched version exists yet, or you've assessed that the advisory doesn't affect your project, accept it under the `auditIgnore` key of the same `package.json`. It's the npm counterpart of Composer's `ignore-id` list, with an expiry date on each entry:
+
+```json
+{
+    "auditIgnore": {
+        "GHSA-xxxx-yyyy-zzzz": {
+            "reason": "Reached only through build tooling that expands glob patterns written in this project.",
+            "expires": "2026-12-31"
+        }
+    }
+}
+```
+
+npm itself has no per-advisory ignore list and doesn't read the key. The `vortex-audit-npm` script from the [Vortex tooling package](../../contributing/maintenance/tooling.mdx) runs `npm audit` and applies the list:
+
+- An advisory that isn't listed still fails the audit when its severity meets the [severity threshold](#severity-threshold).
+- An entry is accepted up to and including its `expires` date. From the next day, the advisory fails the audit again, and so does the expired entry, until the advisory is resolved or the entry is renewed.
+- An entry without a `reason`, or with an `expires` date that isn't in the `YYYY-MM-DD` format, fails the audit.
+- An entry that matches no advisory is reported in the output, so you can remove it once the affected package is updated.
+
+Each entry is keyed by the advisory's GitHub ID, the last part of the advisory link that `npm audit` prints. The root and the custom theme each have their own `package.json`, so an advisory found in both trees needs an entry in both files.
+
 ### Continuous integration
 
-**Vortex** runs `npm audit --package-lock-only` in the
+**Vortex** runs the audit in the
 [security audit workflow](../../continuous-integration/README.mdx#security-audit)
-for both dependency trees, so the audited set is exactly what the lock files
-pin and no installed tree is needed.
+for both dependency trees through the `vortex-audit-npm` script. It runs
+`npm audit --package-lock-only`, so the audited set is exactly what the lock
+files pin and no installed tree is needed, and it skips the advisories accepted
+under `auditIgnore`.
 
 #### Ignoring failures
 
@@ -229,6 +259,6 @@ printed, so a tolerated advisory stays visible in the job log.
 
 In GitHub Actions, both trees are uploaded to **Security → Code scanning** under separate categories: `npm-audit` for the root and `npm-audit-theme` for the custom theme. A finding can be traced back to the tree it came from. Each entry in a package's `via` list becomes its own alert, identified by its GHSA advisory, carrying the advisory's own CVSS score and located at the package's entry in that tree's `package-lock.json`.
 
-Dismissing an alert records the assessment but doesn't stop the check failing; that still needs the affected version removed from the tree, as described in [Ignoring](#ignoring-1).
+Advisories accepted under `auditIgnore` aren't uploaded. Dismissing an alert records the assessment but doesn't stop the check failing; that still needs an `overrides` or an `auditIgnore` entry, as described in [Ignoring](#ignoring-1).
 
 ➡️ See [Code scanning](../../continuous-integration/README.mdx#code-scanning).

@@ -105,30 +105,30 @@ jobs:
         if: ${{ !cancelled() }}
         run: mkdir -p .logs/audit
 
-      #; Each audit runs once and its machine-readable report is teed to a file,
-      #; so the log still carries the output that the conversion below reads.
+      #; Each audit runs once and writes its machine-readable report to a file
+      #; that the conversion below reads.
       - name: Audit Composer packages
         if: ${{ !cancelled() }}
         run: composer audit --locked --format=json | tee .logs/audit/composer-audit.json
         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}
 
+      - name: Install Vortex tooling
+        if: ${{ !cancelled() }}
+        run: ./scripts/vortex-tooling.sh
+
       #;< TOOL_NPM
       - name: Audit npm packages
         if: ${{ !cancelled() }}
-        run: npm audit --package-lock-only --json | tee .logs/audit/npm-audit.json
+        run: ./vendor/bin/vortex-audit-npm . .logs/audit/npm-audit.json
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
       #;> TOOL_NPM
 
       #;< DRUPAL_THEME
       - name: Audit npm packages of the theme
         if: ${{ !cancelled() }}
-        run: npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}" --json | tee .logs/audit/npm-audit-theme.json
+        run: ./vendor/bin/vortex-audit-npm "${WEBROOT}/themes/custom/${DRUPAL_THEME}" .logs/audit/npm-audit-theme.json
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
       #;> DRUPAL_THEME
-
-      - name: Install Vortex tooling
-        if: ${{ !cancelled() }}
-        run: ./scripts/vortex-tooling.sh
 
       - name: Convert Composer audit findings to SARIF
         if: ${{ !cancelled() }}

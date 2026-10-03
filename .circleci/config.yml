@@ -233,18 +233,23 @@ jobs:
           when: always
           command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
+      - run:
+          name: Install Vortex tooling
+          when: always
+          command: ./scripts/vortex-tooling.sh
+
       #;< TOOL_NPM
       - run:
           name: Audit npm packages
           when: always
-          command: npm audit --package-lock-only || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: ./vendor/bin/vortex-audit-npm . .logs/audit/npm-audit.json || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> TOOL_NPM
 
       #;< DRUPAL_THEME
       - run:
           name: Audit npm packages of the theme
           when: always
-          command: npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}" || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: ./vendor/bin/vortex-audit-npm "${WEBROOT}/themes/custom/${DRUPAL_THEME}" .logs/audit/npm-audit-theme.json || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> DRUPAL_THEME
 
       #;< CI_GITLEAKS
