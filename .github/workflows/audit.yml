@@ -105,30 +105,30 @@ jobs:
         if: ${{ !cancelled() }}
         run: mkdir -p .logs/audit
 
-      #; Each audit runs once and writes its machine-readable report to a file
-      #; that the conversion below reads.
+      #; The Composer report is teed to a file, so the log still carries the
+      #; output that the conversion below reads.
       - name: Audit Composer packages
         if: ${{ !cancelled() }}
         run: composer audit --locked --format=json | tee .logs/audit/composer-audit.json
         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}
 
-      - name: Install Vortex tooling
-        if: ${{ !cancelled() }}
-        run: ./scripts/vortex-tooling.sh
-
       #;< TOOL_NPM
       - name: Audit npm packages
         if: ${{ !cancelled() }}
-        run: ./vendor/bin/vortex-audit-npm . .logs/audit/npm-audit.json
+        run: npx --yes audit-ci@7.1.0 --config audit-ci.jsonc
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
       #;> TOOL_NPM
 
       #;< DRUPAL_THEME
       - name: Audit npm packages of the theme
         if: ${{ !cancelled() }}
-        run: ./vendor/bin/vortex-audit-npm "${WEBROOT}/themes/custom/${DRUPAL_THEME}" .logs/audit/npm-audit-theme.json
+        run: npx --yes audit-ci@7.1.0 --directory "${WEBROOT}/themes/custom/${DRUPAL_THEME}" --config "${WEBROOT}/themes/custom/${DRUPAL_THEME}/audit-ci.jsonc"
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
       #;> DRUPAL_THEME
+
+      - name: Install Vortex tooling
+        if: ${{ !cancelled() }}
+        run: ./scripts/vortex-tooling.sh
 
       - name: Convert Composer audit findings to SARIF
         if: ${{ !cancelled() }}
@@ -152,7 +152,11 @@ jobs:
       - name: Convert npm audit findings to SARIF
         if: ${{ !cancelled() }}
         continue-on-error: true
-        run: ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
+        # 'npm audit' exits non-zero on findings, which the audit steps above
+        # report.
+        run: |
+          npm audit --package-lock-only --json >.logs/audit/npm-audit.json || true
+          ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
 
       - name: Upload npm audit findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit.sarif') != '' }}
@@ -167,7 +171,9 @@ jobs:
       - name: Convert theme npm audit findings to SARIF
         if: ${{ !cancelled() }}
         continue-on-error: true
-        run: ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit-theme.json npm "${WEBROOT}/themes/custom/${DRUPAL_THEME}/package-lock.json"
+        run: |
+          npm audit --package-lock-only --json --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}" >.logs/audit/npm-audit-theme.json || true
+          ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit-theme.json npm "${WEBROOT}/themes/custom/${DRUPAL_THEME}/package-lock.json"
 
       - name: Upload theme npm audit findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit-theme.sarif') != '' }}

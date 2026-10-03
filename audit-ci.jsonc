@@ -1,0 +1,22 @@
+// audit-ci configuration for projects based on Vortex.
+//
+// Fails the security audit on npm advisories at or above the threshold, except
+// the ones in the allowlist. An allowlist entry stops applying once its expiry
+// date is reached.
+//
+// https://github.com/IBM/audit-ci
+{
+  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
+  // Keep in step with 'audit-level' in '.npmrc', which 'npm audit' reads.
+  "high": true,
+  "extra-args": ["--package-lock-only"],
+  "allowlist": [
+    {
+      "GHSA-vfj7-8cjw-p6xm": {
+        "active": true,
+        "notes": "No patched braces release exists yet. It is reached only through stylelint, which expands the glob patterns in this project's lint scripts, so no outside input reaches it and nothing from it ships with the site.",
+        "expiry": "2026-10-31"
+      }
+    }
+  ]
+}
