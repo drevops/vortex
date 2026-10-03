@@ -187,15 +187,24 @@ jobs:
           when: always
           command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
+      # The threshold is passed here rather than in 'audit-ci.jsonc', because
+      # audit-ci passes every advisory when no threshold is set.
       - run:
           name: Audit npm packages
           when: always
-          command: npx --yes audit-ci@__VERSION__ --config audit-ci.jsonc || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: |
+            config=()
+            [ -f audit-ci.jsonc ] && config=(--config audit-ci.jsonc)
+            npx --yes audit-ci@__VERSION__ --high --extra-args=--package-lock-only "${config[@]}" || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Audit npm packages of the theme
           when: always
-          command: npx --yes audit-ci@__VERSION__ --directory "${WEBROOT}/themes/custom/${DRUPAL_THEME}" --config "${WEBROOT}/themes/custom/${DRUPAL_THEME}/audit-ci.jsonc" || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: |
+            dir="${WEBROOT}/themes/custom/${DRUPAL_THEME}"
+            config=()
+            [ -f "${dir}/audit-ci.jsonc" ] && config=(--config "${dir}/audit-ci.jsonc")
+            npx --yes audit-ci@__VERSION__ --high --extra-args=--package-lock-only --directory "${dir}" "${config[@]}" || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Scan for committed secrets with Gitleaks
