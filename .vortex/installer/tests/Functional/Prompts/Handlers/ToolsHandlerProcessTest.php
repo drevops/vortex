@@ -419,6 +419,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'behat',
         'behat/behat',
+        'lullabot/mink-selenium2-driver',
         'drupal/drupal-extension',
         'ahoy test-bdd',
         'gherkinlint',
@@ -436,6 +437,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
         'behat',
         'behat/behat',
+        'lullabot/mink-selenium2-driver',
         'drupal/drupal-extension',
         'ahoy test-bdd',
         'gherkinlint',
@@ -570,6 +572,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         'ahoy test-functional',
         'behat',
         'behat/behat',
+        'lullabot/mink-selenium2-driver',
         'drupal/drupal-extension',
         'ahoy test-bdd',
         'gherkinlint',
@@ -591,6 +594,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
         'ahoy test-functional',
         'behat',
         'behat/behat',
+        'lullabot/mink-selenium2-driver',
         'drupal/drupal-extension',
         'ahoy test-bdd',
         'gherkinlint',
