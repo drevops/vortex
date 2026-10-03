@@ -1,15 +1,11 @@
-// audit-ci configuration for projects based on Vortex.
+// audit-ci allowlist for projects based on Vortex.
 //
-// Fails the security audit on npm advisories at or above the threshold, except
-// the ones in the allowlist. An allowlist entry stops applying once its expiry
-// date is reached.
+// Lists the npm advisories that the security audit skips. An entry stops
+// applying once its expiry date is reached.
 //
 // https://github.com/IBM/audit-ci
 {
   "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
-  // Keep in step with 'audit-level' in '.npmrc', which 'npm audit' reads.
-  "high": true,
-  "extra-args": ["--package-lock-only"],
   "allowlist": [
     {
       "GHSA-vfj7-8cjw-p6xm": {
