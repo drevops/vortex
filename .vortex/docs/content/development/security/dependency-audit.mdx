@@ -164,8 +164,8 @@ A project has 2 JavaScript dependency trees, each with its own `package.json` an
     # Audit from the lock file, without an installed tree
     ahoy cli "npm audit --package-lock-only"
     # Audit the root and the theme packages with the allowlist applied
-    ahoy cli "npx --yes audit-ci --config audit-ci.jsonc"
-    ahoy cli "npx --yes audit-ci --directory \${WEBROOT}/themes/custom/\${DRUPAL_THEME} --config \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/audit-ci.jsonc"
+    ahoy cli "npx --yes audit-ci --high --extra-args=--package-lock-only --config audit-ci.jsonc"
+    ahoy cli "npx --yes audit-ci --high --extra-args=--package-lock-only --directory \${WEBROOT}/themes/custom/\${DRUPAL_THEME} --config \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/audit-ci.jsonc"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -177,8 +177,8 @@ A project has 2 JavaScript dependency trees, each with its own `package.json` an
     # Audit from the lock file, without an installed tree
     docker compose exec cli npm audit --package-lock-only
     # Audit the root and the theme packages with the allowlist applied
-    docker compose exec cli npx --yes audit-ci --config audit-ci.jsonc
-    docker compose exec cli bash -c "npx --yes audit-ci --directory \${WEBROOT}/themes/custom/\${DRUPAL_THEME} --config \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/audit-ci.jsonc"
+    docker compose exec cli npx --yes audit-ci --high --extra-args=--package-lock-only --config audit-ci.jsonc
+    docker compose exec cli bash -c "npx --yes audit-ci --high --extra-args=--package-lock-only --directory \${WEBROOT}/themes/custom/\${DRUPAL_THEME} --config \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/audit-ci.jsonc"
     ```
   </TabItem>
 </Tabs>
@@ -191,7 +191,7 @@ npm fails the audit on any advisory by default. A development dependency tree of
 audit-level=high
 ```
 
-npm reads the project configuration from the directory of the `package.json` it audits, so both `.npmrc` files carry the setting - one in the project root and one in the custom theme. The accepted values are `info`, `low`, `moderate`, `high`, `critical`, and `none`; lower the value to widen what fails the build. CI runs the audit through [audit-ci](https://github.com/IBM/audit-ci), which takes its threshold from the `high` key in each tree's `audit-ci.jsonc` instead, so change both files when you move the bar.
+npm reads the project configuration from the directory of the `package.json` it audits, so both `.npmrc` files carry the setting - one in the project root and one in the custom theme. The accepted values are `info`, `low`, `moderate`, `high`, `critical`, and `none`; lower the value to widen what fails the build. CI runs the audit through [audit-ci](https://github.com/IBM/audit-ci), which takes its threshold from the `--high` flag in each CI audit step instead, so change both when you move the bar. The flag stays in the CI configuration rather than in `audit-ci.jsonc`, because `audit-ci` passes every advisory when no threshold is set.
 
 The threshold is deliberately not a **Vortex** variable: it belongs to npm's own configuration, where a project changes it without a template variable existing for it.
 
@@ -235,16 +235,16 @@ When no patched version exists yet, or you've assessed that the advisory doesn't
 - An entry stops applying once its `expiry` date is reached, or straight away if the date can't be parsed. The advisory then fails the audit again until it's resolved or the entry is renewed.
 - An entry that matches no advisory is reported with a suggestion to remove it.
 
-Key each entry by the advisory's GitHub ID, the last part of the advisory link that `npm audit` prints. The root and the custom theme each have their own `audit-ci.jsonc`, so an advisory found in both trees needs an entry in both files.
+Key each entry by the advisory's GitHub ID, the last part of the advisory link that `npm audit` prints. The root and the custom theme each have their own `audit-ci.jsonc`, so an advisory found in both trees needs an entry in both files. The file is optional: without it, the audit of that tree runs with no allowlist.
 
 ### Continuous integration
 
 **Vortex** runs the audit in the
 [security audit workflow](../../continuous-integration/README.mdx#security-audit)
 for both dependency trees with `audit-ci`, pinned to an exact version in the
-workflow. Each tree's `audit-ci.jsonc` passes `--package-lock-only` to
-`npm audit`, so the audited set is exactly what the lock files pin and no
-installed tree is needed.
+workflow. Each audit step passes `--high` and `--package-lock-only`, and adds
+the tree's `audit-ci.jsonc` when it exists. The audited set is exactly what the
+lock files pin, so no installed tree is needed.
 
 #### Ignoring failures
 
