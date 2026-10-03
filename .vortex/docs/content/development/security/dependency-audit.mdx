@@ -163,6 +163,9 @@ A project has 2 JavaScript dependency trees, each with its own `package.json` an
     ahoy cli "npm audit --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME}"
     # Audit from the lock file, without an installed tree
     ahoy cli "npm audit --package-lock-only"
+    # Audit the root and the theme packages with the allowlist applied
+    ahoy cli "npx --yes audit-ci --high --extra-args=--package-lock-only --config audit-ci.jsonc"
+    ahoy cli "npx --yes audit-ci --high --extra-args=--package-lock-only --directory \${WEBROOT}/themes/custom/\${DRUPAL_THEME} --config \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/audit-ci.jsonc"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -173,6 +176,9 @@ A project has 2 JavaScript dependency trees, each with its own `package.json` an
     docker compose exec cli bash -c "npm audit --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME}"
     # Audit from the lock file, without an installed tree
     docker compose exec cli npm audit --package-lock-only
+    # Audit the root and the theme packages with the allowlist applied
+    docker compose exec cli npx --yes audit-ci --high --extra-args=--package-lock-only --config audit-ci.jsonc
+    docker compose exec cli bash -c "npx --yes audit-ci --high --extra-args=--package-lock-only --directory \${WEBROOT}/themes/custom/\${DRUPAL_THEME} --config \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/audit-ci.jsonc"
     ```
   </TabItem>
 </Tabs>
@@ -185,13 +191,13 @@ npm fails the audit on any advisory by default. A development dependency tree of
 audit-level=high
 ```
 
-npm reads the project configuration from the directory of the `package.json` it audits, so both `.npmrc` files carry the setting - one in the project root and one in the custom theme. The accepted values are `info`, `low`, `moderate`, `high`, `critical`, and `none`; lower the value to widen what fails the build.
+npm reads the project configuration from the directory of the `package.json` it audits, so both `.npmrc` files carry the setting - one in the project root and one in the custom theme. The accepted values are `info`, `low`, `moderate`, `high`, `critical`, and `none`; lower the value to widen what fails the build. CI runs the audit through [audit-ci](https://github.com/IBM/audit-ci), which takes its threshold from the `--high` flag in each CI audit step instead, so change both when you move the bar. The flag stays in the CI configuration rather than in `audit-ci.jsonc`, because `audit-ci` passes every advisory when no threshold is set.
 
 The threshold is deliberately not a **Vortex** variable: it belongs to npm's own configuration, where a project changes it without a template variable existing for it.
 
 ### Ignoring
 
-`npm audit` has no per-advisory ignore list, so an advisory is excluded by removing the affected version from the tree. When the advisory is in a transitive dependency and a patched version exists, pin it with an `overrides` entry in `package.json`:
+When the advisory is in a transitive dependency and a patched version exists, remove the affected version from the tree by pinning the patched one with an `overrides` entry in `package.json`:
 
 ```json
 {
@@ -209,12 +215,36 @@ Record the advisory that each `overrides` entry addresses in your Git commit mes
 
 :::
 
+When no patched version exists yet, or you've assessed that the advisory doesn't affect your project, add it to the `allowlist` in the `audit-ci.jsonc` file next to the same `package.json`. `npm audit` has no per-advisory ignore list, so CI runs the audit through [audit-ci](https://github.com/IBM/audit-ci), which applies the allowlist. Put the reason in `notes` and the date to review the decision in `expiry`:
+
+```jsonc
+{
+  "allowlist": [
+    {
+      "GHSA-xxxx-yyyy-zzzz": {
+        "active": true,
+        "notes": "Reached only through build tooling that expands glob patterns written in this project.",
+        "expiry": "2026-12-31"
+      }
+    }
+  ]
+}
+```
+
+- An advisory that isn't allowlisted still fails the audit when its severity meets the [severity threshold](#severity-threshold).
+- An entry stops applying once its `expiry` date is reached, or straight away if the date can't be parsed. The advisory then fails the audit again until it's resolved or the entry is renewed.
+- An entry that matches no advisory is reported with a suggestion to remove it.
+
+Key each entry by the advisory's GitHub ID, the last part of the advisory link that `npm audit` prints. The root and the custom theme each have their own `audit-ci.jsonc`, so an advisory found in both trees needs an entry in both files. The file is optional: without it, the audit of that tree runs with no allowlist.
+
 ### Continuous integration
 
-**Vortex** runs `npm audit --package-lock-only` in the
+**Vortex** runs the audit in the
 [security audit workflow](../../continuous-integration/README.mdx#security-audit)
-for both dependency trees, so the audited set is exactly what the lock files
-pin and no installed tree is needed.
+for both dependency trees with `audit-ci`, pinned to an exact version in the
+workflow. Each audit step passes `--high` and `--package-lock-only`, and adds
+the tree's `audit-ci.jsonc` when it exists. The audited set is exactly what the
+lock files pin, so no installed tree is needed.
 
 #### Ignoring failures
 
@@ -229,6 +259,6 @@ printed, so a tolerated advisory stays visible in the job log.
 
 In GitHub Actions, both trees are uploaded to **Security → Code scanning** under separate categories: `npm-audit` for the root and `npm-audit-theme` for the custom theme. A finding can be traced back to the tree it came from. Each entry in a package's `via` list becomes its own alert, identified by its GHSA advisory, carrying the advisory's own CVSS score and located at the package's entry in that tree's `package-lock.json`.
 
-Dismissing an alert records the assessment but doesn't stop the check failing; that still needs the affected version removed from the tree, as described in [Ignoring](#ignoring-1).
+The report comes from a separate `npm audit` run, so allowlisted advisories are uploaded too. Dismissing an alert records the assessment but doesn't stop the check failing; that still needs an `overrides` entry or an allowlist entry, as described in [Ignoring](#ignoring-1).
 
 ➡️ See [Code scanning](../../continuous-integration/README.mdx#code-scanning).
