@@ -1,4 +1,4 @@
-@@ -151,19 +151,6 @@
+@@ -157,19 +157,6 @@
            sarif_file: .logs/audit/npm-audit-theme.sarif
            category: npm-audit-theme
  

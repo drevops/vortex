@@ -185,6 +185,21 @@
             ]
         },
         {
+            "description": "npm packages that CI runs at a pinned version through 'npx'. Overrides the non-root rule above, which disables npm packages outside 'package.json'.",
+            "groupName": "CI tools - All - Major, minor and patch",
+            "groupSlug": "ci-tools-all-major-minor-patch",
+            "matchManagers": [
+                "custom.regex"
+            ],
+            "matchDatasources": [
+                "npm"
+            ],
+            "schedule": [
+                "before 3am"
+            ],
+            "enabled": true
+        },
+        {
             "groupName": "GitHub Actions - All - Major, minor and patch",
             "groupSlug": "github-actions-all-major-minor-patch",
             "schedule": [
@@ -220,6 +235,18 @@
             ],
             "datasourceTemplate": "docker",
             "versioningTemplate": "docker"
+        },
+        {
+            "customType": "regex",
+            "managerFilePatterns": [
+                "/^\\.circleci/config\\.yml$/",
+                "/^\\.github/workflows/.+\\.yml$/"
+            ],
+            "matchStrings": [
+                "npx --yes (?<depName>@?[a-z0-9][a-z0-9._\\-]*(?:/[a-z0-9._\\-]+)?)@(?<currentValue>[0-9][\\w.\\-]*)"
+            ],
+            "datasourceTemplate": "npm",
+            "versioningTemplate": "npm"
         }
     ]
 }

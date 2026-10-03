@@ -188,19 +188,14 @@ jobs:
           command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
-          name: Install Vortex tooling
-          when: always
-          command: ./scripts/vortex-tooling.sh
-
-      - run:
           name: Audit npm packages
           when: always
-          command: ./vendor/bin/vortex-audit-npm . .logs/audit/npm-audit.json || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: npx --yes audit-ci@__VERSION__ --config audit-ci.jsonc || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Audit npm packages of the theme
           when: always
-          command: ./vendor/bin/vortex-audit-npm "${WEBROOT}/themes/custom/${DRUPAL_THEME}" .logs/audit/npm-audit-theme.json || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: npx --yes audit-ci@__VERSION__ --directory "${WEBROOT}/themes/custom/${DRUPAL_THEME}" --config "${WEBROOT}/themes/custom/${DRUPAL_THEME}/audit-ci.jsonc" || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Scan for committed secrets with Gitleaks

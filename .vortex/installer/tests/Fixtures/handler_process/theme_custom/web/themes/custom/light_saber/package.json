@@ -55,11 +55,5 @@
     "sass:prod": "sass scss/styles.scss build/css/light_saber.min.css --no-source-map --style=compressed",
     "uglify": "terser build/js/light_saber.min.js -o build/js/light_saber.min.js -c drop_console=true -m reserved=['jQuery','Drupal'] 2>/dev/null || true",
     "watch": "chokidar 'js/**/*.js' 'scss/**/*.scss' -c 'npm run build-dev'"
-  },
-  "auditIgnore": {
-    "GHSA-vfj7-8cjw-p6xm": {
-      "reason": "No patched braces release exists yet. It is reached only through the theme's build and lint tooling (stylelint, chokidar-cli, postcss-cli and patch-package), which expands the glob patterns written in this project, so no outside input reaches it and nothing from it ships with the site.",
-      "expires": "__VERSION__"
-    }
   }
 }

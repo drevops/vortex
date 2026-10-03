@@ -14,7 +14,7 @@
      "stylelint": "__VERSION__",
      "stylelint-config-standard": "__VERSION__",
      "stylelint-config-standard-scss": "__VERSION__",
-@@ -53,8 +55,13 @@
+@@ -53,7 +55,12 @@
      "postinstall": "patch-package",
      "sass:dev": "sass scss/styles.scss build/css/star_wars.min.css --source-map --style=expanded",
      "sass:prod": "sass scss/styles.scss build/css/star_wars.min.css --no-source-map --style=compressed",
@@ -25,6 +25,5 @@
 +  },
 +  "overrides": {
 +    "webpack-dev-middleware": "__VERSION__"
-   },
-   "auditIgnore": {
-     "GHSA-vfj7-8cjw-p6xm": {
+   }
+ }
