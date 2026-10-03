@@ -39,5 +39,11 @@
     "test-exclude": "^7.0.1",
     "glob": "^13.0.6",
     "jsdom": "^29.0.0"
+  },
+  "auditIgnore": {
+    "GHSA-vfj7-8cjw-p6xm": {
+      "reason": "No patched braces release exists yet. It is reached only through stylelint, which expands the glob patterns in this project's lint scripts, so no outside input reaches it and nothing from it ships with the site.",
+      "expires": "2026-10-31"
+    }
   }
 }

@@ -20,6 +20,7 @@
         "php": ">=8.2"
     },
     "bin": [
+        "src/vortex-audit-npm",
         "src/vortex-check-worktree-changes",
         "src/vortex-convert-audit-sarif",
         "src/vortex-deploy",
