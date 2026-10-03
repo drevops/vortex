@@ -181,11 +181,6 @@ jobs:
           command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
-          name: Install Vortex tooling
-          when: always
-          command: ./scripts/vortex-tooling.sh
-
-      - run:
           name: Scan for committed secrets with Gitleaks
           when: always
           command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]

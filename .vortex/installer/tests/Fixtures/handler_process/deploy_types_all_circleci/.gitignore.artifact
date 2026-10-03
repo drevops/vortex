@@ -42,6 +42,7 @@ web/sites/simpletest
 /.twig-cs-fixer.php
 /AGENTS.md
 /CLAUDE.md
+/audit-ci.jsonc
 /docker-compose.yml
 /eslint.config.mjs
 /renovate.json
@@ -75,6 +76,7 @@ web/sites/simpletest
 web/themes/**/node_modules
 
 # Custom theme asset sources - only compiled assets in 'build' are deployed.
+web/themes/custom/star_wars/audit-ci.jsonc
 web/themes/custom/star_wars/eslint.config.mjs
 web/themes/custom/star_wars/fonts
 web/themes/custom/star_wars/images

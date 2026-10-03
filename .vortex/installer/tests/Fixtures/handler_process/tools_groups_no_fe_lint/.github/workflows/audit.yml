@@ -1,16 +1,16 @@
-@@ -97,11 +97,6 @@
-         if: ${{ !cancelled() }}
-         run: ./scripts/vortex-tooling.sh
+@@ -93,11 +93,6 @@
+         run: composer audit --locked --format=json | tee .logs/audit/composer-audit.json
+         continue-on-error: ${{ vars.VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE == '1' }}
  
 -      - name: Audit npm packages
 -        if: ${{ !cancelled() }}
--        run: ./vendor/bin/vortex-audit-npm . .logs/audit/npm-audit.json
+-        run: npx --yes audit-ci@__VERSION__ --config audit-ci.jsonc
 -        continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
 -
        - name: Audit npm packages of the theme
          if: ${{ !cancelled() }}
-         run: ./vendor/bin/vortex-audit-npm "${WEBROOT}/themes/custom/${DRUPAL_THEME}" .logs/audit/npm-audit-theme.json
-@@ -124,19 +119,6 @@
+         run: npx --yes audit-ci@__VERSION__ --directory "${WEBROOT}/themes/custom/${DRUPAL_THEME}" --config "${WEBROOT}/themes/custom/${DRUPAL_THEME}/audit-ci.jsonc"
+@@ -124,23 +119,6 @@
          with:
            sarif_file: .logs/audit/composer-audit.sarif
            category: composer-audit
@@ -18,7 +18,11 @@
 -      - name: Convert npm audit findings to SARIF
 -        if: ${{ !cancelled() }}
 -        continue-on-error: true
--        run: ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
+-        # 'npm audit' exits non-zero on findings, which the audit steps above
+-        # report.
+-        run: |
+-          npm audit --package-lock-only --json >.logs/audit/npm-audit.json || true
+-          ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
 -
 -      - name: Upload npm audit findings to code scanning
 -        if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit.sarif') != '' }}
