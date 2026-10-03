@@ -363,7 +363,7 @@ jobs:
       # Enforce fresh DB build (do not rely on fallback caches).
       VORTEX_CI_DB_CACHE_FALLBACK: 'no'
       # Always use fresh base image for the database (if database-in-image storage is used).
-      VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:26.8.1
+      VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:canary
       # Deploy container image (if database-in-image storage is used).
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED: 1
       # Do not build the Drupal front-end.
