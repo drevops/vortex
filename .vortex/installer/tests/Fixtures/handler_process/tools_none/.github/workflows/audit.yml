@@ -7,15 +7,15 @@
 -        # The threshold is passed here rather than in 'audit-ci.jsonc', because
 -        # audit-ci passes every advisory when no threshold is set.
 -        run: |
--          config=()
--          [ -f audit-ci.jsonc ] && config=(--config audit-ci.jsonc)
--          npx --yes audit-ci@__VERSION__ --high --extra-args=--package-lock-only "${config[@]}"
+-          args=(--high --extra-args=--package-lock-only --output-format json --report-type full)
+-          [ -f audit-ci.jsonc ] && args+=(--config audit-ci.jsonc)
+-          npx --yes audit-ci@__VERSION__ "${args[@]}" | tee .logs/audit/npm-audit.json
 -        continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
 -
        - name: Audit npm packages of the theme
          if: ${{ !cancelled() }}
          run: |
-@@ -133,23 +123,6 @@
+@@ -133,19 +123,6 @@
          with:
            sarif_file: .logs/audit/composer-audit.sarif
            category: composer-audit
@@ -23,11 +23,7 @@
 -      - name: Convert npm audit findings to SARIF
 -        if: ${{ !cancelled() }}
 -        continue-on-error: true
--        # 'npm audit' exits non-zero on findings, which the audit steps above
--        # report.
--        run: |
--          npm audit --package-lock-only --json >.logs/audit/npm-audit.json || true
--          ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
+-        run: ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
 -
 -      - name: Upload npm audit findings to code scanning
 -        if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit.sarif') != '' }}
