@@ -105,8 +105,8 @@ jobs:
         if: ${{ !cancelled() }}
         run: mkdir -p .logs/audit
 
-      #; The Composer report is teed to a file, so the log still carries the
-      #; output that the conversion below reads.
+      #; Each audit runs once and its machine-readable report is teed to a file,
+      #; so the log still carries the output that the conversion below reads.
       - name: Audit Composer packages
         if: ${{ !cancelled() }}
         run: composer audit --locked --format=json | tee .logs/audit/composer-audit.json
@@ -118,9 +118,9 @@ jobs:
         # The threshold is passed here rather than in 'audit-ci.jsonc', because
         # audit-ci passes every advisory when no threshold is set.
         run: |
-          config=()
-          [ -f audit-ci.jsonc ] && config=(--config audit-ci.jsonc)
-          npx --yes audit-ci@7.1.0 --high --extra-args=--package-lock-only "${config[@]}"
+          args=(--high --extra-args=--package-lock-only --output-format json --report-type full)
+          [ -f audit-ci.jsonc ] && args+=(--config audit-ci.jsonc)
+          npx --yes audit-ci@7.1.0 "${args[@]}" | tee .logs/audit/npm-audit.json
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
       #;> TOOL_NPM
 
@@ -129,9 +129,9 @@ jobs:
         if: ${{ !cancelled() }}
         run: |
           dir="${WEBROOT}/themes/custom/${DRUPAL_THEME}"
-          config=()
-          [ -f "${dir}/audit-ci.jsonc" ] && config=(--config "${dir}/audit-ci.jsonc")
-          npx --yes audit-ci@7.1.0 --high --extra-args=--package-lock-only --directory "${dir}" "${config[@]}"
+          args=(--high --extra-args=--package-lock-only --output-format json --report-type full --directory "${dir}")
+          [ -f "${dir}/audit-ci.jsonc" ] && args+=(--config "${dir}/audit-ci.jsonc")
+          npx --yes audit-ci@7.1.0 "${args[@]}" | tee .logs/audit/npm-audit-theme.json
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
       #;> DRUPAL_THEME
 
@@ -161,11 +161,7 @@ jobs:
       - name: Convert npm audit findings to SARIF
         if: ${{ !cancelled() }}
         continue-on-error: true
-        # 'npm audit' exits non-zero on findings, which the audit steps above
-        # report.
-        run: |
-          npm audit --package-lock-only --json >.logs/audit/npm-audit.json || true
-          ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
+        run: ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
 
       - name: Upload npm audit findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit.sarif') != '' }}
@@ -180,9 +176,7 @@ jobs:
       - name: Convert theme npm audit findings to SARIF
         if: ${{ !cancelled() }}
         continue-on-error: true
-        run: |
-          npm audit --package-lock-only --json --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}" >.logs/audit/npm-audit-theme.json || true
-          ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit-theme.json npm "${WEBROOT}/themes/custom/${DRUPAL_THEME}/package-lock.json"
+        run: ./vendor/bin/vortex-convert-audit-sarif .logs/audit/npm-audit-theme.json npm "${WEBROOT}/themes/custom/${DRUPAL_THEME}/package-lock.json"
 
       - name: Upload theme npm audit findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit-theme.sarif') != '' }}

@@ -233,7 +233,7 @@ When no patched version exists yet, or you've assessed that the advisory doesn't
 
 - An advisory that isn't allowlisted still fails the audit when its severity meets the [severity threshold](#severity-threshold).
 - An entry stops applying once its `expiry` date is reached, or straight away if the date can't be parsed. The advisory then fails the audit again until it's resolved or the entry is renewed.
-- An entry that matches no advisory is reported with a suggestion to remove it.
+- In the text output, an entry that matches no advisory is reported with a suggestion to remove it.
 
 Key each entry by the advisory's GitHub ID, the last part of the advisory link that `npm audit` prints. The root and the custom theme each have their own `audit-ci.jsonc`, so an advisory found in both trees needs an entry in both files. The file is optional: without it, the audit of that tree runs with no allowlist.
 
@@ -245,6 +245,8 @@ for both dependency trees with `audit-ci`, pinned to an exact version in the
 workflow. Each audit step passes `--high` and `--package-lock-only`, and adds
 the tree's `audit-ci.jsonc` when it exists. The audited set is exactly what the
 lock files pin, so no installed tree is needed.
+
+In GitHub Actions, the audit steps print `audit-ci`'s JSON output, which is npm's own report, and the code scanning upload converts that same report. The JSON output leaves out the notes on allowlisted and unused entries, which the text output prints in CircleCI and in the [usage](#usage-1) commands.
 
 #### Ignoring failures
 
@@ -259,6 +261,6 @@ printed, so a tolerated advisory stays visible in the job log.
 
 In GitHub Actions, both trees are uploaded to **Security → Code scanning** under separate categories: `npm-audit` for the root and `npm-audit-theme` for the custom theme. A finding can be traced back to the tree it came from. Each entry in a package's `via` list becomes its own alert, identified by its GHSA advisory, carrying the advisory's own CVSS score and located at the package's entry in that tree's `package-lock.json`.
 
-The report comes from a separate `npm audit` run, so allowlisted advisories are uploaded too. Dismissing an alert records the assessment but doesn't stop the check failing; that still needs an `overrides` entry or an allowlist entry, as described in [Ignoring](#ignoring-1).
+The report is npm's own output from the same audit, before the allowlist applies, so allowlisted advisories are uploaded too. Dismissing an alert records the assessment but doesn't stop the check failing; that still needs an `overrides` entry or an allowlist entry, as described in [Ignoring](#ignoring-1).
 
 ➡️ See [Code scanning](../../continuous-integration/README.mdx#code-scanning).
