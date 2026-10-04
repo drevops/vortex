@@ -311,10 +311,11 @@ The CI security audit workflow runs `npm audit` against the root and the theme d
 
 1. **Update the affected package**: try a newer version that resolves the advisory: `npm update <package-name>`.
 2. **Review the advisory**: run `npm audit` for details, including which direct dependency pulls the affected package in, and assess whether it affects your project.
-3. **Pin a patched transitive version**: when the affected package isn't a direct dependency, add an `overrides` entry for it in `package.json` and run `npm install`. `npm audit` has no per-advisory ignore list, so this is how a specific advisory leaves the tree.
-4. **Bypass CI for a known issue**: set `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1` to let CI pass while the advisory is being addressed.
+3. **Pin a patched transitive version**: when the affected package isn't a direct dependency, add an `overrides` entry for it in `package.json` and run `npm install`.
+4. **Record an assessed exception**: if no fixed version exists or the vulnerability doesn't affect you, add it to the `allowlist` in `audit-ci.jsonc` with notes and an expiry date.
+5. **Bypass CI for a known issue**: set `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1` to let CI pass while the advisory is being addressed.
 
-➡️ See [Security > Dependency audit](security/dependency-audit.mdx#javascript-dependencies) for the severity threshold and the `overrides` mechanism.
+➡️ See [Security > Dependency audit](security/dependency-audit.mdx#javascript-dependencies) for the severity threshold, the `overrides` mechanism, and the allowlist format.
 
 ## How to set a custom maintenance theme?
 

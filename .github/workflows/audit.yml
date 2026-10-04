@@ -115,14 +115,23 @@ jobs:
       #;< TOOL_NPM
       - name: Audit npm packages
         if: ${{ !cancelled() }}
-        run: npm audit --package-lock-only --json | tee .logs/audit/npm-audit.json
+        # The threshold is passed here rather than in 'audit-ci.jsonc', because
+        # audit-ci passes every advisory when no threshold is set.
+        run: |
+          args=(--high --extra-args=--package-lock-only --output-format json --report-type full)
+          [ -f audit-ci.jsonc ] && args+=(--config audit-ci.jsonc)
+          npx --yes audit-ci@7.1.0 "${args[@]}" | tee .logs/audit/npm-audit.json
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
       #;> TOOL_NPM
 
       #;< DRUPAL_THEME
       - name: Audit npm packages of the theme
         if: ${{ !cancelled() }}
-        run: npm audit --package-lock-only --prefix="${WEBROOT}/themes/custom/${DRUPAL_THEME}" --json | tee .logs/audit/npm-audit-theme.json
+        run: |
+          dir="${WEBROOT}/themes/custom/${DRUPAL_THEME}"
+          args=(--high --extra-args=--package-lock-only --output-format json --report-type full --directory "${dir}")
+          [ -f "${dir}/audit-ci.jsonc" ] && args+=(--config "${dir}/audit-ci.jsonc")
+          npx --yes audit-ci@7.1.0 "${args[@]}" | tee .logs/audit/npm-audit-theme.json
         continue-on-error: ${{ vars.VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE == '1' }}
       #;> DRUPAL_THEME
 
