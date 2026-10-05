@@ -177,7 +177,6 @@ The configuration uses the following contexts and extensions:
 - [Drupal Extension](https://github.com/jhedstrom/drupalextension): an integration layer between Behat, Mink Extension, and Drupal. It provides step definitions for common testing scenarios specific to Drupal sites.
 - [Behat Steps](https://github.com/drevops/behat-steps): a library of re-usable Behat steps for Drupal.
 - [Behat Screenshot](https://github.com/drevops/behat-screenshot): extension and step definitions to create HTML and image screenshots on demand or when tests fail.
-- [Behat Progress Fail Output Extension](https://github.com/drevops/behat-format-progress-fail): output formatter, see [Output format](#output-format).
 
 ### FeatureContext
 
@@ -217,9 +216,7 @@ pipeline handles animation.
 
 ### Output format
 
-Out of the box, **Vortex** comes with the [Behat Progress formatter](https://github.com/drevops/behat-format-progress-fail)
-output formatter to show progress as TAP and failures inline. This lets a test
-run continue after a failure while maintaining a minimal output.
+Out of the box, **Vortex** uses Behat's built-in `progress` formatter with the `inline_failures` option turned on in `behat.yml`. It prints a dot for each passed step and the details of each failed, pending, or undefined step as soon as it happens. The test run continues after a failure while the output stays minimal.
 
 ## Observing the browser
 
