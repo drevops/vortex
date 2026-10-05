@@ -40,11 +40,6 @@ _vs="VORTEX_FETCH_DB${_db_index}_DIR"
 _vss="VORTEX_DB${_db_index}_DIR"
 VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_DIR:-./.data}}}}"
 
-# The base container image used as a fallback when the archive does not exist.
-_v="VORTEX_FETCH_DB${_db_index}_CONTAINER_REGISTRY_IMAGE_BASE"
-_vs="VORTEX_DB${_db_index}_IMAGE_BASE"
-VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="${!_v:-${!_vs:-}}"
-
 # Force fetch even if the image already exists on the host.
 _v="VORTEX_FETCH_DB${_db_index}_FORCE"
 VORTEX_FETCH_DB_FORCE="${!_v:-}"
@@ -107,12 +102,6 @@ elif [ ! -f "${archive_file}" ] && [ "${image_found_on_host}" -eq 1 ] && [ "${VO
 fi
 
 if [ "${should_fetch}" -eq 1 ]; then
-  if [ ! -f "${archive_file}" ] && [ -n "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE:-}" ]; then
-    # The base image provides a "clean slate" for the database.
-    note "Database container image was not found. Using base image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}."
-    export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}"
-  fi
-
   task "Fetching ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
 
   export VORTEX_CONTAINER_REGISTRY="${VORTEX_FETCH_DB_CONTAINER_REGISTRY}"

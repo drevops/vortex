@@ -31,6 +31,9 @@ load ../_helper.bash
   assert_output_contains "[ OK ] Fetched myorg/myapp image from the registry."
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "pull registry.example.com/myorg/myapp"
+  assert_equal "3" "$(mock_get_call_num "${mock_docker}")"
+
   popd >/dev/null
 }
 
@@ -64,31 +67,6 @@ load ../_helper.bash
 
   # Clean up
   rm -f .data/db.tar
-
-  popd >/dev/null
-}
-
-@test "fetch-db-container-registry: Use base image when archive not found and base image provided" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  mock_docker=$(mock_command "docker")
-  mock_set_side_effect "${mock_docker}" "exit 1" 1
-  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
-  mock_set_side_effect "${mock_docker}" "echo 'pulled base image'" 3
-
-  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
-  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="myorg/base"
-  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
-  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
-  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
-  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
-
-  run .vortex/tooling/src/vortex-fetch-db-container-registry
-  assert_success
-  assert_output_contains "[INFO] Started database data container image fetch."
-  assert_output_contains "Database container image was not found. Using base image myorg/base."
-  assert_output_contains "Fetching myorg/base image from the registry."
-  assert_output_contains "[ OK ] Finished database data container image fetch."
 
   popd >/dev/null
 }

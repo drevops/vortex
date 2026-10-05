@@ -9,12 +9,6 @@
 # See https://github.com/drevops/mariadb-drupal-data to seed your DB image.
 VORTEX_DB_IMAGE=
 
-# Name of the database fall-back container image to use.
-#
-# If the image specified in $VORTEX_DB_IMAGE does not exist and base
-# image was provided - it will be used as a "clean slate" for the database.
-VORTEX_DB_IMAGE_BASE=
-
 # Password replacement used for sanitized database.
 VORTEX_PROVISION_SANITIZE_DB_PASSWORD="<RANDOM STRING>"
 
