@@ -39,9 +39,8 @@
         "drush/drush": "^13.8.0"
     },
     "require-dev": {
-        "behat/behat": "^3.33.0",
+        "behat/behat": "^3.34.0",
         "dantleech/gherkin-lint": "^0.2.4",
-        "drevops/behat-format-progress-fail": "^1.5.1",
         "drevops/behat-screenshot": "^2.6.0",
         "drevops/behat-steps": "^3.14.2",
         "drevops/phpcs-standard": "^1.1.0",

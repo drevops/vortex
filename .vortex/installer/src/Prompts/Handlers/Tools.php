@@ -497,7 +497,6 @@ class Tools extends AbstractHandler {
         'title' => 'Behat',
         'present' => fn(): mixed => File::contains($this->destinationDir . '/composer.json', 'behat/behat') ||
           File::contains($this->destinationDir . '/composer.json', 'drupal/drupal-extension') ||
-          File::contains($this->destinationDir . '/composer.json', 'drevops/behat-format-progress-fail') ||
           File::contains($this->destinationDir . '/composer.json', 'drevops/behat-screenshot') ||
           File::contains($this->destinationDir . '/composer.json', 'drevops/behat-steps') ||
           File::exists($this->destinationDir . '/behat.yml'),
@@ -505,7 +504,6 @@ class Tools extends AbstractHandler {
           $cj->removeSubNode('require-dev', 'behat/behat');
           $cj->removeSubNode('require-dev', 'drupal/drupal-extension');
           $cj->removeSubNode('require-dev', 'dantleech/gherkin-lint');
-          $cj->removeSubNode('require-dev', 'drevops/behat-format-progress-fail');
           $cj->removeSubNode('require-dev', 'drevops/behat-screenshot');
           $cj->removeSubNode('require-dev', 'drevops/behat-steps');
         },

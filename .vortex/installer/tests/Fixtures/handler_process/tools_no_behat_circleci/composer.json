@@ -1,10 +1,9 @@
-@@ -36,14 +36,8 @@
+@@ -36,13 +36,8 @@
          "drush/drush": "__VERSION__"
      },
      "require-dev": {
 -        "behat/behat": "__VERSION__",
 -        "dantleech/gherkin-lint": "__VERSION__",
--        "drevops/behat-format-progress-fail": "__VERSION__",
 -        "drevops/behat-screenshot": "__VERSION__",
 -        "drevops/behat-steps": "__VERSION__",
          "drevops/phpcs-standard": "__VERSION__",
