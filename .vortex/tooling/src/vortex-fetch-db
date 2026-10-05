@@ -49,9 +49,8 @@ VORTEX_FETCH_DB_IMAGE="${!_v:-${!_vs:-}}"
 # Base container image for the database container image.
 #
 # When set together with the database container image, the base image is
-# tagged as the database container image. The database service then starts
-# with an empty database, and provisioning imports the fetched dump into it.
-# Not used with the "container_registry" source.
+# pulled and tagged as the database container image. Not used with the
+# "container_registry" source.
 _v="VORTEX_FETCH_DB${_db_index}_IMAGE_BASE"
 _vs="VORTEX_DB${_db_index}_IMAGE_BASE"
 VORTEX_FETCH_DB_IMAGE_BASE="${!_v:-${!_vs:-}}"
