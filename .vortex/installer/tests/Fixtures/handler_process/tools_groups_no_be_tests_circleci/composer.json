@@ -1,10 +1,9 @@
-@@ -36,23 +36,15 @@
+@@ -36,22 +36,15 @@
          "drush/drush": "__VERSION__"
      },
      "require-dev": {
 -        "behat/behat": "__VERSION__",
 -        "dantleech/gherkin-lint": "__VERSION__",
--        "drevops/behat-format-progress-fail": "__VERSION__",
 -        "drevops/behat-screenshot": "__VERSION__",
 -        "drevops/behat-steps": "__VERSION__",
          "drevops/phpcs-standard": "__VERSION__",
@@ -22,7 +21,7 @@
          "pyrech/composer-changelogs": "__VERSION__",
          "softcreatr/jsonpath": "^0.10 || ^1.0",
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
-@@ -68,11 +60,6 @@
+@@ -67,11 +60,6 @@
      ],
      "minimum-stability": "stable",
      "prefer-stable": true,
