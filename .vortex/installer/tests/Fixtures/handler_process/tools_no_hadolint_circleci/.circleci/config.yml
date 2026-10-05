@@ -275,7 +275,7 @@ jobs:
             # A database built from the base image is empty, so it is
             # provisioned from the dump file without the image.
             provision_db_image="${VORTEX_DB_IMAGE:-}"
-            [ -n "${VORTEX_DB_IMAGE_BASE:-}" ] && provision_db_image=""
+            [ -n "${VORTEX_DB_IMAGE_BASE:-}" ] && [ "${VORTEX_FETCH_DB_SOURCE:-url}" != "container_registry" ] && provision_db_image=""
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 VORTEX_DB_IMAGE=${provision_db_image} ./vendor/bin/vortex-provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
             ./vendor/bin/vortex-export-db db.sql
