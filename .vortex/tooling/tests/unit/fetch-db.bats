@@ -269,9 +269,8 @@ EOF
   export VORTEX_FETCH_DB2_PROCEED="1"
   export VORTEX_FETCH_DB2_DIR=".data"
   export VORTEX_FETCH_DB2_FILE="db2.sql"
-  # The shorthand form for the image and the long form for the base image.
   export VORTEX_DB2_IMAGE="myorg/migration-db:latest"
-  export VORTEX_FETCH_DB2_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_DB2_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
 
   run .vortex/tooling/src/vortex-fetch-db
   assert_success
