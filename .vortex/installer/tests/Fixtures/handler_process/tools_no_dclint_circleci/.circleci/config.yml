@@ -311,6 +311,8 @@ jobs:
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
       # Enforce fresh DB build (do not rely on fallback caches).
       VORTEX_CI_DB_CACHE_FALLBACK: 'no'
+      # Import the fetched dump into a clean base image (if database-in-image storage is used).
+      VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:__VERSION__
       # Deploy container image (if database-in-image storage is used).
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED: 1
       # Do not build the Drupal front-end.
