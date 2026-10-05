@@ -2209,6 +2209,68 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
+@test "Provision: DB; no site; with container image; base image; no dump file; fallback to profile" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Remove .env file to test in isolation.
+  rm ./.env && touch ./.env
+  rm -f ./scripts/provision-20-migration.sh
+  rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
+
+  export CI=1
+  export VORTEX_DB_IMAGE="drevops/vortex-dev-mariadb-drupal-data-test-11.x:latest"
+  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_PROVISION_FALLBACK_TO_PROFILE=1
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # fail"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
+
+    # Site provisioning information with container and base images.
+    "DB dump file path              : $(pwd)/.data/db.sql (absent)"
+    "DB base container image        : ${VORTEX_DB_IMAGE_BASE}"
+    "Existing site was not found."
+    "Database container image uses base image ${VORTEX_DB_IMAGE_BASE}."
+    "Fresh site content will be imported from the database dump file."
+
+    # The missing dump file falls back to profile installation.
+    "Database dump file is not available. Falling back to profile installation."
+    "@drush -y sql:drop"
+    "@drush -y site:install standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
+    "@drush -y pm:install shield"
+    "Installed a site from the profile."
+
+    # Should NOT see the import failure or the corrupted image messages.
+    "- Unable to import database from file."
+    "- Looks like the database in the container image is corrupted."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
+
+    # Post-provision operations skipped.
+    "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+
+    # Installation completion.
+    "Finished site provisioning"
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-provision
+  assert_success
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Provision: DB; no site; cache rebuild skip" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
