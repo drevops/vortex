@@ -121,6 +121,213 @@ EOF
   popd >/dev/null
 }
 
+@test "fetch-db: Tag base image as the database container image for a dump source" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .vortex/tooling/src
+  cat >.vortex/tooling/src/vortex-fetch-db-url <<'EOF'
+#!/usr/bin/env bash
+echo "Started database dump fetch from URL."
+echo "Finished database dump fetch from URL."
+EOF
+  chmod +x .vortex/tooling/src/vortex-fetch-db-url
+
+  cat >.vortex/tooling/src/vortex-login-container-registry <<'EOF'
+#!/usr/bin/env bash
+echo "Logged in to the container registry."
+EOF
+  chmod +x .vortex/tooling/src/vortex-login-container-registry
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "echo 'pulled base image'" 1
+  mock_set_side_effect "${mock_docker}" "echo 'tagged base image'" 2
+
+  mock_ls=$(mock_command "ls")
+  mock_set_output "${mock_ls}" "total 0" 1
+
+  mkdir -p .data
+
+  export VORTEX_FETCH_DB_SOURCE="url"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_DIR=".data"
+  export VORTEX_FETCH_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_SEMAPHORE=".data/.fetch-db-fresh"
+  export VORTEX_DB_IMAGE="myorg/myapp:latest"
+  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_success
+  assert_output_contains "Started database dump fetch from URL."
+  assert_output_contains "Logged in to the container registry."
+  assert_output_contains "Tagging base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/myapp:latest."
+  assert_output_contains "[ OK ] Tagged base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/myapp:latest."
+  assert_output_contains "Finished database fetch."
+  assert_file_exists ".data/.fetch-db-fresh"
+
+  # The pull and the tag.
+  assert_equal "2" "$(mock_get_call_num "${mock_docker}")"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 1)" "pull drevops/mariadb-drupal-data:26.10.0"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 2)" "tag drevops/mariadb-drupal-data:26.10.0 myorg/myapp:latest"
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Skip base image for the container registry source" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .vortex/tooling/src
+  cat >.vortex/tooling/src/vortex-fetch-db-container-registry <<'EOF'
+#!/usr/bin/env bash
+echo "Started database data container image fetch."
+echo "Finished database data container image fetch."
+EOF
+  chmod +x .vortex/tooling/src/vortex-fetch-db-container-registry
+
+  mock_docker=$(mock_command "docker")
+
+  mock_ls=$(mock_command "ls")
+  mock_set_output "${mock_ls}" "total 0" 1
+
+  export VORTEX_FETCH_DB_SOURCE="container_registry"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_DIR=".data"
+  export VORTEX_DB_IMAGE="myorg/myapp:latest"
+  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_success
+  assert_output_contains "Started database data container image fetch."
+  assert_output_contains "Skipped base image drevops/mariadb-drupal-data:26.10.0 as the container_registry source fetches the database container image."
+  assert_output_not_contains "Tagging base image"
+  assert_output_contains "Finished database fetch."
+
+  assert_equal "0" "$(mock_get_call_num "${mock_docker}")"
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Ignore base image without a database container image" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .vortex/tooling/src
+  cat >.vortex/tooling/src/vortex-fetch-db-url <<'EOF'
+#!/usr/bin/env bash
+echo "Started database dump fetch from URL."
+echo "Finished database dump fetch from URL."
+EOF
+  chmod +x .vortex/tooling/src/vortex-fetch-db-url
+
+  mock_docker=$(mock_command "docker")
+
+  mock_ls=$(mock_command "ls")
+  mock_set_output "${mock_ls}" "total 0" 1
+
+  export VORTEX_FETCH_DB_SOURCE="url"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_DIR=".data"
+  export VORTEX_FETCH_DB_FILE="db.sql"
+  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_success
+  assert_output_contains "Started database dump fetch from URL."
+  assert_output_not_contains "Tagging base image"
+  assert_output_not_contains "Skipped base image"
+  assert_output_contains "Finished database fetch."
+
+  assert_equal "0" "$(mock_get_call_num "${mock_docker}")"
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Resolve indexed base image variables with VORTEX_DB_INDEX" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .vortex/tooling/src
+  cat >.vortex/tooling/src/vortex-fetch-db-url <<'EOF'
+#!/usr/bin/env bash
+echo "Started database dump fetch from URL."
+echo "Finished database dump fetch from URL."
+EOF
+  chmod +x .vortex/tooling/src/vortex-fetch-db-url
+
+  cat >.vortex/tooling/src/vortex-login-container-registry <<'EOF'
+#!/usr/bin/env bash
+echo "Logged in to the container registry."
+EOF
+  chmod +x .vortex/tooling/src/vortex-login-container-registry
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "echo 'pulled base image'" 1
+  mock_set_side_effect "${mock_docker}" "echo 'tagged base image'" 2
+
+  mock_ls=$(mock_command "ls")
+  mock_set_output "${mock_ls}" "total 0" 1
+
+  export VORTEX_DB_INDEX="2"
+  export VORTEX_FETCH_DB2_SOURCE="url"
+  export VORTEX_FETCH_DB2_PROCEED="1"
+  export VORTEX_FETCH_DB2_DIR=".data"
+  export VORTEX_FETCH_DB2_FILE="db2.sql"
+  # The shorthand form for the image and the long form for the base image.
+  export VORTEX_DB2_IMAGE="myorg/migration-db:latest"
+  export VORTEX_FETCH_DB2_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_success
+  assert_output_contains "Started database 2 fetch."
+  assert_output_contains "Tagging base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/migration-db:latest."
+  assert_output_contains "Finished database 2 fetch."
+
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 2)" "tag drevops/mariadb-drupal-data:26.10.0 myorg/migration-db:latest"
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Fail when the base image pull fails" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .vortex/tooling/src
+  cat >.vortex/tooling/src/vortex-fetch-db-url <<'EOF'
+#!/usr/bin/env bash
+echo "Started database dump fetch from URL."
+echo "Finished database dump fetch from URL."
+EOF
+  chmod +x .vortex/tooling/src/vortex-fetch-db-url
+
+  cat >.vortex/tooling/src/vortex-login-container-registry <<'EOF'
+#!/usr/bin/env bash
+echo "Logged in to the container registry."
+EOF
+  chmod +x .vortex/tooling/src/vortex-login-container-registry
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "exit 1" 1
+
+  mkdir -p .data
+
+  export VORTEX_FETCH_DB_SOURCE="url"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_DIR=".data"
+  export VORTEX_FETCH_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_SEMAPHORE=".data/.fetch-db-fresh"
+  export VORTEX_DB_IMAGE="myorg/myapp:latest"
+  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_failure
+  assert_output_contains "Tagging base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/myapp:latest."
+  assert_output_not_contains "Tagged base image"
+  assert_output_not_contains "Finished database fetch."
+  # A failed fetch leaves no semaphore, so the export step does not run.
+  assert_file_not_exists ".data/.fetch-db-fresh"
+
+  # The failed pull is the only call: nothing is tagged.
+  assert_equal "1" "$(mock_get_call_num "${mock_docker}")"
+
+  popd >/dev/null
+}
+
 @test "fetch-db: Resolve indexed long-form variables with VORTEX_DB_INDEX" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

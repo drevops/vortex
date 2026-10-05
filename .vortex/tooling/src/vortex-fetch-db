@@ -41,6 +41,21 @@ _v="VORTEX_FETCH_DB${_db_index}_DIR"
 _vs="VORTEX_DB${_db_index}_DIR"
 VORTEX_FETCH_DB_DIR="${!_v:-${!_vs:-${VORTEX_DB_DIR:-./.data}}}"
 
+# Name of the pre-built database container image.
+_v="VORTEX_FETCH_DB${_db_index}_IMAGE"
+_vs="VORTEX_DB${_db_index}_IMAGE"
+VORTEX_FETCH_DB_IMAGE="${!_v:-${!_vs:-}}"
+
+# Base container image for the database container image.
+#
+# When set together with the database container image, the base image is
+# tagged as the database container image. The database service then starts
+# with an empty database, and provisioning imports the fetched dump into it.
+# Not used with the "container_registry" source.
+_v="VORTEX_FETCH_DB${_db_index}_IMAGE_BASE"
+_vs="VORTEX_DB${_db_index}_IMAGE_BASE"
+VORTEX_FETCH_DB_IMAGE_BASE="${!_v:-${!_vs:-}}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -98,6 +113,19 @@ fi
 
 if [ "${VORTEX_FETCH_DB_SOURCE}" = "s3" ]; then
   "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db-s3"
+fi
+
+if [ -n "${VORTEX_FETCH_DB_IMAGE_BASE}" ] && [ -n "${VORTEX_FETCH_DB_IMAGE}" ]; then
+  if [ "${VORTEX_FETCH_DB_SOURCE}" = "container_registry" ]; then
+    note "Skipped base image ${VORTEX_FETCH_DB_IMAGE_BASE} as the container_registry source fetches the database container image."
+  else
+    "$(dirname "${BASH_SOURCE[0]}")/vortex-login-container-registry"
+
+    task "Tagging base image ${VORTEX_FETCH_DB_IMAGE_BASE} as database container image ${VORTEX_FETCH_DB_IMAGE}."
+    docker pull "${VORTEX_FETCH_DB_IMAGE_BASE}"
+    docker tag "${VORTEX_FETCH_DB_IMAGE_BASE}" "${VORTEX_FETCH_DB_IMAGE}"
+    pass "Tagged base image ${VORTEX_FETCH_DB_IMAGE_BASE} as database container image ${VORTEX_FETCH_DB_IMAGE}."
+  fi
 fi
 
 ls -Alh "${VORTEX_FETCH_DB_DIR}" || true

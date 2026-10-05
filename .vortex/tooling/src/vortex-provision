@@ -111,6 +111,12 @@ VORTEX_PROVISION_DB_FILE="${VORTEX_PROVISION_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}
 # Name of the pre-built database container image.
 VORTEX_PROVISION_DB_IMAGE="${VORTEX_PROVISION_DB_IMAGE:-${VORTEX_DB_IMAGE:-}}"
 
+# Base container image for the database container image.
+#
+# When set together with the database container image, an empty database is
+# provisioned from the database dump file instead of failing.
+VORTEX_PROVISION_DB_IMAGE_BASE="${VORTEX_PROVISION_DB_IMAGE_BASE:-${VORTEX_DB_IMAGE_BASE:-}}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -165,6 +171,7 @@ note "Config files path              : ${config_path}"
 note "DB dump file path              : ${VORTEX_PROVISION_DB} ($([ -f "${VORTEX_PROVISION_DB}" ] && echo "present" || echo "absent"))"
 if [ -n "${VORTEX_PROVISION_DB_IMAGE:-}" ]; then
   note "DB dump container image        : ${VORTEX_PROVISION_DB_IMAGE-}"
+  [ -n "${VORTEX_PROVISION_DB_IMAGE_BASE:-}" ] && note "DB base container image        : ${VORTEX_PROVISION_DB_IMAGE_BASE}"
 fi
 echo
 note "Profile                        : ${DRUPAL_PROFILE}"
@@ -260,7 +267,7 @@ if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
   else
     note "Existing site was not found."
 
-    if [ -n "${VORTEX_PROVISION_DB_IMAGE-}" ]; then
+    if [ -n "${VORTEX_PROVISION_DB_IMAGE-}" ] && [ -z "${VORTEX_PROVISION_DB_IMAGE_BASE-}" ]; then
       note "Database is baked into the container image."
       if [ "${VORTEX_PROVISION_FALLBACK_TO_PROFILE}" = "1" ]; then
         info "Database in the container image is not available. Falling back to profile installation."
@@ -271,6 +278,7 @@ if [ "${VORTEX_PROVISION_TYPE}" = "database" ]; then
         fail "Looks like the database in the container image is corrupted."
       fi
     else
+      [ -n "${VORTEX_PROVISION_DB_IMAGE-}" ] && note "Database container image uses base image ${VORTEX_PROVISION_DB_IMAGE_BASE}."
       note "Fresh site content will be imported from the database dump file."
       provision_from_db
       # The exported flag tells downstream scripts that the database is fresh.

@@ -21,6 +21,9 @@ VORTEX_DEPLOY_ALLOW_LABEL=
 # Proceed with container image push after it was exported.
 VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=
 
+# Base container image to import the fetched database dump into when refreshing the database container image ($VORTEX_DB_IMAGE). Set in the scheduled database job; not used with the `container_registry` fetch source.
+VORTEX_DB_IMAGE_BASE=
+
 # Set to `1` to remove preinstalled toolchains from the GitHub Actions runner and free disk space.
 VORTEX_CI_FREE_DISK_SPACE=
 
