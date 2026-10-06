@@ -7,14 +7,14 @@ Feature: Login
 
   @api
   Scenario: Administrator user logs in
-    When I log in as a user with the "administer site configuration, access administration pages" permissions
+    When I log in as a user with the permissions "administer site configuration, access administration pages"
     And I go to "admin"
     Then the path should be "/admin"
     And I save screenshot
 
   @api @javascript
   Scenario: Administrator user logs in using a real browser
-    When I log in as a user with the "administer site configuration, access administration pages" permissions
+    When I log in as a user with the permissions "administer site configuration, access administration pages"
     And I go to "admin"
     Then the path should be "/admin"
     And I save screenshot
