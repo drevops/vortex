@@ -125,7 +125,7 @@ In the `ci` environment, [`settings.system.php`](https://github.com/drevops/vort
 
 The collector covers `interface.default`, which is the only interface the shipped configuration defines. A site that routes a module through its own interface (`interface.<module>` or `interface.<module>_<key>`, as [Symfony Mailer](https://www.drupal.org/project/symfony_mailer) and [Mail System](https://www.drupal.org/project/mailsystem) do) bypasses the collector for those messages. For that reason, `docker-compose.yml` also points `SSMTP_MAILHUB` at a closed port in CI. Delivery then fails at the transport no matter which mail plugin produced the message.
 
-The bare `When I clear the test email system queue` step still requires the `@email` tag, and each tagged scenario clears the queue as it starts.
+The bare `When I clear the test email system queue` step still requires the `@email` tag or an earlier `When I enable the test email system` step, and each tagged scenario clears the queue as it starts.
 
 ### Project conventions
 
@@ -174,8 +174,8 @@ to ensure stable and deterministic test execution in the container environment:
 
 The configuration uses the following contexts and extensions:
 
-- [Behat Steps](https://github.com/drevops/behat-steps): a library of re-usable Behat steps for Drupal. It also supplies the Mink and Drupal integration layer, registered as the `DrevOps\BehatSteps\Behat\Mink\ServiceContainer\MinkExtension` and `DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension` extensions.
-- [Mink Extension](https://github.com/FriendsOfBehat/MinkExtension): the base browser vocabulary, registered as the `Behat\MinkExtension\Context\MinkContext` context.
+- [Behat Steps](https://github.com/drevops/behat-steps): a library of re-usable Behat steps for Drupal. It also supplies the Drupal integration layer, registered as the `DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension` extension.
+- [Mink Extension](https://github.com/FriendsOfBehat/MinkExtension): the browser sessions and the base browser vocabulary, registered as the `Behat\MinkExtension` extension and the `Behat\MinkExtension\Context\MinkContext` context.
 - [Behat Screenshot](https://github.com/drevops/behat-screenshot): extension and step definitions to create HTML and image screenshots on demand or when tests fail.
 
 ### FeatureContext

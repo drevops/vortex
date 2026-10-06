@@ -7,7 +7,8 @@
 
 declare(strict_types=1);
 
-use DrevOps\BehatSteps\Behat\Context\RawContext;
+use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
+use DrevOps\BehatSteps\Behat\Context\WebRawContext;
 use DrevOps\BehatSteps\Steps\Drupal\BatchTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BlockTrait;
@@ -39,38 +40,38 @@ use DrevOps\BehatSteps\Steps\Drupal\TestmodeTrait;
 // phpcs:ignore #;> MODULE_TESTMODE
 use DrevOps\BehatSteps\Steps\Drupal\UserTrait;
 use DrevOps\BehatSteps\Steps\Drupal\WatchdogTrait;
-use DrevOps\BehatSteps\Steps\Generic\AccessibilityTrait;
-use DrevOps\BehatSteps\Steps\Generic\BasicAuthTrait;
-use DrevOps\BehatSteps\Steps\Generic\CommandTrait;
-use DrevOps\BehatSteps\Steps\Generic\CookieTrait;
-use DrevOps\BehatSteps\Steps\Generic\DateTrait;
-use DrevOps\BehatSteps\Steps\Generic\DiagnosticsTrait;
-use DrevOps\BehatSteps\Steps\Generic\ElementTrait;
-use DrevOps\BehatSteps\Steps\Generic\FieldTrait;
-use DrevOps\BehatSteps\Steps\Generic\FileDownloadTrait;
-use DrevOps\BehatSteps\Steps\Generic\IframeTrait;
-use DrevOps\BehatSteps\Steps\Generic\JavascriptTrait;
-use DrevOps\BehatSteps\Steps\Generic\JsonTrait;
-use DrevOps\BehatSteps\Steps\Generic\KeyboardTrait;
-use DrevOps\BehatSteps\Steps\Generic\LinkTrait;
-use DrevOps\BehatSteps\Steps\Generic\MappingTrait;
-use DrevOps\BehatSteps\Steps\Generic\MessageTrait;
-use DrevOps\BehatSteps\Steps\Generic\MetatagTrait;
-use DrevOps\BehatSteps\Steps\Generic\ModalTrait;
-use DrevOps\BehatSteps\Steps\Generic\PathTrait;
-use DrevOps\BehatSteps\Steps\Generic\RandomTrait;
-use DrevOps\BehatSteps\Steps\Generic\RegionTrait;
-use DrevOps\BehatSteps\Steps\Generic\ResponseTrait;
-use DrevOps\BehatSteps\Steps\Generic\ResponsiveTrait;
-use DrevOps\BehatSteps\Steps\Generic\RestTrait;
-use DrevOps\BehatSteps\Steps\Generic\TableTrait;
-use DrevOps\BehatSteps\Steps\Generic\WaitTrait;
-use DrevOps\BehatSteps\Steps\Generic\XmlTrait;
+use DrevOps\BehatSteps\Steps\Web\AccessibilityTrait;
+use DrevOps\BehatSteps\Steps\Web\BasicAuthTrait;
+use DrevOps\BehatSteps\Steps\Web\CommandTrait;
+use DrevOps\BehatSteps\Steps\Web\CookieTrait;
+use DrevOps\BehatSteps\Steps\Web\DateTrait;
+use DrevOps\BehatSteps\Steps\Web\DiagnosticsTrait;
+use DrevOps\BehatSteps\Steps\Web\ElementTrait;
+use DrevOps\BehatSteps\Steps\Web\FieldTrait;
+use DrevOps\BehatSteps\Steps\Web\FileDownloadTrait;
+use DrevOps\BehatSteps\Steps\Web\IframeTrait;
+use DrevOps\BehatSteps\Steps\Web\JavascriptTrait;
+use DrevOps\BehatSteps\Steps\Web\JsonTrait;
+use DrevOps\BehatSteps\Steps\Web\KeyboardTrait;
+use DrevOps\BehatSteps\Steps\Web\LinkTrait;
+use DrevOps\BehatSteps\Steps\Web\MappingTrait;
+use DrevOps\BehatSteps\Steps\Web\MessageTrait;
+use DrevOps\BehatSteps\Steps\Web\MetatagTrait;
+use DrevOps\BehatSteps\Steps\Web\ModalTrait;
+use DrevOps\BehatSteps\Steps\Web\PathTrait;
+use DrevOps\BehatSteps\Steps\Web\RandomTrait;
+use DrevOps\BehatSteps\Steps\Web\RegionTrait;
+use DrevOps\BehatSteps\Steps\Web\ResponseTrait;
+use DrevOps\BehatSteps\Steps\Web\ResponsiveTrait;
+use DrevOps\BehatSteps\Steps\Web\RestTrait;
+use DrevOps\BehatSteps\Steps\Web\TableTrait;
+use DrevOps\BehatSteps\Steps\Web\WaitTrait;
+use DrevOps\BehatSteps\Steps\Web\XmlTrait;
 
 /**
  * Defines application features from the specific context.
  */
-class FeatureContext extends RawContext {
+class FeatureContext extends WebRawContext implements UserAwareInterface {
 
   use AccessibilityTrait;
   use BasicAuthTrait;

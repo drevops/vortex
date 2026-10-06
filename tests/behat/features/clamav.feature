@@ -18,7 +18,7 @@ Feature: ClamAV Anti-virus
 
   @api
   Scenario: Upload EICAR test file to trigger virus detection
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     And I go to "media/add/document"
     And I attach the file "public://eicar_test.txt" to "files[field_media_document_0]"
     And I press "Upload"
@@ -29,7 +29,7 @@ Feature: ClamAV Anti-virus
 
   @api
   Scenario: Upload test file to ensure that file upload works
-    When I log in as a user with the "administrator" role
+    When I log in as a user with the role "administrator"
     And I go to "media/add/document"
     And I attach the file "public://test.txt" to "files[field_media_document_0]"
     And I press "Upload"

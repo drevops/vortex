@@ -425,7 +425,7 @@ Scenario: Quick smoke test (untagged, stays on the first container)
 
 @p1
 Scenario: Full content workflow (runs on the second container)
-  Given I am logged in as a content editor
+  When I log in as a user with the role "content_editor"
   ...
 ```
 
