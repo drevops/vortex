@@ -5,7 +5,6 @@ Feature: Redis cache functionality
   I want to verify that Redis caching is working properly
   So that I can ensure optimal site performance and caching functionality
 
-  @api
   Scenario: Redis is working properly
     When I log in as a user with the role "administrator"
     And I go to "/admin/reports/redis"

@@ -5,7 +5,7 @@ Feature: Accessibility
   I want the site to meet accessibility standards
   So that all users can access content regardless of ability
 
-  @api @javascript
+  @javascript
   Scenario: Anonymous user visits an accessible homepage
     Given the user is anonymous
     When I go to the homepage
@@ -15,7 +15,7 @@ Feature: Accessibility
   # reported but do not fail the build) and are collected into the site-wide
   # accessibility report written after the suite to
   # '.logs/test_results/accessibility/'.
-  @api @javascript @accessibility:warning
+  @javascript @accessibility:warning
   Scenario: Secondary pages are audited for the site-wide accessibility report
     Given the user is anonymous
     When I go to "/user/login"

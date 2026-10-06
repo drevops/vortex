@@ -5,7 +5,6 @@ Feature: XML Sitemap
   I want to ensure that the XML sitemap is accessible and correctly configured
   In order to help search engines discover and index my site content
 
-  @api
   Scenario: Verify sitemap.xml exists and is accessible
     Given the user is anonymous
     When I run the drush command "xmlsitemap:regenerate"

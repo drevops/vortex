@@ -5,7 +5,6 @@ Feature: Robots.txt file
   I want to ensure that the robots.txt file is present and correctly configured
   In order to control how search engines crawl and index my site
 
-  @api
   Scenario: Verify robots.txt exists and contains appropriate content in non-production
     Given the user is anonymous
     When I go to "/robots.txt"

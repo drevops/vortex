@@ -4,7 +4,7 @@ Feature: Password reset
   I want to be sent a one-time login link
   So that I can get back into my account without contacting an administrator
 
-  @api @email
+  @email
   Scenario: Visitor requests a one-time login link
     Given the following users exist:
       | name          | mail                      |

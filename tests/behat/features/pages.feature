@@ -5,7 +5,7 @@ Feature: Pages listing
   I want to see a list of pages
   So that I can browse published content
 
-  @api @testmode
+  @testmode
   Scenario: Pages view shows only test content when test mode is enabled
     Given the following page content exist:
       | title                   | status | moderation_state |
