@@ -1,6 +1,6 @@
-@@ -53,9 +53,9 @@
-       api_driver: drupal
-       drush_driver: drush
+@@ -49,9 +49,9 @@
+       backends: [drupal, drush, blackbox]
+       blackbox: ~
        drupal:
 -        drupal_root: web
 +        drupal_root: docroot

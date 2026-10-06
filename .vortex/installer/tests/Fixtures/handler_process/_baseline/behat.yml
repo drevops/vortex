@@ -11,10 +11,7 @@ default:
       paths: ['%paths.base%/tests/behat/features']
       contexts:
         - FeatureContext
-        - Drupal\DrupalExtension\Context\MinkContext
-        - Drupal\DrupalExtension\Context\MarkupContext
-        - Drupal\DrupalExtension\Context\MessageContext
-        - Drupal\DrupalExtension\Context\DrushContext
+        - Behat\MinkExtension\Context\MinkContext
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
 
   formatters:
@@ -27,7 +24,7 @@ default:
       output_path: '%paths.base%/.logs/test_results/behat'
 
   extensions:
-    Drupal\MinkExtension:
+    Behat\MinkExtension:
       browserkit_http: ~
       base_url: http://nginx:8080
       files_path: '%paths.base%/tests/behat/fixtures'
@@ -48,10 +45,9 @@ default:
                 - '--window-size=1920,1080'         # Sets the browser window size for consistent test screenshots.
 
     # Provides integration with Drupal APIs.
-    Drupal\DrupalExtension:
+    DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension:
+      backends: [drupal, drush, blackbox]
       blackbox: ~
-      api_driver: drupal
-      drush_driver: drush
       drupal:
         drupal_root: web
       drush:
@@ -73,11 +69,13 @@ default:
       selectors:
         login_form_selector: 'form#user-login,form#user-login-form'
         logged_in_selector: 'body.logged-in,body.user-logged-in'
-        messages:
-          default: '.messages'
-          error: '.messages.error,.messages.messages--error'
-          success: '.messages.status,.messages.messages--status'
-          warning: '.messages.warning,.messages.messages--warning'
+      steps:
+        message:
+          selectors:
+            default: '.messages'
+            error: '.messages.error,.messages.messages--error'
+            success: '.messages.status,.messages.messages--status'
+            warning: '.messages.warning,.messages.messages--warning'
 
     # Capture HTML and PNG screenshots on demand and on failure.
     DrevOps\BehatScreenshotExtension:
