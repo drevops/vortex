@@ -16,7 +16,6 @@ Feature: ClamAV Anti-virus
     Given the unmanaged file at the URI "public://eicar_test.txt" exists with the content "X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*"
     And the unmanaged file at the URI "public://test.txt" exists with the content "some text content"
 
-  @api
   Scenario: Upload EICAR test file to trigger virus detection
     When I log in as a user with the role "administrator"
     And I go to "media/add/document"
@@ -27,7 +26,6 @@ Feature: ClamAV Anti-virus
     And I should not see "The anti-virus scanner could not check the file."
     And I save screenshot
 
-  @api
   Scenario: Upload test file to ensure that file upload works
     When I log in as a user with the role "administrator"
     And I go to "media/add/document"

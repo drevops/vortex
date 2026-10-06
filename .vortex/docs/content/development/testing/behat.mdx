@@ -80,21 +80,21 @@ Feature: Short feature description
   I want to make sure that my feature does what it is supposed to do
   So that I can be sure that my site is working as expected
 
-  @api
   Scenario: Anonymous user uses a feature
     Given I go to the homepage
     And I should be in the "<front>" path
     Then I save screenshot
 
-  @api @javascript
+  @javascript
   Scenario: Anonymous user uses a feature with AJAX
     Given I go to the homepage
     And I click ".button" element
     Then I save screenshot
 ```
 
-Use the `@api` tag for tests that don't require JavaScript and
-`@api @javascript` for tests that require JavaScript.
+Untagged scenarios run through an HTTP client that doesn't execute JavaScript.
+Tag a scenario `@javascript` to run it in a real browser when it needs
+JavaScript.
 
 :::tip
 
@@ -332,13 +332,12 @@ Feature: Homepage
 
   Ensure that homepage is displayed as expected.
 
-  @api
   Scenario: Anonymous user visits homepage
     Given I go to the homepage
     And I should be in the "<front>" path
     Then I save screenshot
 
-  @api @javascript @p1
+  @javascript @p1
   Scenario: Anonymous user visits homepage
     Given I go to the homepage
     And I should be in the "<front>" path

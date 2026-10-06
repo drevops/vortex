@@ -5,21 +5,21 @@ Feature: Behat configuration
   I want to ensure Behat is properly configured
   So that behavioral tests can run successfully across all environments
 
-  @api @javascript
+  @javascript
   Scenario: Screenshot functionality works
     Given the user is anonymous
     When I go to the homepage
     Then I save screenshot
     And I save screenshot with name "behat-test-screenshot"
 
-  @api @javascript
+  @javascript
   Scenario: Animated screenshot is recorded across multiple steps
     Given the user is anonymous
     When I go to the homepage
     And I go to "/user/login"
     Then the path should be "/user/login"
 
-  @api @javascript @breakpoint:mobile_portrait
+  @javascript @breakpoint:mobile_portrait
   Scenario: Viewport is resized from a tag and from a step
     Given the user is anonymous
     When I go to the homepage
@@ -28,14 +28,12 @@ Feature: Behat configuration
     And I go to "/user/login"
     Then the path should be "/user/login"
 
-  @api
   Scenario: REST requests are sent and asserted
     Given the REST header "Accept" has the value "text/html"
     When I send a REST "GET" request to the URL "/user/login"
     Then the REST response status code should be 200
     And the REST response should contain "user-login-form"
 
-  @api
   Scenario: XML responses are asserted
     Given the response XML is loaded from the file "response.xml"
     Then the response should be in XML format
@@ -46,7 +44,6 @@ Feature: Behat configuration
     And the XML attribute "id" on the element "//item[2]" should be equal to the value "2"
     And the XML element "//missing" should not exist
 
-  @api
   Scenario: JSON responses are asserted
     Given the response JSON is loaded from the file "response.json"
     Then the response should be in JSON format
@@ -63,7 +60,6 @@ Feature: Behat configuration
       }
       """
 
-  @api
   Scenario: Caches are invalidated from within a scenario
     Given the page cache for the path "/" is empty
     And the render cache is empty
@@ -71,14 +67,12 @@ Feature: Behat configuration
     When I go to the homepage
     Then the response status code should be 200
 
-  @api
   Scenario: Drush integration works
     When I run the drush command "status"
     Then the drush output should contain the value "Drupal version"
     When I run the drush command "core:status" with the arguments "--field=bootstrap"
     Then the drush output should contain the value "Successful"
 
-  @api
   Scenario: Region map configured correctly
     When I run the drush command "pm:enable" with the arguments "help"
     And I log in as a user with the role "administrator"
@@ -98,7 +92,6 @@ Feature: Behat configuration
     And the element ".demo-block" should exist in the region "footer_top"
     And the element ".demo-block" should exist in the region "footer_bottom"
 
-  @api
   Scenario: Messages and login selectors configured correctly
     Given the following users exist:
       | name | mail             | roles         |
