@@ -277,9 +277,8 @@ jobs:
             docker compose exec cli mkdir -p .data && docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql || true
             # A database built from the base image is empty, so it is
             # provisioned from the dump file without the image.
-            provision_env="VORTEX_PROVISION_POST_OPERATIONS_SKIP=1"
-            [ -n "${VORTEX_DB_IMAGE_BASE:-}" ] && [ "${VORTEX_FETCH_DB_SOURCE:-url}" != "container_registry" ] && provision_env="${provision_env} VORTEX_DB_IMAGE= VORTEX_PROVISION_DB_IMAGE="
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "${provision_env} ./vendor/bin/vortex-provision"
+            [ -n "${VORTEX_DB_IMAGE_BASE:-}" ] && [ "${VORTEX_FETCH_DB_SOURCE:-url}" != "container_registry" ] && provision_opts="VORTEX_DB_IMAGE="
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ${provision_opts:-} ./vendor/bin/vortex-provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
             ./vendor/bin/vortex-export-db db.sql
             docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
