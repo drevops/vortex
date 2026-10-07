@@ -394,7 +394,7 @@ VORTEX_CI_BEHAT_PROFILE_OFFSET: 1
 | 1 | Behat | `p0` (catch-all) |
 | 2 | Behat | `p1` |
 
-`behat.yml` stays untouched: the profiles remain numbered from `p0` and no
+`behat.php` stays untouched: the profiles remain numbered from `p0` and no
 feature file is re-tagged.
 
 :::warning
@@ -457,30 +457,26 @@ container count itself, and a matching Behat profile for every new container.
    - [GitHub Actions > Change test parallelism](./github-actions.mdx#change-test-parallelism)
    - [CircleCI > Change test parallelism](./circleci.mdx#change-test-parallelism)
 
-2. Add a profile to `behat.yml` for each new container that runs Behat.
-   **Vortex** ships with `p0` and `p1` only, and Behat fails with
-   `profile 'p2' does not exist` if a container running Behat has no profile
-   named after its derived number (its index minus
+2. Add a profile to `behat.php` for each new container that runs Behat, and
+   register it in the returned `Config`. **Vortex** ships with `p0` and `p1`
+   only, and Behat fails with `profile 'p2' does not exist` if a container
+   running Behat has no profile named after its derived number (its index minus
    `VORTEX_CI_BEHAT_PROFILE_OFFSET`). A container excluded from Behat needs no
    profile:
 
-   ```yaml title="behat.yml"
-   p2:
-     gherkin:
-       cache: '/tmp/behat_gherkin_cache'
-       filters:
-         tags: '@smoke,@p2&&~@skipped'
+   ```php title="behat.php"
+   $p2 = (new Profile('p2'))
+     ->withGherkinOptions((new GherkinOptions())->withCacheDir('/tmp/behat_gherkin_cache')->withFilter(new TagFilter('@smoke,@p2&&~@skipped')));
+
+   return (new Config())->withProfile($default)->withProfile($p0)->withProfile($p1)->withProfile($p2);
    ```
 
 3. Exclude the new tag from the `p0` catch-all, so its scenarios don't also run
    on the first container:
 
-   ```yaml title="behat.yml"
-   p0:
-     gherkin:
-       cache: '/tmp/behat_gherkin_cache'
-       filters:
-         tags: '@smoke,~@p1&&~@p2&&~@skipped'
+   ```php title="behat.php"
+   $p0 = (new Profile('p0'))
+     ->withGherkinOptions((new GherkinOptions())->withCacheDir('/tmp/behat_gherkin_cache')->withFilter(new TagFilter('@smoke,~@p1&&~@p2&&~@skipped')));
    ```
 
 4. Tag scenarios with `@p2` to move them onto the new container.

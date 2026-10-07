@@ -14,7 +14,7 @@ of the application. Behat tests primarily focus on critical user journeys,
 serving as end-to-end validations.
 
 **Vortex** provides full Behat support, including a pre-configured
-[`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml) with
+[`behat.php`](https://github.com/drevops/vortex/blob/main/behat.php) with
 profiles for Drupal projects and a
 [browser container](https://github.com/drevops/vortex/blob/main/docker-compose.yml)
 to run tests interactively in a real browser with a VNC viewer.
@@ -140,24 +140,21 @@ be maintained by your project team to document agreed-upon testing practices.
 See the [Behat user guide](https://docs.behat.org/en/latest/user_guide.html)
 and its [configuration reference](https://docs.behat.org/en/latest/user_guide/configuration.html).
 
-All global configuration takes place in the [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml) file.
+All global configuration takes place in the [`behat.php`](https://github.com/drevops/vortex/blob/main/behat.php) file, in the PHP format that Behat 4 requires.
 
 By default, Behat runs all tests defined in the `tests/behat/features`
 directory.
 
 Adding or removing test targets:
 
-```yml
-default:
-  suites:
-    default:
-      paths:
-        - '%paths.base%/web/modules/custom/mymodule/tests/behat/features'
+```php title="behat.php"
+$suite = (new Suite('default'))
+  ->withPaths('%paths.base%/tests/behat/features', '%paths.base%/web/modules/custom/mymodule/tests/behat/features')
 ```
 
 ### Chrome session flags
 
-The [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml)
+The [`behat.php`](https://github.com/drevops/vortex/blob/main/behat.php)
 configuration passes the following flags to Chrome via `goog:chromeOptions`
 to ensure stable and deterministic test execution in the container environment:
 
@@ -204,19 +201,19 @@ Screenshots for failed tests or purposely made screenshots are stored in the
 ### Animated screenshots
 
 Per-step screenshots are combined into an animated GIF for each scenario, making
-a failing test easier to follow. This is enabled in `behat.yml` under the
-`animation` key of the `DrevOps\BehatScreenshotExtension` block.
+a failing test easier to follow. This is enabled in `behat.php` under the
+`animation` key of the `BehatScreenshotExtension` extension.
 
 Animation forces a full-page capture after every passed step, so its cost grows
 with the number of steps and roughly doubles the wall time of a run. Set
-`animation.enabled` to `false` in `behat.yml` to disable animation everywhere,
+`animation.enabled` to `FALSE` in `behat.php` to disable animation everywhere,
 or tag an individual scenario or feature with `@screenshots:animated:skip` to
 exempt it. See [Artifacts](#artifacts) for how the continuous integration
 pipeline handles animation.
 
 ### Output format
 
-Out of the box, **Vortex** uses Behat's built-in `progress` formatter with the `inline_failures` option turned on in `behat.yml`. It prints a dot for each passed step and the details of each failed, pending, or undefined step as soon as it happens. The test run continues after a failure while the output stays minimal.
+Out of the box, **Vortex** uses Behat's built-in `progress` formatter with its `inlineFailures` option turned on in `behat.php`. It prints a dot for each passed step and the details of each failed, pending, or undefined step as soon as it happens. The test run continues after a failure while the output stays minimal.
 
 ## Observing the browser
 
@@ -255,7 +252,7 @@ browser in a container through a browser on your host machine.
 
 ### Profiles
 
-Behat runs with the `default` profile defined in `behat.yml`: it runs every
+Behat runs with the `default` profile defined in `behat.php`: it runs every
 scenario except those tagged `@skipped`.
 
 When the number of runners is greater than `1`, Behat tests run in parallel
@@ -296,8 +293,9 @@ Feature: Homepage
     Then I save screenshot
 ```
 
-You can add more `p*` profiles in your `behat.yml` by copying the existing `p1`
-profile and changing several lines of configuration.
+You can add more `p*` profiles in your `behat.php` by copying the existing `p1`
+profile, changing its name and tag filter, and registering it in the returned
+`Config`.
 
 Profile numbers count from the first runner that runs Behat. The CI
 configuration subtracts `VORTEX_CI_BEHAT_PROFILE_OFFSET` (`0` by default) from

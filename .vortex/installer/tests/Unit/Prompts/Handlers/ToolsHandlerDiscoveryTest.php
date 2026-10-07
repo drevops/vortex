@@ -185,6 +185,14 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
         File::dump(static::$sut . '/behat.yml');
       },
     ];
+    yield 'tools - discovery - behat, alt4' => [
+      [],
+      [Tools::id() => [Tools::BEHAT]] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/behat.php');
+      },
+    ];
     yield 'tools - discovery - jest' => [
       [],
       [Tools::id() => [Tools::JEST]] + $expected_installed,
