@@ -57,7 +57,7 @@ web/sites/simpletest
 
 # Testing and linting configuration.
 /tests
-/behat.yml
+/behat.php
 /gherkinlint.json
 /jest.config.js
 /phpcs.xml
