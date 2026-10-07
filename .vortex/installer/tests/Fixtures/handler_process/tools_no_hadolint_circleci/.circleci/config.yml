@@ -273,7 +273,9 @@ jobs:
             # A database built from the base image is empty, so it is
             # provisioned from the dump file without the image.
             if [ -n "${VORTEX_DB_IMAGE:-}" ] && [ -n "${VORTEX_DB_IMAGE_BASE:-}" ] && [ "${VORTEX_FETCH_DB_SOURCE:-url}" != "container_registry" ]; then
-              VORTEX_FETCH_DB_SOURCE=container_registry VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="${VORTEX_DB_IMAGE_BASE}" ./vendor/bin/vortex-fetch-db
+              # Every bash script sources the job variables from $BASH_ENV, so it
+              # is cleared to keep the prefixed values.
+              BASH_ENV= VORTEX_FETCH_DB_SOURCE=container_registry VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="${VORTEX_DB_IMAGE_BASE}" ./vendor/bin/vortex-fetch-db
               provision_opts="VORTEX_DB_IMAGE="
             fi
             docker compose up --detach && sleep 15
