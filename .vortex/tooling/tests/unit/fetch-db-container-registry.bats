@@ -31,6 +31,9 @@ load ../_helper.bash
   assert_output_contains "[ OK ] Fetched myorg/myapp image from the registry."
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "pull registry.example.com/myorg/myapp"
+  assert_equal "3" "$(mock_get_call_num "${mock_docker}")"
+
   popd >/dev/null
 }
 
@@ -68,16 +71,18 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "fetch-db-container-registry: Use base image when archive not found and base image provided" {
+@test "fetch-db-container-registry: Tag base image as the database container image when a base image is provided" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mock_docker=$(mock_command "docker")
-  mock_set_side_effect "${mock_docker}" "exit 1" 1
-  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
-  mock_set_side_effect "${mock_docker}" "echo 'pulled base image'" 3
+  # The login, the pull of the base image and the tag. The host image is not
+  # inspected.
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 1
+  mock_set_side_effect "${mock_docker}" "echo 'pulled base image'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'tagged base image'" 3
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
-  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="myorg/base"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
@@ -86,9 +91,124 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-fetch-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image fetch."
-  assert_output_contains "Database container image was not found. Using base image myorg/base."
-  assert_output_contains "Fetching myorg/base image from the registry."
+  assert_output_contains "Tagging base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/myapp."
+  assert_output_contains "[ OK ] Tagged base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/myapp."
   assert_output_contains "[ OK ] Finished database data container image fetch."
+  assert_output_not_contains "Fetching myorg/myapp image from the registry."
+
+  assert_equal "3" "$(mock_get_call_num "${mock_docker}")"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 2)" "pull drevops/mariadb-drupal-data:26.10.0"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "tag drevops/mariadb-drupal-data:26.10.0 myorg/myapp"
+
+  popd >/dev/null
+}
+
+@test "fetch-db-container-registry: Tag base image instead of expanding the archive" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  touch .data/db.tar
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 1
+  mock_set_side_effect "${mock_docker}" "echo 'pulled base image'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'tagged base image'" 3
+
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
+
+  run .vortex/tooling/src/vortex-fetch-db-container-registry
+  assert_success
+  assert_output_contains "[ OK ] Tagged base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/myapp."
+  assert_output_not_contains "Found archived database container image file .data/db.tar. Expanding..."
+
+  # The login, the pull and the tag: the archive is not loaded.
+  assert_equal "3" "$(mock_get_call_num "${mock_docker}")"
+
+  rm -f .data/db.tar
+
+  popd >/dev/null
+}
+
+@test "fetch-db-container-registry: Fail when the base image pull fails" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 1
+  mock_set_side_effect "${mock_docker}" "exit 1" 2
+
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
+
+  run .vortex/tooling/src/vortex-fetch-db-container-registry
+  assert_failure
+  assert_output_contains "Tagging base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/myapp."
+  assert_output_not_contains "Tagged base image"
+  assert_output_not_contains "Finished database data container image fetch."
+
+  # The login and the failed pull: nothing is tagged.
+  assert_equal "2" "$(mock_get_call_num "${mock_docker}")"
+
+  popd >/dev/null
+}
+
+@test "fetch-db-container-registry: Resolve indexed base image variable with VORTEX_DB_INDEX" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 1
+  mock_set_side_effect "${mock_docker}" "echo 'pulled base image'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'tagged base image'" 3
+
+  export VORTEX_DB_INDEX="2"
+  export VORTEX_DB2_IMAGE="myorg/migration-db"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_DB_DIR=".data"
+
+  run .vortex/tooling/src/vortex-fetch-db-container-registry
+  assert_success
+  assert_output_contains "[ OK ] Tagged base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/migration-db."
+
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "tag drevops/mariadb-drupal-data:26.10.0 myorg/migration-db"
+
+  popd >/dev/null
+}
+
+@test "fetch-db-container-registry: Fetch image when only the shared base image variable is set" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_docker=$(mock_command "docker")
+  # The shared variable does not switch a fetch to the base image: the image is
+  # inspected on the host, then the registry login and the pull follow.
+  mock_set_side_effect "${mock_docker}" "exit 1" 1
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
+
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
+
+  run .vortex/tooling/src/vortex-fetch-db-container-registry
+  assert_success
+  assert_output_not_contains "Tagging base image"
+  assert_output_contains "Fetching myorg/myapp image from the registry."
+
+  assert_equal "3" "$(mock_get_call_num "${mock_docker}")"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "pull registry.example.com/myorg/myapp"
 
   popd >/dev/null
 }

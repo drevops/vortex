@@ -282,9 +282,17 @@ jobs:
           command: |
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
             ./vendor/bin/vortex-login-container-registry
+            # A database built from the base image is empty, so it is
+            # provisioned from the dump file without the image.
+            if [ -n "${VORTEX_DB_IMAGE:-}" ] && [ -n "${VORTEX_DB_IMAGE_BASE:-}" ] && [ "${VORTEX_FETCH_DB_SOURCE:-url}" != "container_registry" ]; then
+              # Every bash script sources the job variables from $BASH_ENV, so it
+              # is cleared to keep the prefixed values.
+              BASH_ENV= VORTEX_FETCH_DB_SOURCE=container_registry VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="${VORTEX_DB_IMAGE_BASE}" ./vendor/bin/vortex-fetch-db
+              provision_opts="VORTEX_DB_IMAGE="
+            fi
             docker compose up --detach && sleep 15
             docker compose exec cli mkdir -p .data && docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql || true
-            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
+            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ${provision_opts:-} ./vendor/bin/vortex-provision"
             grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
             ./vendor/bin/vortex-export-db db.sql
             docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
@@ -320,7 +328,7 @@ jobs:
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
       # Enforce fresh DB build (do not rely on fallback caches).
       VORTEX_CI_DB_CACHE_FALLBACK: 'no'
-      # Always use fresh base image for the database (if database-in-image storage is used).
+      # Import the fetched dump into a clean base image (if database-in-image storage is used).
       VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:__VERSION__
       # Deploy container image (if database-in-image storage is used).
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED: 1
