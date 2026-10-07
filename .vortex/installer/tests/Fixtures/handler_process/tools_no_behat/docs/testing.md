@@ -53,7 +53,7 @@
 -  Scenario: View homepage content
 -    Given I am on the homepage
 -    Then I should see "[TEST] Welcome Message"
--    And the region "navigation" should contain the value "About Us"
+-    And the region "primary_menu" should contain the value "About Us"
 -```
 -
 -### Content type testing process
