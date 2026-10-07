@@ -499,7 +499,7 @@ trait SutTrait {
     $this->assertFileExists('.env');
     $this->assertFileExists('.env.local.example');
     $this->assertFileExists('.gitignore');
-    $this->assertFileExists('behat.yml');
+    $this->assertFileExists('behat.php');
     $this->assertFileExists('composer.json');
     $this->assertFileExists('docker-compose.yml');
     $this->assertFileExists('gherkinlint.json');

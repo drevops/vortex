@@ -500,6 +500,7 @@ class Tools extends AbstractHandler {
           File::contains($this->destinationDir . '/composer.json', 'drupal/drupal-extension') ||
           File::contains($this->destinationDir . '/composer.json', 'drevops/behat-screenshot') ||
           File::contains($this->destinationDir . '/composer.json', 'drevops/behat-steps') ||
+          File::exists($this->destinationDir . '/behat.php') ||
           File::exists($this->destinationDir . '/behat.yml'),
         'composer.json' => function (JsonManipulator $cj): void {
           $cj->removeSubNode('require-dev', 'behat/behat');
@@ -511,7 +512,7 @@ class Tools extends AbstractHandler {
           $cj->removeSubNode('require-dev', 'drevops/behat-steps');
         },
         'files' => [
-          'behat.yml',
+          'behat.php',
           'tests/behat',
           'gherkinlint.json',
         ],
