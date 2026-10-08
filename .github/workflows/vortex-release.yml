@@ -93,7 +93,7 @@ jobs:
         working-directory: .vortex/installer
 
       - name: Upload v${{ env.CURRENT_MAJOR }} installer artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: vortex-installer-v${{ env.CURRENT_MAJOR }}
           path: .vortex/installer/build/installer.phar
@@ -120,7 +120,7 @@ jobs:
         working-directory: vortex-v${{ env.OTHER_MAJOR }}/.vortex/cli
 
       - name: Upload v${{ env.OTHER_MAJOR }} artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: vortex-installer-v${{ env.OTHER_MAJOR }}
           path: vortex-v${{ env.OTHER_MAJOR }}/.vortex/cli/.build/vortex.phar
@@ -172,13 +172,13 @@ jobs:
           php-version: 8.3
 
       - name: Download v1 installer
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: vortex-installer-v1
           path: installer-v1
 
       - name: Download v2 installer
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: vortex-installer-v2
           path: installer-v2

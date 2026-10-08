@@ -188,7 +188,7 @@ jobs:
             This preview is rebuilt on every commit and is not the production documentation site.
 
       - name: Upload coverage report as an artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ${{github.job}}-docs-coverage-report
           path: .vortex/docs/.logs
