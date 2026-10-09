@@ -217,7 +217,7 @@ function extract_workflow_job(array $lines, string $pattern): string {
  */
 function extract_github_env_value(array $lines, string $name): string {
   foreach ($lines as $line) {
-    if (preg_match('/echo "' . preg_quote($name, '/') . '=([^"]+)" >> "\$GITHUB_ENV"/', $line, $matches)) {
+    if (preg_match('/echo "' . preg_quote($name, '/') . '=([^"]+)"/', $line, $matches)) {
       return $matches[1];
     }
   }

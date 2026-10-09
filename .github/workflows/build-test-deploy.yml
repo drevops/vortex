@@ -272,12 +272,14 @@ jobs:
       - name: Adjust variables for a scheduled run
         if: github.event_name == 'schedule'
         run: |
-          echo "VORTEX_CI_DB_CACHE_FALLBACK=no" >> "$GITHUB_ENV"
-          echo "VORTEX_FRONTEND_BUILD_SKIP=1" >> "$GITHUB_ENV"
-          # Import the fetched dump into a clean base image (if database-in-image storage is used).
-          echo "VORTEX_DB_IMAGE_BASE=drevops/mariadb-drupal-data:26.10.0" >> "$GITHUB_ENV"
-          # Deploy container image (if database-in-image storage is used).
-          echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1" >> "$GITHUB_ENV"
+          {
+            echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
+            echo "VORTEX_FRONTEND_BUILD_SKIP=1"
+            # Import the fetched dump into a clean base image (if database-in-image storage is used).
+            echo "VORTEX_DB_IMAGE_BASE=drevops/mariadb-drupal-data:26.10.0"
+            # Deploy container image (if database-in-image storage is used).
+            echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
+          } >> "$GITHUB_ENV"
 
       - name: Create cache keys files for database caching
         run: |
