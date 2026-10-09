@@ -33,8 +33,8 @@ if ($content === FALSE) {
 $lines = explode("\n", $content);
 
 $settings = extract_settings($lines);
-$database_job = extract_job($lines, '/^  database:/');
-$build_job = extract_job($lines, '/^  build:/');
+$database_job = extract_workflow_job($lines, '/^  database:/');
+$build_job = extract_workflow_job($lines, '/^  build:/');
 $db_image_base = extract_github_env_value(explode("\n", $database_job), 'VORTEX_DB_IMAGE_BASE');
 
 $db_image = 'drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x';
@@ -75,7 +75,7 @@ $output = implode("\n", [
   '',
   'jobs:',
   '  # DIDI-FI variant jobs',
-  build_variant_job($database_job, 'vortex-dev-didi-database-fi', [], [
+  build_variant_workflow_job($database_job, 'vortex-dev-didi-database-fi', [], [
     'VORTEX_FETCH_DB_SOURCE' => 'url',
     'VORTEX_FETCH_DB_FORCE' => 1,
     'VORTEX_DB_IMAGE' => $db_image,
@@ -86,14 +86,14 @@ $output = implode("\n", [
     'VORTEX_CI_DB_CACHE_BRANCH' => 'vortex-dev-didi-fi',
   ]),
   '',
-  build_variant_job($build_job, 'vortex-dev-didi-build-fi', build_job_replacements('vortex-dev-didi-build-fi', 'vortex-dev-didi-database-fi'), [
+  build_variant_workflow_job($build_job, 'vortex-dev-didi-build-fi', build_job_replacements('vortex-dev-didi-build-fi', 'vortex-dev-didi-database-fi'), [
     'VORTEX_DB_IMAGE' => $db_image . ':' . $db_image_tag_fi,
     'VORTEX_CI_DB_CACHE_BRANCH' => 'vortex-dev-didi-fi',
     'DRUPAL_MIGRATION_SKIP' => 1,
   ]),
   '',
   '  # DIDI-II variant jobs',
-  build_variant_job($database_job, 'vortex-dev-database-ii', [], [
+  build_variant_workflow_job($database_job, 'vortex-dev-database-ii', [], [
     'VORTEX_FETCH_DB_SOURCE' => 'container_registry',
     'VORTEX_FETCH_DB_FORCE' => 1,
     'VORTEX_DB_IMAGE' => $db_image,
@@ -103,7 +103,7 @@ $output = implode("\n", [
     'VORTEX_CI_DB_CACHE_BRANCH' => 'vortex-dev-didi-ii',
   ]),
   '',
-  build_variant_job($build_job, 'vortex-dev-didi-build-ii', build_job_replacements('vortex-dev-didi-build-ii', 'vortex-dev-database-ii'), [
+  build_variant_workflow_job($build_job, 'vortex-dev-didi-build-ii', build_job_replacements('vortex-dev-didi-build-ii', 'vortex-dev-database-ii'), [
     'VORTEX_DB_IMAGE' => $db_image . ':' . $db_image_tag_ii,
     'VORTEX_CI_DB_CACHE_BRANCH' => 'vortex-dev-didi-ii',
     'DRUPAL_MIGRATION_SKIP' => 1,
@@ -175,7 +175,7 @@ function extract_settings(array $lines): string {
  * @param list<string> $lines
  *   Source file lines.
  */
-function extract_job(array $lines, string $pattern): string {
+function extract_workflow_job(array $lines, string $pattern): string {
   $start = NULL;
 
   for ($i = 0, $count = count($lines); $i < $count; $i++) {
@@ -238,7 +238,7 @@ function extract_github_env_value(array $lines, string $name): string {
  * @param array<string, string|int> $env
  *   Container environment variable overrides.
  */
-function build_variant_job(string $job, string $name, array $replacements, array $env): string {
+function build_variant_workflow_job(string $job, string $name, array $replacements, array $env): string {
   $lines = explode("\n", $job);
 
   $lines[0] = sprintf('  %s:', $name);
