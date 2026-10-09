@@ -166,7 +166,7 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Tools::id() => [Tools::BEHAT]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        $test->stubComposerJsonDependencies(['drupal/drupal-extension' => '*'], TRUE);
+        $test->stubComposerJsonDependencies(['lullabot/mink-selenium2-driver' => '*'], TRUE);
       },
     ];
     yield 'tools - discovery - behat, alt2' => [
@@ -174,7 +174,23 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Tools::id() => [Tools::BEHAT]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
+        $test->stubComposerJsonDependencies(['drupal/drupal-extension' => '*'], TRUE);
+      },
+    ];
+    yield 'tools - discovery - behat, alt3' => [
+      [],
+      [Tools::id() => [Tools::BEHAT]] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
         File::dump(static::$sut . '/behat.yml');
+      },
+    ];
+    yield 'tools - discovery - behat, alt4' => [
+      [],
+      [Tools::id() => [Tools::BEHAT]] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/behat.php');
       },
     ];
     yield 'tools - discovery - jest' => [

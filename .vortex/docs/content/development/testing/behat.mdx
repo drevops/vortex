@@ -14,7 +14,7 @@ of the application. Behat tests primarily focus on critical user journeys,
 serving as end-to-end validations.
 
 **Vortex** provides full Behat support, including a pre-configured
-[`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml) with
+[`behat.php`](https://github.com/drevops/vortex/blob/main/behat.php) with
 profiles for Drupal projects and a
 [browser container](https://github.com/drevops/vortex/blob/main/docker-compose.yml)
 to run tests interactively in a real browser with a VNC viewer.
@@ -77,21 +77,21 @@ Feature: Short feature description
   I want to make sure that my feature does what it is supposed to do
   So that I can be sure that my site is working as expected
 
-  @api
   Scenario: Anonymous user uses a feature
     Given I go to the homepage
-    And I should be in the "<front>" path
+    And the path should be "<front>"
     Then I save screenshot
 
-  @api @javascript
+  @javascript
   Scenario: Anonymous user uses a feature with AJAX
     Given I go to the homepage
-    And I click ".button" element
+    And I click on the element ".button"
     Then I save screenshot
 ```
 
-Use the `@api` tag for tests that don't require JavaScript and
-`@api @javascript` for tests that require JavaScript.
+Untagged scenarios run through an HTTP client that doesn't execute JavaScript.
+Tag a scenario `@javascript` to run it in a real browser when it needs
+JavaScript.
 
 :::tip
 
@@ -119,13 +119,13 @@ install **Vortex** and can be used as a starting point for writing your own.
 
 ### Email
 
-Tag a scenario `@email` to capture outgoing messages instead of delivering them, then assert on their recipients and content with the steps from [`EmailTrait`](https://github.com/drevops/behat-steps/blob/main/src/Drupal/EmailTrait.php). The [password reset feature](https://github.com/drevops/vortex/blob/main/tests/behat/features/password_reset.feature) can be used as a starting point.
+Tag a scenario `@email` to capture outgoing messages instead of delivering them, then assert on their recipients and content with the steps from [`EmailTrait`](https://github.com/drevops/behat-steps/blob/main/src/Steps/Drupal/EmailTrait.php). The [password reset feature](https://github.com/drevops/vortex/blob/main/tests/behat/features/password_reset.feature) can be used as a starting point.
 
 In the `ci` environment, [`settings.system.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.system.php) makes the same mail collector the default backend for every message sent through `interface.default`. As a result, those messages are stored instead of delivered, even when a scenario isn't tagged. The collector is set as a settings override rather than as stored configuration, so nothing running inside the site can switch the collector off. [Reroute Email](../modules/contributed-modules.mdx#reroute-email) is disabled in `ci` so that each stored message keeps its intended recipient, rather than the rerouting address.
 
 The collector covers `interface.default`, which is the only interface the shipped configuration defines. A site that routes a module through its own interface (`interface.<module>` or `interface.<module>_<key>`, as [Symfony Mailer](https://www.drupal.org/project/symfony_mailer) and [Mail System](https://www.drupal.org/project/mailsystem) do) bypasses the collector for those messages. For that reason, `docker-compose.yml` also points `SSMTP_MAILHUB` at a closed port in CI. Delivery then fails at the transport no matter which mail plugin produced the message.
 
-The bare `When I clear the test email system queue` step still requires the `@email` tag, and each tagged scenario clears the queue as it starts.
+The bare `When I clear the test email system queue` step still requires the `@email` tag or an earlier `When I enable the test email system` step, and each tagged scenario clears the queue as it starts.
 
 ### Project conventions
 
@@ -140,24 +140,21 @@ be maintained by your project team to document agreed-upon testing practices.
 See the [Behat user guide](https://docs.behat.org/en/latest/user_guide.html)
 and its [configuration reference](https://docs.behat.org/en/latest/user_guide/configuration.html).
 
-All global configuration takes place in the [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml) file.
+All global configuration takes place in the [`behat.php`](https://github.com/drevops/vortex/blob/main/behat.php) file, in the PHP format that Behat 4 requires.
 
 By default, Behat runs all tests defined in the `tests/behat/features`
 directory.
 
 Adding or removing test targets:
 
-```yml
-default:
-  suites:
-    default:
-      paths:
-        - '%paths.base%/web/modules/custom/mymodule/tests/behat/features'
+```php title="behat.php"
+$suite = (new Suite('default'))
+  ->withPaths('%paths.base%/tests/behat/features', '%paths.base%/web/modules/custom/mymodule/tests/behat/features')
 ```
 
 ### Chrome session flags
 
-The [`behat.yml`](https://github.com/drevops/vortex/blob/main/behat.yml)
+The [`behat.php`](https://github.com/drevops/vortex/blob/main/behat.php)
 configuration passes the following flags to Chrome via `goog:chromeOptions`
 to ensure stable and deterministic test execution in the container environment:
 
@@ -174,8 +171,8 @@ to ensure stable and deterministic test execution in the container environment:
 
 The configuration uses the following contexts and extensions:
 
-- [Drupal Extension](https://github.com/jhedstrom/drupalextension): an integration layer between Behat, Mink Extension, and Drupal. It provides step definitions for common testing scenarios specific to Drupal sites.
-- [Behat Steps](https://github.com/drevops/behat-steps): a library of re-usable Behat steps for Drupal.
+- [Behat Steps](https://github.com/drevops/behat-steps): a library of re-usable Behat steps for Drupal. It also supplies the Drupal integration layer, registered as the `DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension` extension.
+- [Mink Extension](https://github.com/FriendsOfBehat/MinkExtension): the browser sessions and the base browser vocabulary, registered as the `Behat\MinkExtension` extension and the `Behat\MinkExtension\Context\MinkContext` context.
 - [Behat Screenshot](https://github.com/drevops/behat-screenshot): extension and step definitions to create HTML and image screenshots on demand or when tests fail.
 
 ### FeatureContext
@@ -204,19 +201,19 @@ Screenshots for failed tests or purposely made screenshots are stored in the
 ### Animated screenshots
 
 Per-step screenshots are combined into an animated GIF for each scenario, making
-a failing test easier to follow. This is enabled in `behat.yml` under the
-`animation` key of the `DrevOps\BehatScreenshotExtension` block.
+a failing test easier to follow. This is enabled in `behat.php` under the
+`animation` key of the `BehatScreenshotExtension` extension.
 
 Animation forces a full-page capture after every passed step, so its cost grows
 with the number of steps and roughly doubles the wall time of a run. Set
-`animation.enabled` to `false` in `behat.yml` to disable animation everywhere,
+`animation.enabled` to `FALSE` in `behat.php` to disable animation everywhere,
 or tag an individual scenario or feature with `@screenshots:animated:skip` to
 exempt it. See [Artifacts](#artifacts) for how the continuous integration
 pipeline handles animation.
 
 ### Output format
 
-Out of the box, **Vortex** uses Behat's built-in `progress` formatter with the `inline_failures` option turned on in `behat.yml`. It prints a dot for each passed step and the details of each failed, pending, or undefined step as soon as it happens. The test run continues after a failure while the output stays minimal.
+Out of the box, **Vortex** uses Behat's built-in `progress` formatter with its `inlineFailures` option turned on in `behat.php`. It prints a dot for each passed step and the details of each failed, pending, or undefined step as soon as it happens. The test run continues after a failure while the output stays minimal.
 
 ## Observing the browser
 
@@ -255,7 +252,7 @@ browser in a container through a browser on your host machine.
 
 ### Profiles
 
-Behat runs with the `default` profile defined in `behat.yml`: it runs every
+Behat runs with the `default` profile defined in `behat.php`: it runs every
 scenario except those tagged `@skipped`.
 
 When the number of runners is greater than `1`, Behat tests run in parallel
@@ -284,21 +281,21 @@ Feature: Homepage
 
   Ensure that homepage is displayed as expected.
 
-  @api
   Scenario: Anonymous user visits homepage
     Given I go to the homepage
-    And I should be in the "<front>" path
+    And the path should be "<front>"
     Then I save screenshot
 
-  @api @javascript @p1
+  @javascript @p1
   Scenario: Anonymous user visits homepage
     Given I go to the homepage
-    And I should be in the "<front>" path
+    And the path should be "<front>"
     Then I save screenshot
 ```
 
-You can add more `p*` profiles in your `behat.yml` by copying the existing `p1`
-profile and changing several lines of configuration.
+You can add more `p*` profiles in your `behat.php` by copying the existing `p1`
+profile, changing its name and tag filter, and registering it in the returned
+`Config`.
 
 Profile numbers count from the first runner that runs Behat. The CI
 configuration subtracts `VORTEX_CI_BEHAT_PROFILE_OFFSET` (`0` by default) from
