@@ -146,7 +146,7 @@
 -          # Database-in-image storage caches the exported image archive instead of the dump.
 -          if [ -n "${VORTEX_DB_IMAGE:-}" ]; then rm -f .data/db.sql; fi
 -          ./vendor/bin/vortex-export-db db.sql
--          if [ -z "${VORTEX_DB_IMAGE:-}" ]; then docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql; fi
+-          if [ -z "${VORTEX_DB_IMAGE:-}" ] && docker compose exec -T cli test -f /app/.data/db.sql; then docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql; fi
 -          # 'hashFiles()' runs as the runner user outside the container, so the
 -          # root-owned files in '.data' must be readable by others.
 -          chmod -R a+rX .data
