@@ -527,6 +527,7 @@ trait SutTrait {
     $this->assertFileDoesNotExist('.github/workflows/vortex-release.yml');
     $this->assertFileDoesNotExist('.github/workflows/vortex-test-docs.yml');
     $this->assertFileDoesNotExist('.github/workflows/vortex-test-common.yml');
+    $this->assertFileDoesNotExist('.github/workflows/vortex-test-didi.yml');
     $this->assertFileDoesNotExist('.github/workflows/vortex-test-installer.yml');
 
     if (file_exists('.circleci/config.yml')) {
