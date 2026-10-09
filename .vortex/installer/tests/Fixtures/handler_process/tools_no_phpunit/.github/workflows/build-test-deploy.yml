@@ -1,4 +1,4 @@
-@@ -343,7 +343,6 @@
+@@ -346,7 +346,6 @@
        VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
        VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
        VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -6,7 +6,7 @@
        VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        # Runs on every instance, using the `p<instance index - offset>` profile.
        VORTEX_CI_IS_BEHAT_RUNNER: true
-@@ -472,66 +471,6 @@
+@@ -475,66 +474,6 @@
          run: docker compose exec -T cli bash -c "npm test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -73,7 +73,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -573,16 +512,6 @@
+@@ -576,16 +515,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error
