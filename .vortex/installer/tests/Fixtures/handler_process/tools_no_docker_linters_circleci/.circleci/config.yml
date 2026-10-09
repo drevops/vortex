@@ -277,9 +277,10 @@ jobs:
             docker compose up --detach && sleep 15
             docker compose exec cli mkdir -p .data && docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql || true
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ${provision_opts:-} ./vendor/bin/vortex-provision"
-            grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
+            # Database-in-image storage caches the exported image archive instead of the dump.
+            [ -n "${VORTEX_DB_IMAGE:-}" ] && rm -f .data/db.sql || true
             ./vendor/bin/vortex-export-db db.sql
-            docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
+            [ -z "${VORTEX_DB_IMAGE:-}" ] && docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 
       # Deploy the freshly-exported database image to the container registry.
