@@ -9,6 +9,7 @@ parameters:
   paths:
     - phpunit
     - generate-vortex-dev-circleci
+    - generate-vortex-dev-gha
 
   excludePaths:
     - vendor/*

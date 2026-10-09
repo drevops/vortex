@@ -96,8 +96,7 @@ Work through each checklist item from the release process doc:
    Use npm, NOT yarn.
 6. **CI runner** - Check if `drevops/ci-runner` is at the latest version.
 7. **Cache version** - The cache key has the form `v<YY>.<M>.<minor>` (CalVer).
-   Update it in `.circleci/config.yml`,
-   `.circleci/vortex-test-common.yml`, and `.github/workflows/build-test-deploy.yml`:
+   Update it in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`, then run `ahoy lint-ci-fix` from `.vortex/` to regenerate `.circleci/vortex-test-common.yml` and `.github/workflows/vortex-test-didi.yml`:
    - The `v<YY>.<M>.<minor>` prefix tracks the latest `uselagoon/*` container
      image tag (e.g. `v26.4.0` for `uselagoon/mysql-8.4:26.4.0`). Lagoon
      versions encode `YY.M.minor` (year, calendar month, minor), so this part

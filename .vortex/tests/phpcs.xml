@@ -20,6 +20,7 @@
 
     <file>phpunit</file>
     <file>generate-vortex-dev-circleci</file>
+    <file>generate-vortex-dev-gha</file>
 
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
@@ -31,6 +32,7 @@
     <!-- Allow missing file doc comment for shebang scripts. -->
     <rule ref="Drupal.Commenting.FileComment.Missing">
         <exclude-pattern>generate-vortex-dev-circleci</exclude-pattern>
+        <exclude-pattern>generate-vortex-dev-gha</exclude-pattern>
     </rule>
 
     <!-- Allow missing class description in tests. -->
