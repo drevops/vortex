@@ -78,19 +78,19 @@ Feature: Behat configuration
     And I log in as a user with the role "administrator"
     And I go to "/admin/structure/block"
     And I follow "Demonstrate block regions"
-    Then the element ".demo-block" should exist in the region "header"
-    And the element ".demo-block" should exist in the region "primary_menu"
-    And the element ".demo-block" should exist in the region "secondary_menu"
-    And the element ".demo-block" should exist in the region "hero"
-    And the element ".demo-block" should exist in the region "highlighted"
-    And the element ".demo-block" should exist in the region "breadcrumb"
-    And the element ".demo-block" should exist in the region "social"
-    And the element ".demo-block" should exist in the region "content_above"
-    And the element ".demo-block" should exist in the region "content"
-    And the element ".demo-block" should exist in the region "sidebar"
-    And the element ".demo-block" should exist in the region "content_below"
-    And the element ".demo-block" should exist in the region "footer_top"
-    And the element ".demo-block" should exist in the region "footer_bottom"
+    Then the element ".demo-block" in the region "header" should exist
+    And the element ".demo-block" in the region "primary_menu" should exist
+    And the element ".demo-block" in the region "secondary_menu" should exist
+    And the element ".demo-block" in the region "hero" should exist
+    And the element ".demo-block" in the region "highlighted" should exist
+    And the element ".demo-block" in the region "breadcrumb" should exist
+    And the element ".demo-block" in the region "social" should exist
+    And the element ".demo-block" in the region "content_above" should exist
+    And the element ".demo-block" in the region "content" should exist
+    And the element ".demo-block" in the region "sidebar" should exist
+    And the element ".demo-block" in the region "content_below" should exist
+    And the element ".demo-block" in the region "footer_top" should exist
+    And the element ".demo-block" in the region "footer_bottom" should exist
 
   Scenario: Messages and login selectors configured correctly
     Given the following users exist:
