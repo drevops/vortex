@@ -27,6 +27,11 @@ class DependencyUpdatesAutomerge extends AbstractHandler {
   const GITHUB_ACTIONS = 'github_actions';
 
   /**
+   * Dependency updates providers that run Renovate.
+   */
+  const PROVIDERS = [DependencyUpdatesProvider::RENOVATEBOT_APP, DependencyUpdatesProvider::RENOVATEBOT_CI];
+
+  /**
    * The 'groupSlug' of each Renovate package rule, keyed by option.
    */
   const GROUPS = [
@@ -95,16 +100,14 @@ DOC;
    * {@inheritdoc}
    */
   public function dependsOn(): ?array {
-    return [DependencyUpdatesProvider::id() => [DependencyUpdatesProvider::RENOVATEBOT_APP, DependencyUpdatesProvider::RENOVATEBOT_CI]];
+    return [DependencyUpdatesProvider::id() => static::PROVIDERS];
   }
 
   /**
    * {@inheritdoc}
    */
   public function shouldRun(array $responses): bool {
-    $provider = $responses[DependencyUpdatesProvider::id()] ?? NULL;
-
-    return in_array($provider, [DependencyUpdatesProvider::RENOVATEBOT_APP, DependencyUpdatesProvider::RENOVATEBOT_CI], TRUE);
+    return in_array($responses[DependencyUpdatesProvider::id()] ?? NULL, static::PROVIDERS, TRUE);
   }
 
   /**
