@@ -13,6 +13,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
+use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesAutomerge;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
@@ -241,6 +242,11 @@ class PromptManager {
 
       ->intro('Automations')
       ->add(fn($r, $pr, $n): mixed => $this->prompt(DependencyUpdatesProvider::class), DependencyUpdatesProvider::id())
+        ->addIf(
+            fn(array $r): bool => $this->handler(DependencyUpdatesAutomerge::id())->shouldRun($r),
+            fn(array $r, $pr, $n): mixed => $this->prompt(DependencyUpdatesAutomerge::class, $r),
+            DependencyUpdatesAutomerge::id()
+          )
       ->add(fn($r, $pr, $n): mixed => $this->prompt(CodeCoverageProvider::class), CodeCoverageProvider::id())
       ->add(fn($r, $pr, $n): mixed => $this->prompt(AssignAuthorPr::class), AssignAuthorPr::id())
       ->add(fn($r, $pr, $n): mixed => $this->prompt(LabelMergeConflictsPr::class), LabelMergeConflictsPr::id())
@@ -496,6 +502,9 @@ class PromptManager {
 
     $values['Automations'] = Tui::LIST_SECTION_TITLE;
     $values['Dependency updates provider'] = $responses[DependencyUpdatesProvider::id()];
+    if (isset($responses[DependencyUpdatesAutomerge::id()])) {
+      $values['Auto-merge dependency updates'] = Converter::toList($responses[DependencyUpdatesAutomerge::id()], ', ');
+    }
     $values['Code coverage provider'] = $responses[CodeCoverageProvider::id()];
     $values['Auto-assign PR author'] = Converter::bool($responses[AssignAuthorPr::id()]);
     $values['Auto-add a CONFLICT label to PRs'] = Converter::bool($responses[LabelMergeConflictsPr::id()]);

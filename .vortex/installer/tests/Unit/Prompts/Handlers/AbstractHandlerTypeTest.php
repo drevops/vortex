@@ -13,6 +13,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
+use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesAutomerge;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
@@ -107,6 +108,7 @@ class AbstractHandlerTypeTest extends UnitTestCase {
     yield 'tools' => [Tools::id(), PromptType::MultiSelect];
     yield 'deploy_types' => [DeployTypes::id(), PromptType::MultiSelect];
     yield 'notification_channels' => [NotificationChannels::id(), PromptType::MultiSelect];
+    yield 'dependency_updates_automerge' => [DependencyUpdatesAutomerge::id(), PromptType::MultiSelect];
     // Confirm handlers.
     yield 'migration' => [Migration::id(), PromptType::Confirm];
     yield 'assign_author_pr' => [AssignAuthorPr::id(), PromptType::Confirm];
