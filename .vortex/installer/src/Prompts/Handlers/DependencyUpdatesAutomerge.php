@@ -57,7 +57,7 @@ class DependencyUpdatesAutomerge extends AbstractHandler {
    */
   public static function description(array $responses): ?string {
     return <<<DOC
-Pull requests in the selected groups are merged once all required status checks pass. Pull requests in other groups wait for a review.
+Pull requests in the selected groups are merged as soon as they meet the branch protection rules. Pull requests in other groups need a manual merge.
 
 Requires "Allow auto-merge" in the repository settings and at least one required status check on the base branch.
 DOC;

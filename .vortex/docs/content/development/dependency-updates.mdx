@@ -25,11 +25,11 @@ Assignees can be configured in the `assignees` field.
 
 ### Auto-merge
 
-Every group auto-merges by default: once all required status checks pass,
-GitHub merges the PR without waiting for a review. Each group in
-`renovate.json` lists an explicit `automerge` flag, so you can see and change
-the behavior per group. To have a group's PRs wait for a manual review, set
-its flag to `false`:
+Every group auto-merges by default: GitHub merges the PR as soon as it meets
+the base branch's protection rules, such as passing required status checks and
+any required reviews. Each group in `renovate.json` lists an explicit
+`automerge` flag, so you can see and change the behavior per group. To merge a
+group's PRs yourself, set its flag to `false`:
 
 ```json
 {
