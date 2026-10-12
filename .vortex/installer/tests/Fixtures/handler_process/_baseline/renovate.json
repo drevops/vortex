@@ -17,6 +17,14 @@
     "rangeStrategy": "bump",
     "timezone": "UTC",
     "configMigration": true,
+    "internalChecksFilter": "strict",
+    "minimumReleaseAgeBehaviour": "timestamp-optional",
+    "logLevelRemap": [
+        {
+            "matchMessage": "/Some .+ did not have a releaseTimestamp, but as we're running with minimumReleaseAgeBehaviour=timestamp-optional, proceeding/",
+            "newLogLevel": "info"
+        }
+    ],
     "enabledManagers": [
         "composer",
         "npm",
@@ -94,9 +102,11 @@
                 "!drupal/core-recommended",
                 "!drupal/core-dev"
             ],
+            "minimumReleaseAge": "14 days",
             "automerge": true
         },
         {
+            "description": "Drupal core has no 'minimumReleaseAge', so its security releases are proposed on the next daily run.",
             "groupName": "PHP - Drupal core - Minor and patch",
             "groupSlug": "php-drupal-core-minor-patch",
             "matchFileNames": [
@@ -127,6 +137,7 @@
                 "npm"
             ],
             "matchFileNames": [
+                "**/package.json",
                 "!package.json"
             ],
             "enabled": false,
@@ -167,6 +178,7 @@
             "matchPackageNames": [
                 "/.*/"
             ],
+            "minimumReleaseAge": "14 days",
             "automerge": true
         },
         {
@@ -186,10 +198,11 @@
                 "docker-compose",
                 "custom.regex"
             ],
+            "minimumReleaseAge": "14 days",
             "automerge": true
         },
         {
-            "description": "npm packages that CI runs at a pinned version through 'npx'. Overrides the non-root rule above, which disables npm packages outside 'package.json'.",
+            "description": "npm packages that CI runs at a pinned version through 'npx'.",
             "groupName": "CI tools - All - Major, minor and patch",
             "groupSlug": "ci-tools-all-major-minor-patch",
             "matchManagers": [
@@ -201,7 +214,7 @@
             "schedule": [
                 "before 3am"
             ],
-            "enabled": true,
+            "minimumReleaseAge": "14 days",
             "automerge": true
         },
         {
@@ -214,6 +227,7 @@
                 "github-actions"
             ],
             "pinDigests": true,
+            "minimumReleaseAge": "14 days",
             "automerge": true
         }
     ],

@@ -14,14 +14,14 @@ Assignees can be configured in the `assignees` field.
 
 ### Update rules
 
-| Group | Packages | Update types | Schedule |
-|---|---|---|---|
-| **Drupal core** | `drupal/core-recommended`, `drupal/core-composer-scaffold`, and other `drupal/core-*` packages | Minor, patch | Daily before 2 AM UTC |
-| **Drupal contrib and PHP packages (non-core)** | All Drupal contrib modules and non-Drupal Packagist packages | Minor, patch | Weekly, Sunday before 2 AM UTC |
-| **JS packages** | All npm packages (root `package.json` only) | Minor, patch | Weekly, Sunday before 2 AM UTC |
-| **Container images** | All images in `.docker/` and `docker-compose.yml` | Major, minor, patch | Daily before 3 AM UTC |
-| **CI tools** | npm packages that CI runs at a pinned version through `npx` | Major, minor, patch | Daily before 3 AM UTC |
-| **GitHub Actions** | All actions (pinned to digests) | Major, minor, patch | Daily before 3 AM UTC |
+| Group | Packages | Update types | Schedule | Minimum release age |
+|---|---|---|---|---|
+| **Drupal core** | `drupal/core-recommended`, `drupal/core-composer-scaffold`, and other `drupal/core-*` packages | Minor, patch | Daily before 2 AM UTC | None |
+| **Drupal contrib and PHP packages (non-core)** | All Drupal contrib modules and non-Drupal Packagist packages | Minor, patch | Weekly, Sunday before 2 AM UTC | 14 days for Packagist packages |
+| **JS packages** | All npm packages (root `package.json` only) | Minor, patch | Weekly, Sunday before 2 AM UTC | 14 days |
+| **Container images** | All images in `.docker/` and `docker-compose.yml` | Major, minor, patch | Daily before 3 AM UTC | 14 days for Docker Hub images |
+| **CI tools** | npm packages that CI runs at a pinned version through `npx` | Major, minor, patch | Daily before 3 AM UTC | 14 days |
+| **GitHub Actions** | All actions (pinned to digests) | Major, minor, patch | Daily before 3 AM UTC | 14 days |
 
 ### Auto-merge
 
@@ -57,6 +57,76 @@ that never reports, such as a CircleCI job that a branch filter excludes from
 `deps/*` branches, keeps the PR blocked indefinitely. A GitHub Actions job
 skipped by its `if` condition reports as skipped, which satisfies the
 requirement.
+
+### Minimum release age
+
+Renovate holds back a new release until it's 14 days old in every group except
+Drupal core. A compromised release is often detected and pulled from its
+registry within days. Nobody reviews an auto-merged update, so the delay keeps
+such a release out of your project.
+[Renovate recommends 14 days](https://docs.renovatebot.com/upgrade-best-practices/#wait-two-weeks-before-automerging-third-party-dependencies)
+when you auto-merge third-party dependencies.
+
+Each delayed group sets `minimumReleaseAge` next to its `automerge` flag:
+
+```json
+{
+    "groupName": "JavaScript - All packages - Minor and patch",
+    "groupSlug": "js-all-minor-patch",
+    ...
+    "minimumReleaseAge": "14 days",
+    "automerge": true
+}
+```
+
+Renovate doesn't create the branch or the PR until a release has reached that
+age, which the top-level `"internalChecksFilter": "strict"` setting enforces.
+When the newest release is too young, Renovate proposes the newest one that
+isn't, and a grouped PR leaves out the packages that have nothing old enough
+yet. Because the PR only exists once the delay has passed, GitHub's auto-merge
+can't merge a release early.
+
+The delay adds to each group's schedule: a weekly group proposes a release 14
+to 21 days after it's published, and a daily group 14 to 15 days after.
+
+#### Drupal core
+
+Drupal core has no delay, so a core security release is proposed on the next
+daily run. Its rule in `renovate.json` carries a `description` that says so.
+
+#### Registries without release dates
+
+Renovate can only hold back a release when its registry records when the
+release was published. Of the registries **Vortex** uses, Drupal.org (Drupal
+contrib modules) and GitHub Container Registry (the Gitleaks image) don't, so
+their updates arrive without the delay. The top-level
+`"minimumReleaseAgeBehaviour": "timestamp-optional"` setting lets these updates
+through; without it, Renovate would hold them back indefinitely. The
+`logLevelRemap` entry stops Renovate from reporting them as a repository
+problem on the Dependency Dashboard.
+
+GitHub Actions are aged by the date of the commit that a tag points to. The
+action's publisher controls that date, so for actions the delay is a weaker
+safeguard than for packages from a registry.
+
+#### Security fixes
+
+When Renovate can read your repository's Dependabot alerts, it raises a fix for
+a published advisory straight away, without the delay or the schedule.
+Otherwise, a security fix arrives as a routine update and waits like any other.
+To apply one sooner, update the dependency yourself, or request the pending
+update from the Dependency Dashboard.
+
+#### Changing the delay
+
+To change the delay for a group, edit its `minimumReleaseAge`. To remove the
+delay, delete the key. Turning auto-merge off for a group keeps its delay, so
+delete the key as well if you want those PRs as soon as a release is published.
+
+Updates waiting for their release to reach the minimum age are listed under
+**Pending Status Checks** on the Dependency Dashboard, where you can also
+request one early. The self-hosted service turns the dashboard off by default:
+set `RENOVATE_DEPENDENCY_DASHBOARD` to `true` to see them.
 
 ## Configuration
 
@@ -131,7 +201,8 @@ import TabItem from '@theme/TabItem';
   dashboard (default: `false`).
 
 **Manual trigger:** run the workflow from the **Actions** tab using the
-workflow dispatch feature.
+workflow dispatch feature. A manual run skips the schedules, but not the
+[minimum release age](#minimum-release-age).
 
 **Debug logging:** set the `LOG_LEVEL` environment variable to `debug` in the
 workflow configuration.
@@ -173,6 +244,8 @@ Triggering GitHub Actions from the self-hosted service isn't supported.
 The Renovate Dependency Dashboard is a GitHub issue that provides visibility into:
 
 - Available dependency updates that are scheduled for later execution
+- Updates waiting for their release to reach the
+  [minimum release age](#minimum-release-age)
 - Updates that have been filtered out due to configuration rules
 - Failed update attempts and their reasons
 

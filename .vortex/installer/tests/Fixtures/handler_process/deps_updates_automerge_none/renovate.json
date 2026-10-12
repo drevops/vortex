@@ -1,13 +1,13 @@
-@@ -94,7 +94,7 @@
-                 "!drupal/core-recommended",
+@@ -103,7 +103,7 @@
                  "!drupal/core-dev"
              ],
+             "minimumReleaseAge": "14 days",
 -            "automerge": true
 +            "automerge": false
          },
          {
-             "groupName": "PHP - Drupal core - Minor and patch",
-@@ -118,7 +118,7 @@
+             "description": "Drupal core has no 'minimumReleaseAge', so its security releases are proposed on the next daily run.",
+@@ -128,7 +128,7 @@
                  "drupal/core-recommended",
                  "drupal/core-dev"
              ],
@@ -16,37 +16,37 @@
          },
          {
              "groupName": "JavaScript - Non-root packages - Skipped to update manually",
-@@ -167,7 +167,7 @@
-             "matchPackageNames": [
+@@ -179,7 +179,7 @@
                  "/.*/"
              ],
+             "minimumReleaseAge": "14 days",
 -            "automerge": true
 +            "automerge": false
          },
          {
              "groupName": "Container images - All - Major, minor and patch",
-@@ -186,7 +186,7 @@
-                 "docker-compose",
+@@ -199,7 +199,7 @@
                  "custom.regex"
              ],
+             "minimumReleaseAge": "14 days",
 -            "automerge": true
 +            "automerge": false
          },
          {
-             "description": "npm packages that CI runs at a pinned version through 'npx'. Overrides the non-root rule above, which disables npm packages outside 'package.json'.",
-@@ -202,7 +202,7 @@
+             "description": "npm packages that CI runs at a pinned version through 'npx'.",
+@@ -215,7 +215,7 @@
                  "before 3am"
              ],
-             "enabled": true,
+             "minimumReleaseAge": "14 days",
 -            "automerge": true
 +            "automerge": false
          },
          {
              "groupName": "GitHub Actions - All - Major, minor and patch",
-@@ -214,7 +214,7 @@
-                 "github-actions"
+@@ -228,7 +228,7 @@
              ],
              "pinDigests": true,
+             "minimumReleaseAge": "14 days",
 -            "automerge": true
 +            "automerge": false
          }
