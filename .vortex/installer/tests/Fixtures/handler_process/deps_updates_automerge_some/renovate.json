@@ -25,12 +25,3 @@
          },
          {
              "description": "npm packages that CI runs at a pinned version through 'npx'.",
-@@ -215,7 +215,7 @@
-                 "before 3am"
-             ],
-             "minimumReleaseAge": "14 days",
--            "automerge": true
-+            "automerge": false
-         },
-         {
-             "groupName": "GitHub Actions - All - Major, minor and patch",
