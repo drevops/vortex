@@ -14,6 +14,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
+use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesAutomerge;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexInstaller\Prompts\Handlers\Domain;
@@ -164,6 +165,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       VisualRegression::id() => FALSE,
       Gitleaks::id() => TRUE,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP,
+      DependencyUpdatesAutomerge::id() => array_keys(DependencyUpdatesAutomerge::GROUPS),
       CodeCoverageProvider::id() => CodeCoverageProvider::NONE,
       AssignAuthorPr::id() => TRUE,
       LabelMergeConflictsPr::id() => TRUE,
@@ -181,6 +183,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       Tools::id() => [],
       CiProvider::id() => CiProvider::NONE,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE,
+      DependencyUpdatesAutomerge::id() => NULL,
       CodeCoverageProvider::id() => CodeCoverageProvider::NONE,
       AssignAuthorPr::id() => FALSE,
       LabelMergeConflictsPr::id() => FALSE,
@@ -243,16 +246,17 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       Migration::id() => static::TUI_DEFAULT,
       MigrationFetchSource::id() => static::TUI_SKIP,
       MigrationImage::id() => static::TUI_SKIP,
+      NotificationChannels::id() => static::TUI_DEFAULT,
       CiProvider::id() => static::TUI_DEFAULT,
       VisualRegression::id() => static::TUI_DEFAULT,
       Gitleaks::id() => static::TUI_DEFAULT,
       DependencyUpdatesProvider::id() => static::TUI_DEFAULT,
+      DependencyUpdatesAutomerge::id() => static::TUI_DEFAULT,
       CodeCoverageProvider::id() => static::TUI_DEFAULT,
       AssignAuthorPr::id() => static::TUI_DEFAULT,
       LabelMergeConflictsPr::id() => static::TUI_DEFAULT,
       PreserveDocsProject::id() => static::TUI_DEFAULT,
       AiCodeInstructions::id() => static::TUI_DEFAULT,
-      NotificationChannels::id() => static::TUI_DEFAULT,
     ];
   }
 

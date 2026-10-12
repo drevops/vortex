@@ -20,17 +20,43 @@ Assignees can be configured in the `assignees` field.
 | **Drupal contrib and PHP packages (non-core)** | All Drupal contrib modules and non-Drupal Packagist packages | Minor, patch | Weekly, Sunday before 2 AM UTC |
 | **JS packages** | All npm packages (root `package.json` only) | Minor, patch | Weekly, Sunday before 2 AM UTC |
 | **Container images** | All images in `.docker/` and `docker-compose.yml` | Major, minor, patch | Daily before 3 AM UTC |
+| **CI tools** | npm packages that CI runs at a pinned version through `npx` | Major, minor, patch | Daily before 3 AM UTC |
 | **GitHub Actions** | All actions (pinned to digests) | Major, minor, patch | Daily before 3 AM UTC |
 
-Updates in the **GitHub Actions** group are auto-merged after CI passes. This
-requires 2 repository settings:
+### Auto-merge
+
+Every group auto-merges by default: GitHub merges the PR as soon as it meets
+the base branch's protection rules, such as passing required status checks and
+any required reviews. Each group in `renovate.json` lists an explicit
+`automerge` flag, so you can see and change the behavior per group. To merge a
+group's PRs yourself, set its flag to `false`:
+
+```json
+{
+    "groupName": "PHP - Drupal core - Minor and patch",
+    "groupSlug": "php-drupal-core-minor-patch",
+    ...
+    "automerge": false
+}
+```
+
+The installer asks which groups to auto-merge and sets the flag to `true` for
+the groups you select and to `false` for the rest. When you update **Vortex**,
+it preselects the groups whose flag is already `true`, so your choices carry
+over.
+
+Auto-merge requires 2 repository settings:
 
 1. **"Allow auto-merge"** enabled under *Settings > General > Pull Requests*.
 2. **"Require status checks to pass before merging"** configured in the base
    branch's branch protection rules, with at least one required status check
    selected. Otherwise, GitHub may merge even if CI is red.
 
-All other groups open PRs for manual review.
+Every required status check must also report on `deps/*` branches. A check
+that never reports, such as a CircleCI job that a branch filter excludes from
+`deps/*` branches, keeps the PR blocked indefinitely. A GitHub Actions job
+skipped by its `if` condition reports as skipped, which satisfies the
+requirement.
 
 ## Configuration
 

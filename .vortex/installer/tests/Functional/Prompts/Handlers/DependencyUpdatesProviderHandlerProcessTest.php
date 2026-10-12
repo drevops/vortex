@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesAutomerge;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
+use DrevOps\VortexInstaller\Utils\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(DependencyUpdatesProvider::class)]
+#[CoversClass(DependencyUpdatesAutomerge::class)]
 class DependencyUpdatesProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
@@ -26,6 +29,27 @@ class DependencyUpdatesProviderHandlerProcessTest extends AbstractHandlerProcess
     ];
     yield 'deps_updates_provider_none' => [
       static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[DependencyUpdatesProvider::id()] = DependencyUpdatesProvider::NONE),
+    ];
+    yield 'deps_updates_automerge_some' => [
+      static::cw(fn(AbstractHandlerProcessTestCase $test): array => $test->prompts[DependencyUpdatesAutomerge::id()] = [DependencyUpdatesAutomerge::DRUPAL_CORE, DependencyUpdatesAutomerge::GITHUB_ACTIONS]),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $config = json_decode(File::read(static::$sut . '/renovate.json'), TRUE);
+          $test->assertSame([
+            'php-all-except-core-minor-patch' => FALSE,
+            'php-drupal-core-minor-patch' => TRUE,
+            'js-all-minor-patch' => FALSE,
+            'container-images-all-major-minor-patch' => FALSE,
+            'ci-tools-all-major-minor-patch' => FALSE,
+            'github-actions-all-major-minor-patch' => TRUE,
+          ], array_column($config['packageRules'], 'automerge', 'groupSlug'));
+      }),
+    ];
+    yield 'deps_updates_automerge_none' => [
+      static::cw(fn(AbstractHandlerProcessTestCase $test): array => $test->prompts[DependencyUpdatesAutomerge::id()] = []),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $config = json_decode(File::read(static::$sut . '/renovate.json'), TRUE);
+          $test->assertSame(array_fill_keys(DependencyUpdatesAutomerge::GROUPS, FALSE), array_column($config['packageRules'], 'automerge', 'groupSlug'));
+      }),
     ];
   }
 
