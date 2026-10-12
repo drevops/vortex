@@ -125,8 +125,8 @@ DOC;
     }
 
     $slugs = [];
-    foreach ($config['packageRules'] as $rule) {
-      if (is_array($rule) && ($rule['automerge'] ?? FALSE) === TRUE) {
+    foreach ($this->packageRules($config) as $rule) {
+      if (($rule['automerge'] ?? FALSE) === TRUE) {
         $slugs[] = $rule['groupSlug'] ?? NULL;
       }
     }
@@ -146,8 +146,8 @@ DOC;
       return;
     }
 
-    foreach ($config['packageRules'] as $index => $rule) {
-      $group = is_array($rule) ? array_search($rule['groupSlug'] ?? NULL, static::GROUPS, TRUE) : FALSE;
+    foreach ($this->packageRules($config) as $index => $rule) {
+      $group = array_search($rule['groupSlug'] ?? NULL, static::GROUPS, TRUE);
 
       if ($group !== FALSE) {
         $config['packageRules'][$index]['automerge'] = in_array($group, $this->response, TRUE);
@@ -164,8 +164,8 @@ DOC;
    *   Path to the configuration file.
    *
    * @return array<string, mixed>|null
-   *   The decoded configuration, or NULL if the file is missing, is not valid
-   *   JSON or has no package rules.
+   *   The decoded configuration, or NULL if the file is missing or does not
+   *   hold a JSON object.
    */
   protected function readConfig(string $file): ?array {
     if (!File::exists($file)) {
@@ -174,11 +174,23 @@ DOC;
 
     $config = json_decode(File::read($file), TRUE);
 
-    if (!is_array($config) || !is_array($config['packageRules'] ?? NULL)) {
-      return NULL;
-    }
+    return is_array($config) ? $config : NULL;
+  }
 
-    return $config;
+  /**
+   * Get the package rules of a Renovate configuration.
+   *
+   * @param array<string, mixed> $config
+   *   The decoded configuration.
+   *
+   * @return array<int|string, array<string, mixed>>
+   *   The package rules that are objects, keyed by their position, or an empty
+   *   array if the configuration has none.
+   */
+  protected function packageRules(array $config): array {
+    $rules = is_array($config['packageRules'] ?? NULL) ? $config['packageRules'] : [];
+
+    return array_filter($rules, is_array(...));
   }
 
 }

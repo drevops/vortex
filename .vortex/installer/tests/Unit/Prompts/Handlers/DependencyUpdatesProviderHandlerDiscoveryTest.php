@@ -108,11 +108,22 @@ class DependencyUpdatesProviderHandlerDiscoveryTest extends AbstractHandlerDisco
       [],
       [
         DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP,
-        DependencyUpdatesAutomerge::id() => $all_groups,
+        DependencyUpdatesAutomerge::id() => [],
       ] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         File::dump(static::$sut . '/renovate.json', '{}');
+      },
+    ];
+    yield 'dependency updates automerge - discovery - invalid json' => [
+      [],
+      [
+        DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP,
+        DependencyUpdatesAutomerge::id() => $all_groups,
+      ] + $expected_installed,
+      function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
+        $test->stubVortexProject($config);
+        File::dump(static::$sut . '/renovate.json', '{"packageRules": [');
       },
     ];
   }
