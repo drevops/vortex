@@ -112,8 +112,8 @@ problem on the Dependency Dashboard.
 
 Docker Hub records release dates, but Renovate can't read them for an image
 with more than 1,000 tags. The Renovate image has tens of thousands of tags, so
-**Vortex** looks its versions up in the `renovate` npm package instead, which
-uses the same version numbers and records a date for every release.
+**Vortex** looks its versions up in the `renovate` npm package instead. The
+package uses the same version numbers and records a date for every release.
 
 GitHub Actions are aged by the date of the commit that a tag points to. The
 action's publisher controls that date, so for actions the delay is a weaker
