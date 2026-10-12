@@ -49,7 +49,7 @@ trait DeploymentTrait {
     $this->assertFileDoesNotExist($dir . '/.stylelintrc.json', '.stylelintrc.json should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/LICENSE', 'LICENSE should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/README.md', 'README.md should not exist in deployment');
-    $this->assertFileDoesNotExist($dir . '/behat.yml', 'behat.yml should not exist in deployment');
+    $this->assertFileDoesNotExist($dir . '/behat.php', 'behat.php should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/composer.lock', 'composer.lock should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/docker-compose.yml', 'docker-compose.yml should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/gherkinlint.json', 'gherkinlint.json should not exist in deployment');
