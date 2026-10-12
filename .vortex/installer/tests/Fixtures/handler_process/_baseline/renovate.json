@@ -202,19 +202,6 @@
             "automerge": true
         },
         {
-            "description": "Renovate publishes several releases a day, so the image that runs Renovate in CircleCI is proposed weekly in a group of its own.",
-            "groupName": "Container images - Renovate - Major, minor and patch",
-            "groupSlug": "container-images-renovate-major-minor-patch",
-            "matchFileNames": [
-                ".circleci/update-dependencies.yml"
-            ],
-            "schedule": [
-                "before 3am on Sunday"
-            ],
-            "minimumReleaseAge": "14 days",
-            "automerge": true
-        },
-        {
             "description": "npm packages that CI runs at a pinned version through 'npx'.",
             "groupName": "CI tools - All - Major, minor and patch",
             "groupSlug": "ci-tools-all-major-minor-patch",
@@ -226,6 +213,19 @@
             ],
             "schedule": [
                 "before 3am"
+            ],
+            "minimumReleaseAge": "14 days",
+            "automerge": true
+        },
+        {
+            "description": "Renovate publishes several releases a day, so the image that runs Renovate in CircleCI is proposed weekly in a group of its own.",
+            "groupName": "CI tools - Renovate - Major, minor and patch",
+            "groupSlug": "ci-tools-renovate-major-minor-patch",
+            "matchFileNames": [
+                ".circleci/update-dependencies.yml"
+            ],
+            "schedule": [
+                "before 3am on Sunday"
             ],
             "minimumReleaseAge": "14 days",
             "automerge": true
@@ -271,23 +271,25 @@
         {
             "customType": "regex",
             "managerFilePatterns": [
-                "/^\\.circleci/update-dependencies\\.yml$/"
-            ],
-            "matchStrings": [
-                "image:\\s*[\"']?(?<depName>[a-z0-9][a-z0-9._\\-]*(?:/[a-z0-9._\\-]+)+):(?<currentValue>v?[0-9][\\w.\\-]*)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"
-            ],
-            "datasourceTemplate": "docker",
-            "versioningTemplate": "docker"
-        },
-        {
-            "customType": "regex",
-            "managerFilePatterns": [
                 "/^\\.circleci/config\\.yml$/",
                 "/^\\.github/workflows/.+\\.yml$/"
             ],
             "matchStrings": [
                 "npx --yes (?<depName>@?[a-z0-9][a-z0-9._\\-]*(?:/[a-z0-9._\\-]+)?)@(?<currentValue>[0-9][\\w.\\-]*)"
             ],
+            "datasourceTemplate": "npm",
+            "versioningTemplate": "npm"
+        },
+        {
+            "description": "The image is looked up as the 'renovate' npm package, which records the release dates that 'minimumReleaseAge' needs.",
+            "customType": "regex",
+            "managerFilePatterns": [
+                "/^\\.circleci/update-dependencies\\.yml$/"
+            ],
+            "matchStrings": [
+                "image:\\s*[\"']?(?<depName>renovate/renovate):(?<currentValue>\\d+\\.\\d+\\.\\d+)(?:-[a-z]+)?[\"']?\\s"
+            ],
+            "packageNameTemplate": "renovate",
             "datasourceTemplate": "npm",
             "versioningTemplate": "npm"
         }
