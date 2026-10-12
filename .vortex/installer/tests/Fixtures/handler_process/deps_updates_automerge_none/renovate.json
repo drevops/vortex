@@ -33,8 +33,17 @@
 +            "automerge": false
          },
          {
+             "description": "Renovate publishes several releases a day, so the image that runs Renovate in CircleCI is proposed weekly in a group of its own.",
+@@ -212,7 +212,7 @@
+                 "before 3am on Sunday"
+             ],
+             "minimumReleaseAge": "14 days",
+-            "automerge": true
++            "automerge": false
+         },
+         {
              "description": "npm packages that CI runs at a pinned version through 'npx'.",
-@@ -215,7 +215,7 @@
+@@ -228,7 +228,7 @@
                  "before 3am"
              ],
              "minimumReleaseAge": "14 days",
@@ -43,7 +52,7 @@
          },
          {
              "groupName": "GitHub Actions - All - Major, minor and patch",
-@@ -228,7 +228,7 @@
+@@ -241,7 +241,7 @@
              ],
              "pinDigests": true,
              "minimumReleaseAge": "14 days",
