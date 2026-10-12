@@ -39,6 +39,7 @@ class DependencyUpdatesProviderHandlerProcessTest extends AbstractHandlerProcess
             'php-drupal-core-minor-patch' => TRUE,
             'js-all-minor-patch' => FALSE,
             'container-images-all-major-minor-patch' => FALSE,
+            'container-images-renovate-major-minor-patch' => FALSE,
             'ci-tools-all-major-minor-patch' => FALSE,
             'github-actions-all-major-minor-patch' => TRUE,
           ], array_column($config['packageRules'], 'automerge', 'groupSlug'));
@@ -48,11 +49,20 @@ class DependencyUpdatesProviderHandlerProcessTest extends AbstractHandlerProcess
       static::cw(fn(AbstractHandlerProcessTestCase $test): array => $test->prompts[DependencyUpdatesAutomerge::id()] = []),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $config = json_decode(File::read(static::$sut . '/renovate.json'), TRUE);
-          $test->assertSame(array_fill_keys(DependencyUpdatesAutomerge::GROUPS, FALSE), array_column($config['packageRules'], 'automerge', 'groupSlug'));
+          $test->assertSame([
+            'php-all-except-core-minor-patch' => FALSE,
+            'php-drupal-core-minor-patch' => FALSE,
+            'js-all-minor-patch' => FALSE,
+            'container-images-all-major-minor-patch' => FALSE,
+            'container-images-renovate-major-minor-patch' => FALSE,
+            'ci-tools-all-major-minor-patch' => FALSE,
+            'github-actions-all-major-minor-patch' => FALSE,
+          ], array_column($config['packageRules'], 'automerge', 'groupSlug'));
           $test->assertSame([
             'php-all-except-core-minor-patch' => '14 days',
             'js-all-minor-patch' => '14 days',
             'container-images-all-major-minor-patch' => '14 days',
+            'container-images-renovate-major-minor-patch' => '14 days',
             'ci-tools-all-major-minor-patch' => '14 days',
             'github-actions-all-major-minor-patch' => '14 days',
           ], array_column($config['packageRules'], 'minimumReleaseAge', 'groupSlug'));

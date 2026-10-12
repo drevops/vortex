@@ -99,6 +99,7 @@ class DependencyUpdatesProviderHandlerDiscoveryTest extends AbstractHandlerDisco
             ['groupSlug' => DependencyUpdatesAutomerge::GROUPS[DependencyUpdatesAutomerge::PHP], 'automerge' => FALSE],
             ['groupSlug' => DependencyUpdatesAutomerge::GROUPS[DependencyUpdatesAutomerge::DRUPAL_CORE], 'automerge' => TRUE],
             ['groupSlug' => DependencyUpdatesAutomerge::GROUPS[DependencyUpdatesAutomerge::JS]],
+            ['groupSlug' => DependencyUpdatesAutomerge::LINKED_GROUPS[DependencyUpdatesAutomerge::CONTAINER_IMAGES], 'automerge' => TRUE],
             ['groupSlug' => 'custom-group', 'automerge' => TRUE],
           ],
         ]));
