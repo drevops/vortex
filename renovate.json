@@ -140,6 +140,7 @@
                 "npm"
             ],
             "matchFileNames": [
+                "**/package.json",
                 "!package.json"
             ],
             "enabled": false,
@@ -204,7 +205,7 @@
             "automerge": true
         },
         {
-            "description": "npm packages that CI runs at a pinned version through 'npx'. Overrides the non-root rule above, which disables npm packages outside 'package.json'.",
+            "description": "npm packages that CI runs at a pinned version through 'npx'.",
             "groupName": "CI tools - All - Major, minor and patch",
             "groupSlug": "ci-tools-all-major-minor-patch",
             "matchManagers": [
@@ -216,7 +217,6 @@
             "schedule": [
                 "before 3am"
             ],
-            "enabled": true,
             "minimumReleaseAge": "14 days",
             "automerge": true
         },
