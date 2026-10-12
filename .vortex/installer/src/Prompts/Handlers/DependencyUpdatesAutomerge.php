@@ -138,15 +138,11 @@ DOC;
    * {@inheritdoc}
    */
   public function process(): void {
-    // The prompt is skipped when no Renovate provider is selected.
-    if (!is_array($this->response)) {
-      return;
-    }
-
     $file = $this->tmpDir . '/renovate.json';
     $config = $this->readConfig($file);
 
-    if ($config === NULL) {
+    // The prompt is skipped when no Renovate provider is selected.
+    if (!is_array($this->response) || $config === NULL) {
       return;
     }
 
