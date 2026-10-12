@@ -20,13 +20,13 @@ Assignees can be configured in the `assignees` field.
 | **Drupal contrib and PHP packages (non-core)** | All Drupal contrib modules and non-Drupal Packagist packages | Minor, patch | Weekly, Sunday before 2 AM UTC | 14 days for Packagist packages |
 | **JS packages** | All npm packages (root `package.json` only) | Minor, patch | Weekly, Sunday before 2 AM UTC | 14 days |
 | **Container images** | All images in `.docker/` and `docker-compose.yml` | Major, minor, patch | Daily before 3 AM UTC | 14 days for Docker Hub images |
-| **Renovate image** | The `renovate/renovate` image in `.circleci/update-dependencies.yml` | Major, minor, patch | Weekly, Sunday before 3 AM UTC | 14 days |
 | **CI tools** | npm packages that CI runs at a pinned version through `npx` | Major, minor, patch | Daily before 3 AM UTC | 14 days |
+| **Renovate image** | The `renovate/renovate` image in `.circleci/update-dependencies.yml` | Major, minor, patch | Weekly, Sunday before 3 AM UTC | 14 days |
 | **GitHub Actions** | All actions (pinned to digests) | Major, minor, patch | Daily before 3 AM UTC | 14 days |
 
 Renovate publishes several releases a day, so the image that runs Renovate in
-CircleCI has a group of its own with a weekly schedule. In the daily container
-images group, a new version would be proposed almost every day.
+CircleCI has a group of its own with a weekly schedule. In the daily CI tools
+group, a new version would be proposed almost every day.
 
 ### Auto-merge
 
@@ -46,9 +46,9 @@ group's PRs yourself, set its flag to `false`:
 ```
 
 The installer asks which groups to auto-merge and sets the flag to `true` for
-the groups you select and to `false` for the rest. The container images choice
-covers the Renovate image group too. When you update **Vortex**, it preselects
-the groups whose flag is already `true`, so your choices carry over.
+the groups you select and to `false` for the rest. The CI tools choice covers
+the Renovate image group too. When you update **Vortex**, it preselects the
+groups whose flag is already `true`, so your choices carry over.
 
 Auto-merge requires 2 repository settings:
 
@@ -109,6 +109,11 @@ their updates arrive without the delay. The top-level
 through; without it, Renovate would hold them back indefinitely. The
 `logLevelRemap` entry stops Renovate from reporting them as a repository
 problem on the Dependency Dashboard.
+
+Docker Hub records release dates, but Renovate can't read them for an image
+with more than 1,000 tags. The Renovate image has tens of thousands of tags, so
+**Vortex** looks its versions up in the `renovate` npm package instead, which
+uses the same version numbers and records a date for every release.
 
 GitHub Actions are aged by the date of the commit that a tag points to. The
 action's publisher controls that date, so for actions the delay is a weaker

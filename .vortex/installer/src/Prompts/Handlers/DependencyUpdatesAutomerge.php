@@ -50,7 +50,7 @@ class DependencyUpdatesAutomerge extends AbstractHandler {
    * so the group's option also sets the linked rule's 'automerge' flag.
    */
   const LINKED_GROUPS = [
-    self::CONTAINER_IMAGES => 'container-images-renovate-major-minor-patch',
+    self::CI_TOOLS => 'ci-tools-renovate-major-minor-patch',
   ];
 
   /**
