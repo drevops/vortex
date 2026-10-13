@@ -16,15 +16,13 @@ there from CI, see [Lagoon deployment](../deployment/lagoon.mdx).
 
 ## Integration
 
-**Vortex** provides the following integration with Lagoon:
-
 ### Tasks
 
 With **Vortex**, you can:
 
-- **Fetch a database** from a Lagoon environment for local development or CI
-- **Trigger deployments** to Lagoon environments - see [Lagoon deployment](../deployment/lagoon.mdx)
-- **Run custom commands** on Lagoon environments
+- Fetch a database from a Lagoon environment for local development or CI
+- Trigger deployments to Lagoon environments (see [Lagoon deployment](../deployment/lagoon.mdx))
+- Run custom commands on Lagoon environments
 
 When running these tasks, your `.env` and `.env.local` files are used as the
 source for the project name and SSH configuration.
@@ -33,8 +31,8 @@ source for the project name and SSH configuration.
 
 When code is deployed, **Vortex** automatically:
 
-1. **Provisions the site** - Runs database updates, imports configuration, clears caches
-2. **Sends notifications** - Notifies configured channels about the deployment
+1. Provisions the site: runs database updates, imports configuration, and clears caches
+2. Notifies configured channels about the deployment
 
 This is implemented using post-rollout tasks defined in the
 [`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)

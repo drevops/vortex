@@ -5,10 +5,7 @@ sidebar_position: 8
 
 # Migrations
 
-**Vortex** provides optional support for a **second database** to power Drupal
-migrations. When enabled, a `database2` Docker service runs alongside the
-primary database, and a `settings.migration.php` file registers the
-`$databases['migrate']` connection that Drupal's Migrate API uses by default.
+**Vortex** provides optional support for a second database to power Drupal migrations. When enabled, a `database2` Docker service runs alongside the primary database, and a `settings.migration.php` file registers the `$databases['migrate']` connection that Drupal's Migrate API uses by default.
 
 ## Enabling the migration database
 
@@ -63,9 +60,7 @@ database2:
     lagoon.type: mariadb
 ```
 
-The image tag tracks the primary database image - check the shipped
-[`docker-compose.yml`](https://github.com/drevops/vortex/blob/main/docker-compose.yml)
-for the current version.
+The image tag tracks the primary database image. Check the shipped [`docker-compose.yml`](https://github.com/drevops/vortex/blob/main/docker-compose.yml) for the current version.
 
 ## Drupal settings
 

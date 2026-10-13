@@ -33,19 +33,9 @@ stay on this page.
 
 ## Ignored files
 
-**Vortex** manages 3 ignore files as **deny lists**: nothing is excluded
-by default, and each file lists only what must be kept out of its target.
-This is the opposite of an allow list, where everything is excluded by default
-and every addition has to be explicitly re-included. The deny-list model follows
-the "avoid silent errors" principle - a newly added file is visible by default
-instead of silently disappearing until someone remembers to allow it.
+**Vortex** manages 3 ignore files as deny lists: nothing is excluded by default, and each file lists only what must be kept out of its target. This is the opposite of an allow list, where everything is excluded by default and every addition has to be explicitly re-included. The deny-list model follows the "avoid silent errors" principle: a newly added file is visible by default instead of silently disappearing until someone remembers to allow it.
 
-The `.gitignore` file controls which paths Git ignores in the project
-repository - committing a file is still what puts it there. It
-excludes Composer- and npm-generated directories (`web/core`,
-`web/modules/contrib`, `vendor`, `node_modules`), local setting overrides,
-caches, and content files. It keeps 2 sections as small allow lists because a
-deny rule can't express them:
+The `.gitignore` file controls which paths Git ignores in the project repository (committing a file is still what puts it there). It excludes Composer- and npm-generated directories (`web/core`, `web/modules/contrib`, `vendor`, `node_modules`), local setting overrides, caches, and content files. It keeps 2 sections as small allow lists because a deny rule can't express them:
 
 - `recipes/` - Composer installs contributed recipes next to your custom ones,
   so each custom recipe is un-ignored explicitly.

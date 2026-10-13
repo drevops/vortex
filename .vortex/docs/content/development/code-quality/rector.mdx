@@ -12,27 +12,15 @@ https://github.com/rectorphp/rector
 for Drupal projects, based on the configuration provided by
 [Drupal Rector](https://github.com/palantirnet/drupal-rector).
 
-Rector automatically refactors your PHP and Drupal code to:
+Rector refactors your PHP and Drupal code automatically and applies the same rules across the codebase. It fixes deprecated Drupal APIs to prepare the code for Drupal major version upgrades, and rewrites code to use PHP 8.4 language features.
 
-- **Fix deprecated Drupal APIs** - prepares code for Drupal major version upgrades
-- **Modernize PHP syntax** - rewrites code to use PHP 8.4 language features
-- **Keep code consistent** - applies the same refactoring rules across the codebase
-
-Run Rector:
-
-- **Before Drupal upgrades** - run before upgrading Drupal major versions to fix deprecations
-- **During development** - run periodically (weekly/monthly) to catch deprecations early
-- **In code review** - it runs in the CI pipeline as one of the code quality checks
-- **When refactoring legacy code** - to modernize older codebases in bulk
+Run Rector before upgrading Drupal major versions to fix deprecations, and periodically during development (weekly or monthly) to catch deprecations early. In code review, it runs in the CI pipeline as one of the code quality checks. When you refactor legacy code, run it to modernize older codebases in bulk.
 
 :::note
 
 Rector is often used ad hoc to perform bulk refactoring.
 
-In **Vortex**, it's integrated as a regular code quality tool that can be run
-at any time to check for deprecated code and automatically fix issues. This
-keeps the codebase up-to-date _continuously_ rather than waiting for major
-upgrades.
+In **Vortex**, it's integrated as a regular code quality tool that you can run at any time to check for deprecated code and fix issues automatically. Running it continuously keeps the codebase up to date between major upgrades.
 
 :::
 
@@ -143,8 +131,7 @@ See more
 on the [Ignoring Rules Or Paths](https://getrector.com/documentation/ignoring-rules-or-paths)
 page.
 
-Ignoring rules **globally** takes place in
-the [`rector.php`](https://github.com/drevops/vortex/blob/main/rector.php) file:
+Ignoring rules globally takes place in the [`rector.php`](https://github.com/drevops/vortex/blob/main/rector.php) file:
 
 ```php
 ->withSkip([
@@ -152,7 +139,7 @@ the [`rector.php`](https://github.com/drevops/vortex/blob/main/rector.php) file:
 ])
 ```
 
-To ignore **all Rector rules** within a file:
+To ignore all Rector rules within a file:
 
 ```php
 ->withSkip([
@@ -161,7 +148,7 @@ To ignore **all Rector rules** within a file:
 ])
 ```
 
-To ignore **a specific rule** within a file:
+To ignore a specific rule within a file:
 
 ```php
 ->withSkip([
@@ -169,7 +156,7 @@ To ignore **a specific rule** within a file:
 ])
 ```
 
-Rector doesn't support ignoring of the **code blocks**.
+Rector doesn't support ignoring code blocks.
 
 ## Continuous integration
 

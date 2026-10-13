@@ -61,7 +61,7 @@ import { VerticalTabs, VerticalTab, VerticalTabPanel } from '@site/src/component
 
 ## Writing Tests
 
-**Component Tests**:
+Example component test:
 ```javascript
 import { render, screen } from '@testing-library/react';
 
@@ -73,9 +73,9 @@ test('component renders correctly', () => {
 
 ## Content Guidelines
 
-- **American English**: Use American spelling (organize, color, behavior)
-- **MDX Support**: Combine Markdown with React components
-- **Code Examples**: Include practical bash/JavaScript examples
+- Use American spelling (organize, color, behavior)
+- Combine Markdown with React components in MDX
+- Include practical bash/JavaScript examples
 
 ## Pre-commit Checklist
 

@@ -19,9 +19,7 @@ Pygmy provides the shared services the **Vortex** container stack relies on:
 - SSH agents, so SSH keys are available within containers.
 - A local mail catcher that receives and displays outgoing mail at http://mailhog.docker.amazee.io/.
 
-The `docker-compose.yml` shipped with **Vortex** attaches its services to the
-external `amazeeio-network` that Pygmy creates, so Pygmy must be running before
-`ahoy up` can start the stack - [`ahoy doctor`](doctor.mdx) checks for it.
+The `docker-compose.yml` shipped with **Vortex** attaches its services to the external `amazeeio-network` that Pygmy creates, so Pygmy must be running before `ahoy up` can start the stack. [`ahoy doctor`](doctor.mdx) checks that Pygmy is running.
 
 ## Installation
 

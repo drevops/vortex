@@ -54,7 +54,7 @@ Auto-merge requires 2 repository settings:
 
 1. **"Allow auto-merge"** enabled under *Settings > General > Pull Requests*.
 2. **"Require status checks to pass before merging"** configured in the base
-   branch's branch protection rules, with at least one required status check
+   branch's branch protection rules, with at least 1 required status check
    selected. Otherwise, GitHub may merge even if CI is red.
 
 Every required status check must also report on `deps/*` branches. A check
@@ -157,7 +157,7 @@ project.
 
 ### Disabled updates
 
-These are intentionally skipped by Renovate - update them manually:
+Renovate intentionally skips these updates. Update them manually:
 
 | Group | What's skipped | Why |
 |---|---|---|
@@ -254,7 +254,7 @@ Triggering GitHub Actions from the self-hosted service isn't supported.
 
 ### Dependency dashboard
 
-The Renovate Dependency Dashboard is a GitHub issue that provides visibility into:
+The Renovate Dependency Dashboard is a GitHub issue that lists:
 
 - Available dependency updates that are scheduled for later execution
 - Updates waiting for their release to reach the
@@ -262,7 +262,4 @@ The Renovate Dependency Dashboard is a GitHub issue that provides visibility int
 - Updates that have been filtered out due to configuration rules
 - Failed update attempts and their reasons
 
-The dashboard is created with the title "RenovateBot Dependency Dashboard (self-hosted)"
-when running in self-hosted mode. This dashboard is particularly useful for understanding
-why certain updates might not be applied immediately due to scheduling constraints or
-configuration rules.
+The dashboard is created with the title "RenovateBot Dependency Dashboard (self-hosted)" when running in self-hosted mode.

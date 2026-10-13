@@ -14,20 +14,16 @@ Updating **Vortex** gives existing projects:
 - Security patches and bug fixes
 - New features and improvements
 - Updated dependencies and tooling
-- Enhanced deployment capabilities
+- Deployment improvements
 
-After the update, review and commit the changes to your project to maintain version control and track what has changed.
+After the update, review the changes and commit them to your project.
 
 We recommend updating **Vortex** monthly or at least quarterly to keep your project
 secure and up-to-date.
 
 :::note Staying on your major version
 
-`ahoy update-vortex` updates your project **within its current major version** - a
-`1.x` project receives the latest `1.x` release and is never moved to `2.x`
-automatically. Moving to a new major is a deliberate step: run that major's
-installer (for example `https://www.vortextemplate.com/v2/install`) against your
-project.
+`ahoy update-vortex` updates your project within its current major version. A `1.x` project receives the latest `1.x` release and is never moved to `2.x` automatically. Moving to a new major is a deliberate step: run that major's installer (for example `https://www.vortextemplate.com/v2/install`) against your project.
 
 :::
 
@@ -62,8 +58,7 @@ Specifically check if any environment variables were added or changed.
 
 3. Review the changes made by the update and selectively add them.
 
-   It may be a good idea to commit changes in smaller chunks to make it easier
-   to review and revert if necessary.
+   Consider committing the changes in smaller chunks, so they're easier to review and revert if necessary.
 
    Where the update replaced a file your project had changed, `.logs/vortex-update.md` records the replaced change alongside the change the new version brings. Work through it to re-apply your changes, then delete the entries you have resolved. The file isn't tracked in Git.
 
@@ -103,11 +98,11 @@ Specifically check if any environment variables were added or changed.
 
 ## Best practices
 
-1. **Regular updates**: Update **Vortex** monthly or when security patches are released
-2. **Test updates**: Always test updates in development before applying to production
-3. **Staged rollout**: Update development → staging → production environments
-4. **Document changes**: Keep track of what changed and why
-5. **Monitor after update**: Watch for issues in the days following an update
+1. Update **Vortex** monthly or when security patches are released
+2. Always test updates in development before applying to production
+3. Update environments in stages: development → staging → production
+4. Keep track of what changed and why
+5. Watch for issues in the days following an update
 
 ## Getting help
 

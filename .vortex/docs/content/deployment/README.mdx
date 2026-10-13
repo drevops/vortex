@@ -23,9 +23,7 @@ types:
 - [`artifact`](artifact.mdx) - A code artifact is created and sent to a remote repository.
 - [`lagoon`](lagoon.mdx) - The Lagoon CLI is used to trigger a deployment on the Lagoon platform.
 
-Once the code lands on the hosting platform, the platform provisions the site
-and sends [notifications](notifications/README.mdx) - that part runs on the hosting
-side, not in the `deploy` job.
+Once the code lands on the hosting platform, the platform provisions the site and sends [notifications](notifications/README.mdx). That part runs on the hosting side, not in the `deploy` job.
 
 <details>
 <summary>Expand to see deployment in the complete code lifecycle</summary>
@@ -59,10 +57,7 @@ When a pull request is raised against one of the preceding branches, a
 deployment runs for the pull request's branch. Depending on the hosting
 platform, this may create a temporary environment named after the pull request.
 
-Short-lived `feature/*` and `bugfix/*` branches deploy through their pull
-requests rather than through direct pushes - deploying both the push and the
-PR would double every CI run and deployment. Branches created by automated
-dependency updates (`deps/*`) never deploy.
+Short-lived `feature/*` and `bugfix/*` branches deploy through their pull requests rather than through direct pushes. Deploying both the push and the PR would double every CI run and deployment. Branches created by automated dependency updates (`deps/*`) never deploy.
 
 `project/*` branches are long-lived branches typically used for larger
 features or projects spanning multiple pull requests. An example is a
@@ -70,9 +65,7 @@ migration branch whose code and configuration aren't ready to merge into
 `develop` but need a remote environment for testing. Such branches are
 manually synced with `develop` and deploy on direct pushes.
 
-The exact patterns differ slightly per provider - see
-[GitHub Actions > Update trigger branches](../continuous-integration/github-actions.mdx#update-trigger-branches)
-and [CircleCI > Update deployment branches](../continuous-integration/circleci.mdx#update-deployment-branches).
+The exact patterns differ slightly per provider. See [GitHub Actions > Update trigger branches](../continuous-integration/github-actions.mdx#update-trigger-branches) and [CircleCI > Update deployment branches](../continuous-integration/circleci.mdx#update-deployment-branches).
 
 ### Deployment action
 
@@ -137,11 +130,7 @@ VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent
 
 ## Gating deployments on a PR label
 
-Skipping is subtractive - everything deploys unless you exclude it. The label
-gate is the opposite: it makes a pull request deployment **opt-in**, so a PR
-reaches an environment only when it's explicitly labeled for it. This is
-useful for controlling the number and cost of per-PR environments, or for
-keeping work-in-progress pull requests out of environments.
+Skipping is subtractive: everything deploys unless you exclude it. The label gate is the opposite. It makes a pull request deployment opt-in, so a PR reaches an environment only when it's explicitly labeled for it. This is useful for controlling the number and cost of per-PR environments, or for keeping work-in-progress pull requests out of environments.
 
 Set `$VORTEX_DEPLOY_ALLOW_LABEL` to the name of the label that authorizes
 deployment:
@@ -150,9 +139,7 @@ deployment:
 VORTEX_DEPLOY_ALLOW_LABEL=deploy
 ```
 
-With this set, a pull request is deployed only if it carries the `deploy`
-label; pull requests without it are skipped. When the variable is empty or
-unset (the default), the gate is inactive and deployments behave as before.
+With this set, a pull request is deployed only if it carries the `deploy` label; pull requests without it are skipped. When the variable is empty or unset (the default), the gate is inactive.
 
 The gate applies only to pull request builds. Branch and tag deployments have
 no associated pull request label and are never gated.

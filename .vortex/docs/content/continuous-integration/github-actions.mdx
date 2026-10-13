@@ -92,7 +92,7 @@ provisioning is disk-heavy. See [Runner disk space](#runner-disk-space).
 ### Runner disk space
 
 GitHub-hosted runners start with most of their root volume already consumed.
-Measured on one `ubuntu-latest` image, preinstalled software occupied 59 GB of
+Measured on 1 `ubuntu-latest` image, preinstalled software occupied 59 GB of
 a 72 GB volume, leaving the job around 13 GB. Pulled container images, database
 dumps, and every file created while provisioning share what's left.
 
@@ -102,14 +102,11 @@ dumps, and every file created while provisioning share what's left.
   step, so the disk state is on the record for every run.
 - The Docker build cache and dangling images are pruned once the stack is up.
 - The database dump is removed from the runner as soon as it has been copied
-  into the container, so only one copy is held during provisioning.
+  into the container, so only 1 copy is held during provisioning.
 
 #### Reclaim the preinstalled toolchains
 
-The `build` and `database` jobs can remove the preinstalled toolchains no
-**Vortex** job uses - GHCup, Swift, PowerShell, .NET, and CodeQL - before doing
-anything else. In the preceding measurement, this freed about 15 GB in around
-14 seconds, taking the job from roughly 13 GB of headroom to 28 GB.
+The `build` and `database` jobs can remove the preinstalled toolchains no **Vortex** job uses (GHCup, Swift, PowerShell, .NET, and CodeQL) before doing anything else. In the preceding measurement, this freed about 15 GB in around 14 seconds, taking the job from roughly 13 GB of headroom to 28 GB.
 
 The removal is destructive to the runner for the rest of the job, so it's off
 by default. Turn it on by setting the `VORTEX_CI_FREE_DISK_SPACE` variable to
@@ -119,10 +116,7 @@ PowerShell, .NET, or CodeQL.
 
 :::note
 
-Every figure here comes from one runner image at one moment, and GitHub
-reissues that image regularly. Read the **Report disk usage** output of a
-recent run for the current numbers - if the reclaimed amount has shrunk, the
-path list needs revisiting.
+Every figure here comes from one runner image at one moment, and GitHub reissues that image regularly. Read the **Report disk usage** output of a recent run for the current numbers. If the reclaimed amount has shrunk, the path list needs revisiting.
 
 :::
 
@@ -223,10 +217,7 @@ Configure the threshold by setting the `VORTEX_CI_CODE_COVERAGE_THRESHOLD`
 variable in **Settings → Secrets and variables → Actions → Variables**. Default
 is `90` (percent).
 
-Coverage reports are automatically posted as PR comments. Each new report
-replaces the previous one - older comments are minimized to keep the PR
-timeline clean. To disable this, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP`
-to `1`.
+Coverage reports are automatically posted as PR comments. Each new report replaces the previous one: older comments are minimized to keep the PR timeline clean. To disable this, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
 
 ### Test results
 

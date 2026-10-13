@@ -73,22 +73,22 @@ Configure the policy in your `composer.json` under the `config` section:
 **Vortex** sets the following values:
 
 - **`advisories.block`** to `false`: security advisories don't block `composer update`, `composer require`, or `composer remove`, so dependency updates stay reproducible even when a new advisory is published upstream against an existing dependency. `composer install` resolves nothing from the lock file, so this setting never affects it. (Composer's own default is `true`.)
-- **`advisories.audit`** to `fail`: the `composer audit` command still fails when an advisory is found, keeping vulnerabilities visible locally and in CI.
+- **`advisories.audit`** to `fail`: the `composer audit` command still fails when an advisory is found, so vulnerabilities stay visible locally and in CI.
 - **`abandoned.audit`** to `report`: abandoned packages are reported as warnings but don't fail the audit. (Composer's own default is `fail`.)
 
 Each section accepts `block` (refuse affected versions during `composer update`/`require`/`remove`), `audit` (`ignore`, `report`, or `fail` for the `composer audit` command), and `ignore`/`ignore-id`/`ignore-severity` for assessed exceptions.
 
 :::note Composer 2.10+
 
-`config.policy` requires Composer 2.10 or newer, which ships in the **Vortex** container images. On older Composer versions, use the legacy `config.audit` keys (`block-insecure`, `abandoned`) instead - they continue to work as a fallback.
+`config.policy` requires Composer 2.10 or newer, which ships in the **Vortex** container images. On older Composer versions, use the legacy `config.audit` keys (`block-insecure`, `abandoned`) instead. They continue to work as a fallback.
 
 :::
 
 #### Why advisories don't block dependency updates
 
-Coupling dependency resolution to advisory publication makes updates non-deterministic. A newly published advisory against an already-installed dependency can fail every `composer update` or `composer require` - including work unrelated to security - until the advisory is assessed and ignored. **Vortex** decouples resolution from advisory publication by setting `advisories.block` to `false` while keeping `advisories.audit` at `fail`. This keeps updates reproducible while `composer audit` and the CI security audit workflow still surface vulnerabilities.
+Coupling dependency resolution to advisory publication makes updates non-deterministic. A newly published advisory against an already-installed dependency can fail every `composer update` or `composer require`, including work unrelated to security, until the advisory is assessed and ignored. **Vortex** decouples resolution from advisory publication by setting `advisories.block` to `false`, which keeps updates reproducible. Because `advisories.audit` stays at `fail`, `composer audit` and the CI security audit workflow still surface vulnerabilities.
 
-If your project requires dependency resolution to hard-stop on advisories - for example, a production site with strict supply-chain controls - set `advisories.block` to `true`.
+If your project requires dependency resolution to hard-stop on advisories (for example, a production site with strict supply-chain controls), set `advisories.block` to `true`.
 
 ### Ignoring
 
@@ -111,30 +111,23 @@ When you've assessed an advisory and determined it doesn't affect your project, 
 
 :::tip Document your decisions
 
-Record the reason for each ignored advisory in your Git commit message. This helps your team understand why a vulnerability was deemed acceptable and review the decision later.
+Record the reason for each ignored advisory in your Git commit message, so your team can understand why a vulnerability was deemed acceptable and review the decision later.
 
 :::
 
 ### Continuous integration
 
-**Vortex** runs `composer audit --locked` in the
-[security audit workflow](../../continuous-integration/README.mdx#security-audit),
-so the audited set is exactly what `composer.lock` pins. Because
-`advisories.audit` is `fail`, the audit reports vulnerabilities and the
-workflow fails when any are found - even though installs and updates aren't
-blocked.
+**Vortex** runs `composer audit --locked` in the [security audit workflow](../../continuous-integration/README.mdx#security-audit), so the audited set is exactly what `composer.lock` pins. Because `advisories.audit` is `fail`, the audit reports vulnerabilities and the workflow fails when any are found, even though installs and updates aren't blocked.
 
 #### Ignoring failures
 
-Set the repository variable `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` to
-make the audit step run and report without failing that workflow - useful as a
-one-off bypass while a known advisory is being addressed.
+Set the repository variable `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` to make the audit step run and report without failing that workflow. Use it as a one-off bypass while a known advisory is being addressed.
 
 ➡️ See [Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).
 
 ### Where findings appear
 
-In GitHub Actions, the audit findings are also uploaded to the repository's **Security → Code scanning** tab under the `composer-audit` category. Each advisory becomes an alert carrying its severity, its affected version range and a link to the advisory, located at the package's entry in `composer.lock`. Abandoned packages are reported there as well, at note severity, and so are dependency policy matches - including Composer's built-in `malware` policy, which is active by default. The audit fails on all 3.
+In GitHub Actions, the audit findings are also uploaded to the repository's **Security → Code scanning** tab under the `composer-audit` category. Each advisory becomes an alert carrying its severity, its affected version range, and a link to the advisory, located at the package's entry in `composer.lock`. Abandoned packages are reported there as well, at note severity. So are dependency policy matches, including Composer's built-in `malware` policy, which is active by default. The audit fails on all 3.
 
 Advisories already listed under `ignore-id` aren't uploaded, so the code scanning inventory holds the same set of findings the audit fails on.
 
@@ -191,9 +184,9 @@ npm fails the audit on any advisory by default. A development dependency tree of
 audit-level=high
 ```
 
-npm reads the project configuration from the directory of the `package.json` it audits, so both `.npmrc` files carry the setting - one in the project root and one in the custom theme. The accepted values are `info`, `low`, `moderate`, `high`, `critical`, and `none`; lower the value to widen what fails the build. CI runs the audit through [audit-ci](https://github.com/IBM/audit-ci), which takes its threshold from the `--high` flag in each CI audit step instead, so change both when you move the bar. The flag stays in the CI configuration rather than in `audit-ci.jsonc`, because `audit-ci` passes every advisory when no threshold is set.
+npm reads the project configuration from the directory of the `package.json` it audits, so both `.npmrc` files carry the setting: one in the project root and one in the custom theme. The accepted values are `info`, `low`, `moderate`, `high`, `critical`, and `none`; lower the value to widen what fails the build. CI runs the audit through [audit-ci](https://github.com/IBM/audit-ci), which takes its threshold from the `--high` flag in each CI audit step instead, so change both when you move the bar. The flag stays in the CI configuration rather than in `audit-ci.jsonc`, because `audit-ci` passes every advisory when no threshold is set.
 
-The threshold is deliberately not a **Vortex** variable: it belongs to npm's own configuration, where a project changes it without a template variable existing for it.
+The threshold is deliberately not a **Vortex** variable: it belongs to npm's own configuration, where a project changes it directly.
 
 ### Ignoring
 
@@ -250,10 +243,7 @@ In GitHub Actions, the audit steps print `audit-ci`'s JSON output, which is npm'
 
 #### Ignoring failures
 
-Set the repository variable `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1` to make
-both audit steps run and report without failing that workflow - useful as a
-one-off bypass while a known advisory is being addressed. The finding is still
-printed, so a tolerated advisory stays visible in the job log.
+Set the repository variable `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1` to make both audit steps run and report without failing that workflow. Use it as a one-off bypass while a known advisory is being addressed. The finding is still printed, so a tolerated advisory stays visible in the job log.
 
 ➡️ See [Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).
 

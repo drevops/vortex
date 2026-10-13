@@ -20,8 +20,7 @@ then:
 3. Deploys containers to Kubernetes
 4. Runs post-rollout tasks defined in `.lagoon.yml`
 
-Lagoon doesn't support tag deployments - the script reports this and skips the
-deployment.
+Lagoon doesn't support tag deployments, so the script reports this and skips the deployment.
 
 ## Configuration
 
@@ -57,15 +56,11 @@ context variables set by CI, is in the
    LAGOON_PROJECT=your-project-name
    ```
 
-3. Ensure your CI has the Lagoon SSH key configured for authentication - the
-   CLI connects over SSH, so a missing key fails the deployment.
+3. Ensure your CI has the Lagoon SSH key configured for authentication. The CLI connects over SSH, so a missing key fails the deployment.
 
 ## Post-deployment automation
 
-Once Lagoon rolls out the new containers, the post-rollout tasks defined in
-[`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
-provision the site and send notifications - see
-[Lagoon hosting](../hosting/lagoon.mdx#deployment-automation) for what runs.
+Once Lagoon rolls out the new containers, the post-rollout tasks defined in [`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml) provision the site and send notifications. See [Lagoon hosting](../hosting/lagoon.mdx#deployment-automation) for what runs.
 
 ## Environments
 
@@ -75,9 +70,7 @@ defines environment-specific settings (cron jobs, routes) for the `main` and
 it as such or when the branch matches `VORTEX_LAGOON_PRODUCTION_BRANCH`
 (default: `main`).
 
-Which branches get an environment, their types, and pull request (ephemeral)
-environments are configured per project in Lagoon itself - see
-[Lagoon environment types](https://docs.lagoon.sh/concepts-advanced/environment-types/).
+Which branches get an environment, their types, and pull request (ephemeral) environments are configured per project in Lagoon itself. See [Lagoon environment types](https://docs.lagoon.sh/concepts-advanced/environment-types/).
 
 ## See also
 

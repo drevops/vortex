@@ -6,16 +6,10 @@ sidebar_position: 5
 
 **Vortex** provides 2 types of documentation:
 
-1. **Vortex template documentation** (this site) - generic information on
-   **how** to perform operations, applicable to all projects built with
-   **Vortex**. Deployed to https://www.vortextemplate.com/docs/
-2. **Per-project documentation** - project-specific information on **what**
-   the project does, distributed in the `docs/` directory when **Vortex** is
-   installed.
+1. **Vortex template documentation** (this site) - generic information on **how** to perform operations, applicable to all projects built with **Vortex**. Deployed to https://www.vortextemplate.com/docs/
+2. **Per-project documentation** - project-specific information on **what** the project does, distributed in the `docs/` directory when **Vortex** is installed.
 
-The key relationship: per-project documentation describes **what** (coding
-standards, testing requirements, release configuration) while referencing the
-**Vortex** documentation for **how** to perform specific operations.
+Per-project documentation describes **what** applies to the project (coding standards, testing requirements, release configuration) and references the **Vortex** documentation for **how** to perform specific operations.
 
 ## www.vortextemplate.com
 
@@ -66,8 +60,7 @@ ahoy test-docs
 
 If required, add spelling exclusions to the `.vortex/docs/cspell.json` file.
 
-Internal links aren't checked by these commands - the Docusaurus build is the
-link checker, failing on broken internal links (`ahoy build-docs`).
+These commands don't check internal links. The Docusaurus build (`ahoy build-docs`) checks them and fails on broken internal links.
 
 ### Prose style
 
@@ -82,7 +75,7 @@ The rules come from 3 places:
 - The `Google` and `write-good` style packages. They're pinned by release URL in
   `.vortex/docs/.vale.ini` and downloaded by `vale sync` when you run
   `yarn install`.
-- The house style in `.vortex/docs/.vale/Vortex/`, with one small YAML file for
+- The house style in `.vortex/docs/.vale/Vortex/`, with 1 small YAML file for
   each rule. A rule that adjusts a `Google` rule inherits it with `extends` and
   edits its word lists, and `.vale.ini` switches the original off.
 - The vocabulary in `.vortex/docs/.vale/config/vocabularies/Vortex/accept.txt`,
@@ -107,16 +100,11 @@ before the table is linted.
 
 ### Documentation videos
 
-The 9 terminal demo videos embedded in the docs are regenerated with
-`ahoy update-videos [names]` from `.vortex/` - see
-[Installer > Installer video](installer.mdx#installer-video) for the pipeline.
+The 9 terminal demo videos embedded in the docs are regenerated with `ahoy update-videos [names]` from `.vortex/`. See [Installer > Installer video](installer.mdx#installer-video) for the pipeline.
 
 ### Combined site
 
-The published site serves 2 majors at once. The branch that ships the current
-major - selected by the `VORTEX_CURRENT_MAJOR` repository variable, default `1` -
-is snapshotted as the default version at `/docs`, and the other major's `{N}.x`
-branch content is served at `/docs/v{N}`.
+The published site serves 2 majors at once. The `VORTEX_CURRENT_MAJOR` repository variable (default `1`) selects the current major. Its branch is snapshotted as the default version at `/docs`, and the other major's `{N}.x` branch content is served at `/docs/v{N}`.
 
 Each branch writes its content against the bare `/docs` mount, so an absolute
 link such as `/docs/tools/behat` points at the current major. When that content
@@ -163,14 +151,11 @@ Automated continuous integration builds publish this documentation:
 installed into every consumer site, where the site maintainers keep it
 up-to-date with their project.
 
-The scaffold covers the **what** of a project:
+The scaffold covers **what** applies to each project:
 
 - Coding standards and agreements specific to the project
 - Testing requirements and configuration
 - Release and deployment configuration
 - Project-specific procedures and decisions
 
-The scaffold references this site for the **how** of each operation instead of
-duplicating instructions. So when maintaining the template, keep the scaffold
-pointing at the right pages here. Keep the **how** content on this site rather
-than in the shipped `docs/` files.
+The scaffold references this site for **how** to perform each operation instead of duplicating instructions. So when you maintain the template, keep the scaffold pointing at the right pages here. Keep the how-to content on this site rather than in the shipped `docs/` files.

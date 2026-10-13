@@ -37,7 +37,7 @@ No settings override.
 
 ### Configuration
 
-[`settings.config_split.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.config_split.php) enables the split matching the detected environment - `local`, `ci`, `dev`, or `stage` - so each environment imports only its own set.
+[`settings.config_split.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.config_split.php) enables the split matching the detected environment (`local`, `ci`, `dev`, or `stage`), so each environment imports only its own set.
 
 ## Config Update
 
@@ -75,7 +75,7 @@ No settings override.
 
 ### Configuration
 
-[`settings.environment_indicator.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.environment_indicator.php) names the indicator after the detected environment and colors it per environment - red for production, yellow for stage, green for dev - with the toolbar integration and favicon marker turned on.
+[`settings.environment_indicator.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.environment_indicator.php) names the indicator after the detected environment and colors it per environment (red for production, yellow for stage, and green for dev), with the toolbar integration and favicon marker turned on.
 
 ## Fast 404
 
@@ -109,8 +109,7 @@ No settings override.
 
 No settings override.
 
-Ships only when the migration feature is selected - the installer removes the
-requirement otherwise.
+Ships only when the migration feature is selected. Otherwise, the installer removes the requirement.
 
 ➡️ See [Migrations](../migrations.mdx) for the second database and the demo
 migration.
@@ -125,15 +124,14 @@ migration.
 
 No settings override.
 
-Ships only when the migration feature is selected - the installer removes the
-requirement otherwise.
+Ships only when the migration feature is selected. Otherwise, the installer removes the requirement.
 
 ➡️ See [Migrations](../migrations.mdx) for the second database and the demo
 migration.
 
 ## Navigation Extra Tools
 
-[Navigation Extra Tools](https://www.drupal.org/project/navigation_extra_tools) adds administration shortcuts - clear caches, run cron, run database updates - to the core Navigation module.
+[Navigation Extra Tools](https://www.drupal.org/project/navigation_extra_tools) adds administration shortcuts (clear caches, run cron, and run database updates) to the core Navigation module.
 
 ### Configuration
 
@@ -170,10 +168,7 @@ No settings override.
 
 ## Reroute Email
 
-[Reroute Email](https://www.drupal.org/project/reroute_email) intercepts
-outgoing emails and redirects them to a configurable address instead of the
-intended recipients. This prevents accidental email delivery to real users in
-non-production environments while still allowing email features to be tested.
+[Reroute Email](https://www.drupal.org/project/reroute_email) intercepts outgoing emails and redirects them to a configurable address instead of the intended recipients. You can then test email features in non-production environments without accidentally delivering mail to real users.
 
 - **Installed:** During development provisioning by [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh), so the safety net survives the demo script being adapted or removed.
 
@@ -260,7 +255,7 @@ No settings override.
 
 [Security Kit](https://www.drupal.org/project/seckit) adds configurable security-hardening HTTP headers, including Content Security Policy and anti-framing protection.
 
-- **Installed:** Required only - not installed during provisioning; enable it when the project needs it.
+- **Installed:** Required only, not installed during provisioning. Enable it when the project needs it.
 
 ### Configuration
 
@@ -282,7 +277,7 @@ No settings override.
 | CI          | No             | Automated tests must access the site freely       |
 | Dev         | **Yes**        | Protects development environments from crawlers   |
 | Stage       | **Yes**        | Protects staging environments from public access  |
-| Prod        | Not enforced   | Left to the site configuration - enable or disable through the UI |
+| Prod        | Not enforced   | Left to the site configuration: enable or disable it through the UI |
 
 **Environment variables:**
 

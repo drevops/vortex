@@ -127,7 +127,7 @@ Set globals in `beforeEach` and clean them up in `afterEach`:
 
 | Global | Setup | When needed |
 |--------|-------|-------------|
-| `Drupal` | `global.Drupal = { behaviors: {} }` | Always - required by all Drupal behaviors |
+| `Drupal` | `global.Drupal = { behaviors: {} }` | Always (required by all Drupal behaviors) |
 | `jQuery` | `global.jQuery = require('jquery')` or a mock | When the source file uses `jQuery` or `$` |
 | `drupalSettings` | `global.drupalSettings = { path: { baseUrl: '/' } }` | When the source file reads `drupalSettings` |
 | `localStorage` | Provided by jsdom; call `localStorage.clear()` | When the source file uses `localStorage` |
@@ -196,10 +196,7 @@ like `document`, `window`, and `localStorage`.
 
 ### Test discovery
 
-The `jest.config.js` file dynamically scans `web/modules/custom/` for modules
-that contain a `js/` directory, and adds each as a root for test discovery. This
-means adding a new custom module with JavaScript tests requires no configuration
-changes.
+The `jest.config.js` file dynamically scans `web/modules/custom/` for modules that contain a `js/` directory, and adds each as a root for test discovery. Adding a new custom module with JavaScript tests requires no configuration changes.
 
 ## Reports
 

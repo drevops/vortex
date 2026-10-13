@@ -13,9 +13,7 @@ functional, and functional JavaScript testing. PHPUnit tests verify that
 individual components work correctly in isolation and when integrated with
 Drupal's systems.
 
-**Vortex** provides full PHPUnit support, including configuration in [`phpunit.xml`](https://github.com/drevops/vortex/blob/main/phpunit.xml)
-based on Drupal core's `core/phpunit.xml.dist` to allow customizing the test
-suite per project.
+**Vortex** includes a PHPUnit configuration in [`phpunit.xml`](https://github.com/drevops/vortex/blob/main/phpunit.xml), based on Drupal core's `core/phpunit.xml.dist`, so you can customize the test suite per project.
 
 ## Usage
 
@@ -66,8 +64,7 @@ suite per project.
 
 ### Skipping tests
 
-Add a `@group skipped` annotation to a test class or method to exclude it from
-the test run - `phpunit.xml` excludes the `skipped` group by default:
+Add a `@group skipped` annotation to a test class or method to exclude it from the test run, because `phpunit.xml` excludes the `skipped` group by default:
 
 ```php
 /**
@@ -234,11 +231,7 @@ CI enforces a minimum coverage threshold. If coverage falls below the threshold,
 the build fails. Set `VORTEX_CI_CODE_COVERAGE_THRESHOLD` to configure the
 minimum percentage (default: `90`).
 
-Coverage reports are posted as PR comments automatically. Each new report
-replaces the previous one - older comments are minimized to keep the PR
-timeline clean. The comment includes a header indicating the CI source
-(GitHub Actions or CircleCI). Set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to
-`1` to disable.
+Coverage reports are posted as PR comments automatically. Each new report replaces the previous one: older comments are minimized to keep the PR timeline clean. The comment includes a header indicating the CI source (GitHub Actions or CircleCI). Set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1` to disable.
 
 ### Ignoring failures
 

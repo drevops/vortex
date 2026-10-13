@@ -74,12 +74,7 @@ custom theme and the SDC Devel module are selected during installation.
 
 ## Continuous integration
 
-SDC Devel runs in the `build` job of the [continuous integration pipeline](../../continuous-integration/README.mdx),
-after the site is provisioned, on the first container only - see
-[Test parallelism](../../continuous-integration/README.mdx#test-parallelism).
-The step fails the build when validation reports problems and is skipped when
-[`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
-is set to `1`.
+SDC Devel runs in the `build` job of the [continuous integration pipeline](../../continuous-integration/README.mdx), after the site is provisioned, on the first container only (see [Test parallelism](../../continuous-integration/README.mdx#test-parallelism)). The step fails the build when validation reports problems and is skipped when [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip) is set to `1`.
 
 ### Ignoring failures
 

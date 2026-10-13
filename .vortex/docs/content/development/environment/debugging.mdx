@@ -124,9 +124,7 @@ configurations in the PhpStorm IDE to make your life easier:
 
 ## Testing authenticated pages with curl
 
-Use `curl` with session cookies to simulate manual testing of pages that require
-authentication (admin pages, protected routes) without opening a browser. This
-is for ad-hoc debugging only - automated testing should use Behat or PHPUnit.
+Use `curl` with session cookies to simulate manual testing of pages that require authentication (admin pages, protected routes) without opening a browser. This is for ad-hoc debugging only. Automated testing should use Behat or PHPUnit.
 
 ### When to use
 
@@ -187,10 +185,10 @@ is for ad-hoc debugging only - automated testing should use Behat or PHPUnit.
 
 ### Important notes
 
-- **Cookie storage**: Always use `.data/` directory - it's gitignored
-- **Session expiry**: Cookies expire after session timeout; regenerate as needed
-- **Login URL format**: `http://SITE/user/reset/UID/TIMESTAMP/HASH/login`
-- **One-time use**: Login URLs from `ahoy login` can only be used once
+- Always store cookies in the `.data/` directory, because it's gitignored.
+- Cookies expire after the session timeout, so regenerate them as needed.
+- Login URLs have the format `http://SITE/user/reset/UID/TIMESTAMP/HASH/login`.
+- Login URLs from `ahoy login` can only be used once.
 
 ## Container debugging
 

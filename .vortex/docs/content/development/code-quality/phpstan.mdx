@@ -69,8 +69,7 @@ parameters:
 
 ## Ignoring
 
-Ignoring rules **globally** takes place in
-the [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon) file:
+Ignoring rules globally takes place in the [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon) file:
 
 ```yaml
 parameters:
@@ -83,11 +82,9 @@ parameters:
         - path/to/exclude/a_file.php
 ```
 
-PHPStan doesn't support ignoring all rules within a file, ignoring a specific
-rule within a file, or ignoring [code blocks](https://github.com/phpstan/phpstan/issues/4452) -
-inline suppression is per-line only.
+PHPStan doesn't support ignoring all rules within a file, ignoring a specific rule within a file, or ignoring [code blocks](https://github.com/phpstan/phpstan/issues/4452). Inline suppression is per-line only.
 
-To ignore only the **next line**:
+To ignore only the next line:
 
 ```php
 // @phpstan-ignore-next-line

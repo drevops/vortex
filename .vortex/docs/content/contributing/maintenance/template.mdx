@@ -70,9 +70,7 @@ Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of w
     # @formatter:on
     ```
 
-   Every `task` MUST be closed by a `pass` or a `fail` - a task announces work
-   that's starting, so it always reports its outcome, even when the work
-   itself can't fail.
+   Every `task` MUST be closed by a `pass` or a `fail`. A task announces work that's starting, so it always reports its outcome, even when the work itself can't fail.
 
 7. SHOULD include variable values checks with errors and early exit, for
    example:
@@ -101,7 +99,7 @@ Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of w
     pass "Finished GitHub notification for operation ${VORTEX_NOTIFY_EVENT}."
     ```
 
-11. MUST close every `task` message with exactly one `pass` or `fail` message,
+11. MUST close every `task` message with exactly 1 `pass` or `fail` message,
     on every path through the script, for example:
 
     ```shell
@@ -120,8 +118,7 @@ Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of w
 15. MUST use lowercase local variables.
 16. MUST use long options instead of short options for readability. For
     example, `drush cache:rebuild` instead of `drush cr`.
-17. MUST use `VORTEX_` prefix for variables, unless it's a known 3-rd party
-    variable like `PACKAGE_TOKEN` or `COMPOSER`.
+17. MUST use `VORTEX_` prefix for variables, unless it's a known third-party variable like `PACKAGE_TOKEN` or `COMPOSER`.
 18. MUST use a script-specific prefix. For example, for `vortex-notify`, the
     variable to skip notifications should start with `VORTEX_NOTIFY_`.
 19. MAY rely on variables from the external scripts (not prefixed with a
@@ -173,31 +170,15 @@ import MyComponentSource from '!!raw-loader!./script-boilerplate.sh';
 
 ## Testing
 
-**Vortex** is a project template, not a traditional application. A change to
-a script, configuration file, or workflow can affect every project that uses
-it. Because of this, **Vortex** uses a multi-layered testing approach to catch
-issues at different levels of integration before they reach consumers.
+**Vortex** is a project template, so a change to a script, configuration file, or workflow can affect every project that uses it. To catch issues before they reach consumers, **Vortex** tests at different levels of integration.
 
 ### Unit testing
 
-[Bats](https://github.com/bats-core/bats-core) is used to unit test the
-shell scripts shipped via the
-[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
-Composer package (installed at `vendor/drevops/vortex-tooling/src/`). Each script
-is tested in isolation with external commands (like `drush`, `docker`,
-`composer`) replaced by mocks.
-This allows us to verify that individual scripts handle environment variables,
-flags, and edge cases correctly without needing a running Drupal site or
-Docker containers.
+[Bats](https://github.com/bats-core/bats-core) is used to unit test the shell scripts shipped via the [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling) Composer package (installed at `vendor/drevops/vortex-tooling/src/`). Each script is tested in isolation, with external commands (like `drush`, `docker`, `composer`) replaced by mocks. The tests verify that individual scripts handle environment variables, flags, and edge cases correctly without a running Drupal site or Docker containers.
 
-The [`bats-helpers`](https://github.com/drevops/bats-helpers) library provides
-a step-based testing approach with built-in mocking and assertions, making it
-straightforward to define expected inputs and outputs for each script.
+The [`bats-helpers`](https://github.com/drevops/bats-helpers) library provides a step-based testing approach with built-in mocking and assertions, so you can define the expected inputs and outputs for each script.
 
-Unit tests execute in seconds, providing fast feedback during development.
-The test files in `.vortex/tooling/tests/unit/` cover deployment, database
-operations, notifications, provisioning, and the other automation scripts -
-see [Tooling > Testing](tooling.mdx#testing) for how to run them.
+Unit tests execute in seconds. The test files in `.vortex/tooling/tests/unit/` cover deployment, database operations, notifications, provisioning, and the other automation scripts. See [Tooling > Testing](tooling.mdx#testing) for how to run them.
 
 ### End-to-end testing
 
@@ -207,7 +188,7 @@ simulate what a consumer site developer would experience: building containers,
 importing databases, running Drupal operations, linting code, and deploying
 artifacts.
 
-The template end-to-end tests cover several critical workflows:
+The template end-to-end tests cover these workflows:
 
 - **Docker Compose** - building the container stack, verifying environment
   variables, running linters, executing PHPUnit and Behat tests inside
@@ -222,21 +203,13 @@ The [`phpunit-helpers`](https://github.com/AlexSkrypnyk/phpunit-helpers)
 library provides test helpers, traits, and assertions purpose-built for running
 shell commands and validating their output within PHPUnit tests.
 
-End-to-end tests take minutes to run because they operate on real containers
-and a real Drupal site, and they verify that everything works together
-correctly.
+End-to-end tests take minutes to run because they operate on real containers and a real Drupal site.
 
 ### Example site
 
-The [DrevOps website](https://github.com/drevops/website) is a real-world
-production site built using **Vortex**. It serves as the final validation
-ground: if **Vortex** works correctly, the website should continue to build,
-test, and deploy without issues after each upstream update.
+The [DrevOps website](https://github.com/drevops/website) is a real-world production site built using **Vortex**. It's the final validation ground: if **Vortex** works correctly, the website should continue to build, test, and deploy without issues after each upstream update.
 
-The website repository receives regular upstream updates from **Vortex**,
-including CI configuration, testing workflows, and infrastructure changes.
-This ensures that updates are validated against a real, long-lived codebase
-rather than only in test environments.
+The website repository receives regular upstream updates from **Vortex**, including CI configuration, testing workflows, and infrastructure changes. That way, each update is validated against a real, long-lived codebase as well as in test environments.
 
 ## Running tests
 
@@ -255,8 +228,7 @@ composer test
 TEST_PACKAGE_TOKEN=<yourtoken> TEST_VORTEX_CONTAINER_REGISTRY_USER=<youruser> TEST_VORTEX_CONTAINER_REGISTRY_PASS=<yourpass> composer test
 ```
 
-Functional tests rely on database fixtures - see the section below on
-[updating test assets](#updating-test-assets).
+Functional tests rely on database fixtures. See the section below on [updating test assets](#updating-test-assets).
 
 ### Unit tests with BATS
 
@@ -313,11 +285,9 @@ Without arguments, runs `all` for a full refresh. Default tag is `latest`.
 
 ### Caveats
 
-- Demo modes are **destructive** against the current repository: containers
-  are reset and `.data/db.sql` is removed before the rebuild.
+- Demo modes are destructive against the current repository: containers are reset and `.data/db.sql` is removed before the rebuild.
 - Test modes wipe and recreate `/tmp/star-wars` on each run.
-- `destination-images` expects `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest`
-  to already exist locally - run `demo-image` (or `all`) first.
+- `destination-images` expects `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest` to already exist locally, so run `demo-image` (or `all`) first.
 
 ### Examples
 

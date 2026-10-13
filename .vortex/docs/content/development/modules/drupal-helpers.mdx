@@ -39,8 +39,7 @@ isn't installed, so a deploy hook fails loudly rather than half-applying.
 
 ## Available helpers
 
-Every facade is listed below. The **Examples** column shows a few of the methods
-each one exposes, not the complete set - see the module documentation for that.
+Every facade is listed below. The **Examples** column shows a few of the methods each one exposes. The module documentation lists the complete set.
 
 | Helper | Access | Examples |
 |--------|--------|----------|
@@ -67,10 +66,7 @@ function ys_base_deploy_update_pages(array &$sandbox): ?string {
 }
 ```
 
-`batchEntity()` queries the entity IDs itself; `batch()` takes an arbitrary
-array of items instead. Both return the progress message Drush prints, and the
-batch size defaults to 50 - pass a second argument to the facade to change it,
-for example `Helper::entity($sandbox, 100)`.
+`batchEntity()` queries the entity IDs itself; `batch()` takes an arbitrary array of items instead. Both return the progress message Drush prints. The batch size defaults to 50. To change it, pass a second argument to the facade, for example `Helper::entity($sandbox, 100)`.
 
 ## Example in Vortex
 

@@ -65,11 +65,7 @@ class Page extends GeneratedContentPluginBase {
 
 :::note
 
-For a bundle under content moderation, also set the `moderation_state` field
-to `published` before saving - the shipped
-[`Page` plugin](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/src/Plugin/GeneratedContent/Node/Page.php)
-shows the guarded check. Without it, generated nodes stay as unpublished
-drafts.
+For a bundle under content moderation, also set the `moderation_state` field to `published` before saving, or generated nodes stay as unpublished drafts. The shipped [`Page` plugin](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/src/Plugin/GeneratedContent/Node/Page.php) shows the guarded check.
 
 :::
 
@@ -87,10 +83,7 @@ drafts.
 
 ## Generation helpers
 
-`$this->helper` is a `GeneratedContentHelper` singleton that produces field
-values, creates file assets, and looks up entities that earlier plugins
-created. The examples below are a sample of what it offers - the module
-documentation lists the full set.
+`$this->helper` is a `GeneratedContentHelper` singleton that produces field values, creates file assets, and looks up entities that earlier plugins created. The examples below are a sample of what it offers. The module documentation lists the full set.
 
 **Static** helpers return the same values on every run, which is what visual
 regression testing needs:

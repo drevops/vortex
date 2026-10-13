@@ -4,9 +4,7 @@ sidebar_position: 2
 
 # Acquia
 
-[Acquia](https://www.acquia.com/) is a cloud hosting platform specifically
-designed for Drupal applications, offering managed infrastructure and developer
-tools.
+[Acquia](https://www.acquia.com/) is a cloud hosting platform for Drupal applications, with managed infrastructure and developer tools.
 
 For general Acquia documentation, refer to the
 [Acquia Documentation](https://docs.acquia.com/).
@@ -16,16 +14,14 @@ there from CI, see [Artifact deployment](../deployment/artifact.mdx).
 
 ## Integration
 
-**Vortex** provides the following integration with Acquia:
-
 ### Tasks
 
 With **Vortex**, you can:
 
-- **Fetch a database** from an Acquia environment for local development or CI
-- **Copy the database** between Acquia environments (for example, refresh staging from production)
-- **Copy files** between environments to synchronize uploaded content
-- **Purge the Varnish cache** to ensure visitors see fresh content
+- Fetch a database from an Acquia environment for local development or CI
+- Copy the database between Acquia environments (for example, refresh staging from production)
+- Copy files between environments to synchronize uploaded content
+- Purge the Varnish cache so visitors see fresh content
 
 When running these tasks, your `.env` and `.env.local` files are used as the
 source for the application name and API credentials.
@@ -34,14 +30,11 @@ source for the application name and API credentials.
 
 When code is deployed, **Vortex** automatically:
 
-1. **Provisions the site** - Runs database updates, imports configuration, clears caches
-2. **Purges edge cache** - Clears the Varnish cache to serve fresh content
-3. **Sends notifications** - Notifies configured channels about the deployment
+1. Provisions the site: runs database updates, imports configuration, and clears caches
+2. Purges the Varnish edge cache to serve fresh content
+3. Notifies configured channels about the deployment
 
-This is implemented using [Acquia Cloud Hooks](https://docs.acquia.com/cloud-platform/develop/api/cloud-hooks/) -
-pre-configured scripts in the [`hooks/`](https://github.com/drevops/vortex/tree/main/hooks)
-directory that trigger on code deployments, code updates, and database copy
-operations.
+This is implemented using [Acquia Cloud Hooks](https://docs.acquia.com/cloud-platform/develop/api/cloud-hooks/): pre-configured scripts in the [`hooks/`](https://github.com/drevops/vortex/tree/main/hooks) directory that trigger on code deployments, code updates, and database copy operations.
 
 Each hook is turned off by setting its skip variable to `1` in the Acquia UI:
 
@@ -72,16 +65,10 @@ by setting the `DRUPAL_ACQUIA_SETTINGS_FILE` environment variable.
 
 #### Temporary file path
 
-**Vortex** configures the path for temporary files (`file_temp_path`) with a
-three-tier priority:
+**Vortex** configures the path for temporary files (`file_temp_path`) with a 3-tier priority:
 
 1. **Default**: `/tmp`
-2. **Shared GFS mount**: If `DRUPAL_TMP_PATH_IS_SHARED` is set to `1`, uses
-   `/mnt/gfs/{group}.{env}/tmp` - a per-head mounted directory on Acquia's
-   shared filesystem. This is useful for operations like bulk uploads that
-   require a shared temporary directory across web heads. See
-   [Acquia temporary files documentation](https://docs.acquia.com/acquia-cloud-platform/manage-apps/files/temporary#section-important-considerations)
-   for details.
+2. **Shared GFS mount**: If `DRUPAL_TMP_PATH_IS_SHARED` is set to `1`, uses `/mnt/gfs/{group}.{env}/tmp`, a per-head mounted directory on Acquia's shared filesystem. This is useful for operations like bulk uploads that require a shared temporary directory across web heads. See [Acquia temporary files documentation](https://docs.acquia.com/acquia-cloud-platform/manage-apps/files/temporary#section-important-considerations) for details.
 3. **Explicit override**: If `DRUPAL_TMP_PATH` is set, its value is used
    regardless of other settings.
 
@@ -118,20 +105,14 @@ to the implementation for the configured hosting platform:
 | `copy-files`  | Copy files between environments        |
 | `purge-cache` | Purge the edge (Varnish) cache         |
 
-The platform is read from `VORTEX_PLATFORM`, or from `VORTEX_TASK_PLATFORM` to
-override a single task. The Acquia deployment hooks export `VORTEX_PLATFORM`
-themselves; set it yourself when running an operation manually - for example,
-from your local machine:
+The platform is read from `VORTEX_PLATFORM`, or from `VORTEX_TASK_PLATFORM` to override a single task. The Acquia deployment hooks export `VORTEX_PLATFORM` themselves; set it yourself when running an operation manually (for example, from your local machine):
 
 ```shell
 VORTEX_PLATFORM=acquia ./vendor/bin/vortex-task copy-db
 ```
 
-Each operation reads its configuration - application name, API credentials, and
-source and destination environments - from your `.env` and `.env.local` files.
+Each operation reads its configuration (application name, API credentials, and source and destination environments) from your `.env` and `.env.local` files.
 
 ### Run Drush against remote environments
 
-To run Drush commands against Acquia environments, download your Drush aliases
-from the Acquia Cloud UI - see
-[Using Drush aliases](https://docs.acquia.com/acquia-cloud-platform/using-drush-aliases).
+To run Drush commands against Acquia environments, download your Drush aliases from the Acquia Cloud UI. See [Using Drush aliases](https://docs.acquia.com/acquia-cloud-platform/using-drush-aliases).

@@ -32,8 +32,7 @@ If you are using Lagoon as your hosting provider, then all your environments
 
 :::note
 
-Below is a brief overview of Docker and Docker Compose. For more information,
-see the official documentation.
+For details beyond this brief overview, see the official Docker and Docker Compose documentation.
 
 :::
 
@@ -41,9 +40,7 @@ Docker lets you define services such as a web server or a database server as
 standalone _containers_, which then run in an isolated environment and can talk
 to each other.
 
-The containers are started from _images_ - templates that define what's
-installed in the container and how it's configured - so every container starts
-with consistent content and configuration.
+The containers are started from _images_ (templates that define what's installed in the container and how it's configured), so every container starts with consistent content and configuration.
 
 Docker is the engine that runs containers built from images, letting them share
 host system resources and communicate with each other. When run locally, Docker
@@ -87,10 +84,7 @@ documentation.
 
 ## Understanding `docker-compose.yml`
 
-Docker Compose reads the configuration from the `docker-compose.yml` and
-`docker-compose.override.yml` files. The configuration files are written in
-YAML, which [support anchors and references](http://blog.daemonl.com/2016/02/yaml.html)
-that help to reduce duplication.
+Docker Compose reads the configuration from the `docker-compose.yml` and `docker-compose.override.yml` files. The configuration files are written in YAML, which [supports anchors and references](http://blog.daemonl.com/2016/02/yaml.html) that reduce duplication.
 
 The file provided by **Vortex** contains the following sections:
 
@@ -119,10 +113,7 @@ The file defines 2 volumes:
   to the default volume definition. This allows a different type of syncing
   to optimize performance, because files aren't changed as often as the code.
 
-The file defines 2 more volumes that are commented out - these are used in
-environments without volume mounting support, such as CircleCI. These volumes
-definitions are automatically uncommented in the continuous integration
-environment, and they replace the host volume mounting, which is removed.
+The file defines 2 more volumes that are commented out, for use in environments without volume mounting support, such as CircleCI. These volume definitions are automatically uncommented in the continuous integration environment, and they replace the host volume mounting, which is removed.
 
 The `VOLUME_FLAGS` environment variable defines the consistency of the data
 within mounted volumes. The values are:
@@ -141,9 +132,7 @@ container-made changes taking a moment to appear on the host.
 
 ### Default user
 
-The default user is defined as `1000` - this is the user ID used in the
-container to run the application. This is the same user ID as the host user, so
-that the files created in the container are owned by the host user.
+The default user is defined as `1000`, which is the user ID used in the container to run the application. This is the same user ID as the host user, so that the files created in the container are owned by the host user.
 
 Change this value if your user ID is different.
 
@@ -153,8 +142,7 @@ By default, Docker Compose reads environment variables from the `.env`
 file. **Vortex** additionally reads the `.env.local` file, so you can override
 environment variables locally without modifying the `.env` file.
 
-The variables read from `.env` and `.env.local` files then passed into the
-containers.
+The variables read from the `.env` and `.env.local` files are then passed into the containers.
 
 This section only defines 2 types of variables:
 
@@ -208,24 +196,14 @@ The following services are defined in the `docker-compose.yml` file provided by
   application code and execute commands in the context of the application. It's
   different from the `cli` container in that it doesn't have certain development
   dependencies installed, has a smaller size, and is optimized for scalability.
-- `database` - a container that runs a database server. This container is used to
-  store the application data. It can be accessed from the host via a randomly
-  assigned port - run `docker compose port database 3306` to get the port number.
+- `database` - a container that runs a database server. This container is used to store the application data. It can be accessed from the host via a randomly assigned port. Run `docker compose port database 3306` to get the port number.
 - `database2` - an optional second database container holding the source
   database for [migrations](../migrations.mdx). It's only present when
   the migration feature is enabled.
 - `redis` - an optional container that runs a Redis-compatible
   ([Valkey](https://valkey.io/)) server. This container is used to store the
   application cache.
-- `solr` - an optional container that runs an Apache Solr 9 search server to
-  store the application search index and provide full-text search. It's built
-  from `.docker/solr.dockerfile` on top of the Lagoon `uselagoon/solr-9-drupal`
-  image, with the configuration set maintained locally in
-  `.docker/config/solr/config-set/` so the Solr schema can be customized and
-  version controlled. The container can be accessed from the host via a
-  randomly assigned port - run `docker compose port solr 8983` to get the port
-  number. The Solr admin interface is available at
-  `http://localhost:<port>/solr/`.
+- `solr` - an optional container that runs an Apache Solr 9 search server to store the application search index and provide full-text search. It's built from `.docker/solr.dockerfile` on top of the Lagoon `uselagoon/solr-9-drupal` image, with the configuration set maintained locally in `.docker/config/solr/config-set/` so the Solr schema can be customized and version controlled. The container can be accessed from the host via a randomly assigned port. Run `docker compose port solr 8983` to get the port number. The Solr admin interface is available at `http://localhost:<port>/solr/`.
 - `clamav` - an optional container that runs a ClamAV antivirus server. This
   container is used to scan uploaded files for viruses.
 - `chrome` - container that runs a Chrome browser. This container is
@@ -246,11 +224,7 @@ that connects all containers together.
 
 ## Build context and `.dockerignore`
 
-When an image is built, Docker sends a **build context** - the set of files it's
-allowed to copy into the image - to the build engine. **Vortex** controls this
-context with a `.dockerignore` file written as a **deny list**. Every file is
-part of the build context by default, and the file lists only what must be kept
-out.
+When an image is built, Docker sends a build context (the set of files it's allowed to copy into the image) to the build engine. **Vortex** controls this context with a `.dockerignore` file written as a deny list. Every file is part of the build context by default, and the file lists only what must be kept out.
 
 Excluded from the image build context:
 
@@ -266,11 +240,7 @@ Excluded from the image build context:
 - Content files, caches, logs, and compiled theme assets (`web/sites/*/files`,
   `.data`, `.logs`, `web/themes/**/build`).
 
-Keeping these out of the context matters for both security - secrets and
-database dumps never reach an image layer - and speed, since a smaller context
-builds faster. Everything not listed, such as application code, configuration,
-`composer.json`, and settings files, is included automatically, so a new file
-you add reaches the build without any change to `.dockerignore`.
+Keeping these out of the context matters for both security (secrets and database dumps never reach an image layer) and speed, since a smaller context builds faster. Everything not listed, such as application code, configuration, `composer.json`, and settings files, is included automatically, so a new file you add reaches the build without any change to `.dockerignore`.
 
 ## Validate `docker-compose.yml`
 

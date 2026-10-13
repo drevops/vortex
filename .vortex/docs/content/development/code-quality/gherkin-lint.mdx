@@ -43,7 +43,7 @@ ahoy cli vendor/bin/gherkinlint rules
 
 ## Ignoring
 
-Ignoring rules **globally** takes place in the [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json) file.
+Ignoring rules globally takes place in the [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json) file.
 
 ```json
 {
@@ -55,15 +55,13 @@ Ignoring rules **globally** takes place in the [`gherkinlint.json`](https://gith
 }
 ```
 
-To ignore **a specific rule** within a file, place in the file header:
+To ignore a specific rule within a file, place in the file header:
 
 ```yaml
 # @gherkinlint-disable-rule keyword-order, someother-rule
 ```
 
-Gherkin Lint doesn't support ignoring all rules within a file, ignoring code
-blocks, or ignoring individual lines - per-file rule suppression is the only
-inline mechanism.
+Gherkin Lint doesn't support ignoring all rules within a file, ignoring code blocks, or ignoring individual lines. Per-file rule suppression is the only inline mechanism.
 
 ## Continuous integration
 

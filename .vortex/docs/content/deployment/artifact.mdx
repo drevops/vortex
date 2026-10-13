@@ -110,18 +110,9 @@ never deleted, and cleanup never fails a deployment that already succeeded.
 
 ## Artifact file control
 
-The `.gitignore.artifact` file controls which files are included in the
-deployment artifact. During deployment it replaces the standard `.gitignore` in
-the artifact repository, so its rules - not the project's normal ignore rules -
-decide what reaches the hosting Git repository.
+The `.gitignore.artifact` file controls which files are included in the deployment artifact. During deployment it replaces the standard `.gitignore` in the artifact repository, so its rules, not the project's normal ignore rules, decide what reaches the hosting Git repository.
 
-**Vortex** writes `.gitignore.artifact` as a **deny list**: every file is
-deployed by default, and the file lists only what must be kept out of
-production. **Vortex** provides a
-[pre-configured `.gitignore.artifact`](https://github.com/drevops/vortex/blob/main/.gitignore.artifact)
-that deploys everything a production Drupal site needs - `vendor/`, the built
-webroot (Drupal core, contributed modules and themes, and compiled theme
-assets), `config/`, `drush/`, `scripts/`, and `.env` - while excluding:
+**Vortex** writes `.gitignore.artifact` as a deny list: every file is deployed by default, and the file lists only what must be kept out of production. **Vortex** provides a [pre-configured `.gitignore.artifact`](https://github.com/drevops/vortex/blob/main/.gitignore.artifact) that deploys everything a production Drupal site needs: `vendor/`, the built webroot (Drupal core, contributed modules and themes, and compiled theme assets), `config/`, `drush/`, `scripts/`, and `.env`. It excludes:
 
 - Development, continuous integration, and AI configuration (`.ahoy.yml`,
   `.circleci`, `.docker`, `.github`, `docker-compose.yml`).
@@ -149,8 +140,8 @@ the artifact, or to re-include something that a broader rule excludes:
 
 ## Use cases
 
-- **Acquia hosting** - Acquia requires code artifacts pushed to their Git repository
-- **Other Git-based hosting** - any platform that deploys from a Git repository it controls
+- Acquia hosting, which requires code artifacts pushed to Acquia's Git repository
+- Any other platform that deploys from a Git repository it controls
 
 ## See also
 

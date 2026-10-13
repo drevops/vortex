@@ -12,7 +12,7 @@ https://github.com/PHPCSStandards/PHP_CodeSniffer/
 > violations. PHP_CodeSniffer is an essential development tool that ensures your
 > code remains clean and consistent.
 
-**Vortex** comes with [pre-configured PHPCS ruleset](https://github.com/drevops/vortex/blob/main/phpcs.xml) for Drupal projects.
+**Vortex** comes with a [pre-configured PHPCS ruleset](https://github.com/drevops/vortex/blob/main/phpcs.xml) for Drupal projects.
 
 ## Usage
 
@@ -82,7 +82,7 @@ The `PHPCompatibility` checks run against the platform version specified in the
 
 ## Ignoring
 
-Ignoring rules **globally** takes place in the [`phpcs.xml`](https://github.com/drevops/vortex/blob/main/phpcs.xml) file:
+Ignoring rules globally takes place in the [`phpcs.xml`](https://github.com/drevops/vortex/blob/main/phpcs.xml) file:
 
 ```xml
 <!-- Comment about why this rule is excluded. -->
@@ -92,19 +92,19 @@ Ignoring rules **globally** takes place in the [`phpcs.xml`](https://github.com/
 </rule>
 ```
 
-To ignore **all PHPCS rules** within a file, place in the file header:
+To ignore all PHPCS rules within a file, place in the file header:
 
 ```php
 // phpcs:ignoreFile
 ```
 
-To ignore **a specific rule** within a file, place in the file header:
+To ignore a specific rule within a file, place in the file header:
 
 ```php
 // phpcs:disable <rule_name>
 ```
 
-To ignore rule for the **code block**:
+To ignore a rule for a code block:
 
 ```php
 // phpcs:disable <rule_name>
@@ -112,7 +112,7 @@ $a = 1;
 // phpcs:enable <rule_name>
 ```
 
-To ignore only the **next line**:
+To ignore only the next line:
 
 ```php
 // phpcs:ignore

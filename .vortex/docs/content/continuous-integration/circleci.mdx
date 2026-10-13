@@ -59,9 +59,7 @@ the `only` filter of the `deploy` job.
 
 ### Update nightly database schedule
 
-The nightly database workflow caches a fresh database dump for faster builds
-the next day. It's scheduled against the `develop` branch - change the branch
-filter of the `nightly-db` workflow if your project doesn't use one.
+The nightly database workflow caches a fresh database dump for faster builds the next day. It's scheduled against the `develop` branch. Change the branch filter of the `nightly-db` workflow if your project doesn't use one.
 
 To change when it runs, update the `nightly_db_schedule` YAML anchor
 in `.circleci/config.yml`
@@ -81,9 +79,7 @@ the `runner_config` section. Note that this may affect your CircleCI billing:
 resource_class: large  # Options: small, medium, large, xlarge
 ```
 
-Resource classes scale CPU and memory only. Disk space isn't tied to the
-resource class, so upgrading it doesn't help a job that runs out of space -
-see [Runner disk space](./README.mdx#runner-disk-space).
+Resource classes scale CPU and memory only. Disk space isn't tied to the resource class, so upgrading it doesn't help a job that runs out of space. See [Runner disk space](./README.mdx#runner-disk-space).
 
 ### Change test parallelism
 
@@ -129,7 +125,4 @@ Configure the threshold by setting the `VORTEX_CI_CODE_COVERAGE_THRESHOLD`
 environment variable in **Project Settings → Environment Variables**. Default
 is `90` (percent).
 
-Coverage reports can be posted as PR comments. This requires a `GITHUB_TOKEN`
-environment variable with permission to post comments. Each new report replaces
-the previous one - older comments are minimized to keep the PR timeline clean.
-To disable PR comments, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
+Coverage reports can be posted as PR comments. This requires a `GITHUB_TOKEN` environment variable with permission to post comments. Each new report replaces the previous one: older comments are minimized to keep the PR timeline clean. To disable PR comments, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.

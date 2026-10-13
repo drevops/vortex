@@ -7,9 +7,7 @@ sidebar_position: 1
 
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
-**Vortex** ships pre-configured linters for PHP, Twig, JavaScript, CSS,
-Gherkin, Docker Compose files, and Dockerfiles. Each tool has its own
-configuration file with defaults that work for Drupal projects out of the box.
+**Vortex** ships pre-configured linters for PHP, Twig, JavaScript, CSS, Gherkin, Docker Compose files, and Dockerfiles. Each tool has its own configuration file with defaults that work for Drupal projects without changes.
 
 | Tool                               | Checks                                                | Command                         |
 |------------------------------------|-------------------------------------------------------|---------------------------------|
@@ -67,6 +65,4 @@ The linters run in the `lint` job of the
 fail the build on violations. SDC Devel runs in the `build` job instead, after
 the site is provisioned.
 
-Set the tool's `VORTEX_CI_*_IGNORE_FAILURE` variable to `1` to let the build
-pass while the tool still runs and reports violations - see
-[Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).
+Set the tool's `VORTEX_CI_*_IGNORE_FAILURE` variable to `1` to let the build pass while the tool still runs and reports violations. See [Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).

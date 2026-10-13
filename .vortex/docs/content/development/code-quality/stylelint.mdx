@@ -12,7 +12,7 @@ https://stylelint.io/
 for Drupal projects.
 
 :::info
-Stylelint in **Vortex** is configured to lint **custom modules only** (`web/modules/custom`). The custom theme maintains its own Stylelint configuration within the theme directory.
+Stylelint in **Vortex** is configured to lint custom modules only (`web/modules/custom`). The custom theme maintains its own Stylelint configuration within the theme directory.
 :::
 
 ## Usage
@@ -141,8 +141,7 @@ the `ignoreFiles` key.
 
 ## Ignoring
 
-Ignoring paths **globally** takes place in the `ignoreFiles` key of the
-configuration file, as the theme configuration does:
+Ignoring paths globally takes place in the `ignoreFiles` key of the configuration file, as the theme configuration does:
 
 ```json
 {
@@ -154,19 +153,19 @@ configuration file, as the theme configuration does:
 }
 ```
 
-To ignore **all Stylelint rules** within a file, place in the file header:
+To ignore all Stylelint rules within a file, place in the file header:
 
 ```css
 /* stylelint-disable */
 ```
 
-To ignore **a specific rule** within a file, place in the file header:
+To ignore a specific rule within a file, place in the file header:
 
 ```css
 /* stylelint-disable selector-max-id, declaration-no-important */
 ```
 
-To ignore rules for a **code block**:
+To ignore rules for a code block:
 
 ```css
 /* stylelint-disable declaration-no-important */
@@ -176,7 +175,7 @@ a {
 /* stylelint-enable declaration-no-important */
 ```
 
-To ignore only the **next line**:
+To ignore only the next line:
 
 ```css
 a {
@@ -185,7 +184,7 @@ a {
 }
 ```
 
-To ignore rules for the **current line** (inline):
+To ignore rules for the current line (inline):
 
 ```css
 a {

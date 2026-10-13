@@ -41,14 +41,9 @@ develop ──► git flow release start X.Y.Z
 <details>
   <summary><code>production</code> branch</summary>
 
-  Most hosting providers support deploying specific git tags directly. In this
-  case, no separate `production` branch is needed - you tag releases on
-  `main` and deploy those tags.
+  Most hosting providers support deploying specific git tags directly. In this case, no separate `production` branch is needed: you tag releases on `main` and deploy those tags.
 
-  Some hosting providers (like **Lagoon**) require a git branch to deploy from,
-  so tag-based deployments aren't supported. In this case, you must create a
-  `production` branch and sync code from `main` to `production` after each
-  release.
+  Some hosting providers (like Lagoon) require a git branch to deploy from, so tag-based deployments aren't supported. In this case, you must create a `production` branch and sync code from `main` to `production` after each release.
 
   While it's possible to automate copying `main` to `production` on tag creation
   via CI/CD, this automation was deliberately avoided to prevent accidental
@@ -58,9 +53,7 @@ develop ──► git flow release start X.Y.Z
 
 ## Release operations
 
-Below are the typical steps to perform a release using git-flow. See the
-[cheat sheet](https://danielkummer.github.io/git-flow-cheatsheet/) for a quick
-reference on git-flow commands.
+A typical git-flow release follows these steps. See the [cheat sheet](https://danielkummer.github.io/git-flow-cheatsheet/) for a quick reference on git-flow commands.
 
 1. **Start the release**
 
@@ -104,7 +97,7 @@ A successful release meets these criteria (they also ship in your project's
 2. Release tag exists as `X.Y.Z` in the GitHub repository
 3. The `HEAD` of the `main` branch has the `X.Y.Z` tag
 4. The hash of the `HEAD` of the `main` branch exists in the `develop` branch
-   - This ensures everything pushed to `main` exists in `develop`
+   - Everything pushed to `main` then also exists in `develop`
    - Important if `main` had any hotfixes not yet merged to `develop`
 5. GitHub has no open PRs related to the release
 6. On branch-based hosting, the hash of the `HEAD` of the `production` branch
