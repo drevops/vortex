@@ -12,7 +12,10 @@ pipelines that expose webhook URLs.
 
 :::note
 
-This is a deployment _type_: it triggers the deployment itself. To call a webhook _about_ a deployment (for example, to tell a monitoring system one happened), use the [webhook notification channel](notifications/webhook.mdx) instead.
+This is a deployment _type_: it triggers the deployment itself. To call a
+webhook _about_ a deployment (for example, to tell a monitoring system one
+happened), use the [webhook notification channel](notifications/webhook.mdx)
+instead.
 
 :::
 
@@ -40,8 +43,8 @@ as parameters.
    VORTEX_DEPLOY_TYPES=webhook
    ```
 
-2. Add `VORTEX_DEPLOY_WEBHOOK_URL` to your CI provider's environment variables
-   (this should be kept secret).
+2. Add `VORTEX_DEPLOY_WEBHOOK_URL` to your CI provider's environment
+   variables (this should be kept secret).
 
 ## Use cases
 
@@ -52,4 +55,5 @@ as parameters.
 ## See also
 
 - [Deployment overview](README.mdx) - the deployment router and skip rules
-- [Notifications](notifications/README.mdx) - messages sent after a deployment lands
+- [Notifications](notifications/README.mdx) - messages sent after a
+  deployment lands

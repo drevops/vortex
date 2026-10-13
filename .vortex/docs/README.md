@@ -1,6 +1,7 @@
 # Vortex Documentation Development
 
-Documentation built with [Docusaurus](https://docusaurus.io/) and React components.
+Documentation built with [Docusaurus](https://docusaurus.io/) and React
+components.
 
 ## Quick Start
 

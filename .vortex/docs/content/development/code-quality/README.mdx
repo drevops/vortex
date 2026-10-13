@@ -7,7 +7,10 @@ sidebar_position: 1
 
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
-**Vortex** ships pre-configured linters for PHP, Twig, JavaScript, CSS, Gherkin, Docker Compose files, and Dockerfiles. Each tool has its own configuration file with defaults that work for Drupal projects without changes.
+**Vortex** ships pre-configured linters for PHP, Twig, JavaScript, CSS,
+Gherkin, Docker Compose files, and Dockerfiles. Each tool has its own
+configuration file with defaults that work for Drupal projects without
+changes.
 
 | Tool                               | Checks                                                | Command                         |
 |------------------------------------|-------------------------------------------------------|---------------------------------|
@@ -51,18 +54,20 @@ where the tools support automatic fixes:
 | `ahoy lint-sdc`   | SDC Devel (requires a provisioned site)                                      | -                  |
 
 `ahoy lint-be-fix` runs Rector and then PHPCBF; `ahoy lint-fe-fix` runs Twig
-CS Fixer, ESLint, and Stylelint with their fix flags. PHPStan and Gherkin Lint
-only report problems.
+CS Fixer, ESLint, and Stylelint with their fix flags. PHPStan and Gherkin
+Lint only report problems.
 
-DCLint and Hadolint aren't installed locally and have no Ahoy commands. Install
-them on your system to run them by hand; in continuous integration they run
-from their official Docker images.
+DCLint and Hadolint aren't installed locally and have no Ahoy commands.
+Install them on your system to run them by hand; in continuous integration
+they run from their official Docker images.
 
 ## Continuous integration
 
-The linters run in the `lint` job of the
-[continuous integration pipeline](../../continuous-integration/README.mdx) and
-fail the build on violations. SDC Devel runs in the `build` job instead, after
-the site is provisioned.
+The linters run in the `lint` job of the [continuous integration
+pipeline](../../continuous-integration/README.mdx) and fail the build on
+violations. SDC Devel runs in the `build` job instead, after the site is
+provisioned.
 
-Set the tool's `VORTEX_CI_*_IGNORE_FAILURE` variable to `1` to let the build pass while the tool still runs and reports violations. See [Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).
+Set the tool's `VORTEX_CI_*_IGNORE_FAILURE` variable to `1` to let the build
+pass while the tool still runs and reports violations. See [Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures).

@@ -11,10 +11,13 @@ require pre-built code artifacts.
 
 ## How it works
 
-When `artifact` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script:
+When `artifact` is included in `$VORTEX_DEPLOY_TYPES`, the deployment
+script:
 
-1. Creates a clean code artifact using the [Git artifact tool](#git-artifact-tool)
-2. Applies the `.gitignore.artifact` rules to control which files are included
+1. Creates a clean code artifact using the [Git artifact
+   tool](#git-artifact-tool)
+2. Applies the `.gitignore.artifact` rules to control which files are
+   included
 3. Pushes the artifact to the configured remote repository
 4. The hosting platform then deploys from that repository
 
@@ -33,8 +36,9 @@ When `artifact` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script:
 | `VORTEX_DEPLOY_ARTIFACT_LOG` | No | `<root>/deployment_log.txt` | `.env` | Path to the deployment log file |
 
 The pinned `git-artifact` version and the optional stale-branch cleanup are
-covered in [Git artifact tool](#git-artifact-tool); the SSH key selection and
-the full variable list are in the [Variables reference](../development/variables.mdx).
+covered in [Git artifact tool](#git-artifact-tool); the SSH key selection
+and the full variable list are in the [Variables
+reference](../development/variables.mdx).
 
 ### Setup
 
@@ -60,17 +64,18 @@ the full variable list are in the [Variables reference](../development/variables
 
 ## Git artifact tool
 
-[`git-artifact`](https://github.com/drevops/git-artifact) packages and pushes
-files to remote repositories.
+[`git-artifact`](https://github.com/drevops/git-artifact) packages and
+pushes files to remote repositories.
 
-Some hosting providers, like Acquia, restrict certain build operations, making
-it necessary to develop and build your site elsewhere before deploying it. This
-tool handles that transfer: it uses a `.gitignore.artifact` file to control
-which files get transferred, and overwrites the destination repository's history
-with each push, while preserving the source history.
+Some hosting providers, like Acquia, restrict certain build operations,
+making it necessary to develop and build your site elsewhere before
+deploying it. This tool handles that transfer: it uses a
+`.gitignore.artifact` file to control which files get transferred, and
+overwrites the destination repository's history with each push, while
+preserving the source history.
 
-**Vortex** comes
-with a [pre-configured `.gitignore.artifact`](https://github.com/drevops/vortex/blob/main/.gitignore.artifact)
+**Vortex** comes with a [pre-configured
+`.gitignore.artifact`](https://github.com/drevops/vortex/blob/main/.gitignore.artifact)
 file and the `deploy-artifact` deployment script from the
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
 Composer package. Together, they build the artifact in the continuous
@@ -79,56 +84,68 @@ integration pipeline and push it to the remote repository in Acquia.
 This tool is used in the continuous integration pipeline and doesn't require
 any manual actions.
 
-The `git-artifact` binary is downloaded from
-[GitHub Releases](https://github.com/drevops/git-artifact/releases) and verified
+The `git-artifact` binary is downloaded from [GitHub
+Releases](https://github.com/drevops/git-artifact/releases) and verified
 with a SHA256 checksum before execution.
 
 The version and checksum are controlled by:
 
-- `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION`: Version to download (default: `1.8.0`).
-- `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256`: Expected SHA256 checksum of the binary.
+- `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION`: Version to download
+  (default: `1.8.0`).
+- `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256`: Expected SHA256 checksum of
+  the binary.
 
 ### Stale branch cleanup
 
 Each source branch is deployed to a same-named branch in the destination
 repository, so over time the destination accumulates branches for source
-branches that no longer exist. **Vortex** can prune these stale branches after
-each successful push.
+branches that no longer exist. **Vortex** can prune these stale branches
+after each successful push.
 
 Cleanup is opt-in and controlled by:
 
 - `VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN`: branches eligible for pruning.
   Setting a non-empty value enables cleanup; leaving it empty (the default)
-  disables it. The value is a comma-separated list of globs
-  (for example, `feature/*,bugfix/*`) or a single regular expression literal
-  (for example, `/^feature\/.+$/`). A branch matching any pattern is eligible.
-- `VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE`: age in days after which a matching branch
-  is considered stale (default: `7`).
+  disables it. The value is a comma-separated list of globs (for example,
+  `feature/*,bugfix/*`) or a single regular expression literal (for example,
+  `/^feature\/.+$/`). A branch matching any pattern is eligible.
+- `VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE`: age in days after which a matching
+  branch is considered stale (default: `7`).
 
 The newly pushed branch and the destination repository's default branch are
 never deleted, and cleanup never fails a deployment that already succeeded.
 
 ## Artifact file control
 
-The `.gitignore.artifact` file controls which files are included in the deployment artifact. During deployment it replaces the standard `.gitignore` in the artifact repository, so its rules, not the project's normal ignore rules, decide what reaches the hosting Git repository.
+The `.gitignore.artifact` file controls which files are included in the
+deployment artifact. During deployment it replaces the standard `.gitignore`
+in the artifact repository, so its rules, not the project's normal ignore
+rules, decide what reaches the hosting Git repository.
 
-**Vortex** writes `.gitignore.artifact` as a deny list: every file is deployed by default, and the file lists only what must be kept out of production. **Vortex** provides a [pre-configured `.gitignore.artifact`](https://github.com/drevops/vortex/blob/main/.gitignore.artifact) that deploys everything a production Drupal site needs: `vendor/`, the built webroot (Drupal core, contributed modules and themes, and compiled theme assets), `config/`, `drush/`, `scripts/`, and `.env`. It excludes:
+**Vortex** writes `.gitignore.artifact` as a deny list: every file is
+deployed by default, and the file lists only what must be kept out of
+production. **Vortex** provides a [pre-configured
+`.gitignore.artifact`](https://github.com/drevops/vortex/blob/main/.gitignore.artifact)
+that deploys everything a production Drupal site needs: `vendor/`, the built
+webroot (Drupal core, contributed modules and themes, and compiled theme
+assets), `config/`, `drush/`, `scripts/`, and `.env`. It excludes:
 
 - Development, continuous integration, and AI configuration (`.ahoy.yml`,
   `.circleci`, `.docker`, `.github`, `docker-compose.yml`).
 - Documentation and testing configuration (`docs`, `tests`, `behat.yml`,
   `phpunit.xml`, `phpcs.xml`).
-- Dependency manifests and lock files not needed at runtime (`composer.lock`,
-  `package.json`, `package-lock.json`).
+- Dependency manifests and lock files not needed at runtime
+  (`composer.lock`, `package.json`, `package-lock.json`).
 - Credentials, local overrides, caches, and content files (`auth.json`,
   `.env.local`, `.data`, `web/sites/*/files`).
 - Theme asset sources, since only the compiled `build/` output is deployed.
 
 ### Customizing the artifact
 
-Because the file is a deny list, a new file you add to the project is deployed
-automatically. Edit `.gitignore.artifact` only to keep an additional file out of
-the artifact, or to re-include something that a broader rule excludes:
+Because the file is a deny list, a new file you add to the project is
+deployed automatically. Edit `.gitignore.artifact` only to keep an
+additional file out of the artifact, or to re-include something that a
+broader rule excludes:
 
 ```shell title=".gitignore.artifact"
 # Keep an additional development file out of the artifact.
@@ -140,7 +157,8 @@ the artifact, or to re-include something that a broader rule excludes:
 
 ## Use cases
 
-- Acquia hosting, which requires code artifacts pushed to Acquia's Git repository
+- Acquia hosting, which requires code artifacts pushed to Acquia's Git
+  repository
 - Any other platform that deploys from a Git repository it controls
 
 ## See also

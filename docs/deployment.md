@@ -1,16 +1,18 @@
 # Deployment
 
-For information on how deployment works, see
-[Vortex Deployment Documentation](https://www.vortextemplate.com/docs/deployment).
+For information on how deployment works, see [Vortex Deployment
+Documentation](https://www.vortextemplate.com/docs/deployment).
 
 [//]: # (#;< HOSTING_ACQUIA)
 
 ## Hosting provider
 
-This project is hosted on [Acquia Cloud](https://www.acquia.com/products/drupal-cloud).
+This project is hosted on [Acquia
+Cloud](https://www.acquia.com/products/drupal-cloud).
 
-See [Acquia hosting documentation](https://www.vortextemplate.com/docs/hosting/acquia)
-for setup and configuration details.
+See [Acquia hosting
+documentation](https://www.vortextemplate.com/docs/hosting/acquia) for setup
+and configuration details.
 
 ### Deployment workflow
 
@@ -28,8 +30,10 @@ for setup and configuration details.
 ### Important rules
 
 - No direct pushes to Acquia Cloud repository.
-- Only Technical Lead and Deployer user should have access to Acquia repository.
-- Technical Lead should regularly clean up `feature/*` and `bugfix/*` branches.
+- Only Technical Lead and Deployer user should have access to Acquia
+  repository.
+- Technical Lead should regularly clean up `feature/*` and `bugfix/*`
+  branches.
 
 [//]: # (#;> HOSTING_ACQUIA)
 
@@ -39,12 +43,14 @@ for setup and configuration details.
 
 This project is hosted on [Lagoon](https://www.amazee.io/lagoon).
 
-See [Lagoon hosting documentation](https://www.vortextemplate.com/docs/hosting/lagoon)
-for setup and configuration details.
+See [Lagoon hosting
+documentation](https://www.vortextemplate.com/docs/hosting/lagoon) for setup
+and configuration details.
 
 ### Database refresh
 
-To refresh the database in an existing Lagoon environment with production data:
+To refresh the database in an existing Lagoon environment with production
+data:
 
 ```bash
 VORTEX_DEPLOY_BRANCH=<YOUR/BRANCH-NAME> VORTEX_DEPLOY_ACTION=deploy_override_db ahoy deploy

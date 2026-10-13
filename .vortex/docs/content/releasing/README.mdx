@@ -5,16 +5,23 @@ sidebar_position: 1
 
 # Releasing
 
-This section describes how your project, a site built from **Vortex**, releases to production. (How the **Vortex** template itself is released is a different process, documented in [Contributing > Maintenance > Release](../contributing/maintenance/release.mdx).)
+This section describes how your project, a site built from **Vortex**,
+releases to production. (How the **Vortex** template itself is released is a
+different process, documented in [Contributing > Maintenance >
+Release](../contributing/maintenance/release.mdx).)
 
-A release process has a few moving parts, and **Vortex** provides defaults and
-integration points for each of them:
+A release process has a few moving parts, and **Vortex** provides defaults
+and integration points for each of them:
 
-1. **Release flow** - the sequence of environments code goes through from development to production
-2. **Versioning workflow** - the branching strategy, documented in [GitFlow](gitflow.mdx)
-3. **Version scheme** - the numbering system chosen at install time, documented in [Versioning](versioning.mdx)
+1. **Release flow** - the sequence of environments code goes through from
+   development to production
+2. **Versioning workflow** - the branching strategy, documented in
+   [GitFlow](gitflow.mdx)
+3. **Version scheme** - the numbering system chosen at install time,
+   documented in [Versioning](versioning.mdx)
 4. **Release documentation** - your project's own `docs/releasing.md`
-5. **Automated deployment** - the CI pipeline and hosting integrations that do the technical work
+5. **Automated deployment** - the CI pipeline and hosting integrations that
+   do the technical work
 
 ## Release flow
 
@@ -26,13 +33,21 @@ through the environments while the database moves "down":
   database: Development ◄─── Stage ◄─── Production
 ```
 
-- **Development** - latest development code, not yet released. May be unstable, but CI tests should pass.
-- **Stage** - pre-production environment. Mirrors production as closely as possible. Used for final release testing.
-- **Production** - the live customer-facing application. Stable and reliable. Source of truth for data.
+- **Development** - latest development code, not yet released. May be
+  unstable, but CI tests should pass.
+- **Stage** - pre-production environment. Mirrors production as closely as
+  possible. Used for final release testing.
+- **Production** - the live customer-facing application. Stable and
+  reliable. Source of truth for data.
 
-The production database is the primary source of truth: it's what code is applied to. When performing a release, you're applying a new version of code to a database within a specific environment. To make sure code changes work with real data, lower environments test against a copy of the production database:
+The production database is the primary source of truth: it's what code is
+applied to. When performing a release, you're applying a new version of code
+to a database within a specific environment. To make sure code changes work
+with real data, lower environments test against a copy of the production
+database:
 
-1. The database is copied from a higher environment to a lower one (for example, production → stage → development).
+1. The database is copied from a higher environment to a lower one (for
+   example, production → stage → development).
 2. Code is deployed to that environment.
 3. Testing confirms everything works against the copied database.
 
@@ -45,8 +60,8 @@ all tests, so code changes are validated against real data structures too.
 
 :::info Environment agreement
 
-The specific environment setup (dev/stage/production) should be agreed within
-your team and documented in your project. Some teams use additional
+The specific environment setup (dev/stage/production) should be agreed
+within your team and documented in your project. Some teams use additional
 environments (for example, UAT, pre-prod) or different naming conventions.
 
 :::
@@ -61,29 +76,37 @@ deployment systems. For other hosting providers, you can integrate the
 provision steps into your hosting deployment configuration if it supports
 post-deployment hooks or custom scripts.
 
-➡️ See [Development > Provision](../development/provision.mdx#provisioning-flow) to learn
-what provisioning steps run during deployments.
+➡️ See
+[Development > Provision](../development/provision.mdx#provisioning-flow) to
+learn what provisioning steps run during deployments.
 
 ## Documentation
 
 ### `docs/releasing.md`
 
-Your project's `docs/releasing.md` file is the canonical release documentation for your team. As shipped, it records the expected release outcome and your project's version scheme, and leaves a marked section for project-specific configuration.
+Your project's `docs/releasing.md` file is the canonical release
+documentation for your team. As shipped, it records the expected release
+outcome and your project's version scheme, and leaves a marked section for
+project-specific configuration.
 
 Extend it with:
 
-- **Detailed release procedures** - an outline of _what_ actions to take during releases: creating and finishing releases, deploying to production, rolling back, verifying.
-- **A release run template** - a checklist of _who_ does _what_ and _when_ during a release, cloned into a separate runsheet for each release.
+- **Detailed release procedures** - an outline of _what_ actions to take
+  during releases: creating and finishing releases, deploying to production,
+  rolling back, verifying.
+- **A release run template** - a checklist of _who_ does _what_ and _when_
+  during a release, cloned into a separate runsheet for each release.
 
 ## Monitoring
 
 ### New Relic integration
 
-**Vortex** integrates with New Relic for release tracking: when configured, it
-creates deployment markers as releases reach your environments, so performance
-changes and errors can be correlated with specific releases.
+**Vortex** integrates with New Relic for release tracking: when configured,
+it creates deployment markers as releases reach your environments, so
+performance changes and errors can be correlated with specific releases.
 
-➡️ See [Deployment > Notifications](../deployment/notifications/newrelic.mdx)
+➡️ See [Deployment >
+Notifications](../deployment/notifications/newrelic.mdx)
 
 ## See also
 

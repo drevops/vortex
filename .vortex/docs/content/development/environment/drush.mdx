@@ -10,22 +10,25 @@ import TabItem from '@theme/TabItem';
 
 https://www.drush.org/
 
-> Drush is a command line shell and Unix scripting interface for Drupal. Drush
-> core ships with lots of useful commands and generators. Similarly, it runs
-> update.php, executes SQL queries, runs content migrations, and misc utilities
-> like cron or cache rebuild. Drush can be extended by 3rd party commandfiles.
+> Drush is a command line shell and Unix scripting interface for Drupal.
+> Drush core ships with lots of useful commands and generators. Similarly,
+> it runs update.php, executes SQL queries, runs content migrations, and
+> misc utilities like cron or cache rebuild. Drush can be extended by 3rd
+> party commandfiles.
 
-Drush is used throughout **Vortex** to interact with Drupal from the automation
-scripts and Behat tests.
+Drush is used throughout **Vortex** to interact with Drupal from the
+automation scripts and Behat tests.
 
-It also allows a developer to interact with the site via CLI during development.
+It also allows a developer to interact with the site via CLI during
+development.
 
-While all the standard Drush commands are supported, **Vortex** also provides
-shorthand commands that wrap the common tasks:
+While all the standard Drush commands are supported, **Vortex** also
+provides shorthand commands that wrap the common tasks:
 
 - `ahoy fetch-db` - fetch the database dump from the remote environment
 - `ahoy import-db` - import the database dump into the local environment
-- `ahoy provision` - import the database and run updates, config imports, and cache rebuilds
+- `ahoy provision` - import the database and run updates, config imports,
+  and cache rebuilds
 
 ## Usage
 
@@ -53,25 +56,32 @@ The shipped Drush configuration lives in the `drush/` directory:
   `sql:dump`, `sql:drop`, `sql:create`) and `site:install`, so the database
   commands connect to the stack's database service without TLS, and adds
   `--no-tablespaces` to `sql:dump`.
-- [`drush/sites/lagoon.site.yml`](https://github.com/drevops/vortex/blob/main/drush/sites/lagoon.site.yml) defines the site aliases for Lagoon-hosted environments. See [Aliases](#aliases).
-- [`drush/php-ini/drush.ini`](https://github.com/drevops/vortex/blob/main/drush/php-ini/drush.ini) adjusts the PHP runtime for CLI processes. See [PHP runtime configuration](#php-runtime-configuration).
+- [`drush/sites/lagoon.site.yml`](https://github.com/drevops/vortex/blob/main/drush/sites/lagoon.site.yml)
+  defines the site aliases for Lagoon-hosted environments. See
+  [Aliases](#aliases).
+- [`drush/php-ini/drush.ini`](https://github.com/drevops/vortex/blob/main/drush/php-ini/drush.ini)
+  adjusts the PHP runtime for CLI processes. See [PHP runtime
+  configuration](#php-runtime-configuration).
 
 ## PHP runtime configuration
 
-**Vortex** allows you to customize PHP runtime settings for PHP CLI processes,
-including Drush commands, by editing the `drush/php-ini/drush.ini` file.
+**Vortex** allows you to customize PHP runtime settings for PHP CLI
+processes, including Drush commands, by editing the
+`drush/php-ini/drush.ini` file.
 
-This file is auto-discovered via the `PHP_INI_SCAN_DIR` environment variable,
-which is pre-configured in both the Docker CLI container and Acquia deployment
-hooks. Every PHP CLI process that loads this scan path picks the file up, not
-only Drush.
+This file is auto-discovered via the `PHP_INI_SCAN_DIR` environment
+variable, which is pre-configured in both the Docker CLI container and
+Acquia deployment hooks. Every PHP CLI process that loads this scan path
+picks the file up, not only Drush.
 
 Any valid PHP ini directive can be added to this file to adjust the runtime
 behavior of those processes.
 
 :::note
 
-The leading colon in the `PHP_INI_SCAN_DIR` value preserves the default scan directories, so on Acquia the hosting provider's own PHP ini overrides (such as `sendmail_path`) aren't lost.
+The leading colon in the `PHP_INI_SCAN_DIR` value preserves the default scan
+directories, so on Acquia the hosting provider's own PHP ini overrides (such
+as `sendmail_path`) aren't lost.
 
 :::
 
@@ -85,15 +95,15 @@ default:
 memory_limit = 1G
 ```
 
-This value is sized for database imports and configuration synchronization on
-large sites. It applies to PHP CLI processes that load this scan path,
+This value is sized for database imports and configuration synchronization
+on large sites. It applies to PHP CLI processes that load this scan path,
 including Drush, and doesn't change the memory limit used to serve web
 requests.
 
-If a Drush command exhausts this limit, profile the command before raising the
-value. An exhausted 1G limit usually points to a memory leak in custom code
-rather than a limit set too low. Raising the ceiling hides the leak until a
-larger dataset reaches the new limit.
+If a Drush command exhausts this limit, profile the command before raising
+the value. An exhausted 1G limit usually points to a memory leak in custom
+code rather than a limit set too low. Raising the ceiling hides the leak
+until a larger dataset reaches the new limit.
 
 To grant more memory to a single command without changing the default:
 
@@ -105,7 +115,8 @@ To grant more memory to a single command without changing the default:
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli php -d memory_limit=2G vendor/bin/drush <command>
+    docker compose exec cli php -d memory_limit=2G \
+      vendor/bin/drush <command>
     ```
   </TabItem>
 </Tabs>
@@ -118,7 +129,9 @@ file defines a wildcard alias, so every environment resolves as
 `@lagoon.<branch-or-pr>` without per-environment entries. The aliases can be
 used either from the host machine or from within the container.
 
-The project name is hardcoded in the alias file because Drush doesn't load variables from `.env` files. The hardcoded name keeps the aliases working identically on the host and in the container.
+The project name is hardcoded in the alias file because Drush doesn't load
+variables from `.env` files. The hardcoded name keeps the aliases working
+identically on the host and in the container.
 
 <Tabs>
   <TabItem value="host" label="Host" default>
@@ -128,8 +141,10 @@ The project name is hardcoded in the alias file because Drush doesn't load varia
     ```
     2. Run Drush commands using the Lagoon site aliases:
     ```shell
-    drush @lagoon.develop status  # Show status of the develop environment
-    drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
+    # Show status of the develop environment
+    drush @lagoon.develop status
+    # SSH into the web container of the PR-123 environment
+    drush @lagoon.pr-123 ssh
     ```
   </TabItem>
   <TabItem value="ahoy" label="Ahoy">
@@ -139,8 +154,10 @@ The project name is hardcoded in the alias file because Drush doesn't load varia
     ```
     2. Run Drush commands using the Lagoon site aliases:
     ```shell
-    ahoy drush @lagoon.develop status  # Show status of the develop environment
-    ahoy drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
+    # Show status of the develop environment
+    ahoy drush @lagoon.develop status
+    # SSH into the web container of the PR-123 environment
+    ahoy drush @lagoon.pr-123 ssh
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -150,8 +167,10 @@ The project name is hardcoded in the alias file because Drush doesn't load varia
     ```
     2. Run Drush commands using the Lagoon site aliases:
     ```shell
-    docker compose exec cli drush @lagoon.develop status  # Show status of the develop environment
-    docker compose exec cli drush @lagoon.pr-123 ssh      # SSH into the web container of the PR-123 environment
+    # Show status of the develop environment
+    docker compose exec cli drush @lagoon.develop status
+    # SSH into the web container of the PR-123 environment
+    docker compose exec cli drush @lagoon.pr-123 ssh
     ```
   </TabItem>
 </Tabs>

@@ -7,12 +7,14 @@ sidebar_label: PHPCS
 https://github.com/PHPCSStandards/PHP_CodeSniffer/
 
 > PHP_CodeSniffer is a set of two PHP scripts; the main `phpcs` script that
-> tokenizes PHP, JavaScript and CSS files to detect violations of a defined coding
-> standard, and a second `phpcbf` script to automatically correct coding standard
-> violations. PHP_CodeSniffer is an essential development tool that ensures your
-> code remains clean and consistent.
+> tokenizes PHP, JavaScript and CSS files to detect violations of a defined
+> coding standard, and a second `phpcbf` script to automatically correct
+> coding standard violations. PHP_CodeSniffer is an essential development
+> tool that ensures your code remains clean and consistent.
 
-**Vortex** comes with a [pre-configured PHPCS ruleset](https://github.com/drevops/vortex/blob/main/phpcs.xml) for Drupal projects.
+**Vortex** comes with a [pre-configured PHPCS
+ruleset](https://github.com/drevops/vortex/blob/main/phpcs.xml) for Drupal
+projects.
 
 ## Usage
 
@@ -52,9 +54,11 @@ import TabItem from '@theme/TabItem';
 
 ## Configuration
 
-See [configuration reference](https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki/Configuration-Options).
+See [configuration
+reference](https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki/Configuration-Options).
 
-All global configuration takes place in the [`phpcs.xml`](https://github.com/drevops/vortex/blob/main/phpcs.xml) file.
+All global configuration takes place in the
+[`phpcs.xml`](https://github.com/drevops/vortex/blob/main/phpcs.xml) file.
 
 By default, PHPCS checks against the following rules:
 
@@ -73,8 +77,8 @@ Adding or removing targets:
 <file>path/to/dir_or_file</file>
 ```
 
-The `PHPCompatibility` checks run against the platform version specified in the
-`composer.json` key `config.platform.php`:
+The `PHPCompatibility` checks run against the platform version specified in
+the `composer.json` key `config.platform.php`:
 
 ```xml
 <config name="testVersion" value="8.4"/>
@@ -82,7 +86,8 @@ The `PHPCompatibility` checks run against the platform version specified in the
 
 ## Ignoring
 
-Ignoring rules globally takes place in the [`phpcs.xml`](https://github.com/drevops/vortex/blob/main/phpcs.xml) file:
+Ignoring rules globally takes place in the
+[`phpcs.xml`](https://github.com/drevops/vortex/blob/main/phpcs.xml) file:
 
 ```xml
 <!-- Comment about why this rule is excluded. -->
@@ -121,12 +126,14 @@ $a = 1;
 
 ## Continuous integration
 
-PHPCS runs in the `lint` job of the [continuous integration pipeline](../../continuous-integration/README.mdx)
-and fails the build on violations.
+PHPCS runs in the `lint` job of the [continuous integration
+pipeline](../../continuous-integration/README.mdx) and fails the build on
+violations.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_PHPCS_IGNORE_FAILURE` environment variable to `1`. The tool
-still runs and reports violations.
+Set the `VORTEX_CI_PHPCS_IGNORE_FAILURE` environment variable to `1`. The
+tool still runs and reports violations.
 
-➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)
+➡️ See [Continuous integration > Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures)

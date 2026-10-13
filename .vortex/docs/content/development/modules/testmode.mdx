@@ -5,20 +5,24 @@ sidebar_position: 5
 
 # Testmode
 
-[Testmode](https://www.drupal.org/project/testmode) filters site content during
-Behat tests, preventing live or generated content from interfering with test
-assertions.
+[Testmode](https://www.drupal.org/project/testmode) filters site content
+during Behat tests, preventing live or generated content from interfering
+with test assertions.
 
-This section covers how **Vortex** uses the module. The
-[module documentation](https://git.drupalcode.org/project/testmode/-/blob/HEAD/README.md)
+This section covers how **Vortex** uses the module. The [module
+documentation](https://git.drupalcode.org/project/testmode/-/blob/HEAD/README.md)
 is the reference for its full API.
 
 ## How it works
 
-1. Test content created in Behat features follows a naming convention: titles prefixed with `[TEST]`
-2. View machine names are registered in the `testmode.settings` configuration
-3. Behat scenarios tagged with `@testmode` automatically enable and disable filtering
-4. When filtering is enabled, the registered views only show content matching the `[TEST]` pattern
+1. Test content created in Behat features follows a naming convention:
+   titles prefixed with `[TEST]`
+2. View machine names are registered in the `testmode.settings`
+   configuration
+3. Behat scenarios tagged with `@testmode` automatically enable and disable
+   filtering
+4. When filtering is enabled, the registered views only show content
+   matching the `[TEST]` pattern
 
 ## Configuration
 
@@ -35,12 +39,14 @@ Testmode is configured through the `testmode.settings` configuration object:
 | `list_term` | bool | Whether to filter term listings |
 
 **Vortex** adds `testmode` to `config_exclude_modules` in
-[`settings.testmode.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.testmode.php), so the module never leaks into an exported
-configuration. Configuration import therefore never enables it, which is why
-[`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) installs it alongside the other
-[development modules](../provision.mdx#development-modules), in the `local`, `ci`,
-`dev`, and `stage` environments. It's also a declared dependency of the
-`ys_demo` module, so installing the demo module brings it in as well.
+[`settings.testmode.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.testmode.php),
+so the module never leaks into an exported configuration.
+Configuration import therefore never enables it, which is why
+[`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh)
+installs it alongside the other
+[development modules](../provision.mdx#development-modules), in the `local`,
+`ci`, `dev`, and `stage` environments. It's also a declared dependency of
+the `ys_demo` module, so installing the demo module brings it in as well.
 
 ### Registering a view programmatically
 
@@ -63,9 +69,9 @@ function ys_demo_deploy_configure_testmode(): string {
 }
 ```
 
-The same singleton exposes `getTermViews()`, `getUserViews()`, and the matching
-pattern getters and setters, plus `enableTestMode()`, `disableTestMode()`, and
-`isTestMode()` for driving the mode directly.
+The same singleton exposes `getTermViews()`, `getUserViews()`, and the
+matching pattern getters and setters, plus `enableTestMode()`,
+`disableTestMode()`, and `isTestMode()` for driving the mode directly.
 
 ## Behat integration
 
@@ -87,15 +93,16 @@ Scenario: Pages view shows only test content when test mode is enabled
 ```
 
 The `[TEST]` prefix in content titles matches the default `[TEST%` pattern
-configured in Testmode. Only matching content appears in registered views, so
-the generated `Demo page` nodes stay out of the assertions.
+configured in Testmode. Only matching content appears in registered views,
+so the generated `Demo page` nodes stay out of the assertions.
 
 ## Example in Vortex
 
 The `ys_demo` module:
 
 - Ships a pages view at `/pages`
-- Registers it with Testmode via the `ys_demo_deploy_configure_testmode` deploy hook
+- Registers it with Testmode via the `ys_demo_deploy_configure_testmode`
+  deploy hook
 - Includes the
   [`pages.feature`](https://github.com/drevops/vortex/blob/main/tests/behat/features/pages.feature)
   Behat feature demonstrating the `@testmode` tag against the

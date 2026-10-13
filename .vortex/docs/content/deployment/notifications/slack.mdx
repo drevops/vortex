@@ -9,8 +9,10 @@ Post deployment notifications to a Slack channel.
 
 ## Setup
 
-1. [Create a Slack app and Incoming Webhook](https://api.slack.com/messaging/webhooks).
-2. Add `VORTEX_NOTIFY_SLACK_WEBHOOK` to your hosting provider's environment variables.
+1. [Create a Slack app and Incoming
+   Webhook](https://api.slack.com/messaging/webhooks).
+2. Add `VORTEX_NOTIFY_SLACK_WEBHOOK` to your hosting provider's environment
+   variables.
 
 ## Environment variables
 
@@ -26,11 +28,16 @@ Post deployment notifications to a Slack channel.
 
 ## Event behavior
 
-Slack notifications are sent for both `pre_deployment` and `post_deployment` events:
+Slack notifications are sent for both `pre_deployment` and `post_deployment`
+events:
 
 - **Pre-deployment:** Gray color with "Deployment Starting" status
 - **Post-deployment:** Green color with "Deployment Complete" status
 
 ## Example
 
-<img src="/img/notification-slack-after.png" alt="Slack notification - Deployment Complete" width="500"/>
+<img
+  src="/img/notification-slack-after.png"
+  alt="Slack notification - Deployment Complete"
+  width="500"
+/>

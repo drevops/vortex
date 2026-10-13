@@ -70,23 +70,23 @@ real browser inside the container stack.
 ## Reports and coverage
 
 [PHPUnit](phpunit.mdx#reports) and [Behat](behat.mdx#reports) write JUnit
-reports under `.logs/test_results/<tool>/`, and [PHPUnit](phpunit.mdx#coverage)
-and [Jest](jest.mdx#coverage) write coverage reports under
-`.logs/coverage/<tool>/`. The continuous integration pipeline stores them as
-artifacts.
+reports under `.logs/test_results/<tool>/`, and
+[PHPUnit](phpunit.mdx#coverage) and [Jest](jest.mdx#coverage) write coverage
+reports under `.logs/coverage/<tool>/`. The continuous integration pipeline
+stores them as artifacts.
 
 ## Continuous integration
 
 Tests run in the `build` job of the continuous integration pipeline. PHPUnit
 and Jest run on the first container, while Behat scenarios are distributed
-across all containers, see
-[Test parallelism](../../continuous-integration/README.mdx#test-parallelism).
+across all containers, see [Test
+parallelism](../../continuous-integration/README.mdx#test-parallelism).
 
 Each framework has a `VORTEX_CI_<TOOL>_IGNORE_FAILURE` variable
 (`VORTEX_CI_PHPUNIT_IGNORE_FAILURE`, `VORTEX_CI_BEHAT_IGNORE_FAILURE`,
 `VORTEX_CI_JEST_IGNORE_FAILURE`) that lets the build pass despite failures
-while the tool still runs and reports them, see
-[Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).
+while the tool still runs and reports them, see [Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures).
 
 ## Project conventions
 

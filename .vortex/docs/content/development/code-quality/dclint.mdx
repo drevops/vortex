@@ -6,16 +6,19 @@ sidebar_label: DCLint
 
 https://github.com/zavoloklom/docker-compose-linter
 
-> A command-line tool for validating and enforcing best practices in Docker Compose files.
+> A command-line tool for validating and enforcing best practices in Docker
+> Compose files.
 
-**Vortex** comes with a [pre-configured DCLint ruleset](https://github.com/drevops/vortex/blob/main/.dclintrc)
-for its Docker Compose files.
+**Vortex** comes with a [pre-configured DCLint
+ruleset](https://github.com/drevops/vortex/blob/main/.dclintrc) for its
+Docker Compose files.
 
 ## Installation
 
 :::note
 
-**Vortex** doesn't install DCLint locally. Follow the [instructions](https://github.com/zavoloklom/docker-compose-linter#installation)
+**Vortex** doesn't install DCLint locally. Follow the
+[instructions](https://github.com/zavoloklom/docker-compose-linter#installation)
 to install it on your system.
 
 In CI, DCLint runs from its official Docker image.
@@ -23,8 +26,8 @@ In CI, DCLint runs from its official Docker image.
 :::
 
 DCLint is selected by default during installation. Deselecting it in the
-`Development tools` question removes the `.dclintrc` configuration file and the
-continuous integration step from every supported provider.
+`Development tools` question removes the `.dclintrc` configuration file and
+the continuous integration step from every supported provider.
 
 ## Usage
 
@@ -34,10 +37,11 @@ dclint .
 
 ## Configuration
 
-Global configuration takes place in the [`.dclintrc`](https://github.com/drevops/vortex/blob/main/.dclintrc)
-file. Beyond the defaults, it defines a `service-keys-order` rule group that
-keeps the keys of every service in `docker-compose.yml` in a consistent order,
-so diffs stay small and services stay comparable.
+Global configuration takes place in the
+[`.dclintrc`](https://github.com/drevops/vortex/blob/main/.dclintrc) file.
+Beyond the defaults, it defines a `service-keys-order` rule group that keeps
+the keys of every service in `docker-compose.yml` in a consistent order, so
+diffs stay small and services stay comparable.
 
 ## Ignoring
 
@@ -50,7 +54,8 @@ services:
     build: .
 ```
 
-To ignore specific rules for a single line, place a `disable-line` directive on its own line immediately before it:
+To ignore specific rules for a single line, place a `disable-line` directive
+on its own line immediately before it:
 
 ```yaml
 services:
@@ -62,12 +67,14 @@ services:
 
 ## Continuous integration
 
-DCLint runs in the `lint` job of the [continuous integration pipeline](../../continuous-integration/README.mdx)
-and fails the build on violations.
+DCLint runs in the `lint` job of the [continuous integration
+pipeline](../../continuous-integration/README.mdx) and fails the build on
+violations.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_DCLINT_IGNORE_FAILURE` environment variable to `1`. The tool
-still runs and reports violations.
+Set the `VORTEX_CI_DCLINT_IGNORE_FAILURE` environment variable to `1`. The
+tool still runs and reports violations.
 
-➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)
+➡️ See [Continuous integration > Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures)

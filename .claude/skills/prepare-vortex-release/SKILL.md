@@ -12,22 +12,24 @@ The user will provide the target version number (e.g., `1.37.0`).
 ## Step 1: Read the release process
 
 Read `.vortex/docs/content/contributing/maintenance/release.mdx` for the
-official checklist and `.vortex/docs/content/contributing/maintenance/_release_template.md`
-for the release notes template.
+official checklist and
+`.vortex/docs/content/contributing/maintenance/_release_template.md` for the
+release notes template.
 
 ## Step 2: Determine the previous release
 
-Run `git tag --sort=-creatordate` to find the most recent tag (check the first few entries).
-This is the `PREVIOUS_VERSION`. Use `git log --oneline PREVIOUS_VERSION..HEAD`
-to get the exact commit range for this release.
+Run `git tag --sort=-creatordate` to find the most recent tag (check the
+first few entries). This is the `PREVIOUS_VERSION`. Use
+`git log --oneline PREVIOUS_VERSION..HEAD` to get the exact commit range for
+this release.
 
 ## Step 3: Check pending deprecations
 
 The codebase marks time-limited backward-compatibility shims with a
-`@deprecated` tag that names the **Vortex** version in which the shim is to be
-removed (e.g. `@deprecated ... will be removed in Vortex 1.40.`). Before
-preparing a release, find any deprecation whose target version is at or below
-the version being released and confirm it is resolved.
+`@deprecated` tag that names the **Vortex** version in which the shim is to
+be removed (e.g. `@deprecated ... will be removed in Vortex 1.40.`). Before
+preparing a release, find any deprecation whose target version is at or
+below the version being released and confirm it is resolved.
 
 1. List every deprecation marker and its target version:
 
@@ -35,80 +37,92 @@ the version being released and confirm it is resolved.
    grep -rn "@deprecated" --exclude-dir=vendor --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.artifacts .
    ```
 
-2. For each marker, read the target removal version (the `Vortex X.Y` it names)
-   and compare it against the version being released:
+2. For each marker, read the target removal version (the `Vortex X.Y` it
+   names) and compare it against the version being released:
    - **Target version is greater than the release version** - still in its
-     grace period. Leave it in place and note it in the release checklist as a
-     known upcoming removal.
-   - **Target version is at or below the release version** - the removal is now
-     due. The deprecated code, its tests, and any related docs MUST be removed
-     before the release.
+     grace period. Leave it in place and note it in the release checklist as
+     a known upcoming removal.
+   - **Target version is at or below the release version** - the removal is
+     now due. The deprecated code, its tests, and any related docs MUST be
+     removed before the release.
 
 3. If any deprecation is due, STOP and prompt the user before continuing:
    - List each due deprecation with its file and line.
-   - Ask whether to resolve it now (remove the deprecated code path, its tests,
-     and any `@deprecated` notes or docs) or to defer the release.
+   - Ask whether to resolve it now (remove the deprecated code path, its
+     tests, and any `@deprecated` notes or docs) or to defer the release.
    - Do NOT silently proceed past a due deprecation.
 
 4. After resolving (or the user explicitly deferring) the due deprecations,
-   re-run the grep to confirm nothing at or below the release version remains.
+   re-run the grep to confirm nothing at or below the release version
+   remains.
 
-Record the outcome (resolved, deferred, or none found) in the release checklist
-section of the release notes.
+Record the outcome (resolved, deferred, or none found) in the release
+checklist section of the release notes.
 
 ## Step 4: Run release checklist operations
 
 Work through each checklist item from the release process doc:
 
-1. **Dependencies** - Skip Renovate (user must run manually). Note as unchecked.
-2. **Container images** - Check current versions in CI configs, verify if latest.
-   - **CI tool images** - `hadolint`, `dclint`, `gitleaks` and `actionlint` are
-     invoked as `docker run <image>:<tag>` inside `.github/workflows/**` and
-     `.circleci/config.yml`. The `customManagers` regex in `renovate.json`
-     tracks them, so this is a verification step, not a manual bump: confirm
-     no open Renovate PR is bumping them and that both CI providers carry the
-     same tag for the same tool. Bump by hand only when Renovate has not
-     picked a release up, and in that case pin the identical tag in
-     `.vortex/tests/lint.dockerfiles.sh` so a local run matches CI.
-   - An untagged image reference is a release blocker regardless of Renovate:
-     it resolves to `latest` and lets an upstream release break a default
-     branch on a commit that changed nothing.
-3. **PHP version** - Run `docker compose run --rm cli php -r "echo PHP_VERSION;"` and
-   `docker compose run --rm cli php -r "echo PHP_VERSION_ID;"` to get the container
-   PHP version. Update `composer.json` (`config.platform.php`), `phpstan.neon`
-   (`phpVersion`), and `phpcs.xml` (`testVersion`) if needed.
-4. **Composer packages** - Run `composer update -W` then check composer.json was bumped
-   (the project uses `bump-after-update` config).
-   - **`drevops/vortex-tooling` version pin (update EVERY spot in lockstep).** When
-     `.vortex/tooling/` changed and a new `drevops/vortex-tooling` tag is published for
-     this release, the pinned version MUST be updated in **all** the spots below at once,
-     or resolution breaks and CI fails - the dev/CI `require-tooling` bootstrap becomes
-     unresolvable, and the workflow-test SUT Docker build hits a higher-priority path repo
-     that no longer matches the `~<new>` constraint: (a) the `require` constraint in root
-     `composer.json`; (b) the path-repository `versions` override in root `composer.json`;
-     (c) the hardcoded `versions` override in `scripts/vortex-tooling.sh` (inside the
-     `#;< VORTEX_DEV` throwaway path-repo config); and (d) the `versions` override in
-     `.vortex/tests/phpunit/Traits/SutTrait.php` (the test-harness `.tooling-source` path
-     repo). **After bumping, grep the whole repo for the previous tooling version**
-     (e.g. `grep -rn "vortex-tooling.*<old-version>" --exclude-dir=vendor`) - this is the
-     authoritative check, since new pin spots have been added over time.
-5. **Theme dependencies** - Run `npm update` in `web/themes/custom/your_site_theme/`.
-   Use npm, NOT yarn.
+1. **Dependencies** - Skip Renovate (user must run manually). Note as
+   unchecked.
+2. **Container images** - Check current versions in CI configs, verify if
+   latest.
+   - **CI tool images** - `hadolint`, `dclint`, `gitleaks` and `actionlint`
+     are invoked as `docker run <image>:<tag>` inside `.github/workflows/**`
+     and `.circleci/config.yml`. The `customManagers` regex in
+     `renovate.json` tracks them, so this is a verification step, not a
+     manual bump: confirm no open Renovate PR is bumping them and that both
+     CI providers carry the same tag for the same tool. Bump by hand only
+     when Renovate has not picked a release up, and in that case pin the
+     identical tag in `.vortex/tests/lint.dockerfiles.sh` so a local run
+     matches CI.
+   - An untagged image reference is a release blocker regardless of
+     Renovate: it resolves to `latest` and lets an upstream release break a
+     default branch on a commit that changed nothing.
+3. **PHP version** - Run
+   `docker compose run --rm cli php -r "echo PHP_VERSION;"` and
+   `docker compose run --rm cli php -r "echo PHP_VERSION_ID;"` to get the
+   container PHP version. Update `composer.json` (`config.platform.php`),
+   `phpstan.neon` (`phpVersion`), and `phpcs.xml` (`testVersion`) if needed.
+4. **Composer packages** - Run `composer update -W` then check composer.json
+   was bumped (the project uses `bump-after-update` config).
+   - **`drevops/vortex-tooling` version pin (update EVERY spot in
+     lockstep).** When `.vortex/tooling/` changed and a new
+     `drevops/vortex-tooling` tag is published for this release, the pinned
+     version MUST be updated in **all** the spots below at once, or
+     resolution breaks and CI fails - the dev/CI `require-tooling` bootstrap
+     becomes unresolvable, and the workflow-test SUT Docker build hits a
+     higher-priority path repo that no longer matches the `~<new>`
+     constraint: (a) the `require` constraint in root `composer.json`; (b)
+     the path-repository `versions` override in root `composer.json`; (c)
+     the hardcoded `versions` override in `scripts/vortex-tooling.sh`
+     (inside the `#;< VORTEX_DEV` throwaway path-repo config); and (d) the
+     `versions` override in `.vortex/tests/phpunit/Traits/SutTrait.php` (the
+     test-harness `.tooling-source` path repo). **After bumping, grep the
+     whole repo for the previous tooling version** (e.g.
+     `grep -rn "vortex-tooling.*<old-version>" --exclude-dir=vendor`) - this
+     is the authoritative check, since new pin spots have been added over
+     time.
+5. **Theme dependencies** - Run `npm update` in
+   `web/themes/custom/your_site_theme/`. Use npm, NOT yarn.
 6. **CI runner** - Check if `drevops/ci-runner` is at the latest version.
-7. **Cache version** - The cache key has the form `v<YY>.<M>.<minor>` (CalVer).
-   Update it in `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`, then run `ahoy lint-ci-fix` from `.vortex/` to regenerate `.circleci/vortex-test-common.yml` and `.github/workflows/vortex-test-didi.yml`:
-   - The `v<YY>.<M>.<minor>` prefix tracks the latest `uselagoon/*` container
-     image tag (e.g. `v26.4.0` for `uselagoon/mysql-8.4:26.4.0`). Lagoon
-     versions encode `YY.M.minor` (year, calendar month, minor), so this part
-     effectively follows the current month's release. Bump it whenever the
-     Lagoon containers were bumped during this release cycle.
+7. **Cache version** - The cache key has the form `v<YY>.<M>.<minor>`
+   (CalVer). Update it in `.circleci/config.yml` and
+   `.github/workflows/build-test-deploy.yml`, then run `ahoy lint-ci-fix`
+   from `.vortex/` to regenerate `.circleci/vortex-test-common.yml` and
+   `.github/workflows/vortex-test-didi.yml`:
+   - The `v<YY>.<M>.<minor>` prefix tracks the latest `uselagoon/*`
+     container image tag (e.g. `v26.4.0` for `uselagoon/mysql-8.4:26.4.0`).
+     Lagoon versions encode `YY.M.minor` (year, calendar month, minor), so
+     this part effectively follows the current month's release. Bump it
+     whenever the Lagoon containers were bumped during this release cycle.
    - Example: Lagoon containers went `26.2.0` → `26.4.0`:
      `v26.2.0` → `v26.4.0`.
    - To force a cache reset outside a Lagoon bump, bump the last segment
      (e.g. `v26.4.0` → `v26.4.1`).
-8. **Documentation** - Run `cd .vortex && ahoy update-docs`. WARNING: this may
-   revert cache version changes in CI configs - re-apply the cache version
-   increment after running this command.
+8. **Documentation** - Run `cd .vortex && ahoy update-docs`. WARNING: this
+   may revert cache version changes in CI configs - re-apply the cache
+   version increment after running this command.
 9. **Demo videos** - Regenerate every terminal demo video shown in the docs
    via a single command, in a single temp workspace.
 
@@ -129,14 +143,17 @@ Work through each checklist item from the release process doc:
      Docker. `ahoy update-videos installer` is fast (no Docker).
    - The command does NOT auto-commit; review the artifact diff under
      `.vortex/docs/static/img/` and stage manually.
-   - A recording whose output reports an error, a warning or a failure is not
-     rendered, and the command stops naming the offending lines. Read them in
-     `.artifacts/videos/<name>.txt`, fix the command that emits them, and record
-     again - there is no flag that renders anyway.
+   - A recording whose output reports an error, a warning or a failure is
+     not rendered, and the command stops naming the offending lines. Read
+     them in `.artifacts/videos/<name>.txt`, fix the command that emits
+     them, and record again - there is no flag that renders anyway.
 
 ## Step 5: Generate release notes
 
-The release-prep flow uses a single staging directory per release: `.artifacts/release-<full-version>/` (e.g. `.artifacts/release-1.38.0/`). Everything for that release lives inside this folder so reviewers have one place to look.
+The release-prep flow uses a single staging directory per release:
+`.artifacts/release-<full-version>/` (e.g. `.artifacts/release-1.38.0/`).
+Everything for that release lives inside this folder so reviewers have one
+place to look.
 
 Create the directory if it does not already exist:
 
@@ -150,21 +167,30 @@ Then copy the release template into the directory and fill it in at:
 .artifacts/release-<full-version>/release-notes.md
 ```
 
-This file is the **raw release body** (no frontmatter). It is the source for the GitHub release body when the tag is published. Marketing copies (with Obsidian frontmatter, etc.) are produced as separate files in the same folder by the parent `release-vortex` workflow - do NOT add frontmatter here.
+This file is the **raw release body** (no frontmatter). It is the source for
+the GitHub release body when the tag is published. Marketing copies (with
+Obsidian frontmatter, etc.) are produced as separate files in the same
+folder by the parent `release-vortex` workflow - do NOT add frontmatter
+here.
 
-**Do NOT create `.artifacts/release-<full-version>.md` at the top level.** The previous convention of writing a single top-level `.artifacts/release-VERSION.md` has been retired. Everything lives inside the folder. If a stale top-level file is present from an earlier run, delete it.
+**Do NOT create `.artifacts/release-<full-version>.md` at the top level.**
+The previous convention of writing a single top-level
+`.artifacts/release-VERSION.md` has been retired. Everything lives inside
+the folder. If a stale top-level file is present from an earlier run, delete
+it.
 
 ### Gathering change details
 
 For each non-trivial commit in the range:
 - Use `git show --stat HASH` to see files changed
 - Use `git show HASH -- path/to/key/file` to understand the actual change
-- Use `gh pr list --state merged --limit 50 --json number,title,author` to get
-  PR numbers and authors
+- Use `gh pr list --state merged --limit 50 --json number,title,author` to
+  get PR numbers and authors
 
 ### Release notes format
 
-Follow this exact format (see `.artifacts/release-1.38.0/release-notes.md` from the most recent release as the canonical example):
+Follow this exact format (see `.artifacts/release-1.38.0/release-notes.md`
+from the most recent release as the canonical example):
 
 ```markdown
 ## VERSION - Short Title
@@ -241,7 +267,9 @@ Summary paragraph (1-3 sentences).
 
 ### Entry format rules
 
-Each changelog entry follows this pattern. **The title line, the `What it does:` label, and the `How to use it:` label must all be wrapped in markdown bold (`**...**`).** Do not bold the body text after the labels.
+Each changelog entry follows this pattern. **The title line, the
+`What it does:` label, and the `How to use it:` label must all be wrapped in
+markdown bold (`**...**`).** Do not bold the body text after the labels.
 
 ```markdown
  - **[#ISSUE] PR/commit title. @author (#PR_NUMBER)**
@@ -259,51 +287,94 @@ Concrete examples:
 - **Update PHP - All packages except core - Minor and patch. @[renovate[bot]](https://github.com/apps/renovate) (#2474)**
 ```
 
-(Renovate Updated-section entries: bold the title only - they have no `What it does` / `How to use it` body.)
+(Renovate Updated-section entries: bold the title only - they have no
+`What it does` / `How to use it` body.)
 
 Key rules:
-- **Blank lines are mandatory, not cosmetic.** Put a blank line after every group header (`- ✨ **New**`, `- 🛠 **Changed**`, `- 🐞 **Fixed**`, `- ⬆️ **Updated**`) and between every pair of entries within a group, including single-line entries in the Updated section. Without them the notes render as an unbroken wall of text that nobody reads. The `What it does:` and `How to use it:` lines of a single entry stay tight against their title line with no blank line between them - the separation is between entries, not inside one.
-- The first line is the PR title with issue reference, author attribution, and PR number, wrapped in `**...**`.
-- The body must contain **two pieces of information** for any non-trivial entry:
-  1. **What the change does** (the behaviour, the new feature, the bug that was fixed).
-  2. **How to start using it** *or* **what effect it has on existing projects**.
-     - If the feature is opt-in or configurable: name the **environment variable / setting / flag** that turns it on, with default value (e.g. `VORTEX_PROVISION_CONFIG_IMPORT_REPEAT=1`, default `0`).
+- **Blank lines are mandatory, not cosmetic.** Put a blank line after every
+  group header (`- ✨ **New**`, `- 🛠 **Changed**`, `- 🐞 **Fixed**`,
+  `- ⬆️ **Updated**`) and between every pair of entries within a group,
+  including single-line entries in the Updated section. Without them the
+  notes render as an unbroken wall of text that nobody reads. The
+  `What it does:` and `How to use it:` lines of a single entry stay tight
+  against their title line with no blank line between them - the separation
+  is between entries, not inside one.
+- The first line is the PR title with issue reference, author attribution,
+  and PR number, wrapped in `**...**`.
+- The body must contain **two pieces of information** for any non-trivial
+  entry:
+  1. **What the change does** (the behaviour, the new feature, the bug that
+     was fixed).
+  2. **How to start using it** *or*
+     **what effect it has on existing projects**.
+     - If the feature is opt-in or configurable: name the
+       **environment variable / setting / flag** that turns it on, with
+       default value (e.g. `VORTEX_PROVISION_CONFIG_IMPORT_REPEAT=1`,
+       default `0`).
      - If the feature is opt-out: name the disable variable and its default.
-     - If the feature applies automatically: state explicitly that no action is needed and what changes for existing projects.
-     - If the change is a fix: explain who was affected and whether their setup needs anything (e.g. "automatically applied on next provision; no configuration needed").
+     - If the feature applies automatically: state explicitly that no action
+       is needed and what changes for existing projects.
+     - If the change is a fix: explain who was affected and whether their
+       setup needs anything (e.g. "automatically applied on next provision;
+       no configuration needed").
      - For breaking changes: list the migration steps explicitly.
-- Read the actual diff to find the variable names. Do NOT guess. If `git show <hash>` shows new `VORTEX_*`, `DRUPAL_*`, or `*_SKIP` variables in `scripts/vortex/*.sh` or `web/sites/default/**/settings.*.php`, those are the variables to surface. Cross-reference `.vortex/docs/content/development/variables.mdx` for canonical naming.
-- Short fix entries that are purely internal (refactoring, test infrastructure, doc typos) may omit the "how to use" line.
-- Renovate bot entries in the Updated section do NOT need description paragraphs.
-- Author is `@GithubUsername` for humans, `@[renovate[bot]](https://github.com/apps/renovate)` for the bot.
+- Read the actual diff to find the variable names. Do NOT guess. If
+  `git show <hash>` shows new `VORTEX_*`, `DRUPAL_*`, or `*_SKIP` variables
+  in `scripts/vortex/*.sh` or `web/sites/default/**/settings.*.php`, those
+  are the variables to surface. Cross-reference
+  `.vortex/docs/content/development/variables.mdx` for canonical naming.
+- Short fix entries that are purely internal (refactoring, test
+  infrastructure, doc typos) may omit the "how to use" line.
+- Renovate bot entries in the Updated section do NOT need description
+  paragraphs.
+- Author is `@GithubUsername` for humans,
+  `@[renovate[bot]](https://github.com/apps/renovate)` for the bot.
 - PR number in parentheses: `(#2349)`.
-- Issue number in brackets at start: `[#2340]` (only if the commit message has one).
-- **Verify package names against `composer.json`** before naming third-party libraries (e.g. `drevops/behat-screenshot`, NOT `bex/behat-screenshot`). Run a quick `grep` check on the entry's package references.
+- Issue number in brackets at start: `[#2340]` (only if the commit message
+  has one).
+- **Verify package names against `composer.json`** before naming third-party
+  libraries (e.g. `drevops/behat-screenshot`, NOT `bex/behat-screenshot`).
+  Run a quick `grep` check on the entry's package references.
 
 ### Highlights selection rules
 
-The `## 🔍 Highlights` section is the part most readers will actually read. It must surface what users of Vortex (the people running Drupal projects on top of the template) actually benefit from. Choose 5-8 items, prioritising in this order:
+The `## 🔍 Highlights` section is the part most readers will actually read.
+It must surface what users of Vortex (the people running Drupal projects on
+top of the template) actually benefit from. Choose 5-8 items, prioritising
+in this order:
 
-1. **Security / hardening** that applies automatically to every project (e.g. `.htaccess` blocks, default-on settings).
-2. **New testing or CI capabilities** that are practical to adopt (Jest, new test job, new lint).
+1. **Security / hardening** that applies automatically to every project
+   (e.g. `.htaccess` blocks, default-on settings).
+2. **New testing or CI capabilities** that are practical to adopt (Jest, new
+   test job, new lint).
 3. **New default modules / packages** that change what ships out of the box.
-4. **New deployment / operational levers** (manual triggers, per-channel routing).
-5. **Configurable behaviour changes** that improve reliability (e.g. opt-in repeat config import, fallback behaviour fixes).
-6. **Renovate / dependency-management improvements** that change how updates land.
-7. **Runtime / platform bumps** when they are breaking (PHP major.minor, container major bumps).
+4. **New deployment / operational levers** (manual triggers, per-channel
+   routing).
+5. **Configurable behaviour changes** that improve reliability (e.g. opt-in
+   repeat config import, fallback behaviour fixes).
+6. **Renovate / dependency-management improvements** that change how updates
+   land.
+7. **Runtime / platform bumps** when they are breaking (PHP major.minor,
+   container major bumps).
 
 DO NOT highlight:
-- Installer-only conveniences (e.g. installer flags) unless they unblock a category of users.
+- Installer-only conveniences (e.g. installer flags) unless they unblock a
+  category of users.
 - Internal CI tweaks that have no consumer-facing effect.
 - Pure refactors.
-- Single-vendor integrations that most users won't reach for (e.g. an optional Codecov prompt).
+- Single-vendor integrations that most users won't reach for (e.g. an
+  optional Codecov prompt).
 
-If you are tempted to put an installer flag or an optional integration in highlights, ask: "Does the average Vortex consumer project benefit from this on day 1?". If no, move it down to its respective category section.
+If you are tempted to put an installer flag or an optional integration in
+highlights, ask: "Does the average Vortex consumer project benefit from this
+on day 1?". If no, move it down to its respective category section.
 
 ### Categorisation
 
-- **Template**: Changes to the project template files (scripts, configs, CI, modules, theme)
-- **Installer**: Changes to `.vortex/installer/src/` code and installer-specific tests
+- **Template**: Changes to the project template files (scripts, configs, CI,
+  modules, theme)
+- **Installer**: Changes to `.vortex/installer/src/` code and
+  installer-specific tests
 - **Documentation**: Changes to `.vortex/docs/` content
 
 Within each category:
@@ -314,13 +385,15 @@ Within each category:
 
 ### Important
 
-- Many commits touch installer **fixtures** because template changes cascade into them.
-  Only list changes in the Installer section if they modify actual installer **source code**
-  (`.vortex/installer/src/`) or installer-specific test logic.
-- Check for commits that touch both template and installer source - list the template
-  change under Template and the installer-specific change under Installer.
+- Many commits touch installer **fixtures** because template changes cascade
+  into them. Only list changes in the Installer section if they modify
+  actual installer **source code** (`.vortex/installer/src/`) or
+  installer-specific test logic.
+- Check for commits that touch both template and installer source - list the
+  template change under Template and the installer-specific change under
+  Installer.
 
 ## Command rules - CRITICAL
 
-NEVER use compound commands. Every Bash call must contain exactly ONE simple command.
-No `&&`, `||`, `;`, `|`, `<<<`, `$(...)`, or heredocs.
+NEVER use compound commands. Every Bash call must contain exactly ONE simple
+command. No `&&`, `||`, `;`, `|`, `<<<`, `$(...)`, or heredocs.

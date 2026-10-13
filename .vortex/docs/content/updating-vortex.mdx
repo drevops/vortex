@@ -4,8 +4,9 @@ sidebar_position: 8
 
 # Updating Vortex
 
-**Vortex** differs from other project templates: after the initial setup, you can
-update it to get the latest features and bug fixes without losing your project customizations.
+**Vortex** differs from other project templates: after the initial setup,
+you can update it to get the latest features and bug fixes without losing
+your project customizations.
 
 ## Overview
 
@@ -18,19 +19,23 @@ Updating **Vortex** gives existing projects:
 
 After the update, review the changes and commit them to your project.
 
-We recommend updating **Vortex** monthly or at least quarterly to keep your project
-secure and up-to-date.
+We recommend updating **Vortex** monthly or at least quarterly to keep your
+project secure and up-to-date.
 
 :::note Staying on your major version
 
-`ahoy update-vortex` updates your project within its current major version. A `1.x` project receives the latest `1.x` release and is never moved to `2.x` automatically. Moving to a new major is a deliberate step: run that major's installer (for example `https://www.vortextemplate.com/v2/install`) against your project.
+`ahoy update-vortex` updates your project within its current major version.
+A `1.x` project receives the latest `1.x` release and is never moved to
+`2.x` automatically. Moving to a new major is a deliberate step: run that
+major's installer (for example `https://www.vortextemplate.com/v2/install`)
+against your project.
 
 :::
 
 ## Before updating
 
-Check the release notes for the latest version to understand what has changed
-and if there are any breaking changes that may affect your project.
+Check the release notes for the latest version to understand what has
+changed and if there are any breaking changes that may affect your project.
 
 Specifically check if any environment variables were added or changed.
 
@@ -58,17 +63,22 @@ Specifically check if any environment variables were added or changed.
 
 3. Review the changes made by the update and selectively add them.
 
-   Consider committing the changes in smaller chunks, so they're easier to review and revert if necessary.
+   Consider committing the changes in smaller chunks, so they're easier to
+   review and revert if necessary.
 
-   Where the update replaced a file your project had changed, `.logs/vortex-update.md` records the replaced change alongside the change the new version brings. Work through it to re-apply your changes, then delete the entries you have resolved. The file isn't tracked in Git.
+   Where the update replaced a file your project had changed,
+   `.logs/vortex-update.md` records the replaced change alongside the change
+   the new version brings. Work through it to re-apply your changes, then
+   delete the entries you have resolved. The file isn't tracked in Git.
 
-   Your `composer.json` has most likely deviated from the **Vortex** version,
-   so review the package version changes carefully. We recommend temporarily
-   reverting the changes to `composer.json` and `composer.lock` to preserve
-   your project's versions, then updating the package versions in your
-   `composer.json` manually. After settling the constraints, run
+   Your `composer.json` has most likely deviated from the **Vortex**
+   version, so review the package version changes carefully. We recommend
+   temporarily reverting the changes to `composer.json` and `composer.lock`
+   to preserve your project's versions, then updating the package versions
+   in your `composer.json` manually. After settling the constraints, run
    `ahoy composer update` and commit the regenerated `composer.lock`, so the
-   build installs the versions you selected rather than the stale locked ones.
+   build installs the versions you selected rather than the stale locked
+   ones.
 
    ```shell title="Review changes"
    git status

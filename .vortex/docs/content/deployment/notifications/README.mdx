@@ -8,7 +8,9 @@ sidebar_position: 1
 **Vortex** provides a notification system that sends updates across multiple
 channels when deployments occur.
 
-Notifications are dispatched by the `vendor/bin/vortex-notify` router script. The _hosting platform_ runs it around a deployment (from Lagoon post-rollout tasks or Acquia Cloud Hooks), not the CI `deploy` job.
+Notifications are dispatched by the `vendor/bin/vortex-notify` router
+script. The _hosting platform_ runs it around a deployment (from Lagoon
+post-rollout tasks or Acquia Cloud Hooks), not the CI `deploy` job.
 
 ## Channels
 
@@ -19,7 +21,9 @@ Configure notification channels in your `.env` file:
 VORTEX_NOTIFY_CHANNELS=email,slack,github
 ```
 
-Available channels: [`diffy`](diffy.mdx), [`email`](email.mdx), [`github`](github.mdx), [`jira`](jira.mdx), [`newrelic`](newrelic.mdx), [`slack`](slack.mdx), [`webhook`](webhook.mdx)
+Available channels: [`diffy`](diffy.mdx), [`email`](email.mdx),
+[`github`](github.mdx), [`jira`](jira.mdx), [`newrelic`](newrelic.mdx),
+[`slack`](slack.mdx), [`webhook`](webhook.mdx)
 
 ## Global environment variables
 
@@ -58,17 +62,20 @@ only sends notifications for deployments on the listed branches
 (comma-separated, exact match). When empty or unset, the channel runs
 on all branches.
 
-For example, to restrict New Relic notifications to only `main` and `staging`:
+For example, to restrict New Relic notifications to only `main` and
+`staging`:
 
 ```shell
 VORTEX_NOTIFY_NEWRELIC_BRANCHES=main,staging
 ```
 
-New Relic defaults to `main,master,develop`. All other channels default to no filter.
+New Relic defaults to `main,master,develop`. All other channels default to
+no filter.
 
 ## Message templates and tokens
 
-Most notification channels support customizable message templates using replacement tokens:
+Most notification channels support customizable message templates using
+replacement tokens:
 
 | Token | Description | Example |
 |-------|-------------|---------|
@@ -91,24 +98,32 @@ Login at: %login_url%
 
 ## Deployment log
 
-Deployment logs are collected from a shared directory and included in notifications. Each producing script writes its own `<name>.log` into `VORTEX_NOTIFY_LOG_DIR`. `vortex-provision` writes `provision.log` when `VORTEX_PROVISION_LOG=1`, truncated fresh each run. When `VORTEX_NOTIFY_LOG=1`, the notifier collects every log in that directory, each as its own titled section. The email, Slack, Jira, and webhook channels add them to their message. The email and webhook message templates expose the collected logs as the `%deployment_log%` token; Slack adds them to the message attachment and Jira as a comment code block.
+Deployment logs are collected from a shared directory and included in
+notifications. Each producing script writes its own `<name>.log` into
+`VORTEX_NOTIFY_LOG_DIR`. `vortex-provision` writes `provision.log` when
+`VORTEX_PROVISION_LOG=1`, truncated fresh each run. When
+`VORTEX_NOTIFY_LOG=1`, the notifier collects every log in that directory,
+each as its own titled section. The email, Slack, Jira, and webhook channels
+add them to their message. The email and webhook message templates expose
+the collected logs as the `%deployment_log%` token; Slack adds them to the
+message attachment and Jira as a comment code block.
 
-To include the provision log in notifications, set both `VORTEX_PROVISION_LOG=1`
-and `VORTEX_NOTIFY_LOG=1` (in `.env` or per environment). A single channel can be
-turned off with `VORTEX_NOTIFY_<CHANNEL>_LOG=0` (for example
-`VORTEX_NOTIFY_SLACK_LOG=0`).
+To include the provision log in notifications, set both
+`VORTEX_PROVISION_LOG=1` and `VORTEX_NOTIFY_LOG=1` (in `.env` or per
+environment). A single channel can be turned off with
+`VORTEX_NOTIFY_<CHANNEL>_LOG=0` (for example `VORTEX_NOTIFY_SLACK_LOG=0`).
 
 :::warning
 
-Deployment logs are included verbatim. Make sure producing scripts don't print
-secrets, and enable the feature only for the channels and environments where
-exposing the full logs is acceptable.
+Deployment logs are included verbatim. Make sure producing scripts don't
+print secrets, and enable the feature only for the channels and environments
+where exposing the full logs is acceptable.
 
 Logs are written to `VORTEX_NOTIFY_LOG_DIR` (default `/tmp/vortex-logs`).
 `vortex-provision` creates its log directory and `provision.log` owner-only
-(`700`/`600`) on a best-effort basis; any other producing script controls the
-permissions of its own log file. If you point `VORTEX_NOTIFY_LOG_DIR` at a custom
-directory, make sure that location isn't readable by other users.
+(`700`/`600`) on a best-effort basis; any other producing script controls
+the permissions of its own log file. If you point `VORTEX_NOTIFY_LOG_DIR` at
+a custom directory, make sure that location isn't readable by other users.
 
 :::
 

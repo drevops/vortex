@@ -8,21 +8,23 @@ import TabItem from '@theme/TabItem';
 
 # Debugging
 
-This section covers 3 debugging aids: step-debugging PHP with Xdebug, testing
-authenticated pages with curl, and inspecting the containers directly.
+This section covers 3 debugging aids: step-debugging PHP with Xdebug,
+testing authenticated pages with curl, and inspecting the containers
+directly.
 
 ## Xdebug
 
 https://xdebug.org/
 
-> Xdebug is an extension for PHP, and provides a range of features to improve
-> the PHP development experience.
+> Xdebug is an extension for PHP, and provides a range of features to
+> improve the PHP development experience.
 
-**Vortex** comes with Xdebug pre-installed and configured for local development
-thanks to [Lagoon images](https://github.com/uselagoon/lagoon-images).
+**Vortex** comes with Xdebug pre-installed and configured for local
+development thanks to [Lagoon
+images](https://github.com/uselagoon/lagoon-images).
 
-Xdebug is also configured to work in coverage mode, so tests can run with code
-coverage enabled.
+Xdebug is also configured to work in coverage mode, so tests can run with
+code coverage enabled.
 
 ➡️ See [PHPUnit](../testing/phpunit.mdx)
 
@@ -38,7 +40,8 @@ Xdebug is disabled by default. Run the following command to enable it:
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    XDEBUG_ENABLE=true docker compose up -d cli php nginx   # Restart containers with Xdebug enabled.
+    # Restart containers with Xdebug enabled.
+    XDEBUG_ENABLE=true docker compose up -d cli php nginx
     ```
   </TabItem>
 </Tabs>
@@ -53,7 +56,8 @@ Run the following command to disable Xdebug:
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose up -d cli php nginx    # Restart containers with Xdebug disabled.
+    # Restart containers with Xdebug disabled.
+    docker compose up -d cli php nginx
     ```
   </TabItem>
 </Tabs>
@@ -78,31 +82,36 @@ unmapped debug connections when `Start listening for PHP Debug Connections`
 button (the one with a little bug) is activated. When interrupted, PhpStorm
 asks you to map the incoming connection to a project.
 
-To use Xdebug on the project for the first time, follow these steps (assuming
-you already have a fully working site):
+To use Xdebug on the project for the first time, follow these steps
+(assuming you already have a fully working site):
 
 1. Install Xdebug helper extension for your browser:
-     - [Chrome Xdebug Helper by JetBrains](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm)
+     - [Chrome Xdebug Helper by
+       JetBrains](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm)
        extension.
-     - [Firefox Xdebug Helper by JetBrains](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-by-jetbrains/)
+     - [Firefox Xdebug Helper by
+       JetBrains](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-by-jetbrains/)
        extension.
-     - [Edge Xdebug Helper by JetBrains](https://microsoftedge.microsoft.com/addons/detail/xdebug-helper-by-jetbrain/kddfioocjgjmmambaijldfbpiaecmoco)
+     - [Edge Xdebug Helper by
+       JetBrains](https://microsoftedge.microsoft.com/addons/detail/xdebug-helper-by-jetbrain/kddfioocjgjmmambaijldfbpiaecmoco)
        add-on.
 
-2. Enable Xdebug in your browser (see instructions for your extension/add-on).
-3. Set a breakpoint in your IDE. `index.php` in your web root is a good place to
-   start.
-4. Run `ahoy debug` or `XDEBUG_ENABLE=true docker compose up -d cli php nginx`
-   to enable Xdebug.
+2. Enable Xdebug in your browser (see instructions for your
+   extension/add-on).
+3. Set a breakpoint in your IDE. `index.php` in your web root is a good
+   place to start.
+4. Run `ahoy debug` or
+   `XDEBUG_ENABLE=true docker compose up -d cli php nginx` to enable Xdebug.
 5. Refresh the page in your browser.
-6. PhpStorm stops on your breakpoint and asks you to map the incoming connection
-   to a directory in your project. This is because the code runs in the
-   container, which qualifies as a remote server. You need to "tell" Xdebug
-   where to find the code on your local machine that corresponds to the code
-   running in the container. You need to do it once, and PhpStorm remembers the
-   mapping.
+6. PhpStorm stops on your breakpoint and asks you to map the incoming
+   connection to a directory in your project. This is because the code runs
+   in the container, which qualifies as a remote server. You need to "tell"
+   Xdebug where to find the code on your local machine that corresponds to
+   the code running in the container. You need to do it once, and PhpStorm
+   remembers the mapping.
 
-![PhpStorm server settings with the path mapping to the project root within the container](/img/xdebug-phpstorm.png)
+![PhpStorm server settings with the path mapping to the project root within
+the container](/img/xdebug-phpstorm.png)
 
 For more information see the following resources:
 
@@ -118,17 +127,21 @@ configurations in the PhpStorm IDE to make your life easier:
   - `Break at first line in PHP scripts`
   - `Force break at first line when no path mapping specified`
   - `Force break at first line when a script is outside the project`
-- Increase the number in `Max. simultaneous connections` to `5` or more. This
-  prevents a hidden debug session from being "stuck" without being visible in
-  the IDE.
+- Increase the number in `Max. simultaneous connections` to `5` or more.
+  This prevents a hidden debug session from being "stuck" without being
+  visible in the IDE.
 
 ## Testing authenticated pages with curl
 
-Use `curl` with session cookies to simulate manual testing of pages that require authentication (admin pages, protected routes) without opening a browser. This is for ad-hoc debugging only. Automated testing should use Behat or PHPUnit.
+Use `curl` with session cookies to simulate manual testing of pages that
+require authentication (admin pages, protected routes) without opening a
+browser. This is for ad-hoc debugging only. Automated testing should use
+Behat or PHPUnit.
 
 ### When to use
 
-- Quick ad-hoc debugging of admin page errors (500 errors, permission issues)
+- Quick ad-hoc debugging of admin page errors (500 errors, permission
+  issues)
 - Investigating issues without spinning up a browser
 - Verifying page content during troubleshooting
 - One-off checks that don't warrant a formal test
@@ -143,7 +156,8 @@ Use `curl` with session cookies to simulate manual testing of pages that require
     # Note the URL (e.g., http://your-project.docker.amazee.io)
     # Step 2: Get a one-time login URL
     ahoy login
-    # Output example: http://your-project.docker.amazee.io/user/reset/1/1234567890/abc123/login
+    # Output example:
+    # http://your-project.docker.amazee.io/user/reset/1/1234567890/abc123/login
     # Step 3: Authenticate and save session cookies
     # Replace LOGIN_URL with the full URL from Step 2
     curl -k -c .data/cookies.txt -L "LOGIN_URL"
@@ -151,7 +165,8 @@ Use `curl` with session cookies to simulate manual testing of pages that require
     # Replace SITE_URL with your site URL from Step 1
     curl -k -b .data/cookies.txt "SITE_URL/admin/content"
     # Step 5: Check for specific errors in page output
-    curl -k -b .data/cookies.txt "SITE_URL/admin/content" | grep -iE "(error|exception|warning|notice)"
+    curl -k -b .data/cookies.txt "SITE_URL/admin/content" \
+      | grep -iE "(error|exception|warning|notice)"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -161,7 +176,8 @@ Use `curl` with session cookies to simulate manual testing of pages that require
     # Note the URL (e.g., http://your-project.docker.amazee.io)
     # Step 2: Get a one-time login URL
     docker compose exec cli drush uli
-    # Output example: http://your-project.docker.amazee.io/user/reset/1/1234567890/abc123/login
+    # Output example:
+    # http://your-project.docker.amazee.io/user/reset/1/1234567890/abc123/login
     # Step 3: Authenticate and save session cookies
     # Replace LOGIN_URL with the full URL from Step 2
     curl -k -c .data/cookies.txt -L "LOGIN_URL"
@@ -169,7 +185,8 @@ Use `curl` with session cookies to simulate manual testing of pages that require
     # Replace SITE_URL with your site URL from Step 1
     curl -k -b .data/cookies.txt "SITE_URL/admin/content"
     # Step 5: Check for specific errors in page output
-    curl -k -b .data/cookies.txt "SITE_URL/admin/content" | grep -iE "(error|exception|warning|notice)"
+    curl -k -b .data/cookies.txt "SITE_URL/admin/content" \
+      | grep -iE "(error|exception|warning|notice)"
     ```
   </TabItem>
 </Tabs>
@@ -187,7 +204,8 @@ Use `curl` with session cookies to simulate manual testing of pages that require
 
 - Always store cookies in the `.data/` directory, because it's gitignored.
 - Cookies expire after the session timeout, so regenerate them as needed.
-- Login URLs have the format `http://SITE/user/reset/UID/TIMESTAMP/HASH/login`.
+- Login URLs have the format
+  `http://SITE/user/reset/UID/TIMESTAMP/HASH/login`.
 - Login URLs from `ahoy login` can only be used once.
 
 ## Container debugging

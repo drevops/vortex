@@ -51,7 +51,8 @@ ahoy mycommand -- myarg1 myarg2 --myoption1 --myoption2=myvalue
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    # Unblocks user 1 and generates a one-time login link, like `ahoy login`.
+    # Unblocks user 1 and generates a one-time login link, like
+    # `ahoy login`.
     docker compose exec cli ./vendor/bin/vortex-login
     ```
   </TabItem>
@@ -101,10 +102,12 @@ Connection details:
   <TabItem value="ahoy" label="Ahoy" default>
     1. Run `ahoy debug`.
     2. Enable listening for incoming debug connections in your IDE.
-    3. If required, provide server URL to your IDE as it appears in the browser.
-    4. Enable Xdebug flag in the request coming from your web browser (use one of
-       the extensions or add `?XDEBUG_SESSION_START=1` to your URL).
-    5. Set a breakpoint in your IDE and perform a request in the web browser.
+    3. If required, provide server URL to your IDE as it appears in the
+       browser.
+    4. Enable Xdebug flag in the request coming from your web browser (use
+       one of the extensions or add `?XDEBUG_SESSION_START=1` to your URL).
+    5. Set a breakpoint in your IDE and perform a request in the web
+       browser.
 
     Use the same commands to debug CLI scripts.
 
@@ -113,10 +116,12 @@ Connection details:
   <TabItem value="docker-compose" label="Docker Compose">
     1. Run `XDEBUG_ENABLE=true docker compose up -d cli php nginx`.
     2. Enable listening for incoming debug connections in your IDE.
-    3. If required, provide server URL to your IDE as it appears in the browser.
-    4. Enable Xdebug flag in the request coming from your web browser (use one of
-       the extensions or add `?XDEBUG_SESSION_START=1` to your URL).
-    5. Set a breakpoint in your IDE and perform a request in the web browser.
+    3. If required, provide server URL to your IDE as it appears in the
+       browser.
+    4. Enable Xdebug flag in the request coming from your web browser (use
+       one of the extensions or add `?XDEBUG_SESSION_START=1` to your URL).
+    5. Set a breakpoint in your IDE and perform a request in the web
+       browser.
 
     Use the same commands to debug CLI scripts.
 
@@ -143,7 +148,8 @@ Connection details:
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
-    1. Enable debugging: `XDEBUG_ENABLE=true docker compose up -d cli php nginx`
+    1. Enable debugging:
+       `XDEBUG_ENABLE=true docker compose up -d cli php nginx`
     2. Enter CLI container: `docker compose exec cli bash`
     3. Run Behat tests:
 
@@ -155,7 +161,8 @@ Connection details:
 
 <!-- markdownlint-enable MD046 -->
 
-➡️ See [Environment > Debugging](environment/debugging.mdx) and [Testing > Behat](testing/behat.mdx)
+➡️ See [Environment > Debugging](environment/debugging.mdx) and [Testing >
+Behat](testing/behat.mdx)
 
 ## What should I do to switch to a "clean" branch environment?
 
@@ -181,7 +188,8 @@ If your stack is already running:
     3. `docker compose exec cli ./vendor/bin/vortex-provision`
 
     You don't need to rebuild the full stack every time you switch branches.
-    The provision script updates the environment to match the current branch.
+    The provision script updates the environment to match the current
+    branch.
 
     When you need a fully clean environment, run:
 
@@ -196,7 +204,8 @@ If your stack is already running:
 
 <!-- markdownlint-enable MD046 -->
 
-➡️ See [Environment > Switching branches](environment/README.mdx#switching-branches)
+➡️ See [Environment > Switching
+branches](environment/README.mdx#switching-branches)
 
 ## How to import a database without running updates?
 
@@ -252,7 +261,8 @@ If your stack is already running:
   </TabItem>
 </Tabs>
 
-➡️ See [Composer > Installing](composer.mdx#installing) and [Modules](modules/README.mdx)
+➡️ See [Composer > Installing](composer.mdx#installing) and
+[Modules](modules/README.mdx)
 
 ## How to add patches for Drupal modules?
 
@@ -294,31 +304,53 @@ workflow, including removing patches.
 
 ## What should I do when `composer audit` reports a security vulnerability?
 
-**Vortex** doesn't block installation on security advisories by default, so `composer install` and `composer update` keep working. Advisories are surfaced by `composer audit`, which runs locally and in the CI security audit workflow. When one appears:
+**Vortex** doesn't block installation on security advisories by default, so
+`composer install` and `composer update` keep working. Advisories are
+surfaced by `composer audit`, which runs locally and in the CI security
+audit workflow. When one appears:
 
-1. Try updating the affected package to a newer version that resolves the advisory: `composer update vendor/package-name`.
-2. Run `composer audit` to review the advisory details and assess whether it affects your project.
-3. If no fixed version exists yet, or the vulnerability doesn't affect your use case, add the advisory to the `config.policy.advisories.ignore-id` list in `composer.json` with a documented reason.
-4. To let CI pass while the advisory is being addressed, set `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1`.
+1. Try updating the affected package to a newer version that resolves the
+   advisory: `composer update vendor/package-name`.
+2. Run `composer audit` to review the advisory details and assess whether it
+   affects your project.
+3. If no fixed version exists yet, or the vulnerability doesn't affect your
+   use case, add the advisory to the `config.policy.advisories.ignore-id`
+   list in `composer.json` with a documented reason.
+4. To let CI pass while the advisory is being addressed, set
+   `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1`.
 
-➡️ See [Security > Dependency audit](security/dependency-audit.mdx) for the full `config.policy` reference and guidance on choosing the right settings for your project.
+➡️ See [Security > Dependency audit](security/dependency-audit.mdx) for the
+full `config.policy` reference and guidance on choosing the right settings
+for your project.
 
 ## What should I do when `npm audit` reports a security vulnerability?
 
-The CI security audit workflow runs `npm audit` against the root and the theme dependency trees, failing on advisories rated `high` or higher. When one appears:
+The CI security audit workflow runs `npm audit` against the root and the
+theme dependency trees, failing on advisories rated `high` or higher. When
+one appears:
 
-1. Try updating the affected package to a newer version that resolves the advisory: `npm update <package-name>`.
-2. Run `npm audit` to review the advisory details, including which direct dependency pulls the affected package in, and assess whether it affects your project.
-3. When the affected package isn't a direct dependency, pin a patched version of it with an `overrides` entry in `package.json`, then run `npm install`.
-4. If no fixed version exists or the vulnerability doesn't affect you, add it to the `allowlist` in `audit-ci.jsonc` with notes and an expiry date.
-5. To let CI pass while the advisory is being addressed, set `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1`.
+1. Try updating the affected package to a newer version that resolves the
+   advisory: `npm update <package-name>`.
+2. Run `npm audit` to review the advisory details, including which direct
+   dependency pulls the affected package in, and assess whether it affects
+   your project.
+3. When the affected package isn't a direct dependency, pin a patched
+   version of it with an `overrides` entry in `package.json`, then run
+   `npm install`.
+4. If no fixed version exists or the vulnerability doesn't affect you, add
+   it to the `allowlist` in `audit-ci.jsonc` with notes and an expiry date.
+5. To let CI pass while the advisory is being addressed, set
+   `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1`.
 
-➡️ See [Security > Dependency audit](security/dependency-audit.mdx#javascript-dependencies) for the severity threshold, the `overrides` mechanism, and the allowlist format.
+➡️ See [Security > Dependency
+audit](security/dependency-audit.mdx#javascript-dependencies) for the
+severity threshold, the `overrides` mechanism, and the allowlist format.
 
 ## How to set a custom maintenance theme?
 
-To set a custom theme for Drupal's maintenance mode (when the site is offline
-for updates), set the `DRUPAL_MAINTENANCE_THEME` environment variable:
+To set a custom theme for Drupal's maintenance mode (when the site is
+offline for updates), set the `DRUPAL_MAINTENANCE_THEME` environment
+variable:
 
 ```shell
 # In .env file
@@ -326,18 +358,19 @@ DRUPAL_MAINTENANCE_THEME=my_custom_theme
 ```
 
 Drupal uses this theme when it's in maintenance mode. If
-`DRUPAL_MAINTENANCE_THEME` isn't set, the system falls back to using the value
-of `DRUPAL_THEME`.
+`DRUPAL_MAINTENANCE_THEME` isn't set, the system falls back to using the
+value of `DRUPAL_THEME`.
 
-The maintenance theme should be a valid Drupal theme that's already installed
-and enabled on your site.
+The maintenance theme should be a valid Drupal theme that's already
+installed and enabled on your site.
 
-➡️ See [Environment > Environment variables](environment/README.mdx#environment-variables)
+➡️ See [Environment > Environment
+variables](environment/README.mdx#environment-variables)
 
 ## Behat tests with `@javascript` tag sometimes get stuck
 
-Behat tests with `@javascript` tag sometimes get stuck for about 10 minutes then
-fail. The Chrome container randomly gets stuck for an unknown reason.
+Behat tests with `@javascript` tag sometimes get stuck for about 10 minutes
+then fail. The Chrome container randomly gets stuck for an unknown reason.
 
 Restart the Chrome container: `docker compose restart chrome`
 

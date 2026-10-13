@@ -34,10 +34,12 @@ because those traits sit outside this directory.
 
 ## PHPUnit - Integration Testing Workflows
 
-**Use when**: Changed ahoy commands, Docker setup, or need to test full build/deploy workflow.
+**Use when**: Changed ahoy commands, Docker setup, or need to test full
+build/deploy workflow.
 
 **References**:
-- `vendor/alexskrypnyk/phpunit-helpers/README.md` - Test helpers, traits, assertions
+- `vendor/alexskrypnyk/phpunit-helpers/README.md` - Test helpers, traits,
+  assertions
 - `vendor/alexskrypnyk/file/README.md` - File operations, batch processing
 
 ```bash
@@ -97,12 +99,13 @@ Use `self::$tmp` for temporary files (auto-cleaned).
 
 ## Shell script patterns
 
-Shipped scripts follow a shared structure - see the Tooling package section in
-[`.vortex/CLAUDE.md`](../CLAUDE.md#tooling-package).
+Shipped scripts follow a shared structure - see the Tooling package section
+in [`.vortex/CLAUDE.md`](../CLAUDE.md#tooling-package).
 
 ## Test maintenance
 
 When updating PHPUnit tests:
 
 1. Update the test class.
-2. Run `ahoy update-snapshots` from `.vortex/` (see Snapshots in `.vortex/CLAUDE.md`).
+2. Run `ahoy update-snapshots` from `.vortex/` (see Snapshots in
+   `.vortex/CLAUDE.md`).

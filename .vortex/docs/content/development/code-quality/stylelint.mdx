@@ -8,11 +8,14 @@ https://stylelint.io/
 
 > A mighty CSS linter that helps you avoid errors and enforce conventions.
 
-**Vortex** comes with a [pre-configured Stylelint ruleset](https://github.com/drevops/vortex/blob/main/.stylelintrc.js)
-for Drupal projects.
+**Vortex** comes with a [pre-configured Stylelint
+ruleset](https://github.com/drevops/vortex/blob/main/.stylelintrc.js) for
+Drupal projects.
 
 :::info
-Stylelint in **Vortex** is configured to lint custom modules only (`web/modules/custom`). The custom theme maintains its own Stylelint configuration within the theme directory.
+Stylelint in **Vortex** is configured to lint custom modules only
+(`web/modules/custom`). The custom theme maintains its own Stylelint
+configuration within the theme directory.
 :::
 
 ## Usage
@@ -60,8 +63,8 @@ Stylelint fixes many violations automatically using the `--fix` flag.
 
 `ahoy lint-fe` and `ahoy lint-fe-fix` also run the `lint` and `lint-fix`
 scripts of the custom theme, which lint the theme's JavaScript and SCSS
-together. To lint only the theme's stylesheets, run the theme's own `lint-css`
-and `lint-css-fix` scripts:
+together. To lint only the theme's stylesheets, run the theme's own
+`lint-css` and `lint-css-fix` scripts:
 
 ```shell
 ahoy cli "npm run --prefix=web/themes/custom/your_site_theme lint-css"
@@ -72,7 +75,9 @@ ahoy cli "npm run --prefix=web/themes/custom/your_site_theme lint-css-fix"
 
 See [configuration reference](https://stylelint.io/user-guide/configure).
 
-All global configuration takes place in the [`.stylelintrc.js`](https://github.com/drevops/vortex/blob/main/.stylelintrc.js) file.
+All global configuration takes place in the
+[`.stylelintrc.js`](https://github.com/drevops/vortex/blob/main/.stylelintrc.js)
+file.
 
 By default, Stylelint extends the following configuration and plugin:
 
@@ -81,20 +86,21 @@ By default, Stylelint extends the following configuration and plugin:
 
 The following rules are set on top of the standard configuration:
 
-- `order/properties-alphabetical-order` - declarations within a block must be
-  in alphabetical order
+- `order/properties-alphabetical-order` - declarations within a block must
+  be in alphabetical order
 - `at-rule-no-unknown` - unknown at-rules are reported, except the Sass
-  at-rules `@extend`, `@at-root`, `@debug`, `@warn`, `@error`, `@if`, `@else`,
-  `@for`, `@each`, `@while`, `@include`, `@mixin`, `@function`, `@return`, and
-  `@content`
-- `selector-class-pattern`, `selector-id-pattern`, `custom-property-pattern`,
-  and `keyframes-name-pattern` - disabled, so class, ID, custom property, and
-  keyframes names aren't forced into a naming pattern
+  at-rules `@extend`, `@at-root`, `@debug`, `@warn`, `@error`, `@if`,
+  `@else`, `@for`, `@each`, `@while`, `@include`, `@mixin`, `@function`,
+  `@return`, and `@content`
+- `selector-class-pattern`, `selector-id-pattern`,
+  `custom-property-pattern`, and `keyframes-name-pattern` - disabled, so
+  class, ID, custom property, and keyframes names aren't forced into a
+  naming pattern
 - `no-descending-specificity` - disabled
 - `font-family-no-missing-generic-family-keyword` - disabled
 
-Targets include custom modules only. The `--allow-empty-input` flag makes the
-run exit without an error when the glob matches no files:
+Targets include custom modules only. The `--allow-empty-input` flag makes
+the run exit without an error when the glob matches no files:
 
 ```json
 {
@@ -116,18 +122,19 @@ Adding or removing targets in `package.json`:
 ```
 
 The `stylelint`, `stylelint-config-standard`, and `stylelint-order` packages
-are declared in the `devDependencies` of the root `package.json` and installed
-by `ahoy fei`.
+are declared in the `devDependencies` of the root `package.json` and
+installed by `ahoy fei`.
 
 ### Theme configuration
 
-The custom theme ships its own [`.stylelintrc.json`](https://github.com/drevops/vortex/blob/main/web/themes/custom/your_site_theme/.stylelintrc.json)
-and its own `package.json`, because a theme carries its own front-end tooling
-and can be moved into a separate repository.
+The custom theme ships its own
+[`.stylelintrc.json`](https://github.com/drevops/vortex/blob/main/web/themes/custom/your_site_theme/.stylelintrc.json)
+and its own `package.json`, because a theme carries its own front-end
+tooling and can be moved into a separate repository.
 
 The theme configuration extends `stylelint-config-standard` and
-`stylelint-config-standard-scss`, loads the `stylelint-scss` plugin, uses the
-`string` formatter, and sets the following rules:
+`stylelint-config-standard-scss`, loads the `stylelint-scss` plugin, uses
+the `string` formatter, and sets the following rules:
 
 - `scss/at-extend-no-missing-placeholder` - `@extend` must target a
   placeholder selector
@@ -135,13 +142,14 @@ The theme configuration extends `stylelint-config-standard` and
 - `scss/dollar-variable-pattern` - `$variable` names must match
   `^_?[a-z]+([a-z0-9-]+[a-z0-9]+)?$`
 
-The theme's `lint-css` script targets `scss/**/*.scss`, and the configuration
-ignores `scss/_components.scss`, `fonts/**/*.scss`, and `build/.*` through
-the `ignoreFiles` key.
+The theme's `lint-css` script targets `scss/**/*.scss`, and the
+configuration ignores `scss/_components.scss`, `fonts/**/*.scss`, and
+`build/.*` through the `ignoreFiles` key.
 
 ## Ignoring
 
-Ignoring paths globally takes place in the `ignoreFiles` key of the configuration file, as the theme configuration does:
+Ignoring paths globally takes place in the `ignoreFiles` key of the
+configuration file, as the theme configuration does:
 
 ```json
 {
@@ -194,9 +202,10 @@ a {
 
 ## Continuous integration
 
-Stylelint runs in the `lint` job of the [continuous integration pipeline](../../continuous-integration/README.mdx)
-and fails the build on violations. The custom modules and the custom theme are
-linted in separate steps; the theme step is skipped when
+Stylelint runs in the `lint` job of the [continuous integration
+pipeline](../../continuous-integration/README.mdx) and fails the build on
+violations. The custom modules and the custom theme are linted in separate
+steps; the theme step is skipped when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
 is set to `1`.
 
@@ -206,4 +215,5 @@ Set the `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE` environment variable to `1`.
 The variable is shared with [ESLint](eslint.mdx), which runs in the same
 step. The tool still runs and reports violations.
 
-➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)
+➡️ See [Continuous integration > Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures)

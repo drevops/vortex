@@ -5,17 +5,18 @@ sidebar_position: 1
 
 # Modules
 
-**Vortex** isn't a Drupal distribution: it ships no installation profile, and
-the only recipe it carries is the small `recipes/page` recipe that creates the
-demo content model during provisioning. It provides a small set of contributed
-modules that most projects need, each already wired into the environment-aware
-[settings](../settings.mdx) and the [provisioning](../provision.mdx) scripts. You add
-the rest once the initial setup is done.
+**Vortex** isn't a Drupal distribution: it ships no installation profile,
+and the only recipe it carries is the small `recipes/page` recipe that
+creates the demo content model during provisioning. It provides a small set
+of contributed modules that most projects need, each already wired into the
+environment-aware [settings](../settings.mdx) and the
+[provisioning](../provision.mdx) scripts. You add the rest once the initial
+setup is done.
 
-Every module in this section is optional. The installer asks which ones to keep.
-Deselecting one removes its Composer requirement, its settings override, its
-line in the provisioning script, its Behat feature, and its settings test
-assertions in a single pass.
+Every module in this section is optional. The installer asks which ones to
+keep. Deselecting one removes its Composer requirement, its settings
+override, its line in the provisioning script, its Behat feature, and its
+settings test assertions in a single pass.
 
 ## How modules are configured
 
@@ -29,7 +30,7 @@ assertions in a single pass.
 | Module dependency | [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml) | Installs the module as a dependency of the demo module. ➡️ See [Demo module](module-scaffold.mdx#demo-module) |
 
 A module can be required without being installed anywhere: the settings
-override is then ready for the day the project enables it. `seckit` is the only
-module shipped that way. Every other module in
-[Contributed modules](contributed-modules.mdx) is installed by one of the
-preceding mechanisms, so selecting the module is enough to get it enabled.
+override is then ready for the day the project enables it. `seckit` is the
+only module shipped that way. Every other module in [Contributed
+modules](contributed-modules.mdx) is installed by one of the preceding
+mechanisms, so selecting the module is enough to get it enabled.

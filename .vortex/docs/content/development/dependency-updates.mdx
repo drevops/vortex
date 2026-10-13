@@ -5,12 +5,13 @@ sidebar_position: 13
 
 # Dependency updates
 
-**Vortex** provides [Renovate](https://renovatebot.com) configuration for your project's automated dependency updates.
+**Vortex** provides [Renovate](https://renovatebot.com) configuration for
+your project's automated dependency updates.
 
 ## How updates are organized
 
-All Renovate PRs use the branch prefix `deps/` and are labeled `Dependencies`.
-Assignees can be configured in the `assignees` field.
+All Renovate PRs use the branch prefix `deps/` and are labeled
+`Dependencies`. Assignees can be configured in the `assignees` field.
 
 ### Update rules
 
@@ -24,17 +25,17 @@ Assignees can be configured in the `assignees` field.
 | **Renovate image** | The `renovate/renovate` image in `.circleci/update-dependencies.yml` | Major, minor, patch | Weekly, Sunday before 3 AM UTC | 14 days |
 | **GitHub Actions** | All actions (pinned to digests) | Major, minor, patch | Daily before 3 AM UTC | 14 days |
 
-Renovate publishes several releases a day, so the image that runs Renovate in
-CircleCI has a group of its own with a weekly schedule. In the daily CI tools
-group, a new version would be proposed almost every day.
+Renovate publishes several releases a day, so the image that runs Renovate
+in CircleCI has a group of its own with a weekly schedule. In the daily CI
+tools group, a new version would be proposed almost every day.
 
 ### Auto-merge
 
 Every group auto-merges by default: GitHub merges the PR as soon as it meets
-the base branch's protection rules, such as passing required status checks and
-any required reviews. Each group in `renovate.json` lists an explicit
-`automerge` flag, so you can see and change the behavior per group. To merge a
-group's PRs yourself, set its flag to `false`:
+the base branch's protection rules, such as passing required status checks
+and any required reviews. Each group in `renovate.json` lists an explicit
+`automerge` flag, so you can see and change the behavior per group. To merge
+a group's PRs yourself, set its flag to `false`:
 
 ```json
 {
@@ -45,31 +46,33 @@ group's PRs yourself, set its flag to `false`:
 }
 ```
 
-The installer asks which groups to auto-merge and sets the flag to `true` for
-the groups you select and to `false` for the rest. The CI tools choice covers
-the Renovate image group too. When you update **Vortex**, it preselects the
-groups whose flag is already `true`, so your choices carry over.
+The installer asks which groups to auto-merge and sets the flag to `true`
+for the groups you select and to `false` for the rest. The CI tools choice
+covers the Renovate image group too. When you update **Vortex**, it
+preselects the groups whose flag is already `true`, so your choices carry
+over.
 
 Auto-merge requires 2 repository settings:
 
-1. **"Allow auto-merge"** enabled under *Settings > General > Pull Requests*.
+1. **"Allow auto-merge"** enabled under *Settings > General > Pull
+   Requests*.
 2. **"Require status checks to pass before merging"** configured in the base
    branch's branch protection rules, with at least 1 required status check
    selected. Otherwise, GitHub may merge even if CI is red.
 
 Every required status check must also report on `deps/*` branches. A check
-that never reports, such as a CircleCI job that a branch filter excludes from
-`deps/*` branches, keeps the PR blocked indefinitely. A GitHub Actions job
-skipped by its `if` condition reports as skipped, which satisfies the
+that never reports, such as a CircleCI job that a branch filter excludes
+from `deps/*` branches, keeps the PR blocked indefinitely. A GitHub Actions
+job skipped by its `if` condition reports as skipped, which satisfies the
 requirement.
 
 ### Minimum release age
 
-Renovate holds back a new release until it's 14 days old in every group except
-Drupal core. A compromised release is often detected and pulled from its
-registry within days. Nobody reviews an auto-merged update, so the delay keeps
-such a release out of your project.
-[Renovate recommends 14 days](https://docs.renovatebot.com/upgrade-best-practices/#wait-two-weeks-before-automerging-third-party-dependencies)
+Renovate holds back a new release until it's 14 days old in every group
+except Drupal core. A compromised release is often detected and pulled from
+its registry within days. Nobody reviews an auto-merged update, so the delay
+keeps such a release out of your project. [Renovate recommends 14
+days](https://docs.renovatebot.com/upgrade-best-practices/#wait-two-weeks-before-automerging-third-party-dependencies)
 when you auto-merge third-party dependencies.
 
 Each delayed group sets `minimumReleaseAge` next to its `automerge` flag:
@@ -84,15 +87,15 @@ Each delayed group sets `minimumReleaseAge` next to its `automerge` flag:
 }
 ```
 
-Renovate doesn't create the branch or the PR until a release has reached that
-age, which the top-level `"internalChecksFilter": "strict"` setting enforces.
-When the newest release is too young, Renovate proposes the newest one that
-isn't, and a grouped PR leaves out the packages that have nothing old enough
-yet. Because the PR only exists once the delay has passed, GitHub's auto-merge
-can't merge a release early.
+Renovate doesn't create the branch or the PR until a release has reached
+that age, which the top-level `"internalChecksFilter": "strict"` setting
+enforces. When the newest release is too young, Renovate proposes the newest
+one that isn't, and a grouped PR leaves out the packages that have nothing
+old enough yet. Because the PR only exists once the delay has passed,
+GitHub's auto-merge can't merge a release early.
 
-The delay adds to each group's schedule: a weekly group proposes a release 14
-to 21 days after it's published, and a daily group 14 to 15 days after.
+The delay adds to each group's schedule: a weekly group proposes a release
+14 to 21 days after it's published, and a daily group 14 to 15 days after.
 
 #### Drupal core
 
@@ -103,17 +106,18 @@ daily run. Its rule in `renovate.json` carries a `description` that says so.
 
 Renovate can only hold back a release when its registry records when the
 release was published. Of the registries **Vortex** uses, Drupal.org (Drupal
-contrib modules) and GitHub Container Registry (the Gitleaks image) don't, so
-their updates arrive without the delay. The top-level
-`"minimumReleaseAgeBehaviour": "timestamp-optional"` setting lets these updates
-through; without it, Renovate would hold them back indefinitely. The
+contrib modules) and GitHub Container Registry (the Gitleaks image) don't,
+so their updates arrive without the delay. The top-level
+`"minimumReleaseAgeBehaviour": "timestamp-optional"` setting lets these
+updates through; without it, Renovate would hold them back indefinitely. The
 `logLevelRemap` entry stops Renovate from reporting them as a repository
 problem on the Dependency Dashboard.
 
 Docker Hub records release dates, but Renovate can't read them for an image
-with more than 1,000 tags. The Renovate image has tens of thousands of tags, so
-**Vortex** looks its versions up in the `renovate` npm package instead. The
-package uses the same version numbers and records a date for every release.
+with more than 1,000 tags. The Renovate image has tens of thousands of tags,
+so **Vortex** looks its versions up in the `renovate` npm package instead.
+The package uses the same version numbers and records a date for every
+release.
 
 GitHub Actions are aged by the date of the commit that a tag points to. The
 action's publisher controls that date, so for actions the delay is a weaker
@@ -121,28 +125,30 @@ safeguard than for packages from a registry.
 
 #### Security fixes
 
-When Renovate can read your repository's Dependabot alerts, it raises a fix for
-a published advisory straight away, without the delay or the schedule.
-Otherwise, a security fix arrives as a routine update and waits like any other.
-To apply one sooner, update the dependency yourself, or request the pending
-update from the Dependency Dashboard.
+When Renovate can read your repository's Dependabot alerts, it raises a fix
+for a published advisory straight away, without the delay or the schedule.
+Otherwise, a security fix arrives as a routine update and waits like any
+other. To apply one sooner, update the dependency yourself, or request the
+pending update from the Dependency Dashboard.
 
 #### Changing the delay
 
 To change the delay for a group, edit its `minimumReleaseAge`. To remove the
-delay, delete the key. Turning auto-merge off for a group keeps its delay, so
-delete the key as well if you want those PRs as soon as a release is published.
+delay, delete the key. Turning auto-merge off for a group keeps its delay,
+so delete the key as well if you want those PRs as soon as a release is
+published.
 
 Updates waiting for their release to reach the minimum age are listed under
 **Pending Status Checks** on the Dependency Dashboard, where you can also
-request one early. The self-hosted service turns the dashboard off by default:
-set `RENOVATE_DEPENDENCY_DASHBOARD` to `true` to see them.
+request one early. The self-hosted service turns the dashboard off by
+default: set `RENOVATE_DEPENDENCY_DASHBOARD` to `true` to see them.
 
 ## Configuration
 
-The configuration is stored in [`renovate.json`](https://github.com/drevops/vortex/blob/main/renovate.json). It's
-based on the [Renovate configuration for automated Drupal dependency updates](https://github.com/drevops/renovate-drupal)
-project.
+The configuration is stored in
+[`renovate.json`](https://github.com/drevops/vortex/blob/main/renovate.json).
+It's based on the [Renovate configuration for automated Drupal dependency
+updates](https://github.com/drevops/renovate-drupal) project.
 
 ### PR throughput and presentation
 
@@ -170,9 +176,9 @@ Renovate intentionally skips these updates. Update them manually:
 
 ## Continuous integration
 
-Renovate can run as a hosted GitHub app or as a standalone self-hosted service
-in CircleCI or GitHub Actions. A self-hosted service suits projects that
-restrict third-party access to their repositories.
+Renovate can run as a hosted GitHub app or as a standalone self-hosted
+service in CircleCI or GitHub Actions. A self-hosted service suits projects
+that restrict third-party access to their repositories.
 
 :::note
 
@@ -195,11 +201,12 @@ import TabItem from '@theme/TabItem';
 **Required variables**, created in the GitHub repository settings:
 
 - `RENOVATE_TOKEN`: GitHub access token with repository write permissions.
-  *Location: Settings > Secrets and variables > Actions > Repository secrets.*
+  *Location: Settings > Secrets and variables > Actions > Repository
+  secrets.*
 - `RENOVATE_GIT_AUTHOR`: Author for Renovate commits in the format
   `Name <email@example.com>` (for example,
-  `Renovate Bot <renovate@example.com>`).
-  *Location: Settings > Secrets and variables > Actions > Repository variables.*
+  `Renovate Bot <renovate@example.com>`). *Location: Settings > Secrets and
+  variables > Actions > Repository variables.*
 
 **Optional variables** (defaults apply if not set):
 
@@ -214,8 +221,8 @@ import TabItem from '@theme/TabItem';
 workflow dispatch feature. A manual run skips the schedules, but not the
 [minimum release age](#minimum-release-age).
 
-**Debug logging:** set the `LOG_LEVEL` environment variable to `debug` in the
-workflow configuration.
+**Debug logging:** set the `LOG_LEVEL` environment variable to `debug` in
+the workflow configuration.
 
 </TabItem>
 <TabItem value="circleci" label="CircleCI">
@@ -262,4 +269,5 @@ The Renovate Dependency Dashboard is a GitHub issue that lists:
 - Updates that have been filtered out due to configuration rules
 - Failed update attempts and their reasons
 
-The dashboard is created with the title "RenovateBot Dependency Dashboard (self-hosted)" when running in self-hosted mode.
+The dashboard is created with the title "RenovateBot Dependency Dashboard
+(self-hosted)" when running in self-hosted mode.

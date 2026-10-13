@@ -5,19 +5,21 @@ sidebar_position: 8
 
 # Diffy
 
-Dispatch a visual regression run against the newly deployed environment via the
-shipped GitHub Actions workflow.
+Dispatch a visual regression run against the newly deployed environment via
+the shipped GitHub Actions workflow.
 
 This channel doesn't call Diffy directly. It sends a GitHub
 `repository_dispatch` event to the consumer repository; the
-[`test-vr.yml`](../../development/visual-regression.mdx) workflow then runs the
-actual Diffy comparison and posts the result back to the pull request.
+[`test-vr.yml`](../../development/visual-regression.mdx) workflow then runs
+the actual Diffy comparison and posts the result back to the pull request.
 
 ## Setup
 
-1. Enable visual regression during installation (or ship `test-vr.yml` manually). See [Visual regression](../../development/visual-regression.mdx).
-2. Add a GitHub token with `repo` scope as `VORTEX_NOTIFY_DIFFY_TOKEN` to the
-   hosting environment (falls back to `VORTEX_NOTIFY_GITHUB_TOKEN`, then
+1. Enable visual regression during installation (or ship `test-vr.yml`
+   manually). See
+   [Visual regression](../../development/visual-regression.mdx).
+2. Add a GitHub token with `repo` scope as `VORTEX_NOTIFY_DIFFY_TOKEN` to
+   the hosting environment (falls back to `VORTEX_NOTIFY_GITHUB_TOKEN`, then
    `GITHUB_TOKEN`).
 3. Add `diffy` to `VORTEX_NOTIFY_CHANNELS`.
 
