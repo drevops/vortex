@@ -5,7 +5,7 @@
 -
 -## PHPUnit conventions
 -
--Unit, Kernel, Functional tests.
+-PHPUnit runs the Unit, Kernel, and Functional tests.
 -
 -See [documentation](https://www.vortextemplate.com/docs/development/testing/phpunit)
 -on how to run tests, configure environment variables and code coverage, and use
@@ -55,12 +55,12 @@
 -
 -### Test data conventions
 -
--- **Always prefix test content**: `[TEST] Node Title`
--- **Use data providers**: For testing multiple input/output combinations
--  - Must be a public static method
--  - Must follow naming convention `dataProvider<MethodName>`
--  - Must be placed after the test method it provides data for.
--- **Use unique identifiers**: Include test class or method name in test data
+-- Prefix test content with `[TEST]`, for example `[TEST] Node Title`.
+-- Use data providers to test multiple input/output combinations. A data provider must:
+-  - be a public static method
+-  - be named `dataProvider<MethodName>`
+-  - be placed after the test method it provides data for
+-- Include the test class or method name in test data so identifiers stay unique.
 -
 -### Data providers
 -
@@ -139,7 +139,7 @@
 -
 -## Behat conventions
 -
--BDD end-to-end tests.
+-Behat runs the BDD end-to-end tests.
 -
 -See [documentation](https://www.vortextemplate.com/docs/development/testing/behat)
 -on how to run Behat tests, configure environment variables, and use test reports
@@ -159,7 +159,7 @@
 -
 -### Standard user types
 -
--Use these consistent user type descriptions:
+-Use these user type descriptions:
 -
 -```gherkin
 -As a site visitor          # Anonymous users
@@ -170,10 +170,10 @@
 -
 -### Test data conventions
 -
--- **Always prefix test content**: `[TEST] Page Title`
--- **Use numbered patterns**: `[TEST] Topic 1`, `[TEST] Topic 2`
--- **Avoid real names**: Don't use "Workshop" or "Training"
--- **Be descriptive**: `[TEST] Event with All Fields`
+-- Prefix test content with `[TEST]`, for example `[TEST] Page Title`.
+-- Use numbered names, for example `[TEST] Topic 1` and `[TEST] Topic 2`.
+-- Avoid real names such as "Workshop" or "Training".
+-- Use descriptive names, for example `[TEST] Event with All Fields`.
 -
 -### Example feature file
 -
@@ -192,7 +192,7 @@
 -
 -### Content type testing process
 -
--When creating comprehensive tests for content types:
+-When writing tests that cover a whole content type:
 -
 -1. Analyze configuration first
 -

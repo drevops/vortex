@@ -4,7 +4,7 @@
  
 -## PHPUnit conventions
 -
--Unit, Kernel, Functional tests.
+-PHPUnit runs the Unit, Kernel, and Functional tests.
 -
 -See [documentation](https://www.vortextemplate.com/docs/development/testing/phpunit)
 -on how to run tests, configure environment variables and code coverage, and use
@@ -54,12 +54,12 @@
 -
 -### Test data conventions
 -
--- **Always prefix test content**: `[TEST] Node Title`
--- **Use data providers**: For testing multiple input/output combinations
--  - Must be a public static method
--  - Must follow naming convention `dataProvider<MethodName>`
--  - Must be placed after the test method it provides data for.
--- **Use unique identifiers**: Include test class or method name in test data
+-- Prefix test content with `[TEST]`, for example `[TEST] Node Title`.
+-- Use data providers to test multiple input/output combinations. A data provider must:
+-  - be a public static method
+-  - be named `dataProvider<MethodName>`
+-  - be placed after the test method it provides data for
+-- Include the test class or method name in test data so identifiers stay unique.
 -
 -### Data providers
 -
@@ -138,4 +138,4 @@
 -
  ## Behat conventions
  
- BDD end-to-end tests.
+ Behat runs the BDD end-to-end tests.
