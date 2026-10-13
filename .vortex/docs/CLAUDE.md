@@ -2,7 +2,8 @@
 
 ## Overview
 
-Docusaurus-based documentation website published to https://www.vortextemplate.com
+Docusaurus-based documentation website published to
+https://www.vortextemplate.com
 
 **Technology**: Docusaurus, React, MDX, Jest, cspell
 
@@ -35,25 +36,50 @@ docs/
 ## Writing Guidelines
 
 - **American English** spelling throughout
-- **Sentence case** for headings (capitalize only first letter + proper nouns)
+- **Sentence case** for headings (capitalize only first letter + proper
+  nouns)
 - Proper nouns: Vortex, GitHub, Drupal, Docker Compose, CircleCI
-- **`Vortex` must always be bold** (`**Vortex**`) when it appears in prose. Applies to every `.mdx` file under `content/`. Exception: headings, link labels, code fences, and inline code (`` `Vortex` ``) where Markdown emphasis is not appropriate.
+- **`Vortex` must always be bold** (`**Vortex**`) when it appears in prose.
+  Applies to every `.mdx` file under `content/`. Exception: headings, link
+  labels, code fences, and inline code (`` `Vortex` ``) where Markdown
+  emphasis is not appropriate.
 - Acronyms: CI/CD, SSH, API, BDD, PHPUnit
-- Contractions (`doesn't`, `it's`, `can't`), present tense, and `you` for the reader.
-- Digits for numbers from 2 to 10 (`2 majors`), the Oxford comma, and `for example` instead of `e.g.`.
-- Environment variables, file names, commands, and package names are inline code, in link labels too. Inside single-line JSX or HTML elements such as `<summary>`, use `<code>` tags instead of backticks.
-- No `easy`, `simply`, `just`, `clearly`, marketing adjectives, or em and en dashes (use a spaced hyphen).
+- Contractions (`doesn't`, `it's`, `can't`), present tense, and `you` for
+  the reader.
+- Digits for numbers from 2 to 10 (`2 majors`), the Oxford comma, and
+  `for example` instead of `e.g.`.
+- Environment variables, file names, commands, and package names are inline
+  code, in link labels too. Inside single-line JSX or HTML elements such as
+  `<summary>`, use `<code>` tags instead of backticks.
+- No `easy`, `simply`, `just`, `clearly`, marketing adjectives, or em and en
+  dashes (use a spaced hyphen).
+- Wrap lines at 76 characters; markdownlint (`MD013`) enforces it. Code
+  blocks, tables, and headings are exempt, but code inside JSX such as a
+  `<TabItem>` is not, so split a long command there with `\`.
 
 ## Prose linting
 
-`yarn lint-prose` runs [Vale](https://vale.sh) over `content/**/*.mdx`. Errors fail the run and CI; warnings are advisory. Lint a single page with `yarn lint-prose --glob='content/faqs.mdx'`.
+`yarn lint-prose` runs [Vale](https://vale.sh) over `content/**/*.mdx`.
+Errors fail the run and CI; warnings are advisory. Lint a single page with
+`yarn lint-prose --glob='content/faqs.mdx'`.
 
-- `.vale.ini` selects the rules. The `Google` and `write-good` packages are pinned there by release URL and downloaded into the git-ignored part of `.vale/` by `vale sync`, which runs on `yarn install`.
-- `.vale/Vortex/` is the committed house style. A rule that adjusts an upstream rule inherits it with `extends: Google.<Rule>` and edits its lists with `exceptions+`, `tokens-` or `swap-`; the upstream rule is then switched off in `.vale.ini`.
-- `.vale/config/vocabularies/Vortex/accept.txt` holds product names with their exact casing. Add a new product name there; it is then enforced in prose and accepted in headings.
-- A heading that fails sentence case because of a proper noun gets an entry in `.vale/Vortex/Headings.yml`.
-- Fix the prose or fix the rule. Do not silence an alert with Vale control comments.
-- Blockquotes are skipped because they quote upstream projects verbatim. The generated table in `content/development/variables.mdx` is skipped too; the hand-written prose above it is linted.
+- `.vale.ini` selects the rules. The `Google` and `write-good` packages are
+  pinned there by release URL and downloaded into the git-ignored part of
+  `.vale/` by `vale sync`, which runs on `yarn install`.
+- `.vale/Vortex/` is the committed house style. A rule that adjusts an
+  upstream rule inherits it with `extends: Google.<Rule>` and edits its
+  lists with `exceptions+`, `tokens-` or `swap-`; the upstream rule is then
+  switched off in `.vale.ini`.
+- `.vale/config/vocabularies/Vortex/accept.txt` holds product names with
+  their exact casing. Add a new product name there; it is then enforced in
+  prose and accepted in headings.
+- A heading that fails sentence case because of a proper noun gets an entry
+  in `.vale/Vortex/Headings.yml`.
+- Fix the prose or fix the rule. Do not silence an alert with Vale control
+  comments.
+- Blockquotes are skipped because they quote upstream projects verbatim. The
+  generated table in `content/development/variables.mdx` is skipped too; the
+  hand-written prose above it is linted.
 
 ## Diagrams
 
@@ -77,11 +103,11 @@ Categories defined in `sidebars.js`. For subdirectories:
 
 Nine terminal demo videos live in `static/img/` (`installer.*`, `build.*`,
 `provision.*`, `lint.*`, `test.*`, `test-bdd.*`, `info.*`, `doctor.*`,
-`doctor-info.*`), each as a `.json` asciicast + `.svg` + `.png` poster. They are
-generated by a single PHP script (`.utils/update-videos.php`) driven by the
-shared `VideoRecorder` class. Run `ahoy update-videos [names]` from `.vortex/`.
-See `.vortex/CLAUDE.md` for the staleness triggers (which code change
-invalidates which video).
+`doctor-info.*`), each as a `.json` asciicast + `.svg` + `.png` poster. They
+are generated by a single PHP script (`.utils/update-videos.php`) driven by
+the shared `VideoRecorder` class. Run `ahoy update-videos [names]` from
+`.vortex/`. See `.vortex/CLAUDE.md` for the staleness triggers (which code
+change invalidates which video).
 
 | Command                                | Regenerates                                    |
 |----------------------------------------|------------------------------------------------|
@@ -93,9 +119,9 @@ invalidates which video).
 
 **Workspace**: the orchestrator uses a single fixed workspace at
 `.artifacts/tmp/videos-workspace/` (gitignored, Docker compose project name
-`vortex_videos`). Default invocation tears it down via `ahoy reset` + `rm` and
-bootstraps from scratch; `--keep` reuses the existing workspace and exits cleanly
-if the Docker stack is not running.
+`vortex_videos`). Default invocation tears it down via `ahoy reset` + `rm`
+and bootstraps from scratch; `--keep` reuses the existing workspace and
+exits cleanly if the Docker stack is not running.
 
 **Config**: per-video settings (command, speed, terminal cols/rows, poster
 timestamp, typer on/off) live in the `VIDEOS` array at the top of
@@ -103,16 +129,37 @@ timestamp, typer on/off) live in the `VIDEOS` array at the top of
 
 **Pipeline**:
 
-1. Runs the installer non-interactively (or via `expect` when `installer` is in the requested set) using `--uri=<project_root>`, producing `$workspace/star_wars`.
-2. If any of `build`, `provision`, `lint`, `test`, `test-bdd`, `info`, `doctor`, `doctor-info` is requested, `ahoy build` runs **once** in `$workspace/star_wars` (either as the recorded `build` video or silently).
-3. Remaining requested commands (`info`, `doctor`, `doctor-info`, `provision`, `lint`, `test`, `test-bdd`) are recorded in that same `star_wars` directory, in fixed order.
-4. Each cast is decoded to plain text at `.artifacts/videos/<name>.txt` and checked before it is rendered; a recording whose output reports an error, a warning or a failure is not turned into an SVG.
-5. The workspace and Docker stack are preserved at exit so the next `--keep` invocation can reuse them; a stale workspace from a previous run is torn down at the **start** of the next non-`--keep` run.
+1. Runs the installer non-interactively (or via `expect` when `installer` is
+   in the requested set) using `--uri=<project_root>`, producing
+   `$workspace/star_wars`.
+2. If any of `build`, `provision`, `lint`, `test`, `test-bdd`, `info`,
+   `doctor`, `doctor-info` is requested, `ahoy build` runs **once** in
+   `$workspace/star_wars` (either as the recorded `build` video or
+   silently).
+3. Remaining requested commands (`info`, `doctor`, `doctor-info`,
+   `provision`, `lint`, `test`, `test-bdd`) are recorded in that same
+   `star_wars` directory, in fixed order.
+4. Each cast is decoded to plain text at `.artifacts/videos/<name>.txt` and
+   checked before it is rendered; a recording whose output reports an error,
+   a warning or a failure is not turned into an SVG.
+5. The workspace and Docker stack are preserved at exit so the next `--keep`
+   invocation can reuse them; a stale workspace from a previous run is torn
+   down at the **start** of the next non-`--keep` run.
 
-**Output check**: a published demo is a claim that the command it records runs clean, so the decoded transcript is matched against `VideoRecorder::ISSUE_PATTERNS`, with `VideoRecorder::ISSUE_EXEMPT_PATTERNS` removing the fragments that carry a marker word without reporting anything (paths, URLs, package names, command line options, and zero counts such as `0 errors` or `warnings: 0`). The report names every offending line with the line number it holds in the transcript, and groups repeated identical lines. There is no override flag - output that cannot be fixed here is fixed at the command that emits it. The transcript is working material rather than a published artifact, so `.artifacts/` is gitignored and nothing under it is committed.
+**Output check**: a published demo is a claim that the command it records
+runs clean, so the decoded transcript is matched against
+`VideoRecorder::ISSUE_PATTERNS`, with `VideoRecorder::ISSUE_EXEMPT_PATTERNS`
+removing the fragments that carry a marker word without reporting anything
+(paths, URLs, package names, command line options, and zero counts such as
+`0 errors` or `warnings: 0`). The report names every offending line with the
+line number it holds in the transcript, and groups repeated identical lines.
+There is no override flag - output that cannot be fixed here is fixed at the
+command that emits it. The transcript is working material rather than a
+published artifact, so `.artifacts/` is gitignored and nothing under it is
+committed.
 
-**Iterating on one video** - use `--keep` so the install + build happens only
-once, then replay the recording against the preserved project:
+**Iterating on one video** - use `--keep` so the install + build happens
+only once, then replay the recording against the preserved project:
 
 ```bash
 cd .vortex
@@ -123,9 +170,9 @@ ahoy update-videos lint            # fresh bootstrap, no --keep, cleans up at en
 # (or manually) rm -rf .artifacts/tmp/videos-workspace
 ```
 
-`update-videos` does not auto-commit - review the diff under `static/img/` and
-commit manually. The `prepare-vortex-release` skill regenerates every video as
-part of the release checklist.
+`update-videos` does not auto-commit - review the diff under `static/img/`
+and commit manually. The `prepare-vortex-release` skill regenerates every
+video as part of the release checklist.
 
 ## Troubleshooting
 

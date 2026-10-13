@@ -5,9 +5,9 @@ sidebar_position: 14
 
 # AI
 
-**Vortex** provides built-in support for AI coding agents. The integration is
-configured through structured markdown files that give agents the context they
-need to work effectively within the project.
+**Vortex** provides built-in support for AI coding agents. The integration
+is configured through structured markdown files that give agents the context
+they need to work effectively within the project.
 
 ## How it works
 
@@ -23,40 +23,41 @@ throughout **Vortex**:
   site). The `AGENTS.md` file instructs agents to fetch operational guides
   from the website and cache them locally in `.artifacts/`.
 
-This means AI agents receive the same layered guidance as human developers:
+AI agents receive the same layered guidance as human developers:
 project-level decisions first, then **Vortex**-level procedures.
 
 ## Configuration files
 
 ### `AGENTS.md`
 
-The [`AGENTS.md`](https://github.com/drevops/vortex/blob/main/AGENTS.md) file
-in the project root is the primary configuration for AI coding agents. It's
-an agent-agnostic file that any AI tool can use.
+The [`AGENTS.md`](https://github.com/drevops/vortex/blob/main/AGENTS.md)
+file in the project root is the primary configuration for AI coding agents.
+It's an agent-agnostic file that any AI tool can use.
 
-Key sections include:
+Its sections include:
 
 - **Daily development tasks** - a reference of `ahoy` commands for building,
   testing, and managing the local environment.
-- **Critical rules** - constraints that agents must always follow (for example,
-  never modify `vendor/drevops/vortex-tooling/src/`, always export config after
-  admin UI changes).
+- **Critical rules** - constraints that agents must always follow (for
+  example, never modify `vendor/drevops/vortex-tooling/src/`, always export
+  config after admin UI changes).
 - **Key directories** - the project's directory layout.
 - **Documentation** - instructions for agents to check `docs/` files for
   project-specific decisions and to fetch operational documentation from
-  [www.vortextemplate.com/docs](https://www.vortextemplate.com/docs). Fetched
-  documentation is cached locally so that agents can reuse it across sessions
-  without repeated requests.
+  [www.vortextemplate.com/docs](https://www.vortextemplate.com/docs).
+  Fetched documentation is cached locally so that agents can reuse it across
+  sessions without repeated requests.
 
 ### `CLAUDE.md`
 
-The [`CLAUDE.md`](https://github.com/drevops/vortex/blob/main/CLAUDE.md) file
-is automatically loaded by Claude Code at the start of every session. It
-references `AGENTS.md` for the full development guide.
+The [`CLAUDE.md`](https://github.com/drevops/vortex/blob/main/CLAUDE.md)
+file is automatically loaded by Claude Code at the start of every session.
+It references `AGENTS.md` for the full development guide.
 
 ### `.claude/settings.json`
 
-The [`.claude/settings.json`](https://github.com/drevops/vortex/blob/main/.claude/settings.json)
+The
+[`.claude/settings.json`](https://github.com/drevops/vortex/blob/main/.claude/settings.json)
 file is a checked-in Claude Code settings file that pre-approves the stack
 commands. This lets an agent build, provision, lint, and test through `ahoy`
 without asking for confirmation on every call:
@@ -78,8 +79,8 @@ which isn't tracked.
 ## Custom skills
 
 Skills are reusable instruction sets that teach an agent a repeatable,
-project-specific task, such as a release checklist or a legacy content import
-procedure.
+project-specific task, such as a release checklist or a legacy
+content import procedure.
 
 Add a skill by creating a `SKILL.md` file in its own directory under
 `.claude/skills/`:

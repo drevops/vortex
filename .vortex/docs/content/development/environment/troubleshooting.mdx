@@ -8,25 +8,31 @@ import TabItem from '@theme/TabItem';
 
 # Troubleshooting
 
-When the local environment misbehaves, run [Doctor](doctor.mdx) first - it
-pinpoints the broken layer (tooling, containers, or the site itself) before you
-start guessing.
+When the local environment misbehaves, run [Doctor](doctor.mdx) first. It
+pinpoints the broken layer (tooling, containers, or the site itself) before
+you start guessing.
 
 ## Site not loading
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    ahoy doctor                # Check for common issues
-    ahoy down && ahoy up       # Restart containers
-    ahoy info                  # Verify URLs and ports
+    # Check for common issues
+    ahoy doctor
+    # Restart containers
+    ahoy down && ahoy up
+    # Verify URLs and ports
+    ahoy info
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    ./vendor/bin/vortex-doctor                       # Check for common issues
-    docker compose down && docker compose up -d      # Restart containers
-    docker compose exec cli ./vendor/bin/vortex-info # Verify URLs and ports
+    # Check for common issues
+    ./vendor/bin/vortex-doctor
+    # Restart containers
+    docker compose down && docker compose up -d
+    # Verify URLs and ports
+    docker compose exec cli ./vendor/bin/vortex-info
     ```
   </TabItem>
 </Tabs>

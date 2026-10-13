@@ -6,13 +6,15 @@ sidebar_label: PHPStan
 
 https://phpstan.org/user-guide/getting-started
 
-> PHPStan focuses on finding errors in your code without actually running it.
-> It catches whole classes of bugs even before you write tests for the code.
-> It moves PHP closer to compiled languages in the sense that the correctness
-> of each line of the code can be checked before you run the actual line.
+> PHPStan focuses on finding errors in your code without actually running
+> it. It catches whole classes of bugs even before you write tests for the
+> code. It moves PHP closer to compiled languages in the sense that the
+> correctness of each line of the code can be checked before you run the
+> actual line.
 
-**Vortex** comes with a [pre-configured PHPStan ruleset](https://github.com/drevops/vortex/blob/main/phpstan.neon)
-for Drupal projects.
+**Vortex** comes with a [pre-configured PHPStan
+ruleset](https://github.com/drevops/vortex/blob/main/phpstan.neon) for
+Drupal projects.
 
 ## Usage
 
@@ -45,8 +47,8 @@ Rector.
 
 See [configuration reference](https://phpstan.org/config-reference).
 
-All global configuration takes place in
-the [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon)
+All global configuration takes place in the
+[`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon)
 file.
 
 The analysis runs at [level 7](https://phpstan.org/user-guide/rule-levels)
@@ -69,8 +71,9 @@ parameters:
 
 ## Ignoring
 
-Ignoring rules **globally** takes place in
-the [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon) file:
+Ignoring rules globally takes place in the
+[`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon)
+file:
 
 ```yaml
 parameters:
@@ -83,11 +86,12 @@ parameters:
         - path/to/exclude/a_file.php
 ```
 
-PHPStan doesn't support ignoring all rules within a file, ignoring a specific
-rule within a file, or ignoring [code blocks](https://github.com/phpstan/phpstan/issues/4452) -
-inline suppression is per-line only.
+PHPStan doesn't support ignoring all rules within a file, ignoring a
+specific rule within a file, or ignoring
+[code blocks](https://github.com/phpstan/phpstan/issues/4452). Inline
+suppression is per-line only.
 
-To ignore only the **next line**:
+To ignore only the next line:
 
 ```php
 // @phpstan-ignore-next-line
@@ -96,12 +100,14 @@ $a = 1;
 
 ## Continuous integration
 
-PHPStan runs in the `lint` job of the [continuous integration pipeline](../../continuous-integration/README.mdx)
-and fails the build on violations.
+PHPStan runs in the `lint` job of the [continuous integration
+pipeline](../../continuous-integration/README.mdx) and fails the build on
+violations.
 
 ### Ignoring failures
 
 Set the `VORTEX_CI_PHPSTAN_IGNORE_FAILURE` environment variable to `1`. The
 tool still runs and reports violations.
 
-➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)
+➡️ See [Continuous integration > Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures)

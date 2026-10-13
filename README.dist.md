@@ -2,7 +2,9 @@
 
 <div align="center">
   <a href="" rel="noopener">
-  <img width=200px height=100px src="web/themes/custom/your_site_theme/logo.svg" alt="YOURSITE Logo"></a>
+  <img width=200px height=100px
+    src="web/themes/custom/your_site_theme/logo.svg"
+    alt="YOURSITE Logo"></a>
 </div>
 
 [//]: # (#;> DRUPAL_THEME)
@@ -21,11 +23,13 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 [//]: # (#;< CI_PROVIDER_GHA)
 
-[![Database, Build, Test and Deploy](https://github.com/your_org/your_site/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/your_org/your_site/actions/workflows/build-test-deploy.yml)
+[![Database, Build, Test and
+Deploy](https://github.com/your_org/your_site/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/your_org/your_site/actions/workflows/build-test-deploy.yml)
 
 [//]: # (#;> CI_PROVIDER_GHA)
 
-![Drupal 11](https://img.shields.io/badge/Drupal-11-0678BE?logo=drupal&logoColor=white)
+![Drupal
+11](https://img.shields.io/badge/Drupal-11-0678BE?logo=drupal&logoColor=white)
 
 [//]: # (#;< CODE_COVERAGE_PROVIDER_CODECOV)
 
@@ -35,7 +39,8 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 [//]: # (#;< DEPS_UPDATE_PROVIDER)
 
-![Automated updates](https://img.shields.io/badge/Automated%20updates-RenovateBot-brightgreen.svg)
+![Automated
+updates](https://img.shields.io/badge/Automated%20updates-RenovateBot-brightgreen.svg)
 
 [//]: # (#;> DEPS_UPDATE_PROVIDER)
 
@@ -53,9 +58,14 @@ Drupal 11 implementation of YOURSITE for YOURORG
 
 ## Local environment setup
 
-- Make sure that you have latest versions of all required software installed: [Docker](https://www.docker.com/), [Pygmy](https://github.com/pygmystack/pygmy), [Ahoy](https://github.com/ahoy-cli/ahoy)
-- Make sure that all local web development services are shut down (Apache/Nginx, Mysql, MAMP etc).
-- Checkout project repository (in one of the [supported Docker directories](https://docs.docker.com/desktop/settings-and-maintenance/settings/#virtual-file-shares)).
+- Make sure you have the latest versions of the required software installed:
+  [Docker](https://www.docker.com/),
+  [Pygmy](https://github.com/pygmystack/pygmy), and
+  [Ahoy](https://github.com/ahoy-cli/ahoy).
+- Shut down any local web development services, such as Apache, Nginx,
+  MySQL, or MAMP.
+- Check out the project repository into one of the [supported Docker
+  directories](https://docs.docker.com/desktop/settings-and-maintenance/settings/#virtual-file-shares).
 
 [//]: # (#;< HOSTING_ACQUIA)
 
@@ -63,18 +73,20 @@ Drupal 11 implementation of YOURSITE for YOURORG
   1. Create your Acquia Cloud API token:<br/>
      Acquia Cloud UI -> Account -> API tokens -> Create Token
   2. Copy `.env.local.example` to `.env.local`.
-  3. Populate `$VORTEX_ACQUIA_KEY` and `$VORTEX_ACQUIA_SECRET` environment
-     variables in `.env.local` file with values generated in the step above.
+  3. Populate the `$VORTEX_ACQUIA_KEY` and `$VORTEX_ACQUIA_SECRET`
+     environment variables in the `.env.local` file with the values
+     generated in step 1.
 
 [//]: # (#;> HOSTING_ACQUIA)
 
 [//]: # (#;< HOSTING_LAGOON)
 
 - Authenticate with Lagoon
-  1. Create an SSH key and add it to your account in the [Lagoon Dashboard](https://dashboard.amazeeio.cloud/).
+  1. Create an SSH key and add it to your account in the [Lagoon
+     Dashboard](https://dashboard.amazeeio.cloud/).
   2. Copy `.env.local.example` to `.env.local`.
-  3. Update `$VORTEX_FETCH_DB_SSH_FILE` environment variable in `.env.local` file
-     with the path to the SSH key.
+  3. Update the `$VORTEX_FETCH_DB_SSH_FILE` environment variable in the
+     `.env.local` file with the path to the SSH key.
 
 [//]: # (#;> HOSTING_LAGOON)
 
@@ -101,4 +113,5 @@ Drupal 11 implementation of YOURSITE for YOURORG
 - [Deployment](docs/deployment.md)
 
 ---
+<!-- markdownlint-disable-next-line MD013 -->
 _This repository was created using the [Vortex](https://github.com/drevops/vortex) Drupal project template_

@@ -5,22 +5,25 @@ sidebar_position: 5
 
 # New Relic
 
-Create [deployment markers](https://docs.newrelic.com/docs/apm/apm-ui-pages/events/record-deployments/)
+Create [deployment
+markers](https://docs.newrelic.com/docs/apm/apm-ui-pages/events/record-deployments/)
 in New Relic APM to track code changes alongside performance data.
 
 ## Setup
 
-1. [Create a New Relic User API Key](https://docs.newrelic.com/docs/apis/intro-apis/new-relic-api-keys/#user-key)
+1. [Create a New Relic User API
+   Key](https://docs.newrelic.com/docs/apis/intro-apis/new-relic-api-keys/#user-key)
    (format: `NRAK-XXXXXXXXXXXXXXXXXXXXXX`).
-2. Add `NEWRELIC_ENABLED` (or `VORTEX_NOTIFY_NEWRELIC_ENABLED`) to hosting environment
-   variables for environments where New Relic is configured.
-3. Add `VORTEX_NOTIFY_NEWRELIC_USER_KEY` to your hosting provider's environment variables.
+2. Add `NEWRELIC_ENABLED` (or `VORTEX_NOTIFY_NEWRELIC_ENABLED`) to hosting
+   environment variables for environments where New Relic is configured.
+3. Add `VORTEX_NOTIFY_NEWRELIC_USER_KEY` to your hosting provider's
+   environment variables.
 
 :::tip Enable only where needed
 
-Set `NEWRELIC_ENABLED=true` only in environments where New Relic APM is configured
-(typically production and staging). This avoids API calls and potential errors
-in development or feature branch environments.
+Set `NEWRELIC_ENABLED=true` only in environments where New Relic APM is
+configured (typically production and staging). This avoids API calls and
+potential errors in development or feature branch environments.
 
 :::
 
@@ -40,4 +43,8 @@ in development or feature branch environments.
 
 ## Example
 
-<img src="/img/notification-newrelic.png" alt="New Relic deployment marker" width="828"/>
+<img
+  src="/img/notification-newrelic.png"
+  alt="New Relic deployment marker"
+  width="828"
+/>

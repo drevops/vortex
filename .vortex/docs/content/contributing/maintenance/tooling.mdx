@@ -5,9 +5,9 @@ sidebar_position: 4
 
 # Tooling
 
-The operational shell scripts that consumer projects run - build, provision,
-database, deployment, and notification commands - live in `.vortex/tooling/`
-and are published as the standalone
+The operational shell scripts that consumer projects run (build, provision,
+database, deployment, and notification commands) live in `.vortex/tooling/`.
+They're published as the standalone
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
 Composer package. Consumer projects install the package and run the scripts
 from `vendor/bin/vortex-*`.
@@ -16,7 +16,7 @@ from `vendor/bin/vortex-*`.
 
 | Path | Purpose |
 |------|---------|
-| `src/` | The shipped scripts - the only directory in the published archive |
+| `src/` | The shipped scripts; the only directory in the published archive |
 | `tests/unit/` | BATS unit tests covering the shipped scripts |
 | `playground/` | Manual scripts that hit live services (Slack, Jira, New Relic); not automated |
 
@@ -24,23 +24,23 @@ from `vendor/bin/vortex-*`.
 `.gitattributes` `export-ignore`.
 
 While developing **Vortex** itself, the template's root `composer.json`
-resolves the package from the in-tree copy through a `path` repository with a
-pinned version. The installer strips that entry so consumer sites resolve the
-published package from Packagist.
+resolves the package from the in-tree copy through a `path` repository with
+a pinned version. The installer strips that entry so consumer sites resolve
+the published package from Packagist.
 
 ## Script conventions
 
-Every shipped script follows the same pattern: an environment-loading header,
-`set -eu` with an opt-in `VORTEX_DEBUG=1` trace, variables with defaults, and
-the shared output helpers. The header reads `.env` and `.env.local` while
-letting real environment variables win.
+Every shipped script follows the same pattern: an environment-loading
+header, `set -eu` with an opt-in `VORTEX_DEBUG=1` trace, variables with
+defaults, and the shared output helpers. The header reads `.env` and
+`.env.local` while letting real environment variables win.
 
 The output helpers have a strict contract:
 
 - `info` opens and closes an operation.
-- `task` announces work that's starting. Every `task` **must** be closed by a
-  `pass` or a `fail`, even when the work itself can't fail, so the reader can
-  always tell whether a step succeeded.
+- `task` announces work that's starting. Every `task` must be closed by a
+  `pass` or a `fail`, even when the work itself can't fail, so the reader
+  can always tell whether a step succeeded.
 - `note` is a standalone remark that starts no task.
 - `fail` reports the failure and aborts.
 
@@ -51,11 +51,11 @@ pass "Disabled Search API Solr server."
 ```
 
 The `|| true` in this example is deliberate: the disable is best-effort
-because the Solr server isn't enabled in every environment. The contract still
-requires the closing `pass` so the step reports an outcome.
+because the Solr server isn't enabled in every environment. The contract
+still requires the closing `pass` so the step reports an outcome.
 
-See [Template > Authoring scripts](template.mdx#authoring-scripts) for the full
-authoring requirements shared by all shell scripts in the template.
+See [Template > Authoring scripts](template.mdx#authoring-scripts) for the
+full authoring requirements shared by all shell scripts in the template.
 
 ## Testing
 
@@ -73,7 +73,7 @@ The scripts are tested at 3 levels:
   ```
 
 - **Integration** - the scripts are exercised end-to-end by the template's
-  PHPUnit functional tests in `.vortex/tests/` - see
+  PHPUnit functional tests in `.vortex/tests/`. See
   [Template > Testing](template.mdx#testing).
 - **Manual** - `tooling/playground/` holds scripts that hit live services.
   They aren't automated; see `tooling/playground/README.md`.
@@ -81,16 +81,17 @@ The scripts are tested at 3 levels:
 ## Publishing
 
 The `Vortex - Publish tooling` workflow
-(`.github/workflows/vortex-publish-tooling.yml`) mirrors `.vortex/tooling/` to
-the [`drevops/vortex-tooling`](https://github.com/drevops/vortex-tooling)
-repository on every push to `main`, `2.x`, and any branch whose name contains
-`vortex-tooling`, matching the source branch name. The published commit subject
-matches the source commit subject, and the body records provenance.
+(`.github/workflows/vortex-publish-tooling.yml`) mirrors `.vortex/tooling/`
+to the [`drevops/vortex-tooling`](https://github.com/drevops/vortex-tooling)
+repository on every push to `main`, `2.x`, and any branch whose name
+contains `vortex-tooling`, matching the source branch name. The published
+commit subject matches the source commit subject, and the body records
+provenance.
 
-The package version is injected at publish time - never hardcode a `version`
-in the package `composer.json`.
+The package version is injected at publish time, so never hardcode a
+`version` in the package `composer.json`.
 
-Releases of the package are tagged on the mirror repository. When the tooling
-changed since the last release, it's tagged **before** the **Vortex** release,
-so the template can require the new tag - see
+Releases of the package are tagged on the mirror repository. When the
+tooling has changed since the last release, it's tagged before the
+**Vortex** release, so the template can require the new tag. See
 [Release > Tagging](release.mdx#tagging).

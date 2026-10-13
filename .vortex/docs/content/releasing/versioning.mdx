@@ -5,9 +5,11 @@ sidebar_position: 3
 
 # Version scheme
 
-**Vortex** supports [CalVer](https://calver.org/) and [SemVer](https://semver.org/) version numbering schemes to fit different project needs.
+**Vortex** supports the [CalVer](https://calver.org/) and
+[SemVer](https://semver.org/) version numbering schemes.
 
-During installation, you can choose between Calendar Versioning (CalVer), Semantic Versioning (SemVer), or a custom scheme.
+During installation, you can choose between Calendar Versioning (CalVer),
+Semantic Versioning (SemVer), or a custom scheme.
 
 ## Calendar versioning (CalVer)
 
@@ -19,15 +21,20 @@ During installation, you can choose between Calendar Versioning (CalVer), Semant
 
 ### Why CalVer
 
-- **Release frequency transparency**: When you have multiple releases per month, dates let you identify when a release happened
-- **Intuitive tracking**: Stakeholders can immediately understand "this is from January 2025" without memorizing version numbers
-- **Natural progression**: No ambiguity about major vs minor changes - the order is chronological
-- **Stakeholder communication**: Easier to reference for non-technical audiences ("our Q1 2025 release")
+- When you have multiple releases per month, dates let you identify when a
+  release happened
+- Stakeholders can immediately understand "this is from January 2025"
+  without memorizing version numbers
+- The order is chronological, with no ambiguity about major versus minor
+  changes
+- Non-technical audiences find releases easier to reference ("our Q1 2025
+  release")
 
 ### Examples
 
 - ✅ Correct: `25.1.0`, `25.11.1`, `25.1.10`, `25.10.1`
-- ❌ Incorrect: `25.0.0` (no month 0), `2025.1.1` (full year), `25.01.0` (leading zero), `01.1.0` (leading zero in year)
+- ❌ Incorrect: `25.0.0` (no month 0), `2025.1.1` (full year), `25.01.0`
+  (leading zero), `01.1.0` (leading zero in year)
 
 Learn more: [CalVer.org](https://calver.org/)
 
@@ -41,25 +48,30 @@ Learn more: [CalVer.org](https://calver.org/)
 
 ### Why SemVer
 
-- **Breaking change communication**: Major version bump signals incompatible API changes
-- **Dependency management**: Package managers can enforce compatible version ranges
-- **Developer expectations**: Well-understood convention in the development community
-- **Predictable upgrades**: Minor versions add features, patches fix bugs
+- A major version bump signals incompatible API changes
+- Package managers can enforce compatible version ranges
+- It's a well-understood convention in the development community
+- Upgrades are predictable: minor versions add features, and patches fix
+  bugs
 
 ### Examples
 
 - ✅ Correct: `0.1.0`, `1.0.0`, `1.0.1`, `1.0.10`
-- ❌ Incorrect: `0.1` (missing patch), `1` (missing minor and patch), `1.0.01` (leading zero)
+- ❌ Incorrect: `0.1` (missing patch), `1` (missing minor and patch),
+  `1.0.01` (leading zero)
 
 Learn more: [SemVer.org](https://semver.org/)
 
 ## Other
 
-Choose "Other" if you have a custom versioning scheme or don't want to commit to CalVer or SemVer. This option removes both versioning templates from your documentation, allowing you to define your own approach.
+Choose "Other" if you have a custom versioning scheme or don't want to
+commit to CalVer or SemVer. This option removes both versioning templates
+from your documentation, so you can define your own approach.
 
 ## Configuration
 
-Your project's version scheme is configured once during installation and stored in `.env`:
+Your project's version scheme is configured once during installation and
+stored in `.env`:
 
 ```shell
 VORTEX_RELEASE_VERSION_SCHEME=calver  # or semver, or other
@@ -67,10 +79,19 @@ VORTEX_RELEASE_VERSION_SCHEME=calver  # or semver, or other
 
 ### Release notes publishing
 
-**Vortex** provides a GitHub Actions workflow to automate release notes drafting:
+**Vortex** provides a GitHub Actions workflow to automate release notes
+drafting:
 
-- **Draft release notes** are automatically updated when commits are pushed to the `develop` branch
-- The next version number is proposed per your scheme: computed from the current date for CalVer, and resolved by [release-drafter](https://github.com/release-drafter/release-drafter) (minor increment by default) for SemVer
-- The workflow reads the scheme from the `VORTEX_RELEASE_VERSION_SCHEME` **repository variable**, defaulting to `calver` when the variable is unset. Set it in your repository settings to match your project's scheme, since the `.env` value doesn't drive this workflow
+- Draft release notes are automatically updated when commits are pushed to
+  the `develop` branch
+- The next version number is proposed per your scheme: computed from the
+  current date for CalVer, and resolved by
+  [release-drafter](https://github.com/release-drafter/release-drafter)
+  (minor increment by default) for SemVer
+- The workflow reads the scheme from the `VORTEX_RELEASE_VERSION_SCHEME`
+  repository variable, defaulting to `calver` when the variable is unset.
+  Set it in your repository settings to match your project's scheme, since
+  the `.env` value doesn't drive this workflow
 - Release notes accumulate changes until the release is finalized
-- On release finish, you can use the draft to publish the final release notes
+- On release finish, you can use the draft to publish the final release
+  notes

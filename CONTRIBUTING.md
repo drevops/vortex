@@ -15,23 +15,28 @@ glad for your willingness to assist!
 
 We're constantly eager to address any issues, so your reports are always
 appreciated. However, we kindly ask you to first check if your problem has
-already been reported in the [issue queue](https://github.com/drevops/vortex/issues).
+already been reported in the [issue
+queue](https://github.com/drevops/vortex/issues).
 
 ## I want to suggest a feature or an idea
 
-Fantastic! Please [submit your idea](https://github.com/drevops/vortex/issues)
-and we'll gladly review it. While we can't promise every suggestion will be
-implemented, we are always keen to hear innovative ideas for enhancing
-the Vortex.
+Fantastic! Please [submit your
+idea](https://github.com/drevops/vortex/issues) and we'll gladly review it.
+While we can't promise every suggestion will be implemented, we are always
+keen to hear innovative ideas for enhancing the Vortex.
 
 ## Talk to us on Slack
 
 Another good way is also to talk to us via `#drevops` Slack about your idea.
 Join today!
 <div align="center">
-  <a href="https://drupal.slack.com/archives/CRE86HQTW"><img src="https://img.shields.io/badge/drupal.slack.com-%23DrevOps-blue.svg?logo=slack&style=for-the-badge"/></a>
+  <a href="https://drupal.slack.com/archives/CRE86HQTW"><img
+    src="https://img.shields.io/badge/drupal.slack.com-%23DrevOps-blue.svg?logo=slack&style=for-the-badge"
+  /></a>
 </div>
 
 ## Roadmap
 
-We actively maintain the project's roadmap. See [Roadmap](https://github.com/drevops/vortex/blob/develop/.vortex/docs/content/contributing/roadmap.mdx) for more details.
+We actively maintain the project's roadmap. See
+[Roadmap](https://github.com/drevops/vortex/blob/develop/.vortex/docs/content/contributing/roadmap.mdx)
+for more details.

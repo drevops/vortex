@@ -8,11 +8,13 @@ sidebar_position: 3
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-**Vortex** uses [Jest](https://jestjs.io/) as a framework for JavaScript unit
-testing. Jest tests verify that JavaScript behaviors in custom Drupal modules
-work correctly in isolation, without requiring a browser or Drupal bootstrap.
+**Vortex** uses [Jest](https://jestjs.io/) as a framework for JavaScript
+unit testing. Jest tests verify that JavaScript behaviors in custom Drupal
+modules work correctly in isolation, without requiring a browser or Drupal
+bootstrap.
 
-**Vortex** comes with a [pre-configured Jest setup](https://github.com/drevops/vortex/blob/main/jest.config.js).
+**Vortex** comes with a [pre-configured Jest
+setup](https://github.com/drevops/vortex/blob/main/jest.config.js).
 
 ## Usage
 
@@ -57,21 +59,22 @@ work correctly in isolation, without requiring a browser or Drupal bootstrap.
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli bash -c "npm test -- -t 'should increment the value'"
+    docker compose exec cli bash -c \
+      "npm test -- -t 'should increment the value'"
     ```
   </TabItem>
 </Tabs>
 
 ## Writing tests
 
-Drupal JavaScript uses the IIFE pattern `((Drupal) => { ... })(Drupal)` where
-`Drupal` is a global object. Tests load these source files using `require()`
-after setting up the required globals.
+Drupal JavaScript uses the IIFE pattern `((Drupal) => { ... })(Drupal)`
+where `Drupal` is a global object. Tests load these source files using
+`require()` after setting up the required globals.
 
 ### Test file structure
 
-Test files are placed in a `tests/` subdirectory within the `js/` directory of
-each custom module:
+Test files are placed in a `tests/` subdirectory within the `js/` directory
+of each custom module:
 
 ```text
 web/modules/custom/my_module/
@@ -115,8 +118,8 @@ describe('Drupal.behaviors.myModule', () => {
 ### Loading Drupal behaviors
 
 The `require()` call executes the source file's IIFE, which receives
-`global.Drupal` as its `Drupal` parameter and registers the behavior.
-After `require()`, the behavior is accessible via `Drupal.behaviors.myModule`.
+`global.Drupal` as its `Drupal` parameter and registers the behavior. After
+`require()`, the behavior is accessible via `Drupal.behaviors.myModule`.
 
 The `jest.resetModules()` call before `require()` clears the module cache so
 the IIFE re-executes on each test with a fresh `global.Drupal` object.
@@ -127,7 +130,7 @@ Set globals in `beforeEach` and clean them up in `afterEach`:
 
 | Global | Setup | When needed |
 |--------|-------|-------------|
-| `Drupal` | `global.Drupal = { behaviors: {} }` | Always - required by all Drupal behaviors |
+| `Drupal` | `global.Drupal = { behaviors: {} }` | Always (required by all Drupal behaviors) |
 | `jQuery` | `global.jQuery = require('jquery')` or a mock | When the source file uses `jQuery` or `$` |
 | `drupalSettings` | `global.drupalSettings = { path: { baseUrl: '/' } }` | When the source file reads `drupalSettings` |
 | `localStorage` | Provided by jsdom; call `localStorage.clear()` | When the source file uses `localStorage` |
@@ -168,15 +171,16 @@ jest.useRealTimers();
 
 ### ESLint compatibility
 
-The `eslint.config.mjs` includes an override for `*.test.js` files that adds the
-Jest globals and relaxes the nesting limit that test suites routinely exceed. No
-additional ESLint configuration is needed for test files.
+The `eslint.config.mjs` includes an override for `*.test.js` files that adds
+the Jest globals and relaxes the nesting limit that test suites routinely
+exceed. No additional ESLint configuration is needed for test files.
 
 ### Boilerplate
 
-**Vortex** provides a Jest test boilerplate for the [demo module](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/js/tests/ys_demo.test.js)
-that demonstrates testing a counter block with DOM manipulation, localStorage
-interaction, and event handling.
+**Vortex** provides a Jest test boilerplate for the [demo
+module](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/js/tests/ys_demo.test.js)
+that demonstrates testing a counter block with DOM manipulation,
+localStorage interaction, and event handling.
 
 This boilerplate test runs in the continuous integration pipeline when you
 install **Vortex** and can be used as a starting point for writing your own
@@ -186,31 +190,34 @@ JavaScript tests.
 
 See [Jest configuration reference](https://jestjs.io/docs/configuration).
 
-All global configuration takes place in the [`jest.config.js`](https://github.com/drevops/vortex/blob/main/jest.config.js) file.
+All global configuration takes place in the
+[`jest.config.js`](https://github.com/drevops/vortex/blob/main/jest.config.js)
+file.
 
 By default, Jest discovers and runs test files with the `.test.js` extension
 in `web/modules/custom/*/js/` directories and their subdirectories.
 
-The configuration uses the `jsdom` test environment to provide browser globals
-like `document`, `window`, and `localStorage`.
+The configuration uses the `jsdom` test environment to provide browser
+globals like `document`, `window`, and `localStorage`.
 
 ### Test discovery
 
-The `jest.config.js` file dynamically scans `web/modules/custom/` for modules
-that contain a `js/` directory, and adds each as a root for test discovery. This
-means adding a new custom module with JavaScript tests requires no configuration
-changes.
+The `jest.config.js` file dynamically scans `web/modules/custom/` for
+modules that contain a `js/` directory, and adds each as a root for test
+discovery. Adding a new custom module with JavaScript tests requires no
+configuration changes.
 
 ## Reports
 
 ### Coverage
 
-Jest collects code coverage automatically when running tests via `ahoy test-js`.
-Coverage is configured in [`jest.config.js`](https://github.com/drevops/vortex/blob/main/jest.config.js)
+Jest collects code coverage automatically when running tests via
+`ahoy test-js`. Coverage is configured in
+[`jest.config.js`](https://github.com/drevops/vortex/blob/main/jest.config.js)
 with the following settings:
 
-- **Source files**: all `*.js` files in `web/modules/custom/*/js/` directories,
-  excluding `*.test.js` files
+- **Source files**: all `*.js` files in `web/modules/custom/*/js/`
+  directories, excluding `*.test.js` files
 - **Reporters**: text (terminal summary), lcov, HTML, and Cobertura XML
 - **Output directory**: `.logs/coverage/jest`
 
@@ -225,14 +232,16 @@ After running tests, coverage reports are available at:
 
 ## Continuous integration
 
-In the continuous integration pipeline, Jest runs on the first container only,
-see [Test parallelism](../../continuous-integration/README.mdx#test-parallelism).
+In the continuous integration pipeline, Jest runs on the first container
+only, see [Test
+parallelism](../../continuous-integration/README.mdx#test-parallelism).
 
 The Cobertura XML report is used by continuous integration to track coverage
 trends and can be consumed by CI tools that support the Cobertura format.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_JEST_IGNORE_FAILURE` environment variable to `1` to ignore
-failures. The tool still runs and reports violations. See
-[Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).
+Set the `VORTEX_CI_JEST_IGNORE_FAILURE` environment variable to `1` to
+ignore failures. The tool still runs and reports violations. See [Ignore
+tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures).

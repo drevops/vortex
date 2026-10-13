@@ -8,22 +8,26 @@ sidebar_position: 1
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
 This section covers the day-to-day work on a **Vortex** project. That means
-running the local environment, managing the database and dependencies, working
-with the Drupal application, and checking your code with linters and tests.
+running the local environment, managing the database and dependencies,
+working with the Drupal application, and checking your code with linters and
+tests.
 
-Each page owns one task or tool and carries everything about it: daily usage,
-configuration, and how it behaves in the continuous integration pipeline. That
-gives you one place to look. Larger topics are subsections whose overview page
-ties their pages together. This page describes the overall process and points
-to the right page for each task.
+Each page covers 1 task or tool and everything about it: daily usage,
+configuration, and how it behaves in the continuous integration pipeline.
+Larger topics are subsections whose overview page ties their pages together.
+This page describes the overall process and points to the right page for
+each task.
 
 ## Typical development process
 
 1. Pull the latest changes from the remote repository.
-2. [Fetch the latest database dump](provision.mdx#database) from the production environment.
+2. [Fetch the latest database dump](provision.mdx#database) from the
+   production environment.
 3. [Build the project](environment/README.mdx).
 4. Start a new feature or bugfix branch:
-    - Create a new branch from `develop` (see [Releasing > GitFlow](../releasing/gitflow.mdx) for the branch structure).
+    - Create a new branch from `develop` (see
+      [Releasing > GitFlow](../releasing/gitflow.mdx) for the branch
+      structure).
     - Implement the feature or fix the bug.
 5. [Run tests](testing/README.mdx):
     - Run automated tests locally.
@@ -35,12 +39,13 @@ to the right page for each task.
 8. Create a pull request:
     - Create a pull request from the branch to `develop`.
     - Assign reviewers.
-    - Wait for the [continuous integration pipeline](../continuous-integration/README.mdx) to pass.
+    - Wait for the [continuous integration
+      pipeline](../continuous-integration/README.mdx) to pass.
 
 ## Common commands
 
-The most common day-to-day commands. Each video is a live recording captured on
-a demo consumer project that uses **Vortex**.
+Each video is a live recording captured on a demo consumer project that uses
+**Vortex**.
 
 ### Build the project
 

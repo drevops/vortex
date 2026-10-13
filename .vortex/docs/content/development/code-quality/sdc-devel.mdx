@@ -8,8 +8,8 @@ https://www.drupal.org/project/sdc_devel
 
 > Provides development aids to Single-Directory Components developers.
 
-SDC Devel validates the component YAML files of
-[Single Directory Components](https://www.drupal.org/docs/develop/theming-drupal/using-single-directory-components)
+SDC Devel validates the component YAML files of [Single Directory
+Components](https://www.drupal.org/docs/develop/theming-drupal/using-single-directory-components)
 (SDC) and statically checks their Twig templates for errors and best
 practices.
 
@@ -17,7 +17,8 @@ practices.
 validate the components of the custom theme. The theme scaffold includes a
 sample component in `components/button`.
 
-➡️ See [Single Directory Components in the theme scaffold](../themes.mdx#single-directory-components)
+➡️ See [Single Directory Components in the theme
+scaffold](../themes.mdx#single-directory-components)
 
 ## Usage
 
@@ -35,7 +36,8 @@ import TabItem from '@theme/TabItem';
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli vendor/bin/drush sdc-devel:validate your_site_theme
+    docker compose exec cli vendor/bin/drush \
+      sdc-devel:validate your_site_theme
     ```
   </TabItem>
 </Tabs>
@@ -63,27 +65,30 @@ The module also provides a "Components status report" in the site UI at
 SDC Devel has no configuration file of its own.
 
 The module is installed by the `scripts/provision-10-enable-dev-modules.sh`
-provisioning script in the `local`, `ci`, `dev`, and `stage` environments and
-is skipped in production.
+provisioning script in the `local`, `ci`, `dev`, and `stage` environments
+and is skipped in production.
 
-➡️ See [Provision > Development modules](../provision.mdx#development-modules)
-and [Modules > SDC Devel](../modules/contributed-modules.mdx#sdc-devel)
+➡️ See [Provision > Development
+modules](../provision.mdx#development-modules) and [Modules > SDC
+Devel](../modules/contributed-modules.mdx#sdc-devel)
 
 The `lint-sdc` command and the continuous integration step ship only when a
 custom theme and the SDC Devel module are selected during installation.
 
 ## Continuous integration
 
-SDC Devel runs in the `build` job of the [continuous integration pipeline](../../continuous-integration/README.mdx),
-after the site is provisioned, on the first container only - see
-[Test parallelism](../../continuous-integration/README.mdx#test-parallelism).
-The step fails the build when validation reports problems and is skipped when
+SDC Devel runs in the `build` job of the [continuous integration
+pipeline](../../continuous-integration/README.mdx), after the site is
+provisioned, on the first container only (see [Test
+parallelism](../../continuous-integration/README.mdx#test-parallelism)). The
+step fails the build when validation reports problems and is skipped when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
 is set to `1`.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE` environment variable to `1`. The
-tool still runs and reports violations.
+Set the `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE` environment variable to `1`.
+The tool still runs and reports violations.
 
-➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)
+➡️ See [Continuous integration > Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures)

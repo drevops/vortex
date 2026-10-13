@@ -13,8 +13,8 @@ sidebar_position: 5
    the project does, distributed in the `docs/` directory when **Vortex** is
    installed.
 
-The key relationship: per-project documentation describes **what** (coding
-standards, testing requirements, release configuration) while referencing the
+Per-project documentation describes **what** applies to the project (coding
+standards, testing requirements, release configuration) and references the
 **Vortex** documentation for **how** to perform specific operations.
 
 ## www.vortextemplate.com
@@ -66,27 +66,33 @@ ahoy test-docs
 
 If required, add spelling exclusions to the `.vortex/docs/cspell.json` file.
 
-Internal links aren't checked by these commands - the Docusaurus build is the
-link checker, failing on broken internal links (`ahoy build-docs`).
+These commands don't check internal links. The Docusaurus build
+(`ahoy build-docs`) checks them and fails on broken internal links.
+
+Lines are limited to 76 characters, and markdownlint enforces the limit.
+Code blocks, tables, and headings are exempt. Code inside a JSX element such
+as `<TabItem>` still counts, so split a long command there with `\`.
 
 ### Prose style
 
-[Vale](https://vale.sh) checks the prose of every page against the house style.
-It enforces product names and their casing, sentence-case headings,
-contractions, the Oxford comma, inline code formatting, and bold **Vortex**. It
-also warns about long sentences and wordy phrases. Errors fail the run and the
-continuous integration build. Warnings are advisory.
+[Vale](https://vale.sh) checks the prose of every page against the house
+style. It enforces product names and their casing, sentence-case headings,
+contractions, the Oxford comma, inline code formatting, and bold **Vortex**.
+It also warns about long sentences and wordy phrases. Errors fail the run
+and the continuous integration build. Warnings are advisory.
 
 The rules come from 3 places:
 
-- The `Google` and `write-good` style packages. They're pinned by release URL in
-  `.vortex/docs/.vale.ini` and downloaded by `vale sync` when you run
+- The `Google` and `write-good` style packages. They're pinned by release
+  URL in `.vortex/docs/.vale.ini` and downloaded by `vale sync` when you run
   `yarn install`.
-- The house style in `.vortex/docs/.vale/Vortex/`, with one small YAML file for
-  each rule. A rule that adjusts a `Google` rule inherits it with `extends` and
-  edits its word lists, and `.vale.ini` switches the original off.
-- The vocabulary in `.vortex/docs/.vale/config/vocabularies/Vortex/accept.txt`,
-  which lists product names with their exact casing.
+- The house style in `.vortex/docs/.vale/Vortex/`, with 1 small YAML file
+  for each rule. A rule that adjusts a `Google` rule inherits it with
+  `extends` and edits its word lists, and `.vale.ini` switches the original
+  off.
+- The vocabulary in
+  `.vortex/docs/.vale/config/vocabularies/Vortex/accept.txt`, which lists
+  product names with their exact casing.
 
 To lint a single page while you write:
 
@@ -98,37 +104,39 @@ yarn lint-prose --glob='content/installation.mdx'
 When a rule blocks a correct sentence, fix the rule instead of silencing the
 alert. Add the product name to the vocabulary, add the proper noun to
 `Headings.yml`, or remove the word from the rule's list.
-`tests/unit/vale-rules.test.js` runs every rule against a valid and an invalid
-fixture page, so update the fixtures together with the rule.
+`tests/unit/vale-rules.test.js` runs every rule against a valid and an
+invalid fixture page, so update the fixtures together with the rule.
 
 Block quotes are skipped because they quote upstream projects verbatim. The
-generated table in `development/variables.mdx` is skipped too, while the prose
-before the table is linted.
+generated table in `development/variables.mdx` is skipped too, while the
+prose before the table is linted.
 
 ### Documentation videos
 
 The 9 terminal demo videos embedded in the docs are regenerated with
-`ahoy update-videos [names]` from `.vortex/` - see
-[Installer > Installer video](installer.mdx#installer-video) for the pipeline.
+`ahoy update-videos [names]` from `.vortex/`. See
+[Installer > Installer video](installer.mdx#installer-video) for the
+pipeline.
 
 ### Combined site
 
-The published site serves 2 majors at once. The branch that ships the current
-major - selected by the `VORTEX_CURRENT_MAJOR` repository variable, default `1` -
-is snapshotted as the default version at `/docs`, and the other major's `{N}.x`
+The published site serves 2 majors at once. The `VORTEX_CURRENT_MAJOR`
+repository variable (default `1`) selects the current major. Its branch is
+snapshotted as the default version at `/docs`, and the other major's `{N}.x`
 branch content is served at `/docs/v{N}`.
 
-Each branch writes its content against the bare `/docs` mount, so an absolute
-link such as `/docs/tools/behat` points at the current major. When that content
-is assembled under `/docs/v{N}`, those links are re-pointed at the major they
-were written for, and a link that already names a version is left alone. Write
-links the way they read on their own branch.
+Each branch writes its content against the bare `/docs` mount, so an
+absolute link such as `/docs/tools/behat` points at the current major. When
+that content is assembled under `/docs/v{N}`, those links are re-pointed at
+the major they were written for, and a link that already names a version is
+left alone. Write links the way they read on their own branch.
 
-Static assets work the same way. Both majors record their own demo videos and
-diagrams under the same `static/img` names, so the other major's `static/` is
-served from `/v{N}` and its asset references are re-pointed to match. Each
-version therefore shows its own screenshots and recordings. Reference assets the
-way they read on their own branch, from the bare `/img`.
+Static assets work the same way. Both majors record their own demo videos
+and diagrams under the same `static/img` names, so the other major's
+`static/` is served from `/v{N}` and its asset references are re-pointed to
+match. Each version therefore shows its own screenshots and recordings.
+Reference assets the way they read on their own branch, from the bare
+`/img`.
 
 To build and browse the combined site locally:
 
@@ -142,9 +150,9 @@ ahoy docs-combined
 ahoy docs-combined-serve
 ```
 
-Everything the build writes stays inside `docs_combined`, a git-ignored copy of
-`docs` that's rebuilt from scratch on every run and safe to delete at any time.
-The tracked `docs` directory is only ever read, so `ahoy docs` and
+Everything the build writes stays inside `docs_combined`, a git-ignored copy
+of `docs` that's rebuilt from scratch on every run and safe to delete at any
+time. The tracked `docs` directory is only ever read, so `ahoy docs` and
 `ahoy build-docs` keep working on this branch's documentation alone.
 
 ### Publishing
@@ -152,9 +160,12 @@ The tracked `docs` directory is only ever read, so `ahoy docs` and
 Automated continuous integration builds publish this documentation:
 
 - on every tag, to https://www.vortextemplate.com/docs/
-- on every commit to a branch whose name contains `release-docs`, to https://www.vortextemplate.com/docs/
-- on every push to `main`, to the development version at https://vortex-docs.netlify.app
-- for pull request branches whose test workflows pass, to a temporary preview, with the link posted to the PR as a comment
+- on every commit to a branch whose name contains `release-docs`, to
+  https://www.vortextemplate.com/docs/
+- on every push to `main`, to the development version at
+  https://vortex-docs.netlify.app
+- for pull request branches whose test workflows pass, to a temporary
+  preview, with the link posted to the PR as a comment
 
 ## Consumer site documentation
 
@@ -163,14 +174,14 @@ Automated continuous integration builds publish this documentation:
 installed into every consumer site, where the site maintainers keep it
 up-to-date with their project.
 
-The scaffold covers the **what** of a project:
+The scaffold covers **what** applies to each project:
 
 - Coding standards and agreements specific to the project
 - Testing requirements and configuration
 - Release and deployment configuration
 - Project-specific procedures and decisions
 
-The scaffold references this site for the **how** of each operation instead of
-duplicating instructions. So when maintaining the template, keep the scaffold
-pointing at the right pages here. Keep the **how** content on this site rather
-than in the shipped `docs/` files.
+The scaffold references this site for **how** to perform each operation
+instead of duplicating instructions. So when you maintain the template, keep
+the scaffold pointing at the right pages here. Keep the how-to content on
+this site rather than in the shipped `docs/` files.

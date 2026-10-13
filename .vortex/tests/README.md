@@ -44,9 +44,9 @@ convenience script wrappers:
 - [`lint.scripts.sh`](lint.scripts.sh) - Linting for shell scripts
 - [`lint.dockerfiles.sh`](lint.dockerfiles.sh) - Linting for Dockerfiles
 
-These scripts are designed to run in CI environments (CircleCI, GitHub Actions)
-and use the `TEST_NODE_INDEX` environment variable to distribute tests across
-multiple runners.
+These scripts are designed to run in CI environments (CircleCI, GitHub
+Actions) and use the `TEST_NODE_INDEX` environment variable to distribute
+tests across multiple runners.
 
 ## Environment Variables
 
@@ -55,11 +55,14 @@ customize test execution:
 
 - `TEST_VORTEX_DEBUG=1` - Enable debug output from tests
 - `TEST_PACKAGE_TOKEN` - GitHub token used for integration tests
-- `TEST_VORTEX_CONTAINER_REGISTRY_USER` and `TEST_VORTEX_CONTAINER_REGISTRY_PASS` - Container registry credentials used for integration tests
+- `TEST_VORTEX_CONTAINER_REGISTRY_USER` and
+  `TEST_VORTEX_CONTAINER_REGISTRY_PASS` - Container registry credentials
+  used for integration tests
 
 ## File Structure
 
-The PHPUnit testing system is organized into a clear hierarchy that separates functional tests from supporting utilities:
+The PHPUnit testing system is organized into a clear hierarchy that
+separates functional tests from supporting utilities:
 
 ```text
 phpunit/

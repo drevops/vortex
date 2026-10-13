@@ -10,8 +10,8 @@ import Anchor from '@site/src/components/Anchor';
 
 <!-- markdownlint-disable -->
 
-**Vortex** uses environment variables to configure scripts without the need to
-change the code to alter behavior.
+**Vortex** uses environment variables to configure scripts without the need
+to change the code to alter behavior.
 
 Variables come in 2 main types:
 
@@ -27,14 +27,12 @@ or skipping a certain code branch deployment within CI.
 ## `.env` and `.env.local` files
 
 Only required variables are listed in `.env` to keep it concise. Scripts set
-more optional variables with sensible defaults. These are documented below -
-add them to your `.env` file as needed to override the defaults.
+more optional variables with sensible defaults. These are documented below.
+Add them to your `.env` file as needed to override the defaults.
 
 The `.env.local` file is intended to store local overrides and sensitive
-information like passwords and API keys. This file is ignored by Git
-and shouldn't be committed to the repository. It's a good practice to
-store local overrides and sensitive information in `.env.local` to keep them
-separate from the main `.env` file.
+information like passwords and API keys, separate from the main `.env` file.
+This file is ignored by Git and shouldn't be committed to the repository.
 
 ## Override order (bottom value wins)
 
@@ -54,8 +52,8 @@ prefix.
 
 All Drupal-specific environment variables start with the `DRUPAL_` prefix.
 
-Any other third-party service variables (like `COMPOSER_TOKEN` or `NEWRELIC_API_KEY`)
-are used as-is.
+Any other third-party service variables (like `COMPOSER_TOKEN` or
+`NEWRELIC_API_KEY`) are used as-is.
 
 ## Default values
 
@@ -64,14 +62,14 @@ ensure they're set before proceeding. If a required variable is missing, the
 script fails with a clear error message.
 
 All _optional_ variables used by **Vortex** scripts have default values
-defined within the scripts. This ensures that scripts can run out-of-the-box
-without requiring extensive configuration.
+defined within the scripts, so the scripts can run without extensive
+configuration.
 
-Variables without values provided or set in scripts are considered defects in
-the template implementation and should be reported. In Shell scripts, a missing
-or empty value may lead to unexpected behavior when it's evaluated in
-conditions. Empty or unset values also break the reliable multi-level override
-mechanism for variables.
+Variables without values provided or set in scripts are considered defects
+in the template implementation and should be reported. In Shell scripts, a
+missing or empty value may lead to unexpected behavior when it's evaluated
+in conditions. Empty or unset values also break the reliable multi-level
+override mechanism for variables.
 
 For example, a variable can have a default value in the script and be
 overridden in the `.env` file. It can be further overridden in the CI or
@@ -80,11 +78,11 @@ environment.
 
 ## Boolean variables
 
-Boolean variables use `1` for true and `0` for false values to ensure consistency
-across different environments.
+Boolean variables use `1` for true and `0` for false values to ensure
+consistency across different environments.
 
-We don't use `true`/`false`, `yes`/`no`, or other variations, which keeps
-values cross-platform (some systems may interpret `true` and `false` differently).
+We don't use `true`/`false`, `yes`/`no`, or other variations, because some
+systems may interpret `true` and `false` differently.
 
 <style>{`
   table {

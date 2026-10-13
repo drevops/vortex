@@ -12,35 +12,38 @@ sidebar_position: 1
 
 :::info More integrations coming soon
 
-More hosting provider integrations are planned - see the [roadmap](../contributing/roadmap.mdx).
+More hosting provider integrations are planned. See the
+[roadmap](../contributing/roadmap.mdx).
 
 :::
 
 This section covers where your site _runs_. It explains what each provider
-integration does, how the environment is detected, and the routine operations
-(fetching databases, copying files, purging caches) available on each platform.
+integration does, how the environment is detected, and the routine
+operations (fetching databases, copying files, purging caches) available on
+each platform.
 
-How code _gets to_ a provider - deployment types, triggers, and skip rules - is
-covered in the [Deployment](../deployment/README.mdx) section.
+How code _gets to_ a provider (deployment types, triggers, and skip rules)
+is covered in the [Deployment](../deployment/README.mdx) section.
 
 ## Hosting providers vs environments
 
-**Hosting providers** are the _platforms_ where your _environments_ actually
-run. They can be cloud-based or on-premises solutions that provide the
-infrastructure to run the webserver, database, and other services required for
-your site.
+**Hosting providers** are the _platforms_ where your _environments_ run.
+They can be cloud-based or on-premises, and they provide the infrastructure
+to run the webserver, database, and other services required for your site.
 
-**Environments** are the contained _bundles_ of those infrastructure services
-that run your website. An environment represents a specific logical stage of
-your website deployment and releasing lifecycle: from local development to
-production. Multiple environments can exist on the same hosting provider.
+**Environments** are the contained _bundles_ of those infrastructure
+services that run your website. An environment represents a specific logical
+stage of your website deployment and releasing lifecycle: from local
+development to production. Multiple environments can exist on the same
+hosting provider.
 
 Hosting providers typically provide DEV, STAGE, and PROD environments. Some
 also support short-lived ephemeral environments, called "preview",
-"on-demand", or "feature" environments. These help to test new features or
+"on-demand", or "feature" environments. They let you test new features or
 changes in isolation before merging them into the main codebase.
 
-**Vortex** detects the environment type at runtime and lets you configure your
-website behavior based on it.
+**Vortex** detects the environment type at runtime and lets you configure
+your website behavior based on it.
 
-➡️ See [Development > Settings > Environment type detection](../development/settings.mdx#environment-type-detection)
+➡️ See [Development > Settings > Environment type
+detection](../development/settings.mdx#environment-type-detection)

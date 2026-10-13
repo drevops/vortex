@@ -18,8 +18,8 @@ vortex/
 └── [root files]                # The actual Drupal template
 ```
 
-**Key principle**: outside `.vortex/` = template for users. Inside `.vortex/` =
-test harness.
+**Key principle**: outside `.vortex/` = template for users. Inside
+`.vortex/` = test harness.
 
 ## Subsystems
 
@@ -36,26 +36,27 @@ Each subsystem has its own CLAUDE.md - read it when working there:
 - `.vortex/installer/CLAUDE.md` - Installer, fixtures, tokens
 - `.vortex/tests/CLAUDE.md` - PHPUnit integration tests
 
-`tooling/` has no CLAUDE.md - it is published to consumer projects, so any notes
-shipped with it would leak to those sites. Its guidance is the [Tooling
-package](#tooling-package) section below.
+`tooling/` has no CLAUDE.md - it is published to consumer projects, so any
+notes shipped with it would leak to those sites. Its guidance is the
+[Tooling package](#tooling-package) section below.
 
 ## Tooling package
 
 `tooling/` is published as the standalone `drevops/vortex-tooling` Composer
-package - a read-only mirror split from `.vortex/tooling/`. Consumer projects
-install it and run the shipped scripts from `vendor/bin/vortex-*`.
+package - a read-only mirror split from `.vortex/tooling/`. Consumer
+projects install it and run the shipped scripts from `vendor/bin/vortex-*`.
 `tests/` and `playground/` are stripped from the published archive via
 `.gitattributes` `export-ignore`; only `src/` ships.
 
 **Tests**:
 
-- **Unit** - BATS tests in `tooling/tests/unit/` cover the shipped scripts with
-  external commands mocked. Run with `ahoy test-bats` from `.vortex/`.
+- **Unit** - BATS tests in `tooling/tests/unit/` cover the shipped scripts
+  with external commands mocked. Run with `ahoy test-bats` from `.vortex/`.
 - **Integration** - the scripts are exercised end-to-end by the template's
   PHPUnit functional tests in `.vortex/tests/`.
 - **Manual** - `tooling/playground/` holds scripts that hit live services
-  (Slack, JIRA, New Relic). Not automated; see `tooling/playground/README.md`.
+  (Slack, JIRA, New Relic). Not automated; see
+  `tooling/playground/README.md`.
 
 **Script pattern**: the structure, the variable block and the five output
 helpers live in the boilerplate at
@@ -73,13 +74,24 @@ The boilerplate leaves out two things the repository's scripts carry:
   `scripts/provision-30-search-index.sh`; converting them to the boilerplate
   form changes stdout that the tests assert on.
 
-**Output helpers** - every `task` MUST be closed by exactly one `pass` or `fail`, on every path through the script. A task announces work that is starting, so it always reports its outcome; a `task` with no closing line leaves the reader unable to tell whether the step succeeded. This holds even when the work itself cannot fail (e.g. a command suffixed with `|| true`) - close it with `pass`.
+**Output helpers** - every `task` MUST be closed by exactly one `pass` or
+`fail`, on every path through the script. A task announces work that is
+starting, so it always reports its outcome; a `task` with no closing line
+leaves the reader unable to tell whether the step succeeded. This holds even
+when the work itself cannot fail (e.g. a command suffixed with `|| true`) -
+close it with `pass`.
 
-A `task` MUST NOT open while another is open. A step that runs inside an open task is a `note`, and a loop body that repeats work under one task reports each iteration with `note`.
+A `task` MUST NOT open while another is open. A step that runs inside an
+open task is a `note`, and a loop body that repeats work under one task
+reports each iteration with `note`.
 
-The rule is one-directional: a closing line does not need an opening `task`. A check reports `pass` when it holds and `fail` when it does not, and an operation that is skipped or finished reports `pass` on its own.
+The rule is one-directional: a closing line does not need an opening `task`.
+A check reports `pass` when it holds and `fail` when it does not, and an
+operation that is skipped or finished reports `pass` on its own.
 
-Use the other helpers for what they are: `info` for the banners that open and close an operation, `note` for a standalone remark that starts no task, and `fail` to abort.
+Use the other helpers for what they are: `info` for the banners that open
+and close an operation, `note` for a standalone remark that starts no task,
+and `fail` to abort.
 
 ```bash
 task "Disabling Search API Solr server."
@@ -88,10 +100,11 @@ pass "Disabled Search API Solr server."
 ```
 
 **Publishing**: the version is injected at publish time - never hardcode
-`version` in the package `composer.json`. The path repository in the template's
-root `composer.json` declares `"versions": {"drevops/vortex-tooling": "1.4.0"}`
-so the in-repo copy resolves during development; the installer strips that entry
-from consumer sites so they resolve from Packagist.
+`version` in the package `composer.json`. The path repository in the
+template's root `composer.json` declares
+`"versions": {"drevops/vortex-tooling": "1.4.0"}` so the in-repo copy
+resolves during development; the installer strips that entry from consumer
+sites so they resolve from Packagist.
 
 ## Quick Commands
 
@@ -107,11 +120,12 @@ ahoy lint-markdown    # Lint markdown files
 
 ## Snapshots
 
-`ahoy update-snapshots` (run from `.vortex/`) is the **only** way to regenerate
-fixtures. It wraps the `tests/` and `installer/` snapshot runs together with the
-required `XDEBUG_MODE=off` and parallel jobs. Never call
-`composer update-snapshots` directly and never set `UPDATE_SNAPSHOTS` by hand -
-both bypass part of the workflow and produce partial, inconsistent fixtures.
+`ahoy update-snapshots` (run from `.vortex/`) is the **only** way to
+regenerate fixtures. It wraps the `tests/` and `installer/` snapshot runs
+together with the required `XDEBUG_MODE=off` and parallel jobs. Never call
+`composer update-snapshots` directly and never set `UPDATE_SNAPSHOTS` by
+hand - both bypass part of the workflow and produce partial, inconsistent
+fixtures.
 
 **HARD RULES** - every snapshot run, no exceptions:
 
@@ -120,15 +134,17 @@ both bypass part of the workflow and produce partial, inconsistent fixtures.
 - **Foreground only.** It regenerates ~130 scenarios and auto-commits as it
   runs. Never background it (`run_in_background`, trailing `&`) - that fires
   async commits, can leave a partial state, and hides failures.
-- **No wrappers.** Never wrap it in a helper script, heredoc, or temp file to
-  dodge a `cd` or one-command-per-call constraint. If `cd` does not persist,
-  use the pointer flag: `ahoy --file .vortex/.ahoy.yml update-snapshots`.
+- **No wrappers.** Never wrap it in a helper script, heredoc, or temp file
+  to dodge a `cd` or one-command-per-call constraint. If `cd` does not
+  persist, use the pointer flag:
+  `ahoy --file .vortex/.ahoy.yml update-snapshots`.
 
 ## Cross-System Workflow
 
 When updating template scripts:
 
-1. Modify the script in `.vortex/tooling/src/` (shipped) or `scripts/` (provision subscripts).
+1. Modify the script in `.vortex/tooling/src/` (shipped) or `scripts/`
+   (provision subscripts).
 2. Run `ahoy lint-scripts`.
 3. Run `ahoy update-docs`.
 4. Update BATS tests in `.vortex/tooling/tests/unit/`.
@@ -143,11 +159,11 @@ When updating template files (settings, configs, Dockerfiles, etc.):
 3. Run `ahoy update-snapshots` and commit the regenerated fixtures.
 
 When the installer prompt flow changes (any change under
-`.vortex/installer/src/Prompts/` - new or removed handler, reordered or reworded
-prompt), also run `ahoy update-videos installer` to
-re-record the demo, since the video records the live prompt flow.
-`update-snapshots` commits automatically; `update-videos` does not - stage and
-commit its output manually. Run both after the code change is committed.
+`.vortex/installer/src/Prompts/` - new or removed handler, reordered or
+reworded prompt), also run `ahoy update-videos installer` to re-record the
+demo, since the video records the live prompt flow. `update-snapshots`
+commits automatically; `update-videos` does not - stage and commit its
+output manually. Run both after the code change is committed.
 
 ## Documentation videos
 
@@ -164,13 +180,15 @@ changes behavior:
 - `info`, `doctor`, `doctor-info` - changes to the reported environment.
 
 A published video is a claim that the command it records runs clean, so each
-recording is decoded to plain text at `.artifacts/videos/<name>.txt` and is not
-rendered when that text reports an error, a warning or a failure. There is no
-override flag: fix the output at the command that emits it and record again.
+recording is decoded to plain text at `.artifacts/videos/<name>.txt` and is
+not rendered when that text reports an error, a warning or a failure. There
+is no override flag: fix the output at the command that emits it and record
+again.
 
-`update-videos` does not commit - review the diff under `.vortex/docs/static/img/`
-and commit manually. See `.vortex/docs/CLAUDE.md` for the pipeline internals
-(orchestrator, workspace, `--keep` iteration, the `VIDEOS` config array).
+`update-videos` does not commit - review the diff under
+`.vortex/docs/static/img/` and commit manually. See `.vortex/docs/CLAUDE.md`
+for the pipeline internals (orchestrator, workspace, `--keep` iteration, the
+`VIDEOS` config array).
 
 ## Environment Variables
 
@@ -181,10 +199,12 @@ and commit manually. See `.vortex/docs/CLAUDE.md` for the pipeline internals
 
 ## AI Assistant Guidelines
 
-- **NEVER** modify `.vortex/installer/tests/Fixtures/` directly - change the root
-  template files, then run `ahoy update-snapshots`.
+- **NEVER** modify `.vortex/installer/tests/Fixtures/` directly - change the
+  root template files, then run `ahoy update-snapshots`.
 - American English spelling in documentation; sentence case for headings
   (capitalize proper nouns only).
-- **Code**: single lines preferred, no character limit. Multi-line only for many
-  parameters, arrays, chained methods, or complex conditionals.
+- **Code**: single lines preferred, no character limit. Multi-line only for
+  many parameters, arrays, chained methods, or complex conditionals.
 - **Comments**: wrap at 80-120 characters.
+- **Markdown**: wrap `.md` and `.mdx` files at 76 characters. markdownlint
+  (`MD013`) enforces it in `ahoy lint-markdown` and `ahoy lint-docs`.

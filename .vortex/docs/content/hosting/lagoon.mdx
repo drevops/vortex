@@ -4,27 +4,26 @@ sidebar_position: 3
 
 # Lagoon
 
-[Lagoon](https://lagoon.sh/) is an open source container-based hosting platform
-that provides automated deployments for Drupal applications using Docker and
-Kubernetes.
+[Lagoon](https://lagoon.sh/) is an open source container-based hosting
+platform that provides automated deployments for Drupal applications using
+Docker and Kubernetes.
 
 For general Lagoon documentation, refer to the
 [Lagoon Documentation](https://docs.lagoon.sh/).
 
-This page covers how the site behaves once it runs on Lagoon. For how code gets
-there from CI, see [Lagoon deployment](../deployment/lagoon.mdx).
+This page covers how the site behaves once it runs on Lagoon. For how code
+gets there from CI, see [Lagoon deployment](../deployment/lagoon.mdx).
 
 ## Integration
-
-**Vortex** provides the following integration with Lagoon:
 
 ### Tasks
 
 With **Vortex**, you can:
 
-- **Fetch a database** from a Lagoon environment for local development or CI
-- **Trigger deployments** to Lagoon environments - see [Lagoon deployment](../deployment/lagoon.mdx)
-- **Run custom commands** on Lagoon environments
+- Fetch a database from a Lagoon environment for local development or CI
+- Trigger deployments to Lagoon environments (see [Lagoon
+  deployment](../deployment/lagoon.mdx))
+- Run custom commands on Lagoon environments
 
 When running these tasks, your `.env` and `.env.local` files are used as the
 source for the project name and SSH configuration.
@@ -33,8 +32,9 @@ source for the project name and SSH configuration.
 
 When code is deployed, **Vortex** automatically:
 
-1. **Provisions the site** - Runs database updates, imports configuration, clears caches
-2. **Sends notifications** - Notifies configured channels about the deployment
+1. Provisions the site: runs database updates, imports configuration, and
+   clears caches
+2. Notifies configured channels about the deployment
 
 This is implemented using post-rollout tasks defined in the
 [`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
@@ -42,16 +42,17 @@ configuration file, which also defines per-environment cron jobs and routes.
 
 ### Environment detection
 
-**Vortex** automatically detects when running on Lagoon and loads appropriate
-settings from [`web/sites/default/includes/providers/settings.lagoon.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/providers/settings.lagoon.php).
+**Vortex** automatically detects when running on Lagoon and loads
+appropriate settings from
+[`web/sites/default/includes/providers/settings.lagoon.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/providers/settings.lagoon.php).
 This includes Lagoon-specific configurations for caching, file paths, and
 environment variables provided by the platform.
 
 ## Onboarding
 
-Lagoon onboarding is part of the project setup flow. See
-[Set up hosting](/docs/installation?hosting-provider=lagoon#6-set-up-hosting)
-in the Installation guide and select **Lagoon**.
+Lagoon onboarding is part of the project setup flow. See [Set up
+hosting](/docs/installation?hosting-provider=lagoon#6-set-up-hosting) in the
+Installation guide and select **Lagoon**.
 
 ## Routine operations
 
@@ -66,8 +67,8 @@ ahoy fetch-db
 
 ### Run a custom task
 
-Run an arbitrary command in a Lagoon environment through the platform-agnostic
-task runner, which drives the Lagoon CLI:
+Run an arbitrary command in a Lagoon environment through the
+platform-agnostic task runner, which drives the Lagoon CLI:
 
 ```shell
 VORTEX_PLATFORM=lagoon \
@@ -77,5 +78,6 @@ VORTEX_TASK_CUSTOM_LAGOON_COMMAND="drush cron" \
 ```
 
 The task reads the project name and SSH configuration from your `.env` and
-`.env.local` files; `VORTEX_TASK_CUSTOM_LAGOON_BRANCH` selects the environment
-and `VORTEX_TASK_CUSTOM_LAGOON_COMMAND` is the command to run there.
+`.env.local` files; `VORTEX_TASK_CUSTOM_LAGOON_BRANCH` selects the
+environment and `VORTEX_TASK_CUSTOM_LAGOON_COMMAND` is the command to run
+there.

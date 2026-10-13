@@ -1,15 +1,16 @@
-@@ -136,93 +136,3 @@
+@@ -143,94 +143,3 @@
  
  }
  ```
 -
 -## Behat conventions
 -
--BDD end-to-end tests.
+-Behat runs the BDD end-to-end tests.
 -
--See [documentation](https://www.vortextemplate.com/docs/development/testing/behat)
--on how to run Behat tests, configure environment variables, and use test reports
--in continuous integration pipeline.
+-See
+-[documentation](https://www.vortextemplate.com/docs/development/testing/behat)
+-on how to run Behat tests, configure environment variables, and use test
+-reports in continuous integration pipeline.
 -
 -### User story format
 -
@@ -25,7 +26,7 @@
 -
 -### Standard user types
 -
--Use these consistent user type descriptions:
+-Use these user type descriptions:
 -
 -```gherkin
 -As a site visitor          # Anonymous users
@@ -36,10 +37,10 @@
 -
 -### Test data conventions
 -
--- **Always prefix test content**: `[TEST] Page Title`
--- **Use numbered patterns**: `[TEST] Topic 1`, `[TEST] Topic 2`
--- **Avoid real names**: Don't use "Workshop" or "Training"
--- **Be descriptive**: `[TEST] Event with All Fields`
+-- Prefix test content with `[TEST]`, for example `[TEST] Page Title`.
+-- Use numbered names, for example `[TEST] Topic 1` and `[TEST] Topic 2`.
+-- Avoid real names such as "Workshop" or "Training".
+-- Use descriptive names, for example `[TEST] Event with All Fields`.
 -
 -### Example feature file
 -
@@ -58,7 +59,7 @@
 -
 -### Content type testing process
 -
--When creating comprehensive tests for content types:
+-When writing tests that cover a whole content type:
 -
 -1. Analyze configuration first
 -

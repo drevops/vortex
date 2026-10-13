@@ -1,7 +1,7 @@
 # Manual Integration Tests
 
-This directory contains manual test scripts for verifying Vortex notification
-integrations with external services.
+This directory contains manual test scripts for verifying Vortex
+notification integrations with external services.
 
 ## Purpose
 
@@ -31,7 +31,8 @@ delivery.
 ```
 
 **Configuration**:
-- Requires webhook URL to be set: `export SLACK_WEBHOOK_URL="your-webhook-url"`
+- Requires webhook URL to be set:
+  `export SLACK_WEBHOOK_URL="your-webhook-url"`
 
 **What it tests**:
 - Slack message formatting (rich attachments)
@@ -43,8 +44,8 @@ delivery.
 
 ### JIRA Notifications (`try-notify-jira.sh`)
 
-Manually send JIRA notifications to verify comment posting, issue transitions,
-and assignments.
+Manually send JIRA notifications to verify comment posting, issue
+transitions, and assignments.
 
 **Usage**:
 ```bash
@@ -80,8 +81,8 @@ and assignments.
 
 ### New Relic Notifications (`try-notify-newrelic.sh`)
 
-Manually send New Relic deployment notifications to verify message formatting
-and delivery.
+Manually send New Relic deployment notifications to verify message
+formatting and delivery.
 
 **Usage**:
 ```bash
@@ -152,12 +153,14 @@ full notifications.
 ## When to Use These Scripts
 
 ### During Development
-- **Refactoring notification formats**: Verify message appearance in real services
+- **Refactoring notification formats**: Verify message appearance in real
+  services
 - **Adding new notification features**: Test integration with actual APIs
 - **Debugging integration issues**: Isolate problems with external services
 
 ### Before Committing
-- **Major notification changes**: Confirm formatting looks correct in live services
+- **Major notification changes**: Confirm formatting looks correct in live
+  services
 - **New notification channels**: Verify integration works end-to-end
 - **API updates**: Test compatibility with service API changes
 
@@ -197,7 +200,8 @@ All scripts follow a common pattern:
 2. **Scenario Selection**: Choose between branch or PR deployment scenarios
 3. **Variable Export**: Set Vortex notification environment variables
 4. **Path Resolution**: Navigate to project root from script location
-5. **Execution**: Run the actual notification script (`vendor/bin/vortex-notify`)
+5. **Execution**: Run the actual notification script
+   (`vendor/bin/vortex-notify`)
 6. **Verification**: User manually confirms output in external service
 
 ## Integration with Automated Tests
@@ -274,7 +278,8 @@ ls -la ./vendor/drevops/vortex-tooling/src/      # Verify project structure
 
 When adding new notification integrations:
 
-1. **Create test script** following naming pattern: `try-notify-{service}.sh`
+1. **Create test script** following naming pattern:
+   `try-notify-{service}.sh`
 2. **Include both scenarios**: branch and PR deployment notifications
 3. **Document configuration**: Required environment variables and defaults
 4. **Update this README**: Add usage instructions and what it tests
@@ -282,5 +287,5 @@ When adding new notification integrations:
 
 ---
 
-*These manual tests complement automated testing to ensure Vortex notification
-integrations work correctly with real external services.*
+*These manual tests complement automated testing to ensure Vortex
+notification integrations work correctly with real external services.*

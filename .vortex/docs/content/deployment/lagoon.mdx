@@ -6,22 +6,23 @@ sidebar_position: 3
 # Lagoon deployment
 
 Lagoon deployment triggers a deployment on the [Lagoon](https://lagoon.sh/)
-hosting platform using the [Lagoon CLI](https://github.com/uselagoon/lagoon-cli).
+hosting platform using the [Lagoon
+CLI](https://github.com/uselagoon/lagoon-cli).
 
 ## How it works
 
 When `lagoon` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script
-downloads the Lagoon CLI and points it at the configured Lagoon instance. Over
-SSH, it requests a deployment for the current branch or pull request. Lagoon
-then:
+downloads the Lagoon CLI and points it at the configured Lagoon instance.
+Over SSH, it requests a deployment for the current branch or pull request.
+Lagoon then:
 
 1. Pulls the latest code from your repository
 2. Builds container images using your `docker-compose.yml`
 3. Deploys containers to Kubernetes
 4. Runs post-rollout tasks defined in `.lagoon.yml`
 
-Lagoon doesn't support tag deployments - the script reports this and skips the
-deployment.
+Lagoon doesn't support tag deployments, so the script reports this and skips
+the deployment.
 
 ## Configuration
 
@@ -39,9 +40,9 @@ deployment.
 | `VORTEX_DEPLOY_LAGOON_LAGOONCLI_VERSION` | No | `v0.32.0` | CI | Lagoon CLI version to install |
 | `VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED` | No | `0` | CI | Fail the build when the Lagoon environment limit is exceeded (`1`) or pass it (`0`) |
 
-The full list of `VORTEX_DEPLOY_LAGOON_*` variables, including the pull request
-context variables set by CI, is in the
-[Variables reference](../development/variables.mdx).
+The full list of `VORTEX_DEPLOY_LAGOON_*` variables, including the pull
+request context variables set by CI, is in the [Variables
+reference](../development/variables.mdx).
 
 ### Setup
 
@@ -57,29 +58,32 @@ context variables set by CI, is in the
    LAGOON_PROJECT=your-project-name
    ```
 
-3. Ensure your CI has the Lagoon SSH key configured for authentication - the
+3. Ensure your CI has the Lagoon SSH key configured for authentication. The
    CLI connects over SSH, so a missing key fails the deployment.
 
 ## Post-deployment automation
 
 Once Lagoon rolls out the new containers, the post-rollout tasks defined in
 [`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
-provision the site and send notifications - see
+provision the site and send notifications. See
 [Lagoon hosting](../hosting/lagoon.mdx#deployment-automation) for what runs.
 
 ## Environments
 
-The shipped [`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
+The shipped
+[`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
 defines environment-specific settings (cron jobs, routes) for the `main` and
 `develop` branches. It treats an environment as production when Lagoon marks
 it as such or when the branch matches `VORTEX_LAGOON_PRODUCTION_BRANCH`
 (default: `main`).
 
 Which branches get an environment, their types, and pull request (ephemeral)
-environments are configured per project in Lagoon itself - see
-[Lagoon environment types](https://docs.lagoon.sh/concepts-advanced/environment-types/).
+environments are configured per project in Lagoon itself. See [Lagoon
+environment
+types](https://docs.lagoon.sh/concepts-advanced/environment-types/).
 
 ## See also
 
-- [Lagoon hosting](../hosting/lagoon.mdx) - platform integration, environment detection, and routine operations
+- [Lagoon hosting](../hosting/lagoon.mdx) - platform integration,
+  environment detection, and routine operations
 - [Lagoon documentation](https://docs.lagoon.sh/) - official Lagoon docs
