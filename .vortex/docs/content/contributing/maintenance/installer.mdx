@@ -45,7 +45,7 @@ The core flow is:
    and runs it with `php installer.php`.
 2. `InstallCommand` orchestrates the installation process.
 3. `PromptManager` collects user choices via interactive prompts.
-4. Handlers queue file operations based on selections. Each handler is responsible for a specific aspect of the template (CI provider, hosting, services, theme, deployment strategy, etc.).
+4. Handlers queue file operations based on selections. Each handler covers a specific aspect of the template (CI provider, hosting, services, theme, deployment strategy, etc.).
 5. File operations execute: conditional tokens are processed to include or
    exclude content based on the selected features.
 6. The output is a fully customized Drupal project.
