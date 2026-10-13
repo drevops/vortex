@@ -1,7 +1,7 @@
 # Deployment
 
-For information on how deployment works, see
-[Vortex Deployment Documentation](https://www.vortextemplate.com/docs/deployment).
+For information on how deployment works, see [Vortex Deployment
+Documentation](https://www.vortextemplate.com/docs/deployment).
 
 ## Project-specific configuration
 

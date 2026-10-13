@@ -1,4 +1,4 @@
-@@ -136,93 +136,3 @@
+@@ -143,94 +143,3 @@
  
  }
  ```
@@ -7,9 +7,10 @@
 -
 -Behat runs the BDD end-to-end tests.
 -
--See [documentation](https://www.vortextemplate.com/docs/development/testing/behat)
--on how to run Behat tests, configure environment variables, and use test reports
--in continuous integration pipeline.
+-See
+-[documentation](https://www.vortextemplate.com/docs/development/testing/behat)
+-on how to run Behat tests, configure environment variables, and use test
+-reports in continuous integration pipeline.
 -
 -### User story format
 -

@@ -1,13 +1,15 @@
-@@ -3,6 +3,32 @@
- For information on how deployment works, see
- [Vortex Deployment Documentation](https://www.vortextemplate.com/docs/deployment).
+@@ -3,6 +3,36 @@
+ For information on how deployment works, see [Vortex Deployment
+ Documentation](https://www.vortextemplate.com/docs/deployment).
  
 +## Hosting provider
 +
-+This project is hosted on [Acquia Cloud](https://www.acquia.com/products/drupal-cloud).
++This project is hosted on [Acquia
++Cloud](https://www.acquia.com/products/drupal-cloud).
 +
-+See [Acquia hosting documentation](https://www.vortextemplate.com/docs/hosting/acquia)
-+for setup and configuration details.
++See [Acquia hosting
++documentation](https://www.vortextemplate.com/docs/hosting/acquia) for setup
++and configuration details.
 +
 +### Deployment workflow
 +
@@ -25,8 +27,10 @@
 +### Important rules
 +
 +- No direct pushes to Acquia Cloud repository.
-+- Only Technical Lead and Deployer user should have access to Acquia repository.
-+- Technical Lead should regularly clean up `feature/*` and `bugfix/*` branches.
++- Only Technical Lead and Deployer user should have access to Acquia
++  repository.
++- Technical Lead should regularly clean up `feature/*` and `bugfix/*`
++  branches.
 +
  ## Project-specific configuration
  

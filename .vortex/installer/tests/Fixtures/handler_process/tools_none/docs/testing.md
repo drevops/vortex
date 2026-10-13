@@ -1,4 +1,4 @@
-@@ -2,227 +2,3 @@
+@@ -2,235 +2,3 @@
  
  This document describes **what** testing conventions and agreements apply to
  this project.
@@ -7,9 +7,10 @@
 -
 -PHPUnit runs the Unit, Kernel, and Functional tests.
 -
--See [documentation](https://www.vortextemplate.com/docs/development/testing/phpunit)
--on how to run tests, configure environment variables and code coverage, and use
--test reports in continuous integration pipeline.
+-See
+-[documentation](https://www.vortextemplate.com/docs/development/testing/phpunit)
+-on how to run tests, configure environment variables and code coverage, and
+-use test reports in continuous integration pipeline.
 -
 -### Test class structure
 -
@@ -49,18 +50,24 @@
 -### Base test classes
 -
 -- **Unit** - `Drupal\Tests\UnitTestCase` - Testing isolated PHP classes
--- **Kernel** - `Drupal\KernelTests\KernelTestBase` - Testing with database/services
--- **Functional** - `Drupal\Tests\BrowserTestBase` - Testing with full browser
--- **FunctionalJavascript** - `Drupal\FunctionalJavascriptTests\WebDriverTestBase` - Testing browser interaction with JavaScript
+-- **Kernel** - `Drupal\KernelTests\KernelTestBase` - Testing with
+-  database/services
+-- **Functional** - `Drupal\Tests\BrowserTestBase` - Testing with full
+-  browser
+-- **FunctionalJavascript** -
+-  `Drupal\FunctionalJavascriptTests\WebDriverTestBase` - Testing browser
+-  interaction with JavaScript
 -
 -### Test data conventions
 -
 -- Prefix test content with `[TEST]`, for example `[TEST] Node Title`.
--- Use data providers to test multiple input/output combinations. A data provider must:
+-- Use data providers to test multiple input/output combinations. A data
+-  provider must:
 -  - be a public static method
 -  - be named `dataProvider<MethodName>`
 -  - be placed after the test method it provides data for
--- Include the test class or method name in test data so identifiers stay unique.
+-- Include the test class or method name in test data so identifiers stay
+-  unique.
 -
 -### Data providers
 -
@@ -141,9 +148,10 @@
 -
 -Behat runs the BDD end-to-end tests.
 -
--See [documentation](https://www.vortextemplate.com/docs/development/testing/behat)
--on how to run Behat tests, configure environment variables, and use test reports
--in continuous integration pipeline.
+-See
+-[documentation](https://www.vortextemplate.com/docs/development/testing/behat)
+-on how to run Behat tests, configure environment variables, and use test
+-reports in continuous integration pipeline.
 -
 -### User story format
 -

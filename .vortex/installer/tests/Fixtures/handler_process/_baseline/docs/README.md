@@ -1,7 +1,7 @@
 # Project documentation
 
-This directory contains project-specific documentation that describes **what**
-applies to this project. For **how** to perform operations, see
+This directory contains project-specific documentation that describes
+**what** applies to this project. For **how** to perform operations, see
 [Vortex Documentation](https://www.vortextemplate.com/docs/).
 
 - [Testing](testing.md) - Testing conventions and agreements

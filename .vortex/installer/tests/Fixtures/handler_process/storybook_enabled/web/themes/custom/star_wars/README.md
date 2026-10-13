@@ -10,12 +10,12 @@
 +| `npm run storybook`       | Start the Storybook development server  |
 +| `npm run storybook-build` | Build the static Storybook application  |
 +
-+In the project, `ahoy storybook` and `ahoy storybook-build` run these scripts
-+inside the CLI container, with the dependencies installed for it.
++In the project, `ahoy storybook` and `ahoy storybook-build` run these
++scripts inside the CLI container, with the dependencies installed for it.
 +
-+To run Storybook on the host instead, reinstall the dependencies for the host,
-+keep the stories regenerating in the container, and set `STORYBOOK_SERVER_URL`
-+to the site URL shown by `ahoy info`:
++To run Storybook on the host instead, reinstall the dependencies for the
++host, keep the stories regenerating in the container, and set
++`STORYBOOK_SERVER_URL` to the site URL shown by `ahoy info`:
 +
 +```bash
 +rm -rf node_modules && npm ci
@@ -27,6 +27,6 @@
 +
 +Stories are authored in Twig as `<component>.stories.twig` and compiled into
 +`<component>.stories.json` by
-+`drush storybook:generate-all-stories --omit-server-url`. Without the option,
-+each compiled story carries the Drush site URL and overrides the render
-+endpoint resolved by `.storybook/preview.js`.
++`drush storybook:generate-all-stories --omit-server-url`. Without the
++option, each compiled story carries the Drush site URL and overrides the
++render endpoint resolved by `.storybook/preview.js`.
