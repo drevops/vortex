@@ -92,10 +92,11 @@ Configure the policy in your `composer.json` under the `config` section:
 - **`abandoned.audit`** to `report`: abandoned packages are reported as
   warnings but don't fail the audit. (Composer's own default is `fail`.)
 
-Each section accepts `block` (refuse affected versions during
-`composer update`/`require`/`remove`), `audit` (`ignore`, `report`, or
-`fail` for the `composer audit` command), and
-`ignore`/`ignore-id`/`ignore-severity` for assessed exceptions.
+The `advisories` and `abandoned` sections accept `block` (refuse affected
+versions during `composer update`/`require`/`remove`), `audit` (`ignore`,
+`report`, or `fail` for the `composer audit` command), and `ignore`
+(package names to exempt). For assessed exceptions, `advisories` also
+accepts `ignore-id` and `ignore-severity`.
 
 :::note Composer 2.10+
 
