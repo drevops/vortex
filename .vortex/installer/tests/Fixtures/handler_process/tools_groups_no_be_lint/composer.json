@@ -1,7 +1,7 @@
 @@ -40,17 +40,10 @@
          "dantleech/gherkin-lint": "__VERSION__",
          "drevops/behat-screenshot": "__VERSION__",
-         "drevops/behat-steps": "dev-main",
+         "drevops/behat-steps": "__VERSION__",
 -        "drevops/phpcs-standard": "__VERSION__",
 -        "drupal/coder": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
