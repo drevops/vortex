@@ -614,7 +614,8 @@ the module picks up their plugins.
 To opt out of the content, set `DRUPAL_GENERATED_CONTENT_SKIP=1` in the
 `.env` file or in your hosting provider's environment variables. The module
 is still installed, so you can generate the content later from the admin
-interface or with `drush generated-content:create-content`.
+interface or with Drush, for example
+`drush generated-content:create-content node page 20`.
 
 Installing a module that's already installed does nothing, so provisioning a
 site that already holds the module leaves its content untouched. It also
