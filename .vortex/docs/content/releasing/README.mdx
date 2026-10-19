@@ -5,19 +5,21 @@ sidebar_position: 1
 
 # Releasing
 
-This section describes how your project, a site built from **Vortex**,
-releases to production. (How the **Vortex** template itself is released is a
-different process, documented in [Contributing > Maintenance >
+This section is about releasing your project, the site you built from
+**Vortex**, to production. It covers how code moves between environments,
+how branches and version numbers work, and where the automation takes over.
+(Releasing the **Vortex** template itself is a different process,
+documented in [Contributing > Maintenance >
 Release](../contributing/maintenance/release.mdx).)
 
 A release process has a few moving parts, and **Vortex** provides defaults
 and integration points for each of them:
 
-1. **Release flow** - the sequence of environments code goes through from
-   development to production
+1. **Release flow** - the sequence of environments that code goes through
+   from development to production
 2. **Versioning workflow** - the branching strategy, documented in
    [GitFlow](gitflow.mdx)
-3. **Version scheme** - the numbering system chosen at install time,
+3. **Version scheme** - the numbering system you choose at install time,
    documented in [Versioning](versioning.mdx)
 4. **Release documentation** - your project's own `docs/releasing.md`
 5. **Automated deployment** - the CI pipeline and hosting integrations that
@@ -33,47 +35,47 @@ through the environments while the database moves "down":
   database: Development ◄─── Stage ◄─── Production
 ```
 
-- **Development** - latest development code, not yet released. May be
-  unstable, but CI tests should pass.
-- **Stage** - pre-production environment. Mirrors production as closely as
-  possible. Used for final release testing.
-- **Production** - the live customer-facing application. Stable and
-  reliable. Source of truth for data.
+- **Development** - the latest development code, not released yet. It can
+  be unstable, but its CI tests should pass.
+- **Stage** - the pre-production environment. It mirrors production as
+  closely as possible and hosts the final release testing.
+- **Production** - the live, customer-facing site. It's stable and
+  reliable, and it's the source of truth for data.
 
-The production database is the primary source of truth: it's what code is
-applied to. When performing a release, you're applying a new version of code
-to a database within a specific environment. To make sure code changes work
-with real data, lower environments test against a copy of the production
-database:
+The production database is the primary source of truth: it's what your code
+gets applied to. A release applies a new version of the code to the database
+of a specific environment. To make sure code changes work with real data,
+the lower environments test against a copy of the production database:
 
-1. The database is copied from a higher environment to a lower one (for
-   example, production → stage → development).
-2. Code is deployed to that environment.
-3. Testing confirms everything works against the copied database.
+1. Copy the database from a higher environment to a lower one (for example,
+   production → stage → development).
+2. Deploy the code to that environment.
+3. Test that everything works against the copied database.
 
 :::tip
 
-CI pipelines use a copy of the production database (refreshed daily) to run
-all tests, so code changes are validated against real data structures too.
+When your site provisions from a database dump, the CI pipeline runs all
+its tests against a copy of the production database too, refreshed daily.
+Code changes are then validated against real data structures as well.
 
 :::
 
 :::info Environment agreement
 
-The specific environment setup (dev/stage/production) should be agreed
-within your team and documented in your project. Some teams use additional
-environments (for example, UAT, pre-prod) or different naming conventions.
+Agree on the specific environment setup (dev, stage, production) within
+your team, and document it in your project. Some teams add environments
+(for example, UAT or pre-prod) or use different names.
 
 :::
 
 ## Production deployment process
 
-Once code is finalized and pushed, deployment to production is technically
-identical to deploying to any other environment and is fully automated.
+Once code is finalized and pushed, deploying to production is technically
+identical to deploying to any other environment, and it's fully automated.
 
-For Acquia and Lagoon hosting, **Vortex** integrates directly with their
-deployment systems. For other hosting providers, you can integrate the
-provision steps into your hosting deployment configuration if it supports
+On Acquia and Lagoon hosting, **Vortex** integrates directly with the
+platform's own deployment system. On other hosting, wire the provision steps
+into your host's deployment configuration, as long as it supports
 post-deployment hooks or custom scripts.
 
 ➡️ See
@@ -86,8 +88,8 @@ learn what provisioning steps run during deployments.
 
 Your project's `docs/releasing.md` file is the canonical release
 documentation for your team. As shipped, it records the expected release
-outcome and your project's version scheme, and leaves a marked section for
-project-specific configuration.
+outcome and your project's version scheme (left out if you chose Other), and
+it leaves a marked section for project-specific configuration.
 
 Extend it with:
 
@@ -101,9 +103,14 @@ Extend it with:
 
 ### New Relic integration
 
-**Vortex** integrates with New Relic for release tracking: when configured,
-it creates deployment markers as releases reach your environments, so
-performance changes and errors can be correlated with specific releases.
+**Vortex** integrates with New Relic for release tracking. When the
+`newrelic` notification channel is configured, a deployment creates a
+deployment marker in New Relic, so you can line up performance changes and
+errors with the release that caused them.
+
+By default, markers go out only for deployments of the `main`, `master`, and
+`develop` branches. If production deploys from a branch named `production`,
+add it to `VORTEX_NOTIFY_NEWRELIC_BRANCHES`.
 
 ➡️ See [Deployment >
 Notifications](../deployment/notifications/newrelic.mdx)

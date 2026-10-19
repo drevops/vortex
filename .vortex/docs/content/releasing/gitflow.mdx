@@ -6,11 +6,12 @@ sidebar_position: 2
 # GitFlow versioning workflow
 
 [git-flow](https://nvie.com/posts/a-successful-git-branching-model/) is a
-versioning workflow that separates development code from production code.
-
-You keep a stable development branch (`develop`) and a production-ready
-branch (`main`), with dedicated branches for feature development, release
-preparation, and hotfixes.
+versioning workflow: a branching model that keeps development code and
+production code apart. Work lands on `develop`, `main` holds only
+production-ready code, and a short-lived branch carries each feature,
+release, and hotfix. **Vortex** builds its defaults around these branch
+names: the CI triggers, the deployment branch patterns, and the release
+notes workflow all expect them.
 
 ```text
 develop ──► git flow release start X.Y.Z
@@ -32,9 +33,9 @@ develop ──► git flow release start X.Y.Z
 
 ## Branch structure
 
-- **`develop`** - development branch where features are integrated
+- **`develop`** - the development branch, where features are integrated
 - **`main`** - production-ready code, always stable and tagged with releases
-- **`feature/*`** - individual feature development branches
+- **`feature/*`** - a branch for each feature in development
 - **`release/*`** - release preparation branches (for example,
   `release/25.1.0`)
 - **`hotfix/*`** - emergency fixes for production (for example,
@@ -43,18 +44,18 @@ develop ──► git flow release start X.Y.Z
 <details>
   <summary><code>production</code> branch</summary>
 
-  Most hosting providers support deploying specific git tags directly. In
-  this case, no separate `production` branch is needed: you tag releases on
-  `main` and deploy those tags.
+  Most hosting providers can deploy a specific Git tag directly. Then you
+  need no separate `production` branch: you tag releases on `main` and
+  deploy those tags.
 
-  Some hosting providers (like Lagoon) require a git branch to deploy from,
-  so tag-based deployments aren't supported. In this case, you must create a
+  Some providers, Lagoon among them, deploy only from a Git branch, and the
+  **Vortex** Lagoon deployment skips tags. On those, you must create a
   `production` branch and sync code from `main` to `production` after each
   release.
 
-  While it's possible to automate copying `main` to `production` on tag
-  creation via CI/CD, this automation was deliberately avoided to prevent
-  accidental deployments to production without human oversight.
+  CI could copy `main` to `production` whenever a release is tagged, but
+  **Vortex** deliberately leaves that step to a person. That way, nothing
+  reaches production without someone deciding it should.
 
 </details>
 
@@ -70,8 +71,10 @@ quick reference on git-flow commands.
    git flow release start X.Y.Z
    ```
 
-   Creates a `release/X.Y.Z` branch from `develop`. We recommend pushing the
-   branch to the remote.
+   This creates a `release/X.Y.Z` branch from `develop`. We recommend
+   pushing the branch to the remote: CI builds and deploys `release/*`
+   branches, so the release gets its own build and deployment for final
+   testing.
 
 2. **Prepare the release**
    - Final bug fixes
