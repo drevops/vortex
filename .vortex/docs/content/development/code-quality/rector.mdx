@@ -8,30 +8,31 @@ https://github.com/rectorphp/rector
 
 > Rector instantly upgrades and refactors the PHP code of your application.
 
+Every Drupal major release removes the APIs that the previous one
+deprecated. Rector rewrites your code to replace them, moves it onto PHP 8.4
+language features, and applies the same refactorings across the whole
+codebase at once. Keep it running and a major upgrade arrives with the
+deprecations already gone.
+
 **Vortex** comes with a [pre-configured Rector
 configuration](https://github.com/drevops/vortex/blob/main/rector.php) for
 Drupal projects, based on the configuration provided by [Drupal
 Rector](https://github.com/palantirnet/drupal-rector).
 
-Rector refactors your PHP and Drupal code automatically and applies the same
-rules across the codebase. It fixes deprecated Drupal APIs to prepare the
-code for Drupal major version upgrades, and rewrites code to use PHP 8.4
-language features.
-
-Run Rector before upgrading Drupal major versions to fix deprecations, and
-periodically during development (weekly or monthly) to catch deprecations
-early. In code review, it runs in the CI pipeline as one of the code quality
-checks. When you refactor legacy code, run it to modernize older codebases
-in bulk.
+Run Rector before a Drupal major upgrade to clear the remaining
+deprecations, and every week or month during development to catch new ones
+early. It also runs in the CI pipeline as one of the code quality checks, so
+code that Rector would change fails the `lint` job. When you refactor
+legacy code, run it to modernize older code in bulk.
 
 :::note
 
-Rector is often used ad hoc to perform bulk refactoring.
+Many projects run Rector ad hoc, for a single round of bulk refactoring.
 
-In **Vortex**, it's integrated as a regular code quality tool that you can
-run at any time to check for deprecated code and fix issues automatically.
-Running it continuously keeps the codebase up to date between major
-upgrades.
+**Vortex** runs it as a regular code quality tool instead: `ahoy lint-be`
+checks for deprecated code at any time, and `ahoy lint-be-fix` fixes what
+it finds. Running it continuously keeps the codebase up to date between
+major upgrades.
 
 :::
 
@@ -74,13 +75,14 @@ import TabItem from '@theme/TabItem';
 ### Cache management
 
 Rector caches parsed file information and analysis results in the system
-temp directory (`/tmp/rector_cached_files`) to speed up later runs by
-reusing results for unchanged files.
+temp directory, `/tmp/rector_cached_files` inside the CLI container, so
+later runs reuse the results for files that haven't changed.
 
-Clear the cache after changing the `rector.php` configuration (rules, skip
-list, or paths), after updating the `rector/rector` or
-`palantirnet/drupal-rector` packages, after switching git branches with
-different Rector configurations, or when results look stale.
+Clear the cache after you change the `rector.php` configuration (its rules,
+skip list, or paths) or update the `rector/rector` or
+`palantirnet/drupal-rector` packages. Clear it too after you switch to a Git
+branch with a different Rector configuration, and whenever the results look
+stale.
 
 To clear the cache and check for violations:
 
@@ -117,32 +119,43 @@ To clear the cache and apply changes:
 
 See [configuration reference](https://getrector.com/documentation).
 
-All global configuration takes place in
-the [`rector.php`](https://github.com/drevops/vortex/blob/main/rector.php)
-file.
+All global configuration lives in the
+[`rector.php`](https://github.com/drevops/vortex/blob/main/rector.php) file.
 
-Targets include custom modules and themes, settings, and tests.
+Targets include custom modules and themes, settings, and tests. Unlike
+PHPCS and PHPStan, Rector leaves the `scripts` directory alone.
 
 ### Config sets
 
 Rector provides [config sets](https://getrector.com/documentation/set-lists)
-that enable or disable rules in bulk.
+that enable or disable rules in bulk. **Vortex** enables these:
 
-**Vortex** enables the PHP 8.4 sets and the Drupal sets from [Drupal
-Rector](https://github.com/palantirnet/drupal-rector). The Drupal sets are
-resolved from the installed `drupal/core` version, so the rules track core
-upgrades without changes to `rector.php`.
+- The PHP sets for the PHP version in `composer.json`, through
+  `withPhpSets()` called without an argument.
+- The Drupal sets from [Drupal
+  Rector](https://github.com/palantirnet/drupal-rector), resolved from the
+  installed `drupal/core` version, so the rules track core upgrades without
+  changes to `rector.php`.
+- The `codeQuality`, `codingStyle`, `deadCode`, `naming`, `privatization`,
+  and `typeDeclarations` prepared sets.
+- The Behat attribute sets, which convert Behat annotations to PHP 8
+  attributes. They ship only when Behat is selected during installation.
 
-The config sets are meant to be adjusted per-project as needed. A full list
-of available config sets can be found on the [Rules
-overview](https://getrector.com/documentation/rules-overview) page.
+On top of the sets, it adds the `DeclareStrictTypesRector` rule and, when
+PHPUnit is selected, `YieldDataProviderRector`, which turns array-returning
+data providers into generators. It also leaves class names unimported, so
+Rector doesn't add `use` statements to the files it changes.
+
+Adjust the config sets to suit your project. The [Rules
+overview](https://getrector.com/documentation/rules-overview) page lists
+all the available config sets.
 
 ## Ignoring
 
 See more on the [Ignoring Rules Or
 Paths](https://getrector.com/documentation/ignoring-rules-or-paths) page.
 
-Ignoring rules globally takes place in the
+To skip a rule across the project, add it to `withSkip()` in the
 [`rector.php`](https://github.com/drevops/vortex/blob/main/rector.php) file:
 
 ```php
@@ -151,7 +164,13 @@ Ignoring rules globally takes place in the
 ])
 ```
 
-To ignore all Rector rules within a file:
+The shipped `withSkip()` list already skips 20 rules based on the project's
+coding standards. It also skips `RemoveUnusedPublicMethodParameterRector`
+for the `src/Hook` classes of custom modules and themes, and
+`StringClassNameToClassConstantRector` for the settings includes. The list
+also skips the `vendor` and `node_modules` directories.
+
+To skip all Rector rules for a file:
 
 ```php
 ->withSkip([
@@ -160,7 +179,7 @@ To ignore all Rector rules within a file:
 ])
 ```
 
-To ignore a specific rule within a file:
+To skip a specific rule for a file:
 
 ```php
 ->withSkip([
@@ -178,8 +197,9 @@ violations.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_RECTOR_IGNORE_FAILURE` environment variable to `1`. The
-tool still runs and reports violations.
+Set `VORTEX_CI_RECTOR_IGNORE_FAILURE` to `1` to let the build pass anyway.
+Rector still runs and prints the changes it would make in the job log, so
+you can see what you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

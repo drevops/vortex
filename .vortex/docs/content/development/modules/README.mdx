@@ -5,18 +5,22 @@ sidebar_position: 1
 
 # Modules
 
-**Vortex** isn't a Drupal distribution: it ships no installation profile,
-and the only recipe it carries is the small `recipes/page` recipe that
-creates the demo content model during provisioning. It provides a small set
-of contributed modules that most projects need, each already wired into the
-environment-aware [settings](../settings.mdx) and the
-[provisioning](../provision.mdx) scripts. You add the rest once the initial
-setup is done.
+**Vortex** isn't a Drupal distribution. It ships no installation profile
+unless you ask the installer for a custom one. The only recipe it carries
+is the small `recipes/page` recipe, which creates the demo content model
+during provisioning. What it does ship is a small set of contributed modules
+that most projects need, each already wired into the environment-aware
+[settings](../settings.mdx) and the [provisioning](../provision.mdx)
+scripts. You add the rest once the initial setup is done.
 
-Every module in this section is optional. The installer asks which ones to
-keep. Deselecting one removes its Composer requirement, its settings
-override, its line in the provisioning script, its Behat feature, and its
-settings test assertions in a single pass.
+The installer can remove every module in this section except Search API,
+which stays required even without the Solr service. Its `Modules` question
+lists 19 of them. Deselecting one removes, in a single pass, its Composer
+requirement, its settings override, its provisioning steps, its Behat
+feature, and its assertions in the settings tests. ClamAV, Redis, and Search
+API Solr follow the `Services` question instead, Migrate Plus and Migrate
+Tools follow the migration question, and Storybook follows its own
+question.
 
 ## How modules are configured
 
@@ -26,11 +30,20 @@ settings test assertions in a single pass.
 | Settings override | `web/sites/default/includes/modules/settings.<module>.php` | Applies configuration conditioned on the detected environment, reading values from environment variables. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
 | Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a module that never reaches production out of the exported configuration, so enabling it locally never dirties the config. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
 | Provisioning | [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh) | Stands up the demo site in the `local`, `ci`, `dev`, and `stage` environments. Applies the `recipes/page` content model, sets the site name, installs the contrib, service, and custom site modules (including core's `media` and `navigation`), and runs their deploy hooks. ➡️ See [Provision](../provision.mdx#demo-modules) |
-| Development provisioning | [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) | Installs the modules that never reach production (the development tools and the email rerouting safety net) in the same 4 environments. ➡️ See [Provision](../provision.mdx#development-modules) |
+| Development provisioning | [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) | Installs the modules that never reach production (the development tools and the email rerouting safety net) in the same 4 environments, plus the Storybook module when Storybook is selected. ➡️ See [Provision](../provision.mdx#development-modules) |
+| Migration provisioning | [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh) | Installs the `ys_migrate` demo migration module, and with it Migrate Plus and Migrate Tools, in every environment except `prod`, unless `DRUPAL_MIGRATION_SKIP` is set to `1`. Ships only with the migration feature. ➡️ See [Migrations](../migrations.mdx) |
 | Module dependency | [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml) | Installs the module as a dependency of the demo module. ➡️ See [Demo module](module-scaffold.mdx#demo-module) |
 
 A module can be required without being installed anywhere: the settings
 override is then ready for the day the project enables it. `seckit` is the
-only module shipped that way. Every other module in [Contributed
-modules](contributed-modules.mdx) is installed by one of the preceding
-mechanisms, so selecting the module is enough to get it enabled.
+only module shipped that way on purpose. Fast 404 is never installed either,
+because its handler runs straight from the settings file. Every other module
+on the [Contributed modules](contributed-modules.mdx) page is installed by
+one of the preceding mechanisms, so selecting the module is enough to get it
+enabled.
+
+Leaving out the demo module or the Solr service breaks that for 1 module
+each. Drupal helpers arrives only as a dependency of `ys_demo`, so a project
+without the demo module has it required but not installed. Search API stays
+required without Solr, but the line that installs it leaves with the
+service.

@@ -5,9 +5,11 @@ sidebar_position: 5
 
 # Testmode
 
-[Testmode](https://www.drupal.org/project/testmode) filters site content
-during Behat tests, preventing live or generated content from interfering
-with test assertions.
+[Testmode](https://www.drupal.org/project/testmode) keeps live and generated
+content out of Behat assertions. While test mode is on, it filters the
+listings in the views you register down to the items whose title, name, or
+email matches a test pattern. A scenario then sees only what it created,
+even on a site full of demo pages or a copy of production.
 
 This section covers how **Vortex** uses the module. The [module
 documentation](https://git.drupalcode.org/project/testmode/-/blob/HEAD/README.md)
@@ -24,6 +26,12 @@ is the reference for its full API.
 4. When filtering is enabled, the registered views only show content
    matching the `[TEST]` pattern
 
+Testmode keeps its on/off flag in the state system, so switching it never
+touches configuration. While it's on, users with the
+`administer site configuration` permission see a warning on every page with
+a link to the Testmode settings. That warning is how you'll spot a test run
+that died before switching it off.
+
 ## Configuration
 
 Testmode is configured through the `testmode.settings` configuration object:
@@ -36,7 +44,11 @@ Testmode is configured through the `testmode.settings` configuration object:
 | `pattern_node` | string[] | MySQL LIKE patterns for node titles |
 | `pattern_term` | string[] | MySQL LIKE patterns for term names |
 | `pattern_user` | string[] | MySQL LIKE patterns for user emails |
-| `list_term` | bool | Whether to filter term listings |
+| `list_term` | bool | Whether to filter the taxonomy term overview page |
+
+Out of the box, Testmode filters the `content` and `user_admin_people`
+views, matches node titles and term names against `[TEST%` and user emails
+against `%example%`, and filters the term overview page.
 
 **Vortex** adds `testmode` to `config_exclude_modules` in
 [`settings.testmode.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.testmode.php),
@@ -69,15 +81,20 @@ function ys_demo_deploy_configure_testmode(): string {
 }
 ```
 
-The same singleton exposes `getTermViews()`, `getUserViews()`, and the
-matching pattern getters and setters, plus `enableTestMode()`,
-`disableTestMode()`, and `isTestMode()` for driving the mode directly.
+The same singleton exposes the matching getters and setters for term and
+user views, the 3 pattern lists, and the `list_term` flag (`getListTerm()`
+and `setTermsList()`). For driving the mode directly, it has
+`enableTestMode()`, `disableTestMode()`, `toggleTestMode()`, and
+`isTestMode()`.
 
 ## Behat integration
 
-The `@testmode` tag activates Testmode for individual scenarios via
-`TestmodeTrait` from
-[`behat-steps`](https://github.com/drevops/behat-steps):
+The `@testmode` tag turns test mode on for a single scenario and off again
+when it ends. It comes from `TestmodeTrait` in
+[`behat-steps`](https://github.com/drevops/behat-steps), which the
+`DrupalContext` class that `FeatureContext` extends already includes, so
+the tag works without extra wiring. A tagged scenario fails straight away
+if the `testmode` module isn't enabled:
 
 ```gherkin
 @testmode
@@ -103,7 +120,8 @@ The `ys_demo` module:
 - Ships a pages view at `/pages`
 - Registers it with Testmode via the `ys_demo_deploy_configure_testmode`
   deploy hook
-- Includes the
+- Is covered by the
   [`pages.feature`](https://github.com/drevops/vortex/blob/main/tests/behat/features/pages.feature)
-  Behat feature demonstrating the `@testmode` tag against the
-  [generated content](generated-content.mdx) it filters out
+  Behat feature in `tests/behat/features`, which demonstrates the
+  `@testmode` tag against the [generated content](generated-content.mdx) it
+  filters out

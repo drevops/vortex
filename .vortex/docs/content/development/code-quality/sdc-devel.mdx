@@ -11,11 +11,14 @@ https://www.drupal.org/project/sdc_devel
 SDC Devel validates the component YAML files of [Single Directory
 Components](https://www.drupal.org/docs/develop/theming-drupal/using-single-directory-components)
 (SDC) and statically checks their Twig templates for errors and best
-practices.
+practices. It reports problems such as a template variable that the
+component definition doesn't declare, or a filter applied to the wrong type
+of value. A broken component then fails the check before it renders wrong
+on a page.
 
-**Vortex** ships the module as a `composer.json` dependency and uses it to
-validate the components of the custom theme. The theme scaffold includes a
-sample component in `components/button`.
+**Vortex** requires the module in `composer.json` and uses it to validate
+the components of the custom theme. The theme scaffold includes a sample
+component in `components/button`.
 
 ➡️ See [Single Directory Components in the theme
 scaffold](../themes.mdx#single-directory-components)
@@ -64,9 +67,10 @@ The module also provides a "Components status report" in the site UI at
 
 SDC Devel has no configuration file of its own.
 
-The module is installed by the `scripts/provision-10-enable-dev-modules.sh`
-provisioning script in the `local`, `ci`, `dev`, and `stage` environments
-and is skipped in production.
+The `scripts/provision-10-enable-dev-modules.sh` provisioning script
+installs the module in the `local`, `ci`, `dev`, and `stage` environments
+and skips it in production. `settings.sdc_devel.php` keeps it out of the
+exported configuration, so enabling it never shows up in a config export.
 
 ➡️ See [Provision > Development
 modules](../provision.mdx#development-modules) and [Modules > SDC
@@ -81,14 +85,16 @@ SDC Devel runs in the `build` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx), after the site is
 provisioned, on the first container only (see [Test
 parallelism](../../continuous-integration/README.mdx#test-parallelism)). The
-step fails the build when validation reports problems and is skipped when
+step fails the build when validation reports problems, and exits without
+validating when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
 is set to `1`.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE` environment variable to `1`.
-The tool still runs and reports violations.
+Set `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE` to `1` to let the build pass
+anyway. SDC Devel still runs and prints its report in the job log, so you
+can see what you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

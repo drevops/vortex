@@ -7,8 +7,8 @@ sidebar_position: 2
 
 **Vortex** ships the contributed modules most Drupal projects need,
 pre-configured and wired into the environment-aware settings and the
-provisioning scripts. This page lists every shipped module in alphabetical
-order: what it does, why it ships, and how it's configured.
+provisioning scripts. This page lists all 26 shipped modules in alphabetical
+order: what each one does, why it ships, and how it's configured.
 
 ➡️ See [Overview](README.mdx) for the mechanisms that require, configure,
 and install these modules.
@@ -23,18 +23,20 @@ ClamAV service is selected.
 
 [`settings.clamav.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.clamav.php)
 selects daemon or executable mode and points the daemon at the ClamAV
-service, but only when `DRUPAL_CLAMAV_ENABLED` is set to `1`.
+service, but only when `DRUPAL_CLAMAV_ENABLED` is set to `1`. The shipped
+`.env` file sets it, with `DRUPAL_CLAMAV_MODE` set to `daemon`.
 
-| Variable                     | Purpose                                   |
-|------------------------------|-------------------------------------------|
-| `DRUPAL_CLAMAV_ENABLED`      | Applies the override only when set to `1` |
-| `DRUPAL_CLAMAV_MODE`         | Selects daemon or executable mode         |
-| `CLAMAV_HOST`, `CLAMAV_PORT` | Daemon host and port                      |
+| Variable                     | Purpose                                                              |
+|------------------------------|----------------------------------------------------------------------|
+| `DRUPAL_CLAMAV_ENABLED`      | Applies the override only when set to `1`                            |
+| `DRUPAL_CLAMAV_MODE`         | `daemon` or `0` selects daemon mode, any other value executable mode |
+| `CLAMAV_HOST`, `CLAMAV_PORT` | Daemon host and port, `clamav:3310` by default                       |
 
 ## Coffee
 
-[Coffee](https://www.drupal.org/project/coffee) adds a keyboard shortcut to
-jump straight to any administration page by typing its name.
+[Coffee](https://www.drupal.org/project/coffee) adds a search box, opened
+with <kbd>Alt+D</kbd>, that jumps straight to any administration page as
+you type its name.
 
 ### Configuration
 
@@ -43,14 +45,17 @@ No settings override.
 ## Config Split
 
 [Configuration Split](https://www.drupal.org/project/config_split) splits
-configuration into sets that are conditionally imported, enabling
-environment-specific configuration such as development-only modules.
+configuration into sets that are imported conditionally, so each environment
+can carry its own configuration, such as development-only modules.
 
 ### Configuration
 
 [`settings.config_split.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.config_split.php)
 enables the split matching the detected environment (`local`, `ci`, `dev`,
-or `stage`), so each environment imports only its own set.
+or `stage`), so each environment imports only its own set. The template
+ships empty `config/local`, `config/ci`, `config/dev`, and `config/stage`
+directories but no splits, so create a split with the matching machine name
+before the override has anything to enable.
 
 ## Config Update
 
@@ -78,9 +83,9 @@ excludes it from the exported configuration.
 
 ## Drupal Helpers
 
-[Drupal helpers](https://www.drupal.org/project/drupal_helpers) is a
-collection of helper functions that simplify writing update hooks and
-deployment operations.
+[Drupal helpers](https://www.drupal.org/project/drupal_helpers) gives deploy
+hooks and update scripts static facades for common jobs, such as creating
+taxonomy trees, menu links, users, and redirects.
 
 - **Installed:** As a dependency of the `ys_demo` demo module, declared in
   [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml).
@@ -102,8 +107,9 @@ changes on the wrong site.
 
 [`settings.environment_indicator.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.environment_indicator.php)
 names the indicator after the detected environment and colors it per
-environment (red for production, yellow for stage, and green for dev). It
-also turns on the toolbar integration and favicon marker.
+environment: red for production, yellow for stage, and green for dev. Every
+other environment, `local` and `ci` included, gets a dark green banner with
+white text. It also turns on the toolbar integration and the favicon marker.
 
 ## Fast 404
 
@@ -120,18 +126,21 @@ itself.
 ### Configuration
 
 [`settings.fast_404.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.fast_404.php)
-sets the file extensions to intercept and whitelists the front controller
-and the other entry-point scripts. It brings image style derivatives under
-the same rules so anonymous requests can't force derivative generation, and
-calls `fast404_preboot()` with those settings. Path checking against the
-router and the URL aliases is off, as it queries the database before Drupal
-has connected to it.
+applies only when the module's code is present. It sets the file extensions
+to intercept and whitelists `index.php`, `rss.xml`, `cron.php`, and
+`xmlrpc.php`. It brings image style derivatives under the same rules, so
+anonymous requests can't force derivative generation, and calls
+`fast404_preboot()` with those settings. Path checking against the router
+and the URL aliases is off, because it queries the database before Drupal
+has connected to it. The redirect check that goes with the path check is
+off too.
 
 ## Generated Content
 
 [Generated Content](https://www.drupal.org/project/generated_content)
-generates deterministic placeholder content from declarative definitions for
-development and testing.
+generates placeholder content from plugin classes for development and
+testing. Plugins built on its static helpers produce the same content on
+every run.
 
 - **Installed:** During development provisioning by
   [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh)
@@ -227,15 +236,19 @@ service is selected.
 ### Configuration
 
 [`settings.redis.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.redis.php)
-makes Redis the default cache backend, registers the module container YAML
-files, and swaps the bootstrap container over. These are all gated on
-`DRUPAL_REDIS_ENABLED` and on the `redis` PHP extension being loaded, so a
-two-stage deployment can provision the service before switching the cache.
+points the connection at the Redis service, makes Redis the default cache
+backend, registers the module's container YAML files, and swaps the
+bootstrap container over. Nothing applies until the module's code is
+present and `DRUPAL_REDIS_ENABLED` is set to `1`, so a 2-stage deployment
+can provision the service before switching the cache. The cache changes
+also need the `redis` PHP extension, or `VORTEX_REDIS_EXTENSION_LOADED` set
+to `1` in its place.
 
 | Variable                           | Purpose                                   |
 |------------------------------------|-------------------------------------------|
 | `DRUPAL_REDIS_ENABLED`             | Applies the override only when set to `1` |
 | `REDIS_HOST`, `REDIS_SERVICE_PORT` | Connection host and port                  |
+| `VORTEX_REDIS_EXTENSION_LOADED`    | Forces the cache changes when set to `1`  |
 
 ## Reroute Email
 
@@ -271,9 +284,11 @@ intercepted by other means.
 | Prod        | No                | Production emails must reach actual recipients                  |
 
 Rerouting is the fall-through default, so it's also enabled in any custom
-environments (for example, PR environments) that don't match the standard
-environment types listed earlier. Those environments install the module only
-if their environment type is added to the provisioning scripts. ➡️ See
+environment type, such as one set through `ENVIRONMENT_TYPE`. Lagoon and
+Acquia usually detect pull request environments as `dev`, so those get
+rerouting like any other `dev` environment. A custom environment type gets
+the module only once you add the type to the provisioning scripts, and until
+then nothing reroutes its mail. ➡️ See
 [Provision](../provision.mdx#development-modules)
 
 Rerouting is off in `ci` so that tests can assert on the address a message
@@ -307,9 +322,11 @@ for a `stage` environment to send real mail during UAT.
 
 ## RobotsTxt
 
-[RobotsTxt](https://www.drupal.org/project/robotstxt) manages the
-`robots.txt` file from the admin UI, useful when it can't be placed on disk
-(for example, in multisite setups).
+[RobotsTxt](https://www.drupal.org/project/robotstxt) serves `robots.txt`
+from Drupal and lets you edit it in the admin UI, which helps when the file
+can't live on disk, for example in multisite setups. **Vortex** keeps core's
+static `robots.txt` out of the webroot through the `drupal-scaffold` file
+mapping in `composer.json`, so the module answers every request for it.
 
 ### Configuration
 
@@ -334,7 +351,10 @@ excludes it from the exported configuration.
 ## Search API
 
 [Search API](https://www.drupal.org/project/search_api) provides a framework
-for building search experiences with pluggable indexing backends.
+for building search experiences with pluggable indexing backends. It stays
+required in every project. With the Solr service selected, the demo
+provisioning script installs it together with Search API Solr, and the
+`ys_search` module depends on it. Without Solr, nothing installs it.
 
 ### Configuration
 
@@ -420,13 +440,38 @@ full copy of the files directory.
 [`settings.stage_file_proxy.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.stage_file_proxy.php)
 sets the origin from `DRUPAL_STAGE_FILE_PROXY_ORIGIN` outside production and
 injects the Shield credentials into that URL when they're set, so a shielded
-origin still serves files.
+origin still serves files. It also turns off redirects to the origin, so the
+module downloads each requested file and keeps a local copy.
+
+## Storybook
+
+[Storybook](https://www.drupal.org/project/storybook) renders the custom
+theme's component stories through Drupal, so the
+[component library](../themes.mdx#storybook) shows the markup the site
+produces. Ships only when Storybook is selected during installation, which
+requires a custom theme.
+
+[`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh)
+installs it with the other development modules. Later in provisioning,
+`scripts/provision-50-storybook.sh` builds the static component library in
+the `local`, `ci`, and `dev` environments.
+
+### Configuration
+
+[`settings.storybook.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.storybook.php)
+excludes it from the exported configuration. In the `local`, `ci`, and `dev`
+environments, it also loads `services.storybook.yml`, which turns on the
+module's development mode and lets the Storybook development server on
+`localhost` fetch story renders.
+
+➡️ See [Storybook](../themes.mdx#storybook) for the component library and
+its commands.
 
 ## Testmode
 
-[Testmode](https://www.drupal.org/project/testmode) adjusts site behavior
-during automated tests, for example by filtering out generated content from
-listings.
+[Testmode](https://www.drupal.org/project/testmode) filters the listings in
+registered views during automated tests, so a test sees only content with
+a test title prefix such as `[TEST]`.
 
 - **Installed:** During development provisioning by
   [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh),

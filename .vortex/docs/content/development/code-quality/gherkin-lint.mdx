@@ -8,7 +8,10 @@ https://github.com/dantleech/gherkin-lint-php
 
 > Provides a Gherkin linter for PHP.
 
-**Vortex** comes with [Gherkin Lint
+Gherkin Lint checks Behat feature files for the slips that make a test
+suite harder to read and maintain. It flags inconsistent indentation,
+duplicated feature or scenario names, empty scenarios, duplicate tags, and
+trailing spaces. **Vortex** comes with [Gherkin Lint
 configuration](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
 for Behat tests.
 
@@ -37,11 +40,14 @@ reference](https://github.com/dantleech/gherkin-lint-php?tab=readme-ov-file#conf
 and
 [rules](https://github.com/dantleech/gherkin-lint-php/blob/master/docs/rules.md).
 
-All global configuration takes place in the
+All global configuration lives in the
 [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
-file. The values are merged with the default configuration.
+file. Gherkin Lint enables every rule the file doesn't mention, and the
+values in the file override the defaults of the rules it lists. The shipped
+file sets the `indentation` rule to 2 spaces, with 3 for literal blocks, and
+turns off `keyword-order`, `no-homogenous-tags`, and `scenario-size`.
 
-To check enabled rules, run:
+To list the rules and whether each one is on, run:
 
 ```shell
 ahoy cli vendor/bin/gherkinlint rules
@@ -49,9 +55,9 @@ ahoy cli vendor/bin/gherkinlint rules
 
 ## Ignoring
 
-Ignoring rules globally takes place in the
+To turn a rule off globally, set `enabled` to `false` for it in the
 [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
-file.
+file:
 
 ```json
 {
@@ -63,7 +69,7 @@ file.
 }
 ```
 
-To ignore a specific rule within a file, place in the file header:
+To ignore specific rules in a file, add this comment to the file header:
 
 ```yaml
 # @gherkinlint-disable-rule keyword-order, someother-rule
@@ -81,8 +87,9 @@ violations.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE` environment variable to `1`.
-The tool still runs and reports violations.
+Set `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE` to `1` to let the build pass
+anyway. Gherkin Lint still runs and prints every violation in the job log,
+so you can see what you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

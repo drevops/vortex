@@ -9,6 +9,9 @@ https://github.com/zavoloklom/docker-compose-linter
 > A command-line tool for validating and enforcing best practices in Docker
 > Compose files.
 
+DCLint checks Docker Compose files against best practices, such as quoted
+port mappings and a consistent order of keys within each service, so
+`docker-compose.yml` stays readable as services come and go.
 **Vortex** comes with a [pre-configured DCLint
 ruleset](https://github.com/drevops/vortex/blob/main/.dclintrc) for its
 Docker Compose files.
@@ -25,7 +28,7 @@ In CI, DCLint runs from its official Docker image.
 
 :::
 
-DCLint is selected by default during installation. Deselecting it in the
+The installer selects DCLint by default. Deselecting it in the
 `Development tools` question removes the `.dclintrc` configuration file and
 the continuous integration step from every supported provider.
 
@@ -37,15 +40,18 @@ dclint .
 
 ## Configuration
 
-Global configuration takes place in the
+Global configuration lives in the
 [`.dclintrc`](https://github.com/drevops/vortex/blob/main/.dclintrc) file.
-Beyond the defaults, it defines a `service-keys-order` rule group that keeps
-the keys of every service in `docker-compose.yml` in a consistent order, so
-diffs stay small and services stay comparable.
+It turns off 4 rules (`no-build-and-image`, `services-alphabetical-order`,
+`no-unbound-port-interfaces`, and `require-project-name-field`) and
+configures `service-keys-order` with 8 groups of keys. That rule keeps the
+keys of every service in `docker-compose.yml` in the same order, from core
+definitions such as `build` and `image` to operational metadata such as
+`labels`. Diffs then stay small and services stay comparable.
 
 ## Ignoring
 
-To ignore all DCLint rules within a file, place in the file header:
+To ignore all DCLint rules in a file, add this comment to the file header:
 
 ```yaml
 # dclint disable
@@ -73,8 +79,9 @@ violations.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_DCLINT_IGNORE_FAILURE` environment variable to `1`. The
-tool still runs and reports violations.
+Set `VORTEX_CI_DCLINT_IGNORE_FAILURE` to `1` to let the build pass anyway.
+DCLint still runs and prints every violation in the job log, so you can see
+what you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

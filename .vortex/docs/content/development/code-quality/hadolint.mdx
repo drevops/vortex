@@ -9,6 +9,14 @@ https://github.com/hadolint/hadolint
 > A smarter Dockerfile linter that helps you build best practice container
 > images.
 
+Hadolint checks Dockerfiles against best practices, such as pinning the
+versions of installed packages, and runs ShellCheck over the shell commands
+in `RUN` instructions. **Vortex** lints the Dockerfiles in `.docker`, which
+build the images for its services, with the default rules. Where a rule
+doesn't fit, the Dockerfile carries a `hadolint ignore=` directive with the
+reason next to it, such as `DL3018` where the package set tracks the pinned
+base image.
+
 ## Installation
 
 :::note
@@ -21,10 +29,10 @@ In CI, Hadolint runs from its official Docker image.
 
 :::
 
-Hadolint is selected by default during installation. Deselecting it in the
+The installer selects Hadolint by default. Deselecting it in the
 `Development tools` question removes the continuous integration step from
-every supported provider. The `hadolint ignore=` directives in the
-Dockerfiles are kept, so the tool still works when run by hand.
+every supported provider. The `hadolint ignore=` directives stay in the
+Dockerfiles, so a check you run by hand still skips the same rules.
 
 ## Usage
 
@@ -34,7 +42,8 @@ hadolint .docker/*.dockerfile
 
 ## Ignoring
 
-To ignore all Hadolint rules within a file, place in the file header:
+To ignore rules for the whole file, add a `global ignore` directive to the
+file header:
 
 ```Dockerfile
 # hadolint global ignore=DL3003,DL3006,SC1035
@@ -54,12 +63,14 @@ RUN cd /tmp && echo "hello!"
 
 Hadolint runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
-violations.
+violations. It lints every file in `.docker` that's named `Dockerfile` or
+ends in `.dockerfile`.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_HADOLINT_IGNORE_FAILURE` environment variable to `1`. The
-tool still runs and reports violations.
+Set `VORTEX_CI_HADOLINT_IGNORE_FAILURE` to `1` to let the build pass anyway.
+Hadolint still runs and prints every violation in the job log, so you can
+see what you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

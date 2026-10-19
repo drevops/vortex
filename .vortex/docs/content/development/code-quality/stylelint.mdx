@@ -8,14 +8,17 @@ https://stylelint.io/
 
 > A mighty CSS linter that helps you avoid errors and enforce conventions.
 
-**Vortex** comes with a [pre-configured Stylelint
+Stylelint catches mistakes in stylesheets, such as unknown properties,
+invalid property values, and duplicate selectors. It also enforces the
+conventions that keep them consistent, such as alphabetically ordered
+declarations. **Vortex** comes with a [pre-configured Stylelint
 ruleset](https://github.com/drevops/vortex/blob/main/.stylelintrc.js) for
 Drupal projects.
 
 :::info
-Stylelint in **Vortex** is configured to lint custom modules only
-(`web/modules/custom`). The custom theme maintains its own Stylelint
-configuration within the theme directory.
+In **Vortex**, the root Stylelint configuration lints custom modules only
+(`web/modules/custom`). The custom theme keeps its own configuration in its
+directory, described under [Theme configuration](#theme-configuration).
 :::
 
 ## Usage
@@ -63,7 +66,7 @@ Stylelint fixes many violations automatically using the `--fix` flag.
 
 `ahoy lint-fe` and `ahoy lint-fe-fix` also run the `lint` and `lint-fix`
 scripts of the custom theme, which lint the theme's JavaScript and SCSS
-together. To lint only the theme's stylesheets, run the theme's own
+together. To lint or fix only the theme's stylesheets, run its own
 `lint-css` and `lint-css-fix` scripts:
 
 ```shell
@@ -75,7 +78,7 @@ ahoy cli "npm run --prefix=web/themes/custom/your_site_theme lint-css-fix"
 
 See [configuration reference](https://stylelint.io/user-guide/configure).
 
-All global configuration takes place in the
+All global configuration lives in the
 [`.stylelintrc.js`](https://github.com/drevops/vortex/blob/main/.stylelintrc.js)
 file.
 
@@ -121,9 +124,9 @@ Adding or removing targets in `package.json`:
 }
 ```
 
-The `stylelint`, `stylelint-config-standard`, and `stylelint-order` packages
-are declared in the `devDependencies` of the root `package.json` and
-installed by `ahoy fei`.
+The root `package.json` lists the `stylelint`, `stylelint-config-standard`,
+and `stylelint-order` packages in its `devDependencies`, and `ahoy fei`
+installs them.
 
 ### Theme configuration
 
@@ -142,13 +145,16 @@ the `string` formatter, and sets the following rules:
 - `scss/dollar-variable-pattern` - `$variable` names must match
   `^_?[a-z]+([a-z0-9-]+[a-z0-9]+)?$`
 
+Unlike the root configuration, it doesn't load `stylelint-order`, so the
+theme's SCSS doesn't have to list declarations in alphabetical order.
+
 The theme's `lint-css` script targets `scss/**/*.scss`, and the
 configuration ignores `scss/_components.scss`, `fonts/**/*.scss`, and
 `build/.*` through the `ignoreFiles` key.
 
 ## Ignoring
 
-Ignoring paths globally takes place in the `ignoreFiles` key of the
+To ignore paths globally, list them in the `ignoreFiles` key of the
 configuration file, as the theme configuration does:
 
 ```json
@@ -161,13 +167,14 @@ configuration file, as the theme configuration does:
 }
 ```
 
-To ignore all Stylelint rules within a file, place in the file header:
+To ignore all Stylelint rules in a file, add this comment to the file
+header:
 
 ```css
 /* stylelint-disable */
 ```
 
-To ignore a specific rule within a file, place in the file header:
+To ignore specific rules in a file, add this comment to the file header:
 
 ```css
 /* stylelint-disable selector-max-id, declaration-no-important */
@@ -204,16 +211,19 @@ a {
 
 Stylelint runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
-violations. The custom modules and the custom theme are linted in separate
-steps; the theme step is skipped when
+violations. CI lints the custom modules and the custom theme in separate
+steps, and skips the theme step when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
-is set to `1`.
+is set to `1`. Stylelint runs after ESLint in each step, and the `lint`
+script stops at the first linter that fails, so it reports nothing until
+ESLint passes.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE` environment variable to `1`.
-The variable is shared with [ESLint](eslint.mdx), which runs in the same
-step. The tool still runs and reports violations.
+Set `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE` to `1` to let the build pass
+anyway. Stylelint still runs and prints its violations in the job log, as
+long as ESLint passes first. The variable is shared with
+[ESLint](eslint.mdx), which runs in the same step.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

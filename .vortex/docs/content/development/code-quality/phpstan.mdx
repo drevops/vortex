@@ -12,9 +12,12 @@ https://phpstan.org/user-guide/getting-started
 > correctness of each line of the code can be checked before you run the
 > actual line.
 
-**Vortex** comes with a [pre-configured PHPStan
+PHPStan checks every code path, including the ones your tests never reach.
+It reports problems such as a call to a method that doesn't exist, an
+argument of the wrong type, or a function that doesn't declare its return
+type. **Vortex** comes with a [pre-configured PHPStan
 ruleset](https://github.com/drevops/vortex/blob/main/phpstan.neon) for
-Drupal projects.
+Drupal projects, so the analysis runs on every build without any setup.
 
 ## Usage
 
@@ -36,8 +39,8 @@ import TabItem from '@theme/TabItem';
 
 :::note
 
-PHPStan doesn't fix code. It only reports errors. To fix errors, use
-Rector.
+PHPStan doesn't change your code: it only reports errors. Rector fixes some
+of the same problems automatically, such as missing type declarations.
 
 ➡️ See [Rector](rector.mdx)
 
@@ -47,14 +50,24 @@ Rector.
 
 See [configuration reference](https://phpstan.org/config-reference).
 
-All global configuration takes place in the
+All global configuration lives in the
 [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon)
 file.
 
 The analysis runs at [level 7](https://phpstan.org/user-guide/rule-levels)
-against the PHP version pinned in the `composer.json` key
-`config.platform.php`, and checks with the Drupal context in mind thanks to
-[`mglaman/phpstan-drupal`](https://github.com/mglaman/phpstan-drupal).
+with the Drupal context in mind, thanks to
+[`mglaman/phpstan-drupal`](https://github.com/mglaman/phpstan-drupal), which
+`phpstan/extension-installer` loads automatically. It treats the code as
+PHP 8.4.23: the `phpVersion` value of `80423` matches the `composer.json`
+key `config.platform.php`. PHPStan doesn't read that key, so update both
+when you move to a new PHP version.
+
+`treatPhpDocTypesAsCertain` is set to `false`, so PHPStan relies on native
+type declarations rather than the types in doc comments, which go out of
+date. The `ignoreErrors` list silences the errors that Drupal code can't
+avoid: missing iterable value types in custom modules, custom themes, and
+`tests/phpunit`, and possibly undefined variables in the included settings
+files.
 
 Targets include custom modules and themes, settings, tests, and scripts.
 
@@ -71,7 +84,7 @@ parameters:
 
 ## Ignoring
 
-Ignoring rules globally takes place in the
+To ignore an error across the project, add it to `ignoreErrors` in the
 [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon)
 file:
 
@@ -106,8 +119,9 @@ violations.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_PHPSTAN_IGNORE_FAILURE` environment variable to `1`. The
-tool still runs and reports violations.
+Set `VORTEX_CI_PHPSTAN_IGNORE_FAILURE` to `1` to let the build pass anyway.
+PHPStan still runs and prints every error in the job log, so you can see
+what you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)
