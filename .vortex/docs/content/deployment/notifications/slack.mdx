@@ -5,7 +5,8 @@ sidebar_position: 6
 
 # Slack
 
-Post deployment notifications to a Slack channel.
+The Slack channel posts deployment messages to a Slack channel through an
+incoming webhook, with links to the environment and its login page.
 
 ## Setup
 
@@ -21,17 +22,23 @@ Post deployment notifications to a Slack channel.
 | `VORTEX_NOTIFY_SLACK_WEBHOOK` | **Yes** | | Hosting | Slack webhook URL |
 | `VORTEX_NOTIFY_SLACK_PROJECT` | No | `VORTEX_NOTIFY_PROJECT` | `.env` | Project name |
 | `VORTEX_NOTIFY_SLACK_MESSAGE` | No | Default template | `.env` | Fallback text template |
-| `VORTEX_NOTIFY_SLACK_CHANNEL` | No | | `.env` | Target channel (overrides webhook default) |
+| `VORTEX_NOTIFY_SLACK_CHANNEL` | No | | `.env` | Target channel as `#channel-name` or `@username` (overrides webhook default) |
 | `VORTEX_NOTIFY_SLACK_USERNAME` | No | `Deployment Bot` | `.env` | Bot display name |
 | `VORTEX_NOTIFY_SLACK_ICON_EMOJI` | No | `:rocket:` | `.env` | Bot icon emoji |
 | `VORTEX_NOTIFY_SLACK_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
+| `VORTEX_NOTIFY_SLACK_LABEL` | No | `VORTEX_NOTIFY_LABEL` | Hosting | Deployment label |
+| `VORTEX_NOTIFY_SLACK_ENVIRONMENT_URL` | No | `VORTEX_NOTIFY_ENVIRONMENT_URL` | Hosting | Environment URL |
+| `VORTEX_NOTIFY_SLACK_LOGIN_URL` | No | `VORTEX_NOTIFY_LOGIN_URL` | Hosting | Login URL |
+| `VORTEX_NOTIFY_SLACK_EVENT` | No | `VORTEX_NOTIFY_EVENT`, then `post_deployment` | Hosting | Deployment event |
+| `VORTEX_NOTIFY_SLACK_LOG` | No | `VORTEX_NOTIFY_LOG`, then `0` | `.env` | Set to `0` to leave the deployment log out of the message |
+| `VORTEX_NOTIFY_SLACK_LOG_FILE` | No | `VORTEX_NOTIFY_LOG_FILE` | Hosting | Log file added to the message attachment; the router sets the default |
 
 ## Event behavior
 
-Slack notifications are sent for both `pre_deployment` and `post_deployment`
-events:
+The channel posts for both `pre_deployment` and `post_deployment` events:
 
-- **Pre-deployment:** Gray color with "Deployment Starting" status
+- **Pre-deployment:** Gray color with "Deployment Starting" status, and no
+  environment or login links, since the site isn't up yet
 - **Post-deployment:** Green color with "Deployment Complete" status
 
 ## Example

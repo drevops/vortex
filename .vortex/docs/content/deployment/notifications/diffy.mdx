@@ -5,13 +5,15 @@ sidebar_position: 8
 
 # Diffy
 
-Dispatch a visual regression run against the newly deployed environment via
-the shipped GitHub Actions workflow.
+The Diffy channel starts a visual regression run against the newly deployed
+environment, through the shipped GitHub Actions workflow.
 
-This channel doesn't call Diffy directly. It sends a GitHub
-`repository_dispatch` event to the consumer repository; the
-[`test-vr.yml`](../../development/visual-regression.mdx) workflow then runs
-the actual Diffy comparison and posts the result back to the pull request.
+The channel never calls Diffy itself. It sends your repository a GitHub
+`repository_dispatch` event, and the
+[`test-vr.yml`](../../development/visual-regression.mdx) workflow runs the
+Diffy comparison and posts the result back to the pull request. The
+dispatch succeeds only when GitHub answers with HTTP `204`; any other
+status fails the channel.
 
 ## Setup
 
@@ -21,19 +23,24 @@ the actual Diffy comparison and posts the result back to the pull request.
 2. Add a GitHub token with `repo` scope as `VORTEX_NOTIFY_DIFFY_TOKEN` to
    the hosting environment (falls back to `VORTEX_NOTIFY_GITHUB_TOKEN`, then
    `GITHUB_TOKEN`).
-3. Add `diffy` to `VORTEX_NOTIFY_CHANNELS`.
+3. Add `diffy` to `VORTEX_NOTIFY_CHANNELS`. The installer doesn't add it for
+   you, even when you enable visual regression.
 
 ## Environment variables
 
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
 | `VORTEX_NOTIFY_DIFFY_TOKEN` | **Yes** | `VORTEX_NOTIFY_GITHUB_TOKEN`, then `GITHUB_TOKEN` | Hosting | GitHub token with `repo` scope used to call `repository_dispatch` |
-| `VORTEX_NOTIFY_DIFFY_REPOSITORY` | **Yes** | `VORTEX_NOTIFY_GITHUB_REPOSITORY` | Hosting | Repository in `owner/repo` format |
+| `VORTEX_NOTIFY_DIFFY_REPOSITORY` | **Yes** | `VORTEX_NOTIFY_GITHUB_REPOSITORY` | Hosting | Repository in `owner/repo` format (a full repository URL works too) |
 | `VORTEX_NOTIFY_DIFFY_SOURCE_ENV` | No | `production` | `.env` | Diffy source environment used as the baseline (`production`, `staging`, `development`) |
 | `VORTEX_NOTIFY_DIFFY_EVENT_TYPE` | No | `vr_run` | `.env` | `repository_dispatch` event type the workflow listens for |
 | `VORTEX_NOTIFY_DIFFY_BRANCHES` | No | | `.env` | Restrict dispatch to specific branches (comma-separated). When empty, every deployment dispatches and the workflow gates on PR label |
+| `VORTEX_NOTIFY_DIFFY_BRANCH` | No | `VORTEX_NOTIFY_BRANCH` | Hosting | Branch sent to the workflow and checked against `VORTEX_NOTIFY_DIFFY_BRANCHES` |
+| `VORTEX_NOTIFY_DIFFY_ENVIRONMENT_URL` | No | `VORTEX_NOTIFY_ENVIRONMENT_URL` | Hosting | Deployed environment to compare against the source environment |
+| `VORTEX_NOTIFY_DIFFY_LABEL` | No | `VORTEX_NOTIFY_LABEL` | Hosting | Diff name shown in the Diffy UI |
+| `VORTEX_NOTIFY_DIFFY_EVENT` | No | `VORTEX_NOTIFY_EVENT` | Hosting | Deployment event; `pre_deployment` dispatches nothing |
 
 ## Event behavior
 
-Diffy dispatch only runs for `post_deployment` events. `pre_deployment` is
-skipped because the target environment isn't yet ready for comparison.
+The channel dispatches only on `post_deployment`. It skips `pre_deployment`,
+because the target environment isn't ready for comparison yet.

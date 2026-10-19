@@ -5,21 +5,33 @@ sidebar_position: 2
 
 # Email
 
-Send deployment notification via email.
+The email channel sends a deployment notice, with links to the new
+environment and its login page, to a list of recipients. It's the default
+channel, and all it needs is the `sendmail` or `mail` command on the host.
 
 ## Setup
 
-1. Add `VORTEX_NOTIFY_EMAIL_FROM` variable to `.env` file with the sender
-   email address.
-2. Add `VORTEX_NOTIFY_EMAIL_RECIPIENTS` variable to `.env` file with
-   recipients in format `email|name` (comma-separated for multiple).
+1. Add `VORTEX_NOTIFY_EMAIL_FROM` to your `.env` file with the sender email
+   address. Without it, the channel falls back to `DRUPAL_SITE_EMAIL`.
+2. Add `VORTEX_NOTIFY_EMAIL_RECIPIENTS` to your `.env` file with recipients
+   in the format `email|name`, comma-separated for more than 1. The name is
+   optional, for example `to1@example.com|Jane Doe, to2@example.com`.
+
+The channel skips the `pre_deployment` event, so each deployment sends 1
+email, with the subject `<project> deployment notification of <label>`.
 
 ## Environment variables
 
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
-| `VORTEX_NOTIFY_EMAIL_FROM` | **Yes** | | `.env` | Sender email address |
-| `VORTEX_NOTIFY_EMAIL_RECIPIENTS` | **Yes** | | `.env` | Recipients (format: `email\|name`) |
+| `VORTEX_NOTIFY_EMAIL_FROM` | **Yes** | `DRUPAL_SITE_EMAIL` | `.env` | Sender email address |
+| `VORTEX_NOTIFY_EMAIL_RECIPIENTS` | **Yes** | | `.env` | Recipients (format: `email\|name`, comma-separated; the name is optional) |
 | `VORTEX_NOTIFY_EMAIL_PROJECT` | No | `VORTEX_NOTIFY_PROJECT` | `.env` | Project name for email |
 | `VORTEX_NOTIFY_EMAIL_MESSAGE` | No | Default template | `.env` | Custom message template |
 | `VORTEX_NOTIFY_EMAIL_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
+| `VORTEX_NOTIFY_EMAIL_LABEL` | No | `VORTEX_NOTIFY_LABEL` | Hosting | Deployment label |
+| `VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL` | No | `VORTEX_NOTIFY_ENVIRONMENT_URL` | Hosting | Environment URL |
+| `VORTEX_NOTIFY_EMAIL_LOGIN_URL` | No | `VORTEX_NOTIFY_LOGIN_URL` | Hosting | Login URL |
+| `VORTEX_NOTIFY_EMAIL_EVENT` | No | `VORTEX_NOTIFY_EVENT`, then `post_deployment` | Hosting | Deployment event; `pre_deployment` sends nothing |
+| `VORTEX_NOTIFY_EMAIL_LOG` | No | `VORTEX_NOTIFY_LOG`, then `0` | `.env` | Set to `0` to leave the deployment log out of the email |
+| `VORTEX_NOTIFY_EMAIL_LOG_FILE` | No | `VORTEX_NOTIFY_LOG_FILE` | Hosting | Log file inserted at the `%deployment_log%` token; the router sets the default |

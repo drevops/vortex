@@ -5,7 +5,7 @@ sidebar_position: 1
 
 # Hosting
 
-**Vortex** provides integrations with several hosting providers:
+**Vortex** integrates with 2 hosting providers:
 
 - [Acquia](acquia.mdx)
 - [Lagoon](lagoon.mdx)
@@ -17,33 +17,33 @@ More hosting provider integrations are planned. See the
 
 :::
 
-This section covers where your site _runs_. It explains what each provider
-integration does, how the environment is detected, and the routine
-operations (fetching databases, copying files, purging caches) available on
-each platform.
+This section covers where your site _runs_: what each provider integration
+does and how **Vortex** detects the environment. It also covers the routine
+operations on each platform, from fetching and copying databases to purging
+caches and running custom commands.
 
 How code _gets to_ a provider (deployment types, triggers, and skip rules)
-is covered in the [Deployment](../deployment/README.mdx) section.
+lives in the [Deployment](../deployment/README.mdx) section.
 
 ## Hosting providers vs environments
 
 **Hosting providers** are the _platforms_ where your _environments_ run.
 They can be cloud-based or on-premises, and they provide the infrastructure
-to run the webserver, database, and other services required for your site.
+to run the webserver, database, and other services your site needs.
 
 **Environments** are the contained _bundles_ of those infrastructure
-services that run your website. An environment represents a specific logical
-stage of your website deployment and releasing lifecycle: from local
-development to production. Multiple environments can exist on the same
-hosting provider.
+services that run your website. Each one represents a logical stage of your
+deployment and release lifecycle, from local development to production, and
+a single hosting provider can run several of them.
 
-Hosting providers typically provide DEV, STAGE, and PROD environments. Some
+Hosting providers typically offer DEV, STAGE, and PROD environments. Some
 also support short-lived ephemeral environments, called "preview",
 "on-demand", or "feature" environments. They let you test new features or
 changes in isolation before merging them into the main codebase.
 
-**Vortex** detects the environment type at runtime and lets you configure
-your website behavior based on it.
+**Vortex** detects the environment type at runtime and stores it in
+`$settings['environment']`, so your settings can change the site's behavior
+for each type.
 
 ➡️ See [Development > Settings > Environment type
 detection](../development/settings.mdx#environment-type-detection)

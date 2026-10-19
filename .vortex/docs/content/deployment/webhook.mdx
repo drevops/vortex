@@ -6,9 +6,8 @@ sidebar_position: 4
 # Webhook deployment
 
 Webhook deployment triggers a remote deployment by calling an HTTP endpoint.
-
-This is useful for integrating with external systems or custom deployment
-pipelines that expose webhook URLs.
+Use it with external systems or custom deployment pipelines that expose a
+webhook URL.
 
 :::note
 
@@ -22,8 +21,11 @@ instead.
 ## How it works
 
 When `webhook` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script
-calls the configured webhook URL using CURL, passing deployment information
-as parameters.
+calls the configured webhook URL with `curl`, using the configured HTTP
+method and following redirects. It sends no deployment data, so anything
+the receiving end needs has to be in the URL itself. The deployment passes
+when the response status matches `VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS`,
+and fails otherwise.
 
 ## Configuration
 
@@ -31,8 +33,8 @@ as parameters.
 
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
-| `VORTEX_DEPLOY_WEBHOOK_URL` | **Yes** | | Hosting/CI | The webhook URL to call |
-| `VORTEX_DEPLOY_WEBHOOK_METHOD` | No | `GET` | `.env` | HTTP method (GET, POST) |
+| `VORTEX_DEPLOY_WEBHOOK_URL` | **Yes** | | CI | The webhook URL to call |
+| `VORTEX_DEPLOY_WEBHOOK_METHOD` | No | `GET` | `.env` | HTTP method, for example `GET` or `POST` |
 | `VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS` | No | `200` | `.env` | Expected HTTP response status code |
 
 ### Setup
@@ -44,7 +46,10 @@ as parameters.
    ```
 
 2. Add `VORTEX_DEPLOY_WEBHOOK_URL` to your CI provider's environment
-   variables (this should be kept secret).
+   variables and treat it as a secret. On GitHub Actions, the shipped
+   workflow reads it from a repository variable of the same name. If the URL
+   carries a token, change that line of the workflow to read from `secrets`
+   instead.
 
 ## Use cases
 

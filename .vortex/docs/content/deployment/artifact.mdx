@@ -5,21 +5,29 @@ sidebar_position: 2
 
 # Artifact deployment
 
-Artifact deployment packages your codebase and pushes it to a remote Git
-repository. This is commonly used for hosting platforms like Acquia that
-require pre-built code artifacts.
+Artifact deployment packages your built codebase and pushes it to a remote
+Git repository. Use it for hosting platforms like Acquia, which deploy from
+a Git repository of their own and expect pre-built code in it. CI does the
+build, and the artifact carries only what production needs.
 
 ## How it works
 
-When `artifact` is included in `$VORTEX_DEPLOY_TYPES`, the deployment
-script:
+When `$VORTEX_DEPLOY_TYPES` includes `artifact`, CI and the deployment
+script go through these steps:
 
-1. Creates a clean code artifact using the [Git artifact
-   tool](#git-artifact-tool)
-2. Applies the `.gitignore.artifact` rules to control which files are
-   included
-3. Pushes the artifact to the configured remote repository
-4. The hosting platform then deploys from that repository
+1. The `build` job builds the stack and copies the codebase out of the `cli`
+   container before it installs development dependencies, so the copy holds
+   production dependencies only.
+2. The `deploy` job unpacks that copy and runs the deployment script, which
+   downloads the [Git artifact tool](#git-artifact-tool) and verifies its
+   checksum.
+3. The script copies `.git` and `.gitignore.artifact` from the repository
+   checkout into the copied codebase. The tool then applies the
+   `.gitignore.artifact` rules to control which files are included.
+4. The tool pushes the artifact to the configured remote repository. The
+   optional [stale branch cleanup](#stale-branch-cleanup) runs after a
+   successful push.
+5. The hosting platform then deploys from that repository.
 
 ## Configuration
 
@@ -30,15 +38,21 @@ script:
 | `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` | **Yes** | | CI or `.env` | Remote repository URL for the artifact |
 | `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL` | **Yes** | | CI | Email address of the user committing to the remote repository |
 | `VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME` | No | `Deployment Robot` | CI | Name of the user committing to the remote repository |
-| `VORTEX_DEPLOY_ARTIFACT_DST_BRANCH` | No | `[branch]` | `.env` | Remote branch to push to; supports [tokens](https://github.com/drevops/git-artifact#token-support) |
-| `VORTEX_DEPLOY_ARTIFACT_ROOT` | No | Current directory | CI | Root directory the deployment script runs from |
-| `VORTEX_DEPLOY_ARTIFACT_SRC` | No | | CI | Source directory with the built code to package |
+| `VORTEX_DEPLOY_ARTIFACT_DST_BRANCH` | No | `[branch]` | `.env` | Remote branch to push to; supports [tokens](https://github.com/drevops/git-artifact#token-support). Tag deployments push to `deployment/[tags:-]` |
+| `VORTEX_DEPLOY_ARTIFACT_SRC` | **Yes** | | CI | Directory with the built codebase to package, passed to `git-artifact` as `--source`; the shipped CI configs set it to `/tmp/workspace/code` |
+| `VORTEX_DEPLOY_ARTIFACT_ROOT` | No | Current directory | CI | Repository checkout that `.git` and `.gitignore.artifact` are copied from, passed to `git-artifact` as `--root` |
 | `VORTEX_DEPLOY_ARTIFACT_LOG` | No | `<root>/deployment_log.txt` | `.env` | Path to the deployment log file |
+| `VORTEX_DEPLOY_ARTIFACT_SSH_FINGERPRINT` | No | Value of `VORTEX_DEPLOY_SSH_FINGERPRINT` | CI | Fingerprint of the SSH key used to push to the remote repository |
+| `VORTEX_DEPLOY_ARTIFACT_SSH_FILE` | No | Value of `VORTEX_DEPLOY_SSH_FILE`, then `~/.ssh/id_rsa` | CI | SSH key file used when no fingerprint is set |
 
-The pinned `git-artifact` version and the optional stale-branch cleanup are
-covered in [Git artifact tool](#git-artifact-tool); the SSH key selection
-and the full variable list are in the [Variables
-reference](../development/variables.mdx).
+The pinned `git-artifact` version and the optional stale branch cleanup are
+covered under [Git artifact tool](#git-artifact-tool). The
+[Variables reference](../development/variables.mdx) lists every variable
+with the script that reads it.
+
+On GitHub Actions, the shipped workflow passes the remote, the user email,
+and the user name from repository variables of the same name, so set them
+there.
 
 ### Setup
 
@@ -48,7 +62,10 @@ reference](../development/variables.mdx).
    VORTEX_DEPLOY_TYPES=artifact
    ```
 
-2. Configure the artifact remote repository:
+2. Configure the artifact remote repository. On GitHub Actions, add it as a
+   repository variable under
+   **Settings → Secrets and variables → Actions → Variables**. On CircleCI,
+   add it to the project's environment variables or to `.env`:
 
    ```shell title=".env"
    VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE=git@github.com:your-org/your-project-artifact.git
@@ -62,47 +79,53 @@ reference](../development/variables.mdx).
    VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME="Deployment Bot"
    ```
 
+   The script sets them as the runner's global Git identity, but only when
+   the runner doesn't have one yet.
+
+4. Give CI an SSH key with write access to the remote repository. The
+   script loads the key before it pushes and stops when the key file is
+   missing.
+
 ## Git artifact tool
 
 [`git-artifact`](https://github.com/drevops/git-artifact) packages and
 pushes files to remote repositories.
 
-Some hosting providers, like Acquia, restrict certain build operations,
-making it necessary to develop and build your site elsewhere before
-deploying it. This tool handles that transfer: it uses a
-`.gitignore.artifact` file to control which files get transferred, and
-overwrites the destination repository's history with each push, while
-preserving the source history.
+Some hosting providers, like Acquia, restrict certain build operations, so
+you develop and build the site somewhere else before you deploy it. This
+tool handles that transfer. A `.gitignore.artifact` file controls which
+files go across, and each push overwrites the destination repository's
+history while the source history stays untouched.
 
 **Vortex** comes with a [pre-configured
 `.gitignore.artifact`](https://github.com/drevops/vortex/blob/main/.gitignore.artifact)
 file and the `deploy-artifact` deployment script from the
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
-Composer package. Together, they build the artifact in the continuous
-integration pipeline and push it to the remote repository in Acquia.
+Composer package. Together, they build the artifact in CI and push it to the
+remote repository, such as Acquia's, with nothing to do by hand.
 
-This tool is used in the continuous integration pipeline and doesn't require
-any manual actions.
+The deployment script downloads the `git-artifact` binary from [GitHub
+Releases](https://github.com/drevops/git-artifact/releases) and checks its
+SHA256 checksum before running it. A mismatch stops the deployment.
 
-The `git-artifact` binary is downloaded from [GitHub
-Releases](https://github.com/drevops/git-artifact/releases) and verified
-with a SHA256 checksum before execution.
-
-The version and checksum are controlled by:
+These variables control the version and the checksum:
 
 - `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_VERSION`: Version to download
   (default: `1.8.0`).
 - `VORTEX_DEPLOY_ARTIFACT_GIT_ARTIFACT_SHA256`: Expected SHA256 checksum of
-  the binary.
+  the binary (default: the checksum of the default version).
+
+Change them together. The checksum matches 1 exact binary, so a new version
+with the old checksum fails the check.
 
 ### Stale branch cleanup
 
-Each source branch is deployed to a same-named branch in the destination
-repository, so over time the destination accumulates branches for source
-branches that no longer exist. **Vortex** can prune these stale branches
-after each successful push.
+With the default `[branch]` destination, each source branch deploys to a
+branch of the same name. Over time, the destination repository collects
+branches for source branches that no longer exist. **Vortex** can prune
+these stale branches after each successful push.
 
-Cleanup is opt-in and controlled by:
+Cleanup is opt-in. These variables control it:
 
 - `VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN`: branches eligible for pruning.
   Setting a non-empty value enables cleanup; leaving it empty (the default)
@@ -117,35 +140,39 @@ never deleted, and cleanup never fails a deployment that already succeeded.
 
 ## Artifact file control
 
-The `.gitignore.artifact` file controls which files are included in the
-deployment artifact. During deployment it replaces the standard `.gitignore`
-in the artifact repository, so its rules, not the project's normal ignore
-rules, decide what reaches the hosting Git repository.
+The `.gitignore.artifact` file controls which files go into the deployment
+artifact. During deployment it takes the place of the standard `.gitignore`,
+so its rules decide what reaches the hosting Git repository and the
+project's usual ignore rules don't apply.
 
-**Vortex** writes `.gitignore.artifact` as a deny list: every file is
-deployed by default, and the file lists only what must be kept out of
-production. **Vortex** provides a [pre-configured
+**Vortex** writes `.gitignore.artifact` as a deny list: every file deploys
+by default, and the file lists only what has to stay out of production. The
+[pre-configured
 `.gitignore.artifact`](https://github.com/drevops/vortex/blob/main/.gitignore.artifact)
-that deploys everything a production Drupal site needs: `vendor/`, the built
+deploys everything a production Drupal site needs: `vendor/`, the built
 webroot (Drupal core, contributed modules and themes, and compiled theme
-assets), `config/`, `drush/`, `scripts/`, and `.env`. It excludes:
+assets), `config/`, `drush/`, `scripts/`, and `.env`. It excludes these
+groups, shown here with their main entries:
 
+- Version control, IDE, and OS files (`.git`, `.idea`, `.vscode`,
+  `.DS_Store`).
 - Development, continuous integration, and AI configuration (`.ahoy.yml`,
-  `.circleci`, `.docker`, `.github`, `docker-compose.yml`).
+  `.circleci`, `.claude`, `.docker`, `.github`, `CLAUDE.md`,
+  `docker-compose.yml`).
 - Documentation and testing configuration (`docs`, `tests`, `behat.php`,
   `phpunit.xml`, `phpcs.xml`).
 - Dependency manifests and lock files not needed at runtime
   (`composer.lock`, `package.json`, `package-lock.json`).
 - Credentials, local overrides, caches, and content files (`auth.json`,
-  `.env.local`, `.data`, `web/sites/*/files`).
+  `.env.local`, `settings.local.php`, `.data`, `web/sites/*/files`).
 - Theme asset sources, since only the compiled `build/` output is deployed.
 
 ### Customizing the artifact
 
-Because the file is a deny list, a new file you add to the project is
-deployed automatically. Edit `.gitignore.artifact` only to keep an
-additional file out of the artifact, or to re-include something that a
-broader rule excludes:
+Because the file is a deny list, a new file you add to the project deploys
+automatically. Edit `.gitignore.artifact` only to keep an additional file
+out of the artifact, or to re-include something that a broader rule
+excludes:
 
 ```shell title=".gitignore.artifact"
 # Keep an additional development file out of the artifact.

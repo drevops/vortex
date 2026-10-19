@@ -5,26 +5,36 @@ sidebar_position: 1
 
 # Deployment
 
-Deployment to a remote location is performed by the `deploy` _router_ script
-shipped via the
+Deployment gets the code that passed CI onto your hosting platform. The
+`deploy` _router_ script handles it. It ships in the
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
-Composer package and installed at `vendor/bin/vortex-deploy`.
+Composer package, installs at `vendor/bin/vortex-deploy`, and hands off to 1
+script per deployment type.
 
-The script runs in the continuous integration pipeline's `deploy` job after
-the `build` and `lint` jobs pass. (On GitHub Actions, a [manual
+The script runs in the CI pipeline's `deploy` job once the `build` and
+`lint` jobs pass, so only code that built and passed its checks goes out.
+
+On GitHub Actions, a [manual
 deployment](../continuous-integration/github-actions.mdx#manual-deployment)
-can also run the `deploy` job on its own.)
+runs the `deploy` job on its own and skips the checks. That works for every
+type except `artifact`, which needs the codebase that the `build` job
+exports. Outside CI, `ahoy deploy` runs the same script from your machine
+after asking you to confirm.
 
-The script deploys the code to a remote location by calling the relevant
-scripts for each type of deployment. The `$VORTEX_DEPLOY_TYPES` variable
-defines the types as a comma-separated list of one or multiple supported
-deployment types:
+`$VORTEX_DEPLOY_TYPES` lists the deployment types to run, separated by
+commas. The router supports 3:
 
-- [`webhook`](webhook.mdx) - A webhook URL is called via CURL.
-- [`artifact`](artifact.mdx) - A code artifact is created and sent to a
-  remote repository.
-- [`lagoon`](lagoon.mdx) - The Lagoon CLI is used to trigger a deployment on
-  the Lagoon platform.
+- [`webhook`](webhook.mdx) - calls a webhook URL with `curl`.
+- [`artifact`](artifact.mdx) - packages the built codebase as an artifact
+  and pushes it to a remote Git repository.
+- [`lagoon`](lagoon.mdx) - asks the Lagoon platform, through the Lagoon CLI,
+  to deploy the branch or pull request.
+
+The types always run in the same order, `artifact`, then `webhook`, then
+`lagoon`, whatever order you list them in. The router matches the names as
+substrings and doesn't validate them, so a misspelled type deploys nothing
+and the job still passes. The installer's default follows your hosting
+choice: `artifact` for Acquia, `lagoon` for Lagoon, and `webhook` otherwise.
 
 Once the code lands on the hosting platform, the platform provisions the
 site and sends [notifications](notifications/README.mdx). That part runs on
@@ -41,11 +51,11 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 ## Deployment targets
 
-Deployment targets can be branches and pull requests. These targets are
-defined in the CI configuration files and the hosting platform.
+**Vortex** deploys branches, pull requests, and tags. The CI configuration
+files decide which of them deploy, and the hosting platform decides how
+each one maps to an environment.
 
-By default, deployments are triggered when commits are pushed into the
-following branches:
+By default, a push to one of these branches triggers a deployment:
 
 - `production`
 - `main`
@@ -55,24 +65,31 @@ following branches:
 - `hotfix/**`
 - `project/**`
 
-This runs the deployment script to forward the code to the remote hosting
-platform and tell it to use the current branch's code for the deployment.
+The deployment script then forwards the code to the hosting platform and
+tells it to use that branch's code.
 
-When a pull request is raised against one of the preceding branches, a
-deployment runs for the pull request's branch. Depending on the hosting
-platform, this may create a temporary environment named after the pull
-request.
+When you open a pull request against one of these branches, CI deploys the
+pull request's branch. Depending on the hosting platform, that can create a
+temporary environment named after the pull request, such as `pr-123` on
+Lagoon.
 
 Short-lived `feature/*` and `bugfix/*` branches deploy through their pull
-requests rather than through direct pushes. Deploying both the push and the
-PR would double every CI run and deployment. Branches created by automated
-dependency updates (`deps/*`) never deploy.
+requests rather than through direct pushes, because deploying both would
+double every CI run and every deployment. Branches that automated dependency
+updates create (`deps/*`) never deploy.
 
-`project/*` branches are long-lived branches typically used for larger
-features or projects spanning multiple pull requests. An example is a
-migration branch whose code and configuration aren't ready to merge into
-`develop` but need a remote environment for testing. Such branches are
-manually synced with `develop` and deploy on direct pushes.
+`project/*` branches are long-lived branches for larger features or projects
+that span several pull requests. Think of a migration branch whose code and
+configuration aren't ready to merge into `develop` but need a remote
+environment for testing. You sync such a branch with `develop` by hand. It
+deploys on direct pushes and its pull requests don't, so each change
+deploys once.
+
+Tags deploy too. GitHub Actions deploys any pushed tag, and CircleCI deploys
+tags that look like a semantic version (`1.2.3`) or a date (`2023-04-17`).
+A tag runs in tag mode (`VORTEX_DEPLOY_MODE=tag`): an artifact deployment
+pushes to a `deployment/[tags:-]` branch, and a Lagoon deployment skips it,
+since Lagoon doesn't support tag deployments.
 
 The exact patterns differ slightly per provider. See [GitHub Actions >
 Update trigger
@@ -82,33 +99,38 @@ branches](../continuous-integration/circleci.mdx#update-deployment-branches).
 
 ### Deployment action
 
-By default, an existing database is retained during a deployment.
+By default, a deployment keeps the environment's existing database.
+`$VORTEX_DEPLOY_ACTION` changes what a deployment does:
 
-The `$VORTEX_DEPLOY_ACTION` variable changes what a deployment does:
-
-- `deploy` (default) - deploy the code and preserve the environment's
-  database.
+- `deploy` - deploy the code and keep the environment's database. An empty
+  value, the default, does the same.
 - `deploy_override_db` - deploy the code and overwrite the database with a
   fresh copy from the production environment.
 - `destroy` - remove the deployed environment, on platforms that support it
   (Lagoon).
 
+Only the Lagoon deployment reads the action, and
+`VORTEX_DEPLOY_LAGOON_ACTION` overrides it for Lagoon alone. Artifact and
+webhook deployments ignore it. On GitHub Actions, checking `override_db` on
+a manual deployment sets it to `deploy_override_db`.
+
 ## Skipping deployments
 
-You can skip all deployments by setting the `VORTEX_DEPLOY_SKIP` environment
-variable to `1`.
-
-This is useful when you want the continuous integration pipeline to build
-and test without triggering a deployment.
+Set `VORTEX_DEPLOY_SKIP` to `1` to skip every deployment. CI still builds
+and tests the code, and the `deploy` job stops before it deploys anything.
+On GitHub Actions, the workflow reads this variable, the skip lists below,
+and `VORTEX_DEPLOY_ALLOW_LABEL` from repository variables of the same name.
 
 ### Skipping deployments for specific pull requests or branches
 
 To skip specific pull requests or branches, set `$VORTEX_DEPLOY_ALLOW_SKIP`
-to `1` and provide lists in the following variables:
+to `1` and list them in the variables below. Each list takes a single value
+or a comma-separated list, and entries match exactly, with no wildcards.
 
 #### Skipping specific pull requests
 
-Set `$VORTEX_DEPLOY_SKIP_PRS` to a single PR number or comma-separated list:
+Set `$VORTEX_DEPLOY_SKIP_PRS` to a single PR number or a comma-separated
+list. Use the bare number, without a `pr-` prefix:
 
 ```shell
 # Skip a single PR
@@ -122,8 +144,9 @@ VORTEX_DEPLOY_SKIP_PRS=42,123,456
 
 #### Skipping specific branches
 
-Set `$VORTEX_DEPLOY_SKIP_BRANCHES` to a single branch name or
-comma-separated list:
+Set `$VORTEX_DEPLOY_SKIP_BRANCHES` to a single branch name or a
+comma-separated list. The list matches pull request builds too, because CI
+passes the pull request's branch name along with its number:
 
 ```shell
 # Skip a single branch
@@ -148,10 +171,10 @@ VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent
 ## Gating deployments on a PR label
 
 Skipping is subtractive: everything deploys unless you exclude it. The label
-gate is the opposite. It makes a pull request deployment opt-in, so a PR
-reaches an environment only when it's explicitly labeled for it. This is
-useful for controlling the number and cost of per-PR environments, or for
-keeping work-in-progress pull requests out of environments.
+gate works the other way around: it makes pull request deployments opt-in,
+so a pull request gets an environment only once someone labels it. Use it
+to keep the number (and the cost) of per-PR environments in check, or to
+keep work-in-progress pull requests out of environments.
 
 Set `$VORTEX_DEPLOY_ALLOW_LABEL` to the name of the label that authorizes
 deployment:
@@ -160,21 +183,24 @@ deployment:
 VORTEX_DEPLOY_ALLOW_LABEL=deploy
 ```
 
-With this set, a pull request is deployed only if it carries the `deploy`
-label; pull requests without it are skipped. When the variable is empty or
-unset (the default), the gate is inactive.
+With this set, a pull request deploys only if it carries the `deploy` label,
+and pull requests without it are skipped. The name has to match exactly,
+including case. When the variable is empty or unset (the default), the gate
+is off.
 
 The gate applies only to pull request builds. Branch and tag deployments
-have no associated pull request label and are never gated.
+have no pull request label, so the gate never blocks them.
 
-The pull request's labels are read from `$VORTEX_DEPLOY_PR_LABELS`, a
-comma-separated list that the CI provider populates from the pull request
-event. On GitHub Actions this is wired up automatically. On CircleCI the
-labels aren't available natively, so populate `$VORTEX_DEPLOY_PR_LABELS`
-yourself (for example, from the GitHub API) to use the gate.
+The router reads the pull request's labels from `$VORTEX_DEPLOY_PR_LABELS`,
+a comma-separated list that CI fills in from the pull request event. GitHub
+Actions wires this up for you. Its workflow doesn't run on the `labeled`
+event, though, so a label added to an open pull request takes effect on the
+next push. CircleCI doesn't provide labels natively, so to use the gate
+there, populate `$VORTEX_DEPLOY_PR_LABELS` yourself (for example, from the
+GitHub API).
 
-The label gate and the skip lists can be combined. A skip-list match is
-evaluated first and always wins, so a pull request listed in
+You can combine the label gate with the skip lists. The router checks the
+skip lists first, and a match always wins, so a pull request listed in
 `$VORTEX_DEPLOY_SKIP_PRS` is skipped even when it carries the gate label.
 
 ## See also
