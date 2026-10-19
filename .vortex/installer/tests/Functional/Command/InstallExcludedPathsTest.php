@@ -45,7 +45,7 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
     $this->assertFileDoesNotExist(static::$sut . '/jest.config.js', 'A deselected tool loses its unmodified configuration.');
     $this->assertFileDoesNotExist(static::$sut . '/phpstan.neon', 'A deselected tool loses its unmodified configuration.');
     $this->assertFileExists(static::$sut . '/phpcs.xml', 'A tool that stayed selected keeps its configuration.');
-    $this->assertFileExists(static::$sut . '/behat.yml', 'A tool that stayed selected keeps its configuration.');
+    $this->assertFileExists(static::$sut . '/behat.php', 'A tool that stayed selected keeps its configuration.');
   }
 
   public function testUpdateKeepsModifiedExcludedPaths(): void {

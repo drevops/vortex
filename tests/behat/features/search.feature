@@ -5,17 +5,16 @@ Feature: Search API
   I want to search for content
   So that I can find relevant information quickly
 
-  @api
   Scenario: User searches for Page content
-    Given the following page content:
+    Given the following page content exists:
       | title                              | status | moderation_state |
       | [TEST] Test page uniquestring      | 1      | published        |
       | [TEST] Test page otheruniquestring | 1      | published        |
       | [TEST] Test page thirduniquestring | 0      | draft            |
-    And I add the "page" content with the title "[TEST] Test page uniquestring" to the search index
-    And I add the "page" content with the title "[TEST] Test page otheruniquestring" to the search index
-    And I add the "page" content with the title "[TEST] Test page thirduniquestring" to the search index
-    And I run search indexing for 3 items
+    When the "page" content with the title "[TEST] Test page uniquestring" is indexed
+    And the "page" content with the title "[TEST] Test page otheruniquestring" is indexed
+    And the "page" content with the title "[TEST] Test page thirduniquestring" is indexed
+    And search indexing runs for 3 items
     And I wait for 5 seconds
     And I go to "/search"
     And I save screenshot
