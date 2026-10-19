@@ -1,6 +1,6 @@
 ---
 name: update-vortex-dev-deps
-description: Use when refreshing Composer and Yarn dev dependencies across the three '.vortex/' subsystems (docs, installer, tests). Runs in-range lock-file refreshes, lints each updated subsystem locally (with auto-fix where the subsystem supports it), produces a 'majors-available' report, makes a single bulk commit covering both lock and lint-fix fallout, and opens a PR. Triggers on phrases like 'update vortex dev deps', 'refresh .vortex dependencies', 'bump .vortex lock files', '/update-vortex-dev-deps'.
+description: Use when refreshing Composer and Yarn dev dependencies across the three '.vortex/' subsystems (docs, installer, tests). Runs in-range lock-file refreshes, lints each updated subsystem locally (with auto-fix where the subsystem supports it), produces a 'majors-available' report, makes a single bulk commit covering both lock and lint-fix fallout, and opens a PR. Triggers on phrases like 'update vortex dev deps', 'refresh .vortex dependencies', 'bump .vortex lock files', '/vortex:update-vortex-dev-deps'.
 user-invocable: true
 ---
 

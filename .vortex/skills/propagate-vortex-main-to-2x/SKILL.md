@@ -1,6 +1,6 @@
 ---
 name: propagate-vortex-main-to-2x
-description: Forward-port commits that landed on 'main' into the deviated '2.x' development branch. Lists every 'main' commit absent from '2.x', analyses each diff against the current state of '2.x', recommends apply/adapt/skip with a rationale, lets you select, then cherry-picks or hand-reapplies the chosen commits onto one feature branch and opens a single PR via /open-pr. Keeps a decisions ledger so re-runs across the release cycle never re-ask about settled commits. Triggers on 'propagate main to 2.x', 'port main to 2.x', 'forward-port to 2.x', 'bring main commits into 2.x', '/propagate-vortex-main-to-2x'.
+description: Forward-port commits that landed on 'main' into the deviated '2.x' development branch. Lists every 'main' commit absent from '2.x', analyses each diff against the current state of '2.x', recommends apply/adapt/skip with a rationale, lets you select, then cherry-picks or hand-reapplies the chosen commits onto one feature branch and opens a single PR via /open-pr. Keeps a decisions ledger so re-runs across the release cycle never re-ask about settled commits. Triggers on 'propagate main to 2.x', 'port main to 2.x', 'forward-port to 2.x', 'bring main commits into 2.x', '/vortex:propagate-vortex-main-to-2x'.
 user-invocable: true
 ---
 
