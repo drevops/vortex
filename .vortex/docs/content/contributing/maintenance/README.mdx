@@ -5,14 +5,20 @@ sidebar_position: 1
 
 # Maintenance
 
-This section covers the processes and guidelines for maintaining the
-**Vortex** project itself, including the template, installer, tooling
-package, documentation, and release workflows.
+This section is for people who maintain **Vortex** itself: the template,
+the installer, the tooling package, the documentation, and the releases. If
+you're building a site from **Vortex**, the rest of the documentation is
+where you want to be.
+
+The maintenance tooling lives in `.vortex/`, a directory the installer
+leaves out of every consumer site. The `ahoy` commands on these pages come
+from `.vortex/.ahoy.yml`, so run them from `.vortex/`, or from the
+repository root with `ahoy --file .vortex/.ahoy.yml <command>`.
 
 | Topic | Description |
 |-------|-------------|
-| [Template](template.mdx) | Maintaining the shipped template and its testing layers |
-| [Installer](installer.mdx) | Maintaining the template installer and its snapshot tests |
+| [Template](template.mdx) | Writing the template's shell scripts and testing the template |
+| [Installer](installer.mdx) | How the template installer works and how its snapshot tests run |
 | [Tooling](tooling.mdx) | Maintaining the `drevops/vortex-tooling` scripts package |
-| [Documentation](documentation.mdx) | Authoring and publishing the **Vortex** documentation |
-| [Release](release.mdx) | Versioning strategy and the release process |
+| [Documentation](documentation.mdx) | Writing, checking, and publishing the **Vortex** documentation |
+| [Release](release.mdx) | The versioning strategy and the release process |

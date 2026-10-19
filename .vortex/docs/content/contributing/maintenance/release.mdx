@@ -4,8 +4,9 @@ sidebar_position: 6
 
 # Release
 
-This page covers releasing the **Vortex** template itself. (How a project
-_built from_ **Vortex** releases is documented in
+This page covers releasing **Vortex** itself: the version numbers, the
+branches, the tags, and the checklist for cutting a release. (A project
+_built from_ **Vortex** has its own release flow, documented in
 [Releasing](../../releasing/README.mdx).)
 
 ## Versioning strategy
@@ -28,7 +29,8 @@ _built from_ **Vortex** releases is documented in
 
 ### Version numbering guidelines
 
-When creating a new release, determine the version based on the changes:
+When you create a new release, pick the version from the changes it
+contains:
 
 1. **Bump MAJOR** when making incompatible breaking changes:
    - Removing features or configuration options
@@ -56,10 +58,11 @@ When creating a new release, determine the version based on the changes:
 - **`1.x`** - a maintenance branch for a superseded major version, behind
   `main` (for example `1.x` once `main` holds `2.x`)
 
-Promoting a new major version is a single action: set the
-`VORTEX_CURRENT_MAJOR` repository variable to its number. The documentation
-default and the installer's bare `/install` URL both follow it, while the
-per-major docs and `/v{N}/install` pins are always published.
+On the publishing side, promoting a new major version is a single action:
+set the `VORTEX_CURRENT_MAJOR` repository variable to its number. The
+documentation default and the installer's bare `/install` URL both follow
+it, while the per-major docs and the `/v{N}/install` pins are always
+published.
 
 When `main` advances to a new major version:
 
@@ -80,12 +83,13 @@ Flow](../../releasing/gitflow.mdx).
 ## Tagging
 
 A release always produces a **Vortex** tag, and also a
-`drevops/vortex-tooling` tag when the tooling changed. When both are
-created, their order is fixed: tag the tooling first, then tag **Vortex**.
+`drevops/vortex-tooling` tag when the tooling changed. When you create both,
+their order is fixed: tag the tooling first, then tag **Vortex**.
 
 - **`drevops/vortex-tooling`** - the shipped tooling package, split from
-  `.vortex/tooling/`. Its branches are mirrored to the package repository
-  automatically, but tags are created manually as part of cutting a release.
+  `.vortex/tooling/`. A workflow mirrors its branches to the package
+  repository automatically, but you create its tags by hand as part of
+  cutting a release.
 - **Vortex** - the template itself.
 
 The following rules apply to every release:
@@ -99,7 +103,7 @@ The following rules apply to every release:
    release, create and publish the new `drevops/vortex-tooling` tag _before_
    tagging **Vortex**.
 4. **Vortex** pins its tooling requirement to the tagged version's minor.
-   When the tooling is tagged for a release, require that freshly tagged
+   When you tag the tooling for a release, require that freshly tagged
    `drevops/vortex-tooling` version in root `composer.json` with a tilde
    constraint (for example `~1.3.0`). The tagged version is the lower bound
    and the next minor is the exclusive upper bound. Later patch releases
@@ -124,7 +128,7 @@ Follow the steps below to release a new version of **Vortex**:
      `.docker/config/solr/config-set/solrcore.properties` to match the
      Lucene version bundled in that image (shown by the `lucene-core-*.jar`
      filename inside the image). The value in `search_api_solr`'s jump-start
-     config-set lags the image, so it must not be copied verbatim.
+     config-set lags the image, so don't copy it verbatim.
 3. Update PHP version in `composer.json` for `config.platform`.
 4. Update PHP version in `phpcs.xml` for `testVersion`.
 5. Update PHP version in `phpstan.neon` for `phpVersion`. Run
@@ -135,24 +139,37 @@ Follow the steps below to release a new version of **Vortex**:
    `drevops/vortex-tooling` tag now, before the **Vortex** tag (see
    [Tagging](#tagging)).
 7. Increment minor version of all packages in `composer.json`. Run
-   `composer update -W && composer bump`. When the tooling was tagged in the
+   `composer update -W && composer bump`. When you tagged the tooling in the
    previous step, require that freshly tagged `drevops/vortex-tooling`
    version with a tilde constraint (for example `~1.3.0`, see
-   [Tagging](#tagging)); otherwise keep the existing tag constraint.
-8. Update minor version of dependencies in theme's `package.json`.
+   [Tagging](#tagging)); otherwise keep the existing tag constraint. The
+   tooling version appears in 4 places, so update them together: the
+   `require` constraint and the `path` repository's `versions` entry in root
+   `composer.json`, the `versions` entry in `scripts/vortex-tooling.sh`, and
+   the one in `.vortex/tests/phpunit/Traits/SutTrait.php`.
+8. Update minor version of dependencies in theme's `package.json`. The
+   theme in `web/themes/custom/your_site_theme/` uses npm, with a
+   `package-lock.json`.
 9. Update `drevops/ci-runner` to the latest version in
    `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
 10. Increment the last segment of the database cache version in
     `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
+    Then run `cd .vortex && ahoy lint-ci-fix` to regenerate
+    `.circleci/vortex-test-common.yml` and
+    `.github/workflows/vortex-test-didi.yml`, which carry copies of the
+    runner image and the cache version from those 2 files.
 11. Update the documentation with `cd .vortex && ahoy update-docs`.
 12. Commit the changes, then regenerate the installer snapshots with
     `cd .vortex && ahoy update-snapshots` and commit the regenerated
-    fixtures.
+    fixtures. The command commits the installer fixtures itself; commit the
+    Docker Compose fixtures it leaves in `.vortex/tests/phpunit/Fixtures/`.
 13. Re-record the demo videos with `cd .vortex && ahoy update-videos` and
     commit the output.
 14. Tag the **Vortex** release and publish the GitHub release using the
     template below. **Vortex** is always tagged; when the tooling changed,
-    its tag is created first (see [Tagging](#tagging)).
+    its tag is created first (see [Tagging](#tagging)). Pushing the tag runs
+    the `Vortex - Release docs` workflow, which publishes the documentation
+    and the installer.
 
 import CodeBlock from '@theme/CodeBlock';
 import ReleaseTemplate from '!!raw-loader!./_release_template.md'

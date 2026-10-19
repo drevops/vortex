@@ -5,12 +5,14 @@ sidebar_position: 4
 
 # Tooling
 
-The operational shell scripts that consumer projects run (build, provision,
-database, deployment, and notification commands) live in `.vortex/tooling/`.
-They're published as the standalone
+The shell scripts that consumer projects run for provisioning, database
+work, deployment, notifications, and helpers such as `doctor` and `info`
+live in `.vortex/tooling/`. They're published as the standalone
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
-Composer package. Consumer projects install the package and run the scripts
-from `vendor/bin/vortex-*`.
+Composer package. Consumer projects install the package and run the
+user-facing scripts, the ones listed under `bin` in the package
+`composer.json`, from `vendor/bin/vortex-*`. The other scripts, such as the
+per-channel `vortex-notify-*` ones, run through those entry points.
 
 ## Package layout
 
@@ -18,15 +20,19 @@ from `vendor/bin/vortex-*`.
 |------|---------|
 | `src/` | The shipped scripts; the only directory in the published archive |
 | `tests/unit/` | BATS unit tests covering the shipped scripts |
-| `playground/` | Manual scripts that hit live services (Slack, Jira, New Relic); not automated |
+| `tests/_helper.bash`, `tests/fixtures/` | The shared BATS setup and the fixture files the tests read |
+| `playground/` | Manual scripts that hit live services (email, GitHub, Jira, New Relic, Slack, webhooks, and S3); not automated |
 
-`tests/` and `playground/` are stripped from the published archive via
-`.gitattributes` `export-ignore`.
+`.gitattributes` marks `tests/` and `playground/` as `export-ignore`, so
+neither reaches the published archive.
 
 While developing **Vortex** itself, the template's root `composer.json`
 resolves the package from the in-tree copy through a `path` repository with
 a pinned version. The installer strips that entry so consumer sites resolve
-the published package from Packagist.
+the published package from Packagist. The same version is also pinned in
+`scripts/vortex-tooling.sh` and `.vortex/tests/phpunit/Traits/SutTrait.php`;
+[Release > Release process](release.mdx#release-process) lists every spot
+to bump.
 
 ## Script conventions
 
@@ -41,6 +47,10 @@ The output helpers have a strict contract:
 - `task` announces work that's starting. Every `task` must be closed by a
   `pass` or a `fail`, even when the work itself can't fail, so the reader
   can always tell whether a step succeeded.
+- `pass` reports success. It closes the open task, or it stands on its own
+  for a check that holds or a step that's skipped or finished. In the
+  shipped scripts, `task` also starts a timer, and `pass` appends the
+  seconds the task took to its message.
 - `note` is a standalone remark that starts no task.
 - `fail` reports the failure and aborts.
 
@@ -50,30 +60,40 @@ drush search-api:server-disable solr || true
 pass "Disabled Search API Solr server."
 ```
 
-The `|| true` in this example is deliberate: the disable is best-effort
-because the Solr server isn't enabled in every environment. The contract
-still requires the closing `pass` so the step reports an outcome.
+The `|| true` in this example, from `scripts/provision-20-migration.sh`, is
+deliberate: the disable is best-effort because the Solr server isn't enabled
+in every environment. The contract still requires the closing `pass` so the
+step reports an outcome.
 
 See [Template > Authoring scripts](template.mdx#authoring-scripts) for the
 full authoring requirements shared by all shell scripts in the template.
 
 ## Testing
 
-The scripts are tested at 3 levels:
+Tests cover the scripts at 3 levels:
 
 - **Unit** - BATS tests in `tooling/tests/unit/` cover the shipped scripts
   with external commands mocked. Run them from `.vortex/`:
 
   ```shell
   cd .vortex
-  ahoy test-bats
+
+  # Run all BATS tests.
+  ahoy test-bats tooling/tests/unit
 
   # Run a single test file.
   ahoy test-bats tooling/tests/unit/deploy.bats
   ```
 
-- **Integration** - the scripts are exercised end-to-end by the template's
-  PHPUnit functional tests in `.vortex/tests/`. See
+  `ahoy test-bats` needs a path: without one, BATS stops with
+  `Must specify at least one <test>`. Each test runs the scripts from a
+  copy of the repository at its last commit, so commit your changes before
+  you run it. The setup also expects `curl`, `composer`, `docker`, `ahoy`,
+  and `jq` on your `PATH`. CI runs the whole suite with
+  `.vortex/tests/test.common.sh`, the script behind `ahoy test-common`.
+
+- **Integration** - the template's PHPUnit functional tests in
+  `.vortex/tests/` run the scripts end-to-end. See
   [Template > Testing](template.mdx#testing).
 - **Manual** - `tooling/playground/` holds scripts that hit live services.
   They aren't automated; see `tooling/playground/README.md`.
@@ -88,10 +108,17 @@ contains `vortex-tooling`, matching the source branch name. The published
 commit subject matches the source commit subject, and the body records
 provenance.
 
-The package version is injected at publish time, so never hardcode a
-`version` in the package `composer.json`.
+Every source commit gets a matching commit on the mirror, an empty one when
+nothing in `.vortex/tooling/` changed. A branch that's new to the mirror
+starts there as an orphan with no shared history. Treat the mirror as
+read-only, because each publish replaces its files with the contents of
+`.vortex/tooling/`.
 
-Releases of the package are tagged on the mirror repository. When the
-tooling has changed since the last release, it's tagged before the
-**Vortex** release, so the template can require the new tag. See
+The workflow doesn't set a package version: Packagist reads it from the
+mirror's tags and branch names. So never hardcode a `version` in the
+package `composer.json`.
+
+You tag tooling releases on the mirror repository. When the tooling has
+changed since the last release, tag it before the **Vortex** release, so the
+template can require the new tag. See
 [Release > Tagging](release.mdx#tagging).
