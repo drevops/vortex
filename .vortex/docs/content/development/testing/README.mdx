@@ -7,12 +7,14 @@ sidebar_position: 1
 
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
-**Vortex** ships 3 pre-configured test frameworks, each wired into the
-continuous integration pipeline. [PHPUnit](phpunit.mdx) covers unit, kernel,
-functional, and functional JavaScript tests of custom PHP code.
-[Behat](behat.mdx) covers Behavior-Driven Development (BDD) end-to-end tests
-that drive a real browser. [Jest](jest.mdx) covers JavaScript unit tests of
-custom module behaviors.
+**Vortex** ships 3 test frameworks, configured and wired into the
+continuous integration pipeline, so the first test you add runs in CI with
+no extra setup. Each covers a different layer. [PHPUnit](phpunit.mdx) tests
+your custom PHP code with unit, kernel, functional, and functional
+JavaScript tests. [Behat](behat.mdx) runs Behavior-Driven Development (BDD)
+scenarios end to end against the site, in a real browser when a scenario
+needs JavaScript. [Jest](jest.mdx) unit-tests the JavaScript behaviors in
+your custom modules.
 
 | Framework              | Covers                                                    | Command         |
 |------------------------|-----------------------------------------------------------|-----------------|
@@ -53,8 +55,9 @@ functional JavaScript.
 
 ### Run BDD tests
 
-`ahoy test-bdd` runs the Behat tests against the provisioned site, driving a
-real browser inside the container stack.
+`ahoy test-bdd` runs the Behat tests against the provisioned site. Scenarios
+tagged `@javascript` drive Chrome in the `chrome` container, and the rest
+run through an HTTP client.
 
 <AsciinemaPlayer
   src="/img/test-bdd.json"
@@ -77,20 +80,20 @@ stores them as artifacts.
 
 ## Continuous integration
 
-Tests run in the `build` job of the continuous integration pipeline. PHPUnit
-and Jest run on the first container, while Behat scenarios are distributed
-across all containers, see [Test
-parallelism](../../continuous-integration/README.mdx#test-parallelism).
+Tests run in the `build` job of the continuous integration pipeline, which
+runs on 2 parallel containers by default. PHPUnit and Jest run on the first
+container, and Behat spreads its scenarios across every container (see [Test
+parallelism](../../continuous-integration/README.mdx#test-parallelism)).
 
 Each framework has a `VORTEX_CI_<TOOL>_IGNORE_FAILURE` variable
 (`VORTEX_CI_PHPUNIT_IGNORE_FAILURE`, `VORTEX_CI_BEHAT_IGNORE_FAILURE`,
-`VORTEX_CI_JEST_IGNORE_FAILURE`) that lets the build pass despite failures
-while the tool still runs and reports them, see [Ignore tool
-failures](../../continuous-integration/README.mdx#ignore-tool-failures).
+`VORTEX_CI_JEST_IGNORE_FAILURE`). Set it to `1` and the build passes despite
+failing tests, while the tool still runs and reports them (see [Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures)).
 
 ## Project conventions
 
 Project-specific test writing conventions (user story format, standard user
 types, test class structure, test data conventions) live in your project's
-`docs/testing.md` file. The file is scaffolded when you install **Vortex**,
-and your project team maintains it.
+`docs/testing.md` file. The installer scaffolds it when you install
+**Vortex**, and your project team keeps it up to date.
