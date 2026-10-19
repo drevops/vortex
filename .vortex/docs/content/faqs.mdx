@@ -1,9 +1,10 @@
 # FAQs
 
-Answers to the questions teams ask when deciding whether to adopt
-**Vortex**. For operational questions once you're working in a project, such
-as clearing caches, using Xdebug, or adding modules and patches, see the
-[Development FAQs](development/faqs.mdx).
+These are the questions teams ask while deciding whether to adopt
+**Vortex**, with straight answers, trade-offs included. Once you're working
+in a project, the [Development FAQs](development/faqs.mdx) cover the
+day-to-day questions, such as clearing caches, using Xdebug, or adding
+modules and patches.
 
 ## Why use Vortex instead of the Drupal Composer template?
 
@@ -16,64 +17,76 @@ You also need to watch for _false negatives_: faulty tests that pass
 silently in CI but fail at release time and block your deployment. And you
 need to maintain all this across every project you run.
 
-**Vortex** handles all this. You can override anything in your project while
-still receiving future updates. Your team gets centralized documentation and
-consistent tooling across all projects.
+**Vortex** ships those pieces already wired together and tested. You can
+override anything in your project and still receive future updates, though
+you re-apply your changes to the files each update replaces. Your team gets
+the same documentation and tooling on every project.
 
 ## Can I use Vortex with an existing project?
 
-Yes, you can install **Vortex** into your existing project. See
-[Installation](installation.mdx#installing-vortex-into-an-existing-project).
+Yes. You install **Vortex** into a clean working copy, then merge your
+project back into it. See
+[Installation](installation.mdx#installing-vortex-into-an-existing-project)
+for the steps.
 
 ## Can I keep my existing CI provider?
 
-Yes, but you'll need to update your CI configuration to use **Vortex**
-automation scripts.
+Yes, but you'll need to update your CI configuration to call the **Vortex**
+scripts. It ships ready-made configurations for GitHub Actions and CircleCI
+only, so use those as the reference for which scripts to run and in what
+order.
 
 ## Can I keep my existing hosting?
 
-Yes, but you'll need to update some deployment scripts to match your hosting
-provider.
+Yes, but you'll need to adapt the deployment to your hosting provider.
+Outside Acquia and Lagoon, the `artifact` deployment type pushes the built
+code to a Git repository your host deploys from. The `webhook` type calls a
+URL that starts your host's deployment instead.
 
 ## Can I change things I don't like?
 
-Yes, you can change anything you want. **Vortex** is a template, so you can
-disable or remove any feature. You need to maintain those changes yourself
-going forward.
+Yes. **Vortex** is a template, so every file it gives you is yours to
+change, and you can disable or remove any feature. You maintain those
+changes yourself, though: each update replaces the files the template
+ships, and you re-apply your changes from `.logs/vortex-update.md`.
 
-Feel free to [open an issue](https://github.com/drevops/vortex/issues) to
-discuss any of the decisions made in **Vortex**.
+If you disagree with a decision in **Vortex**, [open an
+issue](https://github.com/drevops/vortex/issues) and let's talk it through.
 
 ## Isn't this overkill for my project?
 
-**Vortex** provides a full feature set to all projects, regardless of size.
-You can opt out of features you don't need when installing: the installer
-provides an interactive prompt to select only the features you want.
+**Vortex** offers its full feature set to every project, whatever its size,
+but you don't have to take everything. The installer asks about each
+feature, so you install only the ones you want.
 
-If you're sure you don't need certain features, **Vortex** may not be the
-right fit. That said, many developers have discovered useful tools and
-approaches through **Vortex** that they chose to keep.
+If you're sure you don't need what it offers, **Vortex** may not be the
+right fit, and that's fine. That said, many developers have found useful
+tools and approaches through **Vortex** that they chose to keep.
 
 ## Isn't this too opinionated?
 
-**Vortex** is opinionated where necessary to make everything work together.
-You can customize many things, but some defaults exist to keep tools
-compatible with each other.
+**Vortex** is opinionated where it has to be for everything to work
+together. You can customize many things, but some defaults exist to keep
+the tools compatible with each other.
 
-If something seems unreasonably opinionated, we consider that a defect and
-would be happy to fix it. Please share your feedback in the [issue
+If something feels unreasonably opinionated, we treat that as a defect and
+we'd like to fix it. Tell us in the [issue
 queue](https://github.com/drevops/vortex/issues).
 
 ## How hard is it to upgrade?
 
-Run the update command to pull in the latest **Vortex** version. The command
-updates the boilerplate code automatically. You then resolve any conflicts
-manually, as you would when merging changes between projects.
+The update itself is 1 command, `ahoy update-vortex`, which pulls in the
+latest **Vortex** release for your major version. It replaces the files the
+template ships and records every project change it overwrote in
+`.logs/vortex-update.md`. Re-applying those changes and reviewing the diff
+is the manual part, much like merging changes between projects.
 
-Any customizations your team made also need manual resolution. This is a
-trade-off between relying on an upgradable project template and relying on a
-dependency package. With a template, you have full control. With a package,
-someone else has full control of the code that drives your project.
+That manual work is the trade-off of building on an upgradable project
+template instead of a dependency package. With a template, you have full
+control. With a package, someone else has full control of the code that
+drives your project. **Vortex** already takes the package route for its
+scripts: they ship as the `drevops/vortex-tooling` Composer package and
+update through Composer.
 
 :::note
 
@@ -84,7 +97,7 @@ override scaffolded code.
 
 ## How easy is it to choose the features that I need?
 
-**Vortex** provides an [installer](installation.mdx) that lets you choose
-the features that you need interactively.
-
-It's usually used as a part of the project creation process.
+The [installer](installation.mdx) walks you through the features prompt by
+prompt and installs only the ones you pick. You run it when you create a
+project, and `ahoy update-vortex` runs it again on every update with the
+answers it finds in your project.

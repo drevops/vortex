@@ -4,9 +4,10 @@ sidebar_position: 8
 
 # Updating Vortex
 
-**Vortex** differs from other project templates: after the initial setup,
-you can update it to get the latest features and bug fixes without losing
-your project customizations.
+**Vortex** differs from most project templates: you can keep updating your
+project long after the initial setup, to pick up each release's features and
+bug fixes. The update replaces the files the template ships, but it records
+every customization it overwrites, so you can re-apply each one.
 
 ## Overview
 
@@ -25,19 +26,21 @@ project secure and up-to-date.
 :::note Staying on your major version
 
 `ahoy update-vortex` updates your project within its current major version.
-A `1.x` project receives the latest `1.x` release and is never moved to
-`2.x` automatically. Moving to a new major is a deliberate step: run that
-major's installer (for example `https://www.vortextemplate.com/v2/install`)
-against your project.
+It downloads the installer from its major's own path, `/v1/install` on the
+`1.x` line. So a `1.x` project receives the latest `1.x` release and never
+moves to `2.x` on its own. Moving to a new major is a deliberate step: run
+that major's installer (for example
+`https://www.vortextemplate.com/v2/install`) against your project.
 
 :::
 
 ## Before updating
 
-Check the release notes for the latest version to understand what has
-changed and if there are any breaking changes that may affect your project.
-
-Specifically check if any environment variables were added or changed.
+Read the [release notes](https://github.com/drevops/vortex/releases) for
+every version between yours and the target, and look for breaking changes
+that affect your project. Check in particular whether any environment
+variables were added or changed, because your CI and hosting environments
+may need the new values.
 
 ## Update process
 
@@ -53,58 +56,68 @@ Specifically check if any environment variables were added or changed.
    ahoy update-vortex
    ```
 
-   or update to a specific version or commit:
+   To pin a specific release or commit instead, pass the repository URL with
+   the reference after `#`:
 
    ```shell title="Update to a specific version"
-   ahoy update-vortex https://github.com/drevops/vortex.git@1.2.3
+   ahoy update-vortex https://github.com/drevops/vortex.git#1.2.3
 
-   ahoy update-vortex https://github.com/drevops/vortex.git@abcd123
+   ahoy update-vortex https://github.com/drevops/vortex.git#abcd123
    ```
 
-3. Review the changes made by the update and selectively add them.
+   The update runs the installer without prompts: it reads the answers it
+   needs from your project, such as the names, services, and hosting
+   provider, and reapplies them. To review or change those answers, run
+   `ahoy update-vortex --interactive`.
+
+3. Review the changes the update made and stage them selectively.
 
    Consider committing the changes in smaller chunks, so they're easier to
    review and revert if necessary.
 
    Where the update replaced a file your project had changed,
-   `.logs/vortex-update.md` records the replaced change alongside the change
-   the new version brings. Work through it to re-apply your changes, then
-   delete the entries you have resolved. The file isn't tracked in Git.
+   `.logs/vortex-update.md` records your change next to the change the new
+   version brings, as 2 diffs. Work through it to re-apply your changes,
+   then delete the entries you've resolved. Each update appends a new
+   section to the file, and Git ignores it. A binary file or a file over
+   100 KB gets no diff, only a note to recover your copy from version
+   control.
 
    Your `composer.json` has most likely deviated from the **Vortex**
    version, so review the package version changes carefully. We recommend
    temporarily reverting the changes to `composer.json` and `composer.lock`
-   to preserve your project's versions, then updating the package versions
-   in your `composer.json` manually. After settling the constraints, run
+   to keep your project's versions, then bringing in the **Vortex** changes
+   to `composer.json` by hand. Don't drop the new `drevops/vortex-tooling`
+   constraint: a release that changes the scripts raises it, and the old
+   constraint keeps the old scripts. Once the constraints are settled, run
    `ahoy composer update` and commit the regenerated `composer.lock`, so the
-   build installs the versions you selected rather than the stale locked
-   ones.
+   build installs the versions you chose rather than the stale locked ones.
 
    ```shell title="Review changes"
    git status
    git diff
    ```
 
-4. Test the updated environment to ensure everything works as expected:
+4. Rebuild your local environment and check that everything works:
 
    ```shell title="Test the updated environment"
    ahoy build
    ```
 
-5. Push to the remote repository, create a pull request, and observe the
-   Continuous Integration run passing.
+5. Push the branch, open a pull request, and wait for the continuous
+   integration run to pass.
 
    ```shell title="Push the update branch"
    git push origin update-vortex
    ```
 
-6. Observe that once the Continuous Integration run passes, the site is
-   successfully deployed to the preview or staging environment. <br/>
-   Thoroughly test the updated site in the preview or staging environment to
-   ensure everything works as expected.
+6. Once the run passes, check that the site deployed to your preview or
+   staging environment. <br/>
+   Test the updated site there thoroughly before it goes anywhere near
+   production.
 
-7. Schedule release to production environment and make sure to leave enough
-   time for spot-check testing and potential rollbacks.
+7. Schedule the production release, and leave enough time for spot checks
+   and a rollback if you need one.
 
 ## Best practices
 
@@ -116,6 +129,6 @@ Specifically check if any environment variables were added or changed.
 
 ## Getting help
 
-If you encounter issues during updates:
+If you hit a problem during an update:
 
 ➡️ See [Support](/docs/support)

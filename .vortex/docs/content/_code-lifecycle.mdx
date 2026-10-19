@@ -13,23 +13,23 @@
 │                                                                                          │
 │  ┌─ Database Job (Nightly) ───────────────────────────────────────────────────────────┐  │
 │  │                                                                                    │  │
-│  │  Scheduled ──► Download production ──► Sanitize database ──► Store database cache  │  │
-│  │  trigger       database                Remove sensitive data                       │  │
+│  │  Scheduled ──► Download production ──► Import and export ──► Store database cache  │  │
+│  │  trigger       database                to validate the dump                        │  │
 │  │                                                                                    │  │
 │  └─────────────────────────────────────┬──────────────────────────────────────────────┘  │
 │                                        │ Provides cached database                        │
 │                                        ▼                                                 │
 │  ┌─ Lint Job ────────────┐  ┌─ Database Job ────────────────┐  ┌─ Audit Job ──────────┐  │
 │  │                       │  │ ◆ Nightly cache exists?       │  │ Composer audit       │  │
-│  │  Build CLI container  │  │   Yes ──► job succeeds        │  │ (advisories)         │  │
-│  │          ▼            │  │   No ──► download, sanitize,  │  │          ▼           │  │
-│  │  Composer validate    │  │          store cache          │  │ Gitleaks             │  │
+│  │  Composer validate    │  │   Yes ──► job succeeds        │  │ (advisories)         │  │
+│  │          ▼            │  │   No ──► download, validate,  │  │          ▼           │  │
+│  │      Hadolint         │  │          store cache          │  │ Gitleaks             │  │
 │  │          ▼            │  └───────────────┬───────────────┘  │ (committed secrets)  │  │
-│  │  Composer normalize   │                  ▼                  │                      │  │
+│  │       DCLint          │                  ▼                  │                      │  │
 │  │          ▼            │  ┌─ Build Job ───────────────────┐  │                      │  │
-│  │      Hadolint         │  │ Code assembly                 │  │                      │  │
+│  │  Build CLI container  │  │ Code assembly                 │  │                      │  │
 │  │          ▼            │  │ Docker, Composer deps,        │  │                      │  │
-│  │       DCLint          │  │ NPM deps, assets              │  │                      │  │
+│  │  Composer normalize   │  │ NPM deps, assets              │  │                      │  │
 │  │          ▼            │  │               ▼               │  │                      │  │
 │  │       PHPCS           │  │ Website setup                 │  │                      │  │
 │  │          ▼            │  │ Import cached DB, drush       │  │                      │  │

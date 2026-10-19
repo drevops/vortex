@@ -2,7 +2,7 @@
 title: ''
 sidebar_label: Introduction
 sidebar_position: 1
-description: Vortex is a Drupal project template for building and deploying Drupal sites. It comes with a containerized local environment, automated testing and code quality tools, continuous integration pipeline configurations, and integrations with popular hosting platforms. Everything is configured and ready to use, so your team can work on features instead of setting up infrastructure.
+description: Vortex is a Drupal project template for building and deploying Drupal sites. You get a containerized local environment, automated testing and code quality tools, continuous integration pipelines, and integrations with popular hosting platforms, all configured to work together, so your team starts on features instead of infrastructure.
 
 ---
 
@@ -21,20 +21,22 @@ description: Vortex is a Drupal project template for building and deploying Drup
 </div>
 
 **Vortex** is a Drupal project template for building and deploying Drupal
-sites. It comes with a containerized local environment, automated testing
-and code quality tools, continuous integration pipeline configurations, and
-integrations with popular hosting platforms. Everything is configured and
-ready to use, so your team can work on features instead of setting up
-infrastructure.
+sites. You get a containerized local environment, automated testing and code
+quality tools, continuous integration pipelines for GitHub Actions or
+CircleCI, and integrations with the Acquia and Lagoon hosting platforms. It
+all arrives configured and working together, so your team starts on features
+instead of setting up infrastructure.
 
-Every project that uses **Vortex** has the same structure and tooling, so
-developers who join an existing **Vortex** site get up to speed quickly.
+Every **Vortex** project shares the same structure and tooling, so
+developers joining an existing one get up to speed quickly. Once you know
+one, you know your way around the next.
 
-The template is actively maintained and kept in sync with the latest tools.
-Automated tests verify every change, which lowers the risk of regressions
-and makes projects easier to maintain over time.
+The template is actively maintained and kept in step with the latest
+releases of the tools it ships. Automated tests check every change to the
+template, which lowers the risk of an update breaking your project and keeps
+it easier to maintain over time.
 
-Learn more about **Vortex** from our
+For a tour of **Vortex** in slides, see our
 [DrupalSouth 2025 presentation][presentation]
 ([Google Slides][slides] | [PDF][pdf]).
 
@@ -44,28 +46,29 @@ Learn more about **Vortex** from our
 
 ## Why Vortex exists
 
-Setting up Drupal projects can be time-consuming and inconsistent:
+Setting up a Drupal project takes time, and every setup comes out a little
+different:
 
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
   <li>⏱️ Developers lose hours or days setting up their local, continuous
     integration, and hosting environments</li>
-  <li>⚠️ Inconsistent setups cause false negatives, undermining the
-    reliability of tools</li>
-  <li>🔌 Lack of understanding of third-party service inner workings slows
-    integration and troubleshooting</li>
-  <li>📉 Poor onboarding documentation affects team productivity</li>
+  <li>⚠️ Inconsistent setups cause false negatives that erode trust in
+    the tools</li>
+  <li>🔌 Poorly understood third-party services slow integration and
+    troubleshooting</li>
+  <li>📉 Poor onboarding documentation slows new team members down</li>
 </ul>
 
-This leads to:
+Those gaps add up to:
 
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
   <li>😩 Developer frustration and burnout</li>
   <li>⏳ Project delays and missed deadlines</li>
-  <li>💸 Increased unplanned costs and budget overruns</li>
+  <li>💸 Unplanned costs and budget overruns</li>
 </ul>
 
-**Vortex** was created to solve these problems with a ready-to-use
-foundation for developing and maintaining Drupal projects.
+We built **Vortex** to solve these problems with a ready-to-use foundation
+for developing and maintaining Drupal projects.
 
 ## 3 pillars of Vortex
 
@@ -150,13 +153,13 @@ foundation for developing and maintaining Drupal projects.
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
   <li>🌐 Centralized documentation at https://www.vortextemplate.com</li>
   <li>🗂️ Scaffolded structure for project-specific docs</li>
-  <li>📋 Onboarding checklist to guide team setup</li>
+  <li>📋 Project README with local setup steps</li>
 </ul>
 
 ### 🎛️ Installer
 
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
-  <li>📦 Adds boilerplate files based on custom selections</li>
+  <li>📦 Adds boilerplate for the features you select</li>
   <li>🏗️ Renames files and replaces strings during installation</li>
   <li>🔄️ Updates existing installations to a newer boilerplate version</li>
   <li>🔌 Standalone CLI application extensible with an API to support new
@@ -176,6 +179,8 @@ foundation for developing and maintaining Drupal projects.
 
 ## 🚀 Quick start
 
+Run the installer in an empty directory and answer its prompts:
+
 ```shell
 curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
 ```
@@ -193,13 +198,13 @@ curl -SsL https://www.vortextemplate.com/install > installer.php && php installe
 ## ⚖️ License
 
 **Vortex** is licensed under the
-[GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) license. See the
-[LICENSE](https://github.com/drevops/vortex/blob/main/LICENSE) file for more
-details.
+[GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) license. The
+[LICENSE](https://github.com/drevops/vortex/blob/main/LICENSE) file has the
+full text.
 
 :::tip
 
-Head over to the [Features](/docs/features) or
-[Installation](/docs/installation) pages to learn more.
+Head to [Features](/docs/features) to see what's in the box, or to
+[Installation](/docs/installation) to start your first project.
 
 :::
