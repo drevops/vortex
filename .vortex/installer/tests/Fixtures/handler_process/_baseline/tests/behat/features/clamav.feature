@@ -17,8 +17,8 @@ Feature: ClamAV Anti-virus
     And the unmanaged file at the URI "public://test.txt" exists with the content "some text content"
 
   Scenario: Upload EICAR test file to trigger virus detection
-    When I log in as a user with the role "administrator"
-    And I go to "media/add/document"
+    Given I am logged in as a user with the role "administrator"
+    When I go to "media/add/document"
     And I attach the file "public://eicar_test.txt" to "files[field_media_document_0]"
     And I press "Upload"
     Then I should see "The specified file eicar_test.txt could not be uploaded."
@@ -27,8 +27,8 @@ Feature: ClamAV Anti-virus
     And I save screenshot
 
   Scenario: Upload test file to ensure that file upload works
-    When I log in as a user with the role "administrator"
-    And I go to "media/add/document"
+    Given I am logged in as a user with the role "administrator"
+    When I go to "media/add/document"
     And I attach the file "public://test.txt" to "files[field_media_document_0]"
     And I press "Upload"
     Then I should not see "The specified file test.txt could not be uploaded."

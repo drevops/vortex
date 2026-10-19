@@ -1,4 +1,4 @@
-@@ -29,11 +29,9 @@
+@@ -28,11 +28,9 @@
  use DrevOps\BehatSteps\Steps\Drupal\ModuleTrait;
  use DrevOps\BehatSteps\Steps\Drupal\ParagraphsTrait;
  use DrevOps\BehatSteps\Steps\Drupal\QueueTrait;

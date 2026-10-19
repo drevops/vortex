@@ -1,4 +1,4 @@
-@@ -33,7 +33,6 @@
+@@ -32,7 +32,6 @@
  use DrevOps\BehatSteps\Steps\Drupal\SearchApiTrait;
  use DrevOps\BehatSteps\Steps\Drupal\StateTrait;
  use DrevOps\BehatSteps\Steps\Drupal\TaxonomyTrait;

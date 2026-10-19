@@ -7,8 +7,7 @@
 
 declare(strict_types=1);
 
-use DrevOps\BehatSteps\Behat\Context\UserAwareInterface;
-use DrevOps\BehatSteps\Behat\Context\WebRawContext;
+use DrevOps\BehatSteps\Extension\Context\UserAwareInterface;
 use DrevOps\BehatSteps\Steps\Drupal\BatchTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BigPipeTrait;
 use DrevOps\BehatSteps\Steps\Drupal\BlockTrait;
@@ -63,6 +62,7 @@ use DrevOps\BehatSteps\Steps\Web\RestTrait;
 use DrevOps\BehatSteps\Steps\Web\TableTrait;
 use DrevOps\BehatSteps\Steps\Web\WaitTrait;
 use DrevOps\BehatSteps\Steps\Web\XmlTrait;
+use DrevOps\BehatSteps\WebRawContext;
 
 /**
  * Defines application features from the specific context.

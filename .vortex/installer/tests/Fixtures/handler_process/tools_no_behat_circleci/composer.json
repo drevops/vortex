@@ -5,7 +5,7 @@
 -        "behat/behat": "__VERSION__",
 -        "dantleech/gherkin-lint": "__VERSION__",
 -        "drevops/behat-screenshot": "__VERSION__",
--        "drevops/behat-steps": "4.x-dev",
+-        "drevops/behat-steps": "dev-main",
          "drevops/phpcs-standard": "__VERSION__",
          "drupal/coder": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
