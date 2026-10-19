@@ -8,6 +8,15 @@ import TabItem from '@theme/TabItem';
 
 # Logs
 
+Logs are where you find out why a container won't start or why a page
+throws an error. Each container writes its output to Docker's log, and
+`ahoy logs` shows it by running `docker compose logs` with any arguments you
+add. Drupal records its own messages in the watchdog log, which Drush reads.
+
+`ahoy up` scans the container logs right after starting the stack and fails
+if any container has logged `[Error]`. When that happens, or when
+[Doctor](doctor.mdx) reports a container that isn't running, start here:
+
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell

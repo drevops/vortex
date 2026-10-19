@@ -15,8 +15,8 @@ https://github.com/ahoy-cli/ahoy
 > Ahoy is command line tool that gives each of your projects their own CLI
 > app with zero code and dependencies.
 
-Ahoy wraps longer commands into short, memorable ones, so the development
-process stays consistent across projects and team members.
+Ahoy wraps longer commands into short, memorable ones, so your development
+workflow stays the same across projects and team members.
 
 **Vortex** comes with a [pre-configured
 `.ahoy.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.yml) that has
@@ -24,14 +24,14 @@ commands wrapped around the most common tasks:
 
 - Working with containers
 - Building the project locally
+- Fetching, importing, and exporting the database
 - Running tests
 - Running code quality checks
 
-It also provides an example of [local Ahoy
-`.ahoy.local.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.local.example.yml)
-to be used in your projects. Once copied to `.ahoy.local.yml`, the file is
-excluded from the repository and can be used to add local project-specific
-commands.
+It also ships an example local Ahoy file,
+[`.ahoy.local.example.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.local.example.yml).
+Copy it to `.ahoy.local.yml` and add your own commands there: Git ignores
+the copy, and `ahoy local <command>` runs the commands you put in it.
 
 ## Usage
 
@@ -46,18 +46,27 @@ ahoy local COMMAND [ARGUMENTS] [OPTIONS]
 ahoy --help
 ```
 
+Every command runs through the entrypoint at the bottom of `.ahoy.yml`. It
+loads your environment variables and makes sure the `drevops/vortex-tooling`
+package is in `vendor/`. On a fresh clone, the first command installs it,
+so host-side commands such as `ahoy doctor` and `ahoy fetch-db` work before
+you've run `composer install`.
+
 ## Configuration
 
 See [configuration
 reference](https://github.com/ahoy-cli/ahoy#example-of-new-yaml-setup-in-v2).
 
-Adding a new command with passed arguments:
+Adding a new command that passes its arguments through:
 
 ```yml
 commands:
   custom:
     cmd: vendor/bin/phpunit --group="smoke" "$@"
 ```
+
+Ahoy runs commands on your host. To run one in the `cli` container, prefix
+it with `ahoy cli`, the way the shipped `ahoy test` command does.
 
 Adding a new multi-line command with usage details that calls other Ahoy
 commands after a confirmation:
@@ -72,17 +81,31 @@ commands:
       ahoy info
 ```
 
+Each command runs under `bash -e`, so a multi-line command stops at the
+first line that fails. `ahoy confirm` is a hidden helper in the shipped
+`.ahoy.yml`: it asks the question and carries on only when you answer `y` or
+`true`.
+
+To answer every prompt in advance, set `AHOY_CONFIRM_RESPONSE=y`, for
+example in `.env.local`. Ahoy then prints each prompt with that answer and
+waits 3 seconds, so you can still press <kbd>Ctrl+C</kbd>, unless
+`AHOY_CONFIRM_WAIT_SKIP=1` is also set. Any non-empty value counts as a yes,
+so `AHOY_CONFIRM_RESPONSE=n` cancels nothing.
+
 ## Loading environment variables
 
-The configuration is set up to load environment variables from `.env` and
-`.env.local` files, giving the precedence to the values in the existing
-environment.
+The entrypoint loads `.env` and then `.env.local` and exports every variable
+they define, so a value in `.env.local` overrides the one in `.env`.
+Anything already exported in your shell wins over both files, so
+`VORTEX_DEBUG=1 ahoy provision` turns on debug output whatever the files
+say.
 
 ➡️ See [Variables](../variables.mdx)
 
 ## Running CLI commands
 
-You can run CLI commands inside the project containers.
+`ahoy cli` runs commands in the `cli` container, where PHP, Composer, and
+Drush live:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -110,6 +133,12 @@ Running `ahoy cli` without arguments opens an interactive shell inside the
 
 :::
 
+`ahoy cli` forwards only some of your shell's variables into the container:
+`TERM`, `LOCALDEV_URL`, and any variable that starts with `COMPOSE_`,
+`GITHUB_`, `PACKAGE_`, `DOCKER_`, `DRUPAL_`, `VORTEX_`, or `ENVIRONMENT_`.
+It joins its arguments into a single `bash -c` string, so escape a double
+quote inside an argument that contains spaces as `\"`.
+
 You can also use shortcuts for common commands:
 
 <Tabs>
@@ -130,3 +159,8 @@ You can also use shortcuts for common commands:
     ```
   </TabItem>
 </Tabs>
+
+The shortcuts add a little on top of the plain commands. `ahoy drush` passes
+`-l ${LOCALDEV_URL}`, so the links Drush prints point at your local site.
+`ahoy composer` lifts Composer's memory limit (`COMPOSER_MEMORY_LIMIT=-1`)
+and, when `PACKAGE_TOKEN` is set, registers it as a GitHub token.

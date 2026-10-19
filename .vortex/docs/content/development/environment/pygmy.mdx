@@ -16,14 +16,20 @@ Pygmy provides the shared services the **Vortex** container stack relies on:
 
 - An HTTP reverse proxy for readable URLs and HTTPS offloading.
 - A DNS system, so services are addressed by name instead of IP address.
-- SSH agents, so SSH keys are available within containers.
+- An SSH agent, so your SSH key is available inside the CLI container.
 - A local mail catcher that receives and displays outgoing mail at
   http://mailhog.docker.amazee.io/.
 
-The `docker-compose.yml` shipped with **Vortex** attaches its services to
-the external `amazeeio-network` that Pygmy creates, so Pygmy must be running
-before `ahoy up` can start the stack. [`ahoy doctor`](doctor.mdx) checks
-that Pygmy is running.
+They're shared because a single Pygmy instance serves every project on your
+machine: start it once after each boot, and every local stack routes
+through it.
+
+The `docker-compose.yml` that ships with **Vortex** depends on Pygmy twice.
+The `nginx` service joins the external `amazeeio-network` that Pygmy
+creates, and the `cli` service takes its SSH agent volume from Pygmy's
+`amazeeio-ssh-agent` container. Both have to exist before Docker Compose can
+create those containers, so start Pygmy before `ahoy up`.
+[`ahoy doctor`](doctor.mdx) checks that the Pygmy services are running.
 
 ## Installation
 
@@ -45,6 +51,16 @@ pygmy clean    # Stop and remove all services. Useful if you have issues with py
 The CLI container uses the SSH agent from Pygmy's `amazeeio-ssh-agent`
 container. It mounts the agent's volume through `volumes_from` and links to
 the agent's socket only when the CLI container starts.
+
+Pygmy adds your default key, `~/.ssh/id_rsa`, to the agent. To use a
+different key, add it yourself:
+
+```shell
+pygmy addkey --key ~/.ssh/path/to/key
+```
+
+Then set `VORTEX_SSH_FILE` to the same path, so that Doctor checks for the
+key you use.
 
 `pygmy restart` removes the agent container and creates a new one. If the
 stack is running at the time, the CLI container stays attached to the

@@ -37,13 +37,18 @@ you start guessing.
   </TabItem>
 </Tabs>
 
+After either `down` command, the stack comes back with a fresh database,
+which is why `ahoy down` asks you to confirm first. Provision the site again
+with `ahoy provision`, or without Ahoy, with
+`docker compose exec cli ./vendor/bin/vortex-provision`.
+
 ## Database connection errors
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
     docker compose ps      # Check if the database container is running
-    ahoy reset             # Last resort: rebuild everything
+    ahoy build             # Last resort: rebuild everything
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -54,7 +59,18 @@ you start guessing.
   </TabItem>
 </Tabs>
 
+If `docker compose ps` shows the `database` container stopped or restarting,
+`ahoy logs database` usually says why. Both last resorts wipe the local
+database. `ahoy build` provisions the site again on its own; after the
+Docker Compose commands, provision it yourself with
+`docker compose exec cli ./vendor/bin/vortex-provision`.
+
 ## Permission issues
+
+The `cli` container runs as `root`, so on Linux, files it creates in the
+project, such as a freshly installed `vendor` directory, can end up owned by
+`root` on your machine (see [Default user](docker.mdx#default-user)). Take
+ownership back with:
 
 ```shell
 # Fix file permissions (Linux/Mac)
