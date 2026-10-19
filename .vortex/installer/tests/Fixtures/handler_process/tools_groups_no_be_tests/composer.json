@@ -1,4 +1,4 @@
-@@ -36,22 +36,15 @@
+@@ -36,23 +36,15 @@
          "drush/drush": "__VERSION__"
      },
      "require-dev": {
@@ -9,6 +9,7 @@
          "drevops/phpcs-standard": "__VERSION__",
          "drupal/coder": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
+-        "friends-of-behat/mink-extension": "__VERSION__",
 -        "lullabot/mink-selenium2-driver": "__VERSION__",
          "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
@@ -21,7 +22,7 @@
          "pyrech/composer-changelogs": "__VERSION__",
          "softcreatr/jsonpath": "^0.10 || ^1.0",
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
-@@ -67,11 +60,6 @@
+@@ -68,11 +60,6 @@
      ],
      "minimum-stability": "stable",
      "prefer-stable": true,

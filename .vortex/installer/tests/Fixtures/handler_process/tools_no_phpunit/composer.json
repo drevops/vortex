@@ -1,4 +1,4 @@
-@@ -48,10 +48,8 @@
+@@ -49,10 +49,8 @@
          "mikey179/vfsstream": "__VERSION__",
          "palantirnet/drupal-rector": "__VERSION__",
          "phpcompatibility/php-compatibility": "__VERSION__",
@@ -9,7 +9,7 @@
          "pyrech/composer-changelogs": "__VERSION__",
          "softcreatr/jsonpath": "^0.10 || ^1.0",
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
-@@ -67,11 +65,6 @@
+@@ -68,11 +66,6 @@
      ],
      "minimum-stability": "stable",
      "prefer-stable": true,
