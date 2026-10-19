@@ -1,11 +1,13 @@
-@@ -40,14 +40,11 @@
+@@ -40,8 +40,6 @@
          "dantleech/gherkin-lint": "__VERSION__",
          "drevops/behat-screenshot": "__VERSION__",
          "drevops/behat-steps": "__VERSION__",
 -        "drevops/phpcs-standard": "__VERSION__",
 -        "drupal/coder": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
+         "friends-of-behat/mink-extension": "__VERSION__",
          "lullabot/mink-selenium2-driver": "__VERSION__",
+@@ -48,7 +46,6 @@
          "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
          "palantirnet/drupal-rector": "__VERSION__",
@@ -13,7 +15,7 @@
          "phpspec/prophecy-phpunit": "__VERSION__",
          "phpstan/extension-installer": "__VERSION__",
          "phpstan/phpstan": "__VERSION__",
-@@ -76,7 +73,6 @@
+@@ -77,7 +74,6 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,

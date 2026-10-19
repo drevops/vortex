@@ -1,4 +1,4 @@
-@@ -36,14 +36,9 @@
+@@ -36,15 +36,9 @@
          "drush/drush": "__VERSION__"
      },
      "require-dev": {
@@ -9,6 +9,7 @@
          "drevops/phpcs-standard": "__VERSION__",
          "drupal/coder": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
+-        "friends-of-behat/mink-extension": "__VERSION__",
 -        "lullabot/mink-selenium2-driver": "__VERSION__",
          "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
