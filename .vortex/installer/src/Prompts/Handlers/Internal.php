@@ -91,6 +91,10 @@ class Internal extends AbstractHandler {
     // Remove Vortex internal files.
     File::remove($t . '/.vortex');
 
+    // The template at the installed reference, such as 'stable', can ship
+    // maintenance skills in '.claude/skills'.
+    File::remove($t . '/.claude/skills');
+
     File::remove($t . '/.github/FUNDING.yml');
     File::remove($t . '/CODE_OF_CONDUCT.md');
     File::remove($t . '/CONTRIBUTING.md');
