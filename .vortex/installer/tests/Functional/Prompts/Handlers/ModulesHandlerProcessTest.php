@@ -82,10 +82,7 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('redirect');
       }),
-      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
-        'drupal/redirect',
-        'RedirectTrait',
-      ])),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/redirect')),
     ];
     yield 'modules_no_reroute_email' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -136,10 +133,7 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
         // Covers the demo module dependency and its deploy hook, which call
         // the Testmode API, alongside the Composer requirement and settings.
-        $test->assertSutNotContains([
-          'testmode',
-          'TestmodeTrait',
-        ]);
+        $test->assertSutNotContains('testmode');
         // The only scenario in the pages feature asserts Testmode filtering.
         $test->assertFileDoesNotExist(static::$sut . '/tests/behat/features/pages.feature');
       }),

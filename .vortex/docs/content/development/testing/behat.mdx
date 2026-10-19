@@ -227,10 +227,10 @@ The
 file is a Behat custom context file loaded by default. This is where custom
 step definitions and hooks should be placed.
 
-We recommend using traits to organize step definitions and hooks, and
-including those traits in the `FeatureContext.php` file. The file already
-includes several traits from the [Behat
-Steps](https://github.com/drevops/behat-steps) package.
+`FeatureContext` extends `DrevOps\BehatSteps\DrupalContext` from the
+[Behat Steps](https://github.com/drevops/behat-steps) package. That context
+already carries every step the package provides, so the file holds only the
+project's own step definitions and hooks.
 
 ## Reports
 
