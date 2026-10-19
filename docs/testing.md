@@ -201,7 +201,7 @@ Feature: Homepage
   Scenario: View homepage content
     Given I am on the homepage
     Then I should see "[TEST] Welcome Message"
-    And the region "primary_menu" should contain the value "About Us"
+    And I should see the text "About Us" in the region "primary_menu"
 ```
 
 ### Content type testing process
@@ -232,7 +232,7 @@ When writing tests that cover a whole content type:
 
   ```gherkin
   Scenario: View complete content with all fields
-    Given the following "page" content exist:
+    Given the following "page" content exists:
       | title                     | body                          | field_tags         |
       | [TEST] Complete Page Test | [TEST] This is the body text. | [TEST] Topic 1     |
     When I visit the "page" content page with the title "[TEST] Complete Page Test"
