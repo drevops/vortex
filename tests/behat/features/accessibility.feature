@@ -7,9 +7,9 @@ Feature: Accessibility
 
   @javascript
   Scenario: Anonymous user visits an accessible homepage
-    Given the user is anonymous
+    Given I am an anonymous user
     When I go to the homepage
-    Then the current page should pass accessibility checks
+    Then the page should pass accessibility checks
 
   # Pages other than the homepage are audited in advisory mode (failures are
   # reported but do not fail the build) and are collected into the site-wide
@@ -17,8 +17,8 @@ Feature: Accessibility
   # '.logs/test_results/accessibility/'.
   @javascript @accessibility:warning
   Scenario: Secondary pages are audited for the site-wide accessibility report
-    Given the user is anonymous
+    Given I am an anonymous user
     When I go to "/user/login"
-    Then the current page should pass accessibility checks
+    Then the page should pass accessibility checks
     When I go to "/user/password"
-    Then the current page should pass accessibility checks
+    Then the page should pass accessibility checks

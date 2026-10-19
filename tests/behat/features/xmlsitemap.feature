@@ -6,7 +6,7 @@ Feature: XML Sitemap
   In order to help search engines discover and index my site content
 
   Scenario: Verify sitemap.xml exists and is accessible
-    Given the user is anonymous
+    Given I am an anonymous user
     When I run the drush command "xmlsitemap:regenerate"
     And I go to "/sitemap.xml"
     Then the response status code should be 200
