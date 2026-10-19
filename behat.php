@@ -19,7 +19,7 @@ use Behat\MinkExtension\Context\MinkContext;
 use Behat\MinkExtension\ServiceContainer\MinkExtension;
 use DrevOps\BehatScreenshotExtension\Context\ScreenshotContext;
 use DrevOps\BehatScreenshotExtension\ServiceContainer\BehatScreenshotExtension;
-use DrevOps\BehatSteps\Behat\ServiceContainer\BehatStepsExtension;
+use DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension;
 
 $suite = (new Suite('default'))
   ->withPaths('%paths.base%/tests/behat/features')
