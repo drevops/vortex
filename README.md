@@ -32,13 +32,13 @@ release](https://img.shields.io/github/v/release/drevops/vortex?logo=github)
 
 </div>
 
-**Vortex** is a tested Drupal project template. Your team installs it once,
-picks the features it needs, and pulls in upstream updates for as long as
+**Vortex** is a tested Drupal project template. Your team installs it once
+with the features it needs, then pulls in upstream updates for as long as
 the project lives.
 
 Every site in your portfolio then looks, builds, tests, and deploys the same
-way. New hires onboard against a familiar stack, and CI and hosting
-integrations come pre-configured. When **Vortex** releases each month, your
+way. New hires start on a familiar stack, and CI and hosting integrations
+come pre-configured. **Vortex** has a new release every month, and your
 project can adopt the upstream changes through the same installer that set
 it up.
 
@@ -68,9 +68,9 @@ integrations on every site, and paid support you can escalate to.
 
 Each new client engagement starts with weeks of setup before any billable
 feature work begins. **Vortex** turns that setup into a known cost. Your
-delivery team runs the installer, picks the features at install time, and
-starts from an opinionated baseline the team already knows, so every
-engagement begins at the same quality floor.
+delivery team picks the features in the installer and starts from an
+opinionated baseline it already knows. Every engagement then begins at the
+same quality floor.
 
 ### For tech leads and engineering managers
 
@@ -82,9 +82,9 @@ stack.
 
 ### For senior Drupal developers
 
-You'd rather write Drupal than look after infrastructure. **Vortex** gives
-you the same `ahoy` commands, containers, and testing scaffolds on every
-project, so what you learn on one site carries over to the next.
+You'd rather write Drupal than look after infrastructure. Every **Vortex**
+project has the same `ahoy` commands, containers, and testing scaffolds, so
+what you learn on one site carries over to the next.
 
 ### For DevOps and platform engineers
 
@@ -118,14 +118,14 @@ and the
 
 **Vortex** covers the whole life of a project:
 
-- 🚀 **Day 1** - Run the installer, pick features, and you have a Drupal
-  site building locally, running in CI, and ready to deploy to staging.
+- 🚀 **Day 1** - Run the installer and pick your features to get a Drupal
+  site that builds locally, runs in CI, and is ready to deploy to staging.
 - 🔧 **Month 6** - Renovate keeps dependencies current, and the provisioning
-  script runs the same way for every developer. New hires onboard with the
-  tooling already set up instead of relying on tribal knowledge.
+  script runs the same way for every developer. New hires find the tooling
+  already set up, so they don't have to rely on tribal knowledge.
 - 🛟 **Year 3** - Monthly **Vortex** releases bring upstream tooling, PHP,
-  and Drupal updates. The installer applies them to your project, so it
-  stays current instead of drifting.
+  and Drupal updates. The installer applies them, so your project stays
+  current.
 
 ## Quick start
 
@@ -165,14 +165,11 @@ curl -SsL https://vortex-docs.netlify.app/install > installer.php && php install
 
 ## See Vortex in production
 
-The [DrevOps website](https://github.com/drevops/website) is a real
-production Drupal site built on **Vortex**. It receives regular upstream
-updates and shows what a long-lived **Vortex** project looks like in
-practice: CI configuration, testing workflows, and the update routine teams
-run between releases.
-
-Use it as a reference for structuring your own **Vortex**-based site, or as
-a working example of how the template evolves.
+The [DrevOps website](https://github.com/drevops/website) is a production
+Drupal site built on **Vortex**. It receives regular upstream updates and
+shows what a long-lived **Vortex** project looks like: CI configuration,
+testing workflows, and the update routine teams run between releases. Use it
+as a reference for structuring your own **Vortex**-based site.
 
 ## Documentation
 
