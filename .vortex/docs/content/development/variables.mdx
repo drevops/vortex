@@ -10,66 +10,72 @@ import Anchor from '@site/src/components/Anchor';
 
 <!-- markdownlint-disable -->
 
-**Vortex** uses environment variables to configure scripts without the need
-to change the code to alter behavior.
+**Vortex** scripts read their settings from environment variables, so you
+change how a script behaves by setting a variable instead of editing the
+script.
 
 Variables come in 2 main types:
 
 **Project configuration variables** are set once during project setup and
-remain constant throughout the project lifecycle. These are typically
-configured in the `.env` file, or within the CI or hosting provider
-environments.
+stay the same for the life of the project. You usually set them in the
+`.env` file, or in the environment settings of your CI or hosting provider.
 
-**Runtime variables** can be changed during the project lifecycle
-to alter script behavior. For example, changing how deployment behaves
-or skipping a certain code branch deployment within CI.
+**Runtime variables** change during the project's life to alter how a
+script behaves, for example to change how a deployment runs or to skip
+deploying a particular branch in CI.
 
 ## `.env` and `.env.local` files
 
-Only required variables are listed in `.env` to keep it concise. Scripts set
-more optional variables with sensible defaults. These are documented below.
-Add them to your `.env` file as needed to override the defaults.
+`.env` holds the project's shared values and is committed with the code.
+It's kept concise, so it doesn't list every variable: the scripts set
+defaults for many optional ones, documented in the table below. Add any of
+them to `.env` when you need a value other than the default.
 
-The `.env.local` file is intended to store local overrides and sensitive
-information like passwords and API keys, separate from the main `.env` file.
-This file is ignored by Git and shouldn't be committed to the repository.
+`.env.local` holds your local overrides and secrets, such as passwords and
+API keys. Create it by copying `.env.local.example`. Git ignores it, so it
+stays out of the repository. After changing either file, run `ahoy up` so
+the containers pick up the new values.
 
 ## Override order (bottom value wins)
 
-- default value in container taken from image
+- default value in the script that reads the variable
+- default value in the container, taken from the image
 - default value in `docker-compose.yml`
-- value in `.env` (last value wins)
-- value in `.env.local` (last value wins)
-- value from environment
+- value in `.env` (the last assignment in the file wins)
+- value in `.env.local` (the last assignment in the file wins)
+- value from the environment
+
+Each script loads `.env` and then `.env.local` itself, then restores every
+variable that was already exported. A value set in your shell, in CI, or on
+the hosting platform wins over both files.
 
 ## Naming conventions
 
-All variables used by **Vortex** scripts start with the `VORTEX_` prefix to
-differentiate them from other environment variables. The exception is
-`LOCALDEV_URL`, the local development URL, which shares its value with the
-unprefixed hosting route (`LAGOON_ROUTE`) and is therefore used without the
-prefix.
+Variables that **Vortex** scripts own start with the `VORTEX_` prefix, which
+keeps them apart from everything else in the environment. A few go without
+it, such as `WEBROOT` and `PACKAGE_TOKEN`. `LOCALDEV_URL`, the local
+development URL, shares its value with the unprefixed hosting route
+(`LAGOON_ROUTE`), so it stays unprefixed too.
 
-All Drupal-specific environment variables start with the `DRUPAL_` prefix.
+Drupal-specific variables start with the `DRUPAL_` prefix.
 
-Any other third-party service variables (like `COMPOSER_TOKEN` or
-`NEWRELIC_API_KEY`) are used as-is.
+Variables of third-party services, such as `NEWRELIC_LICENSE` or
+`RENOVATE_TOKEN`, keep the names those services use.
 
 ## Default values
 
-All _required_ variables used by **Vortex** scripts have checks in place to
-ensure they're set before proceeding. If a required variable is missing, the
-script fails with a clear error message.
+Every _required_ variable that **Vortex** scripts use is checked before the
+script proceeds. A missing one stops the script with an error that names it,
+such as `Missing required value for VORTEX_DEPLOY_WEBHOOK_URL.`
 
-All _optional_ variables used by **Vortex** scripts have default values
-defined within the scripts, so the scripts can run without extensive
-configuration.
+Every _optional_ variable has a default value set in the script itself, so
+the scripts run without extensive configuration.
 
-Variables without values provided or set in scripts are considered defects
-in the template implementation and should be reported. In Shell scripts, a
-missing or empty value may lead to unexpected behavior when it's evaluated
-in conditions. Empty or unset values also break the reliable multi-level
-override mechanism for variables.
+A variable with neither a provided value nor a script default is a defect in
+the template, so report it. The scripts run with `set -u`, so a reference to
+a variable that was never set stops the script, and an empty value can send
+a condition down the wrong branch. Empty or unset values also break the
+override order.
 
 For example, a variable can have a default value in the script and be
 overridden in the `.env` file. It can be further overridden in the CI or
@@ -78,11 +84,19 @@ environment.
 
 ## Boolean variables
 
-Boolean variables use `1` for true and `0` for false values to ensure
-consistency across different environments.
+Boolean variables use `1` for true and `0` for false, so a flag means the
+same thing in every environment. We don't use `true`/`false`, `yes`/`no`, or
+other variations, because some systems interpret `true` and `false`
+differently.
 
-We don't use `true`/`false`, `yes`/`no`, or other variations, because some
-systems may interpret `true` and `false` differently.
+Most scripts compare a flag against `1`, so `VORTEX_PROVISION_SKIP=true`
+doesn't skip anything. A few flags, such as `VORTEX_NOTIFY_SKIP`, only check
+that the value isn't empty, so `0` switches them on too: leave such a flag
+unset to keep it off.
+
+`VORTEX_NOTIFY_NEWRELIC_ENABLED` is one of those flags, and it takes `true`
+because it falls back to Lagoon's `NEWRELIC_ENABLED`. Third-party variables
+keep their own values, such as `RENOVATE_DRY_RUN=true`.
 
 <style>{`
   table {

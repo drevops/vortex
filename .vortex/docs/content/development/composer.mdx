@@ -11,9 +11,11 @@ import TabItem from '@theme/TabItem';
 import CodeBlock from '@theme/CodeBlock';
 import ComposerJsonSource from '!!raw-loader!@site/../../composer.json';
 
-[Composer](https://getcomposer.org/) is a dependency manager for PHP
-projects, including Drupal. It allows you to declare the libraries your
-project depends on and manages them for you.
+[Composer](https://getcomposer.org/) is the dependency manager for PHP, and
+Drupal projects use it for everything from core to contributed modules. You
+declare the packages your project needs in `composer.json`, and Composer
+resolves compatible versions, installs them, and records the exact result in
+`composer.lock`.
 
 This page covers the day-to-day workflows: requiring, updating, patching,
 and auditing packages. It ends with a key-by-key [reference of the shipped
@@ -21,8 +23,8 @@ and auditing packages. It ends with a key-by-key [reference of the shipped
 
 ## Installing
 
-To install packages, use `composer require` to include the package and
-resolve dependencies.
+Add a package with `composer require`. Composer adds it to `composer.json`,
+resolves its dependencies, and installs the package along with them.
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -37,9 +39,9 @@ resolve dependencies.
   </TabItem>
 </Tabs>
 
-By default, stable releases are installed. If you need a non-stable version
-(for example, `alpha`, `beta`, `RC`), specify the version constraint
-explicitly:
+By default, Composer installs only stable releases. To install a pre-release
+of a package, such as an `alpha`, `beta`, or `RC`, add a stability flag to
+its version constraint:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -54,9 +56,11 @@ explicitly:
   </TabItem>
 </Tabs>
 
-Make sure that the `minimum-stability` setting in `composer.json` is set to
-the version constraint you need. For example, to allow `alpha`, `beta`, and
-`RC` versions:
+The flag applies to that package alone. When the pre-release needs unstable
+versions of its own dependencies, require each of them with a flag too, or
+lower `minimum-stability` in `composer.json`. A stability level allows
+itself and everything more stable, so `beta` allows `beta`, `RC`, and stable
+releases, but not `alpha` or `dev`:
 
 ```json
 {
@@ -64,23 +68,24 @@ the version constraint you need. For example, to allow `alpha`, `beta`, and
 }
 ```
 
+Keep `prefer-stable` set to `true`, as **Vortex** ships it, so Composer
+still picks a stable release wherever one satisfies the constraint.
+
 ## Adding JavaScript/CSS libraries (npm packages)
 
-To install JavaScript or CSS libraries as Drupal libraries with Composer,
-they must be defined as [inline Composer
-packages](https://getcomposer.org/doc/04-schema.md#repositories). The
-package type for inline packages must be `drupal-library`, as Drupal treats
-these as libraries and places them into the `web/libraries/` directory where
-it expects to find all libraries.
+To install a JavaScript or CSS library as a Drupal library with Composer,
+define it as an [inline Composer
+package](https://getcomposer.org/doc/04-schema.md#repositories) with the
+`drupal-library` type. The `installer-paths` entry for that type puts it in
+`web/libraries/`, where Drupal looks for libraries.
 
 :::warning Avoid Asset Packagist
 
 Don't use [Asset Packagist](https://asset-packagist.org) to install
-front-end libraries. Drupal.org maintains the distribution of Composer
-packages with established security policies. Asset Packagist, by contrast,
-is a third-party service that lacks the safeguards needed to protect against
-supply chain attacks. Instead, define packages as inline Composer packages
-as shown below.
+front-end libraries. Drupal.org distributes its Composer packages under
+established security policies, while Asset Packagist is a third-party
+service without the safeguards that protect against supply chain attacks.
+Define the packages inline instead, as shown below.
 
 :::
 
@@ -140,12 +145,11 @@ To update all dependencies:
 
 :::tip Updates and patches
 
-If your project uses [patches](#patching) to modify dependencies, the update
-may fail if the patches aren't compatible with the new versions of the
-dependencies.
+If your project [patches](#patching) its dependencies, an update can fail
+when a patch no longer applies to the new version of a dependency.
 
-A common solution is to remove the patches temporarily, run the update, and
-then reapply the patches one by one.
+A common fix is to remove the patches temporarily, run the update, and then
+reapply the patches one by one.
 :::
 
 To update a specific package and its dependencies:
@@ -164,7 +168,7 @@ To update a specific package and its dependencies:
   </TabItem>
 </Tabs>
 
-For updating Drupal core, use:
+To update Drupal core:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -180,31 +184,35 @@ For updating Drupal core, use:
   </TabItem>
 </Tabs>
 
-After updating core, review changes with `git diff`, especially modified
-scaffolding files like `.htaccess`, and commit them in a single commit.
+Review the result with `git diff` and commit it as a single commit. Look
+closely at the scaffold files that core updates, such as `web/index.php` and
+`web/sites/default/default.settings.php`. **Vortex** ships its own
+`web/.htaccess` and keeps it out of scaffolding, so a core update never
+overwrites it. When a core release changes `.htaccess`, port the change by
+hand.
 
 ### Dependency bumping
 
-[Dependency bumping](https://getcomposer.org/doc/03-cli.md#bump) updates
-version constraints in your `composer.json` to match currently installed
-versions. This prevents accidental downgrades when adding new dependencies
-and improves dependency resolution performance.
+[Dependency bumping](https://getcomposer.org/doc/03-cli.md#bump) raises the
+version constraints in `composer.json` to the versions you have installed.
+That keeps a new dependency from dragging an installed package back to an
+older version, and it gives Composer fewer versions to consider, which
+speeds up dependency resolution.
 
-**Vortex** enables this automatically via the `bump-after-update`
-configuration. Every time you run `composer update`, your version
-constraints are updated to reflect the installed versions.
+**Vortex** turns this on with the `bump-after-update` setting, so every
+`composer update` raises your constraints to the versions it installed.
 
 :::note
 
-**Vortex** enables automatic bumping because it's designed for application
-projects (Drupal sites) where you control the entire dependency tree.
+**Vortex** bumps automatically because it's built for application projects
+(Drupal sites), where you control the whole dependency tree.
 
-This approach isn't recommended for libraries (reusable packages). Libraries
-should keep version constraints as broad as possible to avoid
-[dependency hell](https://getcomposer.org/doc/articles/versions.md) for
-downstream users. If you're building a library, use
-`bump-after-update: "dev"` to only bump development dependencies, or disable
-automatic bumping and run `composer bump --dev-only` manually.
+Bumping doesn't suit libraries (reusable packages). A library should keep
+its constraints as broad as possible to spare downstream users [dependency
+hell](https://getcomposer.org/doc/articles/versions.md). If you're building
+a library, set `bump-after-update: "dev"` to bump only the development
+dependencies, or turn automatic bumping off and run
+`composer bump --dev-only` yourself.
 
 :::
 
@@ -226,7 +234,8 @@ composer bump --dry-run
 
 ## Overriding paths
 
-To override package installation paths, modify `composer.json`:
+To install a package somewhere other than the default location for its
+type, add an entry to `installer-paths` in `composer.json`:
 
 ```json
 {
@@ -243,26 +252,27 @@ To override package installation paths, modify `composer.json`:
 }
 ```
 
-The first entry overrides the path for a specific package, placing it into a
-custom directory name. The second entry is a catch-all that routes all
-`drupal-library` type packages to `web/libraries/{$name}` by default.
+The first entry sends 1 package to a custom directory. The second is the
+catch-all that routes every other `drupal-library` package to
+`web/libraries/{$name}`. Composer uses the first entry that matches, so a
+package-specific path must come before the catch-all for its type.
 
 ## Vortex tooling package
 
 **Vortex** ships its operational scripts (build, provision, deployment, and
 notification tooling) as the
 [`drevops/vortex-tooling`](https://github.com/drevops/vortex-tooling)
-Composer package. The package is installed to
-`vendor/drevops/vortex-tooling/src/` and exposes its entry-point scripts as
-Composer binaries under `vendor/bin/vortex-*`, such as
-`vendor/bin/vortex-provision` or `vendor/bin/vortex-fetch-db`.
+Composer package. The scripts live in `vendor/drevops/vortex-tooling/src/`,
+and Composer exposes each entry-point script as a binary under
+`vendor/bin/vortex-*`, such as `vendor/bin/vortex-provision` or
+`vendor/bin/vortex-fetch-db`.
 
 See [Architecture > Automation
 scripts](../architecture.mdx#automation-scripts) for how the scripts are
 structured and how the router scripts dispatch to the provider-specific
 logic.
 
-The package is required in `composer.json` with a tilde constraint:
+`composer.json` requires the package with a tilde constraint:
 
 ```json
 {
@@ -272,9 +282,9 @@ The package is required in `composer.json` with a tilde constraint:
 }
 ```
 
-The `~` constraint accepts patch releases but holds the minor version, so a
-new minor release can't reach your deployments until you raise the
-constraint yourself.
+The `~` constraint accepts patch releases but holds the minor version, so
+`composer update` never moves you to a new minor release on its own. That
+takes a change to the constraint in `composer.json`.
 
 To update the package within the constraint:
 
@@ -296,42 +306,40 @@ first and then run the update.
 
 :::warning Never modify the shipped scripts
 
-Don't modify files under `vendor/drevops/vortex-tooling/src/`, because the
-changes are lost on the next `composer update`. Customize the scripts
-through their [environment variables](variables.mdx) or add your own scripts
-under `scripts/` (for example,
+Don't edit files under `vendor/drevops/vortex-tooling/src/`: the next
+`composer update` discards your changes. Customize the scripts through their
+[environment variables](variables.mdx) or add your own scripts under
+`scripts/` (for example,
 [custom provision scripts](provision.mdx#running-custom-scripts)). When
-neither is enough, apply a [patch](#patching) so the change survives
-dependency updates.
+neither is enough, apply a [patch](#patching), which survives dependency
+updates.
 
 :::
 
 ## Patching
 
-**Vortex** uses
+**Vortex** patches Composer dependencies with
 [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches)
-v2.x for applying patches to Composer dependencies. Version 2.x uses
-git-based patching with `git apply` for better cross-platform consistency.
+2.x. Version 2.x applies patches with `git apply`, so they behave the same
+on every platform.
 
 :::tip
 
-For official documentation, visit: [Composer Patches Recommended
-Workflows](https://docs.cweagans.net/composer-patches/usage/recommended-workflows/)
+For the official documentation, see [Composer Patches Recommended
+Workflows](https://docs.cweagans.net/composer-patches/usage/recommended-workflows/).
 
 :::
 
 ### Understanding `patches.lock.json`
 
-Composer Patches v2.x automatically generates a `patches.lock.json` file
-that contains:
+Composer Patches 2.x generates a `patches.lock.json` file that contains:
 
 - Patch metadata (URLs, descriptions, target packages)
 - SHA-256 checksums for patch verification
 
-This file must be committed to version control (like `composer.lock`).
-Committing it makes builds reproducible across teams and CI/CD environments.
-The patch state stays explicit and trackable, and the checksums in the file
-verify patch integrity.
+Commit this file to version control, like `composer.lock`. It makes builds
+reproducible across your team and in CI/CD: the patch state stays explicit
+and trackable, and the checksums in the file verify each patch's integrity.
 
 ### Adding a new patch
 
@@ -380,8 +388,10 @@ verify patch integrity.
 </Tabs>
 
 :::warning
-`composer patches-repatch` removes patched dependencies from `vendor/` and
-reinstalls them. Ensure you have no unsaved changes in those directories.
+`composer patches-repatch` uninstalls every patched package from wherever
+it's installed, such as `web/modules/contrib/` or `vendor/`, and then runs
+`composer install` to put it back. Any local edits in those packages are
+lost.
 :::
 
 4. Update `composer.lock`:
@@ -422,17 +432,18 @@ reinstalls them. Ensure you have no unsaved changes in those directories.
   </TabItem>
 </Tabs>
 
-3. Manually delete the affected dependency:
+3. Delete the package's directory by hand, because `patches-repatch` only
+   reinstalls packages that still have patches:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    ahoy cli rm -rf vendor/drupal/foobar
+    ahoy cli rm -rf web/modules/contrib/foobar
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli rm -rf vendor/drupal/foobar
+    docker compose exec cli rm -rf web/modules/contrib/foobar
     ```
   </TabItem>
 </Tabs>
@@ -474,9 +485,9 @@ reinstalls them. Ensure you have no unsaved changes in those directories.
 `composer audit` checks the installed packages against published security
 advisories and reports abandoned packages. **Vortex** configures Composer's
 `config.policy` so that advisories never block `composer install`,
-`composer update`, or `composer require`. The `composer audit` command still
-fails when an advisory is found, so vulnerabilities stay visible locally and
-in CI.
+`composer update`, or `composer require`. `composer audit` itself still
+fails when it finds an advisory, so vulnerabilities stay visible locally
+and in CI.
 
 ➡️ See [Dependency audit](security/dependency-audit.mdx) for the full policy
 reference, the audit commands, and ignoring assessed advisories.
@@ -485,14 +496,16 @@ reference, the audit commands, and ignoring assessed advisories.
 
 ### File overview
 
-**Vortex** comes with a pre-configured `composer.json` that lists the
-dependencies a Drupal project needs, along with development tools to help
-you maintain your code quality.
+**Vortex** ships a pre-configured `composer.json` with the packages a Drupal
+project needs and the development tools that check your code quality.
 
-The `composer.json` file is the core configuration file for Composer,
-detailing your project's dependencies, scripts, and settings.
+The `composer.json` file is Composer's core configuration file: it declares
+your project's dependencies, where they install, and how Composer behaves.
+The `lint` job in continuous integration checks it with
+`composer validate --strict` and `composer normalize --dry-run`, so run
+`ahoy composer normalize` after you edit it by hand.
 
-This section describes each part of the `composer.json` file and its role.
+This section describes each part of the file and its role.
 
 <details>
   <summary>Expand to see <code>composer.json</code></summary>
@@ -503,33 +516,35 @@ This section describes each part of the `composer.json` file and its role.
 
 #### `name`
 
-[`name`](https://getcomposer.org/doc/01-basic-usage.md#package-names) is a
-unique identifier for the project in Composer's ecosystem consisting of a
-vendor name and the project's name.
+[`name`](https://getcomposer.org/doc/01-basic-usage.md#package-names)
+identifies the project in Composer's ecosystem, as a vendor name and a
+project name joined by a slash. The installer replaces the template's
+`your_org/your_site` with your organization and site machine names.
 
 #### `description`
 
-A brief summary of the project's purpose.
+A short summary of the project's purpose. The installer fills in your site
+and organization names.
 
 #### `type`
 
-`type` specifies the type of the package. It tells Composer and any systems
-integrating with Composer how to treat the package, and it can influence how
-the package is installed and used.
+`type` tells Composer, and any system that integrates with it, how to treat
+the package, which can change how it's installed and used. **Vortex** sets
+it to `project`, the type for an application rather than a reusable
+library.
 
 #### `license`
 
-[license](https://getcomposer.org/doc/04-schema.md#license) indicates the
-license of the project. Since **Vortex** is a template for your consumer
-sites that are usually proprietary, we use `proprietary` as the default
-value. More license identifiers are listed at the [SPDX Open Source License
-Registry](https://spdx.org/licenses/).
+[`license`](https://getcomposer.org/doc/04-schema.md#license) states the
+project's license. **Vortex** is a template for consumer sites, which are
+usually proprietary, so we use `proprietary` as the default value. The [SPDX
+Open Source License Registry](https://spdx.org/licenses/) lists the
+identifiers for other licenses.
 
 #### `repositories`
 
 The [`repositories`](https://getcomposer.org/doc/04-schema.md#repositories)
-section defines custom package repositories, needed for accessing packages
-outside the default Packagist repository.
+section adds package repositories beyond Packagist, the default one.
 
 | Repository | Type | Description |
 |------------|------|-------------|
@@ -539,13 +554,20 @@ outside the default Packagist repository.
 #### `require`
 
 The [`require`](https://getcomposer.org/doc/04-schema.md#require) section
-specifies the packages and libraries your project needs.
+lists the packages your project needs to run.
 
 The **Documentation** column links to the page covering that package in more
 depth. A [Settings](settings.mdx#per-module-overrides) link means **Vortex**
 ships a per-module override file that applies environment-aware defaults for
 that module. Some modules still need a running service or
 environment-specific values on top of those defaults.
+
+Not every package reaches your project. The installer leaves out
+`drupal/storybook`, `drupal/migrate_plus`, and `drupal/migrate_tools` unless
+you turn on Storybook or the migration database. It also drops the module
+of each service you deselect (`drupal/clamav`, `drupal/redis`, and
+`drupal/search_api_solr`), and lets you deselect most of the other
+contributed modules.
 
 ➡️ See [Contributed modules](modules/contributed-modules.mdx) for what each
 override actually configures and where each module is installed.
@@ -560,7 +582,7 @@ override actually configures and where each module is installed.
 | [`drupal/coffee`](https://www.drupal.org/project/coffee) | Adds a keyboard shortcut to jump straight to any administration page by typing its name. | |
 | [`drupal/config_split`](https://www.drupal.org/project/config_split) | Splits configuration into sets that are conditionally imported, enabling environment-specific configuration such as development-only modules. | [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/config_update`](https://www.drupal.org/project/config_update) | Provides tools and Drush commands to report, revert, and import configuration changes relative to the defaults shipped by modules. | |
-| [`drupal/core-composer-scaffold`](https://www.drupal.org/docs/develop/using-composer/using-drupals-composer-scaffold) | Downloads Drupal Scaffold files such as `index.php` and `update.php` from the `drupal/core` project and places them inside the web root. | |
+| [`drupal/core-composer-scaffold`](https://www.drupal.org/docs/develop/using-composer/using-drupals-composer-scaffold) | Copies Drupal's scaffold files, such as `index.php` and `sites/default/default.settings.php`, from the `drupal/core` package into the web root. The [`drupal-scaffold`](#extra) settings choose which files it manages. | |
 | [`drupal/core-recommended`](https://github.com/drupal/core-recommended) | Pins the set of dependency versions that the Drupal community tests and recommends for a particular core version. | |
 | [`drupal/devel`](https://www.drupal.org/project/devel) | A suite of development tools for inspecting variables, entities, and the service container while debugging. | [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/drupal_helpers`](https://www.drupal.org/project/drupal_helpers) | A collection of helper functions that simplify writing update hooks and deployment operations. | [Drupal helpers](modules/drupal-helpers.mdx) |
@@ -575,12 +597,13 @@ override actually configures and where each module is installed.
 | [`drupal/redis`](https://www.drupal.org/project/redis) | Integrates Drupal with the Redis in-memory store for cache and lock backends. | [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/reroute_email`](https://www.drupal.org/project/reroute_email) | Reroutes all outbound email to a configured address on non-production environments to avoid emailing real users. | [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/robotstxt`](https://www.drupal.org/project/robotstxt) | Manages the `robots.txt` file from the admin UI, useful when it can't be placed on disk (for example, in multisite setups). | [Settings](settings.mdx#per-module-overrides) |
-| [`drupal/sdc_devel`](https://www.drupal.org/project/sdc_devel) | Development and validation tooling for Single Directory Components (SDC), reporting issues in component definitions and templates. | |
+| [`drupal/sdc_devel`](https://www.drupal.org/project/sdc_devel) | Development and validation tooling for Single Directory Components (SDC), reporting issues in component definitions and templates. | [SDC Devel](code-quality/sdc-devel.mdx), [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/search_api`](https://www.drupal.org/project/search_api) | Provides a framework for building search experiences with pluggable indexing backends. | |
 | [`drupal/search_api_solr`](https://www.drupal.org/project/search_api_solr) | A Search API backend that integrates Apache Solr for fast, scalable search. | |
 | [`drupal/seckit`](https://www.drupal.org/project/seckit) | Adds configurable security-hardening HTTP headers, including Content Security Policy and anti-framing protection. | [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/shield`](https://www.drupal.org/project/shield) | Protects non-production environments behind HTTP basic authentication. | [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/stage_file_proxy`](https://www.drupal.org/project/stage_file_proxy) | Fetches media files from a remote site on demand, so local environments don't need a full copy of the files directory. | [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/storybook`](https://www.drupal.org/project/storybook) | Renders the custom theme's Twig stories through Drupal for the Storybook component library, so the library shows the same markup the site renders. | [Storybook](themes.mdx#storybook), [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/testmode`](https://www.drupal.org/project/testmode) | Adjusts site behavior during automated tests, for example by filtering out generated content from listings. | [Testmode](modules/testmode.mdx), [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/xmlsitemap`](https://www.drupal.org/project/xmlsitemap) | Generates a multilingual XML sitemap to help search engines index the site. | [Settings](settings.mdx#per-module-overrides) |
 | [`drush/drush`](https://github.com/drush-ops/drush) | A command-line shell and scripting interface for Drupal, providing a wide range of utilities to manage and interact with your Drupal sites. | [Drush](environment/drush.mdx) |
@@ -588,29 +611,31 @@ override actually configures and where each module is installed.
 #### `require-dev`
 
 The [`require-dev`](https://getcomposer.org/doc/04-schema.md#require-dev)
-section lists packages used for development purposes, like code quality
-checks and testing. These tools are needed during development but not in
-production environments, so the production deployment stays smaller.
+section lists packages you need only during development, such as the code
+quality and testing tools. The container image build runs
+`composer install --no-dev`, so none of them reach production and the
+deployment stays smaller. The installer removes the packages of each
+development tool you deselect.
 
 | Package | Description | Documentation |
 |---------|-------------|---------------|
-| [`behat/behat`](https://github.com/Behat/Behat) | A PHP framework for Behavior-Driven Development (BDD), running human-readable stories that describe the behavior of your application. It facilitates communication between developers, stakeholders, and clients. | [Behat](testing/behat.mdx) |
+| [`behat/behat`](https://github.com/Behat/Behat) | A PHP framework for Behavior-Driven Development (BDD) that runs human-readable scenarios describing how your application behaves. The scenarios double as a shared description of the site for developers, stakeholders, and clients. | [Behat](testing/behat.mdx) |
 | [`dantleech/gherkin-lint`](https://github.com/dantleech/gherkin-lint) | Lints the Gherkin feature files used in Behat tests, checking syntax and formatting for consistency. | [Gherkin Lint](code-quality/gherkin-lint.mdx) |
-| [`drevops/behat-screenshot`](https://github.com/drevops/behat-screenshot) | Automatically captures a screenshot when a Behat scenario fails, which helps to understand why a test failed. | [Behat](testing/behat.mdx) |
-| [`drevops/behat-steps`](https://github.com/drevops/behat-steps) | A collection of pre-defined Behat step definitions for Drupal, speeding up the process of writing new tests. | [Behat](testing/behat.mdx) |
+| [`drevops/behat-screenshot`](https://github.com/drevops/behat-screenshot) | Captures HTML and PNG screenshots on demand and whenever a scenario fails, and combines per-step screenshots into an animated GIF for each scenario. | [Behat](testing/behat.mdx) |
+| [`drevops/behat-steps`](https://github.com/drevops/behat-steps) | Provides the Behat extension that integrates the tests with Drupal, and a library of ready-made step definitions for Drupal sites. | [Behat](testing/behat.mdx) |
 | [`drevops/phpcs-standard`](https://github.com/drevops/phpcs-standard) | A PHP_CodeSniffer coding standard that extends the Drupal coding standards with additional rules and best practices. | [PHPCS](code-quality/phpcs.mdx) |
 | [`drupal/coder`](https://www.drupal.org/project/coder) | Provides the PHP_CodeSniffer rules for the Drupal coding standards. The 9.x line targets PHP_CodeSniffer 4.x. | [PHPCS](code-quality/phpcs.mdx) |
-| [`ergebnis/composer-normalize`](https://github.com/ergebnis/composer-normalize) | A Composer plugin that normalizes the formatting and key order of `composer.json`. | |
+| [`ergebnis/composer-normalize`](https://github.com/ergebnis/composer-normalize) | A Composer plugin that normalizes the formatting and key order of `composer.json`. The CI `lint` job runs `composer normalize --dry-run` and fails on a file that isn't normalized. | |
 | [`friends-of-behat/mink-extension`](https://github.com/FriendsOfBehat/MinkExtension) | Connects Behat to Mink, providing the browser sessions and the base browser steps. Behat 4 needs its 3.x line, which has only an alpha release so far, so it's required here with the `@alpha` stability flag. | [Behat](testing/behat.mdx) |
-| [`lullabot/mink-selenium2-driver`](https://github.com/Lullabot/MinkSelenium2Driver) | The Mink driver that talks to a Selenium or WebDriver server, used by scenarios tagged `@javascript`. | [Behat](testing/behat.mdx) |
+| [`lullabot/mink-selenium2-driver`](https://github.com/Lullabot/MinkSelenium2Driver) | The Mink driver that talks to a Selenium or WebDriver server. Behat uses it for scenarios tagged `@javascript`, and Drupal core's functional JavaScript tests build on it too. | [Behat](testing/behat.mdx) |
 | [`mglaman/phpstan-drupal`](https://github.com/mglaman/phpstan-drupal) | Teaches PHPStan about Drupal APIs, so static analysis understands hooks, services, and entities in modules and themes. | [PHPStan](code-quality/phpstan.mdx) |
 | [`mikey179/vfsstream`](https://github.com/bovigo/vfsStream) | A virtual file system for PHPUnit tests, allowing file operations to be exercised without touching the real file system. | [PHPUnit](testing/phpunit.mdx) |
 | [`palantirnet/drupal-rector`](https://github.com/palantirnet/drupal-rector) | Rector rules that rewrite deprecated Drupal code, making core upgrades more efficient. It installs [`rector/rector`](https://github.com/rectorphp/rector) and constrains it to the versions its rule sets support. | [Rector](code-quality/rector.mdx) |
-| [`phpcompatibility/php-compatibility`](https://github.com/PHPCompatibility/PHPCompatibility) | PHP_CodeSniffer sniffs that check code for compatibility with specific PHP versions. The 10.x line targets PHP_CodeSniffer 4.x. | [PHPCS](code-quality/phpcs.mdx) |
+| [`phpcompatibility/php-compatibility`](https://github.com/PHPCompatibility/PHPCompatibility) | PHP_CodeSniffer sniffs that check code for compatibility with specific PHP versions. The 10.x line adds support for PHP_CodeSniffer 4.x and is required with the `@alpha` stability flag. | [PHPCS](code-quality/phpcs.mdx) |
 | [`phpspec/prophecy-phpunit`](https://github.com/phpspec/prophecy-phpunit) | Integrates the Prophecy mocking library with PHPUnit to provide advanced mocking capabilities in tests. | [PHPUnit](testing/phpunit.mdx) |
 | [`phpstan/extension-installer`](https://github.com/phpstan/extension-installer) | Automatically registers the installed PHPStan extensions, removing the need to wire them up by hand. | [PHPStan](code-quality/phpstan.mdx) |
 | [`phpstan/phpstan`](https://github.com/phpstan/phpstan) | A static analysis tool that finds type errors, incorrect method calls, and other bugs without running the code. | [PHPStan](code-quality/phpstan.mdx) |
-| [`phpunit/phpunit`](https://github.com/sebastianbergmann/phpunit) | The PHP testing framework, used here for unit, kernel, and functional tests. | [PHPUnit](testing/phpunit.mdx) |
+| [`phpunit/phpunit`](https://github.com/sebastianbergmann/phpunit) | The PHP testing framework, used here for the unit, kernel, functional, and functional JavaScript tests. | [PHPUnit](testing/phpunit.mdx) |
 | [`pyrech/composer-changelogs`](https://github.com/pyrech/composer-changelogs) | Prints a summary of package additions, updates, and removals after running `composer update`. | |
 | [`softcreatr/jsonpath`](https://github.com/SoftCreatR/JSONPath) | A JSONPath implementation required by the `drevops/behat-steps` JSON assertion steps. | [Behat](testing/behat.mdx) |
 | [`vincentlanglet/twig-cs-fixer`](https://github.com/VincentLanglet/Twig-CS-Fixer) | Checks and fixes Twig templates against a coding standard. | [Twig CS Fixer](code-quality/twig-cs-fixer.mdx) |
@@ -618,65 +643,74 @@ production environments, so the production deployment stays smaller.
 #### `conflict`
 
 The [`conflict`](https://getcomposer.org/doc/04-schema.md#conflict) section
-prevents installation conflicts with standalone Drupal core, so core
-versions don't clash and core files stay consistent.
+declares every version of `drupal/drupal`, the standalone Drupal package,
+incompatible with the project. Composer refuses to install it next to the
+core packages, so core versions don't clash and core files stay consistent.
 
 #### `minimum-stability`
 
 The
 [`minimum-stability`](https://getcomposer.org/doc/04-schema.md#minimum-stability)
-setting controls the minimum stability level of the packages that Composer
-is allowed to install. By setting it to `"stable"`, you are instructing
-Composer to prefer stable versions of packages over their unstable (like
-`beta` or `alpha`) versions.
+setting is the lowest stability that Composer accepts when it resolves
+dependencies. **Vortex** sets it to `"stable"`, so Composer ignores the
+pre-releases of every package unless its constraint in `require` or
+`require-dev` carries a stability flag. For example,
+`"friends-of-behat/mink-extension": "^3.0@alpha"` lets that package install
+as an alpha.
 
 #### `prefer-stable`
 
 The
 [`prefer-stable`](https://getcomposer.org/doc/04-schema.md#prefer-stable)
-setting, when set to `true`, instructs Composer to prefer stable versions of
-packages even when the `minimum-stability` setting allows less stable
-versions. This is useful when some dependencies don't have a stable release
-yet, or when a newer feature or fix is only available in a less stable
-version.
+setting, when set to `true`, makes Composer choose a stable release over a
+pre-release whenever a stable one satisfies the constraint. A requirement
+with a stability flag, such as `"drupal/config_update": "^2@alpha"`, then
+gets an alpha only while no stable 2.x release exists. The same applies when
+you lower `minimum-stability` to reach a feature or fix that's only in a
+pre-release: every package that has a stable release keeps getting one.
 
 #### `config`
 
 The [`config`](https://getcomposer.org/doc/04-schema.md#config) section
-configures Composer's behavior in the project.
+configures how Composer behaves in the project.
 
 - [`allow-plugins`](https://getcomposer.org/doc/06-config.md#allow-plugins):
-  This setting specifies which Composer plugins are allowed to run. It's a
-  security measure to prevent the execution of untrusted code from
-  third-party plugins. Each plugin needs to be explicitly allowed to ensure
-  it can execute.
+  Lists the Composer plugins that are allowed to run. Composer doesn't run a
+  plugin that isn't listed, which protects you from untrusted code in
+  third-party plugins. **Vortex** allows 10: `composer/installers`,
+  `cweagans/composer-patches`,
+  `dealerdirect/phpcodesniffer-composer-installer`,
+  `drupal/core-composer-scaffold`, `ergebnis/composer-normalize`,
+  `php-http/discovery`, `phpstan/extension-installer`,
+  `pyrech/composer-changelogs`, `symfony/runtime`, and `tbachert/spi`.
 - [`policy`](https://getcomposer.org/doc/06-config.md#policy): Introduced in
   Composer 2.10.0, this unified setting controls security auditing and
   version blocking of dependencies. With the **Vortex** configuration,
   advisories never block installs but still fail `composer audit`, so
   vulnerabilities stay visible without breaking reproducible builds. ➡️ See
-  [Security auditing](#security-auditing) for the option values, ignoring
-  advisories, and the CI integration.
+  [Dependency audit](security/dependency-audit.mdx) for the option values,
+  ignoring advisories, and the CI integration.
 - [`bump-after-update`][bump-after-update]:
-  Automatically updates version constraints in `composer.json` to match
-  currently installed package versions after running `composer update`.
-  **Vortex** sets this to `true` to bump all dependencies. Available values:
-  `true` (all dependencies), `false` (disabled), `"dev"` (only dev
-  dependencies), or `"no-dev"` (only non-dev dependencies).
+  Runs `composer bump` after every `composer update`, which raises the
+  version constraints in `composer.json` to the installed versions.
+  **Vortex** sets it to `true` to bump all dependencies. The available
+  values are `true` (all dependencies), `false` (disabled), `"dev"` (only
+  development dependencies), and `"no-dev"` (only non-development
+  dependencies).
 - [`discard-changes`][discard-changes]:
-  When set to `true`, any local changes made to the dependencies (packages
-  under version control like Git) are discarded without prompting when you
-  run `composer install` or `composer update`. Composer overwrites the local
-  changes with the data from the source repository.
-- [`platform`](https://getcomposer.org/doc/06-config.md#platform): Specifies
-  the PHP version of the platform environment where the current project
-  runs. This should be specified as an exact version number (for example,
-  `8.4.23`). It should be kept in sync with the `php` version in the
-  [Docker containers](environment/docker.mdx).
+  When set to `true`, Composer discards local changes in dependencies that
+  were installed from source, such as a Git checkout. The setting applies
+  only when Composer runs non-interactively, for example in CI or with
+  `--no-interaction`; an interactive run asks you what to do.
+- [`platform`](https://getcomposer.org/doc/06-config.md#platform): Tells
+  Composer which PHP version to resolve dependencies for, regardless of the
+  PHP version that runs Composer. Set it as an exact version number, such as
+  the `8.4.23` that **Vortex** ships, and keep it in sync with the PHP
+  version in the [Docker containers](environment/docker.mdx).
 - [`sort-packages`](https://getcomposer.org/doc/06-config.md#sort-packages):
-  When set to `true`, Composer keeps packages sorted in `composer.json` and
-  `composer.lock`. Sorted files are more readable and cause fewer merge
-  conflicts in version control.
+  When set to `true`, `composer require` keeps the package lists in
+  `composer.json` sorted by name. Sorted lists are easier to read and cause
+  fewer merge conflicts. The setting doesn't affect `composer.lock`.
 
 [bump-after-update]: https://getcomposer.org/doc/06-config.md#bump-after-update
 [discard-changes]: https://getcomposer.org/doc/06-config.md#discard-changes
@@ -684,36 +718,43 @@ configures Composer's behavior in the project.
 #### `autoload-dev`
 
 The [`autoload-dev`](https://getcomposer.org/doc/04-schema.md#autoload-dev)
-section defines how Composer automatically loads PHP
-development-specific classes within the project, without needing to manually
-include or require each class file.
+section tells Composer how to autoload the classes that only development
+needs, so no file has to `include` or `require` them by hand. **Vortex**
+adds `tests/phpunit/` to its `classmap`, which covers the project-level
+PHPUnit tests, such as the settings tests, and their base classes.
 
 #### `extra`
 
 The [`extra`](https://getcomposer.org/doc/04-schema.md#extra) section holds
-custom configuration for packages. These packages read settings from this
-section to tailor their behavior to the needs and structure of your Drupal
-project.
+configuration for Composer plugins, which read their settings from here to
+fit the structure of your Drupal project.
 
 - [`drupal-scaffold`][drupal-scaffold]:
-  This setting controls which files should be scaffolded:
-  - `locations`: Specifies the location of the web root (the directory
-    containing the `index.php` file).
-  - `file-mapping`: Determines which files are managed by the scaffold
-    process. **Vortex** comes with sensible defaults, but you can customize
-    this section to suit your needs.
+  Controls the Drupal scaffold files:
+  - `locations`: Sets the web root (the directory containing the `index.php`
+    file), `web/` in **Vortex**.
+  - `file-mapping`: Decides which scaffold files the plugin manages.
+    **Vortex** turns off 14 of the files that core provides: it ships its
+    own `.htaccess`, `.editorconfig`, and `.gitattributes`, and leaves out
+    others such as `update.php` and `robots.txt`. Set an entry to `false` to
+    stop core from overwriting that file.
 - [`installer-paths`][installer-paths]:
-  Defines custom installation paths for package types like Drupal modules,
-  themes, and libraries.
-- `patchLevel`: Defines the patch level for specific packages, in this case,
-  `drupal/core`. The `-p` option followed by a number (for example, `-p1`,
-  `-p2`) in patch commands specifies the number of leading directories to
-  strip from the file paths found in the patch file. This determines how the
-  paths in the patch file are interpreted relative to the current directory
-  where the patch is being applied.
-- `patches`: Specifies the patches to be applied to specific packages. The
-  applied patch state lives in the generated `patches.lock.json` file, which
-  is committed like `composer.lock`. ➡️ See [Patching](#patching)
+  Sets where each package type installs: Drupal core into `web/core`,
+  contributed modules, themes, and profiles into their `contrib`
+  directories, libraries into `web/libraries`, recipes into `recipes`, and
+  Drush command packages into `drush/Commands/contrib`. Custom modules,
+  themes, and profiles get matching `custom` directories. ➡️ See
+  [Overriding paths](#overriding-paths)
+- `patchLevel`: Sets `-p2` for `drupal/core`. The `-p` option of a patch
+  command (for example, `-p1` or `-p2`) is the number of leading directories
+  to strip from the file paths in the patch. Version 2.x of
+  `cweagans/composer-patches` doesn't read this key: it takes the depth from
+  the patch's own `depth`, from `extra.composer-patches.package-depths`, or
+  from its built-in defaults, which already use 2 for `drupal/core`.
+- `patches`: Lists the patches to apply to each package, and it's empty in
+  the template. The applied patch state lives in the generated
+  `patches.lock.json` file, which you commit like `composer.lock`. ➡️ See
+  [Patching](#patching)
 
 [drupal-scaffold]: https://www.drupal.org/docs/develop/using-composer/using-drupals-composer-scaffold
 [installer-paths]: https://getcomposer.org/doc/faqs/how-do-i-install-a-package-to-a-custom-path-for-my-framework.md

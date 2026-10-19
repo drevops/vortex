@@ -14,9 +14,9 @@ tests.
 
 Each page covers 1 task or tool and everything about it: daily usage,
 configuration, and how it behaves in the continuous integration pipeline.
-Larger topics are subsections whose overview page ties their pages together.
-This page describes the overall process and points to the right page for
-each task.
+Bigger topics get a subsection, with an overview page that ties its pages
+together. This page walks through the overall process and points you to the
+right page for each task.
 
 ## Typical development process
 
@@ -44,14 +44,16 @@ each task.
 
 ## Common commands
 
-Each video is a live recording captured on a demo consumer project that uses
-**Vortex**.
+Each video is a live recording, captured on a demo consumer project that
+uses **Vortex**.
 
 ### Build the project
 
-`ahoy build` rebuilds the whole stack from scratch: it recreates the
-containers, installs the Composer and front-end dependencies, compiles the
-theme assets, and provisions the site from the database dump.
+`ahoy build` rebuilds the project from scratch. Once you confirm, it removes
+the containers, the installed dependencies, and the database, then builds
+and starts fresh containers. It installs the Composer and front-end
+dependencies, compiles the custom theme's assets, and provisions the site.
+It finishes by printing the project information with a one-time login link.
 
 <AsciinemaPlayer
   src="/img/build.json"
@@ -66,8 +68,11 @@ theme assets, and provisions the site from the database dump.
 
 ### Show project information
 
-`ahoy info` shows the current project information: the site URL, container
-status, and ports.
+`ahoy info` prints what you need to reach the running project: the site URL,
+the database credentials and host port, and the mail catcher and Selenium
+VNC addresses. The VNC address lets you watch the browser tests run. It also
+shows whether Xdebug is on, plus the Solr and Storybook addresses when your
+project uses them.
 
 <AsciinemaPlayer
   src="/img/info.json"
@@ -82,9 +87,14 @@ status, and ports.
 
 ### Run linters
 
-`ahoy lint` runs all the code quality checks: back-end (PHPCS, PHPStan,
-Rector), front-end (Twig CS Fixer, ESLint, Stylelint), and test linting
-(Gherkin Lint).
+`ahoy lint` runs the back-end linters (PHPCS, PHPStan, and Rector), the
+front-end linters (Twig CS Fixer, ESLint, and Stylelint), and Gherkin Lint
+for the Behat feature files. `ahoy lint-fix` applies the automatic fixes
+that Rector, PHPCBF, Twig CS Fixer, ESLint, and Stylelint support.
+
+SDC Devel validates the custom theme's components against a provisioned
+site, so it runs separately as `ahoy lint-sdc`. DCLint and Hadolint have no
+Ahoy command: continuous integration runs them from their Docker images.
 
 <AsciinemaPlayer
   src="/img/lint.json"
@@ -99,8 +109,10 @@ Rector), front-end (Twig CS Fixer, ESLint, Stylelint), and test linting
 
 ### Run unit, kernel, and functional tests
 
-`ahoy test` runs all the PHPUnit test suites: unit, kernel, functional, and
-functional JavaScript.
+`ahoy test` runs every PHPUnit suite: unit, kernel, functional, and
+functional JavaScript. To run 1 suite, use `ahoy test-unit`,
+`ahoy test-kernel`, `ahoy test-functional`, or
+`ahoy test-functional-javascript`.
 
 <AsciinemaPlayer
   src="/img/test.json"
@@ -115,8 +127,9 @@ functional JavaScript.
 
 ### Run BDD tests
 
-`ahoy test-bdd` runs the Behat tests against the provisioned site, driving a
-real browser inside the container stack.
+`ahoy test-bdd` runs the Behat tests against the provisioned site. Scenarios
+tagged `@javascript` drive a real browser in the `chrome` container, and the
+rest make plain HTTP requests without a browser.
 
 <AsciinemaPlayer
   src="/img/test-bdd.json"
@@ -131,9 +144,13 @@ real browser inside the container stack.
 
 ### Re-provision the site
 
-`ahoy provision` re-imports the database dump from `.data/db.sql` into the
-running stack and applies the provisioning steps: database updates,
-configuration import, cache rebuilds, and deploy hooks.
+`ahoy provision` runs provisioning again in the running stack. When
+`VORTEX_PROVISION_OVERRIDE_DB` is `1`, as `.env.local.example` sets it for
+local work, it replaces the current database with the dump from
+`.data/db.sql`. Otherwise, an existing site keeps its database. Either way,
+it then runs the provisioning steps, from the database updates and the
+configuration import to the deploy hooks and your custom
+`scripts/provision-*.sh` scripts. It finishes with a one-time login link.
 
 <AsciinemaPlayer
   src="/img/provision.json"
@@ -184,6 +201,7 @@ Every tool **Vortex** ships, and where it's documented.
 | Tool | Documented in |
 |------|---------------|
 | Ahoy | [Environment > Ahoy](environment/ahoy.mdx) |
+| `audit-ci` | [Security > Dependency audit](security/dependency-audit.mdx) |
 | Behat | [Testing > Behat](testing/behat.mdx) |
 | Composer | [Composer](composer.mdx) |
 | DCLint | [Code quality > DCLint](code-quality/dclint.mdx) |
@@ -204,6 +222,7 @@ Every tool **Vortex** ships, and where it's documented.
 | Rector | [Code quality > Rector](code-quality/rector.mdx) |
 | Renovate | [Dependency updates](dependency-updates.mdx) |
 | SDC Devel | [Code quality > SDC Devel](code-quality/sdc-devel.mdx) |
+| Storybook | [Themes > Storybook](themes.mdx#storybook) |
 | Stylelint | [Code quality > Stylelint](code-quality/stylelint.mdx) |
 | Twig CS Fixer | [Code quality > Twig CS Fixer](code-quality/twig-cs-fixer.mdx) |
 | Xdebug | [Environment > Debugging](environment/debugging.mdx) |
