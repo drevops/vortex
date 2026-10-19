@@ -160,9 +160,10 @@ Follow the steps below to release a new version of **Vortex**:
     runner image and the cache version from those 2 files.
 11. Update the documentation with `cd .vortex && ahoy update-docs`.
 12. Commit the changes, then regenerate the installer snapshots with
-    `cd .vortex && ahoy update-snapshots` and commit the regenerated
-    fixtures. The command commits the installer fixtures itself; commit the
-    Docker Compose fixtures it leaves in `.vortex/tests/phpunit/Fixtures/`.
+    `cd .vortex && ahoy update-snapshots`. If the Docker Compose fixtures in
+    `.vortex/tests/phpunit/Fixtures/` change, the command stops before the
+    installer step: commit them and run it again. It commits the installer
+    fixtures itself.
 13. Re-record the demo videos with `cd .vortex && ahoy update-videos` and
     commit the output.
 14. Tag the **Vortex** release and publish the GitHub release using the
