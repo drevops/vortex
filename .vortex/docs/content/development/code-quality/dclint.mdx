@@ -4,7 +4,9 @@ sidebar_label: DCLint
 
 # DCLint
 
-https://github.com/zavoloklom/docker-compose-linter
+The [Docker Compose Linter
+project](https://github.com/zavoloklom/docker-compose-linter) describes the
+tool as follows:
 
 > A command-line tool for validating and enforcing best practices in Docker
 > Compose files.
@@ -16,42 +18,70 @@ port mappings and a consistent order of keys within each service, so
 ruleset](https://github.com/drevops/vortex/blob/main/.dclintrc) for its
 Docker Compose files.
 
+This page is for developers who change `docker-compose.yml`. After reading
+it, you can run DCLint the way CI does, fix what it reports, and tell which
+of its findings fail the build.
+
 ## Installation
 
-:::note
-
-**Vortex** doesn't install DCLint locally. Follow the
-[instructions](https://github.com/zavoloklom/docker-compose-linter#installation)
-to install it on your system.
-
+**Vortex** doesn't install DCLint in the project. To run it locally, install
+it on your machine by following the [DCLint usage
+instructions](https://github.com/zavoloklom/docker-compose-linter#usage-with-nodejs).
 In CI, DCLint runs from its official Docker image.
 
-:::
-
-The installer selects DCLint by default. Deselecting it in the
-`Development tools` question removes the `.dclintrc` configuration file and
-the continuous integration step from every supported provider.
+The installer selects DCLint by default. If you deselect it in the
+**Development tools** prompt, the installer removes the `.dclintrc`
+configuration file and the DCLint step from the CI configuration of every
+supported provider.
 
 ## Usage
+
+To lint the Docker Compose files, run the following command from the
+project root:
 
 ```shell
 dclint .
 ```
 
+To fix the problems that DCLint can fix automatically, such as the order of
+service keys and unquoted ports, add the `--fix` flag:
+
+```shell
+dclint --fix .
+```
+
+Confirm that the check passed: run `echo $?` straight after DCLint. It
+prints `0` when DCLint found no errors. Warnings still appear in the
+output, but they don't change the exit code.
+
 ## Configuration
 
 Global configuration lives in the
 [`.dclintrc`](https://github.com/drevops/vortex/blob/main/.dclintrc) file.
-It turns off 4 rules (`no-build-and-image`, `services-alphabetical-order`,
-`no-unbound-port-interfaces`, and `require-project-name-field`) and
-configures `service-keys-order` with 8 groups of keys. That rule keeps the
-keys of every service in `docker-compose.yml` in the same order, from core
-definitions such as `build` and `image` to operational metadata such as
-`labels`. Diffs then stay small and services stay comparable.
+It sets each rule it lists to 1 of 3 levels:
+
+- `0` turns the rule off.
+- `1` reports a warning, which doesn't fail the check.
+- `2` reports an error, which fails the check.
+
+The file turns off the following 4 rules:
+
+- `no-build-and-image`
+- `services-alphabetical-order`
+- `no-unbound-port-interfaces`
+- `require-project-name-field`
+
+It also sets `service-keys-order` to `1` and configures it with 8 groups of
+keys. That rule keeps the keys of every service in `docker-compose.yml` in
+the same order, from core definitions such as `build` and `image` to
+operational metadata such as `labels`. Diffs then stay small and services
+stay comparable. Every rule the file doesn't list keeps the level DCLint
+gives it by default.
 
 ## Ignoring
 
-To ignore all DCLint rules in a file, add this comment to the file header:
+To ignore all DCLint rules in a file, add this comment as the first line of
+the file:
 
 ```yaml
 # dclint disable
@@ -60,8 +90,16 @@ services:
     build: .
 ```
 
-To ignore specific rules for a single line, place a `disable-line` directive
-on its own line immediately before it:
+To ignore specific rules in a file, list them after `dclint disable` in the
+same comment, separated by spaces:
+
+```yaml
+# dclint disable require-quotes-in-ports service-keys-order
+```
+
+To ignore rules for a single line, add a `disable-line` comment at the end
+of that line or on its own line right before it. The following example
+ignores 1 rule for 1 port:
 
 ```yaml
 services:
@@ -74,14 +112,16 @@ services:
 ## Continuous integration
 
 DCLint runs in the `lint` job of the [continuous integration
-pipeline](../../continuous-integration/README.mdx) and fails the build on
-violations.
+pipeline](../../continuous-integration/README.mdx) and fails the build when
+it reports an error. Warnings, such as unquoted ports or service keys out of
+order, appear in the job log without failing the build.
 
 ### Ignoring failures
 
-Set `VORTEX_CI_DCLINT_IGNORE_FAILURE` to `1` to let the build pass anyway.
-DCLint still runs and prints every violation in the job log, so you can see
-what you're letting through.
+To let the build pass despite errors, set the
+`VORTEX_CI_DCLINT_IGNORE_FAILURE` CI variable to `1`. DCLint still runs and
+prints every violation in the job log, so you can see what you're letting
+through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

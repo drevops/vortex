@@ -4,9 +4,11 @@ sidebar_label: Gherkin Lint
 
 # Gherkin Lint
 
-https://github.com/dantleech/gherkin-lint-php
+The [Gherkin Lint for PHP
+repository](https://github.com/dantleech/gherkin-lint-php) describes the
+tool as follows:
 
-> Provides a Gherkin linter for PHP.
+> PHP Gherkin Linter
 
 Gherkin Lint checks Behat feature files for the slips that make a test
 suite harder to read and maintain. It flags inconsistent indentation,
@@ -15,10 +17,21 @@ trailing spaces. **Vortex** comes with [Gherkin Lint
 configuration](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
 for Behat tests.
 
+This page is for developers who write Behat feature files. It shows how to
+lint them, which rules the shipped configuration changes, and how to turn a
+rule off.
+
+Gherkin Lint ships with Behat. If you deselect Behat in the
+**Development tools** prompt, the installer removes Gherkin Lint, its
+`gherkinlint.json` configuration file, and its CI step.
+
 ## Usage
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
+To lint the feature files in `tests/behat/features`, run the following
+command:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -33,21 +46,30 @@ import TabItem from '@theme/TabItem';
   </TabItem>
 </Tabs>
 
+Confirm that the check passed: Gherkin Lint prints `No problems found in`,
+followed by the number of feature files it checked.
+
 ## Configuration
 
-See [configuration
+See the [Gherkin Lint configuration
 reference](https://github.com/dantleech/gherkin-lint-php?tab=readme-ov-file#configuration)
-and
-[rules](https://github.com/dantleech/gherkin-lint-php/blob/master/docs/rules.md).
+and the [Gherkin Lint
+rules](https://github.com/dantleech/gherkin-lint-php/blob/master/docs/rules.md).
 
 All global configuration lives in the
 [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
 file. Gherkin Lint enables every rule the file doesn't mention, and the
 values in the file override the defaults of the rules it lists. The shipped
 file sets the `indentation` rule to 2 spaces, with 3 for literal blocks, and
-turns off `keyword-order`, `no-homogenous-tags`, and `scenario-size`.
+turns off the following rules:
 
-To list the rules and whether each one is on, run:
+- `keyword-order` - the order of the `Given`, `When`, and `Then` steps in
+  a scenario
+- `no-homogenous-tags` - a tag on every scenario that belongs at the
+  feature level
+- `scenario-size` - the number of steps in a scenario
+
+To list the rules and whether each one is on, run the following command:
 
 ```shell
 ahoy cli vendor/bin/gherkinlint rules
@@ -87,9 +109,10 @@ violations.
 
 ### Ignoring failures
 
-Set `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE` to `1` to let the build pass
-anyway. Gherkin Lint still runs and prints every violation in the job log,
-so you can see what you're letting through.
+To let the build pass anyway, set the
+`VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE` CI variable to `1`. Gherkin Lint
+still runs and prints every violation in the job log, so you can see what
+you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

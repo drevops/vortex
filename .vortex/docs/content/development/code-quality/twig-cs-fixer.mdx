@@ -4,12 +4,11 @@ sidebar_label: Twig CS Fixer
 
 # Twig CS Fixer
 
-https://github.com/VincentLanglet/Twig-CS-Fixer
+The [Twig CS Fixer
+repository](https://github.com/VincentLanglet/Twig-CS-Fixer) describes the
+tool as follows:
 
-> The missing checkstyle for twig!
->
-> Twig CS Fixer aims to be what phpcs is to php. It checks your codebase for
-> violations on coding standards.
+> A tool to automatically fix Twig Coding Standards issues
 
 Twig CS Fixer checks Twig templates for the formatting problems PHPCS
 catches in PHP: indentation, spacing around delimiters and operators,
@@ -19,12 +18,18 @@ can also fix what they find.
 ruleset](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php) for
 Drupal projects.
 
+This page is for developers who write Twig templates in custom modules or
+themes. It shows how to lint and fix the templates, what the shipped
+ruleset enforces, and how to ignore a rule.
+
 ## Usage
 
 ### Check for violations
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
+To check the templates, run 1 of the following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -40,7 +45,13 @@ import TabItem from '@theme/TabItem';
   </TabItem>
 </Tabs>
 
+Confirm that the check passed: Twig CS Fixer prints a summary that starts
+with `[OK] Files linted:` and ends with `errors: 0`.
+
 ### Fix violations
+
+To fix the violations that have an automatic fix, run 1 of the following
+commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -58,7 +69,7 @@ import TabItem from '@theme/TabItem';
 
 ## Configuration
 
-See [configuration
+See the [Twig CS Fixer configuration
 reference](https://github.com/VincentLanglet/Twig-CS-Fixer/blob/main/docs/configuration.md).
 
 All global configuration lives in the
@@ -73,7 +84,8 @@ It registers Drupal's `trans` tag parser as well, so templates that use
 
 Targets include custom modules and themes.
 
-Adding or removing targets:
+To add or remove targets, add or remove the `$finder->in()` calls in
+`.twig-cs-fixer.php`:
 
 ```php
 $finder = new TwigCsFixer\File\Finder();
@@ -118,13 +130,14 @@ To ignore a specific rule in a file, add this comment to the file header:
 
 Twig CS Fixer doesn't support ignoring code blocks.
 
-To ignore only the current line:
+To ignore rules for a single line, add this comment at the end of it:
 
 ```twig
 {{ token }} {# twig-cs-fixer-disable-line A.B:C:D #}
 ```
 
-To ignore only the next line:
+To ignore rules for the next line only, add this comment on the line before
+it:
 
 ```twig
 {# twig-cs-fixer-disable-next-line A.B:C:D #}
@@ -139,9 +152,10 @@ violations.
 
 ### Ignoring failures
 
-Set `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE` to `1` to let the build pass
-anyway. Twig CS Fixer still runs and prints every violation in the job
-log, so you can see what you're letting through.
+To let the build pass anyway, set the
+`VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE` CI variable to `1`. Twig CS Fixer
+still runs and prints every violation in the job log, so you can see what
+you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

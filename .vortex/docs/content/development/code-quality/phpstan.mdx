@@ -4,7 +4,8 @@ sidebar_label: PHPStan
 
 # PHPStan - PHP static analysis tool
 
-https://phpstan.org/user-guide/getting-started
+The [PHPStan project](https://github.com/phpstan/phpstan) describes the tool
+as follows:
 
 > PHPStan focuses on finding errors in your code without actually running
 > it. It catches whole classes of bugs even before you write tests for the
@@ -19,10 +20,18 @@ type. **Vortex** comes with a [pre-configured PHPStan
 ruleset](https://github.com/drevops/vortex/blob/main/phpstan.neon) for
 Drupal projects, so the analysis runs on every build without any setup.
 
+This page is for developers who write PHP in a **Vortex** project. It shows
+how to run PHPStan, what the shipped configuration analyzes, and how to
+ignore an error you can't fix. For PHPStan itself, see the [PHPStan user
+guide](https://phpstan.org/user-guide/getting-started).
+
 ## Usage
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
+`ahoy lint-be` runs PHPCS first, then PHPStan and Rector. To analyze the
+code, run 1 of the following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -37,6 +46,8 @@ import TabItem from '@theme/TabItem';
   </TabItem>
 </Tabs>
 
+Confirm that the analysis passed: PHPStan prints `[OK] No errors`.
+
 :::note
 
 PHPStan doesn't change your code: it only reports errors. Rector fixes some
@@ -48,7 +59,8 @@ of the same problems automatically, such as missing type declarations.
 
 ## Configuration
 
-See [configuration reference](https://phpstan.org/config-reference).
+See the [PHPStan configuration
+reference](https://phpstan.org/config-reference).
 
 All global configuration lives in the
 [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon)
@@ -71,7 +83,8 @@ files.
 
 Targets include custom modules and themes, settings, tests, and scripts.
 
-Adding or removing targets:
+To add or remove targets, edit the `paths` and `excludePaths` lists in
+`phpstan.neon`:
 
 ```yaml
 parameters:
@@ -100,11 +113,23 @@ parameters:
 ```
 
 PHPStan doesn't support ignoring all rules within a file, ignoring a
-specific rule within a file, or ignoring
-[code blocks](https://github.com/phpstan/phpstan/issues/4452). Inline
-suppression is per-line only.
+specific rule within a file, or ignoring code blocks. Inline suppression is
+per-line only. For why PHPStan has no block-level ignore, see the PHPStan
+issue [Ignoring code blocks using
+PHPDocs](https://github.com/phpstan/phpstan/issues/4452).
 
-To ignore only the next line:
+To ignore 1 error on the next line, add a `@phpstan-ignore` comment with
+the error identifier that PHPStan prints alongside the error:
+
+```php
+// @phpstan-ignore variable.undefined
+echo $title;
+```
+
+To ignore an error on the same line instead, add the comment at the end of
+that line.
+
+To ignore every error on a line, add this comment on the line before it:
 
 ```php
 // @phpstan-ignore-next-line
@@ -119,9 +144,9 @@ violations.
 
 ### Ignoring failures
 
-Set `VORTEX_CI_PHPSTAN_IGNORE_FAILURE` to `1` to let the build pass anyway.
-PHPStan still runs and prints every error in the job log, so you can see
-what you're letting through.
+To let the build pass anyway, set the `VORTEX_CI_PHPSTAN_IGNORE_FAILURE` CI
+variable to `1`. PHPStan still runs and prints every error in the job log,
+so you can see what you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)
