@@ -24,7 +24,8 @@ ahoy help
 
 ## How to pass CLI arguments to commands?
 
-Add the arguments after the command name, separated by `--`:
+Add the arguments after the command name. The `--` separator is optional,
+because Ahoy removes it before it runs the command:
 
 ```shell
 ahoy mycommand -- myarg1 myarg2 --myoption1 --myoption2=myvalue
@@ -119,8 +120,11 @@ Turn Xdebug on in the containers, then start a debug session from your IDE:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
-    1. Run `ahoy debug`. It prints
-       `Enabled debug configuration. Use 'ahoy up' to disable.`
+    1. Run `ahoy debug`. After `php -v` in the CLI container confirms that
+       Xdebug loaded, it prints
+       `Enabled debug configuration. Use 'ahoy up' to disable.` To check
+       the state later, run `ahoy info`: its `Xdebug` line reads
+       `Enabled ('ahoy up cli' to disable)` while Xdebug is on.
     2. Turn on listening for incoming debug connections in your IDE.
     3. If your IDE asks for a server URL, give it the URL as it appears in
        the browser.
@@ -130,10 +134,14 @@ Turn Xdebug on in the containers, then start a debug session from your IDE:
 
     Use the same commands to debug CLI scripts.
 
-    To turn Xdebug off, run `ahoy up`.
+    To turn Xdebug off, run `ahoy up`. The `ahoy info` line suggests
+    `ahoy up cli` instead, but that recreates only the `cli` container, so
+    web requests still run with Xdebug in the `php` container.
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
-    1. Run `XDEBUG_ENABLE=true docker compose up -d cli php nginx`.
+    1. Run `XDEBUG_ENABLE=true docker compose up -d cli php nginx`. To
+       check that Xdebug loaded, run `docker compose exec cli php -v` and
+       look for Xdebug in its output.
     2. Turn on listening for incoming debug connections in your IDE.
     3. If your IDE asks for a server URL, give it the URL as it appears in
        the browser.
@@ -205,6 +213,14 @@ If your stack is already running, follow these steps:
     you switch branches. `ahoy provision` updates the environment to match
     the current branch, applying its database updates and configuration.
 
+    `ahoy provision` asks you to confirm first. It then keeps an existing
+    site's database, because `.env` sets `VORTEX_PROVISION_OVERRIDE_DB` to
+    `0`. It replaces the database only when that variable is `1`, as
+    `.env.local.example` sets it, or when `VORTEX_DB_IMAGE` is set, in
+    which case it reloads the database container from that image first. To
+    see which applies to you, check both variables in `.env.local` too: a
+    value there overrides the one in `.env`.
+
     When you need a fully clean environment, use `ahoy build`.
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -216,15 +232,25 @@ If your stack is already running, follow these steps:
 
     You don't need to rebuild the full stack every time you switch branches.
     The provision script updates the environment to match the current
-    branch.
+    branch. Like `ahoy provision`, it keeps an existing site's database by
+    default, but it doesn't ask for confirmation or reload the database
+    container.
 
-    When you need a fully clean environment, run:
+    When you need a fully clean environment, run the following commands,
+    which mirror the steps of `ahoy build`. Because `vortex-reset` deletes
+    every `node_modules` directory, they reinstall the front-end
+    dependencies and rebuild the theme before they provision the site:
 
     ```shell
-    docker compose down
+    docker compose down --remove-orphans --volumes
     ./vendor/bin/vortex-reset
     docker compose up -d --build --force-recreate
     docker compose exec cli composer install
+    docker compose exec cli npm ci
+    docker compose exec cli bash -c \
+      "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} ci"
+    docker compose exec cli bash -c \
+      "cd \${WEBROOT}/themes/custom/\${DRUPAL_THEME} && npm run build"
     docker compose exec cli ./vendor/bin/vortex-provision
     ```
   </TabItem>
@@ -350,10 +376,13 @@ workflow, including removing patches.
 
 ## What should I do when `composer audit` reports a security vulnerability?
 
-**Vortex** doesn't let security advisories block installation by default, so
-`composer install` and `composer update` keep working. `composer audit`
-reports the advisories instead, both when you run it locally and in the CI
-security audit workflow. When it reports one, follow these steps:
+**Vortex** sets `config.policy.advisories.block` to `false` in
+`composer.json`, so security advisories don't block `composer update`,
+`composer require`, or `composer remove`. `composer install` installs
+exactly what the lock file pins, so advisories never block it.
+`composer audit` reports the advisories instead, both when you run it
+locally and in the CI security audit workflow. When it reports one, follow
+these steps:
 
 1. Try updating the affected package to a newer version that resolves the
    advisory: `composer update vendor/package-name`.
@@ -375,7 +404,10 @@ for your project.
 
 The CI security audit workflow runs `npm audit` through `audit-ci` against
 the root and the custom theme's dependency trees, and fails on advisories
-rated `high` or higher. When it reports one, follow these steps:
+rated `high` or higher. The `Audit npm packages` step checks the root, and
+`Audit npm packages of the theme` checks the theme in
+`web/themes/custom/your_site_theme`. When a step reports an advisory,
+follow these steps in the directory it checks:
 
 1. Try updating the affected package to a newer version that resolves the
    advisory: `npm update <package-name>`.
@@ -386,7 +418,9 @@ rated `high` or higher. When it reports one, follow these steps:
    version of it with an `overrides` entry in `package.json`, then run
    `npm install`.
 4. If no fixed version exists or the vulnerability doesn't affect you, add
-   it to the `allowlist` in `audit-ci.jsonc` with notes and an expiry date.
+   it to the `allowlist` in that directory's `audit-ci.jsonc`, with notes
+   and an expiry date. The root and theme files each apply only to their
+   own tree.
 5. Optional: To let CI pass while you address the advisory, set
    `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1`, as a repository variable on
    GitHub Actions or as an environment variable in the CircleCI project

@@ -18,6 +18,15 @@ These requirements apply to all shell scripts in the template:
 - The Acquia hooks in `hooks/library/`
 - The scripts in `.circleci/`
 
+From `.vortex/`, `ahoy lint-scripts` runs `.vortex/tests/lint.scripts.sh`
+to enforce the ShellCheck and `shfmt` requirements. The script lints the
+`.sh`, `.bash`, and `.bats` files under `scripts/`, `.circleci/`,
+`hooks/library/`, `.vortex/docs/`, `.vortex/tooling/tests/`, and
+`.vortex/tooling/playground/`, skipping any `vendor`, `node_modules`, or
+`fixtures` path. It also lints every file in `.vortex/tooling/src/`. For
+each file, it runs `shellcheck` and then `shfmt -i 2 -ci -s -d`, and it
+stops at the first file that fails. Both commands must be on your `PATH`.
+
 ### Requirements
 
 The requirements use `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT`, and `MAY`
@@ -310,8 +319,9 @@ TEST_PACKAGE_TOKEN=<yourtoken> TEST_VORTEX_CONTAINER_REGISTRY_USER=<youruser> TE
 
 The `Vortex - Test` workflow splits the functional suite into 6 parallel
 batches by PHPUnit group, `p0` to `p5`, so give every new test method a
-`#[Group('pN')]` attribute. A test outside those groups never runs in CI.
-To run 1 batch locally, pass its group:
+`#[Group('pN')]` attribute. Outside those groups, a test runs in CI only in
+the `postbuild` group, which `PostBuildTest` declares and a CircleCI job
+runs after the `build` job. To run 1 batch locally, pass its group:
 `composer test-functional -- --group=p1`.
 
 The suite reads these environment variables:
@@ -321,21 +331,28 @@ The suite reads these environment variables:
   fails without it.
 - `TEST_VORTEX_CONTAINER_REGISTRY_USER` and
   `TEST_VORTEX_CONTAINER_REGISTRY_PASS` - container registry credentials.
-  The builds use them to pull public images past the Docker Hub rate limit
-  and to push images.
-- `TEST_GITHUB_TOKEN` - a GitHub token that the builds use to stay clear of
-  API rate limits.
+  The tests pass them to every command they run as
+  `VORTEX_CONTAINER_REGISTRY_USER` and `VORTEX_CONTAINER_REGISTRY_PASS`,
+  which the builds use to pull public images past the Docker Hub rate limit
+  and to push images. Without them, both are empty, so **Vortex** skips
+  the registry login.
+- `TEST_GITHUB_TOKEN` - a GitHub token that the tests pass to every command
+  as `GITHUB_TOKEN`, so the builds stay clear of API rate limits. Without
+  it, `GITHUB_TOKEN` is empty and GitHub requests go out without a token.
 - `TEST_VORTEX_DEBUG` - set to `1` for debug output.
-- `TEST_CIRCLECI_TOKEN` - a CircleCI API token for the post-build checks,
-  which run only on CircleCI.
+- `TEST_CIRCLECI_TOKEN` - a CircleCI API token for the post-build checks in
+  `PostBuildTest`, the only test that reads it. The test skips itself
+  outside CircleCI, so you need the token only on CircleCI, where the test
+  fails without it.
 
 Functional tests rely on database fixtures; see
 [Updating test assets](#updating-test-assets).
 
 ### Unit tests with BATS
 
-The BATS unit tests live in `.vortex/tooling/tests/unit/`. Run them from
-`.vortex/`:
+The BATS unit tests live in `.vortex/tooling/tests/unit/`. Most test files
+are named after the script they cover, without its `vortex-` prefix, such
+as `deploy.bats` for `vortex-deploy`. Run them from `.vortex/`:
 
 ```shell
 cd .vortex
@@ -348,7 +365,8 @@ ahoy test-bats tooling/tests/unit/deploy.bats
 ```
 
 Each test runs the scripts from a copy of the repository at its last commit,
-so commit your changes before you run the tests.
+so commit your changes before you run the tests. The exception is
+`update-vortex.bats`, which runs `vortex-update` from your working tree.
 
 ➡️ See [Tooling > Testing](tooling.mdx#testing) for the package's full test
 layers.
@@ -365,7 +383,9 @@ php .vortex/tests/update-test-assets [mode] [--tag <tag>]
 ```
 
 Without arguments, it runs `all`, a full refresh. The default tag is
-`latest`.
+`latest`. A successful run ends with `==> Done`. When a command fails, the
+script prints `Error: command failed with exit code <n>.` and stops the
+run.
 
 ### Modes
 
@@ -373,9 +393,9 @@ The script has these modes:
 
 | Mode | What it does | Follow-up |
 | --- | --- | --- |
-| `demo-dump` | Builds the demo site in place from the `standard` profile; exports `.data/db.demo.sql`. | Upload as `db.demo.sql` to the latest GitHub release. |
+| `demo-dump` | Builds the demo site in place from the `standard` profile; exports `.data/db.demo.sql`. | Upload as `db.demo.sql` to the latest release of `drevops/vortex` on GitHub. |
 | `demo-image` | Builds the demo site in place from the `standard` profile; pushes `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:<tag>`. | None. |
-| `test-dump` | Installs **Vortex** into `/tmp/star-wars`; builds; exports `/tmp/star-wars/.data/db.test.sql`. | Upload as `db_d11.test.sql` to the latest GitHub release. |
+| `test-dump` | Installs **Vortex** into `/tmp/star-wars`; builds; exports `/tmp/star-wars/.data/db.test.sql`. | Upload as `db_d11.test.sql` to the latest release of `drevops/vortex` on GitHub. |
 | `test-image` | Installs **Vortex** into `/tmp/star-wars`; builds; pushes `drevops/vortex-dev-mariadb-drupal-data-test-11.x:<tag>`. | None. |
 | `destination-images` | Pulls `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:<tag>` and pushes it to `drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x` under the didi tags `vortex-dev-database-ii` and `vortex-dev-didi-database-fi`. | None. |
 | `all` | Optimized full refresh: builds the demo stack once for both demo modes and the test stack once for both test modes (2 stack builds instead of 4). Then pushes images and tags destination images. Default when no mode is given. | Upload both dump files, as in the `demo-dump` and `test-dump` rows. |

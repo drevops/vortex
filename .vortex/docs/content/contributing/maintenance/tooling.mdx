@@ -35,8 +35,10 @@ The following table lists the contents of `.vortex/tooling/`:
 | `README.md`, `LICENSE` | The package readme and license, which ship with the scripts |
 | `.gitattributes`, `.gitignore` | The Git settings, which stay out of the published archive |
 
-`.gitattributes` marks `tests/` and `playground/` as `export-ignore`, so
-neither reaches the published archive.
+`.gitattributes` marks only `.gitattributes`, `.gitignore`, `playground/`,
+and `tests/` as `export-ignore`. The published archive holds the rest:
+`src/`, `composer.json`, `package.json`, `yarn.lock`, `README.md`, and
+`LICENSE`.
 
 While developing **Vortex** itself, the template's root `composer.json`
 resolves the package from the in-tree copy through a `path` repository with
@@ -79,8 +81,27 @@ deliberate: the disable is best-effort, so a failed disable doesn't stop the
 script. The contract still requires the closing `pass` so the step reports
 an outcome.
 
+In a shipped script, a `pass` that closes a task prints `[ OK ]`, the
+message, and the task's duration in seconds, such as
+`[ OK ] Disabled Search API Solr server. (2s)`. The provision subscripts
+in `scripts/` define simpler helpers, so in the example's own script,
+`pass` prints the message after a `+` marker, with no duration.
+
 See [Template > Authoring scripts](template.mdx#authoring-scripts) for the
 full authoring requirements shared by all shell scripts in the template.
+
+## Add a script
+
+To add a user-facing script, follow these steps:
+
+1. Create it in `src/` as `vortex-<name>`, following the [script
+   conventions](#script-conventions).
+2. Add `src/vortex-<name>` to the `bin` list in
+   `.vortex/tooling/composer.json`.
+
+Composer creates a `vendor/bin` entry only for the scripts in that list.
+Leave helper scripts off it: `vortex-notify`, for example, runs each
+`vortex-notify-*` channel script by path from `src/`.
 
 ## Testing
 
@@ -89,8 +110,9 @@ Tests cover the scripts at 3 levels:
 - **Unit** - BATS tests in `tooling/tests/unit/` cover the shipped scripts
   with external commands mocked. The same suite also covers a few template
   scripts outside the package; see
-  [Template > Unit testing](template.mdx#unit-testing). Run the tests from
-  `.vortex/`:
+  [Template > Unit testing](template.mdx#unit-testing). Most test files are
+  named after the script they cover, without its `vortex-` prefix, such as
+  `deploy.bats` for `vortex-deploy`. Run the tests from `.vortex/`:
 
   ```shell
   cd .vortex
@@ -105,9 +127,20 @@ Tests cover the scripts at 3 levels:
   `ahoy test-bats` needs a path: without one, BATS stops with
   `Must specify at least one <test>`. Each test runs the scripts from a
   copy of the repository at its last commit, so commit your changes before
-  you run it. The setup also expects `curl`, `composer`, `docker`, `ahoy`,
-  and `jq` on your `PATH`. The `Vortex - Test` workflow runs the whole suite
-  with `.vortex/tests/test.common.sh`, the script behind `ahoy test-common`.
+  you run it. The exception is `update-vortex.bats`, which runs
+  `vortex-update` from your working tree. The setup also expects `curl`,
+  `composer`, `docker`, `ahoy`, and `jq` on your `PATH`.
+
+  `ahoy test-bats` runs BATS with `--tap`, so each test prints
+  `ok <n> <name>` when it passes or `not ok <n> <name>` when it fails. The
+  command exits with a non-zero code when any test fails.
+
+  The `Vortex - Test` workflow (`.github/workflows/vortex-test-common.yml`)
+  runs the whole suite in its `vortex-test-common` job, with
+  `.vortex/tests/test.common.sh`, the script behind `ahoy test-common`. The
+  script runs BATS on `.vortex/tooling/tests/unit`. When
+  `VORTEX_DEV_TEST_COVERAGE_DIR` is set, which that job does, it runs BATS
+  through `kcov` and writes the scripts' code coverage to that directory.
 
 - **Integration** - the template's PHPUnit functional tests in
   `.vortex/tests/` run the scripts end-to-end. See
@@ -125,10 +158,15 @@ contains `vortex-tooling`, matching the source branch name.
 
 Each push publishes 1 commit to the mirror, an empty one when nothing in
 `.vortex/tooling/` changed. Its subject matches the subject of the pushed
-commit, and its body records provenance. A branch that's new to the mirror
-starts there as an orphan with no shared history. Treat the mirror as
-read-only, because each publish replaces its files with the contents of
-`.vortex/tooling/`.
+commit, and its body records provenance in 2 lines,
+`Source: drevops/vortex@<sha>` and `Branch: <branch>`. A branch that's new
+to the mirror starts there as an orphan with no shared history. Treat the
+mirror as read-only, because each publish replaces its files with the
+contents of `.vortex/tooling/`.
+
+To confirm a publish, open the `Vortex - Publish tooling` run for your
+push. Its publish step ends with
+`Published 'drevops/vortex@<sha>' to drevops/vortex-tooling#<branch>`.
 
 The workflow doesn't set a package version: Packagist reads it from the
 mirror's tags and branch names. So never hardcode a `version` in the

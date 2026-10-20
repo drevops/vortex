@@ -58,19 +58,33 @@ commands:
 lists the problems it finds in a table, and the Ahoy command prints that
 output. When the output contains `Critical`, `Error(s)`, or `Warning(s)`,
 the Ahoy command also prints `SDC validation reported problems.` and exits
-with a non-zero code.
+with code 1.
+
+The match is case-sensitive, and the command exits with code 0 for any
+other output. A theme that has no components, or that isn't enabled, gets
+only a lowercase `[warning] No components found` message, so the command
+exits with code 0 for it too.
 
 Confirm that the components passed: Drush prints
 `No components errors found for`, followed by the theme's machine name.
+Look for that line rather than the exit code, which is also 0 when nothing
+was validated.
 
 `ahoy lint` doesn't include `ahoy lint-sdc`; run it separately after the
 site is provisioned.
 
-To validate a single component, pass its ID as the second argument:
+`ahoy lint-sdc` doesn't take a component ID: it ignores any arguments and
+validates the whole theme. To validate a single component, run the Drush
+command with the component's ID as the second argument:
 
 ```shell
 ahoy drush sdc-devel:validate your_site_theme your_site_theme:button
 ```
+
+A component's ID is the theme's machine name, a colon, and the name of the
+component's `*.component.yml` file without that suffix. For example,
+`components/button/button.component.yml` in the theme gives
+`your_site_theme:button`.
 
 The module also provides a **Components status report** page in the site
 UI at `/admin/reports/ui-components`.
@@ -100,12 +114,16 @@ parallelism](../../continuous-integration/README.mdx#test-parallelism)). The
 step fails the build when validation reports problems, and exits without
 validating when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
-is set to `1`.
+is set to `1`. The step reads that variable from the environment that the
+job loads from `.env`. On GitHub Actions, a repository variable doesn't
+reach the step, so set the value in `.env`. On CircleCI, a project
+environment variable also works, because it takes precedence over `.env`.
 
 ### Ignoring failures
 
-To let the build pass anyway, set the `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE`
-CI variable to `1`. SDC Devel still runs and prints its report in the job
+To let the build pass anyway, set `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE` to
+`1`, as a repository variable on GitHub Actions or a project environment
+variable on CircleCI. SDC Devel still runs and prints its report in the job
 log, so you can see what you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
