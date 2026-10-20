@@ -90,6 +90,9 @@ class Internal extends AbstractHandler {
 
     // Remove Vortex internal files.
     File::remove($t . '/.vortex');
+
+    // The template at the installed reference, such as 'stable', can ship
+    // maintenance skills in '.claude/skills'.
     File::remove($t . '/.claude/skills');
 
     File::remove($t . '/.github/FUNDING.yml');
@@ -133,6 +136,17 @@ class Internal extends AbstractHandler {
         }
       }
     });
+
+    // Remove the Vortex maintenance plugin from the Claude Code settings: the
+    // plugin is the '.vortex' directory, which consumer sites do not receive.
+    if (File::exists($t . '/.claude/settings.json')) {
+      JsonManipulator::updateFile($t . '/.claude/settings.json', function (JsonManipulator $cj): void {
+        $cj->removeSubNode('enabledPlugins', 'vortex@vortex');
+        $cj->removeMainKeyIfEmpty('enabledPlugins');
+        $cj->removeSubNode('extraKnownMarketplaces', 'vortex');
+        $cj->removeMainKeyIfEmpty('extraKnownMarketplaces');
+      });
+    }
   }
 
   /**

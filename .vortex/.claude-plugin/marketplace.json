@@ -1,0 +1,15 @@
+{
+  "name": "vortex",
+  "description": "Plugins for maintaining the Vortex template.",
+  "owner": {
+    "name": "DrevOps",
+    "url": "https://www.drevops.com"
+  },
+  "plugins": [
+    {
+      "name": "vortex",
+      "source": "./",
+      "description": "Skills for maintaining the Vortex template."
+    }
+  ]
+}

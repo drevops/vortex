@@ -17,6 +17,8 @@ class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCas
           $test->assertFileExists(static::$sut . '/AGENTS.md');
           $test->assertFileExists(static::$sut . '/CLAUDE.md');
           $test->assertFileExists(static::$sut . '/.claude/settings.json');
+          $test->assertFileNotContainsString(static::$sut . '/.claude/settings.json', 'extraKnownMarketplaces');
+          $test->assertFileNotContainsString(static::$sut . '/.claude/settings.json', 'enabledPlugins');
       }),
     ];
     yield 'ai_instructions_disabled' => [

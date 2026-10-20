@@ -10,6 +10,7 @@ vortex/
 ├── .vortex/                    # Test harness (removed on install)
 │   ├── docs/                   # Documentation website
 │   ├── installer/              # Template installer
+│   ├── skills/                 # AI agent skills ('vortex' plugin)
 │   ├── tests/                  # Template tests (PHPUnit)
 │   └── tooling/                # 'drevops/vortex-tooling' Composer package
 │       ├── src/                # Shipped scripts

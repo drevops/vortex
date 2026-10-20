@@ -7,6 +7,10 @@
 >
 > For **maintaining the Vortex template itself**, see the maintenance guide:
 `.vortex/CLAUDE.md`
+>
+> Vortex maintenance skills live in `.vortex/skills/`. When a task matches
+> a skill's `description` and the skill isn't already loaded, read its
+> `SKILL.md` and follow it.
 
 [//]: # (#;> VORTEX_DEV)
 
