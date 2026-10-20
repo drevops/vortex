@@ -101,9 +101,10 @@ file is a checked-in Claude Code settings file that pre-approves every
 }
 ```
 
-The copy in the **Vortex** repository also turns on the template's own
-maintenance plugin. The installer removes those entries, so your project
-gets only the `permissions` block.
+The copy in the **Vortex** repository also turns on the `vortex` plugin,
+the template's own maintenance plugin in its `.vortex/` directory. The
+installer removes those entries, so your project gets only the
+`permissions` block.
 
 Personal, machine-local settings belong in `.claude/settings.local.json`,
 which Git ignores.
@@ -137,8 +138,9 @@ Instructions the agent follows when the skill is invoked.
 ```
 
 The shipped `.gitignore` un-ignores `.claude/skills/` alongside
-`.claude/settings.json`, so a skill is shared with the team as soon as it's
-committed. Everything else under `.claude/` stays ignored, which keeps
+`.claude/settings.json`, so you commit a skill like any other file. Your
+teammates get it after you push the commit and it's merged into the branch
+they work on. Everything else under `.claude/` stays ignored, which keeps
 machine-local Claude state out of the repository.
 
 Confirm that `git status` lists the new skill as untracked, which shows that

@@ -89,14 +89,17 @@ then runs these steps in order:
 - The site URL and the path to the web root
 - The database host, username, password, and port, plus the port on your
   host and the database image when the project uses one
-- The Solr and Storybook addresses, when your project uses them
+- The Solr and Storybook addresses, when their ports are mapped on your host
 - The Selenium VNC address, where you can watch the browser tests run
 - The mail catcher address
 - Whether Xdebug is on
 
+`ahoy info` prints the `Solr URL on host` line only when the Solr port is
+mapped, so that line shows that Solr is reachable from your machine.
+
 To print a one-time login link as well, pass any argument, such as
 `ahoy info login`. Otherwise, the output ends with a reminder to run
-`ahoy login`.
+`ahoy login`, which unblocks user 1 and prints a one-time login link.
 
 <AsciinemaPlayer
   src="/img/info.json"

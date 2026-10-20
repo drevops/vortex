@@ -234,8 +234,11 @@ from scheduled runs, move the `cron` times in
 windows.
 
 **Manual trigger:** run the workflow from the **Actions** tab using the
-workflow dispatch feature. A manual run lifts the schedules, the hourly PR
-limit, and the concurrent branch limit, but not the
+workflow dispatch feature. A manual run ignores the schedules,
+`prHourlyLimit`, and `branchConcurrentLimit`. `renovate.json` doesn't set
+`branchConcurrentLimit`, so it otherwise takes the `prConcurrentLimit` value
+of 10. A manual run can therefore create more than 10 branches, but it still
+opens at most 10 PRs and still waits for the
 [minimum release age](#minimum-release-age). Select its
 `preserve_schedules` option to keep the schedules and skip the updates that
 aren't due, the way a scheduled run does.
@@ -267,7 +270,9 @@ set them:
   dashboard (default: `false`).
 
 **Manual trigger:** trigger a pipeline from the CircleCI UI with the
-`run_update_dependencies` pipeline parameter set to `true`.
+`run_update_dependencies` pipeline parameter set to `true`. The manual run
+uses the same job and settings as a scheduled run, with no override, so it
+keeps the schedules and limits.
 
 **Scheduled trigger:** add a scheduled trigger under
 **Project Settings > Triggers** with config source `update-dependencies.yml`
