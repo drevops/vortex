@@ -17,6 +17,16 @@ to spread a large job across several deploy hook passes. The [module
 documentation](https://git.drupalcode.org/project/drupal_helpers/-/blob/HEAD/README.md)
 is the reference for its full API.
 
+**Vortex** requires the module but doesn't install it during provisioning.
+Only the `ys_demo` demo module installs it, as a dependency. Declare the
+same dependency in the `.info.yml` file of every module whose code calls
+the helpers, so they stay available without the demo module:
+
+```yaml
+dependencies:
+  - drupal_helpers:drupal_helpers
+```
+
 ## Helper facade
 
 The `Helper` class hands out the helper services without dependency
@@ -119,5 +129,7 @@ default. To change that, pass a second argument to the facade, for example
 The
 [`ys_demo.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.deploy.php)
 file uses `Helper::menu()` to add a `Pages` link to the main navigation
-during deployment. It looks for the link with `findItem()` first, so running
+during deployment. It looks for the link with `findItem()` first, as an
+extra guard. In its default safe mode, `createTree()` already matches links
+by title within their parent and creates only the missing ones, so running
 the hook again doesn't create a duplicate.

@@ -142,16 +142,24 @@ writes a placeholder text file under that extension and raises a PHP
 notice, unless the extension is `txt`.
 
 To get a real file instead, pass the static generation type as the third
-argument. The helper then copies one of the sample files that ship with the
-module. The static type covers the `doc`, `docx`, `gif`, `jpeg`, `jpg`,
-`mp3`, `mp4`, `pdf`, `png`, `svg`, `xls`, and `xlsx` extensions, and falls
-back to the placeholder text file, with the same notice, for any other. The
+argument. The helper then copies 1 of the module's sample files for that
+extension. Repeated calls for the same extension cycle through its
+samples, so the same sequence of calls gives the same file contents on
+every run. The static type covers the `doc`, `docx`, `gif`, `jpeg`, `jpg`,
+`mp3`, `mp4`, `pdf`, `png`, `svg`, `xls`, and `xlsx` extensions. For any
+other extension, such as `csv`, `createFile()` throws an exception with the
+message `Assets of type csv do not exist.` before it creates a file. The
 following calls create a random image and a static PDF:
 
 ```php
 $node->set('field_image', $this->helper::createFile('png'));
 $node->set('field_attachment', $this->helper::createFile('pdf', [], GeneratedContentAssetGenerator::GENERATE_TYPE_STATIC));
 ```
+
+The `[]` second argument holds options for the new file, such as its
+`filename` without the extension and its `directory`, which defaults to
+`public://generated_content`. Without a `filename`, each file gets a random
+name.
 
 `GeneratedContentAssetGenerator` lives in the
 `Drupal\generated_content\Helpers` namespace.
@@ -174,6 +182,17 @@ and runs the bundle's plugin once per batch, so the plugin decides how many
 entities each run creates. With `20`, the `Page` plugin runs once and
 creates its 20 pages. Confirm that the new pages appear in the content list
 at `/admin/content`.
+
+The command runs only the plugin for that entity type and bundle. It
+doesn't run plugins with a lower weight first, so a plugin that references
+other generated content finds only what already exists. For example, if
+your project has a plugin for `tags` terms, create the terms before the
+pages that reference them:
+
+```shell
+drush generated-content:create-content taxonomy_term tags 10
+drush generated-content:create-content node page 20
+```
 
 ### Admin UI
 
@@ -207,6 +226,15 @@ in the `local`, `ci`, `dev`, and `stage` environments and sets
 `GENERATED_CONTENT_CREATE=1` for that install, so the content arrives with
 the module. Setting `DRUPAL_GENERATED_CONTENT_SKIP=1` installs the module
 without it.
+
+Set `DRUPAL_GENERATED_CONTENT_SKIP` and `GENERATED_CONTENT_ITEMS` in
+`.env`, in `.env.local` for local overrides, or in the hosting provider's
+environment variables. Provisioning loads both files, so the script and the
+install it runs see their values.
+
+Provisioning again doesn't duplicate the content. The install command does
+nothing on a site that already has the module, so generation doesn't
+start.
 
 ➡️ See [Generated Content](../provision.mdx#generated-content) in the
 provisioning documentation.

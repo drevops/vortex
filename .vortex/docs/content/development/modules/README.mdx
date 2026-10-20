@@ -32,13 +32,23 @@ lists 19 of them. Deselecting one removes the following in a single pass:
 - Its assertions in the settings tests
 - Any other block the template marks for it, such as its variables in `.env`
 
-The other modules follow other installer questions:
+Keep Drupal helpers when you keep the demo module: `ys_demo` declares it as
+a dependency and uses it in its deploy hooks, so `ys_demo` can't install
+without it.
+
+The other 7 of the 26 modules aren't in the **Modules** question:
 
 - ClamAV, Redis, and Search API Solr follow the **Services** question.
 - Migrate Plus and Migrate Tools follow the
   **Use a second database for migrations?** question.
 - Storybook follows the **Storybook component library?** question, which
   the installer asks only when you choose a custom theme.
+- Search API follows no question and always stays.
+
+The **Modules** and **Services** questions select every option by default,
+but the migration and Storybook questions default to No. A run with every
+default answer therefore removes Migrate Plus, Migrate Tools, and
+Storybook, and keeps the other 23 modules.
 
 ## How modules are configured
 
@@ -68,3 +78,27 @@ each. Drupal helpers arrives only as a dependency of `ys_demo`, so a project
 without the demo module has it required but not installed. Search API stays
 required without Solr, but the line that installs it leaves with the
 service.
+
+## Check which modules are enabled
+
+When provisioning runs its custom scripts in the `local`, `ci`, `dev`, and
+`stage` environments, the output includes the following lines:
+
+- `Installed contrib modules.` and `Installed custom site modules.` from
+  `scripts/provision-00-enable-demo-modules.sh`, plus 1 line per selected
+  service, such as `Installed Redis module.`
+- 1 line per development module from
+  `scripts/provision-10-enable-dev-modules.sh`, such as
+  `Installed Devel module.`, except SDC Devel, which prints
+  `Installed Single Directory Component development tools.`
+
+In `prod` and any other environment type, the 2 scripts print
+`Skipped demo modules operations in production environment.` and
+`Skipped installing development modules in production environment.`
+instead.
+
+To list the modules enabled on your local site, run the following command:
+
+```shell
+ahoy drush pm:list --type=module --status=enabled
+```

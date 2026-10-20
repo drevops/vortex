@@ -41,7 +41,7 @@ The override reads the following variables:
 | Variable                     | Purpose                                                              |
 |------------------------------|----------------------------------------------------------------------|
 | `DRUPAL_CLAMAV_ENABLED`      | Applies the override only when set to `1`                            |
-| `DRUPAL_CLAMAV_MODE`         | `daemon` (any case) or `0` selects daemon mode; any other value, or none, selects executable mode |
+| `DRUPAL_CLAMAV_MODE`         | `daemon` (any case) selects daemon mode; any other value, `0` included, or none, selects executable mode |
 | `CLAMAV_HOST`, `CLAMAV_PORT` | Daemon host and port, `clamav:3310` by default                       |
 
 ## Coffee
@@ -281,20 +281,22 @@ service is selected.
 [`settings.redis.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.redis.php)
 points the connection at the Redis service, makes Redis the default cache
 backend, registers the module's container YAML files, and swaps the
-bootstrap container over. Nothing applies until the module's code is
-present and `DRUPAL_REDIS_ENABLED` is set to `1`, so a 2-stage deployment
-can provision the service before switching the cache. The shipped `.env`
-file sets it to `1`.
+bootstrap container over. Nothing applies until the module's code is on
+disk and `DRUPAL_REDIS_ENABLED` is set to `1`. The override looks for the
+`web/modules/contrib/redis` directory, so the module doesn't need to be
+installed yet. The variable lets a 2-stage deployment provision the service
+before switching the cache, and the shipped `.env` file sets it to `1`.
 
-The cache changes also need the `redis` PHP extension, or
-`VORTEX_REDIS_EXTENSION_LOADED` set to `1` in its place. The override reads
-the following variables:
+The cache backend, the container YAML files, and the bootstrap container
+switch also need the `redis` PHP extension, or
+`VORTEX_REDIS_EXTENSION_LOADED` set to `1` in its place. Without either,
+the override sets only the connection. It reads the following variables:
 
 | Variable                           | Purpose                                   |
 |------------------------------------|-------------------------------------------|
-| `DRUPAL_REDIS_ENABLED`             | Applies the override only when set to `1` |
+| `DRUPAL_REDIS_ENABLED`             | Applies the override when set to `1` and the module's code is on disk |
 | `REDIS_HOST`, `REDIS_SERVICE_PORT` | Connection host and port, `redis:6379` by default |
-| `VORTEX_REDIS_EXTENSION_LOADED`    | Forces the cache changes when set to `1`  |
+| `VORTEX_REDIS_EXTENSION_LOADED`    | When set to `1`, applies the cache backend, the container YAML files, and the bootstrap container switch without the `redis` PHP extension |
 
 ## Reroute Email
 
@@ -382,6 +384,10 @@ every request for it.
 [`settings.robotstxt.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.robotstxt.php)
 serves a `Disallow: /` file outside production, so non-production
 environments aren't indexed.
+
+To confirm it, open `/robots.txt` on a non-production site. On `dev` and
+`stage`, Shield asks for its credentials first. The response contains
+`User-agent: *` and `Disallow: /`.
 
 ## SDC Devel
 
