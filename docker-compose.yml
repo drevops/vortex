@@ -220,6 +220,7 @@ services:
       MYSQL_USER: drupal
       MYSQL_PASSWORD: drupal
     <<: *default-user
+    # dclint disable-line no-duplicate-exported-ports # container-only port, published on a random host port
     ports:
       - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database2 3306`.
     labels:
