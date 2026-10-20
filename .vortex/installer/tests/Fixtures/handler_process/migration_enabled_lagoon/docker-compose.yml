@@ -58,7 +58,7 @@
  
    database:
      build:
-@@ -152,9 +177,26 @@
+@@ -152,9 +177,27 @@
      <<: *default-user
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
@@ -73,6 +73,7 @@
 +      MYSQL_USER: drupal
 +      MYSQL_PASSWORD: drupal
 +    <<: *default-user
++    # dclint disable-line no-duplicate-exported-ports # container-only port, published on a random host port
 +    ports:
 +      - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database2 3306`.
 +    labels:
@@ -85,7 +86,7 @@
  
    solr:
      build:
-@@ -166,6 +208,8 @@
+@@ -166,6 +209,8 @@
        - solr:/var/solr
      ports:
        - '8983' # Solr port in a container. Find port on host with `ahoy info` or `docker compose port solr 8983`.
@@ -94,7 +95,7 @@
  
    clamav:
      build:
-@@ -177,6 +221,10 @@
+@@ -177,6 +222,10 @@
        - '3310' # Find port on host with `docker compose port clamav 3310`.
      networks:
        - default
@@ -105,7 +106,7 @@
  
    # Chrome container, used for browser testing.
    chrome:
-@@ -189,6 +237,8 @@
+@@ -189,6 +238,8 @@
      ports:
        - '7900' # Find port on host with `docker compose port chrome 7900`.
      shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
@@ -114,7 +115,7 @@
  
    # Helper container to wait for services to become available.
    wait-for-dependencies:
-@@ -196,14 +246,18 @@
+@@ -196,14 +247,18 @@
      depends_on:
        - clamav
        - database

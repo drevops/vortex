@@ -199,10 +199,15 @@ jobs:
             [ -f "${dir}/audit-ci.jsonc" ] && config=(--config "${dir}/audit-ci.jsonc")
             npx --yes audit-ci@__VERSION__ --high --extra-args=--package-lock-only --directory "${dir}" "${config[@]}" || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
+      # The remote Docker engine has no access to the checkout, so the files
+      # are copied into the container.
       - run:
           name: Scan for committed secrets with Gitleaks
           when: always
-          command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: |
+            container="$(docker create --rm -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner)"
+            docker cp ./. "${container}:/repo"
+            docker start --attach "${container}" || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
 
   # Database handling is a first step of the build.
   # - $VORTEX_CI_DB_CACHE_TIMESTAMP is used to determine if a fresh DB dump

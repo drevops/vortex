@@ -137,7 +137,7 @@ jobs:
 
       #;< TOOL_DCLINT
       - name: Lint Docker Compose files with DCLint
-        run: docker run --rm -v "${PWD}":/app zavoloklom/dclint:3.1.0 .
+        run: docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" zavoloklom/dclint:3.1.0 .
         continue-on-error: ${{ vars.VORTEX_CI_DCLINT_IGNORE_FAILURE == '1' }}
       #;> TOOL_DCLINT
 

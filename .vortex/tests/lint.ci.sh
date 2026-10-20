@@ -36,4 +36,16 @@ if [ -z "${circleci_db_image_base}" ] || [ "${circleci_db_image_base}" != "${gha
   exit 1
 fi
 
+echo "Checking that CI steps do not bind-mount the working directory into a container."
+# Every job in these files runs in a container or against a remote Docker
+# engine, so the engine resolves a bind mount of the working directory to an
+# empty directory.
+ci_files=("${ROOT_DIR}/.circleci/config.yml" "${ROOT_DIR}/.github/workflows/build-test-deploy.yml" "${ROOT_DIR}/.github/workflows/audit.yml")
+mounts="$(grep -n -E '(-v|--volume)[ =]"?[$]([{]?PWD|[(]pwd[)]|[{]?GITHUB_WORKSPACE)' "${ci_files[@]}")" || [ "$?" -eq 1 ]
+if [ -n "${mounts}" ]; then
+  echo "${mounts}"
+  echo "These steps bind-mount the working directory, which the Docker engine sees as an empty directory. Copy the files in with 'docker cp' in CircleCI, or mount them with '--volumes-from \"\${HOSTNAME}\"' in GitHub Actions."
+  exit 1
+fi
+
 # LCOV_EXCL_STOP

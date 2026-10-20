@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Functional\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
+use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Utils\File;
@@ -177,6 +178,21 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.dclintrc');
           $test->assertFileNotContainsString(static::$sut . '/.circleci/config.yml', 'VORTEX_CI_DCLINT_IGNORE_FAILURE');
           $test->assertFileContainsString(static::$sut . '/.circleci/config.yml', 'hadolint');
+      }),
+    ];
+    yield 'tools_no_dclint_migration' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $tools = array_keys(Tools::getToolDefinitions('tools'));
+          $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::DCLINT]));
+          $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
+          $test->prompts[Migration::id()] = TRUE;
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertSutNotContains(['dclint']);
+          $test->assertFileDoesNotExist(static::$sut . '/.dclintrc');
+          // The directive sits on its own line, so removing it keeps the
+          // 'ports' key of the 'database2' service.
+          $test->assertFileContainsString(static::$sut . '/docker-compose.yml', "    <<: *default-user\n    ports:\n      - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database2 3306`.");
       }),
     ];
     yield 'tools_no_hadolint' => [
