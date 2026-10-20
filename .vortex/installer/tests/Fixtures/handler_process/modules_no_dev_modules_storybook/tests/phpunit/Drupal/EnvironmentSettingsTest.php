@@ -67,7 +67,7 @@
 +    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
      $settings['entity_update_batch_size'] = 50;
      $settings['environment'] = self::ENVIRONMENT_LOCAL;
-     $settings['fast404_allow_anon_imagecache'] = FALSE;
+     $settings['fast404_allow_anon_imagecache'] = TRUE;
 @@ -316,9 +296,6 @@
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['system.logging']['error_level'] = 'all';
@@ -93,7 +93,7 @@
 +    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
      $settings['entity_update_batch_size'] = 50;
      $settings['environment'] = self::ENVIRONMENT_LOCAL;
-     $settings['fast404_allow_anon_imagecache'] = FALSE;
+     $settings['fast404_allow_anon_imagecache'] = TRUE;
 @@ -430,9 +404,6 @@
      $config['system.logging']['error_level'] = 'all';
      $config['system.mail']['interface']['default'] = 'test_mail_collector';
@@ -119,4 +119,4 @@
 +    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
      $settings['entity_update_batch_size'] = 50;
      $settings['environment'] = self::ENVIRONMENT_CI;
-     $settings['fast404_allow_anon_imagecache'] = FALSE;
+     $settings['fast404_allow_anon_imagecache'] = TRUE;

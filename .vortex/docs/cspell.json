@@ -55,6 +55,7 @@
         "hadolint",
         "hotfixes",
         "htpasswd",
+        "itok",
         "jsonpath",
         "kcov",
         "lagooncli",

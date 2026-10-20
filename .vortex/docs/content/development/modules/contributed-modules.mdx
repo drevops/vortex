@@ -162,8 +162,10 @@ applies only when the module's code is present, and calls
   or `/system/files`.
 - `index.php`, `rss.xml`, `cron.php`, and `xmlrpc.php` are on the URL
   allowlist, which the module checks before the extensions.
-- Image style derivatives fall under the same rules, so anonymous requests
-  can't force derivative generation.
+- Requests for missing image style derivatives reach Drupal, which
+  generates each derivative on its first request. Drupal generates a
+  derivative only for a URL with a valid `itok` token, so these requests
+  can't generate arbitrary derivatives.
 - Path checking against the router and the URL aliases is off, because it
   queries the database before Drupal has connected to it. The redirect check
   that goes with the path check is off too.
