@@ -69,22 +69,24 @@ Lowercase the result (e.g. `May-2026` becomes `may-2026`).
 - Artifact directory: `.artifacts/vortex-dev-deps-{slug}/`
 - Update log: `.artifacts/vortex-dev-deps-{slug}/update-log.txt`
 - Majors report: `.artifacts/vortex-dev-deps-{slug}/majors.md`
+- PR description: `.artifacts/vortex-dev-deps-{slug}/pr-body.md`
 
 ## Subsystem Matrix
 
 Process in fixed order. Smallest blast radius first. Lint commands run from
 the project root; lint-fix commands also run from the project root.
 
-| # | Subsystem (`.vortex/...`) | Composer manifest(s)                              | Yarn manifest    | `patches.lock.json` | Lint commands                                                                          | Lint-fix command                                          |
-|---|---------------------------|---------------------------------------------------|------------------|---------------------|----------------------------------------------------------------------------------------|-----------------------------------------------------------|
-| 1 | `docs`                    | -                                                 | `package.json`   | -                   | `yarn --cwd .vortex/docs run lint` + `yarn --cwd .vortex/docs run spellcheck`          | `yarn --cwd .vortex/docs run lint-fix`                    |
-| 2 | `installer`               | `composer.json` + `vendor-bin/box/composer.json`  | -                | yes                 | `composer --working-dir .vortex/installer lint`                                        | `composer --working-dir .vortex/installer lint-fix`       |
-| 3 | `tests`                   | `composer.json`                                   | `package.json`   | yes                 | `composer --working-dir .vortex/tests lint`                                            | `composer --working-dir .vortex/tests lint-fix`           |
+| # | Subsystem (`.vortex/...`) | Composer manifest(s)                              | Yarn manifest    | `patches.lock.json` | Lint commands                                                                                                            | Lint-fix command                                          |
+|---|---------------------------|---------------------------------------------------|------------------|---------------------|--------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| 1 | `docs`                    | -                                                 | `package.json`   | -                   | `yarn --cwd .vortex/docs run lint` + `yarn --cwd .vortex/docs run spellcheck` + `yarn --cwd .vortex/docs run lint-prose` | `yarn --cwd .vortex/docs run lint-fix`                    |
+| 2 | `installer`               | `composer.json` + `vendor-bin/box/composer.json`  | -                | yes                 | `composer --working-dir .vortex/installer lint`                                                                          | `composer --working-dir .vortex/installer lint-fix`       |
+| 3 | `tests`                   | `composer.json`                                   | `package.json`   | yes                 | `composer --working-dir .vortex/tests lint`                                                                              | `composer --working-dir .vortex/tests lint-fix`           |
 
-Confirm the lint and lint-fix command names against `.vortex/.ahoy.yml`
-(search for `lint-installer`, `lint-tests`, `lint-docs` and their `-fix`
-counterparts) before relying on the matrix. If a subsystem's lint or
-lint-fix command name changes upstream, this matrix is stale.
+Confirm the matrix against `.vortex/.ahoy.yml` before relying on it: read
+every command in the `lint-installer`, `lint-tests` and `lint-docs` targets
+and their `-fix` counterparts, not only the target names. If a target
+gains, loses or renames a command, this matrix is stale - run what the
+target runs.
 
 ## Workflow
 
@@ -238,6 +240,10 @@ yarn --cwd .vortex/docs run lint
 yarn --cwd .vortex/docs run spellcheck
 ```
 
+```bash
+yarn --cwd .vortex/docs run lint-prose
+```
+
 **5.2 - installer:**
 
 ```bash
@@ -302,10 +308,6 @@ git add .vortex/installer/patches.lock.json
 ```
 
 ```bash
-git add .vortex/installer/vendor-bin/box/composer.json
-```
-
-```bash
 git add .vortex/tests/composer.json
 ```
 
@@ -321,8 +323,9 @@ git add .vortex/tests/patches.lock.json
 git add .vortex/tests/yarn.lock
 ```
 
-Note that `.vortex/installer/vendor-bin/box/composer.lock` is gitignored
-(the whole `vendor-bin/` directory is excluded). Do not try to force-add it.
+`.vortex/installer/vendor-bin/` is gitignored as a whole, so the box
+`composer.json` and `composer.lock` that Step 3.2 refreshes stay local. Do
+not try to force-add either.
 
 #### Stage auto-fix changes (if any)
 
@@ -372,11 +375,15 @@ git commit -m "Refreshed '.vortex/' dev dependencies and lint-fix fallout for {S
 
 ### Step 7: Open PR
 
-Invoke the `/open-pr` skill. The PR description must include:
+Write the PR description to `.artifacts/vortex-dev-deps-{slug}/pr-body.md`.
+It must include:
 
-1. **Scope statement** - one sentence: "Refreshes lock files under
-   `.vortex/` for `docs` / `installer` / `tests`. No manifest constraint
-   changes. `.vortex/tooling/` is out of scope."
+1. **Scope statement** - "Refreshes lock files under `.vortex/` for
+   `docs` / `installer` / `tests`. `.vortex/tooling/` is out of scope."
+   Follow it with 1 sentence on manifests, read from `git diff --stat`:
+   "The only manifest edits are the `composer.json` constraint bumps that
+   `bump-after-update` writes to match the new locks." when a
+   `composer.json` changed, or "No manifest changes." when none did.
 2. **Subsystems touched** - bullet list of the three subsystems with a
    yes/no marker for Composer and Yarn changes (read from
    `git diff --stat`).
@@ -397,9 +404,17 @@ The full Composer / Yarn output stays in
 Do not reference this path from the PR description and do not paste the log
 into the PR body.
 
-`/open-pr` already enforces its own pre-flight lint as part of its workflow.
-The Step 5 lint here is the skill's own gate - it runs before the commit,
-regardless of whether `/open-pr` repeats it.
+Invoke `/open-pr` with `pr-body.md` as the body, so it uses the file as
+written instead of generating a description:
+
+```text
+/open-pr body=.artifacts/vortex-dev-deps-{slug}/pr-body.md
+```
+
+`/open-pr`'s verify step lints and unit-tests the root project, which this
+skill never touches, and this skill runs no local tests. Skip it: pass
+`--skip-verify` to `pr.php create` and state the bypass in the report.
+The Step 5 lint is this skill's gate.
 
 ## Red Flags
 
@@ -413,8 +428,9 @@ regardless of whether `/open-pr` repeats it.
   performs in-range refreshes only.
 - About to edit a `composer.json` or `package.json` constraint to "fix" a
   resolution failure: stop. Surface the failure to the user.
-- About to run `composer test`, `ahoy test`, `phpunit`, `jest`, or any local
-  test runner: stop. Tests run in CI, not in this skill.
+- About to run `composer test`, `ahoy test`, `phpunit`, `jest`, `/open-pr`'s
+  verify step, or any local test runner: stop. Tests run in CI, not in this
+  skill.
 - About to commit, push, or open a PR while a Step 5 lint command is
   failing: stop. Lint is the local gate; fix or escalate first.
 - About to escalate a lint failure to the user without running the
