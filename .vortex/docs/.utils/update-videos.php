@@ -240,6 +240,8 @@ expect {
   }
 }
 
+# A multiselect that scrolls prints its selection count in the bottom border,
+# so the corner follows the count instead of a line.
 while {1} {
   expect {
     "Proceed with installing Vortex?" {
@@ -253,7 +255,7 @@ while {1} {
     "Finished installing Vortex" {
       break
     }
-    "─┘" {
+    -re {─┘| selected ┘} {
       wait_and_enter
     }
     timeout {
