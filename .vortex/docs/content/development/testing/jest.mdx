@@ -9,16 +9,24 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 **Vortex** uses [Jest](https://jestjs.io/) to unit-test the JavaScript
-behaviors in your custom Drupal modules. Each test loads a behavior into a
-simulated browser environment and checks what it does in isolation, without
-a real browser or a Drupal bootstrap.
+behaviors in your custom Drupal modules, and this page is for the
+developers who write those behaviors. It shows how to run the tests, write a
+test for a behavior, and read the coverage report. Jest covers custom
+modules only, so theme JavaScript needs its own test setup. To test
+JavaScript in a real browser against the running site, see
+[Behat](behat.mdx).
+
+Each test loads a behavior into a simulated browser environment and checks
+what it does in isolation, without a real browser or a Drupal bootstrap.
 
 **Vortex** comes with a [pre-configured Jest
 setup](https://github.com/drevops/vortex/blob/main/jest.config.js) that
-finds the tests in every custom module, so a new test file runs without any
-configuration change.
+finds the tests in every custom module with a `js/` directory, so a new
+test file runs without any configuration change.
 
 ## Usage
+
+Run the tests with the following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -36,7 +44,8 @@ configuration change.
 ### Running tests matching a pattern
 
 `ahoy test-js` doesn't forward extra arguments, so run subsets through
-`ahoy cli`:
+`ahoy cli`. Jest then runs only the test files whose path matches the
+pattern, `ys_demo` in this example:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -78,8 +87,8 @@ the file with `require()`.
 
 ### Test file structure
 
-Test files are placed in a `tests/` subdirectory within the `js/` directory
-of each custom module:
+Jest finds a `.test.js` file anywhere under a module's `js/` directory. Put
+each test file in a `tests/` subdirectory of that `js/` directory:
 
 ```text
 web/modules/custom/my_module/
@@ -90,6 +99,8 @@ web/modules/custom/my_module/
 ```
 
 ### Test template
+
+Start each test file from the following template:
 
 ```javascript
 /**
@@ -123,7 +134,7 @@ describe('Drupal.behaviors.myModule', () => {
 
 The `require()` call executes the source file's IIFE, which receives
 `global.Drupal` as its `Drupal` parameter and registers the behavior. After
-`require()`, the behavior is accessible via `Drupal.behaviors.myModule`.
+`require()`, the behavior is accessible through `Drupal.behaviors.myModule`.
 
 The `jest.resetModules()` call before `require()` clears the module cache,
 so the IIFE runs again for each test with a fresh `global.Drupal` object.
@@ -135,7 +146,7 @@ Set globals in `beforeEach` and clean them up in `afterEach`:
 | Global | Setup | When needed |
 |--------|-------|-------------|
 | `Drupal` | `global.Drupal = { behaviors: {} }` | Always (required by all Drupal behaviors) |
-| `jQuery` | `global.jQuery = require('jquery')` or a mock | When the source file uses `jQuery` or `$` |
+| `jQuery` | A mock, or `global.jQuery = require('jquery')` after you add `jquery` to the root `package.json` | When the source file uses `jQuery` or `$` |
 | `drupalSettings` | `global.drupalSettings = { path: { baseUrl: '/' } }` | When the source file reads `drupalSettings` |
 | `localStorage` | Provided by jsdom; call `localStorage.clear()` | When the source file uses `localStorage` |
 
@@ -188,18 +199,20 @@ enable, which ESLint reports as an unused directive.
 
 ### Boilerplate
 
-**Vortex** provides a Jest test boilerplate for the [demo
-module](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/js/tests/ys_demo.test.js)
-that tests a counter block through DOM manipulation, `localStorage`, click
-events, and fake timers.
+**Vortex** provides a Jest test boilerplate,
+[`ys_demo.test.js`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/js/tests/ys_demo.test.js)
+in the Demo custom module. It tests a counter block through DOM
+manipulation, `localStorage`, click events, and fake timers.
 
 This boilerplate test runs in the continuous integration pipeline from the
 moment you install **Vortex**, and it makes a good starting point for your
-own JavaScript tests.
+own JavaScript tests. The installer keeps it only when you keep the Demo
+module at its **Custom modules** prompt.
 
 ## Configuration
 
-See [Jest configuration reference](https://jestjs.io/docs/configuration).
+See the [Jest configuration
+reference](https://jestjs.io/docs/configuration).
 
 All global configuration takes place in the
 [`jest.config.js`](https://github.com/drevops/vortex/blob/main/jest.config.js)
@@ -215,16 +228,18 @@ globals like `document`, `window`, and `localStorage`.
 
 ### Test discovery
 
-The `jest.config.js` file dynamically scans `web/modules/custom/` for
-modules that contain a `js/` directory, and adds each as a root for test
-discovery. It resolves each root to its real path, because Jest resolves
-symlinks internally and would otherwise miss the test files. Adding a new
-custom module with JavaScript tests requires no configuration changes.
+The `jest.config.js` file scans `web/modules/custom/` for modules that
+contain a `js/` directory, and adds each as an absolute root path for test
+discovery. When no module has a `js/` directory, `web/modules/custom` itself
+becomes the only root. Adding a new custom module with JavaScript tests
+requires no configuration changes.
 
 The `test` script in `package.json` runs Jest with `--passWithNoTests`, so a
 project without any JavaScript tests still passes.
 
 ## Reports
+
+Jest writes coverage reports only, and no JUnit test report.
 
 ### Coverage
 
@@ -235,11 +250,11 @@ configured in
 with the following settings:
 
 - **Source files**: all `*.js` files in `web/modules/custom/*/js/`
-  directories, excluding `*.test.js` files
+  directories and their subdirectories, excluding `*.test.js` files
 - **Reporters**: text (terminal summary), lcov, HTML, and Cobertura XML
 - **Output directory**: `.logs/coverage/jest`
 
-After running tests, coverage reports are available at:
+After a run, the coverage reports are in the following locations:
 
 | Report | Location |
 |--------|----------|
@@ -251,13 +266,14 @@ After running tests, coverage reports are available at:
 ## Continuous integration
 
 In the continuous integration pipeline, Jest runs on the first container
-only, see [Test
-parallelism](../../continuous-integration/README.mdx#test-parallelism).
+only (see [Test
+parallelism](../../continuous-integration/README.mdx#test-parallelism)).
 
 The pipeline stores the coverage reports as artifacts. They don't count
-toward the coverage threshold or the coverage PR comment, which read only
-the PHPUnit report. If you use Codecov, its upload covers the whole
-`.logs/coverage` directory, Jest's `cobertura.xml` included.
+toward the [coverage threshold](phpunit.mdx#coverage-threshold) or the
+coverage comment on pull requests, which read only the PHPUnit report. If
+you use Codecov, its upload covers the whole `.logs/coverage` directory,
+Jest's `cobertura.xml` included.
 
 ### Ignoring failures
 
