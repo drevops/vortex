@@ -6,34 +6,39 @@ sidebar_position: 1
 # Releasing
 
 This section is about releasing your project, the site you built from
-**Vortex**, to production. It covers how code moves between environments,
-how branches and version numbers work, and where the automation takes over.
-(Releasing the **Vortex** template itself is a different process,
-documented in [Contributing > Maintenance >
-Release](../contributing/maintenance/release.mdx).)
+**Vortex**, to production. It's for the developer or lead who plans and
+runs those releases, and it helps you set up a release process and document
+it for your team.
+
+It covers how code moves between environments, how branches and version
+numbers work, and where the automation takes over. Releasing the **Vortex**
+template itself is a different process, documented in [Contributing >
+Maintenance > Release](../contributing/maintenance/release.mdx).
 
 A release process has a few moving parts, and **Vortex** provides defaults
 and integration points for each of them:
 
-1. **Release flow** - the sequence of environments that code goes through
-   from development to production
-2. **Versioning workflow** - the branching strategy, documented in
-   [GitFlow](gitflow.mdx)
-3. **Version scheme** - the numbering system you choose at install time,
-   documented in [Versioning](versioning.mdx)
-4. **Release documentation** - your project's own `docs/releasing.md`
-5. **Automated deployment** - the CI pipeline and hosting integrations that
-   do the technical work
+- **Release flow** - the sequence of environments that code goes through
+  from development to production
+- **Versioning workflow** - the branching strategy, documented in
+  [GitFlow](gitflow.mdx)
+- **Version scheme** - the numbering system you choose at install time,
+  documented in [Versioning](versioning.mdx)
+- **Release documentation** - your project's own `docs/releasing.md`
+- **Automated deployment** - the CI pipeline and hosting integrations that
+  do the technical work
 
 ## Release flow
 
-Projects typically follow a 3-tier environment strategy. Code moves "up"
-through the environments while the database moves "down":
+The release flow on this page uses 3 environments. Code moves "up" through
+the environments while the database moves "down":
 
 ```text
   code:     Development ───► Stage ───► Production
   database: Development ◄─── Stage ◄─── Production
 ```
+
+Each environment has its own job:
 
 - **Development** - the latest development code, not released yet. It can
   be unstable, but its CI tests should pass.
@@ -52,26 +57,25 @@ the lower environments test against a copy of the production database:
 2. Deploy the code to that environment.
 3. Test that everything works against the copied database.
 
-:::tip
-
 When your site provisions from a database dump, the CI pipeline runs all
 its tests against a copy of the production database too, refreshed daily.
 Code changes are then validated against real data structures as well.
 
-:::
+:::note Environment agreement
 
-:::info Environment agreement
-
-Agree on the specific environment setup (dev, stage, production) within
-your team, and document it in your project. Some teams add environments
-(for example, UAT or pre-prod) or use different names.
+Agree on the specific environment setup (development, stage, production)
+within your team, and document it in your project. Some teams add
+environments, for example for user acceptance testing (UAT) or
+pre-production, or use different names.
 
 :::
 
 ## Production deployment process
 
-Once code is finalized and pushed, deploying to production is technically
-identical to deploying to any other environment, and it's fully automated.
+Deploying a release to production is technically the same as deploying to
+any other environment. When the release tag, or the `production` branch on
+branch-based hosting, reaches the repository, CI builds, tests, and deploys
+it like any other branch or tag (see [GitFlow](gitflow.mdx)).
 
 On Acquia and Lagoon hosting, **Vortex** integrates directly with the
 platform's own deployment system. On other hosting, wire the provision steps
@@ -84,6 +88,8 @@ learn what provisioning steps run during deployments.
 
 ## Documentation
 
+Each project keeps its own release documentation next to the code.
+
 ### `docs/releasing.md`
 
 Your project's `docs/releasing.md` file is the canonical release
@@ -91,7 +97,7 @@ documentation for your team. As shipped, it records the expected release
 outcome and your project's version scheme (left out if you chose Other), and
 it leaves a marked section for project-specific configuration.
 
-Extend it with:
+Extend it with the following sections:
 
 - **Detailed release procedures** - an outline of _what_ actions to take
   during releases: creating and finishing releases, deploying to production,
@@ -101,21 +107,28 @@ Extend it with:
 
 ## Monitoring
 
+After a release, monitoring shows how the released code behaves in
+production.
+
 ### New Relic integration
 
 **Vortex** integrates with New Relic for release tracking. When the
-`newrelic` notification channel is configured, a deployment creates a
-deployment marker in New Relic, so you can line up performance changes and
-errors with the release that caused them.
+`newrelic` notification channel is on and `VORTEX_NOTIFY_NEWRELIC_ENABLED`
+is set, each deployment creates a deployment marker in New Relic. You can
+then line up performance changes and errors with the release that caused
+them.
 
 By default, markers go out only for deployments of the `main`, `master`, and
 `develop` branches. If production deploys from a branch named `production`,
-add it to `VORTEX_NOTIFY_NEWRELIC_BRANCHES`.
+set `VORTEX_NOTIFY_NEWRELIC_BRANCHES` to `main,master,develop,production`:
+your list replaces the default instead of extending it.
 
-➡️ See [Deployment >
-Notifications](../deployment/notifications/newrelic.mdx)
+➡️ See [Deployment > Notifications > New
+Relic](../deployment/notifications/newrelic.mdx)
 
 ## See also
+
+The following pages cover the rest of the release process:
 
 | Topic | Description |
 |-------|-------------|

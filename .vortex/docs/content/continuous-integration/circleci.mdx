@@ -10,21 +10,23 @@ GitHub Actions is offered only for repositories on GitHub. The pipeline
 lives in `.circleci/config.yml`, and the security checks run there as a
 separate `audit` workflow.
 
-This page covers the CircleCI side of that pipeline: deployment branches,
-the nightly schedule, resource classes, parallelism, timeouts, and the
-coverage threshold. Running Renovate on CircleCI adds a second file,
+This page is for the lead or DevOps engineer who maintains a **Vortex**
+project's pipeline on CircleCI. It shows how to change the parts of the
+pipeline that are specific to CircleCI:
+
+- Deployment branches and the nightly schedule
+- The runner resource class and test parallelism
+- SSH access for debugging and build timeouts
+- The coverage threshold and test results
+
+Running Renovate on CircleCI adds a second file,
 `.circleci/update-dependencies.yml`, with a scheduled trigger of its own
-(see [Dependency
-updates](../development/dependency-updates.mdx#setting-up-the-self-hosted-service)).
-For CircleCI's own reference, see the
-[CircleCI Documentation](https://circleci.com/docs/).
-
-:::info
-
-For information about the CI workflow structure, jobs, and caching strategy,
-see the [Continuous integration overview](./README.mdx).
-
-:::
+(see [Dependency updates > Setting up the self-hosted
+service](../development/dependency-updates.mdx#setting-up-the-self-hosted-service)).
+The jobs, the database cache, and the split of tests across containers work
+the same on both providers; see the
+[Continuous integration overview](./README.mdx). For CircleCI's own
+reference, see the [CircleCI documentation](https://circleci.com/docs/).
 
 ## Onboarding
 
@@ -34,6 +36,10 @@ integration](/docs/installation?ci-provider=circleci#7-set-up-continuous-integra
 in the Installation guide and select **CircleCI**.
 
 ## Maintenance
+
+The following sections change how the pipeline runs on CircleCI. Most of
+them edit `.circleci/config.yml` or set a project environment variable
+under **Project Settings → Environment Variables**.
 
 ### Update deployment branches
 
@@ -45,7 +51,7 @@ in the `workflows` section of `.circleci/config.yml`:
 | Pattern | Description |
 |---------|-------------|
 | `production` | Production environment branch |
-| `main`, `master` | Default development branches |
+| `main`, `master` | Default branches |
 | `develop` | Integration branch for ongoing work |
 | `release/**` | Release preparation branches (for example, `release/1.2.3`, `release/2023-04-17`) |
 | `hotfix/**` | Urgent production fixes (for example, `hotfix/1.2.4`, `hotfix/2023-04-17`) |
@@ -61,33 +67,49 @@ and `hotfix/**` match only a version after the slash: `1.2.3`, `1.2.3-rc.1`,
 name made of letters, digits, `-`, `.`, `,`, and `_`, so `feature/a/b`
 doesn't deploy.
 
-To change which branches deploy, update the regular expressions in the
-`only` filter of the `deploy` job. `tests/phpunit/CircleCiConfigTest.php`
-checks them against sample branch names, so update its cases to match. It
-also checks that no filter pattern exceeds the 128-character limit of the
-CircleCI compiler.
-
 2 special cases apply on top of the branch filter:
 
-- The `deploy` job halts early when a `project/*` branch builds for a pull
-  request (CircleCI sets `CIRCLE_PULL_REQUEST`), so a long-lived project
-  branch deploys on direct pushes but not from its pull requests.
+- The `deploy` job stops early for a `project/*` branch when CircleCI sets
+  `CIRCLE_PULL_REQUEST`, the URL of the pull request associated with the
+  build. A long-lived project branch deploys only from builds that have no
+  associated pull request.
 - Tags deploy through a separate `deploy-tags` job, which runs only for tags
   named after a semantic version (`1.2.3`, `1.2.3-rc.1`) or a date
   (`2023-04-17`, `2023-04-17.1`). The `deploy` job itself ignores tags.
+
+To change which branches deploy:
+
+1. In `.circleci/config.yml`, update the regular expressions in the `only`
+   filter of the `deploy` job.
+2. In `tests/phpunit/CircleCiConfigTest.php`, update the branch names in
+   `dataProviderDeployBranchRegex()` to match. The test checks every
+   expression against them, and also checks that no filter pattern exceeds
+   the 128-character limit of the CircleCI compiler.
+
+Confirm that the test passes:
+
+```shell
+ahoy test-unit -- --filter=CircleCiConfigTest
+```
+
+PHPUnit reports `OK` with no failures.
 
 ### Update nightly database schedule
 
 The `nightly-db` workflow runs the `database-nightly` job: the regular
 `database` job with the cache fallback turned off, so it always downloads a
-fresh dump and caches it for the next day's builds. It also skips the
-front-end build. For a project that stores its database in a container
-image, it imports the dump into a clean base image and pushes the result to
-the registry.
+fresh dump. It also skips the front-end build. For a project that stores
+its database in a container image, it imports the dump into a clean base
+image and pushes the result to the registry.
 
-The workflow is scheduled against the `develop` branch, so change its branch
-filter if your project doesn't use one. It ships only when the site
-provisions from a database dump.
+The job saves the dump under the current day's cache key, and CircleCI
+never overwrites a saved key. If another `database` job already saved that
+key earlier in the day, the fresh dump isn't cached, and the next day's
+builds fall back to the earlier cache.
+
+The workflow is scheduled against the `develop` branch. If your project
+doesn't use one, change the workflow's branch filter. The workflow ships
+only when the site provisions from a database dump.
 
 To change when it runs, update the `nightly_db_schedule` YAML anchor in
 `.circleci/config.yml`: a named value near the top of the file that the
@@ -98,12 +120,15 @@ workflow's trigger reuses
 - &nightly_db_schedule "0 18 * * *"  # 6 PM UTC daily
 ```
 
+Confirm that the next `nightly-db` workflow starts at the new time and runs
+only the `database-nightly` job.
+
 ### Change runner resource class
 
 For faster builds, raise the [runner resource
 class](https://circleci.com/docs/resource-class-overview/) in the shared
-`runner_config` block that every job uses. It ships as `medium`. This may
-affect your CircleCI billing:
+`runner_config` block that every job uses. It ships as `medium`. This might
+affect your CircleCI billing. The following setting raises it to `large`:
 
 ```yaml
 resource_class: large  # Options: small, medium, large, xlarge
@@ -116,35 +141,54 @@ See [Runner disk space](./README.mdx#runner-disk-space).
 ### Change test parallelism
 
 To get through the tests faster, raise the `parallelism` of the `build`
-job, which ships as `2`. See [Running tests in
-parallel](https://circleci.com/docs/parallelism-faster-jobs/) for more
-information:
+job in `.circleci/config.yml`, which ships as `2`:
 
 ```yaml
 build:
   parallelism: 4  # Run tests across 4 containers
 ```
 
+See [Running tests in
+parallel](https://circleci.com/docs/parallelism-faster-jobs/) for more
+information. Confirm that the next `build` job shows 4 parallel runs.
+
 Every added container that runs Behat also needs a matching `pN` profile in
-`behat.php`. See [Test parallelism](./README.mdx#test-parallelism) for the
-full procedure, how scenarios are balanced across containers, and how to
-move a tool onto a different container.
+`behat.php`; see [Continuous integration > Adding more
+containers](./README.mdx#adding-more-containers) for the full procedure.
+[Test parallelism](./README.mdx#test-parallelism) also covers how scenarios
+are balanced across containers and how to move a tool onto a different
+container.
 
 ### SSH access for debugging
 
-CircleCI has built-in SSH access for debugging a failing build. Click the
-**Rerun job with SSH** button on a failed job to get the SSH connection
-details. See
+CircleCI has built-in SSH access for debugging a failing build. To connect
+to a failed job:
+
+1. In the CircleCI web app, open the failed job.
+2. From the **Rerun** menu, select **Rerun job with SSH**. CircleCI runs
+   the job again with SSH enabled.
+3. Copy the SSH command from the **Enable SSH** step in the job output.
+4. Run the command in your terminal.
+
+Confirm that the command opens a shell in the job's container. The job
+stays available for SSH for 10 minutes after it finishes running. See
 [Debugging with SSH](https://circleci.com/docs/ssh-access-jobs/) for more
 information.
 
 ### Adjust build timeout
 
 CircleCI stops a step that prints nothing for 10 minutes. The shipped config
-raises that limit to 30 minutes for its long, quiet steps: `Fetch DB`,
-`Export DB`, `Deploy DB image`, `Provision site`, `Test with Behat`, and
-`Deploy`, plus `Fetch migration DB` when the project has a migration
-database. If a step still times out, increase its `no_output_timeout`:
+raises that limit to 30 minutes for its long, quiet steps:
+
+- `Fetch DB`
+- `Fetch migration DB`, when the project has a migration database
+- `Export DB`
+- `Deploy DB image`
+- `Provision site`
+- `Test with Behat`
+- `Deploy`
+
+If a step still times out, increase its `no_output_timeout`:
 
 ```yaml
 - run:
@@ -166,6 +210,19 @@ integer arithmetic, so a decimal such as `85.5` breaks the step.
 The job can also post the coverage summary as a comment on a GitHub pull
 request. That needs a `GITHUB_TOKEN` environment variable with permission
 to post comments; without one, the step skips the comment. Each new report
-replaces the previous one, and older comments are minimized, so the PR
-timeline stays clean. To turn the comment off, set
+replaces the previous one, and older comments are minimized, so the pull
+request timeline stays clean. To turn the comment off, set
 `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
+
+If you chose Codecov as the code coverage provider at install time, the job
+also uploads the coverage reports to Codecov when `CODECOV_TOKEN` is set,
+except on `deps/*` branches. The uploader runs with `-Z`, so a failed upload
+fails the job.
+
+### Test results
+
+The `build` job stores the JUnit reports of PHPUnit and Behat with
+CircleCI's `store_test_results` step, so the job's **Tests** tab lists the
+failing tests with their messages. Each parallel container stores its own
+results. The logs, coverage reports, and screenshots stay attached to the
+job on its **Artifacts** tab.

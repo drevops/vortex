@@ -5,13 +5,20 @@ sidebar_position: 2
 
 # GitFlow versioning workflow
 
-[git-flow](https://nvie.com/posts/a-successful-git-branching-model/) is a
-versioning workflow: a branching model that keeps development code and
-production code apart. Work lands on `develop`, `main` holds only
-production-ready code, and a short-lived branch carries each feature,
-release, and hotfix. **Vortex** builds its defaults around these branch
-names: the CI triggers, the deployment branch patterns, and the release
-notes workflow all expect them.
+This page is for the developer or lead who releases a project built from
+**Vortex**. It explains the git-flow branching model and walks you through
+a release from start to production, so you can run one and check that it
+worked.
+
+git-flow is a versioning workflow, first described in [A successful Git
+branching model](https://nvie.com/posts/a-successful-git-branching-model/):
+a branching model that keeps development code and production code apart.
+Work lands on `develop`, `main` holds only production-ready code, and a
+short-lived branch carries each feature, release, and hotfix. **Vortex**
+builds its defaults around these branch names: the CI triggers, the
+deployment branch patterns, and the release notes workflow all expect them.
+
+The following diagram shows a release from start to deployment:
 
 ```text
 develop ──► git flow release start X.Y.Z
@@ -33,6 +40,8 @@ develop ──► git flow release start X.Y.Z
 
 ## Branch structure
 
+git-flow uses the following branches:
+
 - **`develop`** - the development branch, where features are integrated
 - **`main`** - production-ready code, always stable and tagged with releases
 - **`feature/*`** - a branch for each feature in development
@@ -44,9 +53,8 @@ develop ──► git flow release start X.Y.Z
 <details>
   <summary><code>production</code> branch</summary>
 
-  Most hosting providers can deploy a specific Git tag directly. Then you
-  need no separate `production` branch: you tag releases on `main` and
-  deploy those tags.
+  When your hosting can deploy a specific Git tag, you need no separate
+  `production` branch: you tag releases on `main` and deploy those tags.
 
   Some providers, Lagoon among them, deploy only from a Git branch, and the
   **Vortex** Lagoon deployment skips tags. On those, you must create a
@@ -59,43 +67,67 @@ develop ──► git flow release start X.Y.Z
 
 </details>
 
+## Before you begin
+
+Make sure you have the following:
+
+- The git-flow command-line extension, which provides the `git flow`
+  commands
+- A clone of the project's repository set up with `git flow init`, with
+  `main` as the branch for production releases, `develop` as the
+  development branch, and no version tag prefix, so tags read `X.Y.Z`
+- Permission to push branches and tags to the project's repository
+
+The
+[git-flow cheat sheet](https://danielkummer.github.io/git-flow-cheatsheet/)
+covers how to install the extension, and gives a quick reference on its
+commands.
+
 ## Release operations
 
-A typical git-flow release follows these steps. See the
-[cheat sheet](https://danielkummer.github.io/git-flow-cheatsheet/) for a
-quick reference on git-flow commands.
+In each of the following commands, replace `X.Y.Z` with the release version
+in your [version scheme](versioning.mdx). To run a release:
 
-1. **Start the release**
+1. Start the release:
 
    ```shell
    git flow release start X.Y.Z
    ```
 
-   This creates a `release/X.Y.Z` branch from `develop`. We recommend
-   pushing the branch to the remote: CI builds and deploys `release/*`
+   This creates a `release/X.Y.Z` branch from `develop`.
+
+2. Push the release branch to the remote, with
+   `git push origin release/X.Y.Z`. CI builds and deploys `release/*`
    branches, so the release gets its own build and deployment for final
    testing.
 
-2. **Prepare the release**
-   - Final bug fixes
-   - Documentation updates
-   - Release notes preparation
+3. Prepare the release:
+   1. Commit the final bug fixes and documentation updates to the release
+      branch.
+   2. Review the draft release notes on GitHub (see
+      [Release notes publishing](versioning.mdx#release-notes-publishing)).
 
-3. **Finish the release**
+4. Finish the release:
 
    ```shell
    git flow release finish X.Y.Z
    ```
 
+   The command makes these changes in your clone:
    - Merges the release branch to `main`
    - Tags the release
    - Merges back to `develop`
-   - Deletes the release branch
+   - Deletes the local release branch, and leaves the pushed one in place
 
-4. **Deploy to production**
-   - **Tag-based hosting:** deploy the tag directly
-   - **Branch-based hosting (for example, Lagoon):** manually sync to the
-     `production` branch
+5. Push `main`, `develop`, and the new tag, with
+   `git push origin main develop X.Y.Z`. CI builds and deploys the pushed
+   branches and the tag.
+
+6. Deploy to production:
+   - **Tag-based hosting:** deploy the tag to your production environment
+     directly
+   - **Branch-based hosting (for example, Lagoon):** manually sync `main`
+     to the `production` branch:
 
      ```shell
      git push origin main:production
@@ -103,16 +135,21 @@ quick reference on git-flow commands.
 
 ## Expected release outcome
 
-A successful release meets these criteria (they also ship in your project's
-`docs/releasing.md`):
+Confirm that the release meets these criteria, which also ship in your
+project's `docs/releasing.md`:
 
-1. Release branch exists as `release/X.Y.Z` in the GitHub repository
-2. Release tag exists as `X.Y.Z` in the GitHub repository
-3. The `HEAD` of the `main` branch has the `X.Y.Z` tag
-4. The hash of the `HEAD` of the `main` branch exists in the `develop`
-   branch
-   - Everything pushed to `main` then also exists in `develop`
-   - Important if `main` had any hotfixes not yet merged to `develop`
-5. GitHub has no open PRs related to the release
-6. On branch-based hosting, the hash of the `HEAD` of the `production`
-   branch matches the hash of the `HEAD` of the `main` branch
+- The release branch exists as `release/X.Y.Z` in the GitHub repository.
+- The release tag exists as `X.Y.Z` in the GitHub repository.
+- The `HEAD` of the `main` branch has the `X.Y.Z` tag.
+- The hash of the `HEAD` of the `main` branch exists in the `develop`
+  branch, so everything pushed to `main` also exists in `develop`. This
+  matters when `main` had hotfixes not yet merged to `develop`.
+- GitHub has no open pull requests related to the release.
+- On branch-based hosting, the hash of the `HEAD` of the `production`
+  branch matches the hash of the `HEAD` of the `main` branch.
+
+## What's next
+
+- [Version scheme](versioning.mdx)
+- [Release notes publishing](versioning.mdx#release-notes-publishing)
+- [Deployment](../deployment/README.mdx)
