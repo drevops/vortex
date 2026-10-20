@@ -22,8 +22,12 @@ channel's own variables, see
 
 The installer adds the workflow, `.github/workflows/test-vr.yml`, when you
 answer yes to its **Visual regression testing with Diffy?** question, which
-defaults to no. The workflow runs on GitHub Actions whichever CI provider
-builds the project, so it needs the repository on GitHub.
+defaults to no. To add it to a project installed without it, run
+`ahoy update-vortex --interactive` and answer yes to that question. That run
+also updates the rest of the project's **Vortex** files, as
+[Updating Vortex](../updating-vortex.mdx) describes. The workflow runs on
+GitHub Actions whichever CI provider builds the project, so it needs the
+repository on GitHub.
 
 ## Diffy
 

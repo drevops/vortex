@@ -119,9 +119,15 @@ names in its `package.json`: `build`, `build-dev`, `watch`, `lint`, and
 `lint-fix`. The Ahoy commands, the CLI image build, and the CI lint step
 call those names in the theme named by `DRUPAL_THEME`. `.env` sets that
 variable and `DRUPAL_MAINTENANCE_THEME`, and the installer writes your
-theme's name into both, so point both at the new theme. Neither sets
-Drupal's default theme: the `ys_base_deploy_install_active_theme()` deploy
-hook in `ys_base` does that, once.
+theme's name into both, so point both at the new theme.
+
+Neither variable sets Drupal's default theme. The
+`ys_base_deploy_install_active_theme()` deploy hook in `ys_base.deploy.php`
+installs Olivero and the theme whose machine name the installer wrote into
+it, then makes that theme the default. Provisioning runs deploy hooks with
+`drush deploy:hook`, which runs each hook once per site. On a site where
+this hook already ran, add a new deploy hook to the same file that installs
+your new theme and sets it as the default.
 
 ## File structure
 

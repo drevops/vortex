@@ -178,11 +178,13 @@ rest make plain HTTP requests without a browser.
 ### Re-provision the site
 
 `ahoy provision` runs provisioning again in the running stack, after you
-confirm. When `VORTEX_PROVISION_OVERRIDE_DB` is `1`, as `.env.local.example`
-sets it for local work, it replaces the current database with the dump from
-`.data/db.sql`. Otherwise, an existing site keeps its database. A project
-that keeps its database in a container image (`VORTEX_DB_IMAGE`) gets a
-fresh database container from that image instead.
+confirm. When `VORTEX_PROVISION_OVERRIDE_DB` is `1`, it replaces the current
+database with the dump from `.data/db.sql`. Otherwise, an existing site
+keeps its database. `.env` ships the variable as `0`, and
+`.env.local.example` sets it to `1` for local work once you copy that file
+to `.env.local`. A project that keeps its database in a container image
+(`VORTEX_DB_IMAGE`) gets a fresh database container from that image
+instead, whatever the variable says.
 
 In every case, the provisioning steps run next, from the database updates
 and the configuration import to the deploy hooks and your custom

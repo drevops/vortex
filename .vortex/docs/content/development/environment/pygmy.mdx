@@ -98,7 +98,9 @@ stack is running at the time, the CLI container stays attached to the
 previous agent, so the SSH key is no longer available inside it. The same
 happens when the stack starts before Pygmy.
 
-Recreate the CLI container to attach it to the current agent:
+If you added a key yourself, run that `pygmy` command again first, because
+the new agent holds only the key Pygmy loads when it starts. Then recreate
+the CLI container to attach it to the current agent:
 
 ```shell
 ahoy up --no-deps --force-recreate cli

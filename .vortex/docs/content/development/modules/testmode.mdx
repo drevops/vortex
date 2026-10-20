@@ -89,7 +89,8 @@ the `ys_demo` module, so installing the demo module brings it in as well.
 
 The `Testmode` singleton reads and writes that configuration. The settings
 stay out of the exported configuration, so register a view from a deploy
-hook, as `ys_demo` does:
+hook in your module's `MODULE.deploy.php` file, as `ys_demo` does in
+`ys_demo.deploy.php`:
 
 ```php
 use Drupal\testmode\Testmode;

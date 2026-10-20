@@ -27,8 +27,8 @@ you start guessing.
 
 Doctor checks the usual causes: a stopped Pygmy service, a stopped
 container, and a web server that doesn't answer. If it reports a stopped
-container, run `ahoy up` as it suggests: that starts the container and keeps
-your database.
+container, run `ahoy up` as it suggests, or `docker compose up -d` without
+Ahoy. Either command starts the container and keeps your database.
 
 If the site still doesn't load, work through the following commands, which
 restart the whole stack:

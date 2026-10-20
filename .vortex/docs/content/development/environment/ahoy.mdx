@@ -199,7 +199,7 @@ defines:
 | Front-end assets | `fei`, `fe`, `fed`, `few` | `fei` installs the front-end dependencies, `fe` builds the theme assets, `fed` builds them for development, and `few` watches them and rebuilds on change |
 | Storybook | `storybook`, `storybook-build`, `storybook-stories` | `storybook` starts the development server, `storybook-build` builds the library served at `/storybook`, and `storybook-stories` generates the stories |
 | Code quality | `lint`, `lint-be`, `lint-fe`, `lint-tests`, `lint-sdc`, `lint-fix`, `lint-be-fix`, `lint-fe-fix` | `lint` runs `lint-be`, `lint-fe`, and `lint-tests`, `lint-fix` runs `lint-be-fix` and `lint-fe-fix`, and `lint-sdc` validates the components of a provisioned site |
-| Tests | `test`, `test-unit`, `test-kernel`, `test-functional`, `test-functional-javascript`, `test-js`, `test-bdd` | `test` runs every PHPUnit suite, `test-unit`, `test-kernel`, `test-functional`, and `test-functional-javascript` run 1 suite each, `test-js` runs Jest, and `test-bdd` runs Behat |
+| Tests | `test`, `test-unit`, `test-kernel`, `test-functional`, `test-functional-javascript`, `test-js`, `test-bdd` | `test` runs every PHPUnit suite, `test-unit`, `test-kernel`, `test-functional`, and `test-functional-javascript` run 1 suite each, `test-js` runs Jest, and `test-bdd` runs Behat. Every command except `test-js` passes extra arguments to its test runner, as in `ahoy test -- --filter=testMethodName` |
 | Debugging and caches | `debug`, `flush-redis` | `debug` turns on Xdebug, and `flush-redis` flushes the Redis cache |
 | Deployment | `deploy` | Runs a deployment by hand, after you confirm; deployments usually run in CI |
 | Local commands | `local` | Runs the commands in `.ahoy.local.yml` |

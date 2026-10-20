@@ -167,7 +167,10 @@ theme's SCSS doesn't have to list declarations in alphabetical order.
 
 The theme's `lint-css` script targets `scss/**/*.scss`, and the
 configuration ignores `scss/_components.scss`, `fonts/**/*.scss`, and
-`build/.*` through the `ignoreFiles` key.
+`build/.*` through the `ignoreFiles` key. Stylelint reads these entries as
+globs relative to the configuration file, so `build/.*` matches only names
+that start with a dot directly inside `build`. The `scss/**/*.scss` target
+never reaches `build` anyway.
 
 ## Ignoring
 

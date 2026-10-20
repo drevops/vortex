@@ -144,4 +144,5 @@ they work on. Everything else under `.claude/` stays ignored, which keeps
 machine-local Claude state out of the repository.
 
 Confirm that `git status` lists the new skill as untracked, which shows that
-Git doesn't ignore it.
+Git doesn't ignore it. After you commit it, `git ls-files .claude/skills`
+lists its `SKILL.md`, which shows that Git tracks it.

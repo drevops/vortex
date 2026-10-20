@@ -433,8 +433,9 @@ configured site that's ready for development or deployment, use
 - Unblocks user 1 and prints a one-time login link at the end
 
 The dump replaces the current database only when no site is installed yet
-or `VORTEX_PROVISION_OVERRIDE_DB=1` is set, which `.env.local.example`
-does. Otherwise the site keeps its database and only the later steps run.
+or `VORTEX_PROVISION_OVERRIDE_DB=1` is set, which `.env.local.example` does
+once you copy it to `.env.local`. Otherwise the site keeps its database and
+only the later steps run.
 
 To provision the site, run the following command:
 
@@ -457,12 +458,14 @@ after it.
 
 #### Import only (`ahoy import-db`)
 
-`ahoy import-db` imports the raw dump without running any updates,
-configuration imports, or scripts:
+`ahoy import-db` imports the raw dump and runs none of the other
+provisioning steps:
 
 - Imports the database dump
-- Skips configuration imports
 - Skips database updates
+- Skips configuration imports
+- Skips cache rebuilds
+- Skips deployment hooks
 - Skips database sanitization
 - Skips post-provisioning scripts
 
