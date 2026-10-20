@@ -8,6 +8,18 @@ import TabItem from '@theme/TabItem';
 
 # Logs
 
+Logs are where you find out why a container won't start or why a page
+throws an error. This page is for developers tracking down either problem
+in the local stack, and it shows the commands that read each kind of log.
+
+Each container writes its output to Docker's log, and `ahoy logs` shows it
+by running `docker compose logs` with any arguments you add. Drupal records
+its own messages in the watchdog log, which Drush reads.
+
+`ahoy up` scans the container logs right after starting the stack and fails
+if any container has logged `[Error]`. When that happens, or when
+[Doctor](doctor.mdx) reports a container that isn't running, start here:
+
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
@@ -30,3 +42,74 @@ import TabItem from '@theme/TabItem';
     ```
   </TabItem>
 </Tabs>
+
+In `ahoy logs -- --tail=50 cli`, Ahoy drops the `--` and passes the rest to
+`docker compose logs`; see [Usage](ahoy.mdx#usage) on the Ahoy page.
+
+You can pass any service name from `docker-compose.yml`: `cli`, `nginx`,
+`php`, `database`, `chrome`, and `wait-for-dependencies`, plus `database2`,
+`redis`, `solr`, and `clamav` if you enabled them in the installer.
+`docker compose config --services` prints the names in your project.
+
+## Follow the logs
+
+To follow the output live, add `-f`, and add a service name to narrow it
+to 1 container:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Follow the logs of all containers
+    ahoy logs -- -f
+    # Follow the logs of the nginx container
+    ahoy logs -- -f nginx
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # Follow the logs of all containers
+    docker compose logs -f
+    # Follow the logs of the nginx container
+    docker compose logs -f nginx
+    ```
+  </TabItem>
+</Tabs>
+
+Press <kbd>Ctrl+C</kbd> to stop following.
+
+## Fix a failed start
+
+`ahoy up` runs `docker compose up --detach`, then exits with status 1 when
+`docker compose logs` contains the exact, case-sensitive text `[Error]`. It
+doesn't print the matching line. Each log line starts with the name of the
+container that wrote it, so search the logs for the line and its container:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy logs | grep -F '[Error]'
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose logs | grep -F '[Error]'
+    ```
+  </TabItem>
+</Tabs>
+
+A container keeps its log until it's removed, so an old `[Error]` line
+keeps failing `ahoy up` after you fix the cause. Recreate that container to
+start a new log, for example with `ahoy up -- --force-recreate <service>`.
+
+[Doctor](doctor.mdx) checks that the `cli`, `php`, `nginx`, and `database`
+containers are running, in that order. At the first one that isn't, it
+prints `Run 'ahoy up'.` and `Run 'ahoy logs <service>' to see error logs.`,
+with the service's name in place of `<service>`, then stops. Read that log,
+fix the cause, and run `ahoy up` again.
+
+Confirm that the stack is healthy by checking both of these:
+
+- `ahoy up` exits with status 0 (`echo $?` prints it), so no container has
+  logged `[Error]`.
+- `ahoy doctor` prints `[ OK ] All containers are running.` and ends with
+  `[ OK ] All required checks have passed.`

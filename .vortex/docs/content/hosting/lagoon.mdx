@@ -8,45 +8,82 @@ sidebar_position: 3
 platform that provides automated deployments for Drupal applications using
 Docker and Kubernetes.
 
-For general Lagoon documentation, refer to the
-[Lagoon Documentation](https://docs.lagoon.sh/).
+This page is for the lead or DevOps engineer who runs a project built from
+**Vortex** on Lagoon. It explains what happens on Lagoon during a
+deployment, how the site detects its environment, and how to run the
+routine operations. For general Lagoon documentation, see the [Lagoon
+documentation](https://docs.lagoon.sh/).
 
-This page covers how the site behaves once it runs on Lagoon. For how code
-gets there from CI, see [Lagoon deployment](../deployment/lagoon.mdx).
+Lagoon pulls and builds your code itself after CI asks it to deploy; [Lagoon
+deployment](../deployment/lagoon.mdx) covers that part.
 
 ## Integration
 
+The following sections describe what the integration does on Lagoon.
+
 ### Tasks
 
-With **Vortex**, you can:
+**Vortex** gives you the following tasks on Lagoon:
 
 - Fetch a database from a Lagoon environment for local development or CI
 - Trigger deployments to Lagoon environments (see [Lagoon
   deployment](../deployment/lagoon.mdx))
 - Run custom commands on Lagoon environments
 
-When running these tasks, your `.env` and `.env.local` files are used as the
-source for the project name and SSH configuration.
+These tasks read the project name (`LAGOON_PROJECT`) from your `.env` file
+and the SSH key settings, such as `VORTEX_FETCH_DB_SSH_FILE`, from
+`.env.local`.
 
 ### Deployment automation
 
-When code is deployed, **Vortex** automatically:
+On each deployment, **Vortex** runs these steps on Lagoon:
 
-1. Provisions the site: runs database updates, imports configuration, and
-   clears caches
-2. Notifies configured channels about the deployment
+1. Notifies configured channels that the deployment is starting
+2. In production, backs up the database to
+   `web/sites/default/files/private/pre_deployment_backups`
+3. In every other environment, fetches the database dump that provisioning
+   imports into a new environment, or into an existing one when the
+   database override is on
+4. Provisions the site: runs database updates, imports configuration,
+   rebuilds caches, and runs Drupal's deploy hooks (`drush deploy:hook`)
+5. Notifies configured channels about the finished deployment
 
-This is implemented using post-rollout tasks defined in the
+In production, provisioning never sanitizes the database. With the default
+`database` provision type, it also never overwrites the existing production
+database. Step 3 isn't there when the site installs from a profile, and
+projects with a migration source database fetch that database too, before
+provisioning.
+
+The post-rollout tasks in the
 [`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
-configuration file, which also defines per-environment cron jobs and routes.
+configuration file run these steps. The same file runs a `drush cron` job
+every 15 minutes in both the `main` and the `develop` environments, and
+defines monitoring URLs for both. Other environments get no cron job.
 
 ### Environment detection
 
-**Vortex** automatically detects when running on Lagoon and loads
-appropriate settings from
+**Vortex** detects Lagoon by its `LAGOON_KUBERNETES` variable and then
+applies the settings in
 [`web/sites/default/includes/providers/settings.lagoon.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/providers/settings.lagoon.php).
-This includes Lagoon-specific configurations for caching, file paths, and
-environment variables provided by the platform.
+That file applies the following settings:
+
+- It maps the environment to an environment type.
+- It sets `reverse_proxy` to `TRUE` and `reverse_proxy_header` to
+  `HTTP_TRUE_CLIENT_IP`.
+- It gives each branch its own cache prefix, made of the project name and
+  the branch.
+- It trusts the hostnames of the environment's Lagoon routes, the internal
+  `nginx-php` hostname, and any `amazee.io` subdomain.
+- It defines the `LAGOON_VERSION` constant as `1` when nothing else has.
+
+An environment is production when Lagoon sets its `LAGOON_ENVIRONMENT_TYPE`
+variable to `production`, or when its branch name equals
+`VORTEX_LAGOON_PRODUCTION_BRANCH` exactly. `VORTEX_LAGOON_PRODUCTION_BRANCH`
+lives in `.env` and is `main` by default. Otherwise, `main`, `master`,
+`release/*`, and `hotfix/*` branches count as staging, and every other
+branch as development. The production check comes first, so `main` counts
+as staging only when it isn't the production branch. The production steps
+in `.lagoon.yml` use the same 2 checks.
 
 ## Onboarding
 
@@ -56,19 +93,31 @@ Installation guide and select **Lagoon**.
 
 ## Routine operations
 
+The following sections cover the operations you run against Lagoon
+environments.
+
 ### Fetch database
 
-Fetch a database backup from your Lagoon environment for local development
-or CI builds:
+Fetch a database dump from your Lagoon environment for local development or
+CI builds:
 
 ```shell
 ahoy fetch-db
 ```
 
+When the database source (`VORTEX_FETCH_DB_SOURCE`) is `lagoon`, the
+installer's default for Lagoon projects, the command connects over SSH to
+the `VORTEX_FETCH_DB_ENVIRONMENT` environment, which the installer sets to
+`main`. Both settings live in `.env`. The command dumps the database there
+and downloads the dump. A dump made earlier the same day is reused, and so
+is an existing local dump; add `--fresh` to make a new one.
+
 ### Run a custom task
 
 Run an arbitrary command in a Lagoon environment through the
-platform-agnostic task runner, which drives the Lagoon CLI:
+platform-agnostic task runner, which drives the Lagoon CLI. Run it from the
+project root on your machine or in a CI job, wherever an SSH key that your
+Lagoon user accepts is available:
 
 ```shell
 VORTEX_PLATFORM=lagoon \
@@ -77,7 +126,51 @@ VORTEX_TASK_CUSTOM_LAGOON_COMMAND="drush cron" \
 ./vendor/bin/vortex-task custom
 ```
 
-The task reads the project name and SSH configuration from your `.env` and
-`.env.local` files; `VORTEX_TASK_CUSTOM_LAGOON_BRANCH` selects the
-environment and `VORTEX_TASK_CUSTOM_LAGOON_COMMAND` is the command to run
-there.
+`VORTEX_TASK_CUSTOM_LAGOON_BRANCH` selects the environment and
+`VORTEX_TASK_CUSTOM_LAGOON_COMMAND` is the command to run there. The task
+reads the project name and SSH configuration from your `.env` and
+`.env.local` files. Its other settings have defaults:
+
+- `VORTEX_TASK_CUSTOM_LAGOON_NAME` - the task name shown in Lagoon
+  (default: `Automation task`)
+- `VORTEX_TASK_CUSTOM_LAGOON_PROJECT` - the Lagoon project (default: the
+  value of `LAGOON_PROJECT`)
+- `VORTEX_TASK_CUSTOM_LAGOON_INSTANCE`,
+  `VORTEX_TASK_CUSTOM_LAGOON_INSTANCE_GRAPHQL`,
+  `VORTEX_TASK_CUSTOM_LAGOON_INSTANCE_HOSTNAME`, and
+  `VORTEX_TASK_CUSTOM_LAGOON_INSTANCE_PORT` - the Lagoon instance, with the
+  same defaults as the [Lagoon
+  deployment](../deployment/lagoon.mdx#environment-variables)
+- `VORTEX_TASK_CUSTOM_LAGOON_SSH_FINGERPRINT` and
+  `VORTEX_TASK_CUSTOM_LAGOON_SSH_FILE` - the SSH key (default file:
+  `~/.ssh/id_rsa`)
+- `VORTEX_TASK_CUSTOM_LAGOON_CLI_PATH`,
+  `VORTEX_TASK_CUSTOM_LAGOON_CLI_VERSION`, and
+  `VORTEX_TASK_CUSTOM_LAGOON_CLI_FORCE_INSTALL` - the Lagoon CLI's install
+  directory (default: `/tmp`), its version (default: `v0.32.0`), and a flag
+  to reinstall it when one is already on the path
+
+Confirm that Lagoon accepted the task. With the default name, the output
+shows a `Created` line for the task, then ends with the finish line:
+
+```text
+[ OK ] Created Automation task: project: your_site, branch: develop.
+[ OK ] Finished Lagoon task Automation task.
+```
+
+These lines mean Lagoon queued the task, not that the command succeeded,
+because the Lagoon CLI returns as soon as the task exists. Follow the task
+and its output in the environment's tasks in the Lagoon UI. When Lagoon
+rejects the request, the script stops with the Lagoon CLI's error and
+prints no `Created` line.
+
+The runner's other operations, `copy-db`, `copy-files`, and `purge-cache`,
+exist only for Acquia. On Lagoon, they stop with an error that says the
+operation `is not supported on the "lagoon" platform`.
+
+### Run Drush against remote environments
+
+The shipped `drush/sites/lagoon.site.yml` file defines an alias for every
+environment of the project, such as `@lagoon.develop` or `@lagoon.pr-123`.
+[Drush aliases](../development/environment/drush.mdx#aliases) shows how to
+load your SSH key and run commands with them.

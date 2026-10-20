@@ -5,25 +5,69 @@ sidebar_position: 7
 
 # Webhook
 
-Send HTTP requests to arbitrary webhook URLs.
+The webhook channel sends an HTTP request with a JSON payload to any URL you
+choose. Use it for a service that doesn't have a channel of its own.
+
+This page is for the lead or DevOps engineer who sends deployment events to
+a service of their own. It covers the setup steps, every variable the
+channel reads, and the payload it sends. To start a deployment with a
+webhook instead, see [Webhook deployment](../webhook.mdx).
 
 ## Setup
 
-1. Add `VORTEX_NOTIFY_WEBHOOK_URL` to your `.env` file or hosting
-   environment variables.
+To set up webhook notifications, complete these steps:
+
+1. Set `VORTEX_NOTIFY_WEBHOOK_URL` in your `.env` file or in your hosting
+   provider's environment variables. When the URL carries a token, use the
+   hosting environment variables.
+2. Add `webhook` to the comma-separated `VORTEX_NOTIFY_CHANNELS` list in
+   your `.env` file, for example `VORTEX_NOTIFY_CHANNELS=email,webhook`.
+
+Confirm that the next deployment called the URL. The deployment output on
+your hosting platform shows `[ OK ] Finished webhook notification.`, and
+your service receives the payload.
 
 ## Environment variables
 
+See the [Notifications](README.mdx) overview for the router, what a failed
+channel stops, the shared `VORTEX_NOTIFY_*` variables, and the **Location**
+column. The following table lists the variables that the webhook channel
+reads:
+
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
-| `VORTEX_NOTIFY_WEBHOOK_URL` | **Yes** | | `.env` or Hosting | Webhook endpoint URL |
+| `VORTEX_NOTIFY_WEBHOOK_URL` | **Yes** | None | `.env` or Hosting | Webhook endpoint URL |
 | `VORTEX_NOTIFY_WEBHOOK_METHOD` | No | `POST` | `.env` | HTTP method |
-| `VORTEX_NOTIFY_WEBHOOK_HEADERS` | No | `Content-Type: application/json` | `.env` | Pipe-separated headers |
+| `VORTEX_NOTIFY_WEBHOOK_HEADERS` | No | `Content-type: application/json` | `.env` or Hosting | Pipe-separated headers |
 | `VORTEX_NOTIFY_WEBHOOK_PAYLOAD` | No | Default template | `.env` | JSON payload |
 | `VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS` | No | `200` | `.env` | Expected HTTP status |
-| `VORTEX_NOTIFY_WEBHOOK_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
+| `VORTEX_NOTIFY_WEBHOOK_BRANCHES` | No | None | `.env` | Exact branch names to send for (comma-separated); empty sends for every branch |
+| `VORTEX_NOTIFY_WEBHOOK_PROJECT` | No | `VORTEX_NOTIFY_PROJECT` | `.env` | Project name |
+| `VORTEX_NOTIFY_WEBHOOK_LABEL` | No | `VORTEX_NOTIFY_LABEL` | Hosting | Deployment label |
+| `VORTEX_NOTIFY_WEBHOOK_ENVIRONMENT_URL` | No | `VORTEX_NOTIFY_ENVIRONMENT_URL` | Hosting | Environment URL |
+| `VORTEX_NOTIFY_WEBHOOK_LOGIN_URL` | No | `VORTEX_NOTIFY_LOGIN_URL` | Hosting | Login URL |
+| `VORTEX_NOTIFY_WEBHOOK_EVENT` | No | `VORTEX_NOTIFY_EVENT`, then `post_deployment` | Hosting | Deployment event; `pre_deployment` sends nothing |
+| `VORTEX_NOTIFY_WEBHOOK_LOG` | No | `VORTEX_NOTIFY_LOG`, then `0` | `.env` | `1` inserts the collected deployment log at the `%deployment_log%` token; `0` leaves it out |
+| `VORTEX_NOTIFY_WEBHOOK_LOG_FILE` | No | `VORTEX_NOTIFY_LOG_FILE` | Hosting | Log file inserted at the `%deployment_log%` token; the router sets the default |
+
+Separate multiple headers with `|`, for example
+`Content-type: application/json|Authorization: Bearer API_KEY`. A value of
+your own replaces the default header instead of adding to it, so include
+`Content-type: application/json` again when your service expects JSON. When
+a header carries a credential, set the headers in the hosting environment
+variables rather than in `.env`.
+
+The scripts load `.env` as a Bash file, so wrap a value that holds spaces,
+`|`, or JSON in single quotes:
+
+```shell title=".env"
+VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"text": "%message%"}'
+```
 
 ## Default payload template
+
+When `VORTEX_NOTIFY_WEBHOOK_PAYLOAD` is empty, the channel sends the
+following payload:
 
 ```json
 {
@@ -38,4 +82,16 @@ Send HTTP requests to arbitrary webhook URLs.
 ```
 
 The `%message%` token expands to the full deployment message with all other
-tokens replaced.
+tokens replaced. When the deployment log is on, `message` ends with the
+collected log, because the message carries the `%deployment_log%` token.
+A custom payload can use every token from the [token
+table](README.mdx#message-templates-and-tokens), including
+`%deployment_log%`. The channel JSON-escapes each value before it
+substitutes it, so a quote in a label can't break the payload.
+
+The channel follows redirects and skips `pre_deployment`. When the response
+status doesn't match `VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS`, or the request
+can't connect, the deployment output shows
+`[FAIL] Unable to send notification to webhook` followed by the full webhook
+URL. That line includes any token the URL carries, even when the URL comes
+from the hosting environment variables.

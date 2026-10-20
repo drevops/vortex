@@ -5,21 +5,57 @@ sidebar_position: 2
 
 # Email
 
-Send deployment notification via email.
+The email channel sends a deployment notice, with links to the new
+environment and its login page, to a list of recipients. It's the default
+channel. It sends through the `sendmail` or `mail` command and fills in the
+message template with `php`, both in the hosting environment that runs the
+notification hook: the Lagoon `cli` service or the Acquia server.
+
+This page is for the lead or DevOps engineer who sets up deployment emails.
+It covers the setup steps and every variable the channel reads.
 
 ## Setup
 
-1. Add `VORTEX_NOTIFY_EMAIL_FROM` variable to `.env` file with the sender
-   email address.
-2. Add `VORTEX_NOTIFY_EMAIL_RECIPIENTS` variable to `.env` file with
-   recipients in format `email|name` (comma-separated for multiple).
+To set up email notifications, complete these steps:
+
+1. Make sure the comma-separated `VORTEX_NOTIFY_CHANNELS` list in your
+   `.env` file includes `email`, for example
+   `VORTEX_NOTIFY_CHANNELS=email,slack`. It's `email` by default.
+2. Set `VORTEX_NOTIFY_EMAIL_FROM` in your `.env` file to the sender email
+   address. Without it, the channel falls back to the `DRUPAL_SITE_EMAIL`
+   environment variable, which the shipped `.env` doesn't set.
+3. Set `VORTEX_NOTIFY_EMAIL_RECIPIENTS` in your `.env` file to recipients in
+   the format `email|name`, comma-separated for more than 1. The name is
+   optional, for example `to1@example.com|Jane Doe, to2@example.com`.
+
+Confirm that the next deployment sent the email. The deployment output on
+your hosting platform shows `[ OK ] Finished email notification.`, and each
+recipient gets an email with the subject
+`<project> deployment notification of <label>`. The placeholders are
+`VORTEX_NOTIFY_EMAIL_PROJECT` and `VORTEX_NOTIFY_EMAIL_LABEL`, which default
+to the project name and the deployment label, such as `PR-123` or a branch
+name.
+
+The channel skips the `pre_deployment` event, so each deployment sends 1
+email.
 
 ## Environment variables
 
+See the [Notifications](README.mdx) overview for the router, what a failed
+channel stops, the shared `VORTEX_NOTIFY_*` variables, and the **Location**
+column. The following table lists the variables that the email channel
+reads:
+
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
-| `VORTEX_NOTIFY_EMAIL_FROM` | **Yes** | | `.env` | Sender email address |
-| `VORTEX_NOTIFY_EMAIL_RECIPIENTS` | **Yes** | | `.env` | Recipients (format: `email\|name`) |
+| `VORTEX_NOTIFY_EMAIL_FROM` | **Yes**, unless `DRUPAL_SITE_EMAIL` is set | `DRUPAL_SITE_EMAIL` | `.env` | Sender email address |
+| `VORTEX_NOTIFY_EMAIL_RECIPIENTS` | **Yes** | None | `.env` | Recipients (format: `email\|name`, comma-separated; the name is optional) |
 | `VORTEX_NOTIFY_EMAIL_PROJECT` | No | `VORTEX_NOTIFY_PROJECT` | `.env` | Project name for email |
 | `VORTEX_NOTIFY_EMAIL_MESSAGE` | No | Default template | `.env` | Custom message template |
-| `VORTEX_NOTIFY_EMAIL_BRANCHES` | No | | `.env` | Restrict to specific branches (comma-separated) |
+| `VORTEX_NOTIFY_EMAIL_BRANCHES` | No | None | `.env` | Exact branch names to send for (comma-separated); empty sends for every branch |
+| `VORTEX_NOTIFY_EMAIL_LABEL` | No | `VORTEX_NOTIFY_LABEL` | Hosting | Deployment label |
+| `VORTEX_NOTIFY_EMAIL_ENVIRONMENT_URL` | No | `VORTEX_NOTIFY_ENVIRONMENT_URL` | Hosting | Environment URL |
+| `VORTEX_NOTIFY_EMAIL_LOGIN_URL` | No | `VORTEX_NOTIFY_LOGIN_URL` | Hosting | Login URL |
+| `VORTEX_NOTIFY_EMAIL_EVENT` | No | `VORTEX_NOTIFY_EVENT`, then `post_deployment` | Hosting | Deployment event; `pre_deployment` sends nothing |
+| `VORTEX_NOTIFY_EMAIL_LOG` | No | `VORTEX_NOTIFY_LOG`, then `0` | `.env` | `1` inserts the collected deployment log at the `%deployment_log%` token, which ends the default template; `0` leaves it out |
+| `VORTEX_NOTIFY_EMAIL_LOG_FILE` | No | `VORTEX_NOTIFY_LOG_FILE` | Hosting | Log file inserted at the `%deployment_log%` token; the router sets the default |

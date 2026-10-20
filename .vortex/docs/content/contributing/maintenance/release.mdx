@@ -4,22 +4,28 @@ sidebar_position: 6
 
 # Release
 
-This page covers releasing the **Vortex** template itself. (How a project
-_built from_ **Vortex** releases is documented in
-[Releasing](../../releasing/README.mdx).)
+This page is for the maintainers who cut **Vortex** releases. It covers the
+version numbers, the branches, and the tags, and it walks through the
+checklist that ends with a published release. A project _built from_
+**Vortex** has its own release flow; see
+[Releasing](../../releasing/README.mdx).
 
 ## Versioning strategy
 
-**Vortex** uses [Semantic Versioning](https://semver.org/) for releases:
-`MAJOR.MINOR.PATCH`
+**Vortex** uses [Semantic Versioning](https://semver.org/) for releases, in
+the form `MAJOR.MINOR.PATCH`.
 
 ### Semantic version (MAJOR.MINOR.PATCH)
+
+Each part of the version marks a kind of change:
 
 - **MAJOR**: Breaking changes that require migration or significant updates
 - **MINOR**: New features, backward compatible
 - **PATCH**: Bug fixes, backward compatible
 
 ### Version examples
+
+These versions show how the parts change:
 
 - `1.0.0` - First major release
 - `1.1.0` - New features added
@@ -28,49 +34,58 @@ _built from_ **Vortex** releases is documented in
 
 ### Version numbering guidelines
 
-When creating a new release, determine the version based on the changes:
+When you create a new release, pick the part to bump from the changes it
+contains:
 
-1. **Bump MAJOR** when making incompatible breaking changes:
-   - Removing features or configuration options
-   - Changing default behavior that breaks existing projects
-   - Updating to new major versions of services or dependencies that require
-     migration
-
-2. **Bump MINOR** when adding features in a backward compatible manner:
-   - Adding new optional features
-   - Adding new scripts or commands
-   - Enhancing existing features without breaking changes
-
-3. **Bump PATCH** when making backward compatible bug fixes:
-   - Fixing bugs or errors
-   - Security patches
-   - Documentation updates
-   - Minor improvements that don't change what a feature does
+- For incompatible breaking changes, bump **MAJOR**:
+  - Removing features or configuration options
+  - Changing default behavior that breaks existing projects
+  - Updating to new major versions of services or dependencies that require
+    migration
+- For features added in a backward compatible manner, bump **MINOR**:
+  - Adding new optional features
+  - Adding new scripts or commands
+  - Enhancing existing features without breaking changes
+- For backward compatible bug fixes, bump **PATCH**:
+  - Fixing bugs or errors
+  - Security patches
+  - Documentation updates
+  - Minor improvements that don't change what a feature does
 
 ### Branch strategy
 
-- **`main`** - the current major version under active development (`1.x`
-  today)
+The repository uses these branches:
+
+- **`main`** - the current major version under active development, the one
+  that the `VORTEX_CURRENT_MAJOR` repository variable names
 - **`2.x`** - a development branch for an upcoming major version, ahead of
   `main` (future majors follow the same pattern: `3.x`, `4.x`, and so on)
 - **`1.x`** - a maintenance branch for a superseded major version, behind
-  `main` (for example `1.x` once `main` holds `2.x`)
+  `main` (for example `1.x` after `main` holds `2.x`)
 
-Promoting a new major version is a single action: set the
-`VORTEX_CURRENT_MAJOR` repository variable to its number. The documentation
-default and the installer's bare `/install` URL both follow it, while the
-per-major docs and `/v{N}/install` pins are always published.
+On the publishing side, promoting a new major version is a single action:
+set the `VORTEX_CURRENT_MAJOR` repository variable to its number. It's a
+GitHub Actions variable on the `drevops/vortex` repository, under
+**Settings > Secrets and variables > Actions**, on the **Variables** tab.
+The documentation default and the installer's bare `/install` URL both
+follow it, while the per-major docs and the `/v{N}/install` pins are always
+published.
 
-When `main` advances to a new major version:
+The workflows read the variable when they run, so changing it doesn't
+republish anything. The next `Vortex - Release docs` run applies it to the
+live site and `/install`; run that workflow by hand to publish straight
+away.
 
-1. The upcoming major's branch (for example `2.x`) is merged into `main`
-2. The superseded major continues on its own branch (for example `1.x`) for
-   maintenance
+When `main` advances to a new major version, the branches change like this:
+
+- The upcoming major's branch, for example `2.x`, merges into `main`.
+- The superseded major continues on its own branch, for example `1.x`, for
+  maintenance.
 
 :::note
 
-**Vortex** uses GitHub Flow with the `main` branch always containing the
-latest major version.
+**Vortex** uses GitHub Flow, with the `main` branch always holding the
+current major version.
 
 Consumer projects created from **Vortex** should continue to use [Git
 Flow](../../releasing/gitflow.mdx).
@@ -80,81 +95,160 @@ Flow](../../releasing/gitflow.mdx).
 ## Tagging
 
 A release always produces a **Vortex** tag, and also a
-`drevops/vortex-tooling` tag when the tooling changed. When both are
-created, their order is fixed: tag the tooling first, then tag **Vortex**.
+`drevops/vortex-tooling` tag when the tooling changed. When you create both,
+their order is fixed: tag the tooling first, then tag **Vortex**.
+
+The 2 tags belong to these parts:
 
 - **`drevops/vortex-tooling`** - the shipped tooling package, split from
-  `.vortex/tooling/`. Its branches are mirrored to the package repository
-  automatically, but tags are created manually as part of cutting a release.
+  `.vortex/tooling/`. A workflow mirrors its branches to the package
+  repository automatically, but you create its tags by hand as part of
+  cutting a release.
 - **Vortex** - the template itself.
 
 The following rules apply to every release:
 
-1. A release always creates the **Vortex** tag, with or without tooling
-   changes.
-2. The `drevops/vortex-tooling` requirement in **Vortex**'s root
-   `composer.json` must always point at a published tag, never a branch or a
-   development alias.
-3. When `.vortex/tooling/` has changed since the previous **Vortex**
-   release, create and publish the new `drevops/vortex-tooling` tag _before_
-   tagging **Vortex**.
-4. **Vortex** pins its tooling requirement to the tagged version's minor.
-   When the tooling is tagged for a release, require that freshly tagged
-   `drevops/vortex-tooling` version in root `composer.json` with a tilde
-   constraint (for example `~1.3.0`). The tagged version is the lower bound
-   and the next minor is the exclusive upper bound. Later patch releases
-   within the same minor are still accepted, but the requirement can't float
-   onto a newer minor that was never published with the release.
+- A release always creates the **Vortex** tag, with or without tooling
+  changes.
+- The `drevops/vortex-tooling` requirement in **Vortex**'s root
+  `composer.json` must always point at a published tag, never a branch or a
+  development alias.
+- When `.vortex/tooling/` has changed since the previous **Vortex**
+  release, create and publish the new `drevops/vortex-tooling` tag _before_
+  tagging **Vortex**.
+- **Vortex** pins its tooling requirement to the tagged version's minor.
+  When you tag the tooling for a release, require that freshly tagged
+  `drevops/vortex-tooling` version in root `composer.json` with a tilde
+  constraint (for example `~1.3.0`). The tagged version is the lower bound
+  and the next minor is the exclusive upper bound. Later patch releases
+  within the same minor are still accepted, but the requirement can't float
+  onto a newer minor that was never published with the release.
 
 ## Release process
 
-Follow the steps below to release a new version of **Vortex**:
+The release checklist takes the template from its previous release to a
+published tag. Follow it in order: later steps regenerate files from the
+changes that earlier steps make.
 
-1. Run Renovate bot locally to update all dependencies outside of the
-   schedule:
+### Before you begin
+
+Make sure you have the following:
+
+- Push access to `drevops/vortex`, and to `drevops/vortex-tooling` when the
+  tooling changed
+- The Renovate CLI, with a GitHub token that can write to `drevops/vortex`
+- Ahoy, Git, Composer, Node.js with npm and Yarn, and curl on your `PATH`,
+  because the steps run them on your machine
+- PHP 8.3 or later on your machine, for Composer and the PHP scripts that
+  the steps run
+- Docker, for the `cli` container, `ahoy update-docs`, the snapshot run,
+  and the video recordings
+- The `.vortex/` dependencies, installed with `ahoy install` from
+  `.vortex/`
+- The recording tools that [Documentation > Documentation
+  videos](documentation.mdx#documentation-videos) lists
+
+### Cut the release
+
+To release a new version of **Vortex**, follow these steps:
+
+1. To update all dependencies outside of the schedule, run Renovate
+   locally:
 
    ```shell
    renovate --schedule= --force-cli=true drevops/vortex
    ```
 
-2. Update container images to the latest versions and check that `@see`
-   links are working.
+2. Update the container images to their latest versions.
    - After bumping the `uselagoon/solr-9-drupal` image, update
      `solr.luceneMatchVersion` in
      `.docker/config/solr/config-set/solrcore.properties` to match the
      Lucene version bundled in that image (shown by the `lucene-core-*.jar`
      filename inside the image). The value in `search_api_solr`'s jump-start
-     config-set lags the image, so it must not be copied verbatim.
-3. Update PHP version in `composer.json` for `config.platform`.
-4. Update PHP version in `phpcs.xml` for `testVersion`.
-5. Update PHP version in `phpstan.neon` for `phpVersion`. Run
-   `php -r "echo PHP_VERSION_ID . PHP_EOL;"` in the container to get the
-   current PHP version.
-6. Tag `drevops/vortex-tooling` first when it changed. If `.vortex/tooling/`
-   changed since the previous release, create and publish a new
-   `drevops/vortex-tooling` tag now, before the **Vortex** tag (see
-   [Tagging](#tagging)).
-7. Increment minor version of all packages in `composer.json`. Run
-   `composer update -W && composer bump`. When the tooling was tagged in the
-   previous step, require that freshly tagged `drevops/vortex-tooling`
-   version with a tilde constraint (for example `~1.3.0`, see
-   [Tagging](#tagging)); otherwise keep the existing tag constraint.
-8. Update minor version of dependencies in theme's `package.json`.
-9. Update `drevops/ci-runner` to the latest version in
-   `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
-10. Increment the last segment of the database cache version in
-    `.circleci/config.yml` and `.github/workflows/build-test-deploy.yml`.
-11. Update the documentation with `cd .vortex && ahoy update-docs`.
-12. Commit the changes, then regenerate the installer snapshots with
-    `cd .vortex && ahoy update-snapshots` and commit the regenerated
-    fixtures.
-13. Re-record the demo videos with `cd .vortex && ahoy update-videos` and
-    commit the output.
-14. Tag the **Vortex** release and publish the GitHub release using the
-    template below. **Vortex** is always tagged; when the tooling changed,
-    its tag is created first (see [Tagging](#tagging)).
+     config-set lags the image, so don't copy it verbatim.
+3. Check that the `@see` links are working.
+4. Get the PHP version and the PHP version ID that the `cli` container
+   runs:
+
+   ```shell
+   docker compose run --rm cli php -r "echo PHP_VERSION . PHP_EOL;"
+   docker compose run --rm cli php -r "echo PHP_VERSION_ID . PHP_EOL;"
+   ```
+
+   The commands print the version and its ID, for example `8.4.23` and
+   `80423`.
+
+5. In `composer.json`, set `config.platform.php` to the PHP version.
+6. In `phpcs.xml`, set `testVersion` to the major and minor PHP version, for
+   example `8.4`.
+7. In `phpstan.neon`, set `phpVersion` to the PHP version ID.
+8. If `.vortex/tooling/` changed since the previous release, create and
+   publish a new `drevops/vortex-tooling` tag now, before the **Vortex** tag
+   (see [Tagging](#tagging)). To check for changes, run
+   `git log PREVIOUS_VERSION..HEAD -- .vortex/tooling`, where
+   `PREVIOUS_VERSION` is the previous **Vortex** tag. The command prints
+   nothing when the tooling didn't change.
+9. Increment the minor version of all packages in `composer.json`: run
+   `composer update -W && composer bump`.
+10. If you tagged the tooling in step 8, set its version in the 4 places
+    that pin it:
+    - The `require` constraint in root `composer.json`, as a tilde
+      constraint, for example `~1.3.0` (see [Tagging](#tagging))
+    - The `versions` entry of the `path` repository in root `composer.json`
+    - The `versions` entry in `scripts/vortex-tooling.sh`
+    - The `versions` entry in `.vortex/tests/phpunit/Traits/SutTrait.php`
+
+    Then search the repository for the previous tooling version, to catch a
+    pin that this list misses. Without a new tooling tag, keep the existing
+    tag constraint.
+11. In `web/themes/custom/your_site_theme/`, update the minor versions of
+    the dependencies in `package.json`. Use npm, not Yarn: the theme keeps
+    a `package-lock.json`.
+12. Update `drevops/ci-runner` to its latest version, both the tag and the
+    digest, in every file that pins it by hand:
+    - `.circleci/config.yml`
+    - `.github/workflows/build-test-deploy.yml`
+    - `.github/workflows/audit.yml`
+    - `.github/workflows/vortex-test-common.yml`
+13. Update the database cache version in `.circleci/config.yml` and
+    `.github/workflows/build-test-deploy.yml`. The version follows the tag
+    of the `uselagoon/*` container images, with a `v` prefix:
+    - If this release bumped those images, set it to their new tag, for
+      example `v26.9.0` for `uselagoon/php-8.4-cli-drupal:26.9.0`.
+    - Otherwise, increment its last segment, for example from `v26.8.0` to
+      `v26.8.1`, to force a cache reset.
+14. Run `cd .vortex && ahoy lint-ci-fix` to regenerate
+    `.circleci/vortex-test-common.yml` and
+    `.github/workflows/vortex-test-didi.yml`, which carry copies of the
+    runner image and the cache version from `.circleci/config.yml` and
+    `.github/workflows/build-test-deploy.yml`.
+15. Update the documentation with `cd .vortex && ahoy update-docs`.
+16. Commit the changes.
+17. Regenerate the installer snapshots with
+    `cd .vortex && ahoy update-snapshots`. If the Docker Compose fixtures in
+    `.vortex/tests/phpunit/Fixtures/` change, the command stops before the
+    installer step: commit them and run it again. It commits the installer
+    fixtures itself.
+18. Re-record the demo videos with `cd .vortex && ahoy update-videos`.
+19. Commit the recorded videos under `.vortex/docs/static/img/`.
+20. Tag the **Vortex** release. Pushing the tag runs the
+    `Vortex - Release docs` workflow, which publishes the documentation and
+    the installer.
+21. Publish the GitHub release, with the following template as its body:
 
 import CodeBlock from '@theme/CodeBlock';
 import ReleaseTemplate from '!!raw-loader!./_release_template.md'
 
 <CodeBlock language="markdown">{ReleaseTemplate}</CodeBlock>
+
+Confirm that the release is live: the `Vortex - Release docs` workflow run
+for the tag succeeds, and the published installer reports the new version.
+To check the installer, run these commands:
+
+```shell
+curl -SsL https://www.vortextemplate.com/install > installer.php
+php installer.php --version
+```
+
+The second command prints `Vortex Installer` followed by the tag, for
+example `Vortex Installer 1.42.0`.

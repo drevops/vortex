@@ -5,32 +5,64 @@ sidebar_position: 3
 
 # Pygmy
 
-- https://pygmy.readthedocs.io/
-- https://github.com/pygmystack/pygmy
+The [Pygmy project](https://github.com/pygmystack/pygmy) describes the tool
+as follows:
 
 > `pygmy` is the single tool needed to get the local amazee.io Docker Drupal
 > Development Environment running on your Linux based system. It is built to
 > work with Docker for Mac! (quite a lot for such a small whale 🐳)
 
+This page is for developers who set up a machine for a **Vortex** project
+or need to get an SSH key back into the CLI container. It explains what
+Pygmy provides, how to install and run it, and how to reconnect the CLI
+container to its SSH agent.
+
 Pygmy provides the shared services the **Vortex** container stack relies on:
 
-- An HTTP reverse proxy for readable URLs and HTTPS offloading.
-- A DNS system, so services are addressed by name instead of IP address.
-- SSH agents, so SSH keys are available within containers.
+- An HTTP reverse proxy for readable URLs. With a certificate you pass to
+  `pygmy up --tls-cert`, it also handles HTTPS.
+- A DNS resolver for `*.docker.amazee.io`, so each project's local URL
+  resolves to your machine.
+- An SSH agent, so your SSH key is available inside the CLI container.
 - A local mail catcher that receives and displays outgoing mail at
-  http://mailhog.docker.amazee.io/.
+  `http://mailhog.docker.amazee.io/`.
 
-The `docker-compose.yml` shipped with **Vortex** attaches its services to
-the external `amazeeio-network` that Pygmy creates, so Pygmy must be running
-before `ahoy up` can start the stack. [`ahoy doctor`](doctor.mdx) checks
-that Pygmy is running.
+They're shared because a single Pygmy instance serves every project on your
+machine: start it once after each boot, and every local stack routes
+through it.
+
+The `docker-compose.yml` that ships with **Vortex** depends on Pygmy twice.
+The `nginx` service joins the external `amazeeio-network` that Pygmy
+creates, and the `cli` service takes its SSH agent volume from Pygmy's
+`amazeeio-ssh-agent` container. Both have to exist before Docker Compose can
+create those containers, so start Pygmy before `ahoy up`.
+
+If the network is missing, `ahoy up` fails, because Docker Compose returns
+an error instead of creating a missing external network. If Pygmy's
+containers exist but aren't running, the stack starts, but your SSH key
+isn't available in the CLI container.
+
+[`ahoy doctor`](doctor.mdx) checks that the 4 Pygmy containers are running:
+the SSH agent, the mail catcher, the proxy, and the DNS resolver. It looks
+for their names in the output of `pygmy status`:
+
+```text
+amazeeio-ssh-agent
+amazeeio-mailhog
+amazeeio-haproxy
+amazeeio-dnsmasq
+```
 
 ## Installation
 
-Follow the [official installation
+Follow the [Pygmy installation
 instructions](https://github.com/pygmystack/pygmy/tree/main#installation).
+For how Pygmy sets up DNS resolution on each operating system, see the
+[Pygmy documentation](https://pygmy.readthedocs.io/).
 
 ## Usage
+
+The following commands manage the Pygmy services:
 
 ```shell
 pygmy up       # Start the services. Required to run only once per system boot.
@@ -46,12 +78,31 @@ The CLI container uses the SSH agent from Pygmy's `amazeeio-ssh-agent`
 container. It mounts the agent's volume through `volumes_from` and links to
 the agent's socket only when the CLI container starts.
 
+Pygmy adds your default key, `~/.ssh/id_rsa`, to the agent. To use a
+different key, add it yourself:
+
+```shell
+pygmy addkey --key ~/.ssh/path/to/key
+```
+
+A key you add that way lasts only until the agent container is replaced,
+for example by `pygmy restart`. To load a different key every time
+Pygmy starts, pass it with `--key`, as in
+`pygmy up --key ~/.ssh/path/to/key`; it then replaces the default key.
+`pygmy restart` takes the same `--key` option.
+
+Whichever way you load a different key, set `VORTEX_SSH_FILE` to its path in
+`.env.local`, so that Doctor checks for the key you use.
+
 `pygmy restart` removes the agent container and creates a new one. If the
 stack is running at the time, the CLI container stays attached to the
 previous agent, so the SSH key is no longer available inside it. The same
 happens when the stack starts before Pygmy.
 
-Recreate the CLI container to attach it to the current agent:
+A plain `pygmy restart` loads only the default key. If you use a different
+key, load it again first with the command shown earlier, or restart with
+`pygmy restart --key ~/.ssh/path/to/key`. Then recreate the CLI container to
+attach it to the current agent:
 
 ```shell
 ahoy up --no-deps --force-recreate cli
@@ -61,3 +112,6 @@ Running `ahoy up` on its own isn't enough: Docker Compose leaves a running
 container alone when its configuration hasn't changed.
 [`ahoy doctor`](doctor.mdx) checks that the SSH key is available in the CLI
 container and prints this command when it isn't.
+
+Confirm that the key is back: `ahoy doctor` prints
+`[ OK ] SSH key is available within the CLI container.`

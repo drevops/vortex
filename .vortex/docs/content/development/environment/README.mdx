@@ -8,50 +8,70 @@ import TabItem from '@theme/TabItem';
 
 # Environment
 
-The local environment is a Docker Compose stack built from [Lagoon container
-images](https://github.com/uselagoon/lagoon-images), with Ahoy wrapping the
-longer `docker compose` commands into short, memorable ones. This section
-covers every layer of that stack, each on its own page below. The layers are
-Docker and the anatomy of `docker-compose.yml`, the shared services provided
-by Pygmy, the Doctor project checks, the Ahoy and Drush command wrappers,
-logs, debugging, and troubleshooting. The day-to-day operations of switching
-branches, resetting, and working with environment variables and ignored
-files stay on this page.
+Your local environment is a Docker Compose stack built from [Lagoon
+container images](https://github.com/uselagoon/lagoon-images), the images
+Lagoon runs in production. Ahoy wraps the longer `docker compose` commands
+into short ones you'll remember.
+
+This section is for developers working day to day on a project built from
+**Vortex**. After reading this page, you can do the following:
+
+- Tell which files Git, the image build, and the deployment artifact leave
+  out
+- Switch branches without a full rebuild
+- Reset the project to a clean state
+- Change an environment variable and get the new value into the containers
 
 ## In this section
+
+Each layer of the stack has its own page in this section:
 
 | Page | What it covers |
 |------|----------------|
 | [Docker](docker.mdx) | The container stack and the `docker-compose.yml` anatomy |
-| [Pygmy](pygmy.mdx) | The shared proxy, DNS, and mail catcher services |
+| [Pygmy](pygmy.mdx) | The shared proxy, DNS, SSH agent, and mail catcher services |
 | [Ahoy](ahoy.mdx) | Command shortcuts, configuration, and running CLI commands |
 | [Doctor](doctor.mdx) | Stack diagnostics and system information |
 | [Drush](drush.mdx) | The Drupal CLI, its configuration, and aliases |
-| [Logs](logs.mdx) | Container logs |
+| [Logs](logs.mdx) | Container logs and the Drupal watchdog log |
 | [Debugging](debugging.mdx) | Xdebug, authenticated requests, and container debugging |
 | [Troubleshooting](troubleshooting.mdx) | Common local stack failures and fixes |
 
 ## Ignored files
 
-**Vortex** manages 3 ignore files as deny lists: nothing is excluded by
-default, and each file lists only what must be kept out of its target. This
-is the opposite of an allow list, where everything is excluded by default
-and every addition has to be explicitly re-included. The deny-list model
-follows the "avoid silent errors" principle: a newly added file is visible
-by default instead of silently disappearing until someone remembers to allow
-it.
+**Vortex** writes its 3 ignore files as deny lists: nothing is excluded by
+default, and each file lists only what must stay out of its target. An allow
+list works the other way around: it excludes everything, and every addition
+has to be re-included explicitly. Deny lists follow the "avoid silent
+errors" principle, so a file you add is visible by default instead of
+silently disappearing until someone remembers to allow it.
 
 The `.gitignore` file controls which paths Git ignores in the project
-repository (committing a file is still what puts it there). It excludes
-Composer- and npm-generated directories (`web/core`, `web/modules/contrib`,
-`vendor`, `node_modules`), local setting overrides, caches, and content
-files. It keeps 2 sections as small allow lists because a deny rule can't
-express them:
+repository; a file still reaches the repository only when you commit it. It
+excludes the following:
+
+- Directories that Composer and npm generate, such as `web/core`,
+  `web/modules/contrib`, `vendor`, and `node_modules`
+- The Drupal scaffold files that the build copies into `web/`
+- Compiled theme assets in `web/themes/**/build`
+- With Storybook, the generated `*.stories.json` files and the
+  `storybook-static` output
+- Local overrides: `.env.local`, `.ahoy.local.yml`,
+  `docker-compose.override.yml`, `settings.local.php`, and
+  `services.local.yml`
+- Content files and test artifacts in `web/sites/*/files` and
+  `web/sites/simpletest`
+- Caches, data, logs, and temporary artifacts in `.artifacts`, `.data`,
+  `.logs`, `.phpunit.cache`, and `.twig-cs-fixer.cache`
+
+It keeps 2 sections as small allow lists because a deny rule can't express
+them:
 
 - `recipes/` - Composer installs contributed recipes next to your custom
   ones, so each custom recipe is un-ignored explicitly.
 - `.claude/` - Claude writes machine-local state here, so only
   `.claude/settings.json` and `.claude/skills/` are un-ignored by default.
+  This section is present when the installer adds the AI agent instructions.
 
 The other 2 ignore files apply the same deny-list model to different
 targets:
@@ -62,16 +82,15 @@ targets:
   [Deployment >
   Artifact](../../deployment/artifact.mdx#artifact-file-control)
 
-A new file or directory added to the project is subject to no exclusion.
-Once committed, it's part of the repository, and it enters the image build
-and the deployment artifact automatically. Add an entry to one of these
-ignore files only when a file must be kept out of that particular target.
+A new file or directory that no entry matches is excluded from nothing. Git
+tracks it after you commit it, and the image build and the deployment
+artifact include it with no change to any ignore file. Add an entry to an
+ignore file only when a file must stay out of that particular target.
 
 ## Switching branches
 
-When switching to a new branch, there is no need to rebuild the entire
-project as it may take a long time. Instead, you can run these commands as
-needed based on what changed:
+Switching branches doesn't call for a full rebuild, which takes a while. Run
+only the commands that match what changed:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -97,11 +116,32 @@ needed based on what changed:
   </TabItem>
 </Tabs>
 
+If the branch changes `docker-compose.yml` or a file in `.docker/`, rebuild
+the images and recreate the containers with `ahoy up --build`, or with
+`docker compose up -d --build` without Ahoy.
+
+Confirm that the stack is healthy: `ahoy doctor` ends with
+`[ OK ] All required checks have passed.`
+
 ## Resetting
 
-To reset the local environment, use the reset command. This stops and
-removes all containers and downloaded dependency packages (`vendor`,
-`node_modules` etc.).
+`ahoy reset` takes the stack down and deletes what the build installed, so
+your next `ahoy build` starts clean. After you confirm, it runs `ahoy down`,
+which removes the containers together with their volumes, your local
+database included. It then deletes `vendor`, every `node_modules` directory,
+`web/core`, and the `contrib` directories in `web/modules`, `web/profiles`,
+and `web/themes`.
+
+`ahoy reset --hard` goes further and returns the repository to a freshly
+cloned state at the current commit. On top of the soft reset, it deletes
+every untracked file that `.gitignore` matches and discards uncommitted
+changes to tracked files (`git reset --hard`). It then removes the remaining
+untracked files (`git clean -f -d`) and any empty directories.
+
+That sweep takes your `.env.local`, the database dumps in `.data`, and every
+other local override with it, so copy out anything you want to keep first.
+
+The following commands run each kind of reset:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -115,22 +155,26 @@ removes all containers and downloaded dependency packages (`vendor`,
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
     # Reset local environment
-    docker compose down
+    docker compose down --remove-orphans --volumes
     ./vendor/bin/vortex-reset
     # Fully reset repository to a state as if it was just cloned
-    docker compose down
+    docker compose down --remove-orphans --volumes
     ./vendor/bin/vortex-reset --hard
     ```
   </TabItem>
 </Tabs>
 
+Confirm that the reset finished: the last line it prints is
+`[ OK ] Finished reset.`
+
 ## Environment variables
 
-To update environment variables in your local development environment:
+To change an environment variable in your local stack:
 
-1. Edit variables in `.env.local` file
-2. Apply changes by re-creating the containers (a plain restart doesn't
-   re-read the `.env` files):
+1. Set the new value in `.env.local` for your machine only, or in `.env`
+   for the whole team.
+2. Recreate the containers, so the variables that `docker-compose.yml`
+   passes to them get the new value (a plain restart keeps the old one):
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -144,5 +188,22 @@ To update environment variables in your local development environment:
     ```
   </TabItem>
 </Tabs>
+
+A value in `.env.local` overrides the one in `.env`, and a variable exported
+in your shell overrides both. `ahoy up` loads both files before it calls
+Docker Compose, but Docker Compose on its own reads only `.env`, so the
+Docker Compose tab's command applies only `.env` changes. To include
+`.env.local` without Ahoy, pass both files:
+`docker compose --env-file .env --env-file .env.local up -d`.
+
+Variables that only the `vendor/bin/vortex-*` scripts use, such as
+`VORTEX_PROVISION_OVERRIDE_DB`, take effect without recreating anything,
+because the scripts read both files each time they start. The [Docker
+page](docker.mdx#container-environment-variables) explains how each value
+reaches a container.
+
+Confirm that a container has the new value with
+`docker compose exec cli printenv VARIABLE_NAME`, where `VARIABLE_NAME` is a
+variable that `docker-compose.yml` passes, such as `DRUPAL_THEME`.
 
 ➡️ See [Variables](../variables.mdx) for the full variable reference.

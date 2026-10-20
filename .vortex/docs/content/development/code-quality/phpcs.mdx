@@ -4,7 +4,9 @@ sidebar_label: PHPCS
 
 # PHPCS - PHP Code Sniffer
 
-https://github.com/PHPCSStandards/PHP_CodeSniffer/
+The [PHP_CodeSniffer
+project](https://github.com/PHPCSStandards/PHP_CodeSniffer/) describes the
+tool as follows:
 
 > PHP_CodeSniffer is a set of two PHP scripts; the main `phpcs` script that
 > tokenizes PHP, JavaScript and CSS files to detect violations of a defined
@@ -12,9 +14,17 @@ https://github.com/PHPCSStandards/PHP_CodeSniffer/
 > coding standard violations. PHP_CodeSniffer is an essential development
 > tool that ensures your code remains clean and consistent.
 
-**Vortex** comes with a [pre-configured PHPCS
+PHPCS holds your PHP to the Drupal coding standards, so every custom module,
+theme, and script follows the same conventions and code review can skip the
+formatting nitpicks. **Vortex** comes with a [pre-configured PHPCS
 ruleset](https://github.com/drevops/vortex/blob/main/phpcs.xml) for Drupal
-projects.
+projects. It also requires strict types and checks compatibility with your
+PHP version, and the bundled `phpcbf` command fixes the violations that
+have an automatic fix.
+
+This page is for developers who write PHP in a **Vortex** project. It shows
+how to check and fix your code, what the shipped ruleset enforces, and how
+to ignore a rule.
 
 ## Usage
 
@@ -22,6 +32,10 @@ projects.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
+`ahoy lint-be` runs PHPCS first, then PHPStan and Rector, while the Docker
+Compose command runs PHPCS alone. To check the code, run 1 of the following
+commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -36,7 +50,13 @@ import TabItem from '@theme/TabItem';
   </TabItem>
 </Tabs>
 
+Confirm that the check passed: PHPCS prints no `FILE:` report, and
+`echo $?`, run straight after the command, prints `0`.
+
 ### Fix violations
+
+The PHPCS report marks each violation that PHPCBF can fix with `[x]`. To fix
+them, run 1 of the following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -54,31 +74,68 @@ import TabItem from '@theme/TabItem';
 
 ## Configuration
 
-See [configuration
+See the [PHP_CodeSniffer configuration
 reference](https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki/Configuration-Options).
 
-All global configuration takes place in the
+All global configuration lives in the
 [`phpcs.xml`](https://github.com/drevops/vortex/blob/main/phpcs.xml) file.
 
-By default, PHPCS checks against the following rules:
+By default, PHPCS checks against the following standards and sniffs:
 
-- `Drupal`
-- `DrupalPractice`
-- `Generic.PHP.RequireStrictTypes`
-- `PHPCompatibility`
-- `DrevOps`
-- `SlevomatCodingStandard.TypeHints.DNFTypeHintFormat`
+- `Drupal` - the Drupal coding standards
+- `DrupalPractice` - Drupal best practices
+- `Generic.PHP.RequireStrictTypes` - a `declare(strict_types=1);` statement
+  in every file
+- `PHPCompatibility` - compatibility with the PHP version in `testVersion`
+- `DrevOps` - snake_case names for local variables and parameters, and
+  PHPUnit data providers that start with `dataProvider`, match the name of
+  their test, and come after it
+- `SlevomatCodingStandard.TypeHints.DNFTypeHintFormat` - no spaces around
+  `|` and `&` in union and intersection types, set through its
+  `withSpacesAroundOperators` property
 
-Targets include custom modules and themes, settings, tests, and scripts.
+On top of these, the ruleset adds 3 whitespace sniffs from the standards
+that ship with PHPCS, and reports them as warnings. They flag a blank line
+after a function's opening brace, and a blank line before or after a control
+structure's closing brace. Warnings fail the check too, because PHPCS exits
+with a non-zero code when it reports any. The ruleset also allows long array
+lines in test files and exempts the Behat contexts from the project class
+name prefix.
 
-Adding or removing targets:
+The ruleset sets the following command-line arguments for every run:
+
+- `colors` - colored output
+- `s` - the sniff code after each message
+- `p` - a progress indicator
+- `parallel` set to `10` - 10 files checked at the same time; adjust it to
+  the number of CPU cores available
+
+PHPCS checks the following paths, which the `<file>` entries in `phpcs.xml`
+list:
+
+- `web/modules/custom`
+- `web/themes/custom`
+- `web/sites/default/settings.php`
+- `web/sites/default/includes`
+- `tests`
+- `scripts`
+
+Within them, PHPCS checks files with the `inc`, `info`, `install`,
+`module`, `php`, `profile`, `test`, and `theme` extensions, and skips
+minified files and the `build`, `fonts`, `images`, and `node_modules`
+directories of custom themes.
+
+To add or remove targets, add or remove the `<file>` entries in
+`phpcs.xml`:
 
 ```xml
 <file>path/to/dir_or_file</file>
 ```
 
-The `PHPCompatibility` checks run against the platform version specified in
-the `composer.json` key `config.platform.php`:
+The `PHPCompatibility` checks run against PHP `8.4`, the `testVersion` value
+in `phpcs.xml`, which matches the `composer.json` key `config.platform.php`
+(`8.4.23`). PHPCS doesn't read that key, so update both when you move to a
+new PHP version:
 
 ```xml
 <config name="testVersion" value="8.4"/>
@@ -86,8 +143,9 @@ the `composer.json` key `config.platform.php`:
 
 ## Ignoring
 
-Ignoring rules globally takes place in the
-[`phpcs.xml`](https://github.com/drevops/vortex/blob/main/phpcs.xml) file:
+To ignore a rule across the project, configure it in the
+[`phpcs.xml`](https://github.com/drevops/vortex/blob/main/phpcs.xml) file.
+This example turns a rule off for the files that match the patterns:
 
 ```xml
 <!-- Comment about why this rule is excluded. -->
@@ -97,19 +155,24 @@ Ignoring rules globally takes place in the
 </rule>
 ```
 
-To ignore all PHPCS rules within a file, place in the file header:
+To ignore all PHPCS rules in a file, add this line to the file header:
 
 ```php
 // phpcs:ignoreFile
 ```
 
-To ignore a specific rule within a file, place in the file header:
+To ignore a specific rule in a file, add this line to the file header:
 
 ```php
 // phpcs:disable <rule_name>
 ```
 
-To ignore a rule for a code block:
+Replace `<rule_name>` with the sniff code that the report prints in
+parentheses after the message, such as
+`Drupal.Commenting.FunctionComment.Missing`.
+
+To ignore a rule for a block of code, put it between a `disable` and an
+`enable` comment:
 
 ```php
 // phpcs:disable <rule_name>
@@ -117,7 +180,7 @@ $a = 1;
 // phpcs:enable <rule_name>
 ```
 
-To ignore only the next line:
+To ignore the next line only, add this comment on the line before it:
 
 ```php
 // phpcs:ignore
@@ -132,8 +195,9 @@ violations.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_PHPCS_IGNORE_FAILURE` environment variable to `1`. The
-tool still runs and reports violations.
+To let the build pass anyway, set the `VORTEX_CI_PHPCS_IGNORE_FAILURE` CI
+variable to `1`. PHPCS still runs and prints every violation in the job
+log, so you can see exactly what you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

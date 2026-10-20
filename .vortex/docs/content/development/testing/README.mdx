@@ -7,20 +7,28 @@ sidebar_position: 1
 
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
-**Vortex** ships 3 pre-configured test frameworks, each wired into the
-continuous integration pipeline. [PHPUnit](phpunit.mdx) covers unit, kernel,
-functional, and functional JavaScript tests of custom PHP code.
-[Behat](behat.mdx) covers Behavior-Driven Development (BDD) end-to-end tests
-that drive a real browser. [Jest](jest.mdx) covers JavaScript unit tests of
-custom module behaviors.
+This page helps developers on a project built from **Vortex** pick the
+right test framework, run it, and find its results. Visual regression
+testing has a page of its own; see
+[Visual regression](../visual-regression.mdx).
 
-| Framework              | Covers                                                    | Command         |
-|------------------------|-----------------------------------------------------------|-----------------|
-| [PHPUnit](phpunit.mdx) | Unit, kernel, functional, and functional JavaScript tests | `ahoy test`     |
-| [Behat](behat.mdx)     | BDD end-to-end tests in a real browser                    | `ahoy test-bdd` |
-| [Jest](jest.mdx)       | JavaScript unit tests                                     | `ahoy test-js`  |
+**Vortex** ships 3 test frameworks, configured and wired into the
+continuous integration pipeline, so the first test you add runs in CI with
+no extra setup. Each covers a different layer of the site:
+
+| Framework              | Covers                                                                                                                           | Command         |
+|------------------------|----------------------------------------------------------------------------------------------------------------------------------|-----------------|
+| [PHPUnit](phpunit.mdx) | Your custom PHP code, through unit, kernel, functional, and functional JavaScript tests                                          | `ahoy test`     |
+| [Behat](behat.mdx)     | Behavior-Driven Development (BDD) scenarios, run end to end against the site, in a real browser when a scenario needs JavaScript | `ahoy test-bdd` |
+| [Jest](jest.mdx)       | The JavaScript behaviors in your custom modules, tested in isolation                                                             | `ahoy test-js`  |
+
+➡️ See [PHPUnit > Writing tests](phpunit.mdx#writing-tests), [Behat >
+Writing tests](behat.mdx#writing-tests), and [Jest > Test file
+structure](jest.mdx#test-file-structure) for where a new test goes.
 
 ## Running
+
+Run the tests with the following Ahoy commands:
 
 ```shell
 ahoy test                        # Run all PHPUnit test suites.
@@ -53,8 +61,9 @@ functional JavaScript.
 
 ### Run BDD tests
 
-`ahoy test-bdd` runs the Behat tests against the provisioned site, driving a
-real browser inside the container stack.
+`ahoy test-bdd` runs the Behat tests against the provisioned site. Scenarios
+tagged `@javascript` drive Chrome in the `chrome` container, and the rest
+run through an HTTP client.
 
 <AsciinemaPlayer
   src="/img/test-bdd.json"
@@ -69,28 +78,50 @@ real browser inside the container stack.
 
 ## Reports and coverage
 
-[PHPUnit](phpunit.mdx#reports) and [Behat](behat.mdx#reports) write JUnit
-reports under `.logs/test_results/<tool>/`, and
-[PHPUnit](phpunit.mdx#coverage) and [Jest](jest.mdx#coverage) write coverage
-reports under `.logs/coverage/<tool>/`. The continuous integration pipeline
-stores them as artifacts.
+Each framework writes its reports under `.logs/`, and the continuous
+integration pipeline stores them as artifacts:
+
+- [PHPUnit](phpunit.mdx#reports) writes its JUnit report to
+  `.logs/test_results/phpunit/phpunit.xml` and its [coverage
+  reports](phpunit.mdx#coverage) to `.logs/coverage/phpunit/`.
+- [Behat](behat.mdx#reports) writes its JUnit reports to
+  `.logs/test_results/behat/`.
+- [Jest](jest.mdx#coverage) writes its coverage reports to
+  `.logs/coverage/jest/`.
 
 ## Continuous integration
 
-Tests run in the `build` job of the continuous integration pipeline. PHPUnit
-and Jest run on the first container, while Behat scenarios are distributed
-across all containers, see [Test
-parallelism](../../continuous-integration/README.mdx#test-parallelism).
+Tests run in the `build` job of the continuous integration pipeline, which
+runs on 2 parallel containers by default. PHPUnit and Jest run on the first
+container, and Behat spreads its scenarios across every container (see [Test
+parallelism](../../continuous-integration/README.mdx#test-parallelism)).
 
-Each framework has a `VORTEX_CI_<TOOL>_IGNORE_FAILURE` variable
-(`VORTEX_CI_PHPUNIT_IGNORE_FAILURE`, `VORTEX_CI_BEHAT_IGNORE_FAILURE`,
-`VORTEX_CI_JEST_IGNORE_FAILURE`) that lets the build pass despite failures
-while the tool still runs and reports them, see [Ignore tool
+Each framework has a variable that lets the build pass despite failing
+tests. Set it to `1`, and the tool still runs and reports every failure in
+the job log:
+
+- `VORTEX_CI_PHPUNIT_IGNORE_FAILURE`
+- `VORTEX_CI_BEHAT_IGNORE_FAILURE`
+- `VORTEX_CI_JEST_IGNORE_FAILURE`
+
+The PHPUnit [coverage threshold](phpunit.mdx#coverage-threshold) check has
+no such variable, so it can still fail the build.
+
+➡️ See [Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures).
 
 ## Project conventions
 
-Project-specific test writing conventions (user story format, standard user
-types, test class structure, test data conventions) live in your project's
-`docs/testing.md` file. The file is scaffolded when you install **Vortex**,
-and your project team maintains it.
+Your project's own test writing conventions live in its `docs/testing.md`
+file, which your project team keeps up to date. It covers the following
+topics:
+
+- PHPUnit: test class structure, base test classes, test data, data
+  providers, and kernel tests for services
+- Behat: user story format, standard user types, test data, an example
+  feature file, and the process for testing a content type
+
+**Vortex** ships the file in the project's `docs/` directory, and the
+installer keeps it unless you decline its
+**Preserve project documentation?** prompt. Declining it removes the whole
+`docs/` directory.

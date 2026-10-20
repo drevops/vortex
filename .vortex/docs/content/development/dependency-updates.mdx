@@ -5,29 +5,48 @@ sidebar_position: 13
 
 # Dependency updates
 
-**Vortex** provides [Renovate](https://renovatebot.com) configuration for
-your project's automated dependency updates.
+**Vortex** ships a [Renovate](https://renovatebot.com) configuration that
+keeps your project's dependencies current. Renovate opens pull requests for
+new releases of your PHP and JavaScript packages, container images, CI
+tools, and GitHub Actions. Every group auto-merges by default. Every group
+except Drupal core also waits 14 days before it proposes a release, which
+keeps a freshly compromised release out of your project.
+
+This page is for the lead or DevOps engineer who sets up Renovate for a
+project and decides which updates merge on their own. It explains how the
+updates are grouped, delayed, and merged, how to run Renovate in your own
+CI, and what `renovate.json` sets. To check your dependencies for known
+vulnerabilities instead, see
+[Dependency audit](security/dependency-audit.mdx).
 
 ## How updates are organized
 
-All Renovate PRs use the branch prefix `deps/` and are labeled
-`Dependencies`. Assignees can be configured in the `assignees` field.
+Renovate opens every pull request from a branch with the `deps/` prefix and
+labels it `Dependencies`. To have the pull requests assigned to someone, add
+their GitHub usernames to the `assignees` field.
 
 ### Update rules
 
+The following table lists the update groups, with the schedule and the delay
+of each:
+
 | Group | Packages | Update types | Schedule | Minimum release age |
 |---|---|---|---|---|
-| **Drupal core** | `drupal/core-recommended`, `drupal/core-composer-scaffold`, and other `drupal/core-*` packages | Minor, patch | Daily before 2 AM UTC | None |
+| **Drupal core** | `drupal/core-recommended`, `drupal/core-composer-scaffold`, `drupal/core-project-message`, and `drupal/core-dev` | Minor, patch | Daily before 2 AM UTC | None |
 | **Drupal contrib and PHP packages (non-core)** | All Drupal contrib modules and non-Drupal Packagist packages | Minor, patch | Weekly, Sunday before 2 AM UTC | 14 days for Packagist packages |
 | **JS packages** | All npm packages (root `package.json` only) | Minor, patch | Weekly, Sunday before 2 AM UTC | 14 days |
-| **Container images** | All images in `.docker/` and `docker-compose.yml` | Major, minor, patch | Daily before 3 AM UTC | 14 days for Docker Hub images |
+| **Container images** | Images in `.docker/` and `docker-compose.yml`, and the images CI starts with `docker run` | Major, minor, patch | Daily before 3 AM UTC | 14 days for Docker Hub images |
 | **CI tools** | npm packages that CI runs at a pinned version through `npx` | Major, minor, patch | Daily before 3 AM UTC | 14 days |
 | **Renovate image** | The `renovate/renovate` image in `.circleci/update-dependencies.yml` | Major, minor, patch | Weekly, Sunday before 3 AM UTC | 14 days |
-| **GitHub Actions** | All actions (pinned to digests) | Major, minor, patch | Daily before 3 AM UTC | 14 days |
+| **GitHub Actions** | All actions, and the container images that the jobs in `.github/workflows/` run in, all pinned to digests | Major, minor, patch | Daily before 3 AM UTC | 14 days |
+
+A schedule is a window, not a start time. Renovate creates a group's
+branches only during a run that falls inside the group's window, and the
+schedule never starts a run on its own.
 
 Renovate publishes several releases a day, so the image that runs Renovate
 in CircleCI has a group of its own with a weekly schedule. In the daily CI
-tools group, a new version would be proposed almost every day.
+tools group, it would get a new pull request almost every day.
 
 ### Auto-merge
 
@@ -46,19 +65,21 @@ a group's PRs yourself, set its flag to `false`:
 }
 ```
 
-The installer asks which groups to auto-merge and sets the flag to `true`
-for the groups you select and to `false` for the rest. The CI tools choice
-covers the Renovate image group too. When you update **Vortex**, it
-preselects the groups whose flag is already `true`, so your choices carry
-over.
+The installer's **Auto-merge dependency updates** prompt asks which groups
+to auto-merge, with every group selected by default. It sets the flag to
+`true` for the groups you select and to `false` for the rest, and the CI
+tools choice covers the Renovate image group too. When you update
+**Vortex**, it preselects the groups whose flag is already `true`, so your
+choices carry over.
 
-Auto-merge requires 2 repository settings:
+Auto-merge requires 2 settings in the GitHub repository:
 
-1. **"Allow auto-merge"** enabled under *Settings > General > Pull
-   Requests*.
-2. **"Require status checks to pass before merging"** configured in the base
-   branch's branch protection rules, with at least 1 required status check
-   selected. Otherwise, GitHub may merge even if CI is red.
+- **Allow auto-merge**, turned on in **Settings > General**, under
+  **Pull Requests**.
+- **Require status checks to pass before merging**, turned on in the base
+  branch's protection rules, with at least 1 required status check
+  selected. Without a required check, GitHub might merge a PR even when CI
+  fails.
 
 Every required status check must also report on `deps/*` branches. A check
 that never reports, such as a CircleCI job that a branch filter excludes
@@ -91,7 +112,7 @@ Renovate doesn't create the branch or the PR until a release has reached
 that age, which the top-level `"internalChecksFilter": "strict"` setting
 enforces. When the newest release is too young, Renovate proposes the newest
 one that isn't, and a grouped PR leaves out the packages that have nothing
-old enough yet. Because the PR only exists once the delay has passed,
+old enough yet. Because the PR only exists after the delay has passed,
 GitHub's auto-merge can't merge a release early.
 
 The delay adds to each group's schedule: a weekly group proposes a release
@@ -143,50 +164,31 @@ Updates waiting for their release to reach the minimum age are listed under
 request one early. The self-hosted service turns the dashboard off by
 default: set `RENOVATE_DEPENDENCY_DASHBOARD` to `true` to see them.
 
-## Configuration
-
-The configuration is stored in
-[`renovate.json`](https://github.com/drevops/vortex/blob/main/renovate.json).
-It's based on the [Renovate configuration for automated Drupal dependency
-updates](https://github.com/drevops/renovate-drupal) project.
-
-### PR throughput and presentation
-
-- **Concurrent PR limit:** `prConcurrentLimit: 10` - at most 10 open PRs
-  across all groups at any time.
-- **Hourly PR limit:** `prHourlyLimit: 0` - no hourly cap; the per-group
-  schedules listed earlier provide throttling.
-- **Commit body table:** `commitBodyTable: true` - grouped update commits
-  include a version-comparison table in the commit message body.
-- **Dashboard labels:** the Renovate dependency dashboard issue is labeled
-  `Dependencies` (`dependencyDashboardLabels`).
-
-### Disabled updates
-
-Renovate intentionally skips these updates. Update them manually:
-
-| Group | What's skipped | Why |
-|---|---|---|
-| Drupal core major | `drupal/core-recommended`, `drupal/core-composer-scaffold`, and other `drupal/core-*` packages | Major version upgrades may introduce breaking changes |
-| PHP and Drupal contrib major | All Drupal contrib modules and non-Drupal Packagist packages | Major version upgrades may introduce breaking changes |
-| JS major | All npm packages | Major version upgrades may introduce breaking changes |
-| PHP language version | `php` constraint in `composer.json` | Major version upgrades may introduce breaking changes |
-| JS language versions | `node`, `npm` in `package.json` | Major version upgrades may introduce breaking changes |
-| JS non-root packages | Any `package.json` not at the root | Theme dependencies are managed separately |
-
 ## Continuous integration
 
-Renovate can run as a hosted GitHub app or as a standalone self-hosted
-service in CircleCI or GitHub Actions. A self-hosted service suits projects
-that restrict third-party access to their repositories.
+Renovate can run as the hosted GitHub app or as a self-hosted service in
+CircleCI or GitHub Actions. A self-hosted service suits projects that
+restrict third-party access to their repositories. The installer's
+**Dependency updates provider** prompt offers 3 options:
+
+- **Renovate GitHub app**, the default: the installer removes the
+  self-hosted CI configuration, which the app doesn't need.
+- **Renovate self-hosted in CI**: the installer keeps the self-hosted job.
+- **None**: the installer removes `renovate.json`.
+
+With either of the last 2 options, the installer keeps
+`.github/workflows/update-dependencies.yml`, even in a CircleCI project.
+Delete that workflow by hand when GitHub Actions doesn't run Renovate for
+your project.
 
 :::note
 
-If the job is configured but a required variable isn't provided, the job
-still runs and the Renovate update steps are skipped gracefully without
-failing the build. On GitHub Actions the required variables are
-`RENOVATE_TOKEN` and `RENOVATE_GIT_AUTHOR`; CircleCI additionally requires
-`RENOVATE_REPOSITORIES`, since it has no repository to default to.
+If the job is configured but a required variable is missing, the job still
+runs and skips the Renovate run without failing the build. Its log shows a
+`Skipping job.` message that names the missing variable. On GitHub Actions
+the required variables are `RENOVATE_TOKEN` and `RENOVATE_GIT_AUTHOR`;
+CircleCI also requires `RENOVATE_REPOSITORIES`, since it has no repository
+to default to.
 
 :::
 
@@ -195,20 +197,27 @@ failing the build. On GitHub Actions the required variables are
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+Both versions check `renovate.json` with Renovate's configuration validator
+before the update run starts. Pick your CI provider for its setup:
+
 <Tabs queryString="ci-provider" groupId="ci-provider">
 <TabItem value="gha" label="GitHub Actions" default>
 
-**Required variables**, created in the GitHub repository settings:
+Create the following required variables in the GitHub repository settings,
+in **Settings > Secrets and variables > Actions**:
 
-- `RENOVATE_TOKEN`: GitHub access token with repository write permissions.
-  *Location: Settings > Secrets and variables > Actions > Repository
-  secrets.*
+- `RENOVATE_TOKEN`: A GitHub personal access token, created as a repository
+  secret. A classic token needs the `repo` scope, plus the `workflow` scope
+  so Renovate can update the actions in your workflow files. For the
+  permissions of a fine-grained token, see the
+  [Renovate GitHub platform
+  documentation](https://docs.renovatebot.com/modules/platform/github/).
 - `RENOVATE_GIT_AUTHOR`: Author for Renovate commits in the format
   `Name <email@example.com>` (for example,
-  `Renovate Bot <renovate@example.com>`). *Location: Settings > Secrets and
-  variables > Actions > Repository variables.*
+  `Renovate Bot <renovate@example.com>`), created as a repository variable.
 
-**Optional variables** (defaults apply if not set):
+The following optional variables are repository variables too, and their
+defaults apply when you don't set them:
 
 - `RENOVATE_REPOSITORIES`: Repository to run Renovate on in the format
   `yourorg/repo` (default: the current repository).
@@ -217,57 +226,156 @@ import TabItem from '@theme/TabItem';
 - `RENOVATE_DEPENDENCY_DASHBOARD`: Set to `true` to enable the dependency
   dashboard (default: `false`).
 
-**Manual trigger:** run the workflow from the **Actions** tab using the
-workflow dispatch feature. A manual run skips the schedules, but not the
-[minimum release age](#minimum-release-age).
+The workflow runs on a schedule at 11:45 and 23:45 UTC every day. Both times
+fall outside the schedule windows in `renovate.json`, which all end by
+3 AM UTC, so a scheduled run opens no PRs for the update groups. To get them
+from scheduled runs, move the `cron` times in
+`.github/workflows/update-dependencies.yml` into the windows, or widen the
+windows.
 
-**Debug logging:** set the `LOG_LEVEL` environment variable to `debug` in
-the workflow configuration.
+**Manual trigger:** run the workflow from the **Actions** tab using the
+workflow dispatch feature. A manual run ignores the schedules,
+`prHourlyLimit`, and `branchConcurrentLimit`. `renovate.json` doesn't set
+`branchConcurrentLimit`, so it otherwise takes the `prConcurrentLimit` value
+of 10. A manual run can therefore create more than 10 branches, but it still
+opens at most 10 PRs and still waits for the
+[minimum release age](#minimum-release-age). Select its
+`preserve_schedules` option to keep the schedules and skip the updates that
+aren't due, the way a scheduled run does.
+
+**Debug logging:** enabled by default with `LOG_LEVEL: 'debug'`.
 
 </TabItem>
 <TabItem value="circleci" label="CircleCI">
 
-**Required variables**, created in the CircleCI project settings:
+Create the following required variables in the CircleCI project settings:
 
-- `RENOVATE_TOKEN`: GitHub access token with repository write permissions.
+- `RENOVATE_TOKEN`: A GitHub personal access token. A classic token needs
+  the `repo` scope, plus the `workflow` scope so Renovate can update the
+  actions in your workflow files. For the permissions of a fine-grained
+  token, see the [Renovate GitHub platform
+  documentation](https://docs.renovatebot.com/modules/platform/github/).
 - `RENOVATE_REPOSITORIES`: Repository to run Renovate on in the format
   `yourorg/repo`.
 - `RENOVATE_GIT_AUTHOR`: Author for Renovate commits in the format
   `Name <email@example.com>` (for example,
   `Renovate Bot <renovate@example.com>`).
 
-**Optional variables** (defaults apply if not set):
+The following optional variables have defaults that apply when you don't
+set them:
 
 - `RENOVATE_DRY_RUN`: Set to `true` to test runs without making changes
   (default: `false`).
 - `RENOVATE_DEPENDENCY_DASHBOARD`: Set to `true` to enable the dependency
   dashboard (default: `false`).
 
-**Manual trigger:** trigger the Renovate job from the CircleCI pipeline UI.
+**Manual trigger:** trigger a pipeline from the CircleCI UI with the
+`run_update_dependencies` pipeline parameter set to `true`. The manual run
+uses the same job and settings as a scheduled run, with no override, so it
+keeps the schedules and limits.
 
-**Scheduled trigger:** add an `update-dependencies` scheduled trigger under
-**Project Settings → Triggers** with config source `update-dependencies.yml`
-and branch `develop`.
+**Scheduled trigger:** add a scheduled trigger under
+**Project Settings > Triggers** with config source `update-dependencies.yml`
+and branch `develop`. Name it `update-dependencies`: the workflow runs only
+for a scheduled pipeline with that name. The configuration file suggests
+11:05 and 23:05 UTC every day. Those times fall outside the schedule windows
+in `renovate.json` too, so pick times inside the windows to get PRs from
+scheduled runs.
 
 **Renovate version:** the job runs a pinned `renovate/renovate` image, which
 Renovate keeps up to date through the [Renovate image](#update-rules) group.
+Renovate tracks the image only while its tag is a full version such as
+`44.132.5`. It doesn't track a digest or a floating tag such as `44`.
 
 **Debug logging:** enabled by default with `LOG_LEVEL: 'debug'`.
 
 </TabItem>
 </Tabs>
 
-Triggering GitHub Actions from the self-hosted service isn't supported.
+The self-hosted service runs only on its schedule or when you start it, so a
+request you tick on the Dependency Dashboard waits for the next run.
+
+Confirm that the job's **Run Renovate** step ran and that no step printed a
+`Skipping job.` message.
 
 ### Dependency dashboard
 
-The Renovate Dependency Dashboard is a GitHub issue that lists:
+The Renovate Dependency Dashboard is a GitHub issue that tracks the updates
+Renovate has found. It groups them under headings such as these:
 
-- Available dependency updates that are scheduled for later execution
-- Updates waiting for their release to reach the
+- **Awaiting Schedule**: updates waiting for their group's schedule window
+- **Pending Status Checks**: updates waiting for their release to reach the
   [minimum release age](#minimum-release-age)
-- Updates that have been filtered out due to configuration rules
-- Failed update attempts and their reasons
+- **Rate-Limited**: updates held back by the limit on open PRs
+- **Errored**: updates that failed and that Renovate retries
+- **Open**: updates that already have a PR
 
-The dashboard is created with the title "RenovateBot Dependency Dashboard
-(self-hosted)" when running in self-hosted mode.
+To request an update early, tick its checkbox on the dashboard.
+
+When you turn it on in self-hosted mode, the issue title names the CI
+provider that runs Renovate. On GitHub Actions it's "Renovate Dependency
+Dashboard (self-hosted) by GitHub Actions", and on CircleCI the title ends
+in "by CircleCI" instead.
+
+## Configuration
+
+The configuration lives in
+[`renovate.json`](https://github.com/drevops/vortex/blob/main/renovate.json).
+It extends Renovate's `config:recommended` preset, and its Drupal core and
+contrib groups follow the [Renovate configuration for automated Drupal
+dependency updates](https://github.com/drevops/renovate-drupal) project.
+
+Renovate reads only the files that the managers in `enabledManagers` cover:
+
+- `composer` for `composer.json`
+- `npm` for the `package.json` files
+- `dockerfile` for the Dockerfiles in `.docker/`
+- `docker-compose` for `docker-compose.yml`
+- `github-actions` for the workflows in `.github/workflows/`
+- `custom.regex` for 4 custom managers: the `IMAGE` build argument in
+  `docker-compose.yml`, the `docker run` and `npx --yes` lines in
+  `.circleci/config.yml` and `.github/workflows/`, and the
+  `renovate/renovate` image in `.circleci/update-dependencies.yml`
+
+Other image references in `.circleci/config.yml`, such as the
+`drevops/ci-runner` image that the jobs run in, aren't tracked.
+
+Renovate raises the version constraint in `composer.json` and `package.json`
+to each new release (`"rangeStrategy": "bump"`), the same way Composer's
+[`bump-after-update`](composer.mdx#config) setting does. Constraints that
+end in `@dev`, `@alpha`, `@beta`, `@RC`, or `@stable` are the exception. A
+rule that works around a
+[Renovate bug](https://github.com/renovatebot/renovate/issues/24993) gives
+them `update-lockfile` instead, so Renovate updates only the lock file while
+the new release fits the constraint. The rule matches the flags in that
+exact case, so a lowercase `@rc` still gets `bump`.
+
+Because `configMigration` is on, Renovate also raises a pull request when it
+needs to migrate `renovate.json` to a newer configuration format.
+
+### PR throughput and presentation
+
+The following settings control how many PRs Renovate opens and how they
+look:
+
+- **Concurrent PR limit:** `prConcurrentLimit: 10` - at most 10 open PRs
+  across all groups at any time.
+- **Hourly PR limit:** `prHourlyLimit: 0` - no hourly cap; the schedules in
+  the [update rules](#update-rules) provide the throttling.
+- **Commit body table:** `commitBodyTable: true` - every update commit
+  carries a table of its updates in the commit message body.
+- **Dashboard labels:** the Renovate dependency dashboard issue is labeled
+  `Dependencies` (`dependencyDashboardLabels`).
+
+### Disabled updates
+
+Renovate skips these updates on purpose, so you apply them by hand. The
+following table lists each disabled rule:
+
+| Group | What's skipped | Why |
+|---|---|---|
+| PHP major | All Packagist packages in `composer.json`, including Drupal core and contrib | Major version upgrades might introduce breaking changes |
+| JS major | All npm packages in the root `package.json` | Major version upgrades might introduce breaking changes |
+| PHP language version | `php` constraint in `composer.json` | The constraint stays in line with `config.platform.php` and the PHP version of the container images |
+| JS language versions | `node`, `npm` in `package.json` | The constraints stay in line with the Node.js and npm versions in the `cli` container, where `npm` runs |
+| JS non-root packages | Any `package.json` not at the root | Theme dependencies are managed separately |

@@ -4,18 +4,34 @@ sidebar_label: Gherkin Lint
 
 # Gherkin Lint
 
-https://github.com/dantleech/gherkin-lint-php
+The [Gherkin Lint for PHP
+repository](https://github.com/dantleech/gherkin-lint-php) describes the
+tool as follows:
 
-> Provides a Gherkin linter for PHP.
+> PHP Gherkin Linter
 
-**Vortex** comes with [Gherkin Lint
+Gherkin Lint checks Behat feature files for the slips that make a test
+suite harder to read and maintain. It flags inconsistent indentation,
+duplicated feature or scenario names, empty scenarios, duplicate tags, and
+trailing spaces. **Vortex** comes with [Gherkin Lint
 configuration](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
 for Behat tests.
+
+This page is for developers who write Behat feature files. It shows how to
+lint them, which rules the shipped configuration changes, and how to turn a
+rule off.
+
+Gherkin Lint ships with Behat. If you deselect Behat in the
+**Development tools** prompt, the installer removes Gherkin Lint, its
+`gherkinlint.json` configuration file, and its CI step.
 
 ## Usage
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
+To lint the feature files in `tests/behat/features`, run the following
+command:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -30,18 +46,50 @@ import TabItem from '@theme/TabItem';
   </TabItem>
 </Tabs>
 
+Confirm that the check passed: Gherkin Lint prints `No problems found in`,
+followed by the number of feature files it checked.
+
 ## Configuration
 
-See [configuration
+See the [Gherkin Lint configuration
 reference](https://github.com/dantleech/gherkin-lint-php?tab=readme-ov-file#configuration)
-and
-[rules](https://github.com/dantleech/gherkin-lint-php/blob/master/docs/rules.md).
+and the [Gherkin Lint
+rules](https://github.com/dantleech/gherkin-lint-php/blob/master/docs/rules.md).
 
-All global configuration takes place in the
+All global configuration lives in the
 [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
-file. The values are merged with the default configuration.
+file. Gherkin Lint enables every rule the file doesn't mention, and the
+values in the file override the defaults of the rules it lists.
 
-To check enabled rules, run:
+The shipped file sets the `indentation` rule to 2 spaces per level and moves
+literal blocks, the `"""` doc strings under a step, from the default level 2
+to level 3. The rule checks the following lines:
+
+| Line | Level | Spaces |
+|------|-------|--------|
+| `Feature:` | 0 | 0 |
+| `Rule:`, `Background:`, `Scenario:`, and `Scenario Outline:` | 1 | 2 |
+| Scenario steps and `Examples:` | 2 | 4 |
+| Step table rows, the `Examples` header row, and the opening `"""` of a doc string | 3 | 6 |
+
+A doc string therefore starts 6 spaces in, 2 spaces deeper than its step.
+The rule doesn't check any other line, so it skips the following:
+
+- Tags
+- The steps under `Background:`
+- The rows below an `Examples` header
+- The content and the closing `"""` of a doc string
+- Everything inside a `Rule:` block
+
+The file also turns off the following rules:
+
+- `keyword-order` - the order of the `Given`, `When`, and `Then` steps in
+  a scenario
+- `no-homogenous-tags` - a tag on every scenario that belongs at the
+  feature level
+- `scenario-size` - the number of steps in a scenario
+
+To list the rules and whether each one is on, run the following command:
 
 ```shell
 ahoy cli vendor/bin/gherkinlint rules
@@ -49,9 +97,9 @@ ahoy cli vendor/bin/gherkinlint rules
 
 ## Ignoring
 
-Ignoring rules globally takes place in the
+To turn a rule off globally, set `enabled` to `false` for it in the
 [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
-file.
+file:
 
 ```json
 {
@@ -63,11 +111,17 @@ file.
 }
 ```
 
-To ignore a specific rule within a file, place in the file header:
+To ignore specific rules in a file, add this comment before the `Feature:`
+line. The comment can sit before or after the feature's tags:
 
 ```yaml
 # @gherkinlint-disable-rule keyword-order, someother-rule
 ```
+
+In the example, the second name is a placeholder, and the shipped file
+already turns `keyword-order` off, so replace both with the rules you need.
+Separate the rule names with commas. Gherkin Lint reads the annotation from
+every comment in the file and applies it to the whole file.
 
 Gherkin Lint doesn't support ignoring all rules within a file, ignoring code
 blocks, or ignoring individual lines. Per-file rule suppression is the only
@@ -81,8 +135,10 @@ violations.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE` environment variable to `1`.
-The tool still runs and reports violations.
+To let the build pass anyway, set the
+`VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE` CI variable to `1`. Gherkin Lint
+still runs and prints every violation in the job log, so you can see what
+you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

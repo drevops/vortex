@@ -4,44 +4,66 @@ sidebar_label: Hadolint
 
 # Hadolint
 
-https://github.com/hadolint/hadolint
+The [Hadolint project](https://github.com/hadolint/hadolint) describes the
+tool as follows:
 
-> A smarter Dockerfile linter that helps you build best practice container
+> A smarter Dockerfile linter that helps you build best practice Docker
 > images.
+
+Hadolint checks Dockerfiles against best practices, such as pinning the
+versions of installed packages, and runs ShellCheck over the shell commands
+in `RUN` instructions. **Vortex** lints the Dockerfiles in `.docker`, which
+build the images for its services, with the default rules. Where a rule
+doesn't fit, the Dockerfile carries a `hadolint ignore=` directive with the
+reason next to it, such as `DL3018` where the package set tracks the pinned
+base image.
+
+This page is for developers who change the Dockerfiles in `.docker`. It
+shows how to install and run Hadolint, how to ignore a rule, and how CI
+reports what Hadolint finds.
 
 ## Installation
 
-:::note
+**Vortex** doesn't install Hadolint in the project. To run it locally,
+install it on your machine by following the [Hadolint installation
+instructions](https://github.com/hadolint/hadolint#install). In CI,
+Hadolint runs from its official Docker image.
 
-**Vortex** doesn't install Hadolint locally. Follow the
-[instructions](https://github.com/hadolint/hadolint#install) to install it
-on your system.
-
-In CI, Hadolint runs from its official Docker image.
-
-:::
-
-Hadolint is selected by default during installation. Deselecting it in the
-`Development tools` question removes the continuous integration step from
-every supported provider. The `hadolint ignore=` directives in the
-Dockerfiles are kept, so the tool still works when run by hand.
+The installer selects Hadolint by default. If you deselect it in the
+**Development tools** prompt, the installer removes the Hadolint step from
+the CI configuration of every supported provider. The `hadolint ignore=`
+directives stay in the Dockerfiles, so a check you run by hand still skips
+the same rules.
 
 ## Usage
+
+To lint the Dockerfiles, run the following command from the project root:
 
 ```shell
 hadolint .docker/*.dockerfile
 ```
 
+CI lints every file under `.docker`, subdirectories included, that's named
+`Dockerfile` or ends in `.dockerfile`. The shipped `.docker` directory holds
+only top-level `.dockerfile` files, so this command checks the same files.
+If you add a `Dockerfile` or a subdirectory, add those paths to the command.
+
+Confirm that the check passed: run `echo $?` straight after Hadolint. It
+prints `0` when Hadolint found no violation at the `info` severity or
+higher.
+
 ## Ignoring
 
-To ignore all Hadolint rules within a file, place in the file header:
+To ignore rules for the whole file, add a `global ignore` directive to the
+file header:
 
 ```Dockerfile
 # hadolint global ignore=DL3003,DL3006,SC1035
 FROM ubuntu
 ```
 
-To ignore rules for the next instruction only:
+To ignore rules for the next instruction only, add an `ignore` directive on
+the line before it:
 
 ```Dockerfile
 FROM ubuntu
@@ -50,16 +72,32 @@ FROM ubuntu
 RUN cd /tmp && echo "hello!"
 ```
 
+To record why you ignore a rule, add a second `#` and the reason after the
+rule codes, as `.docker/php.dockerfile` does:
+
+```Dockerfile
+# hadolint ignore=DL3018 # the package set tracks the pinned base image
+RUN apk add --no-cache tzdata
+```
+
 ## Continuous integration
 
 Hadolint runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
-violations.
+any violation at the `info` severity or higher, the default failure
+threshold of Hadolint. Findings at the `style` severity appear in the job
+log without failing the build.
+
+The step lints each file under `.docker`, subdirectories included, that's
+named `Dockerfile` or ends in `.dockerfile`, and stops at the first file
+that fails.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_HADOLINT_IGNORE_FAILURE` environment variable to `1`. The
-tool still runs and reports violations.
+To let the build pass despite violations, set the
+`VORTEX_CI_HADOLINT_IGNORE_FAILURE` CI variable to `1`. Hadolint still runs
+and prints its violations in the job log, so you can see what you're
+letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

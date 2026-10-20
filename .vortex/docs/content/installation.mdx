@@ -8,34 +8,74 @@ import TabItem from '@theme/TabItem';
 
 # Installation
 
-These steps take you from an empty directory to a deployed site. Follow them
-in order: every step uses only what the previous steps produced.
+This page is for the developer or tech lead who sets up a Drupal project on
+**Vortex**. It takes you from an empty directory to a project that builds,
+tests, and deploys in continuous integration. Follow the steps in order:
+each step builds only on what the steps before it produced.
+
+To add **Vortex** to a site you already have, follow the [existing project
+steps](#installing-vortex-into-an-existing-project) instead. To update a
+project that already runs **Vortex**, see
+[Updating Vortex](./updating-vortex).
+
+## Before you begin
+
+Make sure you have the following:
+
+- PHP 8.3 or later, and `curl`
+- `git`, `tar`, and `composer` on your `PATH`
+- [Docker](/docs/development/environment/docker) with Docker Compose,
+  [Ahoy](/docs/development/environment/ahoy), and a running
+  [Pygmy](/docs/development/environment/pygmy), to build the site on your
+  machine
+- A GitHub account for the project repository
+- A user account on Acquia or Lagoon, if you host there
+- A CircleCI account, if you use CircleCI
+
+The installer checks for `git`, `tar`, and `composer` when it starts, and it
+stops with a `Missing required command` error when one of them is missing.
 
 ## Installing Vortex into a new project
 
 ### 1. Choose the names
 
-The installer asks for a **Site name**, a **Site machine name**, an
-**Organization name**, an **Organization machine name**, a
-**Custom modules prefix**, and a **Theme** name. Choose these deliberately
-before running it. The machine names end up in directory names, module
-names, and code across the whole project, so you type them constantly and
-they're costly to change later. Keep them short, quick to type, and distinct
-from each other.
+Settle the project's names before you run the installer. The machine names
+end up in directory names, module names, and code across the whole project,
+so you'll type them constantly, and they're costly to change later. The
+installer asks for these names:
+
+- **Site name**
+- **Site machine name**
+- **Organization name**
+- **Organization machine name**
+- **Custom modules prefix**
+- **Custom theme machine name**
+
+It asks for the custom theme machine name only when you keep the default
+**Custom (next prompt)** answer at the **Theme** prompt. The other answers
+are the Olivero, Claro, and Stark core themes, which need no name.
+
+Keep the machine names short, quick to type, and distinct from each other.
+These patterns work for the 2 names you'll type most:
 
 - **Custom modules prefix** - built from the first letters of the site name.
-  Use the first 2 letters for a single-word name (`Falcon` becomes `fa`), or
-  the first letter of each word for a multi-word name (`Star Wars` becomes
-  `sw`). Custom modules then read as `sw_base`, `sw_search`, and so on.
-- **Theme** name - the whole site name, shortened as much as possible and
-  without underscores where possible (`Star Wars` becomes `starwars`,
-  `Falcon` becomes `falcon`). This keeps the theme name and the module
-  prefix from colliding while both stay short enough to type often.
+  Use the first 2 letters of a single-word name (`Falcon` becomes `fa`), or
+  the first letter of each word of a multi-word name (`Star Wars` becomes
+  `sw`). Your custom modules then read as `sw_base`, `sw_search`, and so on.
+- **Custom theme machine name** - the whole site name, shortened as much as
+  possible and without underscores where possible (`Star Wars` becomes
+  `starwars`, `Falcon` becomes `falcon`). This keeps the theme name and the
+  module prefix from colliding while both stay short enough to type often.
+
+The installer's suggestions don't always match these patterns. For a 1-word
+site machine name, it suggests the first 4 letters as the prefix instead of
+2. For the theme, it suggests the site machine name itself, such as
+`star_wars`. Change either suggestion at the prompt when it doesn't match
+the pattern you chose.
 
 ### 2. Install Vortex
 
-Create a new directory for your project, navigate into it, and run the
-installer:
+In a new, empty directory for your project, run the installer:
 
 ```shell title="Install using interactive prompts"
 curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
@@ -54,34 +94,48 @@ curl -SsL https://www.vortextemplate.com/install > installer.php && php installe
 
 <br />
 
-:::tip Installing with an AI agent
+Complete the installation in the installer:
 
-The installer has built-in support for AI agents. Run it with `--agent-help`
-to get instructions for a non-interactive, programmatic installation:
+1. Press any key to start the prompts.
+2. Answer each prompt, using the names from step 1. To go back to the
+   previous prompt, press <kbd>Ctrl+U</kbd>.
+3. Review the **Installation summary** that follows the last prompt.
+4. Confirm **Proceed with installing Vortex?**. The installer copies the
+   files into the directory and shows **Finished installing Vortex**.
+5. Answer **Run the site build now?**. **Yes** builds the site on your
+   machine, which takes about 5 to 10 minutes and needs the local tools
+   from [Before you begin](#before-you-begin). The installer shows
+   **Site is ready** when the build succeeds. **No** skips the build, and
+   you can run `ahoy build` later.
+
+To have an AI coding agent install **Vortex** instead, run the installer
+with `--agent-help`. It prints the instructions that an agent follows for a
+non-interactive, programmatic installation:
 
 ```shell
 curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php --agent-help
 ```
 
-:::
+:::note Major versions
 
-:::tip Choosing a Vortex version
+The `/install` path serves the installer for the current major line, the
+one this site documents at `/docs`. Each installer installs the latest
+release of its own line, or the line's development branch when the line has
+no release yet. To install a specific line, download the installer from
+that line's path instead:
 
-The installer command shown earlier installs the current stable **Vortex**
-release (the `1.x` line today). To target a specific major version
-explicitly, use its dedicated path:
+- `https://www.vortextemplate.com/v1/install` for the `1.x` line
+- `https://www.vortextemplate.com/v2/install` for the `2.x` line
 
-- `https://www.vortextemplate.com/v1/install` - the current `1.x` line.
-- `https://www.vortextemplate.com/v2/install` - the `2.x` line, currently in
-  development.
-
-Once installed, `ahoy update-vortex` keeps your project on its major version
-and never jumps across a major release. See
-[Updating Vortex](./updating-vortex).
+After installation, `ahoy update-vortex` keeps your project on its major
+line. See [Updating Vortex](./updating-vortex).
 
 :::
 
 ### 3. Commit the initial project structure
+
+The installer has already initialized a Git repository in the directory.
+Commit the files it created:
 
 ```shell
 git add .
@@ -90,161 +144,267 @@ git commit -m "Initial commit"
 
 ### 4. Create a GitHub repository and push
 
-Create a new repository on GitHub and push the initial commit to it.
+Put the project on GitHub:
+
+1. Create an empty repository on GitHub, without a README, license, or
+   `.gitignore` file, so it holds no commits that conflict with yours.
+2. Push the initial commit to it, with the commands GitHub shows for an
+   existing repository. The repository's page then lists your files.
 
 ### 5. Create an SSH key for deployments
 
-The automation uses SSH for 2 operations: fetching the database from the
-hosting provider and deploying code to it. Generate a key pair for them:
+If you answered **Other** or **None** at the **Hosting provider** prompt,
+only the **Code artifact** and **Lagoon webhook** deployment types and the
+**Lagoon environment** database source use these keys. Without any of them,
+skip to the next step.
+
+Your continuous integration pipeline connects to your hosting provider over
+SSH to deploy code. On Lagoon, it fetches the database over SSH too. On
+Acquia, it downloads database backups through the Acquia Cloud API instead,
+with the API key you create in the next step. Generate a key pair for the
+automation:
 
 ```shell
 ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject@example.com" -f ~/.ssh/deployer_myproject -N ""
 ```
 
-The `-m PEM -t rsa` format is accepted by every supported hosting and
-continuous integration provider.
+The command writes the private key to the path after `-f` and the public key
+to the same path with `.pub` added, both without a passphrase. Swap the
+example project name in the comment and the path for your own. Every
+supported hosting and continuous integration provider accepts the
+`-m PEM -t rsa` format.
 
-You can also generate 2 separate key pairs (one with read access for
-database fetches and one with write access for deployments) so that each can
-be revoked independently. The steps below note where each key is used.
+You can also generate 2 separate key pairs: one with read access for
+database fetches and one with write access for deployments. That way, you
+can revoke each one on its own. Acquia needs only the deployment key. The
+following steps note where each key goes.
 
 You register the public key (the `.pub` file) with your hosting provider in
-the next step. The private key stays with you until the continuous
-integration setup and never goes anywhere else.
+the next step. The private key stays on your machine until the continuous
+integration setup, and it never goes anywhere else.
 
 ### 6. Set up hosting
 
-Choose your hosting provider. For how the site behaves on each platform, see
-the [Hosting](/docs/hosting) section.
+Each answer you selected at the installer's **Deployment types** prompt adds
+its type to `VORTEX_DEPLOY_TYPES` in `.env`. The following table maps each
+answer to its type, its setup page, and its line in the deploy log:
+
+| Answer | Type | Setup page | Deploy log line |
+|--------|------|------------|-----------------|
+| **Code artifact** | `artifact` | [Artifact deployment](/docs/deployment/artifact) | `Finished artifact deployment.` |
+| **Lagoon webhook** | `lagoon` | [Lagoon deployment](/docs/deployment/lagoon) | `Finished Lagoon deployment.` |
+| **Custom webhook** | `webhook` | [Webhook deployment](/docs/deployment/webhook) | `Finished webhook deployment.` |
+
+If you answered **Other** or **None** at the **Hosting provider** prompt,
+there's nothing to set up on a platform. Set your type's CI variables,
+listed on [Artifact deployment](/docs/deployment/artifact) or
+[Webhook deployment](/docs/deployment/webhook), in your CI provider
+instead: as repository variables in GitHub Actions, or project environment
+variables in CircleCI.
+
+The [Hosting](/docs/hosting) section explains how the site behaves on each
+platform. For Acquia or Lagoon, pick the tab for your hosting provider:
 
 <Tabs queryString="hosting-provider" groupId="hosting-provider">
 <TabItem value="acquia" label="Acquia" default>
 
+Complete these steps for Acquia:
+
 1. Add the public key created in
    [step 5](#5-create-an-ssh-key-for-deployments) to your Acquia account, so
-   the automation can fetch databases and push code artifacts. When using
-   separate keys, add both public keys.
-2. Add `VORTEX_ACQUIA_APP_NAME` with your Acquia application name (machine
-   name) to your `.env` file, then commit and push.
-3. Create an Acquia Cloud API key and secret for the account that runs the
-   automation, and keep both values at hand. The continuous integration
-   setup in the next step stores them as secrets.
+   the automation can push code artifacts to your application's Git
+   repository. With separate keys, add the deployment key.
+2. Check `VORTEX_ACQUIA_APP_NAME` in your `.env` file. The installer fills
+   it with your **Hosting project name** answer, which defaults to the site
+   machine name.
+3. If your Acquia application name (machine name) differs, correct the value
+   in `.env`, then commit and push the change.
+4. Create an Acquia Cloud API token for the account that runs the
+   automation, under **Account → API tokens** in the Acquia Cloud UI. The
+   token gives you an API key and secret, and the pipeline downloads
+   database backups with them. Keep both values at hand, along with your
+   application's Git repository URL, for the continuous integration setup in
+   the next step.
 
-Acquia supplies a per-environment `hash_salt` through its platform settings
-file, which **Vortex** includes automatically (see
-[Acquia settings file](/docs/hosting/acquia#acquia-settings-file)), so you
-don't need to set `DRUPAL_HASH_SALT`.
+You don't need to set `DRUPAL_HASH_SALT` on Acquia. The platform's settings
+file supplies a per-environment `hash_salt`, and **Vortex** includes that
+file automatically (see
+[Acquia settings file](/docs/hosting/acquia#acquia-settings-file)).
 
 </TabItem>
 <TabItem value="lagoon" label="Lagoon">
 
+Complete these steps for Lagoon:
+
 1. Add the public key created in [step
    5](#5-create-an-ssh-key-for-deployments) to your Lagoon user, so the
-   automation can fetch databases and trigger deployments. When using
-   separate keys, add both public keys.
-2. Add `LAGOON_PROJECT` with your Lagoon project name to your `.env` file,
-   then commit and push.
-3. Set a unique, long, random `DRUPAL_HASH_SALT` variable on every Lagoon
-   environment (dev, stage, production). Lagoon doesn't supply one. Without
-   it, the salt is derived from the database host and changes when the host
-   changes, silently invalidating outstanding one-time login and
-   password-reset links.
+   automation can fetch databases and trigger deployments. With separate
+   keys, add both public keys.
+2. Check `LAGOON_PROJECT` in your `.env` file. The installer fills it with
+   your **Hosting project name** answer, which defaults to the site machine
+   name.
+3. If your Lagoon project name differs, correct it in `.env` and in
+   `drush/sites/lagoon.site.yml`, then commit and push the change.
+4. Set a unique, long, random `DRUPAL_HASH_SALT` variable on every Lagoon
+   environment (dev, stage, production), because Lagoon doesn't supply one.
+   Without it, **Vortex** derives the salt from the database host. When the
+   host changes, so does the salt, and every outstanding one-time login and
+   password-reset link silently stops working.
 
 </TabItem>
 </Tabs>
 
 ### 7. Set up continuous integration
 
-The workflow is identical for both providers, so choose either one. For
-workflow structure, jobs, and caching, see the
-[Continuous integration](/docs/continuous-integration) section.
+Pick the tab for the continuous integration provider you chose in the
+installer. Both providers run the same workflow, and the
+[Continuous integration](/docs/continuous-integration) section covers its
+structure, jobs, and caching. If you answered **None** at the
+**Continuous Integration provider** prompt, the project has no pipeline, so
+skip this step and the next one.
 
 <Tabs queryString="ci-provider" groupId="ci-provider">
 <TabItem value="github-actions" label="GitHub Actions" default>
 
-1. **Vortex** ships the workflow at
-   [`.github/workflows/build-test-deploy.yml`](https://github.com/drevops/vortex/blob/main/.github/workflows/build-test-deploy.yml)
-   and GitHub Actions is on by default. Open the **Actions** tab to confirm
-   it's detected.
-2. Add the private key created in
-   [step 5](#5-create-an-ssh-key-for-deployments) under
-   **Settings → Secrets and variables → Actions** as 2 secrets:
-   `VORTEX_DB_SSH_KEY` for database fetches and `VORTEX_DEPLOY_SSH_KEY` for
-   deployments. When using separate keys, add each private key to its own
-   secret.
-3. Add the hosting credentials from [step 6](#6-set-up-hosting) in the same
-   screen: for Acquia, the API key and secret as `VORTEX_ACQUIA_KEY` and
-   `VORTEX_ACQUIA_SECRET`; for Lagoon, the private key again as
-   `LAGOON_SSH_KEY`.
+Complete these steps for GitHub Actions:
+
+1. Open your repository's **Actions** tab. It lists the
+   `Database, Build, Test and Deploy` workflow from
+   [`.github/workflows/build-test-deploy.yml`](https://github.com/drevops/vortex/blob/main/.github/workflows/build-test-deploy.yml),
+   which GitHub Actions runs without further setup.
+2. Under **Settings → Secrets and variables → Actions**, add the private key
+   created in [step 5](#5-create-an-ssh-key-for-deployments) as the
+   `VORTEX_DEPLOY_SSH_PRIVATE_KEY` secret, for deployments. With separate
+   keys, use the deployment key.
+3. On Lagoon, add the private key as the `VORTEX_FETCH_DB_SSH_PRIVATE_KEY`
+   secret too, for database fetches. With separate keys, use the read-only
+   key. Acquia fetches the database through the Acquia Cloud API, so it
+   doesn't need this secret.
+4. On Acquia, add the API key and secret from [step 6](#6-set-up-hosting)
+   as the `VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET` repository secrets.
+5. On Acquia, add 2 variables under
+   **Settings → Secrets and variables → Actions → Variables**:
+   `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` with your application's Git
+   repository URL, and `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL` with the
+   email address for the deployment commits.
+
+Lagoon needs nothing more: it fetches and deploys with the SSH keys from
+items 2 and 3.
 
 </TabItem>
 <TabItem value="circleci" label="CircleCI">
 
-1. [Log in to CircleCI](https://app.circleci.com/) and add your repository;
-   it detects the
+Complete these steps for CircleCI:
+
+1. [Log in to CircleCI](https://app.circleci.com/).
+2. Add your repository as a project. CircleCI detects the
    [`.circleci/`](https://github.com/drevops/vortex/blob/main/.circleci/)
-   config and starts building on push.
-2. Add the private key created in
-   [step 5](#5-create-an-ssh-key-for-deployments) under
-   **Project Settings → SSH Keys** and copy each generated fingerprint. When
-   using separate keys, add both private keys.
-3. Set the fingerprints in
+   config and builds every push from then on.
+3. Under **Project Settings → SSH Keys**, add the private key created in
+   [step 5](#5-create-an-ssh-key-for-deployments). With separate keys, add
+   both private keys.
+4. Copy the fingerprint that CircleCI generates for each key you added.
+5. Set the fingerprints in the `aliases` list at the top of
    [`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml):
    `db_ssh_fingerprint` for database fetches and `deploy_ssh_fingerprint`
-   for deployments, then commit and push.
-4. Add the hosting credentials from [step 6](#6-set-up-hosting) under
-   **Project Settings → Environment Variables**: for Acquia, the API key and
-   secret as `VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET`; for Lagoon, the
-   private key again as `LAGOON_SSH_KEY`.
+   for deployments. With a single key, both take the same fingerprint. On
+   Acquia, which fetches the database through the Cloud API, the database
+   job loads that key without using it, so give `db_ssh_fingerprint` the
+   deployment key's fingerprint as well.
+6. Commit and push the change to `.circleci/config.yml`.
+7. On Acquia, add the API key and secret from [step 6](#6-set-up-hosting)
+   under **Project Settings → Environment Variables** as `VORTEX_ACQUIA_KEY`
+   and `VORTEX_ACQUIA_SECRET`.
+8. On Acquia, add `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` with your
+   application's Git repository URL and
+   `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL` with the email address for the
+   deployment commits on the same screen.
+
+Lagoon needs nothing more: it fetches and deploys with the SSH keys from
+item 3.
 
 </TabItem>
 </Tabs>
 
 ### 8. Run your first build
 
-Push to a branch or open a pull request. Your continuous integration
-provider builds the codebase, runs the tests, and deploys according to your
-configuration.
+Push to a branch your pipeline builds, such as `main` or `develop`, or open
+a pull request against one of them. Your continuous integration provider
+builds the codebase, runs the tests, and deploys according to your
+configuration. If a required value is missing, the job fails with a
+`Missing required value for ...` message that names the variable.
+
+Confirm that the first build passed:
+
+- In GitHub Actions, every job of the
+  `Database, Build, Test and Deploy` run for your push passes.
+- In CircleCI, every job of the `commit` workflow for your push passes.
+- On either provider, the log of the deploy job's **Deploy** step shows a
+  `Finished artifact deployment.`, `Finished Lagoon deployment.`, or
+  `Finished webhook deployment.` line for each type you chose at the
+  installer's **Deployment types** prompt. The table in
+  [step 6](#6-set-up-hosting) maps each answer to its line.
 
 ## Installing Vortex into an existing project
 
-The installer can't predict the state of your project, so initialize
-**Vortex** into a clean checkout and merge your existing project into it.
+The installer can't predict what state your project is in, so you install
+**Vortex** into a clean working copy and then merge your existing project
+back into it.
 
 :::warning
 
-Back up your project before proceeding.
+In step 3, you delete every file in the working copy except the `.git`
+directory. Back up your project before you start.
 
 :::
 
 ### 1. Choose the names
 
-The installer asks for a **Site name**, a **Site machine name**, an
-**Organization name**, an **Organization machine name**, a
-**Custom modules prefix**, and a **Theme** name. Choose these deliberately
-before running it. The machine names end up in directory names, module
-names, and code across the whole project, so you type them constantly and
-they're costly to change later. Keep them short, quick to type, and distinct
-from each other.
+Settle the project's names before you run the installer. The machine names
+end up in directory names, module names, and code across the whole project,
+so you'll type them constantly, and they're costly to change later. The
+installer asks for these names:
+
+- **Site name**
+- **Site machine name**
+- **Organization name**
+- **Organization machine name**
+- **Custom modules prefix**
+- **Custom theme machine name**
+
+It asks for the custom theme machine name only when you keep the default
+**Custom (next prompt)** answer at the **Theme** prompt. The other answers
+are the Olivero, Claro, and Stark core themes, which need no name.
+
+Keep the machine names short, quick to type, and distinct from each other.
+These patterns work for the 2 names you'll type most:
 
 - **Custom modules prefix** - built from the first letters of the site name.
-  Use the first 2 letters for a single-word name (`Falcon` becomes `fa`), or
-  the first letter of each word for a multi-word name (`Star Wars` becomes
-  `sw`). Custom modules then read as `sw_base`, `sw_search`, and so on.
-- **Theme** name - the whole site name, shortened as much as possible and
-  without underscores where possible (`Star Wars` becomes `starwars`,
-  `Falcon` becomes `falcon`). This keeps the theme name and the module
-  prefix from colliding while both stay short enough to type often.
+  Use the first 2 letters of a single-word name (`Falcon` becomes `fa`), or
+  the first letter of each word of a multi-word name (`Star Wars` becomes
+  `sw`). Your custom modules then read as `sw_base`, `sw_search`, and so on.
+- **Custom theme machine name** - the whole site name, shortened as much as
+  possible and without underscores where possible (`Star Wars` becomes
+  `starwars`, `Falcon` becomes `falcon`). This keeps the theme name and the
+  module prefix from colliding while both stay short enough to type often.
+
+The installer's suggestions don't always match these patterns. For a 1-word
+site machine name, it suggests the first 4 letters as the prefix instead of
+2. For the theme, it suggests the site machine name itself, such as
+`star_wars`. Change either suggestion at the prompt when it doesn't match
+the pattern you chose.
 
 ### 2. Copy your project aside
 
-Copy all files (including hidden files) from your existing project into a
-temporary directory.
+Copy all files from your existing project, hidden files included, into a
+temporary directory outside the project.
 
 ### 3. Clean the working copy
 
-In your existing project, create a new branch and remove all files except
-the `.git` directory.
+In your existing project, prepare an empty branch:
+
+1. Create a new branch.
+2. Remove all files except the `.git` directory.
 
 ### 4. Install Vortex
 
@@ -254,7 +414,14 @@ Run the installer in the cleaned working copy:
 curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
 ```
 
+Answer the prompts as in [step 2 of the new project
+steps](#2-install-vortex). When the installer asks
+**Run the site build now?**, answer **No**, because your own code isn't back
+in place yet.
+
 ### 5. Commit the installed structure
+
+Commit the files the installer created:
 
 ```shell
 git add .
@@ -263,130 +430,230 @@ git commit -m "Initial Vortex commit"
 
 ### 6. Merge your project back
 
-Copy your files back from the temporary directory, overriding the installed
-ones. Review the diff and selectively keep changes: merge `composer.json` by
-hand, preserving all the **Vortex** entries, regenerate `composer.lock` with
-a reviewed `composer update`, and check the result with `composer validate`.
+Bring your own code back on top of the installed structure:
+
+1. Copy your files back from the temporary directory over the installed
+   ones.
+2. Review the diff and keep changes selectively.
+3. Merge `composer.json` by hand so every **Vortex** entry survives,
+   including the `drevops/vortex-tooling` requirement that provides the
+   scripts.
+4. Regenerate `composer.lock` with `composer update`, and review the changes
+   it makes.
+5. Run `composer validate` to check the result. It reports
+   `./composer.json is valid` when the file passes.
 
 ### 7. Commit and push
 
-Commit the result to the branch and push it to the remote repository.
+Save the merged project to your repository:
+
+1. Commit the result to the branch.
+2. Push the branch to the remote repository.
 
 ### 8. Create an SSH key for deployments
 
-The automation uses SSH for 2 operations: fetching the database from the
-hosting provider and deploying code to it. Generate a key pair for them:
+If you answered **Other** or **None** at the **Hosting provider** prompt,
+only the **Code artifact** and **Lagoon webhook** deployment types and the
+**Lagoon environment** database source use these keys. Without any of them,
+skip to the next step.
+
+Your continuous integration pipeline connects to your hosting provider over
+SSH to deploy code. On Lagoon, it fetches the database over SSH too. On
+Acquia, it downloads database backups through the Acquia Cloud API instead,
+with the API key you create in the next step. Generate a key pair for the
+automation:
 
 ```shell
 ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject@example.com" -f ~/.ssh/deployer_myproject -N ""
 ```
 
-The `-m PEM -t rsa` format is accepted by every supported hosting and
-continuous integration provider.
+The command writes the private key to the path after `-f` and the public key
+to the same path with `.pub` added, both without a passphrase. Swap the
+example project name in the comment and the path for your own. Every
+supported hosting and continuous integration provider accepts the
+`-m PEM -t rsa` format.
 
-You can also generate 2 separate key pairs (one with read access for
-database fetches and one with write access for deployments) so that each can
-be revoked independently. The steps below note where each key is used.
+You can also generate 2 separate key pairs: one with read access for
+database fetches and one with write access for deployments. That way, you
+can revoke each one on its own. Acquia needs only the deployment key. The
+following steps note where each key goes.
 
 You register the public key (the `.pub` file) with your hosting provider in
-the next step. The private key stays with you until the continuous
-integration setup and never goes anywhere else.
+the next step. The private key stays on your machine until the continuous
+integration setup, and it never goes anywhere else.
 
 ### 9. Set up hosting
 
-Choose your hosting provider. For how the site behaves on each platform, see
-the [Hosting](/docs/hosting) section.
+Each answer you selected at the installer's **Deployment types** prompt adds
+its type to `VORTEX_DEPLOY_TYPES` in `.env`. The following table maps each
+answer to its type, its setup page, and its line in the deploy log:
+
+| Answer | Type | Setup page | Deploy log line |
+|--------|------|------------|-----------------|
+| **Code artifact** | `artifact` | [Artifact deployment](/docs/deployment/artifact) | `Finished artifact deployment.` |
+| **Lagoon webhook** | `lagoon` | [Lagoon deployment](/docs/deployment/lagoon) | `Finished Lagoon deployment.` |
+| **Custom webhook** | `webhook` | [Webhook deployment](/docs/deployment/webhook) | `Finished webhook deployment.` |
+
+If you answered **Other** or **None** at the **Hosting provider** prompt,
+there's nothing to set up on a platform. Set your type's CI variables,
+listed on [Artifact deployment](/docs/deployment/artifact) or
+[Webhook deployment](/docs/deployment/webhook), in your CI provider
+instead: as repository variables in GitHub Actions, or project environment
+variables in CircleCI.
+
+The [Hosting](/docs/hosting) section explains how the site behaves on each
+platform. For Acquia or Lagoon, pick the tab for your hosting provider:
 
 <Tabs queryString="hosting-provider" groupId="hosting-provider">
 <TabItem value="acquia" label="Acquia" default>
 
+Complete these steps for Acquia:
+
 1. Add the public key created in
    [step 8](#8-create-an-ssh-key-for-deployments) to your Acquia account, so
-   the automation can fetch databases and push code artifacts. When using
-   separate keys, add both public keys.
-2. Add `VORTEX_ACQUIA_APP_NAME` with your Acquia application name (machine
-   name) to your `.env` file, then commit and push.
-3. Create an Acquia Cloud API key and secret for the account that runs the
-   automation, and keep both values at hand. The continuous integration
-   setup in the next step stores them as secrets.
+   the automation can push code artifacts to your application's Git
+   repository. With separate keys, add the deployment key.
+2. Check `VORTEX_ACQUIA_APP_NAME` in your `.env` file. The installer fills
+   it with your **Hosting project name** answer, which defaults to the site
+   machine name.
+3. If your Acquia application name (machine name) differs, correct the value
+   in `.env`, then commit and push the change.
+4. Create an Acquia Cloud API token for the account that runs the
+   automation, under **Account → API tokens** in the Acquia Cloud UI. The
+   token gives you an API key and secret, and the pipeline downloads
+   database backups with them. Keep both values at hand, along with your
+   application's Git repository URL, for the continuous integration setup in
+   the next step.
 
-Acquia supplies a per-environment `hash_salt` through its platform settings
-file, which **Vortex** includes automatically (see
-[Acquia settings file](/docs/hosting/acquia#acquia-settings-file)), so you
-don't need to set `DRUPAL_HASH_SALT`.
+You don't need to set `DRUPAL_HASH_SALT` on Acquia. The platform's settings
+file supplies a per-environment `hash_salt`, and **Vortex** includes that
+file automatically (see
+[Acquia settings file](/docs/hosting/acquia#acquia-settings-file)).
 
 </TabItem>
 <TabItem value="lagoon" label="Lagoon">
 
+Complete these steps for Lagoon:
+
 1. Add the public key created in [step
    8](#8-create-an-ssh-key-for-deployments) to your Lagoon user, so the
-   automation can fetch databases and trigger deployments. When using
-   separate keys, add both public keys.
-2. Add `LAGOON_PROJECT` with your Lagoon project name to your `.env` file,
-   then commit and push.
-3. Set a unique, long, random `DRUPAL_HASH_SALT` variable on every Lagoon
-   environment (dev, stage, production). Lagoon doesn't supply one. Without
-   it, the salt is derived from the database host and changes when the host
-   changes, silently invalidating outstanding one-time login and
-   password-reset links.
+   automation can fetch databases and trigger deployments. With separate
+   keys, add both public keys.
+2. Check `LAGOON_PROJECT` in your `.env` file. The installer fills it with
+   your **Hosting project name** answer, which defaults to the site machine
+   name.
+3. If your Lagoon project name differs, correct it in `.env` and in
+   `drush/sites/lagoon.site.yml`, then commit and push the change.
+4. Set a unique, long, random `DRUPAL_HASH_SALT` variable on every Lagoon
+   environment (dev, stage, production), because Lagoon doesn't supply one.
+   Without it, **Vortex** derives the salt from the database host. When the
+   host changes, so does the salt, and every outstanding one-time login and
+   password-reset link silently stops working.
 
 </TabItem>
 </Tabs>
 
 ### 10. Set up continuous integration
 
-The workflow is identical for both providers, so choose either one. For
-workflow structure, jobs, and caching, see the
-[Continuous integration](/docs/continuous-integration) section.
+Pick the tab for the continuous integration provider you chose in the
+installer. Both providers run the same workflow, and the
+[Continuous integration](/docs/continuous-integration) section covers its
+structure, jobs, and caching. If you answered **None** at the
+**Continuous Integration provider** prompt, the project has no pipeline, so
+skip this step and the next one.
 
 <Tabs queryString="ci-provider" groupId="ci-provider">
 <TabItem value="github-actions" label="GitHub Actions" default>
 
-1. **Vortex** ships the workflow at
-   [`.github/workflows/build-test-deploy.yml`](https://github.com/drevops/vortex/blob/main/.github/workflows/build-test-deploy.yml)
-   and GitHub Actions is on by default. Open the **Actions** tab to confirm
-   it's detected.
-2. Add the private key created in
-   [step 8](#8-create-an-ssh-key-for-deployments) under
-   **Settings → Secrets and variables → Actions** as 2 secrets:
-   `VORTEX_DB_SSH_KEY` for database fetches and `VORTEX_DEPLOY_SSH_KEY` for
-   deployments. When using separate keys, add each private key to its own
-   secret.
-3. Add the hosting credentials from [step 9](#9-set-up-hosting) in the same
-   screen: for Acquia, the API key and secret as `VORTEX_ACQUIA_KEY` and
-   `VORTEX_ACQUIA_SECRET`; for Lagoon, the private key again as
-   `LAGOON_SSH_KEY`.
+Complete these steps for GitHub Actions:
+
+1. Open your repository's **Actions** tab. It lists the
+   `Database, Build, Test and Deploy` workflow from
+   [`.github/workflows/build-test-deploy.yml`](https://github.com/drevops/vortex/blob/main/.github/workflows/build-test-deploy.yml),
+   which GitHub Actions runs without further setup.
+2. Under **Settings → Secrets and variables → Actions**, add the private key
+   created in [step 8](#8-create-an-ssh-key-for-deployments) as the
+   `VORTEX_DEPLOY_SSH_PRIVATE_KEY` secret, for deployments. With separate
+   keys, use the deployment key.
+3. On Lagoon, add the private key as the `VORTEX_FETCH_DB_SSH_PRIVATE_KEY`
+   secret too, for database fetches. With separate keys, use the read-only
+   key. Acquia fetches the database through the Acquia Cloud API, so it
+   doesn't need this secret.
+4. On Acquia, add the API key and secret from [step 9](#9-set-up-hosting)
+   as the `VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET` repository secrets.
+5. On Acquia, add 2 variables under
+   **Settings → Secrets and variables → Actions → Variables**:
+   `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` with your application's Git
+   repository URL, and `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL` with the
+   email address for the deployment commits.
+
+Lagoon needs nothing more: it fetches and deploys with the SSH keys from
+items 2 and 3.
 
 </TabItem>
 <TabItem value="circleci" label="CircleCI">
 
-1. [Log in to CircleCI](https://app.circleci.com/) and add your repository;
-   it detects the
+Complete these steps for CircleCI:
+
+1. [Log in to CircleCI](https://app.circleci.com/).
+2. Add your repository as a project. CircleCI detects the
    [`.circleci/`](https://github.com/drevops/vortex/blob/main/.circleci/)
-   config and starts building on push.
-2. Add the private key created in
-   [step 8](#8-create-an-ssh-key-for-deployments) under
-   **Project Settings → SSH Keys** and copy each generated fingerprint. When
-   using separate keys, add both private keys.
-3. Set the fingerprints in
+   config and builds every push from then on.
+3. Under **Project Settings → SSH Keys**, add the private key created in
+   [step 8](#8-create-an-ssh-key-for-deployments). With separate keys, add
+   both private keys.
+4. Copy the fingerprint that CircleCI generates for each key you added.
+5. Set the fingerprints in the `aliases` list at the top of
    [`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml):
    `db_ssh_fingerprint` for database fetches and `deploy_ssh_fingerprint`
-   for deployments, then commit and push.
-4. Add the hosting credentials from [step 9](#9-set-up-hosting) under
-   **Project Settings → Environment Variables**: for Acquia, the API key and
-   secret as `VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET`; for Lagoon, the
-   private key again as `LAGOON_SSH_KEY`.
+   for deployments. With a single key, both take the same fingerprint. On
+   Acquia, which fetches the database through the Cloud API, the database
+   job loads that key without using it, so give `db_ssh_fingerprint` the
+   deployment key's fingerprint as well.
+6. Commit and push the change to `.circleci/config.yml`.
+7. On Acquia, add the API key and secret from [step 9](#9-set-up-hosting)
+   under **Project Settings → Environment Variables** as `VORTEX_ACQUIA_KEY`
+   and `VORTEX_ACQUIA_SECRET`.
+8. On Acquia, add `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` with your
+   application's Git repository URL and
+   `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL` with the email address for the
+   deployment commits on the same screen.
+
+Lagoon needs nothing more: it fetches and deploys with the SSH keys from
+item 3.
 
 </TabItem>
 </Tabs>
 
 ### 11. Run your first build
 
-Push to a branch or open a pull request. Your continuous integration
-provider builds the codebase, runs the tests, and deploys according to your
-configuration.
+Push to a branch your pipeline builds, such as `main` or `develop`, or open
+a pull request against one of them. Your continuous integration provider
+builds the codebase, runs the tests, and deploys according to your
+configuration. If a required value is missing, the job fails with a
+`Missing required value for ...` message that names the variable.
+
+Confirm that the first build passed:
+
+- In GitHub Actions, every job of the
+  `Database, Build, Test and Deploy` run for your push passes.
+- In CircleCI, every job of the `commit` workflow for your push passes.
+- On either provider, the log of the deploy job's **Deploy** step shows a
+  `Finished artifact deployment.`, `Finished Lagoon deployment.`, or
+  `Finished webhook deployment.` line for each type you chose at the
+  installer's **Deployment types** prompt. The table in
+  [step 9](#9-set-up-hosting) maps each answer to its line.
 
 ## Updating Vortex
 
-Head to [Updating Vortex](./updating-vortex) for detailed instructions on
-how to update your project to the latest version of **Vortex**.
+After your project is running, [Updating Vortex](./updating-vortex)
+explains how to bring in each new **Vortex** release.
+
+## What's next
+
+- [Development](/docs/development) - the day-to-day commands for working on
+  the project
+- [Continuous integration](/docs/continuous-integration) - the pipeline's
+  jobs, caching, and maintenance tasks
+- [Deployment](/docs/deployment) - the deployment types and notifications
+- [Hosting](/docs/hosting) - how the site behaves on Acquia and Lagoon

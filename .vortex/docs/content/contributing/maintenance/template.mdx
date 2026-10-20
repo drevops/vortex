@@ -4,26 +4,38 @@ sidebar_position: 2
 
 # Template
 
-This page covers maintaining the **Vortex** template: authoring scripts and
-testing the template's features.
+This page is for maintainers changing the **Vortex** template itself. It
+sets the rules for the shell scripts the template ships and explains how
+the template gets tested at 3 levels. It also shows how to run those tests
+and refresh the test assets they rely on.
 
 ## Authoring scripts
 
-These requirements apply to all shell scripts in the template: the shipped
-tooling scripts (see [Tooling](tooling.mdx)) and the `scripts/` provision
-subscripts.
+These requirements apply to all shell scripts in the template:
+
+- The shipped tooling scripts (see [Tooling](tooling.mdx))
+- The scripts in `scripts/`, including the provision subscripts
+- The Acquia hooks in `hooks/library/`
+- The scripts in `.circleci/`
+
+From `.vortex/`, `ahoy lint-scripts` runs `.vortex/tests/lint.scripts.sh`
+to enforce the ShellCheck and `shfmt` requirements. The script lints the
+`.sh`, `.bash`, and `.bats` files under `scripts/`, `.circleci/`,
+`hooks/library/`, `.vortex/docs/`, `.vortex/tooling/tests/`, and
+`.vortex/tooling/playground/`, skipping any `vendor`, `node_modules`, or
+`fixtures` path. It also lints every file in `.vortex/tooling/src/`. For
+each file, it runs `shellcheck` and then `shfmt -i 2 -ci -s -d`, and it
+stops at the first file that fails. Both commands must be on your `PATH`.
 
 ### Requirements
 
-:::note
+The requirements use `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT`, and `MAY`
+with the meanings that [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt)
+defines:
 
-Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning
-of words `MUST`, `SHOULD`, and `MAY`.
-
-:::
-
-1. MUST adhere to [POSIX standard](https://en.wikipedia.org/wiki/POSIX).
-2. MUST pass Shellcheck code analysis scan
+1. MUST adhere to the [POSIX standard](https://en.wikipedia.org/wiki/POSIX).
+2. MUST pass the ShellCheck analysis and the `shfmt` formatting check, which
+   `ahoy lint-scripts` runs from `.vortex/`.
 3. MUST start with:
 
     ```shell
@@ -39,12 +51,18 @@ of words `MUST`, `SHOULD`, and `MAY`.
     [ "${VORTEX_DEBUG-}" = "1" ] && set -x
     ```
 
+   Scripts in `.vortex/tooling/src/` also carry a line between the comment
+   block and `set -eu` that loads `.env` and `.env.local` without overriding
+   real environment variables. Copy it verbatim from any script in that
+   directory, along with the ShellCheck directive that disables `SC1090` and
+   `SC1091` for it.
+
 4. MUST list all variables with their default values and descriptions. For
    example:
 
     ```shell
-    # Deployment reference, such as a git SHA.
-    VORTEX_NOTIFY_REF="${VORTEX_NOTIFY_REF:-}"
+    # Notification git commit SHA.
+    VORTEX_NOTIFY_SHA="${VORTEX_NOTIFY_SHA:-}"
     ```
 
 5. MUST include a delimiter between variables and the script body preceded
@@ -57,7 +75,7 @@ of words `MUST`, `SHOULD`, and `MAY`.
 6. SHOULD include formatting helper functions. `info` opens and closes an
    operation, `task` announces work that's starting, and `note` is a
    standalone remark that starts no task. `fail` prints the message and
-   terminates the script with status `1`, or with the status passed as its
+   exits the script with status `1`, or with the status passed as its
    second argument. It's always the last statement of a failure branch, and
    anything that explains the failure runs before it:
 
@@ -75,11 +93,19 @@ of words `MUST`, `SHOULD`, and `MAY`.
    work that's starting, so it always reports its outcome, even when the
    work itself can't fail.
 
+   Keep the `# @formatter:off` and `# @formatter:on` markers:
+   `ahoy lint-scripts` hides the lines between them from `shfmt`, so each
+   helper stays on 1 line. The scripts in `.vortex/tooling/src/` extend
+   `task` and `pass` with a timer that appends the seconds a task took. The
+   `scripts/provision-*.sh` subscripts print indented `==>`, `>`, `+`, and
+   `!` prefixes instead of the `[INFO]`, `[TASK]`, `[ OK ]`, and `[FAIL]`
+   labels. Copy the helpers from a script of the same kind.
+
 7. SHOULD include variable values checks with errors and early exit, for
    example:
 
     ```shell
-    [ -z "${VORTEX_NOTIFY_REF}" ] && fail "Missing required value for VORTEX_NOTIFY_REF."
+    [ -z "${VORTEX_NOTIFY_SHA}" ] && fail "Missing required value for VORTEX_NOTIFY_SHA."
     ```
 
 8. SHOULD include binaries checks if the script relies on them, for example:
@@ -92,14 +118,14 @@ of words `MUST`, `SHOULD`, and `MAY`.
    example:
 
     ```shell
-    info "Started GitHub notification for operation ${VORTEX_NOTIFY_EVENT}."
+    info "Started GitHub notification for ${VORTEX_NOTIFY_GITHUB_EVENT} event."
     ```
 
 10. MUST contain a `pass` message about the finish of the script body, for
     example:
 
     ```shell
-    pass "Finished GitHub notification for operation ${VORTEX_NOTIFY_EVENT}."
+    pass "Finished GitHub notification for ${VORTEX_NOTIFY_GITHUB_EVENT} event."
     ```
 
 11. MUST close every `task` message with exactly 1 `pass` or `fail` message,
@@ -122,21 +148,21 @@ of words `MUST`, `SHOULD`, and `MAY`.
 16. MUST use long options instead of short options for readability. For
     example, `drush cache:rebuild` instead of `drush cr`.
 17. MUST use `VORTEX_` prefix for variables, unless it's a known third-party
-    variable like `PACKAGE_TOKEN` or `COMPOSER`.
-18. MUST use a script-specific prefix. For example, for `vortex-notify`, the
-    variable to skip notifications should start with `VORTEX_NOTIFY_`.
-19. MAY rely on variables from the external scripts (not prefixed with a
+    variable such as `PACKAGE_TOKEN` or `COMPOSER`.
+18. MUST use a script-specific prefix. For example, the variable that skips
+    notifications in `vortex-notify` is `VORTEX_NOTIFY_SKIP`.
+19. MAY rely on variables from other scripts (not prefixed with a
     script-specific prefix), but MUST declare such variables in the header
     of the file.
 20. MAY call other **Vortex** scripts (discouraged), but MUST source them
     rather than creating a sub-process. Sourcing runs the called script in
     the current shell, so both scripts share the same variables.
-21. SHOULD use `note` messages for informing about the script progress.
+21. SHOULD use `note` messages to report the script's progress.
 22. MUST use variables in the form of `${VAR}`.
 
 ### Variables
 
-Follow these guidelines when creating or updating **Vortex** variables.
+When you create or update **Vortex** variables, follow these guidelines:
 
 1. Local variables MUST be in lowercase, and global variables MUST be in
    uppercase.
@@ -144,28 +170,31 @@ Follow these guidelines when creating or updating **Vortex** variables.
 2. All **Vortex** variables MUST start with `VORTEX_` to separate **Vortex**
    from third-party variables.
 
-3. Global variables MAY be re-used as-is across scripts. For instance, the
-   `WEBROOT` variable is used in several scripts.
+3. Global variables MAY be re-used as-is across scripts. For example,
+   several scripts use the `WEBROOT` variable.
 
 4. **Vortex** action-specific script variables MUST be scoped within their
-   own script. For instance, the `VORTEX_PROVISION_OVERRIDE_DB` variable in
-   the `vortex-provision` script.
+   own script. For example, the `VORTEX_PROVISION_OVERRIDE_DB` variable
+   belongs to the `vortex-provision` script.
 
 5. Drupal-related variables SHOULD start with `DRUPAL_` and SHOULD have a
-   module name added as a second prefix. This is to separate **Vortex**,
-   third-party services variables, and Drupal variables. For instance, to
-   set a user for Drupal's Shield module configuration, use
+   module name added as a second prefix. The prefixes keep **Vortex**
+   variables, third-party service variables, and Drupal variables apart.
+   For example, the user for the Drupal Shield module's configuration is
    `DRUPAL_SHIELD_USER`.
 
 6. Variables SHOULD NOT be exported into the global scope unless absolutely
-   necessary. Thus, values in `.env` SHOULD have default values set, but
-   SHOULD be commented out to provide visibility and avoid exposure to the
+   necessary. So values in `.env` SHOULD have default values set, but SHOULD
+   be commented out, which keeps them visible without exposing them to the
    global scope.
 
 ### Boilerplate script
 
 import CodeBlock from '@theme/CodeBlock';
 import MyComponentSource from '!!raw-loader!./script-boilerplate.sh';
+
+The boilerplate puts these requirements together in 1 working script. Copy
+it as the starting point for a new script:
 
 <details>
 <summary>Expand to see the boilerplate script</summary>
@@ -176,38 +205,46 @@ import MyComponentSource from '!!raw-loader!./script-boilerplate.sh';
 
 ## Testing
 
-**Vortex** is a project template, so a change to a script, configuration
-file, or workflow can affect every project that uses it. To catch issues
-before they reach consumers, **Vortex** tests at different levels of
-integration.
+**Vortex** is a template, so a change to 1 script, configuration file, or
+workflow reaches every project built from it. To catch problems before they
+do, **Vortex** tests at 3 levels of integration. Unit tests check the
+scripts, end-to-end tests run whole workflows, and a real site takes every
+update.
 
 ### Unit testing
 
-[Bats](https://github.com/bats-core/bats-core) is used to unit test the
-shell scripts shipped via the
-[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
-Composer package (installed at `vendor/drevops/vortex-tooling/src/`). Each
-script is tested in isolation, with external commands (like `drush`,
-`docker`, `composer`) replaced by mocks. The tests verify that individual
-scripts handle environment variables, flags, and edge cases correctly
+[BATS](https://github.com/bats-core/bats-core) unit tests cover these shell
+scripts:
+
+- The scripts shipped in the
+  [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
+  Composer package, which consumer sites install at
+  `vendor/drevops/vortex-tooling/src/`
+- The `scripts/provision-*.sh` subscripts
+- The Acquia hooks in `hooks/library/`
+- `.circleci/post-coverage-comment.sh`
+
+Each test runs 1 script in isolation, with mocks standing in for external
+commands such as `drush`, `docker`, and `composer`. That way, the tests can
+check how a script handles environment variables, flags, and edge cases
 without a running Drupal site or Docker containers.
 
 The [`bats-helpers`](https://github.com/drevops/bats-helpers) library
 provides a step-based testing approach with built-in mocking and assertions,
-so you can define the expected inputs and outputs for each script.
+so you define the expected inputs and outputs for each script.
 
-Unit tests execute in seconds. The test files in
-`.vortex/tooling/tests/unit/` cover deployment, database operations,
-notifications, provisioning, and the other automation scripts. See
-[Tooling > Testing](tooling.mdx#testing) for how to run them.
+Because no test starts a container, the unit tests run much faster than the
+end-to-end tests. The test files in `.vortex/tooling/tests/unit/` cover
+deployment, database operations, notifications, provisioning, and the other
+automation scripts. See [Tooling > Testing](tooling.mdx#testing) for how to
+run them.
 
 ### End-to-end testing
 
-[PHPUnit](https://phpunit.de/) is used for functional end-to-end testing
-that exercises the full site build pipeline in real Docker containers. These
-tests simulate what a consumer site developer would experience: building
-containers, importing databases, running Drupal operations, linting code,
-and deploying artifacts.
+[PHPUnit](https://phpunit.de/) runs the functional end-to-end tests, which
+drive the full site build pipeline in real Docker containers. They do what
+a developer on a consumer site does: build containers, import databases,
+run Drupal operations, lint code, and deploy artifacts.
 
 The template end-to-end tests cover these workflows:
 
@@ -220,9 +257,21 @@ The template end-to-end tests cover these workflows:
 - **Deployment** - testing deployment pipelines for artifact and
   webhook-based deployment strategies.
 
+Smaller suites cover the following:
+
+- The installer: installing from the latest release or from a git
+  reference, and updating an existing project
+- The `scripts/vortex-tooling.sh` bootstrap that runs before every `ahoy`
+  command
+- The optional local Ahoy file, `.ahoy.local.yml`
+- The Docker Compose configuration
+- Where Composer installs Drupal libraries
+- The artifacts and test results that a CircleCI build stores, checked only
+  on CircleCI
+
 The [`phpunit-helpers`](https://github.com/AlexSkrypnyk/phpunit-helpers)
 library provides test helpers, traits, and assertions purpose-built for
-running shell commands and validating their output within PHPUnit tests.
+running shell commands and checking their output in PHPUnit tests.
 
 End-to-end tests take minutes to run because they operate on real containers
 and a real Drupal site.
@@ -230,18 +279,23 @@ and a real Drupal site.
 ### Example site
 
 The [DrevOps website](https://github.com/drevops/website) is a real-world
-production site built using **Vortex**. It's the final validation ground: if
-**Vortex** works correctly, the website should continue to build, test, and
-deploy without issues after each upstream update.
+production site built using **Vortex**, and it's the final validation
+ground. If **Vortex** works correctly, the website keeps building, testing,
+and deploying without issues after each upstream update.
 
 The website repository receives regular upstream updates from **Vortex**,
 including CI configuration, testing workflows, and infrastructure changes.
-That way, each update is validated against a real, long-lived codebase as
-well as in test environments.
+That way, each update meets a real, long-lived codebase as well as the test
+environments.
 
 ## Running tests
 
+The template has 2 suites to run locally: the PHPUnit tests in
+`.vortex/tests/` and the BATS tests in `.vortex/tooling/tests/`.
+
 ### Functional tests with PHPUnit
+
+Run the PHPUnit tests from the `.vortex/tests/` directory:
 
 ```shell
 cd .vortex/tests
@@ -256,77 +310,136 @@ composer test
 TEST_PACKAGE_TOKEN=<yourtoken> TEST_VORTEX_CONTAINER_REGISTRY_USER=<youruser> TEST_VORTEX_CONTAINER_REGISTRY_PASS=<yourpass> composer test
 ```
 
-Functional tests rely on database fixtures. See the section below on
-[updating test assets](#updating-test-assets).
+`composer test` runs 2 suites, and you can run either one on its own:
+
+- `composer test-unit` covers the PHPUnit traits that the template ships to
+  consumer sites in `web/modules/custom/ys_base/tests/src/Traits/`, with
+  code coverage.
+- `composer test-functional` runs the end-to-end tests, without coverage.
+
+The `Vortex - Test` workflow splits the functional suite into 6 parallel
+batches by PHPUnit group, `p0` to `p5`, so give every new test method a
+`#[Group('pN')]` attribute. Outside those groups, a test runs in CI only in
+the `postbuild` group, which `PostBuildTest` declares and a CircleCI job
+runs after the `build` job. To run 1 batch locally, pass its group:
+`composer test-functional -- --group=p1`.
+
+The suite reads these environment variables:
+
+- `TEST_PACKAGE_TOKEN` - a GitHub token with access to the private
+  `drevops/test-private-package` repository. The private package build test
+  fails without it.
+- `TEST_VORTEX_CONTAINER_REGISTRY_USER` and
+  `TEST_VORTEX_CONTAINER_REGISTRY_PASS` - container registry credentials.
+  The tests pass them to every command they run as
+  `VORTEX_CONTAINER_REGISTRY_USER` and `VORTEX_CONTAINER_REGISTRY_PASS`,
+  which the builds use to pull public images past the Docker Hub rate limit
+  and to push images. Without them, both are empty, so **Vortex** skips
+  the registry login.
+- `TEST_GITHUB_TOKEN` - a GitHub token that the tests pass to every command
+  as `GITHUB_TOKEN`, so the builds stay clear of API rate limits. Without
+  it, `GITHUB_TOKEN` is empty and GitHub requests go out without a token.
+- `TEST_VORTEX_DEBUG` - set to `1` for debug output.
+- `TEST_CIRCLECI_TOKEN` - a CircleCI API token for the post-build checks in
+  `PostBuildTest`, the only test that reads it. The test skips itself
+  outside CircleCI, so you need the token only on CircleCI, where the test
+  fails without it.
+
+Functional tests rely on database fixtures; see
+[Updating test assets](#updating-test-assets).
 
 ### Unit tests with BATS
 
-BATS unit tests for the shipped shell scripts live in
-`.vortex/tooling/tests/unit/`. Run them from `.vortex/`:
+The BATS unit tests live in `.vortex/tooling/tests/unit/`. Most test files
+are named after the script they cover, without its `vortex-` prefix, such
+as `deploy.bats` for `vortex-deploy`. Run them from `.vortex/`:
 
 ```shell
 cd .vortex
 
 # Run all BATS tests.
-ahoy test-bats
+ahoy test-bats tooling/tests/unit
 
 # Run a single test file.
 ahoy test-bats tooling/tests/unit/deploy.bats
 ```
+
+Each test runs the scripts from a copy of the repository at its last commit,
+so commit your changes before you run the tests. The exception is
+`update-vortex.bats`, which runs `vortex-update` from your working tree.
 
 ➡️ See [Tooling > Testing](tooling.mdx#testing) for the package's full test
 layers.
 
 ## Updating test assets
 
-The test assets are *demo* and *test* database dumps, captured as *files*
-and *container images*. All flows are automated by
-`.vortex/tests/update-test-assets`, which prints every shell command it
-runs.
+The test assets are *demo* and *test* database dumps, published both as
+*files* and as *container images*. The `.vortex/tests/update-test-assets`
+script automates every flow and prints each shell command it runs. Run it
+from the repository root:
 
 ```shell
 php .vortex/tests/update-test-assets [mode] [--tag <tag>]
 ```
 
-Without arguments, runs `all` for a full refresh. Default tag is `latest`.
+Without arguments, it runs `all`, a full refresh. The default tag is
+`latest`. A successful run ends with `==> Done`. When a command fails, the
+script prints `Error: command failed with exit code <n>.` and stops the
+run.
 
 ### Modes
 
+The script has these modes:
+
 | Mode | What it does | Follow-up |
 | --- | --- | --- |
-| `demo-dump` | Builds the demo profile in-place; exports `.data/db.demo.sql`. | Upload as `db.demo.sql` to the latest GitHub release. |
-| `demo-image` | Builds the demo profile in-place; pushes `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:<tag>`. | None. |
-| `test-dump` | Installs **Vortex** into `/tmp/star-wars`; builds; exports `/tmp/star-wars/.data/db.test.sql`. | Upload as `db_d11.test.sql` to the latest GitHub release. |
+| `demo-dump` | Builds the demo site in place from the `standard` profile; exports `.data/db.demo.sql`. | Upload as `db.demo.sql` to the latest release of `drevops/vortex` on GitHub. |
+| `demo-image` | Builds the demo site in place from the `standard` profile; pushes `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:<tag>`. | None. |
+| `test-dump` | Installs **Vortex** into `/tmp/star-wars`; builds; exports `/tmp/star-wars/.data/db.test.sql`. | Upload as `db_d11.test.sql` to the latest release of `drevops/vortex` on GitHub. |
 | `test-image` | Installs **Vortex** into `/tmp/star-wars`; builds; pushes `drevops/vortex-dev-mariadb-drupal-data-test-11.x:<tag>`. | None. |
-| `destination-images` | Tags and pushes the local demo image to the didi destination tags (`vortex-dev-database-ii`, `vortex-dev-didi-database-fi`). | None. |
+| `destination-images` | Pulls `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:<tag>` and pushes it to `drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x` under the didi tags `vortex-dev-database-ii` and `vortex-dev-didi-database-fi`. | None. |
 | `all` | Optimized full refresh: builds the demo stack once for both demo modes and the test stack once for both test modes (2 stack builds instead of 4). Then pushes images and tags destination images. Default when no mode is given. | Upload both dump files, as in the `demo-dump` and `test-dump` rows. |
 
 ### Options
 
+The script accepts these options:
+
 | Option | Description |
 | --- | --- |
 | `--tag <tag>` | Image tag for image modes. Default: `latest`. Also accepts `--tag=<tag>`. |
+| `-h`, `--help` | Prints the usage and exits. |
 
 ### Requirements
 
-- `docker`, `ahoy`, `curl`, `sed`, `php` available on `PATH`.
+The script needs the following:
+
+- The `docker`, `ahoy`, `curl`, `sed`, and `php` commands on your `PATH`.
 - A Docker Hub session with push permission to `drevops/` for any image
   mode.
 - The `demo-image`, `test-image`, and `all` modes download `seed.sh` from a
   pinned `drevops/mariadb-drupal-data` release and verify it against a
   recorded SHA-256 checksum. Adopting a newer release is a manual step:
   update `SEED_URL` and `SEED_SHA256` together.
+- Those modes build each image for `linux/amd64` and `linux/arm64` through
+  a Docker Buildx builder named `vortex-seed`, using the `docker-container`
+  driver. The script creates the builder on first use.
 
 ### Caveats
 
-- Demo modes are destructive against the current repository: containers are
-  reset and `.data/db.sql` is removed before the rebuild.
-- Test modes wipe and recreate `/tmp/star-wars` on each run.
-- `destination-images` expects
-  `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:latest` to already exist
-  locally, so run `demo-image` (or `all`) first.
+The script has these side effects:
+
+- Demo modes are destructive against the current repository: the script
+  resets the containers and removes `.data/db.sql` before the rebuild.
+- Test modes empty `/tmp/star-wars` and reinstall **Vortex** into it on each
+  run. A throwaway root container clears the old files, because files the
+  containers wrote there can belong to their `www-data` user.
+- `destination-images` pulls
+  `drevops/vortex-dev-mariadb-drupal-data-demo-11.x:<tag>` from Docker Hub,
+  so publish that image first with `demo-image` (or `all`).
 
 ### Examples
+
+The following commands show typical runs:
 
 ```shell
 # Full refresh of every asset at :latest (default).

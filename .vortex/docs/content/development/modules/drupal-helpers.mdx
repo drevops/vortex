@@ -5,18 +5,32 @@ sidebar_position: 3
 
 # Drupal helpers
 
-[Drupal helpers](https://www.drupal.org/project/drupal_helpers) is a utility
-library that provides static facade helpers for common Drupal development
-tasks, primarily intended for use within deploy hooks and update scripts.
+Deploy hooks and update scripts keep doing the same jobs: create a taxonomy
+tree, add menu links, place a block, delete a field, import redirects from
+a CSV file. [Drupal helpers](https://www.drupal.org/project/drupal_helpers)
+turns each of those jobs into a method on a static facade, so a deploy hook
+reads as a short list of changes instead of entity API boilerplate.
 
-This section covers how **Vortex** uses the module. The [module
+This page is for developers writing deploy hooks on a project built from
+**Vortex**. It shows how to call the helpers, which facades exist, and how
+to spread a large job across several deploy hook passes. The [module
 documentation](https://git.drupalcode.org/project/drupal_helpers/-/blob/HEAD/README.md)
 is the reference for its full API.
 
+**Vortex** requires the module but doesn't install it during provisioning.
+Only the `ys_demo` demo module installs it, as a dependency. Declare the
+same dependency in the `.info.yml` file of every module whose code calls
+the helpers, so they stay available without the demo module:
+
+```yaml
+dependencies:
+  - drupal_helpers:drupal_helpers
+```
+
 ## Helper facade
 
-The `Helper` class provides convenient access to helper services without
-needing dependency injection:
+The `Helper` class hands out the helper services without dependency
+injection, so a deploy hook can call them directly:
 
 ```php
 use Drupal\drupal_helpers\Helper;
@@ -34,29 +48,62 @@ Helper::menu()->createTree('main', [
 Helper::entity()->deleteAll('node', 'page');
 ```
 
-Each facade throws a `RuntimeException` when the helper needs a module that
-isn't installed, so a deploy hook fails loudly rather than half-applying.
+4 helpers declare a module they need, and the facade checks that module
+before it returns the helper. When the module is missing, the facade throws
+a `RuntimeException` that names it, for example
+`Required modules not installed: redirect.` The deploy hook then stops
+before that helper changes anything.
+
+The following facades run the check:
+
+- `Helper::block()` needs the Block module.
+- `Helper::redirect()` needs the Redirect module.
+- `Helper::role()` needs the User module.
+- `Helper::translation()` needs the Locale module.
 
 ## Available helpers
 
-Every facade is listed below. The **Examples** column shows a few of the
-methods each one exposes. The module documentation lists the complete set.
+The following table lists all 13 facades. The **Examples** column names
+some of the methods each one exposes, and the module documentation lists
+them all.
 
 | Helper | Access | Examples |
 |--------|--------|----------|
 | Term | `Helper::term()` | `createTree()`, `deleteAll()`, `find()` |
 | Menu | `Helper::menu()` | `createTree()`, `deleteTree()`, `findItem()`, `updateItem()` |
-| Entity | `Helper::entity()` | `deleteAll()` |
+| Entity | `Helper::entity()` | `create()`, `update()`, `deleteAll()`, `batchQuery()` |
 | Config | `Helper::config()` | `get()`, `set()`, `import()`, `setFrontPage()` |
 | User | `Helper::user()` | `create()`, `createMultiple()`, `assignRoles()`, `removeRoles()` |
 | Redirect | `Helper::redirect()` | `create()`, `deleteBySource()`, `importFromCsv()` |
 | Field | `Helper::field()` | `delete()`, `deleteInstance()` |
+| Module | `Helper::module()` | `install()`, `uninstall()` |
+| Alias | `Helper::alias()` | `create()`, `findByPath()`, `updateByPath()`, `deleteAll()`, `importFromCsv()` |
+| Block | `Helper::block()` | `place()`, `remove()`, `createContent()`, `deleteContent()` |
+| Role | `Helper::role()` | `create()`, `delete()`, `grantPermissions()`, `revokePermissions()` |
+| Display | `Helper::display()` | `setFormComponent()`, `setViewComponent()`, `hideFormComponent()`, `hideViewComponent()` |
+| Translation | `Helper::translation()` | `set()` |
+
+The class has 2 more static methods. `Helper::report()` returns a summary
+of what the helpers did and resets the tally, so a deploy hook that ends
+with `return Helper::report();` reports only its own work.
+`Helper::reporter()` returns the reporter service behind that summary.
 
 ## Batched operations
 
-Every facade except `Helper::config()` accepts a `$sandbox` array, which
-turns on `batch()` and `batchEntity()` so large datasets are processed
-across multiple deploy hook passes:
+The following facades accept the deploy hook's `$sandbox` array as their
+first argument:
+
+- `Helper::term()`
+- `Helper::menu()`
+- `Helper::field()`
+- `Helper::entity()`
+- `Helper::user()`
+- `Helper::redirect()`
+- `Helper::alias()`
+- `Helper::block()`
+
+With a sandbox, `batch()` and `batchEntity()` spread large datasets across
+multiple deploy hook passes:
 
 ```php
 function ys_base_deploy_update_pages(array &$sandbox): ?string {
@@ -67,15 +114,22 @@ function ys_base_deploy_update_pages(array &$sandbox): ?string {
 }
 ```
 
-`batchEntity()` queries the entity IDs itself; `batch()` takes an arbitrary
-array of items instead. Both return the progress message Drush prints. The
-batch size defaults to 50. To change it, pass a second argument to the
-facade, for example `Helper::entity($sandbox, 100)`.
+Without a sandbox, both methods process every item in 1 pass. The
+`batchEntity()` method builds the entity query itself from the type, the
+bundle, and optional conditions, while `batch()` takes any array of items.
+
+Both return `NULL` while batches remain, and the completion message, such as
+`Processed 120 node entities.`, after the last one finishes. That's what a
+deploy hook returns for Drush to print. Each pass handles 50 items by
+default. To change that, pass a second argument to the facade, for example
+`Helper::entity($sandbox, 100)`.
 
 ## Example in Vortex
 
 The
 [`ys_demo.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.deploy.php)
 file uses `Helper::menu()` to add a `Pages` link to the main navigation
-during deployment, guarding the operation with `findItem()` so re-running
-the hook doesn't create a duplicate.
+during deployment. It looks for the link with `findItem()` first, as an
+extra guard. In its default safe mode, `createTree()` already matches links
+by title within their parent and creates only the missing ones, so running
+the hook again doesn't create a duplicate.
