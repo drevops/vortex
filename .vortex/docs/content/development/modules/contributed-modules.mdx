@@ -163,8 +163,8 @@ applies only when the module's code is present, and calls
 - `index.php`, `rss.xml`, `cron.php`, and `xmlrpc.php` are on the URL
   allowlist, which the module checks before the extensions.
 - Requests for missing image style derivatives reach Drupal, which
-  generates each derivative on its first request. Drupal answers a
-  derivative URL without a valid `itok` token with a 404, so these requests
+  generates each derivative on its first request. Drupal generates a
+  derivative only for a URL with a valid `itok` token, so these requests
   can't generate arbitrary derivatives.
 - Path checking against the router and the URL aliases is off, because it
   queries the database before Drupal has connected to it. The redirect check
