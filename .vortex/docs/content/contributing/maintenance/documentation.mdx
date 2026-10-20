@@ -57,8 +57,8 @@ missing.
 The variables table at the end of
 [Variables](../../development/variables.mdx) comes from the code itself.
 `ahoy update-docs` runs [Shellvar](https://github.com/AlexSkrypnyk/shellvar)
-in a Docker container to extract the variables and their descriptions from
-these sources:
+in a Docker container, so Docker must be running. Shellvar extracts the
+variables and their descriptions from these sources:
 
 - `.env` and `.env.local.example`
 - The tooling scripts in `.vortex/tooling/src/`
@@ -116,8 +116,12 @@ such as `<TabItem>` still counts, so split a long command there with `\`.
 ### Prose style
 
 [Vale](https://vale.sh) checks the prose of every page against the house
-style. It reports 2 levels of alert: errors fail the run and the continuous
-integration build, and warnings are advisory.
+style. You don't install Vale separately: `yarn install` in `.vortex/docs`
+installs the binary from the
+[Vale npm package](https://www.npmjs.com/package/@vvago/vale), a
+development dependency of the site. Vale reports 2 levels of alert: errors
+fail the run and the continuous integration build, and warnings are
+advisory.
 
 Errors flag the following:
 

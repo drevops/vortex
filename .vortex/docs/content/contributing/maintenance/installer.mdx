@@ -59,15 +59,28 @@ hosting, for example, settles the web root.
 
 Together with `--no-interaction`, `--prompts` runs a whole installation
 without a single question, which is how the installer's own tests drive
-every scenario.
+every scenario. To check a prompts file before such a run, validate it:
+
+```shell
+php installer.php --prompts=prompts.json --validate
+```
+
+The command prints a JSON object with `valid`, `errors`, `warnings`, and
+`resolved` keys. It exits with `0` when `valid` is `true` and with `1`
+otherwise; warnings, such as an answer whose condition isn't met, don't
+make the object invalid. Without `--prompts`, or when the input isn't a
+JSON object, it prints an error message and exits with `1`.
 
 `--config` takes a different JSON object: the installer's own settings,
 keyed by their `VORTEX_INSTALLER_*` names, such as
 `VORTEX_INSTALLER_TEMPLATE_REPO`. An environment variable with the same name
-wins over the value in the JSON. The final **Run the site build now?**
-question is the only one with an environment variable of its own:
-`VORTEX_INSTALLER_PROMPT_BUILD_NOW` sets its default, and `--build` skips
-the question and runs the build.
+wins over the value in the JSON.
+
+The final **Run the site build now?** question is the only one with an
+environment variable of its own. `VORTEX_INSTALLER_PROMPT_BUILD_NOW` sets
+its default: `0` or an empty value defaults to no, and any other value, or
+leaving the variable unset, defaults to yes. `--build` skips the question
+and runs the build.
 
 An installation runs in this order:
 

@@ -64,10 +64,17 @@ The repository uses these branches:
   `main` (for example `1.x` after `main` holds `2.x`)
 
 On the publishing side, promoting a new major version is a single action:
-set the `VORTEX_CURRENT_MAJOR` repository variable to its number. The
-documentation default and the installer's bare `/install` URL both follow
-it, while the per-major docs and the `/v{N}/install` pins are always
+set the `VORTEX_CURRENT_MAJOR` repository variable to its number. It's a
+GitHub Actions variable on the `drevops/vortex` repository, under
+**Settings > Secrets and variables > Actions**, on the **Variables** tab.
+The documentation default and the installer's bare `/install` URL both
+follow it, while the per-major docs and the `/v{N}/install` pins are always
 published.
+
+The workflows read the variable when they run, so changing it doesn't
+republish anything. The next `Vortex - Release docs` run applies it to the
+live site and `/install`; run that workflow by hand to publish straight
+away.
 
 When `main` advances to a new major version, the branches change like this:
 
@@ -130,8 +137,12 @@ Make sure you have the following:
 - Push access to `drevops/vortex`, and to `drevops/vortex-tooling` when the
   tooling changed
 - The Renovate CLI, with a GitHub token that can write to `drevops/vortex`
-- Docker, for the `cli` container, the snapshot run, and the video
-  recordings
+- Ahoy, Git, Composer, Node.js with npm and Yarn, and curl on your `PATH`,
+  because the steps run them on your machine
+- PHP 8.3 or later on your machine, for Composer and the PHP scripts that
+  the steps run
+- Docker, for the `cli` container, `ahoy update-docs`, the snapshot run,
+  and the video recordings
 - The `.vortex/` dependencies, installed with `ahoy install` from
   `.vortex/`
 - The recording tools that [Documentation > Documentation
