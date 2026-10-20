@@ -68,13 +68,18 @@ to level 3. The rule checks the following lines:
 | Line | Level | Spaces |
 |------|-------|--------|
 | `Feature:` | 0 | 0 |
-| `Rule:`, `Background:`, and `Scenario:` | 1 | 2 |
+| `Rule:`, `Background:`, `Scenario:`, and `Scenario Outline:` | 1 | 2 |
 | Scenario steps and `Examples:` | 2 | 4 |
 | Step table rows, the `Examples` header row, and the opening `"""` of a doc string | 3 | 6 |
 
 A doc string therefore starts 6 spaces in, 2 spaces deeper than its step.
-The rule doesn't check other lines, such as tags, the steps under
-`Background:`, and the rows below an `Examples` header.
+The rule doesn't check any other line, so it skips the following:
+
+- Tags
+- The steps under `Background:`
+- The rows below an `Examples` header
+- The content and the closing `"""` of a doc string
+- Everything inside a `Rule:` block
 
 The file also turns off the following rules:
 

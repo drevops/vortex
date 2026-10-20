@@ -29,8 +29,11 @@ When `webhook` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script
 calls the configured webhook URL with `curl`, using the configured HTTP
 method and following redirects. It sends no deployment data, so anything
 the receiving end needs has to be in the URL itself. The deployment passes
-when the response status matches `VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS`.
-Otherwise, it fails with `Unable to complete webhook deployment.`
+when the status of the final response, after any redirects, matches
+`VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS`. Otherwise, including when the
+request can't connect, it stops with
+`[FAIL] Unable to complete webhook deployment.`, which doesn't show the
+status it received.
 
 ## Configuration
 

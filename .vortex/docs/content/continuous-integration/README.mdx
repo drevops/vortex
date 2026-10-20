@@ -272,7 +272,9 @@ Git never reports the files it ignores, so `.gitignore` already covers most
 generated output. Everything else goes into
 `VORTEX_CHECK_WORKTREE_CHANGES_IGNORE`, a comma-separated list of
 [Git pathspec](https://git-scm.com/docs/gitglossary#def_pathspec) patterns.
-Set it in `.env`, which the script loads:
+Set it in `.env`, which the script loads. The following example keeps the 6
+default patterns and adds an example path of your own,
+`web/sites/default/settings.generated.php`:
 
 ```shell
 VORTEX_CHECK_WORKTREE_CHANGES_IGNORE=docker-compose.yml,*/docker-compose.yml,db_cache_*,codecov,codecov.SHA256SUM,codecov.SHA256SUM.sig,web/sites/default/settings.generated.php

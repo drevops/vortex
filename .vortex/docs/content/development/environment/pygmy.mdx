@@ -85,22 +85,24 @@ different key, add it yourself:
 pygmy addkey --key ~/.ssh/path/to/key
 ```
 
-Then set `VORTEX_SSH_FILE` to the same path in `.env.local`, so that Doctor
-checks for the key you use.
-
 A key you add that way lasts only until the agent container is replaced,
 for example by `pygmy restart`. To load a different key every time
 Pygmy starts, pass it with `--key`, as in
 `pygmy up --key ~/.ssh/path/to/key`; it then replaces the default key.
+`pygmy restart` takes the same `--key` option.
+
+Whichever way you load a different key, set `VORTEX_SSH_FILE` to its path in
+`.env.local`, so that Doctor checks for the key you use.
 
 `pygmy restart` removes the agent container and creates a new one. If the
 stack is running at the time, the CLI container stays attached to the
 previous agent, so the SSH key is no longer available inside it. The same
 happens when the stack starts before Pygmy.
 
-If you added a key yourself, run that `pygmy` command again first, because
-the new agent holds only the key Pygmy loads when it starts. Then recreate
-the CLI container to attach it to the current agent:
+A plain `pygmy restart` loads only the default key. If you use a different
+key, load it again first with the command shown earlier, or restart with
+`pygmy restart --key ~/.ssh/path/to/key`. Then recreate the CLI container to
+attach it to the current agent:
 
 ```shell
 ahoy up --no-deps --force-recreate cli

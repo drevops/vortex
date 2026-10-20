@@ -158,8 +158,9 @@ notification router. Its `diffy` channel then sends GitHub a
 
 That request needs a GitHub token with `repo` scope in
 `VORTEX_NOTIFY_DIFFY_TOKEN`, set in the hosting environment. It falls back
-to `VORTEX_NOTIFY_GITHUB_TOKEN`, then to `GITHUB_TOKEN`. The repository
-comes from `VORTEX_NOTIFY_DIFFY_REPOSITORY`, which falls back to
+to `VORTEX_NOTIFY_GITHUB_TOKEN`, then to `GITHUB_TOKEN`. The repository, in
+`owner/repo` form, comes from `VORTEX_NOTIFY_DIFFY_REPOSITORY`, also set in
+the hosting environment, which falls back to
 `VORTEX_NOTIFY_GITHUB_REPOSITORY`.
 
 The channel stays off until you add `diffy` to `VORTEX_NOTIFY_CHANNELS`,

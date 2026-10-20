@@ -125,9 +125,11 @@ Neither variable sets Drupal's default theme. The
 `ys_base_deploy_install_active_theme()` deploy hook in `ys_base.deploy.php`
 installs Olivero and the theme whose machine name the installer wrote into
 it, then makes that theme the default. Provisioning runs deploy hooks with
-`drush deploy:hook`, which runs each hook once per site. On a site where
-this hook already ran, add a new deploy hook to the same file that installs
-your new theme and sets it as the default.
+`drush deploy:hook`, which runs each hook once per site. To make your new
+theme the default, change the machine name in that hook, so fresh installs
+pick it up. Then add a new deploy hook to the same file that installs your
+new theme and sets it as the default on sites where the first hook already
+ran.
 
 ## File structure
 
