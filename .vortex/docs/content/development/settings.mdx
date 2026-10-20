@@ -294,14 +294,19 @@ file in that directory with the relevant detection logic.
 The type starts as `ENVIRONMENT_LOCAL`, and the provider files change it:
 
 - A hosting provider sets `ENVIRONMENT_DEV`, and its own conditions raise
-  that to `ENVIRONMENT_STAGE` or `ENVIRONMENT_PROD`. On Acquia, the `prod`
-  environment becomes `ENVIRONMENT_PROD`, and `stage` or `test` becomes
-  `ENVIRONMENT_STAGE`. On Lagoon, the `production` environment type or the
-  branch in `VORTEX_LAGOON_PRODUCTION_BRANCH` becomes `ENVIRONMENT_PROD`.
-  Otherwise, the `main`, `master`, `release/*`, and `hotfix/*` branches
-  become `ENVIRONMENT_STAGE`.
-- A CI provider (CircleCI or GitHub Actions) sets `ENVIRONMENT_CI` when the
-  `CI` variable is set.
+  that to `ENVIRONMENT_STAGE` or `ENVIRONMENT_PROD`:
+  - On Acquia, an `AH_SITE_ENVIRONMENT` of `prod` becomes
+    `ENVIRONMENT_PROD`, and `stage` or `test` becomes `ENVIRONMENT_STAGE`.
+  - On Lagoon, a `LAGOON_ENVIRONMENT_TYPE` of `production` becomes
+    `ENVIRONMENT_PROD`. So does a `LAGOON_GIT_BRANCH` that exactly matches
+    `VORTEX_LAGOON_PRODUCTION_BRANCH`, which `.env` sets to `main`; when
+    that variable is empty, the branch check is skipped. Otherwise, the
+    `main` and `master` branches and any branch starting with `release/` or
+    `hotfix/` become `ENVIRONMENT_STAGE`.
+- `settings.circleci.php` and `settings.gha.php` both check the generic `CI`
+  variable, not a provider-specific one such as `CIRCLECI`. Any non-empty
+  value other than `0` sets `ENVIRONMENT_CI`, and `docker-compose.yml`
+  passes `CI` from the runner into the containers.
 - `settings.container.php` sets no type. It adds the local container URLs
   from `LOCALDEV_URL` to the trusted host patterns.
 - With no provider detected, the type stays `ENVIRONMENT_LOCAL`.
@@ -466,9 +471,9 @@ Follow these guidelines when working with settings:
 
 :::caution Flags accept only `1`
 
-An environment that sets a shipped flag to `true`, `yes`, `on`, or any other
-non-empty value gets the behavior turned off. Set each of the following
-flags to exactly `1`, wherever you set it:
+Each of the following flags acts only when it's exactly `1`. Any other
+value, such as `true`, `yes`, or `on`, counts as unset, so the flag has no
+effect. Set each one to exactly `1`, wherever you set it:
 
 - `DRUPAL_CLAMAV_ENABLED`
 - `DRUPAL_REDIS_ENABLED`

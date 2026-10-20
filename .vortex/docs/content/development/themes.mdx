@@ -55,7 +55,9 @@ targets the browsers in the `browserslist` key of `package.json`, and
 The CLI container image runs `npm ci` and `npm run build` for the theme
 while it builds, so the image carries compiled assets. To build the assets
 on the host or during deployment instead, set
-`VORTEX_FRONTEND_BUILD_SKIP=1`.
+`VORTEX_FRONTEND_BUILD_SKIP=1` in `.env`, which ships with `0`.
+`docker-compose.yml` passes it to the image as a build argument, so the
+change applies the next time the image builds, for example on `ahoy build`.
 
 ### Build commands
 
@@ -115,8 +117,11 @@ and the root `lint` or `lint-fix` script, which covers the custom modules.
 If you replace the scaffold with your own theme, keep the same npm script
 names in its `package.json`: `build`, `build-dev`, `watch`, `lint`, and
 `lint-fix`. The Ahoy commands, the CLI image build, and the CI lint step
-call those names in the theme set in `DRUPAL_THEME`, so they keep working
-without changes.
+call those names in the theme named by `DRUPAL_THEME`. `.env` sets that
+variable and `DRUPAL_MAINTENANCE_THEME`, and the installer writes your
+theme's name into both, so point both at the new theme. Neither sets
+Drupal's default theme: the `ys_base_deploy_install_active_theme()` deploy
+hook in `ys_base` does that, once.
 
 ## File structure
 
@@ -196,8 +201,11 @@ up and where it runs.
 [Storybook](https://storybook.js.org/) documents the theme's components. To
 turn it on, answer **Yes** at the installer's
 **Storybook component library?** prompt. The installer asks only when you
-pick the custom theme, with **No** as the default answer. Drupal renders
-every story through the
+pick the custom theme, with **No** as the default answer. To add it to a
+project installed without it, run `ahoy update-vortex --interactive` and
+answer **Yes** at that prompt. That run also updates the rest of the
+project's **Vortex** files, as [Updating Vortex](../updating-vortex.mdx)
+describes. Drupal renders every story through the
 [Storybook module](https://www.drupal.org/project/storybook), so the library
 shows the same markup the site renders.
 
@@ -239,13 +247,16 @@ from `services.yml` there, so a site that already shares responses with
 other origins needs to list them in `services.storybook.yml` too.
 
 The component library at `/storybook` is a static copy built during
-provisioning, so it doesn't change while you work. Run
-`ahoy storybook-build` to regenerate the stories and rebuild it, for example
-before sharing a change for review.
+provisioning. The build fixes the list of stories and their arguments,
+while Drupal renders each story's markup when you open it. After you add or
+remove a story, or change a story's name or arguments in a
+`*.stories.twig` file, run `ahoy storybook-build` to bring `/storybook` up
+to date. The development server picks those changes up on its own.
 
 In the `local` environment, provisioning turns on Twig development mode. An
 edit to a component's template then shows up in the development server and
-the library on the next render, without a cache rebuild.
+in `/storybook` on the next render, with no cache rebuild and no library
+build.
 
 ### Customizing locations
 

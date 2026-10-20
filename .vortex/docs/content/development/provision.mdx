@@ -70,7 +70,7 @@ the circled numbers match the numbered variables in
 ② 💡 Provision type = database
 │
 ├─ 💡 Existing site found = YES
-│  ├─ Container image set? ──► preserve content (no change)
+│  ├─ Container image set? ──► preserve content (no import), ⑩ sanitize
 │  ├─ ③ Overwrite DB? ──Yes──► 🛢️ Attempt import from dump
 │  │                               │
 │  │                               ├─ Dump file exists? ──► 🗑️ Drop DB ──► 🛢️ Import DB
@@ -137,6 +137,11 @@ With the `profile` type, an installed site keeps its database and skips
 sanitization, unless `VORTEX_PROVISION_OVERRIDE_DB` is `1`, which reinstalls
 it from the profile. Everything after the installation runs the same way
 for both types.
+
+With a database container image, an installed site keeps the database the
+image provides, without an import. The script still treats that database
+as fresh: it sanitizes it and sets `VORTEX_PROVISION_OVERRIDE_DB=1` for
+your custom scripts.
 
 Right after the skip check (①), the script checks that the configuration
 directory in `$settings['config_sync_directory']` exists, and stops with an

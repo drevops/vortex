@@ -49,9 +49,9 @@ following pieces from a fresh **Vortex** install with migration enabled:
    overrides.
 5. Add the `migrate` connection to the expected values in
    `tests/phpunit/Drupal/DatabaseSettingsTest.php` and
-   `EnvironmentSettingsTest.php`, and the `DATABASE2_` prefix to
-   `SettingsTestCase.php`. Without them, the `drupal_settings` tests fail
-   on the extra connection.
+   `tests/phpunit/Drupal/EnvironmentSettingsTest.php`, and the `DATABASE2_`
+   prefix to `tests/phpunit/Drupal/SettingsTestCase.php`. Without them, the
+   `drupal_settings` tests fail on the extra connection.
 6. Add `scripts/provision-20-migration.sh` and make it executable.
 7. Add the `fetch-db2`, `reload-db2`, and `db2` commands to `.ahoy.yml`.
 8. Require `drupal/migrate_plus` and `drupal/migrate_tools`, and add a
@@ -237,7 +237,10 @@ set `DRUPAL_MIGRATION_SEARCH_DISABLE=0`.
 
 ### Configuration variables
 
-The script reads the following variables:
+The script reads the following variables. Set them in `.env`, in
+`.env.local` on your machine, or in your hosting provider's environment
+variables: `vortex-provision` loads `.env` and `.env.local` and passes the
+values on to the custom scripts.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -258,7 +261,15 @@ again along with it. The script reads the dump from `VORTEX_DB_DIR` (default
 
 ### Adding migrations
 
-To add a migration, call the `run_migration` helper in the script's
+Each migration is a YAML definition in a module's `migrations` directory.
+The demo one is
+`web/modules/custom/ys_migrate/migrations/ys_migrate_categories.yml`.
+Drupal finds the definitions of enabled modules only, and the script's
+`Enabling migration modules` step installs `ys_migrate` alone. Put your
+definitions in that module, or add a `drush pm:install` line for your own
+module to that step.
+
+To run a migration, call the `run_migration` helper in the script's
 `Add your migrations below.` section, next to the demo
 `run_migration ys_migrate_categories` line:
 
@@ -286,6 +297,10 @@ Before any migration runs, it probes again, with or without an import. If
 the table is still missing, it lists the tables it found and fails with
 `Migration source database is corrupted.` A missing dump file stops it too,
 with a reminder to run `ahoy fetch-db2`.
+
+The default probe table, `categories`, belongs to the demo source database.
+For a real source, set `DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE` to a table
+it holds, or the script fails at this check and stops the provisioning.
 
 ## Demo migration module
 
