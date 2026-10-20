@@ -25,6 +25,10 @@ Start here. These resources cover the common problems:
 - 🩺 **[Doctor](/docs/development/environment/doctor)** - run `ahoy doctor`
   to diagnose common local environment issues
 
+A clean `ahoy doctor` run ends with
+`[ OK ] All required checks have passed.` A failing check prints a `[FAIL]`
+line, usually with a suggested fix, and stops the run there.
+
 ### Community support
 
 Talk to the community and follow the project's progress:
@@ -64,9 +68,12 @@ Before you report a problem, do the following:
 
 Include the following in your report:
 
-- System information from `ahoy doctor info`, which replaces your username,
-  IP addresses, and long IDs and hashes with placeholders, so the report
-  doesn't expose them
+- System information from `ahoy doctor info`. The report redacts your
+  username, IPv4 addresses, 36-character `ID:` values, and hex strings of 40
+  or more characters, but only in the binary paths and the `docker info`
+  output. Everything else stays as printed, including the operating system
+  details and the host name that `docker info` reports, so read the report
+  before you post it
 - Steps to reproduce the problem
 - Error messages and logs
 - Your **Vortex** version, from the **Vortex** badge in your project's

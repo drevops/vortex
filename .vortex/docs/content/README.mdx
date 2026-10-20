@@ -171,10 +171,15 @@ The installer does the following:
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
   <li>📦 Adds boilerplate for the features you select</li>
   <li>🏗️ Renames files and replaces strings during installation</li>
-  <li>🔄️ Updates existing installations to a newer boilerplate version</li>
-  <li>🔌 Runs as a standalone CLI application, extensible through an API to
-    support new integrations</li>
+  <li>🔄️ Updates existing installations to a newer boilerplate version
+    when you run <code>ahoy update-vortex</code></li>
+  <li>🔌 Runs as a standalone CLI application that scripts and AI
+    agents can drive with prepared answers, a prompt schema, and a
+    validation mode</li>
 </ul>
+
+➡️ See [Installation](/docs/installation) and
+[Updating Vortex](/docs/updating-vortex)
 
 ## 🧱 Solid base for your projects
 
@@ -191,13 +196,20 @@ Every project starts from a base with these qualities:
 
 ## 🚀 Quick start
 
+You need PHP 8.3 or later, `curl`, `git`, `tar`, and `composer` to install,
+and Docker, Pygmy, and Ahoy to build the site.
+
 Run the installer in an empty directory and answer its prompts:
 
 ```shell
 curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php
 ```
 
-➡️ See [Installation](/docs/installation)
+A successful installation shows a **Finished installing Vortex** box before
+the installer offers to build the site.
+
+➡️ See [Installation](/docs/installation) for the full requirements and
+what each step shows
 
 ## 🛟 Getting help
 
@@ -213,3 +225,8 @@ curl -SsL https://www.vortextemplate.com/install > installer.php && php installe
 [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) license. The
 [LICENSE](https://github.com/drevops/vortex/blob/main/LICENSE) file has the
 full text.
+
+The installer leaves the template's `LICENSE` file out of your project,
+along with `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and
+`.github/FUNDING.yml`. Your project's `composer.json` declares
+`"license": "proprietary"`.

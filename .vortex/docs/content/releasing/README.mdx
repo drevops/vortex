@@ -23,7 +23,8 @@ and integration points for each of them:
 - **Versioning workflow** - the branching strategy, documented in
   [GitFlow](gitflow.mdx)
 - **Version scheme** - the numbering system you choose at install time,
-  documented in [Versioning](versioning.mdx)
+  documented in [Versioning](versioning.mdx). CalVer is the default, which
+  `.env` stores as `VORTEX_RELEASE_VERSION_SCHEME=calver`
 - **Release documentation** - your project's own `docs/releasing.md`
 - **Automated deployment** - the CI pipeline and hosting integrations that
   do the technical work
@@ -73,14 +74,32 @@ pre-production, or use different names.
 ## Production deployment process
 
 Deploying a release to production is technically the same as deploying to
-any other environment. When the release tag, or the `production` branch on
-branch-based hosting, reaches the repository, CI builds, tests, and deploys
-it like any other branch or tag (see [GitFlow](gitflow.mdx)).
+any other environment. CI builds and tests the release tag, or the
+`production` branch on branch-based hosting, when it reaches the repository.
+CI then deploys it under the same rules as any other branch or tag (see
+[GitFlow](gitflow.mdx)). Those rules don't cover every tag: CircleCI deploys
+only tags named like `1.2.3`, `1.2.3-rc.1`, or `2023-04-17`, and the Lagoon
+deployment type skips tags.
 
 On Acquia and Lagoon hosting, **Vortex** integrates directly with the
 platform's own deployment system. On other hosting, wire the provision steps
 into your host's deployment configuration, as long as it supports
 post-deployment hooks or custom scripts.
+
+On Lagoon, **Vortex** treats an environment as production when Lagoon marks
+it so, or when its branch is the one in `VORTEX_LAGOON_PRODUCTION_BRANCH`,
+which `.env` ships as `main`. To release from a `production` branch, set
+that variable to `production`, and rename the `main` entry under
+`environments` in `.lagoon.yml`, which holds the production cron jobs and
+monitoring.
+
+A deployment keeps the database of a site that already exists: provisioning
+replaces it only when `VORTEX_PROVISION_OVERRIDE_DB` is `1`, and `.env`
+ships it as `0`. On Lagoon, a production deployment also backs up the
+database first and skips sanitization. On a site that provisions from a
+database dump, the Lagoon production deployment also forces
+`VORTEX_PROVISION_OVERRIDE_DB=0`, so even a Lagoon variable set to `1` can't
+replace the production database.
 
 ➡️ See
 [Development > Provision](../development/provision.mdx#provisioning-flow) to
@@ -112,16 +131,31 @@ production.
 
 ### New Relic integration
 
-**Vortex** integrates with New Relic for release tracking. When the
-`newrelic` notification channel is on and `VORTEX_NOTIFY_NEWRELIC_ENABLED`
-is set, each deployment creates a deployment marker in New Relic. You can
-then line up performance changes and errors with the release that caused
+**Vortex** integrates with New Relic for release tracking. To turn it on,
+add `newrelic` to `VORTEX_NOTIFY_CHANNELS` in `.env`. Then, in your hosting
+provider's environment variables, set `VORTEX_NOTIFY_NEWRELIC_ENABLED` to
+`true` and `VORTEX_NOTIFY_NEWRELIC_USER_KEY` to a New Relic user key.
+After that, deployments create a deployment marker in New Relic, so you
+can line up performance changes and errors with the release that caused
 them.
 
 By default, markers go out only for deployments of the `main`, `master`, and
-`develop` branches. If production deploys from a branch named `production`,
-set `VORTEX_NOTIFY_NEWRELIC_BRANCHES` to `main,master,develop,production`:
-your list replaces the default instead of extending it.
+`develop` branches, matched by exact name. If production deploys from a
+branch named `production`, set `VORTEX_NOTIFY_NEWRELIC_BRANCHES` to
+`main,master,develop,production`: your list replaces the default instead of
+extending it. A tag release deployed to Acquia arrives under a name such as
+`deployment/1.2.3`, which no entry matches, so it gets no marker.
+
+To confirm that New Relic recorded a marker, look for this line in the
+deployment output, followed by how long the request took:
+
+```text
+[ OK ] Created a deployment notification for application <app> with ID <id>.
+```
+
+The channel also exits with code `0` when it skips the marker, for example
+for an unlisted branch, so a deployment that passes doesn't prove that the
+marker exists.
 
 ➡️ See [Deployment > Notifications > New
 Relic](../deployment/notifications/newrelic.mdx)

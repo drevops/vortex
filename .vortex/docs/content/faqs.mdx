@@ -39,8 +39,22 @@ for the steps.
 
 Yes, but you'll need to update your CI configuration to call the **Vortex**
 scripts. **Vortex** ships ready-made configurations for GitHub Actions and
-CircleCI only, so use those as the reference for which scripts to run and
-in what order.
+CircleCI only, in `.github/workflows/build-test-deploy.yml` and
+`.circleci/config.yml`, so use those as the reference for which scripts to
+run and in what order.
+
+In those configurations, each job installs the scripts with
+`./scripts/vortex-tooling.sh`, then calls them from `vendor/bin/` in this
+order:
+
+- **Database** - `vortex-fetch-db`, then `vortex-provision` with
+  `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`, then `vortex-export-db`
+- **Build** - `vortex-provision`, then the tests, then
+  `vortex-check-worktree-changes`
+- **Deploy** - `vortex-deploy`, with `VORTEX_DEPLOY_MODE=tag` for a tag
+
+[Continuous integration](continuous-integration/README.mdx) explains what
+each job does.
 
 ## Can I keep my existing hosting?
 
@@ -84,16 +98,27 @@ queue](https://github.com/drevops/vortex/issues).
 
 The update itself is 1 command, `ahoy update-vortex`, which pulls in the
 latest **Vortex** release for your major version. It replaces the files the
-template ships and records every project change it overwrote in
-`.logs/vortex-update.md`. Re-applying those changes and reviewing the diff
-is the manual part, much like merging changes between projects.
+template ships and records the project changes it overwrote in
+`.logs/vortex-update.md`, as long as your `README.md` still carries the
+**Vortex** badge. An update that overwrites your changes adds a section to
+that file, with an entry per file that usually holds 2 diffs: your change
+and the change the update brings. Re-applying those changes and reviewing
+the diff is the manual part, much like merging changes between projects.
 
 That manual work is the trade-off of building on an upgradable project
 template instead of a dependency package. With a template, you have full
 control. With a package, someone else has full control of the code that
 drives your project. **Vortex** already takes the package route for its
 scripts: they ship as the `drevops/vortex-tooling` Composer package and
-update through Composer.
+update through Composer. The template requires it as `~1.4.0`, so
+`composer update` picks up only `1.4.x` patch releases. A newer minor
+version arrives when `ahoy update-vortex` brings a `composer.json` with a
+raised constraint.
+
+Near the end, the update shows a **Finished updating Vortex** box. If it
+shows **Finished installing Vortex** instead, the update didn't find the
+**Vortex** badge in `README.md` and recorded nothing.
+[Updating Vortex](updating-vortex.mdx) covers the full procedure.
 
 ## How easy is it to choose the features that I need?
 
