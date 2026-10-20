@@ -11,18 +11,18 @@ and refresh the test assets they rely on.
 
 ## Authoring scripts
 
-These requirements apply to all shell scripts in the template: the shipped
-tooling scripts (see [Tooling](tooling.mdx)) and the `scripts/` provision
-subscripts.
+These requirements apply to all shell scripts in the template:
+
+- The shipped tooling scripts (see [Tooling](tooling.mdx))
+- The scripts in `scripts/`, including the provision subscripts
+- The Acquia hooks in `hooks/library/`
+- The scripts in `.circleci/`
 
 ### Requirements
 
-:::note
-
-`MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT`, and `MAY` carry the meanings
-that [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt) defines.
-
-:::
+The requirements use `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT`, and `MAY`
+with the meanings that [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt)
+defines:
 
 1. MUST adhere to the [POSIX standard](https://en.wikipedia.org/wiki/POSIX).
 2. MUST pass the ShellCheck analysis and the `shfmt` formatting check, which
@@ -66,7 +66,7 @@ that [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt) defines.
 6. SHOULD include formatting helper functions. `info` opens and closes an
    operation, `task` announces work that's starting, and `note` is a
    standalone remark that starts no task. `fail` prints the message and
-   terminates the script with status `1`, or with the status passed as its
+   exits the script with status `1`, or with the status passed as its
    second argument. It's always the last statement of a failure branch, and
    anything that explains the failure runs before it:
 
@@ -153,7 +153,7 @@ that [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt) defines.
 
 ### Variables
 
-Follow these guidelines when creating or updating **Vortex** variables.
+When you create or update **Vortex** variables, follow these guidelines:
 
 1. Local variables MUST be in lowercase, and global variables MUST be in
    uppercase.
@@ -185,7 +185,7 @@ import CodeBlock from '@theme/CodeBlock';
 import MyComponentSource from '!!raw-loader!./script-boilerplate.sh';
 
 The boilerplate puts these requirements together in 1 working script. Copy
-it as the starting point for a new script.
+it as the starting point for a new script:
 
 <details>
 <summary>Expand to see the boilerplate script</summary>
@@ -204,11 +204,18 @@ update.
 
 ### Unit testing
 
-[Bats](https://github.com/bats-core/bats-core) unit tests cover the shell
-scripts shipped in the
-[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
-Composer package (installed at `vendor/drevops/vortex-tooling/src/`). Each
-test runs 1 script in isolation, with mocks standing in for external
+[BATS](https://github.com/bats-core/bats-core) unit tests cover these shell
+scripts:
+
+- The scripts shipped in the
+  [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
+  Composer package, which consumer sites install at
+  `vendor/drevops/vortex-tooling/src/`
+- The `scripts/provision-*.sh` subscripts
+- The Acquia hooks in `hooks/library/`
+- `.circleci/post-coverage-comment.sh`
+
+Each test runs 1 script in isolation, with mocks standing in for external
 commands such as `drush`, `docker`, and `composer`. That way, the tests can
 check how a script handles environment variables, flags, and edge cases
 without a running Drupal site or Docker containers.
@@ -241,11 +248,17 @@ The template end-to-end tests cover these workflows:
 - **Deployment** - testing deployment pipelines for artifact and
   webhook-based deployment strategies.
 
-Smaller suites cover the installer: installing from the latest release or
-from a git reference, and updating an existing project. Others check the
-`scripts/vortex-tooling.sh` bootstrap that runs before every `ahoy` command,
-the Docker Compose configuration, and where Composer installs Drupal
-libraries.
+Smaller suites cover the following:
+
+- The installer: installing from the latest release or from a git
+  reference, and updating an existing project
+- The `scripts/vortex-tooling.sh` bootstrap that runs before every `ahoy`
+  command
+- The optional local Ahoy file, `.ahoy.local.yml`
+- The Docker Compose configuration
+- Where Composer installs Drupal libraries
+- The artifacts and test results that a CircleCI build stores, checked only
+  on CircleCI
 
 The [`phpunit-helpers`](https://github.com/AlexSkrypnyk/phpunit-helpers)
 library provides test helpers, traits, and assertions purpose-built for
@@ -268,7 +281,12 @@ environments.
 
 ## Running tests
 
+The template has 2 suites to run locally: the PHPUnit tests in
+`.vortex/tests/` and the BATS tests in `.vortex/tooling/tests/`.
+
 ### Functional tests with PHPUnit
+
+Run the PHPUnit tests from the `.vortex/tests/` directory:
 
 ```shell
 cd .vortex/tests
@@ -311,13 +329,13 @@ The suite reads these environment variables:
 - `TEST_CIRCLECI_TOKEN` - a CircleCI API token for the post-build checks,
   which run only on CircleCI.
 
-Functional tests rely on database fixtures. See the section below on
-[updating test assets](#updating-test-assets).
+Functional tests rely on database fixtures; see
+[Updating test assets](#updating-test-assets).
 
 ### Unit tests with BATS
 
-BATS unit tests for the shipped shell scripts live in
-`.vortex/tooling/tests/unit/`. Run them from `.vortex/`:
+The BATS unit tests live in `.vortex/tooling/tests/unit/`. Run them from
+`.vortex/`:
 
 ```shell
 cd .vortex
@@ -339,7 +357,8 @@ layers.
 
 The test assets are *demo* and *test* database dumps, published both as
 *files* and as *container images*. The `.vortex/tests/update-test-assets`
-script automates every flow and prints each shell command it runs.
+script automates every flow and prints each shell command it runs. Run it
+from the repository root:
 
 ```shell
 php .vortex/tests/update-test-assets [mode] [--tag <tag>]
@@ -349,6 +368,8 @@ Without arguments, it runs `all`, a full refresh. The default tag is
 `latest`.
 
 ### Modes
+
+The script has these modes:
 
 | Mode | What it does | Follow-up |
 | --- | --- | --- |
@@ -361,6 +382,8 @@ Without arguments, it runs `all`, a full refresh. The default tag is
 
 ### Options
 
+The script accepts these options:
+
 | Option | Description |
 | --- | --- |
 | `--tag <tag>` | Image tag for image modes. Default: `latest`. Also accepts `--tag=<tag>`. |
@@ -368,7 +391,9 @@ Without arguments, it runs `all`, a full refresh. The default tag is
 
 ### Requirements
 
-- `docker`, `ahoy`, `curl`, `sed`, `php` available on `PATH`.
+The script needs the following:
+
+- The `docker`, `ahoy`, `curl`, `sed`, and `php` commands on your `PATH`.
 - A Docker Hub session with push permission to `drevops/` for any image
   mode.
 - The `demo-image`, `test-image`, and `all` modes download `seed.sh` from a
@@ -381,8 +406,10 @@ Without arguments, it runs `all`, a full refresh. The default tag is
 
 ### Caveats
 
-- Demo modes are destructive against the current repository: containers are
-  reset and `.data/db.sql` is removed before the rebuild.
+The script has these side effects:
+
+- Demo modes are destructive against the current repository: the script
+  resets the containers and removes `.data/db.sql` before the rebuild.
 - Test modes empty `/tmp/star-wars` and reinstall **Vortex** into it on each
   run. A throwaway root container clears the old files, because files the
   containers wrote there can belong to their `www-data` user.
@@ -391,6 +418,8 @@ Without arguments, it runs `all`, a full refresh. The default tag is
   so publish that image first with `demo-image` (or `all`).
 
 ### Examples
+
+The following commands show typical runs:
 
 ```shell
 # Full refresh of every asset at :latest (default).

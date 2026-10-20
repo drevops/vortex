@@ -4,14 +4,20 @@ sidebar_position: 5
 
 # Documentation
 
+This page is for contributors who write or change the **Vortex**
+documentation. It explains how the 2 kinds of documentation divide the work,
+how to build, check, and publish this site, and how to record its demo
+videos.
+
 **Vortex** has 2 kinds of documentation, split by the question each one
 answers:
 
-1. **Vortex template documentation** (this site) - generic information on
-   **how** to perform operations, true for every project built with
-   **Vortex**. It's published at https://www.vortextemplate.com/docs/.
-2. **Per-project documentation** - information on **what** applies to one
-   project, shipped in the `docs/` directory of each new site.
+- **Vortex template documentation** (this site) - generic information on
+  **how** to perform operations, true for every project built with
+  **Vortex**. It's published at
+  [vortextemplate.com](https://www.vortextemplate.com/docs/).
+- **Per-project documentation** - information on **what** applies to one
+  project, shipped in the `docs/` directory of each new site.
 
 The per-project files record a project's own decisions, such as its testing
 conventions, its CI and hosting setup, and its release configuration. For
@@ -32,8 +38,8 @@ documentation source never reaches one.
 
 ### Local build
 
-Run the docs commands from the `.vortex/` directory. Each of them installs
-the site's dependencies first when `node_modules` is missing.
+To preview the site with live reload or build it for production, run these
+commands:
 
 ```shell
 cd .vortex
@@ -45,12 +51,25 @@ ahoy docs
 ahoy build-docs
 ```
 
+Both commands install the site's dependencies first when `node_modules` is
+missing.
+
 The variables table at the end of
 [Variables](../../development/variables.mdx) comes from the code itself.
 `ahoy update-docs` runs [Shellvar](https://github.com/AlexSkrypnyk/shellvar)
 in a Docker container to extract the variables and their descriptions from
-`.env`, `.env.local.example`, the tooling scripts, and `scripts/`. It then
-rewrites the page from its `## Variables list` heading down:
+these sources:
+
+- `.env` and `.env.local.example`
+- The tooling scripts in `.vortex/tooling/src/`
+- The scripts in `scripts/`
+- The stub files in `.vortex/docs/.utils/variables/extra/`, which describe
+  the variables the other sources leave out, such as the ones commented out
+  in `.env` or set by the hosting platforms, `docker-compose.yml`, and the
+  CI configuration
+
+The command then rewrites the page from its `## Variables list` heading
+down. To regenerate the table, run these commands:
 
 ```shell
 cd .vortex
@@ -64,6 +83,8 @@ straight away.
 
 ### Lint, spellcheck, and test
 
+To check the documentation, run these commands:
+
 ```shell
 cd .vortex
 
@@ -76,7 +97,9 @@ ahoy test-docs
 
 `ahoy lint-docs` also checks the site code in `src/` and the Jest tests in
 `tests/` with ESLint and Prettier. `ahoy lint-docs-fix` applies the fixes
-that ESLint, Prettier, and markdownlint can make on their own.
+that ESLint, Prettier, and markdownlint can make on their own. Unlike
+`ahoy test-docs`, `ahoy lint-docs` doesn't install the site's dependencies,
+so on a fresh checkout, run `ahoy install` first.
 
 When cspell rejects a correct word, add it to the `words` list in
 `.vortex/docs/cspell.json`.
@@ -93,25 +116,59 @@ such as `<TabItem>` still counts, so split a long command there with `\`.
 ### Prose style
 
 [Vale](https://vale.sh) checks the prose of every page against the house
-style, and it reports 2 levels of alert:
+style. It reports 2 levels of alert: errors fail the run and the continuous
+integration build, and warnings are advisory.
 
-- Errors fail the run and the continuous integration build. They cover
-  product names and their casing, sentence-case headings, contractions,
-  inline code formatting, and bold **Vortex**. They also catch the numbers 2
-  to 10 written as words, em and en dashes, Latin abbreviations, marketing
-  adjectives, and condescending words such as `simply`. Throat-clearing
-  phrases, stacked hedges, and vague link text are errors too.
-- Warnings are advisory. They point out a missing Oxford comma, sentences
-  longer than 30 words, wordy phrases, and weasel words such as `very`.
+Errors flag the following:
+
+- Product names in the wrong case
+- Headings that aren't in sentence case
+- Phrases that take a contraction, such as `do not`
+- File names and `UPPER_SNAKE_CASE` names outside inline code
+- **Vortex** without bold in prose
+- The numbers 2 to 10 written as words, and ordinals written as numerals,
+  such as `1st`
+- Em dashes and en dashes
+- `e.g.` and `i.e.`
+- Marketing adjectives, such as `powerful`
+- Condescending words, such as `simply`
+- Throat-clearing phrases, such as `keep in mind`
+- Stacked hedges, such as `might possibly`
+- Vague link text, such as `click here`
+- Terms from the Google word list, such as `above` instead of `preceding`
+- Hyphens after `-ly` adverbs
+- Sentences that start with `There is` or `There are`
+- Repeated words
+- Exclamation marks, doubled spaces, and periods inside acronyms
+- Gendered pronouns, such as `he/she`, and gender-biased terms
+- Optional plurals, such as `file(s)`
+- Units without a space after the number, such as `10MB`
+- Internet slang
+- Times in a format other than `9 AM`, and dates in a format other than
+  `July 31, 2016`
+
+Warnings flag the following:
+
+- A missing Oxford comma
+- Sentences longer than 30 words
+- Wordy phrases, such as `a number of`
+- Weasel words, such as `very`
+- The word `will`
+- A period at the end of a heading
+- Ellipses
+- `from` or `between` in front of a number range
+- Some British spellings
 
 Vale's own spell check is off, because cspell does that job.
 
-The rules come from 3 places:
+The rules come from 4 places:
 
 - The `Google` and `write-good` style packages. They're pinned by release
   URL in `.vortex/docs/.vale.ini` and downloaded by `vale sync` when you run
   `yarn install`. Only 1 `write-good` rule, `ThereIs`, runs on its own; 2
   house rules extend its `Weasel` and `TooWordy` word lists.
+- Vale's built-in `Vale` style, which flags repeated words and applies the
+  vocabulary.
 - The house style in `.vortex/docs/.vale/Vortex/`, with 1 small YAML file
   for each rule. A rule that adjusts a `Google` rule inherits it with
   `extends` and edits its word lists, and `.vale.ini` switches the original
@@ -140,10 +197,24 @@ lints the prose before the table.
 
 ### Documentation videos
 
-The docs embed 9 terminal demo videos: `installer`, `build`, `provision`,
-`lint`, `test`, `test-bdd`, `info`, `doctor`, and `doctor-info`. Run
-`ahoy update-videos` from `.vortex/` to re-record every video, or pass
-names, separated by spaces or commas, to record a subset.
+The docs embed 9 terminal demo videos. The following table lists each video
+and what it records:
+
+| Video | Records |
+|-------|---------|
+| `installer` | The installer, answered by an Expect script |
+| `build` | `ahoy build` |
+| `provision` | `ahoy provision` |
+| `lint` | `ahoy lint` |
+| `test` | `ahoy test` |
+| `test-bdd` | `ahoy test-bdd` |
+| `info` | `ahoy info` |
+| `doctor` | `ahoy doctor` |
+| `doctor-info` | `ahoy doctor info` |
+
+Run `ahoy update-videos` from `.vortex/` to re-record every video, or pass
+names, separated by spaces or commas, to record a subset. Each video writes
+`<name>.json`, `<name>.svg`, and `<name>.png` to `.vortex/docs/static/img/`.
 
 A default run wipes the workspace in `.artifacts/tmp/videos-workspace/`,
 builds the installer, and installs a fresh project there. Every video except
@@ -152,13 +223,17 @@ builds the installer, and installs a fresh project there. Every video except
 skip that bootstrap. It can't re-record `installer`.
 
 The videos show commands that succeed, so the recorder decodes every
-recording to text at `.artifacts/videos/<name>.txt` and refuses to render
-one whose output reports an error, a warning, or a failure. No flag
+recording to text at `.artifacts/videos/<name>.txt`. It doesn't render a
+recording whose output reports an error, a warning, or a failure. No flag
 overrides that check: fix the command that printed the output and record
 again.
 
-Recording needs `asciinema`, `expect`, `php`, `composer`, `node`, and `npx`
-on your `PATH`, plus `ahoy` and `docker` for every video except `installer`.
+Recording needs these commands on your `PATH`:
+
+- `asciinema`, `expect`, `php`, `composer`, `node`, and `npx` for every
+  video
+- `ahoy` and `docker` as well, for every video except `installer`
+
 The command doesn't commit anything, so review the diff under
 `.vortex/docs/static/img/` and commit it yourself. See
 [Installer > Installer video](installer.mdx#installer-video) for the
@@ -214,19 +289,25 @@ doesn't supply from `origin`, so it needs network access.
 ### Publishing
 
 Continuous integration publishes this documentation from 2 workflows, and
-both build the combined site:
+both build the combined site.
 
-- `Vortex - Release docs` (`.github/workflows/vortex-release.yml`)
-  publishes to https://www.vortextemplate.com/docs/ on every tag, on every
-  push to a branch whose name contains `release-docs` or
-  `release-installer`, and when you run it by hand. The same run builds the
-  installer and publishes it at https://www.vortextemplate.com/install.
-- `Vortex - Test docs` (`.github/workflows/vortex-test-docs.yml`) runs after
-  the installer tests pass, and it publishes only when its own
-  documentation checks pass too. A push to `main` goes to the development
-  version at https://vortex-docs.netlify.app. Any other branch gets a draft
-  preview, and when the branch has a pull request from this repository,
-  the workflow posts the preview link on it as a comment.
+`Vortex - Release docs` (`.github/workflows/vortex-release.yml`) publishes
+the [live site](https://www.vortextemplate.com/docs/) to GitHub Pages. The
+same run builds the installer and publishes it at
+[`/install`](https://www.vortextemplate.com/install). The workflow runs in
+these cases:
+
+- On every tag
+- On every push to a branch whose name contains `release-docs` or
+  `release-installer`
+- When you run it by hand
+
+`Vortex - Test docs` (`.github/workflows/vortex-test-docs.yml`) runs after
+the `Vortex - Test installer` workflow succeeds, and it publishes only when
+its own documentation checks pass too. A push to `main` goes to the
+[development site](https://vortex-docs.netlify.app) on Netlify. Any other
+branch gets a draft preview, and when the branch has a pull request from
+this repository, the workflow posts the preview link on it as a comment.
 
 A `release-docs` or `release-installer` branch publishes to the live site,
 so the documentation and the installer there change for everyone until the
@@ -237,7 +318,7 @@ next publish.
 **Vortex** ships a scaffold of consumer site documentation in the
 [`docs`](https://github.com/drevops/vortex/tree/main/docs) directory. The
 installer copies it into each consumer site unless you answer no to its
-"Preserve project documentation?" question, and from then on the site's
+**Preserve project documentation?** question, and from then on the site's
 maintainers keep it current.
 
 The scaffold covers **what** applies to each project, with 1 file per

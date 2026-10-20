@@ -7,7 +7,13 @@ sidebar_position: 4
 
 The shell scripts that consumer projects run for provisioning, database
 work, deployment, notifications, and helpers such as `doctor` and `info`
-live in `.vortex/tooling/`. They're published as the standalone
+live in `.vortex/tooling/`. This page is for contributors who change them:
+it covers the package layout, the script conventions, the test levels, and
+how the package gets published. To use the scripts in a project, see
+[Architecture > Automation
+scripts](../../architecture.mdx#automation-scripts).
+
+The scripts are published as the standalone
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
 Composer package. Consumer projects install the package and run the
 user-facing scripts, the ones listed under `bin` in the package
@@ -16,12 +22,18 @@ per-channel `vortex-notify-*` ones, run through those entry points.
 
 ## Package layout
 
+The following table lists the contents of `.vortex/tooling/`:
+
 | Path | Purpose |
 |------|---------|
 | `src/` | The shipped scripts; the only directory in the published archive |
-| `tests/unit/` | BATS unit tests covering the shipped scripts |
+| `composer.json` | The package definition, with the user-facing scripts under `bin` and no `version` field |
+| `tests/unit/` | BATS unit tests covering the shipped scripts and a few template scripts outside the package |
 | `tests/_helper.bash`, `tests/fixtures/` | The shared BATS setup and the fixture files the tests read |
+| `package.json`, `yarn.lock` | The `bats-helpers` library that the BATS tests load; `ahoy test-bats` installs it on first run |
 | `playground/` | Manual scripts that hit live services (email, GitHub, Jira, New Relic, Slack, webhooks, and S3); not automated |
+| `README.md`, `LICENSE` | The package readme and license, which ship with the scripts |
+| `.gitattributes`, `.gitignore` | The Git settings, which stay out of the published archive |
 
 `.gitattributes` marks `tests/` and `playground/` as `export-ignore`, so
 neither reaches the published archive.
@@ -52,7 +64,9 @@ The output helpers have a strict contract:
   shipped scripts, `task` also starts a timer, and `pass` appends the
   seconds the task took to its message.
 - `note` is a standalone remark that starts no task.
-- `fail` reports the failure and aborts.
+- `fail` reports the failure and exits.
+
+The following example closes a task whose command can't fail:
 
 ```bash
 task "Disabling Search API Solr server."
@@ -61,9 +75,9 @@ pass "Disabled Search API Solr server."
 ```
 
 The `|| true` in this example, from `scripts/provision-20-migration.sh`, is
-deliberate: the disable is best-effort because the Solr server isn't enabled
-in every environment. The contract still requires the closing `pass` so the
-step reports an outcome.
+deliberate: the disable is best-effort, so a failed disable doesn't stop the
+script. The contract still requires the closing `pass` so the step reports
+an outcome.
 
 See [Template > Authoring scripts](template.mdx#authoring-scripts) for the
 full authoring requirements shared by all shell scripts in the template.
@@ -73,7 +87,10 @@ full authoring requirements shared by all shell scripts in the template.
 Tests cover the scripts at 3 levels:
 
 - **Unit** - BATS tests in `tooling/tests/unit/` cover the shipped scripts
-  with external commands mocked. Run them from `.vortex/`:
+  with external commands mocked. The same suite also covers a few template
+  scripts outside the package; see
+  [Template > Unit testing](template.mdx#unit-testing). Run the tests from
+  `.vortex/`:
 
   ```shell
   cd .vortex
@@ -89,8 +106,8 @@ Tests cover the scripts at 3 levels:
   `Must specify at least one <test>`. Each test runs the scripts from a
   copy of the repository at its last commit, so commit your changes before
   you run it. The setup also expects `curl`, `composer`, `docker`, `ahoy`,
-  and `jq` on your `PATH`. CI runs the whole suite with
-  `.vortex/tests/test.common.sh`, the script behind `ahoy test-common`.
+  and `jq` on your `PATH`. The `Vortex - Test` workflow runs the whole suite
+  with `.vortex/tests/test.common.sh`, the script behind `ahoy test-common`.
 
 - **Integration** - the template's PHPUnit functional tests in
   `.vortex/tests/` run the scripts end-to-end. See
@@ -104,12 +121,11 @@ The `Vortex - Publish tooling` workflow
 (`.github/workflows/vortex-publish-tooling.yml`) mirrors `.vortex/tooling/`
 to the [`drevops/vortex-tooling`](https://github.com/drevops/vortex-tooling)
 repository on every push to `main`, `2.x`, and any branch whose name
-contains `vortex-tooling`, matching the source branch name. The published
-commit subject matches the source commit subject, and the body records
-provenance.
+contains `vortex-tooling`, matching the source branch name.
 
-Every source commit gets a matching commit on the mirror, an empty one when
-nothing in `.vortex/tooling/` changed. A branch that's new to the mirror
+Each push publishes 1 commit to the mirror, an empty one when nothing in
+`.vortex/tooling/` changed. Its subject matches the subject of the pushed
+commit, and its body records provenance. A branch that's new to the mirror
 starts there as an orphan with no shared history. Treat the mirror as
 read-only, because each publish replaces its files with the contents of
 `.vortex/tooling/`.
