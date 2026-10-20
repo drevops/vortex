@@ -4,45 +4,67 @@ sidebar_position: 8
 
 # Updating Vortex
 
-**Vortex** differs from most project templates: you can keep updating your
-project long after the initial setup, to pick up each release's features and
-bug fixes. The update replaces the files the template ships, but it records
-every customization it overwrites, so you can re-apply each one.
+This page is for developers who maintain a project built from **Vortex**
+and want to bring in a newer **Vortex** release. It explains what an update
+changes, then takes you from a fresh branch to a production release. To
+install **Vortex** for the first time, see [Installation](./installation)
+instead.
+
+You can keep updating your project long after the initial setup, to pick up
+each release's features and bug fixes. The update replaces the files the
+template ships, but it records every customization it overwrites, so you
+can re-apply each one.
 
 ## Overview
 
-Updating **Vortex** gives existing projects:
+Updating **Vortex** gives existing projects the following:
 
 - Security patches and bug fixes
 - New features and improvements
 - Updated dependencies and tooling
 - Deployment improvements
 
-After the update, review the changes and commit them to your project.
-
-We recommend updating **Vortex** monthly or at least quarterly to keep your
-project secure and up-to-date.
+`ahoy update-vortex` runs the **Vortex** installer against your project
+without prompts. The installer reads the answers it needs from your
+project, such as the names, services, and hosting provider, and reapplies
+them to the release it downloads. After the update, review the changes and
+commit them to your project.
 
 :::note Staying on your major version
 
 `ahoy update-vortex` updates your project within its current major version.
 It downloads the installer from its major's own path, `/v1/install` on the
-`1.x` line. So a `1.x` project receives the latest `1.x` release and never
-moves to `2.x` on its own. Moving to a new major is a deliberate step: run
-that major's installer (for example
-`https://www.vortextemplate.com/v2/install`) against your project.
+`1.x` line. A `1.x` project therefore receives the latest `1.x` release and
+never moves to `2.x` on its own. The installer also stops at a major
+boundary. When you run it against a project from another major, it exits
+with an error that names the installer for that project's major.
 
 :::
 
 ## Before updating
 
+Check the following before you run the update:
+
+- `php` and `curl` are available on your machine. The update script runs
+  outside the containers and stops with `Command php is not available.` or
+  `Command curl is not available.` when one of them is missing.
+- The **Vortex** badge is still in your project's `README.md`. The update
+  reads the version your project runs from it. Without the badge, the
+  installer treats your project as a new installation, so it doesn't record
+  the customizations it overwrites.
+- Your working tree has no uncommitted changes, so the diff after the update
+  holds only what the update changed.
+
 Read the [release notes](https://github.com/drevops/vortex/releases) for
 every version between yours and the target, and look for breaking changes
 that affect your project. Check in particular whether any environment
 variables were added or changed, because your CI and hosting environments
-may need the new values.
+might need the new values.
 
 ## Update process
+
+Run the update on its own branch, then take it through review, CI, and
+deployment like any other change:
 
 1. Create a new branch for the update:
 
@@ -56,6 +78,11 @@ may need the new values.
    ahoy update-vortex
    ```
 
+   Near the end, the update shows **Finished updating Vortex** with a
+   reminder to review and commit the changes. When it replaced any of your
+   changes, it also names the file that records them,
+   `.logs/vortex-update.md`.
+
    To pin a specific release or commit instead, pass the repository URL with
    the reference after `#`:
 
@@ -65,70 +92,99 @@ may need the new values.
    ahoy update-vortex https://github.com/drevops/vortex.git#abcd123
    ```
 
-   The update runs the installer without prompts: it reads the answers it
-   needs from your project, such as the names, services, and hosting
-   provider, and reapplies them. To review or change those answers, run
+   To review or change the answers the update reapplies, run
    `ahoy update-vortex --interactive`.
 
-3. Review the changes the update made and stage them selectively.
-
-   Consider committing the changes in smaller chunks, so they're easier to
-   review and revert if necessary.
-
-   Where the update replaced a file your project had changed,
-   `.logs/vortex-update.md` records your change next to the change the new
-   version brings, as 2 diffs. Work through it to re-apply your changes,
-   then delete the entries you've resolved. Each update appends a new
-   section to the file, and Git ignores it. A binary file or a file over
-   100 KB gets no diff, only a note to recover your copy from version
-   control.
-
-   Your `composer.json` has most likely deviated from the **Vortex**
-   version, so review the package version changes carefully. We recommend
-   temporarily reverting the changes to `composer.json` and `composer.lock`
-   to keep your project's versions, then bringing in the **Vortex** changes
-   to `composer.json` by hand. Don't drop the new `drevops/vortex-tooling`
-   constraint: a release that changes the scripts raises it, and the old
-   constraint keeps the old scripts. Once the constraints are settled, run
-   `ahoy composer update` and commit the regenerated `composer.lock`, so the
-   build installs the versions you chose rather than the stale locked ones.
+3. Review the changes the update made:
 
    ```shell title="Review changes"
    git status
    git diff
    ```
 
-4. Rebuild your local environment and check that everything works:
+4. Re-apply your customizations from `.logs/vortex-update.md`, and delete
+   each entry after you've resolved it. Each entry shows your change and the
+   change the new version brings, as 2 diffs. Each update appends a new
+   section to the file, and Git ignores it.
+
+   Some entries hold less. When the new version leaves the file unchanged,
+   or the version you ran didn't ship it, the entry holds 1 diff. A binary
+   file or a file over 100 KB gets no diff, only a note to recover your copy
+   from version control.
+
+5. Keep the new version in the **Vortex** badge of `README.md` when you
+   re-apply your own `README.md` changes. The next update reads the badge to
+   work out which version your project runs.
+
+6. Reconcile `composer.json`. The update replaces it with the template's
+   version, and yours has most likely deviated from that, so review the
+   package version changes carefully. If `.logs/vortex-update.md` has an
+   entry for `composer.json`, restore your own file from Git, then apply the
+   entry's change that the update brings by hand. Don't drop the raised
+   `drevops/vortex-tooling` constraint: a release that changes the scripts
+   raises it, and the old constraint keeps the old scripts.
+
+7. Run `ahoy composer update`. It regenerates `composer.lock`, which the
+   update itself leaves alone, so the build installs the versions you chose
+   rather than the stale locked ones.
+
+8. Stage and commit the changes in small chunks, so each one is easier to
+   review and revert.
+
+9. Rebuild your local environment and check that everything works:
 
    ```shell title="Test the updated environment"
    ahoy build
    ```
 
-5. Push the branch, open a pull request, and wait for the continuous
-   integration run to pass.
+   Answer `y` when the build asks to remove the containers, build files, and
+   database. The build provisions the site again and ends with the project
+   information, including the site's local URL and a one-time login link.
 
-   ```shell title="Push the update branch"
-   git push origin update-vortex
-   ```
+10. Push the branch:
 
-6. Once the run passes, check that the site deployed to your preview or
-   staging environment. <br/>
-   Test the updated site there thoroughly before it goes anywhere near
-   production.
+    ```shell title="Push the update branch"
+    git push origin update-vortex
+    ```
 
-7. Schedule the production release, and leave enough time for spot checks
-   and a rollback if you need one.
+11. Open a pull request for the branch, and wait for its continuous
+    integration run to pass.
+
+12. After the run passes, check that the site deployed to your preview or
+    staging environment. <br/>
+    Test the updated site there thoroughly before you release it to
+    production.
+
+13. Schedule the production release, and leave enough time for spot checks
+    and a rollback if you need one.
+
+Confirm that the update is complete:
+
+- The **Vortex** badge in `README.md` shows the version you updated to.
+- Every entry this update added to `.logs/vortex-update.md` is resolved and
+  deleted.
 
 ## Best practices
 
-1. Update **Vortex** monthly or when security patches are released
-2. Always test updates in development before applying to production
-3. Update environments in stages: development → staging → production
-4. Keep track of what changed and why
-5. Watch for issues in the days following an update
+Follow these practices:
+
+- Update **Vortex** monthly, or at least quarterly, to keep your project
+  secure and up to date, and sooner when a release carries security patches.
+- Test each update in development before it reaches production.
+- Update environments in stages: development → staging → production.
+- Keep track of what changed and why.
+- Watch for issues in the days following an update.
 
 ## Getting help
 
 If you hit a problem during an update:
 
 ➡️ See [Support](/docs/support)
+
+## What's next
+
+- [Dependency updates](/docs/development/dependency-updates) - keep packages
+  current between **Vortex** updates
+- [Variables](/docs/development/variables) - look up the variables a release
+  added or changed
+- [Releasing](/docs/releasing) - plan and ship the production release

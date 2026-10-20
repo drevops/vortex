@@ -1,17 +1,23 @@
 # FAQs
 
 These are the questions teams ask while deciding whether to adopt
-**Vortex**, with straight answers, trade-offs included. Once you're working
-in a project, the [Development FAQs](development/faqs.mdx) cover the
+**Vortex**, with straight answers, trade-offs included. After you start
+working in a project, the [Development FAQs](development/faqs.mdx) cover the
 day-to-day questions, such as clearing caches, using Xdebug, or adding
 modules and patches.
 
 ## Why use Vortex instead of the Drupal Composer template?
 
 The Drupal Composer template gives you a starting point, but you still need
-to add everything else: CI pipelines, tooling, automations, deployment
-scripts, hosting configurations, and documentation. Then you need to test
-that everything works together correctly.
+to add everything else:
+
+- CI pipelines
+- Tooling and automations
+- Deployment scripts
+- Hosting configurations
+- Documentation
+
+Then you need to test that everything works together correctly.
 
 You also need to watch for _false negatives_: faulty tests that pass
 silently in CI but fail at release time and block your deployment. And you
@@ -32,16 +38,18 @@ for the steps.
 ## Can I keep my existing CI provider?
 
 Yes, but you'll need to update your CI configuration to call the **Vortex**
-scripts. It ships ready-made configurations for GitHub Actions and CircleCI
-only, so use those as the reference for which scripts to run and in what
-order.
+scripts. **Vortex** ships ready-made configurations for GitHub Actions and
+CircleCI only, so use those as the reference for which scripts to run and
+in what order.
 
 ## Can I keep my existing hosting?
 
 Yes, but you'll need to adapt the deployment to your hosting provider.
 Outside Acquia and Lagoon, the `artifact` deployment type pushes the built
 code to a Git repository your host deploys from. The `webhook` type calls a
-URL that starts your host's deployment instead.
+URL that starts your host's deployment instead. See
+[Artifact deployment](deployment/artifact.mdx) and
+[Webhook deployment](deployment/webhook.mdx) for the setup.
 
 ## Can I change things I don't like?
 
@@ -59,9 +67,8 @@ issue](https://github.com/drevops/vortex/issues) and let's talk it through.
 but you don't have to take everything. The installer asks about each
 feature, so you install only the ones you want.
 
-If you're sure you don't need what it offers, **Vortex** may not be the
-right fit, and that's fine. That said, many developers have found useful
-tools and approaches through **Vortex** that they chose to keep.
+If you're sure you don't need what it offers, **Vortex** might not be the
+right fit, and that's fine.
 
 ## Isn't this too opinionated?
 
@@ -87,13 +94,6 @@ control. With a package, someone else has full control of the code that
 drives your project. **Vortex** already takes the package route for its
 scripts: they ship as the `drevops/vortex-tooling` Composer package and
 update through Composer.
-
-:::note
-
-We're exploring a hybrid approach: package distribution with the ability to
-override scaffolded code.
-
-:::
 
 ## How easy is it to choose the features that I need?
 

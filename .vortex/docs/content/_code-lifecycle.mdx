@@ -23,11 +23,11 @@
 │  │                       │  │ ◆ Nightly cache exists?       │  │ Composer audit       │  │
 │  │  Composer validate    │  │   Yes ──► job succeeds        │  │ (advisories)         │  │
 │  │          ▼            │  │   No ──► download, validate,  │  │          ▼           │  │
-│  │      Hadolint         │  │          store cache          │  │ Gitleaks             │  │
-│  │          ▼            │  └───────────────┬───────────────┘  │ (committed secrets)  │  │
-│  │       DCLint          │                  ▼                  │                      │  │
-│  │          ▼            │  ┌─ Build Job ───────────────────┐  │                      │  │
-│  │  Build CLI container  │  │ Code assembly                 │  │                      │  │
+│  │      Hadolint         │  │          store cache          │  │ npm audit            │  │
+│  │          ▼            │  └───────────────┬───────────────┘  │ (advisories)         │  │
+│  │       DCLint          │                  ▼                  │          ▼           │  │
+│  │          ▼            │  ┌─ Build Job ───────────────────┐  │ Gitleaks             │  │
+│  │  Build CLI container  │  │ Code assembly                 │  │ (committed secrets)  │  │
 │  │          ▼            │  │ Docker, Composer deps,        │  │                      │  │
 │  │  Composer normalize   │  │ NPM deps, assets              │  │                      │  │
 │  │          ▼            │  │               ▼               │  │                      │  │
@@ -36,7 +36,7 @@
 │  │      PHPStan          │  │ deploy, custom scripts        │  │                      │  │
 │  │          ▼            │  │               ▼               │  │                      │  │
 │  │       Rector          │  │ Testing                       │  │                      │  │
-│  │          ▼            │  │ PHPUnit tests ──► Behat tests │  │                      │  │
+│  │          ▼            │  │ Jest ──► PHPUnit ──► Behat    │  │                      │  │
 │  │    Twig CS Fixer      │  └───────────────┬───────────────┘  │                      │  │
 │  │          ▼            │                  │                  │                      │  │
 │  │    Gherkin Lint       │                  │                  │                      │  │

@@ -2,7 +2,7 @@
 title: ''
 sidebar_label: Introduction
 sidebar_position: 1
-description: Vortex is a Drupal project template for building and deploying Drupal sites. You get a containerized local environment, automated testing and code quality tools, continuous integration pipelines, and integrations with popular hosting platforms, all configured to work together, so your team starts on features instead of infrastructure.
+description: Vortex is a Drupal project template for building and deploying Drupal sites. You get a containerized local environment, automated testing and code quality tools, continuous integration pipelines, and integrations with the Acquia and Lagoon hosting platforms, all configured to work together, so your team starts on features instead of infrastructure.
 
 ---
 
@@ -21,22 +21,26 @@ description: Vortex is a Drupal project template for building and deploying Drup
 </div>
 
 **Vortex** is a Drupal project template for building and deploying Drupal
-sites. You get a containerized local environment, automated testing and code
-quality tools, continuous integration pipelines for GitHub Actions or
-CircleCI, and integrations with the Acquia and Lagoon hosting platforms. It
-all arrives configured and working together, so your team starts on features
-instead of setting up infrastructure.
+sites. This introduction is for anyone evaluating it or about to start a
+project with it. By the end, you'll know why the template exists, what it's
+made of, and where to go to install it, get help, or contribute.
 
-Every **Vortex** project shares the same structure and tooling, so
-developers joining an existing one get up to speed quickly. Once you know
-one, you know your way around the next.
+A **Vortex** project gives you the following, configured to work together,
+so your team starts on features instead of setting up infrastructure:
 
-The template is actively maintained and kept in step with the latest
-releases of the tools it ships. Automated tests check every change to the
-template, which lowers the risk of an update breaking your project and keeps
-it easier to maintain over time.
+- A containerized local environment
+- Automated testing and code quality tools
+- Continuous integration pipelines for GitHub Actions or CircleCI
+- Integrations with the Acquia and Lagoon hosting platforms
 
-For a tour of **Vortex** in slides, see our
+Every **Vortex** project shares the same structure and tooling, so a
+developer who knows one project knows their way around the next.
+
+Renovate keeps the tools the template ships up to date, and automated tests
+check every change to the template. The tests lower the risk of an update
+breaking your project and keep it easier to maintain over time.
+
+For a tour of **Vortex** in slides, see the
 [DrupalSouth 2025 presentation][presentation]
 ([Google Slides][slides] | [PDF][pdf]).
 
@@ -59,7 +63,7 @@ different:
   <li>📉 Poor onboarding documentation slows new team members down</li>
 </ul>
 
-Those gaps add up to:
+Those gaps add up to the following:
 
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
   <li>😩 Developer frustration and burnout</li>
@@ -134,6 +138,8 @@ for developing and maintaining Drupal projects.
 
 ### 📦 Template
 
+The template includes the following:
+
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
   <li>💧 A pre-configured Drupal project structure with module, theme, and
     test boilerplate</li>
@@ -150,31 +156,37 @@ for developing and maintaining Drupal projects.
 
 ### 📖 Documentation
 
+The documentation comes in 3 parts:
+
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
-  <li>🌐 Centralized documentation at https://www.vortextemplate.com</li>
+  <li>🌐 Centralized documentation on this site</li>
   <li>🗂️ Scaffolded structure for project-specific docs</li>
   <li>📋 Project README with local setup steps</li>
 </ul>
 
 ### 🎛️ Installer
 
+The installer does the following:
+
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
   <li>📦 Adds boilerplate for the features you select</li>
   <li>🏗️ Renames files and replaces strings during installation</li>
   <li>🔄️ Updates existing installations to a newer boilerplate version</li>
-  <li>🔌 Standalone CLI application extensible with an API to support new
-    integrations</li>
+  <li>🔌 Runs as a standalone CLI application, extensible through an API to
+    support new integrations</li>
 </ul>
 
 ## 🧱 Solid base for your projects
+
+Every project starts from a base with these qualities:
 
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
   <li>🔄 Upgradable</li>
   <li>🧪 Automatically tested in many scenarios</li>
   <li>🛠️ Actively managed and maintained as a product since 2017</li>
-  <li>📚 Heavily documented at <a
+  <li>📚 Documented on <a
     href="https://www.vortextemplate.com/docs/"
-    target="_blank">www.vortextemplate.com</a></li>
+    target="_blank">this documentation site</a></li>
 </ul>
 
 ## 🚀 Quick start
@@ -201,10 +213,3 @@ curl -SsL https://www.vortextemplate.com/install > installer.php && php installe
 [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) license. The
 [LICENSE](https://github.com/drevops/vortex/blob/main/LICENSE) file has the
 full text.
-
-:::tip
-
-Head to [Features](/docs/features) to see what's in the box, or to
-[Installation](/docs/installation) to start your first project.
-
-:::
