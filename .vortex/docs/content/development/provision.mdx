@@ -353,6 +353,9 @@ following values:
 - `container_registry`: a database container image, pulled instead of a
   file
 - `s3`: a file in an S3 bucket
+- `none`: no source; you put the dump into `.data` yourself
+
+Any other value stops the command with an error that lists these values.
 
 Each source reads its own settings, which the
 [Variables reference](variables.mdx) lists. The hosting sources copy the

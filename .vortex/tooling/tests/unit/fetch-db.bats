@@ -6,6 +6,16 @@
 
 load ../_helper.bash
 
+# Replaces each fetch script with a stub that names the source it serves.
+stub_fetch_scripts() {
+  stub_sibling "vortex-fetch-db-url" "Fetched from url."
+  stub_sibling "vortex-fetch-db-ftp" "Fetched from ftp."
+  stub_sibling "vortex-fetch-db-acquia" "Fetched from acquia."
+  stub_sibling "vortex-fetch-db-lagoon" "Fetched from lagoon."
+  stub_sibling "vortex-fetch-db-container-registry" "Fetched from container_registry."
+  stub_sibling "vortex-fetch-db-s3" "Fetched from s3."
+}
+
 @test "fetch-db: Fetch with URL source" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -286,6 +296,123 @@ EOF
   assert_output_contains "Will fetch a fresh copy of the database."
   assert_output_contains "Started database dump fetch from URL."
   assert_output_contains "Finished database fetch."
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Route each source to its fetch script" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  stub_fetch_scripts
+
+  export VORTEX_FETCH_DB_PROCEED="1"
+
+  for db_source in url ftp acquia lagoon container_registry s3; do
+    export VORTEX_FETCH_DB_SOURCE="${db_source}"
+
+    run .vortex/tooling/src/vortex-fetch-db
+    assert_success
+    assert_output_contains "Fetched from ${db_source}."
+    assert_output_contains "Finished database fetch."
+
+    for other_source in url ftp acquia lagoon container_registry s3; do
+      if [ "${other_source}" != "${db_source}" ]; then
+        assert_output_not_contains "Fetched from ${other_source}."
+      fi
+    done
+  done
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Fetch nothing with the none source" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  stub_fetch_scripts
+
+  export VORTEX_FETCH_DB_SOURCE="none"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_SEMAPHORE="${BUILD_DIR}/fetch-db-fresh"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_success
+  assert_output_contains "Started database fetch."
+  assert_output_contains 'Skipped fetching as VORTEX_FETCH_DB_SOURCE is set to "none".'
+  assert_output_not_contains "Fetched from"
+  assert_output_contains "Finished database fetch."
+  assert_file_exists "${BUILD_DIR}/fetch-db-fresh"
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Fail with an unsupported source" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  stub_fetch_scripts
+
+  export VORTEX_FETCH_DB_SOURCE="VORTEX_CONTAINER_REGISTRY"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_SEMAPHORE="${BUILD_DIR}/fetch-db-fresh"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_failure_status 1
+  assert_output_contains "Started database fetch."
+  assert_output_contains 'Unsupported database source "VORTEX_CONTAINER_REGISTRY" in VORTEX_FETCH_DB_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, none.'
+  assert_output_not_contains "Fetched from"
+  assert_output_not_contains "Finished database fetch."
+  assert_file_not_exists "${BUILD_DIR}/fetch-db-fresh"
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Fail with an unsupported source when a cached dump exists" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # An existing dump that a supported source would reuse without fetching.
+  mkdir -p .data
+  touch .data/db.sql
+
+  export VORTEX_FETCH_DB_SOURCE="VORTEX_CONTAINER_REGISTRY"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_DIR=".data"
+  export VORTEX_FETCH_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_FORCE=""
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_failure_status 1
+  assert_output_contains 'Unsupported database source "VORTEX_CONTAINER_REGISTRY" in VORTEX_FETCH_DB_SOURCE.'
+  assert_output_not_contains "Found existing database dump file(s)."
+  assert_output_not_contains "Using existing database dump file(s)."
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Fail with an unsupported indexed source with VORTEX_DB_INDEX" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_DB_INDEX="2"
+  export VORTEX_FETCH_DB2_SOURCE="sftp"
+  export VORTEX_FETCH_DB2_PROCEED="1"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_failure_status 1
+  assert_output_contains "Started database 2 fetch."
+  assert_output_contains 'Unsupported database source "sftp" in VORTEX_FETCH_DB2_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, none.'
+  assert_output_not_contains "Finished database 2 fetch."
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Skip when disabled without checking the source" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_FETCH_DB_SOURCE="VORTEX_CONTAINER_REGISTRY"
+  export VORTEX_FETCH_DB_PROCEED="0"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_success
+  assert_output_contains "Skipped database fetch as VORTEX_FETCH_DB_PROCEED is not set to 1."
+  assert_output_not_contains "Unsupported database source"
 
   popd >/dev/null
 }
