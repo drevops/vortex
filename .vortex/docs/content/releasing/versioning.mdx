@@ -117,7 +117,8 @@ The draft works as follows:
   push.
 - For CalVer, the workflow proposes the current year and month with `0` as
   the last segment (for example, `26.10.0` in October 2026). It always
-  proposes `0`, so edit the number when the month already has a release.
+  proposes `0`, so when the month already has a release, raise the last
+  segment to the next free number, for example `26.10.1`.
 - For SemVer, release-drafter resolves the next version itself: it raises
   the minor number of the previous release, as the `version-resolver`
   category in `.github/release-drafter.yml` sets it. Any other scheme value,

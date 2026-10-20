@@ -108,8 +108,10 @@ key earlier in the day, the fresh dump isn't cached, and the next day's
 builds fall back to the earlier cache.
 
 The workflow is scheduled against the `develop` branch. If your project
-doesn't use one, change the workflow's branch filter. The workflow ships
-only when the site provisions from a database dump.
+doesn't use one, change the branch in the `filters.branches.only` list of
+the `nightly-db` workflow's `triggers` entry, in the `workflows` section at
+the end of `.circleci/config.yml`. The workflow ships only when the site
+provisions from a database dump.
 
 To change when it runs, update the `nightly_db_schedule` YAML anchor in
 `.circleci/config.yml`: a named value near the top of the file that the
@@ -186,7 +188,7 @@ raises that limit to 30 minutes for its long, quiet steps:
 - `Deploy DB image`
 - `Provision site`
 - `Test with Behat`
-- `Deploy`
+- `Deploy`, in both the `deploy` and `deploy-tags` jobs
 
 If a step still times out, increase its `no_output_timeout`:
 

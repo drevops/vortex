@@ -794,7 +794,8 @@ The following table lists the variable for each tool:
 | [Working tree check](#working-tree-check)                     | Check for files left behind by the build | `VORTEX_CI_WORKTREE_CHANGES_IGNORE_FAILURE`          |
 
 The code coverage threshold check has no variable of its own. To let it
-pass, lower `VORTEX_CI_CODE_COVERAGE_THRESHOLD` instead.
+pass, lower `VORTEX_CI_CODE_COVERAGE_THRESHOLD` instead. It defaults to `90`
+and goes in the same place as the variables in the preceding table.
 
 ### Configure deployment skip conditions
 

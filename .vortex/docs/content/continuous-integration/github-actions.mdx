@@ -75,6 +75,11 @@ trigger the workflow too (`on.push.tags` is `'*'`), and the `deploy` job
 deploys the tag. Pull requests opened from a `project/**` branch skip every
 job, since pushes to that branch already build it.
 
+Add a pattern to both lists when pushes to its branches should build, and
+so should pull requests that target them. A pattern in
+`on.pull_request.branches` alone builds only pull requests that target its
+branches, as the shipped `feature/**` and `bugfix/**` entries do.
+
 To add or remove branches:
 
 1. In `.github/workflows/build-test-deploy.yml`, edit the
@@ -98,8 +103,9 @@ to make it block merges.
 
 ### Update nightly database schedule
 
-A scheduled run downloads a fresh database dump every night and caches it,
-so the next day's builds start from it. Only the `database` job runs on the
+A scheduled run downloads a fresh database dump every day at 18:00 UTC
+(`0 18 * * *`) and caches it, so the next day's builds start from it. Only
+the `database` job runs on the
 schedule; `lint`, `build`, and `deploy` skip scheduled runs. The scheduled
 run also turns off the cache fallback and the front-end build. For a project
 that stores its database in a container image, it imports the dump into a
