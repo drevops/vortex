@@ -196,6 +196,13 @@ Docker Compose tab's command applies only `.env` changes. To include
 `.env.local` without Ahoy, pass both files:
 `docker compose --env-file .env --env-file .env.local up -d`.
 
+Drupal also reads variables that `docker-compose.yml` doesn't pass, such as
+`DRUPAL_CLAMAV_ENABLED`. For web requests, PHP-FPM loads them from `.env`
+when its container starts, never from `.env.local`, so set them in `.env`.
+To apply a change, run `ahoy restart` (or `docker compose restart`):
+`ahoy up` recreates a container only when its configuration changes, and
+these variables aren't part of it.
+
 Variables that only the `vendor/bin/vortex-*` scripts use, such as
 `VORTEX_PROVISION_OVERRIDE_DB`, take effect without recreating anything,
 because the scripts read both files each time they start. The [Docker
