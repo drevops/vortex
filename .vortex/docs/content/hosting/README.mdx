@@ -5,22 +5,24 @@ sidebar_position: 1
 
 # Hosting
 
+This section covers where your site _runs_. It's for the lead or DevOps
+engineer who hosts a project built from **Vortex**, and for anyone choosing
+a host for one. Each provider page explains what the integration does and
+how **Vortex** detects the environment. It also covers the routine
+operations on that platform, from fetching and copying databases to purging
+caches and running custom commands.
+
 **Vortex** integrates with 2 hosting providers:
 
 - [Acquia](acquia.mdx)
 - [Lagoon](lagoon.mdx)
 
-:::info More integrations coming soon
-
-More hosting provider integrations are planned. See the
-[roadmap](../contributing/roadmap.mdx).
-
-:::
-
-This section covers where your site _runs_: what each provider integration
-does and how **Vortex** detects the environment. It also covers the routine
-operations on each platform, from fetching and copying databases to purging
-caches and running custom commands.
+For any other provider, choose **Other** or **None** at the installer's
+**Hosting provider** prompt. The 2 answers give the same result: **Vortex**
+leaves out the Acquia and Lagoon integration files, such as their settings
+files, the Acquia hooks, and `.lagoon.yml`. The deployment type then
+defaults to `webhook`. The [roadmap](../contributing/roadmap.mdx) lists the
+hosting integrations under consideration.
 
 How code _gets to_ a provider (deployment types, triggers, and skip rules)
 lives in the [Deployment](../deployment/README.mdx) section.

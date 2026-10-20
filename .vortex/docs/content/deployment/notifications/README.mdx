@@ -9,8 +9,15 @@ sidebar_position: 1
 team hears about a new environment, and gets a link to log in to it,
 without watching CI.
 
-The `vendor/bin/vortex-notify` router script dispatches the notifications.
-The _hosting platform_ runs it around a deployment, from the Lagoon
+This page is for the lead or DevOps engineer who sets up deployment
+notifications. It explains when notifications go out, how to pick the
+channels, and the settings that every channel shares. Each channel's own
+page covers its setup and its variables.
+
+The `vendor/bin/vortex-notify` _router_ script dispatches the
+notifications. It checks the shared variables, collects the deployment
+logs, and then runs the script of each channel you turn on. The _hosting
+platform_ runs the router around a deployment, from the Lagoon
 post-rollout tasks or the Acquia Cloud Hooks, and the CI `deploy` job never
 does. The hosting side is where the environment's URL is known: the Lagoon
 tasks read it from `LAGOON_ROUTE`, and the Acquia hook builds it from the
@@ -30,13 +37,31 @@ Configure notification channels in your `.env` file:
 VORTEX_NOTIFY_CHANNELS=email,slack,github
 ```
 
-Available channels: [`diffy`](diffy.mdx), [`email`](email.mdx),
-[`github`](github.mdx), [`jira`](jira.mdx), [`newrelic`](newrelic.mdx),
-[`slack`](slack.mdx), [`webhook`](webhook.mdx)
+The router supports 7 channels and runs them in the following order,
+whatever order you list them in:
 
-The default is `email`. The router doesn't validate the names: it matches
-them as substrings, so a misspelled channel sends nothing and raises no
-error.
+- [`email`](email.mdx) - sends an email to a list of recipients.
+- [`slack`](slack.mdx) - posts a message to a Slack channel.
+- [`newrelic`](newrelic.mdx) - records a deployment marker in New Relic APM.
+- [`github`](github.mdx) - reports the deployment through the GitHub
+  Deployments API.
+- [`jira`](jira.mdx) - comments on the Jira issue named in the branch.
+- [`webhook`](webhook.mdx) - sends a JSON payload to a URL you choose.
+- [`diffy`](diffy.mdx) - starts a Diffy visual regression run through
+  GitHub Actions.
+
+The default is `email`, and an empty value falls back to it, so to turn
+notifications off, set `VORTEX_NOTIFY_SKIP` instead. The installer offers
+every channel except `diffy`, which you add by hand. The router doesn't
+validate the names: it matches them as substrings, so a misspelled channel
+sends nothing and raises no error.
+
+When a channel fails, the router stops with an error, and the channels
+after it don't run. On Lagoon, the failed notification task stops the
+post-rollout tasks after it, and Lagoon notifies you about the failure. So
+a failure at `pre_deployment` skips provisioning too. On Acquia, the
+notification hook runs last: Acquia marks the deployment task as failed,
+and the hook's output appears in the task log.
 
 ## Global environment variables
 
@@ -45,27 +70,40 @@ overrides them. The [Variables reference](../../development/variables.mdx)
 has the full generated list of `VORTEX_NOTIFY_*` variables, with the script
 that reads each one.
 
+The **Location** column in this section and on the channel pages says where
+a value usually lives. `.env` holds project-wide settings that you commit.
+Hosting means secrets and per-deployment values: you set them in the hosting
+platform's environment variables, or the hosting hook and the router set
+them at run time.
+
+The following table lists the global variables:
+
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
 | `VORTEX_NOTIFY_CHANNELS` | No | `email` | `.env` | Notification channels (comma-separated) |
-| `VORTEX_NOTIFY_PROJECT` | No | `VORTEX_PROJECT` | `.env` | Notification project name; the Lagoon tasks set it to `LAGOON_PROJECT` and the Acquia hook to the site name |
-| `VORTEX_NOTIFY_SKIP` | No | | Hosting | Set to any non-empty value, for example `1`, to skip notifications |
+| `VORTEX_NOTIFY_PROJECT` | No | `VORTEX_PROJECT` | Hosting | Notification project name; the Lagoon tasks set it to `LAGOON_PROJECT` and the Acquia hook to the site name |
+| `VORTEX_NOTIFY_SKIP` | No | None | Hosting | Set to any non-empty value, for example `1`, to skip notifications |
 
 ## Deployment context variables
 
-These variables tell the channels about the deployment. The hosting
-platform has to set them before it calls the router, and the shipped Lagoon
-post-rollout tasks and Acquia hook already do.
+These variables hold the deployment details that the channels read. The
+hosting platform has to set them before it calls the router, and the
+shipped Lagoon post-rollout tasks and Acquia hook already do. The router
+stops with `Missing required value for` and the variable name when a
+required one is empty.
+
+The following table lists the deployment context variables and what the
+Lagoon tasks and the Acquia hook put in them:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `VORTEX_NOTIFY_BRANCH` | **Yes** | Git branch name; for a Lagoon pull request environment, the pull request's head branch |
-| `VORTEX_NOTIFY_SHA` | **Yes** | Git commit SHA |
-| `VORTEX_NOTIFY_PR_NUMBER` | No | Pull request number (empty for branch deployments) |
-| `VORTEX_NOTIFY_LABEL` | **Yes** | Human-readable deployment label; the Lagoon tasks use `PR-<number>` for pull requests and the branch name otherwise |
-| `VORTEX_NOTIFY_ENVIRONMENT_URL` | **Yes** | URL of the deployed environment, used by the `%environment_url%` token |
+| `VORTEX_NOTIFY_BRANCH` | **Yes** | Git branch name. Lagoon: the pull request's head branch, or `LAGOON_GIT_BRANCH`. Acquia: the source branch argument that Acquia passes to the hook |
+| `VORTEX_NOTIFY_SHA` | **Yes** | Deployed reference. Lagoon: the commit SHA in `LAGOON_GIT_SHA`. Acquia: the deployed tag argument that Acquia passes to the hook, a name rather than a commit SHA |
+| `VORTEX_NOTIFY_PR_NUMBER` | No | Pull request number. Lagoon: `LAGOON_PR_NUMBER`. Empty on Acquia and for branch deployments |
+| `VORTEX_NOTIFY_LABEL` | **Yes** | Human-readable deployment label. Lagoon: `PR-<number>` for pull requests, the branch name otherwise. Acquia: the same value as `VORTEX_NOTIFY_BRANCH` |
+| `VORTEX_NOTIFY_ENVIRONMENT_URL` | **Yes** | URL of the deployed environment, used by the `%environment_url%` token. Lagoon: `LAGOON_ROUTE`. Acquia: built from `AH_SITE_NAME` and `AH_REALM`, or from `VORTEX_NOTIFY_ENVIRONMENT_DOMAIN` |
 | `VORTEX_NOTIFY_LOGIN_URL` | No | Login URL for the `%login_url%` token; defaults to `<environment_url>/user/login` |
-| `VORTEX_NOTIFY_EVENT` | No | Deployment event: `post_deployment` (default) or `pre_deployment`; any other value fails the run |
+| `VORTEX_NOTIFY_EVENT` | No | Deployment event: `post_deployment` (default) or `pre_deployment`; any other value fails the run. Lagoon: `pre_deployment`, then `post_deployment`. Acquia: not set, so `post_deployment` |
 
 Only Slack and GitHub act on `pre_deployment`; the other 5 channels skip it.
 
@@ -73,9 +111,11 @@ Only Slack and GitHub act on `pre_deployment`; the other 5 channels skip it.
 
 You can limit each channel to specific branches with its
 `VORTEX_NOTIFY_<CHANNEL>_BRANCHES` variable. When it's set, the channel
-sends notifications only for deployments on the listed branches
-(comma-separated, exact match against the deployment's branch). When it's
-empty or unset, the channel runs on all branches.
+sends notifications only for deployments on the listed branches. The list is
+comma-separated, without spaces. Each entry is an exact branch name, not a
+pattern, and every channel except Diffy compares it with
+`VORTEX_NOTIFY_BRANCH`; Diffy compares `VORTEX_NOTIFY_DIFFY_BRANCH`. When
+the variable is empty or unset, the channel runs on all branches.
 
 For example, to restrict New Relic notifications to only `main` and
 `staging`:
@@ -90,11 +130,16 @@ New Relic run on other branches, list every branch you want.
 
 ## Message templates and tokens
 
-Most channels take a custom message template: `VORTEX_NOTIFY_EMAIL_MESSAGE`,
-`VORTEX_NOTIFY_SLACK_MESSAGE`, `VORTEX_NOTIFY_JIRA_MESSAGE`,
-`VORTEX_NOTIFY_NEWRELIC_DESCRIPTION`, and `VORTEX_NOTIFY_WEBHOOK_PAYLOAD`.
-GitHub and Diffy send fixed payloads. Templates use these replacement
-tokens:
+The following channels take a custom message template:
+
+- Email: `VORTEX_NOTIFY_EMAIL_MESSAGE`
+- Slack: `VORTEX_NOTIFY_SLACK_MESSAGE`
+- Jira: `VORTEX_NOTIFY_JIRA_MESSAGE`
+- New Relic: `VORTEX_NOTIFY_NEWRELIC_DESCRIPTION`
+- Webhook: `VORTEX_NOTIFY_WEBHOOK_PAYLOAD`
+
+GitHub and Diffy send fixed payloads. The templates use the replacement
+tokens in the following table:
 
 | Token | Description | Example |
 |-------|-------------|---------|
@@ -103,8 +148,8 @@ tokens:
 | `%timestamp%` | Current timestamp | `15/11/2025 14:30:45 UTC` |
 | `%environment_url%` | Environment URL | `https://example.com` |
 | `%login_url%` | Login URL | `https://example.com/user/login` |
-| `%deployment_log%` | Collected deployment logs, when enabled (email and webhook only) | |
-| `%message%` | The default message with the other tokens replaced (webhook payload only) | |
+| `%deployment_log%` | Collected deployment logs, when enabled (email and webhook only) | A `## provision.log ##` heading, then the log text |
+| `%message%` | The default message with the other tokens replaced (webhook payload only) | The default message, filled in |
 
 The default message template is:
 
@@ -128,24 +173,39 @@ producing script writes its own `<name>.log` into `VORTEX_NOTIFY_LOG_DIR`;
 `vortex-provision` writes `provision.log` there when
 `VORTEX_PROVISION_LOG=1`, truncating it at the start of each run. When
 `VORTEX_NOTIFY_LOG=1`, the router collects every non-empty log in that
-directory, each as its own titled section.
+directory, each as its own titled section. It passes the path of the
+collected file to the channels as `VORTEX_NOTIFY_LOG_FILE`, which stays
+empty when it collected nothing.
 
-The email, Slack, Jira, and webhook channels add the collected logs to
-their message. Email and webhook templates take them through the
-`%deployment_log%` token, Slack adds them to the message attachment, and
-Jira posts them as a code block. GitHub, New Relic, and Diffy never include
-logs.
+The email, Slack, Jira, and webhook channels add the collected logs to their
+message, each in its own way:
+
+- Email and webhook templates insert them at the `%deployment_log%` token.
+  The default email template ends with that token, and the default webhook
+  payload carries it at the end of `message`. A custom template without the
+  token leaves the logs out.
+- Slack adds them to the message attachment.
+- Jira posts them as a code block after the comment text.
+
+GitHub, New Relic, and Diffy never include logs.
 
 To include the provision log in notifications, set both
 `VORTEX_PROVISION_LOG=1` and `VORTEX_NOTIFY_LOG=1` (in `.env` or per
 environment).
 
 Each of those 4 channels also reads a flag of its own:
-`VORTEX_NOTIFY_EMAIL_LOG`, `VORTEX_NOTIFY_SLACK_LOG`,
-`VORTEX_NOTIFY_JIRA_LOG`, and `VORTEX_NOTIFY_WEBHOOK_LOG`. Each defaults to
-the value of `VORTEX_NOTIFY_LOG`, so set one to `0` to turn a single channel
-off (for example `VORTEX_NOTIFY_SLACK_LOG=0`). A channel flag can't add logs
-on its own: the router collects logs only when `VORTEX_NOTIFY_LOG=1`.
+
+- `VORTEX_NOTIFY_EMAIL_LOG`
+- `VORTEX_NOTIFY_SLACK_LOG`
+- `VORTEX_NOTIFY_JIRA_LOG`
+- `VORTEX_NOTIFY_WEBHOOK_LOG`
+
+A flag set to `1` includes the collected logs in that channel, and `0`
+leaves them out. Each flag defaults to the value of `VORTEX_NOTIFY_LOG`, so
+with `VORTEX_NOTIFY_LOG=1`, all 4 channels include the logs. To leave the
+logs out of a single channel, set its flag to `0` (for example
+`VORTEX_NOTIFY_SLACK_LOG=0`). A channel flag can't add logs on its own: the
+router collects logs only when `VORTEX_NOTIFY_LOG=1`.
 
 :::warning
 
@@ -162,6 +222,8 @@ script controls the permissions of its own log file. If you point
 readable by other users.
 
 :::
+
+The following table lists the deployment log variables:
 
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|

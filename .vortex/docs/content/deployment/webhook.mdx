@@ -9,6 +9,11 @@ Webhook deployment triggers a remote deployment by calling an HTTP endpoint.
 Use it with external systems or custom deployment pipelines that expose a
 webhook URL.
 
+This page is for the lead or DevOps engineer whose hosting platform or
+deployment pipeline starts a deployment from a webhook. It covers the
+request the deployment script sends, the variables that shape it, and the
+setup steps.
+
 :::note
 
 This is a deployment _type_: it triggers the deployment itself. To call a
@@ -24,40 +29,64 @@ When `webhook` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script
 calls the configured webhook URL with `curl`, using the configured HTTP
 method and following redirects. It sends no deployment data, so anything
 the receiving end needs has to be in the URL itself. The deployment passes
-when the response status matches `VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS`,
-and fails otherwise.
+when the response status matches `VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS`.
+Otherwise, it fails with `Unable to complete webhook deployment.`
 
 ## Configuration
 
+Configure the deployment with the variables in the following table, then
+follow the setup steps.
+
 ### Environment variables
+
+The [Deployment overview](README.mdx) explains the **Location** values and
+how the script loads `.env`. The following table lists the variables that
+the webhook deployment script reads:
 
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
-| `VORTEX_DEPLOY_WEBHOOK_URL` | **Yes** | | CI | The webhook URL to call |
+| `VORTEX_DEPLOY_WEBHOOK_URL` | **Yes** | None | CI | The webhook URL to call |
 | `VORTEX_DEPLOY_WEBHOOK_METHOD` | No | `GET` | `.env` | HTTP method, for example `GET` or `POST` |
 | `VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS` | No | `200` | `.env` | Expected HTTP response status code |
 
 ### Setup
 
-1. Add `webhook` to the `VORTEX_DEPLOY_TYPES` variable in your `.env` file:
+To set up webhook deployment, complete these steps:
+
+1. Add `webhook` to the comma-separated `VORTEX_DEPLOY_TYPES` list in your
+   `.env` file, for example `VORTEX_DEPLOY_TYPES=artifact,webhook`. On its
+   own, it looks like this:
 
    ```shell title=".env"
    VORTEX_DEPLOY_TYPES=webhook
    ```
 
-2. Add `VORTEX_DEPLOY_WEBHOOK_URL` to your CI provider's environment
-   variables and treat it as a secret. On GitHub Actions, the shipped
-   workflow reads it from a repository variable of the same name. If the URL
-   carries a token, change that line of the workflow to read from `secrets`
-   instead.
+2. Set `VORTEX_DEPLOY_WEBHOOK_URL` in your CI provider's settings:
+   - On GitHub Actions, add a repository variable of the same name, which
+     the shipped workflow reads.
+   - On CircleCI, add a project environment variable.
+3. Optional: If the URL carries a token, keep it in a GitHub Actions secret
+   instead of a variable:
+   1. Add the URL as a repository secret named `VORTEX_DEPLOY_WEBHOOK_URL`.
+   2. In `.github/workflows/build-test-deploy.yml`, change the
+      `VORTEX_DEPLOY_WEBHOOK_URL` line of the `Deploy` step to read from
+      `secrets` instead of `vars`.
+
+Confirm that the next deployment called the webhook. The `deploy` job log
+shows `Webhook call completed.`, followed by
+`[ OK ] Finished webhook deployment.`
 
 ## Use cases
 
+Webhook deployment fits these setups:
+
 - Triggering deployments on platforms that provide webhook endpoints
 - Integrating with custom deployment orchestration systems
-- Notifying external services when code is ready for deployment
+- Telling an external system that CI passed, so it starts its own deployment
 
 ## See also
+
+The following pages cover the rest of the deployment flow:
 
 - [Deployment overview](README.mdx) - the deployment router and skip rules
 - [Notifications](notifications/README.mdx) - messages sent after a
