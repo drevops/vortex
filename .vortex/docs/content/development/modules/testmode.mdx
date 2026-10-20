@@ -38,6 +38,25 @@ warning starts with `Test mode is enabled.` and links to the Testmode
 settings at `/admin/config/development/testmode`. That warning is how you'll
 spot a test run that stopped before switching test mode off.
 
+To turn test mode off by hand, use 1 of the following:
+
+- On the Testmode settings page, select **Disabled** under **Test mode**,
+  then click **Save configuration**.
+- From code, call `Testmode::getInstance()->disableTestMode()`.
+- With Drush, delete the state flag, then invalidate the `testmode:views`
+  cache tag that Testmode adds to the views it filters, so their cached
+  listings are rebuilt.
+
+The Drush route uses the following commands:
+
+```bash
+ahoy drush state:delete testmode.enabled
+ahoy drush cache:tags testmode:views
+```
+
+The second command reports `Invalidated tag(s): testmode:views.` Confirm
+that the warning no longer appears on the next page you load.
+
 ## Configuration
 
 Testmode is configured through the `testmode.settings` configuration object:
@@ -102,6 +121,11 @@ table:
 | `list_term` | `getListTerm()` | `setTermsList()` |
 
 The view and pattern setters accept an array or a newline-separated string.
+The `list_term` setter takes a boolean, and its name doesn't mirror the
+getter's: to stop filtering the term overview page, call
+`setTermsList(FALSE)`. On the settings page, the same switch is the
+**Include Taxonomy Terms Overview** checkbox.
+
 To drive the mode itself, the singleton has the following methods:
 
 - `enableTestMode()` turns test mode on.
@@ -135,6 +159,10 @@ Scenario: Pages view shows only test content when test mode is enabled
 The `[TEST]` prefix in content titles matches the default `[TEST%` pattern
 configured in Testmode. Only matching content appears in registered views,
 so the generated `Demo page` nodes stay out of the assertions.
+
+To run the suite, or only this feature with
+`ahoy test-bdd tests/behat/features/pages.feature`, see
+[Behat](../testing/behat.mdx#usage).
 
 ## Example in Vortex
 

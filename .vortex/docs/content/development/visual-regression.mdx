@@ -484,6 +484,12 @@ The `vr-compare` job runs the following steps:
 6. Renders the report into the workflow run summary, so the result is
    readable in the GitHub Actions UI without opening the job log.
 
+Differences don't fail the job. `vr-compare` reports the change percentage
+and the page counts, then succeeds at any value. It fails only when the
+target URL is empty, Diffy returns no diff ID, the comparison runs past
+`VR_DIFFY_MAX_WAIT`, or a Diffy CLI call fails. A failed status check counts
+as a comparison still in progress.
+
 The `vr-report` job posts the same report as a comment on the PR, with a
 link to the full Diffy report. Each new report hides the previous comment
 and posts a fresh one, so the PR timeline doesn't fill up with stale
