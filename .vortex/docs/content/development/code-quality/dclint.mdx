@@ -31,8 +31,8 @@ In CI, DCLint runs from its official Docker image.
 
 The installer selects DCLint by default. If you deselect it in the
 **Development tools** prompt, the installer removes the `.dclintrc`
-configuration file and the DCLint step from the CI configuration of every
-supported provider.
+configuration file, the `dclint` directives in `docker-compose.yml`, and
+the DCLint step from the CI configuration of every supported provider.
 
 ## Usage
 
@@ -77,6 +77,13 @@ the same order, from core definitions such as `build` and `image` to
 operational metadata such as `labels`. Diffs then stay small and services
 stay comparable. Every rule the file doesn't list keeps the level DCLint
 gives it by default.
+
+`docker-compose.yml` turns off 1 more rule for a single line. With
+migration enabled, the `database2` service carries a `dclint disable-line`
+directive for `no-duplicate-exported-ports`, with the reason next to it.
+DCLint reads the container-only port `3306` as a host port that the
+`database` service already uses. Docker publishes each container-only port
+on its own random host port, so the 2 services don't clash.
 
 ## Ignoring
 
