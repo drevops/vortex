@@ -199,16 +199,30 @@ issues](troubleshooting.mdx#permission-issues) has the fix.
 Docker Compose reads the `.env` file in the project root and uses its values
 to fill in the `${VAR}` references in `docker-compose.yml`. A variable
 already set in your shell takes precedence over the same variable in `.env`.
-Compose doesn't pass `.env` to the containers wholesale, though: a container
-gets only the variables its service lists under `environment`.
+Compose doesn't pass `.env` to the containers wholesale, though: it sets
+only the variables a service lists under `environment`.
 
 Here, that's the `x-environment` anchor, which every service except `redis`
 and `wait-for-dependencies` merges in. Compose sets those values when it
 creates a container, so a change reaches a running container only after
 `ahoy up` (or `docker compose up -d`) recreates it.
 
-Docker Compose never reads `.env.local`. **Vortex** loads it in 2 places,
-and both keep any variable that's already set in your environment:
+The `cli`, `nginx`, and `php` services build on Lagoon images, which load
+`.env` themselves. When a container starts, the image's entrypoint reads
+`.env` from `/app` before it launches the main process, and it doesn't
+override a variable the container already has. In the `php` container, that
+process is PHP-FPM, which passes the loaded variables on to every request it
+handles. That's how Drupal gets the `.env` variables that
+`docker-compose.yml` doesn't list, such as `DRUPAL_CLAMAV_ENABLED`.
+
+PHP-FPM keeps the values it started with. A change to such a variable
+doesn't alter the container's configuration, so `ahoy up` leaves the
+container running. Run `ahoy restart` (or `docker compose restart`) instead,
+so the entrypoint reads `.env` again.
+
+Docker Compose and the Lagoon images never read `.env.local`. **Vortex**
+loads it in 2 places, and both keep any variable that's already set in your
+environment:
 
 - The Ahoy entrypoint exports `.env` and then `.env.local` before every Ahoy
   command, so `ahoy up` fills the `${VAR}` references with your local
@@ -216,6 +230,11 @@ and both keep any variable that's already set in your environment:
 - Every `vendor/bin/vortex-*` script loads `.env` and then `.env.local` from
   its working directory when it starts, on the host and inside the
   containers alike.
+
+For a variable that `docker-compose.yml` doesn't list, web requests
+therefore get the value from `.env`, never from `.env.local`. To use a
+value from `.env.local`, list the variable in `docker-compose.override.yml`,
+as [Environment variables](README.mdx#environment-variables) shows.
 
 Inside the `cli` container, commands get variables from 2 more sources:
 
