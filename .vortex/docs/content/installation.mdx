@@ -185,12 +185,25 @@ integration setup, and it never goes anywhere else.
 
 ### 6. Set up hosting
 
-Pick the tab for your hosting provider. The [Hosting](/docs/hosting) section
-explains how the site behaves on each platform. If you answered **Other** or
-**None** at the **Hosting provider** prompt, there's nothing to set up here.
-See [Artifact deployment](/docs/deployment/artifact) or [Webhook
-deployment](/docs/deployment/webhook) for the variables your deployment type
-needs.
+Each answer you selected at the installer's **Deployment types** prompt adds
+its type to `VORTEX_DEPLOY_TYPES` in `.env`. The following table maps each
+answer to its type, its setup page, and its line in the deploy log:
+
+| Answer | Type | Setup page | Deploy log line |
+|--------|------|------------|-----------------|
+| **Code artifact** | `artifact` | [Artifact deployment](/docs/deployment/artifact) | `Finished artifact deployment.` |
+| **Lagoon webhook** | `lagoon` | [Lagoon deployment](/docs/deployment/lagoon) | `Finished Lagoon deployment.` |
+| **Custom webhook** | `webhook` | [Webhook deployment](/docs/deployment/webhook) | `Finished webhook deployment.` |
+
+If you answered **Other** or **None** at the **Hosting provider** prompt,
+there's nothing to set up on a platform. Set your type's CI variables,
+listed on [Artifact deployment](/docs/deployment/artifact) or
+[Webhook deployment](/docs/deployment/webhook), in your CI provider
+instead: as repository variables in GitHub Actions, or project environment
+variables in CircleCI.
+
+The [Hosting](/docs/hosting) section explains how the site behaves on each
+platform. For Acquia or Lagoon, pick the tab for your hosting provider:
 
 <Tabs queryString="hosting-provider" groupId="hosting-provider">
 <TabItem value="acquia" label="Acquia" default>
@@ -329,7 +342,8 @@ Confirm that the first build passed:
 - On either provider, the log of the deploy job's **Deploy** step shows a
   `Finished artifact deployment.`, `Finished Lagoon deployment.`, or
   `Finished webhook deployment.` line for each type you chose at the
-  installer's **Deployment types** prompt.
+  installer's **Deployment types** prompt. The table in
+  [step 6](#6-set-up-hosting) maps each answer to its line.
 
 ## Installing Vortex into an existing project
 
@@ -470,12 +484,25 @@ integration setup, and it never goes anywhere else.
 
 ### 9. Set up hosting
 
-Pick the tab for your hosting provider. The [Hosting](/docs/hosting) section
-explains how the site behaves on each platform. If you answered **Other** or
-**None** at the **Hosting provider** prompt, there's nothing to set up here.
-See [Artifact deployment](/docs/deployment/artifact) or [Webhook
-deployment](/docs/deployment/webhook) for the variables your deployment type
-needs.
+Each answer you selected at the installer's **Deployment types** prompt adds
+its type to `VORTEX_DEPLOY_TYPES` in `.env`. The following table maps each
+answer to its type, its setup page, and its line in the deploy log:
+
+| Answer | Type | Setup page | Deploy log line |
+|--------|------|------------|-----------------|
+| **Code artifact** | `artifact` | [Artifact deployment](/docs/deployment/artifact) | `Finished artifact deployment.` |
+| **Lagoon webhook** | `lagoon` | [Lagoon deployment](/docs/deployment/lagoon) | `Finished Lagoon deployment.` |
+| **Custom webhook** | `webhook` | [Webhook deployment](/docs/deployment/webhook) | `Finished webhook deployment.` |
+
+If you answered **Other** or **None** at the **Hosting provider** prompt,
+there's nothing to set up on a platform. Set your type's CI variables,
+listed on [Artifact deployment](/docs/deployment/artifact) or
+[Webhook deployment](/docs/deployment/webhook), in your CI provider
+instead: as repository variables in GitHub Actions, or project environment
+variables in CircleCI.
+
+The [Hosting](/docs/hosting) section explains how the site behaves on each
+platform. For Acquia or Lagoon, pick the tab for your hosting provider:
 
 <Tabs queryString="hosting-provider" groupId="hosting-provider">
 <TabItem value="acquia" label="Acquia" default>
@@ -614,7 +641,8 @@ Confirm that the first build passed:
 - On either provider, the log of the deploy job's **Deploy** step shows a
   `Finished artifact deployment.`, `Finished Lagoon deployment.`, or
   `Finished webhook deployment.` line for each type you chose at the
-  installer's **Deployment types** prompt.
+  installer's **Deployment types** prompt. The table in
+  [step 9](#9-set-up-hosting) maps each answer to its line.
 
 ## Updating Vortex
 
