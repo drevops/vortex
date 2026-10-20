@@ -7,10 +7,13 @@ sidebar_position: 1
 
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
-This section covers the day-to-day work on a **Vortex** project. That means
-running the local environment, managing the database and dependencies,
-working with the Drupal application, and checking your code with linters and
-tests.
+This section is for developers who build features and fix bugs on a project
+created from **Vortex**. It covers the day-to-day work in 4 areas:
+
+- Running the local environment
+- Managing the database and the dependencies
+- Working with the Drupal application
+- Checking your code with linters and tests
 
 Each page covers 1 task or tool and everything about it: daily usage,
 configuration, and how it behaves in the continuous integration pipeline.
@@ -18,28 +21,36 @@ Bigger topics get a subsection, with an overview page that ties its pages
 together. This page walks through the overall process and points you to the
 right page for each task.
 
+To set up the pipeline, the deployments, or the hosting, see
+[Continuous integration](../continuous-integration/README.mdx),
+[Deployment](../deployment/README.mdx), and [Hosting](../hosting/README.mdx)
+instead.
+
 ## Typical development process
+
+A change usually goes through these steps:
 
 1. Pull the latest changes from the remote repository.
 2. [Fetch the latest database dump](provision.mdx#database) from the
    production environment.
 3. [Build the project](environment/README.mdx).
 4. Start a new feature or bugfix branch:
-    - Create a new branch from `develop` (see
+   1. Create a new branch from `develop` (see
       [Releasing > GitFlow](../releasing/gitflow.mdx) for the branch
       structure).
-    - Implement the feature or fix the bug.
+   2. Implement the feature or fix the bug.
 5. [Run tests](testing/README.mdx):
-    - Run automated tests locally.
-    - Fix any failing tests.
+   1. Run automated tests locally.
+   2. Fix any failing tests.
 6. [Run code quality checks](code-quality/README.mdx):
-    - Run static code analysis locally.
-    - Fix any issues reported.
-7. Commit changes to the branch and push it to the remote repository.
-8. Create a pull request:
-    - Create a pull request from the branch to `develop`.
-    - Assign reviewers.
-    - Wait for the [continuous integration
+   1. Run static code analysis locally.
+   2. Fix any issues reported.
+7. Commit your changes to the branch.
+8. Push the branch to the remote repository.
+9. Create a pull request:
+   1. Create a pull request from the branch to `develop`.
+   2. Assign reviewers.
+   3. Wait for the [continuous integration
       pipeline](../continuous-integration/README.mdx) to pass.
 
 ## Common commands
@@ -49,11 +60,15 @@ uses **Vortex**.
 
 ### Build the project
 
-`ahoy build` rebuilds the project from scratch. Once you confirm, it removes
-the containers, the installed dependencies, and the database, then builds
-and starts fresh containers. It installs the Composer and front-end
-dependencies, compiles the custom theme's assets, and provisions the site.
-It finishes by printing the project information with a one-time login link.
+`ahoy build` rebuilds the project from scratch. It asks you to confirm, and
+then runs these steps in order:
+
+1. Removes the containers, the installed dependencies, and the database.
+2. Builds and starts fresh containers.
+3. Installs the Composer and front-end dependencies.
+4. Compiles the custom theme's assets, when the project has a custom theme.
+5. Provisions the site.
+6. Prints the project information with a one-time login link.
 
 <AsciinemaPlayer
   src="/img/build.json"
@@ -68,11 +83,20 @@ It finishes by printing the project information with a one-time login link.
 
 ### Show project information
 
-`ahoy info` prints what you need to reach the running project: the site URL,
-the database credentials and host port, and the mail catcher and Selenium
-VNC addresses. The VNC address lets you watch the browser tests run. It also
-shows whether Xdebug is on, plus the Solr and Storybook addresses when your
-project uses them.
+`ahoy info` prints what you need to reach the running project:
+
+- The project name and the Docker Compose project name
+- The site URL and the path to the web root
+- The database host, username, password, and port, plus the port on your
+  host and the database image when the project uses one
+- The Solr and Storybook addresses, when your project uses them
+- The Selenium VNC address, where you can watch the browser tests run
+- The mail catcher address
+- Whether Xdebug is on
+
+To print a one-time login link as well, pass any argument, such as
+`ahoy info login`. Otherwise, the output ends with a reminder to run
+`ahoy login`.
 
 <AsciinemaPlayer
   src="/img/info.json"
@@ -87,10 +111,15 @@ project uses them.
 
 ### Run linters
 
-`ahoy lint` runs the back-end linters (PHPCS, PHPStan, and Rector), the
-front-end linters (Twig CS Fixer, ESLint, and Stylelint), and Gherkin Lint
-for the Behat feature files. `ahoy lint-fix` applies the automatic fixes
-that Rector, PHPCBF, Twig CS Fixer, ESLint, and Stylelint support.
+`ahoy lint` runs 3 groups of linters, and each group also has a command of
+its own:
+
+- `ahoy lint-be`: the back-end linters PHPCS, PHPStan, and Rector
+- `ahoy lint-fe`: the front-end linters Twig CS Fixer, ESLint, and Stylelint
+- `ahoy lint-tests`: Gherkin Lint for the Behat feature files
+
+`ahoy lint-fix` applies the automatic fixes that Rector, PHPCBF, Twig CS
+Fixer, ESLint, and Stylelint support.
 
 SDC Devel validates the custom theme's components against a provisioned
 site, so it runs separately as `ahoy lint-sdc`. DCLint and Hadolint have no
@@ -112,7 +141,8 @@ Ahoy command: continuous integration runs them from their Docker images.
 `ahoy test` runs every PHPUnit suite: unit, kernel, functional, and
 functional JavaScript. To run 1 suite, use `ahoy test-unit`,
 `ahoy test-kernel`, `ahoy test-functional`, or
-`ahoy test-functional-javascript`.
+`ahoy test-functional-javascript`. The Jest tests for JavaScript run
+separately, with `ahoy test-js`.
 
 <AsciinemaPlayer
   src="/img/test.json"
@@ -144,13 +174,17 @@ rest make plain HTTP requests without a browser.
 
 ### Re-provision the site
 
-`ahoy provision` runs provisioning again in the running stack. When
-`VORTEX_PROVISION_OVERRIDE_DB` is `1`, as `.env.local.example` sets it for
-local work, it replaces the current database with the dump from
-`.data/db.sql`. Otherwise, an existing site keeps its database. Either way,
-it then runs the provisioning steps, from the database updates and the
-configuration import to the deploy hooks and your custom
-`scripts/provision-*.sh` scripts. It finishes with a one-time login link.
+`ahoy provision` runs provisioning again in the running stack, after you
+confirm. When `VORTEX_PROVISION_OVERRIDE_DB` is `1`, as `.env.local.example`
+sets it for local work, it replaces the current database with the dump from
+`.data/db.sql`. Otherwise, an existing site keeps its database. A project
+that keeps its database in a container image (`VORTEX_DB_IMAGE`) gets a
+fresh database container from that image instead.
+
+In every case, the provisioning steps run next, from the database updates
+and the configuration import to the deploy hooks and your custom
+`scripts/provision-*.sh` scripts. The command finishes with a one-time login
+link.
 
 <AsciinemaPlayer
   src="/img/provision.json"
@@ -176,9 +210,11 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 ## In this section
 
+The following table lists the pages in this section:
+
 | Page | Description |
 |------|-------------|
-| [Environment](environment/README.mdx) | The container stack, Ahoy, Drush, Doctor, Pygmy, debugging |
+| [Environment](environment/README.mdx) | The container stack, Ahoy, Drush, Doctor, Pygmy, debugging, logs, troubleshooting |
 | [Composer](composer.mdx) | Managing packages, patching, security auditing, the shipped `composer.json` |
 | [Provision](provision.mdx) | Fetching and importing databases, the provisioning flow, deploy hooks |
 | [Settings](settings.mdx) | Environment type detection and per-module settings overrides |
@@ -196,7 +232,8 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 ## Tools
 
-Every tool **Vortex** ships, and where it's documented.
+The following table lists the tools that **Vortex** ships and the page that
+documents each one:
 
 | Tool | Documented in |
 |------|---------------|

@@ -8,9 +8,20 @@ sidebar_position: 14
 **Vortex** ships instructions for AI coding agents, so an agent that works
 on your project starts with the context a new teammate would get. That
 covers the commands to run, the rules to follow, and where the documentation
-lives. The installer adds the instruction files unless you answer no to
-"Provide AI agent instructions?", which leaves out `AGENTS.md`, `CLAUDE.md`,
-and the `.claude/` directory.
+lives.
+
+This page is for developers who work on a **Vortex** project with an AI
+coding agent such as Claude Code. It explains what each instruction file
+gives the agent and how to add skills of your own.
+
+The installer adds the instruction files unless you answer no to its
+**Provide AI agent instructions?** prompt. That answer leaves out the
+following:
+
+- `AGENTS.md`
+- `CLAUDE.md`
+- The `.claude/` directory
+- The `.claude/` rules in `.gitignore`
 
 ## How it works
 
@@ -21,9 +32,9 @@ the rest of **Vortex** uses:
   implementation decision, the agent checks the relevant file there for the
   project's choices, such as testing conventions, CI configuration,
   deployment rules, and release processes.
-- **How** to perform operations comes from
-  [www.vortextemplate.com/docs](https://www.vortextemplate.com/docs) (this
-  site). `AGENTS.md` tells agents to look for a cached copy in `.artifacts/`
+- **How** to perform operations comes from the
+  [Vortex documentation](https://www.vortextemplate.com/docs), this site.
+  `AGENTS.md` instructs agents to look for a cached copy in `.artifacts/`
   first, and to fetch the guide from the website and cache it there when
   there's no copy yet.
 
@@ -38,22 +49,27 @@ The [`AGENTS.md`](https://github.com/drevops/vortex/blob/main/AGENTS.md)
 file in the project root is the primary configuration for AI coding agents.
 It's agent-agnostic, so any AI tool that reads `AGENTS.md` can use it.
 
-It opens with 2 rules that apply before anything else. The first limits
-every Bash call to exactly 1 simple command, with no chaining, pipes,
-command substitution, or here-documents. The second is a checklist for the
-start of every task: the cached documentation in `.artifacts/` first, then
-the project's `docs/` files, then the website for anything missing. The rest
-of the file covers:
+The file has these sections, in order:
 
+- **Highest priority rule** - limits every Bash call to exactly 1 simple
+  command, with no chaining, pipes, command substitution, or
+  here-documents.
 - **Daily development tasks** - a reference of `ahoy` commands for building,
   testing, and managing the local environment.
-- **Critical rules** - constraints that agents must always follow (for
-  example, never modify `vendor/drevops/vortex-tooling/src/`, never pass
-  ad-hoc code inline, and always export config after admin UI changes).
+- **Before starting any task** - a checklist for the start of every task:
+  the cached documentation in `.artifacts/` first, then the project's
+  `docs/` files, then the website for anything missing.
+- **Critical rules** - constraints that agents must always follow:
+  - Never modify the shipped scripts in
+    `vendor/drevops/vortex-tooling/src/`.
+  - Never run ad-hoc code with `ahoy drush php:eval`, and never pass it
+    inline: write it to a file first.
+  - Always export the configuration after changes in the admin UI.
+  - Never use compound Bash commands.
 - **Key directories** - the project's directory layout.
 - **Documentation** - instructions for agents to check `docs/` files for
   project-specific decisions and to fetch operational documentation from
-  [www.vortextemplate.com/docs](https://www.vortextemplate.com/docs).
+  the [Vortex documentation](https://www.vortextemplate.com/docs).
   Fetched pages are cached in `.artifacts/docs-[topic].md` with their source
   URL and date, so agents reuse them across sessions instead of fetching
   them again.
@@ -85,6 +101,10 @@ file is a checked-in Claude Code settings file that pre-approves every
 }
 ```
 
+The copy in the **Vortex** repository also turns on the template's own
+maintenance plugin. The installer removes those entries, so your project
+gets only the `permissions` block.
+
 Personal, machine-local settings belong in `.claude/settings.local.json`,
 which Git ignores.
 
@@ -104,6 +124,9 @@ Add a skill by creating a `SKILL.md` file in its own directory under
         └── SKILL.md
 ```
 
+Start `SKILL.md` with frontmatter that names the skill and says when to use
+it, then write the instructions:
+
 ```markdown
 ---
 name: import-legacy-content
@@ -117,3 +140,6 @@ The shipped `.gitignore` un-ignores `.claude/skills/` alongside
 `.claude/settings.json`, so a skill is shared with the team as soon as it's
 committed. Everything else under `.claude/` stays ignored, which keeps
 machine-local Claude state out of the repository.
+
+Confirm that `git status` lists the new skill as untracked, which shows that
+Git doesn't ignore it.

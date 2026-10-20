@@ -8,7 +8,13 @@ sidebar_position: 15
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+This page answers the questions that developers ask most often while they
+work on a **Vortex** project, from running commands to recovering a stuck
+test. Each answer links to the page that covers its topic in full.
+
 ## How to know which `ahoy` commands are available?
+
+To list the commands with their descriptions, run the following command:
 
 ```shell
 ahoy help
@@ -18,6 +24,8 @@ ahoy help
 
 ## How to pass CLI arguments to commands?
 
+Add the arguments after the command name, separated by `--`:
+
 ```shell
 ahoy mycommand -- myarg1 myarg2 --myoption1 --myoption2=myvalue
 ```
@@ -25,6 +33,8 @@ ahoy mycommand -- myarg1 myarg2 --myoption1 --myoption2=myvalue
 ➡️ See [Environment > Ahoy](environment/ahoy.mdx)
 
 ## How to clear Drupal cache?
+
+To rebuild the Drupal caches, run the following command:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -42,6 +52,9 @@ ahoy mycommand -- myarg1 myarg2 --myoption1 --myoption2=myvalue
 ➡️ See [Environment > Drush](environment/drush.mdx)
 
 ## How to login to a Drupal site?
+
+To unblock user 1 and print a one-time login link for it, run the following
+command:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -62,6 +75,8 @@ ahoy mycommand -- myarg1 myarg2 --myoption1 --myoption2=myvalue
 
 ## How to connect to the database?
 
+To connect, first get the port that the database uses on your host:
+
 <!-- markdownlint-disable MD046 -->
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -72,21 +87,21 @@ ahoy mycommand -- myarg1 myarg2 --myoption1 --myoption2=myvalue
     ahoy db
     ```
 
-    Otherwise:
+    Otherwise, follow these steps:
 
-    1. Run `ahoy info` and grab the DB host port number.
-    2. Use the connection details below.
+    1. Run `ahoy info`, which prints the port as `DB port on host`.
+    2. Use the following connection details.
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     1. Run `docker compose port database 3306` to get the host port, or
        find the database port mapping in `docker compose ps`.
-    2. Use the connection details below.
+    2. Use the following connection details.
   </TabItem>
 </Tabs>
 
 <!-- markdownlint-enable MD046 -->
 
-Connection details:
+Connect with these details:
 
 - Host: `127.0.0.1`
 - Username: `drupal`
@@ -98,11 +113,14 @@ Connection details:
 
 ## How to use Xdebug?
 
+Turn Xdebug on in the containers, then start a debug session from your IDE:
+
 <!-- markdownlint-disable MD046 -->
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
-    1. Run `ahoy debug`.
+    1. Run `ahoy debug`. It prints
+       `Enabled debug configuration. Use 'ahoy up' to disable.`
     2. Turn on listening for incoming debug connections in your IDE.
     3. If your IDE asks for a server URL, give it the URL as it appears in
        the browser.
@@ -134,6 +152,9 @@ Connection details:
 ➡️ See [Environment > Debugging](environment/debugging.mdx)
 
 ## How to use Xdebug with Behat?
+
+Turn Xdebug on, then run Behat with the `--xdebug` flag inside the CLI
+container:
 
 <!-- markdownlint-disable MD046 -->
 
@@ -169,16 +190,16 @@ Behat](testing/behat.mdx)
 
 ## What should I do to switch to a "clean" branch environment?
 
-If your stack is already running:
+If your stack is already running, follow these steps:
 
 <!-- markdownlint-disable MD046 -->
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     1. Switch to your branch.
-    2. `ahoy composer install`
-    3. `ahoy fe`, if the branch changes theme files.
-    4. `ahoy provision`
+    2. Run `ahoy composer install`.
+    3. If the branch changes theme files, run `ahoy fe`.
+    4. Run `ahoy provision`.
 
     You don't need to rebuild the full stack with `ahoy build` every time
     you switch branches. `ahoy provision` updates the environment to match
@@ -188,10 +209,10 @@ If your stack is already running:
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     1. Switch to your branch.
-    2. `docker compose exec cli composer install`
-    3. Rebuild the theme assets with `npm run build` in the theme directory
-       inside the CLI container, if the branch changes theme files.
-    4. `docker compose exec cli ./vendor/bin/vortex-provision`
+    2. Run `docker compose exec cli composer install`.
+    3. If the branch changes theme files, rebuild the theme assets with
+       `npm run build` in the theme directory inside the CLI container.
+    4. Run `docker compose exec cli ./vendor/bin/vortex-provision`.
 
     You don't need to rebuild the full stack every time you switch branches.
     The provision script updates the environment to match the current
@@ -218,7 +239,7 @@ branches](environment/README.mdx#switching-branches)
 
 The import drops the current database and loads the dump without running
 database updates or importing configuration. If your stack is already
-running:
+running, pick the command for your dump file:
 
 <!-- markdownlint-disable MD046 -->
 
@@ -253,9 +274,14 @@ running:
 
 <!-- markdownlint-enable MD046 -->
 
+`ahoy import-db` asks you to confirm before it replaces the database.
+Confirm that the output ends with `Finished database import.`
+
 ➡️ See [Provision > Database](provision.mdx#database)
 
 ## How to add Drupal modules?
+
+To add a module's code to the project, require it with Composer:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -270,10 +296,16 @@ running:
   </TabItem>
 </Tabs>
 
+Then install the module with the `drush pm:install` command, and export the
+configuration with `drush config:export`, so the next configuration import
+keeps the module installed.
+
 ➡️ See [Composer > Installing](composer.mdx#installing) and
 [Modules](modules/README.mdx)
 
 ## How to add patches for Drupal modules?
+
+To patch a module, follow these steps:
 
 1. Add the patch to `extra.patches` in `composer.json`, under the package's
    name, with the patch description as the key and the patch URL or local
@@ -310,6 +342,9 @@ running:
   </TabItem>
 </Tabs>
 
+Confirm that the `patches-repatch` output has a `- Patching` line with the
+name of the patched package.
+
 ➡️ See [Composer > Patching](composer.mdx#patching) for the full patching
 workflow, including removing patches.
 
@@ -318,7 +353,7 @@ workflow, including removing patches.
 **Vortex** doesn't let security advisories block installation by default, so
 `composer install` and `composer update` keep working. `composer audit`
 reports the advisories instead, both when you run it locally and in the CI
-security audit workflow. When it reports one:
+security audit workflow. When it reports one, follow these steps:
 
 1. Try updating the affected package to a newer version that resolves the
    advisory: `composer update vendor/package-name`.
@@ -327,8 +362,10 @@ security audit workflow. When it reports one:
 3. If no fixed version exists yet, or the vulnerability doesn't affect your
    use case, add the advisory to the `config.policy.advisories.ignore-id`
    list in `composer.json` with a documented reason.
-4. To let CI pass while you address the advisory, set
-   `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1`.
+4. Optional: To let CI pass while you address the advisory, set
+   `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1`, as a repository
+   variable on GitHub Actions or as an environment variable in the CircleCI
+   project settings.
 
 ➡️ See [Security > Dependency audit](security/dependency-audit.mdx) for the
 full `config.policy` reference and guidance on choosing the right settings
@@ -338,7 +375,7 @@ for your project.
 
 The CI security audit workflow runs `npm audit` through `audit-ci` against
 the root and the custom theme's dependency trees, and fails on advisories
-rated `high` or higher. When it reports one:
+rated `high` or higher. When it reports one, follow these steps:
 
 1. Try updating the affected package to a newer version that resolves the
    advisory: `npm update <package-name>`.
@@ -350,8 +387,10 @@ rated `high` or higher. When it reports one:
    `npm install`.
 4. If no fixed version exists or the vulnerability doesn't affect you, add
    it to the `allowlist` in `audit-ci.jsonc` with notes and an expiry date.
-5. To let CI pass while you address the advisory, set
-   `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1`.
+5. Optional: To let CI pass while you address the advisory, set
+   `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1`, as a repository variable on
+   GitHub Actions or as an environment variable in the CircleCI project
+   settings.
 
 ➡️ See [Security > Dependency
 audit](security/dependency-audit.mdx#javascript-dependencies) for the
@@ -368,7 +407,8 @@ variable:
 DRUPAL_MAINTENANCE_THEME=my_custom_theme
 ```
 
-Drupal uses this theme while the site is in maintenance mode. When
+Drupal uses this theme while the site is in maintenance mode. The installer
+sets it in `.env` to the theme you chose for the site. When
 `DRUPAL_MAINTENANCE_THEME` isn't set, `settings.php` falls back to the value
 of `DRUPAL_THEME`, and to Claro when neither is set.
 
@@ -379,11 +419,13 @@ variables](environment/README.mdx#environment-variables)
 
 ## Behat tests with `@javascript` tag sometimes get stuck
 
-A scenario tagged `@javascript` sometimes hangs for about 10 minutes and
-then fails. The Chrome container gets stuck at random, for reasons nobody
-has pinned down yet.
+A scenario tagged `@javascript` sometimes hangs and then fails, because the
+Chrome container stops responding. It happens at random, and its cause is
+unknown. To recover:
 
-Restart the Chrome container with `docker compose restart chrome`, or with
-`ahoy restart chrome`.
+- Restart the Chrome container with `docker compose restart chrome`, or with
+  `ahoy restart chrome`.
+
+Confirm that the scenario passes when you run the Behat tests again.
 
 ➡️ See [Testing > Behat](testing/behat.mdx)

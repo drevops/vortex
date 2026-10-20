@@ -14,6 +14,11 @@ import Anchor from '@site/src/components/Anchor';
 change how a script behaves by setting a variable instead of editing the
 script.
 
+This page is for developers and DevOps engineers who configure a project's
+scripts, locally, in CI, or on the hosting platform. It explains where a
+value can come from and which one wins, then documents every variable in the
+[variables list](#variables-list) at the end of the page.
+
 Variables come in 2 main types:
 
 **Project configuration variables** are set once during project setup and
@@ -28,8 +33,9 @@ deploying a particular branch in CI.
 
 `.env` holds the project's shared values and is committed with the code.
 It's kept concise, so it doesn't list every variable: the scripts set
-defaults for many optional ones, documented in the table below. Add any of
-them to `.env` when you need a value other than the default.
+defaults for many optional ones, documented in the
+[variables list](#variables-list). Add any of them to `.env` when you need a
+value other than the default.
 
 `.env.local` holds your local overrides and secrets, such as passwords and
 API keys. Create it by copying `.env.local.example`. Git ignores it, so it
@@ -38,12 +44,14 @@ the containers pick up the new values.
 
 ## Override order (bottom value wins)
 
-- default value in the script that reads the variable
-- default value in the container, taken from the image
-- default value in `docker-compose.yml`
-- value in `.env` (the last assignment in the file wins)
-- value in `.env.local` (the last assignment in the file wins)
-- value from the environment
+Each source in the following list overrides the ones before it:
+
+1. The default value in the script that reads the variable
+2. The default value in the container, taken from the image
+3. The default value in `docker-compose.yml`
+4. The value in `.env`, where the last assignment in the file wins
+5. The value in `.env.local`, where the last assignment in the file wins
+6. The value from the environment
 
 Each script loads `.env` and then `.env.local` itself, then restores every
 variable that was already exported. A value set in your shell, in CI, or on
@@ -65,22 +73,27 @@ Variables of third-party services, such as `NEWRELIC_LICENSE` or
 ## Default values
 
 Every _required_ variable that **Vortex** scripts use is checked before the
-script proceeds. A missing one stops the script with an error that names it,
-such as `Missing required value for VORTEX_DEPLOY_WEBHOOK_URL.`
+script proceeds. An empty or unset one stops the script with an error that
+names it, such as `Missing required value for VORTEX_DEPLOY_WEBHOOK_URL.`
 
 Every _optional_ variable has a default value set in the script itself, so
 the scripts run without extensive configuration.
-
-A variable with neither a provided value nor a script default is a defect in
-the template, so report it. The scripts run with `set -u`, so a reference to
-a variable that was never set stops the script, and an empty value can send
-a condition down the wrong branch. Empty or unset values also break the
-override order.
 
 For example, a variable can have a default value in the script and be
 overridden in the `.env` file. It can be further overridden in the CI or
 hosting provider for all environments, and then again for a specific
 environment.
+
+A variable with neither a provided value nor a script default is a defect in
+the template, so report it. The scripts run with `set -u`, so a reference to
+a variable that was never set stops the script, and an empty value can send
+a condition down the wrong branch.
+
+An empty value can't override a default. The scripts read their defaults as
+`${VARIABLE:-default}`, which treats an empty value as unset, so the script
+default applies instead. The only exception is
+`VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES`, where an empty value replaces the
+`cache*` default.
 
 ## Boolean variables
 
@@ -97,6 +110,37 @@ unset to keep it off.
 `VORTEX_NOTIFY_NEWRELIC_ENABLED` is one of those flags, and it takes `true`
 because it falls back to Lagoon's `NEWRELIC_ENABLED`. Third-party variables
 keep their own values, such as `RENOVATE_DRY_RUN=true`.
+
+## Columns of the variables list
+
+The [variables list](#variables-list) covers the variables from these
+sources:
+
+- `.env` and `.env.local.example`
+- The **Vortex** scripts
+- The `scripts/` directory
+- The environment, CI, and the hosting platforms
+
+The list has 4 columns:
+
+- **Name**: The variable's name.
+- **Description**: What the variable does, taken from the comment before its
+  definition.
+- **Default value**: The value that the variable gets when you don't set
+  it. `UNDEFINED` means it has no default.
+- **Defined or used in**: The files that define or read the variable. A
+  path that starts with `.vortex/tooling/src/` is a script from the
+  `drevops/vortex-tooling` package, which your project installs in
+  `vendor/drevops/vortex-tooling/src/`.
+
+Besides file paths, the **Defined or used in** column uses these labels:
+
+- `ENVIRONMENT`: The variable comes from the environment that runs the
+  scripts, such as your shell or the hosting platform.
+- `CI config`: The variable is used in CI, and comes from the CI
+  configuration or from your CI provider's settings.
+- `LAGOON ENVIRONMENT`: The variable is used in Lagoon environments.
+- `ACQUIA ENVIRONMENT`: The variable is used in Acquia environments.
 
 <style>{`
   table {
