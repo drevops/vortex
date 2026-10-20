@@ -1146,11 +1146,11 @@ trait SubtestAhoyTrait {
     $this->cmd('docker compose exec -T cli cp web/core/misc/druplicon.png web/sites/default/files/fast404-anonymous.png', txt: 'Source image for the anonymous request should be created');
     $this->cmd('docker compose exec -T cli cp web/core/misc/druplicon.png web/sites/default/files/fast404-authenticated.png', txt: 'Source image for the logged-in request should be created');
 
-    $this->logSubstep('Assert that a missing derivative of an existing image is generated for an anonymous user');
-    $this->assertImageDerivativeGenerated('fast404_test', 'fast404-anonymous.png', 'Missing derivative should be generated for an anonymous user');
+    $this->logSubstep('Assert that a missing derivative of an existing image is generated with a valid token for an anonymous user');
+    $this->assertImageDerivativeGeneratedWithValidToken('fast404_test', 'fast404-anonymous.png', 'Missing derivative should be generated for an anonymous user');
 
-    $this->logSubstep('Assert that a missing derivative of an existing image is generated for a logged-in user');
-    $this->assertImageDerivativeGenerated('fast404_test', 'fast404-authenticated.png', 'Missing derivative should be generated for a logged-in user', $this->fetchSessionCookie());
+    $this->logSubstep('Assert that a missing derivative of an existing image is generated with a valid token for a logged-in user');
+    $this->assertImageDerivativeGeneratedWithValidToken('fast404_test', 'fast404-authenticated.png', 'Missing derivative should be generated for a logged-in user', $this->fetchSessionCookie());
 
     $this->logSubstep('Cleanup after test');
     // Deleting the image style also deletes its derivatives.
@@ -1176,19 +1176,23 @@ trait SubtestAhoyTrait {
     $this->assertStringNotContainsString($content, $fetched, $message ?: sprintf('Webpage at %s should not contain: %s', $path, $content));
   }
 
-  protected function assertImageDerivativeGenerated(string $style, string $filename, string $message, string $cookie = ''): void {
+  protected function assertImageDerivativeGeneratedWithValidToken(string $style, string $filename, string $message, string $cookie = ''): void {
     $derivative = sprintf('web/sites/default/files/styles/%s/public/%s', $style, $filename);
+    $url = sprintf('http://nginx:8080/sites/default/files/styles/%s/public/%s', $style, $filename);
+    $curl = 'docker compose exec -T cli curl -sS -o /dev/null -w "%{http_code} %{content_type}"' . ($cookie === '' ? '' : ' -b ' . escapeshellarg($cookie));
+
     // The derivative must not exist yet, or the web server would serve it as a
     // static file without passing the request to PHP.
     $this->cmd('docker compose exec -T cli test ! -f ' . $derivative, txt: 'Image derivative should not exist before it is requested');
 
+    $this->cmd($curl . ' ' . escapeshellarg($url), '404', 'Image derivative request without a token should be answered with a 404 status');
+    $this->cmd($curl . ' ' . escapeshellarg($url . '?itok=invalid'), '404', 'Image derivative request with an invalid token should be answered with a 404 status');
+    $this->cmd('docker compose exec -T cli test ! -f ' . $derivative, txt: 'Image derivative should not be generated without a valid token');
+
     $token = trim($this->cmd('docker compose exec -T cli drush php:eval ' . escapeshellarg(sprintf('print \Drupal\image\Entity\ImageStyle::load("%s")->getPathToken("public://%s");', $style, $filename)))->getOutput());
     $this->assertNotEmpty($token, 'Image derivative token should be generated');
 
-    $url = sprintf('http://nginx:8080/sites/default/files/styles/%s/public/%s?itok=%s', $style, $filename, $token);
-    $cookie_option = $cookie === '' ? '' : ' -b ' . escapeshellarg($cookie);
-    $this->cmd('docker compose exec -T cli curl -sS -o /dev/null -w "%{http_code} %{content_type}"' . $cookie_option . ' ' . escapeshellarg($url), '200 image/png', $message);
-
+    $this->cmd($curl . ' ' . escapeshellarg($url . '?itok=' . $token), '200 image/png', $message);
     $this->cmd('docker compose exec -T cli test -f ' . $derivative, txt: 'Image derivative should be saved after it is requested');
   }
 
