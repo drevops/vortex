@@ -55,6 +55,19 @@ info "Started database${_db_index:+ ${_db_index}} fetch."
 
 [ "${VORTEX_FETCH_DB_PROCEED}" != "1" ] && pass "Skipped database fetch as VORTEX_FETCH_DB_PROCEED is not set to 1." && exit 0
 
+# The fetch script is resolved before the existing dump check, so an
+# unsupported source fails even when a cached dump would be reused.
+case "${VORTEX_FETCH_DB_SOURCE}" in
+  url) fetch_script="vortex-fetch-db-url" ;;
+  ftp) fetch_script="vortex-fetch-db-ftp" ;;
+  acquia) fetch_script="vortex-fetch-db-acquia" ;;
+  lagoon) fetch_script="vortex-fetch-db-lagoon" ;;
+  container_registry) fetch_script="vortex-fetch-db-container-registry" ;;
+  s3) fetch_script="vortex-fetch-db-s3" ;;
+  none) fetch_script="" ;;
+  *) fail "Unsupported database source \"${VORTEX_FETCH_DB_SOURCE}\" in VORTEX_FETCH_DB${_db_index}_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, none." ;;
+esac
+
 # Skip file existence check for container_registry source as the database is
 # stored as a Docker image, not a file.
 if [ "${VORTEX_FETCH_DB_SOURCE}" != "container_registry" ]; then
@@ -76,28 +89,10 @@ if [ "${VORTEX_FETCH_DB_SOURCE}" != "container_registry" ]; then
   fi
 fi
 
-if [ "${VORTEX_FETCH_DB_SOURCE}" = "ftp" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db-ftp"
-fi
-
-if [ "${VORTEX_FETCH_DB_SOURCE}" = "url" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db-url"
-fi
-
-if [ "${VORTEX_FETCH_DB_SOURCE}" = "acquia" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db-acquia"
-fi
-
-if [ "${VORTEX_FETCH_DB_SOURCE}" = "lagoon" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db-lagoon"
-fi
-
-if [ "${VORTEX_FETCH_DB_SOURCE}" = "container_registry" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db-container-registry"
-fi
-
-if [ "${VORTEX_FETCH_DB_SOURCE}" = "s3" ]; then
-  "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db-s3"
+if [ -n "${fetch_script}" ]; then
+  "$(dirname "${BASH_SOURCE[0]}")/${fetch_script}"
+else
+  note "Skipped fetching as VORTEX_FETCH_DB${_db_index}_SOURCE is set to \"none\"."
 fi
 
 ls -Alh "${VORTEX_FETCH_DB_DIR}" || true
