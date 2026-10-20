@@ -10,7 +10,7 @@
 -        continue-on-error: ${{ vars.VORTEX_CI_HADOLINT_IGNORE_FAILURE == '1' }}
 -
 -      - name: Lint Docker Compose files with DCLint
--        run: docker run --rm -v "${PWD}":/app zavoloklom/dclint:__VERSION__ .
+-        run: docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" zavoloklom/dclint:__VERSION__ .
 -        continue-on-error: ${{ vars.VORTEX_CI_DCLINT_IGNORE_FAILURE == '1' }}
 -
        - name: Build stack
