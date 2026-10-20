@@ -1142,7 +1142,10 @@ trait SubtestAhoyTrait {
     $this->logSubstep('Create an image style and source images for derivative generation');
     // An image style without effects keeps the '.png' extension of the source
     // image, which the Fast 404 extension pattern matches.
-    $this->cmd('docker compose exec -T cli drush php:eval ' . escapeshellarg('\Drupal\image\Entity\ImageStyle::create(["name" => "fast404_test", "label" => "Fast 404 test"])->save();'), txt: 'Image style without effects should be created');
+    // The command parser treats a backslash as an escape character, so the
+    // evaluated code uses the global 'Drupal' class instead of namespaced
+    // class names.
+    $this->cmd('docker compose exec -T cli drush php:eval ' . escapeshellarg('Drupal::entityTypeManager()->getStorage("image_style")->create(["name" => "fast404_test", "label" => "Fast 404 test"])->save();'), txt: 'Image style without effects should be created');
     $this->cmd('docker compose exec -T cli cp web/core/misc/druplicon.png web/sites/default/files/fast404-anonymous.png', txt: 'Source image for the anonymous request should be created');
     $this->cmd('docker compose exec -T cli cp web/core/misc/druplicon.png web/sites/default/files/fast404-authenticated.png', txt: 'Source image for the logged-in request should be created');
 
@@ -1154,7 +1157,7 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Cleanup after test');
     // Deleting the image style also deletes its derivatives.
-    $this->cmd('docker compose exec -T cli drush php:eval ' . escapeshellarg('\Drupal\image\Entity\ImageStyle::load("fast404_test")->delete();'), txt: 'Image style should be deleted');
+    $this->cmd('docker compose exec -T cli drush php:eval ' . escapeshellarg('Drupal::entityTypeManager()->getStorage("image_style")->load("fast404_test")->delete();'), txt: 'Image style should be deleted');
     $this->cmd('docker compose exec -T cli rm -f web/sites/default/files/fast404-anonymous.png web/sites/default/files/fast404-authenticated.png', txt: 'Source images should be removed');
 
     $this->logStepFinish();
@@ -1189,7 +1192,7 @@ trait SubtestAhoyTrait {
     $this->cmd($curl . ' ' . escapeshellarg($url . '?itok=invalid'), '404', 'Image derivative request with an invalid token should be answered with a 404 status');
     $this->cmd('docker compose exec -T cli test ! -f ' . $derivative, txt: 'Image derivative should not be generated without a valid token');
 
-    $token = trim($this->cmd('docker compose exec -T cli drush php:eval ' . escapeshellarg(sprintf('print \Drupal\image\Entity\ImageStyle::load("%s")->getPathToken("public://%s");', $style, $filename)))->getOutput());
+    $token = trim($this->cmd('docker compose exec -T cli drush php:eval ' . escapeshellarg(sprintf('print Drupal::entityTypeManager()->getStorage("image_style")->load("%s")->getPathToken("public://%s");', $style, $filename)))->getOutput());
     $this->assertNotEmpty($token, 'Image derivative token should be generated');
 
     $this->cmd($curl . ' ' . escapeshellarg($url . '?itok=' . $token), '200 image/png', $message);
