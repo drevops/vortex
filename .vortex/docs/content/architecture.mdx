@@ -119,8 +119,9 @@ instead, and local overrides go into `.env.local`, which Git ignores.
 and hand the work to the script for your setup. The caller doesn't need to
 know how each setup works. Each router picks its script as follows:
 
-- `vortex-fetch-db` fetches a database from a URL, FTP, S3, a container
-  registry, Acquia, or Lagoon, depending on `VORTEX_FETCH_DB_SOURCE`.
+- `vortex-fetch-db` fetches a database from the source in
+  `VORTEX_FETCH_DB_SOURCE`: `url` (the default), `ftp`, `s3`,
+  `container_registry`, `acquia`, or `lagoon`.
 - `vortex-export-db` exports the database to a dump file, or to a container
   image when `VORTEX_DB_IMAGE` is set.
 - `vortex-import-db` imports a dump file, and runs the import inside the
@@ -178,7 +179,9 @@ conditionally or creating demo content.
 
 - The provider settings files in `web/sites/default/includes/providers/`
   detect the environment type: `local`, `ci`, `dev`, `stage`, or `prod`. The
-  `ENVIRONMENT_TYPE` variable overrides the detected type.
+  `ENVIRONMENT_TYPE` variable overrides the detected type. Set it in
+  `.env.local` and run `ahoy up` for your local stack, or set it in your
+  hosting environment's variables.
 - Each module's settings live in their own file in
   `web/sites/default/includes/modules/`, with the per-environment logic
   inside that file.

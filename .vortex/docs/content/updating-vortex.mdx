@@ -35,9 +35,12 @@ commit them to your project.
 `ahoy update-vortex` updates your project within its current major version.
 It downloads the installer from its major's own path, `/v1/install` on the
 `1.x` line. A `1.x` project therefore receives the latest `1.x` release and
-never moves to `2.x` on its own. The installer also stops at a major
-boundary. When you run it against a project from another major, it exits
-with an error that names the installer for that project's major.
+never moves to `2.x` on its own.
+
+The installer also stops at a major boundary. When you run it against a
+project from another major, it exits with an error that names the installer
+for that project's major. There's no automated migration from `1.x` to
+`2.x`.
 
 :::
 
@@ -45,9 +48,14 @@ with an error that names the installer for that project's major.
 
 Check the following before you run the update:
 
-- `php` and `curl` are available on your machine. The update script runs
-  outside the containers and stops with `Command php is not available.` or
-  `Command curl is not available.` when one of them is missing.
+- Ahoy, `php`, `curl`, `git`, `tar`, and `composer` are available on your
+  machine. The update runs outside the containers: its script stops with
+  `Command php is not available.` or `Command curl is not available.`, and
+  the installer it runs stops with a `Missing required command` error when
+  `git`, `tar`, or `composer` is missing.
+- The project's containers are running, started with `ahoy up`, because
+  step 7 runs Composer inside the `cli` container. On your machine, the
+  stack needs Docker and a running Pygmy.
 - The **Vortex** badge is still in your project's `README.md`. The update
   reads the version your project runs from it. Without the badge, the
   installer treats your project as a new installation, so it doesn't record
@@ -110,7 +118,9 @@ deployment like any other change:
    Some entries hold less. When the new version leaves the file unchanged,
    or the version you ran didn't ship it, the entry holds 1 diff. A binary
    file or a file over 100 KB gets no diff, only a note to recover your copy
-   from version control.
+   from version control. The update changes only the working tree, so
+   restore your copy with `git checkout HEAD -- FILE_PATH`, where
+   `FILE_PATH` is the path in the entry's heading.
 
 5. Keep the new version in the **Vortex** badge of `README.md` when you
    re-apply your own `README.md` changes. The next update reads the badge to

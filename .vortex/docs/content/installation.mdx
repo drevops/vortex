@@ -153,6 +153,11 @@ Put the project on GitHub:
 
 ### 5. Create an SSH key for deployments
 
+If you answered **Other** or **None** at the **Hosting provider** prompt,
+only the **Code artifact** and **Lagoon webhook** deployment types and the
+**Lagoon environment** database source use these keys. Without any of them,
+skip to the next step.
+
 Your continuous integration pipeline connects to your hosting provider over
 SSH to deploy code. On Lagoon, it fetches the database over SSH too. On
 Acquia, it downloads database backups through the Acquia Cloud API instead,
@@ -263,8 +268,7 @@ Complete these steps for GitHub Actions:
    key. Acquia fetches the database through the Acquia Cloud API, so it
    doesn't need this secret.
 4. On Acquia, add the API key and secret from [step 6](#6-set-up-hosting)
-   on the same screen as the `VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET`
-   secrets.
+   as the `VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET` repository secrets.
 5. On Acquia, add 2 variables under
    **Settings → Secrets and variables → Actions → Variables**:
    `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` with your application's Git
@@ -287,10 +291,13 @@ Complete these steps for CircleCI:
    [step 5](#5-create-an-ssh-key-for-deployments). With separate keys, add
    both private keys.
 4. Copy the fingerprint that CircleCI generates for each key you added.
-5. Set the fingerprints in
+5. Set the fingerprints in the `aliases` list at the top of
    [`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml):
    `db_ssh_fingerprint` for database fetches and `deploy_ssh_fingerprint`
-   for deployments. With a single key, both take the same fingerprint.
+   for deployments. With a single key, both take the same fingerprint. On
+   Acquia, which fetches the database through the Cloud API, the database
+   job loads that key without using it, so give `db_ssh_fingerprint` the
+   deployment key's fingerprint as well.
 6. Commit and push the change to `.circleci/config.yml`.
 7. On Acquia, add the API key and secret from [step 6](#6-set-up-hosting)
    under **Project Settings → Environment Variables** as `VORTEX_ACQUIA_KEY`
@@ -321,7 +328,8 @@ Confirm that the first build passed:
 - In CircleCI, every job of the `commit` workflow for your push passes.
 - On either provider, the log of the deploy job's **Deploy** step shows a
   `Finished artifact deployment.`, `Finished Lagoon deployment.`, or
-  `Finished webhook deployment.` line for each deployment type you chose.
+  `Finished webhook deployment.` line for each type you chose at the
+  installer's **Deployment types** prompt.
 
 ## Installing Vortex into an existing project
 
@@ -429,6 +437,11 @@ Save the merged project to your repository:
 2. Push the branch to the remote repository.
 
 ### 8. Create an SSH key for deployments
+
+If you answered **Other** or **None** at the **Hosting provider** prompt,
+only the **Code artifact** and **Lagoon webhook** deployment types and the
+**Lagoon environment** database source use these keys. Without any of them,
+skip to the next step.
 
 Your continuous integration pipeline connects to your hosting provider over
 SSH to deploy code. On Lagoon, it fetches the database over SSH too. On
@@ -540,8 +553,7 @@ Complete these steps for GitHub Actions:
    key. Acquia fetches the database through the Acquia Cloud API, so it
    doesn't need this secret.
 4. On Acquia, add the API key and secret from [step 9](#9-set-up-hosting)
-   on the same screen as the `VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET`
-   secrets.
+   as the `VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET` repository secrets.
 5. On Acquia, add 2 variables under
    **Settings → Secrets and variables → Actions → Variables**:
    `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` with your application's Git
@@ -564,10 +576,13 @@ Complete these steps for CircleCI:
    [step 8](#8-create-an-ssh-key-for-deployments). With separate keys, add
    both private keys.
 4. Copy the fingerprint that CircleCI generates for each key you added.
-5. Set the fingerprints in
+5. Set the fingerprints in the `aliases` list at the top of
    [`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml):
    `db_ssh_fingerprint` for database fetches and `deploy_ssh_fingerprint`
-   for deployments. With a single key, both take the same fingerprint.
+   for deployments. With a single key, both take the same fingerprint. On
+   Acquia, which fetches the database through the Cloud API, the database
+   job loads that key without using it, so give `db_ssh_fingerprint` the
+   deployment key's fingerprint as well.
 6. Commit and push the change to `.circleci/config.yml`.
 7. On Acquia, add the API key and secret from [step 9](#9-set-up-hosting)
    under **Project Settings → Environment Variables** as `VORTEX_ACQUIA_KEY`
@@ -598,7 +613,8 @@ Confirm that the first build passed:
 - In CircleCI, every job of the `commit` workflow for your push passes.
 - On either provider, the log of the deploy job's **Deploy** step shows a
   `Finished artifact deployment.`, `Finished Lagoon deployment.`, or
-  `Finished webhook deployment.` line for each deployment type you chose.
+  `Finished webhook deployment.` line for each type you chose at the
+  installer's **Deployment types** prompt.
 
 ## Updating Vortex
 
