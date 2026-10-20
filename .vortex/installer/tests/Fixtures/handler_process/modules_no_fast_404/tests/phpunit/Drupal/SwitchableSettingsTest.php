@@ -63,7 +63,7 @@
 -      TRUE,
 -      [
 -        'fast404_exts' => '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i',
--        'fast404_allow_anon_imagecache' => FALSE,
+-        'fast404_allow_anon_imagecache' => TRUE,
 -        'fast404_url_whitelisting' => TRUE,
 -        'fast404_whitelist' => ['index.php', 'rss.xml', 'cron.php', 'xmlrpc.php'],
 -        'fast404_path_check' => FALSE,

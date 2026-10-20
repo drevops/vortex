@@ -13,10 +13,11 @@ if (file_exists($contrib_path . '/fast_404/fast404.inc')) {
   // filesystem, as requests hit them before defaulting to a Drupal request.
   $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
 
-  // Image derivative URLs fall under the same rules as any other static file.
-  // Anonymous requests no longer create derivatives, so the site cannot be
-  // taken down by hammering it with image style paths.
-  $settings['fast404_allow_anon_imagecache'] = FALSE;
+  // Requests for missing image style derivatives are passed to Drupal, which
+  // generates each derivative on its first request. Drupal answers a derivative
+  // URL without a valid 'itok' token with a 404, so these requests cannot
+  // generate arbitrary derivatives.
+  $settings['fast404_allow_anon_imagecache'] = TRUE;
 
   // Check requests against a whitelist before the extension list. Modules that
   // serve their own PHP files need to be whitelisted below if they bootstrap

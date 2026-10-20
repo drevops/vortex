@@ -25,7 +25,7 @@
 +    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
      $settings['entity_update_batch_size'] = 50;
      $settings['environment'] = self::ENVIRONMENT_LOCAL;
-     $settings['fast404_allow_anon_imagecache'] = FALSE;
+     $settings['fast404_allow_anon_imagecache'] = TRUE;
 @@ -329,9 +333,11 @@
        'generated_content',
        'reroute_email',
@@ -37,7 +37,7 @@
 +    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
      $settings['entity_update_batch_size'] = 50;
      $settings['environment'] = self::ENVIRONMENT_LOCAL;
-     $settings['fast404_allow_anon_imagecache'] = FALSE;
+     $settings['fast404_allow_anon_imagecache'] = TRUE;
 @@ -443,9 +449,11 @@
        'generated_content',
        'reroute_email',
@@ -49,4 +49,4 @@
 +    $settings['container_yamls'][1] = $this->app_root . '/' . $this->site_path . '/includes/modules/services.storybook.yml';
      $settings['entity_update_batch_size'] = 50;
      $settings['environment'] = self::ENVIRONMENT_CI;
-     $settings['fast404_allow_anon_imagecache'] = FALSE;
+     $settings['fast404_allow_anon_imagecache'] = TRUE;
