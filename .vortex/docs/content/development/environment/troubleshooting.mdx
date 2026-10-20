@@ -57,8 +57,10 @@ restart the whole stack:
 </Tabs>
 
 After either `down` command, the stack comes back with a fresh database,
-which is why `ahoy down` asks you to confirm first. Provision the site again
-with `ahoy provision`, or without Ahoy, with
+which is why `ahoy down` asks you to confirm first. The database lives on an
+anonymous volume, which plain `docker compose down` leaves on disk but the
+next `up` doesn't mount again. Provision the site again with
+`ahoy provision`, or without Ahoy, with
 `docker compose exec cli ./vendor/bin/vortex-provision`.
 
 Confirm that the site is back: `ahoy doctor` ends with
@@ -87,9 +89,10 @@ a last resort:
 </Tabs>
 
 If `docker compose ps` shows the `database` container stopped or restarting,
-`ahoy logs database` usually says why. Both last resorts wipe the local
-database. `ahoy build` provisions the site again on its own; after the
-Docker Compose commands, provision it yourself with
+`ahoy logs database`, or `docker compose logs database` without Ahoy,
+usually says why. Both last resorts wipe the local database. `ahoy build`
+provisions the site again on its own; after the Docker Compose commands,
+provision it yourself with
 `docker compose exec cli ./vendor/bin/vortex-provision`.
 
 Confirm that `docker compose ps` shows the `database` container with a

@@ -62,6 +62,11 @@ changes nothing.
 Lagoon images turn Xdebug on only when `XDEBUG_ENABLE` is `true`, in any
 letter case, so a value such as `1` leaves it off.
 
+Xdebug connects back to port `9003`, its default, on `host.docker.internal`.
+Where that name doesn't resolve, such as on Linux, it connects to the
+container's default gateway instead. Make sure your IDE listens on port
+`9003`.
+
 To turn it off, recreate the containers without the variable:
 
 <Tabs>
@@ -77,6 +82,11 @@ To turn it off, recreate the containers without the variable:
     ```
   </TabItem>
 </Tabs>
+
+`XDEBUG_ENABLE` can also come from `.env` or `.env.local`, which Ahoy loads
+before every command. With `XDEBUG_ENABLE=true` in either file, every
+`ahoy up` starts the containers with Xdebug on, so remove the line to turn
+Xdebug off.
 
 `ahoy info` shows whether Xdebug is on at the moment.
 

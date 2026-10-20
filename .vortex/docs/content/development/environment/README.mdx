@@ -189,13 +189,18 @@ To change an environment variable in your local stack:
   </TabItem>
 </Tabs>
 
-`ahoy up` loads `.env.local` before it calls Docker Compose. Docker Compose
-on its own reads only `.env`, so a bare `docker compose up -d` misses your
-`.env.local` changes. Variables that only the `vendor/bin/vortex-*` scripts
-use, such as `VORTEX_PROVISION_OVERRIDE_DB`, take effect without recreating
-anything, because the scripts read both files each time they start. The
-[Docker page](docker.mdx#container-environment-variables) explains how each
-value reaches a container.
+A value in `.env.local` overrides the one in `.env`, and a variable exported
+in your shell overrides both. `ahoy up` loads both files before it calls
+Docker Compose, but Docker Compose on its own reads only `.env`, so the
+Docker Compose tab's command applies only `.env` changes. To include
+`.env.local` without Ahoy, pass both files:
+`docker compose --env-file .env --env-file .env.local up -d`.
+
+Variables that only the `vendor/bin/vortex-*` scripts use, such as
+`VORTEX_PROVISION_OVERRIDE_DB`, take effect without recreating anything,
+because the scripts read both files each time they start. The [Docker
+page](docker.mdx#container-environment-variables) explains how each value
+reaches a container.
 
 Confirm that a container has the new value with
 `docker compose exec cli printenv VARIABLE_NAME`, where `VARIABLE_NAME` is a

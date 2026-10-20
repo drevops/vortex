@@ -27,7 +27,9 @@ Run Doctor with the following command:
 ahoy doctor
 ```
 
-Without Ahoy, run `./vendor/bin/vortex-doctor` from the project root.
+Without Ahoy, run `./vendor/bin/vortex-doctor` from the project root. The
+`ahoy` command must still be installed, because Doctor requires it on every
+run.
 
 Doctor runs its checks in order, reports each one on its own line, and stops
 at the first check that fails.
@@ -53,8 +55,9 @@ Doctor runs these checks, in this order:
 1. **Tools** - the `docker`, `pygmy`, and `ahoy` commands are installed.
 2. **Port** - port 80 on the host is either free or held by Docker (skipped
    on Linux).
-3. **Pygmy** - all 4 [Pygmy](pygmy.mdx) services are running: the SSH
-   agent, the mail catcher, the proxy, and the DNS server.
+3. **Pygmy** - all 4 Pygmy services are running: the SSH agent, the mail
+   catcher, the proxy, and the DNS server. For the container names Doctor
+   looks for, see [Pygmy](pygmy.mdx).
 4. **Containers** - the `cli`, `php`, `nginx`, and `database` containers are
    running.
 5. **SSH** - the SSH key is loaded in Pygmy's agent, the agent's volume is
@@ -69,12 +72,15 @@ Doctor runs these checks, in this order:
    Drupal site bootstrapped. It runs only as part of the webserver check.
 
 When every check that runs passes, Doctor ends with
-`[ OK ] All required checks have passed.`
+`[ OK ] All required checks have passed.` A check that's turned off or
+skipped prints nothing. An SSH warning isn't a failure, so a run with one
+still ends with that line.
 
 Before the first check, Doctor makes sure the `docker`, `pygmy`, and `ahoy`
 commands exist, and stops with `Command <name> is not available.` if one
 doesn't. That happens even with the tools check turned off, and for
-`ahoy doctor info` too.
+`ahoy doctor info` too. The tools check looks for the same 3 commands, so
+when it runs, it passes.
 
 A failing check prints what to do about it, for example:
 
@@ -132,8 +138,10 @@ covers the following:
 - The path and version of the legacy Docker Compose V1 binary,
   `docker-compose`
 
-Doctor redacts usernames, IDs, hashes, and IP addresses from the binary
-paths and the daemon details, so the report is safe to share.
+Doctor redacts your username, 36-character `ID:` values, hex strings of 40
+or more characters, and IPv4 addresses, but only in the binary paths and the
+`docker info` output. Everything else stays as printed, such as the host
+name that `docker info` reports, so read the report before you share it.
 
 <details>
   <summary>Expand to see the <code>ahoy doctor info</code> video</summary>

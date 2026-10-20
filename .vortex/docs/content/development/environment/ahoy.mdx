@@ -30,6 +30,8 @@ It also ships an example local Ahoy file,
 [`.ahoy.local.example.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.local.example.yml).
 Copy it to `.ahoy.local.yml` and add your own commands there: Git ignores
 the copy, and `ahoy local <command>` runs the commands you put in it.
+`ahoy local --help` lists them, not `ahoy --help`, and the `local` command
+exists only while `.ahoy.local.yml` does.
 
 ## Usage
 
@@ -51,6 +53,12 @@ Everything after the command name reaches the command, flags included. A
 runs the command, so `ahoy test-bdd -- --tags=@smoke` passes
 `--tags=@smoke` to Behat. Ahoy's own flags, such as `--help`, `--version`,
 and `--file`, go before the command name.
+
+Ahoy looks for `.ahoy.yml` in the current directory and its parents, and it
+runs every command from the directory that holds the file, the project root.
+You can call Ahoy from any directory in the project. The project root also
+holds `.ahoy.local.yml`, `.env`, and `.env.local`, and Git ignores
+`.env.local` as it does `.ahoy.local.yml`.
 
 Every command runs through the entrypoint at the bottom of `.ahoy.yml`. It
 loads your environment variables and makes sure the `drevops/vortex-tooling`
@@ -181,20 +189,20 @@ and, when `PACKAGE_TOKEN` is set, registers it as a GitHub token.
 The following table groups the commands that the shipped `.ahoy.yml`
 defines:
 
-| Area | Commands |
-|------|----------|
-| Project | `build`, `info`, `reset`, `doctor`, `update-vortex` |
-| Containers | `up`, `down`, `start`, `stop`, `restart`, `logs`, `cli` |
-| Composer and Drush | `composer`, `drush`, `login` |
-| Database | `fetch-db`, `import-db`, `export-db`, `provision`, `reload-db`, `pull-db`, `db` |
-| Migration database | `fetch-db2`, `reload-db2`, `db2` |
-| Front-end assets | `fei`, `fe`, `fed`, `few` |
-| Storybook | `storybook`, `storybook-build`, `storybook-stories` |
-| Code quality | `lint`, `lint-be`, `lint-fe`, `lint-tests`, `lint-sdc`, `lint-fix`, `lint-be-fix`, `lint-fe-fix` |
-| Tests | `test`, `test-unit`, `test-kernel`, `test-functional`, `test-functional-javascript`, `test-js`, `test-bdd` |
-| Debugging and caches | `debug`, `flush-redis` |
-| Deployment | `deploy` |
-| Local commands | `local` |
+| Area | Commands | What they do |
+|------|----------|--------------|
+| Project | `build`, `info`, `reset`, `doctor`, `update-vortex` | `build` rebuilds the project from scratch, `info` shows the project details, `reset` removes the containers and build files, `doctor` finds setup problems, and `update-vortex` updates the project from the template |
+| Containers | `up`, `down`, `start`, `stop`, `restart`, `logs`, `cli` | `up` builds and starts the containers, `down` removes them with their volumes, `start`, `stop`, and `restart` act on existing containers, `logs` shows their logs, and `cli` opens a shell or runs a command in `cli` |
+| Composer and Drush | `composer`, `drush`, `login` | `composer` and `drush` run those tools in `cli`, and `login` unblocks user 1 and prints a one-time login link |
+| Database | `fetch-db`, `import-db`, `export-db`, `provision`, `reload-db`, `pull-db`, `db` | `fetch-db` fetches the dump, `import-db` imports it, `export-db` exports a dump or image, `provision` provisions the site, `reload-db` rebuilds the database container, `pull-db` downloads the database image, and `db` opens the database in Sequel Ace |
+| Migration database | `fetch-db2`, `reload-db2`, `db2` | The same jobs as `fetch-db`, `reload-db`, and `db`, for the second database |
+| Front-end assets | `fei`, `fe`, `fed`, `few` | `fei` installs the front-end dependencies, `fe` builds the theme assets, `fed` builds them for development, and `few` watches them and rebuilds on change |
+| Storybook | `storybook`, `storybook-build`, `storybook-stories` | `storybook` starts the development server, `storybook-build` builds the library served at `/storybook`, and `storybook-stories` generates the stories |
+| Code quality | `lint`, `lint-be`, `lint-fe`, `lint-tests`, `lint-sdc`, `lint-fix`, `lint-be-fix`, `lint-fe-fix` | `lint` runs `lint-be`, `lint-fe`, and `lint-tests`, `lint-fix` runs `lint-be-fix` and `lint-fe-fix`, and `lint-sdc` validates the components of a provisioned site |
+| Tests | `test`, `test-unit`, `test-kernel`, `test-functional`, `test-functional-javascript`, `test-js`, `test-bdd` | `test` runs every PHPUnit suite, `test-unit`, `test-kernel`, `test-functional`, and `test-functional-javascript` run 1 suite each, `test-js` runs Jest, and `test-bdd` runs Behat |
+| Debugging and caches | `debug`, `flush-redis` | `debug` turns on Xdebug, and `flush-redis` flushes the Redis cache |
+| Deployment | `deploy` | Runs a deployment by hand, after you confirm; deployments usually run in CI |
+| Local commands | `local` | Runs the commands in `.ahoy.local.yml` |
 
 The installer leaves out the commands for features and tools you didn't
 select, such as `flush-redis` without Redis or `test-bdd` without Behat.

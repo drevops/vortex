@@ -36,7 +36,22 @@ The `nginx` service joins the external `amazeeio-network` that Pygmy
 creates, and the `cli` service takes its SSH agent volume from Pygmy's
 `amazeeio-ssh-agent` container. Both have to exist before Docker Compose can
 create those containers, so start Pygmy before `ahoy up`.
-[`ahoy doctor`](doctor.mdx) checks that the Pygmy services are running.
+
+If the network is missing, `ahoy up` fails, because Docker Compose returns
+an error instead of creating a missing external network. If Pygmy's
+containers exist but aren't running, the stack starts, but your SSH key
+isn't available in the CLI container.
+
+[`ahoy doctor`](doctor.mdx) checks that the 4 Pygmy containers are running:
+the SSH agent, the mail catcher, the proxy, and the DNS resolver. It looks
+for their names in the output of `pygmy status`:
+
+```text
+amazeeio-ssh-agent
+amazeeio-mailhog
+amazeeio-haproxy
+amazeeio-dnsmasq
+```
 
 ## Installation
 
@@ -70,8 +85,13 @@ different key, add it yourself:
 pygmy addkey --key ~/.ssh/path/to/key
 ```
 
-Then set `VORTEX_SSH_FILE` to the same path, so that Doctor checks for the
-key you use.
+Then set `VORTEX_SSH_FILE` to the same path in `.env.local`, so that Doctor
+checks for the key you use.
+
+A key you add that way lasts only until the agent container is replaced,
+for example by `pygmy restart`. To load a different key every time
+Pygmy starts, pass it with `--key`, as in
+`pygmy up --key ~/.ssh/path/to/key`; it then replaces the default key.
 
 `pygmy restart` removes the agent container and creates a new one. If the
 stack is running at the time, the CLI container stays attached to the
