@@ -10,24 +10,26 @@ scaffold](https://github.com/drevops/vortex/tree/main/web/modules/custom/ys_base
 `ys_base`, is a working custom module to build your project's own code on.
 It comes with a deploy file and a test scaffold already in place.
 
-We recommend keeping a custom `ys_base` module in your project to hold
-general-purpose code that doesn't belong in a dedicated, feature-specific
-module.
+This page is for developers adding custom code to a project built from
+**Vortex**. It describes the custom modules the template ships, so you can
+decide what to build on, what to learn from, and what to remove. The
+installer's **Custom modules** question selects which of the base, search,
+and demo modules ship, and all 3 are selected by default. For the
+contributed modules, see [Contributed modules](contributed-modules.mdx).
+
+Keep a custom `ys_base` module in your project to hold general-purpose code
+that doesn't belong in a dedicated, feature-specific module.
 
 The `ys` prefix abbreviates your project's machine name (`your_site` here).
-We recommend the same prefix for all your custom modules and the site
-machine name for the theme, so each module and theme shows which project it
-belongs to. The installer suggests both: a prefix of up to 4 letters
-abbreviated from the machine name, and the machine name itself as the theme
-name.
-
-:::info Token replacement
+Use the same prefix for all your custom modules, and the site machine name
+for the theme, so each module and theme shows which project it belongs to.
+The installer suggests both. Its **Custom modules prefix** question offers a
+prefix of up to 4 letters abbreviated from the machine name, and its
+**Custom theme machine name** question offers the machine name itself.
 
 The `your_site` and `ys` names, and the other tokens like them, are
 placeholders. The installer replaces them with your project's own names when
 you install **Vortex**.
-
-:::
 
 ## Deploy file
 
@@ -36,8 +38,8 @@ The
 file is a Drush deploy file: Drush runs each of its `ys_base_deploy_*()`
 functions once, during site [provisioning](../provision.mdx), and records
 which ones have run. Its single hook,
-`ys_base_deploy_install_active_theme()`, installs the core front-end theme
-and sets it as the default, then does the same for the custom theme when the
+`ys_base_deploy_install_active_theme()`, installs the core Olivero theme and
+sets it as the default, then does the same for the custom theme when the
 project has one.
 
 ## Demo module
@@ -80,6 +82,12 @@ class for each PHPUnit test type: Unit, Kernel, Functional, and
 FunctionalJavascript. A new test then starts from something that already
 runs. It ships when PHPUnit is selected during installation.
 
-Its `Traits` directory adds 5 helper traits for writing tests: `ArrayTrait`,
-`AssertTrait`, `BrowserHtmlDebugTrait`, `MockTrait`, and `ReflectionTrait`.
+Its `Traits` directory adds the following 5 helper traits for writing tests:
+
+- `ArrayTrait`
+- `AssertTrait`
+- `BrowserHtmlDebugTrait`
+- `MockTrait`
+- `ReflectionTrait`
+
 Remove the ones you don't need.

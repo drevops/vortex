@@ -13,7 +13,9 @@ bundle, and the module runs the plugins in order when it's installed with
 its static helpers produce identical output on every run, which is what
 visual regression tests and consistent demo sites need.
 
-This section covers how **Vortex** uses the module. The [module
+This page is for developers on a project built from **Vortex** who need
+demo or test content. It shows how to write a generator plugin, which
+helpers keep its output stable, and the ways to run generation. The [module
 documentation](https://git.drupalcode.org/project/generated_content/-/blob/HEAD/README.md)
 is the reference for its full API.
 
@@ -25,6 +27,9 @@ directory, marked with the `#[GeneratedContent]` attribute and extending
 and returns them, so the module can track them for cleanup.
 
 ### Creating a plugin
+
+The following plugin, a shorter version of the shipped `Page` plugin,
+creates 20 `page` nodes with static titles and body text:
 
 ```php
 namespace Drupal\ys_demo\Plugin\GeneratedContent\Node;
@@ -70,8 +75,9 @@ class Page extends GeneratedContentPluginBase {
 :::note
 
 For a bundle under content moderation, also set the `moderation_state` field
-to `published` before saving, or generated nodes stay as unpublished drafts.
-The shipped [`Page`
+to `published` before saving. A new node otherwise takes the workflow's
+default moderation state, and a `draft` default leaves it unpublished
+whatever its `status` says. The shipped [`Page`
 plugin](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/src/Plugin/GeneratedContent/Node/Page.php)
 shows the guarded check.
 
@@ -79,25 +85,27 @@ shows the guarded check.
 
 ### Attribute parameters
 
+The `#[GeneratedContent]` attribute takes the following parameters:
+
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `id` | string | yes | Unique plugin ID |
 | `entity_type` | string | yes | Target entity type, such as `node` or `taxonomy_term` |
 | `bundle` | string | yes | Target bundle |
 | `weight` | int | no | Execution order, lowest first (default: `0`) |
-| `tracking` | bool | no | Track created entities for cleanup (default: `TRUE`) |
-| `label` | TranslatableMarkup | no | Human-readable name shown in the admin UI |
-| `helper` | string | no | Custom helper class extending `GeneratedContentHelper` |
+| `tracking` | bool | no | If `TRUE`, tracks the created entities so the module can remove them later. If `FALSE`, doesn't track them (default: `TRUE`) |
+| `label` | TranslatableMarkup | no | Human-readable name of the plugin |
+| `helper` | string | no | Custom helper class extending `GeneratedContentHelper`. For any other class, the plugin falls back to the default helper |
 
 ## Generation helpers
 
 `$this->helper` is a `GeneratedContentHelper` singleton, or the subclass
 named in the plugin's `helper` parameter. It produces field values, creates
 file assets, and looks up entities that earlier plugins created. The
-examples below are a sample of what it offers. The module documentation
-lists the full set.
+following examples show some of what it offers, and the module
+documentation lists the full set.
 
-**Static** helpers return the same values on every run, which is what visual
+Static helpers return the same values on every run, which is what visual
 regression testing needs. They read a fixed list of text in order, so the
 output stays stable as long as the plugins make the same calls in the same
 order:
@@ -108,7 +116,7 @@ $this->helper::staticSentence(5);     // Sentence of 5 words.
 $this->helper::staticRichText(3);     // 3 paragraphs of HTML.
 ```
 
-**Random** helpers vary on every run, which suits content that only needs to
+Random helpers vary on every run, which suits content that only needs to
 make the site look populated:
 
 ```php
@@ -118,7 +126,7 @@ $this->helper::randomEmail();
 $this->helper::randomTimestamp('-1year', 'now');
 ```
 
-**Entity** helpers reference content that earlier plugins produced. Use
+Entity helpers reference content that earlier plugins produced. Use
 `weight` to make sure those plugins ran first, and pick the `static` variant
 when the reference itself must stay stable between runs:
 
@@ -128,13 +136,17 @@ $node->set('field_tags', $this->helper::randomTerms('tags', 3));
 $node->set('field_author', $this->helper::staticUser());
 ```
 
-**Asset** helpers create managed files. By default, `createFile()` draws a
+Asset helpers create managed files. By default, `createFile()` draws a
 random image for `png`, `jpg`, and `jpeg`. For any other extension it
 writes a placeholder text file under that extension and raises a PHP
-notice, unless the extension is `txt`. To get a real document, pass the
-static generation type as the third argument. The helper then copies one of
-the dummy files that ship with the module, in image, document, spreadsheet,
-audio, and video formats:
+notice, unless the extension is `txt`.
+
+To get a real file instead, pass the static generation type as the third
+argument. The helper then copies one of the sample files that ship with the
+module. The static type covers the `doc`, `docx`, `gif`, `jpeg`, `jpg`,
+`mp3`, `mp4`, `pdf`, `png`, `svg`, `xls`, and `xlsx` extensions, and falls
+back to the placeholder text file, with the same notice, for any other. The
+following calls create a random image and a static PDF:
 
 ```php
 $node->set('field_image', $this->helper::createFile('png'));
@@ -146,22 +158,33 @@ $node->set('field_attachment', $this->helper::createFile('pdf', [], GeneratedCon
 
 ## Triggering generation
 
+Generation starts in 1 of 4 ways, each covered in the following sections.
+
 ### Drush command
+
+To run the `page` plugin, pass the entity type, the bundle, and a count to
+the following command:
 
 ```shell
 drush generated-content:create-content node page 20
 ```
 
-The command needs all 3 arguments: the entity type, the bundle, and a
-count. It splits the count into batches of 50 and runs the bundle's plugin
-once per batch, so the plugin decides how many entities each run creates.
-With `20`, the `Page` plugin runs once and creates its 20 pages.
+The command needs all 3 arguments. It splits the count into batches of 50
+and runs the bundle's plugin once per batch, so the plugin decides how many
+entities each run creates. With `20`, the `Page` plugin runs once and
+creates its 20 pages. Confirm that the new pages appear in the content list
+at `/admin/content`.
 
 ### Admin UI
 
-Visit `/admin/config/development/generated-content` to generate content
-through the admin interface. The page needs the `generate content`
-permission.
+To generate content from the administration interface, go to
+`/admin/config/development/generated-content`. The **Generate content**
+page needs the `generate content` permission. It lists every plugin with its
+weight, its tracking setting, and the number of entities it created.
+
+Select the plugins to process, or none to process them all, then click
+**Generate**, **Delete**, or **Regenerate**. **Delete** removes only the
+entities the module tracks.
 
 ### Environment variable
 

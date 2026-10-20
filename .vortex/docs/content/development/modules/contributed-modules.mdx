@@ -5,10 +5,14 @@ sidebar_position: 2
 
 # Contributed modules
 
-**Vortex** ships the contributed modules most Drupal projects need,
-pre-configured and wired into the environment-aware settings and the
-provisioning scripts. This page lists all 26 shipped modules in alphabetical
-order: what each one does, why it ships, and how it's configured.
+**Vortex** ships up to 26 contributed modules, each pre-configured and wired
+into the environment-aware settings and the provisioning scripts. This page
+lists all 26 in alphabetical order: what each one does, why it ships, how
+it's installed, and how it's configured.
+
+It's a reference for developers and leads on a project built from
+**Vortex**. Use it to check what a module does in each environment and which
+variables change that.
 
 ➡️ See [Overview](README.mdx) for the mechanisms that require, configure,
 and install these modules.
@@ -19,17 +23,25 @@ and install these modules.
 malware with the ClamAV engine before they're saved. Ships only when the
 ClamAV service is selected.
 
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh),
+  which also sets the daemon host to `clamav`.
+
 ### Configuration
 
 [`settings.clamav.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.clamav.php)
 selects daemon or executable mode and points the daemon at the ClamAV
 service, but only when `DRUPAL_CLAMAV_ENABLED` is set to `1`. The shipped
-`.env` file sets it, with `DRUPAL_CLAMAV_MODE` set to `daemon`.
+`.env` file sets it, with `DRUPAL_CLAMAV_MODE` set to `daemon`. Executable
+mode calls ClamAV's command-line scanner in `/usr/bin` instead of the
+daemon.
+
+The override reads the following variables:
 
 | Variable                     | Purpose                                                              |
 |------------------------------|----------------------------------------------------------------------|
 | `DRUPAL_CLAMAV_ENABLED`      | Applies the override only when set to `1`                            |
-| `DRUPAL_CLAMAV_MODE`         | `daemon` or `0` selects daemon mode, any other value executable mode |
+| `DRUPAL_CLAMAV_MODE`         | `daemon` (any case) or `0` selects daemon mode; any other value, or none, selects executable mode |
 | `CLAMAV_HOST`, `CLAMAV_PORT` | Daemon host and port, `clamav:3310` by default                       |
 
 ## Coffee
@@ -37,6 +49,9 @@ service, but only when `DRUPAL_CLAMAV_ENABLED` is set to `1`. The shipped
 [Coffee](https://www.drupal.org/project/coffee) adds a search box, opened
 with <kbd>Alt+D</kbd>, that jumps straight to any administration page as
 you type its name.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
 
 ### Configuration
 
@@ -47,6 +62,9 @@ No settings override.
 [Configuration Split](https://www.drupal.org/project/config_split) splits
 configuration into sets that are imported conditionally, so each environment
 can carry its own configuration, such as development-only modules.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
 
 ### Configuration
 
@@ -60,8 +78,14 @@ before the override has anything to enable.
 ## Config Update
 
 [Configuration Update Manager](https://www.drupal.org/project/config_update)
-provides tools and Drush commands to report, revert, and import
-configuration changes relative to the defaults shipped by modules.
+provides the revert and update functions that other modules build on.
+Provisioning installs only this base `config_update` module. The reports
+and the Drush commands that report, revert, and import configuration
+changes relative to the defaults that modules ship come from its
+`config_update_ui` submodule. Install that submodule when you need them.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
 
 ### Configuration
 
@@ -103,6 +127,9 @@ Indicator](https://www.drupal.org/project/environment_indicator) shows a
 colored banner identifying the current environment to prevent accidental
 changes on the wrong site.
 
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
 ### Configuration
 
 [`settings.environment_indicator.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.environment_indicator.php)
@@ -126,14 +153,20 @@ itself.
 ### Configuration
 
 [`settings.fast_404.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.fast_404.php)
-applies only when the module's code is present. It sets the file extensions
-to intercept and whitelists `index.php`, `rss.xml`, `cron.php`, and
-`xmlrpc.php`. It brings image style derivatives under the same rules, so
-anonymous requests can't force derivative generation, and calls
-`fast404_preboot()` with those settings. Path checking against the router
-and the URL aliases is off, because it queries the database before Drupal
-has connected to it. The redirect check that goes with the path check is
-off too.
+applies only when the module's code is present, and calls
+`fast404_preboot()` with the following settings:
+
+- A request for a missing file with the `txt`, `png`, `gif`, `jpg`, `jpeg`,
+  `css`, `js`, `ico`, `swf`, `flv`, `cgi`, `bat`, `pl`, `dll`, `exe`, or
+  `asp` extension gets the fast 404, unless its path starts with `/robots`
+  or `/system/files`.
+- `index.php`, `rss.xml`, `cron.php`, and `xmlrpc.php` are on the URL
+  allowlist, which the module checks before the extensions.
+- Image style derivatives fall under the same rules, so anonymous requests
+  can't force derivative generation.
+- Path checking against the router and the URL aliases is off, because it
+  queries the database before Drupal has connected to it. The redirect check
+  that goes with the path check is off too.
 
 ## Generated Content
 
@@ -160,6 +193,8 @@ the demo plugin.
 [Migrate Plus](https://www.drupal.org/project/migrate_plus) extends the core
 Migrate API with extra source and process plugins and configuration-entity
 migrations. The demo migration module uses it against the second database.
+Ships only when the migration feature is selected. Otherwise, the installer
+removes the requirement.
 
 - **Installed:** As a dependency of the `ys_migrate` demo migration module,
   which
@@ -169,9 +204,6 @@ migrations. The demo migration module uses it against the second database.
 ### Configuration
 
 No settings override.
-
-Ships only when the migration feature is selected. Otherwise, the installer
-removes the requirement.
 
 ➡️ See [Migrations](../migrations.mdx) for the second database and the demo
 migration.
@@ -181,7 +213,8 @@ migration.
 [Migrate Tools](https://www.drupal.org/project/migrate_tools) provides Drush
 commands and a UI to run, roll back, and monitor migrations.
 [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh)
-drives it during provisioning.
+drives it during provisioning. Ships only when the migration feature is
+selected. Otherwise, the installer removes the requirement.
 
 - **Installed:** As a dependency of the `ys_migrate` demo migration module,
   which
@@ -192,18 +225,18 @@ drives it during provisioning.
 
 No settings override.
 
-Ships only when the migration feature is selected. Otherwise, the installer
-removes the requirement.
-
 ➡️ See [Migrations](../migrations.mdx) for the second database and the demo
 migration.
 
 ## Navigation Extra Tools
 
 [Navigation Extra
-Tools](https://www.drupal.org/project/navigation_extra_tools) adds
-administration shortcuts (clear caches, run cron, and run database updates)
-to the core Navigation module.
+Tools](https://www.drupal.org/project/navigation_extra_tools) adds a
+**Tools** menu to the core Navigation module, with shortcuts that flush
+caches, rebuild the theme registry, run cron, and run database updates.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
 
 ### Configuration
 
@@ -214,6 +247,9 @@ No settings override.
 [Pathauto](https://www.drupal.org/project/pathauto) automatically generates
 URL aliases for content based on configurable patterns.
 
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
 ### Configuration
 
 No settings override.
@@ -222,6 +258,9 @@ No settings override.
 
 [Redirect](https://www.drupal.org/project/redirect) manages URL redirects
 and creates them automatically when content URLs change.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
 
 ### Configuration
 
@@ -233,6 +272,10 @@ No settings override.
 Redis in-memory store for cache and lock backends. Ships only when the Redis
 service is selected.
 
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh),
+  which carries on with provisioning if the install fails.
+
 ### Configuration
 
 [`settings.redis.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.redis.php)
@@ -240,14 +283,17 @@ points the connection at the Redis service, makes Redis the default cache
 backend, registers the module's container YAML files, and swaps the
 bootstrap container over. Nothing applies until the module's code is
 present and `DRUPAL_REDIS_ENABLED` is set to `1`, so a 2-stage deployment
-can provision the service before switching the cache. The cache changes
-also need the `redis` PHP extension, or `VORTEX_REDIS_EXTENSION_LOADED` set
-to `1` in its place.
+can provision the service before switching the cache. The shipped `.env`
+file sets it to `1`.
+
+The cache changes also need the `redis` PHP extension, or
+`VORTEX_REDIS_EXTENSION_LOADED` set to `1` in its place. The override reads
+the following variables:
 
 | Variable                           | Purpose                                   |
 |------------------------------------|-------------------------------------------|
 | `DRUPAL_REDIS_ENABLED`             | Applies the override only when set to `1` |
-| `REDIS_HOST`, `REDIS_SERVICE_PORT` | Connection host and port                  |
+| `REDIS_HOST`, `REDIS_SERVICE_PORT` | Connection host and port, `redis:6379` by default |
 | `VORTEX_REDIS_EXTENSION_LOADED`    | Forces the cache changes when set to `1`  |
 
 ## Reroute Email
@@ -273,7 +319,7 @@ rerouting disabled, every message reaches its intended recipient. Rerouting
 is therefore disabled only where that delivery is either wanted or already
 intercepted by other means.
 
-**Environment behavior:**
+The following table shows where rerouting is on, and why:
 
 | Environment | Rerouting enabled | Reason                                                          |
 |-------------|-------------------|-----------------------------------------------------------------|
@@ -287,8 +333,8 @@ Rerouting is the fall-through default, so it's also enabled in any custom
 environment type, such as one set through `ENVIRONMENT_TYPE`. Lagoon and
 Acquia usually detect pull request environments as `dev`, so those get
 rerouting like any other `dev` environment. A custom environment type gets
-the module only once you add the type to the provisioning scripts, and until
-then nothing reroutes its mail. ➡️ See
+the module only after you add the type to the provisioning scripts, and
+until then nothing reroutes its mail. ➡️ See
 [Provision](../provision.mdx#development-modules)
 
 Rerouting is off in `ci` so that tests can assert on the address a message
@@ -300,18 +346,17 @@ A site that deselects this module during
 because the mail collector stores messages there regardless. That site does
 send mail to real recipients in `dev`, `stage`, and custom environments.
 
-**Environment variables:**
+The override reads the following variables:
 
 | Variable                       | Default                            | Purpose                                              |
 |--------------------------------|------------------------------------|------------------------------------------------------|
 | `DRUPAL_REROUTE_EMAIL_ADDRESS` | `webmaster@your-site-domain.example` | Address to receive all rerouted emails               |
 | `DRUPAL_REROUTE_EMAIL_ALLOWED` | `*@your-site-domain.example`         | Pattern for addresses allowed to bypass rerouting    |
 
-**Overriding default behavior:**
-
-Set `DRUPAL_REROUTE_EMAIL_DISABLED` to `1` to disable email rerouting in an
-environment where it would otherwise be enabled. This is the supported way
-for a `stage` environment to send real mail during UAT.
+To disable email rerouting in an environment where it would otherwise be
+enabled, set `DRUPAL_REROUTE_EMAIL_DISABLED` to `1` there. This is the
+supported way for a `stage` environment to send real mail during user
+acceptance testing.
 
 <details>
 <summary>Example <code>settings.reroute_email.php</code></summary>
@@ -323,10 +368,14 @@ for a `stage` environment to send real mail during UAT.
 ## RobotsTxt
 
 [RobotsTxt](https://www.drupal.org/project/robotstxt) serves `robots.txt`
-from Drupal and lets you edit it in the admin UI, which helps when the file
-can't live on disk, for example in multisite setups. **Vortex** keeps core's
-static `robots.txt` out of the webroot through the `drupal-scaffold` file
-mapping in `composer.json`, so the module answers every request for it.
+from Drupal and lets you edit it in the administration UI, which helps when
+the file can't live on disk, for example in multisite setups. **Vortex**
+keeps core's static `robots.txt` out of the webroot through the
+`drupal-scaffold` file mapping in `composer.json`, so the module answers
+every request for it.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
 
 ### Configuration
 
@@ -352,9 +401,12 @@ excludes it from the exported configuration.
 
 [Search API](https://www.drupal.org/project/search_api) provides a framework
 for building search experiences with pluggable indexing backends. It stays
-required in every project. With the Solr service selected, the demo
-provisioning script installs it together with Search API Solr, and the
-`ys_search` module depends on it. Without Solr, nothing installs it.
+required in every project.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh),
+  together with Search API Solr, when the Solr service is selected. The
+  `ys_search` module depends on it too. Without Solr, nothing installs it.
 
 ### Configuration
 
@@ -363,8 +415,12 @@ No settings override.
 ## Search API Solr
 
 [Search API Solr](https://www.drupal.org/project/search_api_solr) is a
-Search API backend that integrates Apache Solr for fast, scalable search.
-Ships only when the Solr service is selected.
+Search API backend that integrates Apache Solr. Ships only when the Solr
+service is selected.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh),
+  and as a dependency of the `ys_search` module.
 
 ### Configuration
 
@@ -390,6 +446,9 @@ header locally and in CI, where the site isn't served over HTTPS.
 [Shield](https://www.drupal.org/project/shield) restricts access to your
 site by requiring HTTP authentication credentials.
 
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
 ### Configuration
 
 [`settings.shield.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.shield.php)
@@ -397,7 +456,7 @@ forces Shield on in non-production environments other than `local` and `ci`,
 where it's forced off. Production is left untouched, so Shield stays under
 UI control there.
 
-**Environment behavior:**
+The following table shows where Shield is on, and why:
 
 | Environment | Shield enabled | Reason                                            |
 |-------------|----------------|---------------------------------------------------|
@@ -407,20 +466,23 @@ UI control there.
 | Stage       | **Yes**        | Protects staging environments from public access  |
 | Prod        | Not enforced   | Left to the site configuration: enable or disable it through the UI |
 
-**Environment variables:**
+The override reads the following variables:
 
 | Variable                             | Default | Purpose                                             |
 |--------------------------------------|---------|-----------------------------------------------------|
-| `DRUPAL_SHIELD_USER`                 |         | HTTP authentication username                        |
-| `DRUPAL_SHIELD_PASS`                 |         | HTTP authentication password                        |
-| `DRUPAL_SHIELD_PRINT`                |         | Message shown in the authentication popup (module default when unset) |
-| `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` |         | Set to `1` to keep the `/.well-known/acme-challenge/*` path open for Let's Encrypt certificate generation |
+| `DRUPAL_SHIELD_USER`                 | None    | HTTP authentication username, applied only when `DRUPAL_SHIELD_PASS` is set too |
+| `DRUPAL_SHIELD_PASS`                 | None    | HTTP authentication password, applied only when `DRUPAL_SHIELD_USER` is set too |
+| `DRUPAL_SHIELD_PRINT`                | `Restricted access.`, set in `.env` | Message shown in the authentication prompt. The module's own default applies when unset |
+| `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` | None    | Set to `1` to keep the `/.well-known/acme-challenge/*` path open for Let's Encrypt certificate generation |
 
-**Overriding default behavior:**
+Shield stays on in `dev` and `stage` even when the credentials are missing.
+Set `DRUPAL_SHIELD_USER` and `DRUPAL_SHIELD_PASS` in those environments, or
+the prompt accepts only the credentials stored in the site's configuration,
+if there are any.
 
-Set `DRUPAL_SHIELD_DISABLED` to `1` to disable Shield in an environment
-where it would otherwise be enabled. This is useful for temporary access
-during debugging or when an environment doesn't require protection.
+To disable Shield in an environment where it would otherwise be enabled,
+set `DRUPAL_SHIELD_DISABLED` to `1` there. This is useful for temporary
+access during debugging or when an environment doesn't require protection.
 
 <details>
 <summary>Example <code>settings.shield.php</code></summary>
@@ -435,13 +497,18 @@ during debugging or when an environment doesn't require protection.
 media files from a remote site on demand, so local environments don't need a
 full copy of the files directory.
 
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
 ### Configuration
 
 [`settings.stage_file_proxy.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.stage_file_proxy.php)
-sets the origin from `DRUPAL_STAGE_FILE_PROXY_ORIGIN` outside production and
-injects the Shield credentials into that URL when they're set, so a shielded
-origin still serves files. It also turns off redirects to the origin, so the
-module downloads each requested file and keeps a local copy.
+sets the origin from `DRUPAL_STAGE_FILE_PROXY_ORIGIN` outside production.
+The shipped `.env` file sets it to `https://www.your-site-domain.example`.
+When `DRUPAL_SHIELD_USER` and `DRUPAL_SHIELD_PASS` are both set, the
+override adds them to an `https://` origin URL, so a shielded origin still
+serves files. It also turns off redirects to the origin, so the module
+downloads each requested file and keeps a local copy.
 
 ## Storybook
 
@@ -451,10 +518,12 @@ theme's component stories through Drupal, so the
 produces. Ships only when Storybook is selected during installation, which
 requires a custom theme.
 
-[`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh)
-installs it with the other development modules. Later in provisioning,
-`scripts/provision-50-storybook.sh` builds the static component library in
-the `local`, `ci`, and `dev` environments.
+- **Installed:** During development provisioning by
+  [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh),
+  which also turns on Twig development mode in the `local` environment.
+
+Later in provisioning, `scripts/provision-50-storybook.sh` builds the static
+component library in the `local`, `ci`, and `dev` environments.
 
 ### Configuration
 
@@ -489,6 +558,9 @@ integration.
 
 [XML sitemap](https://www.drupal.org/project/xmlsitemap) generates a
 multilingual XML sitemap to help search engines index the site.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
 
 ### Configuration
 

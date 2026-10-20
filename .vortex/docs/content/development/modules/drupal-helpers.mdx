@@ -11,7 +11,9 @@ a CSV file. [Drupal helpers](https://www.drupal.org/project/drupal_helpers)
 turns each of those jobs into a method on a static facade, so a deploy hook
 reads as a short list of changes instead of entity API boilerplate.
 
-This section covers how **Vortex** uses the module. The [module
+This page is for developers writing deploy hooks on a project built from
+**Vortex**. It shows how to call the helpers, which facades exist, and how
+to spread a large job across several deploy hook passes. The [module
 documentation](https://git.drupalcode.org/project/drupal_helpers/-/blob/HEAD/README.md)
 is the reference for its full API.
 
@@ -36,16 +38,24 @@ Helper::menu()->createTree('main', [
 Helper::entity()->deleteAll('node', 'page');
 ```
 
-Before it returns a helper, the facade checks that the modules the helper
-needs are installed, and throws a `RuntimeException` naming any that are
-missing. For example, `Helper::redirect()` needs the Redirect module, and
-`Helper::translation()` needs the Locale module. The deploy hook then stops
+4 helpers declare a module they need, and the facade checks that module
+before it returns the helper. When the module is missing, the facade throws
+a `RuntimeException` that names it, for example
+`Required modules not installed: redirect.` The deploy hook then stops
 before that helper changes anything.
+
+The following facades run the check:
+
+- `Helper::block()` needs the Block module.
+- `Helper::redirect()` needs the Redirect module.
+- `Helper::role()` needs the User module.
+- `Helper::translation()` needs the Locale module.
 
 ## Available helpers
 
-Every facade is listed below. The **Examples** column shows a few of the
-methods each one exposes. The module documentation lists the complete set.
+The following table lists all 13 facades. The **Examples** column names
+some of the methods each one exposes, and the module documentation lists
+them all.
 
 | Helper | Access | Examples |
 |--------|--------|----------|
@@ -70,10 +80,20 @@ with `return Helper::report();` reports only its own work.
 
 ## Batched operations
 
-The `term()`, `menu()`, `field()`, `entity()`, `user()`, `redirect()`,
-`alias()`, and `block()` facades accept the deploy hook's `$sandbox` array.
-With it, `batch()` and `batchEntity()` spread large datasets across multiple
-deploy hook passes:
+The following facades accept the deploy hook's `$sandbox` array as their
+first argument:
+
+- `Helper::term()`
+- `Helper::menu()`
+- `Helper::field()`
+- `Helper::entity()`
+- `Helper::user()`
+- `Helper::redirect()`
+- `Helper::alias()`
+- `Helper::block()`
+
+With a sandbox, `batch()` and `batchEntity()` spread large datasets across
+multiple deploy hook passes:
 
 ```php
 function ys_base_deploy_update_pages(array &$sandbox): ?string {
@@ -87,10 +107,12 @@ function ys_base_deploy_update_pages(array &$sandbox): ?string {
 Without a sandbox, both methods process every item in 1 pass. The
 `batchEntity()` method builds the entity query itself from the type, the
 bundle, and optional conditions, while `batch()` takes any array of items.
-Both return `NULL` while batches remain and the completion message once the
-last one finishes, which is what a deploy hook returns for Drush to print.
-Each pass handles 50 items by default. To change that, pass a second
-argument to the facade, for example `Helper::entity($sandbox, 100)`.
+
+Both return `NULL` while batches remain, and the completion message, such as
+`Processed 120 node entities.`, after the last one finishes. That's what a
+deploy hook returns for Drush to print. Each pass handles 50 items by
+default. To change that, pass a second argument to the facade, for example
+`Helper::entity($sandbox, 100)`.
 
 ## Example in Vortex
 

@@ -8,31 +8,52 @@ sidebar_position: 1
 **Vortex** isn't a Drupal distribution. It ships no installation profile
 unless you ask the installer for a custom one. The only recipe it carries
 is the small `recipes/page` recipe, which creates the demo content model
-during provisioning. What it does ship is a small set of contributed modules
-that most projects need, each already wired into the environment-aware
+during provisioning.
+
+What it does ship is up to 26 contributed modules, depending on your
+installer answers, each already wired into the environment-aware
 [settings](../settings.mdx) and the [provisioning](../provision.mdx)
-scripts. You add the rest once the initial setup is done.
+scripts. You add the rest after the initial setup is done.
+
+This page is for developers working on a project built from **Vortex**. It
+explains how each shipped module is required, configured, and installed, and
+what the installer removes when you leave a module out. For what each module
+does, see [Contributed modules](contributed-modules.mdx). For the custom
+modules, see [Module scaffold](module-scaffold.mdx).
 
 The installer can remove every module in this section except Search API,
-which stays required even without the Solr service. Its `Modules` question
-lists 19 of them. Deselecting one removes, in a single pass, its Composer
-requirement, its settings override, its provisioning steps, its Behat
-feature, and its assertions in the settings tests. ClamAV, Redis, and Search
-API Solr follow the `Services` question instead, Migrate Plus and Migrate
-Tools follow the migration question, and Storybook follows its own
-question.
+which stays required even without the Solr service. Its **Modules** question
+lists 19 of them. Deselecting one removes the following in a single pass:
+
+- Its Composer requirement
+- Its settings override
+- Its provisioning steps
+- Its Behat feature
+- Its assertions in the settings tests
+- Any other block the template marks for it, such as its variables in `.env`
+
+The other modules follow other installer questions:
+
+- ClamAV, Redis, and Search API Solr follow the **Services** question.
+- Migrate Plus and Migrate Tools follow the
+  **Use a second database for migrations?** question.
+- Storybook follows the **Storybook component library?** question, which
+  the installer asks only when you choose a custom theme.
 
 ## How modules are configured
+
+The following table lists the mechanisms that bring a shipped module into a
+project:
 
 | Mechanism | Location | Effect |
 |-----------|----------|--------|
 | Composer requirement | `require` in [`composer.json`](https://github.com/drevops/vortex/blob/main/composer.json) | Makes the module available to the site. ➡️ See [`composer.json`](../composer.mdx#require) |
 | Settings override | `web/sites/default/includes/modules/settings.<module>.php` | Applies configuration conditioned on the detected environment, reading values from environment variables. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
 | Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a module that never reaches production out of the exported configuration, so enabling it locally never dirties the config. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
-| Provisioning | [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh) | Stands up the demo site in the `local`, `ci`, `dev`, and `stage` environments. Applies the `recipes/page` content model, sets the site name, installs the contrib, service, and custom site modules (including core's `media` and `navigation`), and runs their deploy hooks. ➡️ See [Provision](../provision.mdx#demo-modules) |
+| Provisioning | [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh) | Stands up the demo site in the `local`, `ci`, `dev`, and `stage` environments. Applies the `recipes/page` content model, sets the site name, and replaces core's `toolbar` with core's `navigation` as the administration interface. Installs the contrib, service, and custom site modules (including core's `media`), and runs their deploy hooks. ➡️ See [Provision](../provision.mdx#demo-modules) |
 | Development provisioning | [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) | Installs the modules that never reach production (the development tools and the email rerouting safety net) in the same 4 environments, plus the Storybook module when Storybook is selected. ➡️ See [Provision](../provision.mdx#development-modules) |
 | Migration provisioning | [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh) | Installs the `ys_migrate` demo migration module, and with it Migrate Plus and Migrate Tools, in every environment except `prod`, unless `DRUPAL_MIGRATION_SKIP` is set to `1`. Ships only with the migration feature. ➡️ See [Migrations](../migrations.mdx) |
-| Module dependency | [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml) | Installs the module as a dependency of the demo module. ➡️ See [Demo module](module-scaffold.mdx#demo-module) |
+| Module dependency | [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml) | Installs Drupal helpers and Testmode as dependencies of the demo module. ➡️ See [Demo module](module-scaffold.mdx#demo-module) |
 
 A module can be required without being installed anywhere: the settings
 override is then ready for the day the project enables it. `seckit` is the
