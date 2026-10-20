@@ -5,38 +5,33 @@ sidebar_position: 2
 
 # Docker
 
-- https://github.com/docker/cli
-- https://github.com/docker/compose
+The [Docker overview](https://docs.docker.com/get-started/docker-overview/)
+describes the tool as follows:
 
-> Docker is a platform for developing, shipping, and running applications in
-> containers.
+> Docker is an open platform for developing, shipping, and running
+> applications.
 
 **Vortex** ships a Docker and Docker Compose configuration that runs the
 project in containers locally, in CI, and on container-based hosting such as
 Lagoon. A single `docker-compose.yml` describes the stack for all 3, with a
 few lines marked as local-only or CI-only.
 
+This page is for developers who change the stack or need to know how it
+fits together. It covers the following:
+
+- What each service in `docker-compose.yml` does
+- How code and environment variables reach the containers
+- What the image build leaves out
+- How to check `docker-compose.yml` after you edit it
+
 Special thanks to Lagoon for providing the [container
 images](https://github.com/uselagoon/lagoon-images) that make this possible.
-
-:::info
-
-The Lagoon team maintains these images, which run in production environments
-and receive regular updates.
-
-If you're using Lagoon as your hosting provider, your local, CI, and
-production environments all run the project on identical images.
-
-:::
+The Lagoon team maintains these images, which run in production
+environments and receive regular updates. If you host on Lagoon, your
+local, CI, and production environments all build the project from the same
+base images.
 
 ## About Docker and Docker Compose
-
-:::note
-
-For details beyond this brief overview, see the official Docker and Docker
-Compose documentation.
-
-:::
 
 Docker runs each service your project needs, such as a web server or a
 database server, in its own _container_. A container is an isolated
@@ -48,11 +43,11 @@ same content and configuration.
 
 Docker is the engine that runs those containers: it lets them share the
 host's resources and talk to each other. Locally, you control it with the
-Docker CLI, `docker`.
+[Docker CLI](https://github.com/docker/cli), `docker`.
 
-Docker Compose describes a multi-container application in a single
-`docker-compose.yml` file, so all the containers that work together are
-defined and managed in one place.
+[Docker Compose](https://github.com/docker/compose) describes a
+multi-container application in a single `docker-compose.yml` file, so all
+the containers that work together are defined and managed in one place.
 
 Drupal needs several service containers, so you'll mostly use the Docker
 Compose CLI (`docker compose`) rather than the Docker CLI. Its commands work
@@ -60,7 +55,7 @@ on the `docker-compose.yml` in the current directory, so run them from the
 project root. They only affect the containers that file defines, not other
 containers running on your machine.
 
-Once a project is set up, day-to-day work comes down to a handful of
+After a project is set up, day-to-day work comes down to a handful of
 commands, each scoped to that project:
 
 - `docker compose up -d` - start the containers in the background.
@@ -71,7 +66,9 @@ commands, each scoped to that project:
 - `docker compose ps` - list the running containers.
 
 You'll need the more advanced commands mainly when you change the project's
-Docker configuration or services.
+Docker configuration or services. For anything beyond this overview, see
+the [Docker documentation](https://docs.docker.com/) and the [Docker
+Compose documentation](https://docs.docker.com/compose/).
 
 ## Using Docker
 
@@ -133,11 +130,11 @@ host mounts. The values are:
 - `default`: Equivalent to `consistent`.
 - `consistent`: Full consistency. The container runtime and the host
   maintain an identical view of the mount at all times.
-- `cached`: The host's view of the mount is authoritative. There may be
+- `cached`: The host's view of the mount is authoritative. There might be
   delays before updates made on the host are visible within a container.
 - `delegated`: The container runtime's view of the mount is authoritative.
-  There may be delays before updates made in a container are visible on the
-  host.
+  There might be delays before updates made in a container are visible on
+  the host.
 
 The default is `delegated`, which favors the container's write performance
 during heavy operations such as installing dependencies. The cost is that
@@ -169,7 +166,7 @@ gets only the variables its service lists under `environment`.
 
 Here, that's the `x-environment` anchor, which every service except `redis`
 and `wait-for-dependencies` merges in. Compose sets those values when it
-creates a container, so a change reaches a running container only once
+creates a container, so a change reaches a running container only after
 `ahoy up` (or `docker compose up -d`) recreates it.
 
 Docker Compose never reads `.env.local`. **Vortex** loads it in 2 places,
@@ -196,10 +193,10 @@ Inside the `cli` container, commands get variables from 2 more sources:
 
 The `x-environment` anchor itself holds only 2 kinds of variables:
 
-1. Variables that are specific to the stack and need a default value, such
-   as `LAGOON_ROUTE`.
-2. Variables that can't live in `.env` and come from the actual environment
-   instead, such as secrets.
+- Variables that are specific to the stack and need a default value, such
+  as `LAGOON_ROUTE`.
+- Variables that can't live in `.env` and come from the actual environment
+  instead, such as secrets.
 
 Any other variable belongs in `.env`. In full, the anchor defines:
 
@@ -232,7 +229,7 @@ LOCALDEV_URL: &default-url ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.i
 LAGOON_ROUTE: *default-url
 ```
 
-In these lines:
+Each of these lines does the following:
 
 - `TZ: ${TZ:-UTC}` - takes `TZ` from your environment or `.env`, and falls
   back to `UTC` when it's unset or empty.
@@ -246,8 +243,10 @@ In these lines:
 - `LAGOON_ROUTE: *default-url` - sets `LAGOON_ROUTE` to the same value
   through the `*default-url` alias, so the 2 always match.
 
-For how Compose handles environment variables in detail, see the [official
-documentation](https://docs.docker.com/compose/environment-variables/set-environment-variables/).
+For how Compose handles environment variables in detail, see [Set
+environment variables within your container's
+environment](https://docs.docker.com/compose/environment-variables/set-environment-variables/)
+in the Docker documentation.
 
 ### Services
 
@@ -259,15 +258,15 @@ there only when you enable the matching feature in the installer:
   `composer` or `drush`, and never handles web requests. The `nginx` and
   `php` builds copy the application code from the `cli` image, so all 3
   contain the same code. The build receives `PACKAGE_TOKEN` as the
-  `package_token` build secret, so Composer can reach private repositories
-  without the token landing in an image layer. On Lagoon, cron jobs run in
-  this container too.
+  `package_token` build secret, so Composer can reach private repositories.
+  On Lagoon, cron jobs run in this container too.
 - `nginx` - runs the web server, which serves the application and passes
   requests on to the `php` container. It's the only service on Pygmy's
   `amazeeio-network`.
 - `php` - runs PHP-FPM, which executes the application code for the requests
-  that `nginx` passes on. It differs from `cli` in that it lacks some
-  development dependencies, is smaller, and is optimized for scalability.
+  that `nginx` passes on. It lacks the command-line tools that the `cli`
+  image adds, such as Composer, Node.js, and the database client, so it's
+  smaller. In production, it's the container that scales up and down.
 - `database` - runs the database server that stores the application data.
   You can reach it from your host on a random port, which `ahoy info` shows.
   `docker compose port database 3306` prints it too. Set `VORTEX_DB_IMAGE`
@@ -293,13 +292,13 @@ there only when you enable the matching feature in the installer:
   virtual desktop. `ahoy info` prints a VNC URL where you can watch that
   desktop while the tests run.
 - `wait-for-dependencies` - runs a script that waits for the applications in
-  other containers to become available. Docker can coordinate the startup of
-  containers, but it doesn't know when the application inside a container is
-  ready to accept connections. This container polls the `database` port and,
-  when they're present, the `clamav`, `database2`, `redis`, and `solr`
-  ports, plus a Solr query against the `drupal` core. The `cli` service
-  waits for it to exit with a zero exit code, so the stack is ready to work
-  with once it has.
+  other containers to become available. Docker Compose starts containers in
+  dependency order, but a container that has started isn't always ready to
+  accept connections. This container polls the `database` port and, when
+  they're present, the `clamav`, `database2`, `redis`, and `solr` ports,
+  plus a Solr query against the `drupal` core. The `cli` service waits for
+  it to exit with a zero exit code, so the stack is ready to work with after
+  it exits.
 
 ### Networks
 
@@ -315,11 +314,11 @@ requests through Pygmy.
 ## Build context and `.dockerignore`
 
 When Docker builds an image, it sends a build context, the set of files the
-build may copy into the image, to the build engine. **Vortex** controls this
+build can copy into the image, to the build engine. **Vortex** controls this
 context with a `.dockerignore` file written as a deny list: every file is
 part of the context by default, and the file lists only what must stay out.
 
-Excluded from the image build context:
+The file excludes the following from the image build context:
 
 - Version control, IDE, and operating system files (`.git`, `.idea`,
   `.vscode`, `**/.DS_Store`).

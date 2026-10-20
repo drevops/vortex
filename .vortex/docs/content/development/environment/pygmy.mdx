@@ -5,20 +5,27 @@ sidebar_position: 3
 
 # Pygmy
 
-- https://pygmy.readthedocs.io/
-- https://github.com/pygmystack/pygmy
+The [Pygmy project](https://github.com/pygmystack/pygmy) describes the tool
+as follows:
 
 > `pygmy` is the single tool needed to get the local amazee.io Docker Drupal
 > Development Environment running on your Linux based system. It is built to
 > work with Docker for Mac! (quite a lot for such a small whale 🐳)
 
+This page is for developers who set up a machine for a **Vortex** project
+or need to get an SSH key back into the CLI container. It explains what
+Pygmy provides, how to install and run it, and how to reconnect the CLI
+container to its SSH agent.
+
 Pygmy provides the shared services the **Vortex** container stack relies on:
 
-- An HTTP reverse proxy for readable URLs and HTTPS offloading.
-- A DNS system, so services are addressed by name instead of IP address.
+- An HTTP reverse proxy for readable URLs. With a certificate you pass to
+  `pygmy up --tls-cert`, it also handles HTTPS.
+- A DNS resolver for `*.docker.amazee.io`, so each project's local URL
+  resolves to your machine.
 - An SSH agent, so your SSH key is available inside the CLI container.
 - A local mail catcher that receives and displays outgoing mail at
-  http://mailhog.docker.amazee.io/.
+  `http://mailhog.docker.amazee.io/`.
 
 They're shared because a single Pygmy instance serves every project on your
 machine: start it once after each boot, and every local stack routes
@@ -33,10 +40,14 @@ create those containers, so start Pygmy before `ahoy up`.
 
 ## Installation
 
-Follow the [official installation
+Follow the [Pygmy installation
 instructions](https://github.com/pygmystack/pygmy/tree/main#installation).
+For how Pygmy sets up DNS resolution on each operating system, see the
+[Pygmy documentation](https://pygmy.readthedocs.io/).
 
 ## Usage
+
+The following commands manage the Pygmy services:
 
 ```shell
 pygmy up       # Start the services. Required to run only once per system boot.
@@ -77,3 +88,6 @@ Running `ahoy up` on its own isn't enough: Docker Compose leaves a running
 container alone when its configuration hasn't changed.
 [`ahoy doctor`](doctor.mdx) checks that the SSH key is available in the CLI
 container and prints this command when it isn't.
+
+Confirm that the key is back: `ahoy doctor` prints
+`[ OK ] SSH key is available within the CLI container.`

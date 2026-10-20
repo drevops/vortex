@@ -11,13 +11,20 @@ import TabItem from '@theme/TabItem';
 Your local environment is a Docker Compose stack built from [Lagoon
 container images](https://github.com/uselagoon/lagoon-images), the images
 Lagoon runs in production. Ahoy wraps the longer `docker compose` commands
-into short ones you'll remember. Each layer of the stack has its own page
-in this section, from Docker and the anatomy of `docker-compose.yml` to
-logs, debugging, and troubleshooting. This page covers the day-to-day parts:
-how the ignore files work, switching branches, resetting, and changing
-environment variables.
+into short ones you'll remember.
+
+This section is for developers working day to day on a project built from
+**Vortex**. After reading this page, you can do the following:
+
+- Tell which files Git, the image build, and the deployment artifact leave
+  out
+- Switch branches without a full rebuild
+- Reset the project to a clean state
+- Change an environment variable and get the new value into the containers
 
 ## In this section
+
+Each layer of the stack has its own page in this section:
 
 | Page | What it covers |
 |------|----------------|
@@ -41,10 +48,21 @@ silently disappearing until someone remembers to allow it.
 
 The `.gitignore` file controls which paths Git ignores in the project
 repository; a file still reaches the repository only when you commit it. It
-excludes the directories Composer and npm generate (such as `web/core`,
-`web/modules/contrib`, `vendor`, and `node_modules`), the Drupal scaffold
-files, and compiled theme assets. It also keeps out local overrides such as
-`.env.local`, caches, logs, and content files.
+excludes the following:
+
+- Directories that Composer and npm generate, such as `web/core`,
+  `web/modules/contrib`, `vendor`, and `node_modules`
+- The Drupal scaffold files that the build copies into `web/`
+- Compiled theme assets in `web/themes/**/build`
+- With Storybook, the generated `*.stories.json` files and the
+  `storybook-static` output
+- Local overrides: `.env.local`, `.ahoy.local.yml`,
+  `docker-compose.override.yml`, `settings.local.php`, and
+  `services.local.yml`
+- Content files and test artifacts in `web/sites/*/files` and
+  `web/sites/simpletest`
+- Caches, data, logs, and temporary artifacts in `.artifacts`, `.data`,
+  `.logs`, `.phpunit.cache`, and `.twig-cs-fixer.cache`
 
 It keeps 2 sections as small allow lists because a deny rule can't express
 them:
@@ -64,11 +82,10 @@ targets:
   [Deployment >
   Artifact](../../deployment/artifact.mdx#artifact-file-control)
 
-A new file or directory that no existing entry matches is excluded from
-nothing. Once you commit it, it's part of the repository, and it reaches the
-image build and the deployment artifact automatically. Add an entry to one
-of these ignore files only when a file must stay out of that particular
-target.
+A new file or directory that no entry matches is excluded from nothing. Git
+tracks it after you commit it, and the image build and the deployment
+artifact include it with no change to any ignore file. Add an entry to an
+ignore file only when a file must stay out of that particular target.
 
 ## Switching branches
 
@@ -99,6 +116,13 @@ only the commands that match what changed:
   </TabItem>
 </Tabs>
 
+If the branch changes `docker-compose.yml` or a file in `.docker/`, rebuild
+the images and recreate the containers with `ahoy up --build`, or with
+`docker compose up -d --build` without Ahoy.
+
+Confirm that the stack is healthy: `ahoy doctor` ends with
+`[ OK ] All required checks have passed.`
+
 ## Resetting
 
 `ahoy reset` takes the stack down and deletes what the build installed, so
@@ -116,6 +140,8 @@ untracked files (`git clean -f -d`) and any empty directories.
 
 That sweep takes your `.env.local`, the database dumps in `.data`, and every
 other local override with it, so copy out anything you want to keep first.
+
+The following commands run each kind of reset:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -138,12 +164,15 @@ other local override with it, so copy out anything you want to keep first.
   </TabItem>
 </Tabs>
 
+Confirm that the reset finished: the last line it prints is
+`[ OK ] Finished reset.`
+
 ## Environment variables
 
 To change an environment variable in your local stack:
 
-1. Set the new value in `.env.local`, or in `.env` if the whole team needs
-   it.
+1. Set the new value in `.env.local` for your machine only, or in `.env`
+   for the whole team.
 2. Recreate the containers, so the variables that `docker-compose.yml`
    passes to them get the new value (a plain restart keeps the old one):
 
@@ -167,5 +196,9 @@ use, such as `VORTEX_PROVISION_OVERRIDE_DB`, take effect without recreating
 anything, because the scripts read both files each time they start. The
 [Docker page](docker.mdx#container-environment-variables) explains how each
 value reaches a container.
+
+Confirm that a container has the new value with
+`docker compose exec cli printenv VARIABLE_NAME`, where `VARIABLE_NAME` is a
+variable that `docker-compose.yml` passes, such as `DRUPAL_THEME`.
 
 ➡️ See [Variables](../variables.mdx) for the full variable reference.

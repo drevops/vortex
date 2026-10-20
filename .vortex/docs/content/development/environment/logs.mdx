@@ -9,9 +9,12 @@ import TabItem from '@theme/TabItem';
 # Logs
 
 Logs are where you find out why a container won't start or why a page
-throws an error. Each container writes its output to Docker's log, and
-`ahoy logs` shows it by running `docker compose logs` with any arguments you
-add. Drupal records its own messages in the watchdog log, which Drush reads.
+throws an error. This page is for developers tracking down either problem
+in the local stack, and it shows the commands that read each kind of log.
+
+Each container writes its output to Docker's log, and `ahoy logs` shows it
+by running `docker compose logs` with any arguments you add. Drupal records
+its own messages in the watchdog log, which Drush reads.
 
 `ahoy up` scans the container logs right after starting the stack and fails
 if any container has logged `[Error]`. When that happens, or when
@@ -39,3 +42,6 @@ if any container has logged `[Error]`. When that happens, or when
     ```
   </TabItem>
 </Tabs>
+
+In `ahoy logs -- --tail=50 cli`, Ahoy drops the `--` and passes the rest to
+`docker compose logs`; see [Usage](ahoy.mdx#usage) on the Ahoy page.

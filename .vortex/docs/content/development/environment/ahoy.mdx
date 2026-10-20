@@ -8,7 +8,8 @@ import TabItem from '@theme/TabItem';
 
 # Ahoy
 
-https://github.com/ahoy-cli/ahoy
+The [Ahoy project](https://github.com/ahoy-cli/ahoy) describes the tool as
+follows:
 
 > Automate and organize your workflows, no matter what technology you use.
 >
@@ -16,17 +17,14 @@ https://github.com/ahoy-cli/ahoy
 > app with zero code and dependencies.
 
 Ahoy wraps longer commands into short, memorable ones, so your development
-workflow stays the same across projects and team members.
+workflow stays the same across projects and team members. This page is for
+developers who run those commands every day. It shows how to call them and
+add your own, and how Ahoy hands environment variables to the containers.
 
 **Vortex** comes with a [pre-configured
-`.ahoy.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.yml) that has
-commands wrapped around the most common tasks:
-
-- Working with containers
-- Building the project locally
-- Fetching, importing, and exporting the database
-- Running tests
-- Running code quality checks
+`.ahoy.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.yml) that
+wraps the most common development tasks. [Shipped
+commands](#shipped-commands) lists every command it defines.
 
 It also ships an example local Ahoy file,
 [`.ahoy.local.example.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.local.example.yml).
@@ -34,6 +32,8 @@ Copy it to `.ahoy.local.yml` and add your own commands there: Git ignores
 the copy, and `ahoy local <command>` runs the commands you put in it.
 
 ## Usage
+
+Ahoy commands take these forms:
 
 ```shell
 # Run a command in the global Ahoy file.
@@ -46,6 +46,12 @@ ahoy local COMMAND [ARGUMENTS] [OPTIONS]
 ahoy --help
 ```
 
+Everything after the command name reaches the command, flags included. A
+`--` right after the command name is optional: Ahoy removes it before it
+runs the command, so `ahoy test-bdd -- --tags=@smoke` passes
+`--tags=@smoke` to Behat. Ahoy's own flags, such as `--help`, `--version`,
+and `--file`, go before the command name.
+
 Every command runs through the entrypoint at the bottom of `.ahoy.yml`. It
 loads your environment variables and makes sure the `drevops/vortex-tooling`
 package is in `vendor/`. On a fresh clone, the first command installs it,
@@ -54,10 +60,12 @@ you've run `composer install`.
 
 ## Configuration
 
-See [configuration
-reference](https://github.com/ahoy-cli/ahoy#example-of-new-yaml-setup-in-v2).
+For every key a command can use, see the [YAML
+schema](https://ahoy-cli.github.io/reference/yaml-schema/) in the Ahoy
+documentation.
 
-Adding a new command that passes its arguments through:
+To add a command that passes its arguments through, add an entry under
+`commands` in `.ahoy.yml`:
 
 ```yml
 commands:
@@ -68,8 +76,8 @@ commands:
 Ahoy runs commands on your host. To run one in the `cli` container, prefix
 it with `ahoy cli`, the way the shipped `ahoy test` command does.
 
-Adding a new multi-line command with usage details that calls other Ahoy
-commands after a confirmation:
+The following command has a usage line and runs PHPUnit and `ahoy info`
+after you confirm:
 
 ```yml
 commands:
@@ -88,9 +96,12 @@ first line that fails. `ahoy confirm` is a hidden helper in the shipped
 
 To answer every prompt in advance, set `AHOY_CONFIRM_RESPONSE=y`, for
 example in `.env.local`. Ahoy then prints each prompt with that answer and
-waits 3 seconds, so you can still press <kbd>Ctrl+C</kbd>, unless
-`AHOY_CONFIRM_WAIT_SKIP=1` is also set. Any non-empty value counts as a yes,
-so `AHOY_CONFIRM_RESPONSE=n` cancels nothing.
+waits 3 seconds, so you can still press <kbd>Ctrl+C</kbd>. To skip the wait,
+also set `AHOY_CONFIRM_WAIT_SKIP=1`. Any non-empty value counts as a yes, so
+`AHOY_CONFIRM_RESPONSE=n` cancels nothing.
+
+Confirm that Ahoy picked up a new command: `ahoy --help` lists it, with its
+usage line when it has one.
 
 ## Loading environment variables
 
@@ -104,8 +115,8 @@ say.
 
 ## Running CLI commands
 
-`ahoy cli` runs commands in the `cli` container, where PHP, Composer, and
-Drush live:
+`ahoy cli` runs a command in the `cli` container, where PHP, Composer, and
+Drush live. Without arguments, it opens an interactive shell there:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -126,18 +137,18 @@ Drush live:
   </TabItem>
 </Tabs>
 
-:::note
+`ahoy cli` forwards only these variables from your shell into the
+container:
 
-Running `ahoy cli` without arguments opens an interactive shell inside the
-`cli` container.
+- `TERM` and `LOCALDEV_URL`
+- Any variable whose name starts with `COMPOSE_`, `GITHUB_`, `PACKAGE_`,
+  `DOCKER_`, `DRUPAL_`, `VORTEX_`, or `ENVIRONMENT_`
 
-:::
-
-`ahoy cli` forwards only some of your shell's variables into the container:
-`TERM`, `LOCALDEV_URL`, and any variable that starts with `COMPOSE_`,
-`GITHUB_`, `PACKAGE_`, `DOCKER_`, `DRUPAL_`, `VORTEX_`, or `ENVIRONMENT_`.
-It joins its arguments into a single `bash -c` string, so escape a double
-quote inside an argument that contains spaces as `\"`.
+Your shell's variables here include the ones the entrypoint loaded from
+`.env` and `.env.local`, so a `DRUPAL_` or `VORTEX_` value in `.env.local`
+reaches the command without recreating the container. `ahoy cli` joins its
+arguments into a single `bash -c` string, so escape a double quote inside an
+argument that contains spaces as `\"`.
 
 You can also use shortcuts for common commands:
 
@@ -164,3 +175,30 @@ The shortcuts add a little on top of the plain commands. `ahoy drush` passes
 `-l ${LOCALDEV_URL}`, so the links Drush prints point at your local site.
 `ahoy composer` lifts Composer's memory limit (`COMPOSER_MEMORY_LIMIT=-1`)
 and, when `PACKAGE_TOKEN` is set, registers it as a GitHub token.
+
+## Shipped commands
+
+The following table groups the commands that the shipped `.ahoy.yml`
+defines:
+
+| Area | Commands |
+|------|----------|
+| Project | `build`, `info`, `reset`, `doctor`, `update-vortex` |
+| Containers | `up`, `down`, `start`, `stop`, `restart`, `logs`, `cli` |
+| Composer and Drush | `composer`, `drush`, `login` |
+| Database | `fetch-db`, `import-db`, `export-db`, `provision`, `reload-db`, `pull-db`, `db` |
+| Migration database | `fetch-db2`, `reload-db2`, `db2` |
+| Front-end assets | `fei`, `fe`, `fed`, `few` |
+| Storybook | `storybook`, `storybook-build`, `storybook-stories` |
+| Code quality | `lint`, `lint-be`, `lint-fe`, `lint-tests`, `lint-sdc`, `lint-fix`, `lint-be-fix`, `lint-fe-fix` |
+| Tests | `test`, `test-unit`, `test-kernel`, `test-functional`, `test-functional-javascript`, `test-js`, `test-bdd` |
+| Debugging and caches | `debug`, `flush-redis` |
+| Deployment | `deploy` |
+| Local commands | `local` |
+
+The installer leaves out the commands for features and tools you didn't
+select, such as `flush-redis` without Redis or `test-bdd` without Behat.
+`ahoy --help` lists the commands your project has, and `ahoy help` followed
+by a command name, such as `ahoy help few`, prints that command's usage
+line. Many commands also have aliases, such as `ahoy rebuild` for
+`ahoy build` or `ahoy ssh` for `ahoy cli`.

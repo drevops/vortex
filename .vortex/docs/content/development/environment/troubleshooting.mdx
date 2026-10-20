@@ -8,11 +8,30 @@ import TabItem from '@theme/TabItem';
 
 # Troubleshooting
 
+This page is for developers whose local stack misbehaves. It covers these
+symptoms:
+
+- A site that doesn't load
+- Database connection errors
+- Files in the project that end up owned by `root`
+
+For failures in CI or on a hosting environment, see [Continuous
+integration](../../continuous-integration/README.mdx) and
+[Hosting](../../hosting/README.mdx) instead.
+
 When the local environment misbehaves, run [Doctor](doctor.mdx) first. It
 pinpoints the broken layer (tooling, containers, or the site itself) before
 you start guessing.
 
 ## Site not loading
+
+Doctor checks the usual causes: a stopped Pygmy service, a stopped
+container, and a web server that doesn't answer. If it reports a stopped
+container, run `ahoy up` as it suggests: that starts the container and keeps
+your database.
+
+If the site still doesn't load, work through the following commands, which
+restart the whole stack:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -42,7 +61,15 @@ which is why `ahoy down` asks you to confirm first. Provision the site again
 with `ahoy provision`, or without Ahoy, with
 `docker compose exec cli ./vendor/bin/vortex-provision`.
 
+Confirm that the site is back: `ahoy doctor` ends with
+`[ OK ] All required checks have passed.`, and the URL that `ahoy info`
+prints loads the site.
+
 ## Database connection errors
+
+Drupal can't connect to the database when the `database` container has
+stopped or keeps restarting. Check the container first, and rebuild only as
+a last resort:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -65,6 +92,9 @@ database. `ahoy build` provisions the site again on its own; after the
 Docker Compose commands, provision it yourself with
 `docker compose exec cli ./vendor/bin/vortex-provision`.
 
+Confirm that `docker compose ps` shows the `database` container with a
+status that starts with `Up`.
+
 ## Permission issues
 
 The `cli` container runs as `root`, so on Linux, files it creates in the
@@ -76,3 +106,5 @@ ownership back with:
 # Fix file permissions (Linux/Mac)
 sudo chown -R $USER:$USER .
 ```
+
+Confirm that `ls -ld vendor` lists your user as the owner.
