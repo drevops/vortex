@@ -355,7 +355,7 @@ EOF
   export VORTEX_FETCH_DB_SEMAPHORE="${BUILD_DIR}/fetch-db-fresh"
 
   run .vortex/tooling/src/vortex-fetch-db
-  assert_failure
+  assert_failure_status 1
   assert_output_contains "Started database fetch."
   assert_output_contains 'Unsupported database source "VORTEX_CONTAINER_REGISTRY" in VORTEX_FETCH_DB_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, none.'
   assert_output_not_contains "Fetched from"
@@ -379,7 +379,7 @@ EOF
   export VORTEX_FETCH_DB_FORCE=""
 
   run .vortex/tooling/src/vortex-fetch-db
-  assert_failure
+  assert_failure_status 1
   assert_output_contains 'Unsupported database source "VORTEX_CONTAINER_REGISTRY" in VORTEX_FETCH_DB_SOURCE.'
   assert_output_not_contains "Found existing database dump file(s)."
   assert_output_not_contains "Using existing database dump file(s)."
@@ -395,7 +395,7 @@ EOF
   export VORTEX_FETCH_DB2_PROCEED="1"
 
   run .vortex/tooling/src/vortex-fetch-db
-  assert_failure
+  assert_failure_status 1
   assert_output_contains "Started database 2 fetch."
   assert_output_contains 'Unsupported database source "sftp" in VORTEX_FETCH_DB2_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, none.'
   assert_output_not_contains "Finished database 2 fetch."
