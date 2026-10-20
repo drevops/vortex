@@ -232,7 +232,9 @@ environment:
   containers alike.
 
 For a variable that `docker-compose.yml` doesn't list, web requests
-therefore get the value from `.env`, never from `.env.local`.
+therefore get the value from `.env`, never from `.env.local`. To use a
+value from `.env.local`, list the variable in `docker-compose.override.yml`,
+as [Environment variables](README.mdx#environment-variables) shows.
 
 Inside the `cli` container, commands get variables from 2 more sources:
 

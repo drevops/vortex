@@ -198,10 +198,22 @@ Docker Compose tab's command applies only `.env` changes. To include
 
 Drupal also reads variables that `docker-compose.yml` doesn't pass, such as
 `DRUPAL_CLAMAV_ENABLED`. For web requests, PHP-FPM loads them from `.env`
-when its container starts, never from `.env.local`, so set them in `.env`.
-To apply a change, run `ahoy restart` (or `docker compose restart`):
-`ahoy up` recreates a container only when its configuration changes, and
-these variables aren't part of it.
+when its container starts, never from `.env.local`. To apply a change to
+`.env`, run `ahoy restart` (or `docker compose restart`): `ahoy up`
+recreates a container only when its configuration changes, and these
+variables aren't part of it.
+
+To set such a variable on your machine only, for example a credential that
+must stay out of the committed `.env`, pass it to the `php` service in
+`docker-compose.override.yml`. Then set its value in `.env.local` and run
+`ahoy up`:
+
+```yaml title="docker-compose.override.yml"
+services:
+  php:
+    environment:
+      DRUPAL_EXAMPLE_API_KEY: ${DRUPAL_EXAMPLE_API_KEY:-}
+```
 
 Variables that only the `vendor/bin/vortex-*` scripts use, such as
 `VORTEX_PROVISION_OVERRIDE_DB`, take effect without recreating anything,
