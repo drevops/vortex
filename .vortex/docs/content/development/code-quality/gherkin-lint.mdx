@@ -59,9 +59,13 @@ rules](https://github.com/dantleech/gherkin-lint-php/blob/master/docs/rules.md).
 All global configuration lives in the
 [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
 file. Gherkin Lint enables every rule the file doesn't mention, and the
-values in the file override the defaults of the rules it lists. The shipped
-file sets the `indentation` rule to 2 spaces, with 3 for literal blocks, and
-turns off the following rules:
+values in the file override the defaults of the rules it lists.
+
+The shipped file sets the `indentation` rule to 2 spaces per level and puts
+literal blocks, the `"""` doc strings under a step, at level 3. A doc string
+therefore starts 6 spaces in, 2 spaces deeper than its step.
+
+The file also turns off the following rules:
 
 - `keyword-order` - the order of the `Given`, `When`, and `Then` steps in
   a scenario
@@ -91,11 +95,15 @@ file:
 }
 ```
 
-To ignore specific rules in a file, add this comment to the file header:
+To ignore specific rules in a file, add this comment before the `Feature:`
+line:
 
 ```yaml
 # @gherkinlint-disable-rule keyword-order, someother-rule
 ```
+
+In the example, the second name is a placeholder for any other rule.
+Separate the rule names with commas.
 
 Gherkin Lint doesn't support ignoring all rules within a file, ignoring code
 blocks, or ignoring individual lines. Per-file rule suppression is the only

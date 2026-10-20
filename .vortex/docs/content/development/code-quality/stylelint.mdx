@@ -113,6 +113,10 @@ The following rules are set on top of the standard configuration:
 - `no-descending-specificity` - disabled
 - `font-family-no-missing-generic-family-keyword` - disabled
 
+The `lint-css` script checks only `.css` files. In them,
+`at-rule-no-unknown` skips the listed Sass at-rules, but `@use` and
+`@forward` aren't on the list, so Stylelint reports them as unknown.
+
 Targets include custom modules only. The `--allow-empty-input` flag makes
 the run exit without an error when the glob matches no files:
 
@@ -230,9 +234,11 @@ violations. CI lints the custom modules and the custom theme in separate
 steps, and skips the theme step when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
 is set to `1`. On GitHub Actions, the theme step reads a repository
-variable of that name, not the value in `.env`. Stylelint runs after ESLint
-in each step, and the `lint` script stops at the first linter that fails,
-so it reports nothing until ESLint passes.
+variable of that name, not the value in `.env`.
+
+Each step runs the `lint` script of its `package.json`, root or theme,
+which is `npm run lint-js && npm run lint-css`. It stops at the first linter
+that fails, so Stylelint reports nothing until ESLint passes.
 
 ### Ignoring failures
 

@@ -66,6 +66,7 @@ where the tools support automatic fixes:
 | `ahoy lint-tests` | Gherkin Lint                                                           | None               |
 | `ahoy lint-sdc`   | SDC Devel (requires a provisioned site)                                | None               |
 
+`ahoy lint-fix` runs `ahoy lint-be-fix` and then `ahoy lint-fe-fix`.
 `ahoy lint-be-fix` runs Rector and then PHPCBF, the fixer that ships with
 PHPCS. `ahoy lint-fe-fix` runs Twig CS Fixer, ESLint, and Stylelint with
 their fix flags. PHPStan and Gherkin Lint only report problems, so you fix
@@ -78,7 +79,8 @@ it.
 
 Confirm that every check passed: run `echo $?` straight after the command.
 It prints `0` when every tool passed, and a non-zero code when 1 of them
-failed.
+failed. After `ahoy lint`, a `0` covers only the 7 tools it runs, not SDC
+Devel, DCLint, or Hadolint.
 
 **Vortex** doesn't install DCLint or Hadolint, so neither has an Ahoy
 command. To run them by hand, install them on your machine, as the

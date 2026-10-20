@@ -33,8 +33,9 @@ to ignore a rule.
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-`ahoy lint-be` runs PHPCS first, then PHPStan and Rector. To check the code,
-run 1 of the following commands:
+`ahoy lint-be` runs PHPCS first, then PHPStan and Rector, while the Docker
+Compose command runs PHPCS alone. To check the code, run 1 of the following
+commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -109,10 +110,20 @@ The ruleset sets the following command-line arguments for every run:
 - `parallel` set to `10` - 10 files checked at the same time; adjust it to
   the number of CPU cores available
 
-Targets include custom modules and themes, settings, tests, and scripts.
-PHPCS checks files with the `inc`, `info`, `install`, `module`, `php`,
-`profile`, `test`, and `theme` extensions, and skips minified files and the
-`build`, `fonts`, `images`, and `node_modules` directories of custom themes.
+PHPCS checks the following paths, which the `<file>` entries in `phpcs.xml`
+list:
+
+- `web/modules/custom`
+- `web/themes/custom`
+- `web/sites/default/settings.php`
+- `web/sites/default/includes`
+- `tests`
+- `scripts`
+
+Within them, PHPCS checks files with the `inc`, `info`, `install`,
+`module`, `php`, `profile`, `test`, and `theme` extensions, and skips
+minified files and the `build`, `fonts`, `images`, and `node_modules`
+directories of custom themes.
 
 To add or remove targets, add or remove the `<file>` entries in
 `phpcs.xml`:
@@ -121,9 +132,10 @@ To add or remove targets, add or remove the `<file>` entries in
 <file>path/to/dir_or_file</file>
 ```
 
-The `PHPCompatibility` checks run against the PHP version in `testVersion`,
-which matches the `composer.json` key `config.platform.php`. PHPCS doesn't
-read that key, so update both when you move to a new PHP version:
+The `PHPCompatibility` checks run against PHP `8.4`, the `testVersion` value
+in `phpcs.xml`, which matches the `composer.json` key `config.platform.php`
+(`8.4.23`). PHPCS doesn't read that key, so update both when you move to a
+new PHP version:
 
 ```xml
 <config name="testVersion" value="8.4"/>

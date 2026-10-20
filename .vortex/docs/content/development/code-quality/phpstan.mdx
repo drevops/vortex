@@ -30,8 +30,9 @@ guide](https://phpstan.org/user-guide/getting-started).
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-`ahoy lint-be` runs PHPCS first, then PHPStan and Rector. To analyze the
-code, run 1 of the following commands:
+`ahoy lint-be` runs PHPCS, PHPStan, and Rector in that order, while the
+Docker Compose command runs PHPStan alone. To analyze the code, run 1 of the
+following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -112,11 +113,13 @@ parameters:
         - path/to/exclude/a_file.php
 ```
 
-PHPStan doesn't support ignoring all rules within a file, ignoring a
-specific rule within a file, or ignoring code blocks. Inline suppression is
-per-line only. For why PHPStan has no block-level ignore, see the PHPStan
-issue [Ignoring code blocks using
-PHPDocs](https://github.com/phpstan/phpstan/issues/4452).
+PHPStan has no comment that ignores a whole file, 1 rule across a file, or
+a block of code: inline suppression works 1 line at a time. To skip files,
+use the configuration instead. Add them to `excludePaths` to leave them out
+of the analysis, or add `paths` to an `ignoreErrors` entry, as in the
+preceding example, to silence that error in those files only. For why
+PHPStan has no block-level ignore, see the PHPStan issue [Ignoring code
+blocks using PHPDocs](https://github.com/phpstan/phpstan/issues/4452).
 
 To ignore 1 error on the next line, add a `@phpstan-ignore` comment with
 the error identifier that PHPStan prints alongside the error:

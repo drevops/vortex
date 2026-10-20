@@ -112,8 +112,22 @@ Every error has an identifier in the form `A.B:C:D`, where:
 - `D`: the position of the token in that line
 
 All 4 parts are optional: `A`, `A.B`, `A.B:C`, `A.B:C:D`, `A:C`, `A:C:D`,
-and `A::D` all work. To find the identifier of an error you want to ignore,
-run the linter command with the `--debug` option.
+and `A::D` all work.
+
+To find the identifier of an error you want to ignore, run Twig CS Fixer
+with the `--debug` option. `ahoy lint-fe` doesn't pass extra options to the
+linters, so run the following command instead:
+
+```shell
+docker compose exec cli vendor/bin/twig-cs-fixer lint --debug
+```
+
+In debug mode, each reported error starts with its identifier, followed by
+the message:
+
+```text
+VariableName.Error:1:8 -- The var name must use snake_case; expected page_title.
+```
 
 To ignore all Twig CS Fixer rules in a file, add this comment to the file
 header:

@@ -38,8 +38,9 @@ and when you refactor legacy code to modernize it in bulk.
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-`ahoy lint-be` runs Rector last, after PHPCS and PHPStan. To check for code
-that Rector would change, run 1 of the following commands:
+`ahoy lint-be` runs Rector last, after PHPCS and PHPStan, while the Docker
+Compose command runs Rector alone. To check for code that Rector would
+change, run 1 of the following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -130,8 +131,16 @@ See the [Rector documentation](https://getrector.com/documentation).
 All global configuration lives in the
 [`rector.php`](https://github.com/drevops/vortex/blob/main/rector.php) file.
 
-Targets include custom modules and themes, settings, and tests. Unlike
-PHPCS and PHPStan, Rector leaves the `scripts` directory alone.
+Rector processes the following paths, which `withPaths()` in `rector.php`
+lists:
+
+- `web/modules/custom`
+- `web/themes/custom`
+- `web/sites/default/settings.php`
+- `web/sites/default/includes`
+- `tests`
+
+Unlike PHPCS and PHPStan, Rector leaves the `scripts` directory alone.
 
 ### Config sets
 
@@ -141,8 +150,9 @@ following sets:
 
 - The PHP sets up to the lowest PHP version that the `require.php`
   constraint in `composer.json` allows, through `withPhpSets()` called
-  without an argument. The sets follow `composer.json`, so `rector.php`
-  needs no change when you move to a new PHP version.
+  without an argument. The shipped constraint, `>=8.4`, resolves to PHP
+  8.4. The sets follow `composer.json`, so `rector.php` needs no change when
+  you move to a new PHP version.
 - The Drupal sets from [Drupal
   Rector](https://github.com/palantirnet/drupal-rector), resolved from the
   installed `drupal/core` version, so the rules track core upgrades without

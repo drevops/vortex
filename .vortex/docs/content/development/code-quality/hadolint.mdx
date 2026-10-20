@@ -43,6 +43,11 @@ To lint the Dockerfiles, run the following command from the project root:
 hadolint .docker/*.dockerfile
 ```
 
+CI lints every file under `.docker`, subdirectories included, that's named
+`Dockerfile` or ends in `.dockerfile`. The shipped `.docker` directory holds
+only top-level `.dockerfile` files, so this command checks the same files.
+If you add a `Dockerfile` or a subdirectory, add those paths to the command.
+
 Confirm that the check passed: run `echo $?` straight after Hadolint. It
 prints `0` when Hadolint found no violation at the `info` severity or
 higher.
@@ -68,7 +73,12 @@ RUN cd /tmp && echo "hello!"
 ```
 
 To record why you ignore a rule, add a second `#` and the reason after the
-rule codes, as the Dockerfiles in `.docker` do.
+rule codes, as `.docker/php.dockerfile` does:
+
+```Dockerfile
+# hadolint ignore=DL3018 # the package set tracks the pinned base image
+RUN apk add --no-cache tzdata
+```
 
 ## Continuous integration
 
@@ -78,8 +88,9 @@ any violation at the `info` severity or higher, the default failure
 threshold of Hadolint. Findings at the `style` severity appear in the job
 log without failing the build.
 
-The step lints each file in `.docker` that's named `Dockerfile` or ends in
-`.dockerfile`, and stops at the first file that fails.
+The step lints each file under `.docker`, subdirectories included, that's
+named `Dockerfile` or ends in `.dockerfile`, and stops at the first file
+that fails.
 
 ### Ignoring failures
 
