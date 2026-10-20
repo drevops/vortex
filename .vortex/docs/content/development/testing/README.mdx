@@ -22,6 +22,10 @@ no extra setup. Each covers a different layer of the site:
 | [Behat](behat.mdx)     | Behavior-Driven Development (BDD) scenarios, run end to end against the site, in a real browser when a scenario needs JavaScript | `ahoy test-bdd` |
 | [Jest](jest.mdx)       | The JavaScript behaviors in your custom modules, tested in isolation                                                             | `ahoy test-js`  |
 
+➡️ See [PHPUnit > Writing tests](phpunit.mdx#writing-tests), [Behat >
+Writing tests](behat.mdx#writing-tests), and [Jest > Test file
+structure](jest.mdx#test-file-structure) for where a new test goes.
+
 ## Running
 
 Run the tests with the following Ahoy commands:
@@ -74,11 +78,16 @@ run through an HTTP client.
 
 ## Reports and coverage
 
-[PHPUnit](phpunit.mdx#reports) and [Behat](behat.mdx#reports) write JUnit
-reports under `.logs/test_results/<tool>/`, and
-[PHPUnit](phpunit.mdx#coverage) and [Jest](jest.mdx#coverage) write coverage
-reports under `.logs/coverage/<tool>/`. The continuous integration pipeline
-stores them as artifacts.
+Each framework writes its reports under `.logs/`, and the continuous
+integration pipeline stores them as artifacts:
+
+- [PHPUnit](phpunit.mdx#reports) writes its JUnit report to
+  `.logs/test_results/phpunit/phpunit.xml` and its [coverage
+  reports](phpunit.mdx#coverage) to `.logs/coverage/phpunit/`.
+- [Behat](behat.mdx#reports) writes its JUnit reports to
+  `.logs/test_results/behat/`.
+- [Jest](jest.mdx#coverage) writes its coverage reports to
+  `.logs/coverage/jest/`.
 
 ## Continuous integration
 
@@ -114,4 +123,5 @@ topics:
 
 **Vortex** ships the file in the project's `docs/` directory, and the
 installer keeps it unless you decline its
-**Preserve project documentation?** prompt.
+**Preserve project documentation?** prompt. Declining it removes the whole
+`docs/` directory.

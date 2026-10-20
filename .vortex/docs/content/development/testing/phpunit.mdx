@@ -82,9 +82,10 @@ subdirectory, so the matching test suite collects it.
 ### Skipping tests
 
 `phpunit.xml` excludes the `skipped` group by default, so a
-`#[Group('skipped')]` attribute (imported from
-`PHPUnit\Framework\Attributes\Group`) on a test class or method takes it out
-of the test run:
+`#[Group('skipped')]` attribute on a test class or method takes it out of
+the test run. Import the attribute with
+`use PHPUnit\Framework\Attributes\Group;` at the top of the test file, then
+add it:
 
 ```php
 #[Group('skipped')]
@@ -95,8 +96,10 @@ public function testSomethingToSkip(): void {
 
 Calling `markTestSkipped()` instead fails the run, because `phpunit.xml`
 sets `failOnSkipped`. Use the attribute rather than the older
-`@group skipped` docblock annotation, too: PHPUnit 11 reports a deprecation
-for annotations, and `failOnPhpunitDeprecation` turns that into a failure.
+`@group skipped` docblock annotation, too. PHPUnit 11 still reads that
+docblock and leaves the test out, but it reports a deprecation, which
+`failOnPhpunitDeprecation` turns into a failed run. On a method that
+carries any attribute, PHPUnit ignores the docblock, so the test runs.
 
 ### Boilerplate
 
@@ -173,7 +176,8 @@ on. It covers the following topics:
 
 **Vortex** ships the file in the project's `docs/` directory, and the
 installer keeps it unless you decline its
-**Preserve project documentation?** prompt.
+**Preserve project documentation?** prompt. Declining it removes the whole
+`docs/` directory.
 
 ## Configuration
 
@@ -345,7 +349,8 @@ CircleCI stores it with the job's test results.
 If you chose **Codecov** at the installer's **Code coverage provider**
 prompt, the pipeline also uploads the whole `.logs/coverage` directory to
 Codecov when `CODECOV_TOKEN` is set. The upload includes the Jest coverage
-report, and CircleCI skips it on `deps/*` branches.
+report. CircleCI skips the whole upload on `deps/*` branches, while GitHub
+Actions uploads on every build.
 
 ### Coverage threshold
 
@@ -371,8 +376,9 @@ is set. Without one, the step prints `GITHUB_TOKEN is not set. Skipping.`
 and moves on. GitHub Actions also writes the coverage percentage to the job
 summary.
 
-To turn the comment off on both providers, set
-`VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
+To turn the comment off, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to
+`1`, as a repository variable in GitHub Actions or an environment variable
+in CircleCI.
 
 ### Ignoring failures
 

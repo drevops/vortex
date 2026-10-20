@@ -32,9 +32,9 @@ the way, and leaves production alone, so Shield stays under UI control
 there.
 
 The credentials come from the `DRUPAL_SHIELD_USER` and `DRUPAL_SHIELD_PASS`
-environment variables. Set both in every hosted non-production environment:
-Shield stays on in `dev` and `stage` even when they're missing, and then
-nobody can get past the prompt.
+environment variables. Hosted non-production environments run as `dev` or
+`stage`, so set both in each of them: Shield stays on there even when
+they're missing, and then nobody can get past the prompt.
 
 ➡️ See [Modules > Shield](../modules/contributed-modules.mdx#shield) for the
 full entry, including the overrides that disable Shield for 1 environment or
@@ -42,7 +42,7 @@ open the Let's Encrypt challenge path.
 
 ## Continuous integration
 
-Both scans run in the [security audit
+Secret scanning and the dependency audit run in the [security audit
 workflow](../../continuous-integration/README.mdx#security-audit), separate
 from the build pipeline. A failing audit then never looks like a failing
 linter, and you can re-run it on its own. The flip side is that the `deploy`
@@ -50,7 +50,7 @@ job doesn't depend on the audit, so a failing audit doesn't stop a
 deployment by itself. To block merges on it, add its check to the
 repository's branch protection rules as a required status check.
 
-In GitHub Actions, both scans also upload their findings to the repository's
+In GitHub Actions, both also upload their findings to the repository's
 **Security → Code scanning** tab, which keeps an inventory of the open
 findings. The workflow attaches every report to the run as the
 `security-findings` artifact too. CircleCI has no code scanning

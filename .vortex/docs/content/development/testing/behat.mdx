@@ -58,6 +58,10 @@ environment with the following commands:
   </TabItem>
 </Tabs>
 
+The `--` before Behat's options is optional: Ahoy drops it and passes the
+rest of the line to Behat. See
+[Ahoy > Usage](../environment/ahoy.mdx#usage).
+
 ### Discovering available step definitions
 
 Behat Steps, Mink, and Behat Screenshot each bring their own steps. To list
@@ -81,7 +85,8 @@ every step definition your suite can use, run the following command:
 
 ## Writing tests
 
-Structure each feature file like the following example:
+Put each feature file in the `tests/behat/features` directory, where the
+`default` suite finds it, and structure it like the following example:
 
 ```gherkin
 @tag_describing_feature_group
@@ -192,7 +197,8 @@ on. It covers the following topics:
 
 **Vortex** ships the file in the project's `docs/` directory, and the
 installer keeps it unless you decline its
-**Preserve project documentation?** prompt.
+**Preserve project documentation?** prompt. Declining it removes the whole
+`docs/` directory.
 
 ## Configuration
 
@@ -300,6 +306,13 @@ these variables through from your host:
 - `BEHAT_SCREENSHOT_DIR` stores the screenshots in another directory.
 - `BEHAT_SCREENSHOT_PURGE` set to `1` empties the directory at the start of
   a run.
+
+For example, the following command empties the directory, then runs Behat:
+
+```shell
+docker compose exec -e BEHAT_SCREENSHOT_PURGE=1 cli \
+  php -d memory_limit=-1 vendor/bin/behat
+```
 
 ### Animated screenshots
 

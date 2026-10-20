@@ -143,7 +143,9 @@ example, a production site with strict supply-chain controls), set
 ### Ignoring
 
 When you've assessed an advisory and found it doesn't affect your project,
-add its ID to `ignore-id`, with the reason as the value:
+add it to `ignore-id`. Use the value from the advisory's `Advisory ID` or
+`CVE` row in the `composer audit` output as the key, and the reason as the
+value:
 
 ```json
 {
@@ -232,9 +234,11 @@ A project can have up to 2 JavaScript dependency trees, each with its own
 
 - The root tree holds the linters and the test runner for the custom
   modules. It ships when you keep ESLint, Stylelint, or Jest at the
-  installer's **Development tools** prompt.
+  installer's **Development tools** prompt. Without them, the installer
+  removes the root tree's audit steps from the CI configuration.
 - The custom theme's tree holds its frontend build. It ships with a custom
-  theme.
+  theme. Without one, the installer removes the theme's audit steps from
+  the CI configuration.
 
 ### Usage
 
@@ -321,9 +325,17 @@ To apply the pin, complete these steps:
 1. Add the entry to the `package.json` of the affected tree. The root
    `package.json` already has an `overrides` object, so add the entry to
    it.
-2. Run `npm install` for that tree to update its lock file, for example
-   `ahoy cli "npm install"` for the root tree. npm resolves every dependent
-   to the pinned version, so the affected version leaves the tree.
+2. Run `npm install` for that tree to update its lock file. npm resolves
+   every dependent to the pinned version, so the affected version leaves
+   the tree:
+
+   ```shell
+   # Root tree
+   ahoy cli "npm install"
+   # Theme tree
+   ahoy cli "npm install --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME}"
+   ```
+
 3. Commit both files, with the advisory that the entry addresses in the
    commit message, the same as for the Composer exceptions.
 
