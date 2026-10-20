@@ -235,7 +235,12 @@ becomes the only root. Adding a new custom module with JavaScript tests
 requires no configuration changes.
 
 The `test` script in `package.json` runs Jest with `--passWithNoTests`, so a
-project without any JavaScript tests still passes.
+project without any JavaScript tests still passes. Jest doesn't warn about a
+file that discovery misses, such as a test outside a module's `js/`
+directory or one whose name doesn't end in `.test.js`. The skipped file
+doesn't fail the run, even when it's the only test file. To confirm that
+your test ran, check that Jest prints a `PASS` or `FAIL` line with its path,
+and that the `Test Suites:` count in the summary includes it.
 
 ## Reports
 
@@ -268,12 +273,15 @@ After a run, the coverage reports are in the following locations:
 In the continuous integration pipeline, Jest runs on the first container
 only (see [Test
 parallelism](../../continuous-integration/README.mdx#test-parallelism)).
+A failing Jest test fails the build unless `VORTEX_CI_JEST_IGNORE_FAILURE`
+is `1`.
 
-The pipeline stores the coverage reports as artifacts. They don't count
-toward the [coverage threshold](phpunit.mdx#coverage-threshold) or the
-coverage comment on pull requests, which read only the PHPUnit report. If
-you use Codecov, its upload covers the whole `.logs/coverage` directory,
-Jest's `cobertura.xml` included.
+The pipeline stores the coverage reports as artifacts. Jest's coverage
+doesn't count toward the [coverage
+threshold](phpunit.mdx#coverage-threshold) or the coverage comment on pull
+requests, which read only the PHPUnit report. If you use Codecov, its upload
+covers the whole `.logs/coverage` directory, Jest's `cobertura.xml`
+included.
 
 ### Ignoring failures
 

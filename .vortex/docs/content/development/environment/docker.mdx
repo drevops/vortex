@@ -19,6 +19,7 @@ few lines marked as local-only or CI-only.
 This page is for developers who change the stack or need to know how it
 fits together. It covers the following:
 
+- How to reach the local site and its database from your machine
 - What each service in `docker-compose.yml` does
 - How code and environment variables reach the containers
 - What the image build leaves out
@@ -78,6 +79,35 @@ can copy any of them into your terminal and run it without Ahoy.
 
 The [Environment](README.mdx) section covers the commands for each task.
 
+### Local site address
+
+The local site runs at `http://<project>.docker.amazee.io`, where
+`<project>` is the Docker Compose project name. It defaults to the name of
+the project directory. `ahoy info` prints the full URL as `Site local URL`.
+
+To change the project name, and with it the URL, follow these steps:
+
+1. Run `ahoy down` to remove the current containers and their database.
+   Docker Compose groups containers by project name, so after the change,
+   Ahoy can't reach the old ones.
+2. Set `COMPOSE_PROJECT_NAME` in `.env`.
+3. Run `ahoy up` to start a new set of containers under the new name.
+4. Run `ahoy provision` to set up the site in the new containers.
+
+### Database connection
+
+To connect a database client on your machine to the `database` service,
+use these details:
+
+- Host: `127.0.0.1`
+- Port: the number that `ahoy info` prints as `DB port on host`
+- Database, username, and password: `drupal`
+
+`ahoy info` also prints `DB host` and `DB port`, but those values work only
+inside the containers. Docker assigns the host port when the container
+starts, so it can change after a restart. If the client can't connect, run
+`ahoy info` again.
+
 ## Understanding `docker-compose.yml`
 
 Docker Compose reads its configuration from `docker-compose.yml` and, when
@@ -127,7 +157,8 @@ Storybook enabled.
 The `VOLUME_FLAGS` environment variable sets the consistency mode of the
 host mounts. The values are:
 
-- `default`: Equivalent to `consistent`.
+- `default`: Equivalent to `consistent`. Despite its name, it isn't the
+  mode the mounts use when `VOLUME_FLAGS` is unset.
 - `consistent`: Full consistency. The container runtime and the host
   maintain an identical view of the mount at all times.
 - `cached`: The host's view of the mount is authoritative. There might be
@@ -136,9 +167,13 @@ host mounts. The values are:
   There might be delays before updates made in a container are visible on
   the host.
 
-The default is `delegated`, which favors the container's write performance
-during heavy operations such as installing dependencies. The cost is that
-changes made in a container take a moment to appear on the host.
+When `VOLUME_FLAGS` is unset or empty, the mounts use `delegated`, which
+favors the container's write performance during heavy operations such as
+installing dependencies. The cost is that changes made in a container take
+a moment to appear on the host.
+
+To use another mode, set `VOLUME_FLAGS` in `.env` and run `ahoy up`, which
+recreates the containers with the new mounts.
 
 ### Default user
 
@@ -148,8 +183,11 @@ does the optional `database2`. On Linux, files a container writes into a
 host mount keep that numeric ID. With matching IDs, the files the site
 writes, such as uploads in `web/sites/default/files`, belong to you.
 
-Change the value if you're on Linux and your user ID isn't `1000` (`id -u`
-prints it).
+If you're on Linux and your user ID isn't `1000` (`id -u` prints it),
+change the value in `docker-compose.yml`, then run `ahoy up` to recreate
+the containers that use it. The file is committed, so the change applies to
+everyone on the project. To change it only on your machine, set `user` on
+those services in `docker-compose.override.yml` instead.
 
 The `cli` service doesn't use the anchor and runs as `root` instead. On
 Linux, files it creates in the project, such as a freshly installed `vendor`
@@ -237,9 +275,9 @@ Each of these lines does the following:
   ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io` - sets
   `LOCALDEV_URL` to `<project>.docker.amazee.io`. The `<project>` part is
   the Docker Compose project name, which defaults to the name of the project
-  directory, or `example-site` when that's empty. Unlike `TZ`, it has no
-  fallback to an existing `LOCALDEV_URL`. The value is also stored in the
-  YAML anchor `default-url` for later use.
+  directory. `example-site` applies only when the project name is empty.
+  Unlike `TZ`, it has no fallback to an existing `LOCALDEV_URL`. The value
+  is also stored in the YAML anchor `default-url` for later use.
 - `LAGOON_ROUTE: *default-url` - sets `LAGOON_ROUTE` to the same value
   through the `*default-url` alias, so the 2 always match.
 
@@ -257,9 +295,13 @@ there only when you enable the matching feature in the installer:
 - `cli` - runs a shell for commands in the context of the project, such as
   `composer` or `drush`, and never handles web requests. The `nginx` and
   `php` builds copy the application code from the `cli` image, so all 3
-  contain the same code. The build receives `PACKAGE_TOKEN` as the
-  `package_token` build secret, so Composer can reach private repositories.
-  On Lagoon, cron jobs run in this container too.
+  contain the same code. The build receives `PACKAGE_TOKEN`, which you set
+  in `.env.local`, as the `package_token` build secret, so Composer can
+  reach private repositories. Compose also passes the token as a build
+  argument on every build, and the Composer step falls back to that argument
+  when the secret is empty. Docker records build argument values in the
+  image history, so the token can end up in the image. On Lagoon, cron jobs
+  run in this container too.
 - `nginx` - runs the web server, which serves the application and passes
   requests on to the `php` container. It's the only service on Pygmy's
   `amazeeio-network`.
@@ -325,7 +367,7 @@ The file excludes the following from the image build context:
 - Credentials and local overrides (`auth*`, `.env.local`, `.ahoy.local.yml`,
   `docker-compose.override.yml`, `web/sites/*/settings.local.php`,
   `web/sites/*/services.local.yml`). The package token reaches the build
-  through a build secret instead.
+  through a build secret and a build argument instead.
 - Host-installed dependencies, which are reinstalled during the build
   (`vendor`, `node_modules`, `web/themes/**/node_modules`).
 - Composer-generated Drupal directories, which are regenerated during the

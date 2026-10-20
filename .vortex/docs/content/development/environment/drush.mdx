@@ -87,6 +87,34 @@ existing `PHP_INI_SCAN_DIR` value, or PHP's default scan directory when the
 variable starts out empty. That way, on Acquia, the hosting provider's own
 PHP ini overrides (such as `sendmail_path`) aren't lost.
 
+Locally, a change to `drush.ini` applies to the next PHP process without a
+rebuild. The project directory is mounted at `/app`, and PHP reads the scan
+directory each time a process starts. In CI and on Lagoon, no host
+directory is mounted. The image build copies the project into `/app`, so a
+change there applies from the next build.
+
+To confirm that PHP loads the file, list the ini files it reads, which
+include `/app/drush/php-ini/drush.ini`, or print the memory limit in effect:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # List the ini files that PHP loads
+    ahoy cli php --ini
+    # Print the memory limit in effect
+    ahoy cli "php -i | grep memory_limit"
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    # List the ini files that PHP loads
+    docker compose exec cli php --ini
+    # Print the memory limit in effect
+    docker compose exec cli bash -c "php -i | grep memory_limit"
+    ```
+  </TabItem>
+</Tabs>
+
 ## Memory limit
 
 The shipped configuration sets the PHP memory limit higher than the platform
@@ -136,8 +164,14 @@ aliases from your host machine or from inside the container.
 
 The project name is hardcoded in the alias file because Drush doesn't load
 variables from `.env` files. The hardcoded name keeps the aliases working
-identically on the host and in the container. If you change `LAGOON_PROJECT`
-in `.env`, update the alias file to match.
+identically on the host and in the container. It appears in 2 lines: the
+`user:` value (`your_site-${env-name}` in the template) and the `uri:`
+value. If you change `LAGOON_PROJECT` in `.env`, update both lines to match.
+
+The file also hardcodes the details of the Lagoon cluster: the SSH host in
+`host:`, the SSH port in the `-p` option of `ssh.options`, and the route
+domain at the end of `uri:`. If your project runs on another Lagoon
+cluster, replace them with that cluster's values.
 
 To run a Drush command against a Lagoon environment, follow the steps in
 the tab that matches how you run Drush:
@@ -184,5 +218,26 @@ the tab that matches how you run Drush:
   </TabItem>
 </Tabs>
 
-Confirm that the alias works: `drush @lagoon.develop status` prints the
-status of the `develop` environment, including its Drupal version.
+Confirm that the alias works by running the status command in the tab that
+matches how you run Drush. It prints the status of the `develop`
+environment, including its Drupal version. On the host, the command runs
+the project's Drush from `vendor/bin`, so it needs PHP installed on your
+machine:
+
+<Tabs>
+  <TabItem value="host" label="Host" default>
+    ```shell
+    ./vendor/bin/drush @lagoon.develop status
+    ```
+  </TabItem>
+  <TabItem value="ahoy" label="Ahoy">
+    ```shell
+    ahoy drush @lagoon.develop status
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli drush @lagoon.develop status
+    ```
+  </TabItem>
+</Tabs>
