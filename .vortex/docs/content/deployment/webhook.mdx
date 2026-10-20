@@ -74,7 +74,9 @@ To set up webhook deployment, complete these steps:
 
 Confirm that the next deployment called the webhook. The `deploy` job log
 shows `Webhook call completed.`, followed by
-`[ OK ] Finished webhook deployment.`
+`[ OK ] Finished webhook deployment.` These lines confirm the call and its
+response status only, so check the receiving system to confirm that it ran
+the deployment.
 
 ## Use cases
 

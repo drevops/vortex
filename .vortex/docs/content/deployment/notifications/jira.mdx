@@ -77,9 +77,10 @@ Lowercase keys, such as `proj-123`, match too. The key has to open the
 branch name or follow its first `/`. When the branch has no key, the channel
 posts nothing and passes.
 
-A key anywhere else in the name, or a date in a name such as
-`release/2023-04-17`, produces a value that isn't a valid issue key. Posting
-the comment then fails with `Unable to create a comment.`
+A key anywhere else in the name, or a date in the name, produces a value
+that isn't a valid issue key: `feature/foo/PROJ-123` gives
+`feature/PROJ-123`, and `release/2023-04-17` gives `2023-04`. Posting the
+comment then fails with `Unable to create a comment.`
 
 `VORTEX_NOTIFY_JIRA_BRANCHES` takes exact branch names only, so it can't
 exclude a pattern such as `release/*`. To keep the channel off the

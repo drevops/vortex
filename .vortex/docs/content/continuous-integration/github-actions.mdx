@@ -278,9 +278,10 @@ and commit SHA with the GitHub CLI. Confirm that the run shows the `deploy`
 job as succeeded and the `lint`, `database`, and `build` jobs as skipped.
 
 With `override_db` checked, the deployment replaces the environment's
-database with a fresh copy taken from the production environment. Only
-Lagoon deployments act on it, and only when they redeploy an environment
-that already exists.
+database with a fresh copy taken from the production environment. Only the
+`lagoon` deployment type acts on it, even when `VORTEX_DEPLOY_TYPES` lists
+other types as well, and only when it redeploys an environment that already
+exists.
 
 :::note
 

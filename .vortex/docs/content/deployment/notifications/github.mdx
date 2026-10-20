@@ -50,7 +50,7 @@ reads:
 |----------|----------|---------|----------|-------------|
 | `VORTEX_NOTIFY_GITHUB_TOKEN` | **Yes**, unless `GITHUB_TOKEN` is set | `GITHUB_TOKEN` | Hosting | Classic GitHub personal access token with the `repo` scope |
 | `VORTEX_NOTIFY_GITHUB_REPOSITORY` | **Yes** | None | Hosting | Repository in `owner/repo` format |
-| `VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE` | No | `VORTEX_NOTIFY_LABEL`, then `PR` | `.env` | Name of the GitHub environment that each deployment is created in, for example `PR-123` |
+| `VORTEX_NOTIFY_GITHUB_ENVIRONMENT_TYPE` | No | `VORTEX_NOTIFY_LABEL`, then `PR` | `.env` | Name of the GitHub environment that each deployment is created in; the label default gives `PR-123` for a pull request and the branch name, such as `develop`, for a branch |
 | `VORTEX_NOTIFY_GITHUB_BRANCHES` | No | None | `.env` | Exact branch names to report (comma-separated); empty reports every branch |
 | `VORTEX_NOTIFY_GITHUB_BRANCH` | No | `VORTEX_NOTIFY_BRANCH` | Hosting | Branch used as the deployment's `ref` |
 | `VORTEX_NOTIFY_GITHUB_ENVIRONMENT_URL` | No | `VORTEX_NOTIFY_ENVIRONMENT_URL` | Hosting | Environment URL that `post_deployment` attaches to the deployment |

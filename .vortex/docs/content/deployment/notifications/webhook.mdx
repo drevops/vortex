@@ -89,6 +89,9 @@ table](README.mdx#message-templates-and-tokens), including
 `%deployment_log%`. The channel JSON-escapes each value before it
 substitutes it, so a quote in a label can't break the payload.
 
-The channel follows redirects and skips `pre_deployment`. It fails with
-`Unable to send notification to webhook` when the response status doesn't
-match `VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS`.
+The channel follows redirects and skips `pre_deployment`. When the response
+status doesn't match `VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS`, or the request
+can't connect, the deployment output shows
+`[FAIL] Unable to send notification to webhook` followed by the full webhook
+URL. That line includes any token the URL carries, even when the URL comes
+from the hosting environment variables.

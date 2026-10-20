@@ -65,12 +65,14 @@ notification channel reads:
 Each message is a Slack attachment with the following parts:
 
 - A title made of the status and the project name, for example
-  `Deployment Complete: My Project`.
+  `Deployment Starting: My Project` or `Deployment Complete: My Project`.
 - **Deployment** and **Time** fields with the deployment label and the
   timestamp.
 - **Environment** and **Login** fields with **View Site** and **Login Here**
   links, in post-deployment messages only.
-- The collected deployment log, when deployment logs are on.
+- The collected deployment log, when deployment logs are on. A
+  pre-deployment message goes out before provisioning, so it never carries
+  that deployment's provisioning log.
 - A `Vortex Deployment` footer.
 
 Slack uses the fallback text from the message template in notifications and

@@ -671,18 +671,27 @@ keys is the secure alternative: with `VORTEX_SSH_KNOWN_HOSTS` set, the SSH
 setup writes the keys to `known_hosts` and keeps strict checking on, even
 where `VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING` is set.
 
-To pin the host keys, add the verified keys as `VORTEX_SSH_KNOWN_HOSTS`:
+To pin the host keys, get them with `ssh-keyscan -p PORT HOST`, where `HOST`
+and `PORT` are your hosting provider's SSH host and port. Check them against
+the fingerprints your provider publishes, then add them as
+`VORTEX_SSH_KNOWN_HOSTS`:
 
-- On GitHub Actions, add it as a repository variable and map it into the
-  workflow `env` block yourself, because the shipped workflow doesn't
-  reference it.
+- On GitHub Actions, add a repository variable with 1 entry per line. The
+  shipped workflow doesn't reference it, so also add
+  `VORTEX_SSH_KNOWN_HOSTS: ${{ vars.VORTEX_SSH_KNOWN_HOSTS }}` to the
+  `container.env` block of the `database`, `build`, and `deploy` jobs in
+  `.github/workflows/build-test-deploy.yml`, next to
+  `VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING`.
 - On CircleCI, add it as an environment variable, with multiple entries
   joined with `\n`.
 
-On GitHub Actions, the steps that load the SSH keys also skip their
-`known_hosts` file by default. Set the `VORTEX_FETCH_DB_SSH_KNOWN_HOSTS`
-(database fetch) and `VORTEX_DEPLOY_SSH_KNOWN_HOSTS` (deployment) repository
-variables to pin those host keys too.
+On GitHub Actions, the steps that load the SSH keys also take a
+`known_hosts` input from the `VORTEX_FETCH_DB_SSH_KNOWN_HOSTS` and
+`VORTEX_DEPLOY_SSH_KNOWN_HOSTS` repository variables, and skip it when
+they're empty. Those 2 variables don't keep strict checking on by
+themselves, because the SSH setup still turns it off without
+`VORTEX_SSH_KNOWN_HOSTS`. You don't need them once `VORTEX_SSH_KNOWN_HOSTS`
+is mapped.
 
 Confirm that the job log shows `Pinned SSH host keys to known_hosts.` where
 the SSH setup runs.

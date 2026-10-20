@@ -47,8 +47,8 @@ control the push:
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
 | `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` | **Yes** | None | CI or `.env` | Remote repository URL for the artifact |
-| `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL` | **Yes** | None | CI | Email address of the user committing to the remote repository |
-| `VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME` | No | `Deployment Robot` | CI | Name of the user committing to the remote repository |
+| `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL` | **Yes** | None | CI or `.env` | Email address of the user committing to the remote repository |
+| `VORTEX_DEPLOY_ARTIFACT_GIT_USER_NAME` | No | `Deployment Robot` | CI or `.env` | Name of the user committing to the remote repository |
 | `VORTEX_DEPLOY_ARTIFACT_DST_BRANCH` | No | `[branch]` | `.env` | Remote branch to push to; supports [tokens](https://github.com/drevops/git-artifact#token-support). Tag deployments always push to `deployment/[tags:-]`, whatever this is set to |
 | `VORTEX_DEPLOY_ARTIFACT_SRC` | **Yes**, set by the shipped CI configs | None | CI | Directory with the built codebase to package, passed to `git-artifact` as `--source`; the shipped CI configs set it to `/tmp/workspace/code` |
 | `VORTEX_DEPLOY_ARTIFACT_ROOT` | No | Current directory | CI | Repository checkout that `.git` and `.gitignore.artifact` are copied from, passed to `git-artifact` as `--root` |
@@ -66,7 +66,9 @@ The shipped CI configs set `VORTEX_DEPLOY_ARTIFACT_SRC` and
 
 On GitHub Actions, the shipped workflow passes the remote, the user email,
 and the user name from repository variables of the same name, so set them
-there. It passes no other artifact variable, so set the rest in `.env`.
+there. A value in `.env` doesn't reach the script for these 3, because the
+value the workflow passes wins, even when it's empty. The workflow passes no
+other artifact variable, so set the rest in `.env`.
 
 ### Setup
 
