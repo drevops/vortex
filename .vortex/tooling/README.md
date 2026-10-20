@@ -10,7 +10,7 @@ needs to be added to your Drupal consumer project site.
 ## Installation
 
 ```bash
-composer require drevops/vortex-tooling:~1.4.0
+composer require drevops/vortex-tooling:~1.5.0
 ```
 
 Always install with a `~` constraint. It accepts patch releases but holds
@@ -18,7 +18,7 @@ the minor version, so a new minor release cannot reach your deployments
 until you raise the constraint yourself:
 
 ```json
-"drevops/vortex-tooling": "~1.4.0",
+"drevops/vortex-tooling": "~1.5.0",
 ```
 
 Once installed, you run the shipped scripts as Composer binaries from
