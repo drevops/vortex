@@ -283,9 +283,11 @@ with the documentation at the
 [installer download URL](https://www.vortextemplate.com/install), so the
 [release process](release.mdx) needs no separate installer step.
 
-The PHAR reports the tag name as its version, or the commit SHA for a
-branch build, and a local build reports `development`. When you run the
-workflow by hand, you can enter a version that the build reports instead.
+The workflow sets the version that the PHAR reports: the tag name for a tag
+build, or the full commit SHA for a branch build. When you run the workflow
+by hand, you can enter a version that the build reports instead. A local
+build with `composer build` or `ahoy build-installer` always reports
+`development`, whichever branch is checked out.
 
 Each publish also refreshes the per-major pins at `/v1/install` and
 `/v2/install`: the current major's installer comes from the release ref, and
