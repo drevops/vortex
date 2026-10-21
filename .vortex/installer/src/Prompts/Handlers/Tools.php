@@ -364,7 +364,7 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('devDependencies', '@eslint/js');
           $pj->removeSubNode('devDependencies', 'eslint');
           $pj->removeSubNode('devDependencies', 'eslint-config-prettier');
-          $pj->removeSubNode('devDependencies', 'eslint-plugin-import');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-import-x');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-jsdoc');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-no-jquery');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-prettier');
@@ -382,7 +382,7 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('devDependencies', '@eslint/js');
           $pj->removeSubNode('devDependencies', 'eslint');
           $pj->removeSubNode('devDependencies', 'eslint-config-prettier');
-          $pj->removeSubNode('devDependencies', 'eslint-plugin-import');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-import-x');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-jsdoc');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-no-jquery');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-prettier');

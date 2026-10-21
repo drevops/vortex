@@ -4,7 +4,7 @@
 // can be moved into a separate repository.
 import { defineConfig } from 'eslint/config';
 import { fixupPluginRules } from '@eslint/compat';
-import importPlugin from 'eslint-plugin-import';
+import { importX } from 'eslint-plugin-import-x';
 import noJQuery from 'eslint-plugin-no-jquery';
 import prettierConfig from 'eslint-plugin-prettier/recommended';
 import ymlConfig from 'eslint-plugin-yml';
@@ -17,7 +17,7 @@ export default defineConfig(
     ignores: ['node_modules/**/*', 'build/**/*', '**/*.min.js'],
   },
   js.configs.recommended,
-  importPlugin.flatConfigs.recommended,
+  importX.flatConfigs.recommended,
   jsdoc.configs['flat/recommended'],
   prettierConfig,
   ymlConfig.configs['flat/recommended'],
@@ -57,7 +57,7 @@ export default defineConfig(
       'consistent-return': ['off'],
       'no-underscore-dangle': ['off'],
       'max-nested-callbacks': ['warn', 3],
-      'import/no-mutable-exports': ['warn'],
+      'import-x/no-mutable-exports': ['warn'],
       'no-plusplus': [
         'warn',
         {

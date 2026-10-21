@@ -268,7 +268,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileNotContainsString($pj, '"eslint":');
           $test->assertFileNotContainsString($pj, '"eslint-config-airbnb-base":');
           $test->assertFileNotContainsString($pj, '"eslint-config-prettier":');
-          $test->assertFileNotContainsString($pj, '"eslint-plugin-import":');
+          $test->assertFileNotContainsString($pj, '"eslint-plugin-import-x":');
           $test->assertFileNotContainsString($pj, '"eslint-plugin-jsdoc":');
           $test->assertFileNotContainsString($pj, '"eslint-plugin-no-jquery":');
           $test->assertFileNotContainsString($pj, '"eslint-plugin-prettier":');
@@ -283,13 +283,14 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
           $tpj = static::themeManifest();
           $test->assertFileNotContainsString($tpj, '"eslint":');
+          $test->assertFileNotContainsString($tpj, '"eslint-plugin-import-x":');
           $test->assertFileNotContainsString($tpj, '"prettier":');
           $test->assertFileContainsString($tpj, '"stylelint":');
 
           static::assertNpmPairIsInSync($pj);
           static::assertNpmPairIsInSync($tpj);
-          static::assertNpmLockLacksPackages($pj, ['eslint', 'prettier']);
-          static::assertNpmLockLacksPackages($tpj, ['eslint', 'prettier']);
+          static::assertNpmLockLacksPackages($pj, ['eslint', 'eslint-plugin-import-x', 'prettier']);
+          static::assertNpmLockLacksPackages($tpj, ['eslint', 'eslint-plugin-import-x', 'prettier']);
           static::assertNpmLockHasPackages($pj, ['stylelint', 'jest']);
           static::assertNpmLockHasPackages($tpj, ['stylelint', 'sass']);
       }),
@@ -305,7 +306,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileNotContainsString($pj, '"eslint":');
           $test->assertFileNotContainsString($pj, '"eslint-config-airbnb-base":');
           $test->assertFileNotContainsString($pj, '"eslint-config-prettier":');
-          $test->assertFileNotContainsString($pj, '"eslint-plugin-import":');
+          $test->assertFileNotContainsString($pj, '"eslint-plugin-import-x":');
           $test->assertFileNotContainsString($pj, '"eslint-plugin-jsdoc":');
           $test->assertFileNotContainsString($pj, '"eslint-plugin-no-jquery":');
           $test->assertFileNotContainsString($pj, '"eslint-plugin-prettier":');

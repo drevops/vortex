@@ -14,4 +14,4 @@
 -    "jest-environment-jsdom": "__VERSION__",
      "eslint": "__VERSION__",
      "eslint-config-prettier": "__VERSION__",
-     "eslint-plugin-import": "__VERSION__",
+     "eslint-plugin-import-x": "__VERSION__",
