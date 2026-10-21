@@ -9,7 +9,7 @@
 ARG CLI_IMAGE
 FROM ${CLI_IMAGE:-cli} AS cli
 
-FROM uselagoon/php-8.4-fpm:26.9.0
+FROM uselagoon/php-8.4-fpm:26.10.0
 
 # hadolint ignore=DL3018 # the package set tracks the pinned base image
 RUN apk add --no-cache tzdata

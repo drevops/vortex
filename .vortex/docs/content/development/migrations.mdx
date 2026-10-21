@@ -138,7 +138,7 @@ migration database already baked in (a database-in-image seed):
 
 ```yaml
 database2:
-  image: "${VORTEX_DB2_IMAGE:-uselagoon/mysql-8.4:26.9.0}"
+  image: "${VORTEX_DB2_IMAGE:-uselagoon/mysql-8.4:26.10.0}"
   environment:
     <<: *default-environment
     MYSQL_DATABASE: drupal
