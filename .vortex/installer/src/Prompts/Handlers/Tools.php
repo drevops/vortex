@@ -364,7 +364,7 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('devDependencies', '@eslint/js');
           $pj->removeSubNode('devDependencies', 'eslint');
           $pj->removeSubNode('devDependencies', 'eslint-config-prettier');
-          $pj->removeSubNode('devDependencies', 'eslint-plugin-import');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-import-x');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-jsdoc');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-no-jquery');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-prettier');
@@ -372,8 +372,6 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('devDependencies', 'globals');
           $pj->removeSubNode('devDependencies', 'prettier');
           $pj->removeSubNode('devDependencies', '@homer0/prettier-plugin-jsdoc');
-          $pj->removeSubNode('overrides', 'eslint-plugin-import');
-          $pj->removeMainKeyIfEmpty('overrides');
           $pj->removeSubNode('scripts', 'lint-js');
           $pj->removeSubNode('scripts', 'lint-fix-js');
           $pj->addSubNode('scripts', 'lint', 'npm run lint-css');
@@ -384,7 +382,7 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('devDependencies', '@eslint/js');
           $pj->removeSubNode('devDependencies', 'eslint');
           $pj->removeSubNode('devDependencies', 'eslint-config-prettier');
-          $pj->removeSubNode('devDependencies', 'eslint-plugin-import');
+          $pj->removeSubNode('devDependencies', 'eslint-plugin-import-x');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-jsdoc');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-no-jquery');
           $pj->removeSubNode('devDependencies', 'eslint-plugin-prettier');
@@ -392,8 +390,6 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('devDependencies', 'globals');
           $pj->removeSubNode('devDependencies', 'prettier');
           $pj->removeSubNode('devDependencies', '@homer0/prettier-plugin-jsdoc');
-          $pj->removeSubNode('overrides', 'eslint-plugin-import');
-          $pj->removeMainKeyIfEmpty('overrides');
           $pj->removeSubNode('scripts', 'lint-js');
           $pj->removeSubNode('scripts', 'lint-js-fix');
           $pj->addSubNode('scripts', 'lint', 'npm run lint-css');

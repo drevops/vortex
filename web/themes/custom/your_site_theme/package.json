@@ -4,7 +4,7 @@
   "private": true,
   "description": "NodeJS dependencies for YOURSITE project",
   "devDependencies": {
-    "@eslint/compat": "^2.0.0",
+    "@eslint/compat": "^2.0.2",
     "@eslint/js": "^10.0.1",
     "@homer0/prettier-plugin-jsdoc": "^12.0.0",
     "@storybook/server-webpack5": "^10.6.0",
@@ -12,7 +12,7 @@
     "chokidar-cli": "^3.0.0",
     "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-import-x": "^4.17.1",
     "eslint-plugin-jsdoc": "^63.0.10",
     "eslint-plugin-no-jquery": "^5.0.0",
     "eslint-plugin-prettier": "^5.5.6",
@@ -61,9 +61,6 @@
     "watch": "chokidar 'js/**/*.js' 'scss/**/*.scss' -c 'npm run build-dev'"
   },
   "overrides": {
-    "eslint-plugin-import": {
-      "eslint": "$eslint"
-    },
     "webpack-dev-middleware": "^7.4.5"
   }
 }
