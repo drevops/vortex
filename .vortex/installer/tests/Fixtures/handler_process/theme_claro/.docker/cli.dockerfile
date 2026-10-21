@@ -7,7 +7,7 @@
  ENV DRUPAL_THEME=${DRUPAL_THEME}
  
  ARG VORTEX_FRONTEND_BUILD_SKIP="0"
-@@ -89,13 +89,5 @@
+@@ -91,13 +91,5 @@
  # Create file directories and set correct permissions.
  # hadolint ignore=SC2174 # only the leaf directory needs the mode
  RUN mkdir -p -m 2775 "/app/${WEBROOT}/${DRUPAL_PUBLIC_FILES}" "/app/${WEBROOT}/${DRUPAL_PRIVATE_FILES}" "${DRUPAL_TEMPORARY_FILES}"
