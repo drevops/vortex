@@ -343,15 +343,13 @@ trait SubtestDockerComposeTrait {
     );
 
     $this->cmd(
-      'docker compose exec -T php php --ini',
-      '/usr/local/etc/php/conf.d/custom.ini',
-      'PHP parses the shipped custom.ini'
-    );
-
-    $this->cmd(
-      'docker compose exec -T php php -i',
-      'session.upload_progress.enabled => Off => Off',
-      'PHP applies the session upload progress setting from the shipped custom.ini'
+      'docker compose exec -T php php-fpm -i',
+      [
+        '* Server API => FPM/FastCGI',
+        '* /usr/local/etc/php/conf.d/custom.ini',
+        '* session.upload_progress.enabled => Off => Off',
+      ],
+      'PHP-FPM parses the shipped custom.ini and turns off session upload progress'
     );
 
     $this->logStepFinish();
