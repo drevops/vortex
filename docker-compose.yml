@@ -155,6 +155,8 @@ services:
         cli: "service:cli"
     environment:
       <<: *default-environment
+      # Pass-through 'VORTEX_NGINX_MAINTENANCE_MODE' to serve the maintenance page locally with "VORTEX_NGINX_MAINTENANCE_MODE=1 ahoy up nginx".
+      VORTEX_NGINX_MAINTENANCE_MODE: ${VORTEX_NGINX_MAINTENANCE_MODE:-}
     <<: [ *default-volumes, *default-user ]
     depends_on:
       - cli

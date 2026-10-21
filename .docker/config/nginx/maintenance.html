@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Down for maintenance | YOURSITE</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --background: #f6f7f9;
+      --text: #1d2127;
+      --muted: #5a6270;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #15181d;
+        --text: #eceef1;
+        --muted: #a3abb8;
+      }
+    }
+
+    body {
+      box-sizing: border-box;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1.5rem;
+      background: var(--background);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    main {
+      max-width: 36rem;
+    }
+
+    h1 {
+      margin: 0 0 1rem;
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+      line-height: 1.2;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.125rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>We'll be back soon</h1>
+    <p>YOURSITE is down for maintenance. Please check back shortly.</p>
+  </main>
+</body>
+</html>
