@@ -19,6 +19,25 @@ fixture_npm_report() {
   printf '%s' "${1}" >.logs/audit/npm-audit.json
 }
 
+# Writes an audit-ci allowlist fixture, by default next to the npm lock file
+# the script reads. Replaces the template's own date-bound allowlist.
+fixture_allowlist() {
+  printf '%s' "${1}" >"${2:-audit-ci.jsonc}"
+}
+
+# Writes an npm report fixture with 1 advisory against each of the 'first',
+# 'second' and 'third' packages.
+fixture_npm_report_packages() {
+  fixture_npm_report '{
+    "auditReportVersion": 2,
+    "vulnerabilities": {
+      "first": {"name": "first", "severity": "high", "via": [{"title": "First issue", "url": "https://github.com/advisories/GHSA-1111-1111-1111", "severity": "high", "range": "*"}]},
+      "second": {"name": "second", "severity": "high", "via": [{"title": "Second issue", "url": "https://github.com/advisories/GHSA-2222-2222-2222", "severity": "high", "range": "*"}]},
+      "third": {"name": "third", "severity": "critical", "via": [{"title": "Third issue", "url": "https://github.com/advisories/GHSA-3333-3333-3333", "severity": "critical", "range": "*"}]}
+    }
+  }'
+}
+
 # Reads a value out of the SARIF report produced from the Composer fixture.
 sarif() {
   jq -r "${1}" .logs/audit/composer-audit.sarif
@@ -412,6 +431,264 @@ sarif_npm() {
 
   assert_equal "npm.lock.json" "$(sarif_npm '.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri')"
   assert_equal "5" "$(sarif_npm '.runs[0].results[0].locations[0].physicalLocation.region.startLine')"
+
+  popd >/dev/null || exit 1
+}
+
+@test "convert-audit-sarif: Leaves out npm advisories allowlisted next to the lock file" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_allowlist '// audit-ci allowlist.
+//
+// https://github.com/IBM/audit-ci
+{
+  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
+  "allowlist": [
+    {
+      "GHSA-1111-1111-1111": {
+        "active": true,
+        "notes": "Reached only through build tooling.",
+        "expiry": "2999-12-31"
+      }
+    },
+    "second"
+  ]
+}'
+
+  fixture_npm_report_packages
+
+  run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
+  assert_success
+
+  assert_output_contains "Allowlist: ./audit-ci.jsonc"
+  assert_output_contains "Findings:  1"
+
+  assert_equal "GHSA-3333-3333-3333" "$(sarif_npm '[.runs[0].results[].ruleId] | join(" ")')"
+  assert_equal "GHSA-3333-3333-3333" "$(sarif_npm '[.runs[0].tool.driver.rules[].id] | join(" ")')"
+
+  popd >/dev/null || exit 1
+}
+
+@test "convert-audit-sarif: Applies npm allowlist entries for advisories and packages the way audit-ci does" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_npm_report '{
+    "auditReportVersion": 2,
+    "vulnerabilities": {
+      "thing": {"name": "thing", "severity": "high", "via": [{"title": "Issue", "url": "https://github.com/advisories/GHSA-1111-1111-1111", "severity": "high", "range": "*"}]}
+    }
+  }'
+
+  # Each case is the number of findings kept, then the allowlist entries.
+  cases=(
+    '0 "GHSA-1111-1111-1111"'
+    '0 {"GHSA-1111-1111-1111": {"active": true}}'
+    '0 {"GHSA-1111-1111-1111": {"active": true, "expiry": "2999-12-31"}}'
+    '0 {"GHSA-1111-1111-1111": {"active": true, "expiry": "2999-12-31T00:00:00Z"}}'
+    '0 {"GHSA-1111-1111-1111": {"active": true, "expiry": 32503680000000}}'
+    '0 {"GHSA-1111-1111-1111": {"active": true, "expiry": ""}}'
+    '0 {"GHSA-1111-1111-1111": {"active": 1, "notes": "A truthy flag."}}'
+    '0 "thing"'
+    '0 {"thing": {"active": true, "expiry": "2999-12-31"}}'
+    '0 "GHSA-1111-1111-1111", {"GHSA-1111-1111-1111": {"active": false}}'
+    '0 {}, 42, null, ["nested"], "GHSA-1111-1111-1111"'
+    '1 {"GHSA-1111-1111-1111": {"active": false}}'
+    '1 {"GHSA-1111-1111-1111": {"active": 0}}'
+    '1 {"GHSA-1111-1111-1111": {"notes": "No active flag."}}'
+    '1 {"GHSA-1111-1111-1111": {"active": true, "expiry": "2000-01-01"}}'
+    '1 {"GHSA-1111-1111-1111": {"active": true, "expiry": "1970-01-01"}}'
+    '1 {"GHSA-1111-1111-1111": {"active": true, "expiry": "not a date"}}'
+    '1 {"GHSA-1111-1111-1111": {"active": true, "expiry": -1}}'
+    '1 {"GHSA-1111-1111-1111": true}'
+    '1 {"GHSA-1111-1111-1111": {"active": false}}, "GHSA-1111-1111-1111"'
+    '1 "GHSA-2222-2222-2222"'
+    '1 "other-thing"'
+    '1 {}, 42, null'
+  )
+
+  for entry in "${cases[@]}"; do
+    kept="${entry%% *}"
+    entries="${entry#* }"
+
+    fixture_allowlist '{"allowlist": ['"${entries}"']}'
+
+    run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
+    assert_success
+
+    assert_output_contains "Allowlist: ./audit-ci.jsonc"
+    assert_equal "${kept}" "$(sarif_npm '.runs[0].results | length')"
+  done
+
+  popd >/dev/null || exit 1
+}
+
+@test "convert-audit-sarif: Keeps npm findings that only a dependency path entry allowlists" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_npm_report '{
+    "auditReportVersion": 2,
+    "vulnerabilities": {
+      "thing": {"name": "thing", "severity": "high", "via": [{"title": "Issue", "url": "https://github.com/advisories/GHSA-1111-1111-1111", "severity": "high", "range": "*"}]}
+    }
+  }'
+
+  # audit-ci reads an entry holding '>' or '|' as a dependency path, and a
+  # finding carries no dependency path to match it against.
+  cases=(
+    '"GHSA-1111-1111-1111|thing"'
+    '"GHSA-1111-1111-1111|*"'
+    '{"GHSA-1111-1111-1111|parent>thing": {"active": true}}'
+    '"parent>thing"'
+  )
+
+  for entries in "${cases[@]}"; do
+    fixture_allowlist '{"allowlist": ['"${entries}"']}'
+
+    run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
+    assert_success
+
+    assert_equal "1" "$(sarif_npm '.runs[0].results | length')"
+  done
+
+  popd >/dev/null || exit 1
+}
+
+@test "convert-audit-sarif: Reads an npm allowlist written as JSONC" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_allowlist '// Header comment with a URL: https://example.com/a//b
+/* Block comment with "quotes", a // pair
+   and a second line. **/
+{
+  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json", // Inline comment.
+  "allowlist": [
+    "GHSA-1111-1111-1111", /* Inline block comment. */
+    {
+      "GHSA-2222-2222-2222": {
+        "active": true,
+        "notes": "Escaped \"quotes\", a // pair, a /* marker */, a trailing ,] and naïve café text.",
+        "expiry": "2999-12-31",
+      },
+    },
+  ],
+}
+'
+
+  fixture_npm_report_packages
+
+  run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
+  assert_success
+
+  assert_output_contains "Allowlist: ./audit-ci.jsonc"
+  assert_output_contains "Findings:  1"
+
+  assert_equal "GHSA-3333-3333-3333" "$(sarif_npm '[.runs[0].results[].ruleId] | join(" ")')"
+
+  popd >/dev/null || exit 1
+}
+
+@test "convert-audit-sarif: Keeps every npm finding when the allowlist cannot be parsed" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  cases=(
+    '{"allowlist": ["GHSA-1111-1111-1111"'
+    "{'allowlist': ['GHSA-1111-1111-1111']}"
+    '["GHSA-1111-1111-1111"]'
+    ''
+  )
+
+  fixture_npm_report_packages
+
+  for allowlist in "${cases[@]}"; do
+    fixture_allowlist "${allowlist}"
+
+    run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
+    assert_success
+
+    assert_output_contains "Allowlist: ./audit-ci.jsonc could not be parsed and is not applied."
+    assert_output_contains "Findings:  3"
+  done
+
+  popd >/dev/null || exit 1
+}
+
+@test "convert-audit-sarif: Keeps every npm finding when there is no allowlist" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  rm -f audit-ci.jsonc
+
+  fixture_npm_report_packages
+
+  run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
+  assert_success
+
+  assert_output_contains "Allowlist: none"
+  assert_output_contains "Findings:  3"
+
+  popd >/dev/null || exit 1
+}
+
+@test "convert-audit-sarif: Reads the npm allowlist next to a lock file at a non-default path" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p theme
+  fixture_allowlist '{"allowlist": ["GHSA-1111-1111-1111"]}' theme/audit-ci.jsonc
+  fixture_allowlist '{"allowlist": ["GHSA-2222-2222-2222"]}'
+
+  fixture_npm_report_packages
+
+  run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm theme/package-lock.json
+  assert_success
+
+  assert_output_contains "Allowlist: theme/audit-ci.jsonc"
+
+  assert_equal "GHSA-2222-2222-2222 GHSA-3333-3333-3333" "$(sarif_npm '[.runs[0].results[].ruleId] | join(" ")')"
+
+  popd >/dev/null || exit 1
+}
+
+@test "convert-audit-sarif: Reads the npm allowlist from VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p config
+  fixture_allowlist '{"allowlist": ["GHSA-1111-1111-1111"]}' config/allowlist.jsonc
+  fixture_allowlist '{"allowlist": ["GHSA-2222-2222-2222"]}'
+
+  fixture_npm_report_packages
+
+  export VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE="config/allowlist.jsonc"
+
+  run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
+  assert_success
+
+  assert_output_contains "Allowlist: config/allowlist.jsonc"
+
+  assert_equal "GHSA-2222-2222-2222 GHSA-3333-3333-3333" "$(sarif_npm '[.runs[0].results[].ruleId] | join(" ")')"
+
+  popd >/dev/null || exit 1
+}
+
+@test "convert-audit-sarif: Does not apply the npm allowlist to a Composer report" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_allowlist '{"allowlist": ["GHSA-1111-1111-1111", "vendor/thing"]}'
+
+  fixture_audit_report '{
+    "advisories": {
+      "vendor/thing": [
+        {"advisoryId": "GHSA-1111-1111-1111", "packageName": "vendor/thing", "title": "Issue", "severity": "high"}
+      ]
+    },
+    "abandoned": []
+  }'
+
+  run .vortex/tooling/src/vortex-convert-audit-sarif
+  assert_success
+
+  assert_output_not_contains "Allowlist:"
+  assert_output_contains "Findings:  1"
+
+  assert_equal "GHSA-1111-1111-1111" "$(sarif '.runs[0].results[0].ruleId')"
 
   popd >/dev/null || exit 1
 }
