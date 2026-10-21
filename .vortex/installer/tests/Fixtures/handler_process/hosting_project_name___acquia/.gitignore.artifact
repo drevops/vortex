@@ -42,9 +42,9 @@ docroot/sites/simpletest
 /.twig-cs-fixer.php
 /AGENTS.md
 /CLAUDE.md
-/audit-ci.jsonc
 /docker-compose.yml
 /eslint.config.mjs
+/package-audit.jsonc
 /renovate.json
 
 # Database cache key files written into the workspace by the CI workflow.
@@ -79,11 +79,11 @@ docroot/sites/simpletest
 docroot/themes/**/node_modules
 
 # Custom theme asset sources - only compiled assets in 'build' are deployed.
-docroot/themes/custom/star_wars/audit-ci.jsonc
 docroot/themes/custom/star_wars/eslint.config.mjs
 docroot/themes/custom/star_wars/fonts
 docroot/themes/custom/star_wars/images
 docroot/themes/custom/star_wars/js
+docroot/themes/custom/star_wars/package-audit.jsonc
 docroot/themes/custom/star_wars/package.json
 docroot/themes/custom/star_wars/package-lock.json
 docroot/themes/custom/star_wars/postcss.config.js

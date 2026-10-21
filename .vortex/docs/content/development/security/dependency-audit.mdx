@@ -255,10 +255,11 @@ Run the audit for each tree with the following commands:
     ahoy cli "npm audit --package-lock-only"
     # Audit the root and the theme packages with the allowlist applied
     ahoy cli "npx --yes audit-ci --high --extra-args=--package-lock-only \
-      --config audit-ci.jsonc"
+      --config package-audit.jsonc"
     ahoy cli "npx --yes audit-ci --high --extra-args=--package-lock-only \
       --directory \${WEBROOT}/themes/custom/\${DRUPAL_THEME} \
-      --config \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/audit-ci.jsonc"
+      --config \
+      \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/package-audit.jsonc"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -272,11 +273,12 @@ Run the audit for each tree with the following commands:
     docker compose exec cli npm audit --package-lock-only
     # Audit the root and the theme packages with the allowlist applied
     docker compose exec cli npx --yes audit-ci --high \
-      --extra-args=--package-lock-only --config audit-ci.jsonc
+      --extra-args=--package-lock-only --config package-audit.jsonc
     docker compose exec cli bash -c \
       "npx --yes audit-ci --high --extra-args=--package-lock-only \
       --directory \${WEBROOT}/themes/custom/\${DRUPAL_THEME} \
-      --config \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/audit-ci.jsonc"
+      --config \
+      \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/package-audit.jsonc"
     ```
   </TabItem>
 </Tabs>
@@ -301,8 +303,8 @@ fails `npm audit`.
 CI runs the audit through [audit-ci](https://github.com/IBM/audit-ci),
 which takes its threshold from the `--high` flag in each CI audit step
 instead, so update both when you change the threshold. The flag lives in
-the CI configuration rather than in `audit-ci.jsonc`, because `audit-ci`
-passes every advisory when no threshold is set.
+the CI configuration rather than in `package-audit.jsonc`, because
+`audit-ci` passes every advisory when no threshold is set.
 
 The threshold is deliberately not a **Vortex** variable: it belongs to npm's
 own configuration, where a project changes it directly.
@@ -344,8 +346,8 @@ again and check that its ID no longer appears in the output.
 
 When no patched version exists yet, or you've assessed that the advisory
 doesn't affect your project, add it to the `allowlist` in the
-`audit-ci.jsonc` file next to the same `package.json`. `npm audit` has no
-per-advisory ignore list, so CI runs the audit through
+`package-audit.jsonc` file next to the same `package.json`. `npm audit` has
+no per-advisory ignore list, so CI runs the audit through
 [audit-ci](https://github.com/IBM/audit-ci), which applies the allowlist.
 Put the reason in `notes` and the date to review the decision in `expiry`:
 
@@ -383,9 +385,9 @@ forms, described in the [audit-ci README](https://github.com/IBM/audit-ci):
 - An advisory ID paired with a dependency path, which limits the entry to
   that path
 
-The root and the custom theme each have their own `audit-ci.jsonc`, so an
-advisory found in both trees needs an entry in both files. The file is
-optional: without it, the audit of that tree runs with no allowlist.
+The root and the custom theme each have their own `package-audit.jsonc`,
+so an advisory found in both trees needs an entry in both files. The file
+is optional: without it, the audit of that tree runs with no allowlist.
 
 Confirm that the entry applies: the `audit-ci` command from
 [Usage](#usage-1) lists the advisory under
@@ -397,8 +399,8 @@ The [security audit
 workflow](../../continuous-integration/README.mdx#security-audit) audits
 both dependency trees with `audit-ci`, pinned to an exact version in the CI
 configuration. Each audit step passes `--high` and `--package-lock-only`,
-and adds the tree's `audit-ci.jsonc` when it exists. The audit reads what
-the lock files pin, so it needs no installed tree.
+and adds the tree's `package-audit.jsonc` when it exists. The audit reads
+what the lock files pin, so it needs no installed tree.
 
 In GitHub Actions, the audit steps print `audit-ci`'s JSON output, which is
 npm's own report, and the code scanning upload converts that same report.
@@ -429,11 +431,13 @@ The alert carries the advisory's CVSS score, or a score based on its
 severity when the advisory has none, and points at the package's entry in
 that tree's `package-lock.json`.
 
-The report is npm's own output from the same audit, before the allowlist
-applies, so allowlisted advisories are uploaded too. Dismissing an alert
-records the assessment but doesn't stop the check failing; that still needs
-an `overrides` entry or an allowlist entry, as described in
-[Ignoring](#ignoring-1).
+An advisory allowlisted in a tree's `package-audit.jsonc` isn't uploaded for
+that tree while its entry applies. After the entry expires or you remove
+it, the next run uploads the advisory again. An entry limited to a
+dependency path doesn't apply to the upload, so its advisory still raises
+an alert. Dismissing an alert records the assessment but doesn't stop the
+check failing; that still needs an `overrides` entry or an allowlist entry,
+as described in [Ignoring](#ignoring-1).
 
 ➡️ See [Code
 scanning](../../continuous-integration/README.mdx#code-scanning).

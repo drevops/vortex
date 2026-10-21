@@ -418,9 +418,9 @@ follow these steps in the directory it checks:
    version of it with an `overrides` entry in `package.json`, then run
    `npm install`.
 4. If no fixed version exists or the vulnerability doesn't affect you, add
-   it to the `allowlist` in that directory's `audit-ci.jsonc`, with notes
-   and an expiry date. The root and theme files each apply only to their
-   own tree.
+   it to the `allowlist` in that directory's `package-audit.jsonc`, with
+   notes and an expiry date. The root and theme files each apply only to
+   their own tree.
 5. Optional: To let CI pass while you address the advisory, set
    `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1`, as a repository variable on
    GitHub Actions or as an environment variable in the CircleCI project

@@ -23,6 +23,10 @@ VORTEX_CONVERT_AUDIT_SARIF_FORMAT="${2:-${VORTEX_CONVERT_AUDIT_SARIF_FORMAT:-com
 # third argument. Defaults to the lock file the report format uses.
 VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE="${3:-${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE:-}}"
 
+# Path to the audit-ci configuration whose allowlist applies to npm findings.
+# Defaults to 'package-audit.jsonc' in the directory of the lock file.
+VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE="${VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE:-}"
+
 # Path of the SARIF report to write. Defaults to the report path with a
 # '.sarif' extension.
 VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE="${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE:-${VORTEX_CONVERT_AUDIT_SARIF_FILE%.json}.sarif}"
@@ -59,6 +63,43 @@ lock_lines() {
     jq -s 'reverse | add // {}'
 }
 
+# Read the advisory ids and package names that an audit-ci allowlist accepts.
+# Entries apply the way audit-ci applies them: the first entry for an id wins,
+# 'active' must be set, and an 'expiry' must parse and lie in the future.
+# Comments and trailing commas are stripped outside strings, so JSONC parses.
+#
+# Path entries are skipped: they accept an advisory on some dependency paths
+# only, and a finding covers the whole package.
+allowlist_entries() {
+  jq -Rs '
+    def truthy: . != null and . != false and . != 0 and . != "";
+
+    def expiry_time:
+      if type == "number" then . / 1000
+      elif type == "string" then (try (strptime("%Y-%m-%d") | mktime) catch null) // (try fromdateiso8601 catch null)
+      else null end;
+
+    def applies:
+      if type != "object" then false
+      elif (.active | truthy | not) then false
+      elif (.expiry | truthy | not) then true
+      else (.expiry | expiry_time) as $time | $time != null and $time > 0 and now < $time
+      end;
+
+    gsub("(?<s>\"(\\\\.|[^\"\\\\])*\")|//[^\n]*|/\\*([^*]|\\*+[^*/])*\\*+/"; .s // "")
+    | gsub("(?<s>\"(\\\\.|[^\"\\\\])*\")|,(?=\\s*[}\\]])"; .s // "")
+    | fromjson
+    | [
+        (.allowlist // []) | if type == "array" then .[] else empty end
+        | if type == "string" then {key: ., value: {active: true}} elif type == "object" then (to_entries | first // empty) else empty end
+      ]
+    | reduce .[] as $entry ({}; if has($entry.key) then . else .[$entry.key] = $entry.value end)
+    | to_entries
+    | map(select((.key | test("[>|]") | not) and (.value | applies)) | .key)
+    | {advisories: map(select(startswith("GHSA"))), packages: map(select(startswith("GHSA") | not))}
+  ' "${1}"
+}
+
 info "Started audit report conversion."
 
 command -v jq >/dev/null || fail "jq command is not available."
@@ -75,6 +116,10 @@ if [ -z "${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}" ]; then
   esac
 fi
 
+if [ -z "${VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE}" ]; then
+  VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE="$(dirname "${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}")/package-audit.jsonc"
+fi
+
 [ -f "${VORTEX_CONVERT_AUDIT_SARIF_FILE}" ] || fail "Audit report ${VORTEX_CONVERT_AUDIT_SARIF_FILE} does not exist."
 jq -e . "${VORTEX_CONVERT_AUDIT_SARIF_FILE}" >/dev/null 2>&1 || fail "Audit report ${VORTEX_CONVERT_AUDIT_SARIF_FILE} is not valid JSON."
 
@@ -82,15 +127,29 @@ note "Format:    ${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}"
 note "Report:    ${VORTEX_CONVERT_AUDIT_SARIF_FILE}"
 note "Lock file: ${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}"
 
+allowlist='{"advisories":[],"packages":[]}'
+
+if [ "${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}" = "npm" ]; then
+  if [ ! -f "${VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE}" ]; then
+    note "Allowlist: none"
+  elif entries=$(allowlist_entries "${VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE}" 2>/dev/null); then
+    allowlist="${entries}"
+    note "Allowlist: ${VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE}"
+  else
+    note "Allowlist: ${VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE} could not be parsed and is not applied."
+  fi
+fi
+
 task "Converting audit findings to SARIF."
 
 mkdir -p "$(dirname "${VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE}")"
 
-# Composer advisories already dismissed through 'config.policy' arrive under
-# 'ignored-advisories' and are left out, so the report holds the same set of
-# findings the audit itself fails on.
+# Accepted advisories are left out, so code scanning raises no alert for them.
+# Composer reports them under 'ignored-advisories'; npm advisories are matched
+# against the audit-ci allowlist.
 jq \
   --argjson lock "$(lock_lines "${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}" "${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}")" \
+  --argjson allowlist "${allowlist}" \
   --arg lock_file "${VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE}" \
   --arg format "${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}" \
   --arg abandoned_rule "composer-audit/abandoned-package" \
@@ -132,6 +191,10 @@ jq \
         | .score = (.severity | severity_score)
       );
 
+  # audit-ci matches an advisory entry against the GitHub advisory id and a
+  # package entry against the name of the vulnerable package.
+  def allowlisted: . as $finding | any($allowlist.advisories[]; . == $finding.id) or any($allowlist.packages[]; . == $finding.package);
+
   # npm nests advisories under each package in "via", where an entry is either
   # an advisory object or the name of the package that pulls it in.
   def npm_findings:
@@ -155,6 +218,7 @@ jq \
             | .reference = .id
             | .level = (.severity | severity_level)
             | .score = (if .cvss == null then (.severity | severity_score) else (.cvss | tostring) end)
+            | select(allowlisted | not)
           )
       )
     | flatten;
