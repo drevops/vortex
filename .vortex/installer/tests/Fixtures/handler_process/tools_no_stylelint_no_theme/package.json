@@ -23,4 +23,4 @@
 +    "prettier": "__VERSION__"
    },
    "overrides": {
-     "eslint-plugin-import": {
+     "test-exclude": "__VERSION__",

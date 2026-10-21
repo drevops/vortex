@@ -1,4 +1,4 @@
-@@ -1,64 +1 @@
+@@ -1,59 +1 @@
 -{
 -  "name": "star_wars",
 -  "version": "__VERSION__",
@@ -12,7 +12,7 @@
 -    "chokidar-cli": "__VERSION__",
 -    "eslint": "__VERSION__",
 -    "eslint-config-prettier": "__VERSION__",
--    "eslint-plugin-import": "__VERSION__",
+-    "eslint-plugin-import-x": "__VERSION__",
 -    "eslint-plugin-jsdoc": "__VERSION__",
 -    "eslint-plugin-no-jquery": "__VERSION__",
 -    "eslint-plugin-prettier": "__VERSION__",
@@ -56,11 +56,6 @@
 -    "sass:prod": "sass scss/styles.scss build/css/star_wars.min.css --no-source-map --style=compressed",
 -    "uglify": "terser build/js/star_wars.min.js -o build/js/star_wars.min.js -c drop_console=true -m reserved=['jQuery','Drupal'] 2>/dev/null || true",
 -    "watch": "chokidar 'js/**/*.js' 'scss/**/*.scss' -c 'npm run build-dev'"
--  },
--  "overrides": {
--    "eslint-plugin-import": {
--      "eslint": "$eslint"
--    }
 -  }
 -}
 +{"name": "star_wars_custom"}

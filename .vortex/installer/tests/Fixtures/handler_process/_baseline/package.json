@@ -24,7 +24,7 @@
     "jest-environment-jsdom": "__VERSION__",
     "eslint": "__VERSION__",
     "eslint-config-prettier": "__VERSION__",
-    "eslint-plugin-import": "__VERSION__",
+    "eslint-plugin-import-x": "__VERSION__",
     "eslint-plugin-jsdoc": "__VERSION__",
     "eslint-plugin-no-jquery": "__VERSION__",
     "eslint-plugin-prettier": "__VERSION__",
@@ -36,9 +36,6 @@
     "stylelint-order": "__VERSION__"
   },
   "overrides": {
-    "eslint-plugin-import": {
-      "eslint": "$eslint"
-    },
     "test-exclude": "__VERSION__",
     "glob": "__VERSION__",
     "jsdom": "__VERSION__"

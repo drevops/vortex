@@ -1,4 +1,4 @@
-@@ -8,37 +8,13 @@
+@@ -8,32 +8,11 @@
      "node": ">= __VERSION__"
    },
    "scripts": {
@@ -18,7 +18,7 @@
 -    "jest-environment-jsdom": "__VERSION__",
 -    "eslint": "__VERSION__",
 -    "eslint-config-prettier": "__VERSION__",
--    "eslint-plugin-import": "__VERSION__",
+-    "eslint-plugin-import-x": "__VERSION__",
 -    "eslint-plugin-jsdoc": "__VERSION__",
 -    "eslint-plugin-no-jquery": "__VERSION__",
 -    "eslint-plugin-prettier": "__VERSION__",
@@ -31,9 +31,4 @@
 +    "jest-environment-jsdom": "__VERSION__"
    },
    "overrides": {
--    "eslint-plugin-import": {
--      "eslint": "$eslint"
--    },
      "test-exclude": "__VERSION__",
-     "glob": "__VERSION__",
-     "jsdom": "__VERSION__"
