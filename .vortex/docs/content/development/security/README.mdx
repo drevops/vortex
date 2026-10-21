@@ -47,7 +47,7 @@ The `php` container turns off PHP's session upload progress tracking with
 `.docker/config/php/session-upload-progress.ini`. The tracking writes
 upload request data into PHP's own session storage before Drupal starts,
 and Drupal never reads it. File uploads, including anonymous ones, work
-with the setting off, because Drupal's upload progress bar relies on the
+with the setting off. Drupal's optional upload progress bar requires the
 PECL `uploadprogress` extension.
 
 The setting applies wherever the **Vortex** images run: locally, in CI, and
