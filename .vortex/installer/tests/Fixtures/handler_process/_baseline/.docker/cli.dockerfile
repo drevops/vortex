@@ -58,8 +58,7 @@ ENV PHP_INI_SCAN_DIR="${PHP_INI_SCAN_DIR}:/app/drush/php-ini"
 # Add more tools.
 # hadolint ignore=DL3018 # the package set tracks the pinned base image
 RUN apk add --no-cache ncurses pv tzdata autoconf g++ make && \
-    pecl install pcov && \
-    docker-php-ext-enable pcov && \
+    pie install --no-build-tools-check pecl/pcov && \
     docker-php-ext-install pcntl && \
     apk del g++ make autoconf
 
