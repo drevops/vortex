@@ -136,7 +136,7 @@ if [ "${VORTEX_CONVERT_AUDIT_SARIF_FORMAT}" = "npm" ]; then
     allowlist="${entries}"
     note "Allowlist: ${VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE}"
   else
-    note "Allowlist: ${VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE} is not valid JSONC and is not applied."
+    note "Allowlist: ${VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE} could not be parsed and is not applied."
   fi
 fi
 
