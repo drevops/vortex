@@ -14,4 +14,6 @@ FROM uselagoon/php-8.4-fpm:26.9.0
 # hadolint ignore=DL3018 # the package set tracks the pinned base image
 RUN apk add --no-cache tzdata
 
+COPY ./.docker/config/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
+
 COPY --from=cli /app /app

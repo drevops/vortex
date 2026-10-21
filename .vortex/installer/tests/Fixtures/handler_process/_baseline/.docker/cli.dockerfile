@@ -62,6 +62,8 @@ RUN apk add --no-cache ncurses pv tzdata autoconf g++ make && \
     docker-php-ext-install pcntl && \
     apk del g++ make autoconf
 
+COPY ./.docker/config/cli/custom.ini /usr/local/etc/php/conf.d/custom.ini
+
 # Add patches and scripts.
 COPY patches /app/patches
 COPY scripts /app/scripts

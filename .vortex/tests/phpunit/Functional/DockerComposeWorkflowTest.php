@@ -42,6 +42,8 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
 
     $this->subtestDockerComposeDatabaseConfig();
 
+    $this->subtestDockerComposePhpConfig();
+
     $this->subtestDockerComposeSolr();
 
     $this->logSubstep('Installing development dependencies');

@@ -372,6 +372,30 @@ each other by service name, such as `database` or `redis`. CI deletes the
 `amazeeio-network` lines, which are marked `###`, because it doesn't route
 requests through Pygmy.
 
+## PHP configuration
+
+The `cli` and `php` builds copy `custom.ini` from the service's directory in
+`.docker/config/` into PHP's `conf.d` directory. Set PHP ini directives for
+a service in its file:
+
+| Service | File                            | Applies to                                                     |
+|---------|---------------------------------|----------------------------------------------------------------|
+| `cli`   | `.docker/config/cli/custom.ini` | Commands that run in the container, such as Composer and Drush |
+| `php`   | `.docker/config/php/custom.ini` | Web requests that PHP-FPM serves                               |
+
+PHP reads `conf.d` in alphabetical order, so `custom.ini` loads after
+Lagoon's `00-lagoon-php.ini` and overrides its defaults. Those defaults
+include the values of `PHP_*` environment variables, such as
+`PHP_MEMORY_LIMIT`. The `php` file ships with session upload progress turned
+off: see [PHP settings](../security/README.mdx#php-settings).
+
+In the `cli` container, PHP loads
+[`drush/php-ini/drush.ini`](drush.mdx#php-runtime-configuration) last, so a
+directive set in both files takes its `drush.ini` value.
+
+The images include `custom.ini` at build time, so after you change it,
+rebuild the images and recreate the containers with `ahoy up --build`.
+
 ## Build context and `.dockerignore`
 
 When Docker builds an image, it sends a build context, the set of files the

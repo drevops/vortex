@@ -333,6 +333,30 @@ trait SubtestDockerComposeTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestDockerComposePhpConfig(): void {
+    $this->logStepStart();
+
+    $this->cmd(
+      'docker compose exec -T cli php --ini',
+      '/usr/local/etc/php/conf.d/custom.ini',
+      'CLI parses the shipped custom.ini'
+    );
+
+    $this->cmd(
+      'docker compose exec -T php php --ini',
+      '/usr/local/etc/php/conf.d/custom.ini',
+      'PHP parses the shipped custom.ini'
+    );
+
+    $this->cmd(
+      'docker compose exec -T php php -i',
+      'session.upload_progress.enabled => Off => Off',
+      'PHP applies the session upload progress setting from the shipped custom.ini'
+    );
+
+    $this->logStepFinish();
+  }
+
   protected function subtestDockerComposeSolr(): void {
     $this->logStepStart();
 

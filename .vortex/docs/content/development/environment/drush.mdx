@@ -80,6 +80,8 @@ which **Vortex** sets in the CLI container image (`.docker/cli.dockerfile`)
 and in the Acquia provision hook (`hooks/library/provision.sh`). Every PHP
 CLI process that sees this scan path loads the file, not only Drush.
 **Vortex** doesn't set it for the `php` container that serves web requests.
+For web requests, set PHP directives in `.docker/config/php/custom.ini`.
+See [PHP configuration](docker.mdx#php-configuration).
 
 Both places add the directory after a colon instead of replacing
 `PHP_INI_SCAN_DIR`. The colon keeps the directories PHP already scans: an
