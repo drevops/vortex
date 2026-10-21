@@ -59,6 +59,7 @@
         "jsonpath",
         "kcov",
         "lagooncli",
+        "lagoonhealthz",
         "lando",
         "langid",
         "langlet",

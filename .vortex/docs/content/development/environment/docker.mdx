@@ -271,6 +271,10 @@ Any other variable belongs in `.env`. In full, the anchor defines:
   migration database's `DATABASE2_HOST`, `DATABASE2_NAME`,
   `DATABASE2_USERNAME`, `DATABASE2_PASSWORD`, and `DATABASE2_PORT`.
 
+The `nginx` service adds 1 pass-through variable of its own,
+`VORTEX_NGINX_MAINTENANCE_MODE`, which turns on the [static maintenance
+page](../../hosting/lagoon.mdx#serve-a-maintenance-page).
+
 In CI, the `##` marker also switches on `SSMTP_MAILHUB`, which points
 outgoing mail at a closed port, so no message leaves a test run. If you host
 on Lagoon, its environments don't read these values from

@@ -434,6 +434,8 @@ trait SutTrait {
     // Docker configuration files.
     $this->assertFileExists('.docker/cli.dockerfile');
     $this->assertFileExists('.docker/config/database/my.cnf');
+    $this->assertFileExists('.docker/config/nginx/maintenance.conf');
+    $this->assertFileExists('.docker/config/nginx/maintenance.html');
     $this->assertFileExists('.docker/database.dockerfile');
     $this->assertFileExists('.docker/nginx-drupal.dockerfile');
     $this->assertFileExists('.docker/php.dockerfile');
