@@ -1,4 +1,4 @@
-@@ -8,29 +8,15 @@
+@@ -8,37 +8,20 @@
      "node": ">= __VERSION__"
    },
    "scripts": {
@@ -30,3 +30,11 @@
      "stylelint": "__VERSION__",
      "stylelint-config-standard": "__VERSION__",
      "stylelint-order": "__VERSION__"
+   },
+   "overrides": {
+-    "eslint-plugin-import": {
+-      "eslint": "$eslint"
+-    },
+     "test-exclude": "__VERSION__",
+     "glob": "__VERSION__",
+     "jsdom": "__VERSION__"

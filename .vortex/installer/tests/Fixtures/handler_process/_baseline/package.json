@@ -36,6 +36,9 @@
     "stylelint-order": "__VERSION__"
   },
   "overrides": {
+    "eslint-plugin-import": {
+      "eslint": "$eslint"
+    },
     "test-exclude": "__VERSION__",
     "glob": "__VERSION__",
     "jsdom": "__VERSION__"

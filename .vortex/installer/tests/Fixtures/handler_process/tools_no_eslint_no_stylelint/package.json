@@ -1,4 +1,4 @@
-@@ -8,32 +8,11 @@
+@@ -8,37 +8,13 @@
      "node": ">= __VERSION__"
    },
    "scripts": {
@@ -31,4 +31,9 @@
 +    "jest-environment-jsdom": "__VERSION__"
    },
    "overrides": {
+-    "eslint-plugin-import": {
+-      "eslint": "$eslint"
+-    },
      "test-exclude": "__VERSION__",
+     "glob": "__VERSION__",
+     "jsdom": "__VERSION__"

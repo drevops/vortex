@@ -55,5 +55,10 @@
     "sass:prod": "sass scss/styles.scss build/css/light_saber.min.css --no-source-map --style=compressed",
     "uglify": "terser build/js/light_saber.min.js -o build/js/light_saber.min.js -c drop_console=true -m reserved=['jQuery','Drupal'] 2>/dev/null || true",
     "watch": "chokidar 'js/**/*.js' 'scss/**/*.scss' -c 'npm run build-dev'"
+  },
+  "overrides": {
+    "eslint-plugin-import": {
+      "eslint": "$eslint"
+    }
   }
 }
