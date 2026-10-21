@@ -34,7 +34,7 @@ class StorybookHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/includes/modules/settings.storybook.php');
           $test->assertDirectoryDoesNotExist(static::$sut . '/web/themes/custom/star_wars/.storybook');
           $test->assertFileNotContainsString(static::$sut . '/composer.json', 'drupal/storybook');
-          $test->assertFileNotContainsString(static::$sut . '/web/themes/custom/star_wars/package.json', '"overrides"');
+          $test->assertFileNotContainsString(static::$sut . '/web/themes/custom/star_wars/package.json', '"webpack-dev-middleware"');
           $test->assertFileNotContainsString(static::$sut . '/web/themes/custom/star_wars/package-lock.json', 'webpack-dev-middleware');
           $test->assertFileNotContainsString(static::$sut . '/.ahoy.yml', 'storybook-build');
           $test->assertFileNotContainsString(static::$sut . '/.ahoy.yml', 'VORTEX_HOST_STORYBOOK_PORT');

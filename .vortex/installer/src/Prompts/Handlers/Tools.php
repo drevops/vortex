@@ -372,6 +372,8 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('devDependencies', 'globals');
           $pj->removeSubNode('devDependencies', 'prettier');
           $pj->removeSubNode('devDependencies', '@homer0/prettier-plugin-jsdoc');
+          $pj->removeSubNode('overrides', 'eslint-plugin-import');
+          $pj->removeMainKeyIfEmpty('overrides');
           $pj->removeSubNode('scripts', 'lint-js');
           $pj->removeSubNode('scripts', 'lint-fix-js');
           $pj->addSubNode('scripts', 'lint', 'npm run lint-css');
@@ -390,6 +392,8 @@ class Tools extends AbstractHandler {
           $pj->removeSubNode('devDependencies', 'globals');
           $pj->removeSubNode('devDependencies', 'prettier');
           $pj->removeSubNode('devDependencies', '@homer0/prettier-plugin-jsdoc');
+          $pj->removeSubNode('overrides', 'eslint-plugin-import');
+          $pj->removeMainKeyIfEmpty('overrides');
           $pj->removeSubNode('scripts', 'lint-js');
           $pj->removeSubNode('scripts', 'lint-js-fix');
           $pj->addSubNode('scripts', 'lint', 'npm run lint-css');
