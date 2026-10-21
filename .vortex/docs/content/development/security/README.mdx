@@ -40,6 +40,19 @@ they're missing, and then nobody can get past the prompt.
 full entry, including the overrides that disable Shield for 1 environment or
 open the Let's Encrypt challenge path.
 
+## PHP settings
+
+The `php` container turns off PHP's session upload progress tracking with
+`session.upload_progress.enabled = Off` in
+`.docker/config/php/session-upload-progress.ini`. The tracking writes
+upload request data into PHP's own session storage before Drupal starts,
+and Drupal never reads it. File uploads, including anonymous ones, work
+with the setting off, because Drupal's upload progress bar relies on the
+PECL `uploadprogress` extension.
+
+The setting applies wherever the **Vortex** images run: locally, in CI, and
+on Lagoon. On Acquia, the platform's own PHP settings apply.
+
 ## Continuous integration
 
 Secret scanning and the dependency audit run in the [security audit

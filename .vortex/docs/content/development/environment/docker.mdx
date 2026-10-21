@@ -327,7 +327,11 @@ there only when you enable the matching feature in the installer:
 - `php` - runs PHP-FPM, which executes the application code for the requests
   that `nginx` passes on. It lacks the command-line tools that the `cli`
   image adds, such as Composer, Node.js, and the database client, so it's
-  smaller. In production, it's the container that scales up and down.
+  smaller. In production, it's the container that scales up and down. The
+  `php` build copies `.docker/config/php/session-upload-progress.ini` into
+  the image's PHP configuration, so a change to the file takes effect
+  after a rebuild. See [PHP settings](../security/README.mdx#php-settings)
+  for what the file sets.
 - `database` - runs the database server that stores the application data.
   You can reach it from your host on a random port, which `ahoy info` shows.
   `docker compose port database 3306` prints it too. Set `VORTEX_DB_IMAGE`

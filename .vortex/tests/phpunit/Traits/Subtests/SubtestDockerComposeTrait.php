@@ -333,6 +333,18 @@ trait SubtestDockerComposeTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestDockerComposePhpConfig(): void {
+    $this->logStepStart();
+
+    $this->cmd(
+      'docker compose exec -T php php -i',
+      'session.upload_progress.enabled => Off => Off',
+      'PHP applies the session upload progress setting from the shipped session-upload-progress.ini'
+    );
+
+    $this->logStepFinish();
+  }
+
   protected function subtestDockerComposeSolr(): void {
     $this->logStepStart();
 
