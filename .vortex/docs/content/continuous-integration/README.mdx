@@ -150,9 +150,9 @@ waits for a build:
 - `npm audit --package-lock-only`, run through
   [audit-ci](https://github.com/IBM/audit-ci), checks the packages pinned in
   `package-lock.json` and fails on advisories rated `high` or `critical`.
-  Advisories allowlisted in `audit-ci.jsonc` don't count.
+  Advisories allowlisted in `package-audit.jsonc` don't count.
 - The same `npm audit` runs against the custom theme's own
-  `package-lock.json`, with the theme's own `audit-ci.jsonc`.
+  `package-lock.json`, with the theme's own `package-audit.jsonc`.
 - [Gitleaks](../development/security/secret-scanning.mdx) scans the codebase
   for committed secrets.
 
@@ -213,7 +213,7 @@ each report file. The workflow passes the report format, `composer` or
 [`VORTEX_CONVERT_AUDIT_SARIF_FORMAT`](../development/variables.mdx#vortex_convert_audit_sarif_format).
 For the theme report, it also passes the theme's `package-lock.json` as the
 third argument, so each finding points at the right lock file. For each npm
-report, the script reads the `audit-ci.jsonc` next to its lock file and
+report, the script reads the `package-audit.jsonc` next to its lock file and
 leaves out the advisories that file allowlists.
 
 Only the check steps fail the workflow on findings. The conversion and

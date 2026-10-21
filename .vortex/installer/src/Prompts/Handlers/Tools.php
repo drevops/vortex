@@ -623,7 +623,7 @@ class Tools extends AbstractHandler {
       // the 'TOOL_ESLINT' removal of the single tool.
       'frontend_all' => [
         'tools' => [self::ESLINT, self::STYLELINT, self::JEST],
-        'files' => ['package.json', 'package-lock.json', '.npmrc', 'audit-ci.jsonc'],
+        'files' => ['package.json', 'package-lock.json', '.npmrc', 'package-audit.jsonc'],
         'token' => 'TOOL_NPM',
       ],
     ];

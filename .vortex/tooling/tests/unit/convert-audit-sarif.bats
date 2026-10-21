@@ -22,7 +22,7 @@ fixture_npm_report() {
 # Writes an audit-ci allowlist fixture, by default next to the npm lock file
 # the script reads. Replaces the template's own date-bound allowlist.
 fixture_allowlist() {
-  printf '%s' "${1}" >"${2:-audit-ci.jsonc}"
+  printf '%s' "${1}" >"${2:-package-audit.jsonc}"
 }
 
 # Writes an npm report fixture with 1 advisory against each of the 'first',
@@ -461,7 +461,7 @@ sarif_npm() {
   run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
   assert_success
 
-  assert_output_contains "Allowlist: ./audit-ci.jsonc"
+  assert_output_contains "Allowlist: ./package-audit.jsonc"
   assert_output_contains "Findings:  1"
 
   assert_equal "GHSA-3333-3333-3333" "$(sarif_npm '[.runs[0].results[].ruleId] | join(" ")')"
@@ -516,7 +516,7 @@ sarif_npm() {
     run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
     assert_success
 
-    assert_output_contains "Allowlist: ./audit-ci.jsonc"
+    assert_output_contains "Allowlist: ./package-audit.jsonc"
     assert_equal "${kept}" "$(sarif_npm '.runs[0].results | length')"
   done
 
@@ -581,7 +581,7 @@ sarif_npm() {
   run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
   assert_success
 
-  assert_output_contains "Allowlist: ./audit-ci.jsonc"
+  assert_output_contains "Allowlist: ./package-audit.jsonc"
   assert_output_contains "Findings:  1"
 
   assert_equal "GHSA-3333-3333-3333" "$(sarif_npm '[.runs[0].results[].ruleId] | join(" ")')"
@@ -607,7 +607,7 @@ sarif_npm() {
     run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm
     assert_success
 
-    assert_output_contains "Allowlist: ./audit-ci.jsonc could not be parsed and is not applied."
+    assert_output_contains "Allowlist: ./package-audit.jsonc could not be parsed and is not applied."
     assert_output_contains "Findings:  3"
   done
 
@@ -617,7 +617,7 @@ sarif_npm() {
 @test "convert-audit-sarif: Keeps every npm finding when there is no allowlist" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  rm -f audit-ci.jsonc
+  rm -f package-audit.jsonc
 
   fixture_npm_report_packages
 
@@ -634,7 +634,7 @@ sarif_npm() {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mkdir -p theme
-  fixture_allowlist '{"allowlist": ["GHSA-1111-1111-1111"]}' theme/audit-ci.jsonc
+  fixture_allowlist '{"allowlist": ["GHSA-1111-1111-1111"]}' theme/package-audit.jsonc
   fixture_allowlist '{"allowlist": ["GHSA-2222-2222-2222"]}'
 
   fixture_npm_report_packages
@@ -642,7 +642,7 @@ sarif_npm() {
   run .vortex/tooling/src/vortex-convert-audit-sarif .logs/audit/npm-audit.json npm theme/package-lock.json
   assert_success
 
-  assert_output_contains "Allowlist: theme/audit-ci.jsonc"
+  assert_output_contains "Allowlist: theme/package-audit.jsonc"
 
   assert_equal "GHSA-2222-2222-2222 GHSA-3333-3333-3333" "$(sarif_npm '[.runs[0].results[].ruleId] | join(" ")')"
 
