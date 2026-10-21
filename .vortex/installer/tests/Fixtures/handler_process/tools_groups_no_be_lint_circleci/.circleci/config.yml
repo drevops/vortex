@@ -184,14 +184,14 @@ jobs:
           when: always
           command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
-      # The threshold is passed here rather than in 'audit-ci.jsonc', because
+      # The threshold is passed here rather than in 'package-audit.jsonc', because
       # audit-ci passes every advisory when no threshold is set.
       - run:
           name: Audit npm packages
           when: always
           command: |
             config=()
-            [ -f audit-ci.jsonc ] && config=(--config audit-ci.jsonc)
+            [ -f package-audit.jsonc ] && config=(--config package-audit.jsonc)
             npx --yes audit-ci@__VERSION__ --high --extra-args=--package-lock-only "${config[@]}" || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
@@ -200,7 +200,7 @@ jobs:
           command: |
             dir="${WEBROOT}/themes/custom/${DRUPAL_THEME}"
             config=()
-            [ -f "${dir}/audit-ci.jsonc" ] && config=(--config "${dir}/audit-ci.jsonc")
+            [ -f "${dir}/package-audit.jsonc" ] && config=(--config "${dir}/package-audit.jsonc")
             npx --yes audit-ci@__VERSION__ --high --extra-args=--package-lock-only --directory "${dir}" "${config[@]}" || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       # The remote Docker engine has no access to the checkout, so the files
