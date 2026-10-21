@@ -438,6 +438,7 @@ sarif_npm() {
 @test "convert-audit-sarif: Leaves out npm advisories allowlisted next to the lock file" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  # shellcheck disable=SC2016
   fixture_allowlist '// audit-ci allowlist.
 //
 // https://github.com/IBM/audit-ci
@@ -556,6 +557,7 @@ sarif_npm() {
 @test "convert-audit-sarif: Reads an npm allowlist written as JSONC" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
+  # shellcheck disable=SC2016
   fixture_allowlist '// Header comment with a URL: https://example.com/a//b
 /* Block comment with "quotes", a // pair
    and a second line. **/
