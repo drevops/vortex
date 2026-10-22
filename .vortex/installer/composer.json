@@ -23,7 +23,7 @@
         "composer/composer": "^2.10.3",
         "cweagans/composer-patches": "^2",
         "czproject/git-php": "^4.6",
-        "guzzlehttp/guzzle": "^7.16.0",
+        "guzzlehttp/guzzle": "^8.3",
         "laravel/prompts": "^0.3.26",
         "nelexa/zip": "^4.0.2",
         "nikic/iter": "^2.4.1",
