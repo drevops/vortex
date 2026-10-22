@@ -61,10 +61,11 @@ docs/
 
 `content/features.mdx` lists what the template ships, 1 tab per area.
 
-- Link every product the page names to its homepage or repository: tools,
-  services, hosting platforms, Drupal modules, and DrevOps packages such as
-  `drevops/vortex-tooling` or Behat Steps. Link a product once per tab, on
-  its first mention.
+- Link every product the template ships or integrates with to its homepage
+  or repository: tools, services, hosting platforms, Drupal modules, and
+  DrevOps packages such as `drevops/vortex-tooling` or Behat Steps. Link a
+  product once per tab, on its first mention. Languages and platforms named
+  only as context, such as PHP or Drupal in passing, stay unlinked.
 - End each tab with a `➡️ See` line linking the docs section that covers
   the area.
 - Update the page in the same PR as a change that adds, removes, or

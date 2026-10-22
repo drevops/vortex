@@ -24,7 +24,7 @@ import {
 
     ### Composer-based project
 
-    - Latest [Drupal 11](https://www.drupal.org/project/drupal) release on
+    - Latest Drupal 11 release on
       [PHP](https://www.php.net/) 8.4, managed with
       [Composer](https://getcomposer.org/) and
       [Drush](https://www.drush.org/) 13
@@ -157,7 +157,8 @@ import {
     - _Lint_ the code without provisioning a site
     - _Fetch the database_ from the hosting provider and cache it for the
       day, with a nightly refresh of the database container image
-    - _Build_ and test a fully provisioned site, with Behat tests split
+    - _Build_ and test a fully provisioned site, with
+      [Behat](https://docs.behat.org/en/latest/) tests split
       across parallel containers
     - _Deploy_ the site to the hosting provider after the checks pass
 
@@ -209,7 +210,7 @@ import {
     - [Acquia](https://www.acquia.com/) hosting integration
     - Fetch the database from an Acquia environment
     - Copy the database and files between environments
-    - Purge the Varnish cache
+    - Purge the [Varnish](https://varnish-cache.org/) cache
     - Code artifact deployments with
       [`git-artifact`](https://github.com/drevops/git-artifact)
     - Deployment automation with Cloud Hooks
@@ -266,7 +267,7 @@ import {
     - [SDC Devel](https://www.drupal.org/project/sdc_devel) for validating
       Single Directory Components
     - [DCLint](https://github.com/zavoloklom/docker-compose-linter) for
-      checking Docker Compose files
+      checking [Docker Compose](https://docs.docker.com/compose/) files
     - [Hadolint](https://github.com/hadolint/hadolint) for checking
       Dockerfiles
 
