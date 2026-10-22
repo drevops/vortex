@@ -66,6 +66,7 @@ abstract class SettingsTestCase extends TestCase {
     'DATABASE2_',
     // phpcs:ignore #;> MIGRATION
     'REDIS_',
+    'CLAMAV_',
     'COMPOSE_',
     'GITHUB_',
     'PACKAGE_',

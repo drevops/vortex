@@ -63,6 +63,7 @@ abstract class SettingsTestCase extends TestCase {
     // Service variables.
     'DATABASE_',
     'REDIS_',
+    'CLAMAV_',
     'COMPOSE_',
     'GITHUB_',
     'PACKAGE_',

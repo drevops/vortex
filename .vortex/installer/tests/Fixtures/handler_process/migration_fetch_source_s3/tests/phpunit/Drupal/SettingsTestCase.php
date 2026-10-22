@@ -4,5 +4,5 @@
      'DATABASE_',
 +    'DATABASE2_',
      'REDIS_',
+     'CLAMAV_',
      'COMPOSE_',
-     'GITHUB_',
