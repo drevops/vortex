@@ -17,11 +17,8 @@
     "test": "jest --coverage --passWithNoTests"
   },
   "devDependencies": {
-    "@eslint/compat": "__VERSION__",
     "@eslint/js": "__VERSION__",
     "@homer0/prettier-plugin-jsdoc": "__VERSION__",
-    "jest": "__VERSION__",
-    "jest-environment-jsdom": "__VERSION__",
     "eslint": "__VERSION__",
     "eslint-config-prettier": "__VERSION__",
     "eslint-plugin-import-x": "__VERSION__",
@@ -30,6 +27,8 @@
     "eslint-plugin-prettier": "__VERSION__",
     "eslint-plugin-yml": "__VERSION__",
     "globals": "__VERSION__",
+    "jest": "__VERSION__",
+    "jest-environment-jsdom": "__VERSION__",
     "prettier": "__VERSION__",
     "stylelint": "__VERSION__",
     "stylelint-config-standard": "__VERSION__",

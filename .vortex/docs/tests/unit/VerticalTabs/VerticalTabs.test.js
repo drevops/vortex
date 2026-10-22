@@ -12,21 +12,14 @@ import {
   VerticalTabPanel,
 } from '../../../src/components/VerticalTabs';
 
-// Mock window.location and history for hash testing
-const mockLocation = {
-  pathname: '/test',
-  search: '',
-  hash: '',
-};
+// jsdom does not allow window.location to be redefined, so the URL is set
+// through the real History API before window.history is mocked.
+const realHistory = window.history;
+const setUrl = url => realHistory.replaceState(null, '', url);
 
 const mockHistory = {
   replaceState: jest.fn(),
 };
-
-Object.defineProperty(window, 'location', {
-  value: mockLocation,
-  writable: true,
-});
 
 Object.defineProperty(window, 'history', {
   value: mockHistory,
@@ -36,7 +29,7 @@ Object.defineProperty(window, 'history', {
 describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
   beforeEach(() => {
     // Reset mocks before each test
-    mockLocation.hash = '';
+    setUrl('/test');
     mockHistory.replaceState.mockClear();
 
     // Clear any existing hashchange listeners
@@ -424,7 +417,7 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
   describe('Hash-based Active Tab Support', () => {
     test('sets active tab from URL hash on mount', () => {
       // Set hash to match second tab's slug
-      mockLocation.hash = '#docker-services';
+      setUrl('/test#docker-services');
 
       render(
         <VerticalTabs>
@@ -510,7 +503,7 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
       expect(screen.getByText('Drupal content here')).toBeInTheDocument();
 
       // Simulate hash change
-      mockLocation.hash = '#docker-services';
+      setUrl('/test#docker-services');
       if (hashChangeHandler) {
         act(() => {
           hashChangeHandler();
@@ -523,7 +516,7 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
     });
 
     test('ignores invalid hash values', () => {
-      mockLocation.hash = '#nonexistent-tab';
+      setUrl('/test#nonexistent-tab');
 
       render(
         <VerticalTabs>
@@ -549,7 +542,7 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
     });
 
     test('handles empty hash correctly', () => {
-      mockLocation.hash = '';
+      setUrl('/test');
 
       render(
         <VerticalTabs>
@@ -603,7 +596,7 @@ describe('VerticalTabs with VerticalTab/VerticalTabPanel Components', () => {
     });
 
     test('preserves search parameters when updating hash', async () => {
-      mockLocation.search = '?param=value';
+      setUrl('/test?param=value');
 
       render(
         <VerticalTabs>

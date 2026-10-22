@@ -4,7 +4,6 @@
   "private": true,
   "description": "NodeJS dependencies for New hope project",
   "devDependencies": {
-    "@eslint/compat": "__VERSION__",
     "@eslint/js": "__VERSION__",
     "@homer0/prettier-plugin-jsdoc": "__VERSION__",
     "autoprefixer": "__VERSION__",

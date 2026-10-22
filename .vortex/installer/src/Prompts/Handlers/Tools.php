@@ -360,7 +360,6 @@ class Tools extends AbstractHandler {
         'present' => fn(): mixed => File::contains($this->destinationDir . '/package.json', '"eslint":') ||
           File::exists($this->destinationDir . '/eslint.config.mjs'),
         'package.json' => function (JsonManipulator $pj): void {
-          $pj->removeSubNode('devDependencies', '@eslint/compat');
           $pj->removeSubNode('devDependencies', '@eslint/js');
           $pj->removeSubNode('devDependencies', 'eslint');
           $pj->removeSubNode('devDependencies', 'eslint-config-prettier');
@@ -378,7 +377,6 @@ class Tools extends AbstractHandler {
           $pj->addSubNode('scripts', 'lint-fix', 'npm run lint-fix-css');
         },
         'theme.package.json' => function (JsonManipulator $pj): void {
-          $pj->removeSubNode('devDependencies', '@eslint/compat');
           $pj->removeSubNode('devDependencies', '@eslint/js');
           $pj->removeSubNode('devDependencies', 'eslint');
           $pj->removeSubNode('devDependencies', 'eslint-config-prettier');
