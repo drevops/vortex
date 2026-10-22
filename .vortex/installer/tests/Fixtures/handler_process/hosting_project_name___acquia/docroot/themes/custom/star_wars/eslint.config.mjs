@@ -3,7 +3,6 @@
 // theme's own sources. The theme carries its own front-end tooling because it
 // can be moved into a separate repository.
 import { defineConfig } from 'eslint/config';
-import { fixupPluginRules } from '@eslint/compat';
 import { importX } from 'eslint-plugin-import-x';
 import noJQuery from 'eslint-plugin-no-jquery';
 import prettierConfig from 'eslint-plugin-prettier/recommended';
@@ -23,7 +22,7 @@ export default defineConfig(
   ymlConfig.configs['flat/recommended'],
   {
     plugins: {
-      'no-jquery': fixupPluginRules(noJQuery),
+      'no-jquery': noJQuery,
     },
     languageOptions: {
       ecmaVersion: 2020,
