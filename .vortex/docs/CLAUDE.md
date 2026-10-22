@@ -57,6 +57,20 @@ docs/
   blocks, tables, and headings are exempt, but code inside JSX such as a
   `<TabItem>` is not, so split a long command there with `\`.
 
+## Features page
+
+`content/features.mdx` lists what the template ships, 1 tab per area.
+
+- Link every product the page names to its homepage or repository: tools,
+  services, hosting platforms, Drupal modules, and DrevOps packages such as
+  `drevops/vortex-tooling` or Behat Steps. Link a product once per tab, on
+  its first mention.
+- End each tab with a `➡️ See` line linking the docs section that covers
+  the area.
+- Update the page in the same PR as a change that adds, removes, or
+  replaces a shipped tool, service, module, or integration.
+- Keep "planned" notes in sync with `content/contributing/roadmap.mdx`.
+
 ## Prose linting
 
 `yarn lint-prose` runs [Vale](https://vale.sh) over `content/**/*.mdx`.
