@@ -33,7 +33,7 @@ jobs:
   # Variables provided below can be overridden in the CircleCI project settings.
   update-dependencies:
     docker:
-      - image: renovate/renovate:44.132.5
+      - image: renovate/renovate:44.176.2
         environment:
           RENOVATE_PLATFORM: 'github'
           RENOVATE_AUTODISCOVER: false
