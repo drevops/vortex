@@ -73,7 +73,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock git-artifact command.
     $git_artifact_cmd = sprintf(
-      '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s -vvv',
+      '%s %s --root=%s --source=%s --branch=%s --gitignore=%s --log=%s -vvv',
       escapeshellarg($this->getGitArtifactBinPath()),
       escapeshellarg('git@github.com:org/repo.git'),
       escapeshellarg(self::$tmp . '/root'),
@@ -130,7 +130,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock git-artifact command.
     $git_artifact_cmd = sprintf(
-      '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s -vvv',
+      '%s %s --root=%s --source=%s --branch=%s --gitignore=%s --log=%s -vvv',
       escapeshellarg($this->getGitArtifactBinPath()),
       escapeshellarg('git@github.com:org/repo.git'),
       escapeshellarg(self::$tmp . '/root'),
@@ -239,7 +239,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock git-artifact download failure.
     $this->mockRequest(
-      'https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact',
+      'https://github.com/drevops/git-artifact/releases/download/1.8.0/git-artifact',
       ['method' => 'GET'],
       ['ok' => FALSE, 'status' => 404, 'body' => 'Not Found'],
     );
@@ -288,7 +288,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock git-artifact command failure.
     $git_artifact_cmd = sprintf(
-      '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s -vvv',
+      '%s %s --root=%s --source=%s --branch=%s --gitignore=%s --log=%s -vvv',
       escapeshellarg($this->getGitArtifactBinPath()),
       escapeshellarg('git@github.com:org/repo.git'),
       escapeshellarg(self::$tmp . '/root'),
@@ -357,7 +357,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock git-artifact command with custom branch.
     $git_artifact_cmd = sprintf(
-      '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s -vvv',
+      '%s %s --root=%s --source=%s --branch=%s --gitignore=%s --log=%s -vvv',
       escapeshellarg($this->getGitArtifactBinPath()),
       escapeshellarg('git@github.com:org/repo.git'),
       escapeshellarg(self::$tmp . '/root'),
@@ -399,7 +399,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock git-artifact command with the cleanup flags and the default age.
     $git_artifact_cmd = sprintf(
-      '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s --cleanup-stale --cleanup-pattern=%s --cleanup-age=%s -vvv',
+      '%s %s --root=%s --source=%s --branch=%s --gitignore=%s --log=%s --cleanup-stale --cleanup-pattern=%s --cleanup-age=%s -vvv',
       escapeshellarg($this->getGitArtifactBinPath()),
       escapeshellarg('git@github.com:org/repo.git'),
       escapeshellarg(self::$tmp . '/root'),
@@ -446,7 +446,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock git-artifact command with the overridden age.
     $git_artifact_cmd = sprintf(
-      '%s %s --root=%s --src=%s --branch=%s --gitignore=%s --log=%s --cleanup-stale --cleanup-pattern=%s --cleanup-age=%s -vvv',
+      '%s %s --root=%s --source=%s --branch=%s --gitignore=%s --log=%s --cleanup-stale --cleanup-pattern=%s --cleanup-age=%s -vvv',
       escapeshellarg($this->getGitArtifactBinPath()),
       escapeshellarg('git@github.com:org/repo.git'),
       escapeshellarg(self::$tmp . '/root'),
@@ -494,7 +494,7 @@ class DeployArtifactTest extends UnitTestCase {
    */
   protected function mockGitArtifactDownload(): void {
     $this->mockRequest(
-      'https://github.com/drevops/git-artifact/releases/download/1.7.0/git-artifact',
+      'https://github.com/drevops/git-artifact/releases/download/1.8.0/git-artifact',
       ['method' => 'GET'],
       ['ok' => TRUE, 'status' => 200, 'body' => ''],
     );
