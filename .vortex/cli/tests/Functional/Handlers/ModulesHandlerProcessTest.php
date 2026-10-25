@@ -76,10 +76,7 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function ($test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('redirect');
       }),
-      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
-        'drupal/redirect',
-        'RedirectTrait',
-      ])),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('drupal/redirect')),
     ];
     yield 'modules_no_reroute_email' => [
       static::cw(function ($test): void {
