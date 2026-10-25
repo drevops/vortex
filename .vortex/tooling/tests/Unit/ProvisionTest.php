@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexTooling\Tests\Unit;
 
+use DrevOps\VortexTooling\Tests\Exceptions\QuitErrorException;
 use DrevOps\VortexTooling\Tests\Exceptions\QuitSuccessException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -29,6 +31,7 @@ class ProvisionTest extends UnitTestCase {
       'VORTEX_PROVISION_USE_MAINTENANCE_MODE' => '0',
       'VORTEX_PROVISION_POST_OPERATIONS_SKIP' => '1',
       'VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE' => '0',
+      'VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION' => '0',
       'VORTEX_PROVISION_DB' => '',
       'VORTEX_PROVISION_SCRIPTS_DIR' => '/tmp/nonexistent-custom-scripts',
       'WEBROOT' => 'web',
@@ -614,6 +617,169 @@ class ProvisionTest extends UnitTestCase {
 
     $this->assertStringContainsString('Fallback to profile            : Yes', $output);
     $this->assertStringContainsString('Verify config after update     : Yes', $output);
+  }
+
+  #[DataProvider('dataProviderVerifyConfigAfterProvision')]
+  public function testVerifyConfigAfterProvision(string $verify, bool $has_config, ?string $config_status_output, array $expected, array $not_expected, bool $expect_error = FALSE): void {
+    $this->createDbDumpFile();
+
+    $this->envSetMultiple([
+      'VORTEX_PROVISION_POST_OPERATIONS_SKIP' => '0',
+      'VORTEX_PROVISION_USE_MAINTENANCE_MODE' => '1',
+      'VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION' => $verify,
+    ]);
+
+    if ($has_config) {
+      $this->mockDrushStartupSequenceWithConfig(TRUE);
+    }
+    else {
+      $this->mockDrushStartupSequence(TRUE);
+    }
+
+    // Drush php:eval (environment).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd("php:eval \"print \\Drupal\\Core\\Site\\Settings::get('environment');\""),
+      'output' => 'production',
+      'result_code' => 0,
+    ]);
+
+    // Drush maint:set 1.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('maint:set 1'),
+      'result_code' => 0,
+    ]);
+
+    if ($has_config) {
+      // Drush config-set system.site uuid.
+      $this->mockPassthru([
+        'cmd' => $this->drushCmd("config-set system.site uuid 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'"),
+        'result_code' => 0,
+      ]);
+    }
+
+    // Drush updatedb.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('updatedb --no-cache-clear'),
+      'result_code' => 0,
+    ]);
+
+    // Drush cache:rebuild (after database updates).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
+    if ($has_config) {
+      // Drush config:import.
+      $this->mockPassthru([
+        'cmd' => $this->drushCmd('config:import'),
+        'result_code' => 0,
+      ]);
+
+      // Drush pm:list (config_split check) - module not enabled.
+      $this->mockPassthru([
+        'cmd' => $this->drushCmd('pm:list --status=enabled'),
+        'output' => '',
+        'result_code' => 0,
+      ]);
+    }
+
+    // Drush cache:rebuild (post-provision).
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('cache:rebuild'),
+      'result_code' => 0,
+    ]);
+
+    // Drush pm:install deploy_steps.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('pm:install deploy_steps'),
+      'result_code' => 0,
+    ]);
+
+    // Drush deploy:hook.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('deploy:hook'),
+      'result_code' => 0,
+    ]);
+
+    // Drush maint:set 0.
+    $this->mockPassthru([
+      'cmd' => $this->drushCmd('maint:set 0'),
+      'result_code' => 0,
+    ]);
+
+    if ($config_status_output !== NULL) {
+      // Drush config:status (post-provision verification).
+      $this->mockPassthru([
+        'cmd' => $this->drushCmd('config:status --state=Different --format=list'),
+        'output' => $config_status_output,
+        'result_code' => 0,
+      ]);
+    }
+
+    $this->mockQuit($expect_error ? 1 : 0);
+
+    $output = '';
+    try {
+      $this->runScript('src/vortex-provision');
+      $this->fail('Expected the script to quit.');
+    }
+    catch (QuitSuccessException | QuitErrorException $e) {
+      $output = $e->getOutput();
+    }
+
+    foreach ($expected as $string) {
+      $this->assertStringContainsString($string, $output);
+    }
+    foreach ($not_expected as $string) {
+      $this->assertStringNotContainsString($string, $output);
+    }
+  }
+
+  public static function dataProviderVerifyConfigAfterProvision(): array {
+    return [
+      'disabled' => [
+        '0',
+        TRUE,
+        NULL,
+        ['Verify config after provision  : No', 'Disabled maintenance mode.', 'Finished site provisioning'],
+        ['Verifying that configuration was not changed by post-provision operations.'],
+      ],
+      'enabled, configuration unchanged' => [
+        '1',
+        TRUE,
+        '',
+        [
+          'Verify config after provision  : Yes',
+          'Verifying that configuration was not changed by post-provision operations.',
+          'Verified that post-provision operations did not change configuration.',
+          'Finished site provisioning',
+        ],
+        ['Configuration was changed by post-provision operations.'],
+      ],
+      'enabled, configuration different' => [
+        '1',
+        TRUE,
+        "core.extension\nviews.view.content\n",
+        [
+          'Verify config after provision  : Yes',
+          'Verifying that configuration was not changed by post-provision operations.',
+          'The following configuration items differ from the exported configuration:',
+          "core.extension\nviews.view.content",
+          'Review the changes and export the updated configuration.',
+          'Configuration was changed by post-provision operations.',
+        ],
+        ['Verified that post-provision operations did not change configuration.', 'Finished site provisioning'],
+        TRUE,
+      ],
+      'enabled, no configuration files' => [
+        '1',
+        FALSE,
+        NULL,
+        ['Verify config after provision  : Yes', 'Disabled maintenance mode.', 'Finished site provisioning'],
+        ['Verifying that configuration was not changed by post-provision operations.'],
+      ],
+    ];
   }
 
   public function testProvisionDbDirFallback(): void {

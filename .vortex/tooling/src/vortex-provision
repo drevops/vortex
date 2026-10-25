@@ -69,6 +69,13 @@ $provision_post_operations_skip = getenv_default('VORTEX_PROVISION_POST_OPERATIO
 // drush config:import from silently overwriting those changes.
 $provision_verify_config = getenv_default('VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE', '0');
 
+// Verify that configuration was not changed by post-provision operations.
+//
+// If enabled and config files are present, the provision will fail if any
+// active configuration item differs from the exported configuration once
+// configuration imports, deployment hooks and deploy steps have run.
+$provision_verify_config_after_provision = getenv_default('VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION', '0');
+
 // Skip cache rebuild after database updates.
 $provision_cache_rebuild_after_db_update_skip = getenv_default('VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP', '0');
 
@@ -454,6 +461,7 @@ NOTE('Overwrite existing DB          : %s', yesno($provision_override_db));
 NOTE('Skip DB sanitization           : %s', yesno($provision_sanitize_db_skip));
 NOTE('Skip post-provision operations : %s', yesno($provision_post_operations_skip));
 NOTE('Verify config after update     : %s', yesno($provision_verify_config));
+NOTE('Verify config after provision  : %s', yesno($provision_verify_config_after_provision));
 NOTE('Use maintenance mode           : %s', yesno($provision_use_maintenance_mode));
 echo PHP_EOL;
 
@@ -727,6 +735,22 @@ else {
 if ($provision_use_maintenance_mode === '1') {
   TASK('Disabling maintenance mode.', 'Disabled maintenance mode.', function (): void {
     drush('maint:set 0');
+  });
+  echo PHP_EOL;
+}
+
+// Only the 'Different' state is checked: a site may legitimately carry
+// configuration that exists only in the database or only in the sync directory.
+if ($provision_verify_config_after_provision === '1' && $site_has_config_files) {
+  TASK('Verifying that configuration was not changed by post-provision operations.', 'Verified that post-provision operations did not change configuration.', function (): void {
+    $config_status = trim(drush('config:status --state=Different --format=list'));
+
+    if ($config_status !== '') {
+      NOTE('The following configuration items differ from the exported configuration:');
+      echo $config_status . PHP_EOL;
+      NOTE('Review the changes and export the updated configuration.');
+      throw new \RuntimeException('Configuration was changed by post-provision operations.');
+    }
   });
   echo PHP_EOL;
 }
