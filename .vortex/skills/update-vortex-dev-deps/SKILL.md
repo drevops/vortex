@@ -6,47 +6,64 @@ user-invocable: true
 
 # Update Vortex Dev Dependencies
 
-Refresh Composer and Yarn dependencies across three `.vortex/` subsystems, run each subsystem's local lint, generate a major-versions-available report, and open a pull request. Local **lint must pass before pushing**; local **tests are intentionally skipped** because CI runs them already and is the source of truth.
+Refresh Composer and Yarn dependencies across 3 `.vortex/` subsystems, run
+each subsystem's local lint, generate a major-versions-available report,
+and open a pull request. Local **lint must pass before pushing**. Local
+**tests are intentionally skipped**: CI runs them and is the source of
+truth.
 
 ## When to Use
 
-- User says 'update vortex dev deps', 'refresh .vortex dependencies', 'bump .vortex lock files'.
+- The user says 'update vortex dev deps', 'refresh .vortex dependencies',
+  or 'bump .vortex lock files'.
 - A periodic maintenance pass on the Vortex template's test harness.
 
 Do NOT use for:
 
-- The root project's dependencies (those are handled by Renovate and `prepare-vortex-release`).
-- Major version bumps inside `.vortex/` manifests. This skill only refreshes lock files within existing constraints; the majors report flags what would need a manual bump.
-- `.vortex/tooling/`. That directory ships as the standalone `drevops/vortex-tooling` Composer library - it does not commit a `composer.lock`, its `yarn.lock` is for BATS only, and its dependencies are resolved by consumer projects via Packagist. Touching it here would produce local-only artefacts that should never land in a PR.
+- The root project's dependencies. Renovate and `prepare-vortex-release`
+  handle those.
+- Major version bumps inside `.vortex/` manifests. This skill only
+  refreshes lock files within existing constraints. The majors report
+  flags what would need a manual bump.
+- `.vortex/tooling/`. That directory ships as the standalone
+  `drevops/vortex-tooling` Composer library. It doesn't commit a
+  `composer.lock`, and consumer projects resolve its dependencies from
+  Packagist. Touching it here would produce local-only artifacts that
+  should never land in a PR.
 
 ## Scope
 
-This skill touches files under exactly three `.vortex/` subsystems:
+This skill touches files under exactly 3 `.vortex/` subsystems:
 
 - `.vortex/docs/` (Yarn)
-- `.vortex/cli/` (Composer, plus `vendor-bin/box/` sub-composer)
+- `.vortex/cli/` (Composer, plus the `vendor-bin/box/` sub-composer)
 - `.vortex/tests/` (Composer + Yarn)
 
-`.vortex/tooling/` is explicitly out of scope - see the "Do NOT use for" list above.
+`.vortex/tooling/` is explicitly out of scope; see the "Do NOT use for"
+list in [When to Use](#when-to-use).
 
-Manifests (`composer.json`, `package.json`) are not edited by hand. Only lock files (`composer.lock`, `yarn.lock`, `patches.lock.json`) change. A `composer.json` will only change if it has `bump-after-update` configured; in that case stage and commit it along with its lock file.
+Don't edit manifests (`composer.json`, `package.json`) by hand. Only lock
+files (`composer.lock`, `yarn.lock`, `patches.lock.json`) change. A
+`composer.json` changes only if it has `bump-after-update` configured. In
+that case, stage and commit it with its lock file.
 
 ## Prerequisites
 
-- Composer 2.x available on the host.
-- Yarn 1.x available on the host.
+- Composer 2.x on the host.
+- Yarn 1.x on the host.
 - `gh` CLI authenticated.
-- Working tree clean.
+- A clean working tree.
 
 ## Naming Convention
 
-Branch and artifact names use a slug derived from the current month and year. Compute it once:
+Branch and artifact names use a slug built from the current month and
+year. Compute it once:
 
 ```bash
 date +"%B-%Y"
 ```
 
-Lowercase the result (e.g. `May-2026` becomes `may-2026`).
+Lowercase the result, for example `May-2026` becomes `may-2026`.
 
 - Branch: `feature/vortex-dev-deps-{slug}`
 - Artifact directory: `.artifacts/vortex-dev-deps-{slug}/`
@@ -55,7 +72,8 @@ Lowercase the result (e.g. `May-2026` becomes `may-2026`).
 
 ## Subsystem Matrix
 
-Process in fixed order. Smallest blast radius first. Lint commands run from the project root; lint-fix commands also run from the project root.
+Process the subsystems in a fixed order, smallest blast radius first. Run
+the lint and lint-fix commands from the project root.
 
 | # | Subsystem (`.vortex/...`) | Composer manifest(s)                              | Yarn manifest    | `patches.lock.json` | Lint commands                                                                          | Lint-fix command                                          |
 |---|---------------------------|---------------------------------------------------|------------------|---------------------|----------------------------------------------------------------------------------------|-----------------------------------------------------------|
@@ -63,13 +81,16 @@ Process in fixed order. Smallest blast radius first. Lint commands run from the 
 | 2 | `cli`                     | `composer.json` + `vendor-bin/box/composer.json`  | -                | yes                 | `composer --working-dir .vortex/cli lint`                                        | `composer --working-dir .vortex/cli lint-fix`       |
 | 3 | `tests`                   | `composer.json`                                   | `package.json`   | yes                 | `composer --working-dir .vortex/tests lint`                                            | `composer --working-dir .vortex/tests lint-fix`           |
 
-Confirm the lint and lint-fix command names against `.vortex/.ahoy.yml` (search for `lint-cli`, `lint-tests`, `lint-docs` and their `-fix` counterparts) before relying on the matrix. If a subsystem's lint or lint-fix command name changes upstream, this matrix is stale.
+Before relying on the matrix, confirm the lint and lint-fix command names
+against `.vortex/.ahoy.yml`. Search for `lint-cli`, `lint-tests`,
+`lint-docs`, and their `-fix` counterparts. If a subsystem's lint or
+lint-fix command name changes upstream, this matrix is stale.
 
 ## Workflow
 
 ### Step 1: Prepare
 
-Check the working tree is clean:
+Check that the working tree is clean:
 
 ```bash
 git status
@@ -77,7 +98,7 @@ git status
 
 If uncommitted changes exist, STOP and ask the user before proceeding.
 
-Determine the slug (e.g. `may-2026`).
+Determine the slug, for example `may-2026`.
 
 Create the artifact directory:
 
@@ -109,9 +130,14 @@ git checkout -b feature/vortex-dev-deps-{slug}
 
 ### Step 3: Refresh dependencies
 
-Process the matrix in order. For each row, run the applicable commands below from the project root. Append every command's full output to `.artifacts/vortex-dev-deps-{slug}/update-log.txt` with a clear `### {subsystem}` heading per subsystem.
+Process the matrix in order. For each row, run the applicable commands
+from the project root. Append every command's full output to
+`.artifacts/vortex-dev-deps-{slug}/update-log.txt`, with a clear
+`### {subsystem}` heading per subsystem.
 
-`composer update` (no package args, no `--with-all-dependencies`) and `yarn upgrade` (no `--latest`) both honour existing version constraints. Manifests should not change unless `composer.json` has `bump-after-update`.
+`composer update` (no package args, no `--with-all-dependencies`) and
+`yarn upgrade` (no `--latest`) both honor existing version constraints.
+Manifests don't change unless `composer.json` has `bump-after-update`.
 
 **3.1 - docs (Yarn only):**
 
@@ -139,11 +165,16 @@ composer --working-dir .vortex/tests update
 yarn --cwd .vortex/tests upgrade
 ```
 
-**On command failure** (dependency resolution conflict, registry error, etc.): STOP, report which subsystem and which command failed and the relevant error excerpt, leave the working tree as-is so the user can investigate. Do NOT proceed to the next subsystem and do NOT delete the partial diff.
+**On command failure**, such as a dependency resolution conflict or a
+registry error: STOP. Report which subsystem and which command failed,
+with the relevant error excerpt. Leave the working tree as-is so the user
+can investigate. Do NOT proceed to the next subsystem, and do NOT delete
+the partial diff.
 
 ### Step 4: Generate majors-available report
 
-For each Composer manifest in the matrix (including the `vendor-bin/box` one):
+For each Composer manifest in the matrix, including the `vendor-bin/box`
+one:
 
 ```bash
 composer --working-dir <subsystem> outdated --direct --major-only --format=json
@@ -155,11 +186,17 @@ For each Yarn manifest in the matrix:
 yarn --cwd <subsystem> outdated --json
 ```
 
-`yarn outdated` exits with status `1` when outdated packages are found. That is expected output, not a failure.
+`yarn outdated` exits with status `1` when it finds outdated packages.
+That's expected output, not a failure.
 
-Parse the outputs and write `.artifacts/vortex-dev-deps-{slug}/majors.md` with one table per subsystem-manager pair that has any major upgrade available. Include only packages whose latest **major** is strictly greater than the installed major (Composer's `--major-only` already filters this; for Yarn, compare `current` and `latest` semver majors). If a pair has nothing, omit its table.
+Parse the outputs and write `.artifacts/vortex-dev-deps-{slug}/majors.md`.
+Add 1 table per subsystem-manager pair that has a major upgrade available.
+Include only packages whose latest **major** is strictly greater than the
+installed major. Composer's `--major-only` already filters this; for Yarn,
+compare the `current` and `latest` semver majors. If a pair has nothing,
+omit its table.
 
-Format:
+Use this format:
 
 ```markdown
 # Major versions available
@@ -177,7 +214,7 @@ Format:
 | symfony/console | 6.4.0 | 7.0.0 |
 ```
 
-If no subsystem has any major available, write a single line:
+If no subsystem has a major available, write a single line:
 
 ```text
 No major versions available outside current constraints.
@@ -185,9 +222,11 @@ No major versions available outside current constraints.
 
 ### Step 5: Lint each updated subsystem (with auto-fix)
 
-Lint MUST pass locally before committing or pushing. Tests do NOT run locally - CI is the source of truth for tests.
+Lint MUST pass locally before committing or pushing. Tests do NOT run
+locally; CI is the source of truth for tests.
 
-Run the lint commands from the matrix in the same order as Step 3, from the project root.
+Run the lint commands from the matrix in the same order as Step 3, from
+the project root.
 
 **5.1 - docs:**
 
@@ -213,7 +252,10 @@ composer --working-dir .vortex/tests lint
 
 #### On lint failure
 
-A dependency refresh frequently surfaces lint violations because a code-style tool (phpcs/Drupal coder, eslint, prettier, rector) was upgraded and a previously-stable rule got stricter, or a new rule was added. The first response is **always** to attempt the subsystem's auto-fix, not to give up.
+A dependency refresh often surfaces lint violations. A code-style tool
+(phpcs/Drupal coder, eslint, prettier, rector) was upgraded, and a rule
+got stricter or a new rule was added. The first response is **always** to
+run the subsystem's auto-fix.
 
 For the failing subsystem, run its lint-fix command from the matrix:
 
@@ -221,12 +263,22 @@ For the failing subsystem, run its lint-fix command from the matrix:
 - **cli**: `composer --working-dir .vortex/cli lint-fix`
 - **tests**: `composer --working-dir .vortex/tests lint-fix`
 
-Then re-run the lint command(s) from the matrix for that subsystem (Step 5.1 / 5.2 / 5.3). Expected outcomes:
+Then re-run that subsystem's lint commands from the matrix (Step 5.1,
+5.2, or 5.3). The outcome is 1 of these:
 
-1. **Lint now passes.** Carry the auto-fixed source changes into the same commit as the dependency refresh in Step 6. They are part of "what this update did" and reviewers should see them together with the lock changes.
-2. **Lint still fails.** STOP. Report which subsystem and which rules are still failing, with the relevant excerpt. Do NOT commit, do NOT push, do NOT open a PR. Leave the working tree as-is so the user can investigate. The remaining failures are real issues that need a manual fix (or an explicit decision to suppress / pin / revert the upgrade).
+1. **Lint passes.** Carry the auto-fixed source changes into the same
+   commit as the dependency refresh in Step 6. They're part of what this
+   update did, and reviewers should see them with the lock changes.
+2. **Lint still fails.** STOP. Report which subsystem and which rules
+   still fail, with the relevant excerpt. Do NOT commit, push, or open a
+   PR. Leave the working tree as-is so the user can investigate. The
+   remaining failures are real issues. They need a manual fix, or an
+   explicit decision to suppress, pin, or revert the upgrade.
 
-If the lint failure looks completely unrelated to the dependency refresh (the upgraded packages have nothing to do with linting), surface that to the user before continuing - the dependency refresh PR is not the right place to fix unrelated lint debt.
+If the lint failure looks unrelated to the dependency refresh (the
+upgraded packages have nothing to do with linting), tell the user before
+continuing. Unrelated lint debt doesn't belong in the dependency refresh
+PR.
 
 ### Step 6: Commit
 
@@ -268,11 +320,15 @@ git add .vortex/tests/patches.lock.json
 git add .vortex/tests/yarn.lock
 ```
 
-Note that `.vortex/cli/vendor-bin/box/composer.lock` is gitignored (the whole `vendor-bin/` directory is excluded). Do not try to force-add it.
+`.vortex/cli/vendor-bin/box/composer.lock` is gitignored, because the
+whole `vendor-bin/` directory is excluded. Don't try to force-add it.
 
 #### Stage auto-fix changes (if any)
 
-If Step 5 ran a lint-fix and modified files, those changes also belong in this commit - they describe the source-code fallout of the dependency refresh and should travel together with the lock changes. Discover the modified files inside the affected subsystems and stage them explicitly. For example:
+If Step 5 ran a lint-fix that modified files, those changes also belong in
+this commit. They're the source-code fallout of the dependency refresh,
+and they go with the lock changes. Find the modified files inside the
+affected subsystems and stage them explicitly. For example:
 
 ```bash
 git diff --name-only .vortex/docs/src .vortex/docs/tests
@@ -286,19 +342,27 @@ git diff --name-only .vortex/cli/src .vortex/cli/tests
 git diff --name-only .vortex/tests
 ```
 
-Stage each path the diff prints (one `git add <path>` per file - do not glob `.` or use `-A`). Restrict the discovery to in-scope subsystems (`.vortex/docs/`, `.vortex/cli/`, `.vortex/tests/`); anything under `.vortex/tooling/` MUST stay unstaged.
+Stage each path the diff prints, with 1 `git add <path>` per file. Don't
+glob `.` or use `-A`. Restrict the search to the in-scope subsystems
+(`.vortex/docs/`, `.vortex/cli/`, `.vortex/tests/`). Anything under
+`.vortex/tooling/` MUST stay unstaged.
 
 #### Verify staging
 
-Run `git status` to confirm only `.vortex/**` paths are staged. Staging an unchanged file is a no-op. If anything under `.vortex/tooling/` appears in `git status` (a `composer.lock` that Composer wrote locally, for example), do NOT stage it - that subsystem is out of scope.
+Run `git status` to confirm that only `.vortex/**` paths are staged.
+Staging an unchanged file does nothing. If anything under
+`.vortex/tooling/` appears in `git status`, such as a `composer.lock` that
+Composer wrote locally, do NOT stage it. That subsystem is out of scope.
 
-Commit (with the slug title-cased, e.g. `May 2026`):
+Commit, with the slug in title case, for example `May 2026`:
 
 ```bash
 git commit -m "Refreshed '.vortex/' dev dependencies for {Slug Title Case}."
 ```
 
-If Step 5 needed auto-fix changes, mention that in the commit body (or extend the subject) so reviewers know the source files in the diff are intended:
+If Step 5 needed auto-fix changes, mention them in the commit body or
+extend the subject. Reviewers then know the source files in the diff are
+intended:
 
 ```bash
 git commit -m "Refreshed '.vortex/' dev dependencies and lint-fix fallout for {Slug Title Case}."
@@ -308,34 +372,71 @@ git commit -m "Refreshed '.vortex/' dev dependencies and lint-fix fallout for {S
 
 Invoke the `/open-pr` skill. The PR description must include:
 
-1. **Scope statement** - one sentence: "Refreshes lock files under `.vortex/` for `docs` / `cli` / `tests`. No manifest constraint changes. `.vortex/tooling/` is out of scope."
-2. **Subsystems touched** - bullet list of the three subsystems with a yes/no marker for Composer and Yarn changes (read from `git diff --stat`).
-3. **Lint status** - one sentence confirming local lint passed for each updated subsystem (this is the gate for opening the PR at all). If Step 5 needed auto-fix, list briefly which subsystem(s) the lint-fix touched and roughly what was fixed (e.g. "phpcs array-indentation in cli, applied by `composer lint-fix`") so reviewers see source-code changes are deliberate.
-4. **Majors report** - paste the report content generated in Step 4 inline (the body of `majors.md` or the "No major versions available" line), so reviewers see what is available outside the constraints in the same place as the diff. Do NOT reference the `.artifacts/` path - those files are not staged and will not exist in the PR branch.
+1. **Scope statement** - 1 sentence: "Refreshes lock files under
+   `.vortex/` for `docs` / `cli` / `tests`. No manifest constraint
+   changes. `.vortex/tooling/` is out of scope."
+2. **Subsystems touched** - a bullet list of the 3 subsystems, with a
+   yes/no marker for Composer and Yarn changes, read from
+   `git diff --stat`.
+3. **Lint status** - 1 sentence confirming that local lint passed for each
+   updated subsystem. This is the gate for opening the PR at all. If Step
+   5 needed auto-fix, briefly list which subsystems the lint-fix touched
+   and roughly what it fixed, for example "phpcs array-indentation in cli,
+   applied by `composer lint-fix`". Reviewers then see that the
+   source-code changes are deliberate.
+4. **Majors report** - paste the report from Step 4 inline: the body of
+   `majors.md` or the "No major versions available" line. Reviewers then
+   see what's available outside the constraints next to the diff. Do NOT
+   reference the `.artifacts/` path; those files aren't staged and won't
+   exist in the PR branch.
 
-The full Composer / Yarn output stays in `.artifacts/vortex-dev-deps-{slug}/update-log.txt` for local debugging only. Do not reference this path from the PR description and do not paste the log into the PR body.
+The full Composer and Yarn output stays in
+`.artifacts/vortex-dev-deps-{slug}/update-log.txt` for local debugging
+only. Don't reference this path in the PR description, and don't paste
+the log into the PR body.
 
-`/open-pr` already enforces its own pre-flight lint as part of its workflow. The Step 5 lint here is the skill's own gate - it runs before the commit, regardless of whether `/open-pr` repeats it.
+`/open-pr` runs its own pre-flight lint as part of its workflow. The Step
+5 lint is this skill's own gate. It runs before the commit, whether or not
+`/open-pr` repeats it.
 
 ## Red Flags
 
-- About to run `composer update` or `yarn upgrade` at the project root: stop. The root project is out of scope for this skill.
-- About to run `composer update` or `yarn upgrade` under `.vortex/tooling/`: stop. The tooling subsystem is its own Composer library and is explicitly out of scope.
-- About to pass `--with-all-dependencies`, `--latest`, a package name, or any other flag that changes constraint behaviour: stop. This skill performs in-range refreshes only.
-- About to edit a `composer.json` or `package.json` constraint to "fix" a resolution failure: stop. Surface the failure to the user.
-- About to run `composer test`, `ahoy test`, `phpunit`, `jest`, or any local test runner: stop. Tests run in CI, not in this skill.
-- About to commit, push, or open a PR while a Step 5 lint command is failing: stop. Lint is the local gate; fix or escalate first.
-- About to escalate a lint failure to the user without running the subsystem's `lint-fix` command first: stop. Auto-fix is the first response to every Step 5 failure, not the last.
-- About to split lint-fix changes into a separate commit from the dependency refresh: stop. They belong in the same commit so reviewers see the full causal chain.
-- About to `git add .` or `git add -A`: stop. Stage specific files only.
-- About to stage a `composer.lock` under `.vortex/tooling/` because Composer just wrote it: stop. That file is local-only.
-- About to skip the majors report because "nothing changed": still write the report (or the "no majors available" line). Reviewers expect it.
-- About to delete the partial diff after a failed update so the next subsystem can run: stop. On failure, leave the diff for investigation.
+Stop when you're about to do any of these:
+
+- Run `composer update` or `yarn upgrade` at the project root. The root
+  project is out of scope for this skill.
+- Run `composer update` or `yarn upgrade` under `.vortex/tooling/`. The
+  tooling subsystem is its own Composer library and is explicitly out of
+  scope.
+- Pass `--with-all-dependencies`, `--latest`, a package name, or any other
+  flag that changes constraint behavior. This skill does in-range
+  refreshes only.
+- Edit a `composer.json` or `package.json` constraint to "fix" a
+  resolution failure. Report the failure to the user.
+- Run `composer test`, `ahoy test`, `phpunit`, `jest`, or any local test
+  runner. Tests run in CI, not in this skill.
+- Commit, push, or open a PR while a Step 5 lint command fails. Lint is
+  the local gate; fix or escalate first.
+- Escalate a lint failure to the user without first running the
+  subsystem's `lint-fix` command. Auto-fix is the first response to every
+  Step 5 failure.
+- Split lint-fix changes into a separate commit from the dependency
+  refresh. They belong in the same commit, so reviewers see the full
+  causal chain.
+- Run `git add .` or `git add -A`. Stage specific files only.
+- Stage a `composer.lock` under `.vortex/tooling/` because Composer just
+  wrote it. That file is local-only.
+- Delete the partial diff after a failed update so the next subsystem can
+  run. On failure, leave the diff for investigation.
+
+Don't skip the majors report because "nothing changed". Write the report,
+or the "no majors available" line; reviewers expect it.
 
 ## Command Rules - CRITICAL
 
-NEVER use compound or composite commands. Every Bash tool call must contain exactly ONE simple command.
+NEVER use compound or composite commands. Every Bash tool call must
+contain exactly ONE simple command.
 
 **NEVER use:** `&&`, `||`, `;`, `|`, `<<<`, `$(...)`, heredocs.
 
-**ALWAYS:** Make multiple separate Bash tool calls, one command per call.
+**ALWAYS:** Make multiple separate Bash tool calls, 1 command per call.

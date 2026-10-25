@@ -2,8 +2,8 @@
 
 ## Overview
 
-Symfony Console application that customizes the Vortex template based on user
-selections.
+Symfony Console application that customizes the Vortex template based on
+user selections.
 
 **Technology**: PHP, Symfony Console, PHPUnit
 
@@ -29,8 +29,8 @@ composer test-coverage # Run tests with coverage
 
 **Baseline + diff** system:
 
-```
-tests/Fixtures/install/
+```text
+tests/Fixtures/handler_process/
 ├── _baseline/              # Complete template files
 ├── services_no_clamav/     # Diff: removes ClamAV
 ├── services_no_solr/       # Diff: removes Solr
@@ -48,57 +48,59 @@ See `.vortex/CLAUDE.md` for the snapshot update process (always
 
 ### Updating the install demo video
 
-**Whenever the prompt flow changes** (new handler added, prompt
-renamed, section reordered, prompt removed), the install demo video shown in
-the documentation goes stale and must be regenerated.
+**Whenever the prompt flow changes** (new handler added, prompt renamed,
+section reordered, prompt removed), the install demo video in the
+documentation goes stale and must be regenerated.
 
 ```bash
 # From .vortex/ directory
 ahoy update-videos cli-install
 ```
 
-Requires `asciinema`, `expect`, `php`, `composer`, `npx` on PATH. Produces
-`cli-install.json` (asciicast), `cli-install.svg`, `cli-install.png`, and
-`cli-install.gif` under `.vortex/docs/static/img/`. Requires explicit user
+Requires `asciinema`, `expect`, `php`, `composer`, `node`, and `npx` on
+PATH. Produces `cli-install.json` (asciicast), `cli-install.svg`, and
+`cli-install.png` under `.vortex/docs/static/img/`. Requires explicit user
 permission before running.
 
 Triggers that require re-recording:
-- New `Handlers/*.php` class or handler removal.
-- Change to `label()`, `hint()`, `options()` or `validate()` of any existing
-  handler.
-- Reordering questions or panels inside `VortexForm::create()`.
-- Widget or layout change in `Form/TuiAdapter.php` or `Prompts/PromptType.php`.
 
-The expect script drives the panels by position (a fixed number of arrow keys
-to reach a panel and the closing actions), so any change to the number or
-order of panels needs the key counts in `build_install_expect_script()`
-adjusted to match.
+- New `Handlers/*.php` class or handler removal.
+- Change to `label()`, `hint()`, `options()` or `validate()` of any
+  existing handler.
+- Reordering questions or panels inside `VortexForm::create()`.
+- Widget or layout change in `Form/TuiAdapter.php` or
+  `Prompts/PromptType.php`.
+
+The expect script drives the panels by position: a fixed number of arrow
+keys reaches each panel and the closing actions. Any change to the number
+or order of panels needs the key counts in
+`build_install_expect_script()` adjusted to match.
 
 ## Conditional Token System
 
 ### When to use fences
 
-Fences (`#;< TOKEN` / `#;> TOKEN`) are for **partial** removal of content from
-within a file that survives the install regardless of the choice. Use them
-**only** when:
+Fences (`#;< TOKEN` / `#;> TOKEN`) are for **partial** removal of content
+from within a file that survives the install regardless of the choice.
+Use them **only** when:
 
 - A specific block (a few lines, a section, a function) needs to disappear
   conditionally while the rest of the file stays.
 - The choice can flip independently of any other selection.
 
-**Do not** wrap an entire file in fences if the install command removes the whole
-file via `File::remove($t . '/path/to/file')` based on the same selection.
-The file removal is the conditional behaviour - the fences are dead noise and
-add visual clutter to the shipped file. Examples:
+**Do not** wrap an entire file in fences if the install command removes
+the whole file with `File::remove($t . '/path/to/file')` based on the same
+selection. The file removal is the conditional behavior, so the fences are
+dead code that clutters the shipped file. Examples:
 
-- `.github/workflows/assign-author.yml` is deleted whole by `AssignAuthorPr`
+- `.github/workflows/assign-author.yml` is deleted whole by
+  `AssignAuthorPr` on "no" - no fences inside the file.
+- `.github/workflows/test-vr.yml` is deleted whole by `VisualRegression`
   on "no" - no fences inside the file.
-- `.github/workflows/test-vr.yml` is deleted whole by `VisualRegression` on
-  "no" - no fences inside the file.
 
-If a fence-wrapped region would cover everything between the first and last
-line of the file, delete the fences and rely on the handler's `File::remove()`
-call instead.
+If a fence-wrapped region would cover everything between the first and
+last line of the file, delete the fences and rely on the handler's
+`File::remove()` call instead.
 
 ### Patterns
 
@@ -131,9 +133,8 @@ Content removed if feature not selected
 
 ### Handler Locations
 
-`.vortex/cli/src/Prompts/Handlers/`:
-
-- `CiProvider.php`, `HostingProvider.php`, `Services.php`, `Theme.php`
+Handlers live in `.vortex/cli/src/Prompts/Handlers/`, for example
+`CiProvider.php`, `HostingProvider.php`, `Services.php`, and `Theme.php`.
 
 ## Handler Development
 
@@ -158,13 +159,12 @@ File::runTaskDirectory($this->config->get(Config::TMP));
 
 ## Test Organization
 
-Each handler has dedicated test class extending
-`AbstractHandlerProcessTestCase`:
+Each handler has a dedicated test class in `tests/Functional/Handlers/`
+that extends `AbstractHandlerProcessTestCase`:
 
 ```bash
-./vendor/bin/phpunit --filter "HandlerNameInstallTest"
-./vendor/bin/phpunit --filter "HandlerNameInstallTest.*scenario"
+./vendor/bin/phpunit --filter "HandlerNameHandlerProcessTest"
+./vendor/bin/phpunit --filter "HandlerNameHandlerProcessTest.*scenario"
 ```
 
 Structure: Test methods → Data providers → Helper methods
-

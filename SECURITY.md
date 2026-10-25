@@ -1,3 +1,3 @@
 # Security Policy
 
-Report security issues at support@drevops.com
+Report security issues to support@drevops.com.

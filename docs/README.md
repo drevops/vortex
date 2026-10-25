@@ -1,8 +1,8 @@
 # Project documentation
 
-This directory contains project-specific documentation that describes **what**
-applies to this project. For **how** to perform operations, see
-[Vortex Documentation](https://www.vortextemplate.com/docs/).
+This directory holds project-specific documentation. It describes **what**
+applies to this project. For **how** to perform operations, see the
+[Vortex documentation](https://www.vortextemplate.com/docs/).
 
 - [Testing](testing.md) - Testing conventions and agreements
 - [CI](ci.md) - Continuous integration configuration
