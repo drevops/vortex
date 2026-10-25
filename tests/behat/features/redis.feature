@@ -5,9 +5,8 @@ Feature: Redis cache functionality
   I want to verify that Redis caching is working properly
   So that I can ensure optimal site performance and caching functionality
 
-  @api
   Scenario: Redis is working properly
-    Given I am logged in as a user with the "administrator" role
+    Given I am logged in as a user with the role "administrator"
     When I go to "/admin/reports/redis"
     Then the response status code should be 200
     And I should see "Connected, using the PhpRedis client"
