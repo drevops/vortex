@@ -1174,7 +1174,7 @@ trait SubtestAhoyTrait {
     $this->assertWebpageContains('/', 'drupal-settings-json', 'Homepage should be rendered by Drupal');
 
     $this->logSubstep('Enable the maintenance page');
-    $this->cmd('ahoy up nginx', env: ['VORTEX_NGINX_MAINTENANCE_MODE' => '1'], txt: '`nginx` container should be recreated with the maintenance page enabled');
+    $this->cmd('ahoy up nginx', env: ['VORTEX_WEBSERVER_MAINTENANCE_MODE' => '1'], txt: '`nginx` container should be recreated with the maintenance page enabled');
     $this->cmd('docker compose exec -T cli wait-for nginx:8080', txt: 'Wait for nginx to accept connections', tio: 60);
     $this->cmd('docker compose exec -T nginx nginx -t', txt: 'Rendered nginx configuration should be valid');
 
