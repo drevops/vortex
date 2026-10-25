@@ -56,6 +56,7 @@
         "hadolint",
         "hotfixes",
         "htpasswd",
+        "itok",
         "jsonpath",
         "lagooncli",
         "lando",
