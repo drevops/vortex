@@ -42,7 +42,14 @@ final class RebuildSearchIndex extends DeployStepBase {
       return 'search indexing skipped via DRUPAL_SEARCH_INDEX_SKIP';
     }
 
-    return in_array($this->environment(), [Environment::LOCAL, Environment::CI, Environment::DEVELOPMENT, Environment::STAGE], TRUE) ? NULL : 'non-development environment';
+    $environments = [
+      Environment::LOCAL,
+      Environment::CI,
+      Environment::DEVELOPMENT,
+      Environment::STAGE,
+    ];
+
+    return in_array($this->environment(), $environments, TRUE) ? NULL : 'non-development environment';
   }
 
   /**
