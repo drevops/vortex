@@ -1,0 +1,18 @@
+// audit-ci allowlist for the custom theme of projects based on Vortex.
+//
+// Lists the npm advisories that the security audit skips. An entry stops
+// applying once its expiry date is reached.
+//
+// https://github.com/IBM/audit-ci
+{
+  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
+  "allowlist": [
+    {
+      "GHSA-vfj7-8cjw-p6xm": {
+        "active": true,
+        "notes": "No patched braces release exists yet. It is reached only through the theme's build and lint tooling (stylelint, chokidar-cli, postcss-cli and patch-package), which expands the glob patterns written in this project, so no outside input reaches it and nothing from it ships with the site.",
+        "expiry": "__VERSION__"
+      }
+    }
+  ]
+}

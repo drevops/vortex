@@ -44,6 +44,7 @@ web/sites/simpletest
 /CLAUDE.md
 /docker-compose.yml
 /eslint.config.mjs
+/package-audit.jsonc
 /renovate.json
 
 # Database cache key files written into the workspace by the CI workflow.
@@ -82,6 +83,7 @@ web/themes/custom/star_wars/eslint.config.mjs
 web/themes/custom/star_wars/fonts
 web/themes/custom/star_wars/images
 web/themes/custom/star_wars/js
+web/themes/custom/star_wars/package-audit.jsonc
 web/themes/custom/star_wars/package.json
 web/themes/custom/star_wars/package-lock.json
 web/themes/custom/star_wars/postcss.config.js
