@@ -146,7 +146,7 @@ class BuildCommandTest extends FunctionalTestCase {
   }
 
   /**
-   * Data provider for testBuildWithMockedRunner.
+   * Data provider for testBuildCommand.
    *
    * @return \Iterator<string, array{exit_code_callback: \Closure, command_inputs: array<string, mixed>, expect_failure: bool, output_assertions: array<string>, requirements_exit_callback?: (\Closure | null), requirements_finder_callback?: (\Closure | null), docker_compose_url?: (string | null), url_service?: string, before?: (\Closure | null)}>
    */

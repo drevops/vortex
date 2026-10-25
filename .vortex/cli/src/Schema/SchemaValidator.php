@@ -39,12 +39,9 @@ class SchemaValidator {
     $warnings = [];
     $resolved = [];
 
-    // Normalize config keys to handler IDs.
-    $normalized = $this->normalizeConfig($config);
-
     // Report unknown prompt IDs.
     $known_ids = array_keys($this->handlers);
-    foreach (array_keys($normalized) as $key) {
+    foreach (array_keys($config) as $key) {
       if (!in_array($key, $known_ids, TRUE)) {
         $errors[] = [
           'prompt' => $key,
@@ -58,8 +55,8 @@ class SchemaValidator {
         continue;
       }
 
-      $has_value = array_key_exists($id, $normalized);
-      $value = $normalized[$id] ?? NULL;
+      $has_value = array_key_exists($id, $config);
+      $value = $config[$id] ?? NULL;
 
       // Skip prompts not provided in the input.
       if (!$has_value) {
@@ -69,7 +66,7 @@ class SchemaValidator {
       // Check dependency conditions for provided prompts.
       $depends_on = $handler->dependsOn();
       if ($depends_on !== NULL) {
-        $dep_result = $this->checkDependency($depends_on, $normalized);
+        $dep_result = $this->checkDependency($depends_on, $config);
 
         if ($dep_result === 'skip') {
           $type_error = $this->validateType($handler, $value);
@@ -120,33 +117,12 @@ class SchemaValidator {
   }
 
   /**
-   * Normalize config keys to handler IDs.
-   *
-   * Supports both env var names (VORTEX_CLI_INSTALL_PROMPT_*) and handler IDs.
-   *
-   * @param array<string, mixed> $config
-   *   The raw config array.
-   *
-   * @return array<string, mixed>
-   *   Config keyed by handler IDs.
-   */
-  protected function normalizeConfig(array $config): array {
-    $normalized = [];
-
-    foreach ($config as $key => $value) {
-      $normalized[$key] = $value;
-    }
-
-    return $normalized;
-  }
-
-  /**
    * Check if dependency conditions are met.
    *
    * @param array<string, array<mixed>> $depends_on
    *   The dependency conditions.
    * @param array<string, mixed> $config
-   *   The normalized config.
+   *   The config array, keyed by handler ID.
    *
    * @return bool|string
    *   TRUE if met, FALSE if not met, 'skip' for system dependencies.

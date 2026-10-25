@@ -23,3 +23,5 @@ else
   echo "Checking that .circleci/vortex-test-common.yml is up to date."
   php "${ROOT_DIR}/.vortex/tests/generate-vortex-dev-circleci" --check
 fi
+
+# LCOV_EXCL_STOP

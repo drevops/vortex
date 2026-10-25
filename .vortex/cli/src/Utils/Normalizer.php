@@ -4,13 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Utils;
 
-/**
- * Install configuration.
- *
- * Install config is a config of the install command.
- *
- * @package DrevOps\VortexCli
- */
 final class Normalizer {
 
   /**
