@@ -44,6 +44,13 @@ class FetchDbTest extends UnitTestCase {
         },
         'expected' => 'Skipped database download',
       ],
+      'proceed not set skips source validation' => [
+        'before' => function (self $test): void {
+          $test->envSet('VORTEX_FETCH_DB_PROCEED', '0');
+          $test->envSet('VORTEX_FETCH_DB_SOURCE', 'VORTEX_CONTAINER_REGISTRY');
+        },
+        'expected' => 'Skipped database download',
+      ],
       'existing dump skips download' => [
         'before' => function (self $test): void {
           $db_dir = self::$tmp . '/data';
@@ -112,6 +119,24 @@ class FetchDbTest extends UnitTestCase {
         'expected' => ['Finished database download.'],
         'after' => NULL,
       ],
+      'acquia source' => self::sourceRoute('acquia', 'vortex-fetch-db-acquia'),
+      'lagoon source' => self::sourceRoute('lagoon', 'vortex-fetch-db-lagoon'),
+      'container_registry source' => self::sourceRoute('container_registry', 'vortex-fetch-db-container-registry'),
+      's3 source' => self::sourceRoute('s3', 'vortex-fetch-db-s3'),
+      'none source' => [
+        'before' => function (self $test): void {
+          $db_dir = self::$tmp . '/data';
+          $test->envSet('VORTEX_FETCH_DB_SOURCE', 'none');
+          $test->envSet('VORTEX_FETCH_DB_SEMAPHORE', self::$tmp . '/sem');
+          $test->mockPassthruMultiple([
+            ['cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' || true', 'result_code' => 0],
+          ]);
+        },
+        'expected' => ['Started database download.', 'Skipped fetching as VORTEX_FETCH_DB_SOURCE is set to "none".', 'Finished database download.'],
+        'after' => function (self $test): void {
+          $test->assertFileExists(self::$tmp . '/sem');
+        },
+      ],
       'existing dump force override' => [
         'before' => function (self $test): void {
           $db_dir = self::$tmp . '/data';
@@ -155,9 +180,25 @@ class FetchDbTest extends UnitTestCase {
     return [
       'invalid source' => [
         'before' => function (self $test): void {
-          $test->envSet('VORTEX_FETCH_DB_SOURCE', 'invalid');
+          $test->envSet('VORTEX_FETCH_DB_SOURCE', 'VORTEX_CONTAINER_REGISTRY');
         },
-        'expected' => 'Invalid database download source',
+        'expected' => 'Unsupported database source "VORTEX_CONTAINER_REGISTRY" in VORTEX_FETCH_DB_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, none.',
+      ],
+      'invalid source with an existing dump' => [
+        'before' => function (self $test): void {
+          $test->envSet('VORTEX_FETCH_DB_SOURCE', 'VORTEX_CONTAINER_REGISTRY');
+          $db_dir = self::$tmp . '/data';
+          File::mkdir($db_dir);
+          File::dump($db_dir . '/db.sql', 'fake-dump');
+        },
+        'expected' => 'Unsupported database source "VORTEX_CONTAINER_REGISTRY" in VORTEX_FETCH_DB_SOURCE.',
+      ],
+      'invalid indexed source' => [
+        'before' => function (self $test): void {
+          $test->envSet('VORTEX_DB_INDEX', '2');
+          $test->envSet('VORTEX_FETCH_DB2_SOURCE', 'sftp');
+        },
+        'expected' => 'Unsupported database source "sftp" in VORTEX_FETCH_DB2_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, none.',
       ],
       'source script fails' => [
         'before' => function (self $test): void {
@@ -168,6 +209,24 @@ class FetchDbTest extends UnitTestCase {
         },
         'expected' => 'Failed to download database',
       ],
+    ];
+  }
+
+  /**
+   * Build a success case that routes a source to its fetch script.
+   */
+  protected static function sourceRoute(string $source, string $script): array {
+    return [
+      'before' => function (self $test) use ($source, $script): void {
+        $db_dir = self::$tmp . '/data';
+        $test->envSet('VORTEX_FETCH_DB_SOURCE', $source);
+        $test->mockPassthruMultiple([
+          ['cmd' => self::$srcDir . '/' . $script, 'result_code' => 0],
+          ['cmd' => 'ls -Alh ' . escapeshellarg($db_dir) . ' || true', 'result_code' => 0],
+        ]);
+      },
+      'expected' => [sprintf('Fetched database from the "%s" source.', $source), 'Finished database download.'],
+      'after' => NULL,
     ];
   }
 
