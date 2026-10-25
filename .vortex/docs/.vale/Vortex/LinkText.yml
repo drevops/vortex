@@ -1,0 +1,10 @@
+extends: existence
+message: "Vague link text '%s'. Describe the destination."
+level: error
+ignorecase: true
+scope: link
+tokens:
+  - click here
+  - here
+  - read more
+  - this (?:document|article|page|link)

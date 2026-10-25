@@ -103,6 +103,10 @@ jobs:
         run: yarn run spellcheck
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
+      - name: Check prose style
+        run: yarn run lint-prose
+        working-directory: '${{ github.workspace }}/.vortex/docs'
+
       # On the main deploy, publish both majors to match the multi-version
       # docs: '/v1/install' and '/v2/install' are the stable per-major pins and
       # the bare '/install' is a copy of the current major's pin (the
