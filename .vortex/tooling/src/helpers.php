@@ -35,10 +35,15 @@ load_dotenv(['.env', '.env.local']);
 /**
  * Load environment variables from .env and .env.local files.
  *
+ * Variables already set in the process environment are never overwritten.
+ * A later file overrides a value loaded from an earlier file.
+ *
  * @param array<int,string> $env_files
  *   Array of environment file paths to load.
  */
 function load_dotenv(array $env_files = ['.env']): void {
+  $existing = getenv();
+
   foreach ($env_files as $env_file) {
     if (file_exists($env_file)) {
       $lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -60,6 +65,10 @@ function load_dotenv(array $env_files = ['.env']): void {
           [$key, $value] = explode('=', $line, 2);
           $key = trim($key);
           $value = trim($value);
+
+          if (array_key_exists($key, $existing)) {
+            continue;
+          }
 
           // Remove quotes if present.
           if ((str_starts_with($value, '"') && str_ends_with($value, '"')) ||

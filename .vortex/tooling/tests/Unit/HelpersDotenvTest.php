@@ -7,6 +7,7 @@ namespace DrevOps\VortexTooling\Tests\Unit;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests for environment management functions.
@@ -15,6 +16,7 @@ use PHPUnit\Framework\Attributes\Group;
  */
 #[CoversFunction('DrevOps\VortexTooling\load_dotenv')]
 #[Group('helpers')]
+#[RunTestsInSeparateProcesses]
 class HelpersDotenvTest extends UnitTestCase {
 
   protected function setUp(): void {
@@ -75,6 +77,78 @@ class HelpersDotenvTest extends UnitTestCase {
         ],
         'expected' => [
           'TEST_SPACES' => 'value with spaces',
+        ],
+      ],
+    ];
+  }
+
+  #[DataProvider('dataProviderLoadDotenvPrecedence')]
+  public function testLoadDotenvPrecedence(array $exported, string $env, ?string $env_local, array $expected): void {
+    foreach ($exported as $key => $value) {
+      self::envSet($key, $value);
+    }
+
+    $env_file = self::$tmp . '/.env';
+    file_put_contents($env_file, $env);
+    $files = [$env_file];
+
+    if ($env_local !== NULL) {
+      $env_local_file = self::$tmp . '/.env.local';
+      file_put_contents($env_local_file, $env_local);
+      $files[] = $env_local_file;
+    }
+
+    \DrevOps\VortexTooling\load_dotenv($files);
+
+    foreach ($expected as $key => $expected_value) {
+      $this->assertSame($expected_value, getenv($key), sprintf('Value of %s', $key));
+    }
+  }
+
+  public static function dataProviderLoadDotenvPrecedence(): array {
+    return [
+      'file-only keys load' => [
+        'exported' => [],
+        'env' => "TEST_DOTENV_A=from_env\nTEST_DOTENV_B=from_env_b",
+        'env_local' => NULL,
+        'expected' => [
+          'TEST_DOTENV_A' => 'from_env',
+          'TEST_DOTENV_B' => 'from_env_b',
+        ],
+      ],
+      'exported variable wins over .env' => [
+        'exported' => ['TEST_DOTENV_A' => 'from_process'],
+        'env' => "TEST_DOTENV_A=from_env\nTEST_DOTENV_B=from_env_b",
+        'env_local' => NULL,
+        'expected' => [
+          'TEST_DOTENV_A' => 'from_process',
+          'TEST_DOTENV_B' => 'from_env_b',
+        ],
+      ],
+      'exported empty variable wins over .env' => [
+        'exported' => ['TEST_DOTENV_A' => ''],
+        'env' => 'TEST_DOTENV_A=from_env',
+        'env_local' => NULL,
+        'expected' => [
+          'TEST_DOTENV_A' => '',
+        ],
+      ],
+      '.env.local overrides .env' => [
+        'exported' => [],
+        'env' => "TEST_DOTENV_A=from_env\nTEST_DOTENV_B=from_env_b",
+        'env_local' => 'TEST_DOTENV_A=from_env_local',
+        'expected' => [
+          'TEST_DOTENV_A' => 'from_env_local',
+          'TEST_DOTENV_B' => 'from_env_b',
+        ],
+      ],
+      'exported variable wins over .env and .env.local' => [
+        'exported' => ['TEST_DOTENV_A' => 'from_process'],
+        'env' => 'TEST_DOTENV_A=from_env',
+        'env_local' => "TEST_DOTENV_A=from_env_local\nTEST_DOTENV_C=from_env_local_c",
+        'expected' => [
+          'TEST_DOTENV_A' => 'from_process',
+          'TEST_DOTENV_C' => 'from_env_local_c',
         ],
       ],
     ];
