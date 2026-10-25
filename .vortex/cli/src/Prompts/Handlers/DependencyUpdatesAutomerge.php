@@ -44,6 +44,16 @@ class DependencyUpdatesAutomerge extends AbstractHandler {
   ];
 
   /**
+   * The 'groupSlug' of Renovate package rules linked to an option's group.
+   *
+   * A linked rule gives some of the group's dependencies a separate schedule,
+   * so the group's option also sets the linked rule's 'automerge' flag.
+   */
+  const LINKED_GROUPS = [
+    self::CI_TOOLS => 'ci-tools-renovate-major-minor-patch',
+  ];
+
+  /**
    * {@inheritdoc}
    */
   public function label(): string {
@@ -124,6 +134,7 @@ DOC;
       }
     }
 
+    // The option sets a linked rule's flag, so only group flags are read.
     return array_keys(array_intersect(static::GROUPS, $slugs));
   }
 
@@ -139,7 +150,12 @@ DOC;
     }
 
     foreach ($this->packageRules($config) as $index => $rule) {
-      $group = array_search($rule['groupSlug'] ?? NULL, static::GROUPS, TRUE);
+      $slug = $rule['groupSlug'] ?? NULL;
+      $group = array_search($slug, static::GROUPS, TRUE);
+
+      if ($group === FALSE) {
+        $group = array_search($slug, static::LINKED_GROUPS, TRUE);
+      }
 
       if ($group !== FALSE) {
         $config['packageRules'][$index]['automerge'] = in_array($group, $this->response, TRUE);
