@@ -22,7 +22,7 @@
  
      steps:
        # Frees disk space by removing preinstalled toolchains unused by this project.
-@@ -406,19 +396,6 @@
+@@ -413,19 +403,6 @@
              exit 1
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}

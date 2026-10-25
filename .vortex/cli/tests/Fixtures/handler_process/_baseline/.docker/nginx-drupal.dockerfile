@@ -19,6 +19,9 @@ RUN apk add --no-cache tzdata
 
 COPY ./.docker/config/nginx/redirects-map.conf /etc/nginx/redirects-map.conf
 
+COPY ./.docker/config/nginx/maintenance.conf /etc/nginx/conf.d/drupal/server_prepend-maintenance.conf
+COPY ./.docker/config/nginx/maintenance.html /etc/nginx/html/maintenance.html
+
 RUN fix-permissions /etc/nginx
 
 COPY --from=cli /app /app

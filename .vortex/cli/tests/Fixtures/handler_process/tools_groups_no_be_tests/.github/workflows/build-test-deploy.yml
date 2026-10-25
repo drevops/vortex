@@ -24,7 +24,7 @@
  
      steps:
        # Frees disk space by removing preinstalled toolchains unused by this project.
-@@ -335,66 +324,6 @@
+@@ -342,66 +331,6 @@
          run: docker compose exec -T cli bash -c "npm test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -91,7 +91,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -407,19 +336,6 @@
+@@ -414,19 +343,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -111,7 +111,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -436,16 +352,6 @@
+@@ -443,16 +359,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

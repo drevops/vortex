@@ -296,10 +296,14 @@ jobs:
           name: Export DB after fetch
           command: |
             [ ! -f /tmp/fetch-db-success ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
-            docker compose exec cli mkdir -p .data && docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql || true
+            # The 'container_registry' source fetches an image without a dump file.
+            if [ -f .data/db.sql ]; then
+              docker compose exec cli mkdir -p .data
+              docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
+            fi
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
             ./vendor/bin/vortex-export-db db.sql
-            docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
+            [ -z "${VORTEX_DB_IMAGE:-}" ] && docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 
       # Save the clean DB dump to the cache before the slow dev-dependency
