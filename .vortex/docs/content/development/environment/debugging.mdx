@@ -8,27 +8,36 @@ import TabItem from '@theme/TabItem';
 
 # Debugging
 
-This section covers 3 debugging aids: step-debugging PHP with Xdebug, testing
-authenticated pages with curl, and inspecting the containers directly.
+This page is for developers who need to look inside a running site when the
+logs don't explain a problem. It covers 3 tools:
+
+- Xdebug, to step through PHP code in your IDE
+- Session cookies with curl, to request pages that need a login
+- Docker Compose commands, to inspect the containers directly
+
+For container and Drupal logs, see [Logs](logs.mdx).
 
 ## Xdebug
 
-https://xdebug.org/
+The [Xdebug website](https://xdebug.org/) describes the tool as follows:
 
-> Xdebug is an extension for PHP, and provides a range of features to improve
-> the PHP development experience.
+> Xdebug is an extension for PHP, and provides a range of features to
+> improve the PHP development experience.
 
-**Vortex** comes with Xdebug pre-installed and configured for local development
-thanks to [Lagoon images](https://github.com/uselagoon/lagoon-images).
+**Vortex** comes with Xdebug pre-installed and configured for local
+development thanks to [Lagoon
+images](https://github.com/uselagoon/lagoon-images).
 
-Xdebug is also configured to work in coverage mode, so tests can run with code
-coverage enabled.
+Code coverage doesn't need Xdebug. The CLI image also installs PCOV, a
+coverage-only PHP extension, and PHPUnit collects coverage through PCOV
+whenever it's loaded, so tests report coverage with Xdebug turned off.
 
 ➡️ See [PHPUnit](../testing/phpunit.mdx)
 
 ### Usage
 
-Xdebug is disabled by default. Run the following command to enable it:
+Xdebug is off by default. `ahoy debug` turns it on by recreating the `cli`,
+`appserver`, and `webserver` containers with `XDEBUG_ENABLE=true`:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -38,12 +47,27 @@ Xdebug is disabled by default. Run the following command to enable it:
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    XDEBUG_ENABLE=true docker compose up -d cli appserver webserver   # Restart containers with Xdebug enabled.
+    # Restart containers with Xdebug enabled.
+    XDEBUG_ENABLE=true docker compose up -d cli appserver webserver
     ```
   </TabItem>
 </Tabs>
 
-Run the following command to disable Xdebug:
+When it turns Xdebug on, `ahoy debug` prints
+`Enabled debug configuration. Use 'ahoy up' to disable.` If Xdebug is
+already on, it prints
+`Debug configuration is already enabled. Use 'ahoy up' to disable.` and
+changes nothing.
+
+Lagoon images turn Xdebug on only when `XDEBUG_ENABLE` is `true`, in any
+letter case, so a value such as `1` leaves it off.
+
+Xdebug connects back to port `9003`, its default, on `host.docker.internal`.
+Where that name doesn't resolve, such as on Linux, it connects to the
+container's default gateway instead. Make sure your IDE listens on port
+`9003`.
+
+To turn it off, recreate the containers without the variable:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -53,89 +77,127 @@ Run the following command to disable Xdebug:
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose up -d cli appserver webserver    # Restart containers with Xdebug disabled.
+    # Restart containers with Xdebug disabled.
+    docker compose up -d cli appserver webserver
     ```
   </TabItem>
 </Tabs>
 
+`XDEBUG_ENABLE` can also come from `.env` or `.env.local`, which Ahoy loads
+before every command. With `XDEBUG_ENABLE=true` in either file, every
+`ahoy up` starts the containers with Xdebug on, so remove the line to turn
+Xdebug off.
+
+`ahoy info` shows whether Xdebug is on at the moment.
+
 ### CLI
 
-Running PHP from the command line with Xdebug works the same way as
-debugging a web page, except that you need to run it from within the
-container.
+While Xdebug is on, a PHP script you run through a shell in the `cli`
+container, such as with `ahoy cli`, starts a debugging session with no
+browser extension. The Lagoon images export `XDEBUG_TRIGGER` in every shell
+session there. They also set `PHP_IDE_CONFIG` to name the server after the
+local development URL, so PhpStorm reuses the path mapping you set for web
+requests.
 
-Note that some commands, like `drush`, may disable Xdebug by default for
-performance reasons. You may need to explicitly enable it by providing
-`--xdebug` flag to `drush` command. Check the documentation of the
-command you are trying to run for more details.
+Drush is the exception you're most likely to hit. Its shell wrapper,
+`vendor/bin/drush`, sets `XDEBUG_MODE=off` before it starts PHP, for
+performance. To keep Xdebug on, pass `--xdebug`, as in
+`ahoy drush --xdebug <command>`.
+
+If a breakpoint never fires in another command-line tool, check that tool's
+documentation: some tools switch Xdebug off in their own way.
 
 ### IDE configuration
 
+This section covers PhpStorm. Other IDEs need the same mapping between your
+project root and `/app` in the container.
+
 #### PhpStorm
 
-By default, PhpStorm is configured to automatically interrupt on incoming
-unmapped debug connections when `Start listening for PHP Debug Connections`
-button (the one with a little bug) is activated. When interrupted, PhpStorm
-will ask you to map the incoming connection to a project.
+By default, PhpStorm stops on a debug connection it can't map to your
+project and prompts you to map it. It accepts connections only while
+listening is on, and the toolbar button with a little bug on it turns
+listening on.
 
-In order to use Xdebug on the project for the first time, you need to follow
-these steps (assuming you already have a fully working site):
+PhpStorm needs the mapping because the code runs in the container, which
+counts as a remote server. The mapping matches a local directory to `/app`
+in the container. You set it once, and PhpStorm remembers it.
 
-1. Install Xdebug helper extension for your browser:
-     - [Chrome Xdebug Helper by JetBrains](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm)
+To use Xdebug on the project for the first time, starting from a fully
+working site, follow these steps:
+
+1. Install the Xdebug helper extension for your browser:
+     - [Chrome Xdebug Helper by
+       JetBrains](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm)
        extension.
-     - [Firefox Xdebug Helper by JetBrains](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-by-jetbrains/)
+     - [Firefox Xdebug Helper by
+       JetBrains](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-by-jetbrains/)
        extension.
-     - [Edge Xdebug Helper by JetBrains](https://microsoftedge.microsoft.com/addons/detail/xdebug-helper-by-jetbrain/kddfioocjgjmmambaijldfbpiaecmoco)
+     - [Edge Xdebug Helper by
+       JetBrains](https://microsoftedge.microsoft.com/addons/detail/xdebug-helper-by-jetbrain/kddfioocjgjmmambaijldfbpiaecmoco)
        add-on.
 
-2. Enable Xdebug in your browser (see instructions for your extension/add-on).
-3. Set a breakpoint in your IDE. `index.php` in your web root is a good place to
-   start.
-4. Run `ahoy debug` or `XDEBUG_ENABLE=true docker compose up -d cli appserver webserver`
-   to enable Xdebug.
-5. Refresh the page in your browser.
-6. PhpStorm will stop on your breakpoint and will ask you to map the incoming
-   connection to directory in your project. This is because the code runs in the
-   container, which qualifies as a remote server. You need to "tell"
-   Xdebug where to find the code on your local machine that corresponds to the
-   code running in the container. You would need to do it once and PhpStorm will
-   remember the mapping.
+2. In the extension, turn on debugging for the site, as its instructions
+   describe. The extension sets the `XDEBUG_SESSION` cookie, which starts a
+   debugging session for each request.
+3. To start listening for debug connections, click the toolbar button with
+   the little bug in PhpStorm.
+4. Set a breakpoint in your IDE. `index.php` in your web root is a good
+   place to start.
+5. To turn on Xdebug in the containers, run `ahoy debug` or
+   `XDEBUG_ENABLE=true docker compose up -d cli appserver webserver`.
+6. Refresh the page in your browser. PhpStorm stops on your breakpoint and
+   prompts you to map the incoming connection to a directory in your
+   project.
+7. In the prompt, map your project root to `/app`.
 
-![xdebug-phpstorm.png](/img/xdebug-phpstorm.png)
+![PhpStorm server settings with the path mapping to the project root within
+the container](/img/xdebug-phpstorm.png)
 
-For more information see the following resources:
+Confirm that debugging works: refresh the page again, and PhpStorm stops on
+the breakpoint without prompting for a mapping.
 
-- https://www.jetbrains.com/help/phpstorm/configuring-xdebug.html#debugging-with-phpstorm
-- https://docs.lagoon.sh/using-lagoon-advanced/setting-up-xdebug-with-lagoon/
+For more detail, see the following pages:
+
+- [Configure
+  Xdebug](https://www.jetbrains.com/help/phpstorm/configuring-xdebug.html)
+  in the PhpStorm documentation
+- [Setting up Xdebug with
+  Lagoon](https://docs.lagoon.sh/using-lagoon-advanced/setting-up-xdebug-with-lagoon/)
+  in the Lagoon documentation
 
 #### Tips and tricks
 
-Once your first Xdebug session is set up, you can adjust some of the Debug
-configurations in the PhpStorm IDE to make your life easier:
+After your first Xdebug session works, a few changes to PhpStorm's Debug
+settings make everyday debugging smoother:
 
 - Disable the following options:
-  - `Break at first line in PHP scripts`
-  - `Force break at first line when no path mapping specified`
-  - `Force break at first line when a script is outside the project`
-- Increase the number in `Max. simultaneous connections` to `5` or more. This
-  will prevent hidden debug session being "stuck" without being visible in
-  the IDE.
+  - **Break at first line in PHP scripts**
+  - **Force break at first line when no path mapping specified**
+  - **Force break at first line when a script is outside the project**
+- Increase **Max. simultaneous connections** to `5` or more, so a debug
+  session can't get stuck without showing up in the IDE.
 
 ## Testing authenticated pages with curl
 
-Use `curl` with session cookies to simulate manual testing of pages that require
-authentication (admin pages, protected routes) without opening a browser. This
-is for ad-hoc debugging only - automated testing should use Behat or PHPUnit.
+Use `curl` with session cookies to request pages that need a login, such as
+admin pages and protected routes, without opening a browser. It's a tool for
+ad-hoc debugging; automated tests belong in Behat or PHPUnit.
 
 ### When to use
 
-- Quick ad-hoc debugging of admin page errors (500 errors, permission issues)
+The curl approach suits these cases:
+
+- Quick ad-hoc debugging of admin page errors (500 errors, permission
+  issues)
 - Investigating issues without spinning up a browser
 - Verifying page content during troubleshooting
 - One-off checks that don't warrant a formal test
 
 ### Step-by-step process
+
+The following commands sign in once and reuse the saved session cookie for
+later requests:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -145,7 +207,8 @@ is for ad-hoc debugging only - automated testing should use Behat or PHPUnit.
     # Note the URL (e.g., http://your-project.docker.amazee.io)
     # Step 2: Get a one-time login URL
     ahoy login
-    # Output example: http://your-project.docker.amazee.io/user/reset/1/1234567890/abc123/login
+    # Output example:
+    # http://your-project.docker.amazee.io/user/reset/1/1234567890/abc123/login
     # Step 3: Authenticate and save session cookies
     # Replace LOGIN_URL with the full URL from Step 2
     curl -k -c .data/cookies.txt -L "LOGIN_URL"
@@ -153,7 +216,8 @@ is for ad-hoc debugging only - automated testing should use Behat or PHPUnit.
     # Replace SITE_URL with your site URL from Step 1
     curl -k -b .data/cookies.txt "SITE_URL/admin/content"
     # Step 5: Check for specific errors in page output
-    curl -k -b .data/cookies.txt "SITE_URL/admin/content" | grep -iE "(error|exception|warning|notice)"
+    curl -k -b .data/cookies.txt "SITE_URL/admin/content" \
+      | grep -iE "(error|exception|warning|notice)"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -163,7 +227,8 @@ is for ad-hoc debugging only - automated testing should use Behat or PHPUnit.
     # Note the URL (e.g., http://your-project.docker.amazee.io)
     # Step 2: Get a one-time login URL
     docker compose exec cli drush uli
-    # Output example: http://your-project.docker.amazee.io/user/reset/1/1234567890/abc123/login
+    # Output example:
+    # http://your-project.docker.amazee.io/user/reset/1/1234567890/abc123/login
     # Step 3: Authenticate and save session cookies
     # Replace LOGIN_URL with the full URL from Step 2
     curl -k -c .data/cookies.txt -L "LOGIN_URL"
@@ -171,12 +236,19 @@ is for ad-hoc debugging only - automated testing should use Behat or PHPUnit.
     # Replace SITE_URL with your site URL from Step 1
     curl -k -b .data/cookies.txt "SITE_URL/admin/content"
     # Step 5: Check for specific errors in page output
-    curl -k -b .data/cookies.txt "SITE_URL/admin/content" | grep -iE "(error|exception|warning|notice)"
+    curl -k -b .data/cookies.txt "SITE_URL/admin/content" \
+      | grep -iE "(error|exception|warning|notice)"
     ```
   </TabItem>
 </Tabs>
 
+Confirm that the session works: the page from step 4 doesn't contain
+`You are not authorized to access this page.`, the message on Drupal's
+access denied page.
+
 ### Curl flags reference
+
+The following table explains the curl flags that these commands use:
 
 | Flag | Purpose |
 |------|---------|
@@ -187,12 +259,21 @@ is for ad-hoc debugging only - automated testing should use Behat or PHPUnit.
 
 ### Important notes
 
-- **Cookie storage**: Always use `.data/` directory - it is gitignored
-- **Session expiry**: Cookies expire after session timeout; regenerate as needed
-- **Login URL format**: `http://SITE/user/reset/UID/TIMESTAMP/HASH/login`
-- **One-time use**: Login URLs from `ahoy login` can only be used once
+The following points apply to the saved cookies and the login links:
+
+- Store cookies in the `.data/` directory: Git ignores it, so a session
+  cookie doesn't end up in a commit.
+- Cookies expire after the session timeout, so regenerate them as needed.
+- Login URLs have the format
+  `http://SITE/user/reset/UID/TIMESTAMP/HASH/login`.
+- Login URLs from `ahoy login` can only be used once. `ahoy login` also
+  unblocks user 1 before it generates the link, which a plain `drush uli`
+  doesn't.
 
 ## Container debugging
+
+To see what a container is doing, or to open a shell or a database prompt
+inside it:
 
 ```shell
 # Check container status
@@ -208,3 +289,6 @@ docker compose logs database
 docker compose exec cli bash
 docker compose exec database mysql -u drupal -p drupal
 ```
+
+The database name, user, and password are all `drupal` in the local stack,
+so enter `drupal` when `mysql` prompts for the password.

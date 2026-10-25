@@ -5,34 +5,71 @@ sidebar_position: 8
 
 # Diffy
 
-Dispatch a visual regression run against the just-deployed environment via the
-shipped GitHub Actions workflow.
+The Diffy channel starts a visual regression run against the newly deployed
+environment, through the shipped GitHub Actions workflow.
 
-This channel does not call Diffy directly. It sends a GitHub
-`repository_dispatch` event to the consumer repository; the
-[`test-vr.yml`](../../development/visual-regression.mdx) workflow then runs the
-actual Diffy comparison and posts the result back to the pull request.
+This page is for the lead or DevOps engineer who runs Diffy visual
+regression tests after deployments. It covers how the channel hands off to
+the workflow, the setup steps, and every variable the channel reads.
+
+The channel never calls Diffy itself. It sends your repository a GitHub
+`repository_dispatch` event, and the
+[`test-vr.yml`](../../development/visual-regression.mdx) workflow runs the
+Diffy comparison and posts the result back to the pull request. The
+dispatch succeeds only when GitHub answers with HTTP `204`; any other
+status fails the channel.
 
 ## Setup
 
+To set up Diffy notifications, complete these steps:
+
 1. Enable visual regression during installation (or ship `test-vr.yml`
-   manually) - see [Visual regression](../../development/visual-regression.mdx).
-2. Add a GitHub token with `repo` scope as `VORTEX_NOTIFY_DIFFY_TOKEN` to the
-   hosting environment (falls back to `VORTEX_NOTIFY_GITHUB_TOKEN`, then
+   manually). See
+   [Visual regression](../../development/visual-regression.mdx).
+2. Add a GitHub token with `repo` scope as `VORTEX_NOTIFY_DIFFY_TOKEN` to
+   the hosting environment (falls back to `VORTEX_NOTIFY_GITHUB_TOKEN`, then
    `GITHUB_TOKEN`).
-3. Add `diffy` to `VORTEX_NOTIFY_CHANNELS`.
+3. Add the repository, in `owner/repo` format, as
+   `VORTEX_NOTIFY_DIFFY_REPOSITORY` to the hosting environment (falls back
+   to `VORTEX_NOTIFY_GITHUB_REPOSITORY`).
+4. Add `diffy` to the comma-separated `VORTEX_NOTIFY_CHANNELS` list in your
+   `.env` file, for example `VORTEX_NOTIFY_CHANNELS=email,diffy`. The
+   **Vortex** CLI doesn't add it for you, even when you enable visual
+   regression.
+
+Confirm that the next deployment started a run. The deployment output on
+your hosting platform shows `[ OK ] Finished Diffy notification.`, and the
+repository's **Actions** tab lists a **Test - Visual regression** run.
 
 ## Environment variables
 
+See the [Notifications](README.mdx) overview for the router, what a failed
+channel stops, the shared `VORTEX_NOTIFY_*` variables, and the **Location**
+column. The following table lists the variables that the Diffy channel
+reads:
+
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
-| `VORTEX_NOTIFY_DIFFY_TOKEN` | **Yes** | `VORTEX_NOTIFY_GITHUB_TOKEN`, then `GITHUB_TOKEN` | Hosting | GitHub token with `repo` scope used to call `repository_dispatch` |
-| `VORTEX_NOTIFY_DIFFY_REPOSITORY` | **Yes** | `VORTEX_NOTIFY_GITHUB_REPOSITORY` | Hosting | Repository in `owner/repo` format |
+| `VORTEX_NOTIFY_DIFFY_TOKEN` | **Yes**, unless `VORTEX_NOTIFY_GITHUB_TOKEN` or `GITHUB_TOKEN` is set | `VORTEX_NOTIFY_GITHUB_TOKEN`, then `GITHUB_TOKEN` | Hosting | GitHub token with `repo` scope used to call `repository_dispatch` |
+| `VORTEX_NOTIFY_DIFFY_REPOSITORY` | **Yes**, unless `VORTEX_NOTIFY_GITHUB_REPOSITORY` is set | `VORTEX_NOTIFY_GITHUB_REPOSITORY` | Hosting | Repository in `owner/repo` format (an HTTPS repository URL works too) |
 | `VORTEX_NOTIFY_DIFFY_SOURCE_ENV` | No | `production` | `.env` | Diffy source environment used as the baseline (`production`, `staging`, `development`) |
 | `VORTEX_NOTIFY_DIFFY_EVENT_TYPE` | No | `vr_run` | `.env` | `repository_dispatch` event type the workflow listens for |
-| `VORTEX_NOTIFY_DIFFY_BRANCHES` | No | | `.env` | Restrict dispatch to specific branches (comma-separated). When empty, every deployment dispatches and the workflow gates on PR label |
+| `VORTEX_NOTIFY_DIFFY_BRANCHES` | No | None | `.env` | Exact branch names to dispatch for (comma-separated). When empty, every deployment dispatches and the workflow decides whether to compare |
+| `VORTEX_NOTIFY_DIFFY_BRANCH` | No | `VORTEX_NOTIFY_BRANCH` | Hosting | Branch sent to the workflow and checked against `VORTEX_NOTIFY_DIFFY_BRANCHES` |
+| `VORTEX_NOTIFY_DIFFY_ENVIRONMENT_URL` | No | `VORTEX_NOTIFY_ENVIRONMENT_URL` | Hosting | Deployed environment to compare against the source environment |
+| `VORTEX_NOTIFY_DIFFY_LABEL` | No | `VORTEX_NOTIFY_LABEL` | Hosting | Diff name shown in the Diffy UI |
+| `VORTEX_NOTIFY_DIFFY_EVENT` | No | `VORTEX_NOTIFY_EVENT` | Hosting | Deployment event; `pre_deployment` dispatches nothing |
+
+The workflow treats a deployment whose URL contains `pr-<number>` as a pull
+request deployment. By default, it compares one only when the pull request
+carries the `VR` label or its head branch matches `deps/*`. It compares any
+other deployment only when its branch matches `VR_DIFFY_BRANCHES`.
+[Automatic on
+deployments](../../development/visual-regression.mdx#1-automatic-on-deployments)
+covers these settings.
 
 ## Event behavior
 
-Diffy dispatch only runs for `post_deployment` events. `pre_deployment` is
-skipped because the target environment is not yet ready for comparison.
+The channel skips `pre_deployment`, because the target environment isn't
+ready for comparison yet. Any other event, `post_deployment` included,
+dispatches the run.

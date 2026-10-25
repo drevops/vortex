@@ -4,13 +4,18 @@ sidebar_position: 4
 
 # CLI
 
-The **Vortex** CLI is a single self-contained binary that scaffolds a new project from the template, updates an existing one, reconfigures it, and reports on the local tooling. It ships as a PHAR, so it needs nothing installed beyond PHP.
+The **Vortex** CLI is a single self-contained binary. It scaffolds a new
+project from the template, updates an existing project, reconfigures it,
+and reports on the local tooling. It ships as a PHAR, so it needs only PHP
+to run. This page is the reference for its commands, options, and
+environment variables.
 
 ```shell title="Download and run"
 curl -SsL https://www.vortextemplate.com/install > vortex.phar && php vortex.phar
 ```
 
-For the step-by-step walkthrough of setting up a new project, see [Installation](./installation).
+For a step-by-step walkthrough of setting up a new project, see
+[Installation](./installation).
 
 ## Commands
 
@@ -22,42 +27,50 @@ For the step-by-step walkthrough of setting up a new project, see [Installation]
 | `doctor`    | Report which required tools are installed and running            |
 | `build`     | Build the site using `ahoy build`                                |
 
-Run without a command and the CLI resolves by the state of the target directory: an existing **Vortex** project is reconfigured, anything else gets a fresh install. So `php vortex.phar` in an empty directory installs, and the same command inside a project reconfigures it.
+Without a command, the CLI picks one by the state of the target directory.
+It reconfigures an existing **Vortex** project and runs a fresh install
+anywhere else. So `php vortex.phar` installs in an empty directory, and the
+same command inside a project reconfigures it.
+
+To list every command and the options of 1 command:
 
 ```shell title="List every command and option"
 php vortex.phar list
 php vortex.phar install --help
 ```
 
-### install
+### `install`
 
-Downloads the template, asks the configuration questions, and writes the result into the destination directory.
+`install` downloads the template, asks the configuration questions, and
+writes the result into the destination directory.
 
 | Option                | Short | Description                                                                     |
 |-----------------------|-------|---------------------------------------------------------------------------------|
-| `--destination`       |       | Destination directory. Defaults to the current directory                        |
+| `--destination`       | `-d`  | Destination directory. Defaults to the current directory                        |
 | `--root`              |       | Path used to resolve relative paths. Defaults to the current directory          |
 | `--uri`               | `-l`  | Remote or local repository URI, with an optional git ref after `#`              |
-| `--no-interaction`    | `-n`  | Do not ask any interactive question                                             |
+| `--no-interaction`    | `-n`  | Don't ask any interactive question                                              |
 | `--config`            | `-c`  | JSON string, or path to a JSON file, of CLI configuration                       |
 | `--prompts`           | `-p`  | JSON string, or path to a JSON file, of prompt answers keyed by prompt ID       |
 | `--schema`            |       | Output the prompt schema as JSON and exit                                       |
 | `--validate`          |       | Validate the supplied answers without installing                                |
 | `--build`             | `-b`  | Run the build after installing, without prompting                               |
-| `--no-cleanup`        |       | Do not remove the CLI after a successful installation                           |
+| `--no-cleanup`        |       | Keep the CLI after a successful installation                                    |
 | `--agent-help`        |       | Output instructions for AI agents and exit                                      |
 
-The `--uri` option accepts a git ref after `#`, which selects what to install:
+The git ref after `#` in `--uri` selects what to install:
 
 ```shell title="Choosing what to install"
 php vortex.phar install --uri=https://github.com/drevops/vortex.git
 php vortex.phar install --uri=https://github.com/drevops/vortex.git#stable
-php vortex.phar install --uri=https://github.com/drevops/vortex.git#1.2.3
+php vortex.phar install --uri=https://github.com/drevops/vortex.git#2.0.0
 ```
 
-### update
+### `update`
 
-Updates an existing project to a template version, re-applying the answers discovered from the project. It takes every `install` option, plus:
+`update` brings an existing project to a template version. It reapplies
+the answers it discovers in the project. It takes every `install` option,
+plus:
 
 | Option   | Short | Description                                                              |
 |----------|-------|--------------------------------------------------------------------------|
@@ -65,28 +78,34 @@ Updates an existing project to a template version, re-applying the answers disco
 
 ```shell title="Updating a project"
 php vortex.phar update
-php vortex.phar update --to=1.2.3
+php vortex.phar update --to=2.0.0
 php vortex.phar update --no-interaction --destination=./my-project
 ```
 
-An explicit `--uri` names both the repository and the ref, so it takes precedence over `--to`. A project of a different major version is refused, with a pointer to the release that can update it.
+An explicit `--uri` names both the repository and the ref, so it takes
+precedence over `--to`. The CLI refuses a project or a `--to` version of a
+different major version, and names the CLI for that major instead.
 
-### configure
+### `configure`
 
-Reconfigures an existing project in place. Nothing is downloaded: the project is both the source the answers are read from and the tree they are written to.
+`configure` reconfigures an existing project in place without downloading
+anything. The project is both the source of the answers and the tree the
+CLI writes them to.
 
 | Option             | Short | Description                                                               |
 |--------------------|-------|---------------------------------------------------------------------------|
 | `--destination`    | `-d`  | Project directory. Defaults to the current directory                      |
 | `--apply`          | `-a`  | Write the collected answers to the project                                |
-| `--no-interaction` | `-n`  | Do not ask any interactive question                                       |
+| `--no-interaction` | `-n`  | Don't ask any interactive question                                        |
 | `--config`         | `-c`  | JSON string, or path to a JSON file, of CLI configuration                 |
 | `--prompts`        | `-p`  | JSON string, or path to a JSON file, of prompt answers keyed by prompt ID |
 | `--schema`         |       | Output the prompt schema as JSON and exit                                 |
 | `--validate`       |       | Validate the supplied answers without changing anything                   |
 | `--agent-help`     |       | Output instructions for AI agents and exit                                |
 
-Without `--apply` nothing on disk changes: the run collects answers and reports them, which is how you read a project's current configuration. A non-interactive run writes them to stdout as JSON.
+Without `--apply`, the run collects the answers and reports them, and
+nothing on disk changes. Use it to read a project's current configuration.
+A non-interactive run writes the answers to stdout as JSON:
 
 ```shell title="Reading and then writing a configuration"
 php vortex.phar configure --no-interaction > current.json
@@ -95,60 +114,89 @@ php vortex.phar configure --apply --prompts=current.json
 
 :::note What `configure` can change
 
-`configure` re-runs the same processing an install performs, against the project instead of a freshly downloaded template. Answers whose effect is to remove something - a service, a CI provider's files, the AI agent instructions - take effect. Answers that fill in template placeholders, such as the site name, do not: the placeholders were consumed at install time and are no longer in the project. Use `update` to bring template changes back in.
+`configure` runs the same processing as an install, against the project
+instead of a freshly downloaded template. Answers that remove something
+take effect, such as dropping a service, a CI provider's files, or the AI
+agent instructions. Answers that fill in template placeholders, such as the
+site name, have no effect: the install consumed those placeholders, so the
+project no longer has them. To bring template changes back in, use
+`update`.
 
 :::
 
-### doctor
+### `doctor`
 
-Checks for the tools a **Vortex** project needs: Docker, Docker Compose, Ahoy and Pygmy. It reports whether each is installed *and* running, the version of each one present, and how to install the ones that are missing. It only reports - it never changes the project.
+`doctor` checks for the tools a **Vortex** project needs: Docker, Docker
+Compose, Ahoy, and Pygmy. For each tool, it reports whether it's installed
+*and* running, and the version it found. For a missing tool, it shows how to
+install it. `doctor` only reports and never changes the project.
 
 | Option          | Short | Description                                            |
 |-----------------|-------|--------------------------------------------------------|
 | `--destination` | `-d`  | Directory to run the checks in. Defaults to the current directory |
-| `--only`        | `-o`  | Comma-separated subset of requirements to check         |
+| `--only`        | `-o`  | Comma-separated subset of `docker`, `docker-compose`, `ahoy`, and `pygmy` |
 | `--no-summary`  |       | Hide the summary listing tool versions                  |
 
-This is the host-level check that runs before a project exists. Once a project is built, [`ahoy doctor`](./development/environment/doctor) goes further and inspects the running stack itself - ports, containers, the web server and the site bootstrap.
+`doctor` is the host-level check that runs before a project exists. After a
+project is built, [`ahoy doctor`](./development/environment/doctor) goes
+further and inspects the running stack: ports, containers, the web server,
+and the site bootstrap.
 
-### build
+### `build`
 
-Builds the site by running `ahoy build` in the project directory.
+`build` builds the site by running `ahoy build` in the project directory.
 
 | Option                     | Short | Description                                          |
 |----------------------------|-------|------------------------------------------------------|
+| `--destination`            | `-d`  | Project directory. Defaults to the current directory |
 | `--profile`                | `-p`  | Build from the install profile instead of a database |
 | `--skip-requirements-check`|       | Skip checking for the required tools                  |
 
 ## Non-interactive use
 
-Every question can be answered up front, which is what makes the CLI usable from a script or a pipeline. Ask for the schema, build an answers object from it, optionally validate, then install:
+You can answer every question up front, so a script or a pipeline can run
+the CLI. To install without prompts:
 
-```shell title="Discover the available prompts"
-php vortex.phar install --schema
-```
+1. Print the prompt schema, which lists every prompt ID:
 
-```shell title="Validate answers without installing"
-php vortex.phar install --validate --prompts='{"name":"My Project","hosting_provider":"lagoon"}'
-```
+   ```shell title="Discover the available prompts"
+   php vortex.phar install --schema
+   ```
 
-```shell title="Install non-interactively"
-php vortex.phar install --no-interaction --prompts=prompts.json --destination=./my-project
-```
+2. Build an answers object keyed by those IDs. Optionally, validate it:
 
-`--prompts` keys are the prompt IDs from `--schema`. `--config` is separate: it carries CLI configuration such as the repository and ref, not prompt answers.
+   ```shell title="Validate answers without installing"
+   php vortex.phar install --validate --prompts='{"name":"My Project","hosting_provider":"lagoon"}'
+   ```
 
-`--schema`, `--validate` and `--agent-help` are available on `install`, `update` and `configure`, and answer identically on each: the questions belong to the build, not to a verb. They also answer without a command name, so a freshly downloaded binary can describe its own questions before anything exists on disk:
+3. Install with the answers:
+
+   ```shell title="Install non-interactively"
+   php vortex.phar install --no-interaction --prompts=prompts.json --destination=./my-project
+   ```
+
+`--prompts` carries prompt answers. `--config` carries CLI configuration
+instead, such as the repository and ref.
+
+`install`, `update`, and `configure` all accept `--schema`, `--validate`,
+and `--agent-help`, and answer identically on each, because the questions
+belong to the build rather than to a command. These options also work
+without a command name. A freshly downloaded binary can then describe its
+questions before anything exists on disk:
 
 ```shell title="Describe the questions with nothing installed yet"
 php vortex.phar --schema
 ```
 
-A non-interactive run suppresses the closing guidance - the boxes telling you what to do next. Progress and status output is still reported, so a scripted `install` remains readable in a log. Only `configure` reduces its stdout to a single JSON document.
+A non-interactive run leaves out the closing guidance, the boxes that tell
+you what to do next. It still prints progress and status output, so a
+scripted `install` stays readable in a log. Only `configure` reduces its
+stdout to a single JSON document.
 
 :::tip Using an AI agent
 
-`--agent-help` prints the whole workflow above as instructions written for an AI coding agent:
+`--agent-help` prints the non-interactive workflow as instructions written
+for an AI coding agent:
 
 ```shell
 php vortex.phar --agent-help
@@ -158,7 +206,9 @@ php vortex.phar --agent-help
 
 ## Environment variables
 
-Variables are scoped by what they configure. Settings that belong to the CLI itself use the `VORTEX_CLI_` prefix; settings that belong to the `install` command use `VORTEX_CLI_INSTALL_`.
+Each variable's prefix shows what it configures. Settings for the CLI itself
+use the `VORTEX_CLI_` prefix, and settings for the `install` command use
+`VORTEX_CLI_INSTALL_`.
 
 | Variable                           | Purpose                                       |
 |------------------------------------|-----------------------------------------------|
@@ -168,17 +218,21 @@ Variables are scoped by what they configure. Settings that belong to the CLI its
 | `VORTEX_CLI_URL_CACHE_BUST`        | Cache-busting parameter for the URL           |
 | `VORTEX_CLI_INSTALL_TMP_DIR`       | Working directory for the downloaded source   |
 | `VORTEX_CLI_INSTALL_TEMPLATE_REPO` | Template repository to install from           |
+| `VORTEX_CLI_INSTALL_INTERACTIVE`   | Set to `1` to run `ahoy update-vortex` with prompts |
 | `VORTEX_CLI_INSTALL_PROMPT_<ID>`   | Answer for a single prompt, by prompt ID       |
 
 :::note Superseded variable names
 
-These variables were previously prefixed with `VORTEX_INSTALLER_`. The old names still work: when the current name is unset, the matching legacy name supplies the value and the run prints a notice naming its replacement. The fallback exists to ease migration and will be removed in a future major version.
+The CLI also reads each variable under its superseded `VORTEX_INSTALLER_`
+name. When the current name is unset, the matching `VORTEX_INSTALLER_` name
+supplies the value, and the run prints a notice that names its replacement.
+A future major version removes this fallback.
 
 :::
 
 ## Distribution
 
-The CLI is published to three stable paths, each served with no file extension:
+The CLI is published to 3 stable paths, each served with no file extension:
 
 | Path                                        | Contents                |
 |---------------------------------------------|-------------------------|
@@ -186,14 +240,21 @@ The CLI is published to three stable paths, each served with no file extension:
 | `https://www.vortextemplate.com/v1/install` | The `1.x` line          |
 | `https://www.vortextemplate.com/v2/install` | The `2.x` line          |
 
-The bare `/install` path always serves the current major. Each per-major path is built from that major's own branch, so pinning to `/v1/install` or `/v2/install` keeps you on that line.
+The bare `/install` path always serves the current major. Each per-major
+path is built from that major's own branch, so pinning to `/v1/install` or
+`/v2/install` keeps you on that line.
 
-A build refuses to run against a project from a different major version and points you at the matching path instead, so an accidental cross-major update cannot happen silently.
+The CLI refuses to run against a project from a different major version and
+points you at the matching path instead. An update can't cross a major
+version by accident.
 
 ## Updating an existing project
 
-Inside a **Vortex** project, `ahoy update-vortex` downloads the CLI and runs it for you - you do not need to fetch the binary yourself. See [Updating Vortex](./updating-vortex).
+Inside a **Vortex** project, `ahoy update-vortex` downloads the CLI and runs
+it for you, so you don't need to fetch the binary yourself. See
+[Updating Vortex](./updating-vortex).
 
 ## Maintaining the CLI
 
-For how the CLI is developed, tested and released, see [Maintenance / CLI](./contributing/maintenance/cli).
+For how the CLI is developed, tested, and released, see
+[Maintenance / CLI](./contributing/maintenance/cli).

@@ -8,133 +8,242 @@ import TabItem from '@theme/TabItem';
 
 # Continuous integration
 
-**Vortex** offers continuous integration configurations for [GitHub Actions](./github-actions.mdx)
-and [CircleCI](./circleci.mdx) that automate the process of building, testing,
-and deploying your site.
+This page is for the lead or DevOps engineer who sets up and maintains the
+continuous integration (CI) pipeline of a project built from **Vortex**. It
+also helps developers who need to understand a failing CI run. It explains
+what each job does and how the database cache, the security audit, and the
+test split work, so you can tune the pipeline and read its results.
 
-The workflow structure is identical for both continuous integration providers.
-Choose one of them and follow its setup instructions.
+**Vortex** ships the pipeline for [GitHub Actions](./github-actions.mdx) and
+[CircleCI](./circleci.mdx). Each run lints your code, builds and provisions
+the site, and runs the tests. On the branches you deploy, it then deploys
+the result after the `lint`, `test`, and `build` jobs pass. The pipeline has
+the same structure on both providers, so pick the one your project uses and
+follow its setup instructions.
 
-The continuous integration pipeline consists of multiple jobs executed on the
-CI provider's standard environment - a CircleCI convenience image or a
-GitHub-hosted runner - with the required tooling installed at job time.
+Settings that exist on only 1 provider, such as trigger branches and runner
+sizes, live on that provider's page. [Deployment](../deployment/README.mdx)
+covers what happens during a deployment.
+
+Every job runs on the provider's standard environment: a GitHub-hosted
+runner on GitHub Actions, or the PHP convenience image on CircleCI.
+Each job that calls a `vendor/bin/vortex-*` command first installs the
+[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
+package with `scripts/vortex-tooling.sh`. That script installs the tooling
+package on its own, so those commands work before the codebase is assembled.
 
 ## Workflow structure
 
 import CodeLifecycle from '../_code-lifecycle.mdx';
 
+The following diagram shows how a change moves from a developer's machine
+through the pipeline to the hosting platform:
+
 <CodeLifecycle/>
 
 ### 1. Lint
 
-- Runs in parallel with other jobs (no dependencies)
-- Builds only the CLI container (no database or other services needed)
-- Validates Composer configuration
-- Lints Dockerfiles and Docker Compose files
-- Installs development dependencies
-- Runs all code linters: PHPCS, PHPStan, Rector, Twig CS Fixer, Gherkin Lint, ESLint, Stylelint
-- Checks that Composer configuration is normalized
+The `lint` job checks the code without provisioning a site:
+
+- Runs in parallel with the other jobs, since it doesn't wait for any of
+  them
+- Validates the Composer configuration with `composer validate --strict`
+- Lints Dockerfiles with Hadolint and Docker Compose files with DCLint
+- Starts only the `cli` container, because linting needs no database or
+  other services
+- Installs the development dependencies
+- Checks that the Composer configuration is normalized
+- Runs the code linters, in this order:
+  - PHPCS
+  - PHPStan
+  - Rector
+  - Twig CS Fixer
+  - Gherkin Lint
+  - ESLint and Stylelint, on custom module code and on the custom theme
+
+The CLI removes the steps of the tools you don't select, so your pipeline
+runs only the linters your project uses.
 
 ### 2. Test
 
+The `test` job provisions the site and tests it:
+
 - Runs in parallel with the `lint` and `build` jobs
-- Fetches the database on the first build of the day and caches it for the rest of the day's builds (only one runner stores the cache when running in parallel)
-- Uses Docker Compose to set up the full environment
-- Validates Composer configuration
-- Assembles the codebase by installing dependencies
-- Provisions a website
-- Runs PHPUnit and Jest tests (first container only)
-- Checks code coverage and posts a PR comment (first container only)
-- Runs BDD tests (distributed across all containers - see [Test parallelism](#test-parallelism))
-- Collects and stores test results and artifacts
-- Checks that the build left a clean working tree - see [Working tree check](#working-tree-check)
+- Validates the Composer configuration
+- Restores the cached database dump, or downloads a fresh one on the first
+  run of the day (see [Caching strategy](#caching-strategy))
+- Builds the full stack with Docker Compose
+- After a fresh download, provisions a site from the dump to check that it
+  imports, then exports and caches it. Only the first container stores the
+  cache when the job runs on several containers.
+- Installs the development dependencies
+- Provisions the site
+- Runs the following on the first container only:
+  - The Jest and PHPUnit tests
+  - The code coverage check and the coverage summary comment on the pull
+    request
+  - The upload of the coverage reports to Codecov, when you chose Codecov
+    in the CLI and set `CODECOV_TOKEN`
+  - The validation of Single Directory Components (SDC)
+- Runs the Behat (BDD) tests across all containers (see
+  [Test parallelism](#test-parallelism))
+- Collects and stores the test results and artifacts
+- Checks that the build left a clean working tree (see
+  [Working tree check](#working-tree-check))
 
 ### 3. Build
 
-- Runs in parallel with the `lint` and `test` jobs (no dependencies)
-- Uses Docker Compose to build the production stack
-- For artifact-based hosting (e.g. Acquia), exports the built codebase for the deployment job
-- For image-based hosting (e.g. Lagoon), a successful build confirms that the production images are deployable
+The `build` job builds what the deployment ships:
+
+- Runs in parallel with the `lint` and `test` jobs
+- Builds the production stack with Docker Compose: the `cli` image build
+  installs the Composer packages without development dependencies and
+  builds the theme assets
+- For artifact deployments, such as Acquia, exports the built codebase for
+  the `deploy` job
+- For image-based hosting, such as Lagoon, confirms that the production
+  images build
 
 ### 4. Deployment
 
-- Runs after successful completion of the `lint`, `test`, and `build` jobs
-- Uses the built codebase without development dependencies from the `build` job
-- Adds required secrets and environment variables
-- Triggers a deployment using a router script - see [Deployment](../deployment/README.mdx)
+The `deploy` job sends the code to your hosting:
+
+- Runs after the `lint`, `test`, and `build` jobs succeed (a
+  [manual deployment](./github-actions.mdx#manual-deployment) on GitHub
+  Actions runs it on its own)
+- Skips the branches that automated dependency updates create (`deps/*`)
+- Deploys tags too: GitHub Actions handles them in the same `deploy` job,
+  and CircleCI in a separate `deploy-tags` job
+- For artifact deployments, ships the codebase that the `build` job
+  exported, without development dependencies
+- Adds the required secrets and environment variables
+- Triggers the deployment through the `vortex-deploy` router script (see
+  [Deployment](../deployment/README.mdx))
 
 ## Security audit
 
-Security checks run in their own workflow, separate from the pipeline above, so
-that a failing audit is never confused with a failing linter and can be re-run
-on its own:
+Security checks run in a workflow of their own, separate from the pipeline
+described so far. A failing audit then can't be mistaken for a failing
+linter, and you can re-run it on its own. Each provider defines the workflow
+in its own file:
 
 | Provider | Location |
 |----------|----------|
 | GitHub Actions | The `Security audit` workflow in `.github/workflows/audit.yml` |
 | CircleCI | The `audit` workflow in `.circleci/config.yml` |
 
-The workflow runs the same 4 checks in both providers, and no check needs the
-application containers or installed dependencies:
+The workflow runs the same 4 checks on both providers. None of them needs
+the application containers or installed dependencies, so the audit never
+waits for a build:
 
-- `composer audit --locked` checks the packages pinned in `composer.lock` against published security advisories
-- `npm audit --package-lock-only`, run through [audit-ci](https://github.com/IBM/audit-ci), checks the packages pinned in `package-lock.json` against published security advisories, skipping the ones allowlisted in `package-audit.jsonc` while their entry is active and unexpired
-- the same `npm audit` runs against the custom theme's own `package-lock.json`
-- [Gitleaks](../development/security/secret-scanning.mdx) scans the codebase for committed secrets
+- `composer audit --locked` checks the packages pinned in `composer.lock`
+  against published security advisories.
+- `npm audit --package-lock-only`, run through
+  [audit-ci](https://github.com/IBM/audit-ci), checks the packages pinned in
+  `package-lock.json` and fails on advisories rated `high` or `critical`.
+  Advisories allowlisted in `package-audit.jsonc` don't count while their
+  entry is active and unexpired.
+- The same `npm audit` runs against the custom theme's own
+  `package-lock.json`, with the theme's own `package-audit.jsonc`.
+- [Gitleaks](../development/security/secret-scanning.mdx) scans the codebase
+  for committed secrets.
 
-Every check runs even if an earlier one failed, so a single run reports all the
-findings at once. The workflow fails if any of the checks failed, unless that
-check's `_IGNORE_FAILURE` variable (see [Ignore tool failures](#ignore-tool-failures))
-is set to `1`.
+Only the Composer check is always present. The root npm check ships when
+your project keeps ESLint, Stylelint, or Jest, and the theme check ships
+with a custom theme. The Gitleaks check ships when you turn on secret
+scanning in the CLI.
 
-It is triggered by the same pushes, pull requests and tags as the main
-pipeline, and can also be started on demand - in GitHub Actions from
-**Actions → Security audit → Run workflow**, and in CircleCI by re-running the
+Every check runs even if an earlier one failed, so a single run reports all
+the findings at once. The workflow fails if any check failed, unless that
+check's `_IGNORE_FAILURE` variable (see
+[Ignore tool failures](#ignore-tool-failures)) is set to `1`.
+
+The workflow runs on the same pushes, pull requests, and tags as the main
+pipeline. You can also start it on demand. In GitHub Actions, use
+**Actions → Security audit → Run workflow**. In CircleCI, re-run the
 `audit` workflow from the pipeline view.
 
 :::note
 
-Because the audit is a separate workflow, it is not a dependency of the
-`deploy` job - a failing audit does not by itself stop a deployment. To block
-merges and deployments on it, add its check to the repository's branch
-protection rules as a required status check.
+The audit is a separate workflow and isn't a dependency of the `deploy` job,
+so a failing audit doesn't by itself stop a deployment. To block merges on
+it, add its check to the repository's branch protection rules as a required
+status check.
 
 :::
 
 ### Code scanning
 
-In GitHub Actions, every check also writes its findings as [SARIF](https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning) and uploads them to the repository's **Security → Code scanning** tab, each under its own category:
+On GitHub Actions, every check also writes its findings as
+[SARIF](https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning),
+the interchange format that code scanning reads. The workflow uploads them
+to the repository's **Security → Code scanning** tab, each under its own
+category:
 
 | Category | Findings |
 |----------|----------|
-| `composer-audit` | `composer audit` advisories, abandoned packages and dependency policy matches |
+| `composer-audit` | `composer audit` advisories, abandoned packages, and dependency policy matches |
 | `npm-audit` | `npm audit` advisories for the root `package-lock.json` |
 | `npm-audit-theme` | `npm audit` advisories for the custom theme's `package-lock.json` |
 | `gitleaks` | Committed secrets |
 
-Code scanning keeps a history of every finding and tracks whether it's open or fixed. Dismissing a false positive records the reason in the alert instead of a committed ignore entry.
+Code scanning keeps a history of every finding and tracks whether it's open
+or fixed. Dismissing a false positive records the reason in the alert,
+instead of in a committed ignore entry.
 
-Gitleaks writes SARIF itself. Neither `composer audit` nor `npm audit` has a SARIF formatter, so each check runs once with its JSON format and pipes the output through `tee`. The npm checks run `audit-ci` with `--output-format json --report-type full`, which prints npm's own report. The report reaches the job log and a file in `.logs/audit/` in the same run. The `vortex-convert-audit-sarif` script from the [Vortex tooling package](../contributing/maintenance/tooling.mdx) then converts that file. It reads the format from its second argument or from `VORTEX_CONVERT_AUDIT_SARIF_FORMAT`. For each npm report, the script reads the `package-audit.jsonc` next to the report's lock file. It leaves out the advisories that an active, unexpired entry in that file allowlists.
+Gitleaks writes SARIF itself. Neither `composer audit` nor `npm audit` has a
+SARIF formatter, so each of those checks runs once in JSON format and pipes
+its output through `tee`. That single run feeds both the job log and a
+report file in `.logs/audit/`. The npm checks pass
+`--output-format json --report-type full` to `audit-ci`, which then prints
+npm's own report.
 
-Nothing in the reporting path decides whether the build passes. The 4 check steps are what fail the workflow on findings, and they run before the conversion and upload steps and independently of them.
+The `vortex-convert-audit-sarif` script from the
+[Vortex tooling package](../contributing/maintenance/tooling.mdx) converts
+each report file. The workflow passes the report format, `composer` or
+`npm`, as the script's second argument, which takes precedence over
+`VORTEX_CONVERT_AUDIT_SARIF_FORMAT`. For the theme report, it also passes
+the theme's `package-lock.json` as the third argument, so each finding
+points at the right lock file. For each npm report, the script reads the
+`package-audit.jsonc` next to the report's lock file. It leaves out the
+advisories that an active, unexpired entry in that file allowlists.
 
-Code scanning has to be available on the repository - it's included on public repositories and on private repositories with GitHub Advanced Security. Where it's not available, and on pull requests from forks where the workflow token is read-only, the upload step fails without failing the workflow. No finding is lost: the preceding checks still report them in the job log and still fail the workflow, and every report is attached to the run as the `security-findings` artifact.
+Only the check steps fail the workflow on findings. The conversion and
+upload steps run after them with `continue-on-error`, so they can't fail
+it.
 
-CircleCI has no code scanning destination, so the providers are deliberately asymmetric here. Under CircleCI the same checks run and fail the `audit` workflow, but their findings live only in the job log.
+Code scanning has to be available on the repository. It's available on
+public repositories, and private repositories need GitHub Advanced
+Security.
 
-➡️ See [Dependency audit](../development/security/dependency-audit.mdx#dismissing-a-finding) and [Secret scanning](../development/security/secret-scanning.mdx#dismissing-a-finding) for what dismissing a finding does and doesn't change.
+Where code scanning isn't available, and on pull requests from forks where
+the workflow token is read-only, the upload step fails without failing the
+workflow. The checks still report their findings in the job log and still
+fail the workflow. Every report is also attached to the run as the
+`security-findings` artifact.
+
+CircleCI has no code scanning destination, so the providers deliberately
+differ here. On CircleCI the same checks run and fail the `audit` workflow,
+but their findings live only in the job log.
+
+➡️ See [Dependency audit > Dismissing a
+finding](../development/security/dependency-audit.mdx#dismissing-a-finding)
+and [Secret scanning > Dismissing a
+finding](../development/security/secret-scanning.mdx#dismissing-a-finding)
+for what dismissing a finding does and doesn't change.
 
 ## Working tree check
 
 A build can produce files that belong in the repository, such as exported
-configuration, compiled front-end assets or scaffolded files. If nobody commits
-them, the repository and the build output drift apart. The next developer to
-run a build then gets a dirty working tree they didn't cause.
+configuration, compiled front-end assets, and scaffolded files. Left
+unnoticed, the repository and the build output drift apart, and whoever
+builds next inherits a dirty working tree they didn't cause.
 
 The `test` job runs `vendor/bin/vortex-check-worktree-changes` as its last
-step, after the tests, so a dirty tree never hides the test results that
-explain it. The step fails when the working tree holds modified or untracked
-files, and prints each file with its Git status:
+check, after the tests and after their results are stored, so a dirty tree
+never suppresses the results that would explain it. The step fails when the
+working tree holds modified or untracked files, and it prints each one with
+its Git status:
 
 ```shell
 [INFO] Started working tree check.
@@ -152,68 +261,98 @@ files, and prints each file with its Git status:
 [FAIL] The build left changes in the working tree.
 ```
 
-The check never reports files that Git ignores, so `.gitignore` already covers
-most generated output. To exclude other paths, set
-`VORTEX_CHECK_WORKTREE_CHANGES_IGNORE` in `.env` to a comma-separated list of
-[Git pathspec](https://git-scm.com/docs/gitglossary#def_pathspec) patterns:
+Git never reports the files it ignores, so `.gitignore` already covers most
+generated output. Everything else goes into
+`VORTEX_CHECK_WORKTREE_CHANGES_IGNORE`, a comma-separated list of
+[Git pathspec](https://git-scm.com/docs/gitglossary#def_pathspec) patterns.
+Set it in `.env`. The following example keeps the 6 default patterns and
+adds an example path of your own,
+`web/sites/default/settings.generated.php`:
 
 ```shell
 VORTEX_CHECK_WORKTREE_CHANGES_IGNORE=docker-compose.yml,*/docker-compose.yml,db_cache_*,codecov,codecov.SHA256SUM,codecov.SHA256SUM.sig,web/sites/default/settings.generated.php
 ```
 
-The default value covers the files the pipeline itself writes into the working
+The default value covers what the pipeline itself drops into the working
 tree:
 
-- every `docker-compose.yml`, which the `Process the codebase to run in CI` step rewrites in place
-- the `db_cache_*` database cache keys
-- the `codecov` uploader and its 2 signature files
+- Every `docker-compose.yml` in the tree, which the
+  `Process the codebase to run in CI` step rewrites in place
+- The `db_cache_*` files that hold the database cache keys
+- The `codecov` uploader and its 2 signature files
 
-These files exist only during a continuous integration run, so they belong in
-this list rather than in `.gitignore`. Your value replaces the default list, so
-keep those entries when you add your own.
+Those files exist only during a continuous integration run, so they're
+excluded here rather than in `.gitignore`, which every checkout carries.
+Setting the variable replaces the default instead of extending it, so copy
+those entries over when you add your own. Confirm that the next run's check
+prints an `Ignoring` line for each of your patterns.
 
 The check reads the working tree on the runner, not the codebase inside the
 `cli` container.
 
-Set `VORTEX_CI_WORKTREE_CHANGES_IGNORE_FAILURE` to `1` to report the findings
-without failing the build. See [Ignore tool failures](#ignore-tool-failures).
+To report the findings without failing the build, set
+`VORTEX_CI_WORKTREE_CHANGES_IGNORE_FAILURE` to `1` (see
+[Ignore tool failures](#ignore-tool-failures)).
 
 ## Caching strategy
 
-The database is fetched on the first continuous integration run of the day and cached so that
-the remaining runs on the same day reuse the cached database dump.
+Downloading the database on every run would slow builds down, so the first
+run of the day fetches a fresh dump and caches it. The runs that follow
+restore that cached dump instead of downloading their own.
 
-The cache key is built from a configured cache source branch (the
-`VORTEX_CI_DB_CACHE_BRANCH` variable, `develop` by default) and a daily
-timestamp - every run on any branch reads the same shared cache. If no cache
-exists for the current day, the previous day's cache for the same source branch
-is used as a fallback.
+The cache key combines a version prefix, the cache source branch, the
+fallback setting, and a daily timestamp. The branch comes from
+`VORTEX_CI_DB_CACHE_BRANCH` (`develop` by default), and the timestamp from
+`VORTEX_CI_DB_CACHE_TIMESTAMP`, a `date` format that defaults to
+`+%Y%m%d`. The branch being built isn't part of the key, so runs on every
+branch look up the same cache.
+
+GitHub Actions also scopes caches by branch: a run restores only caches
+saved on its own branch or on the default branch. A pull request run can
+also restore caches from its base branch. CircleCI shares caches across all
+branches of a project.
+
+When no cache exists for the current day, a run falls back to the most
+recent earlier cache for the same source branch, normally the previous
+day's. `VORTEX_CI_DB_CACHE_FALLBACK` controls this and defaults to `yes`.
+
+Neither provider overwrites a saved cache key. GitHub Actions saves the
+cache only when the dump changed during the job, as it does after a fresh
+download. On both providers, only the first container saves the cache when
+the `test` job runs on several containers.
+
+The 3 variables live in the CI configuration: in the `env` block of the
+`test` job on GitHub Actions, and in the shared `runner_config` block on
+CircleCI.
 
 :::note
 
-Database caching speeds up continuous integration runs considerably on projects
-with a lot of data.
+Caching makes the biggest difference on projects with a lot of data.
 
-In case of a project with a large database >1GB, the database import itself may
-take a long time, so it may be worth looking into either packaging the database
-dump into a container image or using a sanitized database dump with
-only the required data for the tests.
+With a large database (over 1 GB), the import itself can take a long time.
+At that point it's worth packaging the dump into a container image, or
+using a sanitized dump that holds only the data the tests need.
 
-**Vortex** supports both creating and using a database container image with
-embedded data. You may use [MariaDB data container for Drupal with database captured as Docker layers](https://github.com/drevops/mariadb-drupal-data)
-to create an initial database image.
+**Vortex** can both create and use a database container image with the data
+built in. Use [MariaDB data container for Drupal with database captured as
+Docker layers](https://github.com/drevops/mariadb-drupal-data) to create the
+first image.
 
-Other tools serve the same goal: [Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper),
-for example, removes data during the Drush database export itself, without an
-intermediate database import step.
+Other tools serve the same goal. [Drush GDPR
+Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper), for example,
+removes data during the Drush database export itself, with no intermediate
+import step.
 
 :::
 
 ### Reset the cache
 
-If you need to force a fresh cache (e.g., to pull a new database dump before the
-daily cache refreshes), increment the last segment of the version tag in the
-cache keys:
+To force a fresh cache, for example to pull a new database dump before the
+daily cache refreshes:
+
+- Increment the last segment of the version prefix in the cache keys.
+  Change every occurrence in `.github/workflows/build-test-deploy.yml` or
+  `.circleci/config.yml`:
 
 ```yaml
 # Before
@@ -222,53 +361,71 @@ v26.8.0
 v26.8.1
 ```
 
-The version tag is the **Vortex** release version (CalVer). Bumping only its
-last segment keeps a project's own cache resets from colliding with the version
-shipped by a future **Vortex** update.
+The next run finds no cache under the new prefix, so the `test` job
+downloads a fresh dump and caches it. Confirm that its **Fetch DB** step
+ends with `Finished database download.` rather than
+`Download will not proceed.`
+
+The prefix is a calendar-style stamp (`vYY.M.Z`) that **Vortex** moves
+forward when an update needs to reset every project's cache. Bumping only
+its last segment keeps a project's own cache resets from colliding with the
+prefix shipped by a future **Vortex** update.
 
 ## Trigger conditions
 
-Both providers build on branch pushes, pull requests, tags matching semantic
-version (`1.2.3`, `1.2.3-rc.1`) or date-based (`2023-04-17`) patterns, and a
-nightly schedule that refreshes the database cache.
+Both providers build on branch pushes, pull requests, and tag pushes. They
+deploy tags differently: GitHub Actions deploys every tag it builds, and
+CircleCI deploys only tags named after a semantic version (`1.2.3`,
+`1.2.3-rc.1`) or a date (`2023-04-17`, `2023-04-17.1`).
 
-- **Push events** to the following branches:
-  - `production`, `main`, `master`, `develop`
-  - `feature/*`, `bugfix/*`
-  - `release/*`, `hotfix/*` (semantic version or date-based, e.g., `release/1.2.3`, `hotfix/2023-04-17`)
-  - `project/*`
-  - `ci*`
-- **Pull requests** to these branches
-- **Tags** matching semantic version (`1.2.3`, `1.2.3-rc.1`) or date-based (`2023-04-17`) patterns
+The exact branch filters differ per provider:
+
+- **GitHub Actions** builds pushes to long-lived branches (`production`,
+  `main`, `master`, `develop`, `release/**`, `hotfix/**`, and
+  `project/**`). A pull request from any branch builds when it targets one
+  of those branches, or a `feature/**` or `bugfix/**` branch, which is how
+  short-lived branches get built. Pull requests opened from a `project/**`
+  branch skip every job, because pushes to that branch already build it. See
+  [GitHub Actions > Update trigger
+  branches](./github-actions.mdx#update-trigger-branches).
+- **CircleCI** builds every pushed branch and restricts only the `deploy`
+  job to a configured branch list. See [CircleCI > Update deployment
+  branches](./circleci.mdx#update-deployment-branches).
 
 ## Test parallelism
 
-The test job runs across multiple parallel containers (2 by default) to speed
-up test execution. Since each container runs the full provision and test
-steps, the test workload is distributed to make the best use of each container.
+The `test` job runs on 2 containers in parallel by default, to get through
+the tests faster. Each container repeats the full build and provisioning,
+so the pipeline splits the test work between them instead of running every
+test on every container.
 
-Code linting runs in a separate `lint` job and is not affected by test
-parallelism settings.
+Code linting runs in the separate `lint` job, so the parallelism settings
+don't affect it.
 
 ### What runs where
 
+The following table shows where each test task runs with the default 2
+containers:
+
 | Task | First container | Other containers |
 |------|:---:|:---:|
-| Jest tests | ✓ | - |
-| PHPUnit tests | ✓ | - |
-| Code coverage check and PR comment | ✓ | - |
-| Single Directory Component validation | ✓ | - |
-| Behat tests | ✓ (profile `p0`) | ✓ (profile `p1`, `p2`, ...) |
+| Jest tests | Yes | No |
+| PHPUnit tests | Yes | No |
+| Code coverage check and pull request comment | Yes | No |
+| Single Directory Component validation | Yes | No |
+| Behat tests | Yes, profile `p0` | Yes, the profile numbered after the container, such as `p1` on container `1` |
 
-Everything except Behat runs exclusively on the first container to avoid
-duplicate work. Behat tests run on all containers using profile-based
-distribution.
+Everything except Behat runs on the first container only, since running it
+on every container would repeat the same work. Behat runs on all
+containers, and the profile each container selects determines which
+scenarios it runs.
 
 ### Choosing which container runs what
 
-Each tool reads a `CI_IS_<TOOL>_RUNNER` variable that decides whether it runs on
-the current container. All of them are declared together at the top of the build
-job, so the whole distribution is visible and editable in one place:
+Each tool's step runs only on the containers where its
+`VORTEX_CI_IS_<TOOL>_RUNNER` variable is true (`1` on CircleCI). The
+variables sit together at the top of the `test` job, so you can see and
+change the whole split in one place:
 
 <Tabs queryString="ci-provider" groupId="ci-provider">
 <TabItem value="gha" label="GitHub Actions">
@@ -281,6 +438,7 @@ env:
   VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
   VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
   VORTEX_CI_IS_BEHAT_RUNNER: true
+  VORTEX_CI_BEHAT_PROFILE_OFFSET: 0
 ```
 
 Each tool's step then reads its own flag:
@@ -304,6 +462,7 @@ Each tool's step then reads its own flag:
         echo "export VORTEX_CI_IS_PHPUNIT_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
         echo "export VORTEX_CI_IS_SDC_DEVEL_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 0 ] && echo 1 || echo 0)"
         echo "export VORTEX_CI_IS_BEHAT_RUNNER=1"
+        echo "export VORTEX_CI_BEHAT_PROFILE_OFFSET=0"
       } >> "${BASH_ENV}"
 ```
 
@@ -319,59 +478,106 @@ Each tool's step then reads its own flag as its first line:
 </TabItem>
 </Tabs>
 
-`VORTEX_CI_RUNNER_INDEX` and `VORTEX_CI_RUNNER_TOTAL` carry the current container's index and
-the container count under the same names on both providers.
+`VORTEX_CI_RUNNER_INDEX` and `VORTEX_CI_RUNNER_TOTAL` hold the current
+container's index and the container count, under the same names on both
+providers. The Behat step subtracts `VORTEX_CI_BEHAT_PROFILE_OFFSET` from
+the container index to get its profile number (see
+[Giving a tool its own container](#giving-a-tool-its-own-container)).
 
-To run a tool of your own on a specific container, add one more flag alongside
-the others and reference it from your step:
+To run a tool of your own on a specific container, add 1 more flag
+alongside the others and reference it from your step:
 
-```yaml
-CI_IS_CYPRESS_RUNNER: ${{ matrix.instance == 1 }}
+<Tabs queryString="ci-provider" groupId="ci-provider">
+<TabItem value="gha" label="GitHub Actions">
+
+```yaml title=".github/workflows/build-test-deploy.yml"
+VORTEX_CI_IS_CYPRESS_RUNNER: ${{ matrix.instance == 1 }}
 ```
+
+</TabItem>
+<TabItem value="circleci" label="CircleCI">
+
+```shell title=".circleci/config.yml, inside 'Set test runner roles'"
+echo "export VORTEX_CI_IS_CYPRESS_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 1 ] && echo 1 || echo 0)"
+```
+
+</TabItem>
+</Tabs>
 
 #### Giving a tool its own container
 
-Start by [adding a container](#adding-more-containers) for the tool to move onto
+To move a tool onto a container of its own:
 
-- the default configuration has containers `0` and `1` only. Then point the
-tool's flag at the new container and exclude that container from Behat. With a
-third container added, that is:
+1. Add a container for the tool to move onto, because the default
+   configuration has only containers `0` and `1`. See
+   [Adding more containers](#adding-more-containers).
+2. Point the tool's flag at the new container.
+3. Exclude the new container from Behat.
+
+With a third container added, steps 2 and 3 look like this on GitHub
+Actions; mirror the conditions in CircleCI's `Set test runner roles` step:
 
 ```yaml
 VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 2 }}
 VORTEX_CI_IS_BEHAT_RUNNER: ${{ matrix.instance != 2 }}
 ```
 
-:::warning
-
 Point the flag at a container that exists. A flag whose condition matches no
-container disables the tool everywhere, and nothing reports it - the steps are
-simply skipped and the job still passes.
+container disables the tool everywhere, and nothing reports it: the steps
+are skipped and the job still passes. Confirm that the tool's step runs only
+on the dedicated container: on the other containers, GitHub Actions marks
+the step as skipped, and CircleCI ends it before the tool starts.
 
-:::
+Behat derives its profile number from the container index minus
+`VORTEX_CI_BEHAT_PROFILE_OFFSET`, and `p0` is the catch-all that runs every
+scenario without a `@pX` tag. With the dedicated container at the end, the
+offset stays `0`, and the containers before it keep their profiles.
 
-Behat derives its profile name from the container index, and `p0` is the
-catch-all that runs every scenario without a `@pX` tag. Excluding container 0
-from Behat would therefore leave `p0` without a container and those scenarios
-silently untested, so profile numbers count from the first container that runs Behat
-instead: `VORTEX_CI_BEHAT_PROFILE_OFFSET` is subtracted from the container index
-to pick the profile. Raise it by one for every leading container excluded from
-Behat, and the first Behat container still selects `p0`:
+To dedicate a leading container instead, raise the offset by 1 for each
+leading container you exclude from Behat, so the first Behat container still
+selects the `p0` catch-all. The following example, on 3 containers, pins
+every once-only tool to container `0` and keeps Behat off it:
 
 ```yaml
+VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 }}
 VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 }}
+VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 }}
 VORTEX_CI_IS_BEHAT_RUNNER: ${{ matrix.instance != 0 }}
 VORTEX_CI_BEHAT_PROFILE_OFFSET: 1
 ```
 
+The 3 containers then split the work as follows:
+
+| Container | Role | Behat profile |
+|-----------|------|:---:|
+| 0 | Jest, PHPUnit, coverage, SDC validation | None |
+| 1 | Behat | `p0` (catch-all) |
+| 2 | Behat | `p1` |
+
+`behat.php` stays untouched: the profiles stay numbered from `p0`, and no
+feature file needs new tags.
+
+:::caution
+
+When `VORTEX_CI_BEHAT_PROFILE` is unset, the offset describes 1 unbroken
+block of Behat containers that starts at the offset. A Behat container below
+the offset derives a negative profile name such as `p-1`, and the run
+fails. A gap inside the block leaves the profile at the gap's position
+unselected, so its scenarios silently stop running. Setting
+`VORTEX_CI_BEHAT_PROFILE` explicitly bypasses the derivation, and every
+container then runs that profile.
+
+:::
+
 ### Balancing Behat tests
 
-Because the first container handles PHPUnit and coverage in addition
-to Behat tests, it has more work to do than the other containers. To keep
-overall build time low, assign more Behat scenarios to the non-first containers.
+The first container runs Jest, PHPUnit, and the coverage checks on top of
+its share of Behat, so it has the most work to do. To keep the whole build
+short, give the other containers more of the Behat scenarios.
 
-Behat scenarios are assigned to containers using profile tags. Tag a scenario
-with `@p0` to run it on the first container or `@p1` to run it on the second:
+Profile tags determine where each scenario runs. A scenario without a
+profile tag runs on the first container. Tag it `@p1` to move it to the
+second container, or `@smoke` to run it on every container:
 
 ```gherkin
 @p0
@@ -385,33 +591,39 @@ Scenario: Full content workflow
   ...
 ```
 
-Scenarios without a profile tag default to the first container. When only one
-container is available, all scenarios run regardless of tags.
+With only 1 container, every scenario runs there whatever its tags, except
+those tagged `@skipped`.
 
-:::tip
+Keep the lightweight scenarios on the first container, and move the heavier
+ones, or more of them, to the other containers with their profile tags. The
+build then takes about as long as its slowest container, instead of the sum
+of all the tests.
 
-As a rule of thumb, keep lightweight or smoke-test scenarios on the first
-container (`@p0`) and move heavier or more numerous scenarios to additional
-containers (`@p1`, `@p2`, etc.). This keeps the total build time closer to the
-duration of the longest single container rather than the sum of all tests.
+`@smoke` scenarios check that Behat itself is configured and working. They
+run on every container by design, so keep them few and fast.
 
-:::
+See [Behat > Profiles](../development/testing/behat.mdx#profiles) for how
+the shipped profiles map tags to runners.
 
 ### Adding more containers
 
-Raising the container count takes two changes that must stay in step - the
-container count itself, and a matching Behat profile for every new container.
+Raising the container count takes 2 changes that must match: the container
+count itself, and a Behat profile for every new container that runs Behat.
+To add containers:
 
 1. Increase the container count. See the provider-specific pages:
 
-   - [GitHub Actions > Change test parallelism](./github-actions.mdx#change-test-parallelism)
-   - [CircleCI > Change test parallelism](./circleci.mdx#change-test-parallelism)
+   - [GitHub Actions > Change test
+     parallelism](./github-actions.mdx#change-test-parallelism)
+   - [CircleCI > Change test
+     parallelism](./circleci.mdx#change-test-parallelism)
 
-2. Add a profile to `behat.php` for each new container that runs Behat, and
-   register it in the returned `Config`. **Vortex** ships with `p0` and `p1`
-   only, and Behat fails with `profile 'p2' does not exist` if a container
-   running Behat has no profile named after its index. A container excluded
-   from Behat needs no profile:
+2. Add a profile to `behat.php` for each new container that runs Behat,
+   and register it in the returned `Config`. **Vortex** ships with `p0`
+   and `p1` only. If a container running Behat has no profile named after
+   its derived number (its index minus `VORTEX_CI_BEHAT_PROFILE_OFFSET`),
+   Behat stops with an error about the missing profile. A container
+   excluded from Behat needs no profile:
 
    ```php title="behat.php"
    $p2 = (new Profile('p2'))
@@ -420,8 +632,8 @@ container count itself, and a matching Behat profile for every new container.
    return (new Config())->withProfile($default)->withProfile($p0)->withProfile($p1)->withProfile($p2);
    ```
 
-3. Exclude the new tag from the `p0` catch-all, so its scenarios do not also run
-   on the first container:
+3. Exclude the new tag from the `p0` catch-all, so its scenarios don't also
+   run on the first container:
 
    ```php title="behat.php"
    $p0 = (new Profile('p0'))
@@ -430,80 +642,106 @@ container count itself, and a matching Behat profile for every new container.
 
 4. Tag scenarios with `@p2` to move them onto the new container.
 
-Scenarios tagged `@smoke` run on every container by design, so they stay out of
-the balancing arithmetic.
+Scenarios tagged `@smoke` run on every container by design, so they stay out
+of the balancing arithmetic. Confirm that the **Test with Behat** step on
+the new container prints `Running with p2 profile`.
 
 ## Maintenance
 
+The following sections cover the settings you change after the pipeline is
+up and running, on either provider.
+
 ### Pin SSH host keys
 
-Strict host-key checking is disabled by default for the SSH connections the
-pipeline makes to the hosting provider. To enable it, add the verified host
-keys as a `VORTEX_SSH_KNOWN_HOSTS` variable in your provider's settings - on
-GitHub Actions as a repository variable mapped into the workflow `env` block,
-on CircleCI as an environment variable with multiple entries joined with `\n`.
-The steps that load the SSH keys skip their `known_hosts` file by default; set
-the `VORTEX_FETCH_DB_SSH_KNOWN_HOSTS` (database fetch) and
-`VORTEX_DEPLOY_SSH_KNOWN_HOSTS` (deployment) variables to pin those host keys
-too.
+The shipped CI configuration turns off strict host-key checking for the SSH
+connections the pipeline makes to the hosting provider. Pinning the host
+keys is the secure alternative: with `VORTEX_SSH_KNOWN_HOSTS` set, the SSH
+setup writes the keys to `known_hosts` and keeps strict checking on, even
+where `VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING` is set.
+
+To pin the host keys, get them with `ssh-keyscan -p PORT HOST`, where `HOST`
+and `PORT` are your hosting provider's SSH host and port. Check them against
+the fingerprints your provider publishes, then add them as
+`VORTEX_SSH_KNOWN_HOSTS`:
+
+- On GitHub Actions, add a repository variable with 1 entry per line. The
+  shipped workflow doesn't reference it, so also add
+  `VORTEX_SSH_KNOWN_HOSTS: ${{ vars.VORTEX_SSH_KNOWN_HOSTS }}` to the `env`
+  block of the `test`, `build`, and `deploy` jobs in
+  `.github/workflows/build-test-deploy.yml`, next to
+  `VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING`.
+- On CircleCI, add it as an environment variable, with multiple entries
+  joined with `\n`.
+
+On GitHub Actions, the steps that load the SSH keys also take a
+`known_hosts` input from the `VORTEX_FETCH_DB_SSH_KNOWN_HOSTS` and
+`VORTEX_DEPLOY_SSH_KNOWN_HOSTS` repository variables, and skip it when
+they're empty. Those 2 variables don't keep strict checking on by
+themselves, because the SSH setup still turns it off without
+`VORTEX_SSH_KNOWN_HOSTS`. You don't need them after `VORTEX_SSH_KNOWN_HOSTS`
+is mapped.
+
+Confirm that the job log shows `Pinned SSH host keys to known_hosts.` where
+the SSH setup runs.
 
 ### Enable debug mode
 
-To get verbose output when troubleshooting build failures, enable debug mode
-by setting the `VORTEX_DEBUG` variable to `1` in your CI provider's settings.
+For more output while you troubleshoot a failing build:
+
+- Set the `VORTEX_DEBUG` variable to `1` in your CI provider's settings: a
+  repository variable on GitHub Actions, or a project environment variable
+  on CircleCI.
+
+`scripts/vortex-tooling.sh` then prints every shell command it runs, each
+one prefixed with `+`. The Lagoon deployment also prints the Lagoon CLI
+output of a deployment that succeeds.
 
 ### Runner disk space
 
-Hosted runners come with a fixed amount of disk space, and running out of it is
-easy to misread: the runner is terminated from the outside, the step that was
-running never reports an error, and the failure looks like a hang rather than a
-disk problem. If a build dies during provisioning without reporting an error,
-suspect the disk first.
+Hosted runners come with a fixed amount of disk space, and running out of it
+produces a misleading failure. The runner is terminated from the outside,
+the step that was running never reports an error, and the failure looks like
+a hang rather than a disk problem. If a build stops during provisioning
+without reporting an error, suspect the disk first.
 
-The most reliable fix is to reduce what has to fit: a sanitized dump or a
-[database container image](#caching-strategy) instead of a full dump.
+The fix that removes the cause is to reduce what has to fit: a sanitized
+dump or a [database container image](#caching-strategy) instead of a full
+dump. **Vortex** also keeps the build within its budget on both providers.
+It prunes the Docker build cache and dangling images after the stack
+starts. The `test` job removes the database dump from the runner after it's
+copied into the container, so the job holds only 1 copy. What else helps
+depends on the provider:
 
-**Vortex** keeps the build within that budget:
-
-- The `test` and `build` jobs print `df -h` in a **Report disk usage** step, so the disk state is on the record for every run.
-- The Docker build cache and dangling images are pruned once the stack is up.
-- The database dump is removed from the runner as soon as it has been copied into the container, so only one copy is held during provisioning.
-
-#### Reclaim the preinstalled toolchains
-
-On GitHub Actions, the `test` and `build` jobs can remove the preinstalled toolchains no **Vortex** job uses - GHCup, Swift, PowerShell, .NET and CodeQL - before doing anything else. In the measurement above this freed about 15 GB in around 14 seconds, taking the job from roughly 13 GB of headroom to 28 GB.
-
-The removal is destructive to the runner for the rest of the job, so it is off by default. Turn it on by setting the `VORTEX_CI_FREE_DISK_SPACE` variable to `1` in **Settings → Secrets and variables → Actions → Variables**. Leave it unset on a project whose workflow runs a step that needs Haskell, Swift, PowerShell, .NET or CodeQL.
-
-:::note
-
-Every figure here comes from one runner image at one point in time, and GitHub reissues that image regularly. Read the **Report disk usage** output of a recent run for the current numbers - if the reclaimed amount has shrunk, the path list needs revisiting.
-
-:::
-
-#### Free even more space
-
-With `VORTEX_CI_FREE_DISK_SPACE` enabled, the Android SDK is the single largest remaining tree at about 10 GB, but removing it takes around 50 seconds. It ships commented out in the workflow for that reason - uncomment the line in the **Free up disk space on the runner** step of both the `test` and `build` jobs to enable it:
-
-```yaml
-set -- "$@" /usr/local/lib/android
-```
-
-#### When space still runs out
-
-If a build dies during provisioning without reporting an error, suspect the disk and read the **Report disk usage** output. The most reliable fix is to reduce what has to fit: a sanitized dump or a [database container image](#caching-strategy) instead of a full dump. On GitHub Actions, a [larger runner](/docs/continuous-integration/github-actions#change-runner-size) also comes with more disk. On CircleCI, disk space is not tied to the [resource class](/docs/continuous-integration/circleci#change-runner-resource-class), so upgrading it adds CPU and memory but no extra room for the build.
+- On GitHub Actions, **Vortex** prints the disk state in the `test` and
+  `build` jobs of every run, and can reclaim space held by preinstalled
+  toolchains. See [GitHub Actions > Runner disk
+  space](./github-actions.mdx#runner-disk-space).
+- On CircleCI, disk space isn't tied to the [resource
+  class](./circleci.mdx#change-runner-resource-class), so upgrading it adds
+  CPU and memory but no extra room for the build.
 
 ### Ignore tool failures
 
-Sometimes you may want to allow builds to pass despite linter and test failures.
+Sometimes you want a build to pass despite linter or test failures, for
+example while you clear the findings of a rule you turned on.
 
-Set the corresponding `VORTEX_CI_*_IGNORE_FAILURE` variable to `1` to ignore
-failures (but still run the tool and see the results in the logs):
+To let the build pass, set the tool's `VORTEX_CI_*_IGNORE_FAILURE` variable
+to `1`:
+
+- On GitHub Actions, add the variable under
+  **Settings → Secrets and variables → Actions → Variables**.
+- On CircleCI, add it as a project environment variable.
+
+The tool still runs and prints its results in the job log, so you can see
+what you're letting through. Confirm that the tool's step reports its
+findings and the job still passes.
+
+The following table lists the variable for each tool:
 
 | Tool                                                          | Purpose                                 | Variable                                      |
 |---------------------------------------------------------------|-----------------------------------------|-----------------------------------------------|
 | [Behat](../development/testing/behat.mdx)                    | Run BDD acceptance tests                | `VORTEX_CI_BEHAT_IGNORE_FAILURE`              |
-| Composer normalize                                            | Ensure `composer.json` is sorted        | `VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE` |
+| Composer normalize                                            | Check that `composer.json` is normalized | `VORTEX_CI_COMPOSER_NORMALIZE_IGNORE_FAILURE` |
 | [Composer security audit](../development/security/dependency-audit.mdx#php-dependencies) | Check PHP dependencies for vulnerabilities | `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE`     |
 | Composer validate                                             | Validate `composer.json` and lock file  | `VORTEX_CI_COMPOSER_VALIDATE_IGNORE_FAILURE`  |
 | [DCLint](../development/code-quality/dclint.mdx)             | Lint Docker Compose files               | `VORTEX_CI_DCLINT_IGNORE_FAILURE`             |
@@ -521,8 +759,12 @@ failures (but still run the tool and see the results in the logs):
 | [Twig CS Fixer](../development/code-quality/twig-cs-fixer.mdx) | Lint Twig templates                   | `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE`      |
 | [Working tree check](#working-tree-check)                     | Check for files left behind by the build | `VORTEX_CI_WORKTREE_CHANGES_IGNORE_FAILURE` |
 
+The code coverage threshold check has no variable of its own. To let it
+pass, lower `VORTEX_CI_CODE_COVERAGE_THRESHOLD` instead. It defaults to `90`
+and goes in the same place as the variables in the preceding table.
+
 ### Configure deployment skip conditions
 
-Deployments can be skipped for specific branches or pull requests while their
-CI checks keep running - see
-[Deployment > Skipping deployments](../deployment/README.mdx#skipping-deployments).
+You can skip deployments for specific branches or pull requests while their
+CI checks keep running. See [Deployment > Skipping
+deployments](../deployment/README.mdx#skipping-deployments).

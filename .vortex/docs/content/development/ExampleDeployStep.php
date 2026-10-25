@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\my_module\Plugin\DeployStep;
 
+use DrevOps\EnvironmentDetector\Environment;
 use Drupal\Core\Extension\ModuleInstallerInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\deploy_steps\Attribute\DeployStep;
@@ -56,7 +57,7 @@ final class ExampleDeployStep extends DeployStepBase {
   public function skip(): ?string {
     // Run only in non-production environments. The value of
     // $settings['environment'] is set in the Drupal settings file.
-    return $this->environment() === 'prod' ? 'production environment' : NULL;
+    return $this->environment() === Environment::PRODUCTION ? 'production environment' : NULL;
   }
 
   /**
