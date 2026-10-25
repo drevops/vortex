@@ -17,6 +17,7 @@ use DrevOps\VortexCli\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexCli\Prompts\Handlers\CustomModules;
 use DrevOps\VortexCli\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexCli\Prompts\Handlers\DatabaseImage;
+use DrevOps\VortexCli\Prompts\Handlers\DependencyUpdatesAutomerge;
 use DrevOps\VortexCli\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexCli\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexCli\Prompts\Handlers\Domain;
@@ -105,6 +106,7 @@ BANNER;
     'label_merge_conflicts_pr' => 40,
     'assign_author_pr' => 50,
     'code_coverage_provider' => 60,
+    'dependency_updates_automerge' => 65,
     'dependency_updates_provider' => 70,
     'gitleaks' => 75,
     'visual_regression' => 80,
@@ -275,6 +277,7 @@ BANNER;
       ->panel('automations', 'Automations', function (PanelBuilder $p) use ($config): void {
         $p->description('Dependency updates, coverage and PR automation.');
         TuiAdapter::field($p, new DependencyUpdatesProvider($config));
+        TuiAdapter::field($p, new DependencyUpdatesAutomerge($config), when: new Condition('dependency_updates_provider', in: DependencyUpdatesAutomerge::PROVIDERS));
         TuiAdapter::field($p, new CodeCoverageProvider($config));
         TuiAdapter::field($p, new AssignAuthorPr($config));
         TuiAdapter::field($p, new LabelMergeConflictsPr($config));
