@@ -24,4 +24,14 @@ else
   php "${ROOT_DIR}/.vortex/tests/generate-vortex-dev-circleci" --check
 fi
 
+echo "Checking that CircleCI steps do not bind-mount the working directory into a container."
+# CircleCI jobs run against a remote Docker engine, so the engine resolves a
+# bind mount of the working directory to an empty directory.
+mounts="$(grep -n -E '(-v|--volume)[ =]"?[$]([{]?PWD|[(]pwd[)])' "${ROOT_DIR}/.circleci/config.yml")" || [ "$?" -eq 1 ]
+if [ -n "${mounts}" ]; then
+  echo "${mounts}"
+  echo "These steps bind-mount the working directory, which the remote Docker engine sees as an empty directory. Copy the files in with 'docker cp' instead."
+  exit 1
+fi
+
 # LCOV_EXCL_STOP
