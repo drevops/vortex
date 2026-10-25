@@ -1,22 +1,10 @@
-@@ -53,6 +53,11 @@
- ahoy lint     # Check code style
- ahoy lint-fix # Auto-fix code style
- 
-+# Storybook
-+ahoy storybook         # Develop components: live Storybook that regenerates stories as they change
-+ahoy storybook-build   # Rebuild the component library served at /storybook
-+ahoy storybook-stories # Generate stories only ("--watch" to keep regenerating)
-+
- # PHPUnit testing
- ahoy test            # Run PHPUnit tests
- ahoy test-unit       # Run PHPUnit Unit tests
-@@ -59,9 +64,6 @@
- ahoy test-kernel     # Run PHPUnit Kernel tests
+@@ -60,9 +60,6 @@
  ahoy test-functional # Run PHPUnit Functional tests
  ahoy test -- --filter=TestClassName  # Run specific PHPUnit test class
--
+ 
 -# Jest testing
 -ahoy test-js  # Run Jest JavaScript unit tests
- 
+-
  # Behat testing
  ahoy test-bdd # Run Behat tests
+ ahoy test-bdd -- --tags=@tagname  # Run Behat tests with specific tag
