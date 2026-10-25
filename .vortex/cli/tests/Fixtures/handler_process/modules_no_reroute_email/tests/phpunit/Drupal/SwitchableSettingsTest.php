@@ -1,4 +1,4 @@
-@@ -695,145 +695,6 @@
+@@ -877,168 +877,6 @@
    }
  
    /**
@@ -54,12 +54,12 @@
 -      ],
 -    ];
 -
--    // Stage: disabled by default.
+-    // Stage: enabled by default.
 -    yield [
 -      self::ENVIRONMENT_STAGE,
 -      [],
 -      [
--        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
+-        'reroute_email.settings' => ['enable' => TRUE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
 -      ],
 -    ];
 -
@@ -86,6 +86,17 @@
 -    // SUT with DRUPAL_REROUTE_EMAIL_DISABLED: forced off.
 -    yield [
 -      self::ENVIRONMENT_SUT,
+-      [
+-        'DRUPAL_REROUTE_EMAIL_DISABLED' => 1,
+-      ],
+-      [
+-        'reroute_email.settings' => ['enable' => FALSE],
+-      ],
+-    ];
+-
+-    // Stage with DRUPAL_REROUTE_EMAIL_DISABLED: forced off.
+-    yield [
+-      self::ENVIRONMENT_STAGE,
 -      [
 -        'DRUPAL_REROUTE_EMAIL_DISABLED' => 1,
 -      ],
@@ -136,6 +147,18 @@
 -      ],
 -      [
 -        'reroute_email.settings' => ['enable' => FALSE],
+-      ],
+-    ];
+-
+-    // DRUPAL_REROUTE_EMAIL_DISABLED with a non-numeric truthy value: not
+-    // disabled.
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_REROUTE_EMAIL_DISABLED' => 'true',
+-      ],
+-      [
+-        'reroute_email.settings' => ['enable' => TRUE],
 -      ],
 -    ];
 -  }

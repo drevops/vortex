@@ -1,9 +1,9 @@
-@@ -102,8 +102,6 @@
+@@ -101,8 +101,6 @@
  
      $this->moduleInstaller->install(['sdc_devel']);
  
 -    $this->moduleInstaller->install(['devel']);
 -
-     $this->moduleInstaller->install(['sw_search']);
+     $this->moduleInstaller->install(['reroute_email']);
  
-     $this->moduleInstaller->install(['sw_demo']);
+     $this->moduleInstaller->install(['sw_search']);

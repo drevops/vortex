@@ -4,37 +4,37 @@
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
-       'testmode',
-     ];
-@@ -184,7 +183,6 @@
+       'reroute_email',
+       'sdc_devel',
+@@ -198,7 +197,6 @@
      // Verify settings overrides.
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
-       'testmode',
-     ];
-@@ -244,7 +242,6 @@
+       'reroute_email',
+       'sdc_devel',
+@@ -272,7 +270,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
-       'testmode',
-     ];
-@@ -304,7 +301,6 @@
+       'reroute_email',
+       'sdc_devel',
+@@ -346,7 +343,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
-       'testmode',
-     ];
-@@ -366,7 +362,6 @@
+       'reroute_email',
+       'sdc_devel',
+@@ -422,7 +418,6 @@
  
      $settings['auto_create_htaccess'] = FALSE;
      $settings['config_exclude_modules'] = [
 -      'devel',
        'generated_content',
-       'testmode',
-     ];
+       'reroute_email',
+       'sdc_devel',

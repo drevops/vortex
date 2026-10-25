@@ -33,23 +33,26 @@ if ($settings['environment'] !== Environment::PRODUCTION) {
 }
 
 // Set credentials, but only if the environment variables are present.
-if (!empty(getenv('DRUPAL_SHIELD_USER')) && !empty(getenv('DRUPAL_SHIELD_PASS'))) {
-  $config['shield.settings']['credentials']['shield']['user'] = getenv('DRUPAL_SHIELD_USER');
-  $config['shield.settings']['credentials']['shield']['pass'] = getenv('DRUPAL_SHIELD_PASS');
+$shield_user = getenv('DRUPAL_SHIELD_USER');
+$shield_pass = getenv('DRUPAL_SHIELD_PASS');
+if (!empty($shield_user) && !empty($shield_pass)) {
+  $config['shield.settings']['credentials']['shield']['user'] = $shield_user;
+  $config['shield.settings']['credentials']['shield']['pass'] = $shield_pass;
 }
 
 // Allow to override the title of the shield pop-up.
-if (getenv('DRUPAL_SHIELD_PRINT')) {
-  $config['shield.settings']['print'] = getenv('DRUPAL_SHIELD_PRINT');
+$shield_print = getenv('DRUPAL_SHIELD_PRINT');
+if (!empty($shield_print)) {
+  $config['shield.settings']['print'] = $shield_print;
 }
 
 // Allow to disable Shield completely in the environment.
-if (!empty(getenv('DRUPAL_SHIELD_DISABLED'))) {
+if (getenv('DRUPAL_SHIELD_DISABLED') === '1') {
   $config['shield.settings']['shield_enable'] = FALSE;
 }
 
 // Allow ACME challenge path for Let's Encrypt certificate generation.
-if (!empty(getenv('DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE'))) {
+if (getenv('DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE') === '1') {
   $config['shield.settings']['method'] = 0;
   $shield_acme_path = '/.well-known/acme-challenge/*';
   $shield_existing_paths = $config['shield.settings']['paths'] ?? '';

@@ -1,6 +1,6 @@
-@@ -88,8 +88,6 @@
+@@ -87,8 +87,6 @@
+       'pathauto',
        'redirect',
-       'reroute_email',
        'robotstxt',
 -      'shield',
 -      'stage_file_proxy',

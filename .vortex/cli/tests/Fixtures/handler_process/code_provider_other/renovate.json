@@ -6,7 +6,7 @@
          "custom.regex"
      ],
      "packageRules": [
-@@ -182,18 +181,6 @@
+@@ -183,18 +182,6 @@
                  "docker-compose",
                  "custom.regex"
              ]

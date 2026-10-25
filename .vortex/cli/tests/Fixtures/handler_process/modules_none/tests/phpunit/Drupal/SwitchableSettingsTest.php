@@ -1,4 +1,36 @@
-@@ -76,154 +76,6 @@
+@@ -4,8 +4,6 @@
+ 
+ namespace Drupal;
+ 
+-use PHPUnit\Framework\Attributes\PreserveGlobalState;
+-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+ use PHPUnit\Framework\Attributes\DataProvider;
+ use PHPUnit\Framework\Attributes\Group;
+ 
+@@ -22,22 +20,6 @@
+ class SwitchableSettingsTest extends SettingsTestCase {
+ 
+   /**
+-   * Path to the contrib modules directory fixture.
+-   */
+-  protected ?string $contribFixture = NULL;
+-
+-  /**
+-   * {@inheritdoc}
+-   */
+-  protected function tearDown(): void {
+-    if (!is_null($this->contribFixture)) {
+-      $this->removeContribFixture($this->contribFixture);
+-    }
+-
+-    parent::tearDown();
+-  }
+-
+-  /**
+    * Test ClamAV config.
+    */
+   #[DataProvider('dataProviderClamav')]
+@@ -119,257 +101,6 @@
    }
  
    /**
@@ -150,10 +182,113 @@
 -  }
 -
 -  /**
+-   * Test Fast 404 settings.
+-   *
+-   * Runs isolated so that the module stub owns the 'fast404_preboot()'
+-   * declaration and its invocation marker is conclusive.
+-   */
+-  #[DataProvider('dataProviderFast404')]
+-  #[RunInSeparateProcess]
+-  #[PreserveGlobalState(FALSE)]
+-  public function testFast404(bool $module_installed, array $expected_present, array $expected_absent = []): void {
+-    $contrib_path = $this->createContribFixture($module_installed);
+-
+-    $this->requireModuleSettingsFile('fast_404', $contrib_path);
+-
+-    $this->assertSettingsContains($expected_present);
+-    $this->assertSettingsNotContains($expected_absent);
+-    $this->assertSame($module_installed, file_exists($contrib_path . '/fast_404/preboot'), 'Preboot invocation');
+-  }
+-
+-  /**
+-   * Data provider for testFast404().
+-   */
+-  public static function dataProviderFast404(): \Iterator {
+-    yield 'module installed' => [
+-      TRUE,
+-      [
+-        'fast404_exts' => '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i',
+-        'fast404_allow_anon_imagecache' => TRUE,
+-        'fast404_url_whitelisting' => TRUE,
+-        'fast404_whitelist' => ['index.php', 'rss.xml', 'cron.php', 'xmlrpc.php'],
+-        'fast404_path_check' => FALSE,
+-        'fast404_respect_redirect' => FALSE,
+-        'fast404_html' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>',
+-      ],
+-    ];
+-    yield 'module not installed' => [
+-      FALSE,
+-      [],
+-      [
+-        'fast404_exts' => NULL,
+-        'fast404_allow_anon_imagecache' => NULL,
+-        'fast404_url_whitelisting' => NULL,
+-        'fast404_whitelist' => NULL,
+-        'fast404_path_check' => NULL,
+-        'fast404_respect_redirect' => NULL,
+-        'fast404_html' => NULL,
+-      ],
+-    ];
+-  }
+-
+-  /**
+-   * Create a contrib modules directory fixture.
+-   *
+-   * The Fast 404 module is not required by the project, so its settings file
+-   * guard can only be satisfied by a stub.
+-   *
+-   * @param bool $with_fast404
+-   *   Create a stub of the Fast 404 module within the fixture. The stub marks
+-   *   the directory when its preboot function is called.
+-   *
+-   * @return string
+-   *   Path to the contrib modules directory fixture.
+-   */
+-  protected function createContribFixture(bool $with_fast404): string {
+-    $this->contribFixture = getcwd() . '/.artifacts/tmp/' . uniqid('contrib-');
+-
+-    mkdir($this->contribFixture, 0777, TRUE);
+-
+-    if ($with_fast404) {
+-      $stub = <<<'PHP'
+-        <?php
+-
+-        function fast404_preboot(array $settings = []): void {
+-          touch(__DIR__ . '/preboot');
+-        }
+-
+-        PHP;
+-
+-      mkdir($this->contribFixture . '/fast_404');
+-      file_put_contents($this->contribFixture . '/fast_404/fast404.inc', $stub);
+-    }
+-
+-    return $this->contribFixture;
+-  }
+-
+-  /**
+-   * Remove the contrib modules directory fixture.
+-   *
+-   * @param string $path
+-   *   Path to the contrib modules directory fixture.
+-   */
+-  protected function removeContribFixture(string $path): void {
+-    foreach (glob($path . '/*/*') ?: [] as $file) {
+-      unlink($file);
+-    }
+-
+-    foreach (glob($path . '/*', GLOB_ONLYDIR) ?: [] as $dir) {
+-      rmdir($dir);
+-    }
+-
+-    rmdir($path);
+-  }
+-
+-  /**
     * Test Redis settings.
     */
-   public function testRedis(): void {
-@@ -323,639 +175,6 @@
+   #[DataProvider('dataProviderRedis')]
+@@ -475,692 +206,6 @@
      $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 9999;
  
      $this->assertConfigContains($config);
@@ -344,7 +479,7 @@
 -        'DRUPAL_SHIELD_DISABLED' => 'false',
 -      ],
 -      [
--        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
 -      ],
 -    ];
 -    yield [
@@ -356,7 +491,19 @@
 -        'DRUPAL_SHIELD_DISABLED' => 'true',
 -      ],
 -      [
--        'shield.settings' => ['shield_enable' => FALSE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
+-      ],
+-    ];
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_PRINT' => 'drupal_shield_print',
+-        'DRUPAL_SHIELD_DISABLED' => '01',
+-      ],
+-      [
+-        'shield.settings' => ['shield_enable' => TRUE, 'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']], 'print' => 'drupal_shield_print'],
 -      ],
 -    ];
 -
@@ -460,6 +607,24 @@
 -        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
 -        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
 -        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 0,
+-      ],
+-      [
+-        'shield.settings' => [
+-          'shield_enable' => TRUE,
+-          'credentials' => ['shield' => ['user' => 'drupal_shield_user', 'pass' => 'drupal_shield_pass']],
+-        ],
+-      ],
+-      [
+-        'shield.settings' => ['method' => NULL, 'paths' => NULL],
+-      ],
+-    ];
+-    // ACME challenge with a non-numeric truthy value - should not set.
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_SHIELD_USER' => 'drupal_shield_user',
+-        'DRUPAL_SHIELD_PASS' => 'drupal_shield_pass',
+-        'DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE' => 'true',
 -      ],
 -      [
 -        'shield.settings' => [
@@ -581,12 +746,12 @@
 -      ],
 -    ];
 -
--    // Stage: disabled by default.
+-    // Stage: enabled by default.
 -    yield [
 -      self::ENVIRONMENT_STAGE,
 -      [],
 -      [
--        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
+-        'reroute_email.settings' => ['enable' => TRUE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
 -      ],
 -    ];
 -
@@ -613,6 +778,17 @@
 -    // SUT with DRUPAL_REROUTE_EMAIL_DISABLED: forced off.
 -    yield [
 -      self::ENVIRONMENT_SUT,
+-      [
+-        'DRUPAL_REROUTE_EMAIL_DISABLED' => 1,
+-      ],
+-      [
+-        'reroute_email.settings' => ['enable' => FALSE],
+-      ],
+-    ];
+-
+-    // Stage with DRUPAL_REROUTE_EMAIL_DISABLED: forced off.
+-    yield [
+-      self::ENVIRONMENT_STAGE,
 -      [
 -        'DRUPAL_REROUTE_EMAIL_DISABLED' => 1,
 -      ],
@@ -663,6 +839,18 @@
 -      ],
 -      [
 -        'reroute_email.settings' => ['enable' => FALSE],
+-      ],
+-    ];
+-
+-    // DRUPAL_REROUTE_EMAIL_DISABLED with a non-numeric truthy value: not
+-    // disabled.
+-    yield [
+-      self::ENVIRONMENT_DEV,
+-      [
+-        'DRUPAL_REROUTE_EMAIL_DISABLED' => 'true',
+-      ],
+-      [
+-        'reroute_email.settings' => ['enable' => TRUE],
 -      ],
 -    ];
 -  }

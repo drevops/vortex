@@ -4,5 +4,5 @@
        'navigation_extra_tools',
 -      'pathauto',
        'redirect',
-       'reroute_email',
        'robotstxt',
+       'shield',

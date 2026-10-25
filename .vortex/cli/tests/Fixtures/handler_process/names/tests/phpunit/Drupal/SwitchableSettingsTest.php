@@ -1,4 +1,4 @@
-@@ -716,7 +716,7 @@
+@@ -898,7 +898,7 @@
        self::ENVIRONMENT_LOCAL,
        [],
        [
@@ -7,7 +7,7 @@
        ],
      ];
  
-@@ -725,7 +725,7 @@
+@@ -907,7 +907,7 @@
        self::ENVIRONMENT_CI,
        [],
        [
@@ -16,7 +16,7 @@
        ],
      ];
  
-@@ -734,7 +734,7 @@
+@@ -916,7 +916,7 @@
        self::ENVIRONMENT_DEV,
        [],
        [
@@ -25,7 +25,7 @@
        ],
      ];
  
-@@ -743,7 +743,7 @@
+@@ -925,7 +925,7 @@
        self::ENVIRONMENT_SUT,
        [],
        [
@@ -34,16 +34,16 @@
        ],
      ];
  
-@@ -752,7 +752,7 @@
+@@ -934,7 +934,7 @@
        self::ENVIRONMENT_STAGE,
        [],
        [
--        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
-+        'reroute_email.settings' => ['enable' => FALSE, 'address' => 'webmaster@death-star.com', 'allowed' => '*@death-star.com'],
+-        'reroute_email.settings' => ['enable' => TRUE, 'address' => 'webmaster@star-wars.com', 'allowed' => '*@star-wars.com'],
++        'reroute_email.settings' => ['enable' => TRUE, 'address' => 'webmaster@death-star.com', 'allowed' => '*@death-star.com'],
        ],
      ];
  
-@@ -761,7 +761,7 @@
+@@ -943,7 +943,7 @@
        self::ENVIRONMENT_PROD,
        [],
        [

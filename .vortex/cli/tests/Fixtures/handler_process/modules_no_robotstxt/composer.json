@@ -1,4 +1,4 @@
-@@ -25,7 +25,6 @@
+@@ -26,7 +26,6 @@
          "drupal/redirect": "__VERSION__",
          "drupal/redis": "__VERSION__",
          "drupal/reroute_email": "__VERSION__",

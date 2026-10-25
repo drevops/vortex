@@ -1,4 +1,4 @@
-@@ -108,15 +108,6 @@
+@@ -109,15 +109,6 @@
  
      $this->moduleInstaller->install(['sw_demo']);
  

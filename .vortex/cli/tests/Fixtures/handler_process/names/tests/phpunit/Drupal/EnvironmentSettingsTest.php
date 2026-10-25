@@ -9,7 +9,7 @@
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
      $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-@@ -174,8 +174,8 @@
+@@ -188,8 +188,8 @@
      $config['xmlsitemap.settings']['disable_cron_regeneration'] = TRUE;
      $config['xmlsitemap_engines.settings']['submit'] = FALSE;
      $config['reroute_email.settings']['enable'] = TRUE;
@@ -20,7 +20,7 @@
      $config['system.performance']['cache']['page']['max_age'] = 1800;
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
      $config['search_api.server.solr']['backend_config']['connector_config']['port'] = 8983;
-@@ -234,8 +234,8 @@
+@@ -262,8 +262,8 @@
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $config['reroute_email.settings']['enable'] = FALSE;
@@ -31,7 +31,7 @@
      $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
      $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-@@ -294,8 +294,8 @@
+@@ -336,8 +336,8 @@
      $config['system.logging']['error_level'] = 'all';
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $config['reroute_email.settings']['enable'] = FALSE;
@@ -42,7 +42,7 @@
      $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
      $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
      $config['search_api.server.solr']['backend_config']['connector_config']['host'] = 'search';
-@@ -356,8 +356,8 @@
+@@ -412,8 +412,8 @@
      $config['system.mail']['interface']['default'] = 'test_mail_collector';
      $config['system.performance']['cache']['page']['max_age'] = 900;
      $config['reroute_email.settings']['enable'] = FALSE;
