@@ -33,6 +33,10 @@ $format = audit_sarif_argument(2, 'VORTEX_CONVERT_AUDIT_SARIF_FORMAT', 'composer
 // third argument. Defaults to the lock file the report format uses.
 $lock_file = audit_sarif_argument(3, 'VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE', '');
 
+// Path to the audit-ci configuration whose allowlist applies to npm findings.
+// Defaults to 'package-audit.jsonc' in the directory of the lock file.
+$allowlist_file = (string) getenv_default('VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE', '');
+
 // Path of the SARIF report to write. Defaults to the report path with a
 // '.sarif' extension.
 $result_file = getenv_default('VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE', preg_replace('/\.json$/', '', $report_file) . '.sarif');
@@ -49,6 +53,10 @@ if ($lock_file === '') {
   $lock_file = $format === 'npm' ? 'package-lock.json' : 'composer.lock';
 }
 
+if ($allowlist_file === '') {
+  $allowlist_file = dirname($lock_file) . '/package-audit.jsonc';
+}
+
 if (!is_file($report_file)) {
   FAIL('Audit report %s does not exist.', $report_file);
 }
@@ -62,12 +70,29 @@ NOTE('Format:    %s', $format);
 NOTE('Report:    %s', $report_file);
 NOTE('Lock file: %s', $lock_file);
 
-$sarif = TASK('Converting audit findings to SARIF.', 'Converted audit findings to SARIF.', function () use ($report, $report_file, $result_file, $format, $lock_file): array {
+$allowlist = ['advisories' => [], 'packages' => []];
+
+if ($format === 'npm') {
+  $entries = is_file($allowlist_file) ? audit_sarif_allowlist((string) file_get_contents($allowlist_file)) : NULL;
+
+  if (!is_file($allowlist_file)) {
+    NOTE('Allowlist: none');
+  }
+  elseif ($entries !== NULL) {
+    $allowlist = $entries;
+    NOTE('Allowlist: %s', $allowlist_file);
+  }
+  else {
+    NOTE('Allowlist: %s could not be parsed and is not applied.', $allowlist_file);
+  }
+}
+
+$sarif = TASK('Converting audit findings to SARIF.', 'Converted audit findings to SARIF.', function () use ($report, $report_file, $result_file, $format, $lock_file, $allowlist): array {
   if (!$report instanceof \stdClass) {
     throw new \RuntimeException(sprintf('Unable to convert %s.', $report_file));
   }
 
-  $sarif = audit_sarif_build($report, $format, $lock_file, audit_sarif_lock_lines($lock_file, $format));
+  $sarif = audit_sarif_build($report, $format, $lock_file, audit_sarif_lock_lines($lock_file, $format), $allowlist);
 
   $dir = dirname($result_file);
   if (!is_dir($dir) && !@mkdir($dir, 0777, TRUE) && !is_dir($dir)) {
@@ -141,6 +166,106 @@ function audit_sarif_lock_lines(string $lock_file, string $format): array {
   }
 
   return $lines;
+}
+
+/**
+ * Read the advisory ids and package names that an audit-ci allowlist accepts.
+ *
+ * Entries apply the way audit-ci applies them: the first entry for an id wins,
+ * 'active' must be set, and an 'expiry' must parse and lie in the future.
+ * Comments and trailing commas are stripped outside strings, so JSONC parses.
+ *
+ * Path entries are skipped: they accept an advisory on some dependency paths
+ * only, and a finding covers the whole package.
+ *
+ * @param string $content
+ *   Content of the allowlist file.
+ *
+ * @return array{advisories: array<int, string>, packages: array<int, string>}|null
+ *   Allowlisted advisory ids and package names, or NULL when the content
+ *   cannot be parsed.
+ */
+function audit_sarif_allowlist(string $content): ?array {
+  $string = '"(?:\\\\.|[^"\\\\])*"';
+  $keep_string = static fn(array $matches): string => $matches[1] ?? '';
+
+  $content = (string) preg_replace_callback('~(' . $string . ')|//[^\n]*|/\*(?:[^*]|\*+[^*/])*\*+/~', $keep_string, $content);
+  $content = (string) preg_replace_callback('~(' . $string . ')|,(?=\s*[}\]])~', $keep_string, $content);
+
+  $config = json_decode($content);
+  if (json_last_error() !== JSON_ERROR_NONE || ($config !== NULL && !$config instanceof \stdClass)) {
+    return NULL;
+  }
+
+  $entries = [];
+  $list = $config->allowlist ?? NULL;
+
+  foreach (is_array($list) ? $list : [] as $entry) {
+    if (is_string($entry)) {
+      $key = $entry;
+      $value = (object) ['active' => TRUE];
+    }
+    elseif ($entry instanceof \stdClass && get_object_vars($entry) !== []) {
+      $key = (string) array_key_first(get_object_vars($entry));
+      $value = get_object_vars($entry)[$key];
+    }
+    else {
+      continue;
+    }
+
+    if (!array_key_exists($key, $entries)) {
+      $entries[$key] = $value;
+    }
+  }
+
+  $allowlist = ['advisories' => [], 'packages' => []];
+
+  foreach ($entries as $key => $value) {
+    $key = (string) $key;
+
+    if (preg_match('/[>|]/', $key) === 1 || !audit_sarif_allowlist_applies($value)) {
+      continue;
+    }
+
+    $allowlist[str_starts_with($key, 'GHSA') ? 'advisories' : 'packages'][] = $key;
+  }
+
+  return $allowlist;
+}
+
+/**
+ * Check whether an audit-ci allowlist entry applies now.
+ *
+ * @param mixed $entry
+ *   Allowlist entry value.
+ *
+ * @return bool
+ *   TRUE when the entry is active and has not expired.
+ */
+function audit_sarif_allowlist_applies(mixed $entry): bool {
+  $truthy = static fn(mixed $value): bool => $value !== NULL && $value !== FALSE && $value !== 0 && $value !== 0.0 && $value !== '';
+
+  if (!$entry instanceof \stdClass || !$truthy($entry->active ?? NULL)) {
+    return FALSE;
+  }
+
+  $expiry = $entry->expiry ?? NULL;
+  if (!$truthy($expiry)) {
+    return TRUE;
+  }
+
+  $time = NULL;
+
+  if (is_int($expiry) || is_float($expiry)) {
+    $time = $expiry / 1000;
+  }
+  elseif (is_string($expiry)) {
+    $utc = new \DateTimeZone('UTC');
+    $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $expiry, $utc) ?: \DateTimeImmutable::createFromFormat('!Y-m-d\TH:i:s\Z', $expiry, $utc);
+    $time = $date instanceof \DateTimeImmutable ? $date->getTimestamp() : NULL;
+  }
+
+  return $time !== NULL && $time > 0 && time() < $time;
 }
 
 /**
@@ -267,13 +392,19 @@ function audit_sarif_composer_findings(\stdClass $report): array {
  * either an advisory object or the name of the package that pulls it in. Each
  * advisory object becomes its own finding.
  *
+ * An allowlisted advisory is left out, so code scanning raises no alert for
+ * it. audit-ci matches an advisory entry against the GitHub advisory id and a
+ * package entry against the name of the vulnerable package.
+ *
  * @param \stdClass $report
  *   Decoded report.
+ * @param array{advisories: array<int, string>, packages: array<int, string>} $allowlist
+ *   Allowlisted advisory ids and package names.
  *
  * @return array<int, array<string, string|null>>
  *   Findings.
  */
-function audit_sarif_npm_findings(\stdClass $report): array {
+function audit_sarif_npm_findings(\stdClass $report, array $allowlist): array {
   $findings = [];
 
   $vulnerabilities = $report->vulnerabilities ?? NULL;
@@ -298,6 +429,10 @@ function audit_sarif_npm_findings(\stdClass $report): array {
       $cvss = $cvss instanceof \stdClass ? ($cvss->score ?? NULL) : NULL;
       $parts = explode('/', $link);
       $id = $link === '' ? 'npm-audit/advisory' : end($parts);
+
+      if (in_array($id, $allowlist['advisories'], TRUE) || in_array((string) $package, $allowlist['packages'], TRUE)) {
+        continue;
+      }
 
       $findings[] = [
         'id' => $id,
@@ -397,15 +532,17 @@ function audit_sarif_policies(\stdClass $report): array {
  *   Path to the lock file the findings are located in.
  * @param array<string, int> $lock_lines
  *   Line numbers keyed by package name.
+ * @param array{advisories: array<int, string>, packages: array<int, string>} $allowlist
+ *   Allowlisted npm advisory ids and package names.
  *
  * @return array<string, mixed>
  *   The SARIF report.
  */
-function audit_sarif_build(\stdClass $report, string $format, string $lock_file, array $lock_lines): array {
+function audit_sarif_build(\stdClass $report, string $format, string $lock_file, array $lock_lines, array $allowlist): array {
   $abandoned_rule = 'composer-audit/abandoned-package';
   $abandoned_text = 'The package is no longer maintained by its author.';
 
-  $findings = $format === 'npm' ? audit_sarif_npm_findings($report) : audit_sarif_composer_findings($report);
+  $findings = $format === 'npm' ? audit_sarif_npm_findings($report, $allowlist) : audit_sarif_composer_findings($report);
   $abandoned = audit_sarif_abandoned($report);
   $policies = audit_sarif_policies($report);
 
