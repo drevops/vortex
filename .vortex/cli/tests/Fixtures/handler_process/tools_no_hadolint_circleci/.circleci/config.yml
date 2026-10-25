@@ -26,7 +26,7 @@ aliases:
       # dockerized stack against the remote Docker engine (see setup_remote_docker).
       # https://circleci.com/developer/images/image/cimg/php
       - image: cimg/php:__VERSION__
-        environment:
+        environment: &runner_environment
           # Set runner timezone via UI to ensure that executed operations use correct timestamps.
           # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
           TZ: UTC
@@ -176,6 +176,11 @@ jobs:
   # Audit job runs in its own workflow, independently of the commit workflow.
   audit:
     <<: *runner_config
+    docker:
+      # The '-node' variant of the convenience image adds Node.js for the npm
+      # audit.
+      - image: cimg/php:__VERSION__
+        environment: *runner_environment
     steps:
       - checkout
       - *load_variables_from_dotenv
@@ -184,7 +189,27 @@ jobs:
 
       - run:
           name: Audit Composer packages
+          when: always
           command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      # The threshold is passed here rather than in 'package-audit.jsonc', because
+      # audit-ci passes every advisory when no threshold is set.
+      - run:
+          name: Audit npm packages
+          when: always
+          command: |
+            config=()
+            [ -f package-audit.jsonc ] && config=(--config package-audit.jsonc)
+            npx --yes audit-ci@__VERSION__ --high --extra-args=--package-lock-only "${config[@]}" || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      - run:
+          name: Audit npm packages of the theme
+          when: always
+          command: |
+            dir="${WEBROOT}/themes/custom/${DRUPAL_THEME}"
+            config=()
+            [ -f "${dir}/package-audit.jsonc" ] && config=(--config "${dir}/package-audit.jsonc")
+            npx --yes audit-ci@__VERSION__ --high --extra-args=--package-lock-only --directory "${dir}" "${config[@]}" || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       # The remote Docker engine has no access to the checkout, so the files
       # are copied into the container.
