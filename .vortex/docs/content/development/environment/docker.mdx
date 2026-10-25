@@ -154,8 +154,9 @@ By default, Docker Compose reads environment variables from the `.env`
 file. **Vortex** additionally reads the `.env.local` file, so you can override
 environment variables locally without modifying the `.env` file.
 
-The variables read from `.env` and `.env.local` files then passed into the
-containers.
+Docker Compose uses these values to fill in the `${VAR}` references in
+`docker-compose.yml`. A container gets only the variables its service lists
+under `environment`.
 
 This section only defines 2 types of variables:
 
@@ -189,6 +190,25 @@ where
 - `LAGOON_ROUTE: *default-url` - defines a variable `LAGOON_ROUTE` with a value
   of `*default-url`, which is a reference to the `default-url` YAML anchor
   defined above.
+
+The `cli`, `webserver` and `appserver` services build on Lagoon images, which
+load `.env` themselves. When a container starts, the image's entrypoint reads
+`.env` from `/app` before it launches the main process. The entrypoint keeps
+any variable the container already has. In the `appserver` container, the main
+process is PHP-FPM, which passes the loaded variables on to every request it
+handles. That's how Drupal gets the `.env` variables that `docker-compose.yml`
+doesn't list, such as `DRUPAL_CLAMAV_ENABLED`.
+
+PHP-FPM keeps the values it started with. A change to such a variable doesn't
+alter the container's configuration, so `ahoy up` leaves the container running.
+Run `ahoy restart` (or `docker compose restart`) instead, so the entrypoint
+reads `.env` again.
+
+The Lagoon images never read `.env.local`. For a variable that
+`docker-compose.yml` doesn't list, web requests get the value from `.env`
+only. To use a value from `.env.local`, list the variable in
+`docker-compose.override.yml`, as
+[Environment variables](README.mdx#environment-variables) shows.
 
 See more information about environment variables in
 the [official documentation](https://docs.docker.com/compose/environment-variables/set-environment-variables/).
