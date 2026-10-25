@@ -99,6 +99,7 @@
         "testmode",
         "toml",
         "updatedb",
+        "uploadprogress",
         "uselagoon",
         "Valkey",
         "vfsstream",

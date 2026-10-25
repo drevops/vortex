@@ -23,6 +23,18 @@ under UI control there. The credentials come from the `DRUPAL_SHIELD_USER` and
 full entry, including the overrides that disable Shield for one environment or
 open the Let's Encrypt challenge path.
 
+## PHP settings
+
+The `appserver` container turns off PHP's session upload progress tracking
+with `session.upload_progress.enabled = Off` in
+`.docker/config/php/custom.ini`. The tracking writes upload request data into
+PHP's own session storage before Drupal starts, and Drupal never reads it.
+File uploads, including anonymous ones, work with the setting off. Drupal's
+optional upload progress bar requires the PECL `uploadprogress` extension.
+
+The setting applies wherever the **Vortex** images run: locally, in CI and on
+Lagoon. On Acquia, the platform's own PHP settings apply.
+
 ## Continuous integration
 
 Both scans run in the
