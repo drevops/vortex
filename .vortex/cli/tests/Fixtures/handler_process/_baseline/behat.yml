@@ -18,8 +18,9 @@ default:
         - DrevOps\BehatScreenshotExtension\Context\ScreenshotContext
 
   formatters:
-    # Show test progress and explicit fail information whule continuing the test run.
-    progress_fail: true
+    # Show test progress and explicit fail information while continuing the test run.
+    progress:
+      inline_failures: true
 
     # Output test results in JUnit format.
     junit:
@@ -92,9 +93,6 @@ default:
         - feature
         - step
         - datetime
-
-    # Show explicit fail information and continue the test run.
-    DrevOps\BehatFormatProgressFail\FormatExtension: ~
 
 # Profiles for parallel testing. CI derives the profile number from the index
 # of the runner it is on minus 'VORTEX_CI_BEHAT_PROFILE_OFFSET', so profiles

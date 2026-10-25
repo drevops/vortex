@@ -7,7 +7,7 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -177,8 +175,6 @@
+@@ -191,8 +189,6 @@
      $config['reroute_email.settings']['address'] = 'webmaster@star-wars.com';
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
      $config['system.performance']['cache']['page']['max_age'] = 1800;
@@ -16,7 +16,7 @@
      $this->assertConfig($config);
  
      // Verify settings overrides.
-@@ -238,8 +234,6 @@
+@@ -266,8 +262,6 @@
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
      $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
      $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
@@ -25,7 +25,7 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -298,8 +292,6 @@
+@@ -340,8 +334,6 @@
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
      $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
      $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;
@@ -34,7 +34,7 @@
      $this->assertConfig($config);
  
      $settings['auto_create_htaccess'] = FALSE;
-@@ -360,8 +352,6 @@
+@@ -416,8 +408,6 @@
      $config['reroute_email.settings']['allowed'] = '*@star-wars.com';
      $config['seckit.settings']['seckit_xss']['csp']['checkbox'] = FALSE;
      $config['seckit.settings']['seckit_xss']['csp']['upgrade-req'] = FALSE;

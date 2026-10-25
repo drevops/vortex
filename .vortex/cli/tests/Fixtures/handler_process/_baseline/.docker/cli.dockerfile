@@ -62,10 +62,11 @@ ENV PHP_INI_SCAN_DIR="${PHP_INI_SCAN_DIR}:/app/drush/php-ini"
 # Add more tools.
 # hadolint ignore=DL3018 # the package set tracks the pinned base image
 RUN apk add --no-cache ncurses pv tzdata autoconf g++ make && \
-    pecl install pcov && \
-    docker-php-ext-enable pcov && \
+    pie install --no-build-tools-check pecl/pcov && \
     docker-php-ext-install pcntl && \
     apk del g++ make autoconf
+
+COPY ./.docker/config/cli/custom.ini /usr/local/etc/php/conf.d/custom.ini
 
 # Add patches and scripts.
 COPY patches /app/patches
@@ -78,7 +79,7 @@ COPY scripts /app/scripts
 # to the repository.
 # The .env file (and other environment files) is copied into the image, as it
 # may be needed by Composer scripts to access additional variables.
-COPY composer.json composer.* patches.lock.* .env* auth* /app/
+COPY composer.json composer.* patches.lock.* .env* /app/
 
 # Install PHP dependencies without development packages to avoid exposing
 # potential security vulnerabilities in the production environment.

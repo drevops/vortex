@@ -120,9 +120,14 @@ jobs:
               echo "Linting ${file}" && cat "${file}" | docker run --rm -i hadolint/hadolint:__VERSION__ || [ "${VORTEX_CI_HADOLINT_IGNORE_FAILURE:-0}" -eq 1 ]
             done
 
+      # The remote Docker engine has no access to the checkout, so the files
+      # are copied into the container.
       - run:
           name: Lint Docker Compose files with DCLint
-          command: docker run --rm -v "${PWD}":/app zavoloklom/dclint:__VERSION__ . || [ "${VORTEX_CI_DCLINT_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: |
+            container="$(docker create --rm zavoloklom/dclint:__VERSION__ .)"
+            docker cp ./. "${container}:/app"
+            docker start --attach "${container}" || [ "${VORTEX_CI_DCLINT_IGNORE_FAILURE:-0}" -eq 1 ]
 
       - run:
           name: Build stack
@@ -183,10 +188,15 @@ jobs:
           name: Audit Composer packages
           command: composer audit --locked || [ "${VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
 
+      # The remote Docker engine has no access to the checkout, so the files
+      # are copied into the container.
       - run:
           name: Scan for committed secrets with Gitleaks
           when: always
-          command: docker run --rm -v "${PWD}":/repo -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
+          command: |
+            container="$(docker create --rm -w /repo ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner)"
+            docker cp ./. "${container}:/repo"
+            docker start --attach "${container}" || [ "${VORTEX_CI_GITLEAKS_IGNORE_FAILURE:-0}" -eq 1 ]
 
   # Test the provisioned site. Runs in parallel with the lint and build jobs.
   # Provisioning and testing happen within the same job to save time on
@@ -422,6 +432,11 @@ jobs:
 
       - store_artifacts:
           path: *artifacts
+
+      # Placed after the test steps so a dirty tree never suppresses them.
+      - run:
+          name: Check that the build left a clean working tree
+          command: ./vendor/bin/vortex-check-worktree-changes || [ "${VORTEX_CI_WORKTREE_CHANGES_IGNORE_FAILURE:-0}" -eq 1 ]
 
 ################################################################################
 # WORKFLOWS

@@ -86,7 +86,6 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
       'navigation_extra_tools',
       'pathauto',
       'redirect',
-      'reroute_email',
       'robotstxt',
       'shield',
       'stage_file_proxy',
@@ -103,6 +102,8 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
     $this->moduleInstaller->install(['sdc_devel']);
 
     $this->moduleInstaller->install(['devel']);
+
+    $this->moduleInstaller->install(['reroute_email']);
 
     $this->moduleInstaller->install(['the_force_search']);
 

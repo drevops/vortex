@@ -1,4 +1,4 @@
-@@ -24,7 +24,6 @@
+@@ -25,7 +25,6 @@
          "drupal/pathauto": "__VERSION__",
          "drupal/redirect": "__VERSION__",
          "drupal/redis": "__VERSION__",

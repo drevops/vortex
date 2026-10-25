@@ -1,4 +1,4 @@
-@@ -10,30 +10,12 @@
+@@ -10,31 +10,12 @@
          "drevops/environment-detector": "__VERSION__",
          "drevops/vortex-tooling": "__VERSION__",
          "drupal/clamav": "__VERSION__",
@@ -11,6 +11,7 @@
 -        "drupal/devel": "__VERSION__",
 -        "drupal/drupal_helpers": "__VERSION__",
 -        "drupal/environment_indicator": "__VERSION__",
+-        "drupal/fast_404": "__VERSION__",
 -        "drupal/generated_content": "__VERSION__",
 -        "drupal/navigation_extra_tools": "__VERSION__",
 -        "drupal/pathauto": "__VERSION__",
@@ -26,6 +27,6 @@
 -        "drupal/stage_file_proxy": "__VERSION__",
 -        "drupal/testmode": "__VERSION__",
 -        "drupal/xmlsitemap": "__VERSION__",
-         "drush/drush": "__VERSION__",
-         "webflo/drupal-finder": "__VERSION__"
+         "drush/drush": "__VERSION__"
      },
+     "require-dev": {

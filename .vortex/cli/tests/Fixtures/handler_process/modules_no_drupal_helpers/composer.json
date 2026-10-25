@@ -4,5 +4,5 @@
          "drupal/devel": "__VERSION__",
 -        "drupal/drupal_helpers": "__VERSION__",
          "drupal/environment_indicator": "__VERSION__",
+         "drupal/fast_404": "__VERSION__",
          "drupal/generated_content": "__VERSION__",
-         "drupal/navigation_extra_tools": "__VERSION__",

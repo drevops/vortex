@@ -1,7 +1,7 @@
-@@ -50,13 +50,10 @@
+@@ -46,13 +46,10 @@
+         "drupal/coder": "__VERSION__",
+         "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
-         "lullabot/mink-selenium2-driver": "__VERSION__",
-         "lullabot/php-webdriver": "__VERSION__",
 -        "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
          "palantirnet/drupal-rector": "__VERSION__",
@@ -11,8 +11,8 @@
 -        "phpstan/phpstan": "__VERSION__",
          "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
-         "rector/rector": "__VERSION__",
-@@ -87,7 +84,6 @@
+         "softcreatr/jsonpath": "^0.10 || ^1.0",
+@@ -82,7 +79,6 @@
              "drupal/core-composer-scaffold": true,
              "ergebnis/composer-normalize": true,
              "php-http/discovery": true,
