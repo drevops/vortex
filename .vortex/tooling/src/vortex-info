@@ -49,6 +49,12 @@ if ($solr_port !== '') {
   NOTE('Solr URL on host            : http://127.0.0.1:%s', $solr_port);
 }
 
+$storybook_port = getenv('VORTEX_HOST_STORYBOOK_PORT') ?: '';
+if ($storybook_port !== '') {
+  NOTE('Storybook library URL       : http://%s/storybook', getenv('LOCALDEV_URL') ?: '');
+  NOTE("Storybook dev server URL    : http://localhost:%s ('ahoy storybook' to start)", $storybook_port);
+}
+
 $selenium_vnc_port = getenv('VORTEX_HOST_SELENIUM_VNC_PORT') ?: '';
 if ($selenium_vnc_port !== '') {
   NOTE('Selenium VNC URL on host    : http://localhost:%s/?autoconnect=1&password=secret', $selenium_vnc_port);

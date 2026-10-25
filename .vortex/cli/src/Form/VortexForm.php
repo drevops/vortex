@@ -43,6 +43,7 @@ use DrevOps\VortexCli\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexCli\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexCli\Prompts\Handlers\Services;
 use DrevOps\VortexCli\Prompts\Handlers\Starter;
+use DrevOps\VortexCli\Prompts\Handlers\Storybook;
 use DrevOps\VortexCli\Prompts\Handlers\Theme;
 use DrevOps\VortexCli\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexCli\Prompts\Handlers\Timezone;
@@ -120,6 +121,7 @@ BANNER;
     'notification_channels' => 160,
     'deploy_types' => 170,
     'hosting_provider' => 180,
+    'storybook' => 185,
     'tools' => 190,
     'services' => 200,
     'timezone' => 210,
@@ -230,6 +232,7 @@ BANNER;
         TuiAdapter::field($p, new Theme($config));
         TuiAdapter::field($p, new ThemeCustom($config), when: new Condition('theme', eq: Theme::CUSTOM));
         TuiAdapter::field($p, new FrontendBuild($config), when: new Condition('theme', eq: Theme::CUSTOM));
+        TuiAdapter::field($p, new Storybook($config), when: new Condition('theme', eq: Theme::CUSTOM));
       })
       ->panel('code_repository', 'Code repository', function (PanelBuilder $p) use ($config): void {
         $p->description('Where the code lives and how releases are versioned.');

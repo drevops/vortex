@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Drupal\ys_base\Plugin\DeployStep;
 
+// phpcs:ignore #;< STORYBOOK
+use DrevOps\EnvironmentDetector\Environment;
+use Drupal\Core\DrupalKernelInterface;
+use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
+// phpcs:ignore #;> STORYBOOK
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ModuleInstallerInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
@@ -42,6 +47,18 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
    * The module handler.
    */
   protected ModuleHandlerInterface $moduleHandler;
+  // phpcs:ignore #;< STORYBOOK
+
+  /**
+   * The key value store factory.
+   */
+  protected KeyValueFactoryInterface $keyValueFactory;
+
+  /**
+   * The Drupal kernel.
+   */
+  protected DrupalKernelInterface $kernel;
+  // phpcs:ignore #;> STORYBOOK
 
   /**
    * {@inheritdoc}
@@ -50,6 +67,10 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     $instance->moduleInstaller = $container->get('module_installer');
     $instance->moduleHandler = $container->get('module_handler');
+    // phpcs:ignore #;< STORYBOOK
+    $instance->keyValueFactory = $container->get('keyvalue');
+    $instance->kernel = $container->get('kernel');
+    // phpcs:ignore #;> STORYBOOK
 
     return $instance;
   }
@@ -72,10 +93,33 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
     // only when Toolbar is actually enabled - it is absent on a re-provision or
     // a navigation-based database - while a genuine uninstall failure still
     // aborts.
-    $this->moduleInstaller->install(['navigation']);
+    $this->moduleInstaller->install([
+      'navigation',
+      // phpcs:ignore #;< STORYBOOK
+      'storybook',
+      // phpcs:ignore #;> STORYBOOK
+    ]);
     if ($this->moduleHandler->moduleExists('toolbar')) {
       $this->moduleInstaller->uninstall(['toolbar']);
     }
+
+    // phpcs:ignore #;< STORYBOOK
+    // Storybook renders every story through Drupal, so recompiling templates on
+    // each request shows component edits without a cache rebuild. Only the
+    // development settings change: 'drush theme:dev' also writes aggregation
+    // settings that would appear in exported configuration.
+    if ($this->environment() === Environment::LOCAL) {
+      $this->keyValueFactory->get('development_settings')->setMultiple([
+        'twig_debug' => TRUE,
+        'twig_cache_disable' => TRUE,
+        'disable_rendered_output_cache_bins' => TRUE,
+      ]);
+
+      // The development settings are applied when the container is compiled,
+      // so the next request compiles a new container.
+      $this->kernel->invalidateContainer();
+    }
+    // phpcs:ignore #;> STORYBOOK
 
     // phpcs:ignore #;< MODULES
     $this->moduleInstaller->install([

@@ -35,6 +35,7 @@
         "drupal/seckit": "^2.0.3",
         "drupal/shield": "^1.10",
         "drupal/stage_file_proxy": "^4.0.0",
+        "drupal/storybook": "^1.0.4",
         "drupal/testmode": "^2.8.0",
         "drupal/xmlsitemap": "^2.0",
         "drush/drush": "^13.8.0"

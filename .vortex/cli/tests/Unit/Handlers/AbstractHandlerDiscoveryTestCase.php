@@ -39,6 +39,7 @@ use DrevOps\VortexCli\Prompts\Handlers\ProfileCustom;
 use DrevOps\VortexCli\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexCli\Prompts\Handlers\Services;
 use DrevOps\VortexCli\Prompts\Handlers\Starter;
+use DrevOps\VortexCli\Prompts\Handlers\Storybook;
 use DrevOps\VortexCli\Prompts\Handlers\Theme;
 use DrevOps\VortexCli\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexCli\Prompts\Handlers\Timezone;
@@ -208,6 +209,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       Theme::id() => Theme::CUSTOM,
       ThemeCustom::id() => 'myproject',
       FrontendBuild::id() => TRUE,
+      Storybook::id() => FALSE,
       CodeProvider::id() => CodeProvider::GITHUB,
       VersionScheme::id() => VersionScheme::CALVER,
       Timezone::id() => 'UTC',
@@ -294,6 +296,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       Theme::id() => static::TUI_DEFAULT,
       ThemeCustom::id() => static::TUI_DEFAULT,
       FrontendBuild::id() => static::TUI_DEFAULT,
+      Storybook::id() => static::TUI_DEFAULT,
       CodeProvider::id() => static::TUI_DEFAULT,
       VersionScheme::id() => static::TUI_DEFAULT,
       Timezone::id() => static::TUI_DEFAULT,
