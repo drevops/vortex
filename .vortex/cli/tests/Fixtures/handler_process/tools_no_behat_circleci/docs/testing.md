@@ -1,19 +1,19 @@
-@@ -136,93 +136,3 @@
+@@ -145,93 +145,3 @@
  
  }
  ```
 -
 -## Behat conventions
 -
--BDD end-to-end tests.
+-Behat runs the BDD end-to-end tests.
 -
--See [documentation](https://www.vortextemplate.com/docs/development/testing/behat)
--on how to run Behat tests, configure environment variables, and use test reports
--in continuous integration pipeline.
+-To learn how to run Behat tests, configure environment variables, and use
+-test reports in a continuous integration pipeline, see the [Behat
+-documentation](https://www.vortextemplate.com/docs/development/testing/behat).
 -
 -### User story format
 -
--All Behat features must follow this format:
+-Every Behat feature must start with a user story in this format:
 -
 -```gherkin
 -Feature: [Feature name]
@@ -25,7 +25,7 @@
 -
 -### Standard user types
 -
--Use these consistent user type descriptions:
+-Use these user type descriptions:
 -
 -```gherkin
 -As a site visitor          # Anonymous users
@@ -36,10 +36,10 @@
 -
 -### Test data conventions
 -
--- **Always prefix test content**: `[TEST] Page Title`
--- **Use numbered patterns**: `[TEST] Topic 1`, `[TEST] Topic 2`
--- **Avoid real names**: Don't use "Workshop" or "Training"
--- **Be descriptive**: `[TEST] Event with All Fields`
+-- Prefix test content with `[TEST]`, for example `[TEST] Page Title`.
+-- Use numbered names, for example `[TEST] Topic 1` and `[TEST] Topic 2`.
+-- Avoid real names such as "Workshop" or "Training".
+-- Use descriptive names, for example `[TEST] Event with All Fields`.
 -
 -### Example feature file
 -
@@ -58,37 +58,37 @@
 -
 -### Content type testing process
 -
--When creating comprehensive tests for content types:
+-To write tests that cover a whole content type:
 -
--1. Analyze configuration first
+-1. Analyze the configuration first:
 -
 -   - Check `config/default/field.field.node.[type].*.yml`
 -   - Review `core.entity_view_display.node.[type].default.yml`
--   - Identify visible vs hidden fields
+-   - Identify visible and hidden fields
 -
--2. Create supporting entities
+-2. Create the supporting entities:
 -
--  ```gherkin
--  Background:
--    Given the following "tags" terms exist:
--      | name              |
--      | [TEST] Topic 1    |
--      | [TEST] Topic 2    |
+-   ```gherkin
+-   Background:
+-     Given the following "tags" terms exist:
+-       | name              |
+-       | [TEST] Topic 1    |
+-       | [TEST] Topic 2    |
 -
--    And the following "image" media exist:
--      | name                    |
--      | [TEST] Featured Image 1 |
--  ```
+-     And the following "image" media exist:
+-       | name                    |
+-       | [TEST] Featured Image 1 |
+-   ```
 -
--3. Test all visible fields
+-3. Test all visible fields:
 -
--  ```gherkin
--  Scenario: View complete content with all fields
--    Given the following "page" content exists:
--      | title                     | body                          | field_tags         |
--      | [TEST] Complete Page Test | [TEST] This is the body text. | [TEST] Topic 1     |
--    When I visit the "page" content page with the title "[TEST] Complete Page Test"
--    Then I should see "[TEST] Complete Page Test"
--    And I should see "[TEST] This is the body text."
--    And I should see "[TEST] Topic 1"
--  ```
+-   ```gherkin
+-   Scenario: View complete content with all fields
+-     Given the following "page" content exists:
+-       | title                     | body                          | field_tags         |
+-       | [TEST] Complete Page Test | [TEST] This is the body text. | [TEST] Topic 1     |
+-     When I visit the "page" content page with the title "[TEST] Complete Page Test"
+-     Then I should see "[TEST] Complete Page Test"
+-     And I should see "[TEST] This is the body text."
+-     And I should see "[TEST] Topic 1"
+-   ```

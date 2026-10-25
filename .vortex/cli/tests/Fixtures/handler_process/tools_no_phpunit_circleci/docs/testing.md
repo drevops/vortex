@@ -1,18 +1,19 @@
-@@ -3,140 +3,6 @@
- This document describes **what** testing conventions and agreements apply to
- this project.
+@@ -3,149 +3,6 @@
+ This document describes **what** testing conventions and agreements apply
+ to this project.
  
 -## PHPUnit conventions
 -
--Unit, Kernel, Functional tests.
+-PHPUnit runs the Unit, Kernel, and Functional tests.
 -
--See [documentation](https://www.vortextemplate.com/docs/development/testing/phpunit)
--on how to run tests, configure environment variables and code coverage, and use
--test reports in continuous integration pipeline.
+-To learn how to run tests, configure environment variables and code
+-coverage, and use test reports in a continuous integration pipeline, see
+-the [PHPUnit
+-documentation](https://www.vortextemplate.com/docs/development/testing/phpunit).
 -
 -### Test class structure
 -
--All PHPUnit tests must follow this structure:
+-Every PHPUnit test must follow this structure:
 -
 -```php
 -<?php
@@ -47,23 +48,31 @@
 -
 -### Base test classes
 -
+-Extend the base class that matches the test type:
+-
 -- **Unit** - `Drupal\Tests\UnitTestCase` - Testing isolated PHP classes
--- **Kernel** - `Drupal\KernelTests\KernelTestBase` - Testing with database/services
--- **Functional** - `Drupal\Tests\BrowserTestBase` - Testing with full browser
--- **FunctionalJavascript** - `Drupal\FunctionalJavascriptTests\WebDriverTestBase` - Testing browser interaction with JavaScript
+-- **Kernel** - `Drupal\KernelTests\KernelTestBase` - Testing with
+-  database/services
+-- **Functional** - `Drupal\Tests\BrowserTestBase` - Testing with full
+-  browser
+-- **FunctionalJavascript** -
+-  `Drupal\FunctionalJavascriptTests\WebDriverTestBase` - Testing browser
+-  interaction with JavaScript
 -
 -### Test data conventions
 -
--- **Always prefix test content**: `[TEST] Node Title`
--- **Use data providers**: For testing multiple input/output combinations
--  - Must be a public static method
--  - Must follow naming convention `dataProvider<MethodName>`
--  - Must be placed after the test method it provides data for.
--- **Use unique identifiers**: Include test class or method name in test data
+-- Prefix test content with `[TEST]`, for example `[TEST] Node Title`.
+-- Use data providers to test multiple input/output combinations. A data
+-  provider must:
+-  - be a public static method
+-  - be named `dataProvider<MethodName>`
+-  - be placed after the test method it provides data for
+-- Include the test class or method name in test data so identifiers stay
+-  unique.
 -
 -### Data providers
 -
--Always use data providers for testing multiple input/output combinations:
+-Use a data provider to test multiple input/output combinations:
 -
 -```php
 -/**
@@ -138,4 +147,4 @@
 -
  ## Behat conventions
  
- BDD end-to-end tests.
+ Behat runs the BDD end-to-end tests.

@@ -1,17 +1,18 @@
-@@ -3,6 +3,29 @@
- For information on how deployment works, see
- [Vortex Deployment Documentation](https://www.vortextemplate.com/docs/deployment).
+@@ -3,6 +3,30 @@
+ To learn how deployment works, see the [Vortex deployment
+ documentation](https://www.vortextemplate.com/docs/deployment).
  
 +## Hosting provider
 +
 +This project is hosted on [Lagoon](https://www.amazee.io/lagoon).
 +
-+See [Lagoon hosting documentation](https://www.vortextemplate.com/docs/hosting/lagoon)
-+for setup and configuration details.
++For setup and configuration details, see the [Lagoon hosting
++documentation](https://www.vortextemplate.com/docs/hosting/lagoon).
 +
 +### Database refresh
 +
-+To refresh the database in an existing Lagoon environment with production data:
++To refresh the database in an existing Lagoon environment with production
++data, run:
 +
 +```bash
 +VORTEX_DEPLOY_BRANCH=<YOUR/BRANCH-NAME> VORTEX_DEPLOY_ACTION=deploy_override_db ahoy deploy
@@ -27,4 +28,4 @@
 +
  ## Repeatable deploy hooks
  
- Logic that must run on **every** deploy is a `DeployStep` plugin, not a
+ Put logic that must run on **every** deploy in a `DeployStep` plugin.

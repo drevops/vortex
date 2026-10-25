@@ -1,19 +1,20 @@
 # Testing
 
-This document describes **what** testing conventions and agreements apply to
-this project.
+This document describes **what** testing conventions and agreements apply
+to this project.
 
 ## PHPUnit conventions
 
-Unit, Kernel, Functional tests.
+PHPUnit runs the Unit, Kernel, and Functional tests.
 
-See [documentation](https://www.vortextemplate.com/docs/development/testing/phpunit)
-on how to run tests, configure environment variables and code coverage, and use
-test reports in continuous integration pipeline.
+To learn how to run tests, configure environment variables and code
+coverage, and use test reports in a continuous integration pipeline, see
+the [PHPUnit
+documentation](https://www.vortextemplate.com/docs/development/testing/phpunit).
 
 ### Test class structure
 
-All PHPUnit tests must follow this structure:
+Every PHPUnit test must follow this structure:
 
 ```php
 <?php
@@ -48,23 +49,31 @@ class MyClassTest extends UnitTestCase {
 
 ### Base test classes
 
+Extend the base class that matches the test type:
+
 - **Unit** - `Drupal\Tests\UnitTestCase` - Testing isolated PHP classes
-- **Kernel** - `Drupal\KernelTests\KernelTestBase` - Testing with database/services
-- **Functional** - `Drupal\Tests\BrowserTestBase` - Testing with full browser
-- **FunctionalJavascript** - `Drupal\FunctionalJavascriptTests\WebDriverTestBase` - Testing browser interaction with JavaScript
+- **Kernel** - `Drupal\KernelTests\KernelTestBase` - Testing with
+  database/services
+- **Functional** - `Drupal\Tests\BrowserTestBase` - Testing with full
+  browser
+- **FunctionalJavascript** -
+  `Drupal\FunctionalJavascriptTests\WebDriverTestBase` - Testing browser
+  interaction with JavaScript
 
 ### Test data conventions
 
-- **Always prefix test content**: `[TEST] Node Title`
-- **Use data providers**: For testing multiple input/output combinations
-  - Must be a public static method
-  - Must follow naming convention `dataProvider<MethodName>`
-  - Must be placed after the test method it provides data for.
-- **Use unique identifiers**: Include test class or method name in test data
+- Prefix test content with `[TEST]`, for example `[TEST] Node Title`.
+- Use data providers to test multiple input/output combinations. A data
+  provider must:
+  - be a public static method
+  - be named `dataProvider<MethodName>`
+  - be placed after the test method it provides data for
+- Include the test class or method name in test data so identifiers stay
+  unique.
 
 ### Data providers
 
-Always use data providers for testing multiple input/output combinations:
+Use a data provider to test multiple input/output combinations:
 
 ```php
 /**
@@ -139,15 +148,15 @@ class MyServiceTest extends KernelTestBase {
 
 ## Behat conventions
 
-BDD end-to-end tests.
+Behat runs the BDD end-to-end tests.
 
-See [documentation](https://www.vortextemplate.com/docs/development/testing/behat)
-on how to run Behat tests, configure environment variables, and use test reports
-in continuous integration pipeline.
+To learn how to run Behat tests, configure environment variables, and use
+test reports in a continuous integration pipeline, see the [Behat
+documentation](https://www.vortextemplate.com/docs/development/testing/behat).
 
 ### User story format
 
-All Behat features must follow this format:
+Every Behat feature must start with a user story in this format:
 
 ```gherkin
 Feature: [Feature name]
@@ -159,7 +168,7 @@ Feature: [Feature name]
 
 ### Standard user types
 
-Use these consistent user type descriptions:
+Use these user type descriptions:
 
 ```gherkin
 As a site visitor          # Anonymous users
@@ -170,10 +179,10 @@ As a authenticated user    # Logged-in users
 
 ### Test data conventions
 
-- **Always prefix test content**: `[TEST] Page Title`
-- **Use numbered patterns**: `[TEST] Topic 1`, `[TEST] Topic 2`
-- **Avoid real names**: Don't use "Workshop" or "Training"
-- **Be descriptive**: `[TEST] Event with All Fields`
+- Prefix test content with `[TEST]`, for example `[TEST] Page Title`.
+- Use numbered names, for example `[TEST] Topic 1` and `[TEST] Topic 2`.
+- Avoid real names such as "Workshop" or "Training".
+- Use descriptive names, for example `[TEST] Event with All Fields`.
 
 ### Example feature file
 
@@ -192,37 +201,37 @@ Feature: Homepage
 
 ### Content type testing process
 
-When creating comprehensive tests for content types:
+To write tests that cover a whole content type:
 
-1. Analyze configuration first
+1. Analyze the configuration first:
 
    - Check `config/default/field.field.node.[type].*.yml`
    - Review `core.entity_view_display.node.[type].default.yml`
-   - Identify visible vs hidden fields
+   - Identify visible and hidden fields
 
-2. Create supporting entities
+2. Create the supporting entities:
 
-  ```gherkin
-  Background:
-    Given the following "tags" terms exist:
-      | name              |
-      | [TEST] Topic 1    |
-      | [TEST] Topic 2    |
+   ```gherkin
+   Background:
+     Given the following "tags" terms exist:
+       | name              |
+       | [TEST] Topic 1    |
+       | [TEST] Topic 2    |
 
-    And the following "image" media exist:
-      | name                    |
-      | [TEST] Featured Image 1 |
-  ```
+     And the following "image" media exist:
+       | name                    |
+       | [TEST] Featured Image 1 |
+   ```
 
-3. Test all visible fields
+3. Test all visible fields:
 
-  ```gherkin
-  Scenario: View complete content with all fields
-    Given the following "page" content exists:
-      | title                     | body                          | field_tags         |
-      | [TEST] Complete Page Test | [TEST] This is the body text. | [TEST] Topic 1     |
-    When I visit the "page" content page with the title "[TEST] Complete Page Test"
-    Then I should see "[TEST] Complete Page Test"
-    And I should see "[TEST] This is the body text."
-    And I should see "[TEST] Topic 1"
-  ```
+   ```gherkin
+   Scenario: View complete content with all fields
+     Given the following "page" content exists:
+       | title                     | body                          | field_tags         |
+       | [TEST] Complete Page Test | [TEST] This is the body text. | [TEST] Topic 1     |
+     When I visit the "page" content page with the title "[TEST] Complete Page Test"
+     Then I should see "[TEST] Complete Page Test"
+     And I should see "[TEST] This is the body text."
+     And I should see "[TEST] Topic 1"
+   ```
