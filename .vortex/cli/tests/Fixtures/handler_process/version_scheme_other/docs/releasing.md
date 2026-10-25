@@ -1,6 +1,6 @@
-@@ -15,16 +15,6 @@
+@@ -16,16 +16,6 @@
  6. The hash of the `HEAD` of the `production` branch matches the hash of
-    the `HEAD` of `main` branch.
+    the `HEAD` of the `main` branch.
  
 -## Version scheme
 -

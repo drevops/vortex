@@ -1,13 +1,15 @@
-@@ -9,9 +9,11 @@
+@@ -11,11 +11,12 @@
  
  Drupal 11 implementation of star wars for star wars Org
  
--[![Build, Test and Deploy](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml)
+-[![Build, Test and
+-Deploy](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml/badge.svg)](https://github.com/star_wars_org/star_wars/actions/workflows/build-test-deploy.yml)
 +[![CircleCI](https://circleci.com/gh/star_wars_org/star_wars.svg?style=shield)](https://circleci.com/gh/star_wars_org/star_wars)
  
- ![Drupal 11](https://img.shields.io/badge/Drupal-11-0678BE?logo=drupal&logoColor=white)
+ ![Drupal
+ 11](https://img.shields.io/badge/Drupal-11-0678BE?logo=drupal&logoColor=white)
 +
 +[![codecov](https://codecov.io/gh/star_wars_org/star_wars/graph/badge.svg)](https://codecov.io/gh/star_wars_org/star_wars)
  
- ![Automated updates](https://img.shields.io/badge/Automated%20updates-RenovateBot-brightgreen.svg)
- 
+ ![Automated
+ updates](https://img.shields.io/badge/Automated%20updates-RenovateBot-brightgreen.svg)

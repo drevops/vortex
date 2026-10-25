@@ -1,19 +1,20 @@
 # Releasing
 
-For information on how releasing works, see
-[Vortex Releasing Documentation](https://www.vortextemplate.com/docs/releasing).
+To learn how releasing works, see the [Vortex releasing
+documentation](https://www.vortextemplate.com/docs/releasing).
 
 ## Release outcome
 
 After a successful release:
 
-1. Release branch exists as `release/X.Y.Z` in GitHub repository.
-2. Release tag exists as `X.Y.Z` in GitHub repository.
-3. The `HEAD` of the `main` branch has `X.Y.Z` tag.
-4. The hash of the `HEAD` of the `main` branch exists in the `develop` branch.
-5. There are no PRs in GitHub related to the release.
+1. The release branch `release/X.Y.Z` exists in the GitHub repository.
+2. The release tag `X.Y.Z` exists in the GitHub repository.
+3. The `HEAD` of the `main` branch has the `X.Y.Z` tag.
+4. The hash of the `HEAD` of the `main` branch exists in the `develop`
+   branch.
+5. GitHub has no PRs related to the release.
 6. The hash of the `HEAD` of the `production` branch matches the hash of
-   the `HEAD` of `main` branch.
+   the `HEAD` of the `main` branch.
 
 ## Version scheme
 

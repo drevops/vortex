@@ -1,20 +1,21 @@
-@@ -3,6 +3,32 @@
- For information on how deployment works, see
- [Vortex Deployment Documentation](https://www.vortextemplate.com/docs/deployment).
+@@ -3,6 +3,35 @@
+ To learn how deployment works, see the [Vortex deployment
+ documentation](https://www.vortextemplate.com/docs/deployment).
  
 +## Hosting provider
 +
-+This project is hosted on [Acquia Cloud](https://www.acquia.com/products/drupal-cloud).
++This project is hosted on [Acquia
++Cloud](https://www.acquia.com/products/drupal-cloud).
 +
-+See [Acquia hosting documentation](https://www.vortextemplate.com/docs/hosting/acquia)
-+for setup and configuration details.
++For setup and configuration details, see the [Acquia hosting
++documentation](https://www.vortextemplate.com/docs/hosting/acquia).
 +
 +### Deployment workflow
 +
 +1. Code is pushed to GitHub (source repository).
 +2. CI builds and tests the code.
-+3. On success, CI builds an artifact and pushes to Acquia Cloud (destination
-+   repository).
++3. On success, CI builds an artifact and pushes it to Acquia Cloud
++   (destination repository).
 +4. Acquia Cloud runs deployment hooks.
 +
 +### Branch naming on Acquia Cloud
@@ -24,10 +25,12 @@
 +
 +### Important rules
 +
-+- No direct pushes to Acquia Cloud repository.
-+- Only Technical Lead and Deployer user should have access to Acquia repository.
-+- Technical Lead should regularly clean up `feature/*` and `bugfix/*` branches.
++- Never push directly to the Acquia Cloud repository.
++- Only the Technical Lead and the Deployer user should have access to the
++  Acquia repository.
++- The Technical Lead should regularly clean up `feature/*` and `bugfix/*`
++  branches.
 +
  ## Repeatable deploy hooks
  
- Logic that must run on **every** deploy is a `DeployStep` plugin, not a
+ Put logic that must run on **every** deploy in a `DeployStep` plugin.
