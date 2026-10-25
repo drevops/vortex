@@ -65,6 +65,15 @@ Specifically check if any environment variables were added or changed.
    It may be a good idea to commit changes in smaller chunks to make it easier
    to review and revert if necessary.
 
+   The update removes each file the new version stops shipping, when your
+   copy still matches what **Vortex** installed. A file you changed stays in
+   place.
+
+   Where the update replaced a file your project had changed,
+   `.logs/vortex-update.md` records your change alongside the change the new
+   version brings. Re-apply your changes from it, then delete the entries you
+   have resolved. Git ignores this file.
+
    Your `composer.json` has most likely deviated from the **Vortex** version,
    so review the package version changes carefully. We recommend temporarily
    reverting the changes to `composer.json` and `composer.lock` to preserve
