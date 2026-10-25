@@ -79,7 +79,7 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
    * {@inheritdoc}
    */
   public function skip(): ?string {
-    return $this->environment() === 'prod' ? 'production environment' : NULL;
+    return $this->environment() === Environment::PRODUCTION ? 'production environment' : NULL;
   }
 
   /**

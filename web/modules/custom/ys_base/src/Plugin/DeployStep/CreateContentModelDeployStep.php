@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ys_base\Plugin\DeployStep;
 
+use DrevOps\EnvironmentDetector\Environment;
 use Drupal\Core\Recipe\Recipe;
 use Drupal\Core\Recipe\RecipeRunner;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
@@ -54,7 +55,7 @@ final class CreateContentModelDeployStep extends DeployStepBase {
    * {@inheritdoc}
    */
   public function skip(): ?string {
-    if ($this->environment() === 'prod') {
+    if ($this->environment() === Environment::PRODUCTION) {
       return 'production environment';
     }
 
