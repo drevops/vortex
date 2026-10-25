@@ -4,5 +4,16 @@
       "Bash(ahoy:*)"
     ],
     "deny": []
+  },
+  "extraKnownMarketplaces": {
+    "vortex": {
+      "source": {
+        "source": "directory",
+        "path": "./.vortex"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "vortex@vortex": true
   }
 }

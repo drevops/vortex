@@ -8,6 +8,7 @@ use AlexSkrypnyk\File\ContentFile\ContentFile;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
+use DrevOps\VortexCli\Utils\JsonManipulator;
 use DrevOps\VortexCli\Utils\Strings;
 use DrevOps\VortexCli\Utils\Yaml;
 
@@ -86,6 +87,9 @@ class Internal extends AbstractHandler {
 
     // Remove Vortex internal files.
     File::remove($t . DIRECTORY_SEPARATOR . '.vortex');
+
+    // The template at the installed reference, such as 'stable', can ship
+    // maintenance skills in '.claude/skills'.
     File::remove($t . DIRECTORY_SEPARATOR . '.claude' . DIRECTORY_SEPARATOR . 'skills');
 
     File::remove($t . '/.github/FUNDING.yml');
@@ -129,6 +133,18 @@ class Internal extends AbstractHandler {
 
         file_put_contents($composer_json_path, json_encode($composer_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
       }
+    }
+
+    // Remove the Vortex maintenance plugin from the Claude Code settings: the
+    // plugin is the '.vortex' directory, which consumer sites do not receive.
+    $claude_settings_path = $t . '/.claude/settings.json';
+    $cj = JsonManipulator::fromFile($claude_settings_path);
+    if ($cj instanceof JsonManipulator) {
+      $cj->removeSubNode('enabledPlugins', 'vortex@vortex');
+      $cj->removeMainKeyIfEmpty('enabledPlugins');
+      $cj->removeSubNode('extraKnownMarketplaces', 'vortex');
+      $cj->removeMainKeyIfEmpty('extraKnownMarketplaces');
+      file_put_contents($claude_settings_path, $cj->getContents());
     }
 
     // Execute all queued batch tasks from all handlers.
