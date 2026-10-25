@@ -495,6 +495,182 @@ class ConvertAuditSarifTest extends UnitTestCase {
     $this->assertSame(5, $location['region']['startLine']);
   }
 
+  public function testNpmAllowlist(): void {
+    $this->writeFile('package-audit.jsonc', implode(PHP_EOL, [
+      '// audit-ci allowlist.',
+      '//',
+      '// https://github.com/IBM/audit-ci',
+      '{',
+      '  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",',
+      '  "allowlist": [',
+      '    {',
+      '      "GHSA-1111-1111-1111": {',
+      '        "active": true,',
+      '        "notes": "Reached only through build tooling.",',
+      '        "expiry": "2999-12-31"',
+      '      }',
+      '    },',
+      '    "second"',
+      '  ]',
+      '}',
+    ]));
+    $this->writeNpmReportPackages();
+
+    $output = $this->convert(['.logs/audit/npm-audit.json', 'npm']);
+
+    $this->assertStringContainsOrNot($output, [
+      '* Allowlist: ./package-audit.jsonc',
+      '* Findings:  1',
+    ]);
+
+    $sarif = $this->readSarif('.logs/audit/npm-audit.sarif');
+    $this->assertSame(['GHSA-3333-3333-3333'], array_column($sarif['runs'][0]['results'], 'ruleId'));
+    $this->assertSame(['GHSA-3333-3333-3333'], array_column($sarif['runs'][0]['tool']['driver']['rules'], 'id'));
+  }
+
+  #[DataProvider('dataProviderNpmAllowlistEntries')]
+  public function testNpmAllowlistEntries(string $entries, int $expected_kept): void {
+    $this->writeFile('.logs/audit/npm-audit.json', '{"vulnerabilities": {"thing": {"name": "thing", "severity": "high", "via": [{"title": "Issue", "url": "https://github.com/advisories/GHSA-1111-1111-1111", "severity": "high", "range": "*"}]}}}');
+    $this->writeFile('package-audit.jsonc', '{"allowlist": [' . $entries . ']}');
+
+    $output = $this->convert(['.logs/audit/npm-audit.json', 'npm']);
+
+    $this->assertStringContainsString('Allowlist: ./package-audit.jsonc', $output);
+    $this->assertCount($expected_kept, $this->readSarif('.logs/audit/npm-audit.sarif')['runs'][0]['results']);
+  }
+
+  public static function dataProviderNpmAllowlistEntries(): array {
+    return [
+      'advisory id' => ['"GHSA-1111-1111-1111"', 0],
+      'active advisory' => ['{"GHSA-1111-1111-1111": {"active": true}}', 0],
+      'unexpired date' => ['{"GHSA-1111-1111-1111": {"active": true, "expiry": "2999-12-31"}}', 0],
+      'unexpired date and time' => ['{"GHSA-1111-1111-1111": {"active": true, "expiry": "2999-12-31T00:00:00Z"}}', 0],
+      'unexpired timestamp in milliseconds' => ['{"GHSA-1111-1111-1111": {"active": true, "expiry": 32503680000000}}', 0],
+      'empty expiry' => ['{"GHSA-1111-1111-1111": {"active": true, "expiry": ""}}', 0],
+      'truthy active flag' => ['{"GHSA-1111-1111-1111": {"active": 1, "notes": "A truthy flag."}}', 0],
+      'package name' => ['"thing"', 0],
+      'active package' => ['{"thing": {"active": true, "expiry": "2999-12-31"}}', 0],
+      'first entry wins over an inactive one' => ['"GHSA-1111-1111-1111", {"GHSA-1111-1111-1111": {"active": false}}', 0],
+      'malformed entries are skipped' => ['{}, 42, null, ["nested"], "GHSA-1111-1111-1111"', 0],
+      'inactive advisory' => ['{"GHSA-1111-1111-1111": {"active": false}}', 1],
+      'zero active flag' => ['{"GHSA-1111-1111-1111": {"active": 0}}', 1],
+      'missing active flag' => ['{"GHSA-1111-1111-1111": {"notes": "No active flag."}}', 1],
+      'expired date' => ['{"GHSA-1111-1111-1111": {"active": true, "expiry": "2000-01-01"}}', 1],
+      'epoch date' => ['{"GHSA-1111-1111-1111": {"active": true, "expiry": "1970-01-01"}}', 1],
+      'unparsable date' => ['{"GHSA-1111-1111-1111": {"active": true, "expiry": "not a date"}}', 1],
+      'negative timestamp' => ['{"GHSA-1111-1111-1111": {"active": true, "expiry": -1}}', 1],
+      'entry that is not an object' => ['{"GHSA-1111-1111-1111": true}', 1],
+      'first entry wins over an active one' => ['{"GHSA-1111-1111-1111": {"active": false}}, "GHSA-1111-1111-1111"', 1],
+      'other advisory' => ['"GHSA-2222-2222-2222"', 1],
+      'other package' => ['"other-thing"', 1],
+      'only malformed entries' => ['{}, 42, null', 1],
+      'advisory and package path' => ['"GHSA-1111-1111-1111|thing"', 1],
+      'advisory and any path' => ['"GHSA-1111-1111-1111|*"', 1],
+      'advisory and parent path' => ['{"GHSA-1111-1111-1111|parent>thing": {"active": true}}', 1],
+      'package path' => ['"parent>thing"', 1],
+    ];
+  }
+
+  public function testNpmAllowlistJsonc(): void {
+    $this->writeFile('package-audit.jsonc', implode(PHP_EOL, [
+      '// Header comment with a URL: https://example.com/a//b',
+      '/* Block comment with "quotes", a // pair',
+      '   and a second line. **/',
+      '{',
+      '  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json", // Inline comment.',
+      '  "allowlist": [',
+      '    "GHSA-1111-1111-1111", /* Inline block comment. */',
+      '    {',
+      '      "GHSA-2222-2222-2222": {',
+      '        "active": true,',
+      '        "notes": "Escaped \"quotes\", a // pair, a /* marker */, a trailing ,] and naïve café text.",',
+      '        "expiry": "2999-12-31",',
+      '      },',
+      '    },',
+      '  ],',
+      '}',
+    ]) . PHP_EOL);
+    $this->writeNpmReportPackages();
+
+    $output = $this->convert(['.logs/audit/npm-audit.json', 'npm']);
+
+    $this->assertStringContainsOrNot($output, [
+      '* Allowlist: ./package-audit.jsonc',
+      '* Findings:  1',
+    ]);
+    $this->assertSame(['GHSA-3333-3333-3333'], array_column($this->readSarif('.logs/audit/npm-audit.sarif')['runs'][0]['results'], 'ruleId'));
+  }
+
+  #[DataProvider('dataProviderNpmAllowlistUnparsable')]
+  public function testNpmAllowlistUnparsable(string $content): void {
+    $this->writeFile('package-audit.jsonc', $content);
+    $this->writeNpmReportPackages();
+
+    $output = $this->convert(['.logs/audit/npm-audit.json', 'npm']);
+
+    $this->assertStringContainsOrNot($output, [
+      '* Allowlist: ./package-audit.jsonc could not be parsed and is not applied.',
+      '* Findings:  3',
+    ]);
+  }
+
+  public static function dataProviderNpmAllowlistUnparsable(): array {
+    return [
+      'truncated' => ['{"allowlist": ["GHSA-1111-1111-1111"'],
+      'single quotes' => ["{'allowlist': ['GHSA-1111-1111-1111']}"],
+      'list at the top level' => ['["GHSA-1111-1111-1111"]'],
+      'empty' => [''],
+    ];
+  }
+
+  public function testNpmAllowlistMissing(): void {
+    $this->writeNpmReportPackages();
+
+    $output = $this->convert(['.logs/audit/npm-audit.json', 'npm']);
+
+    $this->assertStringContainsOrNot($output, [
+      '* Allowlist: none',
+      '* Findings:  3',
+    ]);
+  }
+
+  public function testNpmAllowlistNextToLockFileArgument(): void {
+    $this->writeFile('theme/package-audit.jsonc', '{"allowlist": ["GHSA-1111-1111-1111"]}');
+    $this->writeFile('package-audit.jsonc', '{"allowlist": ["GHSA-2222-2222-2222"]}');
+    $this->writeNpmReportPackages();
+
+    $output = $this->convert(['.logs/audit/npm-audit.json', 'npm', 'theme/package-lock.json']);
+
+    $this->assertStringContainsString('Allowlist: theme/package-audit.jsonc', $output);
+    $this->assertSame(['GHSA-2222-2222-2222', 'GHSA-3333-3333-3333'], array_column($this->readSarif('.logs/audit/npm-audit.sarif')['runs'][0]['results'], 'ruleId'));
+  }
+
+  public function testNpmAllowlistEnvironmentVariable(): void {
+    $this->writeFile('config/allowlist.jsonc', '{"allowlist": ["GHSA-1111-1111-1111"]}');
+    $this->writeFile('package-audit.jsonc', '{"allowlist": ["GHSA-2222-2222-2222"]}');
+    $this->writeNpmReportPackages();
+
+    self::envSet('VORTEX_CONVERT_AUDIT_SARIF_ALLOWLIST_FILE', 'config/allowlist.jsonc');
+
+    $output = $this->convert(['.logs/audit/npm-audit.json', 'npm']);
+
+    $this->assertStringContainsString('Allowlist: config/allowlist.jsonc', $output);
+    $this->assertSame(['GHSA-2222-2222-2222', 'GHSA-3333-3333-3333'], array_column($this->readSarif('.logs/audit/npm-audit.sarif')['runs'][0]['results'], 'ruleId'));
+  }
+
+  public function testComposerIgnoresNpmAllowlist(): void {
+    $this->writeFile('package-audit.jsonc', '{"allowlist": ["GHSA-1111-1111-1111", "vendor/thing"]}');
+    $this->writeFile('.logs/audit/composer-audit.json', '{"advisories": {"vendor/thing": [{"advisoryId": "GHSA-1111-1111-1111", "packageName": "vendor/thing", "title": "Issue", "severity": "high"}]}, "abandoned": []}');
+
+    $output = $this->convert();
+
+    $this->assertStringContainsOrNot($output, [
+      '! Allowlist:',
+      '* Findings:  1',
+    ]);
+    $this->assertSame('GHSA-1111-1111-1111', $this->readSarif('.logs/audit/composer-audit.sarif')['runs'][0]['results'][0]['ruleId']);
+  }
+
   #[DataProvider('dataProviderFailure')]
   public function testFailure(?string $report, array $args, array $expected): void {
     if ($report !== NULL) {
@@ -571,6 +747,20 @@ class ConvertAuditSarifTest extends UnitTestCase {
     $GLOBALS['argv'] = array_merge(['vortex-convert-audit-sarif'], $args);
 
     return $this->runScript('src/vortex-convert-audit-sarif', $early_exit_code, $this->project);
+  }
+
+  /**
+   * Write an npm report with 1 advisory against each of 3 packages.
+   */
+  protected function writeNpmReportPackages(): void {
+    $this->writeFile('.logs/audit/npm-audit.json', '{
+      "auditReportVersion": 2,
+      "vulnerabilities": {
+        "first": {"name": "first", "severity": "high", "via": [{"title": "First issue", "url": "https://github.com/advisories/GHSA-1111-1111-1111", "severity": "high", "range": "*"}]},
+        "second": {"name": "second", "severity": "high", "via": [{"title": "Second issue", "url": "https://github.com/advisories/GHSA-2222-2222-2222", "severity": "high", "range": "*"}]},
+        "third": {"name": "third", "severity": "critical", "via": [{"title": "Third issue", "url": "https://github.com/advisories/GHSA-3333-3333-3333", "severity": "critical", "range": "*"}]}
+      }
+    }');
   }
 
   /**

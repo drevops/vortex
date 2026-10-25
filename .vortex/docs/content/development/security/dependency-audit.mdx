@@ -261,6 +261,6 @@ printed, so a tolerated advisory stays visible in the job log.
 
 In GitHub Actions, both trees are uploaded to **Security → Code scanning** under separate categories: `npm-audit` for the root and `npm-audit-theme` for the custom theme. A finding can be traced back to the tree it came from. Each entry in a package's `via` list becomes its own alert, identified by its GHSA advisory, carrying the advisory's own CVSS score and located at the package's entry in that tree's `package-lock.json`.
 
-The report is npm's own output from the same audit, before the allowlist applies, so allowlisted advisories are uploaded too. Dismissing an alert records the assessment but doesn't stop the check failing; that still needs an `overrides` entry or an allowlist entry, as described in [Ignoring](#ignoring-1).
+An advisory allowlisted in a tree's `package-audit.jsonc` isn't uploaded for that tree while its entry applies. After the entry expires or you remove it, the next run uploads the advisory again. An entry limited to a dependency path doesn't apply to the upload, so its advisory still raises an alert. Dismissing an alert records the assessment but doesn't stop the check failing; that still needs an `overrides` entry or an allowlist entry, as described in [Ignoring](#ignoring-1).
 
 ➡️ See [Code scanning](../../continuous-integration/README.mdx#code-scanning).
