@@ -5,7 +5,7 @@ Feature: Counter Block
   I want to interact with the counter block
   So that I can increment decrement and reset the counter value
 
-  @api @javascript
+  @javascript
   Scenario: Counter block is visible on homepage
     Given I go to the homepage
     Then I should see a ".ys-demo-counter-block" element
@@ -28,7 +28,7 @@ Feature: Counter Block
     When I click on the element ".ys-demo-counter-btn--reset"
     Then the ".ys-demo-counter-value" element should contain "0"
 
-  @api @javascript
+  @javascript
   Scenario: Counter persistence across page reloads
     Given I go to the homepage
     When I click on the element ".ys-demo-counter-btn--increment"
