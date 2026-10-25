@@ -63,11 +63,11 @@ jobs:
           node-version: 22.17.1
 
       - name: Validate Renovate configuration
-        uses: suzuki-shunsuke/github-action-renovate-config-validator@394f7a3d2641cad2995938f9dc7e54580c8a7089 # v2.3.0
+        uses: suzuki-shunsuke/github-action-renovate-config-validator@1e1604219a6b38ae9a10aff42a28a3656322c31a # v2.4.1
 
       - name: Run Renovate
         if: steps.check-requirements.outputs.should_run == 'true'
-        uses: renovatebot/github-action@6d26fcf0275dc65624cbc3d51fe78bc773f98321 # v46.3.6
+        uses: renovatebot/github-action@230ce922b08968d0a4f6f70f295601daff09ef1d # v46.3.7
         with:
           configurationFile: renovate.json
           token: ${{ secrets.RENOVATE_TOKEN }}
