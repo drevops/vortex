@@ -1,5 +1,5 @@
-@@ -88,7 +88,6 @@
-       'redirect',
+@@ -91,7 +91,6 @@
+       'reroute_email',
        'robotstxt',
        'shield',
 -      'stage_file_proxy',

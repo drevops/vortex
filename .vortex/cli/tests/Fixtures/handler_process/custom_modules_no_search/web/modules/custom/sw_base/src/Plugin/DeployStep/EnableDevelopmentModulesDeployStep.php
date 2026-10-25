@@ -1,6 +1,6 @@
-@@ -105,8 +105,6 @@
+@@ -106,8 +106,6 @@
  
-     $this->moduleInstaller->install(['reroute_email']);
+     $this->moduleInstaller->install(['devel']);
  
 -    $this->moduleInstaller->install(['sw_search']);
 -
