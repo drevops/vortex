@@ -1,5 +1,5 @@
 @@ -8,32 +8,32 @@
-   @api @javascript
+   @javascript
    Scenario: Counter block is visible on homepage
      Given I go to the homepage
 -    Then I should see a ".sw-demo-counter-block" element
@@ -37,7 +37,7 @@
 +    When I click on the element ".the-force-demo-counter-btn--reset"
 +    Then the ".the-force-demo-counter-value" element should contain "0"
  
-   @api @javascript
+   @javascript
    Scenario: Counter persistence across page reloads
      Given I go to the homepage
 -    When I click on the element ".sw-demo-counter-btn--increment"

@@ -1,5 +1,5 @@
-@@ -48,7 +48,6 @@
-         "ergebnis/composer-normalize": "__VERSION__",
+@@ -49,7 +49,6 @@
+         "lullabot/mink-selenium2-driver": "__VERSION__",
          "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
 -        "palantirnet/drupal-rector": "__VERSION__",

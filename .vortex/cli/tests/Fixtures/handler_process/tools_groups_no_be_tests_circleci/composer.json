@@ -1,4 +1,4 @@
-@@ -38,22 +38,15 @@
+@@ -38,23 +38,15 @@
          "drush/drush": "__VERSION__"
      },
      "require-dev": {
@@ -8,8 +8,9 @@
 -        "drevops/behat-steps": "__VERSION__",
          "drevops/phpcs-standard": "__VERSION__",
          "drupal/coder": "__VERSION__",
--        "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
+-        "friends-of-behat/mink-extension": "__VERSION__",
+-        "lullabot/mink-selenium2-driver": "__VERSION__",
          "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
          "palantirnet/drupal-rector": "__VERSION__",
@@ -21,7 +22,7 @@
          "pyrech/composer-changelogs": "__VERSION__",
          "softcreatr/jsonpath": "^0.10 || ^1.0",
          "vincentlanglet/twig-cs-fixer": "__VERSION__"
-@@ -69,11 +62,6 @@
+@@ -70,11 +62,6 @@
      ],
      "minimum-stability": "stable",
      "prefer-stable": true,
