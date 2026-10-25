@@ -33,6 +33,7 @@
     <file>src/vortex-provision</file>
     <file>src/vortex-push-container-registry</file>
     <file>src/vortex-setup-ssh</file>
+    <file>src/vortex-storybook</file>
     <file>src</file>
     <file>tests</file>
 

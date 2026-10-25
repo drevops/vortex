@@ -434,6 +434,14 @@ match their own empty search backend. Other environments keep their existing
 index. Set `DRUPAL_SEARCH_INDEX_SKIP=1` in the `.env` file or your hosting
 provider's environment to opt out.
 
+With [Storybook](themes.mdx#storybook) enabled, the `ys_base` development setup
+step also installs the [Storybook](https://www.drupal.org/project/storybook)
+module. In the `local` environment, it turns on Twig development mode, so
+component template edits show up without a cache rebuild. A separate
+`ys_base` step, `BuildStorybookDeployStep`, generates the stories and builds the
+component library in the `local`, `ci` and `development` environments. Set
+`DRUPAL_STORYBOOK_SKIP=1` to skip the build.
+
 ## Deploy hooks
 
 Update hooks automate database schema changes, data migrations, and

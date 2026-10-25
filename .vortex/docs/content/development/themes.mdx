@@ -104,10 +104,14 @@ static assets are trimmed for brevity):
 
 ```text
 your_site_theme/
+├── .storybook/                    # Storybook configuration
+│   ├── main.mjs                   # Story sources and framework
+│   └── preview.js                 # Story render endpoint
 ├── components/                    # Single Directory Components (SDC)
 │   └── button/                    # Sample button component
 │       ├── button.component.yml   # Component schema (props and slots)
 │       ├── button.twig            # Component template
+│       ├── button.stories.twig    # Component stories
 │       └── button.css             # Component styles
 ├── scss/                          # Sass source files
 │   ├── _variables.scss            # Theme variables
@@ -154,6 +158,128 @@ ahoy lint-sdc
 ```
 
 ➡️ See [SDC Devel](code-quality/sdc-devel.mdx) for how the validator is set up and where it runs.
+
+## Storybook
+
+[Storybook](https://storybook.js.org/) documents the theme's components and is
+enabled by selecting it during installation. Drupal renders every story through
+the [Storybook module](https://www.drupal.org/project/storybook), so the library
+shows the same markup the site renders.
+
+Stories are authored in Twig next to the component they document, as
+`<component>.stories.twig`, and compiled into `<component>.stories.json` by
+Drush. The compiled files are generated artifacts and aren't committed.
+
+### Working with Storybook
+
+The Storybook commands run inside the CLI container, like the other front-end
+commands, and use the theme dependencies installed there:
+
+```shell
+# Develop components: regenerate stories as they change and serve them live
+ahoy storybook
+
+# Refresh the component library served at /storybook
+ahoy storybook-build
+```
+
+`ahoy storybook` generates the stories and starts a development server. It
+prints the server address, such as `http://localhost:55197`, when the server is
+ready. The server keeps running until you press <kbd>Ctrl-C</kbd>, and the
+stories are regenerated whenever a `*.stories.twig` file changes. Docker assigns
+the host port when the container starts, and `ahoy info` shows it next to the
+library address.
+
+The development server runs on its own origin, so `services.storybook.yml`
+shares story renders with `localhost` origins in the `local`, `ci` and
+`development` environments. This file replaces the `cors.config` from
+`services.yml` there. A site that already shares responses with other origins
+lists them in `services.storybook.yml` too.
+
+Provisioning builds the component library at `/storybook` as a static copy, so
+it stays the same while you work. Run `ahoy storybook-build` to regenerate the
+stories and rebuild the library, for example before sharing a change for review.
+
+In the `local` environment, provisioning turns on Twig development mode. An edit
+to a component's template then shows up in the development server and the
+library on the next render, with no cache rebuild.
+
+### Customizing locations
+
+The `ahoy` commands and provisioning run `vendor/bin/vortex-storybook`, which
+reads its locations from environment variables. To move the theme or its
+stories, set these variables in `.env`:
+
+| Variable                            | Default                                               | Purpose                                                        |
+|-------------------------------------|-------------------------------------------------------|----------------------------------------------------------------|
+| `VORTEX_STORYBOOK_DIR`              | `./web/themes/custom/<DRUPAL_THEME>`                  | Directory with the Storybook configuration and its npm scripts |
+| `VORTEX_STORYBOOK_STORIES_PATTERN`  | `<VORTEX_STORYBOOK_DIR>/components/**/*.stories.twig` | Twig story templates to watch                                  |
+| `VORTEX_STORYBOOK_DEV_SCRIPT`       | `storybook`                                           | npm script that starts the development server                  |
+| `VORTEX_STORYBOOK_BUILD_SCRIPT`     | `storybook-build`                                     | npm script that builds the library                             |
+| `VORTEX_STORYBOOK_PORT`             | `6006`                                                | Development server port inside the container                   |
+| `VORTEX_STORYBOOK_BUILD_SERVER_URL` | None                                                  | Site that renders stories for the static library               |
+| `VORTEX_STORYBOOK_LIBRARY_PATH`     | `/storybook`                                          | Path of the library printed after a build                      |
+
+With no `VORTEX_STORYBOOK_BUILD_SERVER_URL`, the static library renders its
+stories from the site that serves it.
+
+### Running Storybook on the host
+
+The theme's `node_modules` directory is shared with the CLI container and holds
+dependencies installed for the container's architecture. To run Storybook on
+the host, reinstall the dependencies there and keep the stories regenerating in
+the container:
+
+1. Reinstall the theme dependencies on the host:
+
+   ```shell
+   cd web/themes/custom/your_site_theme
+   rm -rf node_modules && npm ci
+   ```
+
+2. In a second terminal, regenerate the stories as they change:
+
+   ```shell
+   ahoy storybook-stories --watch
+   ```
+
+3. Start the development server against the site's local URL shown by
+   `ahoy info`:
+
+   ```shell
+   STORYBOOK_SERVER_URL=http://your-site.docker.amazee.io npm run storybook
+   ```
+
+   The development server is available at `http://localhost:6006`.
+
+Run `ahoy fei` before using the `ahoy` front-end commands again, so the
+container gets its own dependencies back.
+
+### Published component library
+
+Provisioning installs the Storybook module with the other development modules
+in the `ys_base` development setup deploy step. A second deploy step then
+generates the stories and builds the static application into the theme's
+`storybook-static` directory, which the web server serves at `/storybook`.
+
+The build runs only in the `local`, `ci` and `development` environments, where
+the story render route is reachable. It also needs the theme dependencies
+installed. Set `DRUPAL_STORYBOOK_SKIP=1` to skip the build and shorten
+provisioning, and run `ahoy storybook-build` to rebuild the library on demand.
+
+In the `development` environment, [Shield](modules/contributed-modules.mdx#shield)
+protects the story render route, so a story renders only after the browser has
+the Shield credentials. The web server serves the static application at
+`/storybook` and its story index directly, outside Shield.
+
+:::note
+
+On Lagoon, the CLI and web containers run in separate pods, so a dedicated
+persistent `storybook` volume shares the `storybook-static` directory between
+them. Acquia deployment artifacts carry no theme dependencies, so the library
+isn't built there.
+
+:::
 
 ## Tests scaffold
 

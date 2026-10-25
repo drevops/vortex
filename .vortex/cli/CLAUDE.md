@@ -122,7 +122,7 @@ Content removed if feature not selected
 
 | Category | Tokens                                                                             |
 |----------|------------------------------------------------------------------------------------|
-| Theme    | `DRUPAL_THEME`                                                                     |
+| Theme    | `DRUPAL_THEME`, `STORYBOOK`                                                        |
 | Services | `SERVICE_ANTIVIRUS`, `SERVICE_SEARCH`, `SERVICE_CACHE`                                  |
 | CI       | `CI_PROVIDER_GHA`, `CI_PROVIDER_CIRCLECI`                                          |
 | Hosting  | `HOSTING_LAGOON`, `HOSTING_ACQUIA`                                                 |

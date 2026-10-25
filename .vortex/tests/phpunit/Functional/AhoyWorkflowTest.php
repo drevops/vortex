@@ -124,6 +124,29 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyResetHard();
   }
 
+  #[Group('p4')]
+  public function testAhoyWorkflowStorybook(): void {
+    static::$sutEnv = ['VORTEX_CLI_INSTALL_IS_DEMO' => '1'];
+    static::$sutPrompts = ['storybook' => TRUE];
+    $this->prepareSut();
+    $this->adjustAhoyForUnmountedVolumes();
+
+    $this->subtestAhoyBuild();
+
+    $this->assertFilesTrackedInGit();
+
+    $this->logSubstep('Assert that the development modules step installed the Storybook module');
+    $this->cmd('ahoy drush pm:list --status=enabled --type=module --format=list', '* storybook', 'Storybook module should be enabled after provisioning');
+
+    $this->logSubstep('Assert that the compiled stories and the built application are generated but not committed');
+    $this->assertFileExists('web/themes/custom/star_wars/components/button/button.stories.json', 'Compiled stories should exist after the build');
+    $this->gitAssertFilesNotTracked('web/themes/custom/star_wars/components/button/button.stories.json');
+    $this->assertFileExists('web/themes/custom/star_wars/storybook-static/index.html', 'Storybook application should be built into the theme');
+    $this->gitAssertFilesNotTracked('web/themes/custom/star_wars/storybook-static/index.html');
+
+    $this->subtestAhoyStorybook();
+  }
+
   #[Group('p3')]
   public function testAhoyBuildIdempotence(): void {
     static::$sutEnv = ['VORTEX_CLI_INSTALL_IS_DEMO' => '1'];
