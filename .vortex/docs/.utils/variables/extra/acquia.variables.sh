@@ -15,6 +15,9 @@ VORTEX_PURGE_CACHE_ACQUIA_SKIP=
 # Skip Drupal site provisioning in Acquia environment.
 VORTEX_PROVISION_ACQUIA_SKIP=
 
+# Skip sending of deployment notifications in Acquia environment.
+VORTEX_NOTIFY_ACQUIA_SKIP=
+
 # NewRelic API key, usually of type 'USER'.
 #
 # @see https://www.vortextemplate.com/docs/deployment/notifications/newrelic
