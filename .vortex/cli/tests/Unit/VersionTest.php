@@ -107,4 +107,31 @@ class VersionTest extends UnitTestCase {
     yield 'tooling non-string' => ['{"require": {"drevops/vortex-tooling": 1}}', NULL];
   }
 
+  #[DataProvider('dataProviderDetectProjectRef')]
+  public function testDetectProjectRef(?string $readme, ?string $expected): void {
+    $dir = self::$tmp . '/project_' . uniqid();
+    File::mkdir($dir);
+
+    if ($readme !== NULL) {
+      File::dump($dir . '/README.md', $readme);
+    }
+
+    $this->assertSame($expected, Version::detectProjectRef($dir));
+  }
+
+  /**
+   * Data provider for testDetectProjectRef().
+   *
+   * @return \Iterator<string, array{(string | null), (string | null)}>
+   *   Test data.
+   */
+  public static function dataProviderDetectProjectRef(): \Iterator {
+    yield 'no README' => [NULL, NULL];
+    yield 'no badge' => ['# Project', NULL];
+    yield 'release' => ['[![Vortex](https://img.shields.io/badge/Vortex-2.1.0-65ACBC.svg)](https://github.com/drevops/vortex/tree/2.1.0)', '2.1.0'];
+    yield 'escaped dash' => ['[![Vortex](https://img.shields.io/badge/Vortex-2.0.0--alpha1-65ACBC.svg)](https://github.com/drevops/vortex)', '2.0.0-alpha1'];
+    yield 'commit' => ['[![Vortex](https://img.shields.io/badge/Vortex-abcdef1-65ACBC.svg)](https://github.com/drevops/vortex)', 'abcdef1'];
+    yield 'invalid ref' => ['[![Vortex](https://img.shields.io/badge/Vortex-a..b-65ACBC.svg)](https://github.com/drevops/vortex)', NULL];
+  }
+
 }

@@ -16,6 +16,14 @@ namespace DrevOps\VortexCli\Utils;
 class Version {
 
   /**
+   * Pattern matching the Vortex badge in a project README.
+   *
+   * The capture group holds the git reference the badge was stamped with, so
+   * a README that matches is one a reference can be read from.
+   */
+  const BADGE_REGEX = '#badge/Vortex-(.+?)-65ACBC\.svg#';
+
+  /**
    * Extract the major version number from a version string.
    *
    * @param string|null $version
@@ -66,6 +74,36 @@ class Version {
     }
 
     return preg_match('/(\d+)/', $constraint, $matches) ? (int) $matches[1] : NULL;
+  }
+
+  /**
+   * Detect the Vortex reference an installed project was last installed from.
+   *
+   * The README badge records the reference of the installed release, which is
+   * the only place the exact version is preserved: composer.json pins the
+   * tooling package's major rather than the template's version. Shields.io
+   * escapes a literal dash in the label as a double dash.
+   *
+   * @param string $dir
+   *   The project directory.
+   *
+   * @return string|null
+   *   The git reference, or NULL when the badge is absent or unreadable.
+   */
+  public static function detectProjectRef(string $dir): ?string {
+    $readme = $dir . DIRECTORY_SEPARATOR . 'README.md';
+
+    if (!is_file($readme) || !is_readable($readme)) {
+      return NULL;
+    }
+
+    if (!preg_match(self::BADGE_REGEX, File::read($readme), $matches)) {
+      return NULL;
+    }
+
+    $ref = str_replace('--', '-', $matches[1]);
+
+    return Validator::gitRef($ref) ? $ref : NULL;
   }
 
   /**
