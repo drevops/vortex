@@ -1,4 +1,4 @@
-@@ -99,8 +99,6 @@
+@@ -102,8 +102,6 @@
  
      $this->moduleInstaller->install(['search_api', 'search_api_solr']);
  
@@ -6,4 +6,4 @@
 -
      $this->moduleInstaller->install(['devel']);
  
-     $this->moduleInstaller->install(['reroute_email']);
+     $this->moduleInstaller->install(['sw_search']);

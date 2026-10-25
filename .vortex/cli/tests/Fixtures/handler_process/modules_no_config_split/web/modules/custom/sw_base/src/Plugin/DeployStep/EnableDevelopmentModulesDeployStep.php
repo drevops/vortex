@@ -1,4 +1,4 @@
-@@ -79,7 +79,6 @@
+@@ -81,7 +81,6 @@
  
      $this->moduleInstaller->install([
        'coffee',

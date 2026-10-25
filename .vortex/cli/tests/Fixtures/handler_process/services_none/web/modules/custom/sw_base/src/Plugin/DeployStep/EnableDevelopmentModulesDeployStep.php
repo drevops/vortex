@@ -1,4 +1,4 @@
-@@ -92,20 +92,11 @@
+@@ -95,18 +95,9 @@
        'xmlsitemap',
      ]);
  
@@ -12,8 +12,6 @@
      $this->moduleInstaller->install(['sdc_devel']);
  
      $this->moduleInstaller->install(['devel']);
- 
-     $this->moduleInstaller->install(['reroute_email']);
 -
 -    $this->moduleInstaller->install(['sw_search']);
  
