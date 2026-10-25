@@ -272,7 +272,7 @@ Any other variable belongs in `.env`. In full, the anchor defines:
   `DATABASE2_USERNAME`, `DATABASE2_PASSWORD`, and `DATABASE2_PORT`.
 
 The `nginx` service adds 1 pass-through variable of its own,
-`VORTEX_NGINX_MAINTENANCE_MODE`, which turns on the [static maintenance
+`VORTEX_WEBSERVER_MAINTENANCE_MODE`, which turns on the [static maintenance
 page](../../hosting/lagoon.mdx#serve-a-maintenance-page).
 
 In CI, the `##` marker also switches on `SSMTP_MAILHUB`, which points

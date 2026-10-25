@@ -187,11 +187,11 @@ working database.
 Lagoon applies a changed variable on the next deployment, so each switch is
 a variable change followed by a redeployment. To turn the page on:
 
-1. Set `VORTEX_NGINX_MAINTENANCE_MODE` to `1` on the environment:
+1. Set `VORTEX_WEBSERVER_MAINTENANCE_MODE` to `1` on the environment:
 
    ```shell
    lagoon add variable --project your_site --environment main \
-     --scope runtime --name VORTEX_NGINX_MAINTENANCE_MODE --value 1
+     --scope runtime --name VORTEX_WEBSERVER_MAINTENANCE_MODE --value 1
    ```
 
    Only the value `1` turns the page on.
@@ -214,7 +214,7 @@ To bring the site back:
 
    ```shell
    lagoon delete variable --project your_site --environment main \
-     --name VORTEX_NGINX_MAINTENANCE_MODE
+     --name VORTEX_WEBSERVER_MAINTENANCE_MODE
    ```
 
 2. Redeploy the environment:
@@ -237,7 +237,7 @@ files get the maintenance page too. To preview your changes locally:
 1. Rebuild and recreate the `nginx` container with the variable set:
 
    ```shell
-   VORTEX_NGINX_MAINTENANCE_MODE=1 ahoy up --build nginx
+   VORTEX_WEBSERVER_MAINTENANCE_MODE=1 ahoy up --build nginx
    ```
 
    The local site shows the maintenance page.
