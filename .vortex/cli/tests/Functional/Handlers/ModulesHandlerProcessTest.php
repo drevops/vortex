@@ -84,7 +84,7 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains([
         'drupal/reroute_email',
-        "install(['reroute_email'])",
+        "'reroute_email',",
       ])),
     ];
     yield 'modules_no_robotstxt' => [
