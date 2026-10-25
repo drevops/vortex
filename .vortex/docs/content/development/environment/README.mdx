@@ -124,8 +124,8 @@ all containers and downloaded dependency packages (`vendor`, `node_modules` etc.
 To update environment variables in your local development environment:
 
 1. Edit variables in `.env.local` file
-2. Apply changes by re-creating the containers (a plain restart does not
-   re-read the `.env` files):
+2. Apply changes to the variables that `docker-compose.yml` lists by
+   re-creating the containers:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -139,5 +139,24 @@ To update environment variables in your local development environment:
     ```
   </TabItem>
 </Tabs>
+
+Drupal also reads variables that `docker-compose.yml` doesn't pass, such as
+`DRUPAL_CLAMAV_ENABLED`. For web requests, PHP-FPM loads them from `.env`
+when its container starts, never from `.env.local`. To apply a change to
+`.env`, run `ahoy restart` (or `docker compose restart`): `ahoy up`
+recreates a container only when its configuration changes, and these
+variables aren't part of it.
+
+To set such a variable on your machine only, for example a credential that
+must stay out of the committed `.env`, pass it to the `appserver` service in
+`docker-compose.override.yml`. Then set its value in `.env.local` and run
+`ahoy up`:
+
+```yaml title="docker-compose.override.yml"
+services:
+  appserver:
+    environment:
+      DRUPAL_EXAMPLE_API_KEY: ${DRUPAL_EXAMPLE_API_KEY:-}
+```
 
 ➡️ See [Variables](../variables.mdx) for the full variable reference.
