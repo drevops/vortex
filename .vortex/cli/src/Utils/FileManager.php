@@ -34,7 +34,9 @@ class FileManager {
 
     if (!is_readable($dst . '/.git')) {
       $messages[] = sprintf('Initialising a new Git repository in directory "%s".', $dst);
-      passthru(sprintf('git --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
+      // 'git init' writes the initial branch advice to stderr when
+      // 'init.defaultBranch' is unset, and passthru() draws it inside the TUI.
+      passthru(sprintf('git -c advice.defaultBranchName=false --work-tree="%s" --git-dir="%s/.git" init > /dev/null', $dst, $dst));
 
       if (!File::exists($dst . '/.git')) {
         throw new \RuntimeException(sprintf('Unable to initialise Git repository in directory "%s".', $dst));
