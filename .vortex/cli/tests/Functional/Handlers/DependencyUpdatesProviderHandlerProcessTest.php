@@ -49,6 +49,13 @@ class DependencyUpdatesProviderHandlerProcessTest extends AbstractHandlerProcess
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $config = json_decode(File::read(static::$sut . '/renovate.json'), TRUE);
           $test->assertSame(array_fill_keys(DependencyUpdatesAutomerge::GROUPS, FALSE), array_column($config['packageRules'], 'automerge', 'groupSlug'));
+          $test->assertSame([
+            'php-all-except-core-minor-patch' => '14 days',
+            'js-all-minor-patch' => '14 days',
+            'container-images-all-major-minor-patch' => '14 days',
+            'ci-tools-all-major-minor-patch' => '14 days',
+            'github-actions-all-major-minor-patch' => '14 days',
+          ], array_column($config['packageRules'], 'minimumReleaseAge', 'groupSlug'));
       }),
     ];
   }
