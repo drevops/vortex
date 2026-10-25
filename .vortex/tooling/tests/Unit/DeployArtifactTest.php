@@ -239,7 +239,7 @@ class DeployArtifactTest extends UnitTestCase {
 
     // Mock git-artifact download failure.
     $this->mockRequest(
-      'https://github.com/drevops/git-artifact/releases/download/1.8.0/git-artifact',
+      'https://github.com/drevops/git-artifact/releases/download/1.9.0/git-artifact',
       ['method' => 'GET'],
       ['ok' => FALSE, 'status' => 404, 'body' => 'Not Found'],
     );
@@ -494,7 +494,7 @@ class DeployArtifactTest extends UnitTestCase {
    */
   protected function mockGitArtifactDownload(): void {
     $this->mockRequest(
-      'https://github.com/drevops/git-artifact/releases/download/1.8.0/git-artifact',
+      'https://github.com/drevops/git-artifact/releases/download/1.9.0/git-artifact',
       ['method' => 'GET'],
       ['ok' => TRUE, 'status' => 200, 'body' => ''],
     );
