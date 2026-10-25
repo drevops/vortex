@@ -6,15 +6,7 @@
        VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
  
-@@ -33,6 +32,7 @@
-       export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}}
-       export VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2)
-       export VORTEX_HOST_SOLR_PORT=$(docker compose port search 8983 2>/dev/null | cut -d : -f 2)
-+      export VORTEX_HOST_STORYBOOK_PORT=$(docker compose port cli ${VORTEX_STORYBOOK_PORT:-6006} 2>/dev/null | cut -d : -f 2)
-       export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port browser 7900 2>/dev/null | cut -d : -f 2)
-       export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
-       ahoy cli ./vendor/bin/vortex-info "$@"
-@@ -170,25 +170,7 @@
+@@ -170,25 +169,7 @@
      aliases: [fe-install]
      cmd: |
        ahoy cli "npm ci"
@@ -40,7 +32,7 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
-@@ -208,7 +190,6 @@
+@@ -208,7 +189,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
        ahoy cli "npm run lint"
@@ -48,7 +40,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -215,14 +196,6 @@
+@@ -215,14 +195,6 @@
      cmd: |
        ahoy cli vendor/bin/gherkinlint lint tests/behat/features
  
@@ -63,7 +55,7 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
-@@ -240,7 +213,6 @@
+@@ -240,7 +212,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
        ahoy cli "npm run lint-fix"
