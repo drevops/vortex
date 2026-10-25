@@ -14,8 +14,8 @@
 │  The Lint, Test and Build jobs run in parallel. Deployment runs after all three pass.      │
 │                                                                                            │
 │  Lint Job                                                                                  │
-│    Build CLI container ──► Composer validate / normalize ──► Hadolint ──►                  │
-│    DCLint ──► PHPCS ──► PHPStan ──► Rector ──► Twig CS Fixer ──►                           │
+│    Composer validate ──► Hadolint ──► DCLint ──► Build CLI container ──►                   │
+│    Composer normalize ──► PHPCS ──► PHPStan ──► Rector ──► Twig CS Fixer ──►               │
 │    Gherkin Lint ──► ESLint / Stylelint                                                     │
 │                                                                                            │
 │  Test Job                                                                                  │
@@ -25,15 +25,18 @@
 │      ▼                                                                                     │
 │    Build Docker ──► Composer deps ──► NPM deps ──► Assets                                  │
 │      ▼                                                                                     │
-│    Import cached database ──► drush deploy ──► custom deploy steps                         │
+│    Import cached database ──► drush deploy ──► deploy steps                                │
 │      ▼                                                                                     │
-│    PHPUnit tests ──► Behat tests                                                           │
+│    Jest ──► PHPUnit ──► SDC validation ──► Behat                                           │
 │                                                                                            │
 │  Build Job                                                                                 │
 │    Assemble and validate the deployable artifact                                           │
 │                                                                                            │
 │  Deployment Job (after Lint, Test and Build pass)                                          │
-│    Webhook URL ──► artifact package ──► Lagoon webhook ──► Docker container image          │
+│    Webhook: call URL    Artifact: push code package    Lagoon: trigger deployment          │
+│                                                                                            │
+│  Security Audit (separate workflow, does not gate deployment)                              │
+│    Composer audit ──► npm audit ──► Gitleaks                                               │
 │                                                                                            │
 └────────────────────────────────────────────────────────────────────────────────────────────┘
                                             │
@@ -43,7 +46,7 @@
  ◆ Environment ──No──► Sync DB from production ───┐
    exists?                                        │
       │ Yes                                       ▼
-      └──────────────────────────────────► drush deploy ──► Custom scripts ──► Notifications
+      └──────────────────────────────────► drush deploy ──► Deploy steps ──► Notifications
 
 
                                   Available Environments

@@ -5,47 +5,69 @@ sidebar_position: 1
 
 # Security
 
-**Vortex** covers three security concerns: secrets committed to the codebase
-([Secret scanning](secret-scanning.mdx)), vulnerable dependencies
-([Dependency audit](dependency-audit.mdx)), and access to non-production
-environments (Shield).
+Security problems rarely announce themselves: an API token lands in a
+commit, a dependency picks up a published vulnerability, a development site
+sits open on a public URL. This overview is for developers and leads on a
+project built from **Vortex**: it shows which check or setting covers each
+of those risks, and where it runs.
+
+**Vortex** covers those 3 concerns with the following tools:
+
+- [Secret scanning](secret-scanning.mdx) for committed secrets
+- The [dependency audit](dependency-audit.mdx) for vulnerable dependencies
+- Shield for access to non-production environments, described in the
+  following section
+
+The [Security Kit](../modules/contributed-modules.mdx#security-kit) module,
+which adds security-hardening HTTP headers, also ships with the project,
+but provisioning doesn't install it. Enable it when the project needs it.
 
 ## Environment access
 
-[Shield](https://www.drupal.org/project/shield) restricts access to your site
-by requiring HTTP authentication credentials. **Vortex** forces Shield on in
-the `dev` and `stage` hosted environments, keeps local development and CI
-accessible without authentication, and leaves production alone so Shield stays
-under UI control there. The credentials come from the `DRUPAL_SHIELD_USER` and
-`DRUPAL_SHIELD_PASS` environment variables.
+[Shield](https://www.drupal.org/project/shield) puts an HTTP authentication
+prompt in front of your site. **Vortex** forces it on in every hosted
+non-production environment: `development`, `preview`, and `stage`. Work in
+progress then never sits on a public URL. Shield stays off locally and in
+CI, where a prompt would only get in the way. In production, **Vortex**
+leaves Shield alone, so it stays under UI control there.
+
+The credentials come from the `DRUPAL_SHIELD_USER` and `DRUPAL_SHIELD_PASS`
+environment variables. Set both in each hosted non-production environment.
+Shield stays on there even when they're missing, and then nobody can get
+past the prompt.
 
 ➡️ See [Modules > Shield](../modules/contributed-modules.mdx#shield) for the
-full entry, including the overrides that disable Shield for one environment or
+full entry, including the overrides that disable Shield for 1 environment or
 open the Let's Encrypt challenge path.
 
 ## PHP settings
 
 The `appserver` container turns off PHP's session upload progress tracking
 with `session.upload_progress.enabled = Off` in
-`.docker/config/php/custom.ini`. The tracking writes upload request data into
-PHP's own session storage before Drupal starts, and Drupal never reads it.
-File uploads, including anonymous ones, work with the setting off. Drupal's
-optional upload progress bar requires the PECL `uploadprogress` extension.
+`.docker/config/php/custom.ini`. The tracking writes upload request data
+into PHP's own session storage before Drupal starts, and Drupal never reads
+it. File uploads, including anonymous ones, work with the setting off.
+Drupal's optional upload progress bar requires the PECL `uploadprogress`
+extension.
 
-The setting applies wherever the **Vortex** images run: locally, in CI and on
-Lagoon. On Acquia, the platform's own PHP settings apply.
+The setting applies wherever the **Vortex** images run: locally, in CI, and
+on Lagoon. On Acquia, the platform's own PHP settings apply.
 
 ## Continuous integration
 
-Both scans run in the
-[security audit workflow](../../continuous-integration/README.mdx#security-audit),
-which is separate from the build pipeline, so that a failing audit is never
-confused with a failing linter and can be re-run on its own. Because it is a
-separate workflow, it is not a dependency of the `deploy` job - a failing audit
-does not by itself stop a deployment. To block merges and deployments on it,
-add its check to the repository's branch protection rules as a required status
-check.
+Secret scanning and the dependency audit run in the [security audit
+workflow](../../continuous-integration/README.mdx#security-audit), separate
+from the build pipeline. A failing audit then never looks like a failing
+linter, and you can re-run it on its own. The flip side is that the `deploy`
+job doesn't depend on the audit, so a failing audit doesn't stop a
+deployment by itself. To block merges on it, add its check to the
+repository's branch protection rules as a required status check.
 
-In GitHub Actions, both scans also upload their findings to the repository's **Security → Code scanning** tab. That gives a project an inventory of what's currently open rather than only a sequence of passing and failing builds.
+In GitHub Actions, both also upload their findings to the repository's
+**Security → Code scanning** tab, which keeps an inventory of the open
+findings. The workflow attaches every report to the run as the
+`security-findings` artifact too. CircleCI has no code scanning
+destination, so its findings stay in the job log.
 
-➡️ See [Code scanning](../../continuous-integration/README.mdx#code-scanning).
+➡️ See [Code
+scanning](../../continuous-integration/README.mdx#code-scanning).

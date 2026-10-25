@@ -5,85 +5,100 @@ sidebar_position: 5
 
 # Settings
 
-Drupal site configuration - including database connections, file paths, and
-environment-specific behavior - is controlled through the `settings.php` and
-`services.yml` files. This section explains how **Vortex** structures and
-extends these files to support consistent setup across environments.
+Drupal reads its site configuration from `settings.php` and `services.yml`:
+database connections, file paths, and everything that should behave
+differently from one environment to the next. **Vortex** ships its own
+versions of
+[`settings.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/settings.php)
+and
+[`services.yml`](https://github.com/drevops/vortex/blob/main/web/sites/default/services.yml),
+built so the same files work in every environment.
 
-**Vortex** ships with its own version of
-the [`settings.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/settings.php) and
-[`services.yml`](https://github.com/drevops/vortex/blob/main/web/sites/default/services.yml) files.
+The shipped `settings.php` works out where the site is running (locally, in
+CI, or in a hosting environment) and applies settings to match. Each
+module's overrides live in a small file of their own, so you can see at a
+glance what a module does differently in each environment.
 
-It provides logic to detect the current environment (such as local, CI, or
-production) and apply settings conditionally. You can also define configuration
-overrides for individual modules if needed.
+Drupal Scaffold's own
+[`default.settings.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/default.settings.php)
+and
+[`default.services.yml`](https://github.com/drevops/vortex/blob/main/web/sites/default/default.services.yml)
+are there too, if you'd rather start from those.
 
-The default **Drupal Scaffold**'s [`default.settings.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/default.settings.php)
-and [`default.services.yml`](https://github.com/drevops/vortex/blob/main/web/sites/default/default.services.yml)
-files are also provided if you choose to use them instead.
+This page is for developers who need a setting to differ between
+environments, and for the lead or DevOps engineer bringing a project onto a
+hosting platform. It explains how `settings.php` detects the environment and
+which variables it reads. It also shows how to add your own per-module
+overrides and test them. For the full list of variables, see
+[Variables](variables.mdx).
 
 ## Approach
 
-Managing Drupal settings across multiple environments - such as local, CI,
-development, staging, and production - often requires conditional configuration.
-Different environments may need to enable or disable modules, change performance
-settings, use different APIs, or point to different services.
+A site rarely runs the same way everywhere. Local, CI, development, staging,
+and production environments each need their own adjustments: a module on
+here and off there, different performance settings, different APIs, or
+different services to talk to.
 
-The challenge is that Drupal doesn't offer a standard way to manage these
-environment-specific differences. Its configuration system is not designed to
-handle conditional logic, such as applying different settings based on runtime
-environment, or retrieving values from environment variables.
+Drupal has no standard way to manage these differences. Its configuration
+system isn't built for conditional logic, such as applying different
+settings per runtime environment or reading values from environment
+variables.
 
-Modules like `config_split` can help by allowing you to maintain separate
-configuration sets per environment, but they are limited: they don't support
-environment-based conditions inside the configuration YAML files, cannot access
-environment variables directly, and are not suitable when you need dynamic logic
-(e.g. setting values based on external service URLs).
+Modules like `config_split` let you maintain separate configuration sets per
+environment, but they're limited. They don't support environment-based
+conditions inside the configuration YAML files, and they can't read
+environment variables directly. They also don't help when you need dynamic
+logic (for example, setting values based on external service URLs).
 
-**Vortex** does support `config_split` as part of its standard tooling, and it's
-ideal for use cases where declarative configuration is sufficient - for example,
-enabling a module in staging but not production. However, when settings require
-conditional logic or need to pull values from the environment, `config_split`
-does not suffice. In addition, it is not possible to automatically test which
-settings are applied in a specific environment.
+**Vortex** still ships `config_split`, and it's the right tool when
+declarative configuration is enough, such as enabling a module in staging
+but not in production. It falls short when settings need conditional logic
+or values from the environment. It also gives you no way to test
+automatically which settings apply in a given environment.
 
-**Vortex** addresses this problem with a clear and maintainable approach:
+So **Vortex** splits the job in 2:
 
-- The _environment type_ is [detected](#environment-type-detection) based on the
-environment where the site is running. This detection step is isolated and
-does not apply any configuration overrides.
-- Configuration overrides are defined in [per-module override files](#per-module-overrides),
-with conditions applied based on the detected _environment type_.
+- The _environment type_ is [detected](#environment-type-detection) from the
+  environment the site runs in. This step applies the hosting platform's own
+  settings, but no module configuration.
+- Configuration overrides live in [per-module override
+  files](#per-module-overrides), with conditions based on the detected
+  _environment type_.
 
-This structure offers several benefits:
+The split pays off in 4 ways:
 
 - It keeps environment detection separate from configuration logic.
-- It shows how a module behaves in a specific environment - all in one place.
-- If a module is no longer needed, its override file can be safely removed
-without modifying the `settings.php` file.
-- It prevents environment-specific settings from leaking into unrelated parts of
-the configuration.
+- It shows in 1 place how a module behaves in a specific environment.
+- It lets you delete a module's override file without touching
+  `settings.php` when the module is no longer needed.
+- It stops environment-specific settings from leaking into unrelated parts
+  of the configuration.
 
 ### In practice
 
 Say the business asks to let an external stakeholder review the `stage`
-environment, which [Shield](modules/contributed-modules.mdx#shield) protects with HTTP
-authentication. The shipped `settings.shield.php` override already reads the
-`DRUPAL_SHIELD_DISABLED` variable, so the change is a variable, not code:
+environment, which [Shield](modules/contributed-modules.mdx#shield) protects
+with HTTP authentication. The shipped `settings.shield.php` override already
+reads the `DRUPAL_SHIELD_DISABLED` variable, so you can make the change
+without editing code:
 
-1. Set `DRUPAL_SHIELD_DISABLED=1` on the `stage` environment in your hosting
-   provider's environment variables and apply it (Acquia applies it
-   automatically; Lagoon requires a deployment).
-2. When the review is over, remove the variable to restore the default
-   behavior.
+1. In your hosting provider's environment variables, set
+   `DRUPAL_SHIELD_DISABLED=1` on the `stage` environment.
+2. Apply the variable: Acquia applies it on its own, and Lagoon needs a
+   deployment. The `stage` site then opens without the HTTP authentication
+   prompt.
 
-Nothing is committed and no other environment is affected: the override file
-defines the behavior once, and each environment opts in through its own
-variables.
+When the review is over, remove the variable and apply the change the same
+way. Confirm that the `stage` site asks for the Shield credentials again.
+
+You don't commit anything, and no other environment changes, because the
+override file defines the behavior once and each environment opts in through
+its own variables.
 
 ## Settings file structure
 
-The [`settings.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/settings.php)
+The
+[`settings.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/settings.php)
 file is organized into the following sections:
 
 - [Database](#database)
@@ -92,8 +107,7 @@ file is organized into the following sections:
 - [Per-module overrides](#per-module-overrides)
 - [Local overrides](#local-overrides)
 
-The sections run in a fixed order, loading additional files from the
-`includes/` directories along the way:
+The sections run in a fixed order and load more files along the way:
 
 ```text
 🚀 Drupal bootstrap
@@ -108,9 +122,10 @@ The sections run in a fixed order, loading additional files from the
    │  File paths, hash salt, timezone, maintenance theme.
    ▼
 ③ 🔍 Environment type detection
-   │  Loads web/sites/default/includes/providers/settings.<provider>.php
-   │  (acquia, lagoon, circleci, gha, container) and stores the detected
-   │  type in $settings['environment']. No overrides are applied here.
+   │  Requires environment.drupal.php from the drevops/environment-detector
+   │  package. The detector applies the active platform's settings and
+   │  stores the detected type in $settings['environment']. No module
+   │  overrides are applied here.
    ▼
 ④ 🧩 Per-module overrides
    │  Loads every web/sites/default/includes/modules/settings.<module>.php,
@@ -123,11 +138,16 @@ The sections run in a fixed order, loading additional files from the
 🏁 Fully configured site
 ```
 
+Projects with the migration feature load 1 more file between the per-module
+overrides and the local overrides: `settings.migration.php`, which defines
+the [migration database connection](migrations.mdx#drupal-settings).
+
 import CodeBlock from '@theme/CodeBlock';
-import SettingsExample from '!!raw-loader!@site/../../web/sites/default/settings.php';
+import SettingsExample from
+  '!!raw-loader!@site/../../web/sites/default/settings.php';
 
 <details>
-  <summary>Click here to see the contents of the `settings.php` file</summary>
+  <summary>Expand to see <code>settings.php</code></summary>
 
   <CodeBlock language="php">{SettingsExample}</CodeBlock>
 
@@ -135,14 +155,13 @@ import SettingsExample from '!!raw-loader!@site/../../web/sites/default/settings
 
 ### Database
 
-Database configuration is managed through environment variables with sensible
-defaults, offering flexibility across hosting environments while keeping the
-setup consistent.
+The database connection comes from environment variables, with a default
+for each value.
 
-To support a variety of hosting providers and container platforms, multiple
-environment variable names are accepted for each setting:
+Hosting providers and container images name these variables differently, so
+each setting accepts several names and uses the first one that's set:
 
-| Variable             | Alternative Variables                   | Default              | Purpose           |
+| Variable             | Alternative variables                   | Default              | Purpose           |
 |----------------------|-----------------------------------------|----------------------|-------------------|
 | `DATABASE_NAME`      | `DATABASE_DATABASE`, `MARIADB_DATABASE` | `drupal`             | Database name     |
 | `DATABASE_USERNAME`  | `MARIADB_USERNAME`                      | `drupal`             | Database username |
@@ -152,70 +171,89 @@ environment variable names are accepted for each setting:
 | `DATABASE_CHARSET`   | `MARIADB_CHARSET`, `MYSQL_CHARSET`      | `utf8mb4`            | Character set     |
 | `DATABASE_COLLATION` | `MARIADB_COLLATION`, `MYSQL_COLLATION`  | `utf8mb4_general_ci` | Collation         |
 
-These variables normally should not be modified unless you are using a
-custom database setup or a different hosting provider that requires specific
-configuration. The defaults are designed to work with most common setups,
-including local development environments and popular hosting providers.
+The table prefix is always empty, and the driver is always `mysql`.
+
+You rarely need to set these yourself: the local stack sets them in
+`docker-compose.yml`, and the alternative names cover providers and images
+that use their own. For a custom database setup, or a hosting provider that
+needs specific values, set them in that environment.
 
 ### General
 
-This section configures generic site settings such as file paths, security
-patterns, performance optimizations, and essential directories. These settings
-are identical across all _environment types_.
+This section sets the values every environment needs, and it doesn't look
+at the environment type. The environment detector in the
+[next section](#environment-type-detection) can adjust a few of these
+values for its platform, such as the temporary directory on Acquia.
 
-The following environment variables can be used to customize general settings:
+The following environment variables customize it:
 
-| Variable                    | Alternative Variables | Default                        | Purpose                                  |
-|-----------------------------|-----------------------|--------------------------------|------------------------------------------|
-| `DRUPAL_CONFIG_PATH`        |                       | `../config/default`            | Location of configuration sync directory |
-| `DRUPAL_PUBLIC_FILES`       |                       | `sites/default/files`          | Public files directory path              |
-| `DRUPAL_PRIVATE_FILES`      |                       | `sites/default/files/private`  | Private files directory path             |
-| `DRUPAL_TEMPORARY_FILES`    | `TMP`                 | `/tmp`                         | Temporary files directory path           |
-| `DRUPAL_HASH_SALT`          |                       | _Generated from database host_ | Cryptographic salt for security          |
-| `DRUPAL_TIMEZONE`           | `TZ`                  | `UTC`                          | Runtime timezone                         |
-| `DRUPAL_MAINTENANCE_THEME`  | `DRUPAL_THEME`        | `claro`                        | Theme used during maintenance mode       |
+| Variable                    | Alternative variables | Default                           | Purpose                                  |
+|-----------------------------|-----------------------|-----------------------------------|------------------------------------------|
+| `DRUPAL_CONFIG_PATH`        | None                  | `../config/default`               | Location of configuration sync directory |
+| `DRUPAL_PUBLIC_FILES`       | None                  | `sites/default/files`             | Public files directory path              |
+| `DRUPAL_PRIVATE_FILES`      | None                  | `sites/default/files/private`     | Private files directory path             |
+| `DRUPAL_TEMPORARY_FILES`    | `TMP`                 | `/tmp`                            | Temporary files directory path           |
+| `DRUPAL_HASH_SALT`          | None                  | SHA-256 hash of the database host | Cryptographic salt for security          |
+| `DRUPAL_TIMEZONE`           | `TZ`                  | `UTC`                             | Runtime timezone                         |
+| `DRUPAL_MAINTENANCE_THEME`  | `DRUPAL_THEME`        | `claro`                           | Theme used during maintenance mode       |
 
-The page cache lifetime (`DRUPAL_CACHE_PAGE_MAX_AGE`, default `900` seconds) is
-set in the `settings.system.php` [per-module override](#per-module-overrides),
-not in this section. The full generated list of `DRUPAL_*` variables is in the
+It also does the following, and no variable changes it:
+
+- Loads `services.yml` as a service container definition
+- Skips the `node_modules` and `bower_components` directories in file
+  scans
+- Sets `auto_create_htaccess` to `FALSE`, so Drupal creates no `.htaccess`
+  files in writable directories
+- Updates entities in batches of 50
+- Starts an empty `config_exclude_modules` list for the per-module files to
+  fill
+
+The page cache lifetime (`DRUPAL_CACHE_PAGE_MAX_AGE`, default `900` seconds)
+is set in the `settings.system.php`
+[per-module override](#per-module-overrides), not in this section. The full
+generated list of `DRUPAL_*` variables is in the
 [Variables reference](variables.mdx).
 
 #### Hash salt
 
-The `DRUPAL_HASH_SALT` variable sets Drupal's `hash_salt`, which secures one-time
-login links, password-reset URLs, and CSRF/form tokens.
+The `DRUPAL_HASH_SALT` variable sets Drupal's `hash_salt`, which secures
+one-time login links, password-reset URLs, and CSRF/form tokens.
 
-When `DRUPAL_HASH_SALT` is not set, **Vortex** derives a fallback salt by hashing
-the database host name. This lets a project start quickly and is suitable for
-**local and CI use only**:
+When `DRUPAL_HASH_SALT` isn't set, **Vortex** derives a fallback salt by
+hashing the database host name. That gets a new project running without any
+setup, and it's fine for local and CI use, but nowhere else:
 
-- A database host is not a secret - it appears in logs, backups, `.env` files,
-  and `drush status` output - so the derived value only resists blind guessing.
+- A database host isn't a secret. It appears in logs, backups, `.env` files,
+  and `drush status` output, so the derived value only resists blind
+  guessing.
 - The derived value changes if the database host ever changes (for example,
-  failover or migration), silently invalidating outstanding one-time login and
-  password-reset links.
+  failover or migration), silently invalidating outstanding one-time login
+  and password-reset links.
 
 :::warning
 
-Set a unique, long, random `DRUPAL_HASH_SALT` for every hosted environment (dev,
-stage, and production) as a platform variable or secret. See the
-[Acquia](/docs/hosting/acquia) and [Lagoon](/docs/hosting/lagoon) hosting pages
-for platform-specific guidance.
+Set a unique, long, random `DRUPAL_HASH_SALT` for every hosted environment,
+meaning dev, stage, and production, as a platform variable or secret. See
+the [Acquia](/docs/hosting/acquia) and [Lagoon](/docs/hosting/lagoon)
+hosting pages for each platform's steps.
 
 :::
 
 ### Environment type detection
 
-**Vortex** uses an _environment type_ to represent the context in which the
-Drupal site is running. Detection is delegated to the
+The _environment type_ names the context the Drupal site runs in. Settings
+and deploy steps check it to decide how to behave in each environment.
+
+The
 [`drevops/environment-detector`](https://github.com/drevops/environment-detector)
-package, which identifies the active _hosting platform_ (such as Acquia or
-Lagoon) or _CI service_, resolves the environment type, and applies that
-platform's environment-specific Drupal settings.
+package does the detection. It identifies the active _hosting platform_
+(such as Acquia or Lagoon) or _CI service_ and resolves the environment
+type from it. It then applies that platform's environment-specific Drupal
+settings.
 
-The detector recognizes six environment types:
+The detector recognizes 6 environment types:
 
-| Type | What it is | Lifespan |
+| Type | Description | Lifespan |
 |------|------------|----------|
 | `local` | Your own machine or a local container stack; no hosting platform is active. | Persistent |
 | `ci` | An automated CI runner (GitHub Actions, CircleCI). | Ephemeral, per job |
@@ -224,11 +262,14 @@ The detector recognizes six environment types:
 | `stage` | A persistent pre-production environment that mirrors production; used for UAT and release sign-off. | Persistent |
 | `production` | The live environment serving real users. | Persistent |
 
-On the Drupal side, the detected type is stored in `$settings['environment']`,
-which modules and settings overrides use to drive environment-specific
-behavior; shell scripts read the `ENVIRONMENT_TYPE` environment variable
-instead. **Vortex** treats `preview` the same as `development` in its module
-settings.
+The detected type lands in `$settings['environment']`, where modules and
+settings overrides read it to drive environment-specific behavior. The
+detector also sets the `ENVIRONMENT_TYPE` environment variable to the same
+value.
+
+Most shipped module settings treat `preview` the same as `development`.
+`settings.storybook.php` is the exception: it opens the Storybook render
+route in `local`, `ci`, and `development` only.
 
 #### Environment type constants
 
@@ -242,115 +283,137 @@ The detector exposes the supported environment types as constants on the
 - `Environment::STAGE` (`stage`)
 - `Environment::PRODUCTION` (`production`)
 
-Use these constants in module settings files instead of hardcoding the string
-values.
+Use these constants in module settings files instead of hardcoding the
+string values.
 
 #### Detection mechanism
 
-The detector resolves the environment type from the active platform and applies
-that platform's Drupal settings (reverse proxy, trusted hosts, file paths, and
-similar):
+The detector resolves the environment type from the active platform. It
+also applies that platform's Drupal settings, such as the reverse proxy,
+trusted hosts, and file paths:
 
-- If a hosting platform or CI service is detected, it determines the environment
-  type.
-- If the active platform cannot determine a specific type, the type falls back
-  to `Environment::DEVELOPMENT` — the safest default, so a misconfigured
-  environment never receives local settings in production or production settings
-  locally.
-- If no platform is detected, the type is `Environment::CI` when a generic CI
-  signal is present, otherwise `Environment::LOCAL`.
+- When a hosting platform or CI service is detected, that platform sets
+  the environment type.
+- When the active platform can't name a specific type, the type falls back
+  to `Environment::DEVELOPMENT`. That's the safest default: a misconfigured
+  environment never gets local settings in production, or production
+  settings locally.
+- When no platform is detected, the type is `Environment::CI` if a generic
+  CI signal is present, and `Environment::LOCAL` otherwise.
 
-The detector owns all environment-specific settings. **Vortex** only bridges a
-few of its own variables (such as the Lagoon production branch and the local
-development URL) to the variable names the detector reads.
+The detector owns every platform-specific setting. **Vortex** only sets 2
+of the variables it reads: `.env` sets `ENVIRONMENT_PRODUCTION_BRANCH` to
+`main` for Lagoon, and `docker-compose.yml` sets `LOCALDEV_URL` for the
+local stack.
 
 #### Overriding environment type
 
-You can override the detected environment type by setting the
-`ENVIRONMENT_TYPE` environment variable. When it is set before detection, the
-detector uses its value verbatim.
+To force a specific environment type, set the `ENVIRONMENT_TYPE`
+environment variable. When it's set before detection runs, the detector
+uses its value as is.
 
-This is useful when:
+Overriding the type helps in the following cases:
 
-- Testing environment-specific behavior locally.
-- Working around gaps in the detection logic.
-- Forcing a known environment type for debugging.
+- Testing environment-specific behavior locally
+- Working around gaps in the detection logic
+- Forcing a known environment type for debugging
 
-For example, add `ENVIRONMENT_TYPE=ci` to your `.env.local` file to simulate
-the CI environment locally.
+For example, to simulate the CI environment locally, add
+`ENVIRONMENT_TYPE=ci` to your `.env.local` file and run `ahoy up`.
 
 ### Per-module overrides
 
-This section automatically includes module-specific settings from files in the
-`includes/modules` directory. Each file follows the naming pattern
-`settings.[module].php` and contains configuration overrides for a specific
-Drupal module.
+This section loads every `settings.[module].php` file from the
+`includes/modules` directory, in alphabetical order. Each file holds the
+configuration overrides for 1 Drupal module, or for 1 concern such as
+trusted hosts.
 
-**Vortex** ships with pre-configured settings for several popular contributed
-modules, each isolated in its own file for easy maintenance and removal.
+**Vortex** ships an override file for each contributed module it
+configures, so you can maintain or remove each one independently. It also
+ships 3 files that don't belong to a contributed module:
 
-➡️ See [Contributed modules](modules/contributed-modules.mdx) for what each shipped override configures, module by module.
+- `settings.automated_cron.php` sets the Automated Cron interval to `0` in
+  the `local` and `ci` environments, so cron doesn't run on page requests
+  there.
+- `settings.system.php` sets the page cache lifetime and turns on CSS and
+  JavaScript aggregation in `production`. In `local` and `ci`, it shows all
+  errors and skips file permissions hardening. In `ci`, it stores outgoing
+  email in the state system instead of sending it.
+- `settings.trusted_hosts.php` adds each domain in the comma-separated
+  `DRUPAL_TRUSTED_HOSTS` variable to the trusted host patterns.
+
+➡️ See [Contributed modules](modules/contributed-modules.mdx) for what each
+shipped override configures, module by module.
 
 #### Creating custom module settings
 
-To add settings for a new module, create a file following the naming pattern:
+To add settings for a new module, create a file following the naming
+pattern:
 
 ```shell
 web/sites/default/includes/modules/settings.[module_name].php
 ```
 
-Each settings file should:
+Each settings file follows these rules:
 
-- Use the environment detector's constants (`Environment::LOCAL`, `Environment::PRODUCTION`, etc.) for conditional logic
-- Leverage environment variables for configuration values
-- Provide sensible defaults when environment variables are not set
+- Use the detector's constants (such as `Environment::LOCAL` and
+  `Environment::PRODUCTION`) for conditional logic
+- Use environment variables for configuration values
+- Provide default values for when environment variables aren't set
 - Be self-contained and removable without affecting other modules
 
-<details>
-  <summary>Example of the `Environment indicator` module `settings.environment_indicator.php` file</summary>
+The following override file for the Environment Indicator module follows
+these rules:
 
-  <CodeBlock language="php">{EnvironmentIndicatorModuleSettingsExample}</CodeBlock>
+import EnvironmentIndicatorModuleSettingsExample from
+  '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.environment_indicator.php';
+
+<details>
+  <summary>Example <code>settings.environment_indicator.php</code></summary>
+
+  <CodeBlock language="php">
+    {EnvironmentIndicatorModuleSettingsExample}
+  </CodeBlock>
 
 </details>
 
 #### Shield
 
-[Shield](https://www.drupal.org/project/shield) restricts access to your site
-by requiring HTTP authentication credentials. **Vortex** enforces Shield in
-non-production hosted environments, keeps local development and CI accessible
-without authentication, and leaves production alone so Shield stays under UI
-control there.
+[Shield](https://www.drupal.org/project/shield) restricts access to your
+site with HTTP authentication. **Vortex** enforces Shield in non-production
+hosted environments, and keeps local development and CI open without
+authentication. Production is left alone, so Shield stays under UI control
+there.
 
-**Environment behavior:**
+The following table shows where Shield is enabled:
 
 | Environment | Shield enabled | Reason                                                            |
 |-------------|----------------|-------------------------------------------------------------------|
 | Local       | No             | No need for HTTP auth during local development                    |
 | CI          | No             | Automated tests must access the site freely                       |
-| Dev         | **Yes**        | Protects development environments from crawlers                   |
+| Development | **Yes**        | Protects development environments from crawlers                   |
 | Preview     | **Yes**        | Protects ephemeral preview environments                           |
 | Stage       | **Yes**        | Protects staging environments from public access                  |
-| Prod        | Not enforced   | Left to the site configuration - enable or disable through the UI |
+| Production  | Not enforced   | Left to the site configuration - enable or disable through the UI |
 
-**Environment variables:**
+The following environment variables configure Shield:
 
 | Variable                             | Default | Purpose                                             |
 |--------------------------------------|---------|-----------------------------------------------------|
-| `DRUPAL_SHIELD_USER`                 |         | HTTP authentication username                        |
-| `DRUPAL_SHIELD_PASS`                 |         | HTTP authentication password                        |
-| `DRUPAL_SHIELD_PRINT`                |         | Message shown in the authentication popup (module default when unset) |
-| `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` |         | Set to `1` to keep the `/.well-known/acme-challenge/*` path open for Let's Encrypt certificate generation |
+| `DRUPAL_SHIELD_USER`                 | None    | HTTP authentication username                        |
+| `DRUPAL_SHIELD_PASS`                 | None    | HTTP authentication password                        |
+| `DRUPAL_SHIELD_PRINT`                | None    | Message shown in the authentication popup (module default when unset) |
+| `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` | None    | Set to `1` to keep the `/.well-known/acme-challenge/*` path open for Let's Encrypt certificate generation |
 
-**Overriding default behavior:**
+To turn Shield off in an environment where it would otherwise be on, set
+`DRUPAL_SHIELD_DISABLED` to `1`. That helps for temporary access during
+debugging, or in an environment that needs no protection.
 
-Set `DRUPAL_SHIELD_DISABLED` to `1` to completely disable Shield in an
-environment where it would otherwise be enabled. This is useful for temporary
-access during debugging or when an environment does not require protection.
-
-import ShieldModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.shield.php';
+import ShieldModuleSettingsExample from
+  '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.shield.php';
 
 <details>
-  <summary>Example of the `Shield` module `settings.shield.php` file</summary>
+  <summary>Example <code>settings.shield.php</code></summary>
 
   <CodeBlock language="php">{ShieldModuleSettingsExample}</CodeBlock>
 
@@ -359,45 +422,44 @@ import ShieldModuleSettingsExample from '!!raw-loader!@site/../../web/sites/defa
 #### Reroute Email
 
 [Reroute Email](https://www.drupal.org/project/reroute_email) intercepts
-outgoing emails and redirects them to a configurable address instead of the
-intended recipients. This prevents accidental email delivery to real users in
-non-production environments while still allowing email functionality to be
-tested.
+outgoing email and sends it to a configurable address instead of the
+intended recipients. Real users don't get email from non-production
+environments, and you can still test email features there.
 
-**Environment behavior:**
+The following table shows where rerouting is on:
 
 | Environment | Rerouting enabled | Reason                                                        |
 |-------------|-------------------|---------------------------------------------------------------|
 | Local       | No                | Emails are typically not sent in local development            |
-| CI          | No                | Automated tests do not send real emails                       |
-| Dev         | **Yes**           | Prevents accidental delivery to real users                    |
+| CI          | No                | Automated tests don't send real emails                        |
+| Development | **Yes**           | Prevents accidental delivery to real users                    |
 | Preview     | **Yes**           | Prevents accidental delivery to real users                    |
 | Stage       | **Yes**           | Stage runs a copy of production content, so any address that survives database sanitization is real |
-| Prod        | No                | Production emails must reach actual recipients                |
+| Production  | No                | Production emails must reach actual recipients                |
 
-Rerouting is the default, so it is also enabled in any custom environments that
-do not match the standard environment types listed above.
+Rerouting is the default, so it's also on in any custom environment type
+outside the 6 standard ones.
 
-The settings file excludes the module from the exported configuration, so the
-development modules deploy step is the only place that installs it.
+The settings file excludes the module from the exported configuration, so
+the [development modules](provision.mdx#development-modules) deploy step is
+the only place that installs it.
 
-**Environment variables:**
+The following environment variables configure the rerouting:
 
-| Variable                       | Default                            | Purpose                                              |
-|--------------------------------|------------------------------------|------------------------------------------------------|
+| Variable                       | Default                              | Purpose                                              |
+|--------------------------------|--------------------------------------|------------------------------------------------------|
 | `DRUPAL_REROUTE_EMAIL_ADDRESS` | `webmaster@your-site-domain.example` | Address to receive all rerouted emails               |
 | `DRUPAL_REROUTE_EMAIL_ALLOWED` | `*@your-site-domain.example`         | Pattern for addresses allowed to bypass rerouting    |
 
-**Overriding default behavior:**
+To turn rerouting off in an environment where it would otherwise be on, set
+`DRUPAL_REROUTE_EMAIL_DISABLED` to `1`. To send real mail from `stage`
+during UAT, set this variable there.
 
-Set `DRUPAL_REROUTE_EMAIL_DISABLED` to `1` to completely disable email rerouting
-in an environment where it would otherwise be enabled. To send real mail from
-`stage` during UAT, set this variable there.
-
-import RerouteEmailModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.reroute_email.php';
+import RerouteEmailModuleSettingsExample from
+  '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.reroute_email.php';
 
 <details>
-  <summary>Example of the `Reroute Email` module `settings.reroute_email.php` file</summary>
+  <summary>Example <code>settings.reroute_email.php</code></summary>
 
   <CodeBlock language="php">{RerouteEmailModuleSettingsExample}</CodeBlock>
 
@@ -405,106 +467,139 @@ import RerouteEmailModuleSettingsExample from '!!raw-loader!@site/../../web/site
 
 ### Local overrides
 
-At the end of the `settings.php`, there is an option to include additional local
-settings. This allows you to override some settings for the local
-environment without affecting the main configuration. You can
-copy `example.settings.local.php` and `example.services.local.yml`
-to `settings.local.php` and `services.local.yml`, respectively, to use this
-functionality.
+`settings.php` ends by loading `settings.local.php` when it exists, so you
+can override settings on your machine without touching the shared
+configuration. To turn the local overrides on, follow these steps in
+`web/sites/default`:
 
-Set the `DRUPAL_SETTINGS_LOCAL_SKIP` environment variable to `1` to skip the
-local overrides even when `settings.local.php` exists.
+1. Copy `example.settings.local.php` to `settings.local.php`.
+2. Copy `example.services.local.yml` to `services.local.yml`.
 
-import LocalSettingsExample from '!!raw-loader!@site/../../web/sites/default/example.settings.local.php';
+Git ignores both copies, and `settings.local.php` is the file that loads
+`services.local.yml`. Drupal builds a new service container when that list
+of service files changes, so no cache rebuild is needed. Confirm that the
+HTML source of the next page you load carries Twig debug comments, such as
+`<!-- THEME DEBUG -->`.
+
+The example files change the following settings:
+
+- Every error message shows, with backtrace information.
+- CSS and JavaScript aggregation is off.
+- The render, page, and dynamic page caches are bypassed.
+- Twig debugging is on.
+- Responses carry cacheability debug headers.
+- `rebuild.php` is accessible.
+- File permissions hardening is skipped.
+
+To check how the site behaves without the local overrides, set the
+`DRUPAL_SETTINGS_LOCAL_SKIP` environment variable to `1`. The site then
+skips `settings.local.php` even when it exists.
+
+import LocalSettingsExample from
+  '!!raw-loader!@site/../../web/sites/default/example.settings.local.php';
 
 <details>
-  <summary>Click here to see the contents of the `example.settings.local.php` file</summary>
+  <summary>Expand to see <code>example.settings.local.php</code></summary>
 
   <CodeBlock language="php">{LocalSettingsExample}</CodeBlock>
 
 </details>
 
-import LocalServicesExample from '!!raw-loader!@site/../../web/sites/default/example.services.local.yml';
+import LocalServicesExample from
+  '!!raw-loader!@site/../../web/sites/default/example.services.local.yml';
 
 <details>
-  <summary>Click here to see the contents of the `example.services.local.yml` file</summary>
+  <summary>Expand to see <code>example.services.local.yml</code></summary>
 
-  <CodeBlock language="php">{LocalServicesExample}</CodeBlock>
+  <CodeBlock language="yaml">{LocalServicesExample}</CodeBlock>
 
 </details>
 
 ## Guidelines
 
-When working with settings, follow these guidelines to ensure clarity, consistency, and maintainability:
+Follow these guidelines when working with settings:
 
-- **Do not modify `settings.php` directly.<br/>**
-Use environment variables for [general](#general) settings or [per-module override files](#per-module-overrides)
-for any custom or environment-aware configuration.
+- **Don't modify `settings.php` directly.<br/>** Use environment variables
+  for [general](#general) settings or
+  [per-module override files](#per-module-overrides) for any custom or
+  environment-aware configuration.
 
 - **Keep all overrides isolated by module.**<br/>
-Each file should encapsulate logic for a single module only. If a module is
-removed, its override file should be removable without affecting unrelated
-settings.
+  Each file holds the logic for a single module only. When the module goes,
+  its override file goes with it, and no unrelated setting changes.
 
-- **Use environment variables for configuration that changes by environment.**<br/>
-Prefix all such variables with `DRUPAL_` (e.g. `DRUPAL_MY_SETTING`) to
-distinguish them from other environment variables.<br/>
-Always define a default hardcoded value for each environment variable.
+- **Use environment variables for configuration that changes by
+  environment.**<br/>
+  Prefix all such variables with `DRUPAL_` (for example,
+  `DRUPAL_MY_SETTING`) to distinguish them from other environment
+  variables.<br/>
+  Always define a default hardcoded value for each environment variable.
 
 - **Guard a variable by what it holds.**<br/>
-A _boolean flag_ switches behavior on and is read with
-`getenv('DRUPAL_MY_FLAG') === '1'`. Every other value leaves the behavior off,
-including an unset variable, an empty string, `0`, `true` and `yes`.<br/>
-A _value carrier_ holds a value the code uses and is read with
-`!empty(getenv('DRUPAL_MY_VALUE'))`. When the code needs the value after the
-guard, assign it to a variable first.<br/>
-Compare with `===` and `!==`, never with `==`.
+  A _boolean flag_ (a variable whose only job is to switch behavior on) is
+  read with `getenv('DRUPAL_MY_FLAG') === '1'`. Every other value, including
+  an unset variable, an empty string, `0`, `true`, and `yes`, leaves the
+  behavior off.<br/>
+  A _value carrier_ (a variable whose value is used) is read with
+  `!empty(getenv('DRUPAL_MY_VALUE'))`. Assign it to a variable first when
+  the value is needed after the guard.<br/>
+  Compare with `===` and `!==`, never with `==`.
 
 :::warning Flags accept only `1`
 
-Setting a shipped flag to `true`, `yes`, `on` or any other non-empty value
-leaves the behavior **off**. Set each of these flags to `1` in your hosting
-provider's environment variables: `DRUPAL_CLAMAV_ENABLED`,
-`DRUPAL_REDIS_ENABLED`, `DRUPAL_REROUTE_EMAIL_DISABLED`,
-`DRUPAL_SHIELD_DISABLED`, `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` and
-`DRUPAL_SETTINGS_LOCAL_SKIP`.
+Each of the following flags acts only when it's exactly `1`. Any other
+value, such as `true`, `yes`, or `on`, counts as unset, so the flag has no
+effect. Set each one to exactly `1`, wherever you set it:
+
+- `DRUPAL_CLAMAV_ENABLED`
+- `DRUPAL_REDIS_ENABLED`
+- `DRUPAL_REROUTE_EMAIL_DISABLED`
+- `DRUPAL_SHIELD_DISABLED`
+- `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE`
+- `DRUPAL_SETTINGS_LOCAL_SKIP`
+- `VORTEX_REDIS_EXTENSION_LOADED`
 
 :::
 
-- **Gate on the presence of a contributed module only when the file needs it.**<br/>
-`file_exists($contrib_path . '/my_module')` belongs in an override file that
-loads a file from the module directory or registers its paths. An override file
-that only writes `$config` or `$settings` skips this guard, because Drupal
-ignores overrides for a module that is not installed.
+- **Gate on the presence of a contributed module only when the file needs
+  it.**<br/>
+  `file_exists($contrib_path . '/my_module')` belongs in an override file
+  that loads a file from the module directory or registers its paths. An
+  override file that only writes `$config` or `$settings` needs no such
+  guard, because Drupal ignores overrides for a module that isn't installed.
 
-- **Use conditions based on _environment type_ within per-module override files.**<br/>
-This allows for environment-specific configuration without cluttering the main
-`settings.php` file.<br/>
-Use the `$settings['environment']` variable to check the current _environment type_.
-
-import EnvironmentIndicatorModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.environment_indicator.php';
-
-<details>
-  <summary>Example of the `Environment indicator` module `settings.environment_indicator.php` file</summary>
-
-  <CodeBlock language="php">{EnvironmentIndicatorModuleSettingsExample}</CodeBlock>
-
-</details>
+- **Use conditions based on _environment type_ within per-module override
+  files.**<br/>
+  This keeps environment-specific configuration out of the main
+  `settings.php` file.<br/>
+  Use the `$settings['environment']` variable to check the current
+  _environment type_.
 
 ## Testing settings with unit tests
 
-**Vortex** includes a [set of unit tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal)
-to verify that settings are applied correctly for each detected environment
+**Vortex** includes a [set of unit
+tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal) to
+verify that settings are applied correctly for each detected environment
 type.
 
-These tests are intended to be maintained within your project, helping you
-ensure that environment-driven configuration - including both environment types
-and environment variables - behaves as expected.
+They're meant to be maintained in your project, alongside your settings.
+They check that environment-driven configuration behaves as expected, for
+each environment type and for the environment variables that switch
+behavior on or off. The 3 test classes cover the following:
 
-To run unit tests for settings:
+- `DatabaseSettingsTest`: the database connection settings
+- `EnvironmentSettingsTest`: the settings in every environment type
+- `SwitchableSettingsTest`: the settings that environment variables switch
+  on or off
+
+To run only the settings tests, run the following command inside the CLI
+container (open a shell there with `ahoy cli`):
 
 ```shell
 vendor/bin/phpunit --group=drupal_settings
 ```
 
-Remove these tests if you do not want to maintain them.
+Confirm that PHPUnit reports `OK` at the end of the run.
+
+They're part of the `unit` test suite, so `ahoy test-unit` runs them too.
+Remove these tests if you don't want to maintain them.

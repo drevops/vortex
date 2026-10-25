@@ -8,18 +8,34 @@ sidebar_position: 3
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-A project carries two dependency trees, each audited by its own package manager: `composer audit` for the PHP packages and `npm audit` for the JavaScript packages. Both run locally and in the CI security audit workflow.
+Every package your project installs is code you didn't write, and security
+advisories against those packages get published all the time. This page is
+for the developers and leads who act on those advisories in a project built
+from **Vortex**. After reading it, you can run the audit, decide what fails
+it, record an assessed exception, and find each finding in continuous
+integration (CI).
+
+The dependency audit checks your packages against those advisories, with
+each ecosystem's own package manager: `composer audit` for the PHP packages
+and `npm audit` for the JavaScript ones. You can run both locally, and the
+CI [security audit
+workflow](../../continuous-integration/README.mdx#security-audit) runs them
+on the same pushes, pull requests, and tags as the build pipeline.
 
 ## PHP dependencies
 
 `composer audit` checks the installed packages against published security
 advisories and reports abandoned packages.
 
-Composer 2.10.0 introduced a unified `config.policy` setting that controls both security auditing (reporting known security vulnerabilities and abandoned packages) and version blocking (refusing to install or update affected packages). **Vortex** uses it to keep vulnerabilities visible without blocking day-to-day dependency work.
+Composer's `config.policy` setting, available from Composer 2.10.0, controls
+both security auditing (reporting known security vulnerabilities and
+abandoned packages) and version blocking (refusing to install or update
+affected packages). **Vortex** uses it to keep vulnerabilities visible
+without getting in the way of day-to-day dependency work.
 
 ### Usage
 
-Check your dependencies for security issues manually:
+Run the audit yourself at any time:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -44,8 +60,10 @@ Check your dependencies for security issues manually:
     # Audit packages from lock file (faster)
     docker compose exec cli composer audit --locked
     # Control abandoned package behavior
-    docker compose exec cli composer audit --abandoned=ignore  # Skip abandoned packages
-    docker compose exec cli composer audit --abandoned=report  # Show but don't fail
+    # Skip abandoned packages
+    docker compose exec cli composer audit --abandoned=ignore
+    # Show but don't fail
+    docker compose exec cli composer audit --abandoned=report
     ```
   </TabItem>
 </Tabs>
@@ -72,27 +90,62 @@ Configure the policy in your `composer.json` under the `config` section:
 
 **Vortex** sets the following values:
 
-- **`advisories.block`** to `false`: security advisories do not block `composer install`, `composer update`, or `composer require`, so builds and deployments stay reproducible even when a new advisory is published upstream against an existing dependency. (Composer's own default is `true`.)
-- **`advisories.audit`** to `fail`: the `composer audit` command still fails when an advisory is found, keeping vulnerabilities visible locally and in CI.
-- **`abandoned.audit`** to `report`: abandoned packages are reported as warnings but do not fail the audit. (Composer's own default is `fail`.)
+- **`advisories.block`** to `false`: security advisories don't block
+  `composer update`, `composer require`, or `composer remove`, so dependency
+  updates stay reproducible even when a new advisory is published upstream
+  against an existing dependency. `composer install` installs exactly what
+  the lock file pins and resolves nothing, so this setting never affects it.
+  (Composer's own default is `true`.)
+- **`advisories.audit`** to `fail`: the `composer audit` command still fails
+  when it finds an advisory, so vulnerabilities stay visible locally and in
+  CI.
+- **`abandoned.audit`** to `report`: the audit reports abandoned packages as
+  warnings without failing. (Composer's own default is `fail`.)
 
-Each section accepts `block` (refuse affected versions during `composer update`/`require`/`remove`), `audit` (`ignore`, `report`, or `fail` for the `composer audit` command), and `ignore`/`ignore-id`/`ignore-severity` for assessed exceptions.
+The `advisories` and `abandoned` sections accept the following keys:
+
+- `block`: refuses the affected packages during `composer update`,
+  `composer require`, and `composer remove`
+- `audit`: `ignore`, `report`, or `fail`, for the `composer audit` command
+- `ignore`: package names to exempt
+
+For assessed exceptions, `advisories` also accepts `ignore-id` and
+`ignore-severity`. Composer's [`policy`
+documentation](https://getcomposer.org/doc/06-config.md#policy) covers the
+rest, including the `malware` and `cooldown` policies and the per-entry
+`on-audit` and `on-block` scoping of `ignore-id`.
 
 :::note Composer 2.10+
 
-`config.policy` requires Composer 2.10 or newer, which ships in the **Vortex** container images. On older Composer versions, use the legacy `config.audit` keys (`block-insecure`, `abandoned`) instead - they continue to work as a fallback.
+`config.policy` requires Composer 2.10 or newer, which ships in the
+**Vortex** container images. On older Composer versions, use the legacy
+`config.audit` keys (`block-insecure`, `abandoned`) instead. Composer 2.10
+and newer still read those keys, but only when the matching `config.policy`
+section is absent.
 
 :::
 
-#### Why advisories do not block installation
+#### Why advisories don't block dependency updates
 
-Coupling installation to advisory publication makes builds non-deterministic: a newly published advisory against an already-installed dependency can fail every build - including work unrelated to security - until the advisory is assessed and ignored. **Vortex** decouples the two by setting `advisories.block` to `false` while keeping `advisories.audit` at `fail`, so installs and updates remain reproducible while vulnerabilities are still surfaced by `composer audit` and the CI security audit workflow.
+If advisories could block resolution, whether an update works would depend
+on the day you run it. An advisory published this morning against a package
+you already have can fail every `composer update` or `composer require`,
+including work unrelated to security, until someone assesses the advisory
+and ignores it. Setting `advisories.block` to `false` takes advisory
+publication out of dependency resolution, so updates stay reproducible.
+`advisories.audit` stays at `fail`, so `composer audit` and the CI security
+audit workflow still surface every vulnerability.
 
-If your project requires installation to hard-stop on advisories - for example, a production site with strict supply-chain controls - set `advisories.block` to `true`.
+If your project needs dependency resolution to stop hard on advisories (for
+example, a production site with strict supply-chain controls), set
+`advisories.block` to `true`.
 
 ### Ignoring
 
-When you've assessed an advisory and determined it doesn't affect your project, add it to the `ignore-id` list with a reason:
+When you've assessed an advisory and found it doesn't affect your project,
+add it to `ignore-id`. Use the value from the advisory's `Advisory ID` or
+`CVE` row in the `composer audit` output as the key, and the reason as the
+value:
 
 ```json
 {
@@ -109,50 +162,86 @@ When you've assessed an advisory and determined it doesn't affect your project, 
 }
 ```
 
-:::tip Document your decisions
+Record the reason in your Git commit message too, so your team can see
+later why the vulnerability was acceptable and review the decision.
 
-Record the reason for each ignored advisory in your Git commit message. This helps your team understand why a vulnerability was deemed acceptable and makes the decision easy to review later.
+Confirm that `ahoy composer audit` no longer fails on the advisory. The
+output lists it after the following line, with your reason in the
+`Ignore reason` row:
 
-:::
+```text
+Found 1 ignored security vulnerability advisory affecting 1 package:
+```
 
 ### Continuous integration
 
-**Vortex** runs `composer audit --locked` in the
-[security audit workflow](../../continuous-integration/README.mdx#security-audit),
-so the audited set is exactly what `composer.lock` pins. Because
-`advisories.audit` is `fail`, the audit reports vulnerabilities and the
-workflow fails when any are found - even though installs and updates are not
-blocked.
+The [security audit
+workflow](../../continuous-integration/README.mdx#security-audit) runs
+`composer audit --locked`, so it audits exactly what `composer.lock` pins,
+without installing anything. With `advisories.audit` at `fail`, any
+advisory fails the workflow, even though installs and updates go through.
 
 #### Ignoring failures
 
-Set the repository variable `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` to
-make the audit step run and report without failing that workflow - useful as a
-one-off bypass while a known advisory is being addressed.
+Set `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` (a repository variable
+in GitHub Actions, an environment variable in CircleCI) to let the workflow
+pass anyway. The audit still runs and reports every advisory in the job log.
+Treat it as a one-off bypass while you deal with a known advisory, because
+it lets every new advisory through as well.
 
-➡️ See [Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).
+➡️ See [Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures).
 
 ### Where findings appear
 
-In GitHub Actions, the audit findings are also uploaded to the repository's **Security → Code scanning** tab under the `composer-audit` category. Each advisory becomes an alert carrying its severity, its affected version range and a link to the advisory, located at the package's entry in `composer.lock`. Abandoned packages are reported there as well, at note severity, and so are dependency policy matches - including Composer's built-in `malware` policy, which is active by default. The audit fails on all 3.
+In GitHub Actions, the workflow also uploads the audit findings to the
+repository's **Security → Code scanning** tab under the `composer-audit`
+category. Each advisory becomes an alert carrying its severity, its affected
+version range, and a link to the advisory, located at the package's entry
+in `composer.lock`. Abandoned packages show up there as well, at note
+severity. So do dependency policy matches, including Composer's built-in
+`malware` policy, which is active by default.
 
-Advisories already listed under `ignore-id` aren't uploaded, so the code scanning inventory holds the same set of findings the audit fails on.
+Advisories and policy matches fail the audit; abandoned packages are
+reported without failing it. Advisories already listed under `ignore-id`
+aren't uploaded, so the advisories in the code scanning inventory are the
+same ones the audit fails on. An alert is identified by its advisory and
+package, not its line, so it stays the same alert when `composer.lock`
+changes around it.
 
-➡️ See [Code scanning](../../continuous-integration/README.mdx#code-scanning).
+➡️ See [Code
+scanning](../../continuous-integration/README.mdx#code-scanning).
 
 ### Dismissing a finding
 
-Dismissing an alert in the **Security → Code scanning** tab records a reason against that finding and removes it from the open list. That's the right tool for tracking an assessment.
+Dismissing an alert in the **Security → Code scanning** tab records a reason
+against that finding and removes it from the open list. That's the right
+tool for tracking an assessment.
 
-It doesn't change what the audit does. `composer audit` still reports the advisory and still fails the workflow until the advisory is added to `ignore-id` as described in [Ignoring](#ignoring). Dismiss the alert to record the assessment, and add the `ignore-id` entry to stop the build failing.
+The audit itself keeps reporting the advisory and failing the workflow
+until you add the advisory to `ignore-id` as described in
+[Ignoring](#ignoring). Dismiss the alert to record the assessment, and add
+the `ignore-id` entry to stop the build failing.
 
 ## JavaScript dependencies
 
-`npm audit` checks the packages resolved from `package-lock.json` against the advisories published in the npm registry.
+`npm audit` checks the packages resolved from `package-lock.json` against
+the advisories published in the npm registry.
 
-A project has two JavaScript dependency trees, each with its own `package.json` and lock file: the root one for the custom modules' tooling and the test runner, and the custom theme's one for the front-end build. They are audited separately.
+A project can have up to 2 JavaScript dependency trees, each with its own
+`package.json` and lock file. The audit checks each tree separately:
+
+- The root tree holds the linters and the test runner for the custom
+  modules. It ships when you keep ESLint, Stylelint, or Jest at the
+  **Vortex** CLI's **Development tools** prompt. Without them, the CLI
+  removes the root tree's audit steps from the CI configuration.
+- The custom theme's tree holds its frontend build. It ships with a custom
+  theme. Without one, the CLI removes the theme's audit steps from the CI
+  configuration.
 
 ### Usage
+
+Run the audit for each tree with the following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -164,8 +253,12 @@ A project has two JavaScript dependency trees, each with its own `package.json` 
     # Audit from the lock file, without an installed tree
     ahoy cli "npm audit --package-lock-only"
     # Audit the root and the theme packages with the allowlist applied
-    ahoy cli "npx --yes audit-ci --high --extra-args=--package-lock-only --config package-audit.jsonc"
-    ahoy cli "npx --yes audit-ci --high --extra-args=--package-lock-only --directory \${WEBROOT}/themes/custom/\${DRUPAL_THEME} --config \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/package-audit.jsonc"
+    ahoy cli "npx --yes audit-ci --high --extra-args=--package-lock-only \
+      --config package-audit.jsonc"
+    ahoy cli "npx --yes audit-ci --high --extra-args=--package-lock-only \
+      --directory \${WEBROOT}/themes/custom/\${DRUPAL_THEME} \
+      --config \
+      \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/package-audit.jsonc"
     ```
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
@@ -173,31 +266,52 @@ A project has two JavaScript dependency trees, each with its own `package.json` 
     # Audit the root packages
     docker compose exec cli npm audit
     # Audit the theme packages
-    docker compose exec cli bash -c "npm audit --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME}"
+    docker compose exec cli bash -c \
+      "npm audit --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME}"
     # Audit from the lock file, without an installed tree
     docker compose exec cli npm audit --package-lock-only
     # Audit the root and the theme packages with the allowlist applied
-    docker compose exec cli npx --yes audit-ci --high --extra-args=--package-lock-only --config package-audit.jsonc
-    docker compose exec cli bash -c "npx --yes audit-ci --high --extra-args=--package-lock-only --directory \${WEBROOT}/themes/custom/\${DRUPAL_THEME} --config \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/package-audit.jsonc"
+    docker compose exec cli npx --yes audit-ci --high \
+      --extra-args=--package-lock-only --config package-audit.jsonc
+    docker compose exec cli bash -c \
+      "npx --yes audit-ci --high --extra-args=--package-lock-only \
+      --directory \${WEBROOT}/themes/custom/\${DRUPAL_THEME} \
+      --config \
+      \${WEBROOT}/themes/custom/\${DRUPAL_THEME}/package-audit.jsonc"
     ```
   </TabItem>
 </Tabs>
 
 ### Severity threshold
 
-npm fails the audit on any advisory by default. A development dependency tree of this size carries low-severity advisories in transitive packages at most times, which would block every build, so **Vortex** raises the floor to `high` in `.npmrc`:
+npm fails the audit on any advisory by default. A development dependency
+tree of this size carries low-severity advisories in transitive packages at
+most times, which would block every build, so **Vortex** raises the floor to
+`high` in `.npmrc`:
 
 ```ini
 audit-level=high
 ```
 
-npm reads the project configuration from the directory of the `package.json` it audits, so both `.npmrc` files carry the setting - the one in the project root and the one in the custom theme. The accepted values are `info`, `low`, `moderate`, `high`, `critical` and `none`; lower the value to widen what fails the build. CI runs the audit through [audit-ci](https://github.com/IBM/audit-ci), which takes its threshold from the `--high` flag in each CI audit step instead, so change both when you move the bar. The flag stays in the CI configuration rather than in `package-audit.jsonc`, because `audit-ci` passes every advisory when no threshold is set.
+npm reads the project configuration from the directory of the `package.json`
+it audits, so both `.npmrc` files carry the setting: one in the project root
+and one in the custom theme. The accepted values are `info`, `low`,
+`moderate`, `high`, `critical`, and `none`; lower the value to widen what
+fails `npm audit`.
 
-The threshold is deliberately not a **Vortex** variable: it belongs to npm's own configuration, where a project changes it without a template variable existing for it.
+CI runs the audit through [audit-ci](https://github.com/IBM/audit-ci),
+which takes its threshold from the `--high` flag in each CI audit step
+instead, so update both when you change the threshold. The flag lives in
+the CI configuration rather than in `package-audit.jsonc`, because
+`audit-ci` passes every advisory when no threshold is set.
+
+The threshold is deliberately not a **Vortex** variable: it belongs to npm's
+own configuration, where a project changes it directly.
 
 ### Ignoring
 
-When the advisory is in a transitive dependency and a patched version exists, remove the affected version from the tree by pinning the patched one with an `overrides` entry in `package.json`:
+When the advisory is in a transitive dependency and a patched version
+exists, pin that version with an `overrides` entry like the following one:
 
 ```json
 {
@@ -207,15 +321,34 @@ When the advisory is in a transitive dependency and a patched version exists, re
 }
 ```
 
-npm then resolves every dependent to the pinned version. Run `npm install` to update the lock file, and commit both files.
+To apply the pin, complete these steps:
 
-:::tip Document your decisions
+1. Add the entry to the `package.json` of the affected tree. The root
+   `package.json` already has an `overrides` object, so add the entry to
+   it.
+2. Run `npm install` for that tree to update its lock file. npm resolves
+   every dependent to the pinned version, so the affected version leaves
+   the tree:
 
-Record the advisory that each `overrides` entry addresses in your Git commit message, the same as for the Composer exceptions above.
+   ```shell
+   # Root tree
+   ahoy cli "npm install"
+   # Theme tree
+   ahoy cli "npm install --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME}"
+   ```
 
-:::
+3. Commit both files, with the advisory that the entry addresses in the
+   commit message, the same as for the Composer exceptions.
 
-When no patched version exists yet, or you've assessed that the advisory doesn't affect your project, add it to the `allowlist` in the `package-audit.jsonc` file next to the same `package.json`. `npm audit` has no per-advisory ignore list, so CI runs the audit through [audit-ci](https://github.com/IBM/audit-ci), which applies the allowlist. Put the reason in `notes` and the date to review the decision in `expiry`:
+Confirm that the advisory is gone: run the audit from [Usage](#usage-1)
+again and check that its ID no longer appears in the output.
+
+When no patched version exists yet, or you've assessed that the advisory
+doesn't affect your project, add it to the `allowlist` in the
+`package-audit.jsonc` file next to the same `package.json`. `npm audit` has
+no per-advisory ignore list, so CI runs the audit through
+[audit-ci](https://github.com/IBM/audit-ci), which applies the allowlist.
+Put the reason in `notes` and the date to review the decision in `expiry`:
 
 ```jsonc
 {
@@ -231,36 +364,79 @@ When no patched version exists yet, or you've assessed that the advisory doesn't
 }
 ```
 
-- An advisory that isn't allowlisted still fails the audit when its severity meets the [severity threshold](#severity-threshold).
-- An entry stops applying once its `expiry` date is reached, or straight away if the date can't be parsed. The advisory then fails the audit again until it's resolved or the entry is renewed.
-- In the text output, an entry that matches no advisory is reported with a suggestion to remove it.
+The allowlist follows these rules:
 
-Key each entry by the advisory's GitHub ID, the last part of the advisory link that `npm audit` prints. The root and the custom theme each have their own `package-audit.jsonc`, so an advisory found in both trees needs an entry in both files. The file is optional: without it, the audit of that tree runs with no allowlist.
+- An advisory that isn't allowlisted still fails the audit when its severity
+  meets the [severity threshold](#severity-threshold).
+- An entry stops applying when its `expiry` date is reached, or straight
+  away if the date can't be parsed. The advisory then fails the audit again
+  until it's resolved or the entry is renewed.
+- An entry with `active` set to `false` doesn't apply.
+- In the text output, an entry that matches no advisory prints
+  `Consider not allowlisting advisory:` followed by its ID, as a suggestion
+  to remove it.
+
+Key each entry by the advisory's GitHub ID, the last part of the advisory
+link that `npm audit` prints. `audit-ci` also accepts the following key
+forms, described in the [audit-ci README](https://github.com/IBM/audit-ci):
+
+- A package name, which allowlists every advisory against that package
+- An advisory ID paired with a dependency path, which limits the entry to
+  that path
+
+The root and the custom theme each have their own `package-audit.jsonc`,
+so an advisory found in both trees needs an entry in both files. The file
+is optional: without it, the audit of that tree runs with no allowlist.
+
+Confirm that the entry applies: the `audit-ci` command from
+[Usage](#usage-1) lists the advisory under
+`Found vulnerable allowlisted advisories:` instead of failing on it.
 
 ### Continuous integration
 
-**Vortex** runs the audit in the
-[security audit workflow](../../continuous-integration/README.mdx#security-audit)
-for both dependency trees with `audit-ci`, pinned to an exact version in the
-workflow. Each audit step passes `--high` and `--package-lock-only`, and adds
-the tree's `package-audit.jsonc` when it exists. The audited set is exactly what the
-lock files pin, so no installed tree is needed.
+The [security audit
+workflow](../../continuous-integration/README.mdx#security-audit) audits
+both dependency trees with `audit-ci`, pinned to an exact version in the CI
+configuration. Each audit step passes `--high` and `--package-lock-only`,
+and adds the tree's `package-audit.jsonc` when it exists. The audit reads
+what the lock files pin, so it needs no installed tree.
 
-In GitHub Actions, the audit steps print `audit-ci`'s JSON output, which is npm's own report, and the code scanning upload converts that same report. The JSON output leaves out the notes on allowlisted and unused entries, which the text output prints in CircleCI and in the [usage](#usage-1) commands.
+In GitHub Actions, the audit steps print `audit-ci`'s JSON output, which is
+npm's own report, and the code scanning upload converts that same report.
+The JSON output leaves out the notes on allowlisted and unused entries,
+which the text output prints in CircleCI and in the [Usage](#usage-1)
+commands.
 
 #### Ignoring failures
 
-Set the repository variable `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1` to make
-both audit steps run and report without failing that workflow - useful as a
-one-off bypass while a known advisory is being addressed. The finding is still
-printed, so a tolerated advisory stays visible in the job log.
+Set `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1` to let both npm audit steps
+pass anyway. Use it as a one-off bypass while you deal with a known
+advisory. The audit still prints the finding, so a tolerated advisory stays
+visible in the job log.
 
-➡️ See [Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures).
+➡️ See [Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures).
 
 #### Where npm findings appear
 
-In GitHub Actions, both trees are uploaded to **Security → Code scanning** under separate categories: `npm-audit` for the root and `npm-audit-theme` for the custom theme. A finding can be traced back to the tree it came from. Each entry in a package's `via` list becomes its own alert, identified by its GHSA advisory, carrying the advisory's own CVSS score and located at the package's entry in that tree's `package-lock.json`.
+In GitHub Actions, both trees are uploaded to **Security → Code scanning**
+under separate categories: `npm-audit` for the root and `npm-audit-theme`
+for the custom theme. That way, you can trace each finding back to its
+tree.
 
-An advisory allowlisted in a tree's `package-audit.jsonc` isn't uploaded for that tree while its entry applies. After the entry expires or you remove it, the next run uploads the advisory again. An entry limited to a dependency path doesn't apply to the upload, so its advisory still raises an alert. Dismissing an alert records the assessment but doesn't stop the check failing; that still needs an `overrides` entry or an allowlist entry, as described in [Ignoring](#ignoring-1).
+Each advisory in a package's `via` list becomes its own alert, identified by
+its GHSA ID; an entry that only names another vulnerable package doesn't.
+The alert carries the advisory's CVSS score, or a score based on its
+severity when the advisory has none, and points at the package's entry in
+that tree's `package-lock.json`.
 
-➡️ See [Code scanning](../../continuous-integration/README.mdx#code-scanning).
+An advisory allowlisted in a tree's `package-audit.jsonc` isn't uploaded for
+that tree while its entry applies. After the entry expires or you remove
+it, the next run uploads the advisory again. An entry limited to a
+dependency path doesn't apply to the upload, so its advisory still raises
+an alert. Dismissing an alert records the assessment but doesn't stop the
+check failing; that still needs an `overrides` entry or an allowlist entry,
+as described in [Ignoring](#ignoring-1).
+
+➡️ See [Code
+scanning](../../continuous-integration/README.mdx#code-scanning).

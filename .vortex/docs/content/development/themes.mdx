@@ -5,40 +5,68 @@ sidebar_position: 7
 
 # Themes
 
-[Theme scaffold](https://github.com/drevops/vortex/tree/main/web/themes/custom/your_site_theme)
-is an example of a Drupal theme.
+**Vortex** ships a [theme
+scaffold](https://github.com/drevops/vortex/tree/main/web/themes/custom/your_site_theme):
+a working Drupal theme, `your_site_theme`, already wired into the build,
+lint, and test tooling. Put your site's custom styling and front-end
+features in it, and the commands on this page work on it without any setup.
 
-We recommend creating a custom `your_site_theme` theme for your project to place
-custom styling and front-end functionality specific to your site.
+This page is for developers who build the front end of a **Vortex**
+project. It covers the theme's build commands and file layout, its sample
+Single Directory Component, the optional Storybook component library, and
+the tests scaffold. The scaffold exists only when you pick
+**Custom (next prompt)** at the installer's **Theme** prompt, the default.
+Picking 1 of the core themes instead removes it, and most of this page then
+doesn't apply.
 
-The theme uses the site machine name convention (`your_site_theme` in this case),
-while modules use the abbreviated prefix (`ys_` for `your_site`).
+In the template, the theme is called `your_site_theme`. The installer
+renames it to the name you enter at the **Custom theme machine name**
+prompt, which defaults to the site's machine name. Custom modules use the
+shorter module prefix instead, such as `ys_` for `your_site`. The theme
+uses Drupal's default front-end theme as its base theme.
 
 :::info
 
-We understand that front-end theming is often highly project-specific and
-subject to team preferences. The provided `your_site_theme` scaffold is not
-intended to dictate how your theme should be built - it demonstrates how
-custom themes can _integrate_ with the **Vortex** tooling and automations.
-
-Feel free to adapt or replace it with your preferred theme.
+Front-end theming is often project-specific and subject to team
+preferences. The scaffold shows how a custom theme can _integrate_ with the
+**Vortex** tooling and automations. Adapt it, or replace it with your
+preferred theme.
 
 :::
 
 ## Build system
 
-The theme includes a complete Node.js-based build system composed of `npm`
-scripts over [Sass](https://sass-lang.com/), [PostCSS](https://postcss.org/)
-with Autoprefixer, [Terser](https://terser.org/) and
-[chokidar](https://github.com/open-cli-tools/chokidar-cli):
+The theme builds its assets with `npm` scripts that call
+[Sass](https://sass-lang.com/), [PostCSS](https://postcss.org/) with
+Autoprefixer, [Terser](https://terser.org/), and
+[chokidar](https://github.com/open-cli-tools/chokidar-cli). The build system
+covers the following:
 
-- **SCSS compilation**
-- **JavaScript concatenation and minification**
-- **CSS auto-prefixing** for browser compatibility
-- **Linting** for both CSS ([Stylelint](https://stylelint.io/)) and JavaScript ([ESLint](https://eslint.org/))
-- **Watch mode** for development
+- SCSS compilation
+- JavaScript concatenation and minification
+- CSS auto-prefixing for browser compatibility
+- Linting for both CSS ([Stylelint](https://stylelint.io/)) and JavaScript
+  ([ESLint](https://eslint.org/))
+- Watch mode for development
+- Copying of `images/` and `fonts/` into `build/`
+
+The production build compresses the CSS, and Terser minifies the
+concatenated JavaScript and strips its `console` calls. The development
+build skips minification and writes source maps instead. Autoprefixer
+targets the browsers in the `browserslist` key of `package.json`, and
+`npm ci` applies any patches in `patches/` through `patch-package`.
+
+The CLI container image runs `npm ci` and `npm run build` for the theme
+while it builds, so the image carries compiled assets. To build the assets
+on the host or during deployment instead, set
+`VORTEX_FRONTEND_BUILD_SKIP=1` in `.env`, which ships with `0`.
+`docker-compose.yml` passes it to the image as a build argument, so the
+change applies the next time the image builds, for example on `ahoy build`.
 
 ### Build commands
+
+Inside the CLI container (open a shell there with `ahoy cli`), run the
+theme's npm scripts from the theme directory:
 
 ```shell
 cd web/themes/custom/your_site_theme
@@ -62,8 +90,7 @@ npm run lint-fix
 npm run watch
 ```
 
-Ahoy commands are configured to call the appropriate npm scripts from the
-theme directory:
+The Ahoy commands call the same npm scripts in the theme directory:
 
 ```shell
 # Install front-end dependencies
@@ -85,22 +112,36 @@ ahoy lint-fe
 ahoy lint-fe-fix
 ```
 
-These commands run within the container to use the Node.js environment
-and tools installed there, ensuring consistency across development environments.
+These commands run within the container to use the Node.js environment and
+tools installed there, so every development environment runs them the same
+way. They also reach beyond the theme. `ahoy fei` installs the project
+root's npm dependencies too. The 2 lint commands also run Twig CS Fixer and
+the root `lint` or `lint-fix` script, which covers the custom modules.
 
 :::tip
 
-When adding your own theme with a custom build system, it's a good idea to
-follow the same command structure and naming conventions. This keeps things
-consistent across projects and makes it easier for other developers to work with
-the build system without learning a new process.
+If you replace the scaffold with your own theme, keep the same npm script
+names in its `package.json`: `build`, `build-dev`, `watch`, `lint`, and
+`lint-fix`. The Ahoy commands, the CLI image build, and the CI lint step
+call those names in the theme named by `DRUPAL_THEME`. `.env` sets that
+variable and `DRUPAL_MAINTENANCE_THEME`, and the installer writes your
+theme's name into both, so point both at the new theme.
 
 :::
 
+Neither variable sets Drupal's default theme. The
+`ys_base_deploy_install_active_theme()` deploy hook in `ys_base.deploy.php`
+installs the base theme and the custom theme, then makes the custom theme
+the default. Provisioning runs deploy hooks with `drush deploy:hook`, which
+runs each hook once per site. To make a new theme the default, change the
+machine name in that hook, so fresh installs pick it up. Then add a new
+deploy hook to the same file that installs your theme and sets it as the
+default on sites where the first hook already ran.
+
 ## File structure
 
-The main directories and files (build outputs, lint configuration files, and
-static assets are trimmed for brevity):
+The following tree shows the main directories and files. It leaves out
+build outputs, configuration and lock files, and static assets:
 
 ```text
 your_site_theme/
@@ -130,7 +171,8 @@ your_site_theme/
 │   └── src/
 │       ├── Unit/                  # Unit tests
 │       ├── Kernel/                # Kernel tests
-│       └── Functional/            # Functional tests
+│       ├── Functional/            # Functional tests
+│       └── FunctionalJavascript/  # Functional JavaScript tests
 ├── your_site_theme.info.yml       # Theme definition
 ├── your_site_theme.libraries.yml  # Asset libraries
 ├── your_site_theme.theme          # Theme functions
@@ -140,40 +182,60 @@ your_site_theme/
 
 ## Libraries
 
-The theme defines asset libraries in `your_site_theme.libraries.yml` for
-organized CSS and JavaScript loading with proper dependencies and browser
-compatibility.
+The theme defines 1 asset library in `your_site_theme.libraries.yml`,
+`global-styling`, and `your_site_theme.info.yml` attaches it to every page.
+It loads the compiled `build/css/your_site_theme.min.css` and
+`build/js/your_site_theme.min.js`, with `core/jquery`, `core/drupal`, and
+`core/drupalSettings` as dependencies.
 
 ## Single Directory Components
 
-The theme ships a sample [Single Directory Component](https://www.drupal.org/docs/develop/theming-drupal/using-single-directory-components)
-(SDC) in `components/button` and uses it from
-`templates/layout/region--footer-bottom.html.twig` to render a "back to top"
-link, demonstrating real component usage from a template.
+The theme ships a sample [Single Directory
+Component](https://www.drupal.org/docs/develop/theming-drupal/using-single-directory-components)
+(SDC) in `components/button`. The
+`templates/layout/region--footer-bottom.html.twig` template uses it to
+render a "back to top" link whenever the footer region has content. The
+button takes a required `label`, an optional `url` that turns it into a
+link, and an optional `modifier` for variant styling. Its `content` slot
+replaces the label.
 
-Components are validated with [SDC Devel](https://www.drupal.org/project/sdc_devel):
+To validate the components with
+[SDC Devel](https://www.drupal.org/project/sdc_devel), run the following
+command. It exists when the SDC Devel module is selected during
+installation, needs a provisioned site, and fails when the validator
+reports critical issues, errors, or warnings:
 
 ```shell
 ahoy lint-sdc
 ```
 
-➡️ See [SDC Devel](code-quality/sdc-devel.mdx) for how the validator is set up and where it runs.
+➡️ See [SDC Devel](code-quality/sdc-devel.mdx) for how the validator is set
+up and where it runs.
 
 ## Storybook
 
-[Storybook](https://storybook.js.org/) documents the theme's components and is
-enabled by selecting it during installation. Drupal renders every story through
-the [Storybook module](https://www.drupal.org/project/storybook), so the library
-shows the same markup the site renders.
+[Storybook](https://storybook.js.org/) documents the theme's components. To
+turn it on, answer **Yes** at the installer's
+**Storybook component library?** prompt. The installer asks only when you
+pick the custom theme, with **No** as the default answer. To add Storybook
+to a project installed without it, run `ahoy update-vortex --interactive`
+and answer **Yes** at that prompt. That run also updates the rest of the
+project's **Vortex** files, as [Updating Vortex](../updating-vortex.mdx)
+describes.
 
-Stories are authored in Twig next to the component they document, as
-`<component>.stories.twig`, and compiled into `<component>.stories.json` by
-Drush. The compiled files are generated artifacts and aren't committed.
+Drupal renders every story through the
+[Storybook module](https://www.drupal.org/project/storybook), so the library
+shows the same markup the site renders. Stories are authored in Twig next
+to the component they document, as `<component>.stories.twig`. Drush
+compiles them into `<component>.stories.json` with
+`drush storybook:generate-all-stories`. The compiled files are generated
+artifacts, and the root `.gitignore` keeps them out of Git.
 
 ### Working with Storybook
 
-The Storybook commands run inside the CLI container, like the other front-end
-commands, and use the theme dependencies installed there:
+Like the other front-end commands, the Storybook commands run inside the CLI
+container and use the theme dependencies installed there. The following 2
+commands start the development server and rebuild the library:
 
 ```shell
 # Develop components: regenerate stories as they change and serve them live
@@ -183,32 +245,42 @@ ahoy storybook
 ahoy storybook-build
 ```
 
-`ahoy storybook` generates the stories and starts a development server. It
-prints the server address, such as `http://localhost:55197`, when the server is
-ready. The server keeps running until you press <kbd>Ctrl-C</kbd>, and the
-stories are regenerated whenever a `*.stories.twig` file changes. Docker assigns
-the host port when the container starts, and `ahoy info` shows it next to the
-library address.
+`ahoy storybook` first stops any server or watcher left running by an
+earlier session. It then generates the stories and starts a development
+server. When the server is ready, the command prints its address, such as
+`Storybook is ready at http://localhost:55197`. The server keeps running
+until you press <kbd>Ctrl-C</kbd>. It regenerates the stories whenever a
+`*.stories.twig` file changes, so new and edited stories appear without a
+restart. Docker assigns the host port when the container starts, and
+`ahoy info` shows it next to the library address.
+
+A third command, `ahoy storybook-stories`, only generates the stories. Add
+`--watch` to keep regenerating them as the Twig story templates change.
 
 The development server runs on its own origin, so `services.storybook.yml`
-shares story renders with `localhost` origins in the `local`, `ci` and
-`development` environments. This file replaces the `cors.config` from
-`services.yml` there. A site that already shares responses with other origins
+shares story renders with `localhost` and `127.0.0.1` origins, on any port.
+`settings.storybook.php` loads that file in the `local`, `ci`, and
+`development` environments, where it replaces the `cors.config` from
+`services.yml`. A site that already shares responses with other origins
 lists them in `services.storybook.yml` too.
 
-Provisioning builds the component library at `/storybook` as a static copy, so
-it stays the same while you work. Run `ahoy storybook-build` to regenerate the
-stories and rebuild the library, for example before sharing a change for review.
+The component library at `/storybook` is a static copy built during
+provisioning. The build fixes the list of stories and their arguments,
+while Drupal renders each story's markup when you open it. After you add or
+remove a story, or change a story's name or arguments, run
+`ahoy storybook-build` to bring `/storybook` up to date. The development
+server picks those changes up on its own.
 
-In the `local` environment, provisioning turns on Twig development mode. An edit
-to a component's template then shows up in the development server and the
-library on the next render, with no cache rebuild.
+In the `local` environment, provisioning turns on Twig development mode. An
+edit to a component's template then shows up in the development server and
+in `/storybook` on the next render, with no cache rebuild and no library
+build.
 
 ### Customizing locations
 
-The `ahoy` commands and provisioning run `vendor/bin/vortex-storybook`, which
-reads its locations from environment variables. To move the theme or its
-stories, set these variables in `.env`:
+The `ahoy` commands and provisioning run `vendor/bin/vortex-storybook`,
+which reads its locations from environment variables. To move the theme or
+its stories, set these variables in `.env`:
 
 | Variable                            | Default                                               | Purpose                                                        |
 |-------------------------------------|-------------------------------------------------------|----------------------------------------------------------------|
@@ -217,18 +289,24 @@ stories, set these variables in `.env`:
 | `VORTEX_STORYBOOK_DEV_SCRIPT`       | `storybook`                                           | npm script that starts the development server                  |
 | `VORTEX_STORYBOOK_BUILD_SCRIPT`     | `storybook-build`                                     | npm script that builds the library                             |
 | `VORTEX_STORYBOOK_PORT`             | `6006`                                                | Development server port inside the container                   |
+| `STORYBOOK_SERVER_URL`              | First URL in `LOCALDEV_URL`                           | Site that renders stories for the development server           |
 | `VORTEX_STORYBOOK_BUILD_SERVER_URL` | None                                                  | Site that renders stories for the static library               |
 | `VORTEX_STORYBOOK_LIBRARY_PATH`     | `/storybook`                                          | Path of the library printed after a build                      |
 
 With no `VORTEX_STORYBOOK_BUILD_SERVER_URL`, the static library renders its
 stories from the site that serves it.
 
+The web server reads none of these variables.
+`.docker/config/nginx/storybook.conf` hardcodes the `/storybook` path and
+the theme's `storybook-static` directory. On Lagoon, so does the `storybook`
+volume path in `docker-compose.yml`. To move either, edit those files too.
+
 ### Running Storybook on the host
 
-The theme's `node_modules` directory is shared with the CLI container and holds
-dependencies installed for the container's architecture. To run Storybook on
-the host, reinstall the dependencies there and keep the stories regenerating in
-the container:
+The theme's `node_modules` directory is shared with the CLI container and
+holds dependencies installed for the container's architecture. To run
+Storybook on the host, reinstall the dependencies there and keep the
+stories regenerating in the container:
 
 1. Reinstall the theme dependencies on the host:
 
@@ -250,41 +328,55 @@ the container:
    STORYBOOK_SERVER_URL=http://your-site.docker.amazee.io npm run storybook
    ```
 
-   The development server is available at `http://localhost:6006`.
+   Confirm that the development server answers at
+   `http://localhost:6006`.
 
-Run `ahoy fei` before using the `ahoy` front-end commands again, so the
+Before you use the `ahoy` front-end commands again, run `ahoy fei`, so the
 container gets its own dependencies back.
 
 ### Published component library
 
-Provisioning installs the Storybook module with the other development modules
-in the `ys_base` development setup deploy step. A second deploy step then
-generates the stories and builds the static application into the theme's
-`storybook-static` directory, which the web server serves at `/storybook`.
+Provisioning installs the Storybook module with the other development
+modules in the `ys_base` development setup deploy step. A second deploy
+step, `BuildStorybookDeployStep`, then generates the stories and builds the
+static application into the theme's `storybook-static` directory. The web
+server serves that directory at `/storybook`.
 
-The build runs only in the `local`, `ci` and `development` environments, where
-the story render route is reachable. It also needs the theme dependencies
-installed. Set `DRUPAL_STORYBOOK_SKIP=1` to skip the build and shorten
-provisioning, and run `ahoy storybook-build` to rebuild the library on demand.
+The build runs only in the `local`, `ci`, and `development` environments,
+where the story render route is reachable. It also needs the theme
+dependencies installed. To skip the build and shorten provisioning, set
+`DRUPAL_STORYBOOK_SKIP=1`, and run `ahoy storybook-build` when you need the
+library.
 
-In the `development` environment, [Shield](modules/contributed-modules.mdx#shield)
-protects the story render route, so a story renders only after the browser has
-the Shield credentials. The web server serves the static application at
-`/storybook` and its story index directly, outside Shield.
+In the `development` environment,
+[Shield](modules/contributed-modules.mdx#shield) protects the story render
+route, so a story renders only after the browser has the Shield
+credentials. The web server serves the static application at `/storybook`
+and its story index directly, outside Shield.
 
 :::note
 
 On Lagoon, the CLI and web containers run in separate pods, so a dedicated
-persistent `storybook` volume shares the `storybook-static` directory between
-them. Acquia deployment artifacts carry no theme dependencies, so the library
-isn't built there.
+persistent `storybook` volume shares the `storybook-static` directory
+between them. Acquia deployment artifacts carry no theme dependencies, so
+the library isn't built there.
 
 :::
 
 ## Tests scaffold
 
-The `tests` directory contains working examples of tests that can be used as a
-starting point in your project.
+The `tests` directory holds a working example test for each test type
+(unit, kernel, functional, and functional JavaScript) to start your own
+from. PHPUnit picks them up through the matching test suites in
+`phpunit.xml`.
 
-It also has a set of helper `Traits` that you may find useful when writing your
-tests. Remove them if you do not need them.
+Each test type also has a base class that pulls in the following helper
+traits from the `ys_base` module's tests:
+
+- `ArrayTrait`
+- `AssertTrait`
+- `MockTrait`
+- `ReflectionTrait`
+- `BrowserHtmlDebugTrait`, in the functional JavaScript base class only
+
+Remove what you don't need.

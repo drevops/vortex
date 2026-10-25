@@ -5,30 +5,60 @@ sidebar_position: 1
 
 # Modules
 
-**Vortex** is not a Drupal distribution: it ships no installation profile, and
-the only recipe it carries is the small `recipes/page` recipe that creates the
-demo content model during provisioning. It provides a small set of contributed
-modules that most projects need, each already wired into the environment-aware
-[settings](../settings.mdx) and the [provisioning](../provision.mdx) scripts. You add
-the rest once the initial setup is done.
+**Vortex** isn't a Drupal distribution. It ships no installation profile
+unless you ask the installer for a custom one. The only recipe it carries
+is the small `recipes/page` recipe, which creates the demo content model
+during provisioning.
 
-Every module in this section is optional. The CLI asks which ones to keep,
-and deselecting one removes its Composer requirement, its settings override,
-its line in the provisioning script, its Behat feature and its settings test
-assertions in a single pass.
+What it does ship is a set of contributed modules that most projects need,
+each already wired into the environment-aware [settings](../settings.mdx)
+and the [provisioning](../provision.mdx) deploy steps. You add the rest
+after the initial setup is done.
+
+The installer can remove every module in this section except Search API,
+which stays required even without the Solr service. Its **Modules**
+question lists 19 of them. Deselecting one removes the following in a
+single pass:
+
+- Its Composer requirement
+- Its settings override
+- Its entry in the install list of `EnableDevelopmentModulesDeployStep`
+- Its Behat feature
+- Its assertions in the settings tests
+
+The other modules follow other installer questions:
+
+- ClamAV, Redis, and Search API Solr follow the **Services** question.
+- Migrate Plus and Migrate Tools follow the
+  **Use a second database for migrations?** question.
+- Storybook follows the **Storybook component library?** question, which
+  the installer asks only when you choose a custom theme.
 
 ## How modules are configured
 
+The following table lists the mechanisms that bring a shipped module into a
+project:
+
 | Mechanism | Location | Effect |
 |-----------|----------|--------|
-| Composer requirement | `require` in [`composer.json`](https://github.com/drevops/vortex/blob/main/composer.json) | Makes the module available to the site. ➡️ See [composer.json](../composer.mdx#require) |
+| Composer requirement | `require` in [`composer.json`](https://github.com/drevops/vortex/blob/main/composer.json) | Makes the module available to the site. ➡️ See [`composer.json`](../composer.mdx#require) |
 | Settings override | `web/sites/default/includes/modules/settings.<module>.php` | Applies configuration conditioned on the detected environment, reading values from environment variables. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
 | Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a module that never reaches production out of the exported configuration, so enabling it locally never dirties the config. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
-| Provisioning | `CreateContentModelDeployStep` in `ys_base` | Applies the `recipes/page` content model in the `local`, `ci`, `dev` and `stage` environments. ➡️ See [Provision](../provision.mdx) |
-| Development provisioning | `EnableDevelopmentModulesDeployStep` in `ys_base` | Sets the site name and installs the contrib, service, demo and development-only modules and the email rerouting safety net in the same 4 environments. ➡️ See [Provision](../provision.mdx) |
-| Module dependency | [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml) | Installs the module as a dependency of the demo module. ➡️ See [Demo module](module-scaffold.mdx#demo-module) |
+| Content model | `CreateContentModelDeployStep` in `ys_base` | Applies the `recipes/page` content model in every environment except `production`. ➡️ See [Provision](../provision.mdx) |
+| Development provisioning | `EnableDevelopmentModulesDeployStep` in `ys_base` | Sets the site name and installs the contrib, service, demo, and development-only modules, including the email rerouting safety net, in every environment except `production`. ➡️ See [Provision](../provision.mdx) |
+| Module dependency | [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml) | Installs Drupal helpers and Testmode as dependencies of the demo module. ➡️ See [Demo module](module-scaffold.mdx#demo-module) |
 
-A module can be required without being installed anywhere: the settings
-override is then ready for the day the project enables it. `seckit` is the only
-module shipped that way - every other module in [Contributed modules](contributed-modules.mdx) is installed by one of the
-mechanisms above, so selecting it is enough to get it enabled.
+A module can be required without being installed anywhere. Its settings
+override is then ready for the day the project enables it. `seckit` is the
+only module shipped that way on purpose. Fast 404 is never installed either,
+because its handler runs straight from the settings file. Migrate Plus and
+Migrate Tools install as dependencies of the `ys_migrate` module. Every
+other module on the [Contributed modules](contributed-modules.mdx) page is
+installed by one of the preceding mechanisms, so selecting the module is
+enough to get it enabled.
+
+To list the modules enabled on your local site, run the following command:
+
+```shell
+ahoy drush pm:list --type=module --status=enabled
+```

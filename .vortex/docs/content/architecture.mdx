@@ -1,34 +1,34 @@
 # Architecture
 
-**Vortex** is a production-ready Drupal project template designed to simplify
-onboarding, standardize processes, and ensure long-term maintainability.
-
-This page provides a high-level overview of how the template is structured, how
-its components work together, and how your project benefits from its
-architecture.
+This page explains how the **Vortex** template fits together, for
+developers and leads who want the big picture before they work on a project
+or while they evaluate the template. It covers the principles behind it,
+the lifecycle your code follows from your machine to production, and the
+parts that handle each stage. Each section links to the pages that cover
+its part in depth.
 
 ## Design principles
 
-**Vortex** is guided by principles that prioritize simplicity, visibility, and
-maintainability:
+**Vortex** follows these principles:
 
-- **Simple is better than complex**: The template encourages clarity, even in
-  customizations.
-- **Use standard tools**: Wherever possible, **Vortex** follows upstream conventions
-  and avoids reinvention.
-- **Avoid silent errors**: Misconfigurations should fail loudly.
+- **Simple is better than complex**: The template encourages clarity, even
+  in customizations.
+- **Use standard tools**: Wherever possible, **Vortex** follows upstream
+  conventions and avoids reinvention.
+- **Avoid silent errors**: Misconfigurations fail loudly. A script missing a
+  required value stops and names the variable.
 - **Readability counts**: Code and configuration are meant to be understood.
-- **Explicit logging helps**: Scripts log every major step, so it's easy to
+- **Explicit logging helps**: Scripts log every major step, so you can
   follow what's going on.
 
 ## Code lifecycle
 
-**Vortex** standardizes the code lifecycle across local, CI, and hosting
-environments. This ensures that the same steps are followed everywhere, reducing
-the chance of errors and making processes predictable.
+**Vortex** runs your code through the same lifecycle locally, in CI, and in
+hosting, with the same scripts at every stage. That reduces the chance of an
+error that appears in 1 environment and nowhere else.
 
-The lifecycle below is the map of the whole system - every section of this page
-describes one of its stages:
+The following diagram covers the whole system, and the sections after it
+take its stages one at a time:
 
 import CodeLifecycle from './_code-lifecycle.mdx';
 
@@ -36,241 +36,149 @@ import CodeLifecycle from './_code-lifecycle.mdx';
 
 ## Local development environment
 
-Your project includes a containerized local environment using Docker Compose and
-production-grade Lagoon images. This ensures consistency between local, CI, and
-hosting environments.
+Your project runs locally in containers. Docker Compose starts a stack built
+from the Lagoon container images that Lagoon runs in production, the same
+ones CI runs, so your local environment matches CI and Lagoon hosting.
 
-To simplify command usage, we use [Ahoy](https://ahoy-cli.dev/) as a wrapper. It
-lets you run complex tasks like provisioning, testing, or database imports
-with short, easy-to-remember commands.
+[Ahoy](https://ahoy-cli.dev/) wraps multi-step tasks like provisioning,
+testing, and database imports in short commands such as `ahoy provision`
+and `ahoy test`.
 
-:::note Planned features
+Docker Compose is the only local environment **Vortex** supports, so DDEV
+and Lando setups aren't covered. The [roadmap](/docs/contributing/roadmap)
+lists support for both as a goal.
 
-Support for DDEV and Lando is on our [roadmap](/docs/contributing/roadmap) for local development environments.
-
-:::
+➡️ See [Development > Environment](./development/environment)
 
 ## Ignored files
 
-**Vortex** manages three ignore files as **deny lists**: everything is tracked,
-built, or deployed by default, and each file lists only what must be excluded.
-This is the opposite of an allow list, where everything is excluded by default
-and every addition has to be explicitly re-included. The deny-list model follows
-the "avoid silent errors" principle - a newly added file is visible by default
-instead of silently disappearing until someone remembers to allow it.
+**Vortex** manages 3 ignore files as **deny lists**: everything is tracked,
+built, or deployed by default, and each file lists only what to exclude.
+An allow list works the other way round, so every addition has to be
+re-included by hand. The deny-list model follows the "avoid silent errors"
+principle: a new file shows up by default instead of disappearing until
+someone remembers to allow it.
 
-The `.gitignore` file controls what is tracked in the project repository. It
+The `.gitignore` file controls what the project repository tracks. It
 excludes Composer- and Yarn-generated directories (`web/core`,
 `web/modules/contrib`, `vendor`, `node_modules`), local setting overrides,
-caches, and content files. Two sections stay as small allow lists because a deny
-rule cannot express them:
+caches, and content files. 2 sections stay as small allow lists, because a
+deny rule can't express them:
 
-- `recipes/` - Composer installs contributed recipes next to your custom ones,
-  so each custom recipe is un-ignored explicitly.
-- `.claude/` - only `.claude/settings.json` is tracked by default.
+- `recipes/` - Composer installs contributed recipes next to your custom
+  ones, so `.gitignore` un-ignores each custom recipe explicitly.
+- `.claude/` - only `.claude/settings.json` and `.claude/skills/` are
+  tracked by default.
 
-The other two ignore files apply the same deny-list model to different targets:
+The other 2 ignore files apply the same deny-list model to different
+targets:
 
 - `.dockerignore` controls the container image build context.
-  ➡️ See [Tools > Docker](./development/environment/docker#build-context-and-dockerignore)
+  ➡️ See
+  [Tools > Docker](./development/environment/docker#build-context-and-dockerignore)
 - `.gitignore.artifact` controls the deployment artifact.
-  ➡️ See [Deployment > Artifact](./deployment/artifact#artifact-file-control)
+  ➡️ See
+  [Deployment > Artifact](./deployment/artifact#artifact-file-control)
 
-When you add a new file or directory to your project, it is tracked, built, and
-deployed automatically. Add an entry to one of these files only when a file must
-be kept out of that particular target.
-
-## Drupal management
-
-### Provisioning
-
-The provisioning process is central to how **Vortex** works. Instead of manually
-running Drush commands, you run a single provision script. This script handles:
-
-- Importing a database or initializing a database by installing Drupal from a profile
-- Running updates, config imports, cache rebuilds, and deploy hooks
-- Executing post-provision custom scripts
-
-Because provisioning is centralized, it runs the same way in every
-environment: local, CI, or hosting. This eliminates "works on my machine"
-problems and makes the process predictable for everyone.
-
-It also makes it possible to add more automation around provisioning, like conditionally
-running migrations or creating demo content.
-
-➡️ See [Drupal > Provision](./development/provision)
-
-### Module and theme scaffolds
-
-We include examples of a custom module and theme, each fully integrated with
-tests. These show you how to:
-
-- Structure custom features
-- Write functional, kernel, and unit tests
-- Connect theme assets to a build pipeline
-
-Use these scaffolds as starting points for your own work.
-
-➡️ See [Drupal > Module Scaffold](./development/modules/module-scaffold)
-and [Drupal > Theme Scaffold](./development/themes)
-
-### Settings management
-
-**Vortex** includes a structured way to manage Drupal settings per environment.
-Here's how it works:
-
-- The environment type (e.g. local, CI, stage, preview) is automatically
-  detected by the [`drevops/environment-detector`](https://github.com/drevops/environment-detector)
-  package, which also applies the hosting platform's environment-specific settings.
-- Settings overrides are stored in `web/sites/default/includes/modules/` with logic per
-  environment inside each module-specific file.
-
-This structure gives you clarity, avoids config sprawl, and lets you remove a
-module's settings cleanly when no longer needed.
-
-**Vortex** also includes tests for these settings to ensure they are loaded
-correctly in each environment.
-
-➡️ See [Drupal > Settings](./development/settings)
-
-## Code quality and testing
-
-**Vortex** ships with pre-configured tools for maintaining code quality:
-
-- **PHP CodeSniffer (phpcs)**
-- **PHPStan**
-- **Rector**
-- **Twig CS Fixer**
-- **ESLint**
-- **Stylelint**
-
-You'll also find scaffolds for:
-
-- **PHPUnit**: Unit and kernel testing
-- **Behat**: Behavior-driven testing with screenshot capture and extra steps
-- **Jest**: JavaScript unit testing
-
-➡️ See [Tools](./development)
-
-## Continuous integration workflows
-
-**Vortex** supports GitHub Actions and CircleCI. You choose which one to use in your
-project. These pipelines include:
-
-- Database fetch and caching (for faster builds)
-- Full site provisioning in CI
-- Running code quality checks
-- Running unit, functional and behavior tests
-- Triggering deploys when tests pass
-
-Each continuous integration configuration mirrors what happens locally and in hosting to ensure
-uniformity.
-
-➡️ See [Continuous Integration](./continuous-integration)
-
-## Hosting integrations
-
-Out of the box, **Vortex** supports Acquia and Lagoon hosting. These integrations:
-
-- Trigger provisioning with the same steps used locally and in CI
-- Provide deployment pipelines suited to each platform
-
-You can use **Vortex** with other platforms too, but these are first-class
-integrations.
-
-➡️ See [Hosting](./hosting)
-
-## Automated dependency updates
-
-**Vortex** includes configuration for RenovateBot to automate dependency upgrades:
-
-- Critical updates checked daily
-- Regular updates run weekly
-- Most new releases wait 14 days before they're proposed, so a registry can
-  pull a compromised release first
-- PRs include changelogs and pass through your continuous integration pipeline
-
-You can host RenovateBot yourself or use the cloud version, and you can tweak
-the schedule as needed.
-
-➡️ See [Tools > Renovate](./development/dependency-updates)
-
-## Documentation & onboarding
-
-**Vortex** includes centralized documentation (what you're reading now), as well as
-a scaffold for adding project-specific docs within your own repository.
+A new file or directory in your project is tracked, built, and deployed
+automatically. Add an entry to 1 of these files only when a file must stay
+out of that particular target.
 
 ## Automation scripts
 
-**Vortex** uses POSIX-compliant Bash scripts shipped via the
+**Vortex** automates its common tasks with PHP scripts from the
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
-Composer package (installed to `vendor/drevops/vortex-tooling/src/`) to automate
-common tasks and connect components together.
+Composer package, installed to `vendor/drevops/vortex-tooling/src/`. They
+also connect the components together.
 
-These scripts:
+The scripts share these traits:
 
-- Run identically across local, CI, and hosting
-- Support environment variables to adapt behavior
-- Are modular and easy to extend
+- They run identically across local, CI, and hosting environments.
+- They read environment variables to adapt their behavior.
+- They're modular and extensible.
 
-The scripts are not part of the template's own files: they are a dependency.
-Your project's `composer.json` requires `drevops/vortex-tooling` with a tilde
-constraint (`~1.4.0` in the shipped template), which accepts patch releases but
-holds the minor version, so a new minor release cannot reach your deployments
-until you raise the constraint yourself. Once installed, every script is
-available as a Composer binary at `vendor/bin/vortex-<script>` - for example
-`vendor/bin/vortex-provision` or `vendor/bin/vortex-deploy` - and the Ahoy
-commands wrap those binaries.
+The scripts aren't part of the template's own files: they're a dependency.
+Your project's `composer.json` requires `drevops/vortex-tooling`, with a
+`^2.0@alpha` constraint in the shipped template. When a **Vortex** release
+changes that constraint, [Updating Vortex](./updating-vortex) brings the
+change into your `composer.json`.
 
-The package repository on GitHub is a read-only mirror of the
+The entry-point scripts install as Composer binaries at
+`vendor/bin/vortex-<script>`, for example `vendor/bin/vortex-provision` or
+`vendor/bin/vortex-deploy`, and the Ahoy commands wrap those binaries. The
+scripts they hand work to, such as the one for each deployment type, stay
+inside the package. Ahoy and CI install the package through
+`scripts/vortex-tooling.sh` before the full `composer install` runs, so the
+binaries are there from the first command.
+
+The package's GitHub repository is a read-only mirror of the
 [`.vortex/tooling/`](https://github.com/drevops/vortex/tree/main/.vortex/tooling)
-directory of the **Vortex** repository. Bugs and changes go to the
-[**Vortex** issue queue](https://github.com/drevops/vortex/issues), not to the
-mirror.
+directory in the **Vortex** repository. Report bugs and propose changes in
+the [**Vortex** issue queue](https://github.com/drevops/vortex/issues), not
+on the mirror.
 
-Never edit the files under `vendor/drevops/vortex-tooling/src/` - the next
-`composer update` discards the change. Adapt behavior through environment
-variables, add project logic as your own scripts under `scripts/` (the
-`provision` script discovers and runs `scripts/provision-*.sh`), and reach for a
+Never edit the files under `vendor/drevops/vortex-tooling/src/`: the next
+`composer update` discards your change. Adapt behavior through environment
+variables instead. Put logic that runs on every deployment in a
+`DeployStep` plugin in a custom module, which provisioning runs in every
+environment. Reach for a
 [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches)
-patch only when a shipped script itself must change.
+patch only when a shipped script itself has to change.
 
-➡️ See [Development > Composer > Vortex tooling package](./development/composer#vortex-tooling-package)
-for updating the package and [Development > Provision > Running custom scripts](./development/provision#running-custom-scripts)
-for extending provisioning.
+➡️ See
+[Development > Composer > Vortex tooling package](./development/composer#vortex-tooling-package)
+for updating the package and [Development > Provision > Running custom
+scripts](./development/provision#running-custom-scripts) for extending
+provisioning.
 
 ### Customizing scripts
 
-All scripts support configuration via environment variables, so they can be
-adapted to specific project or environment needs.
+All scripts read their configuration from environment variables, so you can
+adapt them to a project or an environment.
 
-During initial project setup, `.env` file is updated with project-specific
-values like project name, email etc. Then, environment variables (secrets,
-tokens, etc.) are set in CI or hosting environments.
+The CLI writes your project's values into `.env` during setup, such as the
+project machine name and the notification email addresses. Secrets, tokens,
+and per-environment values go into your CI or hosting environment instead,
+and local overrides go into `.env.local`, which Git ignores.
 
 ➡️ See [Development > Variables](./development/variables)
 
 ### Router scripts
 
-Most **Vortex** commands are implemented as _router_ script entry points, like
-`vortex-fetch-db` or `vortex-deploy`, that dynamically invoke the more specific
-logic for your setup, based on configuration or environment variables.
+**Vortex** has 6 _router_ scripts: entry points that read your configuration
+and hand the work to the script for your setup. The caller doesn't need to
+know how each setup works. Each router picks its script as follows:
 
-For example:
-
-- `vortex-fetch-db` is a router script that fetches a database from any
-  supported hosting provider or custom location without needing to know the
-  specifics of each provider.
-- `vortex-deploy` is a router script that deploys code to any hosting provider
-  in a consistent manner, regardless of whether it's Acquia, Lagoon, or another
-  platform.
+- `vortex-fetch-db` fetches a database from the source in
+  `VORTEX_FETCH_DB_SOURCE`: `url` (the default), `ftp`, `s3`,
+  `container_registry`, `acquia`, or `lagoon`. The `none` source skips the
+  fetch.
+- `vortex-export-db` exports the database to a dump file, or to a container
+  image when `VORTEX_DB_IMAGE` is set.
+- `vortex-import-db` imports a dump file, and runs the import inside the
+  `cli` container when you call it from the host.
+- `vortex-deploy` runs each deployment type listed in `VORTEX_DEPLOY_TYPES`
+  (`artifact`, `lagoon`, or `webhook`), so the same call deploys to Acquia,
+  Lagoon, or any host with a deployment webhook.
+- `vortex-notify` sends a notification to each channel listed in
+  `VORTEX_NOTIFY_CHANNELS`: email, Slack, New Relic, GitHub, Jira, a
+  webhook, or Diffy.
+- `vortex-task` runs a hosting operation (`copy-db`, `copy-files`, or
+  `purge-cache`) with the script for the platform in `VORTEX_TASK_PLATFORM`
+  or `VORTEX_PLATFORM`, either `acquia` or `lagoon`.
 
 <details>
 <summary>Script architecture diagram</summary>
 
 <picture>
-  <img src="/img/diagram-scripts-light.svg#gh-dark-mode-only" alt="Diagram of scripts"/>
-  <img src="/img/diagram-scripts-dark.svg#gh-light-mode-only" alt="Diagram of scripts"/>
+  <img
+    src="/img/diagram-scripts-light.svg#gh-dark-mode-only"
+    alt="Diagram of scripts"
+  />
+  <img
+    src="/img/diagram-scripts-dark.svg#gh-light-mode-only"
+    alt="Diagram of scripts"
+  />
 </picture>
 
 </details>
@@ -279,142 +187,182 @@ For example:
 
 ### Provisioning
 
-The provisioning process is central to how **Vortex** works. Instead of manually
-running Drush commands, you run a single provision script. This script handles:
+Provisioning is central to how **Vortex** works. Instead of running Drush
+commands by hand, you run 1 script, `vortex-provision` (`ahoy provision`
+locally), and it handles:
 
-- Importing a database or initializing a database by installing Drupal from a profile
+- Importing a database dump, or installing Drupal from a profile instead
 - Running updates, config imports, cache rebuilds, and deploy hooks
-- Executing post-provision custom scripts
+- Running the `DeployStep` plugins of your custom modules, through the
+  [Deploy Steps](https://www.drupal.org/project/deploy_steps) module
+- Sanitizing a freshly imported database
 
-Because provisioning is centralized, it runs the same way in every
-environment: local, CI, or hosting. This eliminates "works on my machine"
-problems and makes the process predictable for everyone.
+Because provisioning is centralized, it runs the same way locally, in CI,
+and in hosting.
 
-It also makes it possible to add more automation around provisioning, like conditionally
-running migrations or creating demo content.
+Deploy steps carry the automation around provisioning, such as running
+migrations conditionally or setting up a development environment. The
+template ships examples in the `ys_base`, `ys_search`, and `ys_migrate`
+modules.
 
 ➡️ See [Development > Provision](./development/provision)
 
 ### Settings management
 
-**Vortex** includes a structured way to manage Drupal settings per environment.
-Here's how it works:
+**Vortex** organizes Drupal settings per environment:
 
-- The environment type (e.g. local, CI, stage) is automatically detected based
-  on the environment provider settings located in `web/sites/default/includes/providers/`.
-- Settings overrides are stored in `web/sites/default/includes/modules/` with logic per
-  environment inside each module-specific file.
+- The
+  [`drevops/environment-detector`](https://github.com/drevops/environment-detector)
+  package detects the hosting platform or CI service, resolves the
+  environment type, and applies that platform's settings. The types are
+  `local`, `ci`, `development`, `preview`, `stage`, and `production`.
+- The `ENVIRONMENT_TYPE` variable overrides the detected type. Set it in
+  `.env.local` for your local stack, or in your hosting environment's
+  variables.
+- Each module's settings live in their own file in
+  `web/sites/default/includes/modules/`, with the per-environment logic
+  inside that file.
 
-This structure gives you clarity, avoids config sprawl, and lets you remove a
-module's settings cleanly when no longer needed.
+Keeping each module's settings in its own file avoids config sprawl and lets
+you remove a module's settings cleanly when you no longer need them.
 
-**Vortex** also includes tests for these settings to ensure they are loaded
+PHPUnit tests in `tests/phpunit/Drupal/` check that these settings load
 correctly in each environment.
 
 ➡️ See [Development > Settings](./development/settings)
 
 ### Module and theme scaffolds
 
-We include examples of a custom module and theme, each fully integrated with
-tests. These show you how to:
+**Vortex** includes an example custom module and theme, each with tests.
+Together, they show the following practices:
 
-- Structure custom features
-- Write functional, kernel, and unit tests
-- Connect theme assets to a build pipeline
+- Structuring custom features
+- Writing functional, kernel, and unit tests
+- Connecting theme assets to a build pipeline
 
 Use these scaffolds as starting points for your own work.
 
-➡️ See [Development > Modules > Module scaffold](./development/modules/module-scaffold)
-and [Development > Themes](./development/themes)
+➡️ See [Development > Modules > Module
+scaffold](./development/modules/module-scaffold) and [Development >
+Themes](./development/themes)
 
 ## Code quality and testing
 
 **Vortex** ships with pre-configured tools for maintaining code quality:
 
-- **PHP CodeSniffer (phpcs)**
-- **PHPStan**
-- **Rector**
-- **Twig CS Fixer**
-- **ESLint**
-- **Stylelint**
+- PHP CodeSniffer (PHPCS)
+- PHPStan
+- Rector
+- Twig CS Fixer
+- ESLint
+- Stylelint
+- Gherkin Lint
+- Hadolint
+- DCLint
+- SDC Devel
 
-You'll also find scaffolds for:
+**Vortex** also ships scaffolds for these test frameworks:
 
-- **PHPUnit**: Unit and kernel testing
+- **PHPUnit**: Unit, kernel, and functional testing
 - **Behat**: Behavior-driven testing with screenshot capture and extra steps
 - **Jest**: JavaScript unit testing
 
-➡️ See [Development > Code quality](./development/code-quality) and [Development > Testing](./development/testing)
+➡️ See [Development > Code quality](./development/code-quality) and
+[Development > Testing](./development/testing)
 
 ## Automated dependency updates
 
-**Vortex** includes configuration for RenovateBot to automate dependency upgrades:
+**Vortex** includes configuration for Renovate to automate dependency
+upgrades:
 
-- Critical updates checked daily
-- Regular updates run weekly
+- Drupal core minor and patch updates are checked daily, with no waiting
+  period, so security releases arrive on the next run
+- Container images, GitHub Actions, and the CI tools are checked daily, and
+  the other PHP and JavaScript packages weekly, as is the Renovate image
+  that CircleCI runs
 - Most new releases wait 14 days before they're proposed, so a registry can
   pull a compromised release first
-- PRs include changelogs and pass through your continuous integration pipeline
+- Major versions of PHP and JavaScript packages are left for you to upgrade
+  by hand
+- The PHP, Node.js, and npm versions aren't updated, and neither are the
+  packages in any `package.json` below the project root, such as the
+  theme's
+- PRs include changelogs, pass through your continuous integration
+  pipeline, and can merge automatically after it's green
 
-You can host RenovateBot yourself or use the cloud version, and you can tweak
-the schedule as needed.
+Renovate runs as the hosted GitHub app or self-hosted in your CI, and the
+CLI asks which. It also asks which update groups merge automatically. The
+schedules live in `renovate.json`, so you can tweak them.
 
 ➡️ See [Development > Dependency updates](./development/dependency-updates)
 
 ## Environment variables
 
-**Vortex** uses environment variables extensively to configure behavior across
-local, CI, and hosting environments.
-
-These variables are either defined in the `.env` file or set within
-CI/hosting environments as secrets.
+**Vortex** relies on environment variables to configure its behavior across
+local, CI, and hosting environments. You define them in the `.env` file or
+set them in your CI and hosting environments, which is where secrets belong.
 
 ➡️ See [Variables](./development/variables)
 
 ## Continuous integration workflows
 
-**Vortex** supports GitHub Actions and CircleCI. You choose which one to use in your
-project. These pipelines include:
+**Vortex** supports GitHub Actions and CircleCI, and the CLI asks which one
+your project uses. Both pipelines include the following:
 
-- Database fetch and caching (for faster builds)
-- Full site provisioning in CI
-- Running code quality checks
-- Running unit, functional and behavior tests
-- Triggering deploys when tests pass
+- Database fetching and caching, for faster builds
+- Full site provisioning
+- Code quality checks
+- Unit, functional, and behavior tests
+- Deployment after the tests pass
+- Security audits of Composer and npm packages and a Gitleaks secret scan,
+  in a workflow of their own
 
-Each continuous integration configuration mirrors what happens locally and in hosting to ensure
-uniformity.
+Each continuous integration configuration mirrors what happens locally and
+in hosting.
 
-➡️ See [Continuous Integration](./continuous-integration)
+➡️ See [Continuous integration](./continuous-integration)
 
 ## Hosting integrations
 
-Out of the box, **Vortex** supports Acquia and Lagoon hosting. These integrations:
+**Vortex** has built-in support for Acquia and Lagoon hosting. These
+integrations do the following:
 
 - Trigger provisioning with the same steps used locally and in CI
 - Provide deployment pipelines suited to each platform
 
-You can use **Vortex** with other platforms too, but these are first-class
-integrations.
+Other platforms work too, through the `artifact` and `webhook` deployment
+types, but only Acquia and Lagoon have built-in integrations.
 
 ➡️ See [Hosting](./hosting)
 
 ## Documentation & onboarding
 
-**Vortex** includes centralized documentation (what you're reading now), as well as
-a scaffold for adding project-specific docs within your own repository.
+Besides this documentation site, **Vortex** adds a `docs/` scaffold to your
+repository for the project-specific decisions, unless you answer **No** to
+the CLI's **Preserve project documentation?** prompt. The scaffold has a
+page for each of these topics:
+
+- Testing conventions
+- CI, when the project has a CI provider
+- Deployment, when the project has a deployment type
+- Releasing
+- FAQs
+
+The `README.md` that **Vortex** writes for your project includes local
+setup steps for new team members.
 
 ## Testing the template
 
-**Vortex** itself is tested at multiple levels to ensure the template and its
-automation scripts work correctly:
+We test the template and its automation scripts at 3 levels:
 
-- **Unit tests**: Shell scripts are tested in isolation using
-  [Bats](https://github.com/bats-core/bats-core) with mocked commands
-- **End-to-end tests**: Full build pipelines are tested using
-  [PHPUnit](https://phpunit.de/) in real Docker containers
+- **Unit tests**: [PHPUnit](https://phpunit.de/) tests in
+  `.vortex/tooling/tests/` run each shipped script with external commands
+  mocked
+- **End-to-end tests**: PHPUnit tests run full build pipelines in real
+  Docker containers
 - **Real-world validation**: The
-  [DrevOps website](https://github.com/drevops/website) serves as a production
+  [DrevOps website](https://github.com/drevops/website) is a production
   reference site that receives regular upstream updates
 
-➡️ See [Contributing > Maintenance > Template](./contributing/maintenance/template)
+➡️ See [Contributing > Maintenance >
+Template](./contributing/maintenance/template)
