@@ -73,6 +73,7 @@
         "oomphinc",
         "palantirnet",
         "pathauto",
+        "pathspec",
         "phpcbf",
         "phpcodesniffer",
         "phpcompatibility",
@@ -106,6 +107,7 @@
         "vortextemplate",
         "webflo",
         "webroot",
+        "worktree",
         "xmlsitemap",
         "yourorg",
         "yoursite"

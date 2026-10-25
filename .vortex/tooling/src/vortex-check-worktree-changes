@@ -1,0 +1,61 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Check that the working tree has no uncommitted or untracked files.
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+
+// -----------------------------------------------------------------------------
+
+// Paths excluded from the check as a comma-separated list of Git pathspec
+// patterns.
+//
+// The defaults cover what the CI pipeline itself drops into the working tree
+// and nothing else: every 'docker-compose.yml', which is rewritten in place to
+// run in CI; the 'db_cache_*' database cache keys; and the 'codecov' uploader
+// with its 2 signature files. These exist only during a CI run, so they are
+// listed here rather than in '.gitignore'. Paths ignored by Git are never
+// reported and need no entry.
+$ignore = getenv_list('VORTEX_CHECK_WORKTREE_CHANGES_IGNORE', 'docker-compose.yml,*/docker-compose.yml,db_cache_*,codecov,codecov.SHA256SUM,codecov.SHA256SUM.sig');
+
+// -----------------------------------------------------------------------------
+
+command_must_exist('git');
+
+INFO('Started working tree check.');
+
+exec('git rev-parse --is-inside-work-tree 2>/dev/null', $rev_parse_output, $rev_parse_exit_code);
+if ($rev_parse_exit_code !== 0) {
+  FAIL('The current directory is not a Git repository.');
+}
+
+$git_args = ['status', '--porcelain', '--', '.'];
+
+foreach ($ignore as $pattern) {
+  $git_args[] = ':(exclude)' . $pattern;
+  NOTE('Ignoring "%s".', $pattern);
+}
+
+exec('git ' . implode(' ', array_map(escapeshellarg(...), $git_args)), $changes, $status_exit_code);
+if ($status_exit_code !== 0) {
+  FAIL('Unable to read the working tree status.');
+}
+
+if ($changes !== []) {
+  NOTE('The build modified or created these files:');
+  echo implode(PHP_EOL, $changes) . PHP_EOL;
+  NOTE('Run "ahoy build" locally and commit the resulting changes.');
+  NOTE('Add paths that are generated during the build and are not committed to VORTEX_CHECK_WORKTREE_CHANGES_IGNORE.');
+  FAIL('The build left changes in the working tree.');
+}
+
+PASS('Finished working tree check.');
