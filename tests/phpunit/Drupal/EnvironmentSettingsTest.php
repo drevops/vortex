@@ -342,6 +342,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -448,6 +451,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -519,6 +525,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -591,6 +600,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -666,6 +678,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -740,6 +755,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -810,6 +828,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -877,6 +898,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -923,7 +947,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
-    $config['reroute_email.settings']['enable'] = FALSE;
+    $config['reroute_email.settings']['enable'] = TRUE;
     $config['reroute_email.settings']['address'] = 'webmaster@your-site-domain.example';
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['shield.settings']['shield_enable'] = TRUE;
@@ -944,6 +968,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -1008,6 +1035,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -1076,6 +1106,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -1151,6 +1184,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -1226,6 +1262,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -1303,6 +1342,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -1358,7 +1400,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $config['environment_indicator.settings']['favicon'] = TRUE;
     $config['environment_indicator.settings']['toolbar_integration'] = [TRUE];
     $config['robotstxt.settings']['content'] = "User-agent: *\nDisallow: /";
-    $config['reroute_email.settings']['enable'] = FALSE;
+    $config['reroute_email.settings']['enable'] = TRUE;
     $config['reroute_email.settings']['address'] = 'webmaster@your-site-domain.example';
     $config['reroute_email.settings']['allowed'] = '*@your-site-domain.example';
     $config['shield.settings']['shield_enable'] = TRUE;
@@ -1380,6 +1422,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL
@@ -1455,6 +1500,9 @@ class EnvironmentSettingsTest extends SettingsTestCase {
       // phpcs:ignore #;< MODULE_GENERATED_CONTENT
       'generated_content',
       // phpcs:ignore #;> MODULE_GENERATED_CONTENT
+      // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+      'reroute_email',
+      // phpcs:ignore #;> MODULE_REROUTE_EMAIL
       // phpcs:ignore #;< MODULE_SDC_DEVEL
       'sdc_devel',
       // phpcs:ignore #;> MODULE_SDC_DEVEL

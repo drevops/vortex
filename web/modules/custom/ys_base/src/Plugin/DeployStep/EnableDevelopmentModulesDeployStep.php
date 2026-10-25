@@ -87,7 +87,6 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
       'navigation_extra_tools',
       'pathauto',
       'redirect',
-      'reroute_email',
       'robotstxt',
       'shield',
       'stage_file_proxy',
@@ -115,6 +114,10 @@ final class EnableDevelopmentModulesDeployStep extends DeployStepBase {
     // phpcs:ignore #;< MODULE_DEVEL
     $this->moduleInstaller->install(['devel']);
     // phpcs:ignore #;> MODULE_DEVEL
+
+    // phpcs:ignore #;< MODULE_REROUTE_EMAIL
+    $this->moduleInstaller->install(['reroute_email']);
+    // phpcs:ignore #;> MODULE_REROUTE_EMAIL
 
     // phpcs:ignore #;< CUSTOM_MODULE_SEARCH
     $this->moduleInstaller->install(['ys_search']);
