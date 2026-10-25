@@ -1034,8 +1034,9 @@ trait SubtestAhoyTrait {
     $this->assertWebpageContains('/missing.png', 'The requested URL "/missing.png" was not found on this server.', 'Error page should report the request path resolved before Drupal bootstraps');
     $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://webserver:8080/missing.png | grep -q 404', txt: 'Missing asset should be answered with a 404 status');
 
-    $this->logSubstep('Assert that a missing image derivative is served the error page');
-    $this->assertWebpageContains($derivative, $error_page, 'Image derivatives should fall under the static file rules for anonymous users');
+    $this->logSubstep('Assert that a missing image derivative is left to Drupal');
+    $this->assertWebpageNotContains($derivative, $error_page, 'Image derivatives are exempt from the static file rules, so the preboot handler must let them through');
+    $this->assertWebpageContains($derivative, 'drupal-settings-json', 'Drupal should render the 404 page for a derivative of a missing image');
     $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://webserver:8080' . $derivative . ' | grep -q 404', txt: 'Missing image derivative should be answered with a 404 status');
 
     $this->logSubstep('Assert that a route served by Drupal is not intercepted');
@@ -1048,6 +1049,27 @@ trait SubtestAhoyTrait {
     // so it separates a Drupal 404 from a web server one.
     $this->assertWebpageContains('/some-missing-page', 'drupal-settings-json', 'Drupal should render the 404 page for a path that carries no file extension');
     $this->cmd('ahoy cli curl -- -sSL -o /dev/null -w "%{http_code}" http://webserver:8080/some-missing-page | grep -q 404', txt: 'Missing page should be answered with a 404 status');
+
+    $this->logSubstep('Create an image style and source images for derivative generation');
+    // An image style without effects keeps the '.png' extension of the source
+    // image, which the Fast 404 extension pattern matches.
+    // The command parser treats a backslash as an escape character, so the
+    // evaluated code uses the global 'Drupal' class instead of namespaced
+    // class names.
+    $this->cmd('docker compose exec -T cli drush php:eval ' . escapeshellarg('Drupal::entityTypeManager()->getStorage("image_style")->create(["name" => "fast404_test", "label" => "Fast 404 test"])->save();'), txt: 'Image style without effects should be created');
+    $this->cmd('docker compose exec -T cli cp web/core/misc/druplicon.png web/sites/default/files/fast404-anonymous.png', txt: 'Source image for the anonymous request should be created');
+    $this->cmd('docker compose exec -T cli cp web/core/misc/druplicon.png web/sites/default/files/fast404-authenticated.png', txt: 'Source image for the logged-in request should be created');
+
+    $this->logSubstep('Assert that a missing derivative of an existing image is generated with a valid token for an anonymous user');
+    $this->assertImageDerivativeGeneratedWithValidToken('fast404_test', 'fast404-anonymous.png', 'Missing derivative should be generated for an anonymous user');
+
+    $this->logSubstep('Assert that a missing derivative of an existing image is generated with a valid token for a logged-in user');
+    $this->assertImageDerivativeGeneratedWithValidToken('fast404_test', 'fast404-authenticated.png', 'Missing derivative should be generated for a logged-in user', $this->fetchSessionCookie());
+
+    $this->logSubstep('Cleanup after test');
+    // Deleting the image style also deletes its derivatives.
+    $this->cmd('docker compose exec -T cli drush php:eval ' . escapeshellarg('Drupal::entityTypeManager()->getStorage("image_style")->load("fast404_test")->delete();'), txt: 'Image style should be deleted');
+    $this->cmd('docker compose exec -T cli rm -f web/sites/default/files/fast404-anonymous.png web/sites/default/files/fast404-authenticated.png', txt: 'Source images should be removed');
 
     $this->logStepFinish();
   }
@@ -1066,6 +1088,44 @@ trait SubtestAhoyTrait {
   protected function assertWebpageNotContains(string $path, string $content, string $message = ''): void {
     $fetched = $this->fetchWebpageContent($path);
     $this->assertStringNotContainsString($content, $fetched, $message ?: sprintf('Webpage at %s should not contain: %s', $path, $content));
+  }
+
+  protected function assertImageDerivativeGeneratedWithValidToken(string $style, string $filename, string $message, string $cookie = ''): void {
+    $derivative = sprintf('web/sites/default/files/styles/%s/public/%s', $style, $filename);
+    $url = sprintf('http://webserver:8080/sites/default/files/styles/%s/public/%s', $style, $filename);
+    $curl = 'docker compose exec -T cli curl -sS -o /dev/null -w "%{http_code} %{content_type}"' . ($cookie === '' ? '' : ' -b ' . escapeshellarg($cookie));
+
+    // The derivative must not exist yet, or the web server would serve it as a
+    // static file without passing the request to PHP.
+    $this->cmd('docker compose exec -T cli test ! -f ' . $derivative, txt: 'Image derivative should not exist before it is requested');
+
+    $this->cmd($curl . ' ' . escapeshellarg($url), '404', 'Image derivative request without a token should be answered with a 404 status');
+    $this->cmd($curl . ' ' . escapeshellarg($url . '?itok=invalid'), '404', 'Image derivative request with an invalid token should be answered with a 404 status');
+    $this->cmd('docker compose exec -T cli test ! -f ' . $derivative, txt: 'Image derivative should not be generated without a valid token');
+
+    $token = trim($this->cmd('docker compose exec -T cli drush php:eval ' . escapeshellarg(sprintf('print Drupal::entityTypeManager()->getStorage("image_style")->load("%s")->getPathToken("public://%s");', $style, $filename)))->getOutput());
+    $this->assertNotEmpty($token, 'Image derivative token should be generated');
+
+    $this->cmd($curl . ' ' . escapeshellarg($url . '?itok=' . $token), '200 image/png', $message);
+    $this->cmd('docker compose exec -T cli test -f ' . $derivative, txt: 'Image derivative should be saved after it is requested');
+  }
+
+  protected function fetchSessionCookie(): string {
+    $login_output = $this->cmd('ahoy login', txt: 'One-time login link should be generated')->getOutput();
+    if (preg_match('#/user/reset/\d+/\d+/[\w-]+/login#', (string) $login_output, $link_match) !== 1) {
+      $this->fail('Output of `ahoy login` should contain a one-time login link');
+    }
+
+    $headers = $this->cmd('docker compose exec -T cli curl -sS -o /dev/null -D - ' . escapeshellarg('http://webserver:8080' . $link_match[0]), txt: 'One-time login link should be opened')->getOutput();
+    if (preg_match('/^set-cookie:\s*(S?SESS\w+=[^;\s]+)/mi', $headers, $cookie_match) !== 1) {
+      $this->fail('Opening the one-time login link should start a session');
+    }
+
+    // A failed login also sets a session cookie, so the cookie must open a
+    // page that requires a logged-in user.
+    $this->cmd('docker compose exec -T cli curl -sS -o /dev/null -w "%{http_code}" -b ' . escapeshellarg($cookie_match[1]) . ' http://webserver:8080/user/1/edit', '200', 'Session should belong to a logged-in user');
+
+    return $cookie_match[1];
   }
 
   protected function subtestAhoyMigrationFilesPresent(): void {
