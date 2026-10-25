@@ -1086,6 +1086,44 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyWebserverMaintenance(): void {
+    $this->logStepStart();
+
+    $page = 'is down for maintenance';
+    $status = 'docker compose exec -T cli curl -sS -o /dev/null -w "%{http_code}"';
+
+    $this->logSubstep('Assert that Drupal serves the site before the maintenance page is enabled');
+    $this->cmd($status . ' http://webserver:8080/', '200', 'Homepage should be answered with a 200 status');
+    $this->assertWebpageContains('/', 'drupal-settings-json', 'Homepage should be rendered by Drupal');
+
+    $this->logSubstep('Enable the maintenance page');
+    $this->cmd('ahoy up webserver', env: ['VORTEX_WEBSERVER_MAINTENANCE_MODE' => '1'], txt: '`webserver` container should be recreated with the maintenance page enabled');
+    $this->cmd('docker compose exec -T cli wait-for webserver:8080', txt: 'Wait for the webserver to accept connections', tio: 60);
+    $this->cmd('docker compose exec -T webserver nginx -t', txt: 'Rendered nginx configuration should be valid');
+
+    $this->logSubstep('Assert that the webserver answers every request with the maintenance page');
+    $this->cmd($status . ' http://webserver:8080/', '503', 'Homepage should be answered with a 503 status');
+    $this->assertWebpageContains('/', $page, 'Homepage should show the maintenance page');
+    $this->assertWebpageNotContains('/', 'drupal-settings-json', 'Homepage should not be rendered by Drupal');
+    $this->cmd($status . ' --data name=admin http://webserver:8080/user/login', '503', 'Form submission should be answered with a 503 status');
+    $this->cmd($status . ' http://webserver:8080/core/misc/druplicon.png', '503', 'Static file should be answered with a 503 status');
+
+    $this->logSubstep('Assert that the maintenance page does not depend on PHP');
+    $this->cmd('docker compose stop appserver', txt: '`appserver` container should be stopped');
+    $this->cmd($status . ' http://webserver:8080/', '503', 'Homepage should be answered with a 503 status while PHP is stopped');
+    $this->assertWebpageContains('/', $page, 'Homepage should show the maintenance page while PHP is stopped');
+    $this->cmd('docker compose start appserver', txt: '`appserver` container should be started');
+    $this->cmd('docker compose exec -T cli wait-for appserver:9000', txt: 'Wait for PHP to accept connections', tio: 60);
+
+    $this->logSubstep('Disable the maintenance page');
+    $this->cmd('ahoy up webserver', txt: '`webserver` container should be recreated with the maintenance page disabled');
+    $this->cmd('docker compose exec -T cli wait-for webserver:8080', txt: 'Wait for the webserver to accept connections', tio: 60);
+    $this->cmd($status . ' http://webserver:8080/', '200', 'Homepage should be answered with a 200 status');
+    $this->assertWebpageContains('/', 'drupal-settings-json', 'Homepage should be rendered by Drupal');
+
+    $this->logStepFinish();
+  }
+
   protected function substepWarmCaches(): void {
     $this->logNote('Warming up caches');
     $this->cmd('ahoy drush cr');
