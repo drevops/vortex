@@ -45,12 +45,13 @@ ahoy storybook-stories --watch # In a second terminal.
 STORYBOOK_SERVER_URL=http://<site-url> npm run storybook
 ```
 
-Run `ahoy fei` before using the `ahoy` front-end commands again.
+Before you use the `ahoy` front-end commands again, run `ahoy fei` to
+reinstall the dependencies for the container.
 
-Stories are authored in Twig as `<component>.stories.twig` and compiled into
-`<component>.stories.json` by
-`drush storybook:generate-all-stories --omit-server-url`. Without the
-option, each compiled story carries the Drush site URL and overrides the
-render endpoint resolved by `.storybook/preview.js`.
+You write stories in Twig as `<component>.stories.twig`.
+`drush storybook:generate-all-stories --omit-server-url` compiles them into
+`<component>.stories.json`. Without `--omit-server-url`, each compiled story
+carries the Drush site URL, which overrides the render endpoint that
+`.storybook/preview.js` resolves.
 
 [//]: # (#;> STORYBOOK)

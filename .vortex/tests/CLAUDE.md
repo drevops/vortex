@@ -2,9 +2,9 @@
 
 ## Overview
 
-This directory holds **PHPUnit** integration tests that exercise complete
-workflows in real Docker containers. Tests run against an actual Drupal site
-with real database and services. Slow execution (~minutes).
+This directory holds **PHPUnit** integration tests that run complete
+workflows in real Docker containers. Tests run against an actual Drupal
+site with a real database and services. Execution is slow (~minutes).
 
 ## Setup
 
@@ -26,10 +26,13 @@ composer test         # Run PHPUnit tests
 
 ## PHPUnit - Integration Testing Workflows
 
-**Use when**: Changed ahoy commands, Docker setup, or need to test full build/deploy workflow.
+**Use when**: you changed Ahoy commands or the Docker setup, or you need to
+test the full build/deploy workflow.
 
 **References**:
-- `vendor/alexskrypnyk/phpunit-helpers/README.md` - Test helpers, traits, assertions
+
+- `vendor/alexskrypnyk/phpunit-helpers/README.md` - Test helpers, traits,
+  assertions
 - `vendor/alexskrypnyk/file/README.md` - File operations, batch processing
 
 ```bash
@@ -74,7 +77,7 @@ $this->cmd('ahoy info', ['Xdebug', '! Enabled']);
 
 ### Cross-Platform File Operations
 
-Use `AlexSkrypnyk\File\File` class:
+Use the `AlexSkrypnyk\File\File` class:
 
 ```php
 use AlexSkrypnyk\File\File;
@@ -89,12 +92,13 @@ Use `self::$tmp` for temporary files (auto-cleaned).
 
 ## Shell script patterns
 
-Shipped scripts follow a shared structure - see the Tooling package section in
-[`.vortex/CLAUDE.md`](../CLAUDE.md#tooling-package).
+Shipped scripts follow a shared structure. See the Tooling package section
+in [`.vortex/CLAUDE.md`](../CLAUDE.md#tooling-package).
 
 ## Test maintenance
 
 When updating PHPUnit tests:
 
 1. Update the test class.
-2. Run `ahoy update-snapshots` from `.vortex/` (see Snapshots in `.vortex/CLAUDE.md`).
+2. Run `ahoy update-snapshots` from `.vortex/` (see Snapshots in
+   `.vortex/CLAUDE.md`).
