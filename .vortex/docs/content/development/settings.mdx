@@ -339,14 +339,13 @@ control there.
 | `DRUPAL_SHIELD_USER`                 |         | HTTP authentication username                        |
 | `DRUPAL_SHIELD_PASS`                 |         | HTTP authentication password                        |
 | `DRUPAL_SHIELD_PRINT`                |         | Message shown in the authentication popup (module default when unset) |
-| `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` |         | Set to any non-empty value to keep the `/.well-known/acme-challenge/*` path open for Let's Encrypt certificate generation |
+| `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` |         | Set to `1` to keep the `/.well-known/acme-challenge/*` path open for Let's Encrypt certificate generation |
 
 **Overriding default behavior:**
 
-Set `DRUPAL_SHIELD_DISABLED` to any non-empty value to completely disable Shield
-in an environment where it would otherwise be enabled. This is useful for
-temporary access during debugging or when an environment does not require
-protection.
+Set `DRUPAL_SHIELD_DISABLED` to `1` to completely disable Shield in an
+environment where it would otherwise be enabled. This is useful for temporary
+access during debugging or when an environment does not require protection.
 
 import ShieldModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.shield.php';
 
@@ -391,9 +390,9 @@ development modules deploy step is the only place that installs it.
 
 **Overriding default behavior:**
 
-Set `DRUPAL_REROUTE_EMAIL_DISABLED` to any non-empty value to completely disable
-email rerouting in an environment where it would otherwise be enabled. To send
-real mail from `stage` during UAT, set this variable there.
+Set `DRUPAL_REROUTE_EMAIL_DISABLED` to `1` to completely disable email rerouting
+in an environment where it would otherwise be enabled. To send real mail from
+`stage` during UAT, set this variable there.
 
 import RerouteEmailModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.reroute_email.php';
 
@@ -451,6 +450,32 @@ settings.
 Prefix all such variables with `DRUPAL_` (e.g. `DRUPAL_MY_SETTING`) to
 distinguish them from other environment variables.<br/>
 Always define a default hardcoded value for each environment variable.
+
+- **Guard a variable by what it holds.**<br/>
+A _boolean flag_ switches behavior on and is read with
+`getenv('DRUPAL_MY_FLAG') === '1'`. Every other value leaves the behavior off,
+including an unset variable, an empty string, `0`, `true` and `yes`.<br/>
+A _value carrier_ holds a value the code uses and is read with
+`!empty(getenv('DRUPAL_MY_VALUE'))`. When the code needs the value after the
+guard, assign it to a variable first.<br/>
+Compare with `===` and `!==`, never with `==`.
+
+:::warning Flags accept only `1`
+
+Setting a shipped flag to `true`, `yes`, `on` or any other non-empty value
+leaves the behavior **off**. Set each of these flags to `1` in your hosting
+provider's environment variables: `DRUPAL_CLAMAV_ENABLED`,
+`DRUPAL_REDIS_ENABLED`, `DRUPAL_REROUTE_EMAIL_DISABLED`,
+`DRUPAL_SHIELD_DISABLED`, `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` and
+`DRUPAL_SETTINGS_LOCAL_SKIP`.
+
+:::
+
+- **Gate on the presence of a contributed module only when the file needs it.**<br/>
+`file_exists($contrib_path . '/my_module')` belongs in an override file that
+loads a file from the module directory or registers its paths. An override file
+that only writes `$config` or `$settings` skips this guard, because Drupal
+ignores overrides for a module that is not installed.
 
 - **Use conditions based on _environment type_ within per-module override files.**<br/>
 This allows for environment-specific configuration without cluttering the main
