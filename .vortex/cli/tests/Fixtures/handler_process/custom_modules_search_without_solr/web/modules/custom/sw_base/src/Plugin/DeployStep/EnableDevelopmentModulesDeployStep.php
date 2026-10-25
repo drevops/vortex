@@ -1,4 +1,4 @@
-@@ -100,13 +100,9 @@
+@@ -101,13 +101,9 @@
      $this->moduleInstaller->install(['clamav']);
      $this->configFactory->getEditable('clamav.settings')->set('mode_daemon_tcpip.hostname', 'clamav')->save();
  

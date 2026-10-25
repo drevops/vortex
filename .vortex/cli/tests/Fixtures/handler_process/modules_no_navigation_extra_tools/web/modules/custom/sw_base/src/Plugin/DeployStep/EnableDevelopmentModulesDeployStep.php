@@ -1,4 +1,4 @@
-@@ -85,7 +85,6 @@
+@@ -86,7 +86,6 @@
        'config_update',
        'media',
        'environment_indicator',
