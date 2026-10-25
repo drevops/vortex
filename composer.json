@@ -13,8 +13,8 @@
         "drupal/coffee": "^2.0.1",
         "drupal/config_split": "^2.0.2",
         "drupal/config_update": "^2@alpha",
-        "drupal/core-composer-scaffold": "~11.4.10",
-        "drupal/core-recommended": "~11.4.10",
+        "drupal/core-composer-scaffold": "~11.4.11",
+        "drupal/core-recommended": "~11.4.11",
         "drupal/deploy_steps": "^1.0.0-alpha1",
         "drupal/devel": "^5.5",
         "drupal/drupal_helpers": "^2.2.0",
@@ -32,7 +32,7 @@
         "drupal/search_api": "^1.42.0",
         "drupal/search_api_solr": "^4.4.0",
         "drupal/seckit": "^2.0.3",
-        "drupal/shield": "^1.8",
+        "drupal/shield": "^1.10",
         "drupal/stage_file_proxy": "^4.0.0",
         "drupal/testmode": "^2.8.0",
         "drupal/xmlsitemap": "^2.0",
@@ -100,7 +100,7 @@
         "bump-after-update": true,
         "discard-changes": true,
         "platform": {
-            "php": "8.4.25"
+            "php": "8.4.27"
         },
         "policy": {
             "advisories": {
