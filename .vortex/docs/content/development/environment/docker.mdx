@@ -225,7 +225,9 @@ The following services are defined in the `docker-compose.yml` file provided by
   container where cron jobs are run within a hosting environment (if that
   environment supports containerization).
 - `webserver` - a container that runs a web server. This container is used to serve
-  the application and pass requests to the appserver container.
+  the application and pass requests to the appserver container. Its
+  `VORTEX_WEBSERVER_MAINTENANCE_MODE` pass-through variable turns on the
+  [static maintenance page](../../hosting/lagoon.mdx#serve-a-maintenance-page).
 - `appserver` - a container that runs a PHP engine. This container is used to run the
   application code and execute commands in the context of the application. It is
   different from the `cli` container in that it does not have certain
