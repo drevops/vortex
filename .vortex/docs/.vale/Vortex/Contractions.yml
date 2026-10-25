@@ -1,0 +1,32 @@
+extends: substitution
+message: "Use '%s' instead of '%s'."
+link: 'https://developers.google.com/style/contractions'
+level: error
+# Case-sensitive, so the RFC 2119 keywords 'MUST NOT' and 'SHOULD NOT' stay.
+ignorecase: false
+action:
+  name: replace
+# '\s+' between the words matches a phrase split across a wrapped line.
+swap:
+  '[Aa]re\s+not': aren't
+  '[Cc]annot': can't
+  '[Cc]ould\s+not': couldn't
+  '[Dd]id\s+not': didn't
+  '[Dd]o\s+not': don't
+  '[Dd]oes\s+not': doesn't
+  '[Hh]as\s+not': hasn't
+  '[Hh]ave\s+not': haven't
+  '[Hh]ow\s+is': how's
+  '[Ii]s\s+not': isn't
+  '[Ii]t\s+is': it's
+  '[Ss]hould\s+not': shouldn't
+  '[Tt]hat\s+is': that's
+  '[Tt]hey\s+are': they're
+  '[Ww]as\s+not': wasn't
+  '[Ww]e\s+are': we're
+  '[Ww]e\s+have': we've
+  '[Ww]ere\s+not': weren't
+  '[Ww]hat\s+is': what's
+  '[Ww]hen\s+is': when's
+  '[Ww]here\s+is': where's
+  '[Ww]ill\s+not': won't

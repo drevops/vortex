@@ -41,7 +41,6 @@ const config = {
   projectName: 'Vortex',
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'throw',
   onBrokenAnchors: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
@@ -80,6 +79,9 @@ const config = {
 
   markdown: {
     mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'throw',
+    },
   },
 
   themes: [

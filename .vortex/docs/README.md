@@ -27,6 +27,7 @@ yarn test:coverage    # Tests with coverage
 yarn lint             # Check code quality
 yarn lint-fix         # Auto-fix issues
 yarn spellcheck       # American English validation
+yarn lint-prose       # Prose style checks (Vale)
 ```
 
 ## Project Structure
@@ -37,6 +38,8 @@ docs/
 ├── src/components/         # React components (VerticalTabs, etc.)
 ├── tests/
 │   └── unit/              # Jest tests
+├── .vale/Vortex/          # Prose style rules
+├── .vale.ini              # Prose style configuration
 ├── jest.config.js         # Test configuration
 └── cspell.json           # Spellcheck configuration
 ```
@@ -77,5 +80,5 @@ test('component renders correctly', () => {
 ## Pre-commit Checklist
 
 ```bash
-yarn lint && yarn spellcheck && yarn test && yarn build
+yarn lint && yarn spellcheck && yarn lint-prose && yarn test && yarn build
 ```

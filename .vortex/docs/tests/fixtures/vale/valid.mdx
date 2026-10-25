@@ -1,0 +1,67 @@
+---
+title: Vortex prose rules
+description: Vortex needs no emphasis in front matter.
+---
+
+import Tabs from '@theme/Tabs';
+
+# Prose rules for Vortex
+
+**Vortex** is bold in prose, and [Vortex documentation](https://www.vortextemplate.com) keeps a plain link label.
+
+Set `VORTEX_DEBUG` in the `.env` file, then check `composer.json`.
+
+The build doesn't run on a three-way merge.
+
+The build runs in every environment, ensuring consistency and eliminating manual steps.
+
+The build runs linting, tests, and deployments.
+
+The build uses the numbering system, chosen at install time and documented in the release notes.
+
+The branch that was just pushed sets the temporary file path.
+
+The page covers the container stack, the Ahoy and Drush command
+wrappers, and the debugging tools.
+
+Use a 2-digit suffix to control the order - for
+example, `provision-50-custom.sh` and `provision-60-another-custom.sh`.
+
+The build provides 2 parallel profiles, `p0` and `p1`.
+
+The salt changes with the host name, silently invalidating login and reset links.
+
+- **Use standard tools**: Wherever possible, the template follows conventions and avoids reinvention.
+
+Variables MUST NOT be exported, because a supply-chain attack can read them.
+
+> Vortex is quoted verbatim, so nothing here is simple, e.g. this will not be checked.
+
+```shell
+# Vortex is not checked inside code, e.g. this will not be reported.
+echo "Vortex"
+```
+
+:::tip Choosing a Vortex version
+
+The tip body follows the same rules as any paragraph.
+
+:::
+
+<details>
+  <summary>Expand to see the contents of <code>composer.json</code></summary>
+
+  The details body follows the same rules as any paragraph.
+</details>
+
+## Hosting providers vs environments
+
+Text under the heading.
+
+## Generated Content
+
+Text under the heading.
+
+## How easy is it to choose a provider?
+
+Text under the heading.

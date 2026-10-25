@@ -1,0 +1,8 @@
+extends: write-good.Weasel
+message: "'%s' is vague or adds emphasis without facts. Remove it or be specific."
+tokens-:
+  - largely
+  - mostly
+  - relatively
+  - several
+  - usually
