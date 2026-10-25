@@ -44,7 +44,7 @@
         "dantleech/gherkin-lint": "^0.2.4",
         "drevops/behat-screenshot": "^2.6.0",
         "drevops/behat-steps": "^3.14.4",
-        "drevops/phpcs-standard": "^1.0.0",
+        "drevops/phpcs-standard": "^1.1.0",
         "drupal/coder": "^9.0.1",
         "drupal/drupal-extension": "^6.1",
         "ergebnis/composer-normalize": "^2.54.0",

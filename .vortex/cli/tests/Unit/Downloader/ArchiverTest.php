@@ -48,7 +48,7 @@ class ArchiverTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderValidateInvalid')]
-  public function testValidateInvalid(?string $path, ?string $content, string $expectedMessage): void {
+  public function testValidateInvalid(?string $path, ?string $content, string $expected_message): void {
     if ($path === NULL) {
       $path = self::$tmp . '/test_invalid_' . uniqid() . '.txt';
       if ($content !== NULL) {
@@ -57,20 +57,20 @@ class ArchiverTest extends UnitTestCase {
     }
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($expectedMessage);
+    $this->expectExceptionMessage($expected_message);
     $this->archiver->validate($path);
   }
 
   #[DataProvider('dataProviderExtract')]
-  public function testExtract(string $creator, bool $strip, string $expectedPath): void {
+  public function testExtract(string $creator, bool $strip, string $expected_path): void {
     $archive_path = $this->$creator();
     $destination = self::$tmp . '/test_extract_' . uniqid();
     File::mkdir($destination);
 
     $this->archiver->extract($archive_path, $destination, $strip);
 
-    $this->assertFileExists($destination . $expectedPath);
-    $this->assertEquals('Test content', file_get_contents($destination . $expectedPath));
+    $this->assertFileExists($destination . $expected_path);
+    $this->assertEquals('Test content', file_get_contents($destination . $expected_path));
 
     if ($strip) {
       $this->assertFileDoesNotExist($destination . '/test_archive');
@@ -78,7 +78,7 @@ class ArchiverTest extends UnitTestCase {
   }
 
   #[DataProvider('dataProviderExtractErrors')]
-  public function testExtractErrors(?string $extension, ?string $content, bool $strip, ?string $creator, string $expectedMessage): void {
+  public function testExtractErrors(?string $extension, ?string $content, bool $strip, ?string $creator, string $expected_message): void {
     if ($creator !== NULL) {
       $archive_path = $this->$creator();
     }
@@ -91,7 +91,7 @@ class ArchiverTest extends UnitTestCase {
     File::mkdir($destination);
 
     $this->expectException(\RuntimeException::class);
-    $this->expectExceptionMessage($expectedMessage);
+    $this->expectExceptionMessage($expected_message);
     $this->archiver->extract($archive_path, $destination, $strip);
   }
 
@@ -141,17 +141,17 @@ class ArchiverTest extends UnitTestCase {
     yield 'non-existent file' => [
       'path' => '/non/existent/file.tar.gz',
       'content' => NULL,
-      'expectedMessage' => 'Archive file does not exist',
+      'expected_message' => 'Archive file does not exist',
     ];
     yield 'empty file' => [
       'path' => NULL,
       'content' => '',
-      'expectedMessage' => 'Archive is empty',
+      'expected_message' => 'Archive is empty',
     ];
     yield 'invalid archive' => [
       'path' => NULL,
       'content' => 'This is not an archive',
-      'expectedMessage' => 'File does not appear to be a valid archive',
+      'expected_message' => 'File does not appear to be a valid archive',
     ];
   }
 
@@ -165,22 +165,22 @@ class ArchiverTest extends UnitTestCase {
     yield 'tar.gz without strip' => [
       'creator' => 'createTestTarGz',
       'strip' => FALSE,
-      'expectedPath' => '/test_archive/test_file.txt',
+      'expected_path' => '/test_archive/test_file.txt',
     ];
     yield 'tar.gz with strip' => [
       'creator' => 'createTestTarGz',
       'strip' => TRUE,
-      'expectedPath' => '/test_file.txt',
+      'expected_path' => '/test_file.txt',
     ];
     yield 'zip without strip' => [
       'creator' => 'createTestZip',
       'strip' => FALSE,
-      'expectedPath' => '/test_archive/test_file.txt',
+      'expected_path' => '/test_archive/test_file.txt',
     ];
     yield 'zip with strip' => [
       'creator' => 'createTestZip',
       'strip' => TRUE,
-      'expectedPath' => '/test_file.txt',
+      'expected_path' => '/test_file.txt',
     ];
   }
 
@@ -196,28 +196,28 @@ class ArchiverTest extends UnitTestCase {
       'content' => 'Rar! fake content',
       'strip' => FALSE,
       'creator' => NULL,
-      'expectedMessage' => 'Unsupported archive format',
+      'expected_message' => 'Unsupported archive format',
     ];
     yield 'invalid tar.gz archive' => [
       'extension' => '.tar.gz',
       'content' => "\x1f\x8b" . 'invalid tar content',
       'strip' => FALSE,
       'creator' => NULL,
-      'expectedMessage' => 'Failed to extract tar archive',
+      'expected_message' => 'Failed to extract tar archive',
     ];
     yield 'invalid zip archive' => [
       'extension' => '.zip',
       'content' => "\x50\x4b\x03\x04invalid zip content",
       'strip' => FALSE,
       'creator' => NULL,
-      'expectedMessage' => 'Failed to extract ZIP archive',
+      'expected_message' => 'Failed to extract ZIP archive',
     ];
     yield 'multiple top-level directories with strip' => [
       'extension' => NULL,
       'content' => NULL,
       'strip' => TRUE,
       'creator' => 'createTestMultipleTopLevel',
-      'expectedMessage' => 'Expected single top-level directory in archive',
+      'expected_message' => 'Expected single top-level directory in archive',
     ];
   }
 

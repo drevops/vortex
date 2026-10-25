@@ -17,18 +17,18 @@ use PHPUnit\Framework\TestCase;
 class ArtifactTest extends TestCase {
 
   #[DataProvider('dataProviderFromUri')]
-  public function testFromUri(?string $uri, string $expectedRepo, string $expectedRef, ?string $expectedException = NULL, ?string $expectedMessage = NULL): void {
-    if ($expectedException !== NULL) {
-      /** @var class-string<\Throwable> $expectedException */
-      $this->expectException($expectedException);
-      $this->expectExceptionMessage($expectedMessage);
+  public function testFromUri(?string $uri, string $expected_repo, string $expected_ref, ?string $expected_exception = NULL, ?string $expected_message = NULL): void {
+    if ($expected_exception !== NULL) {
+      /** @var class-string<\Throwable> $expected_exception */
+      $this->expectException($expected_exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $artifact = Artifact::fromUri($uri);
 
-    if ($expectedException === NULL) {
-      $this->assertEquals($expectedRepo, $artifact->getRepo());
-      $this->assertEquals($expectedRef, $artifact->getRef());
+    if ($expected_exception === NULL) {
+      $this->assertEquals($expected_repo, $artifact->getRepo());
+      $this->assertEquals($expected_ref, $artifact->getRef());
     }
   }
 
@@ -221,16 +221,16 @@ class ArtifactTest extends TestCase {
   }
 
   #[DataProvider('dataProviderCreate')]
-  public function testCreate(string $repo, string $ref, ?string $expectedException = NULL, ?string $expectedMessage = NULL): void {
-    if ($expectedException !== NULL) {
-      /** @var class-string<\Throwable> $expectedException */
-      $this->expectException($expectedException);
-      $this->expectExceptionMessage($expectedMessage);
+  public function testCreate(string $repo, string $ref, ?string $expected_exception = NULL, ?string $expected_message = NULL): void {
+    if ($expected_exception !== NULL) {
+      /** @var class-string<\Throwable> $expected_exception */
+      $this->expectException($expected_exception);
+      $this->expectExceptionMessage($expected_message);
     }
 
     $artifact = Artifact::create($repo, $ref);
 
-    if ($expectedException === NULL) {
+    if ($expected_exception === NULL) {
       $this->assertEquals($repo, $artifact->getRepo());
       $this->assertEquals($ref, $artifact->getRef());
     }
@@ -345,9 +345,9 @@ class ArtifactTest extends TestCase {
   }
 
   #[DataProvider('dataProviderGetRepoUrl')]
-  public function testGetRepoUrl(string $repo, string $expectedUrl): void {
+  public function testGetRepoUrl(string $repo, string $expected_url): void {
     $artifact = Artifact::create($repo, 'HEAD');
-    $this->assertEquals($expectedUrl, $artifact->getRepoUrl());
+    $this->assertEquals($expected_url, $artifact->getRepoUrl());
   }
 
   /**

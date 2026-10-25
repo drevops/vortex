@@ -524,6 +524,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
           $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
           $test->assertFileDoesNotExist(static::$sut . '/.npmrc');
+          $test->assertFileDoesNotExist(static::$sut . '/package-audit.jsonc');
           $test->assertFileDoesNotExist(static::$sut . '/eslint.config.mjs');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
@@ -545,6 +546,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
           $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
           $test->assertFileDoesNotExist(static::$sut . '/.npmrc');
+          $test->assertFileDoesNotExist(static::$sut . '/package-audit.jsonc');
           $test->assertFileDoesNotExist(static::$sut . '/eslint.config.mjs');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
@@ -609,6 +611,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
           $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
           $test->assertFileDoesNotExist(static::$sut . '/.npmrc');
+          $test->assertFileDoesNotExist(static::$sut . '/package-audit.jsonc');
           $test->assertFileDoesNotExist(static::$sut . '/eslint.config.mjs');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
@@ -634,6 +637,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
           $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
           $test->assertFileDoesNotExist(static::$sut . '/.npmrc');
+          $test->assertFileDoesNotExist(static::$sut . '/package-audit.jsonc');
           $test->assertFileDoesNotExist(static::$sut . '/eslint.config.mjs');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
