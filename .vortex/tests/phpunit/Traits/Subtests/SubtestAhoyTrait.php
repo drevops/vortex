@@ -313,22 +313,15 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Run provision with the post-provision configuration check enabled');
 
-    // The tooling loads '.env' over the process environment, so the flag is
-    // enabled in '.env' rather than passed to the command.
-    $this->fileAddVar('.env', 'VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION', '1');
-    $this->syncToContainer('.env');
-
     $this->cmd(
       'ahoy provision',
       [
         '* Verify config after provision  : Yes',
         '* Verified that post-provision operations did not change configuration.',
       ],
-      'Provision should report that post-provision operations left configuration unchanged'
+      'Provision should report that post-provision operations left configuration unchanged',
+      env: ['VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION' => '1']
     );
-
-    $this->fileRestore('.env');
-    $this->syncToContainer('.env');
 
     $this->logSubstep('Run provision with exported config files different to DB');
 
