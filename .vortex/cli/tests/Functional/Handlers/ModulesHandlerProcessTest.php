@@ -48,6 +48,12 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('environment_indicator')),
     ];
+    yield 'modules_no_fast_404' => [
+      static::cw(function ($test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('fast_404');
+      }),
+      static::cw(fn(FunctionalTestCase $test) => $test->assertSutNotContains('fast_404')),
+    ];
     yield 'modules_no_generated_content' => [
       static::cw(function ($test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('generated_content');
