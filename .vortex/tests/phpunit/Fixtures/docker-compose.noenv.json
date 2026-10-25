@@ -561,6 +561,7 @@
                 "NGINX_FASTCGI_PASS": "appserver",
                 "SSMTP_MAILHUB": "127.0.0.1:1",
                 "TZ": "UTC",
+                "VORTEX_WEBSERVER_MAINTENANCE_MODE": "",
                 "XDEBUG_ENABLE": ""
             },
             "labels": {
