@@ -355,6 +355,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_SUT;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -465,6 +478,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_SUT;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'custom_public';
     $settings['file_private_path'] = 'custom_private';
     $settings['file_temp_path'] = 'custom_temp';
@@ -538,6 +564,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_LOCAL;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -613,6 +652,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_LOCAL;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -691,6 +743,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_CI;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -768,6 +833,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_CI;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -841,6 +919,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_PREVIEW;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -911,6 +1002,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -981,6 +1085,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_STAGE;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -1048,6 +1165,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_PROD;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -1120,6 +1250,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -1199,6 +1342,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -1276,6 +1432,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_PREVIEW;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -1356,6 +1525,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_DEV;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -1436,6 +1618,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_STAGE;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
@@ -1514,6 +1709,19 @@ class EnvironmentSettingsTest extends SettingsTestCase {
     $settings['container_yamls'][0] = $this->app_root . '/' . $this->site_path . '/services.yml';
     $settings['entity_update_batch_size'] = 50;
     $settings['environment'] = self::ENVIRONMENT_PROD;
+    // phpcs:ignore #;< MODULE_FAST_404
+    $settings['fast404_allow_anon_imagecache'] = TRUE;
+    $settings['fast404_exts'] = '/^(?!\/robots)^(?!\/system\/files).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i';
+    $settings['fast404_html'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>';
+    $settings['fast404_whitelist'] = [
+      'index.php',
+      'rss.xml',
+      'install.php',
+      'cron.php',
+      'update.php',
+      'xmlrpc.php',
+    ];
+    // phpcs:ignore #;> MODULE_FAST_404
     $settings['file_public_path'] = 'sites/default/files';
     $settings['file_private_path'] = 'sites/default/files/private';
     $settings['file_temp_path'] = '/tmp';
