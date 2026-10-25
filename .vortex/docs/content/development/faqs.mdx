@@ -305,6 +305,17 @@ workflow, including removing patches.
 
 ➡️ See [Security > Dependency audit](security/dependency-audit.mdx) for the full `config.policy` reference and guidance on choosing the right settings for your project.
 
+## What should I do when `npm audit` reports a security vulnerability?
+
+The CI security audit workflow runs `npm audit` against the root and the theme dependency trees, failing on advisories rated `high` or above. When one appears:
+
+1. **Update the affected package**: try a newer version that resolves the advisory: `npm update <package-name>`.
+2. **Review the advisory**: run `npm audit` for details, including which direct dependency pulls the affected package in, and assess whether it affects your project.
+3. **Pin a patched transitive version**: when the affected package is not a direct dependency, add an `overrides` entry for it in `package.json` and run `npm install`. `npm audit` has no per-advisory ignore list, so this is how a specific advisory leaves the tree.
+4. **Bypass CI for a known issue**: set `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1` to let CI pass while the advisory is being addressed.
+
+➡️ See [Security > Dependency audit](security/dependency-audit.mdx#javascript-dependencies) for the severity threshold and the `overrides` mechanism.
+
 ## How to set a custom maintenance theme?
 
 To set a custom theme for Drupal's maintenance mode (when the site is offline
