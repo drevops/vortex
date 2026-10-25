@@ -6,10 +6,10 @@
          "custom.regex"
      ],
      "packageRules": [
-@@ -183,18 +182,6 @@
-                 "docker-compose",
-                 "custom.regex"
-             ]
+@@ -198,18 +197,6 @@
+                 "before 3am"
+             ],
+             "enabled": true
 -        },
 -        {
 -            "groupName": "GitHub Actions - All - Major, minor and patch",
