@@ -206,7 +206,9 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
           $version = $this->getRepositoryDownloader()->download($this->artifact, $this->config->get(Config::TMP), $release_prefix);
           $this->config->set(Config::VERSION, $version);
           $this->fileManager->snapshotTemplate();
-          $this->fileManager->snapshotPreviousTemplate($this->getRepositoryDownloader(), $this->artifact);
+          $this->fileManager->snapshotPreviousTemplate($this->getRepositoryDownloader(), $this->artifact, function (string $dir, string $ref): void {
+            $this->renderAsInstalled($dir, $ref);
+          });
           return $version;
         },
         hint: fn(): string => sprintf('Downloading from "%s" repository at ref "%s"', $this->artifact->getRepo(), $this->artifact->getRef()),
@@ -245,7 +247,7 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
     }
 
     if ($this->shouldGuide()) {
-      $this->presenter->footer();
+      $this->presenter->footer($this->fileManager->getRegistryFile());
     }
 
     // Should build by default.
@@ -337,6 +339,60 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
     $version = (string) $this->getApplication()?->getVersion();
 
     return $this->tui->run($this->promptsOption($input), $version, $destination, $this->interactive, $update);
+  }
+
+  /**
+   * Render a template download as the destination has it installed.
+   *
+   * The answers come from discovery against the destination rather than from
+   * the choices this run collected, so the render reproduces the project's
+   * current configuration even where this run changes it. That keeps the
+   * result comparable to the project's own files.
+   *
+   * @param string $dir
+   *   Directory holding an unprocessed template download.
+   * @param string $version
+   *   Version to stamp into the rendered content.
+   */
+  protected function renderAsInstalled(string $dir, string $version): void {
+    $config = clone $this->config;
+    $config->set(Config::TMP, $dir, TRUE);
+    $config->set(Config::VERSION, $version, TRUE);
+
+    // Handlers queue content tasks globally, so a render that fails part-way
+    // must not leave them to run against this run's staging copy.
+    File::clearDirectoryTasks();
+
+    try {
+      $this->processor->apply($this->installedAnswers(), $this->tui->registry(), $config, VortexForm::PROCESSORS, VortexForm::WEIGHTS);
+    }
+    finally {
+      File::clearDirectoryTasks();
+    }
+  }
+
+  /**
+   * The answers describing the destination as it is installed.
+   *
+   * A handler that reads the destination answers for it; the collected answers
+   * fill the questions discovery cannot answer.
+   *
+   * @return \DrevOps\PhpTui\Answers\Answers
+   *   The answers the destination was installed with.
+   */
+  protected function installedAnswers(): Answers {
+    $registry = $this->tui->registry();
+    $values = $this->answers->values;
+
+    foreach (array_keys(VortexForm::WEIGHTS) as $id) {
+      $discovered = VortexForm::handler($registry, $this->config, $id)->setResponses($values)->discover();
+
+      if ($discovered !== NULL) {
+        $values[$id] = $discovered;
+      }
+    }
+
+    return new Answers($values);
   }
 
   /**

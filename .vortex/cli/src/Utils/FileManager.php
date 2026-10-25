@@ -33,11 +33,26 @@ class FileManager {
   protected array $templatePaths = [];
 
   /**
-   * Content hashes shipped by the version the project currently runs.
+   * Content hashes the version the project currently runs installed.
    *
    * @var array<string, string>
    */
   protected array $previousTemplateHashes = [];
+
+  /**
+   * Directory holding the rendered version the project currently runs.
+   */
+  protected ?string $previousDir = NULL;
+
+  /**
+   * Reference of the version the project currently runs.
+   */
+  protected ?string $previousRef = NULL;
+
+  /**
+   * Path of the registry of project changes this update replaced.
+   */
+  protected ?string $registryFile = NULL;
 
   public function __construct(
     protected Config $config,
@@ -64,12 +79,18 @@ class FileManager {
   }
 
   /**
-   * Record the paths shipped by the version the project currently runs.
+   * Record what the version the project currently runs installed.
    *
    * A path the template has stopped shipping altogether is absent from the
-   * incoming download, so the selection diff alone cannot identify it. Listing
-   * the version the project runs restores such a path as a candidate, so a
-   * file dropped between releases is removable rather than permanent.
+   * incoming download, so the selection diff alone cannot identify it.
+   * Rendering the version the project runs restores such a path as a
+   * candidate, so a file dropped between releases is removable rather than
+   * permanent.
+   *
+   * The download is rendered before hashing: token replacements and directory
+   * renames leave the raw template files matching nothing in the project. It
+   * is rendered as the destination has it installed, not as this run would
+   * install it, so a path this run drops stays recognisable as template-owned.
    *
    * Failure is not fatal: the recorded reference may no longer resolve, in
    * which case only the selection diff applies.
@@ -78,8 +99,11 @@ class FileManager {
    *   The repository downloader.
    * @param \DrevOps\VortexCli\Downloader\Artifact $artifact
    *   The artifact identifying the repository to read the reference from.
+   * @param callable|null $render
+   *   Callback turning the download into installable content, receiving the
+   *   directory and the reference.
    */
-  public function snapshotPreviousTemplate(RepositoryDownloader $downloader, Artifact $artifact): void {
+  public function snapshotPreviousTemplate(RepositoryDownloader $downloader, Artifact $artifact, ?callable $render = NULL): void {
     if (!$this->config->isVortexProject()) {
       return;
     }
@@ -97,12 +121,18 @@ class FileManager {
       File::remove($dir);
       File::mkdir($dir);
       $downloader->download(Artifact::create($artifact->getRepo(), $ref), $dir);
+
+      if ($render !== NULL) {
+        $render($dir, $ref);
+      }
+
       $this->previousTemplateHashes = $this->hashDirectory($dir);
+      $this->previousDir = $dir;
+      $this->previousRef = $ref;
     }
     catch (\Exception) {
       $this->previousTemplateHashes = [];
-    }
-    finally {
+      $this->previousDir = NULL;
       File::remove($dir);
     }
   }
@@ -141,12 +171,10 @@ class FileManager {
     $dst = $this->config->getDst();
 
     // What the project should hold for a path this install no longer ships.
-    // The previous version's own files match only where the CLI copied the
-    // file through unchanged.
     $expected = $this->previousTemplateHashes;
 
-    // Anything either version of the template ships but the staged copy no
-    // longer holds.
+    // Anything the version the project runs installed, or either version of
+    // the template ships, but the staged copy no longer holds.
     $shipped = array_merge(array_keys($expected), $this->templatePaths);
     $excluded = array_diff($shipped, $this->relativePaths($src));
 
@@ -180,6 +208,8 @@ class FileManager {
       File::rmdirIfEmpty($dir);
     }
 
+    $this->recordReplacedChanges($src);
+
     // Src directory is now "clean" - copy it to dst directory.
     if (is_dir($src) && !File::dirIsEmpty($src)) {
       File::copy($src, $dst);
@@ -192,6 +222,72 @@ class FileManager {
 
     $this->removeExcludedPaths($excluded, $expected);
     $this->removeObsoletePaths();
+    $this->cleanupPreviousTemplate();
+  }
+
+  /**
+   * Record the project changes that the copy is about to replace.
+   *
+   * The copy overlays the staged content without regard for what the project
+   * put there, so a change the project made to a shipped file is lost. The
+   * content of all three sides is only available before the overlay, so the
+   * registry is built first.
+   *
+   * @param string $src
+   *   The staged template directory.
+   */
+  protected function recordReplacedChanges(string $src): void {
+    if ($this->previousDir === NULL) {
+      return;
+    }
+
+    $dst = (string) $this->config->getDst();
+    $registry = new UpdateRegistry($dst);
+
+    foreach ($this->relativePaths($src) as $path) {
+      $project = $dst . '/' . $path;
+
+      if (!is_file($project) || !is_readable($project)) {
+        continue;
+      }
+
+      $next = $src . '/' . $path;
+      $project_hash = hash_file(self::HASH_ALGO, $project);
+
+      // The file still holds what the template put there, or already holds
+      // what the copy would put there, so the copy replaces nothing.
+      if ($project_hash === ($this->previousTemplateHashes[$path] ?? NULL) || $project_hash === hash_file(self::HASH_ALGO, $next)) {
+        continue;
+      }
+
+      // A path the version the project runs never shipped has no content to
+      // diff the project's copy against.
+      $previous = $this->previousDir . '/' . $path;
+
+      $registry->add($path, is_file($previous) ? File::read($previous) : NULL, File::read($project), File::read($next));
+    }
+
+    $this->registryFile = $registry->write((string) $this->previousRef, (string) $this->config->get(Config::VERSION), date('Y-m-d H:i:s'));
+  }
+
+  /**
+   * Remove the rendered copy of the version the project currently runs.
+   */
+  protected function cleanupPreviousTemplate(): void {
+    if ($this->previousDir !== NULL) {
+      File::remove($this->previousDir);
+      $this->previousDir = NULL;
+    }
+  }
+
+  /**
+   * Get the registry of project changes this update replaced.
+   *
+   * @return string|null
+   *   Path of the registry, or NULL when no project change was replaced.
+   */
+  public function getRegistryFile(): ?string {
+    return $this->registryFile;
   }
 
   /**

@@ -13,6 +13,7 @@ use DrevOps\VortexCli\Utils\Env;
 use DrevOps\VortexCli\Utils\File;
 use DrevOps\VortexCli\Utils\FileManager;
 use DrevOps\VortexCli\Utils\Git;
+use DrevOps\VortexCli\Utils\UpdateRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\Process\ExecutableFinder;
 
@@ -21,6 +22,7 @@ use Symfony\Component\Process\ExecutableFinder;
  */
 #[CoversClass(FileManager::class)]
 #[CoversClass(AbstractInstallCommand::class)]
+#[CoversClass(UpdateRegistry::class)]
 class InstallExcludedPathsTest extends FunctionalTestCase {
 
   /**
@@ -85,6 +87,29 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
       $this->assertFileExists(static::$sut . '/' . $path, sprintf('Project-authored "%s" kept in the destination.', $path));
       $this->assertStringEqualsFile(static::$sut . '/' . $path, $contents, sprintf('Project-authored "%s" kept its contents.', $path));
     }
+  }
+
+  public function testUpdateRecordsReplacedProjectChanges(): void {
+    $ref = $this->templateRef();
+
+    $this->runVerb(new InstallCommand(), self::PROMPTS_ALL_TOOLS, $ref);
+
+    // A file the template keeps shipping, so the update replaces it.
+    $shipped = File::read(static::$sut . '/.ahoy.yml');
+    File::dump(static::$sut . '/.ahoy.yml', $shipped . PHP_EOL . '# Project addition.' . PHP_EOL);
+
+    $this->runVerb(new UpdateCommand(), self::PROMPTS_WITHOUT_TEST_TOOLS, $ref);
+
+    $registry = static::$sut . '/' . UpdateRegistry::FILE;
+
+    $this->assertFileExists($registry, 'A replaced project change is recorded.');
+    $this->assertFileContainsString($registry, '### .ahoy.yml');
+    // Rendering the installed version reproduces token replacements and the
+    // theme directory rename, so files the project left alone match it.
+    $this->assertFileNotContainsString($registry, '### composer.json', 'A token-processed file the project did not change is not recorded.');
+    $this->assertFileNotContainsString($registry, '### web/themes/custom/star_wars/package.json', 'A file under a renamed directory is not recorded.');
+    $this->assertFileContainsString($registry, '+# Project addition.');
+    $this->assertFileNotContainsString(static::$sut . '/.ahoy.yml', '# Project addition.', 'The update still replaces the project file.');
   }
 
   public function testNothingRemovedFromDestinationThatIsNotVortexProject(): void {
