@@ -1,4 +1,4 @@
-@@ -88,7 +88,6 @@
+@@ -89,7 +89,6 @@
        'navigation_extra_tools',
        'pathauto',
        'redirect',

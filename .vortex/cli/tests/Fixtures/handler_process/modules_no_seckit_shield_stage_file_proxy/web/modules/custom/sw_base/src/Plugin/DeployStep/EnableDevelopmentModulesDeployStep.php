@@ -1,4 +1,4 @@
-@@ -90,8 +90,6 @@
+@@ -91,8 +91,6 @@
        'redirect',
        'reroute_email',
        'robotstxt',

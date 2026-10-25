@@ -1,4 +1,4 @@
-@@ -82,7 +82,6 @@
+@@ -83,7 +83,6 @@
      $this->moduleInstaller->install([
        'coffee',
        'config_split',
