@@ -1,0 +1,27 @@
+@@ -103,7 +103,7 @@
+                 "!drupal/core-dev"
+             ],
+             "minimumReleaseAge": "14 days",
+-            "automerge": true
++            "automerge": false
+         },
+         {
+             "description": "Drupal core has no 'minimumReleaseAge', so its security releases are proposed on the next daily run.",
+@@ -179,7 +179,7 @@
+                 "/.*/"
+             ],
+             "minimumReleaseAge": "14 days",
+-            "automerge": true
++            "automerge": false
+         },
+         {
+             "groupName": "Container images - All - Major, minor and patch",
+@@ -199,7 +199,7 @@
+                 "custom.regex"
+             ],
+             "minimumReleaseAge": "14 days",
+-            "automerge": true
++            "automerge": false
+         },
+         {
+             "description": "npm packages that CI runs at a pinned version through 'npx'.",
