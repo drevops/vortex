@@ -17,9 +17,9 @@
         "drupal/core-recommended": "~11.4.10",
         "drupal/deploy_steps": "^1.0.0-alpha1",
         "drupal/devel": "^5.5",
-        "drupal/drupal_helpers": "^2.1.0",
+        "drupal/drupal_helpers": "^2.2.0",
         "drupal/environment_indicator": "^4.0.25",
-        "drupal/generated_content": "^2.1.0",
+        "drupal/generated_content": "^2.2.0",
         "drupal/migrate_plus": "^6.0.10",
         "drupal/migrate_tools": "^6.1.4",
         "drupal/navigation_extra_tools": "^1.3.2",
@@ -34,7 +34,7 @@
         "drupal/seckit": "^2.0.3",
         "drupal/shield": "^1.8",
         "drupal/stage_file_proxy": "^4.0.0",
-        "drupal/testmode": "^2.7.1",
+        "drupal/testmode": "^2.8.0",
         "drupal/xmlsitemap": "^2.0",
         "drush/drush": "^13.8.0"
     },
@@ -100,7 +100,7 @@
         "bump-after-update": true,
         "discard-changes": true,
         "platform": {
-            "php": "8.4.21"
+            "php": "8.4.25"
         },
         "policy": {
             "advisories": {
