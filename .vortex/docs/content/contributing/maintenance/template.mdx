@@ -73,6 +73,13 @@ Please refer to [RFC2119](https://www.ietf.org/rfc/rfc2119.txt) for meaning of w
    that is starting, so it always reports its outcome, even when the work
    itself cannot fail.
 
+   A `task` MUST NOT open while another `task` is open. A step inside an open
+   `task`, including each iteration of a loop, uses a `note`.
+
+   A `pass` or a `fail` MAY stand on its own. A check reports `pass` when it
+   holds and `fail` when it does not. A skipped or finished operation reports
+   `pass` without a `task` first.
+
 7. SHOULD include variable values checks with errors and early exit, i.e.:
 
     ```shell
