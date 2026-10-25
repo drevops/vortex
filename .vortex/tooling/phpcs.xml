@@ -16,6 +16,7 @@
     <file>check-no-exit.php</file>
     <file>playground</file>
     <file>src/vortex-check-worktree-changes</file>
+    <file>src/vortex-convert-audit-sarif</file>
     <file>src/vortex-deploy-artifact</file>
     <file>src/vortex-deploy-lagoon</file>
     <file>src/vortex-deploy-webhook</file>

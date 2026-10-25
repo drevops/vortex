@@ -1,0 +1,528 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Convert a dependency audit JSON report into a SARIF report.
+ *
+ * SARIF is the interchange format GitHub code scanning ingests, and neither
+ * 'composer audit' nor 'npm audit' has a SARIF formatter of its own.
+ *
+ * Usage:
+ *   vortex-convert-audit-sarif [report] [format] [lock-file]
+ *
+ * IMPORTANT! This script runs outside the container on the host system.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+
+// -----------------------------------------------------------------------------
+
+// Path to the audit report to convert. Also accepted as the first argument.
+$report_file = audit_sarif_argument(1, 'VORTEX_CONVERT_AUDIT_SARIF_FILE', '.logs/audit/composer-audit.json');
+
+// Format of the report to convert, 'composer' or 'npm'. Also accepted as the
+// second argument.
+$format = audit_sarif_argument(2, 'VORTEX_CONVERT_AUDIT_SARIF_FORMAT', 'composer');
+
+// Path to the lock file that findings are located in. Also accepted as the
+// third argument. Defaults to the lock file the report format uses.
+$lock_file = audit_sarif_argument(3, 'VORTEX_CONVERT_AUDIT_SARIF_LOCK_FILE', '');
+
+// Path of the SARIF report to write. Defaults to the report path with a
+// '.sarif' extension.
+$result_file = getenv_default('VORTEX_CONVERT_AUDIT_SARIF_RESULT_FILE', preg_replace('/\.json$/', '', $report_file) . '.sarif');
+
+// -----------------------------------------------------------------------------
+
+INFO('Started audit report conversion.');
+
+if (!in_array($format, ['composer', 'npm'], TRUE)) {
+  FAIL("Unknown report format %s. Use 'composer' or 'npm'.", $format);
+}
+
+if ($lock_file === '') {
+  $lock_file = $format === 'npm' ? 'package-lock.json' : 'composer.lock';
+}
+
+if (!is_file($report_file)) {
+  FAIL('Audit report %s does not exist.', $report_file);
+}
+
+$report = json_decode((string) file_get_contents($report_file));
+if (json_last_error() !== JSON_ERROR_NONE || $report === NULL || $report === FALSE) {
+  FAIL('Audit report %s is not valid JSON.', $report_file);
+}
+
+NOTE('Format:    %s', $format);
+NOTE('Report:    %s', $report_file);
+NOTE('Lock file: %s', $lock_file);
+
+$sarif = TASK('Converting audit findings to SARIF.', 'Converted audit findings to SARIF.', function () use ($report, $report_file, $result_file, $format, $lock_file): array {
+  if (!$report instanceof \stdClass) {
+    throw new \RuntimeException(sprintf('Unable to convert %s.', $report_file));
+  }
+
+  $sarif = audit_sarif_build($report, $format, $lock_file, audit_sarif_lock_lines($lock_file, $format));
+
+  $dir = dirname($result_file);
+  if (!is_dir($dir) && !@mkdir($dir, 0777, TRUE) && !is_dir($dir)) {
+    throw new \RuntimeException(sprintf('Unable to convert %s.', $report_file));
+  }
+
+  $json = json_encode($sarif, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  if ($json === FALSE || @file_put_contents($result_file, $json . PHP_EOL) === FALSE) {
+    throw new \RuntimeException(sprintf('Unable to convert %s.', $report_file));
+  }
+
+  return $sarif;
+});
+
+NOTE('Findings:  %d', count(is_array($sarif) ? $sarif['runs'][0]['results'] : []));
+NOTE('Report:    %s', $result_file);
+
+PASS('Finished audit report conversion.');
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Read a positional argument, falling back to an environment variable.
+ *
+ * An empty argument counts as absent, so a later argument can be passed
+ * without overriding an earlier one.
+ *
+ * @param int $position
+ *   Position of the argument.
+ * @param string $name
+ *   Environment variable name.
+ * @param string $default
+ *   Default value.
+ *
+ * @return string
+ *   The argument, the environment variable value or the default.
+ */
+function audit_sarif_argument(int $position, string $name, string $default): string {
+  $argument = $GLOBALS['argv'][$position] ?? '';
+
+  return is_string($argument) && $argument !== '' ? $argument : (string) getenv_default($name, $default);
+}
+
+/**
+ * Map each package to the line it is declared on in the lock file.
+ *
+ * A finding then points at the package entry rather than at the top of the
+ * file. Composer names a package in a "name" member, npm keys it by its
+ * install path. The first declaration of a package wins.
+ *
+ * @param string $lock_file
+ *   Path to the lock file.
+ * @param string $format
+ *   Report format.
+ *
+ * @return array<string, int>
+ *   Line numbers keyed by package name.
+ */
+function audit_sarif_lock_lines(string $lock_file, string $format): array {
+  if (!is_file($lock_file)) {
+    return [];
+  }
+
+  $pattern = $format === 'npm' ? '/^\s*"node_modules\/([^"]+)": \{$/' : '/^\s*"name": "([^"\/]+\/[^"]+)",$/';
+
+  $lines = [];
+  foreach (explode("\n", (string) file_get_contents($lock_file)) as $index => $line) {
+    if (preg_match($pattern, $line, $matches) === 1 && !isset($lines[$matches[1]])) {
+      $lines[$matches[1]] = $index + 1;
+    }
+  }
+
+  return $lines;
+}
+
+/**
+ * Read a string member of a report entry.
+ *
+ * @param object $entry
+ *   Report entry.
+ * @param string $key
+ *   Member name.
+ * @param string $default
+ *   Value used when the member is missing or is not a string.
+ *
+ * @return string
+ *   The member value or the default.
+ */
+function audit_sarif_text(object $entry, string $key, string $default): string {
+  $value = $entry->{$key} ?? NULL;
+
+  return is_string($value) ? $value : $default;
+}
+
+/**
+ * Map an advisory severity to a SARIF level.
+ *
+ * @param string $severity
+ *   Lowercase advisory severity.
+ *
+ * @return string
+ *   The SARIF level.
+ */
+function audit_sarif_severity_level(string $severity): string {
+  return match ($severity) {
+    'critical', 'high' => 'error',
+    'info' => 'note',
+    default => 'warning',
+  };
+}
+
+/**
+ * Map an advisory severity to a code scanning security severity score.
+ *
+ * @param string $severity
+ *   Lowercase advisory severity.
+ *
+ * @return string|null
+ *   The score, or NULL for an unknown severity.
+ */
+function audit_sarif_severity_score(string $severity): ?string {
+  return match ($severity) {
+    'critical' => '9.5',
+    'high' => '8.0',
+    'medium', 'moderate' => '5.5',
+    'low' => '3.0',
+    default => NULL,
+  };
+}
+
+/**
+ * Read the advisories from a 'composer audit' report.
+ *
+ * Composer groups advisories by package and names the advisory itself; the
+ * reference falls back through CVE to the Packagist advisory id. Advisories
+ * accepted through 'config.policy' arrive under 'ignored-advisories' and are
+ * not read.
+ *
+ * @param \stdClass $report
+ *   Decoded report.
+ *
+ * @return array<int, array<string, string|null>>
+ *   Findings.
+ */
+function audit_sarif_composer_findings(\stdClass $report): array {
+  $findings = [];
+
+  $advisories = $report->advisories ?? NULL;
+  if (!$advisories instanceof \stdClass) {
+    return $findings;
+  }
+
+  foreach (get_object_vars($advisories) as $entries) {
+    if (!is_array($entries)) {
+      continue;
+    }
+
+    foreach ($entries as $entry) {
+      if (!$entry instanceof \stdClass) {
+        continue;
+      }
+
+      $id = audit_sarif_text($entry, 'advisoryId', 'composer-audit/advisory');
+      $cve = audit_sarif_text($entry, 'cve', '');
+      $link = audit_sarif_text($entry, 'link', '');
+      $severity = strtolower(audit_sarif_text($entry, 'severity', ''));
+
+      if ($link === '') {
+        if (str_starts_with($id, 'PKSA-')) {
+          $link = 'https://packagist.org/security-advisories/' . $id;
+        }
+        elseif ($cve !== '') {
+          $link = 'https://www.cve.org/CVERecord?id=' . $cve;
+        }
+      }
+
+      $findings[] = [
+        'id' => $id,
+        'package' => audit_sarif_text($entry, 'packageName', 'unknown package'),
+        'title' => audit_sarif_text($entry, 'title', 'Known security advisory'),
+        'versions' => audit_sarif_text($entry, 'affectedVersions', '*'),
+        'reference' => $cve !== '' ? $cve : $id,
+        'link' => $link,
+        'level' => audit_sarif_severity_level($severity),
+        'score' => audit_sarif_severity_score($severity),
+      ];
+    }
+  }
+
+  return $findings;
+}
+
+/**
+ * Read the advisories from an 'npm audit' report.
+ *
+ * The report nests advisories under each package in "via", where an entry is
+ * either an advisory object or the name of the package that pulls it in. Each
+ * advisory object becomes its own finding.
+ *
+ * @param \stdClass $report
+ *   Decoded report.
+ *
+ * @return array<int, array<string, string|null>>
+ *   Findings.
+ */
+function audit_sarif_npm_findings(\stdClass $report): array {
+  $findings = [];
+
+  $vulnerabilities = $report->vulnerabilities ?? NULL;
+  if (!$vulnerabilities instanceof \stdClass) {
+    return $findings;
+  }
+
+  foreach (get_object_vars($vulnerabilities) as $package => $vulnerability) {
+    $via = $vulnerability instanceof \stdClass ? ($vulnerability->via ?? NULL) : NULL;
+    if (!is_array($via)) {
+      continue;
+    }
+
+    foreach ($via as $entry) {
+      if (!$entry instanceof \stdClass) {
+        continue;
+      }
+
+      $link = audit_sarif_text($entry, 'url', '');
+      $severity = strtolower(audit_sarif_text($entry, 'severity', ''));
+      $cvss = $entry->cvss ?? NULL;
+      $cvss = $cvss instanceof \stdClass ? ($cvss->score ?? NULL) : NULL;
+      $parts = explode('/', $link);
+      $id = $link === '' ? 'npm-audit/advisory' : end($parts);
+
+      $findings[] = [
+        'id' => $id,
+        'package' => (string) $package,
+        'title' => audit_sarif_text($entry, 'title', 'Known security advisory'),
+        'versions' => audit_sarif_text($entry, 'range', '*'),
+        'reference' => $id,
+        'link' => $link,
+        'level' => audit_sarif_severity_level($severity),
+        'score' => is_int($cvss) || is_float($cvss) ? (string) $cvss : audit_sarif_severity_score($severity),
+      ];
+    }
+  }
+
+  return $findings;
+}
+
+/**
+ * Read the abandoned packages from a 'composer audit' report.
+ *
+ * @param \stdClass $report
+ *   Decoded report.
+ *
+ * @return array<int, array<string, string>>
+ *   Abandoned packages with their suggested replacements.
+ */
+function audit_sarif_abandoned(\stdClass $report): array {
+  $abandoned = $report->abandoned ?? NULL;
+  if (!$abandoned instanceof \stdClass) {
+    return [];
+  }
+
+  $packages = [];
+  foreach (get_object_vars($abandoned) as $package => $replacement) {
+    $packages[] = ['package' => (string) $package, 'replacement' => is_string($replacement) ? $replacement : ''];
+  }
+
+  return $packages;
+}
+
+/**
+ * Read the dependency policy matches from a 'composer audit' report.
+ *
+ * Composer reports dependency policy matches, the built-in malware policy
+ * among them, under "filter", and they fail the audit like an advisory does.
+ *
+ * @param \stdClass $report
+ *   Decoded report.
+ *
+ * @return array<int, array<string, string>>
+ *   Policy matches.
+ */
+function audit_sarif_policies(\stdClass $report): array {
+  $filter = $report->filter ?? NULL;
+  if (!$filter instanceof \stdClass) {
+    return [];
+  }
+
+  $policies = [];
+  foreach (get_object_vars($filter) as $package => $entries) {
+    if (!is_array($entries)) {
+      continue;
+    }
+
+    foreach ($entries as $entry) {
+      if (!$entry instanceof \stdClass) {
+        continue;
+      }
+
+      $list = audit_sarif_text($entry, 'listName', 'policy');
+
+      $policies[] = [
+        'package' => (string) $package,
+        'list' => $list,
+        'constraint' => audit_sarif_text($entry, 'constraint', '*'),
+        'url' => audit_sarif_text($entry, 'url', ''),
+        'reason' => audit_sarif_text($entry, 'reason', ''),
+        'rule' => 'composer-audit/policy-' . $list,
+      ];
+    }
+  }
+
+  return $policies;
+}
+
+/**
+ * Build the SARIF report from a decoded audit report.
+ *
+ * A finding is fingerprinted by its rule and package rather than by its
+ * location, so an alert survives the lock file changing around it.
+ *
+ * @param \stdClass $report
+ *   Decoded report.
+ * @param string $format
+ *   Report format.
+ * @param string $lock_file
+ *   Path to the lock file the findings are located in.
+ * @param array<string, int> $lock_lines
+ *   Line numbers keyed by package name.
+ *
+ * @return array<string, mixed>
+ *   The SARIF report.
+ */
+function audit_sarif_build(\stdClass $report, string $format, string $lock_file, array $lock_lines): array {
+  $abandoned_rule = 'composer-audit/abandoned-package';
+  $abandoned_text = 'The package is no longer maintained by its author.';
+
+  $findings = $format === 'npm' ? audit_sarif_npm_findings($report) : audit_sarif_composer_findings($report);
+  $abandoned = audit_sarif_abandoned($report);
+  $policies = audit_sarif_policies($report);
+
+  $location = fn(string $package): array => [
+    'physicalLocation' => [
+      'artifactLocation' => ['uri' => $lock_file],
+      'region' => ['startLine' => $lock_lines[$package] ?? 1],
+    ],
+  ];
+
+  // Rules are keyed by id, so a repeated id keeps its first position and takes
+  // the definition of its last occurrence.
+  $finding_rules = [];
+  foreach ($findings as $finding) {
+    $description = sprintf('%s is affected by %s. Affected versions: %s.', $finding['package'], $finding['reference'], $finding['versions']);
+
+    $properties = ['tags' => ['security', $format]];
+    if ($finding['score'] !== NULL) {
+      $properties['security-severity'] = $finding['score'];
+    }
+
+    $rule = [
+      'id' => $finding['id'],
+      'shortDescription' => ['text' => $finding['title']],
+      'fullDescription' => ['text' => $description],
+      'help' => [
+        'text' => $description,
+        'markdown' => $finding['link'] === '' ? $description : sprintf('%s See [%s](%s).', $description, $finding['reference'], $finding['link']),
+      ],
+      'defaultConfiguration' => ['level' => $finding['level']],
+      'properties' => $properties,
+    ];
+
+    if ($finding['link'] !== '') {
+      $rule['helpUri'] = $finding['link'];
+    }
+
+    $finding_rules[(string) $finding['id']] = $rule;
+  }
+
+  $abandoned_rules = $abandoned === [] ? [] : [
+    [
+      'id' => $abandoned_rule,
+      'shortDescription' => ['text' => 'Abandoned package'],
+      'fullDescription' => ['text' => $abandoned_text],
+      'help' => ['text' => $abandoned_text, 'markdown' => $abandoned_text],
+      'defaultConfiguration' => ['level' => 'note'],
+      'properties' => ['tags' => ['maintainability', 'composer']],
+    ],
+  ];
+
+  $policy_rules = [];
+  foreach ($policies as $policy) {
+    $text = sprintf('The package version matched the %s dependency policy declared by its repository.', $policy['list']);
+
+    $rule = [
+      'id' => $policy['rule'],
+      'shortDescription' => ['text' => 'Dependency policy: ' . $policy['list']],
+      'fullDescription' => ['text' => $text],
+      'help' => ['text' => $text, 'markdown' => $text],
+      'defaultConfiguration' => ['level' => 'error'],
+      'properties' => ['tags' => ['security', 'composer']],
+    ];
+
+    if ($policy['url'] !== '') {
+      $rule['helpUri'] = $policy['url'];
+    }
+
+    $policy_rules[$policy['rule']] = $rule;
+  }
+
+  $results = [];
+
+  foreach ($findings as $finding) {
+    $results[] = [
+      'ruleId' => $finding['id'],
+      'level' => $finding['level'],
+      'message' => ['text' => sprintf('%s: %s (affects %s).', $finding['package'], $finding['title'], $finding['versions'])],
+      'locations' => [$location((string) $finding['package'])],
+      'partialFingerprints' => ['vortexAudit/v1' => $finding['id'] . '|' . $finding['package']],
+    ];
+  }
+
+  foreach ($abandoned as $package) {
+    $results[] = [
+      'ruleId' => $abandoned_rule,
+      'level' => 'note',
+      'message' => ['text' => $package['replacement'] === '' ? $package['package'] . ' is abandoned and suggests no replacement.' : sprintf('%s is abandoned. Use %s instead.', $package['package'], $package['replacement'])],
+      'locations' => [$location($package['package'])],
+      'partialFingerprints' => ['vortexAudit/v1' => $abandoned_rule . '|' . $package['package']],
+    ];
+  }
+
+  foreach ($policies as $policy) {
+    $results[] = [
+      'ruleId' => $policy['rule'],
+      'level' => 'error',
+      'message' => ['text' => sprintf('%s matched the %s dependency policy (%s).', $policy['package'], $policy['list'], $policy['constraint']) . ($policy['reason'] === '' ? '' : ' ' . $policy['reason'])],
+      'locations' => [$location($policy['package'])],
+      'partialFingerprints' => ['vortexAudit/v1' => $policy['rule'] . '|' . $policy['package']],
+    ];
+  }
+
+  return [
+    '$schema' => 'https://json.schemastore.org/sarif-2.1.0.json',
+    'version' => '2.1.0',
+    'runs' => [
+      [
+        'tool' => [
+          'driver' => [
+            'name' => $format === 'npm' ? 'npm audit' : 'Composer Audit',
+            'informationUri' => $format === 'npm' ? 'https://docs.npmjs.com/cli/commands/npm-audit' : 'https://getcomposer.org/doc/03-cli.md#audit',
+            'rules' => array_merge(array_values($finding_rules), $abandoned_rules, array_values($policy_rules)),
+          ],
+        ],
+        'results' => $results,
+      ],
+    ],
+  ];
+}
