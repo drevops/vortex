@@ -4,32 +4,42 @@ sidebar_position: 5
 
 # Documentation
 
-There are 2 types of documentation that **Vortex** provides:
+This page is for contributors who write or change the **Vortex**
+documentation. It explains how the 2 kinds of documentation divide the work,
+how to build, check, and publish this site, and how to record its demo
+videos.
 
-1. **Vortex template documentation** (this site) - generic information on
-   **how** to perform operations, applicable to all projects built with
-   **Vortex**. Deployed to https://www.vortextemplate.com/docs/
-2. **Per-project documentation** - project-specific information on **what**
-   the project does, distributed in the `docs/` directory when **Vortex** is
-   installed.
+**Vortex** has 2 kinds of documentation, split by the question each one
+answers:
 
-The key relationship: per-project documentation describes **what** (coding
-standards, testing requirements, release configuration) while referencing the
-**Vortex** documentation for **how** to perform specific operations.
+- **Vortex template documentation** (this site) - generic information on
+  **how** to perform operations, true for every project built with
+  **Vortex**. It's published at
+  [vortextemplate.com](https://www.vortextemplate.com/docs/).
+- **Per-project documentation** - information on **what** applies to one
+  project, shipped in the `docs/` directory of each new site.
+
+The per-project files record a project's own decisions, such as its testing
+conventions, its CI and hosting setup, and its release configuration. For
+**how** to carry each one out, they link here, so the how-to lives in 1
+place and a fix to it reaches every project.
 
 ## www.vortextemplate.com
 
-This documentation provides generic "how-to" guides suitable for any project
-using the **Vortex** template. It covers tooling, automation, and operations
-that are common across all **Vortex**-based projects.
+This site holds the generic how-to guides that suit any project built from
+the **Vortex** template: the tooling, the automation, and the operations
+that every **Vortex**-based project shares.
 
-The source is written in Markdown and located in the
+It's a Docusaurus site written in MDX (Markdown with React components), and
+its source lives in the
 [`.vortex/docs`](https://github.com/drevops/vortex/tree/main/.vortex/docs)
-directory. This is removed when you install **Vortex** for a consumer site.
+directory. The CLI removes `.vortex/` from every consumer site, so the
+documentation source never reaches one.
 
 ### Local build
 
-Run the docs commands from the `.vortex/` directory:
+To preview the site with live reload or build it for production, run these
+commands:
 
 ```shell
 cd .vortex
@@ -41,58 +51,222 @@ ahoy docs
 ahoy build-docs
 ```
 
-Parts of the documentation are generated automatically from the codebase.
-To update them, run:
+Both commands install the site's dependencies first when `node_modules` is
+missing.
+
+The variables table at the end of
+[Variables](../../development/variables.mdx) comes from the code itself.
+`ahoy update-docs` runs [Shellvar](https://github.com/AlexSkrypnyk/shellvar)
+in a Docker container, so Docker must be running. Shellvar extracts the
+variables and their descriptions from these sources:
+
+- `.env` and `.env.local.example`
+- The scripts in `scripts/`
+- The stub files in `.vortex/docs/.utils/variables/extra/`, which describe
+  the variables the other sources leave out, such as the ones commented out
+  in `.env` or set by the hosting platforms, `docker-compose.yml`, and the
+  CI configuration
+
+The command then rewrites the page from its `## Variables list` heading
+down. To regenerate the table, run these commands:
 
 ```shell
 cd .vortex
 ahoy update-docs
 ```
 
-If you have the documentation site running locally, the content changes will
-be available immediately.
+The documentation workflows run the same extraction and fail when it
+changes anything, so commit the result along with the change that caused
+it. If you have the site running locally, it picks up the new content
+straight away.
 
-### Lint, spellcheck and test
+### Lint, spellcheck, and test
+
+To check the documentation, run these commands:
 
 ```shell
 cd .vortex
 
-# Lint the Markdown and check American English spelling.
+# Lint the Markdown, check American English spelling, and check the prose style.
 ahoy lint-docs
 
 # Run the Jest component tests and the spellcheck.
 ahoy test-docs
 ```
 
-If required, add spelling exclusions to the `.vortex/docs/cspell.json` file.
+`ahoy lint-docs` also checks the site code in `src/` and the Jest tests in
+`tests/` with ESLint and Prettier. `ahoy lint-docs-fix` applies the fixes
+that ESLint, Prettier, and markdownlint can make on their own. Unlike
+`ahoy test-docs`, `ahoy lint-docs` doesn't install the site's dependencies,
+so on a fresh checkout, run `ahoy install` first.
 
-Internal links are not checked by these commands - the Docusaurus build is the
-link checker, failing on broken internal links (`ahoy build-docs`).
+When cspell rejects a correct word, add it to the `words` list in
+`.vortex/docs/cspell.json`.
+
+None of these commands checks internal links. The Docusaurus build
+(`ahoy build-docs`) does, and it fails on a broken link. A link to a missing
+anchor only prints a warning, so look for those in the build output.
+
+Lines can't run past 76 characters, and markdownlint enforces the limit.
+Code blocks, tables, and headings are exempt, and so is a line that holds
+nothing but 1 unbroken token, such as a long URL. Code inside a JSX element
+such as `<TabItem>` still counts, so split a long command there with `\`.
+
+### Prose style
+
+[Vale](https://vale.sh) checks the prose of every page against the house
+style. You don't install Vale separately: `yarn install` in `.vortex/docs`
+installs the binary from the
+[Vale npm package](https://www.npmjs.com/package/@vvago/vale), a
+development dependency of the site. Vale reports 2 levels of alert: errors
+fail the run and the continuous integration build, and warnings are
+advisory.
+
+Errors flag the following:
+
+- Product names in the wrong case
+- Headings that aren't in sentence case
+- Phrases that take a contraction, such as `do not`
+- File names and `UPPER_SNAKE_CASE` names outside inline code
+- **Vortex** without bold in prose
+- The numbers 2 to 10 written as words, and ordinals written as numerals,
+  such as `1st`
+- Em dashes and en dashes
+- `e.g.` and `i.e.`
+- Marketing adjectives, such as `powerful`
+- Condescending words, such as `simply`
+- Throat-clearing phrases, such as `keep in mind`
+- Stacked hedges, such as `might possibly`
+- Vague link text, such as `click here`
+- Terms from the Google word list, such as `above` instead of `preceding`
+- Hyphens after `-ly` adverbs
+- Sentences that start with `There is` or `There are`
+- Repeated words
+- Exclamation marks, doubled spaces, and periods inside acronyms
+- Gendered pronouns, such as `he/she`, and gender-biased terms
+- Optional plurals, such as `file(s)`
+- Units without a space after the number, such as `10MB`
+- Internet slang
+- Times in a format other than `9 AM`, and dates in a format other than
+  `July 31, 2016`
+
+Warnings flag the following:
+
+- A missing Oxford comma
+- Sentences longer than 30 words
+- Wordy phrases, such as `a number of`
+- Weasel words, such as `very`
+- The word `will`
+- A period at the end of a heading
+- Ellipses
+- `from` or `between` in front of a number range
+- Some British spellings
+
+Vale's own spell check is off, because cspell does that job.
+
+The rules come from 4 places:
+
+- The `Google` and `write-good` style packages. They're pinned by release
+  URL in `.vortex/docs/.vale.ini` and downloaded by `vale sync` when you run
+  `yarn install`. Only 1 `write-good` rule, `ThereIs`, runs on its own; 2
+  house rules extend its `Weasel` and `TooWordy` word lists.
+- Vale's built-in `Vale` style, which flags repeated words and applies the
+  vocabulary.
+- The house style in `.vortex/docs/.vale/Vortex/`, with 1 small YAML file
+  for each rule. A rule that adjusts a `Google` rule inherits it with
+  `extends` and edits its word lists, and `.vale.ini` switches the original
+  off.
+- The vocabulary in
+  `.vortex/docs/.vale/config/vocabularies/Vortex/accept.txt`, which lists
+  product names with their exact casing.
+
+To lint a single page while you write:
+
+```shell
+cd .vortex/docs
+yarn lint-prose --glob='content/installation.mdx'
+```
+
+When a rule blocks a correct sentence, fix the rule instead of silencing the
+alert. Add the product name to the vocabulary, add the proper noun to
+`Headings.yml`, or remove the word from the rule's list.
+`tests/unit/vale-rules.test.js` runs Vale over a valid and an invalid
+fixture page in `tests/fixtures/vale/` and compares the alerts with a list
+in the test. Update the fixtures and that list together with the rule.
+
+Vale skips block quotes, because they quote upstream projects verbatim. It
+skips the generated table in `development/variables.mdx` too, but it still
+lints the prose before the table.
 
 ### Documentation videos
 
-The 9 terminal demo videos embedded in the docs are regenerated with
-`ahoy update-videos [names]` from `.vortex/` - see
-[CLI > Install demo video](cli.mdx#install-demo-video) for the pipeline.
+The docs embed 9 terminal demo videos. The following table lists each video
+and what it records:
+
+| Video | Records |
+|-------|---------|
+| `cli-install` | The CLI install, answered by an Expect script |
+| `build` | `ahoy build` |
+| `provision` | `ahoy provision` |
+| `lint` | `ahoy lint` |
+| `test` | `ahoy test` |
+| `test-bdd` | `ahoy test-bdd` |
+| `info` | `ahoy info` |
+| `doctor` | `ahoy doctor` |
+| `doctor-info` | `ahoy doctor info` |
+
+Run `ahoy update-videos` from `.vortex/` to re-record every video, or pass
+names, separated by spaces or commas, to record a subset. Each video writes
+`<name>.json`, `<name>.svg`, and `<name>.png` to `.vortex/docs/static/img/`.
+
+A default run wipes the workspace in `.artifacts/tmp/videos-workspace/`,
+builds the CLI, and installs a fresh project there. Every video except
+`cli-install` needs that project built, so the run builds it once. Add
+`--keep` to reuse the existing workspace and its running Docker stack and
+skip that bootstrap. It can't re-record `cli-install`.
+
+The videos show commands that succeed, so the recorder decodes every
+recording to text at `.artifacts/videos/<name>.txt`. It doesn't render a
+recording whose output reports an error, a warning, or a failure. No flag
+overrides that check: fix the command that printed the output and record
+again.
+
+Recording needs these commands on your `PATH`:
+
+- `asciinema`, `expect`, `php`, `composer`, `node`, and `npx` for every
+  video
+- `ahoy` and `docker` as well, for every video except `cli-install`
+
+The command doesn't commit anything, so review the diff under
+`.vortex/docs/static/img/` and commit it yourself. See
+[CLI > Install demo video](cli.mdx#install-demo-video) for the recording
+pipeline.
 
 ### Combined site
 
-The published site serves two majors at once. The branch that ships the current
-major - selected by the `VORTEX_CURRENT_MAJOR` repository variable, default `1` -
-is snapshotted as the default version at `/docs`, and the other major's `{N}.x`
-branch content is served at `/docs/v{N}`.
+The published site serves 2 majors at once. The `VORTEX_CURRENT_MAJOR`
+repository variable (default `1`) picks the current major. The build
+snapshots that major's branch, `main`, as the default version at `/docs`,
+and it serves the other major's `{N}.x` branch at `/docs/v{N}`. The other
+major's pages carry an "unreleased" banner when it's newer than the current
+one and an "unmaintained" banner when it's older, and `/docs/v{current}`
+redirects to `/docs`.
 
-Each branch writes its content against the bare `/docs` mount, so an absolute
-link such as `/docs/tools/behat` points at the current major. When that content
-is assembled under `/docs/v{N}`, those links are re-pointed at the major they
-were written for, and a link that already names a version is left alone. Write
-links the way they read on their own branch.
+Each branch writes its content against the bare `/docs` mount, so an
+absolute link such as `/docs/development/testing/behat` points at the
+current major. When the build moves the other major's content under
+`/docs/v{N}`, it re-points those links at the major they were written for.
+A link that already names a version keeps its target. The build rewrites
+Markdown link targets only, so write an absolute docs link as
+`[label](/docs/...)`, never inside a JSX attribute. Otherwise, write links
+the way they read on their own branch.
 
-Static assets work the same way. Both majors record their own demo videos and
-diagrams under the same `static/img` names, so the other major's `static/` is
-served from `/v{N}` and its asset references are re-pointed to match. Each
-version therefore shows its own screenshots and recordings. Reference assets the
-way they read on their own branch, from the bare `/img`.
+Static assets work the same way. Both majors record their own demo videos
+and diagrams under the same `static/img` names. So the build serves the
+other major's `static/` from `/v{N}` and re-points its asset references to
+match, in Markdown targets and JSX attribute values alike. That way, each
+version shows its own screenshots and recordings. Reference assets the way
+they read on their own branch, from the bare `/img`.
 
 To build and browse the combined site locally:
 
@@ -106,35 +280,62 @@ ahoy docs-combined
 ahoy docs-combined-serve
 ```
 
-Everything the build writes stays inside `docs_combined`, a git-ignored copy of
-`docs` that is rebuilt from scratch on every run and safe to delete at any time.
-The tracked `docs` directory is only ever read, so `ahoy docs` and
+Everything the build writes stays inside `docs_combined`, a git-ignored copy
+of `docs` that's rebuilt from scratch on every run and safe to delete at any
+time. The tracked `docs` directory is only ever read, so `ahoy docs` and
 `ahoy build-docs` keep working on this branch's documentation alone.
+
+The build treats this checkout as the current major unless
+`VORTEX_DOCS_MAJOR` names the other one, so set `VORTEX_DOCS_MAJOR=2` to
+build from a `2.x` checkout. It fetches the branch the checkout doesn't
+supply from `origin`, so it needs network access.
 
 ### Publishing
 
-Automated continuous integration builds publish this documentation:
+Continuous integration publishes this documentation from 2 workflows, and
+both build the combined site.
 
-- on every tag, to https://www.vortextemplate.com/docs/
-- on every commit to a branch whose name contains `release-docs`, to https://www.vortextemplate.com/docs/
-- on every push to `main`, to the development version at https://vortex-docs.netlify.app
-- for pull request branches whose test workflows pass, to a temporary preview, with the link posted to the PR as a comment
+`Vortex - Release docs` (`.github/workflows/vortex-release.yml`) publishes
+the [live site](https://www.vortextemplate.com/docs/) to GitHub Pages. The
+same run builds the CLI and publishes it at
+[`/install`](https://www.vortextemplate.com/install). The workflow runs in
+these cases:
+
+- On every tag
+- On every push to a branch whose name contains `release-docs`,
+  `release-cli`, or `release-installer`
+- When you run it by hand
+
+`Vortex - Test docs` (`.github/workflows/vortex-test-docs.yml`) runs after
+the `Vortex - Test CLI` or `Vortex - Test installer` workflow succeeds, and
+it publishes only when its own documentation checks pass too. A push to
+`main` goes to the [development site](https://vortex-docs.netlify.app) on
+Netlify. Any other branch gets a draft preview, and when the branch has a
+pull request from this repository, the workflow posts the preview link on
+it as a comment.
+
+A `release-docs`, `release-cli`, or `release-installer` branch publishes to
+the live site, so the documentation and the CLI there change for everyone
+until the next publish.
 
 ## Consumer site documentation
 
 **Vortex** ships a scaffold of consumer site documentation in the
-[`docs`](https://github.com/drevops/vortex/tree/main/docs) directory. It is
-installed into every consumer site, where the site maintainers keep it
-up-to-date with their project.
+[`docs`](https://github.com/drevops/vortex/tree/main/docs) directory. The
+CLI copies it into each consumer site unless you answer no to its
+**Preserve project documentation?** question, and from then on the site's
+maintainers keep it current.
 
-The scaffold covers the **what** of a project:
+The scaffold covers **what** applies to each project, with 1 file per
+topic, and `README.md` indexes them:
 
-- Coding standards and agreements specific to the project
-- Testing requirements and configuration
-- Release and deployment configuration
-- Project-specific procedures and decisions
+- `testing.md` - the testing conventions for PHPUnit and Behat
+- `ci.md` - the CI provider and the project's CI configuration
+- `deployment.md` - the hosting provider and the deployment rules
+- `releasing.md` - the release outcome and the version scheme
+- `faqs.md` - project-specific FAQs
 
-The scaffold references this site for the **how** of each operation instead of
-duplicating instructions - so when maintaining the template, keep the scaffold
-pointing at the right pages here, and keep the **how** content on this site
-rather than in the shipped `docs/` files.
+The scaffold links to this site for **how** to perform each operation
+instead of duplicating the instructions. So when you maintain the template,
+keep the scaffold pointing at the right pages here, and keep the how-to
+content on this site rather than in the shipped `docs/` files.

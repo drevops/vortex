@@ -9,25 +9,57 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import CodeBlock from '@theme/CodeBlock';
 
-The provisioning process, handled by the `provision` script shipped via the
-[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
-Composer package (installed at `vendor/drevops/vortex-tooling/src/vortex-provision`),
-sets up a Drupal site on already assembled codebase by either importing an
-existing database from the dump or installing a fresh instance of Drupal using a
-profile, followed by running the necessary configuration import and database
-updates.
+Provisioning turns an assembled codebase into a working Drupal site. By
+default it imports the database dump; switch the provision type to `profile`
+and it installs Drupal from a profile instead. Either way, it then runs the
+database updates, the configuration import, and the deployment hooks, so
+the site matches your code. A site that's already installed keeps its
+database unless you ask for a fresh one.
 
-The main purpose of the script is to automate the setup of a Drupal site
-in every environment, ensuring consistency and eliminating manual steps.
+This page is for developers working day to day on a **Vortex** project, and
+for the lead who tunes provisioning for each environment. It explains what
+the provision script does and which variables steer it. It then shows how
+to fetch, refresh, and export the database, and how to add your own deploy
+steps and deploy hooks. How code reaches a hosting environment before
+provisioning runs there is a separate topic; see
+[Deployment](../deployment/README.mdx).
+
+A single script does the whole job: `vortex-provision`, shipped in the
+[`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
+Composer package and installed at `vendor/bin/vortex-provision`. Your
+machine, CI, and every hosting environment run that same PHP script inside
+the CLI container. The steps stay the same everywhere, and only the
+environment variables and the detected environment type change what they
+do.
+
+## Rationale
+
+Drush has a command for each deployment step (`drush updatedb`,
+`drush config:import`, `drush deploy:hook`), but running them by hand
+assumes the site is already bootstrapped and stable. That assumption breaks
+during an initial setup, and in environments that come and go, such as CI
+pipelines, container builds, or multisite setups. There, something has to
+run the steps in the right order and decide which of them apply.
+
+The provision script is that orchestration:
+
+- It bootstraps the environment by importing a database dump or installing a
+  fresh Drupal instance from a profile.
+- It handles conditional logic for different runtime scenarios, such as
+  skipping provisioning, enforcing fresh database imports, or using
+  maintenance mode.
+- It runs the same provisioning logic across local, CI, staging, and
+  production environments.
+- It runs your project's [deploy steps](#running-custom-scripts) with the
+  deployment hooks, so you can add logic like enabling modules or running
+  migrations.
 
 ## Provisioning flow
 
-Below is a generic provisioning flow diagram illustrating the steps taken by the
-`provision` script. The flow may vary based on environment variables and
-conditions that could alter the execution path.
-
-The numbered steps refer to the environment variables described in the next
-section.
+The following diagram shows the steps the script takes and the points
+where it branches. Environment variables steer most of the branches, and
+the circled numbers match the numbered variables in
+[Customizing flow](#customizing-flow):
 
 ```text
 🚀 Start
@@ -38,25 +70,25 @@ section.
 ② 💡 Provision type = database
 │
 ├─ 💡 Existing site found = YES
-│  ├─ Container image set? ──► preserve content (no change)
-│  ├─ ③ Overwrite DB? ──Yes──► 🗑️ Drop DB ──► 🛢️ Attempt import from dump
-│  │                                              │
-│  │                                              ├─ Dump file exists? ──► 🛢️ Import DB
-│  │                                              └─ Dump file missing?
-│  │                                                  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
-│  │                                                  └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
+│  ├─ Container image set? ──► preserve content (no import), ⑩ sanitize
+│  ├─ ③ Overwrite DB? ──Yes──► 🛢️ Attempt import from dump
+│  │                               │
+│  │                               ├─ Dump file exists? ──► 🗑️ Drop DB ──► 🛢️ Import DB
+│  │                               └─ Dump file missing?
+│  │                                   ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓ (then ⑤ = Yes)
+│  │                                   └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
 │  └─ else ──► preserve content, ⑩ skip sanitization
 │
 └─ 💡 Existing site found = NO
    ├─ Container image set?
-   │  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
+   │  ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓ (then ⑤ = Yes)
    │  └─ ④ Fallback? ──No───► 🏁 EXIT 1 ("corrupted image") ✗
-   └─ Container image not set? ──► 🗑️ Drop DB ──► 🛢️ Attempt import from dump
-                                                     │
-                                                     ├─ Dump file exists? ──► 🛢️ Import DB
-                                                     └─ Dump file missing?
-                                                         ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓
-                                                         └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
+   └─ Container image not set? ──► 🛢️ Attempt import from dump
+                                      │
+                                      ├─ Dump file exists? ──► 🗑️ Drop DB ──► 🛢️ Import DB
+                                      └─ Dump file missing?
+                                          ├─ ④ Fallback? ──Yes──► 📦 Install from profile ✓ (then ⑤ = Yes)
+                                          └─ ④ Fallback? ──No───► 🏁 EXIT 1 (fail) ✗
 
 ── after provisioning (both DB and profile paths) ──
 
@@ -76,17 +108,17 @@ section.
    ▼
    ⬇️ Import configuration (if config files present)
    ▼
-   ⬇️ Import config_split configuration (if the module is enabled)
-   ▼
 ⑨ 🔁 Repeat configuration import (opt-in)
+   ▼
+   ⬇️ Import config_split configuration (if the module is enabled)
    ▼
    🧹 Rebuild caches
    ▼
-   🔄 Run deployment hooks
+   🧩 Enable deploy_steps and the *_base and *_migrate site modules
+   ▼
+   🔄 Run deployment hooks and deploy steps
    ▼
 ⑩ 😷 Run DB sanitization
-   ▼
-   ⚙️ Run custom scripts
    ▼
 ⑥ 🚧 Disable maintenance mode
    ▼
@@ -96,37 +128,143 @@ section.
    🏁 End
 ```
 
+The diagram follows the default `database` provision type. With
+`VORTEX_PROVISION_TYPE=profile`, the branches at the top collapse into 1
+decision. A site that isn't installed yet gets a fresh installation from the
+profile.
+
+With the `profile` type, an installed site keeps its database and skips
+sanitization, unless `VORTEX_PROVISION_OVERRIDE_DB` is `1`, which reinstalls
+it from the profile. Everything after the installation runs the same way
+for both types.
+
+With a database container image, an installed site keeps the database the
+image provides, without an import. The script still treats that database
+as fresh: it sanitizes it and sets `VORTEX_PROVISION_OVERRIDE_DB=1` for
+your deploy steps.
+
+Right after the skip check (①), the script checks that the configuration
+directory in `$settings['config_sync_directory']` exists, and stops with an
+error if it doesn't.
+
+Before the deployment hooks, the script installs the
+[`deploy_steps`](https://www.drupal.org/project/deploy_steps) module and
+every custom module whose directory name ends in `_base` or `_migrate`.
+Installing a module that's already installed does nothing, so this step is
+safe on every run.
+
 ### Customizing flow
 
-You can control the provisioning flow using the following environment variables:
+These environment variables steer the flow:
 
-1. `VORTEX_PROVISION_SKIP=1`<br/>Kill-switch to completely skip provisioning. The script will exit immediately after start. Useful in emergencies when any kind of automation needs to be disabled.<br/><br/>
-2. `VORTEX_PROVISION_TYPE=profile`<br/>Install from a Drupal `profile` instead of importing from a `database` dump. Useful for building sites without the persistent DB and/or test profile configuration installation.<br/><br/>
-3. `VORTEX_PROVISION_OVERRIDE_DB=1`<br/>Drop an existing database before importing from dump/installing from profile. This is useful when an already provisioned environment requires a fresh database to be imported.<br/><br/>
-4. `VORTEX_PROVISION_FALLBACK_TO_PROFILE=1`<br/>Automatically fall back to installing from profile if the database dump file or container image is not available. The site is installed from the configured profile, the Shield module is enabled to protect the environment, and all post-provision operations (configuration import, database updates, deployment hooks, etc.) are skipped. This provides a minimal working Drupal site when no database is available.<br/><br/>
-5. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>Skip configuration imports, database updates, and other post-provisioning steps. This is useful when you want to provision a site without running any additional operations.<br/><br/>
-6. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>Enable maintenance mode right after the site is bootstrappable and disable it at the end. Useful when you want to prevent users from accessing the site while it is being provisioned.<br/><br/>
-7. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1`<br/>Verify that active configuration was not changed by database updates. When enabled and config files are present, the provision will fail if `drush updatedb` modifies active configuration, preventing `drush config:import` from silently overwriting those changes.<br/><br/>
-8. `VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP=1`<br/>Skip the cache rebuild that runs between database updates and configuration import. By default, caches are rebuilt after `drush updatedb` to ensure a clean state before importing configuration.<br/><br/>
-9. `VORTEX_PROVISION_CONFIG_IMPORT_REPEAT=1`<br/>Repeat the configuration import after the initial import. Useful when database update hooks introduce new configuration that affects subsequent configuration imports (e.g., new config_split settings). Disabled by default.<br/><br/>
-10. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>Disable database sanitization.<br/><br/>
-11. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION=1`<br/>Verify that the post-provision operations left active configuration unchanged. When config files are present, the check runs `drush config:status` after the configuration imports, deployment hooks and deploy steps. Provisioning fails if any configuration item is in the `Different` state. Items that exist only in the database or only in the sync directory pass the check.
+1. `VORTEX_PROVISION_SKIP=1`<br/>
+   Skip provisioning entirely. The script exits as soon as it starts and
+   leaves the site alone, which helps in an emergency when every kind of
+   automation has to stop.<br/><br/>
+2. `VORTEX_PROVISION_TYPE=profile`<br/>
+   Install Drupal from the profile in `DRUPAL_PROFILE` (default `standard`)
+   instead of importing a `database` dump. With exported configuration
+   present, it runs `drush site:install --existing-config`, so the site
+   installs from your configuration. That suits sites without a persistent
+   database, and it tests that your configuration installs cleanly from
+   scratch. Any value other than `profile` counts as `database`, the
+   default.<br/><br/>
+3. `VORTEX_PROVISION_OVERRIDE_DB=1`<br/>
+   Replace the database of a site that's already installed. The script drops
+   it and imports the dump again, or reinstalls from the profile. Without
+   it, an installed site keeps its database and only the later steps run.
+   `.env` ships with `0`, the usual choice for hosted environments, and
+   `.env.local.example` sets `1`, so local provisioning starts from a fresh
+   copy.<br/><br/>
+4. `VORTEX_PROVISION_FALLBACK_TO_PROFILE=1`<br/>
+   Fall back to a profile installation when the database dump file is
+   missing, or when the container image holds no usable database. The script
+   installs the profile in `DRUPAL_PROFILE` without your exported
+   configuration and enables the Shield module to protect the environment.
+   It then skips every post-provision operation, from database updates to
+   deploy steps. The result is a minimal working Drupal site when no
+   database is available. It applies to the `database` provision type
+   only.<br/><br/>
+5. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>
+   Stop right after the database import or profile installation, and skip
+   every later step, from maintenance mode to the final configuration check.
+   CI uses it to cache a database in the state it was fetched, before any
+   updates run.<br/><br/>
+6. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>
+   Put the site into maintenance mode right after the database import or
+   installation, and take it out again at the end. Visitors then don't reach
+   a site that's halfway through provisioning. It's on by default: `.env`
+   sets `1`, and so does the script when the variable isn't set.<br/><br/>
+7. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1`<br/>
+   Fail the provisioning when `drush updatedb` changes active configuration.
+   The script exports the configuration before and after the updates and
+   compares the 2 copies, so `drush config:import` can't silently overwrite
+   what an update hook changed. On failure, it lists the changed files and
+   keeps both exports for you to review. The check needs exported
+   configuration files and is off by default.<br/><br/>
+8. `VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP=1`<br/>
+   Skip the cache rebuild between the database updates and the
+   configuration import. By default, the script runs
+   `drush updatedb --no-cache-clear` and then rebuilds the caches itself, so
+   the configuration import starts from a clean state.<br/><br/>
+9. `VORTEX_PROVISION_CONFIG_IMPORT_REPEAT=1`<br/>
+   Run the configuration import a second time, straight after the first.
+   It helps when update hooks introduce configuration that changes what a
+   later import does (for example, new `config_split` settings). It's off by
+   default, and like the import itself it needs exported
+   configuration.<br/><br/>
+10. `VORTEX_PROVISION_SANITIZE_DB_SKIP=1`<br/>
+    Skip database sanitization.
+    [Database sanitization](#database-sanitization) explains when it runs
+    otherwise.<br/><br/>
+11. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION=1`<br/>
+    Fail the provisioning when the post-provision operations leave active
+    configuration different from the exported files. The check runs last,
+    after the configuration imports, deployment hooks, and deploy steps. It
+    fails if `drush config:status` reports any item in the `Different`
+    state. Items that exist only in the database or only in the sync
+    directory don't count, because a site can legitimately carry either.
+    Like the update check, it needs exported configuration files and is off
+    by default.
 
-:::tip
+A few more variables shape what gets provisioned:
 
-These variables can be set in your `.env` file to apply them globally or set
-in your CI or hosting provider's specific environment based on your needs.
+- `VORTEX_DB_DIR` and `VORTEX_DB_FILE` locate the dump (`./.data/db.sql` by
+  default). `VORTEX_PROVISION_DB_DIR` and `VORTEX_PROVISION_DB_FILE`
+  override them for provisioning only, and `VORTEX_PROVISION_DB` takes a
+  full path to the dump.
+- `VORTEX_DB_IMAGE`, or `VORTEX_PROVISION_DB_IMAGE` for provisioning only,
+  names the container image when the database ships inside one. Setting it
+  sends the flow down the "Container image set?" branches of the diagram.
+- `DRUPAL_PROFILE`, `DRUPAL_SITE_NAME`, `DRUPAL_SITE_EMAIL`, and
+  `DRUPAL_ADMIN_EMAIL` feed the profile installation. The administrator
+  account is always named `admin`.
+- `VORTEX_PROVISION_LOG=1` saves the output as `provision.log` in
+  `VORTEX_NOTIFY_LOG_DIR`, where deployment notifications collect it.
 
-:::
+The [Variables reference](variables.mdx) lists the variables that `.env`
+sets, with their defaults, and the top of `vendor/bin/vortex-provision`
+declares every variable the script reads. Set them in `.env` to apply them
+everywhere, or in your CI or hosting provider's environment variables to
+change a single environment.
 
 ### Maintenance mode
 
-During the provisioning process, you may want to enable maintenance mode to
-prevent users from accessing the site while it is being updated.
+Maintenance mode keeps visitors out while the database updates and
+configuration imports run, so nobody browses a site that's halfway between
+2 versions. It's on by default: `.env` sets
+`VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`, and the script falls back to `1`
+when the variable isn't set at all. To keep the site online during
+provisioning, set it to `0` in `.env` or in your hosting provider's
+environment variables.
 
-To enable maintenance mode, set the `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`
-environment variable in your `.env` file to apply it globally or set it in your
-hosting provider's specific environment.
+If a step fails partway through, the script exits with the site still in
+maintenance mode. Fix the problem and provision again, or turn maintenance
+mode off by hand with Drush in the affected environment:
+
+```shell
+drush maint:set 0
+```
 
 Maintenance mode runs in PHP and needs the database. To keep every request
 away from PHP, for example during a migration on Lagoon, serve the [static
@@ -134,57 +272,88 @@ maintenance page](../hosting/lagoon.mdx#serve-a-maintenance-page).
 
 ### Database sanitization
 
-The `provision` script includes a step to sanitize the database after
-provisioning. This helps ensure that sensitive data - like real email addresses,
-passwords, and user information - is replaced with safe, generic values in
-non-production environments. It prevents issues like accidentally sending emails
-to real users or exposing private data during testing, making shared
-environments safer to work with.
+Sanitization replaces real user data with safe values, so a copy of
+production can't email real people from a test run or show their details to
+the team. The script runs `drush sql:sanitize`, which does the following:
+
+- Replaces account email addresses and passwords
+- Scrubs the values of user fields
+- Removes comment author names and email addresses
+- Empties the sessions table
 
 :::warning
 
-Sanitization takes place only after the database is **imported**, so anyone
-with access to the dump file can still see sensitive data.
+Sanitization changes the imported database, not the dump file, so anyone
+with access to the dump can still read the sensitive data in it.
 
-If your database has highly sensitive data, consider sanitizing the database
-dump before it can be downloaded (sanitize on export). There are tools
-available for this purpose, such as [Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper)
-or [MTK](https://github.com/skpr/mtk). These tools can be integrated into
-**Vortex**-based projects without changing the provisioning process.
+If your database holds highly sensitive data, sanitize the dump before it
+can be downloaded (sanitize on export). Tools such as
+[Drush GDPR Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper)
+or [MTK](https://github.com/skpr/mtk) do this, and they fit into
+**Vortex**-based projects without changes to the provisioning process.
 
 :::
 
-The database sanitization step is enabled by default on all environments except
-production. To disable database sanitization, set
-`VORTEX_PROVISION_SANITIZE_DB_SKIP=1` in the `.env` file or in your hosting
-provider's specific environment.
+Sanitization runs by default whenever provisioning brings in a fresh
+database: a dump import, a profile installation, or a database container
+image. It runs after the deployment hooks and deploy steps, so the data
+they create is sanitized too. A fallback installation is the exception,
+because it skips every step after the install.
+
+Sanitization is also skipped whenever the script keeps an existing
+database, and that includes a database the hosting platform copied in, for
+example from production. Production keeps its own database between
+deployments, so it isn't sanitized, and `.lagoon.yml` also sets
+`VORTEX_PROVISION_SANITIZE_DB_SKIP=1` in production explicitly.
+
+To turn sanitization off, set `VORTEX_PROVISION_SANITIZE_DB_SKIP=1` in the
+`.env` file or in your hosting provider's environment variables.
 
 #### Customizing database sanitization
 
-Place these variables in the `.env` file or in your hosting provider's specific
-environment to further customize the database sanitization:
+To adjust what sanitization does, set these variables in the `.env` file
+or in your hosting provider's environment variables:
 
-1. `VORTEX_PROVISION_SANITIZE_DB_EMAIL=user_%uid@your-site-domain.example`<br/>Replace all emails with a tokenized email string.<br/><br/>
-2. `VORTEX_PROVISION_SANITIZE_DB_PASSWORD=<random or exact>`<br/>Replace passwords with a random or exact value.<br/><br/>
-3. `VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL=0`<br/>Replace username with email. Useful to also sanitize user names.<br/><br/>
-4. `VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE=./scripts/sanitize.sql`<br/>Path to a file with custom sanitization SQL queries.
+- `VORTEX_PROVISION_SANITIZE_DB_EMAIL=user_%uid@your-site-domain.example`\
+  Replace every account email address with this pattern. Drush replaces
+  `%uid` with the user ID. It also accepts `%mail`, the original address
+  with `@` changed to `_`, and `%name`, the username with spaces changed to
+  `_`. `.env` ships with this value; without it, the script uses
+  `user+%uid@localhost`.<br/><br/>
+- `VORTEX_PROVISION_SANITIZE_DB_PASSWORD=<random or exact>`\
+  Replace account passwords with this exact value. By default the script
+  generates a random number on each run, so no production password works
+  on the sanitized copy.<br/><br/>
+- `VORTEX_PROVISION_SANITIZE_DB_REPLACE_USERNAME_WITH_EMAIL=1`\
+  Replace each username with the user's sanitized email address, so the
+  usernames don't give real names away either. It's off (`0`) by
+  default.<br/><br/>
+- `VORTEX_PROVISION_SANITIZE_DB_ADDITIONAL_FILE=./scripts/sanitize.sql`\
+  Run the SQL queries in this file after the Drush sanitization. This path
+  is the default, and **Vortex** ships `scripts/sanitize.sql` with an
+  example query that blocks user 1. The script skips this step when the
+  file doesn't exist, so deleting the file turns it off.
+
+Whatever you configure, the script then empties the name and email of the
+anonymous user (user 0). When `DRUPAL_ADMIN_EMAIL` is set, it also sets
+user 1's email back to that address.
 
 ## Database
 
-The running site's database lives **inside the `database` container** - the
-`.data/db.sql` file on the host is only a dump used for imports and exports.
-Removing the container (for example, with `ahoy reset`) discards the live
-database, and the next build re-creates it from the dump.
+The running site's database lives inside the `database` container. The
+`.data/db.sql` file on your machine is a dump: the import commands read it,
+and the export command writes new dumps next to it. Remove the container
+(`ahoy reset` does, for example) and the live database goes with it; the
+next build re-creates it from the dump.
 
-Fetching and exporting run on the **host** (they move dump files around), while
-refreshing runs inside the **containers** (it imports into the running
-database) - the tabs below reflect that difference.
+Fetching and exporting start on the host, because they move dump files
+around. Refreshing runs inside the containers, because it imports into the
+running database. The command tabs in the following sections follow that
+split.
 
 ### Fetching database
 
-To fetch the database with the latest data from the production environment,
-fetch the latest database dump into the `.data` directory.
-
+`ahoy fetch-db` downloads a database dump into the `.data` directory.
 `VORTEX_FETCH_DB_SOURCE` sets where the dump comes from, and accepts the
 following values:
 
@@ -199,10 +368,19 @@ following values:
 
 Any other value stops the command with an error that lists these values.
 
+Each source reads its own settings, which the
+[Variables reference](variables.mdx) lists. The hosting sources copy the
+environment named in `VORTEX_FETCH_DB_ENVIRONMENT`: `.env` ships with
+`prod`, and the CLI sets `main` for `lagoon`, because Lagoon names
+environments after their branches. Projects that install from a profile
+have no `ahoy fetch-db`, because the CLI removes it.
+
+To fetch the dump, run the following command in the project root:
+
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
-    # Fetch latest database dump (uses cache if fetched today)
+    # Fetch latest database dump
     ahoy fetch-db
     # Force a fresh fetch regardless of cache
     ahoy fetch-db --fresh
@@ -210,44 +388,70 @@ Any other value stops the command with an error that lists these values.
   </TabItem>
   <TabItem value="host" label="Host">
     ```shell
-    # Fetch latest database dump (uses cache if fetched today)
+    # Fetch latest database dump
     ./vendor/bin/vortex-fetch-db
     # Force a fresh fetch regardless of cache
-    VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1 ./vendor/bin/vortex-fetch-db
+    VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1 \
+      ./vendor/bin/vortex-fetch-db
     ```
   </TabItem>
 </Tabs>
 
-:::note
+Confirm that the output ends with `Finished database download.` and that
+`.data` holds the dump.
 
-The database dump is stored in the `.data` directory instead of being directly
-imported into the local environment to allow for caching and reusing the
-database dump without needing to fetch it every time you need to refresh
-the local environment.
+When `.data` already holds a dump, the fetch keeps it and stops, whatever
+its age, and the output says `Download will not proceed.` instead.
+`VORTEX_FETCH_DB_FORCE=1` downloads a new copy anyway, and
+`.env.local.example` sets it, so a `.env.local` copied from that file always
+downloads. With the `none` source, the command only lists what `.data`
+holds.
 
-You can manually fetch the database dump from the production environment,
-name it `db.sql`, and place it in the `.data` directory.
+`--fresh` sets `VORTEX_FETCH_DB_FORCE=1` too, along with
+`VORTEX_FETCH_DB_FRESH=1`. That second variable makes Acquia create a new
+backup instead of downloading the latest one. On Lagoon, it creates a new
+dump instead of reusing the one made earlier that day.
 
-:::
+The dump stays in `.data` instead of going straight into the database, so
+you can reuse it: refreshing the local environment doesn't need a new fetch.
+To use a dump you downloaded yourself, name it `db.sql` and put it in the
+`.data` directory.
 
 ### Refreshing database
 
-There are 2 distinct ways to load the dump from `.data` into the running
-database container - pick the one matching what you need.
+You can load the dump from `.data` into the running database container in 2
+ways, depending on what you need. Use `ahoy import-db` for the raw data
+without any configuration changes or updates, and `ahoy provision` for the
+full setup, including configuration and updates.
 
 #### Import and run updates (`ahoy provision`)
 
-`ahoy provision` imports the dump **and** applies all the provisioning steps:
+`ahoy provision` runs the whole [provisioning flow](#provisioning-flow)
+inside the CLI container:
 
 - Database import from dump or profile installation
-- Database updates via `drush updatedb`
-- Configuration import via `drush config:import` (if config files present)
+- Database updates with `drush updatedb`
+- Configuration import with `drush config:import`, when configuration
+  files exist
 - Cache rebuilds
-- Deployment hooks
-- Post-provisioning custom scripts
+- Deployment hooks and deploy steps
+- Database sanitization
 
-Use it any time you need the local environment reset to a fully updated state -
-a fully configured site ready for development or deployment.
+To bring the local environment back to a fully updated state, with a
+configured site that's ready for development or deployment, use
+`ahoy provision`. Besides the flow itself, the command does the following:
+
+- Asks for confirmation before it starts
+- Reloads the database container from its image first, when
+  `VORTEX_DB_IMAGE` is set
+- Unblocks user 1 and prints a one-time login link at the end
+
+The dump replaces the current database only when no site is installed yet
+or `VORTEX_PROVISION_OVERRIDE_DB=1` is set, which `.env.local.example` does
+after you copy it to `.env.local`. Otherwise the site keeps its database
+and only the later steps run.
+
+To provision the site, run the following command:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -262,17 +466,28 @@ a fully configured site ready for development or deployment.
   </TabItem>
 </Tabs>
 
+Confirm that the output ends with `Finished site provisioning`, followed by
+the time it took. With `ahoy provision`, the one-time login link comes
+after it.
+
 #### Import only (`ahoy import-db`)
 
-`ahoy import-db` imports the raw dump **without** running any updates,
-configuration imports or scripts:
+`ahoy import-db` imports the raw dump and runs none of the other
+provisioning steps:
 
 - Imports the database dump
-- Skips configuration imports
 - Skips database updates
-- Skips post-provisioning scripts
+- Skips configuration imports
+- Skips cache rebuilds
+- Skips deployment hooks and deploy steps
+- Skips database sanitization
 
-Use it to quickly reset the database contents to the state captured in the dump.
+To reset the database contents to the state captured in the dump, use
+`ahoy import-db`. It asks for confirmation, then drops the current database
+and loads the dump. A missing or unreadable dump file stops it with
+`Unable to import database from file.` before anything is dropped.
+
+To import a dump, run the following command:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -288,22 +503,19 @@ Use it to quickly reset the database contents to the state captured in the dump.
     # Import database only from default dump in .data/db.sql
     docker compose exec cli ./vendor/bin/vortex-import-db
     # Import database only from a specific dump file
-    docker compose exec cli ./vendor/bin/vortex-import-db path/to/dump.sql
+    docker compose exec cli \
+      ./vendor/bin/vortex-import-db path/to/dump.sql
     ```
   </TabItem>
 </Tabs>
 
-:::tip When to use which command
-
-Use `ahoy import-db` when you only need the raw database data without any configuration changes or updates.
-
-Use `ahoy provision` when you want the full setup including configuration and updates.
-
-:::
+Confirm that the output ends with `Finished database import.`
 
 ### Exporting database
 
-Export timestamped database dumps from the local environment.
+`ahoy export-db` saves the current local database as a timestamped dump in
+`.data`, with a name such as `export_db_20260101_120000.sql`. To export the
+database, run the following command:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -320,54 +532,39 @@ Export timestamped database dumps from the local environment.
   </TabItem>
 </Tabs>
 
-You can use these dumps to restore the local environment to a specific state:
-rename the dump file to `.data/db.sql` and run the import command.
+Confirm that the output includes `Exported database dump saved`, followed
+by the path of the new file.
 
-Cache tables are exported with their structure but without their data, because
-Drupal rebuilds them on demand and their contents would only inflate the dump.
-Set `VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES` to a comma-separated list of table
-names, each of which may use the `*` wildcard, to choose which tables are
-exported this way. Set it to an empty value to export the data of every table.
+These dumps let you return the local environment to a known state later:
+rename one to `.data/db.sql` and run `ahoy import-db`, or pass its path to
+`ahoy import-db` directly. To pick the filename yourself, pass it to the
+export: `ahoy export-db db.sql` writes `.data/db.sql`. With
+`VORTEX_DB_IMAGE` set, the command exports a database container image
+instead of a file.
 
-## Rationale
-
-While Drush provides individual commands for deployment steps (such as
-`drush updatedb`, `drush config:import`, and `drush deploy:hook`), using them
-directly assumes the site is already in a bootstrapped, stable state. In
-practice, especially during initial setup or provisioning in dynamic
-environments (like CI pipelines, container builds, or multisite setups),
-additional orchestration is needed.
-
-The `provision` script addresses these gaps by:
-
-- **Bootstrapping the environment:** It can import a database dump or install a fresh Drupal instance from a
-profile.
-- **Handling conditional logic:** It accounts for different runtime scenarios, such as skipping provisioning,
-enforcing fresh database imports, or using maintenance mode.
-- **Enforcing consistency:** The same provisioning logic runs across local, CI, staging, and production
-environments, eliminating "it works on my machine" issues.
-- **Supporting extensibility:** It allows for custom post-provisioning scripts, making it easy to layer in
-project-specific logic like enabling test modules or running migrations.
-
-In short, `provision` orchestrates standalone Drush commands in a consistent,
-repeatable, and configurable process - turning a manual setup step into a
-reliable automation layer.
+Cache tables are exported with their structure but without their data,
+because Drupal rebuilds them on demand and their contents would only inflate
+the dump. To choose which tables are exported this way, set
+`VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES` to a comma-separated list of table
+names. Each name can use the `*` wildcard, and the default is `cache*`. To
+export the data of every table, set it to an empty value.
 
 ## Running custom scripts
 
-Logic that must run on **every** deploy - conditionally enabling modules,
-running migrations, rebuilding derived data - is a `DeployStep` plugin in
-a custom module, not a shell script. The
-[`deploy_steps`](https://www.drupal.org/project/deploy_steps) module discovers
-these plugins and runs them around `drush deploy:hook` in every environment,
-ordered by phase and then weight.
+Logic that must run on every deploy, such as enabling modules
+conditionally, running migrations, or rebuilding derived data, goes in a
+`DeployStep` plugin in a custom module. The
+[`deploy_steps`](https://www.drupal.org/project/deploy_steps) module
+discovers these plugins and runs them around `drush deploy:hook` in every
+environment, ordered by phase and then weight.
 
-Declare a plugin in any enabled module's `src/Plugin/DeployStep/`
-namespace:
+To add a deploy step, declare a plugin in the `src/Plugin/DeployStep/`
+namespace of any enabled module:
 
 ```php
 namespace Drupal\my_module\Plugin\DeployStep;
 
+use DrevOps\EnvironmentDetector\Environment;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\deploy_steps\Attribute\DeployStep;
 use Drupal\deploy_steps\DeployStepBase;
@@ -387,7 +584,7 @@ final class RebuildSearchIndex extends DeployStepBase {
   use EnvironmentTrait;
 
   public function skip(): ?string {
-    return $this->environment() === 'prod' ? 'production environment' : NULL;
+    return $this->environment() === Environment::PRODUCTION ? 'production environment' : NULL;
   }
 
   public function run(): void {
@@ -397,22 +594,28 @@ final class RebuildSearchIndex extends DeployStepBase {
 }
 ```
 
-- **`phase`** selects `PHASE_PRE` (before the `deploy:hook` body) or
-  `PHASE_POST` (after it). A pre-phase plugin that enables modules lets the body
-  run their run-once `hook_deploy_NAME()` in the same deploy.
-- **`weight`** orders plugins within a phase (lower runs first).
-- **`skip()`** returns `null` to run, or a short reason to skip that is logged
-  verbatim. Compose `EnvironmentTrait` for the `environment()` helper to gate by
-  environment.
-- **`run()`** is the idempotent work. Compose `DrushTrait` for the `drush()`
-  helper to run a long sub-command such as `migrate:import` in its own
-  memory-bounded, resumable subprocess.
+The plugin's parts do the following:
 
-Expand below for a complete deploy step you can copy as a starting point. It
-mirrors the legacy `provision-10-example.sh`: it skips on production, enables
-custom modules before the `deploy:hook` body, and branches on whether the
-database was freshly imported (`VORTEX_PROVISION_OVERRIDE_DB`, which the
-provision script exports before `drush deploy:hook`).
+- **`phase`** selects `PHASE_PRE` (before the `deploy:hook` body) or
+  `PHASE_POST` (after it). A pre-phase plugin that enables modules lets the
+  body run their run-once `hook_deploy_NAME()` in the same deploy.
+- **`weight`** orders plugins within a phase (lower runs first).
+- **`skip()`** returns `NULL` to run, or a short reason to skip that's
+  logged verbatim. Compose `EnvironmentTrait` for the `environment()`
+  helper to gate by environment type.
+- **`run()`** is the idempotent work. Compose `DrushTrait` for the
+  `drush()` helper to run a long sub-command such as `migrate:import` in its
+  own memory-bounded, resumable subprocess.
+
+The provision script sets `VORTEX_PROVISION_OVERRIDE_DB` before it runs
+`drush deploy:hook`, so a deploy step can check whether the database is
+fresh. The value is `1` whenever the database is new: imported from a
+dump, installed from a profile, or started from a container image.
+
+The following complete deploy step makes a starting point to copy. It
+enables custom modules before the `deploy:hook` body, checks the
+environment type in `skip()`, and branches on
+`VORTEX_PROVISION_OVERRIDE_DB`:
 
 import ExampleDeployStep from '!!raw-loader!./ExampleDeployStep.php';
 
@@ -423,35 +626,140 @@ import ExampleDeployStep from '!!raw-loader!./ExampleDeployStep.php';
 
 </details>
 
-**Vortex** ships three examples: the development and demo environment setup in
-`ys_base`, the content migration in `ys_migrate`, and the search index rebuild
-in `ys_search`.
+**Vortex** ships the following deploy steps:
 
-The `ys_search` `RebuildSearchIndex` step resets the Search API tracker and
-re-indexes the site content in the `local`, `ci`, `dev` and `stage`
-environments, whose imported database carries a tracker state that does not
-match their own empty search backend. Other environments keep their existing
-index. Set `DRUPAL_SEARCH_INDEX_SKIP=1` in the `.env` file or your hosting
-provider's environment to opt out.
+| Deploy step                          | Module       | Phase and weight | Runs in                                   | Present when                                              |
+|--------------------------------------|--------------|------------------|-------------------------------------------|-----------------------------------------------------------|
+| `CreateContentModelDeployStep`       | `ys_base`    | Pre, `-10`       | Every environment except `production`     | The Base custom module is selected                        |
+| `EnableDevelopmentModulesDeployStep` | `ys_base`    | Pre, `0`         | Every environment except `production`     | The Base custom module is selected                        |
+| `MigrateContentDeployStep`           | `ys_migrate` | Post, `0`        | Every environment except `production`     | The migration feature is selected                         |
+| `RebuildSearchIndex`                 | `ys_search`  | Post, `10`       | `local`, `ci`, `development`, and `stage` | The Search custom module and the Solr service are selected |
+| `BuildStorybookDeployStep`           | `ys_base`    | Post, `20`       | `local`, `ci`, and `development`          | The Base custom module and Storybook are selected         |
 
-With [Storybook](themes.mdx#storybook) enabled, the `ys_base` development setup
-step also installs the [Storybook](https://www.drupal.org/project/storybook)
-module. In the `local` environment, it turns on Twig development mode, so
-component template edits show up without a cache rebuild. A separate
-`ys_base` step, `BuildStorybookDeployStep`, generates the stories and builds the
-component library in the `local`, `ci` and `development` environments. Set
-`DRUPAL_STORYBOOK_SKIP=1` to skip the build.
+The CLI removes each step whose module or feature isn't selected. The
+following sections describe each one.
+
+### Development modules
+
+`EnableDevelopmentModulesDeployStep` sets up the development and demo site
+in every environment except `production`. It runs after
+`CreateContentModelDeployStep`, which applies the `recipes/page` recipe to
+create the `page` content type. The site modules attach behavior to that
+content type, and their deployment hooks need it.
+
+The step does the following, in order:
+
+1. Sets the site name
+2. Switches the administration interface to the core Navigation module and
+   uninstalls Toolbar
+3. Installs the [Storybook](https://www.drupal.org/project/storybook)
+   module, on projects with [Storybook](themes.mdx#storybook) enabled. In
+   the `local` environment, it also turns on Twig development mode, so
+   component template edits show up without a cache rebuild.
+4. Installs the contributed and service modules the CLI kept, including
+   [SDC Devel](https://www.drupal.org/project/sdc_devel),
+   [Devel](https://www.drupal.org/project/devel), and
+   [Reroute Email](https://www.drupal.org/project/reroute_email), the email
+   safety net
+5. Installs the `ys_search` and `ys_demo` site modules; `ys_demo` brings
+   [Testmode](https://www.drupal.org/project/testmode) as a dependency
+6. Installs [Generated Content](#generated-content) last
+
+Because the step runs in the pre phase, the run-once deploy hooks of the
+modules it installs run in the same deploy.
+
+Several of these modules add themselves to
+`$settings['config_exclude_modules']` in their settings files, which keeps
+them out of the exported configuration. A configuration import never
+installs them, so this step is the only place that does.
+
+The step gates on `production` alone, so it also runs in `preview` and in
+any custom environment type. That matters for email rerouting in
+particular:
+[Reroute Email's settings](modules/contributed-modules.mdx#reroute-email)
+turn rerouting on in every environment outside `local`, `ci`, and
+`production`. To opt out of the development modules, remove the step's
+plugin class from `ys_base`.
+
+### Generated Content
+
+Projects with the [Generated
+Content](https://www.drupal.org/project/generated_content) module install
+it from the same development modules deploy step, after the site modules
+that provide its content plugins.
+
+The module creates content from its own `hook_modules_installed()` when
+`GENERATED_CONTENT_CREATE=1` is set. The step sets that variable for the
+installation, so the content appears as part of the install.
+
+To opt out of the content, set `DRUPAL_GENERATED_CONTENT_SKIP=1` in the
+`.env` file or in your hosting provider's environment variables. The module
+is still installed, so you can generate the content later from the
+administration interface at `/admin/config/development/generated-content`
+or with Drush, for example
+`drush generated-content:create-content node page 20`.
+
+Installing a module that's already installed does nothing, so provisioning
+a site that already holds the module leaves its content untouched. The
+content appears only on the provision that first installs the module. A
+site provisioned once with `DRUPAL_GENERATED_CONTENT_SKIP=1` doesn't gain
+the content when you unset the variable and provision again.
+
+### Migration
+
+Projects with the migration feature ship `MigrateContentDeployStep` in the
+`ys_migrate` module. It runs the content migration in every environment
+except `production`, and skips when `DRUPAL_MIGRATION_SKIP=1` is set.
+
+The step loads the migration source database dump into the `migrate`
+database connection when the database is fresh or the source database
+fails its probe. It then runs `drush migrate:import --all`.
+
+On projects with the Solr service, the step disables the search server
+while the migrations run, so migrated entities aren't indexed 1 at a time.
+The search indexing step rebuilds the index straight after.
+
+➡️ See [Migrations](migrations.mdx#migration-deploy-step) for the step's
+configuration variables and how to add your own migrations.
+
+### Search indexing
+
+Projects with the Solr service ship `RebuildSearchIndex` in the `ys_search`
+module. It runs after the migration step, resets the Search API index
+tracker, and re-indexes the site content.
+
+The step runs only in the `local`, `ci`, `development`, and `stage`
+environments. They receive a database whose index tracker state doesn't
+match their own (empty) search backend, while every other environment keeps
+its existing index.
+
+To opt out of search indexing, set `DRUPAL_SEARCH_INDEX_SKIP=1` in the
+`.env` file or in your hosting provider's environment variables.
+
+### Storybook build
+
+Projects with [Storybook](themes.mdx#storybook) enabled ship
+`BuildStorybookDeployStep` in the `ys_base` module. It runs
+`vendor/bin/vortex-storybook build`, which generates the stories and builds
+the component library served at `/storybook`.
+
+The step runs only in the `local`, `ci`, and `development` environments,
+where the Storybook settings open the story render route. It also skips
+when the theme's Storybook dependencies aren't installed.
+
+To skip the build, set `DRUPAL_STORYBOOK_SKIP=1` in the `.env` file or in
+your hosting provider's environment variables.
 
 ## Deploy hooks
 
 Update hooks automate database schema changes, data migrations, and
-environment-specific deployment tasks, so a change ships together with the code
-that needs it instead of being applied by hand.
-
-Drupal provides several types of hooks for database updates. Understanding the
-differences helps you choose the right one for a deployment task.
+environment-specific deployment tasks, so a change ships together with the
+code that needs it instead of being applied by hand.
 
 ### Hook types overview
+
+Drupal core provides the first 2 hook types in the following table, and
+Drush adds the third:
 
 | Hook type                 | Use case                                   | Execution                        | File location            |
 |---------------------------|--------------------------------------------|----------------------------------|--------------------------|
@@ -459,22 +767,26 @@ differences helps you choose the right one for a deployment task.
 | `hook_post_update_NAME()` | Entity updates and other module operations | <code>drush&nbsp;updatedb</code> | `MODULE.post_update.php` |
 | `hook_deploy_NAME()`      | Environment-specific deployment tasks      | <code>drush&nbsp;deploy:hook</code> | `MODULE.deploy.php`   |
 
-All of these hooks run automatically during the
-[provisioning process](#provisioning-flow): `drush updatedb` runs the update and
-post-update hooks, and `drush deploy:hook` runs the deploy hooks.
+All these hooks run automatically during the
+[provisioning process](#provisioning-flow): `drush updatedb` runs the update
+and post-update hooks, and `drush deploy:hook` runs the deploy hooks.
 
-To automate changes during site deployments, use **deploy hooks**. Note that
-deploy hooks run only once: Drupal tracks which hooks have been executed by
-name.
+For 1-time changes tied to a deployment, use deploy hooks. Each one runs
+only once: after it runs, Drush records its name in Drupal's key-value
+store and skips it from then on. For logic that runs on every deploy, use a
+[deploy step](#running-custom-scripts) instead.
 
 ### Example deploy hook
+
+The following deploy hook, placed in `ys_base.deploy.php`, creates an About
+Us page in every environment except production:
 
 ```php
 function ys_base_deploy_create_about_page(): string {
   $environment = \Drupal\Core\Site\Settings::get('environment');
 
   // Conditional execution based on environment.
-  if ($environment === ENVIRONMENT_PROD) {
+  if ($environment === \DrevOps\EnvironmentDetector\Environment::PRODUCTION) {
     return 'Skipped in production environment';
   }
 
@@ -501,9 +813,10 @@ function ys_base_deploy_create_about_page(): string {
 }
 ```
 
-The shipped [Drupal helpers](modules/drupal-helpers.mdx) module provides static
-facade helpers for the common deploy hook operations, so a hook stays a few
-lines instead of repeating the entity API boilerplate every time:
+The shipped [Drupal helpers](modules/drupal-helpers.mdx) module provides
+static facade helpers for the common deploy hook operations. With them, a
+hook stays a few lines long instead of repeating the entity API boilerplate
+every time:
 
 ```php
 use Drupal\drupal_helpers\Helper;
@@ -516,6 +829,9 @@ function ys_base_deploy_create_default_tags(): string {
 ```
 
 #### Debugging commands
+
+To list the pending deploy hooks or run them by hand, use the following
+Drush commands in the CLI container:
 
 ```shell
 # Show pending deploy hooks.

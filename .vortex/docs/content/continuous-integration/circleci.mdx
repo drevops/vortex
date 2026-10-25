@@ -4,105 +4,178 @@ sidebar_position: 3
 
 # CircleCI
 
-[CircleCI](https://circleci.com/) is a cloud-based continuous integration and
-delivery platform that automates the build, test, and deployment process.
+[CircleCI](https://circleci.com/) is a hosted continuous integration and
+delivery service. **Vortex** offers it whichever code host you use, while
+GitHub Actions is offered only for repositories on GitHub. The pipeline
+lives in `.circleci/config.yml`, and the security checks run there as a
+separate `audit` workflow.
 
-For general CircleCI documentation, refer to the
-[CircleCI Documentation](https://circleci.com/docs/).
+This page is for the lead or DevOps engineer who maintains a **Vortex**
+project's pipeline on CircleCI. It shows how to change the parts of the
+pipeline that are specific to CircleCI:
 
-:::info
+- Deployment branches and database caching
+- The runner resource class and test parallelism
+- SSH access for debugging and build timeouts
+- The coverage threshold and test results
 
-For information about the CI workflow structure, jobs, and caching strategy,
-see the [Continuous integration overview](./README.mdx).
-
-:::
+Running Renovate on CircleCI adds a second file,
+`.circleci/update-dependencies.yml`, with a scheduled trigger of its own
+(see [Dependency updates > Setting up the self-hosted
+service](../development/dependency-updates.mdx#setting-up-the-self-hosted-service)).
+The jobs, the database cache, and the split of tests across containers work
+the same on both providers; see the
+[Continuous integration overview](./README.mdx). For CircleCI's own
+reference, see the [CircleCI documentation](https://circleci.com/docs/).
 
 ## Onboarding
 
-CircleCI onboarding is part of the project setup flow. See
-[Set up continuous integration](/docs/installation?ci-provider=circleci#7-set-up-continuous-integration)
+CircleCI onboarding is part of the project setup flow. See [Set up
+continuous
+integration](/docs/installation?ci-provider=circleci#7-set-up-continuous-integration)
 in the Installation guide and select **CircleCI**.
 
 ## Maintenance
 
+The following sections change how the pipeline runs on CircleCI. Most of
+them edit `.circleci/config.yml` or set a project environment variable
+under **Project Settings → Environment Variables**.
+
 ### Update deployment branches
 
-All jobs in the `commit` and `audit` workflows (`lint`, `test`, `build`, `audit`) run on every branch. The `deploy` job
-only runs for specific branch patterns, controlled by a regex filter in the
-`workflows` section of `.circleci/config.yml`:
+The `lint`, `test`, and `build` jobs of the `commit` workflow and the
+`audit` job of the `audit` workflow run on every branch and every tag. The
+`deploy` job runs only for branches that match a list of regular expressions
+in the `workflows` section of `.circleci/config.yml`:
 
 | Pattern | Description |
 |---------|-------------|
 | `production` | Production environment branch |
-| `main`, `master` | Default development branches |
+| `main`, `master` | Default branches |
 | `develop` | Integration branch for ongoing work |
-| `release/**` | Release preparation branches (e.g., `release/1.2.3`, `release/2023-04-17`) |
-| `hotfix/**` | Urgent production fixes (e.g., `hotfix/1.2.4`, `hotfix/2023-04-17`) |
-| `feature/**` | New feature branches (e.g., `feature/login`, `feature/123-new-ui`) |
-| `bugfix/**` | Non-urgent bug fix branches (e.g., `bugfix/fix-auth`, `bugfix/456-crash`) |
+| `release/**` | Release preparation branches (for example, `release/1.2.3`, `release/2023-04-17`) |
+| `hotfix/**` | Urgent production fixes (for example, `hotfix/1.2.4`, `hotfix/2023-04-17`) |
+| `feature/**` | New feature branches (for example, `feature/login`, `feature/123-new-ui`) |
+| `bugfix/**` | Non-urgent bug fix branches (for example, `bugfix/fix-auth`, `bugfix/456-crash`) |
 | `project/**` | Long-lived project branches for large initiatives |
-| `ci*` | Temporary CI testing branches (e.g., `ci`, `ci-debug`) |
-| `N.x` | Major version branches (e.g., `1.x`, `2.x`) |
+| `ci*` | Temporary CI testing branches (for example, `ci`, `ci-debug`) |
+| `N.x` | Major version branches (for example, `1.x`, `2.x`) |
 
-To modify which branches trigger deployments, update the `only` filter regex
-in the `deploy` job.
+The patterns in the table are shorthand for those expressions. `release/**`
+and `hotfix/**` match only a version after the slash: `1.2.3`, `1.2.3-rc.1`,
+`2023-04-17`, or `2023-04-17.1`. `feature/**` and `bugfix/**` match a single
+name made of letters, digits, `-`, `.`, `,`, and `_`, so `feature/a/b`
+doesn't deploy.
+
+2 special cases apply on top of the branch filter:
+
+- The `deploy` job stops early for a `project/*` branch when CircleCI sets
+  `CIRCLE_PULL_REQUEST`, the URL of the pull request associated with the
+  build. A long-lived project branch deploys only from builds that have no
+  associated pull request.
+- Tags deploy through a separate `deploy-tags` job, which runs only for tags
+  named after a semantic version (`1.2.3`, `1.2.3-rc.1`) or a date
+  (`2023-04-17`, `2023-04-17.1`). The `deploy` job itself ignores tags.
+
+To change which branches deploy:
+
+1. In `.circleci/config.yml`, update the regular expressions in the `only`
+   filter of the `deploy` job.
+2. In `tests/phpunit/CircleCiConfigTest.php`, update the branch names in
+   `dataProviderDeployBranchRegex()` to match. The test checks every
+   expression against them, and also checks that no filter pattern exceeds
+   the 128-character limit of the CircleCI compiler.
+
+Confirm that the test passes:
+
+```shell
+ahoy test-unit -- --filter=CircleCiConfigTest
+```
+
+PHPUnit reports `OK` with no failures.
 
 ### Configure database caching
 
-The `test` job downloads a fresh database dump on the first build of the day and
-caches it for the rest of that day's builds; later builds reuse the cached dump
-instead of downloading it again. The cache key includes a daily timestamp, so
-the cache refreshes automatically each day. To change the cache window, update
-the `VORTEX_CI_DB_CACHE_TIMESTAMP` value (a `date` format string) in the
-`runner_config` environment in `.circleci/config.yml`:
+The `test` job downloads a fresh database dump on the first build of the
+day and caches it, so the rest of that day's builds reuse the cached dump.
+The cache key includes a daily timestamp, so the cache refreshes each day.
+To change the cache window, update the `VORTEX_CI_DB_CACHE_TIMESTAMP` value,
+a `date` format string, in the `runner_config` environment in
+`.circleci/config.yml`:
 
 ```yaml
 VORTEX_CI_DB_CACHE_TIMESTAMP: +%Y%m%d  # New cache each day
 ```
 
-When the `test` job runs in parallel, only the first runner stores the cache.
+When the `test` job runs in parallel, only the first container stores the
+cache. CircleCI never overwrites a saved key, so the first dump saved under
+a day's key serves the rest of that day.
 
 ### Change runner resource class
 
-For faster builds, you can upgrade the
-[runner resource class](https://circleci.com/docs/resource-class-overview/) in
-the `runner_config` section. Note that this may affect your CircleCI billing:
+For faster builds, raise the [runner resource
+class](https://circleci.com/docs/resource-class-overview/) in the shared
+`runner_config` block that every job uses. It ships as `medium`. This might
+affect your CircleCI billing. The following setting raises it to `large`:
 
 ```yaml
 resource_class: large  # Options: small, medium, large, xlarge
 ```
 
-Resource classes scale CPU and memory only. Disk space is not tied to the
-resource class, so upgrading it will not help a job that runs out of space -
-see [Runner disk space](./README.mdx#runner-disk-space).
+Resource classes scale CPU and memory only. Disk space isn't tied to the
+resource class, so upgrading it doesn't help a job that runs out of space.
+See [Runner disk space](./README.mdx#runner-disk-space).
 
 ### Change test parallelism
 
-To speed up test execution, you can increase the number of parallel runners in
-the `test` job. See [Running tests in parallel](https://circleci.com/docs/parallelism-faster-jobs/)
-for more information:
+To get through the tests faster, raise the `parallelism` of the `test` job
+in `.circleci/config.yml`, which ships as `2`:
 
 ```yaml
 test:
   parallelism: 4  # Run tests across 4 containers
 ```
 
+See [Running tests in
+parallel](https://circleci.com/docs/parallelism-faster-jobs/) for more
+information. Confirm that the next `test` job shows 4 parallel runs.
+
 Every added container that runs Behat also needs a matching `pN` profile in
-`behat.php`. See [Test parallelism](./README.mdx#test-parallelism) for the full procedure,
-how scenarios are balanced across containers, and how to move a tool onto a
-different container.
+`behat.php`; see [Continuous integration > Adding more
+containers](./README.mdx#adding-more-containers) for the full procedure.
+[Test parallelism](./README.mdx#test-parallelism) also covers how scenarios
+are balanced across containers and how to move a tool onto a different
+container.
 
 ### SSH access for debugging
 
-CircleCI provides built-in SSH access to debug failing builds. Click the
-**Rerun job with SSH** button on a failed job to get SSH connection details.
-See [Debugging with SSH](https://circleci.com/docs/ssh-access-jobs/) for more
+CircleCI has built-in SSH access for debugging a failing build. To connect
+to a failed job:
+
+1. In the CircleCI web app, open the failed job.
+2. From the **Rerun** menu, select **Rerun job with SSH**. CircleCI runs
+   the job again with SSH enabled.
+3. Copy the SSH command from the **Enable SSH** step in the job output.
+4. Run the command in your terminal.
+
+Confirm that the command opens a shell in the job's container. The job
+stays available for SSH for 10 minutes after it finishes running. See
+[Debugging with SSH](https://circleci.com/docs/ssh-access-jobs/) for more
 information.
 
 ### Adjust build timeout
 
-If builds are timing out, increase the `no_output_timeout` value for
-long-running steps:
+CircleCI stops a step that prints nothing for 10 minutes. The shipped config
+raises that limit to 30 minutes for its long, quiet steps:
+
+- `Fetch DB`
+- `Fetch migration DB`, when the project has a migration database
+- `Export DB after fetch`
+- `Provision site`
+- `Test with Behat`
+- `Deploy`, in both the `deploy` and `deploy-tags` jobs
+
+If a step still times out, increase its `no_output_timeout`:
 
 ```yaml
 - run:
@@ -113,14 +186,30 @@ long-running steps:
 
 ### Code coverage threshold
 
-The workflow enforces a minimum code coverage threshold. If coverage falls below
-the threshold, the build fails.
+The `test` job fails when the line coverage that PHPUnit reports falls
+below a threshold.
 
-Configure the threshold by setting the `VORTEX_CI_CODE_COVERAGE_THRESHOLD`
-environment variable in **Project Settings → Environment Variables**. Default
-is `90` (percent).
+Set the threshold in the `VORTEX_CI_CODE_COVERAGE_THRESHOLD` environment
+variable, under **Project Settings → Environment Variables**. It defaults to
+`90` (percent). Use a whole number: the check multiplies the value in shell
+integer arithmetic, so a decimal such as `85.5` breaks the step.
 
-Coverage reports can be posted as PR comments. This requires a `GITHUB_TOKEN`
-environment variable with permission to post comments. Each new report replaces
-the previous one - older comments are minimized to keep the PR timeline clean.
-To disable PR comments, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
+The job can also post the coverage summary as a comment on a GitHub pull
+request. That needs a `GITHUB_TOKEN` environment variable with permission
+to post comments; without one, the step skips the comment. Each new report
+replaces the previous one, and older comments are minimized, so the pull
+request timeline stays clean. To turn the comment off, set
+`VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
+
+If you chose Codecov as the code coverage provider in the CLI, the job also
+uploads the coverage reports to Codecov when `CODECOV_TOKEN` is set, except
+on `deps/*` branches. The uploader runs with `-Z`, so a failed upload fails
+the job.
+
+### Test results
+
+The `test` job stores the JUnit reports of PHPUnit and Behat with
+CircleCI's `store_test_results` step, so the job's **Tests** tab lists the
+failing tests with their messages. Each parallel container stores its own
+results. The logs, coverage reports, and screenshots stay attached to the
+job on its **Artifacts** tab.

@@ -7,46 +7,68 @@ sidebar_position: 1
 
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
-This section covers the day-to-day work on a **Vortex** project: running the
-local environment, managing the database and dependencies, working with the
-Drupal application, and checking your code with linters and tests.
+This section is for developers who build features and fix bugs on a project
+created from **Vortex**. It covers the day-to-day work in 4 areas:
 
-Each page owns one task or tool and carries everything about it - daily usage,
-configuration, and how it behaves in the continuous integration pipeline - so
-there is one place to look. Larger topics are subsections whose overview page
-ties their pages together. This page describes the overall process and points
-to the right page for each task.
+- Running the local environment
+- Managing the database and the dependencies
+- Working with the Drupal application
+- Checking your code with linters and tests
+
+Each page covers 1 task or tool and everything about it: daily usage,
+configuration, and how it behaves in the continuous integration pipeline.
+Bigger topics get a subsection, with an overview page that ties its pages
+together. This page walks through the overall process and points you to the
+right page for each task.
+
+To set up the pipeline, the deployments, or the hosting, see
+[Continuous integration](../continuous-integration/README.mdx),
+[Deployment](../deployment/README.mdx), and [Hosting](../hosting/README.mdx)
+instead.
 
 ## Typical development process
 
+A change usually goes through these steps:
+
 1. Pull the latest changes from the remote repository.
-2. [Fetch the latest database dump](provision.mdx#database) from the production environment.
+2. [Fetch the latest database dump](provision.mdx#database) from the
+   production environment.
 3. [Build the project](environment/README.mdx).
 4. Start a new feature or bugfix branch:
-    - Create a new branch from `develop` (see [Releasing > GitFlow](../releasing/gitflow.mdx) for the branch structure).
-    - Implement the feature or fix the bug.
+   1. Create a new branch from `develop` (see
+      [Releasing > GitFlow](../releasing/gitflow.mdx) for the branch
+      structure).
+   2. Implement the feature or fix the bug.
 5. [Run tests](testing/README.mdx):
-    - Run automated tests locally.
-    - Fix any failing tests.
+   1. Run automated tests locally.
+   2. Fix any failing tests.
 6. [Run code quality checks](code-quality/README.mdx):
-    - Run static code analysis locally.
-    - Fix any issues reported.
-7. Commit changes to the branch and push it to the remote repository.
-8. Create a pull request:
-    - Create a pull request from the branch to `develop`.
-    - Assign reviewers.
-    - Wait for the [continuous integration pipeline](../continuous-integration/README.mdx) to pass.
+   1. Run static code analysis locally.
+   2. Fix any issues reported.
+7. Commit your changes to the branch.
+8. Push the branch to the remote repository.
+9. Create a pull request:
+   1. Create a pull request from the branch to `develop`.
+   2. Assign reviewers.
+   3. Wait for the [continuous integration
+      pipeline](../continuous-integration/README.mdx) to pass.
 
 ## Common commands
 
-The most common day-to-day commands. Each video is a live recording captured on
-a demo consumer project that uses **Vortex**.
+Each video is a live recording, captured on a demo consumer project that
+uses **Vortex**.
 
 ### Build the project
 
-`ahoy build` rebuilds the whole stack from scratch: it recreates the
-containers, installs the Composer and front-end dependencies, compiles the
-theme assets, and provisions the site from the database dump.
+`ahoy build` rebuilds the project from scratch. It asks you to confirm, and
+then runs these steps in order:
+
+1. Removes the containers, the build files, and the database.
+2. Builds and starts fresh containers.
+3. Installs the Composer and front-end dependencies.
+4. Compiles the custom theme's assets, when the project has a custom theme.
+5. Provisions the site.
+6. Prints the project information with a one-time login link.
 
 <AsciinemaPlayer
   src="/img/build.json"
@@ -61,8 +83,23 @@ theme assets, and provisions the site from the database dump.
 
 ### Show project information
 
-`ahoy info` shows the current project information: the site URL, container
-status and ports.
+`ahoy info` prints what you need to reach the running project:
+
+- The project name and the Docker Compose project name
+- The site URL and the path to the web root
+- The database host, username, password, and port, plus the port on your
+  host and the database image when the project uses one
+- The Solr and Storybook addresses, when their ports are mapped on your host
+- The Selenium VNC address, where you can watch the browser tests run
+- The mail catcher address
+- Whether Xdebug is on
+
+`ahoy info` prints the `Solr URL on host` line only when the Solr port is
+mapped, so that line shows that Solr is reachable from your machine.
+
+The output ends with a reminder to run `ahoy login`, which unblocks user 1
+and prints a one-time login link. `ahoy build` prints that link in place of
+the reminder.
 
 <AsciinemaPlayer
   src="/img/info.json"
@@ -77,9 +114,19 @@ status and ports.
 
 ### Run linters
 
-`ahoy lint` runs all the code quality checks: back-end (PHPCS, PHPStan,
-Rector), front-end (Twig CS Fixer, ESLint, Stylelint) and test linting
-(Gherkin Lint).
+`ahoy lint` runs 3 groups of linters, and each group also has a command of
+its own:
+
+- `ahoy lint-be`: the back-end linters PHPCS, PHPStan, and Rector
+- `ahoy lint-fe`: the front-end linters Twig CS Fixer, ESLint, and Stylelint
+- `ahoy lint-tests`: Gherkin Lint for the Behat feature files
+
+`ahoy lint-fix` applies the automatic fixes that Rector, PHPCBF, Twig CS
+Fixer, ESLint, and Stylelint support.
+
+SDC Devel validates the custom theme's components against a provisioned
+site, so it runs separately as `ahoy lint-sdc`. DCLint and Hadolint have no
+Ahoy command: continuous integration runs them from their Docker images.
 
 <AsciinemaPlayer
   src="/img/lint.json"
@@ -92,10 +139,13 @@ Rector), front-end (Twig CS Fixer, ESLint, Stylelint) and test linting
   terminalLineHeight={1.0}
 />
 
-### Run unit, kernel and functional tests
+### Run unit, kernel, and functional tests
 
-`ahoy test` runs all the PHPUnit test suites: unit, kernel, functional and
-functional JavaScript.
+`ahoy test` runs every PHPUnit suite: unit, kernel, functional, and
+functional JavaScript. To run 1 suite, use `ahoy test-unit`,
+`ahoy test-kernel`, `ahoy test-functional`, or
+`ahoy test-functional-javascript`. The Jest tests for JavaScript run
+separately, with `ahoy test-js`.
 
 <AsciinemaPlayer
   src="/img/test.json"
@@ -110,8 +160,9 @@ functional JavaScript.
 
 ### Run BDD tests
 
-`ahoy test-bdd` runs the Behat tests against the provisioned site, driving a
-real browser inside the container stack.
+`ahoy test-bdd` runs the Behat tests against the provisioned site. Scenarios
+tagged `@javascript` drive a real Chrome browser in the `browser` container.
+The rest send HTTP requests from PHP, with no browser.
 
 <AsciinemaPlayer
   src="/img/test-bdd.json"
@@ -126,9 +177,19 @@ real browser inside the container stack.
 
 ### Re-provision the site
 
-`ahoy provision` re-imports the database dump from `.data/db.sql` into the
-running stack and applies the provisioning steps: database updates,
-configuration import, cache rebuilds and deploy hooks.
+`ahoy provision` runs provisioning again in the running stack, after you
+confirm. When `VORTEX_PROVISION_OVERRIDE_DB` is `1`, it replaces the current
+database with the dump from `.data/db.sql`. Otherwise, an existing site
+keeps its database. `.env` ships the variable as `0`, and
+`.env.local.example` sets it to `1` for local work after you copy that file
+to `.env.local`. A project that keeps its database in a container image
+(`VORTEX_DB_IMAGE`) gets a fresh database container from that image
+instead, whatever the variable says.
+
+In every case, the provisioning steps run next, from the database updates
+and the configuration import to the deploy hooks and the
+[deploy steps](provision.mdx#running-custom-scripts). The command finishes
+with a one-time login link.
 
 <AsciinemaPlayer
   src="/img/provision.json"
@@ -154,6 +215,8 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 ## In this section
 
+The following table lists the pages in this section:
+
 | Page | Description |
 |------|-------------|
 | [Environment](environment/README.mdx) | The container stack, Ahoy, Drush, Doctor, Pygmy, debugging |
@@ -164,7 +227,7 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 | [Themes](themes.mdx) | The theme scaffold and its build system |
 | [Migrations](migrations.mdx) | The optional second database powering Drupal migrations |
 | [Code quality](code-quality/README.mdx) | The linters and how to run them |
-| [Testing](testing/README.mdx) | PHPUnit, Behat and Jest |
+| [Testing](testing/README.mdx) | PHPUnit, Behat, and Jest |
 | [Security](security/README.mdx) | Secret scanning, dependency auditing, environment access |
 | [Visual regression](visual-regression.mdx) | Diffy-powered visual regression on deployments |
 | [Dependency updates](dependency-updates.mdx) | Automated dependency updates with Renovate |
@@ -174,11 +237,13 @@ import CodeLifecycle from '../_code-lifecycle.mdx';
 
 ## Tools
 
-Every tool **Vortex** ships, and where it is documented.
+The following table lists the tools that **Vortex** ships and the page that
+documents each one:
 
 | Tool | Documented in |
 |------|---------------|
 | Ahoy | [Environment > Ahoy](environment/ahoy.mdx) |
+| `audit-ci` | [Security > Dependency audit](security/dependency-audit.mdx) |
 | Behat | [Testing > Behat](testing/behat.mdx) |
 | Composer | [Composer](composer.mdx) |
 | DCLint | [Code quality > DCLint](code-quality/dclint.mdx) |
@@ -199,6 +264,7 @@ Every tool **Vortex** ships, and where it is documented.
 | Rector | [Code quality > Rector](code-quality/rector.mdx) |
 | Renovate | [Dependency updates](dependency-updates.mdx) |
 | SDC Devel | [Code quality > SDC Devel](code-quality/sdc-devel.mdx) |
+| Storybook | [Themes > Storybook](themes.mdx#storybook) |
 | Stylelint | [Code quality > Stylelint](code-quality/stylelint.mdx) |
 | Twig CS Fixer | [Code quality > Twig CS Fixer](code-quality/twig-cs-fixer.mdx) |
 | Xdebug | [Environment > Debugging](environment/debugging.mdx) |

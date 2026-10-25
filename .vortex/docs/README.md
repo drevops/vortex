@@ -1,6 +1,7 @@
 # Vortex Documentation Development
 
-Documentation built with [Docusaurus](https://docusaurus.io/) and React components.
+The documentation site is built with [Docusaurus](https://docusaurus.io/)
+and React components.
 
 ## Quick Start
 
@@ -32,7 +33,7 @@ yarn lint-prose       # Prose style checks (Vale)
 
 ## Project Structure
 
-```
+```text
 docs/
 ├── content/                # MDX documentation files
 ├── src/components/         # React components (VerticalTabs, etc.)
@@ -62,6 +63,7 @@ import { VerticalTabs, VerticalTab, VerticalTabPanel } from '@site/src/component
 ## Writing Tests
 
 **Component Tests**:
+
 ```javascript
 import { render, screen } from '@testing-library/react';
 
@@ -73,9 +75,9 @@ test('component renders correctly', () => {
 
 ## Content Guidelines
 
-- **American English**: Use American spelling (organize, color, behavior)
-- **MDX Support**: Combine Markdown with React components
-- **Code Examples**: Include practical bash/JavaScript examples
+- **American English**: use American spelling (organize, color, behavior).
+- **MDX Support**: combine Markdown with React components.
+- **Code Examples**: include practical Bash and JavaScript examples.
 
 ## Pre-commit Checklist
 

@@ -4,20 +4,29 @@ sidebar_label: SDC Devel
 
 # SDC Devel - Single Directory Components validation
 
-https://www.drupal.org/project/sdc_devel
+The [SDC Devel project page](https://www.drupal.org/project/sdc_devel)
+describes the module as follows:
 
 > Provides development aids to Single-Directory Components developers.
 
-SDC Devel validates the component YAML files of
-[Single Directory Components](https://www.drupal.org/docs/develop/theming-drupal/using-single-directory-components)
+SDC Devel validates the component YAML files of [Single Directory
+Components](https://www.drupal.org/docs/develop/theming-drupal/using-single-directory-components)
 (SDC) and statically checks their Twig templates for errors and best
-practices.
+practices. It reports problems such as a template variable that the
+component definition doesn't declare, or a filter applied to the wrong type
+of value. A broken component then fails the check before it renders wrong
+on a page.
 
-**Vortex** ships the module as a `composer.json` dependency and uses it to
-validate the components of the custom theme. The theme scaffold includes a
-sample component in `components/button`.
+**Vortex** requires the module in `composer.json` and uses it to validate
+the components of the custom theme. The theme scaffold includes a sample
+component in `components/button`.
 
-➡️ See [Single Directory Components in the theme scaffold](../themes.mdx#single-directory-components)
+This page is for developers who build components in the custom theme. It
+shows how to validate them from the command line and how the CI pipeline
+validates them on every build.
+
+➡️ See [Single Directory Components in the theme
+scaffold](../themes.mdx#single-directory-components)
 
 ## Usage
 
@@ -27,6 +36,9 @@ and provision the site first.
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+To validate the components of the custom theme, run 1 of the following
+commands:
+
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
     ```shell
@@ -35,55 +47,84 @@ import TabItem from '@theme/TabItem';
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     ```shell
-    docker compose exec cli vendor/bin/drush sdc-devel:validate your_site_theme
+    docker compose exec cli vendor/bin/drush \
+      sdc-devel:validate your_site_theme
     ```
   </TabItem>
 </Tabs>
 
 `ahoy lint-sdc` runs `drush sdc-devel:validate` for the theme named in the
 [`DRUPAL_THEME`](../variables.mdx#drupal_theme) variable. The Drush command
-lists the problems it finds in a table; the Ahoy command prints that output
-and exits with a non-zero code when it contains `Critical`, `Error(s)` or
-`Warning(s)`.
+lists the problems it finds in a table, and the Ahoy command prints that
+output. When the output contains `Critical`, `Error(s)`, or `Warning(s)`,
+the Ahoy command also prints `SDC validation reported problems.` and exits
+with code 1.
 
-`ahoy lint` does not include `ahoy lint-sdc`; run it separately once the site
-is provisioned.
+The match is case-sensitive, and the command exits with code 0 for any
+other output. A theme that has no components, or that isn't enabled, gets
+only a lowercase `[warning] No components found` message, so the command
+exits with code 0 for it too.
 
-To validate a single component, pass its ID as the second argument:
+Confirm that the components passed: Drush prints
+`No components errors found for`, followed by the theme's machine name.
+Look for that line rather than the exit code, which is also 0 when nothing
+was validated.
+
+`ahoy lint` doesn't include `ahoy lint-sdc`; run it separately after the
+site is provisioned.
+
+`ahoy lint-sdc` doesn't take a component ID: it ignores any arguments and
+validates the whole theme. To validate a single component, run the Drush
+command with the component's ID as the second argument:
 
 ```shell
 ahoy drush sdc-devel:validate your_site_theme your_site_theme:button
 ```
 
-The module also provides a "Components status report" in the site UI at
-`/admin/reports/ui-components`.
+A component's ID is the theme's machine name, a colon, and the name of the
+component's `*.component.yml` file without that suffix. For example,
+`components/button/button.component.yml` in the theme gives
+`your_site_theme:button`.
+
+The module also provides a **Components status report** page in the site
+UI at `/admin/reports/ui-components`.
 
 ## Configuration
 
 SDC Devel has no configuration file of its own.
 
-The module is installed by the development modules deploy step
-provisioning script in the `local`, `ci`, `dev` and `stage` environments and
-is skipped in production.
+The `EnableDevelopmentModulesDeployStep` deploy step in the `ys_base`
+module installs SDC Devel in every environment except production.
+`settings.sdc_devel.php` keeps it out of the exported configuration, so
+enabling it never shows up in a config export.
 
-➡️ See [Provision > Development modules](../provision.mdx#development-modules)
-and [Modules > SDC Devel](../modules/contributed-modules.mdx#sdc-devel)
+➡️ See [Provision > Running custom
+scripts](../provision.mdx#running-custom-scripts) and [Modules > SDC
+Devel](../modules/contributed-modules.mdx#sdc-devel)
 
 The `lint-sdc` command and the continuous integration step ship only when a
 custom theme and the SDC Devel module are selected during installation.
 
 ## Continuous integration
 
-SDC Devel runs in the `build` job of the [continuous integration pipeline](../../continuous-integration/README.mdx),
-after the site is provisioned, on the first container only - see
-[Test parallelism](../../continuous-integration/README.mdx#test-parallelism).
-The step fails the build when validation reports problems and is skipped when
+SDC Devel runs in the `test` job of the [continuous integration
+pipeline](../../continuous-integration/README.mdx), after the site is
+provisioned, on the first container only (see [Test
+parallelism](../../continuous-integration/README.mdx#test-parallelism)). The
+step fails the build when validation reports problems, and exits without
+validating when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
-is set to `1`.
+is set to `1`. The step reads that variable from the environment that the
+job loads from `.env`. On GitHub Actions, a repository variable doesn't
+reach the step, so set the value in `.env`. On CircleCI, a project
+environment variable also works, because it takes precedence over `.env`.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE` environment variable to `1`. The
-tool still runs and reports violations.
+To let the build pass anyway, set `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE` to
+`1`, as a repository variable on GitHub Actions or a project environment
+variable on CircleCI. SDC Devel still runs and prints its report in the job
+log, so you can see what you're letting through.
 
-➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)
+➡️ See [Continuous integration > Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures)

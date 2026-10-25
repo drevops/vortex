@@ -5,56 +5,128 @@ sidebar_position: 6
 
 # Module scaffold
 
-[Module scaffold](https://github.com/drevops/vortex/tree/main/web/modules/custom/ys_base)
-is an example of a Drupal module.
+The [module
+scaffold](https://github.com/drevops/vortex/tree/main/web/modules/custom/ys_base),
+`ys_base`, is a working custom module to build your project's own code on.
+It comes with a deploy file, the provisioning deploy steps, and a test
+scaffold already in place.
 
-We recommend creating a custom `ys_base` module for your project to hold
-general-purpose functionality that doesn't belong in a dedicated,
-feature-specific module.
+This page is for developers adding custom code to a project built from
+**Vortex**. It describes the custom modules the template ships, so you can
+decide what to build on, what to learn from, and what to remove. The
+installer's **Custom modules** question selects which of the base, search,
+and demo modules ship, and all 3 are selected by default. The installer
+drops the search module when the **Services** question leaves out Solr.
+`ys_migrate` follows the **Use a second database for migrations?** question
+instead. For the contributed modules, see
+[Contributed modules](contributed-modules.mdx).
 
-The `ys` prefix is abbreviated from your project name (`your_site` in this case).
-We recommend using this technique to prefix all modules, and use the site
-machine name for a theme name.
+Keep a custom `ys_base` module in your project to hold general-purpose code
+that doesn't belong in a dedicated, feature-specific module.
 
-:::info Token replacement
+The `ys` prefix abbreviates your project's machine name (`your_site` here).
+Use the same prefix for all your custom modules, and the site machine name
+for the theme, so each module and theme shows which project it belongs to.
+The installer's **Custom modules prefix** question suggests up to 4
+characters from the machine name, such as `ys` for `your_site`.
 
-The `your_site`, `ys` prefix and other similar tokens are placeholders. They
-will be replaced with your actual project prefix when you install **Vortex**.
-
-:::
+The `your_site` and `ys` names, and the other tokens like them, are
+placeholders. The installer replaces them with your project's own names when
+you install **Vortex**.
 
 ## Deploy file
 
-The [`ys_base.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/ys_base.deploy.php)
-file is an example of a Drush deploy file that can be used
-to run deployment commands during the site [provisioning](../provision.mdx) process.
+The
+[`ys_base.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/ys_base.deploy.php)
+file is a Drush deploy file. Drush runs each of its `ys_base_deploy_*()`
+functions once, during site [provisioning](../provision.mdx), and records
+which ones have run. Its single hook,
+`ys_base_deploy_install_active_theme()`, installs core's default front-end
+theme and sets it as the default, then does the same for the custom theme
+when the project has one.
+
+## Deploy steps
+
+The `src/Plugin/DeployStep` directory holds the deploy step plugins that
+run on every deployment. Unlike a deploy hook, a deploy step runs every
+time, so each one checks its own conditions and skips when there's nothing
+to do:
+
+- `CreateContentModelDeployStep` applies the `recipes/page` content model.
+- `EnableDevelopmentModulesDeployStep` sets the site name and installs the
+  contributed, service, and demo modules.
+- `BuildStorybookDeployStep` builds the Storybook component library. It
+  ships only when Storybook is selected.
+
+The content model and module steps skip the `production` environment.
+
+➡️ See [Provision](../provision.mdx) for the deployment flow and how to add
+your own steps.
 
 ## Demo module
 
-The `ys_demo` module demonstrates integration patterns for several contributed
-modules:
+The `ys_demo` module demonstrates the integration patterns for 3
+contributed modules:
 
 - [Drupal helpers](drupal-helpers.mdx) - utility facades for deploy hooks
-- [Generated content](generated-content.mdx) - plugin-based content generation
-- [Testmode](testmode.mdx) - content filtering during Behat tests (declared as a dependency, so it installs together with `ys_demo`)
+- [Generated Content](generated-content.mdx) - plugin-based content
+  generation
+- [Testmode](testmode.mdx) - content filtering during Behat tests (declared
+  as a dependency, so it installs together with `ys_demo`)
 
-The demo module ships a pages view at `/pages`, a generated content plugin that
-populates it, and the deploy hooks that place a counter block, add the `Pages`
-menu link, and register the view with testmode.
+The demo module ships a pages view at `/pages` and a generated content
+plugin that populates it. It also ships the deploy hooks that place a
+counter block, add the `Pages` menu link, and register the view with
+Testmode. The counter block, with its CSS, JavaScript, and Twig template,
+also exercises the test tooling. It has Unit, Kernel, and
+FunctionalJavascript PHPUnit tests, a Jest test, and the `counter.feature`
+Behat feature.
+
+To confirm the demo module works on a provisioned site, check the
+following:
+
+- `/pages` lists the nodes whose titles start with `Demo page`.
+- A **Counter Block** shows in the `content` region of the default theme.
+- The main menu has a **Pages** link.
+
+Leaving the demo module out of the **Custom modules** question removes the
+`ys_demo` module directory and the Behat features tagged `@demo`, which are
+`counter.feature` and `pages.feature`. Without the search module too, the
+installer also removes the `recipes/page` content model.
 
 ## Other shipped modules
 
 2 more custom modules ship alongside the scaffold and demo modules:
 
 - `ys_search` - configures the Search API index, the Solr server, and the
-  search view for the [Solr service](../environment/docker.mdx#services); it also
-  brings in the `workflows` and `content_moderation` core modules.
-- `ys_migrate` - a demo migration module - see [Migrations](../migrations.mdx).
+  search view for the [Solr service](../environment/docker.mdx#services),
+  and brings in the `workflows` and `content_moderation` core modules. On
+  install it uninstalls core's `search` module, and its deploy hook attaches
+  an editorial workflow to the `page` content type. It ships only with the
+  Solr service.
+- `ys_migrate` - a demo migration module that migrates the `categories`
+  table of the second database into `tags` terms. It ships only with the
+  migration feature (see [Migrations](../migrations.mdx)).
 
 ## Tests scaffold
 
-The `tests` directory contains working examples of tests that can be used as a
-starting point in your project.
+The `ys_base` module's `tests` directory holds a working example test and a
+base class for each PHPUnit test type: Unit, Kernel, Functional, and
+FunctionalJavascript. A new test then starts from something that already
+runs.
 
-It also has a set of helper `Traits` that you may find useful when writing your
-tests. Remove them if you do not need them.
+To start a kernel test, copy `tests/src/Kernel/ExampleTest.php` and rename
+the file and the class. The copy extends `YsBaseKernelTestBase`, which the
+installer renames after your prefix. `ahoy test-kernel` runs it, because
+the `kernel` suite in `phpunit.xml` collects every
+`web/modules/custom/**/tests/src/Kernel` directory.
+
+Its `Traits` directory adds the following 5 helper traits for writing tests:
+
+- `ArrayTrait`
+- `AssertTrait`
+- `BrowserHtmlDebugTrait`
+- `MockTrait`
+- `ReflectionTrait`
+
+Remove the ones you don't need.

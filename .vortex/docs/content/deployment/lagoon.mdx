@@ -5,83 +5,173 @@ sidebar_position: 3
 
 # Lagoon deployment
 
-Lagoon deployment triggers a deployment on the [Lagoon](https://lagoon.sh/)
-hosting platform using the [Lagoon CLI](https://github.com/uselagoon/lagoon-cli).
+Lagoon deployment asks the [Lagoon](https://lagoon.sh/) hosting platform to
+deploy your branch or pull request, using the [Lagoon
+CLI](https://github.com/uselagoon/lagoon-cli). Lagoon pulls the code from
+your repository and builds it itself, so nothing gets packaged in CI.
+
+This page is for the lead or DevOps engineer who connects a project's CI to
+Lagoon. It covers what the deployment script asks Lagoon to do, the
+variables that configure it, and the setup steps. For how the site runs on
+Lagoon after a deployment, see [Lagoon hosting](../hosting/lagoon.mdx).
 
 ## How it works
 
 When `lagoon` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script
-downloads the Lagoon CLI, points it at the configured Lagoon instance, and
-requests a deployment for the current branch or pull request over SSH. Lagoon
-then:
+finds the Lagoon CLI and points it at the configured Lagoon instance. Over
+SSH, the script requests a deployment for the current branch or pull
+request. Lagoon then runs these steps:
 
 1. Pulls the latest code from your repository
 2. Builds container images using your `docker-compose.yml`
 3. Deploys containers to Kubernetes
 4. Runs post-rollout tasks defined in `.lagoon.yml`
 
-Tag deployments are not supported by Lagoon - the script reports this and
-skips the deployment.
+The script uses the `lagoon` binary on the path when there is one. Otherwise
+it reuses a binary it downloaded earlier, or downloads the pinned release
+into `VORTEX_LAGOONCLI_PATH` and checks it against the release's published
+checksums.
+
+The script doesn't wait for the Lagoon build: it finishes after Lagoon
+accepts the request. Watch the build in the environment's deployments in the
+Lagoon UI.
+
+Before it deploys, the script checks whether Lagoon already has an
+environment for the branch or pull request. A new branch or pull request
+gets a fresh deployment, and an existing environment gets a redeployment.
+
+For a redeployment, the script sets `VORTEX_PROVISION_OVERRIDE_DB` on the
+environment while Lagoon queues the build: `1` when the [deployment
+action](README.mdx#deployment-action) is `deploy_override_db`, and `0`
+otherwise. The script then restores the variable to its earlier state, or
+removes it if the environment didn't have one. If the script can't read the
+environment's variables, it leaves the flag alone and prints a warning.
+
+Lagoon decides which branches get an environment. Lagoon filters out a new
+branch that doesn't match the project's deployment pattern, and a pull
+request when the project doesn't deploy pull requests. The `destroy` action
+deletes the branch's environment instead of deploying it.
+
+When Lagoon refuses a deployment because the project has reached its
+environment limit, the script reports it. The build still passes, unless
+you set `VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED` to `1` to fail it.
+Any other failure prints the Lagoon CLI output and fails the build.
+
+Lagoon doesn't support tag deployments, so the script reports this, skips
+the deployment, and passes.
 
 ## Configuration
 
+Configure the deployment with the variables in the following table, then
+follow the setup steps.
+
 ### Environment variables
+
+The [Deployment overview](README.mdx) explains the **Location** values and
+how the script loads `.env`. The following table lists the variables that
+the Lagoon deployment script reads:
 
 | Variable | Required | Default | Location | Description |
 |----------|----------|---------|----------|-------------|
-| `VORTEX_DEPLOY_LAGOON_PROJECT` | **Yes** | Value of `LAGOON_PROJECT` | `.env` | Your Lagoon project name |
+| `VORTEX_DEPLOY_LAGOON_PROJECT` | **Yes**, unless `LAGOON_PROJECT` is set | Value of `LAGOON_PROJECT` | `.env` | Your Lagoon project name |
 | `VORTEX_DEPLOY_LAGOON_INSTANCE` | No | `amazeeio` | `.env` | Lagoon instance name |
 | `VORTEX_DEPLOY_LAGOON_INSTANCE_GRAPHQL` | No | `https://api.lagoon.amazeeio.cloud/graphql` | `.env` | Lagoon GraphQL endpoint |
 | `VORTEX_DEPLOY_LAGOON_INSTANCE_HOSTNAME` | No | `ssh.lagoon.amazeeio.cloud` | `.env` | Lagoon SSH hostname |
 | `VORTEX_DEPLOY_LAGOON_INSTANCE_PORT` | No | `32222` | `.env` | Lagoon SSH port |
 | `VORTEX_DEPLOY_LAGOON_BRANCH` | No | Value of `VORTEX_DEPLOY_BRANCH` | CI | Branch to deploy |
-| `VORTEX_DEPLOY_LAGOON_SSH_FINGERPRINT` | No | Value of `VORTEX_DEPLOY_SSH_FINGERPRINT` | CI | Fingerprint of the SSH key used to authenticate |
-| `VORTEX_DEPLOY_LAGOON_LAGOONCLI_VERSION` | No | `v0.32.0` | CI | Lagoon CLI version to install |
+| `VORTEX_DEPLOY_LAGOON_PR` | No | Value of `VORTEX_DEPLOY_PR` | CI | Pull request number to deploy |
+| `VORTEX_DEPLOY_LAGOON_PR_HEAD` | No | Value of `VORTEX_DEPLOY_PR_HEAD` | CI | Head commit of the pull request |
+| `VORTEX_DEPLOY_LAGOON_PR_BASE_BRANCH` | No | Value of `VORTEX_DEPLOY_PR_BASE_BRANCH`, then `develop` | CI | Branch the pull request targets; the shipped CI configs don't set it |
+| `VORTEX_DEPLOY_LAGOON_ACTION` | No | Value of `VORTEX_DEPLOY_ACTION`, then `create` | CI | Deployment action: `destroy` deletes the environment, `deploy_override_db` overwrites the database on a redeployment, and any other value deploys |
+| `VORTEX_DEPLOY_LAGOON_SSH_FINGERPRINT` | No | Value of `VORTEX_DEPLOY_SSH_FINGERPRINT`, then `VORTEX_SSH_FINGERPRINT` | CI | Fingerprint of the SSH key used to authenticate |
+| `VORTEX_DEPLOY_LAGOON_SSH_FILE` | No | Value of `VORTEX_DEPLOY_SSH_FILE`, then `VORTEX_SSH_FILE`, then `~/.ssh/id_rsa` | CI | SSH key file used when no fingerprint is set |
 | `VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED` | No | `0` | CI | Fail the build when the Lagoon environment limit is exceeded (`1`) or pass it (`0`) |
+| `VORTEX_LAGOONCLI_VERSION` | No | `v0.32.0` | CI | Lagoon CLI release to download when the path has no `lagoon` binary |
+| `VORTEX_LAGOONCLI_PATH` | No | `.artifacts/tmp` | CI | Directory the Lagoon CLI is downloaded into |
 
-The full list of `VORTEX_DEPLOY_LAGOON_*` variables, including the pull request
-context variables set by CI, is in the
-[Variables reference](../development/variables.mdx).
+CI sets the branch and pull request variables for you. The [Variables
+reference](../development/variables.mdx) lists the project-level variables
+that `.env` and the CI configs set.
 
 ### Setup
 
-1. Add `lagoon` to the `VORTEX_DEPLOY_TYPES` variable in your `.env` file:
+To set up Lagoon deployment, complete these steps:
+
+1. Add `lagoon` to the comma-separated `VORTEX_DEPLOY_TYPES` list in your
+   `.env` file. On its own, it looks like this:
 
    ```shell title=".env"
    VORTEX_DEPLOY_TYPES=lagoon
    ```
 
-2. Configure your Lagoon project name:
+2. Set your Lagoon project name in your `.env` file:
 
    ```shell title=".env"
    LAGOON_PROJECT=your-project-name
    ```
 
-3. Ensure your CI has the Lagoon SSH key configured for authentication. The
-   [Lagoon CLI](https://github.com/uselagoon/lagoon-cli) is used on the deploy
-   runner; if it is not already on the `PATH`, **Vortex** downloads a pinned
-   release into a cache directory automatically.
+3. Give CI an SSH key that your Lagoon user accepts:
+   - On GitHub Actions, add the private key as the
+     `VORTEX_DEPLOY_SSH_PRIVATE_KEY` repository secret.
+   - On CircleCI, add the private key under **Project Settings → SSH Keys**
+     and set its fingerprint as `deploy_ssh_fingerprint` in
+     `.circleci/config.yml`.
+
+   The CLI connects over SSH, so a missing key fails the deployment.
+
+Confirm that the next deployment reached Lagoon. The `deploy` job log shows
+`Requested the environment deployment.` or
+`Requested the environment redeployment.`, followed by
+`[ OK ] Finished Lagoon deployment.` That line means Lagoon accepted the
+request; the build's own result shows in the Lagoon UI.
 
 ## Post-deployment automation
 
-Once Lagoon rolls out the new containers, the post-rollout tasks defined in
+After Lagoon rolls out the new containers, the post-rollout tasks defined in
 [`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
-provision the site and send notifications - see
-[Lagoon hosting](../hosting/lagoon.mdx#deployment-automation) for what runs.
+back up or fetch the database, provision the site, and send notifications.
+See [Lagoon hosting](../hosting/lagoon.mdx#deployment-automation) for every
+step.
 
 ## Environments
 
-The shipped [`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
-defines environment-specific settings (cron jobs, routes) for the `main` and
-`develop` branches, and treats an environment as production when Lagoon marks
-it as such or when the branch matches `VORTEX_LAGOON_PRODUCTION_BRANCH`
-(default: `main`).
+The shipped
+[`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
+sets up the environments with the following settings:
 
-Which branches get an environment, their types, and pull request (ephemeral)
-environments are configured per project in Lagoon itself - see
-[Lagoon environment types](https://docs.lagoon.sh/concepts-advanced/environment-types/).
+- A `drush cron` job every 15 minutes and monitoring URLs for the `main` and
+  `develop` branches.
+- A redirect from HTTP to HTTPS on every route (the `routes` key sets
+  `insecure` to `Redirect`).
+- The deployed Git SHA as an environment variable (`git_sha: 'true'`),
+  which the notifications use.
+- Commented-out blocks for a custom SSL certificate and for private
+  container registries.
+
+The post-rollout tasks in `.lagoon.yml` treat an environment as production
+when Lagoon marks it as such or when the branch matches
+`ENVIRONMENT_PRODUCTION_BRANCH` (default: `main`).
+
+You configure which branches get an environment, their types, and pull
+request (ephemeral) environments per project in Lagoon itself. See [Lagoon
+environment
+types](https://docs.lagoon.sh/concepts-advanced/environment-types/).
+
+On GitHub, the shipped `.github/workflows/close-pull-request.yml` workflow
+runs when a pull request closes. The workflow forwards the event to the
+Lagoon webhook endpoint, so Lagoon removes the pull request's environment.
+The endpoint defaults to `https://hooks.lagoon.amazeeio.cloud/`; to use
+another Lagoon instance, set `LAGOON_WEBHOOK_ENDPOINT` in the workflow's
+environment.
+
+The **Vortex** CLI keeps this workflow for CircleCI projects too, so Lagoon
+still removes pull request environments when GitHub Actions is enabled for
+the repository. Nothing in the CircleCI config removes them.
 
 ## See also
 
-- [Lagoon hosting](../hosting/lagoon.mdx) - platform integration, environment detection, and routine operations
+The following pages cover the rest of the Lagoon setup:
+
+- [Lagoon hosting](../hosting/lagoon.mdx) - platform integration,
+  environment detection, and routine operations
 - [Lagoon documentation](https://docs.lagoon.sh/) - official Lagoon docs

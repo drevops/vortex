@@ -4,13 +4,23 @@ sidebar_label: Twig CS Fixer
 
 # Twig CS Fixer
 
-https://github.com/VincentLanglet/Twig-CS-Fixer
+The [Twig CS Fixer
+repository](https://github.com/VincentLanglet/Twig-CS-Fixer) describes the
+tool as follows:
 
-> The missing checkstyle for twig!
->
-> Twig CS Fixer aims to be what phpcs is to php. It checks your codebase for violations on coding standards.
+> A tool to automatically fix Twig Coding Standards issues
 
-**Vortex** comes with a [pre-configured Twig CS Fixer ruleset](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php) for Drupal projects.
+Twig CS Fixer checks Twig templates for the formatting problems PHPCS
+catches in PHP: indentation, spacing around delimiters and operators,
+trailing whitespace, quote style, and trailing commas. Most of its rules
+can also fix what they find.
+**Vortex** comes with a [pre-configured Twig CS Fixer
+ruleset](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php) for
+Drupal projects.
+
+This page is for developers who write Twig templates in custom modules or
+themes. It shows how to lint and fix the templates, what the shipped
+ruleset enforces, and how to ignore a rule.
 
 ## Usage
 
@@ -18,6 +28,8 @@ https://github.com/VincentLanglet/Twig-CS-Fixer
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+
+To check the templates, run 1 of the following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -33,7 +45,13 @@ import TabItem from '@theme/TabItem';
   </TabItem>
 </Tabs>
 
+Confirm that the check passed: Twig CS Fixer prints a summary that starts
+with `[OK] Files linted:` and ends with `errors: 0`.
+
 ### Fix violations
+
+To fix the violations that have an automatic fix, run 1 of the following
+commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -51,13 +69,23 @@ import TabItem from '@theme/TabItem';
 
 ## Configuration
 
-See [configuration reference](https://github.com/VincentLanglet/Twig-CS-Fixer/blob/main/docs/configuration.md).
+See the [Twig CS Fixer configuration
+reference](https://github.com/VincentLanglet/Twig-CS-Fixer/blob/main/docs/configuration.md).
 
-All global configuration takes place in the [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php) file.
+All global configuration lives in the
+[`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php)
+file.
+
+The ruleset uses the `TwigCsFixer` standard with a 2-space indent. It also
+turns on the rules that can't fix what they find, which Twig CS Fixer skips
+by default, so `lint` reports problems such as badly named variables too.
+It registers Drupal's `trans` tag parser as well, so templates that use
+`{% trans %}` blocks parse.
 
 Targets include custom modules and themes.
 
-Adding or removing targets:
+To add or remove targets, add or remove the `$finder->in()` calls in
+`.twig-cs-fixer.php`:
 
 ```php
 $finder = new TwigCsFixer\File\Finder();
@@ -67,9 +95,10 @@ $finder->in(__DIR__ . '/web/themes/custom');
 
 ## Ignoring
 
-Excluding **target directories** takes place in the [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php)
-file - `$finder->exclude()` removes directories from the set of linted files
-rather than disabling a rule:
+To exclude a directory from linting, call `$finder->exclude()` in the
+[`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php)
+file. The call drops the directory from the set of linted files and leaves
+every rule enabled:
 
 ```php
 $finder->exclude('myCustomDirectory');
@@ -82,31 +111,47 @@ Every error has an identifier in the form `A.B:C:D`, where:
 - `C`: the line the error occurs on
 - `D`: the position of the token in that line
 
-All 4 parts are optional: `A`, `A.B`, `A.B:C`, `A.B:C:D`, `A:C`, `A:C:D` and
-`A::D` all work. To find the identifier of an error you want to ignore, run
-the linter command with the `--debug` option.
+All 4 parts are optional: `A`, `A.B`, `A.B:C`, `A.B:C:D`, `A:C`, `A:C:D`,
+and `A::D` all work.
 
-To ignore **all Twig CS Fixer rules** within a file, place in the file header:
+To find the identifier of an error you want to ignore, run Twig CS Fixer
+with the `--debug` option. `ahoy lint-fe` doesn't pass extra options to the
+linters, so run the following command instead:
+
+```shell
+docker compose exec cli vendor/bin/twig-cs-fixer lint --debug
+```
+
+In debug mode, each reported error starts with its identifier, followed by
+the message:
+
+```text
+VariableName.Error:1:8 -- The var name must use snake_case; expected page_title.
+```
+
+To ignore all Twig CS Fixer rules in a file, add this comment to the file
+header:
 
 ```twig
 {# twig-cs-fixer-disable #}
 ```
 
-To ignore **a specific rule** within a file, place in the file header:
+To ignore a specific rule in a file, add this comment to the file header:
 
 ```twig
 {# twig-cs-fixer-disable A.B:C:D #}
 ```
 
-Twig CS Fixer does not support ignoring of the **code blocks**.
+Twig CS Fixer doesn't support ignoring code blocks.
 
-To ignore only the **current line**:
+To ignore rules for a single line, add this comment at the end of it:
 
 ```twig
 {{ token }} {# twig-cs-fixer-disable-line A.B:C:D #}
 ```
 
-To ignore only the **next line**:
+To ignore rules for the next line only, add this comment on the line before
+it:
 
 ```twig
 {# twig-cs-fixer-disable-next-line A.B:C:D #}
@@ -115,12 +160,16 @@ To ignore only the **next line**:
 
 ## Continuous integration
 
-Twig CS Fixer runs in the `lint` job of the [continuous integration pipeline](../../continuous-integration/README.mdx)
-and fails the build on violations.
+Twig CS Fixer runs in the `lint` job of the [continuous integration
+pipeline](../../continuous-integration/README.mdx) and fails the build on
+violations.
 
 ### Ignoring failures
 
-Set the `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE` environment variable to `1`.
-The tool still runs and reports violations.
+To let the build pass anyway, set the
+`VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE` CI variable to `1`. Twig CS Fixer
+still runs and prints every violation in the job log, so you can see what
+you're letting through.
 
-➡️ See [Continuous integration > Ignore tool failures](../../continuous-integration/README.mdx#ignore-tool-failures)
+➡️ See [Continuous integration > Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures)

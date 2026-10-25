@@ -5,135 +5,193 @@ sidebar_position: 12
 
 # Visual regression
 
-**Vortex** ships an optional visual regression workflow powered by
-[Diffy](#diffy). It compares the just-deployed environment
-against a baseline (typically `production`) and posts the result back to
-the related pull request, or to the workflow run summary when the
-deployment has no pull request.
+A CSS change that looks harmless in a single component can shift the layout
+of a page you never opened, and no unit test notices. Visual regression
+testing catches that kind of bug by comparing screenshots. **Vortex** ships
+an optional GitHub Actions workflow that uses [Diffy](#diffy) to compare a
+freshly deployed environment against a baseline (`production` by default).
+It writes the result to the workflow run summary and, when the deployment
+belongs to a pull request, posts it on the pull request too.
+
+This page is for the lead or DevOps engineer who sets up visual regression
+on a project built from **Vortex**. It covers the Diffy account, the
+repository and hosting configuration, the ways to start a comparison, and
+how the workflow decides which deployments to compare. For the notification
+channel's own variables, see
+[Diffy notification channel](../deployment/notifications/diffy.mdx).
+
+The **Vortex** CLI adds the workflow, `.github/workflows/test-vr.yml`, when
+you answer yes to its **Visual regression testing with Diffy?** question,
+which defaults to no. To add it to a project installed without it, run
+`ahoy update-vortex --interactive` and answer yes to that question. That run
+also updates the rest of the project's **Vortex** files, as
+[Updating Vortex](../updating-vortex.mdx) describes. The workflow runs on
+GitHub Actions whichever CI provider builds the project, so it needs the
+repository on GitHub.
 
 ## Diffy
 
-[Diffy](https://diffy.website) is a hosted visual regression testing service.
-It captures full-page screenshots of a website across configured breakpoints,
-compares them against a baseline (a previous screenshot set or a different
-environment), and surfaces the per-page differences in a web UI.
+[Diffy](https://diffy.website) is a hosted visual regression testing
+service. It captures screenshots of the pages you list in a Diffy project,
+at each breakpoint width you configure. It then compares them with a
+baseline: another environment or a saved screenshot set. A web UI shows the
+differences page by page.
 
-<img src="/img/diffy-hero.webp" alt="Diffy visual regression UI" style={{ width: '100%', height: 'auto' }} />
+<img
+  src="/img/diffy-hero.webp"
+  alt="Diffy visual regression UI"
+  style={{ width: '100%', height: 'auto' }}
+/>
 
-- **Cross-environment comparison** - compare any two URLs (e.g. production
-  vs. a preview environment) or a URL against a saved baseline.
-- **Breakpoint coverage** - each comparison runs across configured desktop,
-  tablet, and mobile widths.
-- **Per-page diff scoring** - reports the percentage of pixels changed per
-  page and per breakpoint.
-- **DOM manipulation** - mask, hide, or replace elements before screenshots
-  (useful for hiding ads, popups, dynamic timestamps).
-- **CLI** - the [`diffy-cli`](https://github.com/DiffyWebsite/diffy-cli) PHAR
-  can be driven from any CI runner or shell script.
-- **REST API** - all CLI operations are available as direct HTTP calls.
+The following Diffy features matter for this workflow:
 
-:::note
-
-Diffy plan usage depends on the screenshots captured. Reuse a saved baseline
-screenshot set where possible, and limit which branches trigger comparisons
-when wiring it into CI - frequent automated dispatches consume a plan quickly.
-
-:::
+- You can compare 2 environments of a project, or an environment with a
+  custom URL or a saved baseline.
+- Each comparison runs at every breakpoint width configured in the project.
+- Diffy reports the percentage of change for each page and breakpoint.
+- You can mask, remove, or replace elements before the screenshots are
+  taken, which suits ads, cookie banners, and content that changes on every
+  visit.
+- Any CI runner or shell script can drive the
+  [`diffy-cli`](https://github.com/DiffyWebsite/diffy-cli) PHAR.
+- Diffy also has an API, which the CLI calls with your API key.
 
 ## Account setup
 
-Before enabling the workflow, set up a Diffy project for the site:
+Before you turn the workflow on, set up a Diffy project for the site:
 
-1. Create an account at [app.diffy.website](https://app.diffy.website).
+1. Create an account in the [Diffy app](https://app.diffy.website).
 2. Create a project for the site.
-3. Configure the `production` (and optionally `staging`, `development`)
-   environment URLs inside the Diffy project settings.
-4. Generate an API key from
-   [app.diffy.website/#/keys](https://app.diffy.website/#/keys).
+3. In the project settings, enter the `production` environment URL.
+4. Optional: Enter the `staging` and `development` environment URLs too, so
+   you can compare against them.
+5. Generate an API key on the
+   [API keys page](https://app.diffy.website/#/keys) of your Diffy profile.
 
-The numeric **project ID** is visible in the Diffy project URL and is
-referenced by the workflow as `VR_DIFFY_PROJECT_ID`.
+The numeric project ID shows in the Diffy project URL; the workflow reads it
+from the `VR_DIFFY_PROJECT_ID` repository variable. Confirm that you have
+both the project ID and the API key before you configure the repository.
 
 ## Repository configuration
 
-The shipped `test-vr.yml` workflow reads configuration from GitHub Actions
-secrets and repository variables.
+The shipped `test-vr.yml` workflow reads its configuration from GitHub
+Actions secrets and repository variables.
 
 ### Secrets
+
+The workflow reads the following secrets:
 
 | Name | Required | Purpose |
 |---|---|---|
 | `VR_DIFFY_API_KEY` | yes | Diffy API key |
-| `VR_SOURCE_HTTP_USER` | no | HTTP basic auth user for the Diffy source environment (set when protected by Acquia Shield, `htpasswd`, or similar) |
-| `VR_SOURCE_HTTP_PASS` | no | HTTP basic auth password for the Diffy source environment |
-| `VR_TARGET_HTTP_USER` | no | HTTP basic auth user for the deployed target environment (typically the PR environment) |
-| `VR_TARGET_HTTP_PASS` | no | HTTP basic auth password for the deployed target environment |
+| `VR_SOURCE_HTTP_USER` | no | HTTP basic authentication user for the Diffy source environment (set when it sits behind basic authentication, such as the Shield module or an `htpasswd` file) |
+| `VR_SOURCE_HTTP_PASS` | no | HTTP basic authentication password for the Diffy source environment |
+| `VR_TARGET_HTTP_USER` | no | HTTP basic authentication user for the deployed target environment (typically the PR environment) |
+| `VR_TARGET_HTTP_PASS` | no | HTTP basic authentication password for the deployed target environment |
 
-Add these under *Settings > Secrets and variables > Actions > Repository
-secrets*.
+Add them in your repository as repository secrets, under
+**Settings > Secrets and variables > Actions**.
 
-The `_HTTP_USER` / `_HTTP_PASS` pairs are optional. Leave them unset when
-the environment is publicly reachable. When set, the workflow forwards
-them to Diffy on every comparison so its workers can clear the basic-auth
-gate. Source-side credentials may alternatively be stored in the Diffy
-project settings - the CLI flags act as an override for cases where
-hosting is provisioned with rotating credentials and storing them in
-Diffy is impractical.
+Both credential pairs are optional: leave them unset when an environment is
+publicly reachable. When a pair is set, the workflow passes it to Diffy on
+every comparison, so Diffy can sign in at the HTTP basic authentication
+prompt. It passes a pair only when both the user and the password are set,
+so a lone user or password does nothing.
 
-:::warning WAF / CDN access
+**Vortex** forces the [Shield](modules/contributed-modules.mdx#shield)
+module on in every hosted environment except production, pull request
+environments included, unless the environment sets
+`DRUPAL_SHIELD_DISABLED=1`. For those targets, set the target pair to the
+environment's `DRUPAL_SHIELD_USER` and `DRUPAL_SHIELD_PASS` values.
 
-Diffy captures screenshots from a single static IP (`138.201.56.149`,
-IPv6 `2a01:4f8:172:1189::2`). When the source or target environment sits
-behind a WAF or CDN - Cloudflare, AWS CloudFront, Akamai, Incapsula, or
-similar - that layer can block or challenge Diffy's requests. Diffy then
-captures the block or challenge page instead of the real site, producing
-false visual differences.
+You can keep the source credentials in the Diffy project instead, as part of
+the environment URL in the `https://user:password@host` form. The secrets
+suit hosting that rotates its credentials, where updating the Diffy project
+each time is impractical.
 
-Allowlist Diffy's static IP in the protection layer so its requests reach
-the site. In Cloudflare, add an IP Access Rule for that address with the
-*Allow* action. For per-provider steps and the current IP, see Diffy's
-[bypass protection guidance](https://docs.diffy.website/features/bypass-protection-cloudfront-akamai-incapsula).
+:::caution Firewall and CDN access
+
+Diffy captures screenshots from the IPv4 address `138.201.56.149` and the
+IPv6 address `2a01:4f8:172:1189::2`. The source or target environment might
+sit behind a web application firewall (WAF) or a content delivery network
+(CDN), such as Cloudflare, AWS CloudFront, Akamai, or Incapsula. That layer
+can then block or challenge Diffy's requests, and Diffy captures the block
+or challenge page instead of the real site. The comparison then reports
+differences that have nothing to do with your code.
+
+Allowlist both addresses in that layer so Diffy's requests reach the site.
+In Cloudflare, add an IP Access Rule with the **Allow** action for each
+address. For the addresses as Diffy publishes them, and for the Akamai and
+Incapsula steps, see Diffy's [bypass protection
+guidance](https://docs.diffy.website/features/bypass-protection-cloudfront-akamai-incapsula).
 
 :::
 
 ### Variables
 
+The workflow reads the following repository variables:
+
 | Name | Default | Purpose |
 |---|---|---|
-| `VR_DIFFY_PROJECT_ID` | (none, required) | Numeric Diffy project ID (visible in the Diffy project URL) |
+| `VR_DIFFY_PROJECT_ID` | None (required) | Numeric Diffy project ID (visible in the Diffy project URL) |
 | `VR_DIFFY_CLI_VERSION` | `0.1.53` | Pinned `diffy-cli` release used by `vr-compare` |
-| `VR_DIFFY_MAX_WAIT` | `2700` | Maximum seconds to wait for a comparison to complete (45 minutes) |
-| `VR_DIFFY_POLL_INTERVAL` | `30` | Polling interval in seconds |
+| `VR_DIFFY_MAX_WAIT` | `2700` | Maximum seconds to wait for a comparison to complete (45 minutes) before `vr-compare` fails |
+| `VR_DIFFY_POLL_INTERVAL` | `30` | Seconds between comparison status checks |
 | `VR_DIFFY_PR_LABEL` | `VR` | PR label that opts a deployment into visual regression. Case-insensitive |
-| `VR_DIFFY_PR_SKIP_BRANCHES` | `deps/*` | Comma-separated glob list of PR head branches that skip the label gate (matches Renovate's `branchPrefix`). Set to empty to require the label on every PR. |
-| `VR_DIFFY_BRANCHES` | (empty) | Comma-separated glob list of deployed branches that run visual regression when the deployment has no pull request (for example `release/*`). Empty means such deployments never run. |
-| `VR_DIFFY_SOURCE_ENV` | `production` | Default Diffy source environment for comparisons |
+| `VR_DIFFY_PR_SKIP_BRANCHES` | `deps/*` | Comma-separated glob list of PR head branches that skip the label gate (matches Renovate's `branchPrefix`). An empty value falls back to `deps/*`. |
+| `VR_DIFFY_BRANCHES` | None | Comma-separated glob list of deployed branches that run visual regression when the deployment has no pull request (for example `release/*`). Empty means such deployments never run. |
 
-Add these under *Settings > Secrets and variables > Actions > Repository
-variables*.
+Add them under **Settings > Secrets and variables > Actions** too, as
+repository variables.
+
+The workflow treats an empty variable as unset, so every variable with a
+default falls back to it. The Diffy source environment isn't a repository
+variable: deployments take it from `VORTEX_NOTIFY_DIFFY_SOURCE_ENV`, manual
+runs from the `source_env` input, and both default to `production`.
 
 ### Deployment-side configuration
 
-For automatic dispatch, the deployment environment (Lagoon post-rollout,
-Acquia post-code-deploy hook, or similar) needs a GitHub token with `repo`
-scope exposed as `VORTEX_NOTIFY_DIFFY_TOKEN` (falls back to
-`VORTEX_NOTIFY_GITHUB_TOKEN` if set, then to `GITHUB_TOKEN`). The
-repository name is taken from `VORTEX_NOTIFY_DIFFY_REPOSITORY` (falls back
-to `VORTEX_NOTIFY_GITHUB_REPOSITORY`).
+Automatic runs start on the hosting side. After a deployment, the host hook
+(Lagoon's `post-rollout` tasks or Acquia's `post-code-deploy` hook) runs the
+`vortex-notify` notification router. Its `diffy` channel,
+`vortex-notify-diffy`, then sends GitHub a `repository_dispatch` event that
+starts the workflow.
 
-Add `diffy` to `VORTEX_NOTIFY_CHANNELS` to enable the dispatch:
+That request needs a GitHub token with `repo` scope in
+`VORTEX_NOTIFY_DIFFY_TOKEN`, set in the hosting environment. It falls back
+to `VORTEX_NOTIFY_GITHUB_TOKEN`, then to `GITHUB_TOKEN`. The repository, in
+`owner/repo` form, comes from `VORTEX_NOTIFY_DIFFY_REPOSITORY`, also set in
+the hosting environment, which falls back to
+`VORTEX_NOTIFY_GITHUB_REPOSITORY`.
+
+The channel stays off until you add `diffy` to `VORTEX_NOTIFY_CHANNELS`,
+which lists only `email` by default. Set it in `.env`, for example:
 
 ```ini
 VORTEX_NOTIFY_CHANNELS=email,github,diffy
 ```
 
+The `diffy` channel skips the pre-deployment notification, because the
+environment isn't ready for screenshots yet, and dispatches on the
+post-deployment notification. `VORTEX_NOTIFY_DIFFY_SOURCE_ENV` sets the
+Diffy environment to compare against (`production` by default). See the
+[Diffy notification channel](../deployment/notifications/diffy.mdx) for
+the channel's variables.
+
+Confirm that the next deployment's log shows
+`[ OK ] Finished Diffy notification.`, and that a
+**Test - Visual regression** run appears on the repository's **Actions**
+tab.
+
 ## How to trigger a comparison
 
-Two entry points are supported. Neither is blocking by default - both
-become blocking only when the consumer wires the `vr-compare` check into
-GitHub branch protection rules.
+The workflow has 2 entry points, and neither one blocks a merge (see
+[Making it blocking](#making-it-blocking)).
 
 ### 1. Automatic on deployments
+
+The following diagram traces an automatic run from a push to the pull
+request comment:
 
 ```text
 ┌─ GitHub ────────────────────────────────────┐
@@ -193,21 +251,27 @@ GitHub branch protection rules.
 └─────────────────────────────────────────────┘
 ```
 
-`notify-diffy` dispatches the workflow with a payload containing the
-branch, target URL, label, and source environment - **no PR number, no
-commit SHA**. The workflow itself extracts the PR number from the
-deployed environment URL by matching the `pr-<number>` segment (e.g.
-`https://pr-123.example.com/` resolves to PR #123) and verifies the
-`VR` label is present (case-insensitive). If the target URL has no
-`pr-<number>` segment, the deployment is not a PR environment and the run
-is skipped unless the deployed branch is opted in - see [Release and other
-non-PR deployments](#release-and-other-non-pr-deployments).
+The dispatch payload carries the branch, the target URL, the label, and the
+source environment, but no PR number or commit SHA. The workflow finds the
+PR itself by matching the `pr-<number>` segment in the deployed URL, so
+`https://pr-123.example.com/` resolves to PR #123. It then runs only when
+that PR has the `VR_DIFFY_PR_LABEL` label (`VR` by default, matched
+case-insensitively) or a head branch that matches
+`VR_DIFFY_PR_SKIP_BRANCHES`.
 
-This means the PR lookup works uniformly across hosting providers - the
-host only needs to expose the deployed environment URL, which all of
-them do.
+A target URL without a `pr-<number>` segment isn't a PR environment. The
+workflow skips those runs unless the deployed branch is opted in (see
+[Release and other non-PR
+deployments](#release-and-other-non-pr-deployments)).
+
+Reading the PR from the URL works the same on every hosting provider,
+because every host exposes the deployed environment URL. The only
+condition is that PR environments get a `pr-<number>` segment in their URL
+(see [How the PR is resolved](#how-the-pr-is-resolved)).
 
 ### 2. Manual on any URL
+
+The following diagram traces a manual run:
 
 ```text
 ┌─ GitHub ────────────────────────────────────┐
@@ -236,35 +300,59 @@ them do.
 └─────────────────────────────────────────────┘
 ```
 
-Use this entry point for ad-hoc comparisons against a known environment
-URL. No PR is involved, so there is no comment to post - the result is
-shown in the workflow run summary and in the Diffy UI.
+Use this entry point for an ad-hoc comparison against any URL. To start a
+manual run:
+
+1. On the repository's **Actions** tab, select the
+   **Test - Visual regression** workflow.
+2. Click **Run workflow**. A form with the workflow's inputs opens.
+3. Optional: To compare against an environment other than `production`,
+   enter `staging` or `development` in
+   **Diffy source environment (production, staging, development)**.
+4. Enter the URL to compare in **Target URL to compare against**.
+5. Optional: To give the diff its own name in the Diffy UI, replace `manual`
+   in **Diff label shown in Diffy UI**.
+6. Click **Run workflow** in the form. The new run appears in the
+   workflow's list of runs.
+
+Confirm that the run's summary page shows a **Visual regression report**
+with the number of changed pages and a **View full Diffy report** link.
+
+A manual run always passes the gate, and its result lands in the workflow
+run summary and in the Diffy UI. If the target URL has a `pr-<number>`
+segment, the workflow resolves that PR as usual, and `vr-report` posts the
+result on it as a comment.
 
 ## Limiting which branches dispatch
 
-By default, every deployment that triggers the notify router dispatches
-the workflow - the workflow then decides whether to actually run by
-parsing the target URL and checking the PR label.
+With the `diffy` channel on, every post-deployment notification dispatches
+the workflow, and the workflow's gate decides whether a comparison runs. A
+dispatch that the gate skips still starts a short workflow run.
 
-To skip the dispatch entirely for certain branches (and save GitHub
-Actions minutes), set `VORTEX_NOTIFY_DIFFY_BRANCHES` to a
-comma-separated branch allowlist. With this set, only deployments on
-listed branches dispatch; everything else is silently skipped at the
-host hook.
+To stop those dispatches at the source, and save the GitHub Actions minutes,
+set `VORTEX_NOTIFY_DIFFY_BRANCHES` to a comma-separated allowlist of branch
+names. On any other branch, the host hook skips the dispatch with a
+`Skipped Diffy notification for branch` message, and the deployment
+continues. The names match exactly, so unlike the workflow's branch
+variables, the allowlist takes no glob patterns.
 
-Leave this variable empty (default) to let the workflow's PR-label gate
-be the sole gate.
+The allowlist filters PR deployments too, because a PR environment reports
+its head branch, so an exact-name list would need every feature branch on
+it. Leave the variable empty (the default) to let the workflow's gate
+decide.
 
 ## Automated dependency PRs
 
-PRs raised by Renovate (or any other automated dependency-update bot)
-typically do not carry the `VR` label - they carry their own bot label
-(e.g. `Dependencies`). To still run visual regression on them, the
-workflow consults `VR_DIFFY_PR_SKIP_BRANCHES`: a comma-separated glob
-list of PR head branches that skip the `VR` label gate.
+Renovate and other dependency-update bots open PRs with their own label
+(**Vortex**'s Renovate configuration applies `Dependencies`) instead of
+`VR`. A dependency update can change markup your team never touched, so
+those PRs need a visual check too. `VR_DIFFY_PR_SKIP_BRANCHES` lets them
+past the label gate: it holds a comma-separated glob list of PR head
+branches that skip the label check.
 
-The default value is `deps/*`, matching **Vortex**'s Renovate `branchPrefix`
-configuration. Other common values:
+The default value is `deps/*`, which matches the `branchPrefix` in
+**Vortex**'s Renovate configuration. The following table lists the values
+for common bots:
 
 | Bot | Branch prefix | Suggested value |
 |---|---|---|
@@ -272,64 +360,67 @@ configuration. Other common values:
 | Renovate (default config) | `renovate/` | `renovate/*` |
 | Dependabot | `dependabot/` | `dependabot/*` |
 
-Multiple patterns can be combined with commas:
-`VR_DIFFY_PR_SKIP_BRANCHES=deps/*,dependabot/*`. Set the variable to
-empty to require the label on every PR, including bot PRs.
+Combine patterns with commas:
+`VR_DIFFY_PR_SKIP_BRANCHES=deps/*,dependabot/*`. An empty value falls back
+to `deps/*`. To require the label on every PR, bot PRs included, set the
+variable to a pattern that no branch matches, such as `none`.
 
 ### Default behavior out of the box
 
-With `VR_DIFFY_PR_SKIP_BRANCHES=deps/*` (default) and
-`VR_DIFFY_PR_LABEL=VR` (default):
+With the default `VR_DIFFY_PR_SKIP_BRANCHES=deps/*` and
+`VR_DIFFY_PR_LABEL=VR`, the gate decides as follows:
 
 | PR head branch | Has `VR` label? | Runs? |
 |---|---|---|
-| `feature/foo` | yes | yes (label gate) |
-| `feature/foo` | no | no |
+| `feature/header-redesign` | yes | yes (label gate) |
+| `feature/header-redesign` | no | no |
 | `deps/drupal-core-11.2` | no | **yes** (matches `deps/*`) |
 | `deps/drupal-core-11.2` | yes | yes (matches `deps/*`, label irrelevant) |
 
-Consumers using Dependabot append:
-`VR_DIFFY_PR_SKIP_BRANCHES=deps/*,dependabot/*`. Consumers who want the
-label as the only gate set the variable to empty.
+If you use Dependabot, append its prefix:
+`VR_DIFFY_PR_SKIP_BRANCHES=deps/*,dependabot/*`. To make the label the only
+gate, set the variable to a pattern that no branch matches, as the preceding
+section describes.
 
 ## Release and other non-PR deployments
 
-A deployment that is not a pull request environment - a release branch, an
+Some deployments aren't pull request environments: a release branch, an
 integration branch such as `develop`, or a permanent `dev`/`stage`
-environment - has no pull request to carry the `VR` label, so it is skipped
-by default.
+environment. They have no pull request to carry the `VR` label, so the
+workflow skips them by default.
 
-Set `VR_DIFFY_BRANCHES` to a comma-separated glob list of deployed branch
-names to compare them automatically:
+To compare them automatically, set the `VR_DIFFY_BRANCHES` repository
+variable to a comma-separated glob list of deployed branch names:
 
 ```ini
 VR_DIFFY_BRANCHES=release/*
 ```
 
+The following table shows which deployments run for a few values:
+
 | Deployment | `VR_DIFFY_BRANCHES` | Runs? |
 |---|---|---|
 | PR environment (`pr-123` in the URL) | any value | gated by the `VR` label and `VR_DIFFY_PR_SKIP_BRANCHES` as usual |
-| Branch `release/1.2.3` | (empty) | no |
+| Branch `release/1.2.3` | Not set | no |
 | Branch `release/1.2.3` | `release/*` | **yes** |
 | Branch `develop` | `release/*` | no |
 | Branch `develop` | `release/*,develop` | **yes** |
 | Any branch | `*` | **yes** (every non-PR deployment) |
 
-The deployed branch travels in the dispatch payload, so no GitHub API call
-is needed to resolve it.
+The deployed branch arrives in the dispatch payload, so the workflow needs
+no GitHub API call to resolve it.
 
 :::note
 
-Patterns match the **git branch name**, not the hostname. Hosting providers
-sanitize branch names for URLs - Lagoon deploys `release/26.7.5` to a host
-containing `release-26-7-5` - but the gate compares against the original
+Patterns match the git branch name, not the hostname. Hosting providers
+sanitize branch names for URLs (Lagoon deploys `release/26.7.5` to a host
+containing `release-26-7-5`), but the gate compares against the original
 `release/26.7.5`.
 
 :::
 
-There is no pull request to comment on for these runs, so the result
-appears in the workflow run summary and in the Diffy UI instead of as a PR
-comment.
+These runs have no pull request to comment on, so the result appears in
+the workflow run summary and in the Diffy UI instead of as a PR comment.
 
 ## How the PR is resolved
 
@@ -341,84 +432,127 @@ https://pr-123.example.com/         ->  PR #123
 https://app.pr-42.example.com/      ->  PR #42
 ```
 
-This means:
+The host must deploy PR environments to a URL that contains the
+`pr-<number>` segment. The URL is the single source of truth, so the host
+never passes a PR number, and extracting it needs no GitHub API call. The
+gate then reads the PR's labels and head branch with `gh pr view`. If no
+pull request with that number exists in the repository, the lookup fails
+and the workflow skips the run.
 
-- The host must deploy PR environments to a URL that contains the
-  `pr-<number>` segment - a common convention across cloud hosting
-  providers.
-- No GitHub API call is needed to resolve the PR.
-- The host does not need to provide a PR number directly; the URL is the
-  source of truth.
+On Acquia, the notification hook reports
+`https://<site>.<realm>.acquia-sites.com`, or the custom domain in
+`VORTEX_NOTIFY_ENVIRONMENT_DOMAIN` (see
+[Acquia](../hosting/acquia.mdx#deployment-automation)). A deployment there
+resolves to a PR only when that URL contains the segment.
 
-If the target URL has no `pr-<number>` segment (for example, a deploy to
-a named environment like `dev`/`test`/`prod`), the workflow treats it as
+If the target URL has no `pr-<number>` segment, the workflow treats it as
 "not a PR deployment" and runs only when the deployed branch matches
-`VR_DIFFY_BRANCHES`.
+`VR_DIFFY_BRANCHES`. A deploy to a named environment like
+`dev`/`test`/`prod` is an example.
 
 ## Missed-window behavior
 
-If the `VR` label is added to a PR **after** the deployment completes,
-no comparison is run. This is deliberate: a late-applied label should
-not silently launch a Diffy job against a stale environment.
+Adding the label to a PR after its deployment finishes doesn't start a
+comparison, because the workflow runs on deployment dispatches, not on label
+changes. That's deliberate: a late label shouldn't quietly launch a Diffy
+job against an environment that might be stale.
 
-To re-trigger after applying the label, either push an empty commit
-(forces a new deployment → new dispatch) or use the manual workflow
-entry point.
+To run the comparison after you add the label, do either of the following:
+
+- Push an empty commit to the PR branch. It triggers a new deployment and a
+  new dispatch.
+- Start a [manual run](#2-manual-on-any-url) against the PR environment's
+  URL. The workflow resolves the PR from the URL, so the report still lands
+  on the pull request.
 
 ## Jobs
 
-`vr-compare`:
+Runs for the same target URL share a concurrency group, so a newer
+deployment of an environment cancels the comparison still running against
+it.
 
-1. Resolves the PR number from the target URL and gates on the label (or
-   the auto-branch pattern for dependency PRs, or the deployed-branch
-   opt-in for non-PR deployments).
-2. Installs the pinned Diffy CLI.
-3. Calls `diffy project:compare` with the target URL and a label.
+The `vr-compare` job runs the following steps:
+
+1. Resolves the PR number from the target URL, then gates the run. A manual
+   run always proceeds, a PR deployment needs the label or a head branch
+   matching `VR_DIFFY_PR_SKIP_BRANCHES`, and a non-PR deployment needs its
+   branch in `VR_DIFFY_BRANCHES`.
+2. Fails if the target URL is empty, then installs the `diffy-cli` release
+   from `VR_DIFFY_CLI_VERSION` and logs in with `VR_DIFFY_API_KEY`.
+3. Calls `diffy project:compare` to compare the source environment with the
+   target URL, passing the label as the diff name, along with any HTTP
+   credentials.
 4. Polls the comparison status, printing progress to the job log every
-   `VR_DIFFY_POLL_INTERVAL` seconds.
+   `VR_DIFFY_POLL_INTERVAL` seconds, and fails if the comparison doesn't
+   finish within `VR_DIFFY_MAX_WAIT` seconds.
 5. Fetches the diff result and exposes the diff ID, PR number, change
    percentage, page counts, and shared report URL as job outputs.
 6. Renders the report into the workflow run summary, so the result is
    readable in the GitHub Actions UI without opening the job log.
 
-`vr-report`:
+Differences don't fail the job. `vr-compare` reports the change percentage
+and the page counts, then succeeds at any value. It fails only when the
+target URL is empty, Diffy returns no diff ID, the comparison runs past
+`VR_DIFFY_MAX_WAIT`, or a Diffy CLI call fails. A failed status check counts
+as a comparison still in progress.
 
-1. Posts the same report as a sticky comment on the PR, with a link to
-   the Diffy report. Re-deploys edit the same comment rather than
-   stacking. The job runs only when a PR was resolved - manual runs and
-   opted-in branch deployments report through the run summary alone.
+The `vr-report` job posts the same report as a comment on the PR, with a
+link to the full Diffy report. Each new report hides the previous comment
+and posts a fresh one, so the PR timeline doesn't fill up with stale
+results. The job runs only when `vr-compare` succeeded without skipping and
+resolved a PR, and it fails only when it can't post the comment.
+
+Opted-in branch deployments, and manual runs against a URL without a
+`pr-<number>` segment, report through the run summary alone.
 
 ## Making it blocking
 
-**Vortex** does not block merges on visual regression results by default.
+**Vortex** doesn't block merges on visual regression results, and a
+required status check can't make it do so. GitHub runs a workflow that a
+`repository_dispatch` event starts against the latest commit on the default
+branch. The `vr-compare` check therefore lands on that commit, never on a
+pull request's head commit.
 
-To make `vr-compare` a required check:
+Branch protection evaluates required checks on the head commit, so a
+required `vr-compare` check leaves every pull request waiting for a status
+that never arrives. Only a manual run started from the pull request's own
+branch reports on its head commit.
 
-1. Open *Settings > Branches* on the consumer repository.
-2. Edit the branch protection rule for the target branch (typically
-   `main`).
-3. Under *Require status checks to pass before merging*, add
-   **vr-compare** to the required checks.
-
-`vr-report` is never required - its failure means the comment could not
-be posted, which is not a merge-blocker.
+Review the comparison in the comment that `vr-report` posts, or in the
+Diffy report it links to, before you merge.
 
 ## Costs and quotas
 
-Diffy bills per screenshot set. **Vortex**'s default gating (`VR` label on
-PRs only, plus the `deps/*` auto-branch list, with non-PR deployments off
-entirely) keeps the run rate low. Adjust `VR_DIFFY_PR_LABEL`,
-`VR_DIFFY_PR_SKIP_BRANCHES`, `VR_DIFFY_BRANCHES`, and
-`VORTEX_NOTIFY_DIFFY_BRANCHES` to suit the team's review rhythm.
+Diffy plans count screenshots per month, and every comparison captures each
+page at each breakpoint. Frequent automated dispatches use up a plan, so
+limit which branches trigger comparisons. **Vortex**'s default gating keeps
+the run rate low: only PRs with the `VR` label or a `deps/*` head branch
+run, and non-PR deployments don't run at all.
 
-Scope `VR_DIFFY_BRANCHES` as narrowly as the workflow allows: `*`
-compares on every deployment to every permanent environment, which on a
-busy integration branch consumes quota quickly.
+The following variables tune the gating to your team's review rhythm:
+
+- `VR_DIFFY_PR_LABEL`
+- `VR_DIFFY_PR_SKIP_BRANCHES`
+- `VR_DIFFY_BRANCHES`
+- `VORTEX_NOTIFY_DIFFY_BRANCHES`
+
+Keep `VR_DIFFY_BRANCHES` as narrow as you can. A value of `*` compares every
+non-PR deployment, such as each deployment to `dev` or `stage`, against the
+source environment, so a busy integration branch spends quota on every
+deployment.
 
 ## Disabling
 
-Remove `diffy` from `VORTEX_NOTIFY_CHANNELS` and delete the
-`.github/workflows/test-vr.yml` workflow file.
+To switch visual regression off:
 
-To remove the integration entirely, re-run the install command and answer
-"no" to the visual regression prompt.
+1. Remove `diffy` from `VORTEX_NOTIFY_CHANNELS` in `.env`, and in any
+   hosting environment that sets the variable itself.
+2. Delete the `.github/workflows/test-vr.yml` workflow file.
+
+Confirm that the next deployment's log has no `Started Diffy notification.`
+line.
+
+To remove the integration entirely, re-run the **Vortex** CLI and answer no
+to its **Visual regression testing with Diffy?** question. The `diffy`
+channel itself ships in the `drevops/vortex-tooling` package, so it stays
+installed, inactive while `VORTEX_NOTIFY_CHANNELS` doesn't list it.

@@ -4,46 +4,74 @@ sidebar_position: 2
 
 # Acquia
 
-[Acquia](https://www.acquia.com/) is a cloud hosting platform specifically
-designed for Drupal applications, offering managed infrastructure and developer
-tools.
+[Acquia](https://www.acquia.com/) is a cloud hosting platform for Drupal
+applications, with managed infrastructure and developer tools.
 
-For general Acquia documentation, refer to the
-[Acquia Documentation](https://docs.acquia.com/).
+This page is for the lead or DevOps engineer who runs a project built from
+**Vortex** on Acquia. It explains what happens on Acquia during a
+deployment, how the site detects its environment, and how to run the
+routine operations. For general Acquia documentation, see the [Acquia
+documentation](https://docs.acquia.com/).
 
-This page covers how the site behaves once it runs on Acquia. For how code gets
-there from CI, see [Artifact deployment](../deployment/artifact.mdx).
+Acquia deploys from a Git repository of its own, so CI builds the codebase
+and pushes it there. [Artifact deployment](../deployment/artifact.mdx)
+covers that part.
 
 ## Integration
 
-**Vortex** provides the following integration with Acquia:
+The following sections describe what the integration does on Acquia.
 
 ### Tasks
 
-With **Vortex**, you can:
+**Vortex** gives you the following tasks on Acquia:
 
-- **Fetch a database** from an Acquia environment for local development or CI
-- **Copy the database** between Acquia environments (e.g., refresh staging from production)
-- **Copy files** between environments to synchronize uploaded content
-- **Purge the Varnish cache** to ensure visitors see fresh content
+- Fetch a database from an Acquia environment for local development or CI
+- Copy the database between Acquia environments (for example, refresh
+  staging from production)
+- Copy files between environments to synchronize uploaded content
+- Purge the Varnish cache so visitors see fresh content
 
-When running these tasks, your `.env` and `.env.local` files are used as the
-source for the application name and API credentials.
+These tasks read the application name (`VORTEX_ACQUIA_APP_NAME`) from your
+`.env` file and the Acquia Cloud API credentials (`VORTEX_ACQUIA_KEY` and
+`VORTEX_ACQUIA_SECRET`) from `.env.local`.
 
 ### Deployment automation
 
-When code is deployed, **Vortex** automatically:
+On each code deployment, **Vortex** runs these steps on Acquia:
 
-1. **Provisions the site** - Runs database updates, imports configuration, clears caches
-2. **Purges edge cache** - Clears the Varnish cache to serve fresh content
-3. **Sends notifications** - Notifies configured channels about the deployment
+1. Provisions the site: runs database updates, imports configuration,
+   rebuilds caches, and runs Drupal's deploy hooks (`drush deploy:hook`),
+   which include the project's deploy steps
+2. Purges the Varnish edge cache to serve fresh content
+3. Notifies configured channels about the deployment
 
-This is implemented using [Acquia Cloud Hooks](https://docs.acquia.com/cloud-platform/develop/api/cloud-hooks/) -
-pre-configured scripts in the [`hooks/`](https://github.com/drevops/vortex/tree/main/hooks)
-directory that trigger on code deployments, code updates, and database copy
-operations.
+The steps run as [Acquia Cloud
+Hooks](https://docs.acquia.com/cloud-platform/develop/api/cloud-hooks/):
+pre-configured scripts in the
+[`hooks/`](https://github.com/drevops/vortex/tree/main/hooks) directory that
+Acquia runs on code deployments, code updates, and database copies. Each
+script calls a shipped command such as `./vendor/bin/vortex-provision`.
 
-To turn off a hook, set its skip variable to `1` in the Acquia UI:
+The scripts live in `hooks/library/`. `hooks/common/post-code-update/` links
+the 3 deployment scripts in numbered order, and the `post-code-deploy` and
+`post-db-copy` directories are symlinks to it. So a code deployment, a code
+update, and a database copy all run the same 3 steps. The `hooks/prod/`
+directories are empty placeholders for production-only scripts.
+
+Acquia runs the scripts in `hooks/common/<event>/` first, then those in
+`hooks/<environment>/<event>/`. The environment directory takes the
+environment's name, such as `dev`, `test`, or `prod`, and the event is a
+hook such as `post-code-deploy` or `post-db-copy`. When a script exits with
+an error, Acquia skips the remaining scripts and marks the task as failed.
+
+The provision hook adds `drush/php-ini` to `PHP_INI_SCAN_DIR`, so Drush
+commands run with the project's PHP settings from that directory.
+
+The hooks read their settings from Acquia environment variables. Add them
+in the Acquia Cloud UI under **Variables**, for every environment or for
+selected ones.
+
+To turn a hook off, set its skip variable to `1` in the Acquia UI:
 
 | Hook                   | Variable                             |
 |------------------------|--------------------------------------|
@@ -53,45 +81,90 @@ To turn off a hook, set its skip variable to `1` in the Acquia UI:
 | `copy-db.sh`           | `VORTEX_TASK_COPY_DB_ACQUIA_SKIP`    |
 | `copy-files.sh`        | `VORTEX_TASK_COPY_FILES_ACQUIA_SKIP` |
 
-A hook stops with an error when a value it requires is unset or empty. A blank
-field in the Acquia UI aborts the hook before it runs.
+`copy-db.sh` and `copy-files.sh` sit in `hooks/library/` without a link
+from any event directory, so they run only after you symlink them into one.
+By default they copy from `prod` into the environment the hook runs in.
+`copy-db.sh` also needs `VORTEX_TASK_COPY_DB_ACQUIA_NAME`, the name of the
+database to copy. Link them into an environment directory such as
+`hooks/dev/post-code-deploy/`, so `prod` never copies onto itself. A linked
+script must keep its executable bit.
+
+A hook stops with an error when a value it requires is unset or empty, so a
+blank field in the Acquia UI aborts the hook. `purge-cache.sh` and both
+copy hooks require `VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET`. Set both
+in the Acquia UI before the first deployment.
+
+`purge-cache.sh` purges the domains listed in `hooks/library/domains.txt`.
+The installer writes your domain there as `$TARGET_ENV_REMAP.<domain>`; add
+a line for every other domain the site serves.
+
+`$TARGET_ENV_REMAP` expands to `dev` on `dev`, `stage` on `test`, and
+`test2` on `test2`. On `prod`, the prefix and its dot disappear. Any other
+environment, on-demand ones included, purges nothing.
+
+`notify-deployment.sh` builds the environment URL for notifications as
+`https://<site>.<realm>.acquia-sites.com` from Acquia's `AH_SITE_NAME` and
+`AH_REALM` variables. To use a custom domain, set
+`VORTEX_NOTIFY_ENVIRONMENT_DOMAIN` in the Acquia UI, for example
+`www.example.com`.
 
 ### Environment detection
 
-Vortex automatically detects when running on Acquia and applies the
-Acquia-specific Drupal settings through the
+**Vortex** detects Acquia through the
 [`drevops/environment-detector`](https://github.com/drevops/environment-detector)
-package. This includes Acquia-specific configurations for caching, file paths,
-and environment variables.
+package, which looks for the `AH_SITE_ENVIRONMENT` variable. The package
+maps the Acquia environment to an environment type:
+
+| Acquia environment        | Environment type |
+|---------------------------|------------------|
+| `prod`                    | `production`     |
+| `stage`, `test`           | `stage`          |
+| `dev`                     | `development`    |
+| Any other, such as `ode*` | `preview`        |
+
+The package also applies these Acquia settings:
+
+- It includes Acquia's own settings file.
+- It points the configuration sync directory at `DRUPAL_CONFIG_PATH` or
+  Acquia's `config_vcs_directory`.
+- It turns on automatic `.htaccess` creation in writable directories.
+- It sets the temporary file path.
+- It delays the initial database connection by turning off Acquia's
+  `acquia_hosting_settings_autoconnect` setting.
 
 #### Acquia settings file
 
 By default, **Vortex** includes the Acquia-provided settings file from
-`/var/www/site-php/{group}/{group}-settings.inc`. You can override this path
-by setting the `DRUPAL_ACQUIA_SETTINGS_FILE` environment variable.
+`/var/www/site-php/{group}/{group}-settings.inc`, where `{group}` is the
+value of `AH_SITE_GROUP`. To use another file, set the
+`DRUPAL_ACQUIA_SETTINGS_FILE` environment variable to its path. When
+`AH_SITE_GROUP` is empty or the file doesn't exist, no file is included.
 
 #### Temporary file path
 
-**Vortex** configures the temporary file path (`file_temp_path`) with a
-three-tier priority:
+**Vortex** configures the path for temporary files (`file_temp_path`) with a
+3-tier priority:
 
 1. **Default**: `/tmp`
-2. **Shared GFS mount**: If `DRUPAL_TMP_PATH_IS_SHARED` is set, uses
-   `/mnt/gfs/{group}.{env}/tmp` - a per-head mounted directory on Acquia's
-   shared filesystem. This is useful for operations like bulk uploads that
-   require a shared temporary directory across web heads. See
-   [Acquia temporary files documentation](https://docs.acquia.com/acquia-cloud-platform/manage-apps/files/temporary#section-important-considerations)
+2. **Shared GFS mount**: when `DRUPAL_TMP_PATH_IS_SHARED` is set, the path
+   is `/mnt/gfs/{group}.{env}/tmp`, a directory on Acquia's shared file
+   system, mounted on each web head. Use it for operations like bulk
+   uploads, which need a temporary directory shared across web heads.
+   See [Acquia temporary files
+   documentation](https://docs.acquia.com/acquia-cloud-platform/manage-apps/files/temporary#section-important-considerations)
    for details.
-3. **Explicit override**: If `DRUPAL_TMP_PATH` is set, its value is used
-   regardless of other settings.
+3. **Explicit override**: a non-empty `DRUPAL_TMP_PATH` wins over both.
 
 ## Onboarding
 
-Acquia onboarding is part of the project setup flow. See
-[Set up hosting](/docs/installation?hosting-provider=acquia#6-set-up-hosting)
-in the Installation guide and select **Acquia**.
+Acquia onboarding is part of the project setup flow. See [Set up
+hosting](/docs/installation?hosting-provider=acquia#6-set-up-hosting) in the
+Installation guide and select **Acquia**.
 
 ## Routine operations
+
+The following sections cover the operations you run against Acquia
+environments.
 
 ### Fetch database
 
@@ -102,24 +175,29 @@ or CI builds:
 ahoy fetch-db
 ```
 
-This wraps the provider-native [Acquia CLI](https://github.com/acquia/cli). If an
-`acli` binary is already on your `PATH`, **Vortex** uses it as-is. Otherwise it
-downloads a pinned release into a cache directory (`.artifacts/tmp` by default,
-overridable with `VORTEX_ACLI_PATH`) and reuses that copy on later runs, so
-nothing needs to be pre-installed.
+When the database source (`VORTEX_FETCH_DB_SOURCE`) is `acquia`, the
+installer's default for Acquia projects, the command downloads the latest
+existing backup. It takes the `VORTEX_FETCH_DB_ACQUIA_DB_NAME` database
+from the `VORTEX_FETCH_DB_ENVIRONMENT` environment, which is `prod` in the
+shipped `.env`.
 
-Authentication uses your Acquia Cloud API key and secret from `.env` and
-`.env.local`. They are passed to the CLI for a single run against an isolated
-home directory rather than your global `~/.acquia` configuration, so any Acquia
-credentials you already have locally are left untouched.
+The command wraps the [Acquia CLI](https://github.com/acquia/cli). When an
+`acli` binary is on your `PATH`, **Vortex** uses it. Otherwise, it
+downloads a pinned release into a cache directory and reuses that copy on
+later runs. The cache directory is `.artifacts/tmp`, and
+`VORTEX_ACLI_PATH` overrides it.
 
-The source application is auto-discovered from those credentials. When they
-expose more than one application, set `VORTEX_FETCH_DB_ACQUIA_APP_NAME` to pick
-one - it matches an application by its name, hosting id (for example
-`prod:<name>`), machine name or uuid.
+The Acquia CLI runs with your API key and secret from `.env` and
+`.env.local`, against an isolated home directory. Your global `~/.acquia`
+configuration stays untouched.
 
-By default the latest existing backup is downloaded. Force a new backup and wait
-for it to complete with:
+The command discovers the source application from those credentials. When
+they expose more than 1 application, set `VORTEX_FETCH_DB_ACQUIA_APP_NAME`
+to pick 1. It matches an application by its name, hosting ID (for example
+`prod:<name>`), machine name, or UUID.
+
+To create a new backup, wait for it to complete, and download it, add
+`--fresh`:
 
 ```shell
 ahoy fetch-db --fresh
@@ -127,13 +205,15 @@ ahoy fetch-db --fresh
 
 ### Run a hosting task
 
-Copying databases or files between environments and purging the edge cache run
-through a single, platform-agnostic task runner that dispatches each operation
-to the implementation for the configured hosting platform:
+Copying databases or files between environments and purging the edge cache
+run through a single, platform-agnostic task runner. It dispatches each
+operation to the implementation for the configured hosting platform:
 
 ```shell
 ./vendor/bin/vortex-task <operation>
 ```
+
+The following table lists the operations that Acquia supports:
 
 | Operation     | Description                            |
 |---------------|----------------------------------------|
@@ -141,20 +221,62 @@ to the implementation for the configured hosting platform:
 | `copy-files`  | Copy files between environments        |
 | `purge-cache` | Purge the edge (Varnish) cache         |
 
-The platform is read from `VORTEX_PLATFORM`, or from `VORTEX_TASK_PLATFORM` to
-override a single task. The Acquia deployment hooks export `VORTEX_PLATFORM`
-themselves; set it yourself when running an operation manually - for example,
-from your local machine:
+The runner reads the platform from `VORTEX_PLATFORM`, or from
+`VORTEX_TASK_PLATFORM` to override a single task. The Acquia hooks that run
+tasks export `VORTEX_PLATFORM` themselves. Set it yourself when running an
+operation manually, for example from your local machine:
 
 ```shell
 VORTEX_PLATFORM=acquia ./vendor/bin/vortex-task copy-db
 ```
 
-Each operation reads its configuration - application name, API credentials, and
-source and destination environments - from your `.env` and `.env.local` files.
+Each operation reads the application name and API credentials from your
+`.env` and `.env.local` files. Outside the hooks, the environments it acts
+on have no defaults, so set them for a manual run:
+
+- `copy-db`: `VORTEX_TASK_COPY_DB_ACQUIA_SRC`,
+  `VORTEX_TASK_COPY_DB_ACQUIA_DST`, and `VORTEX_TASK_COPY_DB_ACQUIA_NAME`
+  (the database name).
+- `copy-files`: `VORTEX_TASK_COPY_FILES_ACQUIA_SRC` and
+  `VORTEX_TASK_COPY_FILES_ACQUIA_DST`.
+- `purge-cache`: `VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV`, plus
+  `VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE` when the domain list isn't
+  `domains.txt` in the current directory (the hook uses
+  `hooks/library/domains.txt`).
+
+For example, to copy the production database into `dev`, run the following
+command from the project root:
+
+```shell
+VORTEX_PLATFORM=acquia \
+VORTEX_TASK_COPY_DB_ACQUIA_SRC=prod \
+VORTEX_TASK_COPY_DB_ACQUIA_DST=dev \
+VORTEX_TASK_COPY_DB_ACQUIA_NAME=your_site \
+./vendor/bin/vortex-task copy-db
+```
+
+Replace `your_site` with the name of the Acquia database to copy.
+
+Each operation also takes its own `VORTEX_TASK_<OPERATION>_ACQUIA_KEY`,
+`_SECRET`, and `_APP_NAME`, where `<OPERATION>` is `COPY_DB`, `COPY_FILES`,
+or `PURGE_CACHE`. They default to `VORTEX_ACQUIA_KEY`,
+`VORTEX_ACQUIA_SECRET`, and `VORTEX_ACQUIA_APP_NAME`.
+
+After a task starts, the operation checks its status with Acquia every 10
+seconds. `copy-db` checks up to 600 times, and `copy-files` and
+`purge-cache` up to 300 times. To change those numbers, set
+`VORTEX_TASK_<OPERATION>_ACQUIA_STATUS_INTERVAL` and
+`VORTEX_TASK_<OPERATION>_ACQUIA_STATUS_RETRIES`. When the checks run out,
+`copy-db` and `copy-files` fail. `purge-cache` reports the failed domain
+and moves on to the next one.
+
+Confirm that a manual run finished. The output ends with a line that
+starts with `[ OK ] Completed`, for example
+`[ OK ] Completed the "copy-db" task on the "acquia" platform.` A failed
+run prints a line that starts with `[FAIL]` and says what went wrong.
 
 ### Run Drush against remote environments
 
-To run Drush commands against Acquia environments, download your Drush aliases
-from the Acquia Cloud UI - see
-[Using Drush aliases](https://docs.acquia.com/acquia-cloud-platform/using-drush-aliases).
+To run Drush commands against Acquia environments, download your Drush
+aliases from the Acquia Cloud UI. See [Using Drush
+aliases](https://docs.acquia.com/acquia-cloud-platform/using-drush-aliases).

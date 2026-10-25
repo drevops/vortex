@@ -9,90 +9,129 @@ import Anchor from '@site/src/components/Anchor';
 
 <!-- markdownlint-disable -->
 
-**Vortex** uses environment variables to configure scripts without the need to
-change the code to alter behavior.
+**Vortex** scripts read their settings from environment variables, so you
+change how a script behaves by setting a variable instead of editing the
+script.
 
-There are two main types of variables:
+This page is for developers and DevOps engineers who configure a project's
+scripts locally, in CI, or on the hosting platform. It explains where a
+value can come from and which one wins, then documents the project's
+variables in the [variables list](#variables-list).
 
-**Project Configuration Variables** are set once during project setup and
-remain constant throughout the project lifecycle. These are typically
-configured in the `.env` file, or within the CI or hosting provider
-environments.
+Variables come in 2 main types:
 
-**Runtime Variables** can be changed during the project lifecycle
-to alter script behavior. For example, changing how deployment behaves
-or skipping a certain code branch deployment within CI.
+**Project configuration variables** are set once during project setup and
+stay the same for the life of the project. You usually set them in the
+`.env` file, or in the environment settings of your CI or hosting provider.
+
+**Runtime variables** change during the project's life to alter how a
+script behaves. For example, they change how a deployment runs, or skip
+deploying a particular branch in CI.
 
 ## `.env` and `.env.local` files
 
-Only required variables are listed in `.env` to keep it concise. There are
-more optional variables set in scripts with sensible defaults. These are
-documented below - add them to your `.env` file as needed to override
-the defaults.
+`.env` holds the project's shared values and is committed with the code. It
+lists only the variables a project usually sets. Every other optional
+variable takes its default from the script that reads it. Add a variable to
+`.env` when you need a value other than the default.
 
-The `.env.local` file is intended to store local overrides and sensitive
-information like passwords and API keys. This file is ignored by Git
-and should not be committed to the repository. It is a good practice to
-store local overrides and sensitive information in `.env.local` to keep them
-separate from the main `.env` file.
-
-To apply a change to either file, see [Environment > Environment
+`.env.local` holds your local overrides and secrets, such as passwords and
+API keys. Create it by copying `.env.local.example`. Git ignores it, so it
+stays out of the repository. To apply a change to either file, see
+[Environment > Environment
 variables](environment/README.mdx#environment-variables).
 
 ## Override order (bottom values win)
 
-- default value in container taken from image
-- default value in `docker-compose.yml`
-- value in `.env` (last value wins)
-- value in `.env.local` (last value wins)
-- value from environment
+Each source in the following list overrides the ones before it:
+
+1. The default value in the script that reads the variable
+2. The default value in the container, taken from the image
+3. The default value in `docker-compose.yml`
+4. The value in `.env`, where the last assignment in the file wins
+5. The value in `.env.local`, where the last assignment in the file wins
+6. The value from the environment
+
+Each script loads `.env` and then `.env.local` itself, and skips every
+variable that's already set in its environment. A value set in your shell,
+in CI, or on the hosting platform wins over both files.
 
 ### Naming conventions
 
-All variables used by **Vortex** scripts start with the `VORTEX_` prefix to
-differentiate them from other environment variables. The exception is
-`LOCALDEV_URL`, the local development URL, which shares its value with the
-unprefixed hosting route (`LAGOON_ROUTE`) and is therefore used without the
-prefix.
+Variables that **Vortex** scripts own start with the `VORTEX_` prefix, which
+keeps them apart from everything else in the environment. A few go without
+it, such as `WEBROOT` and `PACKAGE_TOKEN`.
 
-All Drupal-specific environment variables start with the `DRUPAL_` prefix.
+Drupal-specific variables start with the `DRUPAL_` prefix.
 
-Environment detection variables read by the environment detector - such as
-`ENVIRONMENT_TYPE`, `ENVIRONMENT_PRODUCTION_BRANCH`, and `LOCALDEV_URL` - are
-shared, platform-neutral names and intentionally carry neither the `VORTEX_`
-nor the `DRUPAL_` prefix.
+The environment detector reads shared, platform-neutral names that carry
+neither prefix, such as `ENVIRONMENT_TYPE`, `ENVIRONMENT_PRODUCTION_BRANCH`,
+and `LOCALDEV_URL`. `LOCALDEV_URL`, the local development URL, also shares
+its value with the unprefixed hosting route, `LAGOON_ROUTE`.
 
-Any other third-party service variables (like `COMPOSER_TOKEN` or `NEWRELIC_API_KEY`)
-are used as-is.
+Variables of third-party services, such as `NEWRELIC_ENABLED` or
+`RENOVATE_TOKEN`, keep the names those services use.
 
 ### Default values
 
-All _required_ variables used by **Vortex** scripts have checks in place to
-ensure they are set before proceeding. If a required variable is missing, the
-script will fail with a clear error message.
+Every _required_ variable that a **Vortex** script uses is checked before the
+script proceeds. An empty or unset one stops the script with an error that
+names it, such as `Missing required value for VORTEX_DEPLOY_WEBHOOK_URL`.
 
-All _optional_ variables used by **Vortex** scripts have default values
-defined within the scripts. This ensures that scripts can run out-of-the-box
-without requiring extensive configuration.
+Every _optional_ variable has a default value set in the script itself, so
+the scripts run without extensive configuration. For example, a variable can
+have a default value in the script and be overridden in the `.env` file. The
+CI or hosting provider can override it again for all environments, and then
+for a specific environment.
 
-Variables without values provided or set in scripts are considered defects in
-the template implementation and should be reported. This is because in Shell
-scripts not having a value or having an empty value may lead to unexpected
-behavior in when these values are evaluated in conditions. Moreover, having
-empty or unset values do not allow to have a reliable multi-level override
-mechanism for variables.
+A variable with neither a provided value nor a script default is a defect in
+the template, so report it. Without a default, a condition can take the
+wrong branch, and the override chain has no base value to fall back to.
 
-For example, a variable can have a default value in the script, be overridden in
-the `.env` file, and further overridden in the CI/hosting for all environments,
-and then additionally overridden for a specific environment.
+An empty value can't override a default. The scripts treat an empty value as
+unset, so the script default applies instead. The exception is
+`VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES`, where an empty value replaces the
+`cache*` default.
 
 ### Boolean variables
 
-Boolean variables use `1` for true and `0` for false values to ensure consistency
-across different environments.
+Boolean variables use `1` for true and `0` for false, so a flag means the
+same thing in every environment. We don't use `true`/`false`, `yes`/`no`, or
+other variations, because some systems interpret `true` and `false`
+differently.
 
-We do not use `true`/`false`, `yes`/`no`, or other variations to make value
-truly cross-platform (some systems may interpret `true` and `false` differently).
+Most scripts compare a flag against `1`, so `VORTEX_PROVISION_SKIP=true`
+doesn't skip anything. 2 flags, `VORTEX_NOTIFY_SKIP` and
+`VORTEX_NOTIFY_NEWRELIC_ENABLED`, switch on for any value other than an
+empty one or `0`. `VORTEX_NOTIFY_NEWRELIC_ENABLED` takes `true`, because it
+falls back to Lagoon's `NEWRELIC_ENABLED`. Third-party variables keep their
+own values, such as `RENOVATE_DRY_RUN=true`.
+
+### Columns of the variables list
+
+The [variables list](#variables-list) collects the variables that `.env`,
+`.env.local.example`, `docker-compose.yml`, the `scripts/` directory, CI,
+and the hosting platforms define or use. A variable that only a **Vortex**
+script reads isn't in the list. The script declares it, with a comment and
+its default, at the top of its file in `vendor/drevops/vortex-tooling/src/`.
+
+The list has 4 columns:
+
+- **Name**: the variable's name.
+- **Description**: what the variable does, taken from the comment before its
+  definition.
+- **Default value**: the value the variable gets when you don't set it.
+  `UNDEFINED` means it has no default.
+- **Defined or used in**: the files that define or read the variable.
+
+Besides file paths, the **Defined or used in** column uses these labels:
+
+- `ENVIRONMENT`: the variable comes from the environment that runs the
+  scripts, such as your shell or the hosting platform.
+- `CI config`: the variable comes from the CI configuration or from your CI
+  provider's settings.
+- `LAGOON ENVIRONMENT`: the variable is set in Lagoon environments.
+- `ACQUIA ENVIRONMENT`: the variable is set in Acquia environments.
 
 <style>{`
   table {
