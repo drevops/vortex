@@ -373,11 +373,14 @@ tested.
 | CI          | No                | Automated tests do not send real emails                       |
 | Dev         | **Yes**           | Prevents accidental delivery to real users                    |
 | Preview     | **Yes**           | Prevents accidental delivery to real users                    |
-| Stage       | No                | Stage may require real email delivery for UAT                 |
+| Stage       | **Yes**           | Stage runs a copy of production content, so any address that survives database sanitization is real |
 | Prod        | No                | Production emails must reach actual recipients                |
 
-Rerouting is also enabled in any custom environments that do not match the
-standard environment types listed above.
+Rerouting is the default, so it is also enabled in any custom environments that
+do not match the standard environment types listed above.
+
+The settings file excludes the module from the exported configuration, so the
+development modules deploy step is the only place that installs it.
 
 **Environment variables:**
 
@@ -389,7 +392,8 @@ standard environment types listed above.
 **Overriding default behavior:**
 
 Set `DRUPAL_REROUTE_EMAIL_DISABLED` to any non-empty value to completely disable
-email rerouting in an environment where it would otherwise be enabled.
+email rerouting in an environment where it would otherwise be enabled. To send
+real mail from `stage` during UAT, set this variable there.
 
 import RerouteEmailModuleSettingsExample from '!!raw-loader!@site/../../web/sites/default/includes/modules/settings.reroute_email.php';
 

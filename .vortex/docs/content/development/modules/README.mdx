@@ -23,9 +23,9 @@ assertions in a single pass.
 |-----------|----------|--------|
 | Composer requirement | `require` in [`composer.json`](https://github.com/drevops/vortex/blob/main/composer.json) | Makes the module available to the site. ➡️ See [composer.json](../composer.mdx#require) |
 | Settings override | `web/sites/default/includes/modules/settings.<module>.php` | Applies configuration conditioned on the detected environment, reading values from environment variables. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
-| Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a development-only module out of the exported configuration, so enabling it locally never dirties the config. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
+| Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a module that never reaches production out of the exported configuration, so enabling it locally never dirties the config. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
 | Provisioning | `CreateContentModelDeployStep` in `ys_base` | Applies the `recipes/page` content model in the `local`, `ci`, `dev` and `stage` environments. ➡️ See [Provision](../provision.mdx) |
-| Development provisioning | `EnableDevelopmentModulesDeployStep` in `ys_base` | Sets the site name and installs the contrib, service, demo and development-only modules in the same four environments. ➡️ See [Provision](../provision.mdx) |
+| Development provisioning | `EnableDevelopmentModulesDeployStep` in `ys_base` | Sets the site name and installs the contrib, service, demo and development-only modules and the email rerouting safety net in the same 4 environments. ➡️ See [Provision](../provision.mdx) |
 | Module dependency | [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml) | Installs the module as a dependency of the demo module. ➡️ See [Demo module](module-scaffold.mdx#demo-module) |
 
 A module can be required without being installed anywhere: the settings

@@ -166,9 +166,11 @@ intended recipients. This prevents accidental email delivery to real users in
 non-production environments while still allowing email functionality to be
 tested.
 
+- **Installed:** During development provisioning by the `EnableDevelopmentModulesDeployStep` deploy step.
+
 ### Configuration
 
-[`settings.reroute_email.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.reroute_email.php) enables rerouting in every environment except `local`, `ci`, `stage` and `prod`.
+[`settings.reroute_email.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.reroute_email.php) excludes the module from the exported configuration and enables rerouting in every environment except `local`, `ci` and `prod`.
 
 Rerouting replaces the recipient of an outgoing message with the configured address, unless that recipient matches `DRUPAL_REROUTE_EMAIL_ALLOWED`. With rerouting disabled, every message reaches its intended recipient. Rerouting is therefore disabled only where that delivery is either wanted or already intercepted by other means.
 
@@ -179,15 +181,15 @@ Rerouting replaces the recipient of an outgoing message with the configured addr
 | Local       | No                | [Pygmy](../environment/pygmy.mdx) already catches outgoing mail  |
 | CI          | No                | The [mail collector](../testing/behat.mdx#email) stores messages instead of sending them |
 | Dev         | **Yes**           | Prevents accidental delivery to real users                      |
-| Stage       | No                | Stage may require real email delivery for UAT                   |
+| Stage       | **Yes**           | Stage runs a copy of production content, so any address that survives database sanitization is real |
 | Prod        | No                | Production emails must reach actual recipients                  |
 
-Rerouting is also enabled in any custom environments (e.g., PR environments)
-that do not match the standard environment types listed above.
+Rerouting is the default, so it is also enabled in any custom environments (e.g.,
+PR environments) that do not match the standard environment types listed above.
 
 Rerouting is off in `ci` so that tests can assert on the address a message was sent to. With rerouting on, every message would carry the rerouting address instead of the intended one.
 
-A site that deselects this module during [installation](../../installation.mdx) still sends no mail from `ci`, because the mail collector stores messages there regardless. That site does send mail to real recipients in `dev` and in custom environments.
+A site that deselects this module during [installation](../../installation.mdx) still sends no mail from `ci`, because the mail collector stores messages there regardless. That site does send mail to real recipients in `dev`, `stage` and custom environments.
 
 **Environment variables:**
 
@@ -199,7 +201,8 @@ A site that deselects this module during [installation](../../installation.mdx) 
 **Overriding default behavior:**
 
 Set `DRUPAL_REROUTE_EMAIL_DISABLED` to any non-empty value to completely disable
-email rerouting in an environment where it would otherwise be enabled.
+email rerouting in an environment where it would otherwise be enabled. To send
+real mail from `stage` during UAT, set this variable there.
 
 <details>
 <summary>Example of the `Reroute Email` module `settings.reroute_email.php` file</summary>
