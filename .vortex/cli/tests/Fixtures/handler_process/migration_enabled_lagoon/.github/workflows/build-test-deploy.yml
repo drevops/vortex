@@ -24,7 +24,7 @@
        - name: Build stack
          run: docker compose up --detach && docker builder prune --all --force && docker image prune --force
  
-@@ -327,6 +339,11 @@
+@@ -334,6 +346,11 @@
              docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
              rm -f .data/db.sql
            fi
@@ -36,7 +36,7 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
-@@ -594,7 +611,6 @@
+@@ -601,7 +618,6 @@
            VORTEX_DEPLOY_PR: ${{ env.DEPLOY_PR_NUMBER || github.event.number }}
            VORTEX_DEPLOY_PR_HEAD: ${{ env.DEPLOY_PR_HEAD_SHA || github.event.pull_request.head.sha }}
            VORTEX_DEPLOY_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
