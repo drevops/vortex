@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\ys_base\Plugin\DeployStep;
 
-// phpcs:ignore #;< STORYBOOK
 use DrevOps\EnvironmentDetector\Environment;
+// phpcs:ignore #;< STORYBOOK
 use Drupal\Core\DrupalKernelInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 // phpcs:ignore #;> STORYBOOK
