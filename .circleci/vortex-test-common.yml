@@ -233,16 +233,21 @@ jobs:
             #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
             [ "${CIRCLE_NODE_TOTAL:-1}" -gt 1 ] && [ "${CIRCLE_NODE_INDEX:-0}" -ne 0 ] && export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=0
             #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
-            docker compose exec cli mkdir -p .data && docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql || true
+            # The 'container_registry' source fetches an image without a dump file.
+            if [ -f .data/db.sql ]; then
+              docker compose exec cli mkdir -p .data
+              docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
+            fi
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
             #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
-            grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
+            # Database-in-image storage caches the exported image archive instead of the dump.
+            [ -n "${VORTEX_DB_IMAGE:-}" ] && rm -f .data/db.sql || true
             #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
             ./vendor/bin/vortex-export-db db.sql
             #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
             if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/bin/vortex-push-db-image; fi
             #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
-            docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
+            [ -z "${VORTEX_DB_IMAGE:-}" ] && docker compose exec -T cli test -f /app/.data/db.sql && docker compose --progress quiet cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 
       # Save the clean DB dump to the cache before the slow dev-dependency
@@ -466,12 +471,15 @@ jobs:
           name: Export DB after fetch
           command: |
             [ ! -f /tmp/fetch-db-success ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
-            docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+            if [ -f .data/db.sql ]; then
+              docker compose exec cli mkdir -p .data
+              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+            fi
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
-            grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
+            [ -n "${VORTEX_DB_IMAGE:-}" ] && rm -f .data/db.sql || true
             ./vendor/bin/vortex-export-db db.sql
             if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/bin/vortex-push-db-image; fi
-            docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
+            [ -z "${VORTEX_DB_IMAGE:-}" ] && docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 
   vortex-dev-didi-build-fi:
@@ -526,12 +534,15 @@ jobs:
           name: Export DB after fetch
           command: |
             [ ! -f /tmp/fetch-db-success ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
-            docker compose exec cli mkdir -p .data && docker compose cp -L .data/db.sql cli:/app/.data/db.sql || true
+            if [ -f .data/db.sql ]; then
+              docker compose exec cli mkdir -p .data
+              docker compose cp -L .data/db.sql cli:/app/.data/db.sql
+            fi
             docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 ./vendor/bin/vortex-provision"
-            grep -q ^VORTEX_DB_IMAGE .env && rm .data/db.sql || true
+            [ -n "${VORTEX_DB_IMAGE:-}" ] && rm -f .data/db.sql || true
             ./vendor/bin/vortex-export-db db.sql
             if [ -n "${VORTEX_DB_IMAGE:-}" ]; then ./vendor/bin/vortex-push-db-image; fi
-            docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
+            [ -z "${VORTEX_DB_IMAGE:-}" ] && docker compose exec -T cli test -f /app/.data/db.sql && docker compose cp -L cli:/app/.data/db.sql .data/db.sql || true
           no_output_timeout: 30m
 
   vortex-dev-didi-build-ii:
