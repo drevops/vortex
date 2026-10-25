@@ -8,7 +8,7 @@
        - name: Build stack
          run: docker compose up --detach && docker builder prune --all --force && docker image prune --force
  
-@@ -326,6 +329,11 @@
+@@ -333,6 +336,11 @@
              docker compose exec cli mkdir -p .data
              docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
              rm -f .data/db.sql
