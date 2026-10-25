@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ys_migrate\Plugin\DeployStep;
 
+use DrevOps\EnvironmentDetector\Environment;
 use Drupal\Core\Database\Database;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\deploy_steps\Attribute\DeployStep;
@@ -66,7 +67,7 @@ final class MigrateContentDeployStep extends DeployStepBase {
    * {@inheritdoc}
    */
   public function skip(): ?string {
-    if ($this->environment() === 'prod') {
+    if ($this->environment() === Environment::PRODUCTION) {
       return 'production environment';
     }
 
