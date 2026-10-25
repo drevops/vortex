@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ys_search\Plugin\DeployStep;
 
+use DrevOps\EnvironmentDetector\Environment;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\deploy_steps\Attribute\DeployStep;
 use Drupal\deploy_steps\DeployStepBase;
@@ -41,7 +42,7 @@ final class RebuildSearchIndex extends DeployStepBase {
       return 'search indexing skipped via DRUPAL_SEARCH_INDEX_SKIP';
     }
 
-    return in_array($this->environment(), ['local', 'ci', 'dev', 'stage'], TRUE) ? NULL : 'non-development environment';
+    return in_array($this->environment(), [Environment::LOCAL, Environment::CI, Environment::DEVELOPMENT, Environment::STAGE], TRUE) ? NULL : 'non-development environment';
   }
 
   /**
