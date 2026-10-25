@@ -1,13 +1,12 @@
 # Vortex Testing Framework
 
-This directory contains the PHPUnit functional testing system for the Vortex
-project.
+This directory holds the PHPUnit functional tests for the Vortex project.
 
 ## Overview
 
-PHPUnit handles functional testing of Vortex user's **workflows**: processes
-and commands are run in the context of a Vortex installation, simulating
-real-world scenarios.
+PHPUnit tests the **workflows** of a Vortex user. Each test runs processes
+and commands inside a Vortex installation, the same way a real project
+does.
 
 ## Running Tests
 
@@ -15,7 +14,7 @@ real-world scenarios.
 
 - Docker and Docker Compose
 - Node.js and Yarn
-- PHP 8.2+
+- PHP 8.3+
 - Composer
 - Git
 
@@ -37,28 +36,28 @@ composer install
 
 ## Running Individual Test Suites
 
-For parallel execution, tests can be run across multiple CI nodes using the
-convenience script wrappers:
+CI splits the functional tests across parallel nodes. Each test belongs
+to a PHPUnit group named `p0` to `p5`, and each CI node runs
+`--group="p${TEST_NODE_INDEX}"` for its own index.
+
+The linters run from standalone script wrappers:
 
 - [`lint.scripts.sh`](lint.scripts.sh) - Linting for shell scripts
 - [`lint.dockerfiles.sh`](lint.dockerfiles.sh) - Linting for Dockerfiles
 
-These scripts are designed to run in CI environments (CircleCI, GitHub Actions)
-and use the `TEST_NODE_INDEX` environment variable to distribute tests across
-multiple runners.
-
 ## Environment Variables
 
-The following environment variables can be added in the environment to
-customize test execution:
+Set these environment variables to customize test execution:
 
 - `TEST_VORTEX_DEBUG=1` - Enable debug output from tests
 - `TEST_PACKAGE_TOKEN` - GitHub token used for integration tests
-- `TEST_VORTEX_CONTAINER_REGISTRY_USER` and `TEST_VORTEX_CONTAINER_REGISTRY_PASS` - Container registry credentials used for integration tests
+- `TEST_VORTEX_CONTAINER_REGISTRY_USER` and
+  `TEST_VORTEX_CONTAINER_REGISTRY_PASS` - Container registry credentials
+  used for integration tests
 
 ## File Structure
 
-The PHPUnit testing system is organized into a clear hierarchy that separates functional tests from supporting utilities:
+Functional tests sit apart from the traits that support them:
 
 ```text
 phpunit/

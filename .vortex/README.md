@@ -1,13 +1,17 @@
 # Vortex development
 
-This directory contains development files for Vortex itself.
-This directory is removed by the Vortex CLI or can be deleted manually.
+This directory holds the development files for Vortex itself. The Vortex
+CLI removes it on install, and you can also delete it manually.
 
-- [`docs`](docs) - documentation for Vortex published to https://www.vortextemplate.com
-- [`cli`](cli) - self-contained Symfony console application used to install Vortex
-- [`skills`](skills) - AI agent skills for maintaining Vortex, loaded by Claude Code as the `vortex` plugin
+- [`docs`](docs) - documentation for Vortex, published to
+  https://www.vortextemplate.com
+- [`cli`](cli) - self-contained Symfony Console application that installs
+  Vortex
+- [`skills`](skills) - AI agent skills for maintaining Vortex, loaded by
+  Claude Code as the `vortex` plugin
 - [`tests`](tests) - unit and functional tests for Vortex
-- [`tooling`](tooling) - scripts that ship with Vortex, deployed as the `drevops/vortex-tooling` package to https://github.com/drevops/vortex-tooling
+- [`tooling`](tooling) - scripts that ship with Vortex, published as the
+  `drevops/vortex-tooling` package to
+  https://github.com/drevops/vortex-tooling
 
-For convenience, the commands are available via `ahoy` wrapper.
-Run `ahoy --help` to see the list of available commands.
+The `ahoy` wrapper exposes the commands. Run `ahoy --help` to list them.

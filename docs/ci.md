@@ -1,7 +1,7 @@
 # Continuous Integration
 
-For information on how CI works, see
-[Vortex CI Documentation](https://www.vortextemplate.com/docs/continuous-integration).
+To learn how CI works, see the [Vortex CI
+documentation](https://www.vortextemplate.com/docs/continuous-integration).
 
 [//]: # (#;< CI_PROVIDER_CIRCLECI)
 
@@ -9,8 +9,8 @@ For information on how CI works, see
 
 This project uses [CircleCI](https://circleci.com/).
 
-See [CircleCI documentation](https://www.vortextemplate.com/docs/continuous-integration/circleci)
-for setup and configuration details.
+For setup and configuration details, see the [CircleCI
+documentation](https://www.vortextemplate.com/docs/continuous-integration/circleci).
 
 [//]: # (#;> CI_PROVIDER_CIRCLECI)
 
@@ -20,8 +20,8 @@ for setup and configuration details.
 
 This project uses [GitHub Actions](https://github.com/features/actions).
 
-See [GitHub Actions documentation](https://www.vortextemplate.com/docs/continuous-integration/github-actions)
-for setup and configuration details.
+For setup and configuration details, see the [GitHub Actions
+documentation](https://www.vortextemplate.com/docs/continuous-integration/github-actions).
 
 [//]: # (#;> CI_PROVIDER_GHA)
 

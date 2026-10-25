@@ -1,6 +1,6 @@
 # FAQs
 
-For common questions and answers, see
+For common questions and answers, see the
 [Vortex FAQs](https://www.vortextemplate.com/docs/development/faqs).
 
 ## Project-specific FAQs

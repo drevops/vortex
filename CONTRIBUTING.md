@@ -1,37 +1,39 @@
-
 # Contributing
 
-Vortex is an open source project. There are numerous ways to
-contribute to Vortex whether you’re a developer or a non-technical
-user.
+**Vortex** is an open source project. You can contribute whether you're a
+developer or a non-technical user.
 
 ## What forms of contribution are we looking for?
 
-Any form of contribution to Vortex, be it rectifying a bug, proposing
-a new feature, or enhancing our documentation, is highly appreciated. We are
-glad for your willingness to assist!
+Every contribution helps: a bug fix, a new feature proposal, or an
+improvement to the documentation.
 
 ## I've discovered a problem
 
-We're constantly eager to address any issues, so your reports are always
-appreciated. However, we kindly ask you to first check if your problem has
-already been reported in the [issue queue](https://github.com/drevops/vortex/issues).
+Check the [issue queue](https://github.com/drevops/vortex/issues) first to
+see whether someone has already reported the problem. If not, open a new
+issue there.
 
 ## I want to suggest a feature or an idea
 
-Fantastic! Please [submit your idea](https://github.com/drevops/vortex/issues)
-and we'll gladly review it. While we can't promise every suggestion will be
-implemented, we are always keen to hear innovative ideas for enhancing
-the Vortex.
+[Submit your idea](https://github.com/drevops/vortex/issues) and we'll
+review it. We can't promise to implement every suggestion, but we read all
+of them.
 
 ## Talk to us on Slack
 
-Another good way is also to talk to us via `#drevops` Slack about your idea.
-Join today!
+You can also discuss your idea with us in the `#vortex-project-template`
+channel in Drupal Slack.
+
 <div align="center">
-  <a href="https://drupal.slack.com/archives/CRE86HQTW"><img src="https://img.shields.io/badge/drupal.slack.com-%23DrevOps-blue.svg?logo=slack&style=for-the-badge"/></a>
+  <a href="https://drupal.slack.com/archives/CRE86HQTW"><img
+    src="https://img.shields.io/badge/drupal.slack.com-%23DrevOps-blue.svg?logo=slack&style=for-the-badge"
+    alt="Join the conversation in Drupal Slack"
+  /></a>
 </div>
 
 ## Roadmap
 
-We actively maintain the project's roadmap. See [Roadmap](https://github.com/drevops/vortex/blob/develop/.vortex/docs/content/contributing/roadmap.mdx) for more details.
+We maintain the project roadmap in the
+[Roadmap](https://github.com/drevops/vortex/blob/develop/.vortex/docs/content/contributing/roadmap.mdx)
+page.
