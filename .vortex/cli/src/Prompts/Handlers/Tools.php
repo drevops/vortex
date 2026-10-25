@@ -518,6 +518,7 @@ class Tools extends AbstractHandler {
           $cj->removeSubNode('require-dev', 'dantleech/gherkin-lint');
           $cj->removeSubNode('require-dev', 'drevops/behat-screenshot');
           $cj->removeSubNode('require-dev', 'drevops/behat-steps');
+          $cj->removeSubNode('require-dev', 'friends-of-behat/mink-extension');
         },
         'files' => [
           'behat.php',
