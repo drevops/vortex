@@ -431,11 +431,11 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
   /**
    * Set the repository downloader.
    *
-   * @param \DrevOps\VortexCli\Downloader\RepositoryDownloader $repositoryDownloader
+   * @param \DrevOps\VortexCli\Downloader\RepositoryDownloader $repository_downloader
    *   The repository downloader.
    */
-  public function setRepositoryDownloader(RepositoryDownloader $repositoryDownloader): void {
-    $this->repositoryDownloader = $repositoryDownloader;
+  public function setRepositoryDownloader(RepositoryDownloader $repository_downloader): void {
+    $this->repositoryDownloader = $repository_downloader;
   }
 
   /**
@@ -454,11 +454,11 @@ abstract class AbstractInstallCommand extends Command implements CommandRunnerAw
   /**
    * Set the file downloader.
    *
-   * @param \DrevOps\VortexCli\Downloader\Downloader $fileDownloader
+   * @param \DrevOps\VortexCli\Downloader\Downloader $file_downloader
    *   The file downloader.
    */
-  public function setFileDownloader(Downloader $fileDownloader): void {
-    $this->fileDownloader = $fileDownloader;
+  public function setFileDownloader(Downloader $file_downloader): void {
+    $this->fileDownloader = $file_downloader;
   }
 
 }

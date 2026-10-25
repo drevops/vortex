@@ -44,6 +44,7 @@ web/sites/simpletest
 /CLAUDE.md
 /docker-compose.yml
 /eslint.config.mjs
+/package-audit.jsonc
 /renovate.json
 
 #;< CI_PROVIDER_GHA
@@ -90,6 +91,7 @@ web/themes/custom/your_site_theme/eslint.config.mjs
 web/themes/custom/your_site_theme/fonts
 web/themes/custom/your_site_theme/images
 web/themes/custom/your_site_theme/js
+web/themes/custom/your_site_theme/package-audit.jsonc
 web/themes/custom/your_site_theme/package.json
 web/themes/custom/your_site_theme/package-lock.json
 web/themes/custom/your_site_theme/postcss.config.js
