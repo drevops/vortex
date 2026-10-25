@@ -523,11 +523,16 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
           $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
+          $test->assertFileDoesNotExist(static::$sut . '/.npmrc');
           $test->assertFileDoesNotExist(static::$sut . '/eslint.config.mjs');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
           $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
           $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
+          // The theme keeps its own dependency tree, so its audit survives.
+          $test->assertFileExists(static::$sut . '/web/themes/custom/star_wars/.npmrc');
+          $test->assertSutNotContains(['/name: Audit npm packages$/m']);
+          $test->assertSutContains(['/name: Audit npm packages of the theme$/m']);
       }),
     ];
     yield 'tools_groups_no_fe_lint_circleci' => [
@@ -539,11 +544,16 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
           $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
+          $test->assertFileDoesNotExist(static::$sut . '/.npmrc');
           $test->assertFileDoesNotExist(static::$sut . '/eslint.config.mjs');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
           $test->assertFileDoesNotExist(static::$sut . '/.stylelintrc.js');
           $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
+          // The theme keeps its own dependency tree, so its audit survives.
+          $test->assertFileExists(static::$sut . '/web/themes/custom/star_wars/.npmrc');
+          $test->assertSutNotContains(['/name: Audit npm packages$/m']);
+          $test->assertSutContains(['/name: Audit npm packages of the theme$/m']);
       }),
     ];
     yield 'tools_groups_no_be_tests' => [
@@ -598,6 +608,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
           $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
+          $test->assertFileDoesNotExist(static::$sut . '/.npmrc');
           $test->assertFileDoesNotExist(static::$sut . '/eslint.config.mjs');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
@@ -606,6 +617,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertSutNotContains([
             'npm ci',
             'npm run lint',
+            'npm audit',
             'ahoy fei',
             '/\bfei:/',
           ]);
@@ -621,6 +633,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileDoesNotExist(static::$sut . '/package.json');
           $test->assertFileDoesNotExist(static::$sut . '/package-lock.json');
+          $test->assertFileDoesNotExist(static::$sut . '/.npmrc');
           $test->assertFileDoesNotExist(static::$sut . '/eslint.config.mjs');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierrc.json');
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
@@ -629,6 +642,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertSutNotContains([
             'npm ci',
             'npm run lint',
+            'npm audit',
             'ahoy fei',
             '/\bfei:/',
           ]);
