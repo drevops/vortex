@@ -522,6 +522,10 @@
             },
             "command": null,
             "depends_on": {
+                "appserver": {
+                    "condition": "service_started",
+                    "required": true
+                },
                 "cli": {
                     "condition": "service_started",
                     "required": true

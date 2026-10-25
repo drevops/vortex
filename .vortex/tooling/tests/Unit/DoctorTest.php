@@ -294,7 +294,8 @@ class DoctorTest extends UnitTestCase {
         [
           '* [INFO] Checking project requirements.',
           '* [FAIL] SSH key is not added to pygmy.',
-          "* The SSH key will not be available in the CLI container. Run 'pygmy restart' and then 'ahoy up'.",
+          "* The SSH key will not be available in the CLI container. Run 'pygmy restart' and then 'ahoy up --no-deps --force-recreate cli'.",
+          "! and then 'ahoy up'.",
           '! [ OK ] SSH key is available within the CLI container.',
           '* [ OK ] All required checks have passed.',
         ],
@@ -326,7 +327,8 @@ class DoctorTest extends UnitTestCase {
         [$ssh_pygmy_status(TRUE), $ssh_volume_cmd(0), $ssh_key_cmd(1)],
         [
           '* [INFO] Checking project requirements.',
-          "* [FAIL] SSH key was not added to the container. Run 'pygmy restart'.",
+          "* [FAIL] SSH key was not added to the container. Run 'ahoy up --no-deps --force-recreate cli'.",
+          "! Run 'pygmy restart'.",
           '! [ OK ] SSH key is available within the CLI container.',
           '* [ OK ] All required checks have passed.',
         ],

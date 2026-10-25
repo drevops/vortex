@@ -166,7 +166,7 @@ if ($check_ssh === '1') {
   $ssh_key_added_to_pygmy = (bool) TASK('Checking that the SSH key is added to pygmy.', 'SSH key is added to pygmy.', function () use ($ssh_file): bool {
     $status = str_replace("\0", '', (string) shell_exec('pygmy status 2>&1'));
     if (!str_contains($status, $ssh_file)) {
-      NOTE("The SSH key will not be available in the CLI container. Run 'pygmy restart' and then 'ahoy up'.");
+      NOTE("The SSH key will not be available in the CLI container. Run 'pygmy restart' and then 'ahoy up --no-deps --force-recreate cli'.");
       throw new \RuntimeException('SSH key is not added to pygmy.');
     }
 
@@ -192,7 +192,7 @@ if ($check_ssh === '1') {
     TASK('Checking that the SSH key is available within the CLI container.', 'SSH key is available within the CLI container.', function (): void {
       passthru("docker compose exec -T cli bash -c \"ssh-add -L | grep -q 'ssh-rsa'\"", $exit_code);
       if ($exit_code !== 0) {
-        throw new \RuntimeException("SSH key was not added to the container. Run 'pygmy restart'.");
+        throw new \RuntimeException("SSH key was not added to the container. Run 'ahoy up --no-deps --force-recreate cli'.");
       }
     }, fatal: FALSE);
   }
