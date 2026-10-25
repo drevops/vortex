@@ -61,13 +61,6 @@ DOC;
   /**
    * {@inheritdoc}
    */
-  public function shouldRun(array $responses): bool {
-    return isset($responses[Theme::id()]) && $responses[Theme::id()] === Theme::CUSTOM;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function discover(): null|string|bool|array {
     if (!$this->isInstalled()) {
       return NULL;
@@ -80,8 +73,9 @@ DOC;
    * {@inheritdoc}
    */
   public function process(): void {
-    // A theme other than a custom one never reaches the prompt, and the files
-    // below are not covered by the theme's own token.
+    // A theme other than a custom one never reaches the prompt and leaves a
+    // NULL response, and the files below are not covered by the theme's own
+    // token, so the handler processes every response other than TRUE.
     if ($this->response === TRUE) {
       return;
     }
