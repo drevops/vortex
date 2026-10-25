@@ -1,0 +1,10 @@
+extends: existence
+message: "Format '%s' as inline code."
+level: error
+nonword: true
+exceptions:
+  - Node.js
+tokens:
+  - '(?<![\w/.`-])[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+(?![\w/`-])'
+  - '(?<![\w/.`-])\.?[\w-]+(?:\.[\w-]+)*\.(?:bats|css|ini|js|json|lock|md|mdx|neon|php|sh|sql|twig|xml|ya?ml)(?![\w/`-])'
+  - '(?<![\w/.`-])\.(?:env|gitignore|dockerignore)(?![\w/`-])'

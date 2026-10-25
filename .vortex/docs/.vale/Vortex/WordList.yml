@@ -1,0 +1,5 @@
+extends: Google.WordList
+level: error
+swap-:
+  - CLI
+  - Cloud
