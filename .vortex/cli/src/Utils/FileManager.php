@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexCli\Utils;
 
+use DrevOps\VortexCli\Downloader\Artifact;
 use DrevOps\VortexCli\Downloader\Downloader;
+use DrevOps\VortexCli\Downloader\RepositoryDownloader;
 
 /**
  * File operations for the installation process.
@@ -13,9 +15,97 @@ use DrevOps\VortexCli\Downloader\Downloader;
  */
 class FileManager {
 
+  /**
+   * Path of the template's own harness, which is never shipped.
+   */
+  const HARNESS_DIR = '.vortex';
+
+  /**
+   * Algorithm used to detect project edits to shipped files.
+   */
+  const HASH_ALGO = 'sha256';
+
+  /**
+   * Paths shipped by the downloaded template, relative to its root.
+   *
+   * @var array<string>
+   */
+  protected array $templatePaths = [];
+
+  /**
+   * Content hashes shipped by the version the project currently runs.
+   *
+   * @var array<string, string>
+   */
+  protected array $previousTemplateHashes = [];
+
   public function __construct(
     protected Config $config,
   ) {}
+
+  /**
+   * Empty the staging directory the template is downloaded into.
+   */
+  public function resetStaging(): void {
+    $dir = $this->config->get(Config::TMP);
+
+    File::remove($dir);
+    File::mkdir($dir);
+  }
+
+  /**
+   * Record the paths of the freshly downloaded template.
+   *
+   * Taken before the handlers process the staged copy, so that whatever they
+   * remove can later be identified as the paths the selection excludes.
+   */
+  public function snapshotTemplate(): void {
+    $this->templatePaths = $this->relativePaths($this->config->get(Config::TMP));
+  }
+
+  /**
+   * Record the paths shipped by the version the project currently runs.
+   *
+   * A path the template has stopped shipping altogether is absent from the
+   * incoming download, so the selection diff alone cannot identify it. Listing
+   * the version the project runs restores such a path as a candidate, so a
+   * file dropped between releases is removable rather than permanent.
+   *
+   * Failure is not fatal: the recorded reference may no longer resolve, in
+   * which case only the selection diff applies.
+   *
+   * @param \DrevOps\VortexCli\Downloader\RepositoryDownloader $downloader
+   *   The repository downloader.
+   * @param \DrevOps\VortexCli\Downloader\Artifact $artifact
+   *   The artifact identifying the repository to read the reference from.
+   */
+  public function snapshotPreviousTemplate(RepositoryDownloader $downloader, Artifact $artifact): void {
+    if (!$this->config->isVortexProject()) {
+      return;
+    }
+
+    $ref = Version::detectProjectRef((string) $this->config->getDst());
+
+    if ($ref === NULL) {
+      return;
+    }
+
+    $dir = $this->config->get(Config::TMP) . '-previous';
+
+    try {
+      // The extraction unpacks into an existing directory.
+      File::remove($dir);
+      File::mkdir($dir);
+      $downloader->download(Artifact::create($artifact->getRepo(), $ref), $dir);
+      $this->previousTemplateHashes = $this->hashDirectory($dir);
+    }
+    catch (\Exception) {
+      $this->previousTemplateHashes = [];
+    }
+    finally {
+      File::remove($dir);
+    }
+  }
 
   /**
    * Prepare the destination directory.
@@ -49,6 +139,16 @@ class FileManager {
   public function copyFiles(): void {
     $src = $this->config->get(Config::TMP);
     $dst = $this->config->getDst();
+
+    // What the project should hold for a path this install no longer ships.
+    // The previous version's own files match only where the CLI copied the
+    // file through unchanged.
+    $expected = $this->previousTemplateHashes;
+
+    // Anything either version of the template ships but the staged copy no
+    // longer holds.
+    $shipped = array_merge(array_keys($expected), $this->templatePaths);
+    $excluded = array_diff($shipped, $this->relativePaths($src));
 
     // Due to the way symlinks can be ordered, we cannot copy files one-by-one
     // into destination directory. Instead, we are removing all ignored files
@@ -90,7 +190,108 @@ class FileManager {
       File::copy($dst . '/.env.local.example', $dst . '/.env.local');
     }
 
+    $this->removeExcludedPaths($excluded, $expected);
     $this->removeObsoletePaths();
+  }
+
+  /**
+   * Remove paths the install no longer ships from the destination.
+   *
+   * The staged copy is overlaid onto the destination without a delete pass, so
+   * a path this install drops would otherwise survive and keep being detected
+   * as an active feature. A path is only removed when the project's copy still
+   * matches what the template put there: a project that edited the file owns
+   * it, and an edit that cannot be ruled out is treated as one. Only projects
+   * already running Vortex are pruned.
+   *
+   * @param array<string> $paths
+   *   Template-relative paths absent from the staged copy.
+   * @param array<string, string> $expected
+   *   Content hashes the template last installed, keyed by path.
+   */
+  protected function removeExcludedPaths(array $paths, array $expected): void {
+    if (!$this->config->isVortexProject()) {
+      return;
+    }
+
+    $dst = $this->config->getDst();
+    $dirs = [];
+
+    foreach ($paths as $path) {
+      // The harness never ships, so a matching path in the destination is the
+      // project's own.
+      if ($path === self::HARNESS_DIR || str_starts_with($path, self::HARNESS_DIR . '/')) {
+        continue;
+      }
+
+      $target = $dst . '/' . $path;
+
+      if (!is_file($target)) {
+        continue;
+      }
+
+      // Without a recorded hash there is nothing to compare the project's copy
+      // against, so ownership cannot be established.
+      if (!isset($expected[$path]) || hash_file(self::HASH_ALGO, $target) !== $expected[$path]) {
+        continue;
+      }
+
+      File::remove($target);
+
+      for ($dir = dirname($path); $dir !== '.'; $dir = dirname($dir)) {
+        $dirs[$dir] = substr_count($dir, '/');
+      }
+    }
+
+    // Deepest first, so a parent is only tested once its children are gone.
+    arsort($dirs);
+
+    foreach (array_keys($dirs) as $dir) {
+      File::rmdirIfEmpty($dst . '/' . $dir);
+    }
+  }
+
+  /**
+   * Hash every file within a directory, keyed by its relative path.
+   *
+   * @param string $directory
+   *   Directory to scan.
+   *
+   * @return array<string, string>
+   *   Content hashes keyed by relative path.
+   */
+  protected function hashDirectory(string $directory): array {
+    $hashes = [];
+
+    foreach ($this->relativePaths($directory) as $path) {
+      $file = $directory . '/' . $path;
+
+      if (is_file($file)) {
+        $hashes[$path] = (string) hash_file(self::HASH_ALGO, $file);
+      }
+    }
+
+    return $hashes;
+  }
+
+  /**
+   * List the files within a directory, relative to it.
+   *
+   * @param string $directory
+   *   Directory to scan.
+   *
+   * @return array<string>
+   *   Relative file paths.
+   */
+  protected function relativePaths(string $directory): array {
+    if (!is_dir($directory)) {
+      return [];
+    }
+
+    $root = File::dir($directory);
+    $files = File::scandir($root, File::ignoredPaths());
+
+    return array_map(fn(string $file): string => ltrim(str_replace($root, '', $file), DIRECTORY_SEPARATOR), $files);
   }
 
   /**
