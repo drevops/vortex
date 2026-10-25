@@ -13,6 +13,7 @@ use DrevOps\VortexCli\Process\Processor;
 use DrevOps\VortexCli\Tests\Unit\UnitTestCase;
 use DrevOps\VortexCli\Utils\Config;
 use DrevOps\VortexCli\Utils\Tui;
+use DrevOps\VortexCli\Utils\UpdateRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -170,6 +171,21 @@ class InstallPresenterTest extends UnitTestCase {
     $this->assertStringContainsString('Finished updating Vortex', $output);
     $this->assertStringContainsString('review the changes', $output);
     $this->assertStringNotContainsString('git add -A', $output);
+    $this->assertStringNotContainsString('Project changes replaced by this update', $output);
+  }
+
+  public function testFooterExistingProjectWithReplacedChanges(): void {
+    $config = new Config('/tmp/root', '/tmp/dst', '/tmp/tmp');
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE);
+    $presenter = new InstallPresenter($config);
+
+    $presenter->footer('/tmp/dst/' . UpdateRegistry::FILE);
+
+    $output = $this->output->fetch();
+    $this->assertStringContainsString('Finished updating Vortex', $output);
+    $this->assertStringContainsString('Project changes replaced by this update are recorded in:', $output);
+    $this->assertStringContainsString(UpdateRegistry::FILE, $output);
+    $this->assertStringNotContainsString('/tmp/dst/' . UpdateRegistry::FILE, $output, 'The registry is shown relative to the project.');
   }
 
   public function testFooterBuildSucceeded(): void {
