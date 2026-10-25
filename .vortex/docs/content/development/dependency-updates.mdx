@@ -21,7 +21,12 @@ Assignees can be configured in the `assignees` field.
 | **JS packages** | All npm packages (root `package.json` only) | Minor, patch | Weekly, Sunday before 2 AM UTC | 14 days |
 | **Container images** | All images in `.docker/` and `docker-compose.yml` | Major, minor, patch | Daily before 3 AM UTC | 14 days for Docker Hub images |
 | **CI tools** | npm packages that CI runs at a pinned version through `npx` | Major, minor, patch | Daily before 3 AM UTC | 14 days |
+| **Renovate image** | The `renovate/renovate` image in `.circleci/update-dependencies.yml` | Major, minor, patch | Weekly, Sunday before 3 AM UTC | 14 days |
 | **GitHub Actions** | All actions (pinned to digests) | Major, minor, patch | Daily before 3 AM UTC | 14 days |
+
+Renovate publishes several releases a day, so the image that runs Renovate in
+CircleCI has a weekly group of its own. In the daily CI tools group, it would
+get a new PR almost every day.
 
 ### Auto-merge
 
@@ -40,8 +45,9 @@ group's PRs yourself, set its flag to `false`:
 ```
 
 The CLI asks which groups to auto-merge. It sets the flag to `true` for the
-groups you select and to `false` for the rest. When you update **Vortex**, the
-CLI preselects the groups whose flag is already `true`.
+groups you select and to `false` for the rest. The CI tools choice also sets
+the flag of the Renovate image group. When you update **Vortex**, the CLI
+preselects the groups whose flag is already `true`.
 
 Auto-merge requires 2 repository settings:
 
@@ -102,6 +108,11 @@ Gitleaks image). Their updates arrive without the delay. The top-level
 through; without it, Renovate holds them back indefinitely. The
 `logLevelRemap` entry stops Renovate from reporting them as a repository
 problem on the Dependency Dashboard.
+
+Docker Hub records release dates, but Renovate can't read them for an image
+with more than 1,000 tags. The Renovate image has tens of thousands of tags, so
+**Vortex** looks its versions up in the `renovate` npm package instead. The
+package uses the same version numbers and records a date for every release.
 
 Renovate ages a GitHub Action by the date of the commit its tag points to. The
 action's publisher controls that date, so the delay is a weaker safeguard for
@@ -227,6 +238,9 @@ workflow configuration.
 **Scheduled trigger:** add an `update-dependencies` scheduled trigger under
 **Project Settings → Triggers** with config source `update-dependencies.yml`
 and branch `develop`.
+
+**Renovate version:** the job runs a pinned `renovate/renovate` image, which
+Renovate keeps up to date through the [Renovate image](#update-rules) group.
 
 **Debug logging:** enabled by default with `LOG_LEVEL: 'debug'`.
 
