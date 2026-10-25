@@ -150,6 +150,8 @@ services:
       <<: *default-environment
       # FastCGI upstream; the base image defaults to 'php', the service is 'appserver'.
       NGINX_FASTCGI_PASS: appserver
+      # Pass-through 'VORTEX_WEBSERVER_MAINTENANCE_MODE' to serve the maintenance page locally with "VORTEX_WEBSERVER_MAINTENANCE_MODE=1 ahoy up webserver".
+      VORTEX_WEBSERVER_MAINTENANCE_MODE: ${VORTEX_WEBSERVER_MAINTENANCE_MODE:-}
     <<: [ *default-volumes, *default-user ]
     depends_on:
       - cli

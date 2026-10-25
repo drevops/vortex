@@ -109,3 +109,77 @@ VORTEX_TASK_CUSTOM_LAGOON_COMMAND="drush cron" \
 The task reads the project name and SSH configuration from your `.env` and
 `.env.local` files; `VORTEX_TASK_CUSTOM_LAGOON_BRANCH` selects the environment
 and `VORTEX_TASK_CUSTOM_LAGOON_COMMAND` is the command to run there.
+
+### Serve a maintenance page
+
+A static maintenance page takes an environment offline when Drupal must
+stay down, for example during a database migration or an incident. The
+`webserver` container answers every request with HTTP status 503 and the
+page, so no request reaches PHP. Drupal's own [maintenance
+mode](../development/provision.mdx#maintenance-mode) runs in PHP and needs a
+working database.
+
+Lagoon applies a changed variable on the next deployment, so each switch is
+a variable change followed by a redeployment. To turn the page on:
+
+1. Set `VORTEX_WEBSERVER_MAINTENANCE_MODE` to `1` on the environment:
+
+   ```shell
+   lagoon add variable --project your_site --environment main \
+     --scope runtime --name VORTEX_WEBSERVER_MAINTENANCE_MODE --value 1
+   ```
+
+   Only the value `1` turns the page on.
+
+2. Redeploy the environment:
+
+   ```shell
+   lagoon deploy latest --project your_site --environment main
+   ```
+
+3. Confirm that the environment answers with `503`:
+
+   ```shell
+   curl -s -o /dev/null -w "%{http_code}\n" https://www.your-site-domain.example
+   ```
+
+To bring the site back:
+
+1. Delete the variable:
+
+   ```shell
+   lagoon delete variable --project your_site --environment main \
+     --name VORTEX_WEBSERVER_MAINTENANCE_MODE
+   ```
+
+2. Redeploy the environment:
+
+   ```shell
+   lagoon deploy latest --project your_site --environment main
+   ```
+
+The page covers every request that reaches the site's web server, including
+static files, `robots.txt` and Lagoon's `/.lagoonhealthz` check. Lagoon
+checks the container's health on a separate status port, so the environment
+stays healthy. Shield runs in Drupal, so the page stays public on
+environments that Shield protects.
+
+The page is `.docker/config/nginx/maintenance.html`. The `maintenance.conf`
+file in the same directory holds the rules that serve it. Keep the page
+self-contained, with inline styles and images, because requests for other
+files get the maintenance page too. To preview your changes locally:
+
+1. Rebuild and recreate the `webserver` container with the variable set:
+
+   ```shell
+   VORTEX_WEBSERVER_MAINTENANCE_MODE=1 ahoy up --build webserver
+   ```
+
+   The local site shows the maintenance page.
+
+2. Recreate the `webserver` container without the variable to bring the site
+   back:
+
+   ```shell
+   ahoy up webserver
+   ```

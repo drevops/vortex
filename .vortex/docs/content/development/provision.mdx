@@ -128,6 +128,10 @@ To enable maintenance mode, set the `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`
 environment variable in your `.env` file to apply it globally or set it in your
 hosting provider's specific environment.
 
+Maintenance mode runs in PHP and needs the database. To keep every request
+away from PHP, for example during a migration on Lagoon, serve the [static
+maintenance page](../hosting/lagoon.mdx#serve-a-maintenance-page).
+
 ### Database sanitization
 
 The `provision` script includes a step to sanitize the database after

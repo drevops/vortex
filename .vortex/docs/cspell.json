@@ -59,6 +59,7 @@
         "itok",
         "jsonpath",
         "lagooncli",
+        "lagoonhealthz",
         "lando",
         "langid",
         "langlet",

@@ -72,6 +72,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyFast404();
 
+    $this->subtestAhoyWebserverMaintenance();
+
     $this->subtestAhoyReset();
 
     $this->subtestAhoyResetHard();
