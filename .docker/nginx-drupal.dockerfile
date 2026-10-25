@@ -22,6 +22,10 @@ COPY ./.docker/config/nginx/redirects-map.conf /etc/nginx/redirects-map.conf
 COPY ./.docker/config/nginx/maintenance.conf /etc/nginx/conf.d/drupal/server_prepend-maintenance.conf
 COPY ./.docker/config/nginx/maintenance.html /etc/nginx/html/maintenance.html
 
+#;< STORYBOOK
+COPY ./.docker/config/nginx/storybook.conf /etc/nginx/conf.d/drupal/location_append-storybook.conf
+#;> STORYBOOK
+
 RUN fix-permissions /etc/nginx
 
 COPY --from=cli /app /app

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexCli\Tests\Unit\Handlers;
 
 use DrevOps\VortexCli\Prompts\Handlers\FrontendBuild;
+use DrevOps\VortexCli\Prompts\Handlers\Storybook;
 use DrevOps\VortexCli\Prompts\Handlers\Theme;
 use DrevOps\VortexCli\Prompts\Handlers\ThemeCustom;
 use DrevOps\VortexCli\Utils\Config;
@@ -20,13 +21,15 @@ class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
 
-    // Core themes have no front-end build, so FrontendBuild is skipped and
-    // resolves to null.
+    // Core themes have no front-end build, so FrontendBuild and Storybook are
+    // skipped and resolve to null.
     $expected_defaults_core = $expected_defaults;
     $expected_defaults_core[FrontendBuild::id()] = NULL;
+    $expected_defaults_core[Storybook::id()] = NULL;
     $expected_defaults_core[ThemeCustom::id()] = NULL;
     $expected_installed_core = $expected_installed;
     $expected_installed_core[FrontendBuild::id()] = NULL;
+    $expected_installed_core[Storybook::id()] = NULL;
     $expected_installed_core[ThemeCustom::id()] = NULL;
     yield 'theme - prompt - olivero' => [
       [Theme::id() => Key::DOWN . Key::ENTER],

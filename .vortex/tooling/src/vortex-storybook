@@ -1,0 +1,198 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * @file
+ * Generate Storybook stories, serve them or build the static component library.
+ *
+ * Usage:
+ *   vortex-storybook dev [<storybook dev options>]
+ *   vortex-storybook build
+ *   vortex-storybook stories [--watch]
+ *
+ * 'dev' regenerates the stories whenever a Twig story template changes and
+ * runs the development server until interrupted.
+ *
+ * IMPORTANT! This script runs inside the container.
+ */
+
+declare(strict_types=1);
+
+namespace DrevOps\VortexTooling;
+
+require_once __DIR__ . '/helpers.php';
+
+// -----------------------------------------------------------------------------
+
+// Name of the webroot directory with Drupal codebase.
+$webroot = getenv_default('WEBROOT', 'web');
+
+// Drupal theme name.
+$theme = getenv_default('DRUPAL_THEME', '');
+
+// Directory with the Storybook configuration and its npm scripts.
+$storybook_dir = getenv_default('VORTEX_STORYBOOK_DIR', './' . $webroot . '/themes/custom/' . $theme);
+
+// Path pattern of the Twig story templates to watch for changes.
+$stories_pattern = getenv_default('VORTEX_STORYBOOK_STORIES_PATTERN', $storybook_dir . '/components/**/*.stories.twig');
+
+// The npm script that starts the Storybook development server.
+$dev_script = getenv_default('VORTEX_STORYBOOK_DEV_SCRIPT', 'storybook');
+
+// The npm script that builds the static Storybook application.
+$build_script = getenv_default('VORTEX_STORYBOOK_BUILD_SCRIPT', 'storybook-build');
+
+// Port of the Storybook development server inside the container.
+$port = getenv_default('VORTEX_STORYBOOK_PORT', '6006');
+
+// Port on the host that is mapped to the development server port.
+$host_port = getenv_default('VORTEX_HOST_STORYBOOK_PORT', $port);
+
+// URL of the site that renders stories for the development server.
+//
+// Defaults to the first local site URL in LOCALDEV_URL.
+$server_url = getenv_default('STORYBOOK_SERVER_URL', '');
+
+// URL of the site that renders stories for the static application.
+//
+// Empty to render stories from the site that serves the application.
+$build_server_url = getenv_default('VORTEX_STORYBOOK_BUILD_SERVER_URL', '');
+
+// Path at which the web server serves the static application.
+$library_path = getenv_default('VORTEX_STORYBOOK_LIBRARY_PATH', '/storybook');
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Get the first local site URL, with a scheme.
+ *
+ * @return string
+ *   The URL, or an empty string when LOCALDEV_URL is not set.
+ */
+function storybook_site_url(): string {
+  $url = (string) preg_replace('/\s+/', '', explode(',', (string) getenv('LOCALDEV_URL'))[0]);
+
+  if ($url === '') {
+    return '';
+  }
+
+  return str_contains($url, '://') ? $url : 'http://' . $url;
+}
+
+$action = $GLOBALS['argv'][1] ?? '';
+$args = array_slice($GLOBALS['argv'], 2);
+
+// Without '--force', templates older than their compiled stories are skipped.
+$generate_command = 'storybook:generate-all-stories --omit-server-url --force';
+
+$generate_stories = function () use ($generate_command): void {
+  TASK('Generating stories.', 'Generated stories.', fn(): string => drush($generate_command));
+};
+
+// chokidar-cli runs its command through SHELL, which the CLI container does
+// not export.
+$watch_command = sprintf('env SHELL=/bin/sh %s %s -c %s', escapeshellarg($storybook_dir . '/node_modules/.bin/chokidar'), escapeshellarg($stories_pattern), escapeshellarg('./vendor/bin/drush -y ' . $generate_command));
+
+if ($action === 'stories') {
+  $generate_stories();
+
+  if (in_array('--watch', $args, TRUE)) {
+    passthru_or_fail($watch_command);
+  }
+}
+elseif ($action === 'build') {
+  INFO('Started Storybook build.');
+
+  $generate_stories();
+
+  TASK('Building the Storybook application.', 'Built the Storybook application.', function () use ($build_server_url, $storybook_dir, $build_script): void {
+    // An empty URL renders the stories from the site that serves the build.
+    $exit_code = 0;
+    passthru(sprintf('env STORYBOOK_SERVER_URL=%s npm --prefix=%s run %s', escapeshellarg($build_server_url), escapeshellarg($storybook_dir), escapeshellarg($build_script)), $exit_code);
+
+    if ($exit_code !== 0) {
+      throw new \RuntimeException('Failed to build the Storybook application.');
+    }
+  });
+
+  NOTE('Storybook library: %s%s', storybook_site_url(), $library_path);
+
+  PASS('Finished Storybook build.');
+}
+elseif ($action === 'dev') {
+  INFO('Started Storybook development server.');
+
+  // A server or watcher left running by a previous session would hold the
+  // port. The bracketed first letter keeps each pattern from matching the
+  // shell that runs 'pkill' with the pattern in its own command line.
+  foreach (['[n]ode .*storybook dev', '[n]ode .*chokidar .*storybook:generate-all-stories'] as $pattern) {
+    $pkill_exit_code = 0;
+    passthru('pkill -f ' . escapeshellarg($pattern), $pkill_exit_code);
+  }
+
+  $generate_stories();
+
+  $pipes = [];
+  $watcher = proc_open('exec ' . $watch_command, [], $pipes);
+
+  TASK('Starting the Storybook development server.');
+
+  $server_command = sprintf('exec env STORYBOOK_SERVER_URL=%s npm --prefix=%s run %s -- --port %s --quiet --ci', escapeshellarg($server_url !== '' ? $server_url : storybook_site_url()), escapeshellarg($storybook_dir), escapeshellarg($dev_script), escapeshellarg($port));
+  foreach ($args as $arg) {
+    $server_command .= ' ' . escapeshellarg($arg);
+  }
+
+  $server = proc_open($server_command, [], $pipes);
+
+  if ($server === FALSE) {
+    FAIL('Unable to start the Storybook development server.');
+  }
+
+  // Any HTTP response means the server is listening; a connection error
+  // reports a status of 0.
+  $ready = FALSE;
+  $exit_code = NULL;
+  while (TRUE) {
+    if (request_get('http://localhost:' . $port, [], 5)['status'] > 0) {
+      $ready = TRUE;
+      break;
+    }
+
+    $status = proc_get_status($server);
+    if (!$status['running']) {
+      $exit_code = $status['exitcode'];
+      break;
+    }
+
+    sleep(1);
+  }
+
+  if ($ready) {
+    PASS('Storybook is ready at http://localhost:%s', $host_port);
+  }
+
+  // The exit code is reported only by the first status call that sees the
+  // process stopped, so a later close returns -1.
+  $close_exit_code = proc_close($server);
+  $exit_code ??= $close_exit_code;
+
+  if ($watcher !== FALSE) {
+    proc_terminate($watcher);
+    proc_close($watcher);
+  }
+
+  if (!$ready) {
+    if ($exit_code !== 0) {
+      FAIL('Storybook development server did not start.');
+    }
+
+    PASS('Storybook development server exited.');
+  }
+
+  if ($exit_code !== 0) {
+    quit($exit_code);
+  }
+}
+else {
+  FAIL("Unknown action '%s'. Use 'dev', 'build' or 'stories'.", $action);
+}

@@ -75,6 +75,7 @@ class InfoTest extends UnitTestCase {
           "* Use 'ahoy login' to generate Drupal login link.",
           '! DB-in-image',
           '! Solr URL',
+          '! Storybook',
           '! Selenium VNC',
           '! SequelAce',
         ],
@@ -100,6 +101,15 @@ class InfoTest extends UnitTestCase {
         ['VORTEX_HOST_SOLR_PORT' => '8983'],
         [],
         ['* Solr URL on host            : http://127.0.0.1:8983'],
+      ],
+
+      'storybook port' => [
+        ['VORTEX_HOST_STORYBOOK_PORT' => '55197'],
+        [],
+        [
+          '* Storybook library URL       : http://test-project.docker.amazee.io/storybook',
+          "* Storybook dev server URL    : http://localhost:55197 ('ahoy storybook' to start)",
+        ],
       ],
 
       'selenium vnc port' => [
@@ -130,6 +140,7 @@ class InfoTest extends UnitTestCase {
         [
           'VORTEX_DB_IMAGE' => 'myorg/db:latest',
           'VORTEX_HOST_SOLR_PORT' => '8983',
+          'VORTEX_HOST_STORYBOOK_PORT' => '55197',
           'VORTEX_HOST_SELENIUM_VNC_PORT' => '7900',
           'VORTEX_HOST_HAS_SEQUELACE' => '1',
         ],
@@ -137,6 +148,7 @@ class InfoTest extends UnitTestCase {
         [
           '* DB-in-image                 : myorg/db:latest',
           '* Solr URL on host            : http://127.0.0.1:8983',
+          '* Storybook library URL       : http://test-project.docker.amazee.io/storybook',
           '* Selenium VNC URL on host    : http://localhost:7900/?autoconnect=1&password=secret',
           "* ('ahoy db' to start SequelAce)",
           "* Enabled ('ahoy up cli' to disable)",

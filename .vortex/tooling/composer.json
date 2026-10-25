@@ -60,6 +60,7 @@
         "src/vortex-provision",
         "src/vortex-push-db-image",
         "src/vortex-reset",
+        "src/vortex-storybook",
         "src/vortex-task",
         "src/vortex-update"
     ],
