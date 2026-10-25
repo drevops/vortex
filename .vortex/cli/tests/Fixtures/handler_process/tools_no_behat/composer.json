@@ -1,4 +1,4 @@
-@@ -38,13 +38,8 @@
+@@ -38,15 +38,9 @@
          "drush/drush": "__VERSION__"
      },
      "require-dev": {
@@ -8,7 +8,9 @@
 -        "drevops/behat-steps": "__VERSION__",
          "drevops/phpcs-standard": "__VERSION__",
          "drupal/coder": "__VERSION__",
--        "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
+-        "friends-of-behat/mink-extension": "__VERSION__",
+-        "lullabot/mink-selenium2-driver": "__VERSION__",
          "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
+         "palantirnet/drupal-rector": "__VERSION__",

@@ -1,4 +1,4 @@
-@@ -38,25 +38,10 @@
+@@ -38,26 +38,10 @@
          "drush/drush": "__VERSION__"
      },
      "require-dev": {
@@ -8,8 +8,9 @@
 -        "drevops/behat-steps": "__VERSION__",
 -        "drevops/phpcs-standard": "__VERSION__",
 -        "drupal/coder": "__VERSION__",
--        "drupal/drupal-extension": "__VERSION__",
          "ergebnis/composer-normalize": "__VERSION__",
+-        "friends-of-behat/mink-extension": "__VERSION__",
+-        "lullabot/mink-selenium2-driver": "__VERSION__",
 -        "mglaman/phpstan-drupal": "__VERSION__",
          "mikey179/vfsstream": "__VERSION__",
 -        "palantirnet/drupal-rector": "__VERSION__",
@@ -25,7 +26,7 @@
      },
      "conflict": {
          "drupal/drupal": "*"
-@@ -69,20 +54,13 @@
+@@ -70,20 +54,13 @@
      ],
      "minimum-stability": "stable",
      "prefer-stable": true,
