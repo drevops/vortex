@@ -34,5 +34,12 @@ usleep(400_000);
 echo "\n";
 flush();
 
-passthru($cmd, $exit_code);
-exit($exit_code);
+// The command writes to the terminal itself rather than a pipe, so Docker
+// Compose can open a console for its build progress.
+$process = proc_open($cmd, [STDIN, STDOUT, STDERR], $pipes);
+if (!is_resource($process)) {
+  fwrite(STDERR, sprintf("Failed to run: %s\n", $cmd));
+  exit(1);
+}
+
+exit(proc_close($process));
