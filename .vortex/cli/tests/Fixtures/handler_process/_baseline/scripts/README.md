@@ -1,7 +1,8 @@
-This directory contains Vortex and your custom scripts.
+This directory contains Vortex scripts and your custom scripts.
 
-Add your custom per-project scripts into the `./scripts` directory.
+Add your custom per-project scripts to the `./scripts` directory.
 
-Run-on-every-deploy logic belongs in a `DeployStep` plugin instead - see `docs/deployment.md`.
+Put logic that must run on every deploy in a `DeployStep` plugin instead.
+See `docs/deployment.md`.
 
-Do not modify scripts shipped by Vortex.
+Don't modify scripts shipped by Vortex.

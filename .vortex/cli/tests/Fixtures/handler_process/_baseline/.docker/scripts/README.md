@@ -1,2 +1,2 @@
-This directory contains custom scripts to run in container services during
-image build or container runtime.
+This directory contains custom scripts that container services run during
+the image build or at container runtime.

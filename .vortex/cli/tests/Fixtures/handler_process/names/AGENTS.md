@@ -2,5 +2,5 @@
 -# star wars - Development Guide
 +# New hope - Development Guide
  
- ## HIGHEST PRIORITY RULE — Bash Commands
+ ## HIGHEST PRIORITY RULE - Bash Commands
  
