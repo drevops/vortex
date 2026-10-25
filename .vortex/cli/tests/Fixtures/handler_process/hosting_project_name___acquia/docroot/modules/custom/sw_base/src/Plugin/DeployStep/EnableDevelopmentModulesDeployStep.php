@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\sw_base\Plugin\DeployStep;
 
+use DrevOps\EnvironmentDetector\Environment;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ModuleInstallerInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;

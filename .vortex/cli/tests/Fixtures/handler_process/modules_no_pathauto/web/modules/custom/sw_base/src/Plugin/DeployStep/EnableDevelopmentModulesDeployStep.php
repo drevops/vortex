@@ -1,4 +1,4 @@
-@@ -86,7 +86,6 @@
+@@ -87,7 +87,6 @@
        'media',
        'environment_indicator',
        'navigation_extra_tools',

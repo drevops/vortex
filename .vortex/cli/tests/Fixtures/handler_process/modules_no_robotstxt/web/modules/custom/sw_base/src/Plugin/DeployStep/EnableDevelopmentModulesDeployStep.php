@@ -1,4 +1,4 @@
-@@ -89,7 +89,6 @@
+@@ -90,7 +90,6 @@
        'pathauto',
        'redirect',
        'reroute_email',

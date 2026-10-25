@@ -1,4 +1,4 @@
-@@ -80,7 +80,6 @@
+@@ -81,7 +81,6 @@
      }
  
      $this->moduleInstaller->install([

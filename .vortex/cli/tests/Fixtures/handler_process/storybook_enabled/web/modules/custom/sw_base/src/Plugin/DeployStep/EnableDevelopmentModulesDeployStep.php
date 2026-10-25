@@ -1,14 +1,13 @@
-@@ -4,6 +4,9 @@
- 
+@@ -5,6 +5,8 @@
  namespace Drupal\sw_base\Plugin\DeployStep;
  
-+use DrevOps\EnvironmentDetector\Environment;
+ use DrevOps\EnvironmentDetector\Environment;
 +use Drupal\Core\DrupalKernelInterface;
 +use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
  use Drupal\Core\Extension\ModuleHandlerInterface;
  use Drupal\Core\Extension\ModuleInstallerInterface;
  use Drupal\Core\StringTranslation\TranslatableMarkup;
-@@ -44,6 +47,16 @@
+@@ -45,6 +47,16 @@
    protected ModuleHandlerInterface $moduleHandler;
  
    /**
@@ -25,7 +24,7 @@
     * {@inheritdoc}
     */
    public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
-@@ -50,6 +63,8 @@
+@@ -51,6 +63,8 @@
      $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
      $instance->moduleInstaller = $container->get('module_installer');
      $instance->moduleHandler = $container->get('module_handler');
@@ -34,7 +33,7 @@
  
      return $instance;
    }
-@@ -74,9 +89,26 @@
+@@ -75,9 +89,26 @@
      // aborts.
      $this->moduleInstaller->install([
        'navigation',

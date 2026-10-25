@@ -1,4 +1,4 @@
-@@ -79,22 +79,6 @@
+@@ -80,22 +80,6 @@
        $this->moduleInstaller->uninstall(['toolbar']);
      }
  
@@ -21,7 +21,7 @@
      $this->moduleInstaller->install(['redis']);
  
      $this->moduleInstaller->install(['clamav']);
-@@ -102,23 +86,10 @@
+@@ -103,23 +87,10 @@
  
      $this->moduleInstaller->install(['search_api', 'search_api_solr']);
  
