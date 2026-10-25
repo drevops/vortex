@@ -51,6 +51,9 @@ docs/
   `<summary>`, use `<code>` tags instead of backticks.
 - No `easy`, `simply`, `just`, `clearly`, marketing adjectives, or em and en
   dashes (use a spaced hyphen).
+- Wrap lines at 76 characters; markdownlint (`MD013`) enforces it. Code
+  blocks, tables, and headings are exempt, but code inside JSX such as a
+  `<TabItem>` is not, so split a long command there with `\`.
 
 ## Prose linting
 

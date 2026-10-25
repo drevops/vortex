@@ -203,3 +203,5 @@ and commit manually. See `.vortex/docs/CLAUDE.md` for the pipeline internals
 - **Code**: single lines preferred, no character limit. Multi-line only for many
   parameters, arrays, chained methods, or complex conditionals.
 - **Comments**: wrap at 80-120 characters.
+- **Markdown**: wrap `.md` and `.mdx` files at 76 characters. markdownlint
+  (`MD013`) enforces it in `ahoy lint-markdown` and `ahoy lint-docs`.
