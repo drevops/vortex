@@ -14,6 +14,7 @@ use DrevOps\VortexCli\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexCli\Prompts\Handlers\CustomModules;
 use DrevOps\VortexCli\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexCli\Prompts\Handlers\DatabaseImage;
+use DrevOps\VortexCli\Prompts\Handlers\DependencyUpdatesAutomerge;
 use DrevOps\VortexCli\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexCli\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexCli\Prompts\Handlers\Domain;
@@ -226,6 +227,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       VisualRegression::id() => FALSE,
       Gitleaks::id() => TRUE,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP,
+      DependencyUpdatesAutomerge::id() => array_keys(DependencyUpdatesAutomerge::GROUPS),
       CodeCoverageProvider::id() => CodeCoverageProvider::NONE,
       AssignAuthorPr::id() => TRUE,
       LabelMergeConflictsPr::id() => TRUE,
@@ -243,6 +245,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       Tools::id() => [],
       CiProvider::id() => CiProvider::NONE,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE,
+      DependencyUpdatesAutomerge::id() => NULL,
       CodeCoverageProvider::id() => CodeCoverageProvider::NONE,
       AssignAuthorPr::id() => FALSE,
       LabelMergeConflictsPr::id() => FALSE,
@@ -309,6 +312,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       VisualRegression::id() => static::TUI_DEFAULT,
       Gitleaks::id() => static::TUI_DEFAULT,
       DependencyUpdatesProvider::id() => static::TUI_DEFAULT,
+      DependencyUpdatesAutomerge::id() => static::TUI_DEFAULT,
       CodeCoverageProvider::id() => static::TUI_DEFAULT,
       AssignAuthorPr::id() => static::TUI_DEFAULT,
       LabelMergeConflictsPr::id() => static::TUI_DEFAULT,

@@ -9,6 +9,7 @@ use DrevOps\VortexCli\Prompts\Handlers\CiProvider;
 use DrevOps\VortexCli\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexCli\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexCli\Prompts\Handlers\DatabaseImage;
+use DrevOps\VortexCli\Prompts\Handlers\DependencyUpdatesAutomerge;
 use DrevOps\VortexCli\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexCli\Prompts\Handlers\DeployTypes;
 use DrevOps\VortexCli\Prompts\Handlers\Domain;
@@ -42,6 +43,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(CodeProvider::class)]
 #[CoversClass(DatabaseFetchSource::class)]
 #[CoversClass(DatabaseImage::class)]
+#[CoversClass(DependencyUpdatesAutomerge::class)]
 #[CoversClass(DependencyUpdatesProvider::class)]
 #[CoversClass(DeployTypes::class)]
 #[CoversClass(Domain::class)]

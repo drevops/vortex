@@ -96,7 +96,8 @@
                 "!drupal/core-project-message",
                 "!drupal/core-recommended",
                 "!drupal/core-dev"
-            ]
+            ],
+            "automerge": true
         },
         {
             "groupName": "PHP - Drupal core - Minor and patch",
@@ -119,7 +120,8 @@
                 "drupal/core-project-message",
                 "drupal/core-recommended",
                 "drupal/core-dev"
-            ]
+            ],
+            "automerge": true
         },
         {
             "groupName": "JavaScript - Non-root packages - Skipped to update manually",
@@ -167,7 +169,8 @@
             ],
             "matchPackageNames": [
                 "/.*/"
-            ]
+            ],
+            "automerge": true
         },
         {
             "groupName": "Container images - All - Major, minor and patch",
@@ -185,7 +188,8 @@
                 "dockerfile",
                 "docker-compose",
                 "custom.regex"
-            ]
+            ],
+            "automerge": true
         },
         {
             "description": "npm packages that CI runs at a pinned version through 'npx'. Overrides the non-root rule above, which disables npm packages outside 'package.json'.",
@@ -200,7 +204,8 @@
             "schedule": [
                 "before 3am"
             ],
-            "enabled": true
+            "enabled": true,
+            "automerge": true
         },
         {
             "groupName": "GitHub Actions - All - Major, minor and patch",
