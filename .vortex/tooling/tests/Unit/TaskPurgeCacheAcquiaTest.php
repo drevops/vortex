@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexTooling\Tests\Unit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
@@ -184,6 +185,56 @@ class TaskPurgeCacheAcquiaTest extends UnitTestCase {
     // Test env remaps $target_env_remap to 'stage'.
     $this->assertStringContainsString('Purged cache for test environment domain stage.example.com.', $output);
     $this->assertStringContainsString('Finished cache purging in Acquia.', $output);
+  }
+
+  #[DataProvider('dataProviderTemplatePlaceholder')]
+  public function testTemplatePlaceholder(string $env, string $domain_line, string $expected_domain): void {
+    $this->mockSleep();
+    $this->envSet('VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV', $env);
+
+    file_put_contents(self::$tmp . '/domains.txt', $domain_line . "\n");
+
+    $this->mockRequestMultiple([
+      [
+        'url' => 'https://accounts.acquia.com/api/auth/oauth/token',
+        'response' => ['body' => json_encode(['access_token' => 'test-token'])],
+      ],
+      [
+        'url' => 'https://cloud.acquia.com/api/applications?filter=name%3Dmyapp',
+        'response' => ['body' => json_encode(['_embedded' => ['items' => [['uuid' => 'app-uuid-123']]]])],
+      ],
+      [
+        'url' => 'https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3D' . $env,
+        'response' => ['body' => json_encode(['_embedded' => ['items' => [['id' => 'env-id-' . $env]]]])],
+      ],
+      [
+        'url' => 'https://cloud.acquia.com/api/environments/env-id-' . $env . '/domains/actions/clear-varnish',
+        'response' => ['body' => json_encode(['_links' => ['notification' => ['href' => 'https://cloud.acquia.com/api/notifications/purge-1']]])],
+      ],
+      [
+        'url' => 'https://cloud.acquia.com/api/notifications/purge-1',
+        'response' => ['body' => json_encode(['status' => 'completed'])],
+      ],
+    ]);
+
+    $output = $this->runScript('src/vortex-task-purge-cache-acquia');
+
+    $this->assertSame(json_encode(['domains' => [$expected_domain]]), $this->getMockRequestBody(3));
+    $this->assertStringContainsString(sprintf('Purged cache for %s environment domain %s.', $env, $expected_domain), $output);
+    $this->assertStringNotContainsString('$', $output);
+    $this->assertStringContainsString('Finished cache purging in Acquia.', $output);
+  }
+
+  public static function dataProviderTemplatePlaceholder(): array {
+    return [
+      'prod, remap placeholder' => ['prod', '$TARGET_ENV_REMAP.your-site-domain.example', 'your-site-domain.example'],
+      'prod, env placeholder' => ['prod', '$TARGET_ENV.your-site-domain.example', 'your-site-domain.example'],
+      'dev, remap placeholder' => ['dev', '$TARGET_ENV_REMAP.your-site-domain.example', 'dev.your-site-domain.example'],
+      'dev, env placeholder' => ['dev', '$TARGET_ENV.your-site-domain.example', 'dev.your-site-domain.example'],
+      'test, remap placeholder' => ['test', '$TARGET_ENV_REMAP.your-site-domain.example', 'stage.your-site-domain.example'],
+      'test, env placeholder' => ['test', '$TARGET_ENV.your-site-domain.example', 'test.your-site-domain.example'],
+      'test2, remap placeholder' => ['test2', '$TARGET_ENV_REMAP.your-site-domain.example', 'test2.your-site-domain.example'],
+    ];
   }
 
   public function testDomainPurgeWarning(): void {

@@ -47,6 +47,8 @@ function purge_interpolate_domain(string $domain, string $target_env): ?string {
   if ($target_env === 'prod') {
     $domain = str_replace('$target_env_remap.', '', $domain);
     $domain = str_replace('$target_env.', '', $domain);
+    $domain = str_replace('$TARGET_ENV_REMAP.', '', $domain);
+    $domain = str_replace('$TARGET_ENV.', '', $domain);
     return $domain;
   }
 
@@ -64,6 +66,8 @@ function purge_interpolate_domain(string $domain, string $target_env): ?string {
   // Interpolate variables in domain name.
   $domain = str_replace('$target_env_remap', $target_env_remap, $domain);
   $domain = str_replace('$target_env', $target_env, $domain);
+  $domain = str_replace('$TARGET_ENV_REMAP', $target_env_remap, $domain);
+  $domain = str_replace('$TARGET_ENV', $target_env, $domain);
   $domain = str_replace('${target_env_remap}', $target_env_remap, $domain);
   $domain = str_replace('${target_env}', $target_env, $domain);
   $domain = str_replace('${TARGET_ENV_REMAP}', $target_env_remap, $domain);
