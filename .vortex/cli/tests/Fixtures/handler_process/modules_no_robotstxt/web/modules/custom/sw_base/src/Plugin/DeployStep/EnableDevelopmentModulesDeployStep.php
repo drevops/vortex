@@ -1,7 +1,7 @@
-@@ -86,7 +86,6 @@
-       'navigation_extra_tools',
+@@ -89,7 +89,6 @@
        'pathauto',
        'redirect',
+       'reroute_email',
 -      'robotstxt',
        'shield',
        'stage_file_proxy',
