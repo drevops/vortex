@@ -87,17 +87,17 @@ class TuiAdapter {
     $label = $handler->label();
 
     $field = match ($handler->type()) {
-      PromptType::Select => $p->select($id, $label),
-      PromptType::MultiSelect => $p->select($id, $label)->multiple(),
-      PromptType::Confirm => $p->confirm($id, $label),
-      PromptType::Suggest => $p->suggest($id, $label),
-      PromptType::Number => $p->number($id, $label),
-      PromptType::Textarea => $p->textarea($id, $label),
-      PromptType::Password => $p->password($id, $label),
-      PromptType::Search => $p->search($id, $label),
-      PromptType::MultiSearch => $p->search($id, $label)->multiple(),
-      PromptType::Pause => $p->pause($id, $label),
-      default => $p->text($id, $label),
+      PromptType::Select => $p->select($label, $id),
+      PromptType::MultiSelect => $p->select($label, $id)->multiple(),
+      PromptType::Confirm => $p->confirm($label, $id),
+      PromptType::Suggest => $p->suggest($label, $id),
+      PromptType::Number => $p->number($label, $id),
+      PromptType::Textarea => $p->textarea($label, $id),
+      PromptType::Password => $p->password($label, $id),
+      PromptType::Search => $p->search($label, $id),
+      PromptType::MultiSearch => $p->search($label, $id)->multiple(),
+      PromptType::Pause => $p->pause($label, $id),
+      default => $p->text($label, $id),
     };
 
     // The handler's three guidance texts map to the three field slots.

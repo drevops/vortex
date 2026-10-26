@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2d42b44b90ac827d6fbe858e2a5c0568",
+    "content-hash": "151f47433229730bb319ecea9efcb617",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -823,16 +823,16 @@
         },
         {
             "name": "drevops/phptui",
-            "version": "0.2.1",
+            "version": "0.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drevops/phptui.git",
-                "reference": "984cc9eaa51d07eaab40d0bf28bc809428a8432f"
+                "reference": "174ea92bc6e81abacac38c752a38674fece7ee05"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drevops/phptui/zipball/984cc9eaa51d07eaab40d0bf28bc809428a8432f",
-                "reference": "984cc9eaa51d07eaab40d0bf28bc809428a8432f",
+                "url": "https://api.github.com/repos/drevops/phptui/zipball/174ea92bc6e81abacac38c752a38674fece7ee05",
+                "reference": "174ea92bc6e81abacac38c752a38674fece7ee05",
                 "shasum": ""
             },
             "require": {
@@ -847,9 +847,9 @@
                 "ergebnis/composer-normalize": "^2.52.0",
                 "mikey179/vfsstream": "^1.6.12",
                 "opis/closure": "^4.5.0",
-                "phpstan/phpstan": ">=2.2.4 <2.2.6",
+                "phpstan/phpstan": "^2.2.8",
                 "phpunit/phpunit": "^12.5.32",
-                "rector/rector": "^2.5.7"
+                "rector/rector": "^2.6.2"
             },
             "suggest": {
                 "ext-mbstring": "Provides full Unicode case folding and native multibyte string handling; PCRE-based fallbacks with ASCII-only case folding are used when it is absent."
@@ -878,7 +878,17 @@
                 "issues": "https://github.com/drevops/phptui/issues",
                 "source": "https://github.com/drevops/phptui"
             },
-            "time": "2026-08-13T04:14:28+00:00"
+            "funding": [
+                {
+                    "url": "https://github.com/drevops",
+                    "type": "github"
+                },
+                {
+                    "url": "https://www.patreon.com/drevops",
+                    "type": "patreon"
+                }
+            ],
+            "time": "2026-08-14T01:33:17+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
