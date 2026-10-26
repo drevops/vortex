@@ -1,12 +1,12 @@
-@@ -7,6 +7,7 @@
-     "@eslint/compat": "__VERSION__",
+@@ -6,6 +6,7 @@
+   "devDependencies": {
      "@eslint/js": "__VERSION__",
      "@homer0/prettier-plugin-jsdoc": "__VERSION__",
 +    "@storybook/server-webpack5": "__VERSION__",
      "autoprefixer": "__VERSION__",
      "chokidar-cli": "__VERSION__",
      "eslint": "__VERSION__",
-@@ -22,6 +23,7 @@
+@@ -21,6 +22,7 @@
      "postcss-cli": "__VERSION__",
      "prettier": "__VERSION__",
      "sass": "__VERSION__",
@@ -14,7 +14,7 @@
      "stylelint": "__VERSION__",
      "stylelint-config-standard": "__VERSION__",
      "stylelint-config-standard-scss": "__VERSION__",
-@@ -53,7 +55,12 @@
+@@ -52,7 +54,12 @@
      "postinstall": "patch-package",
      "sass:dev": "sass scss/styles.scss build/css/star_wars.min.css --source-map --style=expanded",
      "sass:prod": "sass scss/styles.scss build/css/star_wars.min.css --no-source-map --style=compressed",

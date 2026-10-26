@@ -1,4 +1,4 @@
-@@ -22,11 +22,6 @@
+@@ -21,11 +21,6 @@
      "postcss-cli": "__VERSION__",
      "prettier": "__VERSION__",
      "sass": "__VERSION__",
@@ -10,7 +10,7 @@
      "terser": "__VERSION__"
    },
    "browserslist": [
-@@ -42,10 +37,8 @@
+@@ -41,10 +36,8 @@
      "copy": "npm run copy:images && npm run copy:fonts",
      "copy:fonts": "mkdir -p build/fonts && cp -r fonts/* build/fonts/ 2>/dev/null || true",
      "copy:images": "mkdir -p build/images && cp -r images/* build/images/ 2>/dev/null || true",
