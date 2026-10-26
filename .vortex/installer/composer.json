@@ -23,7 +23,7 @@
         "composer/composer": "^2.10.3",
         "cweagans/composer-patches": "^2",
         "czproject/git-php": "^4.6",
-        "guzzlehttp/guzzle": "^8.3",
+        "guzzlehttp/guzzle": "^8.3.1",
         "laravel/prompts": "^0.3.26",
         "nelexa/zip": "^4.0.2",
         "nikic/iter": "^2.4.1",
@@ -42,7 +42,7 @@
         "ergebnis/composer-normalize": "^2.54.0",
         "laravel/serializable-closure": "^2.1.0",
         "mockery/mockery": "^1.6.15",
-        "phpstan/phpstan": "^2.3.1",
+        "phpstan/phpstan": "^2.3.2",
         "phpunit/phpunit": "^12.5.40",
         "rector/rector": "^2.7.0",
         "symfony/finder": "^7.4.20"

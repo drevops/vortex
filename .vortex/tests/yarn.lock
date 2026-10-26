@@ -61,9 +61,9 @@ argparse@^2.0.1:
   integrity sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==
 
 argparse@^3.0.3:
-  version "3.0.3"
-  resolved "https://registry.yarnpkg.com/argparse/-/argparse-3.0.3.tgz#2527ed88cbaac60f7d7af28a5cf620a80f07d90b"
-  integrity sha512-Sn98ftV3KfsO8xfLPHG6oT8y+b0yvbrLgZjgPDXsharNY15tTAjqIsIju4S32nl6/iEUNNE4v+yL2Zhm8ooP3w==
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/argparse/-/argparse-3.0.4.tgz#ba802dd75fdc3d5bdcb4339b713d62c6c5d4565d"
+  integrity sha512-fwWK3Zq22l4XJJjx5mcBHGikIk+hJqO+32dPm0Jur7+rtG5x1scOjSfdT9ZKeWHPpsya/l0HHK4tDImBkTrtvA==
 
 braces@^3.0.3:
   version "3.0.3"
@@ -174,9 +174,9 @@ globby@16.2.4:
     unicorn-magic "^0.4.0"
 
 ignore@^7.0.5:
-  version "7.0.13"
-  resolved "https://registry.yarnpkg.com/ignore/-/ignore-7.0.13.tgz#f19dfb5374313cf84e1976bb4b650235ebfd948c"
-  integrity sha512-2E8Q6rh+1RRSq/YdaGsNfXsEZy9FVqv6BSSrkmZJP7BnaoPnRfKL+YaofPvP+5rzdk144qSm6i4+hvPgUcbV4Q==
+  version "7.0.14"
+  resolved "https://registry.yarnpkg.com/ignore/-/ignore-7.0.14.tgz#a52b081dfb4d77e947e04d5f9e320b16f1873959"
+  integrity sha512-wCBiZ77u1tuWde6G/nfOtLaCTYcFDU5yCzARzK10y+rLhzYoL7a7yEemcopcc2Mzow7gZOIjnV2ym1NYmdiJOQ==
 
 is-alphabetical@^2.0.0:
   version "2.0.1"
