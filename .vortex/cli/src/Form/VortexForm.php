@@ -213,7 +213,7 @@ BANNER;
     return Form::create('Vortex')
       ->banner(self::BANNER)
       ->envPrefix('VORTEX_CLI_INSTALL_PROMPT_')
-      ->panel('general', 'General information', function (PanelBuilder $p) use ($config): void {
+      ->panel('General information', 'general', function (PanelBuilder $p) use ($config): void {
         $p->description('Project name, organization and public domain.');
         TuiAdapter::field($p, new Name($config));
         TuiAdapter::field($p, new MachineName($config));
@@ -221,7 +221,7 @@ BANNER;
         TuiAdapter::field($p, new OrgMachineName($config));
         TuiAdapter::field($p, new Domain($config));
       })
-      ->panel('drupal', 'Drupal', function (PanelBuilder $p) use ($config): void {
+      ->panel('Drupal', 'drupal', function (PanelBuilder $p) use ($config): void {
         $p->description('Install profile, modules, theme and front-end build.');
         TuiAdapter::field($p, new Starter($config));
         TuiAdapter::field($p, new Profile($config));
@@ -234,18 +234,18 @@ BANNER;
         TuiAdapter::field($p, new FrontendBuild($config), when: new Condition('theme', eq: Theme::CUSTOM));
         TuiAdapter::field($p, new Storybook($config), when: new Condition('theme', eq: Theme::CUSTOM));
       })
-      ->panel('code_repository', 'Code repository', function (PanelBuilder $p) use ($config): void {
+      ->panel('Code repository', 'code_repository', function (PanelBuilder $p) use ($config): void {
         $p->description('Where the code lives and how releases are versioned.');
         TuiAdapter::field($p, new CodeProvider($config));
         TuiAdapter::field($p, new VersionScheme($config));
       })
-      ->panel('environment', 'Environment', function (PanelBuilder $p) use ($config): void {
+      ->panel('Environment', 'environment', function (PanelBuilder $p) use ($config): void {
         $p->description('Timezone, Docker services and developer tooling.');
         TuiAdapter::field($p, new Timezone($config));
         TuiAdapter::field($p, new Services($config));
         TuiAdapter::field($p, new Tools($config));
       })
-      ->panel('hosting', 'Hosting', function (PanelBuilder $p) use ($config): void {
+      ->panel('Hosting', 'hosting', function (PanelBuilder $p) use ($config): void {
         $p->description('Target hosting provider and project name.');
         TuiAdapter::field($p, new HostingProvider($config));
         TuiAdapter::field($p, new HostingProjectName($config), when: new Condition('hosting_provider', in: [
@@ -254,11 +254,11 @@ BANNER;
         ]));
         TuiAdapter::field($p, new Webroot($config));
       })
-      ->panel('deployment', 'Deployment', function (PanelBuilder $p) use ($config): void {
+      ->panel('Deployment', 'deployment', function (PanelBuilder $p) use ($config): void {
         $p->description('How code is shipped to the hosting environment.');
         TuiAdapter::field($p, new DeployTypes($config));
       })
-      ->panel('workflow', 'Workflow', function (PanelBuilder $p) use ($config): void {
+      ->panel('Workflow', 'workflow', function (PanelBuilder $p) use ($config): void {
         $p->description('Provisioning method and database source.');
         TuiAdapter::field($p, new ProvisionType($config));
         TuiAdapter::field($p, new DatabaseFetchSource($config), when: new Condition('provision_type', eq: ProvisionType::DATABASE));
@@ -267,17 +267,17 @@ BANNER;
         TuiAdapter::field($p, new MigrationFetchSource($config), when: new Condition('migration', eq: TRUE));
         TuiAdapter::field($p, new MigrationImage($config), when: new Condition('migration_fetch_source', eq: MigrationFetchSource::CONTAINER_REGISTRY));
       })
-      ->panel('notifications', 'Notifications', function (PanelBuilder $p) use ($config): void {
+      ->panel('Notifications', 'notifications', function (PanelBuilder $p) use ($config): void {
         $p->description('Where build and deployment notifications are sent.');
         TuiAdapter::field($p, new NotificationChannels($config));
       })
-      ->panel('continuous_integration', 'Continuous Integration', function (PanelBuilder $p) use ($config): void {
+      ->panel('Continuous Integration', 'continuous_integration', function (PanelBuilder $p) use ($config): void {
         $p->description('CI provider, visual regression and secret scanning.');
         TuiAdapter::field($p, new CiProvider($config));
         TuiAdapter::field($p, new VisualRegression($config));
         TuiAdapter::field($p, new Gitleaks($config));
       })
-      ->panel('automations', 'Automations', function (PanelBuilder $p) use ($config): void {
+      ->panel('Automations', 'automations', function (PanelBuilder $p) use ($config): void {
         $p->description('Dependency updates, coverage and PR automation.');
         TuiAdapter::field($p, new DependencyUpdatesProvider($config));
         TuiAdapter::field($p, new DependencyUpdatesAutomerge($config), when: new Condition('dependency_updates_provider', in: DependencyUpdatesAutomerge::PROVIDERS));
@@ -285,11 +285,11 @@ BANNER;
         TuiAdapter::field($p, new AssignAuthorPr($config));
         TuiAdapter::field($p, new LabelMergeConflictsPr($config));
       })
-      ->panel('documentation', 'Documentation', function (PanelBuilder $p) use ($config): void {
+      ->panel('Documentation', 'documentation', function (PanelBuilder $p) use ($config): void {
         $p->description('Whether project documentation is kept.');
         TuiAdapter::field($p, new PreserveDocsProject($config));
       })
-      ->panel('ai', 'AI', function (PanelBuilder $p) use ($config): void {
+      ->panel('AI', 'ai', function (PanelBuilder $p) use ($config): void {
         $p->description('Whether AI agent instructions are included.');
         TuiAdapter::field($p, new AiCodeInstructions($config));
       });
