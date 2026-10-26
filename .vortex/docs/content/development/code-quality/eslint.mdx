@@ -90,7 +90,7 @@ file.
 By default, ESLint checks against the following presets:
 
 - `@eslint/js` recommended - the rules ESLint itself ships
-- `eslint-plugin-import` recommended - import correctness: modules that
+- `eslint-plugin-import-x` recommended - import correctness: modules that
   resolve, names the module exports, and no duplicate imports
 - `eslint-plugin-jsdoc` recommended - documentation block correctness
 - `eslint-plugin-prettier` recommended - Prettier integration for code
@@ -103,6 +103,10 @@ By default, ESLint checks against the following presets:
 The configuration follows the one Drupal core adopts for its own JavaScript,
 so the 2 configurations stay comparable as core evolves.
 
+The import rules come from `eslint-plugin-import-x`, a fork of the
+`eslint-plugin-import` plugin that Drupal core uses. Their names start with
+`import-x/`, for example `import-x/no-mutable-exports`.
+
 On top of the presets, the configuration sets the following rules:
 
 | Rule                          | Level   | Effect                                                                   |
@@ -114,7 +118,7 @@ On top of the presets, the configuration sets the following rules:
 | `max-nested-callbacks`        | Warning | Reports callbacks nested more than 3 levels deep.                        |
 | `no-unused-vars`              | Warning | Reports unused variables.                                                |
 | `no-plusplus`                 | Warning | Reports `++` and `--`, except in the final expression of a `for` loop.   |
-| `import/no-mutable-exports`   | Warning | Reports exports declared with `let` or `var`.                            |
+| `import-x/no-mutable-exports` | Warning | Reports exports declared with `let` or `var`.                            |
 | `jsdoc/tag-lines`             | Warning | Requires 1 blank line between a block's description and its first tag.   |
 | `jsdoc/require-jsdoc`         | Off     | Stops requiring a documentation block on every function.                 |
 | `consistent-return`           | Off     | Not checked.                                                             |
