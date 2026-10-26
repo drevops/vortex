@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4107abecc671e5ffb9c0aa2349022658",
+    "content-hash": "2a1f720d642bab469ed94e9bffcbe53a",
     "packages": [
         {
             "name": "cweagans/composer-configurable-plugin",
@@ -332,22 +332,22 @@
         },
         {
             "name": "alexskrypnyk/shellvar",
-            "version": "1.7.1",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/AlexSkrypnyk/shellvar.git",
-                "reference": "facec32115e0fe8ef9e96f4594e7b140a94ffaee"
+                "url": "https://github.com/drevops/shellvar.git",
+                "reference": "349cb046ad3e6a95428577ff1d968d6c3d1511ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/shellvar/zipball/facec32115e0fe8ef9e96f4594e7b140a94ffaee",
-                "reference": "facec32115e0fe8ef9e96f4594e7b140a94ffaee",
+                "url": "https://api.github.com/repos/drevops/shellvar/zipball/349cb046ad3e6a95428577ff1d968d6c3d1511ba",
+                "reference": "349cb046ad3e6a95428577ff1d968d6c3d1511ba",
                 "shasum": ""
             },
             "require": {
-                "alexskrypnyk/csvtable": "^1.2",
+                "alexskrypnyk/csvtable": "^1.3.0",
                 "php": ">=8.2",
-                "symfony/console": "^7.4.18"
+                "symfony/console": "^7.4.21"
             },
             "replace": {
                 "alexskrypnyk/shell-variables-extractor": "self.version"
@@ -355,14 +355,12 @@
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.9.1",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
-                "drevops/phpcs-standard": "^0.7.0",
+                "drevops/phpcs-standard": "^1.1.0",
                 "drupal/coder": "^9.0.1",
-                "ergebnis/composer-normalize": "^2.52.0",
-                "mikey179/vfsstream": "^1.6.12",
-                "opis/closure": "^4.5.0",
-                "phpstan/phpstan": "^2.2.13",
-                "phpunit/phpunit": "^12.5.34",
-                "rector/rector": "^2.6.6"
+                "ergebnis/composer-normalize": "^2.54.0",
+                "phpstan/phpstan": "^2.3.1",
+                "phpunit/phpunit": "^12.5.40",
+                "rector/rector": "^2.7.0"
             },
             "bin": [
                 "shellvar"
@@ -370,12 +368,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "AlexSkrypnyk\\Shellvar\\": "src/"
+                    "DrevOps\\Shellvar\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "GPL-2.0-or-later"
+                "GPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -386,10 +384,10 @@
                 }
             ],
             "description": "Utility to work with shell variables.",
-            "homepage": "https://github.com/AlexSkrypnyk/shellvar",
+            "homepage": "https://github.com/drevops/shellvar",
             "support": {
-                "issues": "https://github.com/AlexSkrypnyk/shellvar/issues",
-                "source": "https://github.com/AlexSkrypnyk/shellvar"
+                "issues": "https://github.com/drevops/shellvar/issues",
+                "source": "https://github.com/drevops/shellvar"
             },
             "funding": [
                 {
@@ -397,7 +395,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2026-09-04T07:14:10+00:00"
+            "time": "2026-10-22T23:01:31+00:00"
         },
         {
             "name": "czproject/git-php",
@@ -1157,16 +1155,16 @@
         },
         {
             "name": "justinrainbow/json-schema",
-            "version": "6.13.1",
+            "version": "6.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jsonrainbow/json-schema.git",
-                "reference": "e54aacc4c0657b3a4af4f628428d2702146828c6"
+                "reference": "bae415e135dd68260c2d020ba392850231e9b1ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/e54aacc4c0657b3a4af4f628428d2702146828c6",
-                "reference": "e54aacc4c0657b3a4af4f628428d2702146828c6",
+                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/bae415e135dd68260c2d020ba392850231e9b1ab",
+                "reference": "bae415e135dd68260c2d020ba392850231e9b1ab",
                 "shasum": ""
             },
             "require": {
@@ -1216,9 +1214,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jsonrainbow/json-schema/issues",
-                "source": "https://github.com/jsonrainbow/json-schema/tree/6.13.1"
+                "source": "https://github.com/jsonrainbow/json-schema/tree/6.14.0"
             },
-            "time": "2026-09-30T07:42:28+00:00"
+            "time": "2026-10-24T08:53:34+00:00"
         },
         {
             "name": "localheinz/diff",
@@ -1632,11 +1630,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.1",
+            "version": "2.3.2",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/6155239b488e95d26d1ebd95c6b4bb294d7f09db",
-                "reference": "6155239b488e95d26d1ebd95c6b4bb294d7f09db",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/18bc23a0682f08591529377d271b5c4dfe9ed1dd",
+                "reference": "18bc23a0682f08591529377d271b5c4dfe9ed1dd",
                 "shasum": ""
             },
             "require": {
@@ -1692,7 +1690,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-08T21:09:11+00:00"
+            "time": "2026-10-24T11:36:00+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -3242,32 +3240,32 @@
         },
         {
             "name": "slevomat/coding-standard",
-            "version": "8.31.1",
+            "version": "8.31.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/slevomat/coding-standard.git",
-                "reference": "0a40807a48873948bfa7ffce2a4e69ba40cf5e76"
+                "reference": "d4fcefff8bec24814e1c165dfb4c3bdfa91faf5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/0a40807a48873948bfa7ffce2a4e69ba40cf5e76",
-                "reference": "0a40807a48873948bfa7ffce2a4e69ba40cf5e76",
+                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/d4fcefff8bec24814e1c165dfb4c3bdfa91faf5c",
+                "reference": "d4fcefff8bec24814e1c165dfb4c3bdfa91faf5c",
                 "shasum": ""
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7 || ^1.2.1",
                 "php": "^7.4 || ^8.0",
-                "phpstan/phpdoc-parser": "^2.3.3",
-                "squizlabs/php_codesniffer": "^4.0.1"
+                "phpstan/phpdoc-parser": "^2.3.6",
+                "squizlabs/php_codesniffer": "^4.0.4"
             },
             "require-dev": {
                 "phing/phing": "3.0.1|3.1.2",
                 "php-parallel-lint/php-parallel-lint": "1.4.0",
-                "phpstan/phpstan": "2.2.7",
+                "phpstan/phpstan": "2.3.2",
                 "phpstan/phpstan-deprecation-rules": "2.0.5",
-                "phpstan/phpstan-phpunit": "2.0.18",
-                "phpstan/phpstan-strict-rules": "2.0.12",
-                "phpunit/phpunit": "9.6.34|10.5.63|11.4.4|11.5.56|12.5.33"
+                "phpstan/phpstan-phpunit": "2.1.1",
+                "phpstan/phpstan-strict-rules": "2.1.0",
+                "phpunit/phpunit": "9.6.38|10.5.66|11.4.4|11.5.57|12.5.40"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
@@ -3291,7 +3289,7 @@
             ],
             "support": {
                 "issues": "https://github.com/slevomat/coding-standard/issues",
-                "source": "https://github.com/slevomat/coding-standard/tree/8.31.1"
+                "source": "https://github.com/slevomat/coding-standard/tree/8.31.2"
             },
             "funding": [
                 {
@@ -3303,7 +3301,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-31T10:42:43+00:00"
+            "time": "2026-10-25T09:45:11+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
