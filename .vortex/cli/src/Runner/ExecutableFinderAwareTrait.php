@@ -25,9 +25,7 @@ trait ExecutableFinderAwareTrait {
    *   The executable finder instance.
    */
   public function getExecutableFinder(): ExecutableFinder {
-    if ($this->executableFinder === NULL) {
-      $this->executableFinder = new ExecutableFinder();
-    }
+    $this->executableFinder ??= new ExecutableFinder();
     return $this->executableFinder;
   }
 
