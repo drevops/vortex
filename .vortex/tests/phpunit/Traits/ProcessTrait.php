@@ -45,7 +45,7 @@ trait ProcessTrait {
 
     // If process streaming is disabled, also silence the output of the
     // commands.
-    if (!$this->processStreamOutput) {
+    if (!$this->processStreamingOutput) {
       // Silence the output of the Composer commands (but still output errors).
       $env += ['SHELL_VERBOSITY' => -1];
 
