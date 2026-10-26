@@ -35,8 +35,8 @@
     "stylelint-order": "^8.1.2"
   },
   "overrides": {
-    "test-exclude": "^7.0.1",
+    "test-exclude": "^7.0.2",
     "glob": "^13.0.6",
-    "jsdom": "^29.0.0"
+    "jsdom": "^29.1.1"
   }
 }
