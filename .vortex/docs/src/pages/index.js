@@ -34,7 +34,7 @@ function fallbackCopy(text) {
   document.body.appendChild(ta);
   ta.select();
 
-  let ok = false;
+  let ok;
 
   try {
     ok = document.execCommand('copy');
