@@ -4,6 +4,6 @@
     "description": "Packages used for testing of Vortex",
     "license": "GPL-2.0-or-later",
     "devDependencies": {
-        "markdownlint-cli2": "^0.18.1"
+        "markdownlint-cli2": "^0.24.0"
     }
 }
