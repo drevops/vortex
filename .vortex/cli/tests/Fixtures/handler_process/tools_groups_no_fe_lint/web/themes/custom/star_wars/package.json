@@ -1,15 +1,14 @@
-@@ -4,29 +4,12 @@
+@@ -4,28 +4,12 @@
    "private": true,
    "description": "NodeJS dependencies for star wars project",
    "devDependencies": {
--    "@eslint/compat": "__VERSION__",
 -    "@eslint/js": "__VERSION__",
 -    "@homer0/prettier-plugin-jsdoc": "__VERSION__",
      "autoprefixer": "__VERSION__",
      "chokidar-cli": "__VERSION__",
 -    "eslint": "__VERSION__",
 -    "eslint-config-prettier": "__VERSION__",
--    "eslint-plugin-import": "__VERSION__",
+-    "eslint-plugin-import-x": "__VERSION__",
 -    "eslint-plugin-jsdoc": "__VERSION__",
 -    "eslint-plugin-no-jquery": "__VERSION__",
 -    "eslint-plugin-prettier": "__VERSION__",
@@ -28,7 +27,7 @@
      "terser": "__VERSION__"
    },
    "browserslist": [
-@@ -42,12 +25,6 @@
+@@ -41,12 +25,6 @@
      "copy": "npm run copy:images && npm run copy:fonts",
      "copy:fonts": "mkdir -p build/fonts && cp -r fonts/* build/fonts/ 2>/dev/null || true",
      "copy:images": "mkdir -p build/images && cp -r images/* build/images/ 2>/dev/null || true",
