@@ -2,8 +2,7 @@
 // https://www.drupal.org/project/drupal/issues/3440225, adapted to lint custom
 // modules rather than core itself.
 import { defineConfig } from 'eslint/config';
-import { fixupPluginRules } from '@eslint/compat';
-import importPlugin from 'eslint-plugin-import';
+import { importX } from 'eslint-plugin-import-x';
 import noJQuery from 'eslint-plugin-no-jquery';
 import prettierConfig from 'eslint-plugin-prettier/recommended';
 import ymlConfig from 'eslint-plugin-yml';
@@ -27,13 +26,13 @@ export default defineConfig(
     ],
   },
   js.configs.recommended,
-  importPlugin.flatConfigs.recommended,
+  importX.flatConfigs.recommended,
   jsdoc.configs['flat/recommended'],
   prettierConfig,
   ymlConfig.configs['flat/recommended'],
   {
     plugins: {
-      'no-jquery': fixupPluginRules(noJQuery),
+      'no-jquery': noJQuery,
     },
     languageOptions: {
       ecmaVersion: 2020,
@@ -67,7 +66,7 @@ export default defineConfig(
       'consistent-return': ['off'],
       'no-underscore-dangle': ['off'],
       'max-nested-callbacks': ['warn', 3],
-      'import/no-mutable-exports': ['warn'],
+      'import-x/no-mutable-exports': ['warn'],
       'no-plusplus': [
         'warn',
         {

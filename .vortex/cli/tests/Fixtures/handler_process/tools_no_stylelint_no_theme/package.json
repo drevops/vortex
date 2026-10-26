@@ -12,10 +12,10 @@
      "test": "jest --coverage --passWithNoTests"
    },
    "devDependencies": {
-@@ -30,10 +28,7 @@
-     "eslint-plugin-prettier": "__VERSION__",
-     "eslint-plugin-yml": "__VERSION__",
+@@ -29,10 +27,7 @@
      "globals": "__VERSION__",
+     "jest": "__VERSION__",
+     "jest-environment-jsdom": "__VERSION__",
 -    "prettier": "__VERSION__",
 -    "stylelint": "__VERSION__",
 -    "stylelint-config-standard": "__VERSION__",
