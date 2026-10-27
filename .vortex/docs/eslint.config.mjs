@@ -29,7 +29,7 @@ export default defineConfig(
     },
     settings: {
       // 'detect' calls 'context.getFilename()', which ESLint 10 removed.
-      react: { version: '19.3' },
+      react: { version: '18.3' },
     },
     rules: {
       'react/react-in-jsx-scope': 'off',
