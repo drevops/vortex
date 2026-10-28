@@ -78,7 +78,7 @@ VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION="${VORTEX_PROVISION_VER
 # If enabled, the provision will fail once all operations have run if any
 # requirement in the status report ('drush core:requirements') has the error
 # severity. Warnings never fail the provision.
-VORTEX_PROVISION_VERIFY_STATUS_REPORT="${VORTEX_PROVISION_VERIFY_STATUS_REPORT:-1}"
+VORTEX_PROVISION_VERIFY_STATUS_REPORT="${VORTEX_PROVISION_VERIFY_STATUS_REPORT:-0}"
 
 # Comma-separated list of status report requirement keys to ignore when
 # verifying the status report. Run 'drush core:requirements --format=yaml' to

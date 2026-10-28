@@ -208,11 +208,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
-
     # Installation completion.
     "Finished site provisioning"
   )
@@ -381,11 +376,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -564,11 +554,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -767,11 +752,6 @@ assert_provision_info() {
     "- Verifying that configuration was not changed by post-provision operations."
     "- Verified that post-provision operations did not change configuration."
     "- Configuration was changed by post-provision operations."
-
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -1019,11 +999,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
-
     # Installation completion.
     "Finished site provisioning"
   )
@@ -1195,11 +1170,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -1380,11 +1350,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
-
     # Installation completion.
     "Finished site provisioning"
   )
@@ -1521,11 +1486,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -1754,11 +1714,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
-
     # Installation completion.
     "Finished site provisioning"
   )
@@ -1934,11 +1889,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -2238,11 +2188,6 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
-
     # Installation completion.
     "Finished site provisioning"
   )
@@ -2436,11 +2381,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -2688,11 +2628,6 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -2981,11 +2916,6 @@ assert_provision_info() {
     "Verifying that configuration was not changed by post-provision operations."
     "Verified that post-provision operations did not change configuration."
     "- Configuration was changed by post-provision operations."
-
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -3364,6 +3294,7 @@ prepare_status_report_run() {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   prepare_status_report_run
+  export VORTEX_PROVISION_VERIFY_STATUS_REPORT=1
 
   STEPS+=(
     "@drush -y core:requirements --severity=2 --field=title --format=list # 0 # Database updates\nFile system"
@@ -3393,6 +3324,7 @@ prepare_status_report_run() {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   prepare_status_report_run
+  export VORTEX_PROVISION_VERIFY_STATUS_REPORT=1
 
   STEPS+=(
     "@drush -y core:requirements --severity=2 --field=title --format=list # 1"
@@ -3416,6 +3348,7 @@ prepare_status_report_run() {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   prepare_status_report_run
+  export VORTEX_PROVISION_VERIFY_STATUS_REPORT=1
   export VORTEX_PROVISION_VERIFY_STATUS_REPORT_EXCLUDE="update,files"
 
   STEPS+=(
@@ -3436,11 +3369,10 @@ prepare_status_report_run() {
   popd >/dev/null || exit 1
 }
 
-@test "Provision: DB; no site; status report verification disabled" {
+@test "Provision: DB; no site; status report verification disabled by default" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   prepare_status_report_run
-  export VORTEX_PROVISION_VERIFY_STATUS_REPORT=0
 
   STEPS+=(
     "- Verifying that the Drupal status report contains no errors."
@@ -3686,11 +3618,6 @@ prepare_status_report_run() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
-
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
