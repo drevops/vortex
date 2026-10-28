@@ -74,6 +74,17 @@ VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE="${VORTEX_PROVISION_VERIFY
 # configuration imports, deployment hooks and custom provision scripts have run.
 VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION="${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION:-0}"
 
+# Verify that the Drupal status report contains no errors.
+# If enabled, the provision will fail once all operations have run if any
+# requirement in the status report ('drush core:requirements') has the error
+# severity. Warnings never fail the provision.
+VORTEX_PROVISION_VERIFY_STATUS_REPORT="${VORTEX_PROVISION_VERIFY_STATUS_REPORT:-1}"
+
+# Comma-separated list of status report requirement keys to ignore when
+# verifying the status report. Run 'drush core:requirements --format=yaml' to
+# see the keys.
+VORTEX_PROVISION_VERIFY_STATUS_REPORT_EXCLUDE="${VORTEX_PROVISION_VERIFY_STATUS_REPORT_EXCLUDE:-}"
+
 # Skip cache rebuild after database updates.
 VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP="${VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP:-0}"
 
@@ -178,6 +189,7 @@ note "Skip DB sanitization           : $(yesno "${VORTEX_PROVISION_SANITIZE_DB_S
 note "Skip post-provision operations : $(yesno "${VORTEX_PROVISION_POST_OPERATIONS_SKIP}")"
 note "Verify config after update     : $(yesno "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE}")"
 note "Verify config after provision  : $(yesno "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION}")"
+note "Verify status report           : $(yesno "${VORTEX_PROVISION_VERIFY_STATUS_REPORT}")"
 note "Use maintenance mode           : $(yesno "${VORTEX_PROVISION_USE_MAINTENANCE_MODE}")"
 echo
 
@@ -456,6 +468,28 @@ if [ "${VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_PROVISION}" = "1" ] && [ 
   fi
 
   pass "Verified that post-provision operations did not change configuration."
+  echo
+fi
+
+if [ "${VORTEX_PROVISION_VERIFY_STATUS_REPORT}" = "1" ]; then
+  task "Verifying that the Drupal status report contains no errors."
+
+  status_opts=(--severity=2 --field=title --format=list)
+  [ -n "${VORTEX_PROVISION_VERIFY_STATUS_REPORT_EXCLUDE}" ] && status_opts+=(--ignore="${VORTEX_PROVISION_VERIFY_STATUS_REPORT_EXCLUDE}")
+
+  # The failing requirements are read from the output, so the exit code of the
+  # command is ignored.
+  status_errors="$(drush core:requirements "${status_opts[@]}" || true)"
+
+  if [ -n "${status_errors}" ]; then
+    note "The following requirements in the Drupal status report have errors:"
+    echo "${status_errors}"
+    note "Review the status report with 'drush core:requirements'."
+    note "Ignore a known and accepted error with VORTEX_PROVISION_VERIFY_STATUS_REPORT_EXCLUDE."
+    fail "Drupal status report contains errors."
+  fi
+
+  pass "Verified that the Drupal status report contains no errors."
   echo
 fi
 

@@ -219,7 +219,22 @@ These environment variables steer the flow:
     `Different` state. Items that exist only in the database or only in the
     sync directory don't count, because a site can legitimately carry
     either. Like the update check, it needs exported configuration files and
-    is off by default.
+    is off by default.<br/><br/>
+12. `VORTEX_PROVISION_VERIFY_STATUS_REPORT=0`<br/>
+    Turn off the status report check. After the last operation, the script
+    reads the Drupal status report with `drush core:requirements` and fails
+    when any requirement has the error severity, such as a pending schema
+    update, an unwritable files directory, or a missing PHP extension. The
+    failure output lists the title of each failing requirement. Warnings
+    never fail the provisioning, because a healthy site routinely carries
+    some. `.env` ships with `1`. Set `0` in `.env` to turn the check off for
+    the project, or in your hosting provider's environment variables to turn
+    it off for a single environment.<br/><br/>
+13. `VORTEX_PROVISION_VERIFY_STATUS_REPORT_EXCLUDE=key1,key2`<br/>
+    Skip specific requirements in the status report check, so a project with
+    a known and accepted error keeps the check on. The value is a
+    comma-separated list of requirement keys, which
+    `drush core:requirements --format=yaml` prints.
 
 A few more variables shape what gets provisioned:
 

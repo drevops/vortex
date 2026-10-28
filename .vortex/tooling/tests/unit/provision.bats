@@ -208,6 +208,11 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
+
     # Installation completion.
     "Finished site provisioning"
   )
@@ -376,6 +381,11 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
+
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -554,6 +564,11 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
+
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -752,6 +767,11 @@ assert_provision_info() {
     "- Verifying that configuration was not changed by post-provision operations."
     "- Verified that post-provision operations did not change configuration."
     "- Configuration was changed by post-provision operations."
+
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -999,6 +1019,11 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
+
     # Installation completion.
     "Finished site provisioning"
   )
@@ -1170,6 +1195,11 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
+
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -1350,6 +1380,11 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
+
     # Installation completion.
     "Finished site provisioning"
   )
@@ -1486,6 +1521,11 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
+
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -1714,6 +1754,11 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
+
     # Installation completion.
     "Finished site provisioning"
   )
@@ -1890,6 +1935,11 @@ assert_provision_info() {
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
 
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
+
     # Installation completion.
     "Finished site provisioning"
   )
@@ -1954,6 +2004,11 @@ assert_provision_info() {
 
     # Post-provision operations skipped (set internally by fallback).
     "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -2020,6 +2075,11 @@ assert_provision_info() {
 
     # Post-provision operations skipped.
     "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -2187,6 +2247,11 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
+
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -2381,6 +2446,11 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
+
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -2628,6 +2698,11 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
+
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
@@ -2917,6 +2992,11 @@ assert_provision_info() {
     "Verified that post-provision operations did not change configuration."
     "- Configuration was changed by post-provision operations."
 
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
+
     # Installation completion.
     "Finished site provisioning"
   )
@@ -3132,6 +3212,237 @@ assert_provision_info() {
 
   assert_provision_info 0 0 0 1 0 1 0
   assert_output_contains "Verify config after provision  : Yes"
+
+  popd >/dev/null || exit 1
+}
+
+# Prepares the environment and the steps of a full provision run up to the
+# status report verification. Tests append their own remaining steps.
+prepare_status_report_run() {
+  # Remove .env file to test in isolation.
+  rm ./.env && touch ./.env
+  rm -f ./scripts/provision-20-migration.sh
+  rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
+
+  export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export CI=1
+
+  mkdir "./.data"
+  touch "./.data/db.sql"
+
+  mocked_uuid="c9360453-e1ea-4292-b074-ea375f97d72b"
+  echo "uuid: ${mocked_uuid}" >"./config/default/system.site.yml"
+  echo "name: 'SUT'" >>"./config/default/system.site.yml"
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -ga STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # fail"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
+
+    # Site provisioning information.
+    "Provisioning site from the database dump file."
+    "Dump file path: $(pwd)/.data/db.sql"
+    "Existing site was not found."
+    "Fresh site content will be imported from the database dump file."
+    "@drush -y sql:drop"
+    "@drush -y sql:connect"
+    "Imported database from the dump file."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
+
+    # Maintenance mode.
+    "Enabling maintenance mode."
+    "@drush -y maint:set 1"
+    "Enabled maintenance mode."
+
+    # UUID setup.
+    "@drush -y config:set system.site uuid ${mocked_uuid}"
+    "Updated site UUID from the configuration with ${mocked_uuid}"
+
+    # Database updates.
+    "Running database updates."
+    "@drush -y updatedb --no-cache-clear"
+    "Completed running database updates."
+
+    # Cache rebuild after database updates.
+    "Clearing cache after database updates."
+    "@drush -y cache:rebuild"
+    "Cache was cleared."
+
+    # Configuration import.
+    "Importing configuration."
+    "@drush -y config:import"
+    "Completed configuration import."
+    "@drush -y pm:list --status=enabled # config_split"
+    "Importing config_split configuration."
+    "@drush -y config:import"
+    "Completed config_split configuration import."
+
+    # Cache rebuild.
+    "Rebuilding cache."
+    "@drush -y cache:rebuild"
+    "Cache was rebuilt."
+
+    # Deployment hooks.
+    "Running deployment hooks."
+    "@drush -y deploy:hook"
+    "Completed deployment hooks."
+
+    # Database sanitization.
+    "Sanitizing database."
+    "@drush -y sql:sanitize --sanitize-password=MOCK_DB_SANITIZE_PASSWORD --sanitize-email=user+%uid@localhost"
+    "Sanitized database using drush sql:sanitize."
+    "@drush -y sql:query --file=../scripts/sanitize.sql"
+    "Applied custom sanitization commands from file"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET mail = '', name = '' WHERE uid = '0';"
+    "@drush -y sql:query UPDATE \`users_field_data\` SET name = '' WHERE uid = '0';"
+    "Reset user 0 username and email."
+
+    # Custom post-install scripts.
+    'Running custom post-install script "./scripts/provision-00-enable-demo-modules.sh".'
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
+    "    > Setting site name."
+    "@drush -y php:eval \Drupal::service('config.factory')->getEditable('system.site')->set('name', 'YOURSITE')->save();"
+    "    > Setting up the administration navigation."
+    "@drush -y pm:install navigation"
+    "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
+    "@drush -y pm:uninstall toolbar"
+    "    > Installing contrib modules."
+    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "    > Installing Redis module."
+    "@drush -y pm:install redis"
+    "    > Installing and configuring ClamAV."
+    "@drush -y pm:install clamav"
+    "@drush -y config:set clamav.settings mode_daemon_tcpip.hostname clamav"
+    "    > Installing Solr search modules."
+    "@drush -y pm:install search_api search_api_solr"
+    "    > Installing custom site modules."
+    "@drush -y pm:install ys_base"
+    "@drush -y pm:install ys_search"
+    "@drush -y pm:install ys_demo"
+    "    > Running deployment hooks."
+    "@drush -y deploy:hook"
+    "  ==> Started demo modules operations."
+    "      Environment: ci"
+    "  ==> Finished demo modules operations."
+    'Completed running of custom post-install script "./scripts/provision-00-enable-demo-modules.sh".'
+
+    'Running custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
+    "    > Installing Single Directory Component development tools."
+    "@drush -y pm:install sdc_devel"
+    "    > Installing Storybook module."
+    "@drush -y pm:install storybook"
+    "    > Installing Devel module."
+    "@drush -y pm:install devel"
+    "    > Installing Testmode module."
+    "@drush -y pm:install testmode"
+    "    > Installing Reroute Email module."
+    "@drush -y pm:install reroute_email"
+    "    > Installing Generated content module."
+    "@drush -y pm:install generated_content"
+    "  ==> Started development modules operations."
+    "      Environment: ci"
+    "  ==> Finished development modules operations."
+    'Completed running of custom post-install script "./scripts/provision-10-enable-dev-modules.sh".'
+
+    'Running custom post-install script "./scripts/provision-40-example.sh".'
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
+    "  ==> Started example operations."
+    "      Environment: ci"
+    "      Running example operations in non-production environment."
+    "    > Performing an example operation."
+    "      Fresh database detected. Performing additional example operations."
+    "  ==> Finished example operations."
+    'Completed running of custom post-install script "./scripts/provision-40-example.sh".'
+
+    # Disabling maintenance mode.
+    "Disabling maintenance mode."
+    "@drush -y maint:set 0"
+    "Disabled maintenance mode."
+  )
+}
+
+@test "Provision: DB; no site; status report has errors" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  prepare_status_report_run
+
+  STEPS+=(
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0 # Database updates\nFile system"
+    "Verifying that the Drupal status report contains no errors."
+    "The following requirements in the Drupal status report have errors:"
+    "Database updates"
+    "File system"
+    "Ignore a known and accepted error with VORTEX_PROVISION_VERIFY_STATUS_REPORT_EXCLUDE."
+    "Drupal status report contains errors."
+    "- Verified that the Drupal status report contains no errors."
+    "- Finished site provisioning"
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-provision
+  assert_failure
+
+  steps_run "assert" "${mocks[@]}"
+
+  assert_output_contains "Verify status report           : Yes"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Provision: DB; no site; status report errors excluded" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  prepare_status_report_run
+  export VORTEX_PROVISION_VERIFY_STATUS_REPORT_EXCLUDE="update,files"
+
+  STEPS+=(
+    "@drush -y core:requirements --severity=2 --field=title --format=list --ignore=update,files # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
+    "- Drupal status report contains errors."
+    "Finished site provisioning"
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-provision
+  assert_success
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Provision: DB; no site; status report verification disabled" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  prepare_status_report_run
+  export VORTEX_PROVISION_VERIFY_STATUS_REPORT=0
+
+  STEPS+=(
+    "- Verifying that the Drupal status report contains no errors."
+    "- Verified that the Drupal status report contains no errors."
+    "Finished site provisioning"
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-provision
+  assert_success
+
+  steps_run "assert" "${mocks[@]}"
+
+  assert_output_contains "Verify status report           : No"
 
   popd >/dev/null || exit 1
 }
@@ -3362,6 +3673,11 @@ assert_provision_info() {
     "Disabling maintenance mode."
     "@drush -y maint:set 0"
     "Disabled maintenance mode."
+
+    # Status report verification.
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
+    "Verifying that the Drupal status report contains no errors."
+    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
