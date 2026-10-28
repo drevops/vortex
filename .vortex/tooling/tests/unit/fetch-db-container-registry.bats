@@ -209,6 +209,7 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "exit 1" 1
   mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
   mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
+  mock_set_side_effect "${mock_docker}" "echo 'tagged image'" 4
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
@@ -269,6 +270,7 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'image exists'" 1
   mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
   mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
+  mock_set_side_effect "${mock_docker}" "echo 'tagged image'" 4
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
@@ -325,6 +327,7 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'image exists'" 1
   mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
   mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
+  mock_set_side_effect "${mock_docker}" "echo 'tagged image'" 4
 
   export VORTEX_DB_INDEX="2"
   export VORTEX_DB2_IMAGE="myorg/migration-db"
@@ -360,6 +363,7 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "exit 1" 3
   mock_set_side_effect "${mock_docker}" "echo 'logged in'" 4
   mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 5
+  mock_set_side_effect "${mock_docker}" "echo 'tagged image'" 6
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
@@ -602,6 +606,7 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "exit 1" 1
   mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
   mock_set_side_effect "${mock_docker}" "echo 'pulled from docker.io'" 3
+  mock_set_side_effect "${mock_docker}" "echo 'tagged image'" 4
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   # Don't set VORTEX_FETCH_DB_CONTAINER_REGISTRY to test default
@@ -617,6 +622,7 @@ load ../_helper.bash
   # The registry reaches the pull target but never the output, so only the
   # recorded arguments show that it defaulted to docker.io.
   assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "pull docker.io/myorg/myapp"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 4)" "tag docker.io/myorg/myapp myorg/myapp"
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
   popd >/dev/null
@@ -629,6 +635,7 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "exit 1" 1
   mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
   mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
+  mock_set_side_effect "${mock_docker}" "echo 'tagged image'" 4
 
   # Set database index as used in CI: VORTEX_DB_INDEX=2.
   export VORTEX_DB_INDEX="2"
