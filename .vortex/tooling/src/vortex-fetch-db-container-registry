@@ -51,6 +51,14 @@ VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="${!_v:-}"
 _v="VORTEX_FETCH_DB${_db_index}_FORCE"
 VORTEX_FETCH_DB_FORCE="${!_v:-}"
 
+# Maximum number of layers allowed in the database container image.
+#
+# An expanded archive at or above this limit is discarded and the image is
+# fetched from the registry instead. A fetched image at or above this limit
+# fails the fetch. Docker cannot build on an image with 125 layers.
+_v="VORTEX_FETCH_DB${_db_index}_CONTAINER_REGISTRY_MAX_LAYERS"
+VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS="${!_v:-100}"
+
 # ------------------------------------------------------------------------------
 
 # @formatter:off
@@ -61,6 +69,13 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
+# Print the number of layers in an image, or nothing if it cannot be read.
+image_layers() {
+  local count
+  count="$(docker image inspect --format '{{len .RootFS.Layers}}' "${1}" 2>/dev/null || true)"
+  [[ ${count} =~ ^[0-9]+$ ]] && echo "${count}" || true
+}
+
 # shellcheck disable=SC2043
 for cmd in docker; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
@@ -70,6 +85,7 @@ info "Started database data container image fetch."
 [ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER}" ] && fail "Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER or VORTEX_CONTAINER_REGISTRY_USER."
 [ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS}" ] && fail "Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS or VORTEX_CONTAINER_REGISTRY_PASS."
 [ -z "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" ] && fail "Missing required value for VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE or VORTEX_DB_IMAGE."
+[[ ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS} =~ ^[1-9][0-9]*$ ]] || fail "Invalid value \"${VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS}\" for VORTEX_FETCH_DB${_db_index}_CONTAINER_REGISTRY_MAX_LAYERS. Use a positive integer."
 
 export VORTEX_CONTAINER_REGISTRY="${VORTEX_FETCH_DB_CONTAINER_REGISTRY}"
 export VORTEX_CONTAINER_REGISTRY_USER="${VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER}"
@@ -109,6 +125,17 @@ if [ -f "${archive_file}" ]; then
     note "Not found expanded ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
   fi
 
+  # Each export of an expanded archive adds layers on top of it, so a deep
+  # archive is replaced by the registry image to reset the layer count.
+  if [ "${image_expanded_successfully}" -eq 1 ]; then
+    archive_layers="$(image_layers "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}")"
+    if [ -n "${archive_layers}" ] && [ "${archive_layers}" -ge "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS}" ]; then
+      note "Expanded ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image has ${archive_layers} layers, at or above the limit of ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS}."
+      note "Discarding the expanded image to fetch it from the registry."
+      image_expanded_successfully=0
+    fi
+  fi
+
   pass "Expanded archived database container image file ${archive_file}."
 fi
 
@@ -124,13 +151,21 @@ elif [ ! -f "${archive_file}" ] && [ "${image_found_on_host}" -eq 1 ] && [ "${VO
   should_fetch=0
 fi
 
+image="${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}"
 if [ "${should_fetch}" -eq 1 ]; then
   task "Fetching ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
 
   "$(dirname "${BASH_SOURCE[0]}")/vortex-login-container-registry"
 
-  docker pull "${VORTEX_FETCH_DB_CONTAINER_REGISTRY}/${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}"
+  image="${VORTEX_FETCH_DB_CONTAINER_REGISTRY}/${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}"
+  docker pull "${image}"
   pass "Fetched ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
+fi
+
+image_layers_count="$(image_layers "${image}")"
+if [ -n "${image_layers_count}" ]; then
+  [ "${image_layers_count}" -ge "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS}" ] && fail "Database container image ${image} has ${image_layers_count} layers, at or above the limit of ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS}. Docker cannot build on an image with 125 layers. Rebuild the image from a database dump on a clean base image, or raise VORTEX_FETCH_DB${_db_index}_CONTAINER_REGISTRY_MAX_LAYERS."
+  pass "Database container image ${image} has ${image_layers_count} layers, below the limit of ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS}."
 fi
 
 pass "Finished database data container image fetch."
