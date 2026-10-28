@@ -2005,11 +2005,6 @@ assert_provision_info() {
     # Post-provision operations skipped (set internally by fallback).
     "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
 
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
-
     # Installation completion.
     "Finished site provisioning"
   )
@@ -2075,11 +2070,6 @@ assert_provision_info() {
 
     # Post-provision operations skipped.
     "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
-
-    # Status report verification.
-    "@drush -y core:requirements --severity=2 --field=title --format=list # 0"
-    "Verifying that the Drupal status report contains no errors."
-    "Verified that the Drupal status report contains no errors."
 
     # Installation completion.
     "Finished site provisioning"
