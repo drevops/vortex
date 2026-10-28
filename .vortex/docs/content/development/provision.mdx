@@ -224,12 +224,12 @@ These environment variables steer the flow:
     Turn off the status report check. After the last operation, the script
     reads the Drupal status report with `drush core:requirements` and fails
     when any requirement has the error severity, such as a pending schema
-    update, an unwritable files directory, or a missing PHP extension. The
-    failure output lists the title of each failing requirement. Warnings
-    never fail the provisioning, because a healthy site routinely carries
-    some. `.env` ships with `1`. Set `0` in `.env` to turn the check off for
-    the project, or in your hosting provider's environment variables to turn
-    it off for a single environment.<br/><br/>
+    update, a files directory that isn't writable, or a missing PHP
+    extension. The failure output lists the title of each failing
+    requirement. Warnings never fail the provisioning, because a healthy
+    site routinely carries some. `.env` ships with `1`. Set `0` in `.env` to
+    turn the check off for the project, or in your hosting provider's
+    environment variables to turn it off for a single environment.<br/><br/>
 13. `VORTEX_PROVISION_VERIFY_STATUS_REPORT_EXCLUDE=key1,key2`<br/>
     Skip specific requirements in the status report check, so a project with
     a known and accepted error keeps the check on. The value is a
