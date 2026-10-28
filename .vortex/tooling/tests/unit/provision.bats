@@ -3389,6 +3389,29 @@ prepare_status_report_run() {
   popd >/dev/null || exit 1
 }
 
+@test "Provision: DB; no site; status report unreadable" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  prepare_status_report_run
+
+  STEPS+=(
+    "@drush -y core:requirements --severity=2 --field=title --format=list # 1"
+    "Verifying that the Drupal status report contains no errors."
+    "Unable to read the Drupal status report."
+    "- Verified that the Drupal status report contains no errors."
+    "- Finished site provisioning"
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-provision
+  assert_failure
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Provision: DB; no site; status report errors excluded" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

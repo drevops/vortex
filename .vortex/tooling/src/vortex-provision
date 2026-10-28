@@ -477,9 +477,9 @@ if [ "${VORTEX_PROVISION_VERIFY_STATUS_REPORT}" = "1" ]; then
   status_opts=(--severity=2 --field=title --format=list)
   [ -n "${VORTEX_PROVISION_VERIFY_STATUS_REPORT_EXCLUDE}" ] && status_opts+=(--ignore="${VORTEX_PROVISION_VERIFY_STATUS_REPORT_EXCLUDE}")
 
-  # The failing requirements are read from the output, so the exit code of the
-  # command is ignored.
-  status_errors="$(drush core:requirements "${status_opts[@]}" || true)"
+  # The command exits with 0 even when requirements have errors, so a non-zero
+  # exit code means the status report could not be read.
+  status_errors="$(drush core:requirements "${status_opts[@]}")" || fail "Unable to read the Drupal status report."
 
   if [ -n "${status_errors}" ]; then
     note "The following requirements in the Drupal status report have errors:"
