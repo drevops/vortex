@@ -334,6 +334,16 @@ The 3 variables live in the CI configuration: in the container `env` block
 of the `database` and `build` jobs on GitHub Actions and in the shared
 `runner_config` block on CircleCI.
 
+With database-in-image storage and the `container_registry` source, the
+cache holds an image archive. The `database` job builds on the restored
+archive and caches its export, which adds 3 layers each day. Docker can't
+build on an image with 125 layers, so the fetch counts the layers first.
+An archive that reaches the limit in
+`VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS` (100 by default) is
+discarded, and the fetch pulls the image from the registry instead. The
+fetch fails when the registry image reaches the limit too. Rebuild that
+image from a database dump on a clean base image.
+
 :::note
 
 Caching makes the biggest difference on projects with a lot of data.
