@@ -11,13 +11,14 @@ load ../_helper.bash
 
   mock_docker=$(mock_command "docker")
   # The image is absent from the host, so the inspect is followed by a registry
-  # login, a pull and a layer count. The login script is invoked by its own
-  # path rather than through PATH, so it runs for real and its own
+  # login, a pull, a tag and a layer count. The login script is invoked by its
+  # own path rather than through PATH, so it runs for real and its own
   # 'docker login' is call 2.
   mock_set_side_effect "${mock_docker}" "exit 1" 1
   mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
   mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
-  mock_set_side_effect "${mock_docker}" "echo 24" 4
+  mock_set_side_effect "${mock_docker}" "echo 'tagged image'" 4
+  mock_set_side_effect "${mock_docker}" "echo 24" 5
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
@@ -31,12 +32,13 @@ load ../_helper.bash
   assert_output_contains "Not found myorg/myapp image on host."
   assert_output_contains "Fetching myorg/myapp image from the registry."
   assert_output_contains "[ OK ] Fetched myorg/myapp image from the registry."
-  assert_output_contains "[ OK ] Database container image registry.example.com/myorg/myapp has 24 layers, below the limit of 100."
+  assert_output_contains "[ OK ] Database container image myorg/myapp has 24 layers, below the limit of 100."
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
   assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "pull registry.example.com/myorg/myapp"
-  assert_string_contains "$(mock_get_call_args "${mock_docker}" 4)" "image inspect --format {{len .RootFS.Layers}} registry.example.com/myorg/myapp"
-  assert_equal "4" "$(mock_get_call_num "${mock_docker}")"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 4)" "tag registry.example.com/myorg/myapp myorg/myapp"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 5)" "image inspect --format {{len .RootFS.Layers}} myorg/myapp"
+  assert_equal "5" "$(mock_get_call_num "${mock_docker}")"
 
   popd >/dev/null
 }
@@ -220,8 +222,8 @@ load ../_helper.bash
   assert_output_not_contains "Tagging base image"
   assert_output_contains "Fetching myorg/myapp image from the registry."
 
-  # The inspect, the login, the pull and the layer count.
-  assert_equal "4" "$(mock_get_call_num "${mock_docker}")"
+  # The inspect, the login, the pull, the tag and the layer count.
+  assert_equal "5" "$(mock_get_call_num "${mock_docker}")"
   assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "pull registry.example.com/myorg/myapp"
 
   popd >/dev/null
@@ -283,8 +285,8 @@ load ../_helper.bash
   assert_output_contains "Fetching myorg/myapp image from the registry."
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
-  # The inspect, the login, the pull and the layer count.
-  assert_equal "4" "$(mock_get_call_num "${mock_docker}")"
+  # The inspect, the login, the pull, the tag and the layer count.
+  assert_equal "5" "$(mock_get_call_num "${mock_docker}")"
 
   popd >/dev/null
 }
@@ -338,8 +340,8 @@ load ../_helper.bash
   assert_output_contains "Fetching myorg/migration-db image from the registry."
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
-  # The inspect, the login, the pull and the layer count.
-  assert_equal "4" "$(mock_get_call_num "${mock_docker}")"
+  # The inspect, the login, the pull, the tag and the layer count.
+  assert_equal "5" "$(mock_get_call_num "${mock_docker}")"
 
   popd >/dev/null
 }
@@ -374,9 +376,9 @@ load ../_helper.bash
   assert_output_contains "Fetching myorg/myapp image from the registry."
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
-  # The inspect, the load, the second inspect, the login, the pull and the
-  # layer count. A failed expansion has no layers to count.
-  assert_equal "6" "$(mock_get_call_num "${mock_docker}")"
+  # The inspect, the load, the second inspect, the login, the pull, the tag and
+  # the layer count. A failed expansion has no layers to count.
+  assert_equal "7" "$(mock_get_call_num "${mock_docker}")"
 
   rm -f .data/db.tar
 
@@ -394,9 +396,9 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'Loaded image: myorg/myapp'" 2
   mock_set_side_effect "${mock_docker}" "echo 'image exists'" 3
   mock_set_side_effect "${mock_docker}" "echo 100" 4
-  mock_set_side_effect "${mock_docker}" "echo 'Untagged: myorg/myapp:latest'" 5
-  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 6
-  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 7
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 5
+  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 6
+  mock_set_side_effect "${mock_docker}" "echo 'tagged image'" 7
   mock_set_side_effect "${mock_docker}" "echo 24" 8
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
@@ -412,13 +414,14 @@ load ../_helper.bash
   assert_output_contains "Discarding the expanded image to fetch it from the registry."
   assert_output_contains "[ OK ] Expanded archived database container image file .data/db.tar."
   assert_output_contains "Fetching myorg/myapp image from the registry."
-  assert_output_contains "[ OK ] Database container image registry.example.com/myorg/myapp has 24 layers, below the limit of 100."
+  assert_output_contains "[ OK ] Database container image myorg/myapp has 24 layers, below the limit of 100."
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
+  # The tag of the pulled image replaces the tag of the discarded archive.
   assert_string_contains "$(mock_get_call_args "${mock_docker}" 4)" "image inspect --format {{len .RootFS.Layers}} myorg/myapp"
-  assert_string_contains "$(mock_get_call_args "${mock_docker}" 5)" "image rm myorg/myapp"
-  assert_string_contains "$(mock_get_call_args "${mock_docker}" 7)" "pull registry.example.com/myorg/myapp"
-  assert_string_contains "$(mock_get_call_args "${mock_docker}" 8)" "image inspect --format {{len .RootFS.Layers}} registry.example.com/myorg/myapp"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 6)" "pull registry.example.com/myorg/myapp"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 7)" "tag registry.example.com/myorg/myapp myorg/myapp"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 8)" "image inspect --format {{len .RootFS.Layers}} myorg/myapp"
   assert_equal "8" "$(mock_get_call_num "${mock_docker}")"
 
   rm -f .data/db.tar
@@ -437,9 +440,9 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'Loaded image: myorg/migration-db'" 2
   mock_set_side_effect "${mock_docker}" "echo 'image exists'" 3
   mock_set_side_effect "${mock_docker}" "echo 31" 4
-  mock_set_side_effect "${mock_docker}" "echo 'Untagged: myorg/migration-db:latest'" 5
-  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 6
-  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 7
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 5
+  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 6
+  mock_set_side_effect "${mock_docker}" "echo 'tagged image'" 7
   mock_set_side_effect "${mock_docker}" "echo 24" 8
 
   export VORTEX_DB_INDEX="2"
@@ -454,9 +457,9 @@ load ../_helper.bash
   assert_success
   assert_output_contains "Expanded myorg/migration-db image has 31 layers, at or above the limit of 30."
   assert_output_contains "Fetching myorg/migration-db image from the registry."
-  assert_output_contains "[ OK ] Database container image registry.example.com/myorg/migration-db has 24 layers, below the limit of 30."
+  assert_output_contains "[ OK ] Database container image myorg/migration-db has 24 layers, below the limit of 30."
 
-  assert_string_contains "$(mock_get_call_args "${mock_docker}" 5)" "image rm myorg/migration-db"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 7)" "tag registry.example.com/myorg/migration-db myorg/migration-db"
   assert_equal "8" "$(mock_get_call_num "${mock_docker}")"
 
   rm -f .data/db.tar
@@ -464,18 +467,14 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "fetch-db-container-registry: Fail when the expanded archive at the layer limit cannot be removed" {
+@test "fetch-db-container-registry: Fail when the pulled image cannot be tagged" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  mkdir -p .data
-  touch .data/db.tar
 
   mock_docker=$(mock_command "docker")
   mock_set_side_effect "${mock_docker}" "exit 1" 1
-  mock_set_side_effect "${mock_docker}" "echo 'Loaded image: myorg/myapp'" 2
-  mock_set_side_effect "${mock_docker}" "echo 'image exists'" 3
-  mock_set_side_effect "${mock_docker}" "echo 100" 4
-  mock_set_side_effect "${mock_docker}" "exit 1" 5
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
+  mock_set_side_effect "${mock_docker}" "exit 1" 4
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
@@ -485,13 +484,11 @@ load ../_helper.bash
 
   run .vortex/tooling/src/vortex-fetch-db-container-registry
   assert_failure
-  assert_output_contains "Discarding the expanded image to fetch it from the registry."
-  assert_output_contains "[FAIL] Unable to remove the expanded myorg/myapp image."
-  assert_output_not_contains "Fetching myorg/myapp image from the registry."
+  assert_output_contains "Fetching myorg/myapp image from the registry."
+  assert_output_not_contains "[ OK ] Fetched myorg/myapp image from the registry."
+  assert_output_not_contains "Finished database data container image fetch."
 
-  assert_equal "5" "$(mock_get_call_num "${mock_docker}")"
-
-  rm -f .data/db.tar
+  assert_equal "4" "$(mock_get_call_num "${mock_docker}")"
 
   popd >/dev/null
 }
@@ -503,7 +500,8 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "exit 1" 1
   mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
   mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
-  mock_set_side_effect "${mock_docker}" "echo 100" 4
+  mock_set_side_effect "${mock_docker}" "echo 'tagged image'" 4
+  mock_set_side_effect "${mock_docker}" "echo 100" 5
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
@@ -514,10 +512,10 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-fetch-db-container-registry
   assert_failure
   assert_output_contains "[ OK ] Fetched myorg/myapp image from the registry."
-  assert_output_contains "[FAIL] Database container image registry.example.com/myorg/myapp has 100 layers, at or above the limit of 100. Docker cannot build on an image with 125 layers. Rebuild the image from a database dump on a clean base image, or raise VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS."
+  assert_output_contains "[FAIL] Database container image myorg/myapp has 100 layers, at or above the limit of 100. Docker cannot build on an image with 125 layers. Rebuild the image from a database dump on a clean base image, or raise VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS."
   assert_output_not_contains "Finished database data container image fetch."
 
-  assert_equal "4" "$(mock_get_call_num "${mock_docker}")"
+  assert_equal "5" "$(mock_get_call_num "${mock_docker}")"
 
   popd >/dev/null
 }
