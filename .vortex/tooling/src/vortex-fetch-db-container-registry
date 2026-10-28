@@ -132,6 +132,9 @@ if [ -f "${archive_file}" ]; then
     if [ -n "${archive_layers}" ] && [ "${archive_layers}" -ge "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS}" ]; then
       note "Expanded ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image has ${archive_layers} layers, at or above the limit of ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS}."
       note "Discarding the expanded image to fetch it from the registry."
+      # A pull from a registry other than Docker Hub adds a registry-prefixed
+      # tag and leaves this one in place for the build to select.
+      docker image rm "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" >/dev/null || fail "Unable to remove the expanded ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image."
       image_expanded_successfully=0
     fi
   fi

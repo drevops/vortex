@@ -394,9 +394,10 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'Loaded image: myorg/myapp'" 2
   mock_set_side_effect "${mock_docker}" "echo 'image exists'" 3
   mock_set_side_effect "${mock_docker}" "echo 100" 4
-  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 5
-  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 6
-  mock_set_side_effect "${mock_docker}" "echo 24" 7
+  mock_set_side_effect "${mock_docker}" "echo 'Untagged: myorg/myapp:latest'" 5
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 6
+  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 7
+  mock_set_side_effect "${mock_docker}" "echo 24" 8
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
@@ -415,9 +416,10 @@ load ../_helper.bash
   assert_output_contains "[ OK ] Finished database data container image fetch."
 
   assert_string_contains "$(mock_get_call_args "${mock_docker}" 4)" "image inspect --format {{len .RootFS.Layers}} myorg/myapp"
-  assert_string_contains "$(mock_get_call_args "${mock_docker}" 6)" "pull registry.example.com/myorg/myapp"
-  assert_string_contains "$(mock_get_call_args "${mock_docker}" 7)" "image inspect --format {{len .RootFS.Layers}} registry.example.com/myorg/myapp"
-  assert_equal "7" "$(mock_get_call_num "${mock_docker}")"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 5)" "image rm myorg/myapp"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 7)" "pull registry.example.com/myorg/myapp"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 8)" "image inspect --format {{len .RootFS.Layers}} registry.example.com/myorg/myapp"
+  assert_equal "8" "$(mock_get_call_num "${mock_docker}")"
 
   rm -f .data/db.tar
 
@@ -435,9 +437,10 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'Loaded image: myorg/migration-db'" 2
   mock_set_side_effect "${mock_docker}" "echo 'image exists'" 3
   mock_set_side_effect "${mock_docker}" "echo 31" 4
-  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 5
-  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 6
-  mock_set_side_effect "${mock_docker}" "echo 24" 7
+  mock_set_side_effect "${mock_docker}" "echo 'Untagged: myorg/migration-db:latest'" 5
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 6
+  mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 7
+  mock_set_side_effect "${mock_docker}" "echo 24" 8
 
   export VORTEX_DB_INDEX="2"
   export VORTEX_DB2_IMAGE="myorg/migration-db"
@@ -453,7 +456,40 @@ load ../_helper.bash
   assert_output_contains "Fetching myorg/migration-db image from the registry."
   assert_output_contains "[ OK ] Database container image registry.example.com/myorg/migration-db has 24 layers, below the limit of 30."
 
-  assert_equal "7" "$(mock_get_call_num "${mock_docker}")"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 5)" "image rm myorg/migration-db"
+  assert_equal "8" "$(mock_get_call_num "${mock_docker}")"
+
+  rm -f .data/db.tar
+
+  popd >/dev/null
+}
+
+@test "fetch-db-container-registry: Fail when the expanded archive at the layer limit cannot be removed" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  touch .data/db.tar
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "exit 1" 1
+  mock_set_side_effect "${mock_docker}" "echo 'Loaded image: myorg/myapp'" 2
+  mock_set_side_effect "${mock_docker}" "echo 'image exists'" 3
+  mock_set_side_effect "${mock_docker}" "echo 100" 4
+  mock_set_side_effect "${mock_docker}" "exit 1" 5
+
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
+
+  run .vortex/tooling/src/vortex-fetch-db-container-registry
+  assert_failure
+  assert_output_contains "Discarding the expanded image to fetch it from the registry."
+  assert_output_contains "[FAIL] Unable to remove the expanded myorg/myapp image."
+  assert_output_not_contains "Fetching myorg/myapp image from the registry."
+
+  assert_equal "5" "$(mock_get_call_num "${mock_docker}")"
 
   rm -f .data/db.tar
 
