@@ -1,0 +1,62 @@
+# CodeRabbit configuration for projects based on Vortex.
+#
+# Tunes automated pull request reviews to report the issues that matter and to
+# review against the conventions documented in AGENTS.md and docs/.
+#
+# https://docs.coderabbit.ai/reference/configuration
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+tone_instructions: 'Be concise. Report only issues that affect correctness, security, performance or maintainability. Do not comment on formatting or style that the project linters already enforce.'
+
+reviews:
+  # 'quiet' reports only the most important issues; 'assertive' adds nitpicks.
+  profile: chill
+  sequence_diagrams: false
+  in_progress_fortune: false
+  related_issues: false
+  related_prs: false
+  suggested_labels: false
+  suggested_reviewers: false
+
+  path_filters:
+    - '!**/composer.lock'
+    - '!**/package-lock.json'
+    - '!**/yarn.lock'
+    #;< VORTEX_DEV
+    - '!.vortex/installer/tests/Fixtures/**'
+    #;> VORTEX_DEV
+
+  path_instructions:
+    - path: 'config/**/*.yml'
+      instructions: 'Exported Drupal configuration. Comment only on changes that grant permissions, expose content or weaken security settings. Ignore UUIDs, hashes and key ordering.'
+    - path: 'tests/behat/**/*.feature'
+      instructions: 'Review against the conventions in docs/testing.md.'
+
+  pre_merge_checks:
+    docstrings:
+      mode: 'off'
+
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+
+  # The project runs these linters in CI with its own configuration.
+  tools:
+    eslint:
+      enabled: false
+    phpcs:
+      enabled: false
+    phpmd:
+      enabled: false
+    phpstan:
+      enabled: false
+    stylelint:
+      enabled: false
+
+knowledge_base:
+  code_guidelines:
+    filePatterns:
+      - 'AGENTS.md'
+      - 'docs/**/*.md'
