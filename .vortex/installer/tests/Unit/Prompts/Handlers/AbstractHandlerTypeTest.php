@@ -6,6 +6,7 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\AbstractHandler;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
+use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeReview;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeCoverageProvider;
@@ -115,6 +116,7 @@ class AbstractHandlerTypeTest extends UnitTestCase {
     yield 'label_merge_conflicts_pr' => [LabelMergeConflictsPr::id(), PromptType::Confirm];
     yield 'preserve_docs_project' => [PreserveDocsProject::id(), PromptType::Confirm];
     yield 'ai_code_instructions' => [AiCodeInstructions::id(), PromptType::Confirm];
+    yield 'ai_code_review' => [AiCodeReview::id(), PromptType::Confirm];
     yield 'visual_regression' => [VisualRegression::id(), PromptType::Confirm];
     yield 'gitleaks' => [Gitleaks::id(), PromptType::Confirm];
     yield 'frontend_build' => [FrontendBuild::id(), PromptType::Confirm];

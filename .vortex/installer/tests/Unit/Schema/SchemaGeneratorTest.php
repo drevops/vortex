@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Schema;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
+use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeReview;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
@@ -78,6 +79,7 @@ class SchemaGeneratorTest extends UnitTestCase {
     yield 'migration' => [Migration::id(), 'confirm'];
     yield 'database_image' => [DatabaseImage::id(), 'text'];
     yield 'ai_code_instructions' => [AiCodeInstructions::id(), 'confirm'];
+    yield 'ai_code_review' => [AiCodeReview::id(), 'confirm'];
   }
 
   public function testOptionsFormat(): void {

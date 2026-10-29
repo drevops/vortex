@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 use AlexSkrypnyk\PhpunitHelpers\Traits\TuiTrait as UpstreamTuiTrait;
 use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
+use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeReview;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeCoverageProvider;
@@ -171,6 +172,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       LabelMergeConflictsPr::id() => TRUE,
       PreserveDocsProject::id() => TRUE,
       AiCodeInstructions::id() => TRUE,
+      AiCodeReview::id() => FALSE,
       NotificationChannels::id() => [NotificationChannels::EMAIL],
     ];
   }
@@ -257,6 +259,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       LabelMergeConflictsPr::id() => static::TUI_DEFAULT,
       PreserveDocsProject::id() => static::TUI_DEFAULT,
       AiCodeInstructions::id() => static::TUI_DEFAULT,
+      AiCodeReview::id() => static::TUI_DEFAULT,
     ];
   }
 

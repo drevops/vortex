@@ -34,6 +34,7 @@
         "checkstyle",
         "clamav",
         "cobertura",
+        "coderabbit",
         "commandfiles",
         "containerisation",
         "customisations",

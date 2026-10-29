@@ -4,6 +4,7 @@ Behat
 CircleCI
 ClamAV
 Codecov
+CodeRabbit
 Composer
 DCLint
 Diffy

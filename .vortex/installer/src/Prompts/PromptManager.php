@@ -6,6 +6,7 @@ namespace DrevOps\VortexInstaller\Prompts;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\AbstractHandler;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
+use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeReview;
 use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeCoverageProvider;
@@ -255,7 +256,8 @@ class PromptManager {
       ->add(fn($r, $pr, $n): mixed => $this->prompt(PreserveDocsProject::class), PreserveDocsProject::id())
 
       ->intro('AI')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(AiCodeInstructions::class), AiCodeInstructions::id());
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(AiCodeInstructions::class), AiCodeInstructions::id())
+      ->add(fn($r, $pr, $n): mixed => $this->prompt(AiCodeReview::class), AiCodeReview::id());
 
     // @formatter:on
     // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
@@ -514,6 +516,7 @@ class PromptManager {
 
     $values['AI'] = Tui::LIST_SECTION_TITLE;
     $values['AI agent instructions'] = Converter::bool($responses[AiCodeInstructions::id()]);
+    $values['AI code review'] = Converter::bool($responses[AiCodeReview::id()]);
 
     $values['Locations'] = Tui::LIST_SECTION_TITLE;
     $values['Current directory'] = $this->config->getRoot();

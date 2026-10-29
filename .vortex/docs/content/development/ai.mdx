@@ -12,7 +12,8 @@ lives.
 
 This page is for developers who work on a **Vortex** project with an AI
 coding agent such as Claude Code. It explains what each instruction file
-gives the agent and how to add skills of your own.
+gives the agent, how to add skills of your own, and how to tune automated
+code review.
 
 The installer adds the instruction files unless you answer no to its
 **Provide AI agent instructions?** prompt. That answer leaves out the
@@ -146,3 +147,69 @@ machine-local Claude state out of the repository.
 Confirm that `git status` lists the new skill as untracked, which shows that
 Git doesn't ignore it. After you commit it, `git ls-files .claude/skills`
 lists its `SKILL.md`, which shows that Git tracks it.
+
+## AI code review
+
+[CodeRabbit](https://www.coderabbit.ai/) is an automated reviewer that
+comments on pull requests. **Vortex** ships a `.coderabbit.yaml` file that
+tunes its reviews to your project. The file needs no credentials or tokens.
+
+The installer adds the file when you answer yes to its **Configure AI code
+review with CodeRabbit?** prompt. The default answer is no, because the
+file has an effect only after you install the CodeRabbit app on your
+repository.
+
+The configuration makes these changes to the CodeRabbit defaults:
+
+- **Reviews against your conventions** - CodeRabbit reads `AGENTS.md` and
+  the Markdown files in `docs/` as coding guidelines. The installer drops
+  the `docs/` entries when you don't keep the project documentation.
+- **Limits comments to issues that matter** - the `chill` review profile
+  and the tone instructions restrict comments to correctness, security,
+  performance, and maintainability.
+- **Leaves linting to your linters** - CodeRabbit's own PHPCS, PHPMD,
+  PHPStan, ESLint, and Stylelint runs are off. The project runs PHPCS,
+  PHPStan, ESLint, and Stylelint in CI with its own configuration, and
+  doesn't use PHPMD.
+- **Removes extra output** - sequence diagrams, related issues and pull
+  requests, suggested labels and reviewers, the docstring coverage check,
+  and the docstring and unit test generation offers are off.
+- **Skips lock files** - `composer.lock`, `package-lock.json`, and
+  `yarn.lock` are excluded from review.
+- **Adds instructions for 2 paths** - CodeRabbit reviews exported
+  configuration in `config/` only for changes to permissions, content
+  access, and security settings. It reviews Behat features against
+  `docs/testing.md`.
+
+The copy in the **Vortex** repository also excludes the installer's test
+fixtures from review. The installer removes that entry.
+
+### Tune the configuration
+
+Edit `.coderabbit.yaml` and commit it. CodeRabbit applies the committed
+file to the next review.
+
+The following table lists the settings you're most likely to change:
+
+| Setting | Controls |
+|---|---|
+| `reviews.profile` | `quiet` for the most important issues only, `chill` for balanced feedback, `assertive` for more comments |
+| `tone_instructions` | Free-text guidance for every review, up to 250 characters |
+| `reviews.path_instructions` | Extra review instructions for files that match a path pattern |
+| `reviews.path_filters` | Files to review; a pattern that starts with `!` excludes files |
+| `reviews.tools` | The linters and analyzers that CodeRabbit runs itself |
+| `knowledge_base.code_guidelines.filePatterns` | The guideline files that CodeRabbit reads |
+
+To add review instructions for your custom modules, add an entry to the
+`reviews.path_instructions` list:
+
+```yaml
+    - path: 'web/modules/custom/**'
+      instructions: 'Prefer dependency injection over static service calls.'
+```
+
+The first lines of the file point editors that support the
+`yaml-language-server` comment at the CodeRabbit schema. These editors
+validate and autocomplete the settings. The
+[CodeRabbit configuration reference](https://docs.coderabbit.ai/reference/configuration)
+lists every setting.
