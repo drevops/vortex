@@ -29,8 +29,9 @@ commands](#shipped-commands) lists every command it defines.
 **Vortex** also ships an example local Ahoy file,
 [`.ahoy.local.example.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.local.example.yml).
 To add commands for your machine only, copy it to `.ahoy.local.yml` and add
-them there. Git ignores the copy. Run a local command with
-`ahoy local COMMAND`, and list the local commands with `ahoy local --help`.
+them there. The shipped `.gitignore` excludes the copy. Run a local command
+with `ahoy local COMMAND`, and list the local commands with
+`ahoy local --help`.
 The `local` command exists only while `.ahoy.local.yml` does.
 
 ## Usage
@@ -151,9 +152,9 @@ container:
 - Any variable whose name starts with `COMPOSE_`, `GITHUB_`, `PACKAGE_`,
   `DOCKER_`, `DRUPAL_`, `VORTEX_` or `ENVIRONMENT_`
 
-Your shell's variables include the ones the entrypoint loaded from `.env`
-and `.env.local`. A `DRUPAL_` or `VORTEX_` value in `.env.local` reaches the
-command without recreating the container.
+The entrypoint exports `.env` and `.env.local` into your shell first, so a
+`DRUPAL_` or `VORTEX_` value in `.env.local` reaches the command without
+recreating the container.
 
 `ahoy cli` joins its arguments into a single `bash -c` string. In an
 argument that contains spaces, escape each double quote as `\"`.

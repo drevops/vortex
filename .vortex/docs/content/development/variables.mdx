@@ -54,8 +54,8 @@ Each source in the following list overrides the ones before it:
 5. The value in `.env.local`, where the last assignment in the file wins
 6. The value from the environment
 
-Each script loads `.env` and then `.env.local` itself. It then restores
-every variable that was already exported. A value set in your shell, in CI
+Each script loads `.env` and then `.env.local` itself. The script then
+restores every variable your environment had already exported. A value set in your shell, in CI
 or on the hosting platform wins over both files.
 
 ## Naming conventions
@@ -108,8 +108,8 @@ doesn't skip anything. A few flags, such as `VORTEX_NOTIFY_SKIP`, only check
 that the value isn't empty, so `0` switches them on too. Leave such a flag
 unset to keep it off.
 
-`VORTEX_NOTIFY_NEWRELIC_ENABLED` is such a flag. It takes `true` because it
-falls back to Lagoon's `NEWRELIC_ENABLED`. Third-party variables keep their
+`VORTEX_NOTIFY_NEWRELIC_ENABLED` also checks only for a non-empty value, so
+it accepts `true` from its fallback, Lagoon's `NEWRELIC_ENABLED`. Third-party variables keep their
 own values, such as `RENOVATE_DRY_RUN=true`.
 
 ## Columns of the variables list

@@ -47,18 +47,18 @@ On each deployment, **Vortex** runs these steps on Lagoon:
 5. Notifies configured channels about the finished deployment
 
 Provisioning imports that dump into a new environment, or into an existing
-environment when the database override is on. Sites that install from a
-profile skip step 3. Projects with a migration source database also fetch
-that database before provisioning.
+environment when `VORTEX_PROVISION_OVERRIDE_DB` is `1`. Sites that install
+from a profile skip step 3. Projects with a migration source database also
+fetch that database before provisioning.
 
 In production, provisioning never sanitizes the database. With the default
 `database` provision type, it keeps the existing production database.
 
-The post-rollout tasks in the
-[`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml)
-configuration file run these steps. The same file runs a `drush cron` job
-every 15 minutes in the `main` and `develop` environments. It also defines
-monitoring URLs for both. Other environments get no cron job.
+Lagoon runs these steps as the post-rollout tasks defined in
+[`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml).
+The same file defines a `drush cron` job that runs every 15 minutes in the
+`main` and `develop` environments. It also defines monitoring URLs for
+both. Other environments get no cron job.
 
 ### Environment detection
 
@@ -82,9 +82,9 @@ variable to `production`. It's also production when its branch name equals
 `VORTEX_LAGOON_PRODUCTION_BRANCH` exactly. That variable lives in `.env`
 and is `main` by default. Otherwise, `main`, `master`, `release/*` and
 `hotfix/*` branches count as staging. Every other branch counts as
-development. The production check comes first, so `main` counts as staging
-only when it isn't the production branch. The production steps in
-`.lagoon.yml` use the same 2 checks.
+development. The production check comes first, so with the default
+settings `main` is production. The production steps in `.lagoon.yml` check
+the same 2 things: the environment type and the branch name.
 
 ## Onboarding
 
@@ -187,7 +187,8 @@ mode](../development/provision.mdx#maintenance-mode) runs in PHP and needs a
 working database.
 
 Lagoon applies a changed variable on the next deployment, so each switch is
-a variable change followed by a redeployment. To turn the page on:
+a variable change followed by a redeployment. To turn the page on, here
+on the `main` production environment:
 
 1. Set `VORTEX_WEBSERVER_MAINTENANCE_MODE` to `1` on the environment:
 
@@ -225,7 +226,7 @@ To bring the site back:
    lagoon deploy latest --project your_site --environment main
    ```
 
-The page covers every request that reaches the site's web server, including
+`nginx` serves the page for every request that reaches it, including
 static files, `robots.txt` and Lagoon's `/.lagoonhealthz` check. Lagoon
 checks the container's health on a separate status port, so the environment
 stays healthy. Shield runs in Drupal, so the page is public even on

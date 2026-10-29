@@ -120,7 +120,7 @@ Turn Xdebug on in the containers, then start a debug session from your IDE:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
-    1. Run `ahoy debug`. When `php -v` in the CLI container shows Xdebug,
+    1. Run `ahoy debug`. When the CLI container's `php -v` lists Xdebug,
        the command prints
        `Enabled debug configuration. Use 'ahoy up' to disable.` To check
        the state later, run `ahoy info`: its `Xdebug` line reads
@@ -211,15 +211,15 @@ If your stack is already running, follow these steps:
 
     `ahoy provision` asks you to confirm first. It then keeps an existing
     site's database, because `.env` sets `VORTEX_PROVISION_OVERRIDE_DB` to
-    `0`. It replaces the database in the following cases:
+    `0`. `ahoy provision` replaces the database in the following cases:
 
     - `VORTEX_PROVISION_OVERRIDE_DB` is `1`, as `.env.local.example` sets
       it.
     - `VORTEX_DB_IMAGE` is set. `ahoy provision` then reloads the database
       container from that image first.
 
-    To see which case applies to you, check both variables in `.env.local`
-    too. A value there overrides the one in `.env`.
+    To see which case applies to you, also check both variables in
+    `.env.local`. A value there overrides the one in `.env`.
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     1. Switch to your branch.
@@ -451,8 +451,8 @@ variables](environment/README.mdx#environment-variables)
 ## Behat tests with `@javascript` tag sometimes get stuck
 
 A scenario tagged `@javascript` sometimes hangs and then fails, because the
-Chrome container stops responding. It happens at random, and its cause is
-unknown. To recover, restart the Chrome container with
+Chrome container stops responding. The hang happens at random, and its
+cause is unknown. To recover, restart the Chrome container with
 `docker compose restart chrome` or `ahoy restart chrome`.
 
 Confirm that the scenario passes when you run the Behat tests again.

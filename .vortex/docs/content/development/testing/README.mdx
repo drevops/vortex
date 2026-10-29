@@ -98,8 +98,8 @@ See [Test
 parallelism](../../continuous-integration/README.mdx#test-parallelism).
 
 Each framework has a variable that lets the build pass despite failing
-tests. Set it to `1`, and the tool still runs and reports every failure in
-the job log:
+tests. Set it to `1` in your CI provider's settings, and the tool still runs
+and reports every failure in the job log:
 
 - `VORTEX_CI_PHPUNIT_IGNORE_FAILURE`
 - `VORTEX_CI_BEHAT_IGNORE_FAILURE`
@@ -124,4 +124,4 @@ topics:
 
 **Vortex** ships the file in the project's `docs/` directory. The installer
 keeps it unless you decline its **Preserve project documentation?** prompt.
-Declining it removes the whole `docs/` directory.
+Declining the prompt removes the whole `docs/` directory.

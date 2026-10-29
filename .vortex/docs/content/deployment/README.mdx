@@ -10,13 +10,13 @@ is for the lead or DevOps engineer who sets up deployments for a project
 built from **Vortex**. It covers choosing the deployment types, what
 triggers a deployment and how to skip or gate a deployment.
 
-The `deploy` _router_ script runs every deployment and hands off to 1 script
-per deployment type. It ships in the
+The `vortex-deploy` _router_ script runs every deployment by handing off to
+1 script per deployment type. It ships in the
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
 Composer package and installs at `vendor/bin/vortex-deploy`.
 
-The CI pipeline's `deploy` job runs the script after the `build` and `lint`
-jobs pass, so only code that built and passed its checks goes out.
+The CI pipeline's `deploy` job runs the router after the `build` and `lint`
+jobs pass.
 
 On GitHub Actions, a [manual
 deployment](../continuous-integration/github-actions.mdx#manual-deployment)
@@ -28,7 +28,7 @@ machine after you confirm.
 
 The deployment scripts read their settings from environment variables. Each
 script loads `.env` from the project root, then `.env.local` when it exists.
-A variable that the CI job already sets wins over both files.
+A variable already set in the CI job's environment wins over both files.
 
 The tables on the deployment type pages give each variable's **Location**:
 
@@ -60,9 +60,9 @@ The installer's default follows your hosting choice:
 - `lagoon` for Lagoon
 - `webhook` for any other hosting
 
-After the code lands, the hosting platform provisions the site and sends
-notifications. That part runs on the hosting side, outside the `deploy`
-job. See [Hosting](../hosting/README.mdx) and
+After the code lands, the hosting platform runs the provisioning and
+notification scripts. That part runs on the hosting side, outside the
+`deploy` job. See [Hosting](../hosting/README.mdx) and
 [Notifications](notifications/README.mdx).
 
 <details>
@@ -91,12 +91,12 @@ default:
 - `hotfix/**`
 - `project/**`
 
-The deployment script then deploys the branch with each configured
-deployment type.
+The router then deploys the branch with each type in
+`$VORTEX_DEPLOY_TYPES`.
 
 On GitHub Actions, a pull request deploys its branch when it's opened,
-updated or reopened. Its target has to be a branch in the preceding list, a
-`feature/*` branch or a `bugfix/*` branch. Depending on the hosting
+updated or reopened. Its base branch has to be a branch in the preceding
+list, a `feature/*` branch or a `bugfix/*` branch. Depending on the hosting
 platform, a pull request deployment can create a temporary environment named
 after it, such as `pr-123` on Lagoon.
 
@@ -111,7 +111,7 @@ also match pushes to `feature/*`, `bugfix/*` and `ci*` branches. Major
 version branches such as `2.x` match too. The patterns match `release/*`
 and `hotfix/*` branches only when the name after the slash is a version or
 a date. CircleCI builds each push. When a deployed branch has an open pull
-request, the build deploys as that pull request.
+request, the build deploys it as that pull request, such as `pr-123`.
 
 A `project/*` branch is a long-lived branch for a larger feature or project
 that spans several pull requests. A migration branch is a typical case: its
@@ -191,7 +191,7 @@ Entries match exactly, with no wildcards.
 Confirm that the next build of a listed pull request or branch skips its
 deployment. The `deploy` job log shows `Found PR 42 in skip list.` or
 `Found branch feature/test in skip list.` Then it shows
-`Skipped deployment` and the deployment types.
+`Skipped deployment` followed by your deployment types.
 
 #### Skipping specific pull requests
 
@@ -210,9 +210,9 @@ VORTEX_DEPLOY_SKIP_PRS=42,123,456
 
 #### Skipping specific branches
 
-Set `$VORTEX_DEPLOY_SKIP_BRANCHES` to the branch names. The list matches
-pull request builds too, because CI passes the pull request's branch name
-along with its number:
+Set `$VORTEX_DEPLOY_SKIP_BRANCHES` to the branch names. A pull request
+build is skipped by its branch name too, because CI passes the branch name
+with the pull request number:
 
 ```shell
 # Skip a single branch
@@ -226,7 +226,7 @@ VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent,project/experimental
 
 #### Combined usage
 
-The 2 lists work together:
+A match in either list skips the deployment:
 
 ```shell
 VORTEX_DEPLOY_ALLOW_SKIP=1
@@ -259,9 +259,9 @@ have no pull request label, so the gate never blocks them.
 The router reads the pull request's labels from `$VORTEX_DEPLOY_PR_LABELS`,
 a comma-separated list that CI fills in from the pull request event:
 
-- GitHub Actions fills it in for you. Its workflow doesn't run on the
-  `labeled` event, so a label added to an open pull request takes effect on
-  the next push. A manual deployment of a pull request carries no labels,
+- GitHub Actions fills it in for you. The workflow has no `labeled`
+  trigger, so a label added to an open pull request takes effect on the
+  next push. A manual deployment of a pull request carries no labels,
   so the gate skips it.
 - CircleCI doesn't provide labels. To use the gate there, fill in
   `$VORTEX_DEPLOY_PR_LABELS` yourself, for example from the GitHub API.

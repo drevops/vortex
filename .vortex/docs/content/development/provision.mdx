@@ -13,10 +13,10 @@ import ProvisionScriptExample from
 
 Provisioning turns an assembled codebase into a working Drupal site. By
 default, it imports the database dump. With the provision type set to
-`profile`, it installs Drupal from a profile instead. Both types then run
-the database updates and the configuration import, so the site matches your
-code. An installed site keeps its database unless you ask for a fresh
-database.
+`profile`, it installs Drupal from a profile instead. Both types normally go
+on to the database updates and the configuration import, so the site
+matches your code. An installed site keeps its database unless you ask for
+a fresh database.
 
 This page is for developers who work on a **Vortex** project day to day,
 and for the lead who tunes provisioning for each environment. It explains
@@ -58,8 +58,7 @@ The provision script does that orchestration:
 
 The following diagram shows the script's steps and the points where it
 branches. Environment variables steer most of the branches. The circled
-numbers match the numbered variables in
-[Customizing flow](#customizing-flow):
+numbers match variables 1-11 in [Customizing flow](#customizing-flow):
 
 ```text
 🚀 Start
@@ -310,9 +309,9 @@ or [MTK](https://github.com/skpr/mtk) do this. They fit into
 Sanitization runs by default whenever provisioning brings in a fresh
 database: a dump import, a profile installation or a database container
 image. A fallback installation is the exception, because it skips every
-step after the install. Sanitization is also skipped whenever the script
-keeps an existing database. That includes a database the hosting platform
-copied in, for example from production.
+step after the install. Apart from a container image, sanitization is
+skipped whenever the script keeps an existing database. That includes a
+database the hosting platform copied in, for example from production.
 
 Production keeps its own database between deployments, so it isn't
 sanitized. `.lagoon.yml` also sets `VORTEX_PROVISION_SANITIZE_DB_SKIP=1` in

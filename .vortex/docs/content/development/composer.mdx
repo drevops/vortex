@@ -160,8 +160,8 @@ when a patch no longer applies to the new version of a dependency. Composer
 then stops with `No available patcher was able to apply patch`, followed by
 the patch URL and the package name.
 
-A common fix is to remove the patches, run the update and then reapply each
-patch in turn.
+A common fix is to remove the patch entries from `composer.json`, run the
+update and then reapply each patch in turn.
 :::
 
 To update a specific package and its dependencies, run the following
@@ -208,8 +208,8 @@ hand.
 
 [Dependency bumping](https://getcomposer.org/doc/03-cli.md#bump) raises the
 version constraints in `composer.json` to the versions you have installed.
-A new dependency then can't downgrade an installed package. Composer also
-has fewer versions to consider, so dependency resolution runs faster.
+Adding a package then can't downgrade a package you already have. Composer
+also has fewer versions to consider, so dependency resolution runs faster.
 
 **Vortex** turns this on with the `bump-after-update` setting, so every
 `composer update` raises your constraints to the versions it installed.
@@ -676,7 +676,7 @@ The following table describes each package in `require-dev`:
 | [`phpstan/phpstan`](https://github.com/phpstan/phpstan) | A static analysis tool that finds type errors, incorrect method calls and other bugs without running the code. | [PHPStan](code-quality/phpstan.mdx) |
 | [`phpunit/phpunit`](https://github.com/sebastianbergmann/phpunit) | The PHP testing framework, used here for the unit, kernel, functional and functional JavaScript tests. | [PHPUnit](testing/phpunit.mdx) |
 | [`pyrech/composer-changelogs`](https://github.com/pyrech/composer-changelogs) | Prints a summary of package additions, updates and removals after running `composer update`. | None |
-| [`softcreatr/jsonpath`](https://github.com/SoftCreatR/JSONPath) | A JSONPath implementation required by the `drevops/behat-steps` JSON assertion steps. The installer's Behat removal leaves it out, so it stays when you deselect Behat, although nothing else uses it. | [Behat](testing/behat.mdx) |
+| [`softcreatr/jsonpath`](https://github.com/SoftCreatR/JSONPath) | A JSONPath implementation required by the `drevops/behat-steps` JSON assertion steps. The installer keeps it when you deselect Behat, although nothing else uses it. | [Behat](testing/behat.mdx) |
 | [`vincentlanglet/twig-cs-fixer`](https://github.com/VincentLanglet/Twig-CS-Fixer) | Checks and fixes Twig templates against a coding standard. | [Twig CS Fixer](code-quality/twig-cs-fixer.mdx) |
 
 #### `conflict`

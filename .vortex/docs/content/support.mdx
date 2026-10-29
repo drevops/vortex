@@ -26,7 +26,7 @@ Start here. These resources cover the common problems:
 
 A clean `ahoy doctor` run ends with
 `[ OK ] All required checks have passed.` A failing check prints a `[FAIL]`
-line, usually with a suggested fix, and stops the run there.
+line, usually with a suggested fix, and stops the run.
 
 ### Community support
 
@@ -74,16 +74,16 @@ Include the following in your report:
   `README.md`
 - Your configuration details
 
-Read the `ahoy doctor info` report before you post it. It redacts the
-following values, only in the binary paths and the `docker info` output:
+Read the `ahoy doctor info` report before you post it. In the binary paths
+and the `docker info` output, the report redacts these values:
 
 - Your username
 - IPv4 addresses
 - 36-character `ID:` values
 - Hex strings of 40 or more characters
 
-Everything else stays as printed, including the operating system details
-and the host name that `docker info` reports.
+The rest of the report stays as printed, including the operating system
+details and the `docker info` host name.
 
 ## 🔒 Security issues
 

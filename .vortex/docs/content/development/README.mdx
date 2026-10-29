@@ -53,8 +53,8 @@ A change usually goes through these steps:
 
 ## Common commands
 
-Each video is a live recording, captured on a demo consumer project that
-uses **Vortex**.
+Each video in this section is a live recording of a demo project built from
+**Vortex**.
 
 ### Build the project
 
@@ -118,8 +118,8 @@ own:
 - `ahoy lint-fe`: the frontend linters Twig CS Fixer, ESLint and Stylelint
 - `ahoy lint-tests`: Gherkin Lint for the Behat feature files
 
-`ahoy lint-fix` applies the automatic fixes of Rector, PHPCBF, Twig CS
-Fixer, ESLint and Stylelint.
+`ahoy lint-fix` applies the automatic fixes of Rector, PHPCBF (the PHPCS
+fixer), Twig CS Fixer, ESLint and Stylelint.
 
 SDC Devel validates the custom theme's components against a provisioned
 site, so it runs separately as `ahoy lint-sdc`. Continuous integration runs
@@ -183,8 +183,8 @@ stack. The database it starts from depends on the project:
 
 - With `VORTEX_PROVISION_OVERRIDE_DB` set to `1`, the command replaces the
   current database with the dump from `.data/db.sql`.
-- With `VORTEX_PROVISION_OVERRIDE_DB` set to `0`, an existing site keeps
-  its database.
+- With `VORTEX_PROVISION_OVERRIDE_DB` set to `0`, the command imports the
+  dump only when no site is installed yet.
 - With the database in a container image (`VORTEX_DB_IMAGE`), the command
   starts a fresh database container from that image, whatever
   `VORTEX_PROVISION_OVERRIDE_DB` says.

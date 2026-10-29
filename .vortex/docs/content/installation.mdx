@@ -68,7 +68,7 @@ These patterns work for the 2 names you'll type most:
   `Falcon` becomes `falcon`). The theme name and the module prefix then
   stay distinct, and both stay short enough to type often.
 
-The installer suggests its own values. For a 1-word site machine name, it
+The installer suggests different values. For a 1-word site machine name, it
 suggests the first 4 letters as the prefix. For the theme, it suggests the
 site machine name itself, such as `star_wars`. Change either suggestion at
 the prompt to match your pattern.
@@ -149,17 +149,18 @@ To put the project on GitHub:
    `.gitignore` files, so the repository has no commits that conflict with
    yours.
 2. Push the initial commit with the commands GitHub shows for an existing
-   repository. The repository's page lists your files.
+   repository. GitHub then lists your files on the repository's page.
 
 ### 5. Create an SSH key for deployments
 
-Your continuous integration pipeline connects to your hosting provider over
-SSH to deploy code. On Lagoon, it fetches the database over SSH too. On
+For the `artifact` and `lagoon` deployment types, your continuous
+integration pipeline deploys code over SSH. On Lagoon, it fetches the
+database over SSH too. On
 Acquia, it downloads database backups through the Acquia Cloud API with the
 API key from the next step.
 
 If you answered **Other** or **None** at the **Hosting provider** prompt,
-only these answers use the keys:
+only these answers need the keys:
 
 - The **Code artifact** deployment type
 - The **Lagoon webhook** deployment type
@@ -181,8 +182,8 @@ accepts the `-m PEM -t rsa` format.
 
 You can also generate 2 separate key pairs: 1 with read access for database
 fetches and 1 with write access for deployments. You can then revoke each
-key on its own. Acquia needs only the deployment key. The following steps
-say where each key goes.
+key on its own. Acquia uses only the deployment key, because it fetches the
+database through the API. The following steps say where each key goes.
 
 You register the public key (the `.pub` file) with your hosting provider in
 the next step. Keep the private key on your machine until the continuous
@@ -292,8 +293,7 @@ To set up GitHub Actions:
    - `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL`: the email address for the
      deployment commits
 
-On Lagoon, the pipeline fetches and deploys with the SSH keys from items 2
-and 3.
+On Lagoon, the pipeline fetches and deploys with the 2 SSH key secrets.
 
 </TabItem>
 <TabItem value="circleci" label="CircleCI">
@@ -312,8 +312,9 @@ To set up CircleCI:
    [`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml):
    `db_ssh_fingerprint` for database fetches and `deploy_ssh_fingerprint`
    for deployments. With a single key, both take the same fingerprint.
-   On Acquia, the database job loads the `db_ssh_fingerprint` key without
-   using it, so set it to the deployment key's fingerprint too.
+   On Acquia, the database job loads the `db_ssh_fingerprint` key but
+   doesn't use it. Set `db_ssh_fingerprint` to the deployment key's
+   fingerprint too.
 6. Commit and push the change to `.circleci/config.yml`.
 7. On Acquia, add the API key and secret from [step 6](#6-set-up-hosting)
    under **Project Settings > Environment Variables** as `VORTEX_ACQUIA_KEY`
@@ -324,7 +325,7 @@ To set up CircleCI:
    - `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL`: the email address for the
      deployment commits
 
-On Lagoon, the pipeline fetches and deploys with the SSH keys from item 3.
+On Lagoon, the pipeline fetches and deploys with the SSH keys you added.
 
 </TabItem>
 </Tabs>
@@ -376,7 +377,7 @@ temporary directory outside the project.
 To prepare an empty branch in your existing project:
 
 1. Create a new branch.
-2. Remove all files except the `.git` directory.
+2. Remove all files, hidden files included, except the `.git` directory.
 
 ### 4. Install Vortex
 

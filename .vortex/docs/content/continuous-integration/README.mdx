@@ -47,7 +47,7 @@ through the pipeline to the hosting platform:
 
 The `lint` job checks the code without provisioning a site:
 
-- Runs in parallel with the other jobs, because it waits for none of them
+- Starts at the same time as the other jobs and waits for none of them
 - Validates the Composer configuration with `composer validate --strict`
 - Lints Dockerfiles with Hadolint and Docker Compose files with DCLint
 - Starts only the `cli` container, because linting needs no database or
@@ -117,7 +117,8 @@ The `deploy` job sends the code to your hosting:
 - Runs after both the `build` and `lint` jobs succeed (a
   [manual deployment](./github-actions.mdx#manual-deployment) on GitHub
   Actions runs it on its own)
-- Skips the branches that automated dependency updates create (`deps/*`)
+- Skips deployment on the branches that automated dependency updates
+  create (`deps/*`)
 - Deploys tags too: GitHub Actions in the same `deploy` job, CircleCI in a
   separate `deploy-tags` job
 - For artifact deployments, ships the codebase that the `build` job
@@ -128,8 +129,8 @@ The `deploy` job sends the code to your hosting:
 
 ## Security audit
 
-Security checks run in a separate workflow. A failing audit then stands
-apart from a failing linter, and you can re-run the audit by itself. Each
+Security checks run in a separate workflow. That keeps a failing audit
+distinct from a failing linter and lets you re-run the audit by itself. Each
 provider defines the workflow in its own file:
 
 | Provider | Location |
@@ -159,11 +160,11 @@ install time.
 
 Every check runs even if an earlier check failed, so a single run reports
 all the findings. The workflow fails if any check failed, unless that
-check's `_IGNORE_FAILURE` variable is set to `1` (see
+check's `VORTEX_CI_*_IGNORE_FAILURE` variable is set to `1` (see
 [Ignore tool failures](#ignore-tool-failures)).
 
 The workflow runs on the same pushes, pull requests and tags as the main
-pipeline, and skips its nightly schedule. You can also start it on demand.
+pipeline, but has no nightly schedule. You can also start it on demand.
 In GitHub Actions, use **Actions > Security audit > Run workflow**. In
 CircleCI, re-run the `audit` workflow from the pipeline view.
 
@@ -239,8 +240,8 @@ for what dismissing a finding does and doesn't change.
 A build can produce files that belong in the repository, such as exported
 configuration, compiled front-end assets, generated documentation and
 scaffolded files. Left unnoticed, the repository and the build output drift
-apart. Whoever builds next then inherits a dirty working tree they didn't
-cause.
+apart. The next developer to run the build then gets changes they didn't
+make.
 
 The `build` job runs `vendor/bin/vortex-check-worktree-changes` after the
 tests and after their results are stored. A dirty tree then never hides
@@ -284,10 +285,11 @@ tree:
 - The `db_cache_*` files that hold the database cache keys
 - The `codecov` uploader and its 2 signature files
 
-Those files exist only during a CI run, so the variable lists them.
-`.gitignore` applies to every checkout. Your value replaces the default, so
-copy the default entries into it when you add your own. Confirm that the
-next run's check prints an `Ignoring` line for each of your patterns.
+Those files exist only during a CI run, so they belong in the variable and
+not in `.gitignore`, which every checkout shares. Your value replaces the
+default, so copy the default entries into it when you add your own. Confirm
+that the next run's check prints an `Ignoring` line for each of your
+patterns.
 
 The check reads the working tree on the runner, not the codebase inside the
 `cli` container.
@@ -320,13 +322,13 @@ previous day's cache. `VORTEX_CI_DB_CACHE_FALLBACK` controls this and
 defaults to `yes`. The scheduled run sets it to `no`, so it always
 downloads a fresh dump.
 
-Neither provider overwrites a saved cache key. GitHub Actions saves the
-cache only when the dump changed during the job, as it does after a fresh
-download. The scheduled run can therefore still save the day's key. On
-CircleCI, every `database` job saves the day's key. The scheduled run's
-dump is then cached only when no other job saved that key first (see
-[CircleCI > Update nightly database
-schedule](./circleci.mdx#update-nightly-database-schedule)).
+Neither provider overwrites a saved cache key, so the first job to save the
+day's key wins. GitHub Actions saves the cache only when a job changed the
+dump, as a fresh download does. Jobs that restored a cache leave the key
+free for the scheduled run. On CircleCI, every `database` job saves the
+day's key. The scheduled run's dump is cached only when no earlier job
+saved it. See [CircleCI > Update nightly database
+schedule](./circleci.mdx#update-nightly-database-schedule).
 
 The 3 variables live in the CI configuration. On GitHub Actions, they sit
 in the container `env` block of the `database` and `build` jobs. On
@@ -337,7 +339,7 @@ CircleCI, they sit in the shared `runner_config` block.
 Caching makes the biggest difference on projects with a lot of data.
 
 With a large database (over 1 GB), the import itself can take a long time.
-Then it's worth packaging the dump into a container image overnight. A
+At that size, package the dump into a container image overnight. A
 sanitized dump that holds only the data the tests need also helps.
 
 **Vortex** can both create and use a database container image with the data
@@ -422,10 +424,10 @@ containers:
 | Single Directory Component validation | Yes | No |
 | Behat tests | Yes, profile `p0` | Yes, the profile numbered after the container, such as `p1` on container `1` |
 
-Everything except Behat runs on the first container only, because running
-it on every container would repeat the same work. Behat runs on all
-containers. The profile each container selects determines which scenarios
-it runs.
+Every task except Behat runs on the first container only, because
+repeating a task on every container would duplicate the work. Behat runs on
+all containers. The profile each container selects determines which
+scenarios it runs.
 
 ### Choosing which container runs what
 

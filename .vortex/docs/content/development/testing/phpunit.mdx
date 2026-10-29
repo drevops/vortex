@@ -23,7 +23,7 @@ drive a real browser.
 **Vortex** includes a PHPUnit configuration in
 [`phpunit.xml`](https://github.com/drevops/vortex/blob/main/phpunit.xml),
 based on Drupal core's `core/phpunit.xml.dist`. Customize the test suites
-there for your project.
+in that file for your project.
 
 ## Usage
 
@@ -96,10 +96,10 @@ public function testSomethingToSkip(): void {
 
 Calling `markTestSkipped()` instead fails the run, because `phpunit.xml`
 sets `failOnSkipped`. Use the attribute in place of the `@group skipped`
-docblock annotation, too. PHPUnit 11 still reads that docblock and leaves
-the test out. It also reports a deprecation, which
-`failOnPhpunitDeprecation` turns into a failed run. On a method that
-carries any attribute, PHPUnit ignores the docblock, so the test runs.
+docblock annotation. PHPUnit 11 still reads that docblock and leaves the
+test out. It also reports a deprecation, which `failOnPhpunitDeprecation`
+turns into a failed run. On a method that carries any other attribute,
+PHPUnit ignores the docblock entirely, so the test runs.
 
 ### Boilerplate
 
@@ -175,7 +175,7 @@ on. It covers the following topics:
 
 **Vortex** ships the file in the project's `docs/` directory. The installer
 keeps it unless you decline its **Preserve project documentation?** prompt.
-Declining it removes the whole `docs/` directory.
+Declining the prompt removes the whole `docs/` directory.
 
 ## Configuration
 
@@ -359,14 +359,14 @@ environment variable in CircleCI.
 The check reads the line rate from `cobertura.xml`. When the rate is too
 low, the job log shows a line such as
 `FAIL: coverage 85.50% is below threshold 90%`. The check has no
-ignore-failure variable of its own. It still runs and can still fail the
-build when you ignore PHPUnit failures.
+ignore-failure variable of its own. The check still runs and can still fail
+the build when you ignore PHPUnit failures.
 
 On pull requests, CI posts the coverage summary as a PR comment, with the
-threshold and a collapsible per-class breakdown. Each new report minimizes
-the older comments, so the PR timeline stays clean. GitHub Actions and
-CircleCI tag their comments with separate hidden markers, so each provider
-minimizes only its own comments.
+threshold and a collapsible per-class breakdown. CI minimizes the older
+comments with each new report, so the PR timeline stays clean. GitHub
+Actions and CircleCI tag their comments with separate hidden markers, so
+each provider minimizes only its own comments.
 
 CircleCI posts the comment only when a `GITHUB_TOKEN` environment variable
 is set. Without the token, the step prints

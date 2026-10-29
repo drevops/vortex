@@ -7,7 +7,7 @@ sidebar_position: 2
 [GitHub Actions](https://github.com/features/actions) is the continuous
 integration and delivery service built into GitHub, so your pipeline runs
 next to the repository and its pull requests. **Vortex** offers it for
-projects hosted on GitHub. It ships the pipeline in
+projects hosted on GitHub and ships the pipeline in
 `.github/workflows/build-test-deploy.yml` and the security checks in
 `.github/workflows/audit.yml`.
 
@@ -95,7 +95,7 @@ To add or remove branches:
 
 The security checks live in a second workflow,
 `.github/workflows/audit.yml`. It triggers on the same branches and tags as
-the main workflow, and skips the nightly schedule. To start it on demand,
+the main workflow, but has no nightly schedule. To start it on demand,
 use **Actions > Security audit > Run workflow**.
 
 See [Security audit](./README.mdx#security-audit) for what it runs and how
@@ -277,8 +277,8 @@ job as succeeded and the `lint`, `database` and `build` jobs as skipped.
 With `override_db` checked, the deployment replaces the environment's
 database with a fresh copy from the production environment. Only the
 `lagoon` deployment type acts on it, even when `VORTEX_DEPLOY_TYPES` lists
-other types. It acts only when it redeploys an environment that already
-exists.
+other types. The override applies only when the deployment redeploys an
+environment that already exists.
 
 :::note
 

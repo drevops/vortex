@@ -80,14 +80,14 @@ Jest's `-t` option runs only the tests whose name matches:
 ## Writing tests
 
 Drupal JavaScript files wrap their code in an immediately invoked function
-expression (IIFE): `((Drupal) => { ... })(Drupal)`. The `Drupal` argument is
-a global object. A test sets up the globals the source file needs, then
+expression (IIFE): `((Drupal) => { ... })(Drupal)`. `Drupal` is a global
+object. A test sets up the globals the source file needs, then
 loads the file with `require()`.
 
 ### Test file structure
 
-Jest finds a `.test.js` file anywhere under a module's `js/` directory. Put
-each test file in a `tests/` subdirectory of that `js/` directory:
+Jest finds a `.test.js` file anywhere under a module's `js/` directory. By
+convention, each test file goes in a `tests/` subdirectory of `js/`:
 
 ```text
 web/modules/custom/my_module/
@@ -198,7 +198,8 @@ following changes:
 The lint script runs ESLint with `--max-warnings=0`, so a warning fails the
 lint like an error does. That includes a callback nested deeper than 5
 levels. It also includes an `eslint-disable` comment for a rule the
-configuration doesn't turn on, which ESLint reports as an unused directive.
+configuration doesn't turn on. ESLint reports that comment as an unused
+directive.
 
 ### Boilerplate
 
@@ -244,7 +245,7 @@ The `Test Suites:` count in the summary also includes it.
 
 ## Reports
 
-Jest writes coverage reports only, and no JUnit test report.
+Jest writes only coverage reports. It has no JUnit test report.
 
 ### Coverage
 

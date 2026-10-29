@@ -94,10 +94,9 @@ Add them in your repository as repository secrets, under
 **Settings > Secrets and variables > Actions**.
 
 Both credential pairs are optional. Leave a pair unset when its environment
-is publicly reachable. When a pair is set, the workflow passes it to Diffy
-on every comparison. Diffy then signs in at the HTTP basic authentication
-prompt. The workflow passes a pair only when both the user and the password
-are set.
+is publicly reachable. When both values of a pair are set, the workflow
+passes the pair to Diffy on every comparison. Diffy then sends them as HTTP
+basic authentication credentials.
 
 **Vortex** forces the [Shield](modules/contributed-modules.mdx#shield)
 module on in `dev` and `stage` environments, pull request environments
@@ -164,7 +163,8 @@ in `owner/repo` form in `VORTEX_NOTIFY_DIFFY_REPOSITORY`, also in the
 hosting environment. It falls back to `VORTEX_NOTIFY_GITHUB_REPOSITORY`.
 
 The channel stays off until you add `diffy` to `VORTEX_NOTIFY_CHANNELS`,
-which lists only `email` by default. Set it in `.env`, for example:
+which lists only `email` by default. Set it in the committed `.env` file,
+for example:
 
 ```ini
 VORTEX_NOTIFY_CHANNELS=email,github,diffy
@@ -183,8 +183,8 @@ tab.
 
 ## How to trigger a comparison
 
-The workflow has 2 entry points. Neither entry point blocks a merge; see
-[Making it blocking](#making-it-blocking).
+The workflow has 2 entry points. Neither entry point blocks a merge, as
+[Making it blocking](#making-it-blocking) explains.
 
 ### 1. Automatic on deployments
 
@@ -417,10 +417,10 @@ https://app.pr-42.example.com/      ->  PR #42
 The host must deploy PR environments to a URL that contains the
 `pr-<number>` segment. The URL is the single source of truth, so the host
 never passes a PR number. Every hosting provider exposes the deployed
-environment URL, so the lookup works the same on every host and needs no
-GitHub API call. The gate then reads the PR's labels and head branch with
-`gh pr view`. If no pull request with that number exists in the repository,
-the lookup fails and the workflow skips the run.
+environment URL, so extracting the number works the same on every host. The
+gate then reads the PR's labels and head branch with `gh pr view`. If no
+pull request with that number exists in the repository, the lookup fails
+and the workflow skips the run.
 
 On Acquia, the notification hook reports
 `https://<site>.<realm>.acquia-sites.com`, or the custom domain in

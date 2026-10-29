@@ -161,8 +161,8 @@ In the `ci` environment,
 makes the same mail collector the default backend for every message sent
 through `interface.default`. CI therefore stores those messages instead of
 delivering them, even when a scenario isn't tagged. The collector is a
-configuration override in a settings file, so nothing running inside the
-site can switch it off. [Reroute
+configuration override in a settings file, so a configuration import or a
+change in the UI can't switch it off. [Reroute
 Email](../modules/contributed-modules.mdx#reroute-email) is disabled in
 `ci`, so each stored message keeps its intended recipient.
 
@@ -171,10 +171,11 @@ configuration defines. Sites that use [Symfony
 Mailer](https://www.drupal.org/project/symfony_mailer) or [Mail
 System](https://www.drupal.org/project/mailsystem) can route a module
 through its own interface: `interface.<module>` or
-`interface.<module>_<key>`. Messages sent through those interfaces bypass
-the collector. For that case, `docker-compose.yml` also points
-`SSMTP_MAILHUB` at a closed port in CI. Delivery then fails at the
-transport, whichever mail plugin produced the message.
+`interface.<module>_<key>`. Outside scenarios tagged `@email:TYPE`, messages
+sent through those interfaces bypass the collector. For that case,
+`docker-compose.yml` also points `SSMTP_MAILHUB` at a closed port in CI.
+Delivery then fails at the transport, whichever mail plugin produced the
+message.
 
 The bare `When the test email system queue is cleared` step still needs the
 `@email` tag or an earlier `When the test email system is enabled` step.
@@ -195,7 +196,7 @@ on. It covers the following topics:
 
 **Vortex** ships the file in the project's `docs/` directory. The installer
 keeps it unless you decline its **Preserve project documentation?** prompt.
-Declining it removes the whole `docs/` directory.
+Declining the prompt removes the whole `docs/` directory.
 
 ## Configuration
 
@@ -296,8 +297,8 @@ every passed step of a scenario, tag the scenario or its feature
 
 Screenshots land in the `.logs/screenshots` directory by default.
 Screenshots from earlier runs stay there, because `behat.php` sets `purge`
-to `FALSE`. To change either behavior, set 1 of the following environment
-variables inside the `cli` container:
+to `FALSE`. To change either behavior, set the matching environment
+variable inside the `cli` container:
 
 - `BEHAT_SCREENSHOT_DIR` stores the screenshots in another directory.
 - `BEHAT_SCREENSHOT_PURGE` set to `1` empties the directory at the start of

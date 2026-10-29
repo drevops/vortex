@@ -51,10 +51,12 @@ These are scripts in the
 that Acquia runs on code deployments, code updates and database copies.
 
 The scripts live in `hooks/library/`. `hooks/common/post-code-update/`
-links the 3 deployment scripts in numbered order. The `post-code-deploy`
-and `post-db-copy` directories are symlinks to `post-code-update`, so all 3
-events run the same 3 steps. The `hooks/prod/` directories hold no scripts.
-Put production-only scripts there, and they run after the common ones.
+holds numbered symlinks to `provision.sh`, `purge-cache.sh` and
+`notify-deployment.sh`. The `post-code-deploy` and `post-db-copy`
+directories are symlinks to `post-code-update`. A code deployment, a code
+update and a database copy therefore run the same 3 steps.
+`hooks/prod/post-code-deploy/` holds no scripts. Scripts you put there run
+in production after the common ones.
 
 Acquia runs the scripts in `hooks/common/<event>/` first, then those in
 `hooks/<environment>/<event>/`. The environment directory takes the
@@ -116,7 +118,7 @@ environment to an environment type. `prod` becomes production, and `stage`
 and `test` become staging. Every other environment, including on-demand
 ones, becomes development.
 
-The same file also applies these platform settings:
+The same file also sets these platform settings:
 
 - It points the configuration sync directory at `DRUPAL_CONFIG_PATH` or
   Acquia's `config_vcs_directory`.
@@ -208,8 +210,8 @@ VORTEX_PLATFORM=acquia ./vendor/bin/vortex-task copy-db
 ```
 
 Each operation reads the application name and API credentials from your
-`.env` and `.env.local` files. Outside the hooks, the environments it acts
-on have no defaults. Set them for a manual run:
+`.env` and `.env.local` files. Outside the hooks, the operations have no
+default environments. Set them for a manual run:
 
 - `copy-db`: `VORTEX_TASK_COPY_DB_ACQUIA_SRC`,
   `VORTEX_TASK_COPY_DB_ACQUIA_DST` and `VORTEX_TASK_COPY_DB_ACQUIA_NAME`
@@ -239,8 +241,8 @@ Each operation also takes its own `VORTEX_TASK_<OPERATION>_ACQUIA_KEY`,
 or `PURGE_CACHE`. They default to `VORTEX_ACQUIA_KEY`,
 `VORTEX_ACQUIA_SECRET` and `VORTEX_ACQUIA_APP_NAME`.
 
-After a task starts, the operation checks its status with Acquia every 10
-seconds, up to 600 times. To change those numbers, set
+After Acquia starts the copy or the purge, the operation checks its status
+every 10 seconds, up to 600 times. To change those numbers, set
 `VORTEX_TASK_<OPERATION>_ACQUIA_STATUS_INTERVAL` and
 `VORTEX_TASK_<OPERATION>_ACQUIA_STATUS_RETRIES`, for example
 `VORTEX_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL`. When the checks run out,

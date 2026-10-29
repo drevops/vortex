@@ -8,9 +8,9 @@ sidebar_position: 13
 **Vortex** ships a [Renovate](https://renovatebot.com) configuration that
 keeps your project's dependencies current. Renovate opens pull requests for
 new releases of your PHP and JavaScript packages, container images, CI
-tools and GitHub Actions. Every group auto-merges by default. Every group
-except Drupal core also waits 14 days before it proposes a release. The
-delay keeps a freshly compromised release out of your project.
+tools and GitHub Actions. Every group auto-merges by default. Most groups
+also wait 14 days before they propose a release. The delay gives a registry
+time to pull a compromised release before it reaches your project.
 
 This page is for the lead or DevOps engineer who sets up Renovate for a
 project and decides which updates merge on their own. It covers how updates
@@ -45,7 +45,8 @@ a run.
 
 Renovate publishes several releases a day, so the image that runs Renovate
 in CircleCI has a group of its own with a weekly schedule. In the daily CI
-tools group, it would get a new pull request almost every day.
+tools group, the Renovate image would get a new pull request almost every
+day.
 
 ### Auto-merge
 
@@ -88,10 +89,11 @@ requirement.
 
 ### Minimum release age
 
-Renovate holds back a new release until it's 14 days old in every group
-except Drupal core. A compromised release is often detected and pulled from
-its registry within days. Nobody reviews an auto-merged update, so the delay
-keeps such a release out of your project. [Renovate recommends 14
+In every group except Drupal core, Renovate holds back a new release until
+it's 14 days old, on registries that record release dates. A compromised
+release is often detected and pulled from its registry within days. Nobody
+reviews an auto-merged update, so the delay keeps such a release out of
+your project. [Renovate recommends 14
 days](https://docs.renovatebot.com/upgrade-best-practices/#wait-two-weeks-before-automerging-third-party-dependencies)
 when you auto-merge third-party dependencies.
 

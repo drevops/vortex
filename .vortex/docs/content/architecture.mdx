@@ -15,8 +15,8 @@ in depth.
   in customizations.
 - **Use standard tools**: Wherever possible, **Vortex** follows upstream
   conventions and avoids reinvention.
-- **Avoid silent errors**: Misconfigurations fail loudly. A script missing a
-  required value stops and names the variable.
+- **Avoid silent errors**: A misconfiguration stops the run with an error. A
+  script missing a required value stops and names the variable.
 - **Readability counts**: Code and configuration are meant to be understood.
 - **Explicit logging helps**: Scripts log every major step, so you can
   follow what's going on.
@@ -55,8 +55,7 @@ goal.
 
 **Vortex** automates its common tasks with Bash scripts from the
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
-Composer package, installed to `vendor/drevops/vortex-tooling/src/`. The
-scripts also connect the components together.
+Composer package, installed to `vendor/drevops/vortex-tooling/src/`.
 
 The scripts share these traits:
 
@@ -69,16 +68,16 @@ The scripts are a Composer dependency of your project. Your project's
 `~1.5.0` in the shipped template. The constraint accepts patch releases and
 holds the minor version, so a new minor release reaches your deployments
 only after the constraint is raised. A **Vortex** release that changes the
-scripts raises it, and [Updating Vortex](./updating-vortex) brings that
-change into your `composer.json`.
+scripts raises it, and `ahoy update-vortex` brings that change into your
+`composer.json` (see [Updating Vortex](./updating-vortex)).
 
 The entry-point scripts install as Composer binaries at
 `vendor/bin/vortex-<script>`, for example `vendor/bin/vortex-provision` or
 `vendor/bin/vortex-deploy`. The Ahoy commands wrap those binaries. The
-scripts they hand work to, such as the script for each deployment type,
-stay inside the package. Ahoy and CI install the package through
-`scripts/vortex-tooling.sh` before the full `composer install` runs, so the
-binaries are there from the first command.
+scripts that the binaries hand work to, such as the script for each
+deployment type, stay inside the package. Ahoy and CI install the package
+through `scripts/vortex-tooling.sh` before the full `composer install` runs,
+so the binaries are there from the first command.
 
 The package's GitHub repository is a read-only mirror of the
 [`.vortex/tooling/`](https://github.com/drevops/vortex/tree/main/.vortex/tooling)
@@ -114,8 +113,8 @@ Local overrides go into `.env.local`, which Git ignores.
 ### Router scripts
 
 **Vortex** has 6 _router_ scripts. A router is an entry point that reads
-your configuration and hands the work to the script for your setup. The
-caller runs the same router on every setup. Each router picks its script as
+your configuration and hands the work to the script for your setup. Ahoy
+and CI call the same router on every setup. Each router picks its script as
 follows:
 
 - `vortex-fetch-db` fetches a database from the source in
@@ -133,7 +132,8 @@ follows:
   or Diffy.
 - `vortex-task` runs a hosting operation (`copy-db`, `copy-files`,
   `purge-cache` or `custom`) with the script for the platform in
-  `VORTEX_TASK_PLATFORM` or `VORTEX_PLATFORM`, either `acquia` or `lagoon`.
+  `VORTEX_TASK_PLATFORM`: `acquia` or `lagoon`. That variable falls back to
+  `VORTEX_PLATFORM`.
 
 <details>
 <summary>Script architecture diagram</summary>
@@ -155,9 +155,9 @@ follows:
 
 ### Provisioning
 
-Provisioning is central to how **Vortex** works. You run 1 script,
-`vortex-provision` (`ahoy provision` locally), in place of Drush commands
-by hand. The script handles the following:
+Provisioning is central to how **Vortex** works. A single script,
+`vortex-provision` (`ahoy provision` locally), replaces a series of manual
+Drush commands. The script handles the following:
 
 - Importing a database dump, or installing Drupal from a profile
 - Running updates, config imports, cache rebuilds and deploy hooks
@@ -178,9 +178,9 @@ conditionally or creating demo content.
 
 - The provider settings files in `web/sites/default/includes/providers/`
   detect the environment type: `local`, `ci`, `dev`, `stage` or `prod`. The
-  `ENVIRONMENT_TYPE` variable overrides the detected type. Set it in
-  `.env.local` and run `ahoy up` for your local stack, or set it in your
-  hosting environment's variables.
+  `ENVIRONMENT_TYPE` variable overrides the detected type. Locally, set it
+  in `.env.local` and run `ahoy up`. In hosting, set it in the
+  environment's variables.
 - Each module's settings live in their own file in
   `web/sites/default/includes/modules/`, with the per-environment logic
   inside that file.
@@ -237,8 +237,8 @@ Themes](./development/themes)
 **Vortex** includes configuration for Renovate to automate dependency
 upgrades:
 
-- Drupal core minor and patch updates are checked daily, with no waiting
-  period, so security releases arrive on the next run
+- Drupal core minor and patch updates are checked daily with no waiting
+  period, so core security releases arrive on the next run
 - Container images, GitHub Actions and the CI tools are checked daily
 - The other PHP and JavaScript packages are checked weekly, as is the
   Renovate image that CircleCI runs
@@ -280,8 +280,8 @@ which one your project uses. Both pipelines include the following:
 - Security audits of Composer and npm packages and a Gitleaks secret scan,
   in a workflow of their own
 
-Each continuous integration configuration mirrors what happens locally and
-in hosting.
+Each continuous integration configuration runs the same steps as local
+development and hosting.
 
 ➡️ See [Continuous integration](./continuous-integration)
 

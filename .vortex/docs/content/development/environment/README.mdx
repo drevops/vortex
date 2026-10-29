@@ -80,10 +80,9 @@ targets:
   [Deployment >
   Artifact](../../deployment/artifact.mdx#artifact-file-control)
 
-A new file or directory that no entry matches reaches all 3 targets. Git
-tracks it after you commit it, and the image build and the deployment
-artifact include it. Add an entry to an ignore file only when a file must
-stay out of that target.
+A new file or directory that no entry matches is included in all 3
+targets. Git tracks it after you commit it. Add an entry to an ignore file
+only when a file must stay out of that target.
 
 ## Switching branches
 
@@ -137,9 +136,9 @@ included. `ahoy reset` then deletes the following:
 `ahoy reset --hard` also returns the repository to a freshly cloned state
 at the current commit. After the soft reset, it runs these steps:
 
-1. Deletes every untracked file that `.gitignore` matches.
+1. Deletes every file that `.gitignore` matches.
 2. Discards uncommitted changes to tracked files (`git reset --hard`).
-3. Removes the remaining untracked files (`git clean -f -d`).
+3. Removes every other untracked file (`git clean -f -d`).
 4. Removes empty directories.
 
 The hard reset deletes your `.env.local`, the database dumps in `.data` and
@@ -207,10 +206,10 @@ with the name of the variable you changed.
 
 Drupal also reads variables that `docker-compose.yml` doesn't pass, such as
 `DRUPAL_CLAMAV_ENABLED`. For web requests, PHP-FPM loads them from `.env`
-when its container starts. It never reads `.env.local`. To apply a change
-to `.env`, run `ahoy restart` or `docker compose restart`.
-`ahoy up` recreates a container only when its configuration changes. These
-variables aren't part of that configuration.
+when its container starts. PHP-FPM never reads `.env.local`. To apply a
+change to `.env`, run `ahoy restart` or `docker compose restart`. A change
+to these variables leaves the container's configuration as it was, so
+`ahoy up` keeps the container running.
 
 To set such a variable on your machine only, such as a credential that
 must stay out of the committed `.env`:
@@ -228,7 +227,7 @@ must stay out of the committed `.env`:
 3. Run `ahoy up`.
 
 The `vendor/bin/vortex-*` scripts read both files each time they start. A
-variable that only those scripts use, such as
+variable that only the `vortex-*` scripts use, such as
 `VORTEX_PROVISION_OVERRIDE_DB`, takes effect without recreating anything.
 The [Docker page](docker.mdx#container-environment-variables) explains how
 each value reaches a container.

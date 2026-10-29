@@ -7,7 +7,7 @@ sidebar_position: 8
 
 Migrating content from a legacy site means Drupal has to read that site's
 database. **Vortex** can run that database for you as an optional second
-database. Turning it on adds 3 parts:
+database. Turning the migration database on adds 3 parts:
 
 - A `database2` Docker service next to the primary database
 - A `settings.migration.php` file that registers the
@@ -32,7 +32,7 @@ When you run the **Vortex** installer, answer **Yes** at the
 **Use a second database for migrations?** prompt. Then choose where the
 migration dump comes from at the **Migration database source** prompt. The
 source defaults to your hosting provider, `acquia` or `lagoon`. Without a
-hosting provider, it defaults to `url`.
+hosting provider, the source defaults to `url`.
 
 ### Manual setup
 
@@ -201,8 +201,9 @@ they read `VORTEX_FETCH_DB2_SOURCE` in place of `VORTEX_FETCH_DB_SOURCE`.
 They read `VORTEX_DB2_IMAGE` in place of `VORTEX_DB_IMAGE`.
 
 Every fetch source works for the migration database too: URL, FTP, Acquia,
-Lagoon, container registry and S3. The import, export and provision scripts
-ignore the index. The migration provision script imports the dump itself.
+Lagoon, container registry and S3. The shared import, export and provision
+scripts ignore the index, so `scripts/provision-20-migration.sh` imports the
+dump itself.
 
 ## Provision script
 
@@ -237,8 +238,8 @@ environment gets the dump in its own way:
   `DRUPAL_MIGRATION_SKIP=1`.
 
 On projects with the Solr service, the script disables the search server
-before the migrations and enables it again afterward. Solr then skips
-indexing each migrated entity as it arrives. The
+before the migrations and enables it again afterward. Search API then
+indexes nothing while the entities arrive. The
 `scripts/provision-30-search-index.sh` script rebuilds the index right
 after.
 
@@ -264,10 +265,10 @@ values on to the custom scripts.
 | `DRUPAL_MIGRATION_SEARCH_DISABLE` | `1` | Disable the Solr search server while migrations run (`0` to keep indexing) |
 
 `vortex-provision` sets `VORTEX_PROVISION_OVERRIDE_DB=1` whenever the
-primary database is fresh. By default, the source database is then imported
-again too. The script reads the dump from `VORTEX_DB_DIR` (default
-`./.data`) and `VORTEX_FETCH_DB2_FILE` (default `db2.sql`). `ahoy fetch-db2`
-saves the dump there.
+primary database is fresh. By default, the migration script then imports
+the source database too. The script reads the dump from `VORTEX_DB_DIR`
+(default `./.data`) and `VORTEX_FETCH_DB2_FILE` (default `db2.sql`).
+`ahoy fetch-db2` saves the dump there.
 
 ### Add migrations
 

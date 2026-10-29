@@ -23,10 +23,10 @@ but fail at release time and block your deployment. Then you maintain the
 whole setup across every project you run.
 
 **Vortex** ships those pieces already wired together and tested. You can
-override anything in your project and still receive future updates. Each
-update replaces the files the template ships, so you re-apply your changes
-to those files. Your team gets the same documentation and tooling on every
-project.
+override anything in your project and keep receiving updates. Each update
+replaces the files the template ships, and you re-apply your overrides
+from `.logs/vortex-update.md`. Your team gets the same documentation and
+tooling on every project.
 
 ## Can I use Vortex with an existing project?
 
@@ -121,6 +121,6 @@ badge in `README.md` and recorded nothing.
 ## How easy is it to choose the features that I need?
 
 The [installer](installation.mdx) walks you through the features prompt by
-prompt and installs only the ones you pick. You run it when you create a
-project. `ahoy update-vortex` runs it again on every update with the
-answers it finds in your project.
+prompt and installs only the ones you pick. You run the installer when you
+create a project. `ahoy update-vortex` runs it again on every update, with
+the answers it reads from your project.

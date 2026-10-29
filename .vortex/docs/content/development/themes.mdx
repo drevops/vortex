@@ -53,8 +53,8 @@ patches in `patches/` through `patch-package`.
 
 The CLI container image runs `npm ci` and `npm run build` for the theme
 during the image build, so the image carries compiled assets. To build the
-assets on the host or during deployment instead, set
-`VORTEX_FRONTEND_BUILD_SKIP=1` in `.env`, which ships with `0`.
+assets outside the image, such as during deployment, change
+`VORTEX_FRONTEND_BUILD_SKIP` in `.env` from `0` to `1`.
 `docker-compose.yml` passes the variable to the image as a build argument,
 so the change applies on the next image build, for example on `ahoy build`.
 
@@ -85,8 +85,8 @@ npm run lint-fix
 npm run watch
 ```
 
-From the host, the Ahoy commands run the same npm scripts in the theme
-directory:
+The Ahoy commands, typed on the host, run the same npm scripts in the
+container:
 
 ```shell
 # Install front-end dependencies
@@ -121,7 +121,7 @@ its `package.json`: `build`, `build-dev`, `watch`, `lint` and `lint-fix`.
 The Ahoy commands, the CLI image build and the CI lint step call those
 scripts in the theme that `DRUPAL_THEME` names. `.env` sets `DRUPAL_THEME`
 and `DRUPAL_MAINTENANCE_THEME`, and the installer writes your theme's name
-into both. Point both variables at the new theme.
+into both. For a theme you add later, point both variables at it.
 
 Neither variable sets Drupal's default theme. The
 `ys_base_deploy_install_active_theme()` deploy hook in `ys_base.deploy.php`
@@ -268,9 +268,10 @@ A third command, `ahoy storybook-stories`, only generates the stories. Add
 
 The development server runs on its own origin. In the `local`, `ci` and
 `dev` environments, `services.storybook.yml` shares story renders with
-`localhost` and `127.0.0.1` origins on any port. In those environments, it
-replaces the `cors.config` from `services.yml`. If your site already shares
-responses with other origins, list them in `services.storybook.yml` too.
+`localhost` and `127.0.0.1` origins on any port. `services.storybook.yml`
+also replaces the `cors.config` from `services.yml` there. If your site
+already shares responses with other origins, list them in
+`services.storybook.yml` too.
 
 The component library at `/storybook` is a static copy built during
 provisioning. The build fixes the list of stories and their arguments.
@@ -317,8 +318,8 @@ edit those files as well.
 The theme's `node_modules` directory is shared with the CLI container, so it
 holds dependencies installed for the container's architecture. To run
 Storybook on the host, reinstall the dependencies there and keep the stories
-regenerating in the container. Point the development server at the site's
-local URL, which `ahoy info` shows:
+regenerating in the container. In the last command, replace the URL with
+the site's local URL from `ahoy info`:
 
 ```shell
 cd web/themes/custom/your_site_theme

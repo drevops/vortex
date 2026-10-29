@@ -62,7 +62,7 @@ So **Vortex** splits the job in 2:
 
 - `settings.php` [detects](#environment-type-detection) the
   _environment type_ from the environment the site runs in. This step
-  applies the hosting platform's own settings and no module configuration.
+  applies only the hosting platform's own settings.
 - [Per-module override files](#per-module-overrides) hold the configuration
   overrides, with conditions based on the detected _environment type_.
 
@@ -297,9 +297,8 @@ The type starts as `ENVIRONMENT_LOCAL`, and the provider files change it:
   - On Lagoon, a `LAGOON_ENVIRONMENT_TYPE` of `production` becomes
     `ENVIRONMENT_PROD`. So does a `LAGOON_GIT_BRANCH` that exactly matches
     `VORTEX_LAGOON_PRODUCTION_BRANCH`, which `.env` sets to `main`. When
-    that variable is empty, the branch check is skipped. Otherwise, the
-    `main` and `master` branches and any branch starting with `release/` or
-    `hotfix/` become `ENVIRONMENT_STAGE`.
+    that variable is empty, the script skips this match. Any other `main`,
+    `master`, `release/*` or `hotfix/*` branch becomes `ENVIRONMENT_STAGE`.
 - `settings.circleci.php` and `settings.gha.php` both check the generic `CI`
   variable, so a provider-specific variable such as `CIRCLECI` has no
   effect. Any non-empty value other than `0` sets `ENVIRONMENT_CI`.

@@ -16,7 +16,7 @@ gives the agent, how to add skills of your own and how to tune automated
 code review.
 
 The installer adds the instruction files unless you answer no to its
-**Provide AI agent instructions?** prompt. That answer leaves out the
+**Provide AI agent instructions?** prompt. Answering no leaves out the
 following:
 
 - `AGENTS.md`
@@ -99,8 +99,8 @@ file is a checked-in Claude Code settings file that pre-approves every
 }
 ```
 
-The copy in the **Vortex** repository also turns on the `vortex` plugin,
-the template's own maintenance plugin in its `.vortex/` directory. The
+In the **Vortex** repository itself, the file also turns on `vortex`, the
+template's maintenance plugin in `.vortex/`. The
 installer removes those entries, so your project gets only the
 `permissions` block.
 
@@ -207,8 +207,8 @@ To add review instructions for your custom modules, add an entry to the
       instructions: 'Prefer dependency injection over static service calls.'
 ```
 
-The first lines of the file point editors that support the
-`yaml-language-server` comment at the CodeRabbit schema. These editors
-validate and autocomplete the settings. The
+The first lines of the file hold a `yaml-language-server` comment with the
+CodeRabbit schema. Editors that support the comment validate and
+autocomplete the settings. The
 [CodeRabbit configuration reference](https://docs.coderabbit.ai/reference/configuration)
 lists every setting.

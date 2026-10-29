@@ -115,31 +115,31 @@ deployment like any other change:
    change and the change the new version brings. Each update appends a new
    section to the file. Git ignores the file.
 
-   Some entries hold less:
+   Some entries hold 1 diff or none:
 
    - When the new version leaves the file unchanged, or the version you ran
      didn't ship it, the entry holds 1 diff.
-   - A binary file or a file over 100 KB gets a note to recover your copy
-     from version control in place of a diff. The update changes only the
-     working tree, so restore your copy with
+   - A binary file or a file over 100 KB gets no diff. Its entry holds a
+     note to recover your copy from version control. The update changes
+     only the working tree, so restore your copy with
      `git checkout HEAD -- FILE_PATH`. Replace `FILE_PATH` with the path in
      the entry's heading.
 
-5. Keep the new version in the **Vortex** badge of `README.md` when you
-   re-apply your own `README.md` changes. The next update reads the badge to
-   work out which version your project runs.
+5. When you re-apply your own `README.md` changes, keep the new version in
+   the **Vortex** badge. The next update reads the badge to work out which
+   version your project runs.
 
 6. Reconcile `composer.json`. The update replaces it with the template's
    version, which most likely differs from yours. Review the package
    version changes carefully. If `.logs/vortex-update.md` has an entry for
-   `composer.json`, restore your own file from Git. Then apply the change
-   the update brings, from that entry, by hand. Keep the raised
+   `composer.json`, restore your own file from Git. Then apply the new
+   version's change from that entry by hand. Keep the raised
    `drevops/vortex-tooling` constraint. A release that changes the scripts
    raises it, and the old constraint keeps the old scripts.
 
 7. Run `ahoy composer update`. The update leaves `composer.lock` alone, and
-   this command regenerates it. The build then installs the versions you
-   chose in place of the stale locked ones.
+   this command regenerates it. The build then installs the versions from
+   your reconciled `composer.json`.
 
 8. Stage and commit the changes in small chunks, so each one is easier to
    review and revert.
