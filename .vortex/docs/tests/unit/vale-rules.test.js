@@ -81,5 +81,6 @@ function dataProviderAlerts() {
     ['67:Vortex.Latin:e.g.'],
     ['69:Vortex.NumberOne:one'],
     ['71:Vortex.Numbers:zero'],
+    ['73:Vortex.NumberOne:one'],
   ];
 }

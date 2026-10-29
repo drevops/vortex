@@ -1,5 +1,9 @@
 extends: Google.Headings
 level: error
+# Upstream lists 'Visual' for 'Visual Studio', which forces a capital 'V' in
+# headings such as 'Turn off visual regression'.
+exceptions-:
+  - Visual
 exceptions+:
   - Acquia Cloud
   - BATS

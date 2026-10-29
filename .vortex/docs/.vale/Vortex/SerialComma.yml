@@ -8,10 +8,16 @@ nonword: true
 # so 'A, B, and C' is reported and a single clause join 'A, and B' is not.
 #
 # Inline code reaches the rule masked with asterisks, so '*' counts as a word
-# character. The guard after the first comma skips text that opens a clause or
-# a phrase rather than a list item: ', which X, and Y' or ', for example, and'.
+# character.
+#
+# Guards skip a comma that joins clauses rather than list items:
+# - the text after the first comma opens a clause or a phrase: ', which X,
+#   and Y', ', during X, and Y' or ', run X, or Y';
+# - the words between the commas hold 'and', 'or' or a verb, so the list is
+#   already closed: 'A, B and C, and D' or 'X is Y, and Z';
+# - a pronoun follows the conjunction: 'A, B, and it fails'.
 #
 # '\s+' between words keeps the match independent of where a paragraph is
 # hard-wrapped.
 tokens:
-  - '(?<=,\s+(?!(?:which|who|whom|whose|that|where|when|while|because|since|although|though|if|unless|so|but|and|or|however|therefore|thus|then|for|from|by|as|to|in|on|at|with|without|such|including|like|not|rather|instead|even)\b)(?:\.?[\w*][\w*''’/-]*\s+){0,3}\.?[\w*][\w*''’/-]*(?:\.[\w*]+)*),\s+(?:and|or)\b'
+  - '(?<=,\s+(?!(?:which|who|whom|whose|that|where|when|while|because|since|although|though|if|unless|so|but|and|or|however|therefore|thus|then|for|from|by|as|to|in|on|at|with|without|during|after|before|through|under|over|via|per|inside|outside|within|across|into|onto|upon|between|such|including|like|not|rather|instead|even|run|use|set|add|see)\b)(?:(?!(?:and|or|is|are|was|were|has|have|had|be|been|being|will|would|can|could|should|may|might|must|do|does|did)\b)\.?[\w*][\w*''’/-]*\s+){0,3}(?!(?:and|or|is|are|was|were|has|have|had|be|been|being|will|would|can|could|should|may|might|must|do|does|did)\b)\.?[\w*][\w*''’/-]*(?:\.[\w*]+)*),\s+(?:and|or)\b(?!\s+(?:i|you|we|they|he|she|it|this|these|those|there|then)\b)'

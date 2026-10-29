@@ -97,7 +97,9 @@ Errors fail the run and CI; warnings are advisory. Lint a single page with
   comments.
 - Blockquotes are skipped because they quote upstream projects verbatim. The
   generated table in `content/development/variables.mdx` is skipped too; the
-  hand-written prose above it is linted.
+  hand-written prose above it is linted. MDX `import` statements and JSX
+  `<li>` items are skipped (`BlockIgnores` in `.vale.ini`) so they don't
+  merge into 1 long sentence.
 
 ## Diagrams
 

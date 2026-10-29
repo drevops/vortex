@@ -3,7 +3,8 @@ message: "Write 'one' as the digit '1' when it counts something."
 level: warning
 ignorecase: true
 nonword: true
-# 'one' is also a pronoun ('the one that', 'no one', 'one another'), so it is
-# a warning, and the pronoun forms are skipped.
+# 'one' is also a pronoun ('the one that', 'the latest one', 'if you need
+# one'), so it is a warning, and it is reported only when a counted word
+# follows it: 'one stage' or 'one of the pipelines'.
 tokens:
-  - '(?<![-\w])(?<!\b(?:a|an|the|this|that|which|each|every|any|no|some|new|other|another|same|right|wrong|first|last|whichever)\s+)one(?!\s+another\b)(?![-\w])'
+  - '(?<![-\w])(?<!\b(?:a|an|the|this|that|which|each|every|any|no|some|new|other|another|same|right|wrong|first|last|whichever|current|latest|next|previous|default|stable|old)\s+)one(?![-\w])(?=\s+(?!(?:that|which|who|whom|whose|at|by|or|and|is|was|has|will|can|could|should|may|might|must|does|did|another|you|we|they|it)\b)[A-Za-z*])'
