@@ -39,7 +39,8 @@ reviews:
     unit_tests:
       enabled: false
 
-  # The project runs these linters in CI with its own configuration.
+  # The project runs PHPCS, PHPStan, ESLint and Stylelint in CI with its own
+  # configuration, and does not use PHPMD.
   tools:
     eslint:
       enabled: false
