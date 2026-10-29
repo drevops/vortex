@@ -171,7 +171,7 @@ Stylelint reads these entries as globs relative to the configuration file.
 `build/.*` therefore matches only names that start with a dot directly
 inside `build`. The `scss/**/*.scss` target never reaches `build` anyway.
 
-## Ignoring
+## Ignore violations
 
 To ignore paths globally, list them in the `ignoreFiles` key of the
 configuration file, as the theme configuration does:
@@ -242,7 +242,7 @@ Each step runs the `lint` script of the root or theme `package.json`:
 `npm run lint-js && npm run lint-css`. The script stops at the first linter
 that fails, so Stylelint reports nothing until ESLint passes.
 
-### Ignoring failures
+### Ignore failures
 
 To let the build pass anyway, set the `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE`
 CI variable to `1`. Stylelint then prints its violations in the job log,

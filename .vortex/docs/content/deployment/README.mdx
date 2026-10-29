@@ -159,7 +159,7 @@ Only the Lagoon deployment reads the action. `VORTEX_DEPLOY_LAGOON_ACTION`
 overrides it for Lagoon alone. On GitHub Actions, checking `override_db` on
 a manual deployment sets the action to `deploy_override_db`.
 
-## Skipping deployments
+## Skip deployments
 
 To skip every deployment, set `VORTEX_DEPLOY_SKIP` to `1`. CI still builds
 and tests the code, and the `deploy` job stops before it deploys anything.
@@ -176,7 +176,7 @@ repository variables of the same name:
 
 On CircleCI, set them in the project's environment variables or in `.env`.
 
-### Skipping deployments for specific pull requests or branches
+### Skip deployments for specific pull requests or branches
 
 To skip specific pull requests or branches:
 
@@ -193,7 +193,7 @@ deployment. The `deploy` job log shows `Found PR 42 in skip list.` or
 `Found branch feature/test in skip list.` Then it shows
 `Skipped deployment` followed by your deployment types.
 
-#### Skipping specific pull requests
+#### Skip specific pull requests
 
 Set `$VORTEX_DEPLOY_SKIP_PRS` to the pull request numbers. Use the bare
 number, without a `pr-` prefix:
@@ -208,7 +208,7 @@ VORTEX_DEPLOY_ALLOW_SKIP=1
 VORTEX_DEPLOY_SKIP_PRS=42,123,456
 ```
 
-#### Skipping specific branches
+#### Skip specific branches
 
 Set `$VORTEX_DEPLOY_SKIP_BRANCHES` to the branch names. A pull request
 build is skipped by its branch name too, because CI passes the branch name
@@ -234,7 +234,7 @@ VORTEX_DEPLOY_SKIP_PRS=42,123
 VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent
 ```
 
-## Gating deployments on a PR label
+## Gate deployments on a PR label
 
 The label gate makes pull request deployments opt-in: a pull request gets
 an environment only after someone labels it. The skip lists work the other

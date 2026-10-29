@@ -108,7 +108,7 @@ parameters:
     - path/to/exclude/a_file.php
 ```
 
-## Ignoring
+## Ignore violations
 
 To ignore an error across the project, add it to `ignoreErrors` in the
 [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon)
@@ -161,7 +161,7 @@ PHPStan runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
 violations.
 
-### Ignoring failures
+### Ignore failures
 
 To let the build pass anyway, set the `VORTEX_CI_PHPSTAN_IGNORE_FAILURE` CI
 variable to `1`. PHPStan still runs and prints every error in the job log,

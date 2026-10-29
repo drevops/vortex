@@ -318,7 +318,7 @@ The per-module override files in `includes/modules` handle module
 configuration, so the setup stays modular and independent of the hosting
 platforms.
 
-#### Overriding environment type
+#### Override the environment type
 
 To force a specific environment type, set the `ENVIRONMENT_TYPE`
 environment variable. Any value other than an empty string or `0`
@@ -357,7 +357,7 @@ ships 3 files that belong to no contributed module:
 ➡️ See [Contributed modules](modules/contributed-modules.mdx) for what each
 shipped override configures, module by module.
 
-#### Creating custom module settings
+#### Create custom module settings
 
 To add settings for a new module, create a file that follows this naming
 pattern:
@@ -499,7 +499,7 @@ effect. Set each flag to exactly `1`, wherever you set it:
   `settings.php` file.<br/>
   Check the current _environment type_ in `$settings['environment']`.
 
-## Testing settings with unit tests
+## Test settings with unit tests
 
 **Vortex** includes a [set of unit
 tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal)

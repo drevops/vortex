@@ -22,7 +22,7 @@ pipeline that are specific to CircleCI:
 Running Renovate on CircleCI adds a second file,
 `.circleci/update-dependencies.yml`. It has a scheduled trigger of its own
 (see [Dependency updates > Setting up the self-hosted
-service](../development/dependency-updates.mdx#setting-up-the-self-hosted-service)).
+service](../development/dependency-updates.mdx#set-up-the-self-hosted-service)).
 The jobs, the database cache and the split of tests across containers work
 the same on both providers. See the
 [Continuous integration overview](./README.mdx). For CircleCI's own
@@ -156,7 +156,7 @@ information. Confirm that the next `build` job shows 4 parallel runs.
 
 Every added container that runs Behat also needs a matching `pN` profile in
 `behat.php`. See [Continuous integration > Adding more
-containers](./README.mdx#adding-more-containers) for the full procedure.
+containers](./README.mdx#add-more-containers) for the full procedure.
 [Test parallelism](./README.mdx#test-parallelism) also covers how to balance
 scenarios across containers and how to move a tool onto a different
 container.

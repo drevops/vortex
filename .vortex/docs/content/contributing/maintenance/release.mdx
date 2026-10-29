@@ -90,7 +90,7 @@ Flow](../../releasing/gitflow.mdx).
 
 :::
 
-## Tagging
+## Tag a release
 
 A release always produces a **Vortex** tag. When the tooling changed, it
 also produces a `drevops/vortex-tooling` tag, and the order is fixed: tag
@@ -183,7 +183,7 @@ To release a new version of **Vortex**:
 7. In `phpstan.neon`, set `phpVersion` to the PHP version ID.
 8. If `.vortex/tooling/` changed since the previous release, create and
    publish a new `drevops/vortex-tooling` tag now, before the **Vortex** tag
-   (see [Tagging](#tagging)). To check for changes, run
+   (see [Tag a release](#tag-a-release)). To check for changes, run
    `git log PREVIOUS_VERSION..HEAD -- .vortex/tooling`, where
    `PREVIOUS_VERSION` is the previous **Vortex** tag. The command prints
    nothing when the tooling didn't change.
@@ -192,7 +192,7 @@ To release a new version of **Vortex**:
 10. If you tagged the tooling in step 8, set its version in the 4 places
     that pin it:
     - The `require` constraint in root `composer.json`, as a tilde
-      constraint, for example `~1.3.0` (see [Tagging](#tagging))
+      constraint, for example `~1.3.0` (see [Tag a release](#tag-a-release))
     - The `versions` entry of the `path` repository in root `composer.json`
     - The `versions` entry in `scripts/vortex-tooling.sh`
     - The `versions` entry in `.vortex/tests/phpunit/Traits/SutTrait.php`

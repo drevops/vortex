@@ -241,7 +241,7 @@ so the theme can move to a separate repository with its tooling. The root
 and the theme each ship a `.prettierignore` that excludes `node_modules`
 and `*.yml` files from Prettier.
 
-## Ignoring
+## Ignore violations
 
 ### Global ignoring
 
@@ -318,7 +318,7 @@ Each step runs the `lint` script, which runs ESLint and then Stylelint and
 stops at the first failure. An ESLint failure therefore stops Stylelint
 from running in that step.
 
-### Ignoring failures
+### Ignore failures
 
 To let the build pass anyway, set the `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE`
 CI variable to `1`. ESLint still runs and prints its violations in the job

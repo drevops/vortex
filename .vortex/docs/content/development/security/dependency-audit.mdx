@@ -147,7 +147,7 @@ If your project needs dependency resolution to stop hard on advisories, set
 `advisories.block` to `true`. A production site with strict supply-chain
 controls is 1 example.
 
-### Ignoring
+### Ignore PHP advisories
 
 When you've assessed an advisory and found it doesn't affect your project,
 add it to `ignore-id`. Use the value from the advisory's `Advisory ID` or
@@ -188,7 +188,7 @@ workflow](../../continuous-integration/README.mdx#security-audit) runs
 and installs nothing. With `advisories.audit` at `fail`, any advisory fails
 the workflow, even though installs and updates go through.
 
-#### Ignoring failures
+#### Ignore failures
 
 Set `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` to let the workflow
 pass anyway. In GitHub Actions, set it as a repository variable. In
@@ -224,7 +224,7 @@ it stays the same alert when its line in `composer.lock` moves.
 ➡️ See [Code
 scanning](../../continuous-integration/README.mdx#code-scanning).
 
-### Dismissing a finding
+### Dismiss a finding
 
 Dismissing an alert in the **Security > Code scanning** tab records a reason
 against that finding and removes it from the open list. Dismiss an alert
@@ -232,8 +232,9 @@ to track an assessment.
 
 The audit itself stays the same. `composer audit` still reports the
 advisory and still fails the workflow until the advisory is in `ignore-id`,
-as described in [Ignoring](#ignoring). Dismiss the alert to record the
-assessment. To stop the build failing, also add the `ignore-id` entry.
+as described in [Ignore PHP advisories](#ignore-php-advisories). Dismiss
+the alert to record the assessment. To stop the build failing, also add the
+`ignore-id` entry.
 
 ## JavaScript dependencies
 
@@ -321,7 +322,7 @@ every advisory when no threshold is set.
 The threshold is deliberately left out of the **Vortex** variables. It
 belongs to npm's own configuration, where a project changes it directly.
 
-### Ignoring
+### Ignore JavaScript advisories
 
 When the advisory is in a transitive dependency and a patched version
 exists, pin that version with an `overrides` entry like the following:
@@ -421,7 +422,7 @@ JSON output leaves out the messages about allowlisted and unused entries.
 The text output prints them, in CircleCI and in the [Usage](#usage-1)
 commands.
 
-#### Ignoring failures
+#### Ignore failures
 
 Set `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1` to let the root and theme
 npm audit steps pass anyway. Use it as a one-off bypass while you deal
@@ -453,7 +454,7 @@ alert.
 
 Dismissing an alert records the assessment, and the check still fails. To
 stop the failure, add an `overrides` entry or an allowlist entry, as
-described in [Ignoring](#ignoring-1).
+described in [Ignore JavaScript advisories](#ignore-javascript-advisories).
 
 ➡️ See [Code
 scanning](../../continuous-integration/README.mdx#code-scanning).

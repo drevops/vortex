@@ -178,7 +178,7 @@ available sets, and the [Find a Rector
 rule](https://getrector.com/documentation/rules-overview) page lists the
 individual rules.
 
-## Ignoring
+## Ignore violations
 
 For every way to skip a rule or a path, see the [Rector configuration
 documentation](https://getrector.com/documentation/ignoring-rules-or-paths).
@@ -247,7 +247,7 @@ Rector runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
 violations.
 
-### Ignoring failures
+### Ignore failures
 
 To let the build pass anyway, set the `VORTEX_CI_RECTOR_IGNORE_FAILURE` CI
 variable to `1`. Rector still runs and prints the changes it would make in

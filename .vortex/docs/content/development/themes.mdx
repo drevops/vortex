@@ -238,7 +238,7 @@ You write stories in Twig next to the component they document, as
 `<component>.stories.json` with `drush storybook:generate-all-stories`. The
 root `.gitignore` keeps the compiled files out of Git.
 
-### Working with Storybook
+### Work with Storybook
 
 The Storybook commands run inside the CLI container and use the theme
 dependencies installed there. The following 2 commands start the
@@ -285,7 +285,7 @@ edit to a component template then shows up in the development server and in
 `/storybook` on the next render. It needs no cache rebuild and no library
 build.
 
-### Customizing locations
+### Customize locations
 
 The `ahoy` commands and provisioning run `vendor/bin/vortex-storybook`,
 which reads its locations from environment variables. To move the theme or
@@ -313,7 +313,7 @@ the theme's `storybook-static` directory. On Lagoon, the `storybook` volume
 path in `docker-compose.yml` is hardcoded too. To move either location,
 edit those files as well.
 
-### Running Storybook on the host
+### Run Storybook on the host
 
 The theme's `node_modules` directory is shared with the CLI container, so it
 holds dependencies installed for the container's architecture. To run

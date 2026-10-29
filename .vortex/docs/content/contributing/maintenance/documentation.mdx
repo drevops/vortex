@@ -210,7 +210,8 @@ in the test, so update the fixtures and that list together with the rule.
 
 Vale skips block quotes, because they quote upstream projects verbatim. It
 also skips the generated table in `development/variables.mdx`, but it
-lints the prose before the table.
+lints the prose before the table. MDX `import` statements and JSX `<li>`
+items are skipped too, so their text doesn't merge into 1 long sentence.
 
 ### Documentation videos
 
@@ -306,7 +307,7 @@ The build treats this checkout as the current major, unless
 `VORTEX_DOCS_MAJOR` names the other major. It fetches the other branch from
 `origin`, so it needs network access.
 
-### Publishing
+### Publish the site
 
 Continuous integration publishes this documentation from 2 workflows, and
 both build the combined site.

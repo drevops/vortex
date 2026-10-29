@@ -145,7 +145,7 @@ that key, so update both values when you move to a new PHP version. The
 <config name="testVersion" value="8.4"/>
 ```
 
-## Ignoring
+## Ignore violations
 
 To ignore a rule across the project, configure it in the
 [`phpcs.xml`](https://github.com/drevops/vortex/blob/main/phpcs.xml) file.
@@ -198,7 +198,7 @@ PHPCS runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
 violations.
 
-### Ignoring failures
+### Ignore failures
 
 To let the build pass anyway, set the `VORTEX_CI_PHPCS_IGNORE_FAILURE` CI
 variable to `1`. PHPCS still runs and prints every violation in the job

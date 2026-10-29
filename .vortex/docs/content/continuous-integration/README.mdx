@@ -230,9 +230,9 @@ and fail the `audit` workflow, and their findings appear only in the job
 log.
 
 ➡️ See [Dependency audit > Dismissing a
-finding](../development/security/dependency-audit.mdx#dismissing-a-finding)
+finding](../development/security/dependency-audit.mdx#dismiss-a-finding)
 and [Secret scanning > Dismissing a
-finding](../development/security/secret-scanning.mdx#dismissing-a-finding)
+finding](../development/security/secret-scanning.mdx#dismiss-a-finding)
 for what dismissing a finding does and doesn't change.
 
 ## Working tree check
@@ -429,7 +429,7 @@ repeating a task on every container would duplicate the work. Behat runs on
 all containers. The profile each container selects determines which
 scenarios it runs.
 
-### Choosing which container runs what
+### Choose which container runs what
 
 Each tool's step runs only on the containers where its
 `VORTEX_CI_IS_<TOOL>_RUNNER` variable is true (`1` on CircleCI). The
@@ -491,7 +491,7 @@ Each tool's step then reads its own flag as its first line:
 container's index and the container count. Both providers use the same
 names. The Behat step subtracts `VORTEX_CI_BEHAT_PROFILE_OFFSET` from the
 container index to get its profile number (see
-[Giving a tool its own container](#giving-a-tool-its-own-container)).
+[Give a tool its own container](#give-a-tool-its-own-container)).
 
 To run your own tool on a specific container, add a flag next to the others
 and reference it from your step:
@@ -513,13 +513,13 @@ echo "export VORTEX_CI_IS_CYPRESS_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 1 ] &
 </TabItem>
 </Tabs>
 
-#### Giving a tool its own container
+#### Give a tool its own container
 
 To move a tool onto a container of its own:
 
 1. Add a container for the tool. The default configuration has only
    containers `0` and `1`. See [Adding more
-   containers](#adding-more-containers).
+   containers](#add-more-containers).
 2. Point the tool's flag at the new container.
 3. Exclude the new container from Behat.
 
@@ -580,7 +580,7 @@ container then runs that profile.
 
 :::
 
-### Balancing Behat tests
+### Balance Behat tests
 
 The first container runs Jest, PHPUnit and the coverage checks on top of
 its share of Behat, so it has the most work. To keep the whole build
@@ -615,7 +615,7 @@ run on every container by design, so keep them few and fast.
 See [Behat > Profiles](../development/testing/behat.mdx#profiles) for how
 the shipped profiles map tags to runners.
 
-### Adding more containers
+### Add more containers
 
 Raising the container count takes 2 matching changes: the count itself and
 a Behat profile for every new container that runs Behat. To add
@@ -809,4 +809,4 @@ same place as the variables in the preceding table.
 
 You can skip deployments for specific branches or pull requests while their
 CI checks keep running. See [Deployment > Skipping
-deployments](../deployment/README.mdx#skipping-deployments).
+deployments](../deployment/README.mdx#skip-deployments).

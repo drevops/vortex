@@ -95,7 +95,7 @@ message and the task's duration in seconds, such as
 `scripts/` define simpler helpers. In the example's own script, `pass`
 prints the message after a `+` marker, with no duration.
 
-See [Template > Authoring scripts](template.mdx#authoring-scripts) for the
+See [Template > Write scripts](template.mdx#write-scripts) for the
 full authoring requirements shared by all shell scripts in the template.
 
 ## Add a script
@@ -111,7 +111,7 @@ Composer creates a `vendor/bin` entry only for the scripts in that list.
 Leave helper scripts off it. `vortex-notify`, for example, runs each
 `vortex-notify-*` channel script by path from `src/`.
 
-## Testing
+## Test the tooling
 
 Tests cover the scripts at 3 levels:
 
@@ -153,11 +153,11 @@ Tests cover the scripts at 3 levels:
 
 - **Integration** - the template's PHPUnit functional tests in
   `.vortex/tests/` run the scripts end-to-end. See
-  [Template > Testing](template.mdx#testing).
+  [Template > Test the template](template.mdx#test-the-template).
 - **Manual** - `tooling/playground/` holds scripts that hit live services.
   They aren't automated; see `tooling/playground/README.md`.
 
-## Publishing
+## Publish the package
 
 The `Vortex - Publish tooling` workflow
 (`.github/workflows/vortex-publish-tooling.yml`) mirrors `.vortex/tooling/`
@@ -186,4 +186,4 @@ mirror's tags and branch names. Never hardcode a `version` in the package
 You tag tooling releases on the mirror repository. When the tooling has
 changed since the last release, tag it before the **Vortex** release, so
 the template can require the new tag. See
-[Release > Tagging](release.mdx#tagging).
+[Release > Tag a release](release.mdx#tag-a-release).

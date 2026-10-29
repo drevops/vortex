@@ -73,13 +73,13 @@ Run the tests with Ahoy, or with Docker Compose directly:
   </TabItem>
 </Tabs>
 
-## Writing tests
+## Write tests
 
 Put each test in the `tests/src/` directory of its custom module or theme,
 in the `Unit`, `Kernel`, `Functional` or `FunctionalJavascript`
 subdirectory, so the matching test suite collects it.
 
-### Skipping tests
+### Skip tests
 
 `phpunit.xml` excludes the `skipped` group by default, so a
 `#[Group('skipped')]` attribute on a test class or method takes it out of
@@ -304,7 +304,7 @@ Coverage leaves out the following files:
 Files that no test runs still count, at 0%, because `phpunit.xml` sets
 `includeUncoveredFiles`.
 
-### Ignoring lines from coverage
+### Exclude lines from coverage
 
 Some code needs no coverage, such as a call into a third-party library that
 has its own tests. `phpunit.xml` sets `disableCodeCoverageIgnore` to
@@ -377,7 +377,7 @@ To turn the comment off, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to
 `1`, as a repository variable in GitHub Actions or an environment variable
 in CircleCI.
 
-### Ignoring failures
+### Ignore failures
 
 Set `VORTEX_CI_PHPUNIT_IGNORE_FAILURE` to `1` to let the build pass despite
 failing tests. PHPUnit still runs and reports the failure in the job log,

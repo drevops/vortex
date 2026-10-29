@@ -12,7 +12,7 @@ This page answers the questions developers ask most often while they work
 on a **Vortex** project. Each answer links to the page that covers its topic
 in full.
 
-## How to know which `ahoy` commands are available?
+## How do I list the available `ahoy` commands?
 
 To list the commands with their descriptions, run the following command:
 
@@ -22,7 +22,7 @@ ahoy help
 
 ➡️ See [Environment > Ahoy](environment/ahoy.mdx)
 
-## How to pass CLI arguments to commands?
+## How do I pass CLI arguments to commands?
 
 Add the arguments after the command name. The `--` separator is optional,
 because Ahoy removes it before it runs the command:
@@ -33,7 +33,7 @@ ahoy mycommand -- myarg1 myarg2 --myoption1 --myoption2=myvalue
 
 ➡️ See [Environment > Ahoy](environment/ahoy.mdx)
 
-## How to clear Drupal cache?
+## How do I clear the Drupal cache?
 
 To rebuild the Drupal caches, run the following command:
 
@@ -52,7 +52,7 @@ To rebuild the Drupal caches, run the following command:
 
 ➡️ See [Environment > Drush](environment/drush.mdx)
 
-## How to login to a Drupal site?
+## How do I log in to a Drupal site?
 
 To unblock user 1 and print a one-time login link for it, run the following
 command:
@@ -74,7 +74,7 @@ command:
 
 ➡️ See [Environment > Drush](environment/drush.mdx)
 
-## How to connect to the database?
+## How do I connect to the database?
 
 To connect, first get the port that the database uses on your host:
 
@@ -112,7 +112,7 @@ Connect with these details:
 
 ➡️ See [Environment > Docker](environment/docker.mdx)
 
-## How to use Xdebug?
+## How do I use Xdebug?
 
 Turn Xdebug on in the containers, then start a debug session from your IDE:
 
@@ -161,7 +161,7 @@ Turn Xdebug on in the containers, then start a debug session from your IDE:
 
 ➡️ See [Environment > Debugging](environment/debugging.mdx)
 
-## How to use Xdebug with Behat?
+## How do I use Xdebug with Behat?
 
 Turn Xdebug on, then run Behat with the `--xdebug` flag inside the CLI
 container:
@@ -256,9 +256,9 @@ If your stack is already running, follow these steps:
 <!-- markdownlint-enable MD046 -->
 
 ➡️ See [Environment > Switching
-branches](environment/README.mdx#switching-branches)
+branches](environment/README.mdx#switch-branches)
 
-## How to import a database without running updates?
+## How do I import a database without running updates?
 
 The import drops the current database and loads the dump without running
 database updates or importing configuration. If your stack is already
@@ -302,7 +302,7 @@ Confirm that the output ends with `Finished database import.`
 
 ➡️ See [Provision > Database](provision.mdx#database)
 
-## How to add Drupal modules?
+## How do I add Drupal modules?
 
 To add a module's code to the project, require it with Composer:
 
@@ -323,10 +323,10 @@ Then install the module with `drush pm:install` and export the
 configuration with `drush config:export`. The next configuration import
 then keeps the module installed.
 
-➡️ See [Composer > Installing](composer.mdx#installing) and
-[Modules](modules/README.mdx)
+➡️ See [Composer > Install dependencies](composer.mdx#install-dependencies)
+and [Modules](modules/README.mdx)
 
-## How to add patches for Drupal modules?
+## How do I add patches for Drupal modules?
 
 To patch a module, follow these steps:
 
@@ -368,8 +368,8 @@ To patch a module, follow these steps:
 Confirm that the `patches-repatch` output has a `- Patching` line with the
 name of the patched package.
 
-➡️ See [Composer > Patching](composer.mdx#patching) for the full patching
-workflow, including removing patches.
+➡️ See [Composer > Patch dependencies](composer.mdx#patch-dependencies) for
+the full patching workflow, including removing patches.
 
 ## What should I do when `composer audit` reports a security vulnerability?
 
@@ -427,7 +427,7 @@ follow these steps in the directory it checks:
 audit](security/dependency-audit.mdx#javascript-dependencies) for the
 severity threshold, the `overrides` mechanism and the allowlist format.
 
-## How to set a custom maintenance theme?
+## How do I set a custom maintenance theme?
 
 To set a custom theme for Drupal's maintenance mode (when the site is
 offline for updates), set the `DRUPAL_MAINTENANCE_THEME` environment

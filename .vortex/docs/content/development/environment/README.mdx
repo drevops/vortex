@@ -84,7 +84,7 @@ A new file or directory that no entry matches is included in all 3
 targets. Git tracks it after you commit it. Add an entry to an ignore file
 only when a file must stay out of that target.
 
-## Switching branches
+## Switch branches
 
 After you switch branches, skip the full rebuild. Run only the commands
 that match what changed:
@@ -120,7 +120,7 @@ the images and recreate the containers. Run `ahoy up --build`, or
 Confirm that the stack is healthy: `ahoy doctor` ends with
 `[ OK ] All required checks have passed.`
 
-## Resetting
+## Reset the project
 
 `ahoy reset` takes the stack down and deletes what the build installed, so
 your next `ahoy build` starts clean. After you confirm, it runs `ahoy down`.

@@ -40,7 +40,7 @@ Run the tests with the following commands:
   </TabItem>
 </Tabs>
 
-### Running tests matching a pattern
+### Run tests matching a pattern
 
 `ahoy test-js` doesn't forward extra arguments, so run subsets through
 `ahoy cli`. Jest then runs only the test files whose path matches the
@@ -59,7 +59,7 @@ pattern, `ys_demo` in this example:
   </TabItem>
 </Tabs>
 
-### Running a specific test by name
+### Run a specific test by name
 
 Jest's `-t` option runs only the tests whose name matches:
 
@@ -77,7 +77,7 @@ Jest's `-t` option runs only the tests whose name matches:
   </TabItem>
 </Tabs>
 
-## Writing tests
+## Write tests
 
 Drupal JavaScript files wrap their code in an immediately invoked function
 expression (IIFE): `((Drupal) => { ... })(Drupal)`. `Drupal` is a global
@@ -129,7 +129,7 @@ describe('Drupal.behaviors.myModule', () => {
 });
 ```
 
-### Loading Drupal behaviors
+### Load Drupal behaviors
 
 The `require()` call executes the source file's IIFE, which receives
 `global.Drupal` as its `Drupal` parameter and registers the behavior. After
@@ -138,7 +138,7 @@ The `require()` call executes the source file's IIFE, which receives
 The `jest.resetModules()` call before `require()` clears the module cache,
 so the IIFE runs again for each test with a fresh `global.Drupal` object.
 
-### Mocking globals
+### Mock globals
 
 Set globals in `beforeEach` and clean them up in `afterEach`:
 
@@ -149,7 +149,7 @@ Set globals in `beforeEach` and clean them up in `afterEach`:
 | `drupalSettings` | `global.drupalSettings = { path: { baseUrl: '/' } }` | When the source file reads `drupalSettings` |
 | `localStorage` | Provided by jsdom; call `localStorage.clear()` | When the source file uses `localStorage` |
 
-### Testing DOM interactions
+### Test DOM interactions
 
 The `jsdom` environment provides `document` and `window`. Set up HTML before
 each test:
@@ -168,7 +168,7 @@ document.querySelector('[data-action="save"]').click();
 expect(document.querySelector('[data-status]').textContent).toBe('Saved');
 ```
 
-### Testing timed behavior
+### Test timed behavior
 
 Use Jest fake timers for `setTimeout` and `setInterval`:
 
@@ -284,7 +284,7 @@ requests, which read only the PHPUnit report. If you use Codecov, its upload
 covers the whole `.logs/coverage` directory, Jest's `cobertura.xml`
 included.
 
-### Ignoring failures
+### Ignore failures
 
 Set `VORTEX_CI_JEST_IGNORE_FAILURE` to `1` to let the build pass despite
 failing tests. Jest still runs and reports every failure in the job log. See

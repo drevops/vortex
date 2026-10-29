@@ -95,7 +95,7 @@ To list the rules and whether each one is on, run the following command:
 ahoy cli vendor/bin/gherkinlint rules
 ```
 
-## Ignoring
+## Ignore violations
 
 To turn a rule off globally, set `enabled` to `false` for it in the
 [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
@@ -132,7 +132,7 @@ Gherkin Lint runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
 violations.
 
-### Ignoring failures
+### Ignore failures
 
 To let the build pass anyway, set the
 `VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE` CI variable to `1`. Gherkin Lint

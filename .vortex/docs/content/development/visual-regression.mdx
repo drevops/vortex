@@ -181,10 +181,10 @@ Confirm that the next deployment's log shows
 **Test - Visual regression** run appears on the repository's **Actions**
 tab.
 
-## How to trigger a comparison
+## Trigger a comparison
 
 The workflow has 2 entry points. Neither entry point blocks a merge, as
-[Making it blocking](#making-it-blocking) explains.
+[Make the check blocking](#make-the-check-blocking) explains.
 
 ### 1. Automatic on deployments
 
@@ -312,7 +312,7 @@ run summary and in the Diffy UI. If the target URL has a `pr-<number>`
 segment, the workflow resolves that PR as usual, and `vr-report` posts the
 result on it as a comment.
 
-## Limiting which branches dispatch
+## Limit which branches dispatch
 
 With the `diffy` channel on, every post-deployment notification dispatches
 the workflow, and the workflow's gate decides whether a comparison runs. A
@@ -492,7 +492,7 @@ when it can't post the comment.
 Opted-in branch deployments, and manual runs against a URL without a
 `pr-<number>` segment, report through the run summary alone.
 
-## Making it blocking
+## Make the check blocking
 
 Visual regression results don't block merges, and a required status check
 can't change that. GitHub runs a workflow that a `repository_dispatch`
@@ -528,7 +528,7 @@ non-PR deployment against the source environment, including each
 deployment to `dev` or `stage`. A busy integration branch then spends quota
 on every deployment.
 
-## Disabling
+## Turn off visual regression
 
 To switch visual regression off:
 

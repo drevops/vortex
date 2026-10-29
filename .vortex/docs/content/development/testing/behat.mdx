@@ -61,7 +61,7 @@ The `--` before Behat's options is optional: Ahoy drops it and passes the
 rest of the line to Behat. See
 [Ahoy > Usage](../environment/ahoy.mdx#usage).
 
-### Discovering available step definitions
+### Discover available step definitions
 
 Behat Steps, Mink and Behat Screenshot each bring their own steps. To list
 every step definition your suite can use, run the following command:
@@ -82,7 +82,7 @@ every step definition your suite can use, run the following command:
   </TabItem>
 </Tabs>
 
-## Writing tests
+## Write tests
 
 Put each feature file in the `tests/behat/features` directory, where the
 `default` suite finds it, and structure it like the following example:
@@ -113,7 +113,7 @@ scenario then runs in Chrome in the `chrome` container, driven through
 Selenium. A `@javascript` scenario runs slower than an untagged scenario, so
 add the tag only when a scenario needs JavaScript.
 
-### Skipping tests
+### Skip tests
 
 To exclude a feature or scenario from the test run, add the `@skipped` tag
 to it. Every profile in `behat.php` filters it out.
@@ -342,7 +342,7 @@ step as soon as the step runs. Without the option, Behat prints those
 details only in the summary at the end of the run. The test run continues
 after a failure while the output stays minimal.
 
-## Observing the browser
+## Watch the browser
 
 For `@javascript` tests, Behat drives Chrome through Selenium in the
 `chrome` container. That container also runs a VNC server with
@@ -430,7 +430,7 @@ To add more `p*` profiles, copy the existing `p1` profile in your
 `behat.php`, change its name and tag filter, and register it in the
 returned `Config`. Then exclude the new tag from the `p0` catch-all, or its
 scenarios run on the first runner as well. See [Adding more
-containers](../../continuous-integration/README.mdx#adding-more-containers)
+containers](../../continuous-integration/README.mdx#add-more-containers)
 for the full steps.
 
 Profile numbers count from the first runner that runs Behat. The CI
@@ -478,7 +478,7 @@ again.
 A scenario that passes only on the second run is still flaky, so check the
 first run's output in the job log.
 
-### Ignoring failures
+### Ignore failures
 
 Set `VORTEX_CI_BEHAT_IGNORE_FAILURE` to `1` to let the build pass despite
 failing scenarios. Behat still runs and retries as described in [Flaky

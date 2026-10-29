@@ -9,7 +9,7 @@ sets the rules for the shell scripts the template ships and explains how
 the template gets tested at 3 levels. It also shows how to run those tests
 and refresh the test assets they rely on.
 
-## Authoring scripts
+## Write scripts
 
 These requirements apply to all shell scripts in the template:
 
@@ -212,7 +212,7 @@ as the starting point for a new script:
 
 </details>
 
-## Testing
+## Test the template
 
 **Vortex** is a template, so a change to 1 script, configuration file or
 workflow reaches every project built from it. To catch problems first,
@@ -248,7 +248,7 @@ No unit test starts a container, so the unit tests run much faster than
 the end-to-end tests. The test files in `.vortex/tooling/tests/unit/` cover
 deployment, database operations, notifications, provisioning and the other
 automation scripts. To run them, see
-[Tooling > Testing](tooling.mdx#testing).
+[Tooling > Test the tooling](tooling.mdx#test-the-tooling).
 
 ### End-to-end testing
 
@@ -304,7 +304,7 @@ including CI configuration, testing workflows and infrastructure changes.
 Each update then meets a real, long-lived codebase as well as the test
 environments.
 
-## Running tests
+## Run tests
 
 The template has 2 suites to run locally: the PHPUnit tests in
 `.vortex/tests/` and the BATS tests in `.vortex/tooling/tests/`.
@@ -363,7 +363,7 @@ The suite reads these environment variables:
   fails without it.
 
 Functional tests rely on database fixtures; see
-[Updating test assets](#updating-test-assets).
+[Update test assets](#update-test-assets).
 
 ### Unit tests with BATS
 
@@ -385,10 +385,10 @@ Each test runs the scripts from a copy of the repository at its last commit,
 so commit your changes before you run the tests. The exception is
 `update-vortex.bats`, which runs `vortex-update` from your working tree.
 
-➡️ See [Tooling > Testing](tooling.mdx#testing) for the package's full test
-layers.
+➡️ See [Tooling > Test the tooling](tooling.mdx#test-the-tooling) for the
+package's full test layers.
 
-## Updating test assets
+## Update test assets
 
 The test assets are *demo* and *test* database dumps, published both as
 *files* and as *container images*. The `.vortex/tests/update-test-assets`

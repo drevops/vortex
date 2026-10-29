@@ -58,7 +58,7 @@ The provision script does that orchestration:
 
 The following diagram shows the script's steps and the points where it
 branches. Environment variables steer most of the branches. The circled
-numbers match variables 1-11 in [Customizing flow](#customizing-flow):
+numbers match variables 1-11 in [Customize the flow](#customize-the-flow):
 
 ```text
 🚀 Start
@@ -146,7 +146,7 @@ Right after the skip check (①), the script checks that the configuration
 directory in `$settings['config_sync_directory']` exists. If the directory
 is missing, the script stops with an error.
 
-### Customizing flow
+### Customize the flow
 
 The following environment variables steer the flow:
 
@@ -251,7 +251,7 @@ A few more variables shape what gets provisioned:
   `DRUPAL_ADMIN_EMAIL` feed the profile installation. The administrator
   account is always named `admin`.
 - `VORTEX_PROVISION_SCRIPTS_DIR` sets where the
-  [custom scripts](#running-custom-scripts) live.
+  [custom scripts](#run-custom-scripts) live.
 - `VORTEX_PROVISION_LOG=1` saves the output as `provision.log` in
   `VORTEX_NOTIFY_LOG_DIR`, where deployment notifications collect it.
 
@@ -320,7 +320,7 @@ production explicitly.
 To turn sanitization off, set `VORTEX_PROVISION_SANITIZE_DB_SKIP=1` in the
 `.env` file or in your hosting provider's environment variables.
 
-#### Customizing database sanitization
+#### Customize database sanitization
 
 To adjust what sanitization does, set these variables in the `.env` file
 or in your hosting provider's environment variables:
@@ -362,7 +362,7 @@ around. Refreshing runs inside the containers, because it imports into the
 running database. The command tabs in the following sections follow that
 split.
 
-### Fetching database
+### Fetch the database
 
 `ahoy fetch-db` downloads a database dump into the `.data` directory.
 `VORTEX_FETCH_DB_SOURCE` sets where the dump comes from, and accepts the
@@ -427,7 +427,7 @@ it. You can then reuse it, so refreshing the local environment needs no
 new fetch. To use a dump you downloaded yourself, name it `db.sql` and put
 it in the `.data` directory.
 
-### Refreshing database
+### Refresh the database
 
 The dump in `.data` goes into the running database container in 1 of 2
 ways. Use `ahoy import-db` for the raw data with no configuration changes or
@@ -522,7 +522,7 @@ To import a dump, run the following command:
 
 Confirm that the output ends with `Finished database import.`
 
-### Exporting database
+### Export the database
 
 `ahoy export-db` saves the current local database as a timestamped dump in
 `.data`, with a name such as `export_db_20260101_120000.sql`. To export the
@@ -560,7 +560,7 @@ dump. To choose which tables are exported this way, set
 names. Each name can use the `*` wildcard, and the default is `cache*`. To
 export the data of every table, set the variable to an empty value.
 
-## Running custom scripts
+## Run custom scripts
 
 Near the end of each run, the provision script runs your custom scripts. It
 runs them after sanitization, while the site is still in maintenance mode.
@@ -829,7 +829,7 @@ function ys_base_deploy_create_default_tags(): string {
 }
 ```
 
-#### Debugging commands
+#### Debug deploy hooks
 
 To list the pending deploy hooks or run them by hand, use the following
 Drush commands in the CLI container:

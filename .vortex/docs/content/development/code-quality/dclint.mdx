@@ -87,7 +87,7 @@ DCLint reads the container-only port `3306` as a host port that the
 `database` service already uses. Docker publishes each container-only port
 on its own random host port, so the 2 services don't clash.
 
-## Ignoring
+## Ignore violations
 
 To ignore all DCLint rules in a file, add this comment as the first line of
 the file:
@@ -125,7 +125,7 @@ pipeline](../../continuous-integration/README.mdx) and fails the build when
 it reports an error. Warnings, such as unquoted ports or service keys out of
 order, appear in the job log without failing the build.
 
-### Ignoring failures
+### Ignore failures
 
 To let the build pass despite errors, set the
 `VORTEX_CI_DCLINT_IGNORE_FAILURE` CI variable to `1`. DCLint still runs and

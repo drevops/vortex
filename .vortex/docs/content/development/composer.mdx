@@ -22,7 +22,7 @@ This page is for developers who manage the packages of a project built from
 ends with a key-by-key [reference of the shipped `composer.json`
 file](#composerjson-reference).
 
-## Installing
+## Install dependencies
 
 Add a package with `composer require`. Composer adds the package to
 `composer.json`, resolves its dependencies and installs them all. To add the
@@ -136,7 +136,7 @@ To add the jQuery Easing library, for example, follow these steps:
 
 Confirm that the library's files are in `web/libraries/jquery.easing/`.
 
-## Updating
+## Update dependencies
 
 To update all dependencies, run the following command:
 
@@ -155,8 +155,9 @@ To update all dependencies, run the following command:
 
 :::note Updates and patches
 
-If your project [patches](#patching) its dependencies, an update can fail
-when a patch no longer applies to the new version of a dependency. Composer
+If your project [patches](#patch-dependencies) its dependencies, an update
+can fail when a patch no longer applies to the new version of a dependency.
+Composer
 then stops with `No available patcher was able to apply patch`, followed by
 the patch URL and the package name.
 
@@ -250,7 +251,7 @@ composer bump --dry-run
 Run them in the `cli` container, or prefix them with `ahoy`, as in
 `ahoy composer bump`.
 
-## Overriding paths
+## Override paths
 
 To install a package somewhere other than the default location for its
 type, add an entry to `installer-paths` in `composer.json`:
@@ -328,13 +329,13 @@ Don't edit files under `vendor/drevops/vortex-tooling/src/`. Git ignores
 replaces the files whenever it reinstalls or updates the package. Customize
 the scripts through their [environment variables](variables.mdx), or add
 your own scripts under `scripts/`, such as
-[custom provision scripts](provision.mdx#running-custom-scripts). When
-neither is enough, apply a [patch](#patching). Composer applies it again
-whenever it installs or updates the package.
+[custom provision scripts](provision.mdx#run-custom-scripts). When
+neither is enough, apply a [patch](#patch-dependencies). Composer applies it
+again whenever it installs or updates the package.
 
 :::
 
-## Patching
+## Patch dependencies
 
 **Vortex** patches Composer dependencies with
 [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches)
@@ -608,7 +609,7 @@ The following table describes each package in `require`:
 |---------|-------------|---------------|
 | `php` | The minimum PHP version required to run this project. Specify a range such as `>=8.4` rather than an exact version such as `8.4.0`. | None |
 | [`composer/installers`](https://github.com/composer/installers) | Installs packages into the correct location based on their package type, such as `drupal-module`, `drupal-theme` or `drupal-profile`. | None |
-| [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches) | Patches Composer packages with `git apply`, incorporating fixes that aren't yet in an official release. Patch metadata and SHA-256 checksums are recorded in `patches.lock.json` for reproducible builds. | [Patching](#patching) |
+| [`cweagans/composer-patches`](https://github.com/cweagans/composer-patches) | Patches Composer packages with `git apply`, incorporating fixes that aren't yet in an official release. Patch metadata and SHA-256 checksums are recorded in `patches.lock.json` for reproducible builds. | [Patch dependencies](#patch-dependencies) |
 | [`drevops/vortex-tooling`](https://github.com/drevops/vortex-tooling) | Ships the **Vortex** operational scripts, such as the database, provisioning, deployment and notification scripts, in `vendor/drevops/vortex-tooling/src/`. | [Vortex tooling package](#vortex-tooling-package) |
 | [`drupal/clamav`](https://www.drupal.org/project/clamav) | Scans uploaded files for malware with the ClamAV engine before they're saved. | [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/coffee`](https://www.drupal.org/project/coffee) | Adds a keyboard shortcut to jump straight to any administration page by typing its name. | None |
@@ -798,7 +799,7 @@ keys:
   - Recipes: `recipes`
   - Drush command packages: `drush/Commands/contrib`
 
-  ➡️ See [Overriding paths](#overriding-paths)
+  ➡️ See [Override paths](#override-paths)
 - `patchLevel`: Holds `-p2` for `drupal/core`. The `-p` option of a patch
   command (for example, `-p1` or `-p2`) is the number of leading directories
   to strip from the file paths in the patch. Version 2.x of
@@ -811,7 +812,7 @@ keys:
 - `patches`: Lists the patches to apply to each package. The template ships
   it empty. The applied patch state lives in the generated
   `patches.lock.json` file, which you commit like `composer.lock`. ➡️ See
-  [Patching](#patching)
+  [Patch dependencies](#patch-dependencies)
 
 [drupal-scaffold]: https://www.drupal.org/docs/develop/using-composer/using-drupals-composer-scaffold
 [installer-paths]: https://getcomposer.org/doc/faqs/how-do-i-install-a-package-to-a-custom-path-for-my-framework.md

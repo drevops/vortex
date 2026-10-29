@@ -51,7 +51,7 @@ create them.
 Confirm that the check passed: `echo $?`, run right after Hadolint, prints
 `0` when Hadolint found no violation at the `info` severity or higher.
 
-## Ignoring
+## Ignore violations
 
 To ignore rules for the whole file, add a `global ignore` directive to the
 file header:
@@ -91,7 +91,7 @@ The step lints every file under `.docker` and its subdirectories that's
 named `Dockerfile` or ends in `.dockerfile`. It stops at the first file
 that fails.
 
-### Ignoring failures
+### Ignore failures
 
 To let the build pass despite violations, set the
 `VORTEX_CI_HADOLINT_IGNORE_FAILURE` CI variable to `1`. Hadolint still runs

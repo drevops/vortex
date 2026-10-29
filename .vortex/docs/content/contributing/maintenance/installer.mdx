@@ -159,7 +159,7 @@ it keeps the rest of the line. A line
 that the template keeps commented out with that prefix becomes active in
 the consumer site, as the `VORTEX_DB_IMAGE` example in `.env` does.
 
-## Testing
+## Test the installer
 
 The installer has unit tests for individual components and functional tests
 for full installation scenarios.
@@ -218,7 +218,7 @@ these areas, among many others:
 - **Deployment**: artifact, webhook, Lagoon, all combined
 - **Database sources**: Acquia, Lagoon, FTP, S3, URL, container registry
 
-### Running tests
+### Run tests
 
 Run the installer tests from the `.vortex/installer/` directory:
 
@@ -243,7 +243,7 @@ the same suite with coverage, the way CI does. CI runs it on PHP 8.3 and
 8.4. Before the tests, CI checks that `composer.json` is normalized and
 runs `composer lint`.
 
-### Updating snapshots
+### Update snapshots
 
 Never edit fixture files by hand. When the template or the installer logic
 changes, regenerate the snapshots from the `.vortex/` directory:
@@ -276,7 +276,7 @@ partial, inconsistent fixtures.
 
 :::
 
-## Releasing
+## Release the installer
 
 [Box](https://github.com/box-project/box) packages the installer as a PHAR
 archive. `composer build` in `.vortex/installer`, or `ahoy build-installer`

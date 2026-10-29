@@ -94,7 +94,7 @@ $finder->in(__DIR__ . '/web/modules/custom');
 $finder->in(__DIR__ . '/web/themes/custom');
 ```
 
-## Ignoring
+## Ignore violations
 
 To exclude a directory from linting, call `$finder->exclude()` in the
 [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php)
@@ -165,7 +165,7 @@ Twig CS Fixer runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
 violations.
 
-### Ignoring failures
+### Ignore failures
 
 To let the build pass anyway, set the
 `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE` CI variable to `1`. Twig CS Fixer
