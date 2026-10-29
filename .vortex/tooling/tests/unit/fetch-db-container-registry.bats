@@ -575,6 +575,29 @@ load ../_helper.bash
   popd >/dev/null
 }
 
+@test "fetch-db-container-registry: Accept the highest layer limit" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "echo 'image exists'" 1
+  mock_set_side_effect "${mock_docker}" "echo 124" 2
+
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR=".data"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS=125
+
+  run .vortex/tooling/src/vortex-fetch-db-container-registry
+  assert_success
+  assert_output_contains "[ OK ] Database container image myorg/myapp has 124 layers, below the limit of 125."
+
+  assert_equal "2" "$(mock_get_call_num "${mock_docker}")"
+
+  popd >/dev/null
+}
+
 @test "fetch-db-container-registry: Fail with an invalid layer limit" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -586,12 +609,12 @@ load ../_helper.bash
 
   mock_docker=$(mock_command "docker")
 
-  for max_layers in abc 0 -1 1.5 010; do
+  for max_layers in abc 0 -1 1.5 010 126 1000 99999999999999999999; do
     export VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS="${max_layers}"
 
     run .vortex/tooling/src/vortex-fetch-db-container-registry
     assert_failure
-    assert_output_contains "[FAIL] Invalid value \"${max_layers}\" for VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS. Use a positive integer."
+    assert_output_contains "[FAIL] Invalid value \"${max_layers}\" for VORTEX_FETCH_DB_CONTAINER_REGISTRY_MAX_LAYERS. Use an integer from 1 to 125."
   done
 
   # The value is validated before any image is inspected or fetched.
