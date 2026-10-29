@@ -489,6 +489,7 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-fetch-db-container-registry
   assert_failure
   assert_output_contains "Fetching myorg/myapp image from the registry."
+  assert_output_contains "[FAIL] Unable to tag registry.example.com/myorg/myapp image as myorg/myapp."
   assert_output_not_contains "[ OK ] Fetched myorg/myapp image from the registry."
   assert_output_not_contains "Finished database data container image fetch."
 
