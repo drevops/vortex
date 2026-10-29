@@ -473,6 +473,39 @@ class FileManagerTest extends UnitTestCase {
     $this->assertNull($fm->getRegistryFile(), 'Content that cannot be read is not diffed.');
   }
 
+  public function testCopyFilesReportsFilesTheCopyCouldNotWrite(): void {
+    $src = self::$sut . '/src_report_failed';
+    $destination = self::$sut . '/dst_report_failed';
+    File::dump(File::mkdir($src) . '/phpstan.neon', 'next');
+    File::dump($src . '/composer.json', '{}');
+
+    $config = $this->createConfig($destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $fm = new FileManager($config);
+
+    File::dump(File::mkdir($destination) . '/phpstan.neon', 'installed');
+    $this->stubPreviousTemplate($fm, $destination, ['phpstan.neon' => 'installed']);
+    $fm->snapshotTemplate();
+
+    chmod($destination . '/phpstan.neon', 0444);
+
+    if (is_writable($destination . '/phpstan.neon')) {
+      chmod($destination . '/phpstan.neon', 0644);
+      $this->markTestSkipped('File permissions are not enforced for the current user.');
+    }
+
+    try {
+      $fm->copyFiles();
+    }
+    finally {
+      chmod($destination . '/phpstan.neon', 0644);
+    }
+
+    $this->assertStringEqualsFile($destination . '/phpstan.neon', 'installed', 'The read-only file kept its content.');
+    $this->assertSame([InstallReport::STATUS_ADDED => 1, InstallReport::STATUS_FAILED => 1], $fm->getReportSummary());
+    $this->assertFileContainsString((string) $fm->getReportFile(), '  failed       phpstan.neon' . PHP_EOL, 'A file the copy did not write is not reported as updated.');
+  }
+
   public function testCopyFilesRemovesCommittedManifest(): void {
     $src = self::$sut . '/src_stale_manifest';
     $destination = self::$sut . '/dst_stale_manifest';

@@ -224,6 +224,7 @@ class FileManager {
 
     if (File::isDir($src) && !File::dirIsEmpty($src)) {
       File::copy($src, $destination);
+      $this->recordFailedCopies($src, $report);
     }
 
     if (!File::exists($destination . '/.env.local') && File::exists($destination . '/.env.local.example')) {
@@ -351,6 +352,46 @@ class FileManager {
 
     if ($this->previousDir !== NULL) {
       $this->registryFile = $registry->write((string) $this->previousRef, (string) $this->config->get(Config::VERSION), date('Y-m-d H:i:s'));
+    }
+  }
+
+  /**
+   * Record the staged paths that the copy did not write.
+   *
+   * The recursive copy skips a file it cannot write, such as a read-only one,
+   * without failing, so each written path is compared with its staged source.
+   *
+   * @param string $src
+   *   The staged template directory.
+   * @param \DrevOps\VortexInstaller\Utils\InstallReport $report
+   *   The report holding each staged path's status.
+   */
+  protected function recordFailedCopies(string $src, InstallReport $report): void {
+    $destination = (string) $this->config->getDestination();
+    $written = [InstallReport::STATUS_ADDED, InstallReport::STATUS_UPDATED, InstallReport::STATUS_OVERWRITTEN];
+
+    foreach ($report->getEntries() as $path => $status) {
+      if (!in_array($status, $written, TRUE)) {
+        continue;
+      }
+
+      $target = $destination . '/' . $path;
+
+      if (!File::exists($target)) {
+        $report->add($path, InstallReport::STATUS_FAILED);
+        continue;
+      }
+
+      // A side that cannot be read cannot be compared, so its status stands.
+      $staged_hash = File::isReadable($target) ? hash_file(self::HASH_ALGO, $src . '/' . $path) : FALSE;
+
+      if ($staged_hash === FALSE) {
+        continue;
+      }
+
+      if (hash_file(self::HASH_ALGO, $target) !== $staged_hash) {
+        $report->add($path, InstallReport::STATUS_FAILED);
+      }
     }
   }
 

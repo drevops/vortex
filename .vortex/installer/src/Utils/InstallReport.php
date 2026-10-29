@@ -35,6 +35,8 @@ class InstallReport {
 
   const STATUS_KEPT = 'kept';
 
+  const STATUS_FAILED = 'failed';
+
   /**
    * Descriptions of the statuses, in the order they are rendered.
    */
@@ -45,6 +47,7 @@ class InstallReport {
     self::STATUS_OVERWRITTEN => 'The project file held its own changes or could not be read, and the template copy replaced it.',
     self::STATUS_REMOVED => 'The template no longer installs the file, so the project copy was removed.',
     self::STATUS_KEPT => 'The template no longer installs the file, but the project had changed it, so it was kept.',
+    self::STATUS_FAILED => 'The installer could not write the template copy, so the project file was left as it was.',
   ];
 
   /**

@@ -120,6 +120,7 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
     $first = $this->findReport();
     $this->assertFileContainsString($first, '  added        composer.json' . PHP_EOL, 'A fresh installation adds every file.');
     $this->assertFileNotContainsString($first, 'From:', 'A fresh installation has no previous version.');
+    $this->assertNoFailedFiles($first);
     $this->assertApplicationOutputContains(['Status of every file is recorded in:', '.logs/' . InstallReport::PREFIX]);
 
     File::dump(static::$sut . '/.ahoy.yml', File::read(static::$sut . '/.ahoy.yml') . PHP_EOL . '# Project addition.' . PHP_EOL);
@@ -130,6 +131,7 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
     $this->assertFileExists($first, 'An update leaves the earlier report in place.');
     $report = $this->findReport([$first]);
     $this->assertFileContainsString($report, 'From: ', 'An update names the version the project ran.');
+    $this->assertNoFailedFiles($report);
 
     $expected = [
       '.ahoy.yml' => InstallReport::STATUS_OVERWRITTEN,
@@ -171,6 +173,19 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
     foreach ($shipped as $path => $contents) {
       $this->assertStringEqualsFile(static::$sut . '/' . $path, $contents, sprintf('Path "%s" kept its contents.', $path));
     }
+  }
+
+  /**
+   * Assert that a report lists no file the copy failed to write.
+   *
+   * The status legend above the summary names every status, so only the
+   * summary and the file list are searched.
+   */
+  protected function assertNoFailedFiles(string $report): void {
+    $content = File::read($report);
+    $listing = substr($content, (int) strpos($content, 'Summary:'));
+
+    $this->assertStringNotContainsString('  ' . InstallReport::STATUS_FAILED . ' ', $listing, 'Every template file is written, symlinks included.');
   }
 
   /**
