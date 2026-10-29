@@ -14,6 +14,7 @@ exceptions+:
   - FeatureContext
   - Generated Content
   - Gherkin Lint
+  - Git
   - GitFlow
   - JavaScript
   - Migrate Plus
