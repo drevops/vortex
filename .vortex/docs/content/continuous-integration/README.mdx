@@ -326,9 +326,9 @@ Neither provider overwrites a saved cache key, so the first job to save the
 day's key wins. GitHub Actions saves the cache only when a job changed the
 dump, as a fresh download does. Jobs that restored a cache leave the key
 free for the scheduled run. On CircleCI, every `database` job saves the
-day's key. The scheduled run's dump is cached only when no earlier job
-saved it. See [CircleCI > Update nightly database
-schedule](./circleci.mdx#update-nightly-database-schedule).
+day's key, so the scheduled run's dump is cached only when no earlier job
+saved it (see [CircleCI > Update nightly database
+schedule](./circleci.mdx#update-nightly-database-schedule)).
 
 The 3 variables live in the CI configuration. On GitHub Actions, they sit
 in the container `env` block of the `database` and `build` jobs. On

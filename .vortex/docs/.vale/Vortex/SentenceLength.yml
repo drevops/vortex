@@ -1,6 +1,6 @@
 extends: occurrence
-message: "Long sentence: %d words. Keep sentences under 25 words."
+message: "Long sentence: %d words. Keep sentences to 30 words or fewer."
 level: warning
 scope: sentence
-max: 24
+max: 30
 token: \b\w+(?:['’]\w+)?\b

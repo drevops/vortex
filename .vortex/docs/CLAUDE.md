@@ -50,7 +50,7 @@ docs/
   comma (`install, configure and run`), and `for example` instead of
   `e.g.`. Ordinals in prose (`the first step`) and fixed expressions
   (`one-off`) stay words.
-- Sentences under 25 words, with 1 idea each.
+- Sentences of 30 words or fewer, with 1 idea each.
 - Environment variables, file names, commands, and package names are inline
   code, in link labels too. Inside single-line JSX or HTML elements such as
   `<summary>`, use `<code>` tags instead of backticks.
