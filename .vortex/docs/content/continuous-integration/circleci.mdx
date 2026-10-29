@@ -99,7 +99,10 @@ The `nightly-db` workflow runs the `database-nightly` job: the regular
 `database` job with the cache fallback turned off, so it always downloads a
 fresh dump. It also skips the front-end build. For a project that stores
 its database in a container image, it imports the dump into a clean base
-image, then pushes the result to the registry.
+image, then pushes the result to the registry. The image is always built
+from a dump file. With the `container_registry` source, set
+`VORTEX_REFRESH_DB_SOURCE` to the source of that file, such as `url` or
+`lagoon`, along with that source's variables.
 
 The job saves the dump under the current day's cache key, and CircleCI
 never overwrites a saved key. If another `database` job saved that key
