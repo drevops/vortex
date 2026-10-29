@@ -16,10 +16,10 @@ scripts](../../architecture.mdx#automation-scripts).
 The scripts are published as the standalone
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
 Composer package. Consumer projects install the package and run the
-user-facing scripts from `vendor/bin/vortex-*`. Those scripts are the ones
-listed under `bin` in the package `composer.json`. The other scripts, such
-as the per-channel `vortex-notify-*` scripts, run through those entry
-points.
+user-facing scripts from `vendor/bin/vortex-*`. The user-facing scripts are
+the ones listed under `bin` in the package `composer.json`. The other
+scripts, such as the per-channel `vortex-notify-*` scripts, run through
+those entry points.
 
 ## Package layout
 
@@ -44,11 +44,11 @@ and `tests/` as `export-ignore`. The published archive holds the rest:
 - `package.json` and `yarn.lock`
 - `README.md` and `LICENSE`
 
-While you develop **Vortex** itself, the template's root `composer.json`
-resolves the package from the in-tree copy. It uses a `path` repository
-with a pinned version. The installer strips that entry, so consumer sites
-resolve the published package from Packagist. The same version is also
-pinned in `scripts/vortex-tooling.sh` and
+While you develop **Vortex** itself, Composer installs the package from the
+in-tree copy. The template's root `composer.json` declares it as a `path`
+repository with a pinned version. The installer strips that entry, so
+Composer on consumer sites installs the published package from Packagist.
+The same version is also pinned in `scripts/vortex-tooling.sh` and
 `.vortex/tests/phpunit/Traits/SutTrait.php`.
 [Release > Release process](release.mdx#release-process) lists every spot
 to bump.
@@ -65,7 +65,7 @@ Every shipped script follows the same pattern:
 
 The output helpers have a strict contract:
 
-- `info` opens and closes an operation.
+- `info` marks the start and the end of an operation.
 - `task` announces work that's starting. Every `task` must be closed by a
   `pass` or a `fail`, even when the work itself can't fail. The output then
   always shows whether a step succeeded.

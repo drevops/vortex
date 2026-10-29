@@ -26,12 +26,13 @@ provisioning doesn't install it, so enable it when the project needs it.
 prompt in front of your site. **Vortex** forces it on in the `dev` and
 `stage` hosted environments, so work in progress stays behind the prompt.
 It forces Shield off locally and in CI, where a prompt would block tests.
-In production, Shield stays under UI control.
+In production, Shield stays on or off as set on its settings page in the
+UI.
 
 The credentials come from the `DRUPAL_SHIELD_USER` and `DRUPAL_SHIELD_PASS`
 environment variables. Hosted non-production environments run as `dev` or
-`stage`, so set both variables in each of them. Shield stays on there even
-when they're missing, and then the prompt locks everyone out.
+`stage`, so set both variables in every one of those environments. Without
+them, Shield stays on and the prompt locks everyone out.
 
 ➡️ See [Modules > Shield](../modules/contributed-modules.mdx#shield) for the
 full entry. It covers the overrides that disable Shield for 1 environment
@@ -53,8 +54,8 @@ on Lagoon. On Acquia, the platform's own PHP settings apply.
 
 Secret scanning and the dependency audit run in the [security audit
 workflow](../../continuous-integration/README.mdx#security-audit), separate
-from the build pipeline. A failing audit is then distinct from a failing
-linter, and you can re-run it on its own.
+from the build pipeline. A failing audit therefore shows up separately from
+a failing linter, and you can re-run the audit on its own.
 
 The `deploy` job doesn't depend on the audit, so a failing audit doesn't
 stop a deployment. To block merges on the audit, add its check to the
@@ -62,9 +63,9 @@ repository's branch protection rules as a required status check.
 
 In GitHub Actions, both checks also upload their findings to the
 repository's **Security > Code scanning** tab, which keeps an inventory of
-the open findings. The workflow also attaches every report to the run as
-the `security-findings` artifact. CircleCI has no code scanning
-destination, so its findings stay in the job log.
+the open findings. The GitHub Actions workflow also attaches every report
+to the run as the `security-findings` artifact. CircleCI has no code
+scanning destination, so its findings stay in the job log.
 
 ➡️ See [Code
 scanning](../../continuous-integration/README.mdx#code-scanning).

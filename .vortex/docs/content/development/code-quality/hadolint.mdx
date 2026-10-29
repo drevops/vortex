@@ -43,13 +43,13 @@ To lint the Dockerfiles, run the following command from the project root:
 hadolint .docker/*.dockerfile
 ```
 
-The command checks the same files as CI, because the shipped `.docker`
-directory holds only top-level `.dockerfile` files. If you add a
-`Dockerfile` or a subdirectory, add those paths to the command.
+The glob covers every shipped Dockerfile, because the shipped `.docker`
+directory holds only top-level `.dockerfile` files. CI also picks up a
+`Dockerfile` or a subdirectory, so add those paths to the command when you
+create them.
 
-Confirm that the check passed: run `echo $?` right after Hadolint. It
-prints `0` when Hadolint found no violation at the `info` severity or
-higher.
+Confirm that the check passed: `echo $?`, run right after Hadolint, prints
+`0` when Hadolint found no violation at the `info` severity or higher.
 
 ## Ignoring
 
@@ -87,8 +87,8 @@ any violation at the `info` severity or higher, which is Hadolint's default
 failure threshold. Findings at the `style` severity appear in the job log
 without failing the build.
 
-The step lints each file under `.docker`, subdirectories included, that's
-named `Dockerfile` or ends in `.dockerfile`, and stops at the first file
+The step lints every file under `.docker` and its subdirectories that's
+named `Dockerfile` or ends in `.dockerfile`. It stops at the first file
 that fails.
 
 ### Ignoring failures

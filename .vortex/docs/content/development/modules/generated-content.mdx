@@ -8,8 +8,9 @@ sidebar_position: 4
 [Generated Content](https://www.drupal.org/project/generated_content) fills
 a site with placeholder content from code. A rebuilt environment then comes
 back with pages, terms and files already in place. You write a plugin per
-bundle, and the module runs the plugins in order. It runs them when it's
-installed with `GENERATED_CONTENT_CREATE=1`, or whenever you ask it to.
+bundle, and the module runs the plugins in order. The module runs the
+plugins when it's installed with `GENERATED_CONTENT_CREATE=1`, or whenever
+you ask it to.
 Plugins built on its static helpers produce identical output on every run,
 which visual regression tests and consistent demo sites need.
 
@@ -76,10 +77,10 @@ class Page extends GeneratedContentPluginBase {
 
 For a bundle under content moderation, also set the `moderation_state` field
 to `published` before saving. A new node otherwise takes the workflow's
-default moderation state. A `draft` default leaves the node unpublished,
-whatever its `status` says. The shipped [`Page`
+default moderation state. With a `draft` default, the node stays
+unpublished even when its `status` is `1`. The shipped [`Page`
 plugin](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/src/Plugin/GeneratedContent/Node/Page.php)
-shows the guarded check.
+sets the field only when the node has a `moderation_state` field.
 
 :::
 
@@ -95,7 +96,7 @@ The `#[GeneratedContent]` attribute takes the following parameters:
 | `weight` | int | no | Execution order, lowest first (default: `0`) |
 | `tracking` | bool | no | If `TRUE`, tracks the created entities so the module can remove them later. If `FALSE`, doesn't track them (default: `TRUE`) |
 | `label` | TranslatableMarkup | no | Human-readable name of the plugin |
-| `helper` | string | no | Custom helper class extending `GeneratedContentHelper`. For any other class, the plugin falls back to the default helper |
+| `helper` | string | no | Custom helper class extending `GeneratedContentHelper`. If the class doesn't extend it, the plugin uses the default helper |
 
 ## Generation helpers
 
@@ -190,11 +191,11 @@ entities each run creates. With `20`, the `Page` plugin runs once and
 creates its 20 pages. Confirm that the new pages appear in the content list
 at `/admin/content`.
 
-The command runs only the plugin for that entity type and bundle. It skips
-the plugins with a lower weight, so a plugin that references other
-generated content finds only what already exists. For example, if your
-project has a plugin for `tags` terms, create the terms before the pages
-that reference them:
+The command runs only the plugin for that entity type and bundle, and none
+of the plugins that weight orders before it. A plugin that references other
+generated content therefore finds only what already exists. For example,
+if your project has a plugin for `tags` terms, create the terms before the
+pages that reference them:
 
 ```shell
 drush generated-content:create-content taxonomy_term tags 10
@@ -215,9 +216,9 @@ entities the module tracks.
 ### Environment variable
 
 With `GENERATED_CONTENT_CREATE=1` set, installing `generated_content` or a
-module that provides plugins generates the content. A configuration import
-is the exception. Generation runs only while no generated content exists
-yet, so installing another module later doesn't duplicate the content.
+module that provides plugins generates the content. An install during a
+configuration import generates nothing. Generation runs only while no
+generated content exists, so a module installed later adds no duplicates.
 `GENERATED_CONTENT_ITEMS` limits generation to a comma-separated list of
 `entity_type-bundle` pairs:
 
@@ -239,9 +240,9 @@ Set `DRUPAL_GENERATED_CONTENT_SKIP` and `GENERATED_CONTENT_ITEMS` in
 environment variables. Provisioning loads both files, so the script and the
 install it runs see their values.
 
-Provisioning again doesn't duplicate the content. The install command does
-nothing on a site that already has the module, so generation doesn't
-start.
+Provisioning again doesn't duplicate the content. The script's
+`drush pm:install` command does nothing on a site that already has the
+module, so generation doesn't start.
 
 ➡️ See [Generated Content](../provision.mdx#generated-content) in the
 provisioning documentation.

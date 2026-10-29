@@ -30,7 +30,7 @@ covers how to ignore an error you can't fix. For PHPStan itself, see the
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-`ahoy lint-be` runs PHPCS, PHPStan and Rector in that order. The Docker
+The Ahoy command runs PHPCS, PHPStan and Rector in that order. The Docker
 Compose command runs PHPStan alone. To analyze the code, run 1 of the
 following commands:
 
@@ -72,9 +72,10 @@ The Drupal-specific rules come from
 [`mglaman/phpstan-drupal`](https://github.com/mglaman/phpstan-drupal), which
 `phpstan/extension-installer` loads automatically.
 
-PHPStan treats the code as PHP 8.4.27, the `phpVersion` value of `80427`.
-That value matches the `composer.json` key `config.platform.php`. PHPStan
-doesn't read that key, so update both when you move to a new PHP version.
+The `phpVersion` value in `phpstan.neon`, set to `80427`, makes PHPStan
+treat the code as PHP 8.4.27. The `composer.json` key `config.platform.php`
+pins the same version. PHPStan doesn't read that key, so update both when
+you move to a new PHP version.
 
 `treatPhpDocTypesAsCertain` is set to `false`. PHPStan then relies on native
 type declarations, because the types in doc comments go out of date.
@@ -131,8 +132,9 @@ files, use the configuration:
 - To silence 1 error in some files only, add `paths` to its `ignoreErrors`
   entry, as in the preceding example.
 
-For why PHPStan has no block-level ignore, see the PHPStan issue [Ignoring
-code blocks using PHPDocs](https://github.com/phpstan/phpstan/issues/4452).
+The PHPStan issue [Ignoring code blocks using
+PHPDocs](https://github.com/phpstan/phpstan/issues/4452) explains why
+PHPStan has no block-level ignore.
 
 To ignore 1 error on the next line, add a `@phpstan-ignore` comment with
 the error identifier that PHPStan prints with the error:
@@ -145,7 +147,8 @@ echo $title;
 To ignore an error on the same line instead, add the comment at the end of
 that line.
 
-To ignore every error on a line, add this comment on the line before it:
+To ignore every error on the next line, whatever its identifier, add this
+comment on the line before it:
 
 ```php
 // @phpstan-ignore-next-line

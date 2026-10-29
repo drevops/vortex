@@ -342,10 +342,10 @@ The migration maps the following source fields:
 ### Dependencies
 
 The module depends on core's Migrate module and on `drupal/migrate_plus` and
-`drupal/migrate_tools`. Both packages stay in `composer.json` when the
-migration feature is enabled. Migrate Plus provides the `table` source
-plugin. Migrate Tools provides the `drush migrate:*` commands the provision
-script runs.
+`drupal/migrate_tools`. The installer keeps both packages in
+`composer.json` when you enable the migration feature. Migrate Plus
+provides the `table` source plugin. Migrate Tools provides the
+`drush migrate:*` commands the provision script runs.
 
 ## CI integration
 

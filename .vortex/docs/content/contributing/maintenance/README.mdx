@@ -13,8 +13,8 @@ publish it. To build a site from **Vortex**, start from the
 
 The maintenance tooling lives in `.vortex/`, a directory the installer
 leaves out of every consumer site. The `ahoy` commands on these pages come
-from `.vortex/.ahoy.yml`. Run them from `.vortex/`, or from the repository
-root with `ahoy --file .vortex/.ahoy.yml <command>`.
+from `.vortex/.ahoy.yml`. Run those commands from `.vortex/`, or from the
+repository root with `ahoy --file .vortex/.ahoy.yml <command>`.
 
 The following table lists the maintenance pages:
 
@@ -27,8 +27,9 @@ The following table lists the maintenance pages:
 | [Release](release.mdx) | The versioning strategy and the release process |
 
 The `.vortex/skills/` directory holds AI agent skills for the same work.
-Claude Code loads them as the `vortex` plugin, which the repository's
-`.claude/settings.json` enables. The directory holds 5 skills:
+The repository's `.claude/settings.json` enables them as the `vortex`
+plugin, so Claude Code loads them in this repository. The directory holds 5
+skills:
 
 - `prepare-vortex-release` - runs the operations of the
   [release checklist](release.mdx#release-process) and drafts the release

@@ -19,24 +19,24 @@ The following installer questions decide which custom modules ship:
 
 - **Custom modules** selects the base, search and demo modules. All 3 are
   selected by default.
-- **Services** drops the search module when it leaves out Solr. Solr is
+- **Services** drops the search module when you leave Solr out. Solr is
   selected by default.
 - **Use a second database for migrations?** decides `ys_migrate`. It
   defaults to No.
 
-Keep a custom `ys_base` module in your project to hold general-purpose code
-that doesn't belong in a dedicated, feature-specific module.
+Use `ys_base` for general-purpose code that doesn't belong in a dedicated,
+feature-specific module.
 
 The `ys` prefix abbreviates your project's machine name, `your_site` here.
 Use the same prefix for all your custom modules, and the site machine name
-for the theme. Each module and theme then shows which project it belongs
-to. The installer suggests both names:
+for the theme. Each module and theme name then identifies its project. The
+installer suggests both names:
 
-- Its **Custom modules prefix** question offers up to 4 characters from the
+- The **Custom modules prefix** question offers up to 4 characters from the
   machine name. A name with underscores gives the initials of its words,
   such as `ys` for `your_site` or `sw` for `star_wars`. A name without
   underscores gives its first 4 characters.
-- Its **Custom theme machine name** question offers the machine name
+- The **Custom theme machine name** question offers the machine name
   itself.
 
 The `your_site` and `ys` names, and the other tokens like them, are
@@ -53,7 +53,7 @@ Drush runs each of its `ys_base_deploy_*()` functions once and records
 which ones have run. Its single hook,
 `ys_base_deploy_install_active_theme()`, installs the core Olivero theme
 and sets it as the default. When the project has a custom theme, the hook
-then installs that theme and sets it as the default instead.
+also installs that theme and makes it the default in place of Olivero.
 
 ## Demo module
 
@@ -85,7 +85,7 @@ following:
 - A **Counter Block** shows in the `content` region of the default theme.
 - The main menu has a **Pages** link.
 
-`ahoy test-bdd -- --tags=@counter` runs its Behat feature.
+`ahoy test-bdd -- --tags=@counter` runs the demo module's Behat feature.
 `ahoy test-js` runs its Jest test together with those of the other custom
 modules.
 
@@ -124,8 +124,8 @@ them.
 
 The `ys_base` module's `tests` directory holds a working example test and a
 base class for each PHPUnit test type: Unit, Kernel, Functional and
-FunctionalJavascript. A new test then starts from something that already
-runs. The directory ships when PHPUnit is selected during installation.
+FunctionalJavascript. A new test then starts from a copy of a passing test.
+The directory ships when PHPUnit is selected during installation.
 
 To start a kernel test, copy `tests/src/Kernel/ExampleTest.php` and rename
 the file and the class. The copy extends `YsBaseKernelTestBase`, which the
@@ -138,7 +138,7 @@ For a test in another module, put the copy in that module's
 the `kernel` suite in `phpunit.xml` collects every
 `web/modules/custom/**/tests/src/Kernel` directory.
 
-Its `Traits` directory adds the following 5 helper traits for writing tests:
+The `ys_base` tests also include a `Traits` directory with 5 helper traits:
 
 - `ArrayTrait`
 - `AssertTrait`

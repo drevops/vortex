@@ -26,6 +26,7 @@ with ESLint itself, see the
 In **Vortex**, the root `lint-js` script lints only the custom modules in
 `web/modules/custom`. The custom theme has its own `eslint.config.mjs` and
 `package.json`, so it can move to a separate repository with its tooling.
+`ahoy lint-fe` lints both.
 
 ## Usage
 
@@ -52,8 +53,8 @@ To check the code, run 1 of the following commands:
   </TabItem>
 </Tabs>
 
-Confirm that the check passed: ESLint lists no problems, and `echo $?`,
-run straight after the command, prints `0`.
+Confirm that the check passed: ESLint lists no problems, and `echo $?`
+prints `0` right after the command.
 
 ### Fix violations
 
@@ -180,8 +181,8 @@ the check too:
 ```
 
 To add or remove targets, change the paths in the `lint-js` and
-`lint-fix-js` scripts in `package.json`. The following `lint-js` script
-also lints `web/sites/default`:
+`lint-fix-js` scripts in the root `package.json`. The following `lint-js`
+script also lints `web/sites/default`:
 
 ```json
 {
@@ -192,8 +193,8 @@ also lints `web/sites/default`:
 ```
 
 The custom theme runs ESLint from its own `package.json` and
-`eslint.config.mjs`. It sets the same presets, rules and globals as the
-root configuration. The theme setup differs from the root setup in 3 ways:
+`eslint.config.mjs`. Its presets, rules and globals match the root
+configuration. The theme setup differs only in the following 3 ways:
 
 - The theme configuration ignores only `node_modules`, `build` and minified
   files.
@@ -228,8 +229,7 @@ sets the following options:
 up from the Prettier default of `80`. A statement then stays on 1 line
 until it's longer than 160 characters. The `jsdocPrintWidth` option of the
 `@homer0/prettier-plugin-jsdoc` plugin holds documentation blocks to `80`
-columns. That width matches the one the PHP coding standard applies to
-comments.
+columns, the comment width of the Drupal PHP coding standards.
 
 CSS has its own override: a `printWidth` of `10000` and double quotes, so
 Prettier never wraps a declaration. Prettier formats CSS only when something
@@ -311,12 +311,12 @@ pipeline](../../continuous-integration/README.mdx) and fails the build on
 violations. CI lints the custom modules and the custom theme in separate
 steps. It skips the theme step when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
-is set to `1`. On GitHub Actions, the theme step reads a repository
-variable of that name and ignores the value in `.env`.
+is set to `1`. On GitHub Actions, the theme step reads
+`VORTEX_FRONTEND_BUILD_SKIP` from a repository variable and ignores `.env`.
 
-Each step runs the `lint` script, which stops at the first linter that
-fails. An ESLint failure therefore stops Stylelint from running in that
-step.
+Each step runs the `lint` script, which runs ESLint and then Stylelint and
+stops at the first failure. An ESLint failure therefore stops Stylelint
+from running in that step.
 
 ### Ignoring failures
 

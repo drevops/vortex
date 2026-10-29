@@ -5,9 +5,10 @@ sidebar_position: 3
 
 # Lagoon deployment
 
-Lagoon deployment asks the [Lagoon](https://lagoon.sh/) hosting platform to
-deploy your branch or pull request, using the [Lagoon
-CLI](https://github.com/uselagoon/lagoon-cli). Lagoon pulls the code from
+In a Lagoon deployment, the deployment script uses the [Lagoon
+CLI](https://github.com/uselagoon/lagoon-cli) to ask the
+[Lagoon](https://lagoon.sh/) hosting platform to deploy your branch or pull
+request. Lagoon pulls the code from
 your repository and builds it itself, so CI packages nothing.
 
 This page is for the lead or DevOps engineer who connects a project's CI to
@@ -38,19 +39,19 @@ gets a fresh deployment, and an existing environment gets a redeployment.
 For a redeployment, the script sets `VORTEX_PROVISION_OVERRIDE_DB` on the
 environment while Lagoon queues the build. The value is `1` when the
 [deployment action](README.mdx#deployment-action) is `deploy_override_db`,
-and `0` for any other action. The script then restores the variable to its
-earlier state, or removes it if the environment had no such variable. When
-the script can't read the environment's variables, it leaves the flag alone
-and prints a warning.
+and `0` for any other action. After Lagoon queues the build, the script
+restores `VORTEX_PROVISION_OVERRIDE_DB` to its earlier value, or removes it
+if the environment had none. When the script can't read the environment's
+variables, it leaves `VORTEX_PROVISION_OVERRIDE_DB` unchanged and prints a
+warning.
 
-Lagoon decides which branches get an environment:
+These rules decide what happens to a branch's environment:
 
-- Lagoon filters out a new branch that doesn't match the project's
-  deployment pattern.
-- Lagoon filters out a pull request when the project doesn't deploy pull
+- Lagoon skips a new branch that doesn't match the branch pattern set on
+  the Lagoon project.
+- Lagoon skips a pull request when the Lagoon project doesn't deploy pull
   requests.
-- The `destroy` action deletes the branch's environment instead of
-  deploying it.
+- The `destroy` deployment action deletes the branch's environment.
 
 When Lagoon refuses a deployment because the project has reached its
 environment limit, the script reports it. The build still passes. To fail
@@ -89,7 +90,8 @@ the Lagoon deployment script reads:
 | `VORTEX_DEPLOY_LAGOON_LAGOONCLI_FORCE_INSTALL` | No | Value of `VORTEX_LAGOONCLI_FORCE_INSTALL` | CI | Any value installs the Lagoon CLI even when it's already on the path |
 | `VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED` | No | `0` | CI | Fail the build when the Lagoon environment limit is exceeded (`1`) or pass it (`0`) |
 
-CI sets the branch and pull request variables for you. The [Variables
+CI sets the branch, pull request and head commit variables for you. The
+[Variables
 reference](../development/variables.mdx) lists the same variables with the
 script that reads each variable.
 
@@ -98,7 +100,7 @@ script that reads each variable.
 To set up Lagoon deployment:
 
 1. Add `lagoon` to the comma-separated `VORTEX_DEPLOY_TYPES` list in your
-   `.env` file. On its own, it looks like this:
+   `.env` file. With `lagoon` as the only type, the line reads:
 
    ```shell title=".env"
    VORTEX_DEPLOY_TYPES=lagoon
@@ -121,9 +123,10 @@ To set up Lagoon deployment:
 
 Confirm that the next deployment reached Lagoon. The `deploy` job log shows
 `Requested deployment of environment` or
-`Requested redeployment of environment` with your project and branch. Then
-it shows `[ OK ] Finished Lagoon deployment.` That line means Lagoon
-accepted the request. The build's own result shows in the Lagoon UI.
+`Requested redeployment of environment` with your project and branch. The
+log then shows `[ OK ] Finished Lagoon deployment.` Without a
+`Lagoon environment limit exceeded.` line, that means Lagoon accepted the
+request. The build's own result shows in the Lagoon UI.
 
 ## Post-deployment automation
 
@@ -169,9 +172,9 @@ The endpoint defaults to `https://hooks.lagoon.amazeeio.cloud/`. To use
 another Lagoon instance, set the `LAGOON_WEBHOOK_ENDPOINT` repository
 variable.
 
-The installer keeps this workflow for CircleCI projects too. Lagoon still
-removes pull request environments when GitHub Actions is enabled for the
-repository. The CircleCI config has no step that removes them.
+The installer keeps this workflow for CircleCI projects too. If GitHub
+Actions is enabled for the repository, the workflow still runs there. The
+CircleCI config has no step that removes pull request environments.
 
 ## See also
 

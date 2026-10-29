@@ -67,7 +67,7 @@ git-flow uses the following branches:
 
   CI could copy `main` to `production` whenever a release is tagged.
   **Vortex** deliberately leaves that step to a person, so nothing reaches
-  production without someone deciding it should.
+  the `production` branch without someone deciding it should.
 
 </details>
 
@@ -122,11 +122,12 @@ in your [version scheme](versioning.mdx). To run a release:
    - Merges the release branch to `main`
    - Tags the release
    - Merges back to `develop`
-   - Deletes the local release branch and keeps the pushed release branch
+   - Deletes only the local release branch, so the remote copy stays
 
 5. Push `main`, `develop` and the new tag, with
-   `git push origin main develop X.Y.Z`. CI builds and deploys the pushed
-   branches and the tag.
+   `git push origin main develop X.Y.Z`. CI builds the pushed branches and
+   the tag, then deploys them under the
+   [Deployment](../deployment/README.mdx) rules.
 
 6. Deploy to production:
    - **Tag-based hosting:** deploy the tag to your production environment
@@ -142,8 +143,8 @@ in your [version scheme](versioning.mdx). To run a release:
 
 ## Expected release outcome
 
-Confirm that the release meets these criteria, which also ship in your
-project's `docs/releasing.md`:
+Confirm that the release meets these criteria, which your project's
+`docs/releasing.md` also lists:
 
 - The release branch exists as `release/X.Y.Z` in the GitHub repository.
 - The release tag exists as `X.Y.Z` in the GitHub repository.

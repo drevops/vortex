@@ -108,7 +108,8 @@ import {
     ### Services
 
     - [Nginx](https://nginx.org/) and [PHP-FPM](https://www.php.net/) 8.4,
-      with a static maintenance page that 1 variable switches on
+      with a static maintenance page switched on by
+      `VORTEX_WEBSERVER_MAINTENANCE_MODE`
     - [MySQL](https://www.mysql.com/) 8.4, or a database container image
       with the data built in
     - [Valkey](https://valkey.io/) 8 for caching
@@ -186,7 +187,7 @@ import {
       on a pull request label
     - Ignore the failures of a single tool without changing the pipeline
       configuration
-    - Fail the build when it leaves the working tree dirty
+    - Fail the build when files change in the working tree during the build
 
     ### Artifacts and code coverage
 
@@ -306,8 +307,8 @@ import {
   <VerticalTab>✨ AI | Built-in support for AI coding agents</VerticalTab>
   <VerticalTabPanel>
 
-    Project configuration that gives AI coding agents the context they need
-    from the first session.
+    Project configuration that AI coding agents read from the first
+    session.
 
     ### Agent-agnostic configuration
 
@@ -333,12 +334,10 @@ import {
 
     - Development commands, critical rules and directory layout ship with
       the project
-    - Agents can start contributing without lengthy onboarding
 
     ### Documentation caching
 
     - Agents fetch and cache operational docs for reuse across sessions
-    - Reduces repeated web requests and speeds up agent responses
 
     ### AI code review
 
@@ -440,8 +439,8 @@ import {
   <VerticalTab>🌀 Vortex | Consistency across your projects</VerticalTab>
   <VerticalTabPanel>
 
-    **Vortex** keeps your **Vortex**-onboarded projects consistent and
-    reliable, so you can depend on future updates and improvements.
+    Every **Vortex**-onboarded project shares the same structure and gets
+    the same updates and improvements.
 
     ### Product maturity
 

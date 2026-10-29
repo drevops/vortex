@@ -14,7 +14,7 @@ APIs and formatting drift while the change is on your branch. Review can
 then focus on what the code does.
 
 The defaults suit a Drupal project as shipped. Every tool except Hadolint
-and SDC Devel keeps its defaults in a configuration file in the project
+and SDC Devel reads its settings from a configuration file in the project
 root.
 
 This page is for developers working on a project built from **Vortex**. It
@@ -40,9 +40,9 @@ runs it:
 
 ## Running
 
-`ahoy lint` runs 7 of the 10 tools, grouped in 3 commands. SDC Devel needs
-a provisioned site, so it has its own `ahoy lint-sdc` command. DCLint and
-Hadolint run outside Ahoy.
+`ahoy lint` runs 7 of the 10 tools through `ahoy lint-be`, `ahoy lint-fe`
+and `ahoy lint-tests`. SDC Devel needs a provisioned site, so it has its own
+`ahoy lint-sdc` command. DCLint and Hadolint run outside Ahoy.
 
 <AsciinemaPlayer
   src="/img/lint.json"
@@ -72,8 +72,8 @@ their fix flags. PHPStan and Gherkin Lint only report problems, so fix what
 they find by hand.
 
 Each command runs its tools in order and stops at the first tool that
-fails. In `ahoy lint`, a PHPCS violation stops the run, so every tool after
-PHPCS reports nothing until you fix it.
+fails. A PHPCS violation stops the whole `ahoy lint` run, so no later tool
+reports until you fix it.
 
 To confirm that every check passed, run `echo $?` right after the command.
 It prints `0` when every tool passed and a non-zero code when a tool
@@ -86,11 +86,11 @@ from their official Docker images.
 
 ## Continuous integration
 
-The same linters run in the `lint` job of the [continuous integration
-pipeline](../../continuous-integration/README.mdx) and fail the build on
-violations. SDC Devel runs in the `build` job instead, after the site is
-provisioned. The deployment job waits for the `lint` job, so a branch that
-fails linting doesn't deploy.
+Every tool except SDC Devel runs in the `lint` job of the [continuous
+integration pipeline](../../continuous-integration/README.mdx) and fails
+the build on violations. SDC Devel runs in the `build` job instead, after
+the site is provisioned. The deployment job waits for the `lint` job, so a
+branch that fails linting doesn't deploy.
 
 Some findings, such as DCLint warnings, appear in the job log without
 failing the build. Each tool's page says which findings those are.

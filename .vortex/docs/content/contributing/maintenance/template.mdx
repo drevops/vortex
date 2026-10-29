@@ -78,7 +78,7 @@ defines:
     ```
 
 6. SHOULD include formatting helper functions:
-   - `info` opens and closes an operation.
+   - `info` marks the start and the end of an operation.
    - `task` announces work that's starting.
    - `note` is a standalone remark that starts no task.
    - `fail` prints the message and exits the script with status `1`, or
@@ -101,7 +101,7 @@ defines:
    work itself can't fail.
 
    Keep the `# @formatter:off` and `# @formatter:on` markers.
-   `ahoy lint-scripts` hides the lines between them from `shfmt`, so each
+   `lint.scripts.sh` hides the lines between them from `shfmt`, so each
    helper stays on 1 line. The helpers differ by kind of script:
    - The scripts in `.vortex/tooling/src/` extend `task` and `pass` with a
      timer that appends the seconds a task took.
@@ -161,7 +161,7 @@ defines:
     third-party variable such as `PACKAGE_TOKEN` or `COMPOSER`.
 18. MUST use a script-specific prefix. For example, the variable that skips
     notifications in `vortex-notify` is `VORTEX_NOTIFY_SKIP`.
-19. MAY rely on variables from other scripts, without a script-specific
+19. MAY rely on another script's variables that lack a script-specific
     prefix. MUST declare such variables in the header of the file.
 20. MAY call other **Vortex** scripts (discouraged), but MUST source them
     instead of creating a sub-process. Sourcing runs the called script in
@@ -202,8 +202,8 @@ When you create or update **Vortex** variables, follow these guidelines:
 import CodeBlock from '@theme/CodeBlock';
 import MyComponentSource from '!!raw-loader!./script-boilerplate.sh';
 
-The boilerplate puts these requirements together in 1 working script. Copy
-it as the starting point for a new script:
+The boilerplate is 1 working script that meets these requirements. Copy it
+as the starting point for a new script:
 
 <details>
 <summary>Expand to see the boilerplate script</summary>
@@ -220,7 +220,7 @@ workflow reaches every project built from it. To catch problems first,
 
 - Unit tests check the scripts.
 - End-to-end tests run whole workflows.
-- A real site takes every update.
+- A real site receives every update.
 
 ### Unit testing
 
@@ -326,7 +326,8 @@ composer test
 TEST_PACKAGE_TOKEN=<yourtoken> TEST_VORTEX_CONTAINER_REGISTRY_USER=<youruser> TEST_VORTEX_CONTAINER_REGISTRY_PASS=<yourpass> composer test
 ```
 
-`composer test` runs 2 suites, and you can run either suite on its own:
+`composer test` runs 2 PHPUnit suites, and you can run either suite on its
+own:
 
 - `composer test-unit` covers the PHPUnit traits that the template ships to
   consumer sites in `web/modules/custom/ys_base/tests/src/Traits/`, with
@@ -335,10 +336,10 @@ TEST_PACKAGE_TOKEN=<yourtoken> TEST_VORTEX_CONTAINER_REGISTRY_USER=<youruser> TE
 
 The `Vortex - Test` workflow splits the functional suite into 6 parallel
 batches by PHPUnit group, `p0` to `p5`. Give every new test method a
-`#[Group('pN')]` attribute. Outside those groups, a test runs in CI only in
-the `postbuild` group. `PostBuildTest` declares that group, and a CircleCI
-job runs it after the `build` job. To run 1 batch locally, pass its group:
-`composer test-functional -- --group=p1`.
+`#[Group('pN')]` attribute. A test without a `pN` group runs in CI only if
+it's in the `postbuild` group. `PostBuildTest` declares that group, and a
+CircleCI job runs it after the `build` job. To run 1 batch locally, pass
+its group: `composer test-functional -- --group=p1`.
 
 The suite reads these environment variables:
 

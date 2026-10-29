@@ -77,15 +77,15 @@ All global configuration lives in the
 file.
 
 The ruleset uses the `TwigCsFixer` standard with a 2-space indent.
-`allowNonFixableRules()` turns on the rules that report problems without a
-fix, which Twig CS Fixer skips by default. `lint` then reports problems
-such as badly named variables too. The configuration also registers
+Twig CS Fixer skips non-fixable rules by default, and
+`allowNonFixableRules()` turns them on. `lint` then also reports problems
+such as badly named variables. The configuration also registers
 Drupal's `trans` tag parser, so templates with `{% trans %}` blocks parse.
 
 Twig CS Fixer checks the templates in `web/modules/custom` and
 `web/themes/custom`.
 
-To add or remove targets, add or remove the `$finder->in()` calls in
+To change the checked directories, edit the `$finder->in()` calls in
 `.twig-cs-fixer.php`:
 
 ```php
@@ -112,8 +112,8 @@ Every error has an identifier in the form `A.B:C:D`, where:
 - `C`: the line the error occurs on
 - `D`: the position of the token in that line
 
-All 4 parts are optional: `A`, `A.B`, `A.B:C`, `A.B:C:D`, `A:C`, `A:C:D`
-and `A::D` all work.
+The parts are optional, so each of these forms works: `A`, `A.B`, `A.B:C`,
+`A.B:C:D`, `A:C`, `A:C:D` and `A::D`.
 
 To find the identifier of an error you want to ignore, run Twig CS Fixer
 with the `--debug` option. `ahoy lint-fe` doesn't pass extra options to the

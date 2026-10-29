@@ -49,7 +49,7 @@ For a new release, pick the part to bump from the changes it contains:
   - Fixing bugs or errors
   - Security patches
   - Documentation updates
-  - Minor improvements that keep what a feature does
+  - Minor improvements that leave a feature's behavior unchanged
 
 ### Branch strategy
 
@@ -60,7 +60,7 @@ The repository uses these branches:
 - **`2.x`** - a development branch for an upcoming major version, ahead of
   `main`. Later majors follow the same pattern: `3.x`, `4.x` and later.
 - **`1.x`** - a maintenance branch for a superseded major version, behind
-  `main`, for example `1.x` after `main` holds `2.x`
+  `main`. `1.x` takes this role after `main` moves to major version 2.
 
 To promote a new major version on the published site, set the
 `VORTEX_CURRENT_MAJOR` repository variable to its number. It's a GitHub
@@ -70,9 +70,9 @@ The documentation default and the installer's bare `/install` URL both
 follow it. The per-major docs and the `/v{N}/install` pins are always
 published.
 
-The workflows read the variable when they run, so changing it republishes
-nothing. The next `Vortex - Release docs` run applies it to the live site
-and `/install`. To publish straight away, run that workflow by hand.
+The workflows read the variable only when they run. The next
+`Vortex - Release docs` run applies a change to the live site and
+`/install`. To publish straight away, run that workflow by hand.
 
 When `main` advances to a new major version, the branches change like this:
 
@@ -114,7 +114,7 @@ The following rules apply to every release:
 - When `.vortex/tooling/` has changed since the previous **Vortex**
   release, create and publish the new `drevops/vortex-tooling` tag _before_
   tagging **Vortex**.
-- **Vortex** pins its tooling requirement to the tagged version's minor.
+- **Vortex** limits its tooling requirement to the tagged version's minor.
   Require the freshly tagged `drevops/vortex-tooling` version in root
   `composer.json` with a tilde constraint, for example `~1.3.0`. The tagged
   version is the lower bound, and the next minor is the exclusive upper
@@ -174,8 +174,8 @@ To release a new version of **Vortex**:
    docker compose run --rm cli php -r "echo PHP_VERSION_ID . PHP_EOL;"
    ```
 
-   The commands print the version and its ID, for example `8.4.25` and
-   `80425`.
+   The first command prints the version, for example `8.4.25`. The second
+   command prints its ID, for example `80425`.
 
 5. In `composer.json`, set `config.platform.php` to the PHP version.
 6. In `phpcs.xml`, set `testVersion` to the major and minor PHP version, for
@@ -187,8 +187,8 @@ To release a new version of **Vortex**:
    `git log PREVIOUS_VERSION..HEAD -- .vortex/tooling`, where
    `PREVIOUS_VERSION` is the previous **Vortex** tag. The command prints
    nothing when the tooling didn't change.
-9. Increment the minor version of all packages in `composer.json`: run
-   `composer update -W && composer bump`.
+9. Update all packages and raise their constraints in `composer.json` to
+   the installed versions: run `composer update -W && composer bump`.
 10. If you tagged the tooling in step 8, set its version in the 4 places
     that pin it:
     - The `require` constraint in root `composer.json`, as a tilde
@@ -199,7 +199,7 @@ To release a new version of **Vortex**:
 
     Then search the repository for the previous tooling version, to catch a
     pin that this list misses. Without a new tooling tag, keep the existing
-    tag constraint.
+    tooling constraint.
 11. In `web/themes/custom/your_site_theme/`, update the minor versions of
     the dependencies in `package.json`. Use npm for this step, because the
     theme keeps a `package-lock.json`.
@@ -230,7 +230,7 @@ To release a new version of **Vortex**:
     fixtures itself.
 18. Re-record the demo videos with `cd .vortex && ahoy update-videos`.
 19. Commit the recorded videos under `.vortex/docs/static/img/`.
-20. Tag the **Vortex** release. Pushing the tag runs the
+20. Tag the **Vortex** release and push the tag. The push runs the
     `Vortex - Release docs` workflow, which publishes the documentation and
     the installer.
 21. Publish the GitHub release, with the following template as its body:

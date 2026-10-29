@@ -14,8 +14,8 @@ Components](https://www.drupal.org/docs/develop/theming-drupal/using-single-dire
 (SDC) and statically checks their Twig templates for errors and best
 practices. It reports problems such as a template variable that the
 component definition doesn't declare or a filter applied to the wrong type
-of value. A broken component then fails the check before it renders wrong
-on a page.
+of value. You then catch a broken component in the check, before it
+renders wrong on a page.
 
 **Vortex** requires the module in `composer.json` and uses it to validate
 the components of the custom theme. The theme scaffold includes a sample
@@ -112,8 +112,8 @@ SDC Devel runs in the `build` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) after the site is
 provisioned. It runs on the first container only; see [Test
 parallelism](../../continuous-integration/README.mdx#test-parallelism). The
-step fails the build when validation reports problems. It exits without
-validating when
+step fails the build when validation reports problems. The step exits
+without validating when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
 is set to `1`.
 

@@ -21,8 +21,8 @@ This page is for developers who write Behat feature files. It shows how to
 lint them and how to turn a rule off. It also lists the rules the shipped
 configuration changes.
 
-Gherkin Lint ships with Behat. If you deselect Behat in the
-**Development tools** prompt, the installer removes Gherkin Lint,
+**Vortex** installs Gherkin Lint together with Behat. If you deselect Behat
+in the **Development tools** prompt, the installer removes Gherkin Lint,
 `gherkinlint.json` and the Gherkin Lint CI step.
 
 ## Usage
@@ -58,8 +58,8 @@ rules](https://github.com/dantleech/gherkin-lint-php/blob/master/docs/rules.md).
 
 All global configuration lives in the
 [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
-file. Gherkin Lint enables every rule by default, and the file overrides
-the settings of the rules it lists.
+file. Gherkin Lint enables every rule by default. The file changes only the
+rules it lists.
 
 The shipped file sets the `indentation` rule to 2 spaces per level. It also
 moves literal blocks, the `"""` doc strings under a step, from the default
@@ -120,8 +120,8 @@ line. The comment can sit before or after the feature's tags:
 
 The second rule name in the example is a placeholder. The shipped file
 already turns `keyword-order` off. Replace both names with the rules you
-need, separated by commas. Gherkin Lint reads the annotation from every
-comment in the file and applies it to the whole file.
+need, separated by commas. The annotation also works from any other comment
+line, and it always covers the whole file.
 
 Per-file rule suppression is the only inline mechanism. Gherkin Lint has no
 comment that ignores every rule in a file, a block or a single line.

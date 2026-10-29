@@ -7,9 +7,10 @@ sidebar_position: 5
 
 [Testmode](https://www.drupal.org/project/testmode) keeps live and generated
 content out of Behat assertions. While test mode is on, it filters the
-listings in the views you register. Only items whose title, name or email
-matches a test pattern remain. A scenario then sees only what it created,
-even on a site full of demo pages or a copy of production.
+listings in the views you register. Only nodes with a matching title, terms
+with a matching name and users with a matching email remain. A scenario's
+assertions then cover only test content, even on a site full of demo pages
+or a copy of production.
 
 This page is for developers writing Behat tests on a project built from
 **Vortex**. It shows how to register a view with Testmode and how to turn
@@ -35,8 +36,8 @@ Testmode keeps its on/off flag in the state system, so switching it never
 touches configuration. While it's on, users with the
 `administer site configuration` permission see a warning on every page. The
 warning starts with `Test mode is enabled.` and links to the Testmode
-settings at `/admin/config/development/testmode`. That warning shows you a
-test run that stopped before switching test mode off.
+settings at `/admin/config/development/testmode`. A warning outside a test
+run means a run stopped before it switched test mode off.
 
 To turn test mode off by hand, use 1 of the following:
 
@@ -81,7 +82,7 @@ The default settings do the following:
 **Vortex** adds `testmode` to `config_exclude_modules` in
 [`settings.testmode.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.testmode.php),
 so the module and its settings stay out of the exported configuration.
-Configuration import therefore never enables it.
+Configuration import therefore doesn't enable the module.
 [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh)
 installs it instead, with the other
 [development modules](../provision.mdx#development-modules), in the
@@ -125,10 +126,10 @@ table:
 | `list_term` | `getListTerm()` | `setTermsList()` |
 
 The view and pattern setters accept an array or a newline-separated string.
-The `list_term` setter takes a boolean, and its name differs from the
-getter's. To stop filtering the term overview page, call
-`setTermsList(FALSE)`. On the settings page, the same switch is the
-**Include Taxonomy Terms Overview** checkbox.
+The `list_term` setter takes a boolean. Its method name, `setTermsList()`,
+doesn't mirror the getter's `getListTerm()`. To stop filtering the term
+overview page, call `setTermsList(FALSE)`. On the settings page, the same
+switch is the **Include Taxonomy Terms Overview** checkbox.
 
 To drive the mode itself, the singleton has the following methods:
 

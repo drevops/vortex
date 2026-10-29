@@ -32,8 +32,8 @@ To send a change:
    against `2.x` for the upcoming major version.
 3. If the change resolves an issue, add the issue number to the `Closes #`
    line of the pull request template. GitHub closes the issue when the pull
-   request merges into `main`. After a merge into `2.x`, close the issue by
-   hand.
+   request merges into `main`, the default branch. After a merge into
+   `2.x`, close the linked issue by hand.
 
 ## Talk to us on Slack
 

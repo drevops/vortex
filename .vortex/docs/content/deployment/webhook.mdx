@@ -5,9 +5,9 @@ sidebar_position: 4
 
 # Webhook deployment
 
-Webhook deployment triggers a remote deployment by calling an HTTP endpoint.
-Use it with an external system or a custom deployment pipeline that exposes
-a webhook URL.
+In a webhook deployment, the deployment script triggers a remote deployment
+by calling an HTTP endpoint. Use it with an external system or a custom
+deployment pipeline that exposes a webhook URL.
 
 This page is for the lead or DevOps engineer whose hosting platform or
 deployment pipeline starts a deployment from a webhook. It covers the
@@ -33,8 +33,8 @@ anything the receiving end needs in the URL itself.
 The deployment passes when the status of the final response, after any
 redirects, matches `VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS`. Any other
 status, or a request that can't connect, stops the deployment with
-`[FAIL] Unable to complete webhook deployment.` That message leaves out the
-status it received.
+`[FAIL] Unable to complete webhook deployment.` The message doesn't include
+the received status.
 
 ## Configuration
 
@@ -58,8 +58,8 @@ the webhook deployment script reads:
 To set up webhook deployment:
 
 1. Add `webhook` to the comma-separated `VORTEX_DEPLOY_TYPES` list in your
-   `.env` file, for example `VORTEX_DEPLOY_TYPES=artifact,webhook`. On its
-   own, it looks like this:
+   `.env` file, for example `VORTEX_DEPLOY_TYPES=artifact,webhook`. With
+   `webhook` as the only type, the line reads:
 
    ```shell title=".env"
    VORTEX_DEPLOY_TYPES=webhook
@@ -69,12 +69,12 @@ To set up webhook deployment:
    - On GitHub Actions, add a repository variable of the same name. The
      shipped workflow reads it.
    - On CircleCI, add a project environment variable.
-3. Optional: If the URL carries a token, keep it in a GitHub Actions secret
-   in place of a variable:
+3. Optional: If the URL carries a token, store it as a GitHub Actions
+   secret:
    1. Add the URL as a repository secret named `VORTEX_DEPLOY_WEBHOOK_URL`.
-   2. In `.github/workflows/build-test-deploy.yml`, change the
-      `VORTEX_DEPLOY_WEBHOOK_URL` line of the `Deploy` step to read from
-      `secrets` in place of `vars`.
+   2. In `.github/workflows/build-test-deploy.yml`, change `vars` to
+      `secrets` in the `VORTEX_DEPLOY_WEBHOOK_URL` line of the `Deploy`
+      step.
 
 Confirm that the next deployment called the webhook. The `deploy` job log
 shows `Webhook call completed.`, then `[ OK ] Finished webhook deployment.`
@@ -87,7 +87,7 @@ Webhook deployment fits these setups:
 
 - Triggering deployments on platforms that provide webhook endpoints
 - Integrating with custom deployment orchestration systems
-- Telling an external system that CI passed, so it starts its own deployment
+- Starting an external system's own deployment after CI passes
 
 ## See also
 

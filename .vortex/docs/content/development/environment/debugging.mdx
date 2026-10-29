@@ -255,8 +255,8 @@ The following table explains the curl flags that these commands use:
 
 The following points apply to the saved cookies and the login links:
 
-- Store cookies in the `.data/` directory. Git ignores it, so a session
-  cookie can't end up in a commit.
+- Store cookies in the `.data/` directory. The shipped `.gitignore`
+  excludes it, so a session cookie stays out of your commits.
 - Cookies expire after the session timeout. Sign in again to get new ones.
 - Login URLs have the format
   `http://SITE/user/reset/UID/TIMESTAMP/HASH/login`.

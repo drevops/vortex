@@ -8,8 +8,8 @@ import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 # Doctor
 
 Doctor checks your machine and the local stack layer by layer, from the
-installed tools up to the Drupal site. It prints a fix for most problems it
-finds, and it prints a system report for support requests.
+installed tools up to the Drupal site. It prints a fix for most failures,
+and it prints a system report for support requests.
 
 Doctor is a shell script, `vendor/bin/vortex-doctor`, shipped in the
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
@@ -61,17 +61,18 @@ Doctor runs these checks, in this order:
    looks for, see [Pygmy](pygmy.mdx).
 4. **Containers** - the `cli`, `php`, `nginx` and `database` containers are
    running.
-5. **SSH** - the SSH key is loaded in Pygmy's agent and the agent's volume
-   is mounted into the CLI container. The key must also be available inside
-   that container. A missing key in the agent or a missing mount prints a
+5. **SSH** - the SSH key is available inside the CLI container. Doctor
+   first checks that the key is loaded in Pygmy's agent and that the
+   agent's volume is mounted into the container. Either problem prints a
    warning with the fix. The check fails only when both are in place and
    the key still isn't available in the container.
 6. **Webserver** - the web server answers at the local development URL with
    HTTP status 200 or 403. Doctor reads the URL from `LOCALDEV_URL` in the
    CLI container. When `LOCALDEV_URL` is empty, Doctor skips this check and
-   the next.
+   the bootstrap check.
 7. **Bootstrap** - the home page HTML contains `charset=`, a sign that the
-   Drupal site bootstrapped. It runs only as part of the webserver check.
+   Drupal site bootstrapped. The bootstrap check runs only as part of the
+   webserver check.
 
 When every check that runs passes, Doctor ends with
 `[ OK ] All required checks have passed.` A check that's turned off or
@@ -80,9 +81,9 @@ SSH warning still ends with that line.
 
 Before the first check, Doctor makes sure the `docker`, `pygmy` and `ahoy`
 commands exist. If a command is missing, Doctor stops with
-`Command <name> is not available.` This happens even with the tools check
-turned off, and for `ahoy doctor info` too. As a result, the tools check
-always passes when it runs.
+`Command <name> is not available.` Doctor runs this command check even with
+the tools check turned off, and for `ahoy doctor info` too. As a result,
+the tools check always passes when it runs.
 
 A failing check prints what to do about it, for example:
 
@@ -120,7 +121,7 @@ defaults to `${HOME}/.ssh/id_rsa`.
   local URL, such as CI.
 - `VORTEX_DOCTOR_CHECK_PREFLIGHT=1` - turns the tools, port and Pygmy
   checks on and the rest off. Use it to validate a machine before the stack
-  is up. A check variable you set yourself still overrides this preset.
+  is up. With this preset, a check variable you set yourself still wins.
 
 ## Print a system report
 

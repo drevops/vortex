@@ -227,13 +227,13 @@ scanning](../../continuous-integration/README.mdx#code-scanning).
 ### Dismissing a finding
 
 Dismissing an alert in the **Security > Code scanning** tab records a reason
-against that finding and removes it from the open list. Use it to track an
-assessment.
+against that finding and removes it from the open list. Dismiss an alert
+to track an assessment.
 
 The audit itself stays the same. `composer audit` still reports the
 advisory and still fails the workflow until the advisory is in `ignore-id`,
 as described in [Ignoring](#ignoring). Dismiss the alert to record the
-assessment, and add the `ignore-id` entry to stop the build failing.
+assessment. To stop the build failing, also add the `ignore-id` entry.
 
 ## JavaScript dependencies
 
@@ -296,24 +296,25 @@ Run the audit for each tree with the following commands:
 
 ### Severity threshold
 
-npm fails the audit on any advisory by default. A development dependency
-tree of this size carries low-severity advisories in transitive packages
-most of the time. Those advisories would block every build, so **Vortex**
-raises the floor to `high` in `.npmrc`:
+npm fails the audit on any advisory by default. Development dependency
+trees as large as these 2 carry low-severity advisories in transitive
+packages most of the time. Those advisories would block every build, so
+**Vortex** raises the floor to `high` in `.npmrc`:
 
 ```ini
 audit-level=high
 ```
 
 npm reads the project configuration from the directory of the
-`package.json` it audits. Both `.npmrc` files therefore carry the setting:
-the project root's and the custom theme's. The accepted values are `info`,
+`package.json` it audits. The project root and the custom theme therefore
+each have an `.npmrc` file with the setting. The accepted values are `info`,
 `low`, `moderate`, `high`, `critical` and `none`. Lower the value to widen
 what fails `npm audit`.
 
 CI runs the audit through [audit-ci](https://github.com/IBM/audit-ci),
 which takes its threshold from the `--high` flag in each CI audit step.
-Update both places when you change the threshold. The flag lives in the CI
+When you change the threshold, update both `.npmrc` files and the flag in
+each CI audit step. The flag lives in the CI
 configuration, outside `package-audit.jsonc`, because `audit-ci` passes
 every advisory when no threshold is set.
 
@@ -385,8 +386,8 @@ The allowlist follows these rules:
   until it's resolved or the entry is renewed.
 - An entry with `active` set to `false` doesn't apply.
 - In the text output, an entry that matches no advisory prints
-  `Consider not allowlisting advisory:` followed by its ID. The line
-  suggests removing the entry.
+  `Consider not allowlisting advisory:` followed by its ID. `audit-ci`
+  prints that line as a suggestion to remove the entry.
 
 Key each entry by the advisory's GitHub ID, the last part of the advisory
 link that `npm audit` prints. `audit-ci` also accepts the following key
@@ -400,8 +401,8 @@ The root and the custom theme each have their own `package-audit.jsonc`,
 so an advisory found in both trees needs an entry in both files. The file
 is optional. Without it, the audit of that tree runs with no allowlist.
 
-Confirm that the entry applies: the `audit-ci` command from
-[Usage](#usage-1) lists the advisory under
+Confirm that the entry applies: run that tree's `audit-ci` command from
+[Usage](#usage-1). The output lists the advisory under
 `Found vulnerable allowlisted advisories:` and doesn't fail on it.
 
 ### Continuous integration
@@ -410,20 +411,22 @@ The [security audit
 workflow](../../continuous-integration/README.mdx#security-audit) audits
 both dependency trees with `audit-ci`, pinned to an exact version in the CI
 configuration. Each audit step passes `--high` and `--package-lock-only`.
-It adds the tree's `package-audit.jsonc` when the file exists. The audit
+Each step adds the tree's `package-audit.jsonc` when the file exists. The
+audit
 reads what the lock files pin, so it needs no installed tree.
 
 In GitHub Actions, the audit steps print `audit-ci`'s JSON output, which is
 npm's own report. The code scanning upload converts that same report. The
-JSON output leaves out the notes on allowlisted and unused entries. The
-text output prints them, in CircleCI and in the [Usage](#usage-1) commands.
+JSON output leaves out the messages about allowlisted and unused entries.
+The text output prints them, in CircleCI and in the [Usage](#usage-1)
+commands.
 
 #### Ignoring failures
 
-Set `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1` to let both npm audit steps
-pass anyway. Use it as a one-off bypass while you deal with a known
-advisory. The audit still prints the finding, so a tolerated advisory stays
-visible in the job log.
+Set `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1` to let the root and theme
+npm audit steps pass anyway. Use it as a one-off bypass while you deal
+with a known advisory. The audit still prints the finding, so a tolerated
+advisory stays visible in the job log.
 
 ➡️ See [Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures).
@@ -437,16 +440,16 @@ under separate categories, so you can trace each finding back to its tree:
 - `npm-audit-theme` for the custom theme
 
 Each advisory in a package's `via` list becomes its own alert, identified by
-its GHSA ID. An entry that only names another vulnerable package raises no
-alert. The alert carries the advisory's CVSS score, or a score based on its
-severity when the advisory has none. It points at the package's entry in
-that tree's `package-lock.json`.
+its GHSA ID. A `via` entry that only names another vulnerable package
+raises no alert. The alert carries the advisory's CVSS score, or a score
+based on its severity when the advisory has none. It points at the
+package's entry in that tree's `package-lock.json`.
 
 An advisory allowlisted in a tree's `package-audit.jsonc` isn't uploaded
 for that tree while its entry applies. After the entry expires or you
-remove it, the next run uploads the advisory again. An entry limited to a
-dependency path doesn't apply to the upload, so its advisory still raises
-an alert.
+remove it, the next run uploads the advisory again. The upload ignores an
+entry limited to a dependency path, so that advisory still raises an
+alert.
 
 Dismissing an alert records the assessment, and the check still fails. To
 stop the failure, add an `overrides` entry or an allowlist entry, as

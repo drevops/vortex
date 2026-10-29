@@ -83,10 +83,10 @@ container that serves web requests doesn't get the scan path. For web
 requests, set PHP directives in `.docker/config/php/custom.ini`. See [PHP
 configuration](docker.mdx#php-configuration).
 
-Both places append the directory to `PHP_INI_SCAN_DIR` after a colon. The
-colon keeps the directories PHP already scans. Those are the existing
-`PHP_INI_SCAN_DIR` value, or PHP's default scan directory when the variable
-starts out empty. On Acquia, the hosting provider's own PHP ini overrides,
+The CLI image and the Acquia hook both append the directory to
+`PHP_INI_SCAN_DIR` after a colon. The colon keeps the directories PHP
+already scans: the existing value, or PHP's default scan directory when the
+variable is empty. On Acquia, the hosting provider's own PHP ini overrides,
 such as `sendmail_path`, stay in effect.
 
 Locally, a change to `drush.ini` applies to the next PHP process without a
@@ -134,7 +134,7 @@ Drush included. Web requests keep their own memory limit.
 
 If a Drush command exhausts this limit, profile the command before you
 raise the value. An exhausted 1G limit usually points to a memory leak in
-custom code. Raising the ceiling hides the leak until a larger dataset
+custom code. Raising the limit hides the leak until a larger dataset
 reaches the new limit.
 
 To give a single command more memory, run Drush's PHP entry point,
@@ -164,9 +164,10 @@ file defines a wildcard alias. Every environment resolves as
 `@lagoon.<branch-or-pr>` with no per-environment entries. You can use the
 aliases from your host machine or from inside the container.
 
-Drush doesn't load variables from `.env` files, so the alias file
-hardcodes the project name. The hardcoded name makes the aliases work the
-same on the host and in the container. It appears in 2 lines:
+Drush doesn't load variables from `.env` files, so the project name is
+hardcoded in the alias file. The hardcoded project name makes the aliases
+work the same on the host and in the container. The project name appears
+in 2 lines:
 
 - The `user:` value, `your_site-${env-name}` in the template
 - The `uri:` value
@@ -228,7 +229,7 @@ the tab that matches how you run Drush:
 </Tabs>
 
 Confirm that the alias works by running the status command in the tab that
-matches how you run Drush. It prints the status of the `develop`
+matches how you run Drush. The command prints the status of the `develop`
 environment, including its Drupal version. On the host, the command runs
 the project's Drush from `vendor/bin`, so it needs PHP installed on your
 machine:

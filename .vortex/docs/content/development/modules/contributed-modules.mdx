@@ -17,8 +17,8 @@ and install these modules.
 ## ClamAV
 
 [ClamAV](https://www.drupal.org/project/clamav) scans uploaded files for
-malware with the ClamAV engine before they're saved. Ships only when the
-ClamAV service is selected.
+malware with the ClamAV engine before they're saved. Ships only when you
+select the ClamAV service in the installer.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh),
@@ -77,9 +77,9 @@ to give the override something to enable.
 [Configuration Update Manager](https://www.drupal.org/project/config_update)
 provides the revert and update functions that other modules build on.
 Provisioning installs only this base `config_update` module. Its
-`config_update_ui` submodule adds the reports and the Drush commands. They
-report, revert and import configuration changes relative to the defaults
-that modules ship. Install that submodule when you need them.
+`config_update_ui` submodule adds reports and Drush commands that report,
+revert and import configuration changes. The changes are relative to the
+defaults that modules ship. Install that submodule when you need them.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
@@ -141,8 +141,8 @@ favicon marker.
 [Fast 404](https://www.drupal.org/project/fast_404) answers requests for
 missing files without bootstrapping Drupal. Drupal core already returns a
 lightweight 404 for the same file extensions, but only after a full
-bootstrap. On a site serving many such requests, the saving is the bootstrap
-itself.
+bootstrap. On a site serving many such requests, Fast 404 saves that
+bootstrap each time.
 
 - **Installed:** Never enabled as a Drupal module. The handler runs from the
   settings file during the settings load, before the module system exists,
@@ -284,8 +284,9 @@ cache backend. It also registers the module's container YAML files and
 swaps the bootstrap container over. Nothing applies until the module's code
 is on disk and `DRUPAL_REDIS_ENABLED` is set to `1`. The override looks for
 the `web/modules/contrib/redis` directory, so the module doesn't need to be
-installed yet. The variable lets a 2-stage deployment provision the service
-before switching the cache. The shipped `.env` file sets it to `1`.
+installed yet. With the variable, a first deployment can add the Redis
+service, and a second deployment can then switch the cache. The shipped
+`.env` file sets the variable to `1`.
 
 The cache backend, the container YAML files and the bootstrap container
 switch also need the `redis` PHP extension, or
@@ -317,8 +318,8 @@ in every environment except `local`, `ci` and `prod`.
 
 Rerouting replaces the recipient of an outgoing message with the configured
 address, unless that recipient matches `DRUPAL_REROUTE_EMAIL_ALLOWED`. With
-rerouting disabled, every message reaches its intended recipient. Rerouting
-is therefore disabled only where that delivery is wanted, or where other
+rerouting disabled, every message reaches its intended recipient. The
+override disables rerouting where that delivery is wanted, or where other
 means already intercept the mail.
 
 The following table shows where rerouting is on, and why:
@@ -334,9 +335,9 @@ The following table shows where rerouting is on, and why:
 Rerouting is the fall-through default, so it's also enabled in any custom
 environment type, such as a type set through `ENVIRONMENT_TYPE`. Lagoon and
 Acquia usually detect pull request environments as `dev`, so those
-environments get rerouting too. A custom environment type gets the module
-only after you add the type to the provisioning scripts. Until then,
-nothing reroutes its mail. ➡️ See
+environments get rerouting too. The module itself reaches a custom
+environment type only after you add the type to the provisioning scripts.
+Until then, that environment's mail goes to its real recipients. ➡️ See
 [Provision](../provision.mdx#development-modules)
 
 Rerouting is off in `ci`, so tests can assert on the address a message was
@@ -407,8 +408,8 @@ excludes it from the exported configuration.
 ## Search API
 
 [Search API](https://www.drupal.org/project/search_api) provides a framework
-for building search experiences with pluggable indexing backends. It stays
-required in every project.
+for building search experiences with pluggable indexing backends. Every
+project keeps its Composer requirement.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh),
@@ -482,9 +483,9 @@ The override reads the following variables:
 | `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` | None    | Set to `1` to keep the `/.well-known/acme-challenge/*` path open for Let's Encrypt certificate generation |
 
 Shield stays on in `dev` and `stage` even when the credentials are missing.
-Set `DRUPAL_SHIELD_USER` and `DRUPAL_SHIELD_PASS` in those environments, or
-the prompt accepts only the credentials stored in the site's configuration,
-if there are any.
+Set `DRUPAL_SHIELD_USER` and `DRUPAL_SHIELD_PASS` in those environments.
+Without them, the prompt accepts only the credentials stored in the site's
+configuration, and a site with none stored locks everyone out.
 
 To disable Shield in an environment where it would otherwise be enabled,
 set `DRUPAL_SHIELD_DISABLED` to `1` there. Use it for temporary access
@@ -513,8 +514,8 @@ sets the origin from `DRUPAL_STAGE_FILE_PROXY_ORIGIN` outside production.
 The shipped `.env` file sets it to `https://www.your-site-domain.example`.
 When `DRUPAL_SHIELD_USER` and `DRUPAL_SHIELD_PASS` are both set, the
 override adds them to an `https://` origin URL, so a shielded origin still
-serves files. It also turns off redirects to the origin, so the module
-downloads each requested file and keeps a local copy.
+serves files. It also sets `hotlink` to `FALSE`, so the module downloads
+each requested file and keeps a local copy.
 
 ## Storybook
 

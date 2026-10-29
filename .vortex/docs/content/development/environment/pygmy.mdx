@@ -33,8 +33,9 @@ after each boot, and every local stack routes through it.
 The `docker-compose.yml` that ships with **Vortex** depends on Pygmy twice.
 The `nginx` service joins the external `amazeeio-network` that Pygmy
 creates, and the `cli` service takes its SSH agent volume from Pygmy's
-`amazeeio-ssh-agent` container. Both have to exist before Docker Compose can
-create those containers, so start Pygmy before `ahoy up`.
+`amazeeio-ssh-agent` container. The network and the agent container must
+exist before Docker Compose creates `nginx` and `cli`, so start Pygmy before
+`ahoy up`.
 
 If the network is missing, `ahoy up` fails. Docker Compose returns an error
 for a missing external network. If Pygmy's containers exist but aren't
@@ -73,8 +74,8 @@ pygmy clean    # Stop and remove all services. Useful if you have issues with py
 ## SSH key in the CLI container
 
 The CLI container uses the SSH agent from Pygmy's `amazeeio-ssh-agent`
-container. It mounts the agent's volume through `volumes_from` and links to
-the agent's socket only when the CLI container starts.
+container. The CLI container mounts the agent's volume through
+`volumes_from`. It connects to the agent's socket only when it starts.
 
 Pygmy adds your default key, `~/.ssh/id_rsa`, to the agent. To use a
 different key, add it yourself:
@@ -86,8 +87,8 @@ pygmy addkey --key ~/.ssh/path/to/key
 A key you add that way lasts only until the agent container is replaced,
 for example by `pygmy restart`. To load a different key every time Pygmy
 starts, pass it with `--key`, as in `pygmy up --key ~/.ssh/path/to/key`.
-That key then replaces the default key. `pygmy restart` takes the same
-`--key` option.
+Pygmy then loads that key in place of the default key. `pygmy restart`
+takes the same `--key` option.
 
 Whichever way you load a different key, set `VORTEX_SSH_FILE` to its path in
 `.env.local`, so that Doctor checks for the key you use.
@@ -95,7 +96,7 @@ Whichever way you load a different key, set `VORTEX_SSH_FILE` to its path in
 `pygmy restart` removes the agent container and creates a new one. If the
 stack is running at the time, the CLI container stays attached to the
 previous agent. The SSH key is then missing inside the CLI container. The
-same happens when the stack starts before Pygmy.
+same happens when the stack starts while Pygmy's containers are stopped.
 
 To reattach the CLI container to the current agent:
 

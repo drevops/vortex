@@ -86,8 +86,8 @@ Press <kbd>Ctrl+C</kbd> to stop following.
 `ahoy up` runs `docker compose up --detach`. It then exits with status 1
 when `docker compose logs` contains the exact, case-sensitive text
 `[Error]`. `ahoy up` doesn't print the matching line. Each log line starts
-with the name of the container that wrote it, so search the logs for the
-line and its container:
+with the name of the container that wrote it, so the following command
+shows each matching line with its container:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -115,8 +115,8 @@ Run 'ahoy up'.
 Run 'ahoy logs <service>' to see error logs.
 ```
 
-`<service>` is the name of that container's service. Read its log, fix the
-cause and run `ahoy up` again.
+Doctor prints the service name in place of `<service>`. Read that log, fix
+the cause and run `ahoy up` again.
 
 Confirm that the stack is healthy by checking both of these:
 

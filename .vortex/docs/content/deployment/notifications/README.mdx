@@ -54,7 +54,7 @@ whatever order you list them in:
 - [`diffy`](diffy.mdx) - starts a Diffy visual regression run through
   GitHub Actions.
 
-The default is `email`, and an empty value falls back to it. To turn
+An unset or empty `VORTEX_NOTIFY_CHANNELS` means `email`. To turn
 notifications off, set `VORTEX_NOTIFY_SKIP`. The installer offers every
 channel except `diffy`, which you add by hand. The router matches the names
 as substrings and doesn't validate them, so a misspelled channel sends
@@ -124,9 +124,9 @@ notifications only for deployments on the listed branches. When it's empty
 or unset, the channel runs on all branches.
 
 The list is comma-separated, without spaces. Each entry is an exact branch
-name, without patterns. Diffy compares the entries with
-`VORTEX_NOTIFY_DIFFY_BRANCH`, and every other channel compares them with
-`VORTEX_NOTIFY_BRANCH`.
+name, without patterns. Every channel compares the entries with
+`VORTEX_NOTIFY_BRANCH`, except Diffy. Diffy uses its own
+`VORTEX_NOTIFY_DIFFY_BRANCH`, which defaults to `VORTEX_NOTIFY_BRANCH`.
 
 For example, to restrict New Relic notifications to `main` and `staging`:
 
@@ -173,11 +173,12 @@ Login at: %login_url%
 
 Each channel uses the default template in its own way:
 
-- Slack uses it as the message's fallback text.
+- Slack uses it as the message's fallback text, shown where attachments
+  can't display.
 - The email default adds `%deployment_log%` at the end.
 - Jira posts the same text as a formatted comment.
-- New Relic's default description is the middle line, without the final
-  period.
+- New Relic's default description is the `Site %project% ...` line, without
+  the final period.
 
 ## Deployment log
 
@@ -218,8 +219,8 @@ A flag set to `1` includes the collected logs in that channel, and `0`
 leaves them out. Each flag defaults to the value of `VORTEX_NOTIFY_LOG`, so
 with `VORTEX_NOTIFY_LOG=1`, all 4 channels include the logs. To leave the
 logs out of a single channel, set its flag to `0`, for example
-`VORTEX_NOTIFY_SLACK_LOG=0`. A channel flag can't add logs on its own: the
-router collects logs only when `VORTEX_NOTIFY_LOG=1`.
+`VORTEX_NOTIFY_SLACK_LOG=0`. A channel flag set to `1` has no effect unless
+`VORTEX_NOTIFY_LOG=1`, because only then does the router collect logs.
 
 :::warning
 
@@ -232,7 +233,8 @@ Producing scripts write their logs to `VORTEX_NOTIFY_LOG_DIR` (default
 
 - `vortex-provision` makes its log directory and `provision.log`
   owner-only (`700`/`600`), on a best-effort basis.
-- The router's combined file (`combined`) is owner-only too.
+- The router's collected file, `combined` in the same directory, is
+  owner-only too.
 - Any other producing script sets the permissions of its own log file.
 
 If you point `VORTEX_NOTIFY_LOG_DIR` at a custom directory, make sure other

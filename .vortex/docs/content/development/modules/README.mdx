@@ -13,16 +13,18 @@ For the custom modules, see [Module scaffold](module-scaffold.mdx).
 
 **Vortex** ships up to 26 contributed modules, depending on your installer
 answers. Each one is already wired into the environment-aware
-[settings](../settings.mdx) and the [provisioning](../provision.mdx)
-scripts. You add the rest of your modules after the initial setup.
+[settings](../settings.mdx) and, where it needs installing, the
+[provisioning](../provision.mdx) scripts. You add the rest of your modules
+after the initial setup.
 
 **Vortex** isn't a Drupal distribution. It ships an installation profile
-only when you ask the installer for a custom profile. Its only recipe,
-`recipes/page`, creates the demo content model during provisioning.
+only when you ask the installer for a custom profile. The only recipe it
+ships is `recipes/page`, which creates the demo content model during
+provisioning.
 
-The installer can remove every shipped module except Search API. Its
-**Modules** question lists 19 of them. Deselecting 1 removes the following
-in a single pass:
+The installer can remove every shipped module except Search API. The
+installer's **Modules** question lists 19 of the shipped modules.
+Deselecting 1 removes the following in a single pass:
 
 - Its Composer requirement
 - Its settings override
@@ -31,11 +33,11 @@ in a single pass:
 - Its assertions in the settings tests
 - Any other block the template marks for it, such as its variables in `.env`
 
-Keep Drupal helpers when you keep the demo module. `ys_demo` declares it as
-a dependency and calls it in its deploy hooks, so `ys_demo` can't install
-without it.
+If you keep the demo module, keep Drupal helpers selected too. `ys_demo`
+declares it as a dependency and calls it in its deploy hooks, so `ys_demo`
+can't install without it.
 
-The other 7 of the 26 modules follow other installer questions:
+The remaining 7 modules sit outside the **Modules** question:
 
 - ClamAV, Redis and Search API Solr follow the **Services** question.
 - Migrate Plus and Migrate Tools follow the
@@ -67,20 +69,20 @@ project:
 
 2 shipped modules are required but never installed:
 
-- `seckit` waits for the project to enable it, with its settings override
-  already in place.
+- `seckit` has its settings override in place. Enable the module when the
+  project needs it.
 - Fast 404 runs its handler straight from the settings file, so it needs no
   install.
 
-The preceding mechanisms install every other module on the [Contributed
-modules](contributed-modules.mdx) page, so selecting a module gets it
-enabled. 2 installer answers each leave 1 module required but not
-installed:
+1 of the preceding mechanisms installs every other module on the
+[Contributed modules](contributed-modules.mdx) page, so a module you select
+is enabled after provisioning. Leaving out 2 features each leaves 1 more
+module required but not installed:
 
 - Without the demo module, nothing installs Drupal helpers. It arrives only
   as a dependency of `ys_demo`.
-- Without the Solr service, nothing installs Search API. The line that
-  installs it leaves with the service.
+- Without the Solr service, nothing installs Search API. The installer
+  removes the line that installs it together with the service.
 
 ## Check which modules are enabled
 
@@ -95,8 +97,8 @@ When provisioning runs its custom scripts in the `local`, `ci`, `dev` and
   `Installed Devel module.` SDC Devel prints
   `Installed Single Directory Component development tools.`
 
-In `prod` and any other environment type, the 2 scripts print
-`Skipped demo modules operations in production environment.` and
+In `prod` and any other environment type, the demo and development scripts
+print `Skipped demo modules operations in production environment.` and
 `Skipped installing development modules in production environment.`
 instead.
 

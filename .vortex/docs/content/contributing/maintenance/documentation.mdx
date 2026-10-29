@@ -76,9 +76,10 @@ cd .vortex
 ahoy update-docs
 ```
 
-The documentation workflows run the same extraction and fail when it
-changes anything. Commit the result together with the change that caused
-it. A running local site picks up the new content straight away.
+The documentation workflows run the same extraction and fail when its
+result differs from the committed page. Commit the result together with
+the change that caused it. A running `ahoy docs` server picks up the new
+content straight away.
 
 ### Lint, spellcheck and test
 
@@ -175,14 +176,15 @@ The rules come from 4 places:
 
 - The `Google` and `write-good` style packages. They're pinned by release
   URL in `.vortex/docs/.vale.ini`, and `vale sync` downloads them when you
-  run `yarn install`. Only 1 `write-good` rule, `ThereIs`, runs on its own.
-  2 house rules extend its `Weasel` and `TooWordy` word lists.
+  run `yarn install`. `ThereIs` is the only `write-good` rule that runs on
+  its own. 2 house rules extend the word lists of the `write-good` rules
+  `Weasel` and `TooWordy`.
 - Vale's built-in `Vale` style, which flags repeated words and applies the
   vocabulary.
 - The house style in `.vortex/docs/.vale/Vortex/`, with 1 small YAML file
   for each rule. A rule that adjusts a `Google` rule inherits it with
   `extends` and edits its word lists. `.vale.ini` then switches the
-  original off.
+  original `Google` rule off.
 - The vocabulary in
   `.vortex/docs/.vale/config/vocabularies/Vortex/accept.txt`, which lists
   product names with their exact casing.
@@ -228,9 +230,9 @@ and what it records:
 | `doctor-info` | `ahoy doctor info` |
 
 To re-record every video, run `ahoy update-videos` from `.vortex/`. To
-record a subset, pass the video names, separated by spaces or commas. Each
-video writes `<name>.json`, `<name>.svg` and `<name>.png` to
-`.vortex/docs/static/img/`.
+record a subset, pass the video names, separated by spaces or commas. For
+each video, the command writes `<name>.json`, `<name>.svg` and
+`<name>.png` to `.vortex/docs/static/img/`.
 
 A default run wipes the workspace in `.artifacts/tmp/videos-workspace/`.
 It then builds the installer and installs a fresh project there. Every
@@ -258,14 +260,15 @@ pipeline, see [Installer > Installer video](installer.mdx#installer-video).
 
 The published site serves 2 majors at once. The `VORTEX_CURRENT_MAJOR`
 repository variable picks the current major, and it defaults to `1`. The
-build snapshots that major's branch, `main`, as the default version at
-`/docs`. It serves the other major's `{N}.x` branch at `/docs/v{N}`.
+build serves a snapshot of that major's branch, `main`, as the default
+version at `/docs`. It serves the other major's `{N}.x` branch at
+`/docs/v{N}`.
 
 The other major's pages carry a banner. The banner reads "unreleased" when
 that major is newer than the current major, and "unmaintained" when it's
 older. `/docs/v{current}` redirects to `/docs`.
 
-Each branch writes its content against the bare `/docs` mount, so an
+The content on each branch links against the bare `/docs` mount, so an
 absolute link such as `/docs/development/testing/behat` points at the
 current major. The build moves the other major's content under
 `/docs/v{N}` and re-points those links at the major they were written for.

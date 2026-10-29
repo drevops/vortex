@@ -12,8 +12,8 @@ tool as follows:
 > Compose files.
 
 DCLint checks Docker Compose files against best practices, such as quoted
-port mappings and a consistent key order in each service.
-`docker-compose.yml` then stays readable as services come and go.
+port mappings and a consistent key order in each service. These checks keep
+`docker-compose.yml` readable as services come and go.
 **Vortex** comes with a [pre-configured DCLint
 ruleset](https://github.com/drevops/vortex/blob/main/.dclintrc) for its
 Docker Compose files.
@@ -50,9 +50,9 @@ service keys and unquoted ports, add the `--fix` flag:
 dclint --fix .
 ```
 
-Confirm that the check passed: run `echo $?` right after DCLint. It prints
-`0` when DCLint found no errors. Warnings appear in the output and leave
-the exit code at `0`.
+Confirm that the check passed: `echo $?`, run right after DCLint, prints `0`
+when DCLint found no errors. Warnings appear in the output and leave the
+exit code at `0`.
 
 ## Configuration
 
@@ -72,14 +72,15 @@ The file turns off the following 4 rules:
 - `require-project-name-field`
 
 It also sets `service-keys-order` to `1` and configures it with 8 groups of
-keys. That rule keeps the keys of every service in `docker-compose.yml` in
-the same order. The order runs from core definitions such as `build` and
-`image` to operational metadata such as `labels`. Diffs then stay small and
+keys. That rule checks that the keys of every service in
+`docker-compose.yml` follow the same order. The order runs from core
+definitions such as `build` and `image` to operational metadata such as
+`labels`. Diffs then stay small and
 services stay comparable. Every other rule keeps the level DCLint gives it
 by default.
 
-A directive in `docker-compose.yml` turns off 1 more rule for a single
-line. With migration enabled, the `database2` service has a
+A directive in `docker-compose.yml` turns off a fifth rule, for 1 line
+only. With migration enabled, the `database2` service has a
 `dclint disable-line` directive for `no-duplicate-exported-ports`, with the
 reason next to it.
 DCLint reads the container-only port `3306` as a host port that the

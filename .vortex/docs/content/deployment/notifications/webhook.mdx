@@ -18,14 +18,14 @@ webhook, see [Webhook deployment](../webhook.mdx).
 To set up webhook notifications:
 
 1. Set `VORTEX_NOTIFY_WEBHOOK_URL` in your `.env` file or in your hosting
-   provider's environment variables. When the URL carries a token, use the
-   hosting environment variables.
+   provider's environment variables. When the URL carries a secret, such as
+   an API key, use the hosting environment variables.
 2. Add `webhook` to the comma-separated `VORTEX_NOTIFY_CHANNELS` list in
    your `.env` file, for example `VORTEX_NOTIFY_CHANNELS=email,webhook`.
 
 Confirm that the next deployment called the URL. The deployment output on
-your hosting platform shows `[ OK ] Finished webhook notification.` Your
-service receives the payload.
+your hosting platform shows `[ OK ] Finished webhook notification.` Check
+that your service received the payload.
 
 ## Environment variables
 
@@ -89,9 +89,10 @@ table](README.mdx#message-templates-and-tokens), including
 `%deployment_log%`. The channel JSON-escapes each value before it
 substitutes it, so a quote in a label can't break the payload.
 
-The channel follows redirects and skips `pre_deployment`. The request fails
+The channel follows redirects and sends nothing on `pre_deployment`. The
+request fails
 when the response status doesn't match
 `VORTEX_NOTIFY_WEBHOOK_RESPONSE_STATUS` or the request can't connect. The
 deployment output then shows `[FAIL] Unable to send notification to webhook`
-followed by the full webhook URL. That line includes any token the URL
+followed by the full webhook URL. That line includes any secret the URL
 carries, even when the URL comes from the hosting environment variables.

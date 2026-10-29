@@ -117,18 +117,18 @@ The draft works as follows:
   the last segment, for example `26.10.0` in October 2026. It always
   proposes `0`. When the month already has a release, raise the last
   segment to the next free number, for example `26.10.1`.
-- For SemVer, release-drafter resolves the next version itself. It raises
-  the minor number of the previous release, as the `version-resolver`
-  category in `.github/release-drafter.yml` sets it. Any other scheme value,
-  `other` included, takes the same path.
+- For SemVer, release-drafter resolves the next version itself. The
+  `version-resolver` category in `.github/release-drafter.yml` makes it
+  raise the minor number of the previous release. Any other scheme value,
+  `other` included, gets the same SemVer resolution.
 - Release notes accumulate changes until the release is finalized.
 - When you finish the release, use the draft to publish the final release
   notes.
 
 The workflow reads the scheme from the `VORTEX_RELEASE_VERSION_SCHEME`
 repository variable and defaults to `calver` when the variable is unset. It
-loads `.env` too, but keeps the value it already has. The `.env` setting
-doesn't drive this workflow.
+loads `.env` too, but the repository variable's value wins over `.env`. The
+`.env` setting doesn't drive this workflow.
 
 To number the draft for SemVer or Other, set the
 `VORTEX_RELEASE_VERSION_SCHEME` repository variable to `semver` or `other`

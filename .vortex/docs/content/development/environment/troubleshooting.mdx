@@ -26,9 +26,10 @@ containers or the site itself.
 ## Site not loading
 
 A stopped Pygmy service, a stopped container or a web server that doesn't
-answer keeps the site from loading. Doctor checks all 3. If Doctor reports
-a stopped container, run `ahoy up` as it suggests, or `docker compose up -d`
-without Ahoy. Either command starts the container and keeps your database.
+answer keeps the site from loading. Doctor checks for each of these causes.
+If Doctor reports a stopped container, run `ahoy up` as it suggests, or
+`docker compose up -d` without Ahoy. Both commands start the container and
+keep your database.
 
 If the site still doesn't load, restart the whole stack with the following
 commands:
@@ -56,7 +57,7 @@ commands:
   </TabItem>
 </Tabs>
 
-After either `down` command, the stack comes back with a fresh database.
+After `down` and `up`, the stack has a fresh database.
 That's why `ahoy down` asks you to confirm first. The database lives on an
 anonymous volume. Plain `docker compose down` leaves that volume on disk,
 but the next `up` doesn't mount it again.

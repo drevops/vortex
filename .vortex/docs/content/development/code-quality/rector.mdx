@@ -12,8 +12,9 @@ as follows:
 Every Drupal major release removes the APIs that the previous major release
 deprecated. Rector rewrites your code to replace them and moves it onto
 PHP 8.4 language features. It applies each refactoring across the whole
-codebase at once. With Rector in every check, a major upgrade starts with
-the deprecations Drupal Rector covers already fixed.
+codebase at once. Because Rector runs in every `ahoy lint-be` run and every
+CI build, the deprecations Drupal Rector covers are already fixed when a
+major upgrade starts.
 
 **Vortex** comes with a [pre-configured Rector
 configuration](https://github.com/drevops/vortex/blob/main/rector.php) for
@@ -40,9 +41,9 @@ deprecations. Run it too when you modernize legacy code in bulk.
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-`ahoy lint-be` runs Rector last, after PHPCS and PHPStan. The Docker Compose
-command runs Rector alone. To check for code that Rector would change, run 1
-of the following commands:
+Both commands run Rector as a dry run. The Ahoy command runs it last, after
+PHPCS and PHPStan. The Docker Compose command runs Rector alone. To check
+for code that Rector would change, run 1 of the following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -142,7 +143,7 @@ lists:
 - `web/sites/default/includes`
 - `tests`
 
-Unlike PHPCS and PHPStan, Rector leaves the `scripts` directory alone.
+`withPaths()` leaves out `scripts`, which PHPCS and PHPStan check.
 
 ### Config sets
 
@@ -167,8 +168,8 @@ following sets:
 On top of the sets, `rector.php` adds the `DeclareStrictTypesRector` rule.
 When PHPUnit is selected, it also adds `YieldDataProviderRector`, which
 turns array-returning data providers into generators. `withImportNames()`
-turns off name imports, so Rector adds no `use` statements to the files it
-changes.
+is called with `importNames: FALSE`, so Rector adds no `use` statements to
+the files it changes.
 
 To adjust the sets, edit the `withPhpSets()`, `withAttributesSets()` and
 `withPreparedSets()` calls in `rector.php`. The [Set

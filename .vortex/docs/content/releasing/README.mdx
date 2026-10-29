@@ -48,9 +48,9 @@ Each environment has its own job:
 - **Production** - the live, customer-facing site. It's stable and
   reliable, and it's the source of truth for data.
 
-A release applies a new version of the code to the database of a specific
-environment. Production holds the primary database, so the lower
-environments test code against a copy of it:
+A release runs a new version of the code against the database of a
+specific environment. Production holds the primary database. To test code
+against real data in a lower environment:
 
 1. Copy the database from a higher environment to a lower environment, for
    example production → stage → development.
@@ -73,12 +73,12 @@ pre-production, or use different names.
 ## Production deployment process
 
 A production deployment works the same way as a deployment to any other
-environment. CI builds and tests the release tag when it reaches the
-repository. On branch-based hosting, CI builds the `production` branch.
-CI then deploys it under the same rules as any other branch or tag (see
+environment. CI builds and tests the release tag when you push it. On
+branch-based hosting, CI builds the `production` branch. CI then deploys
+the tag or branch under the same rules as any other branch or tag (see
 [GitFlow](gitflow.mdx)).
 
-Those rules exclude some tags:
+Some tags don't deploy:
 
 - CircleCI deploys only tags named like `1.2.3`, `1.2.3-rc.1` or
   `2023-04-17`.
@@ -95,16 +95,16 @@ Lagoon marks it as production, or its branch is the branch in
 release from a `production` branch:
 
 1. Set `VORTEX_LAGOON_PRODUCTION_BRANCH` to `production`.
-2. Rename the `main` entry under `environments` in `.lagoon.yml`. That entry
-   holds the production cron jobs and monitoring.
+2. Rename the `main` entry under `environments` in `.lagoon.yml` to
+   `production`. That entry holds the production cron jobs and monitoring.
 
 A deployment keeps the database of a site that already exists. Provisioning
 replaces it only when `VORTEX_PROVISION_OVERRIDE_DB` is `1`, and `.env`
 ships it as `0`. On Lagoon, a production deployment also backs up the
 database first and skips sanitization. On a site that provisions from a
 database dump, the Lagoon production deployment forces
-`VORTEX_PROVISION_OVERRIDE_DB=0`. Even a Lagoon variable set to `1` then
-can't replace the production database.
+`VORTEX_PROVISION_OVERRIDE_DB=0`. A value of `1` set in Lagoon then has no
+effect on production.
 
 ➡️ See
 [Development > Provision](../development/provision.mdx#provisioning-flow) to
@@ -164,7 +164,8 @@ deployment output, followed by how long the request took:
 [ OK ] Created a deployment notification for application <app> with ID <id>.
 ```
 
-The channel also exits with code `0` when it skips the marker, for example
+The New Relic notification script also exits with code `0` when it skips
+the marker, for example
 for an unlisted branch. A passing deployment doesn't prove that the marker
 exists.
 

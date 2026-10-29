@@ -38,9 +38,10 @@ questions 1 at a time. With `--no-interaction`, it asks nothing at all.
 It then installs and updates projects unattended, which suits automated
 pipelines and CI environments.
 
-Each prompt pre-fills its answer, and you can change it when the installer
-asks. With `--no-interaction`, the pre-filled value is the answer. The
-installer takes it from the first of these sources that has a value:
+Each prompt pre-fills an answer, and you can change the answer when the
+installer asks. With `--no-interaction`, the pre-filled value is the
+answer. The installer takes it from the first of these sources that has a
+value:
 
 1. **Prompt answers** - a JSON object passed with `--prompts`, either inline
    or as a path to a JSON file. Its keys are the prompt IDs that `--schema`
@@ -53,7 +54,8 @@ installer takes it from the first of these sources that has a value:
 
 The profile, theme and web root prompts go a step further. When discovery
 finds a value, or an earlier answer settles it, the installer uses that
-value without asking. That value wins over `--prompts`. Choosing Acquia
+value without asking. For these 3 prompts, that value wins over
+`--prompts`. Choosing Acquia
 hosting, for example, settles the web root.
 
 `--prompts` with `--no-interaction` runs a whole installation without a
@@ -67,8 +69,8 @@ php installer.php --prompts=prompts.json --validate
 The command prints a JSON object with the `valid`, `errors`, `warnings`
 and `resolved` keys. It exits with `0` when `valid` is `true` and with `1`
 otherwise. A warning, such as an answer whose condition isn't met, leaves
-the object valid. Without `--prompts`, or when the input isn't a JSON
-object, the command prints an error message and exits with `1`.
+the object valid. Without `--prompts`, or when the `--prompts` value isn't
+a JSON object, the command prints an error message and exits with `1`.
 
 `--config` takes a different JSON object: the installer's own settings,
 keyed by their `VORTEX_INSTALLER_*` names, such as
@@ -142,16 +144,18 @@ So a marker for `TOOL_PHPUNIT_BEHAT` also counts as a marker for
 
 A token with a `!` prefix, such as `#;< !PROVISION_TYPE_PROFILE`, works the
 other way round: the installer removes its content when the feature is
-selected. Content between `VORTEX_DEV` markers always goes, because it
-exists only for maintaining **Vortex** itself.
+selected. The installer always removes content between `VORTEX_DEV`
+markers, because that content exists only for maintaining **Vortex**
+itself.
 
-After the other handlers have run, the installer deletes every remaining
-line that contains `#;`. That removes the markers of the selected features,
-which keep their content. It also removes the internal comments that start
-with `#;`, so a note for the template's maintainers never reaches a
-consumer site.
+After the other handlers have run, the `Internal` handler deletes every
+remaining line that contains `#;`. That removes the markers of the
+selected features, which keep their content. It also removes the internal
+comments that start with `#;`, so a note for the template's maintainers
+never reaches a consumer site.
 
-The installer also deletes every `#####` prefix followed by a space. A line
+The installer also removes every `#####` prefix that a space follows, and
+it keeps the rest of the line. A line
 that the template keeps commented out with that prefix becomes active in
 the consumer site, as the `VORTEX_DB_IMAGE` example in `.env` does.
 
@@ -202,9 +206,7 @@ pattern:
 When a test runs, the snapshot library applies the scenario's diffs on top
 of the baseline. It compares the result against the actual installer
 output. Before the comparison, the test replaces version numbers in the
-output with `__VERSION__`, so a version bump alone changes no fixture. Each
-scenario stores only its differences from the baseline, which keeps the
-fixture files maintainable.
+output with `__VERSION__`, so a version bump alone changes no fixture.
 
 The fixture directories in
 `.vortex/installer/tests/Fixtures/handler_process/` include scenarios for
@@ -251,9 +253,10 @@ cd .vortex
 ahoy update-snapshots
 ```
 
-The regeneration *runs the installer for every permutation*, with a fresh
+The regeneration *runs the installer for every scenario*, with a fresh
 project for each scenario. It updates the fixture files to match the
-current output. The baseline runs first, then the scenarios, 8 at a time.
+current output. The baseline runs first, then the scenarios in 8 parallel
+jobs.
 The command commits the regenerated installer fixtures as it goes. Review
 the diffs in version control to see how a change affects each scenario.
 
@@ -297,7 +300,7 @@ Each publish also refreshes the per-major pins at `/v1/install` and
 The other major's binary comes from its `{N}.x` branch. The bare `/install`
 serves a copy of the pin that `VORTEX_CURRENT_MAJOR` selects.
 
-The workflow also publishes from every branch whose name contains
+`Vortex - Release docs` also publishes from every branch whose name contains
 `release-docs` or `release-installer`, so you can test installer changes
 before a formal release. Those builds go to the live site. Until the next
 publish, everyone who downloads `/install` gets that branch's build.
@@ -353,5 +356,5 @@ regenerate the video in CI pin it explicitly.
 and `ASCIINEMA_SHA256`. They check the download against that checksum
 before running it. Bump both workflows together, so the release and the
 installer test generate assets with identical tooling. Neither workflow
-publishes the video it records: the step only proves that recording still
-works.
+publishes the video it records: the recording step only proves that
+recording still works.

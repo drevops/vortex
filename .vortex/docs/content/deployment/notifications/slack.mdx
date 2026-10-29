@@ -59,8 +59,8 @@ notification channel reads:
 `post_deployment` events:
 
 - **Pre-deployment:** Gray color with "Deployment Starting" status. The
-  message has no environment or login links, because the site isn't up
-  yet.
+  message has no environment or login links, because the deployment hasn't
+  finished yet.
 - **Post-deployment:** Green color with "Deployment Complete" status.
 
 Each message is a Slack attachment with the following parts:
@@ -71,7 +71,7 @@ Each message is a Slack attachment with the following parts:
   timestamp.
 - **Environment** and **Login** fields with **View Site** and **Login Here**
   links, in post-deployment messages only.
-- The collected deployment log, when deployment logs are on. A
+- The collected deployment log, when `VORTEX_NOTIFY_SLACK_LOG` is `1`. A
   pre-deployment message goes out before provisioning, so it never carries
   that deployment's provisioning log.
 - A `Vortex Deployment` footer.

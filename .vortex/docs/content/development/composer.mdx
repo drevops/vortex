@@ -716,9 +716,9 @@ configures how Composer behaves in the project. **Vortex** sets the
 following keys:
 
 - [`allow-plugins`](https://getcomposer.org/doc/06-config.md#allow-plugins):
-  Lists the Composer plugins that are allowed to run. Composer runs only the
-  listed plugins, so untrusted code in other plugins never runs. **Vortex**
-  allows these 10 plugins:
+  Lists the Composer plugins that are allowed to run. Composer won't run an
+  unlisted plugin without your approval, so untrusted plugin code stays
+  out. **Vortex** allows these 10 plugins:
   - `composer/installers`
   - `cweagans/composer-patches`
   - `dealerdirect/phpcodesniffer-composer-installer`
@@ -799,7 +799,7 @@ keys:
   - Drush command packages: `drush/Commands/contrib`
 
   ➡️ See [Overriding paths](#overriding-paths)
-- `patchLevel`: Sets `-p2` for `drupal/core`. The `-p` option of a patch
+- `patchLevel`: Holds `-p2` for `drupal/core`. The `-p` option of a patch
   command (for example, `-p1` or `-p2`) is the number of leading directories
   to strip from the file paths in the patch. Version 2.x of
   `cweagans/composer-patches` doesn't read this key. It takes the depth from

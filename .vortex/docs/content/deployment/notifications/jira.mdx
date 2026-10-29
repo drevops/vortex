@@ -73,9 +73,9 @@ The channel takes the Jira issue key from the branch name, using the pattern
 - `feature/PROJ-123-add-feature` → `PROJ-123`
 - `feature/PRJ-456-fix-auth` → `PRJ-456`
 
-Lowercase keys, such as `proj-123`, match too. The key has to open the
-branch name or follow its first `/`. When the branch has no key, the channel
-posts nothing and passes.
+Lowercase keys, such as `proj-123`, match too. The key has to start the
+branch name or come right after its first `/`. When the branch has no key,
+the channel posts nothing and finishes without an error.
 
 A key anywhere else in the name, or a date in the name, produces an invalid
 issue key:
@@ -88,5 +88,5 @@ Posting the comment then fails with `Unable to create a comment.`
 `VORTEX_NOTIFY_JIRA_BRANCHES` takes exact branch names only, so it can't
 exclude a pattern such as `release/*`. To keep the channel off the
 environment of a date-named branch, set `VORTEX_NOTIFY_CHANNELS` without
-`jira` in that environment's hosting variables. A value set there takes
-precedence over `.env`.
+`jira` in that environment's hosting variables. A value set in the hosting
+variables takes precedence over `.env`.

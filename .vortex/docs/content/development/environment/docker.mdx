@@ -13,8 +13,8 @@ describes the tool as follows:
 
 **Vortex** ships a Docker and Docker Compose configuration that runs the
 project in containers. A single `docker-compose.yml` describes the stack
-locally, in CI and on container-based hosting such as Lagoon. A few lines
-in it are marked as local-only or CI-only.
+locally, in CI and on container-based hosting such as Lagoon. Comment
+markers flag its few local-only lines (`###`) and CI-only lines (`##`).
 
 This page is for developers who change the stack or need to know how it
 fits together. It covers the following:
@@ -87,7 +87,7 @@ To change the project name, and with it the URL, follow these steps:
 
 1. Run `ahoy down` to remove the current containers and their database.
    Docker Compose groups containers by project name, so after the change,
-   Ahoy can't reach the old ones.
+   Ahoy commands no longer find the old containers.
 2. Set `COMPOSE_PROJECT_NAME` in `.env`.
 3. Run `ahoy up` to start a new set of containers under the new name.
 4. Run `ahoy provision` to set up the site in the new containers.
@@ -144,9 +144,10 @@ mounts:
 The anchor also carries 2 commented-out mounts for environments without
 volume mounting support. CircleCI is 1 of them, because its containers run
 on a remote Docker server. Before CI starts the stack, on GitHub Actions
-and CircleCI alike, it deletes every line marked `###`. That drops the host
-mounts. CI also uncomments every line marked `##`, which swaps in the named
-volumes `app` and `files`. The top-level `volumes` section declares them.
+and CircleCI alike, it edits `docker-compose.yml` to delete every line
+marked `###`. That drops the host mounts. CI also uncomments every line
+marked `##`, which swaps in the named volumes `app` and `files`. The
+top-level `volumes` section declares them.
 
 The top-level `volumes` section also declares `solr` for the Solr index
 when Solr is enabled. When you host on Lagoon with Storybook enabled, it
@@ -183,7 +184,8 @@ On Linux, if your user ID isn't `1000`, change the value in
 `docker-compose.yml`. `id -u` prints your user ID. Then run `ahoy up` to
 recreate the containers that use it. The file is committed, so the change
 applies to everyone on the project. To change it only on your machine, set
-`user` on those services in `docker-compose.override.yml` instead.
+`user` on the services that use the anchor in `docker-compose.override.yml`
+instead.
 
 The `cli` service runs as `root` instead of using the anchor. On Linux,
 files it creates in the project can end up owned by `root` on your
@@ -206,9 +208,9 @@ it.
 
 The `cli`, `nginx` and `php` services build on Lagoon images, which load
 `.env` themselves. When a container starts, the image's entrypoint reads
-`.env` from `/app` before it launches the main process. The entrypoint
-keeps any variable the container already has. In the `php` container, the
-main process is PHP-FPM, which passes the loaded variables on to every
+`.env` from `/app` before it launches the main process. A variable the
+container already has wins over its `.env` value. In the `php` container,
+the main process is PHP-FPM, which passes the loaded variables on to every
 request. That's how Drupal gets the `.env` variables that
 `docker-compose.yml` doesn't list, such as `DRUPAL_CLAMAV_ENABLED`.
 
@@ -295,9 +297,9 @@ Each of these lines does the following:
   ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io` - sets
   `LOCALDEV_URL` to `<project>.docker.amazee.io`, where `<project>` is the
   Docker Compose project name. The project name defaults to the name of the
-  project directory, and `example-site` applies only when it's empty. This
-  line ignores an existing `LOCALDEV_URL`, where `TZ` keeps an existing
-  value. The YAML anchor `default-url` stores the value for later use.
+  project directory, and `example-site` applies only when it's empty.
+  Unlike `TZ`, this line has no fallback to an existing `LOCALDEV_URL`. The
+  YAML anchor `default-url` stores the value for later use.
 - `LAGOON_ROUTE: *default-url` - sets `LAGOON_ROUTE` to the same value
   through the `*default-url` alias, so the 2 always match.
 

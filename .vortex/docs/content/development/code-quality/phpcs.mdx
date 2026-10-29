@@ -14,13 +14,14 @@ tool as follows:
 > coding standard violations. PHP_CodeSniffer is an essential development
 > tool that ensures your code remains clean and consistent.
 
-PHPCS checks your PHP against the Drupal coding standards. Every custom
-module, theme and script then follows the same conventions, so code review
-can skip the formatting nitpicks. **Vortex** comes with a [pre-configured
-PHPCS ruleset](https://github.com/drevops/vortex/blob/main/phpcs.xml) for
-Drupal projects. The ruleset also requires strict types and checks
-compatibility with your PHP version. The bundled `phpcbf` command fixes the
-violations that have an automatic fix.
+PHPCS reports where your PHP breaks the Drupal coding standards.
+Fixing those violations keeps custom modules, themes and scripts on the same
+conventions, so code review can skip the formatting nitpicks. **Vortex**
+comes with a [pre-configured PHPCS
+ruleset](https://github.com/drevops/vortex/blob/main/phpcs.xml) for Drupal
+projects. The ruleset adds a strict types check and a compatibility check
+for your PHP version. The bundled `phpcbf` command fixes the violations
+that have an automatic fix.
 
 This page is for developers who write PHP in a **Vortex** project. It shows
 how to check and fix your code and what the shipped ruleset enforces. It
@@ -33,7 +34,7 @@ also covers how to ignore a rule.
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-`ahoy lint-be` runs PHPCS, then PHPStan and Rector. The Docker Compose
+The Ahoy command runs PHPCS, then PHPStan and Rector. The Docker Compose
 command runs PHPCS alone. To check the code, run 1 of the following
 commands:
 
@@ -109,8 +110,8 @@ The ruleset sets the following command-line arguments for every run:
 - `colors` - colored output
 - `s` - the sniff code after each message
 - `p` - a progress indicator
-- `parallel` set to `10` - 10 parallel processes; set it to the number of
-  CPU cores available
+- `parallel` set to `10` - 10 parallel processes, which you can change to
+  match your CPU cores
 
 PHPCS checks the following paths, which the `<file>` entries in `phpcs.xml`
 list:
@@ -134,10 +135,11 @@ To add or remove targets, add or remove the `<file>` entries in
 <file>path/to/dir_or_file</file>
 ```
 
-The `PHPCompatibility` checks run against PHP `8.4`, the `testVersion` value
-in `phpcs.xml`. That value matches the `composer.json` key
-`config.platform.php`, set to `8.4.27`. PHPCS doesn't read that key, so
-update both when you move to a new PHP version:
+The `PHPCompatibility` checks run against the `testVersion` value in
+`phpcs.xml`, set to `8.4`. The `composer.json` key `config.platform.php`
+pins PHP `8.4.27`, a patch release of the same version. PHPCS doesn't read
+that key, so update both values when you move to a new PHP version. The
+`testVersion` line looks like this:
 
 ```xml
 <config name="testVersion" value="8.4"/>
