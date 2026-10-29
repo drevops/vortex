@@ -55,8 +55,8 @@ Each source in the following list overrides the ones before it:
 6. The value from the environment
 
 Each script loads `.env` and then `.env.local` itself. The script then
-restores every variable your environment had already exported. A value set in your shell, in CI
-or on the hosting platform wins over both files.
+restores every variable your environment had already exported. A value set
+in your shell, in CI or on the hosting platform wins over both files.
 
 ## Naming conventions
 
@@ -109,8 +109,9 @@ that the value isn't empty, so `0` switches them on too. Leave such a flag
 unset to keep it off.
 
 `VORTEX_NOTIFY_NEWRELIC_ENABLED` also checks only for a non-empty value, so
-it accepts `true` from its fallback, Lagoon's `NEWRELIC_ENABLED`. Third-party variables keep their
-own values, such as `RENOVATE_DRY_RUN=true`.
+it accepts `true` from its fallback, Lagoon's `NEWRELIC_ENABLED`.
+Third-party variables keep their own values, such as
+`RENOVATE_DRY_RUN=true`.
 
 ## Columns of the variables list
 

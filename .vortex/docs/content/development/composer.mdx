@@ -157,12 +157,14 @@ To update all dependencies, run the following command:
 
 If your project [patches](#patch-dependencies) its dependencies, an update
 can fail when a patch no longer applies to the new version of a dependency.
-Composer
-then stops with `No available patcher was able to apply patch`, followed by
-the patch URL and the package name.
+Composer then stops with `No available patcher was able to apply patch`,
+followed by the patch URL and the package name.
 
-A common fix is to remove the patch entries from `composer.json`, run the
-update and then reapply each patch in turn.
+A common fix is to remove the patch entries from `composer.json` and
+regenerate `patches.lock.json`, because Composer Patches reads the patches
+from that file. Then run the update and reapply each patch in turn,
+regenerating the lock file after each change. See
+[Remove a patch](#remove-a-patch) for the commands.
 :::
 
 To update a specific package and its dependencies, run the following

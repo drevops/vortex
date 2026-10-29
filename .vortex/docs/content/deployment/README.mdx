@@ -152,6 +152,9 @@ By default, a deployment keeps the environment's existing database.
 - `deploy_override_db` - deploys the code and replaces the environment's
   database during provisioning. The new database is a copy from the
   configured database source, which is production by default on Lagoon.
+  On a Lagoon production environment, `.lagoon.yml` sets
+  `VORTEX_PROVISION_OVERRIDE_DB=0`, so production keeps its database. A
+  site that provisions from a profile reads that value from `.env` instead.
 - `destroy` - removes the deployed environment, on platforms that support
   it (Lagoon).
 

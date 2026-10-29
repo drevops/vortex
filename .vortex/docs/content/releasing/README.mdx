@@ -57,9 +57,10 @@ against real data in a lower environment:
 2. Deploy the code to that environment.
 3. Test that everything works against the copied database.
 
-When your site provisions from a database dump, the CI pipeline also runs
-all its tests against a copy of the production database. The copy refreshes
-daily, so CI checks code changes against real data structures too.
+When your site provisions from a database dump, CI runs all its tests
+against a copy of the database from the configured source.
+The copy refreshes daily. When the source is production, CI checks code
+changes against real data structures too.
 
 :::note Environment agreement
 

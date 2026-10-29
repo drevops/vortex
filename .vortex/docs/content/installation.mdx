@@ -155,9 +155,8 @@ To put the project on GitHub:
 
 For the `artifact` and `lagoon` deployment types, your continuous
 integration pipeline deploys code over SSH. On Lagoon, it fetches the
-database over SSH too. On
-Acquia, it downloads database backups through the Acquia Cloud API with the
-API key from the next step.
+database over SSH too. On Acquia, it downloads database backups through the
+Acquia Cloud API with the API key from the next step.
 
 If you answered **Other** or **None** at the **Hosting provider** prompt,
 only these answers need the keys:
@@ -277,10 +276,10 @@ To set up GitHub Actions:
    `Database, Build, Test and Deploy` workflow from
    [`.github/workflows/build-test-deploy.yml`](https://github.com/drevops/vortex/blob/main/.github/workflows/build-test-deploy.yml),
    which GitHub Actions runs without further setup.
-2. Under **Settings > Secrets and variables > Actions**, add the private key
-   from [step 5](#5-create-an-ssh-key-for-deployments) as the
-   `VORTEX_DEPLOY_SSH_PRIVATE_KEY` secret, for deployments. With separate
-   keys, use the deployment key.
+2. If you created a key in [step 5](#5-create-an-ssh-key-for-deployments),
+   add the private key under **Settings > Secrets and variables > Actions**
+   as the `VORTEX_DEPLOY_SSH_PRIVATE_KEY` secret, for deployments. With
+   separate keys, use the deployment key.
 3. On Lagoon, add the private key as the `VORTEX_FETCH_DB_SSH_PRIVATE_KEY`
    secret too, for database fetches. With separate keys, use the read-only
    key. Acquia fetches the database through the Acquia Cloud API, so it
@@ -305,9 +304,9 @@ To set up CircleCI:
 2. Add your repository as a project. CircleCI detects the
    [`.circleci/`](https://github.com/drevops/vortex/blob/main/.circleci/)
    config and builds every push from then on.
-3. Under **Project Settings > SSH Keys**, add the private key from
-   [step 5](#5-create-an-ssh-key-for-deployments). With separate keys, add
-   both private keys.
+3. If you created keys in [step 5](#5-create-an-ssh-key-for-deployments),
+   add the private key under **Project Settings > SSH Keys**. With separate
+   keys, add both private keys. Otherwise, skip to step 7.
 4. Copy the fingerprint that CircleCI generates for each key you added.
 5. Set the fingerprints in the `aliases` list at the top of
    [`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml):
