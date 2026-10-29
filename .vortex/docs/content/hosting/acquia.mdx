@@ -95,13 +95,11 @@ blank field in the Acquia UI counts as empty. `purge-cache.sh` and both copy
 hooks require `VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET`, so set both in
 the Acquia UI before the first deployment.
 
-`purge-cache.sh` purges the domains listed in `hooks/library/domains.txt`.
-The installer writes your domain there as `$TARGET_ENV_REMAP.<domain>`. Add
-a line for every other domain the site serves.
-
-`$TARGET_ENV_REMAP` expands to `dev` on `dev`, `stage` on `test` and
-`test2` on `test2`. On `prod`, the prefix and its dot are removed. Any
-other environment, including on-demand ones, purges nothing.
+`purge-cache.sh` purges every domain attached to the environment, on-demand
+environments included. It reads the list from the Acquia Cloud API, so it
+covers the Acquia domain and every custom domain or sub-domain. It skips
+wildcard domains such as `*.example.com`. Each purge clears Varnish and the
+Platform CDN when it's enabled.
 
 `notify-deployment.sh` builds the notification URL from Acquia's
 `AH_SITE_NAME` and `AH_REALM` variables:
@@ -217,10 +215,7 @@ default environments, so set them for a manual run:
   (the database name).
 - `copy-files`: `VORTEX_TASK_COPY_FILES_ACQUIA_SRC` and
   `VORTEX_TASK_COPY_FILES_ACQUIA_DST`.
-- `purge-cache`: `VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV`, plus
-  `VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE` when the domain list isn't
-  `domains.txt` in the current directory (the hook sets it to
-  `hooks/library/domains.txt`).
+- `purge-cache`: `VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV`.
 
 For example, to copy the production database into `dev`, run the following
 command from the project root:

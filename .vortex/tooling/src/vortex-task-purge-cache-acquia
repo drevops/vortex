@@ -9,7 +9,7 @@
 # To create a Cloud API token, go to
 # Acquia Cloud UI -> Account -> API tokens -> Create Token
 #
-# @see https://cloudapi-docs.acquia.com/#/Environments/postEnvironmentsDomainsClearVarnish
+# @see https://cloudapi-docs.acquia.com/#/Environments/postEnvironmentsClearCaches
 #
 # shellcheck disable=SC1090,SC1091
 
@@ -30,7 +30,10 @@ VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME="${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NA
 # An environment name to purge cache for.
 VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV="${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV:-}"
 
-# File with a list of domains that should be purged.
+# File with a list of domains to limit the purge to.
+#
+# When the file does not exist, all domains attached to the environment are
+# purged.
 VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE="${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE:-domains.txt}"
 
 # Number of status retrieval retries. If this limit reached and task has not
@@ -60,6 +63,23 @@ extract_json_value() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
+# Wildcard entries are not hostnames, so the purge endpoint cannot take them.
+extract_json_hostnames() {
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); foreach (\$data['_embedded']['items'] ?? [] as \$item) { if (!empty(\$item['hostname']) && empty(\$item['flags']['wildcard']) && strpos(\$item['hostname'], '*') === FALSE) { print \$item['hostname'] . PHP_EOL; } }"
+}
+
+in_list() {
+  local needle="${1}"
+  shift
+  local item
+  for item in "$@"; do
+    if [ "${item}" = "${needle}" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 info "Started cache purging in Acquia."
@@ -68,7 +88,6 @@ info "Started cache purging in Acquia."
 [ -z "${VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET}" ] && fail "Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
 [ -z "${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME}" ] && fail "Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME or VORTEX_ACQUIA_APP_NAME."
 [ -z "${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV}" ] && fail "Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV."
-[ -z "${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}" ] && fail "Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE."
 [ -z "${VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES}" ] && fail "Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES."
 [ -z "${VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL}" ] && fail "Missing required value for VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL."
 
@@ -111,53 +130,91 @@ env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_val
 [ -z "${env_id}" ] && fail "Unable to retrieve environment ID for \"${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV}\". API response: ${envs_json}"
 pass "Retrieved environment ID."
 
+task "Retrieving domains attached to ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment."
+domains_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/domains")
+[ "${VORTEX_DEBUG-}" = "1" ] && note "Domains API response: ${domains_json}"
+
+if echo "${domains_json}" | grep -q '"error"'; then
+  fail "Unable to retrieve domains attached to ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment. API response: ${domains_json}"
+fi
+
+env_domains=()
+while IFS= read -r domain; do
+  if [ -n "${domain}" ]; then
+    env_domains+=("${domain}")
+  fi
+done < <(echo "${domains_json}" | extract_json_hostnames)
+pass "Retrieved ${#env_domains[@]} domains attached to ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment."
+
 task "Compiling a list of domains."
 
-target_env="${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV}"
 domain_list=()
-while read -r domain; do
-  # TARGET_ENV_REMAP maps the target env to the sub-domain prefix based on
-  # the UI name.
-  TARGET_ENV_REMAP="${target_env}"
-  # Strip placeholder for PROD environment.
-  if [ "${target_env}" = "prod" ]; then
-    domain="${domain//\$TARGET_ENV_REMAP./}"
-    domain="${domain//\$TARGET_ENV./}"
-  fi
+if [ "${#env_domains[@]}" -gt 0 ] && [ -f "${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}" ]; then
+  note "Limiting the purge to domains listed in ${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}."
 
-  # Re-map 'test' to 'stage' as seen in UI.
-  if [ "${target_env}" = "test" ]; then
-    TARGET_ENV_REMAP=stage
-  fi
+  # Placeholders resolve to the sub-domain prefix shown in the Acquia UI.
+  target_env="${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV}"
+  target_env_remap=""
+  case "${target_env}" in
+    dev | test2) target_env_remap="${target_env}" ;;
+    test) target_env_remap="stage" ;;
+  esac
 
-  # Disable replacement for unknown environments.
-  if [ "${target_env}" != "dev" ] && [ "${target_env}" != "test" ] && [ "${target_env}" != "test2" ] && [ "${target_env}" != "prod" ]; then
-    TARGET_ENV_REMAP=""
-  fi
+  while IFS= read -r domain || [ -n "${domain}" ]; do
+    domain="${domain#"${domain%%[![:space:]]*}"}"
+    domain="${domain%"${domain##*[![:space:]]}"}"
 
-  if [ -n "${TARGET_ENV_REMAP}" ]; then
-    # Interpolate variables in domain name.
-    domain="$(eval echo "${domain}")"
+    if [ -z "${domain}" ] || [ "${domain:0:1}" = "#" ]; then
+      continue
+    fi
+
+    # Production domains carry no prefix, so the placeholder and its dot are
+    # removed.
+    if [ "${target_env}" = "prod" ]; then
+      domain="${domain//\$TARGET_ENV_REMAP./}"
+      domain="${domain//\$TARGET_ENV./}"
+    fi
+
+    if [[ ${domain} == *\$TARGET_ENV* ]]; then
+      if [ -z "${target_env_remap}" ]; then
+        note "Skipping domain ${domain} as its placeholder has no value for ${target_env} environment."
+        continue
+      fi
+
+      domain="${domain//\$TARGET_ENV_REMAP/${target_env_remap}}"
+      domain="${domain//\$TARGET_ENV/${target_env}}"
+    fi
+
+    if ! in_list "${domain}" "${env_domains[@]}"; then
+      note "Warning: Skipping domain ${domain} as it is not attached to ${target_env} environment."
+      continue
+    fi
+
+    if [ "${#domain_list[@]}" -gt 0 ] && in_list "${domain}" "${domain_list[@]}"; then
+      continue
+    fi
+
     domain_list+=("${domain}")
-  fi
-done <"${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}"
+  done <"${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}"
+elif [ "${#env_domains[@]}" -gt 0 ]; then
+  domain_list=("${env_domains[@]}")
+fi
 
 pass "Compiled a list of ${#domain_list[@]} domains."
 
 if [ "${#domain_list[@]}" -gt 0 ]; then
   # The Acquia API aborts a batched purge when any domain fails, so caches
-  # are cleared per domain and a missing domain is not a failure.
+  # are cleared per domain.
   for domain in "${domain_list[@]}"; do
     task "Purging cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
-    task_status_json=$(curl -X POST -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d "{\"domains\":[\"${domain}\"]}" "https://cloud.acquia.com/api/environments/${env_id}/domains/actions/clear-varnish")
+    task_status_json=$(curl -X POST -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d "{\"domains\":[\"${domain}\"]}" "https://cloud.acquia.com/api/environments/${env_id}/actions/clear-caches")
     notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href") || true
 
-    # A missing domain yields an empty notification URL and is skipped
-    # without a failure.
+    # A rejected purge yields an empty notification URL.
     if [ -z "${notification_url}" ]; then
-      note "Warning: Unable to purge cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain} as it does not exist."
+      note "Warning: Unable to purge cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}. API response: ${task_status_json}"
       pass "Completed cache purging for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
-      break
+      continue
     fi
 
     printf "       Checking task status: "
