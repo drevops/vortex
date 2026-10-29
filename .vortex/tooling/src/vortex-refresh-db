@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+##
+# Refresh the database export from a freshly fetched database.
+#
+# Provisions the site from the fetched database and exports the database to
+# the storage the project uses: a dump file or a container image.
+#
+# With database-in-image storage and a base image set in
+# VORTEX_DB_IMAGE_BASE, the database is imported into the base image, so the
+# exported image is built on the base image and not on the fetched image.
+#
+# Every variable of the calling environment is passed to the provisioning in
+# the 'cli' container, so the script is intended to run in CI.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Database source.
+VORTEX_FETCH_DB_SOURCE="${VORTEX_FETCH_DB_SOURCE:-url}"
+
+# Container image with the database (database-in-image storage).
+VORTEX_DB_IMAGE="${VORTEX_DB_IMAGE:-}"
+
+# Base container image to import the database into.
+#
+# Applies to database-in-image storage only. When empty, the database is
+# exported from the fetched container image.
+VORTEX_DB_IMAGE_BASE="${VORTEX_DB_IMAGE_BASE:-}"
+
+# Directory with database dump file.
+VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+# shellcheck disable=SC2043
+for cmd in docker; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
+
+info "Started database refresh."
+
+db_file="${VORTEX_DB_DIR}/db.sql"
+db_file_cli="/app/${VORTEX_DB_DIR#./}/db.sql"
+
+"$(dirname "${BASH_SOURCE[0]}")/vortex-login-container-registry"
+
+# The value of VORTEX_DB_IMAGE passed to the provisioning. An empty value
+# makes the provisioning import the dump file.
+provision_db_image="${VORTEX_DB_IMAGE}"
+
+if [ -n "${VORTEX_DB_IMAGE}" ] && [ -n "${VORTEX_DB_IMAGE_BASE}" ]; then
+  if [ "${VORTEX_FETCH_DB_SOURCE}" = "container_registry" ]; then
+    task "Exporting the database from the ${VORTEX_DB_IMAGE} image to file ${db_file}."
+    docker compose up --detach
+    sleep 15
+    docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/vortex-export-db-file db.sql
+    mkdir -p "${VORTEX_DB_DIR}"
+    docker compose --progress quiet cp -L "cli:${db_file_cli}" "${db_file}"
+    docker compose rm --stop --force database
+    pass "Exported the database from the ${VORTEX_DB_IMAGE} image to file ${db_file}."
+  fi
+
+  VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="${VORTEX_DB_IMAGE_BASE}" "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db-container-registry"
+
+  # The 'database' service image is already built on the fetched image when
+  # the database was exported from it.
+  if [ "${VORTEX_FETCH_DB_SOURCE}" = "container_registry" ]; then
+    task "Rebuilding the database service on the ${VORTEX_DB_IMAGE_BASE} base image."
+    docker compose build database
+    pass "Rebuilt the database service on the ${VORTEX_DB_IMAGE_BASE} base image."
+  fi
+
+  provision_db_image=""
+fi
+
+task "Starting the stack."
+docker compose up --detach
+sleep 15
+pass "Started the stack."
+
+if [ -f "${db_file}" ]; then
+  task "Copying database dump file ${db_file} into the cli container."
+  docker compose exec -T cli mkdir -p "$(dirname "${db_file_cli}")"
+  docker compose --progress quiet cp -L "${db_file}" "cli:${db_file_cli}"
+  pass "Copied database dump file ${db_file} into the cli container."
+fi
+
+env_args=()
+for name in $(compgen -e); do
+  [ "${name}" = "VORTEX_DB_IMAGE" ] && continue
+  env_args+=(-e "${name}")
+done
+
+docker compose exec "${env_args[@]}" -e "VORTEX_DB_IMAGE=${provision_db_image}" -e VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 -T cli ./vendor/bin/vortex-provision
+
+# Database-in-image storage exports the image archive instead of the dump.
+if [ -n "${VORTEX_DB_IMAGE}" ]; then
+  rm -f "${db_file}"
+fi
+
+"$(dirname "${BASH_SOURCE[0]}")/vortex-export-db" db.sql
+
+if [ -z "${VORTEX_DB_IMAGE}" ] && docker compose exec -T cli test -f "${db_file_cli}"; then
+  task "Copying database dump file ${db_file} from the cli container."
+  docker compose --progress quiet cp -L "cli:${db_file_cli}" "${db_file}"
+  pass "Copied database dump file ${db_file} from the cli container."
+fi
+
+pass "Finished database refresh."
