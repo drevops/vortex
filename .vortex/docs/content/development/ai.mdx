@@ -12,8 +12,9 @@ lives.
 
 This page is for developers who work on a **Vortex** project with an AI
 coding agent such as Claude Code. It explains what each instruction file
-gives the agent, how to add skills of your own and how to tune automated
-code review.
+gives the agent and how to review code with the shipped `review-code`
+skill. It also covers adding skills of your own and tuning automated code
+review.
 
 The installer adds the instruction files unless you answer no to its
 **Provide AI agent instructions?** prompt. Answering no leaves out the
@@ -106,6 +107,51 @@ installer removes those entries, so your project gets only the
 
 Personal, machine-local settings belong in `.claude/settings.local.json`,
 which Git ignores.
+
+## Review code
+
+The `review-code` skill in `.claude/skills/review-code/` reviews a change
+on your machine before a teammate sees it. It reads the code and reports
+findings. It doesn't edit files or post to GitHub.
+
+Ask your agent for a review in either of these forms:
+
+- "Review my branch" reviews the current branch against the default
+  branch. The review includes uncommitted and untracked files.
+- "Review https://github.com/your-org/your-site/pull/123" reviews a pull
+  request without checking out its branch. The skill reads it with the
+  GitHub CLI, so `gh` must be installed and signed in.
+
+In Claude Code, you can also run `/review-code` with the same argument.
+
+The review checks the change against 3 sources, in this order:
+
+1. `AGENTS.md`, the files in `docs/`, and any `AGENTS.md` or `CLAUDE.md`
+   in a directory the change touches. These record your project's
+   decisions and win over the other 2 sources.
+2. `.claude/skills/review-code/checklist.md`, the team's review checklist.
+   It covers Drupal security, Drupal APIs, caching, configuration and
+   updates, tests, and front-end code.
+3. General engineering judgement.
+
+The review skips anything `ahoy lint` already enforces. It sorts findings
+into **Critical**, **Important**, and **Minor**, points each one at a file
+and line, and ends with a verdict: **Ready to merge**, **Ready after
+fixes**, or **Needs work**.
+
+### Adapt the review to your team
+
+Edit the file that owns the rule you want to change, then commit it:
+
+| To change | Edit |
+|---|---|
+| What the review checks | `.claude/skills/review-code/checklist.md` |
+| A project rule the review enforces | `AGENTS.md` or the matching file in `docs/` |
+| The procedure or the report format | `.claude/skills/review-code/SKILL.md` |
+
+For example, to stop the review flagging `\Drupal::` calls in a legacy
+module, record that decision in `AGENTS.md`. The review reads it on every
+run and doesn't flag what it allows.
 
 ## Custom skills
 
