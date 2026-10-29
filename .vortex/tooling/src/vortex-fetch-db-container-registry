@@ -73,8 +73,8 @@ if [ -n "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}" ]; then
   "$(dirname "${BASH_SOURCE[0]}")/vortex-login-container-registry"
 
   task "Tagging base image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE} as database container image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}."
-  docker pull "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}"
-  docker tag "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}" "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}"
+  docker pull "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}" || fail "Unable to pull base image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}."
+  docker tag "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}" "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" || fail "Unable to tag base image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE} as database container image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}."
   pass "Tagged base image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE} as database container image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}."
 
   pass "Finished database data container image fetch."
@@ -95,11 +95,10 @@ else
   note "Not found ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
 fi
 
-task "Fetching ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
-
 "$(dirname "${BASH_SOURCE[0]}")/vortex-login-container-registry"
 
-docker pull "${VORTEX_FETCH_DB_CONTAINER_REGISTRY}/${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}"
+task "Fetching ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
+docker pull "${VORTEX_FETCH_DB_CONTAINER_REGISTRY}/${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" || fail "Unable to fetch ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
 pass "Fetched ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
 
 pass "Finished database data container image fetch."
