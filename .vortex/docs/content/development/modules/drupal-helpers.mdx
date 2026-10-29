@@ -5,22 +5,22 @@ sidebar_position: 3
 
 # Drupal helpers
 
-Deploy hooks and update scripts keep doing the same jobs: create a taxonomy
-tree, add menu links, place a block, delete a field, import redirects from
-a CSV file. [Drupal helpers](https://www.drupal.org/project/drupal_helpers)
-turns each of those jobs into a method on a static facade, so a deploy hook
-reads as a short list of changes instead of entity API boilerplate.
+Deploy hooks and update scripts often create taxonomy trees, place blocks
+or import redirects from a CSV file.
+[Drupal helpers](https://www.drupal.org/project/drupal_helpers) turns each
+of those jobs into a method on a static facade. A deploy hook
+then reads as a short list of changes instead of entity API boilerplate.
 
 This page is for developers writing deploy hooks on a project built from
-**Vortex**. It shows how to call the helpers, which facades exist, and how
+**Vortex**. It shows how to call the helpers, which facades exist and how
 to spread a large job across several deploy hook passes. The [module
 documentation](https://git.drupalcode.org/project/drupal_helpers/-/blob/HEAD/README.md)
 is the reference for its full API.
 
-**Vortex** requires the module but doesn't install it during provisioning.
-Only the `ys_demo` demo module installs it, as a dependency. Declare the
-same dependency in the `.info.yml` file of every module whose code calls
-the helpers, so they stay available without the demo module:
+**Vortex** requires the module, and only the `ys_demo` demo module installs
+it, as a dependency. Declare the same dependency in the `.info.yml` file of
+every module whose code calls the helpers, so they stay available without
+the demo module:
 
 ```yaml
 dependencies:
@@ -116,12 +116,13 @@ function ys_base_deploy_update_pages(array &$sandbox): ?string {
 
 Without a sandbox, both methods process every item in 1 pass. The
 `batchEntity()` method builds the entity query itself from the type, the
-bundle, and optional conditions, while `batch()` takes any array of items.
+bundle and optional conditions. The `batch()` method takes any array of
+items.
 
-Both return `NULL` while batches remain, and the completion message, such as
-`Processed 120 node entities.`, after the last one finishes. That's what a
-deploy hook returns for Drush to print. Each pass handles 50 items by
-default. To change that, pass a second argument to the facade, for example
+Both methods return `NULL` while batches remain. After the last batch, they
+return the completion message for Drush to print, such as
+`Processed 120 node entities.` Each pass handles 50 items by default. To
+change the batch size, pass a second argument to the facade, for example
 `Helper::entity($sandbox, 100)`.
 
 ## Example in Vortex
@@ -131,5 +132,5 @@ The
 file uses `Helper::menu()` to add a `Pages` link to the main navigation
 during deployment. It looks for the link with `findItem()` first, as an
 extra guard. In its default safe mode, `createTree()` already matches links
-by title within their parent and creates only the missing ones, so running
-the hook again doesn't create a duplicate.
+by title within their parent and creates only the missing ones. Running the
+hook again therefore creates no duplicate.

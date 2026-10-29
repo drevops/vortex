@@ -5,7 +5,7 @@ sidebar_position: 6
 # Release
 
 This page is for the maintainers who cut **Vortex** releases. It covers the
-version numbers, the branches, and the tags, and it walks through the
+version numbers, the branches and the tags. It then walks through the
 checklist that ends with a published release. A project _built from_
 **Vortex** has its own release flow; see
 [Releasing](../../releasing/README.mdx).
@@ -34,8 +34,7 @@ These versions show how the parts change:
 
 ### Version numbering guidelines
 
-When you create a new release, pick the part to bump from the changes it
-contains:
+For a new release, pick the part to bump from the changes it contains:
 
 - For incompatible breaking changes, bump **MAJOR**:
   - Removing features or configuration options
@@ -50,31 +49,30 @@ contains:
   - Fixing bugs or errors
   - Security patches
   - Documentation updates
-  - Minor improvements that don't change what a feature does
+  - Minor improvements that keep what a feature does
 
 ### Branch strategy
 
 The repository uses these branches:
 
-- **`main`** - the current major version under active development, the one
-  that the `VORTEX_CURRENT_MAJOR` repository variable names
+- **`main`** - the current major version under active development, the
+  major that the `VORTEX_CURRENT_MAJOR` repository variable names
 - **`2.x`** - a development branch for an upcoming major version, ahead of
-  `main` (future majors follow the same pattern: `3.x`, `4.x`, and so on)
+  `main`. Later majors follow the same pattern: `3.x`, `4.x` and later.
 - **`1.x`** - a maintenance branch for a superseded major version, behind
-  `main` (for example `1.x` after `main` holds `2.x`)
+  `main`, for example `1.x` after `main` holds `2.x`
 
-On the publishing side, promoting a new major version is a single action:
-set the `VORTEX_CURRENT_MAJOR` repository variable to its number. It's a
-GitHub Actions variable on the `drevops/vortex` repository, under
+To promote a new major version on the published site, set the
+`VORTEX_CURRENT_MAJOR` repository variable to its number. It's a GitHub
+Actions variable on the `drevops/vortex` repository, under
 **Settings > Secrets and variables > Actions**, on the **Variables** tab.
 The documentation default and the installer's bare `/install` URL both
-follow it, while the per-major docs and the `/v{N}/install` pins are always
+follow it. The per-major docs and the `/v{N}/install` pins are always
 published.
 
-The workflows read the variable when they run, so changing it doesn't
-republish anything. The next `Vortex - Release docs` run applies it to the
-live site and `/install`; run that workflow by hand to publish straight
-away.
+The workflows read the variable when they run, so changing it republishes
+nothing. The next `Vortex - Release docs` run applies it to the live site
+and `/install`. To publish straight away, run that workflow by hand.
 
 When `main` advances to a new major version, the branches change like this:
 
@@ -94,16 +92,16 @@ Flow](../../releasing/gitflow.mdx).
 
 ## Tagging
 
-A release always produces a **Vortex** tag, and also a
-`drevops/vortex-tooling` tag when the tooling changed. When you create both,
-their order is fixed: tag the tooling first, then tag **Vortex**.
+A release always produces a **Vortex** tag. When the tooling changed, it
+also produces a `drevops/vortex-tooling` tag, and the order is fixed: tag
+the tooling first, then tag **Vortex**.
 
 The 2 tags belong to these parts:
 
 - **`drevops/vortex-tooling`** - the shipped tooling package, split from
   `.vortex/tooling/`. A workflow mirrors its branches to the package
-  repository automatically, but you create its tags by hand as part of
-  cutting a release.
+  repository automatically. You create its tags by hand as part of cutting
+  a release.
 - **Vortex** - the template itself.
 
 The following rules apply to every release:
@@ -117,18 +115,18 @@ The following rules apply to every release:
   release, create and publish the new `drevops/vortex-tooling` tag _before_
   tagging **Vortex**.
 - **Vortex** pins its tooling requirement to the tagged version's minor.
-  When you tag the tooling for a release, require that freshly tagged
-  `drevops/vortex-tooling` version in root `composer.json` with a tilde
-  constraint (for example `~1.3.0`). The tagged version is the lower bound
-  and the next minor is the exclusive upper bound. Later patch releases
-  within the same minor are still accepted, but the requirement can't float
-  onto a newer minor that was never published with the release.
+  Require the freshly tagged `drevops/vortex-tooling` version in root
+  `composer.json` with a tilde constraint, for example `~1.3.0`. The tagged
+  version is the lower bound, and the next minor is the exclusive upper
+  bound. Later patch releases within the same minor still match. The
+  requirement can't float onto a newer minor that wasn't published with
+  the release.
 
 ## Release process
 
 The release checklist takes the template from its previous release to a
-published tag. Follow it in order: later steps regenerate files from the
-changes that earlier steps make.
+published tag. Follow it in order, because later steps regenerate files
+from the changes that earlier steps make.
 
 ### Before you begin
 
@@ -137,12 +135,12 @@ Make sure you have the following:
 - Push access to `drevops/vortex`, and to `drevops/vortex-tooling` when the
   tooling changed
 - The Renovate CLI, with a GitHub token that can write to `drevops/vortex`
-- Ahoy, Git, Composer, Node.js with npm and Yarn, and curl on your `PATH`,
+- Ahoy, Git, Composer, Node.js (with npm and Yarn) and curl on your `PATH`,
   because the steps run them on your machine
 - PHP 8.3 or later on your machine, for Composer and the PHP scripts that
   the steps run
-- Docker, for the `cli` container, `ahoy update-docs`, the snapshot run,
-  and the video recordings
+- Docker, for the `cli` container, `ahoy update-docs`, the snapshot run and
+  the video recordings
 - The `.vortex/` dependencies, installed with `ahoy install` from
   `.vortex/`
 - The recording tools that [Documentation > Documentation
@@ -150,7 +148,7 @@ Make sure you have the following:
 
 ### Cut the release
 
-To release a new version of **Vortex**, follow these steps:
+To release a new version of **Vortex**:
 
 1. To update all dependencies outside of the schedule, run Renovate
    locally:
@@ -163,9 +161,10 @@ To release a new version of **Vortex**, follow these steps:
    - After bumping the `uselagoon/solr-9-drupal` image, update
      `solr.luceneMatchVersion` in
      `.docker/config/solr/config-set/solrcore.properties` to match the
-     Lucene version bundled in that image (shown by the `lucene-core-*.jar`
-     filename inside the image). The value in `search_api_solr`'s jump-start
-     config-set lags the image, so don't copy it verbatim.
+     Lucene version bundled in that image. The `lucene-core-*.jar`
+     filename inside the image shows that version. The value in
+     `search_api_solr`'s jump-start config-set lags the image, so don't
+     copy it verbatim.
 3. Check that the `@see` links are working.
 4. Get the PHP version and the PHP version ID that the `cli` container
    runs:
@@ -202,8 +201,8 @@ To release a new version of **Vortex**, follow these steps:
     pin that this list misses. Without a new tooling tag, keep the existing
     tag constraint.
 11. In `web/themes/custom/your_site_theme/`, update the minor versions of
-    the dependencies in `package.json`. Use npm, not Yarn: the theme keeps
-    a `package-lock.json`.
+    the dependencies in `package.json`. Use npm for this step, because the
+    theme keeps a `package-lock.json`.
 12. Update `drevops/ci-runner` to its latest version, both the tag and the
     digest, in every file that pins it by hand:
     - `.circleci/config.yml`
@@ -219,8 +218,8 @@ To release a new version of **Vortex**, follow these steps:
       `v26.8.1`, to force a cache reset.
 14. Run `cd .vortex && ahoy lint-ci-fix` to regenerate
     `.circleci/vortex-test-common.yml` and
-    `.github/workflows/vortex-test-didi.yml`, which carry copies of the
-    runner image and the cache version from `.circleci/config.yml` and
+    `.github/workflows/vortex-test-didi.yml`. Both files carry copies of
+    the runner image and the cache version from `.circleci/config.yml` and
     `.github/workflows/build-test-deploy.yml`.
 15. Update the documentation with `cd .vortex && ahoy update-docs`.
 16. Commit the changes.

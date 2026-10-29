@@ -12,26 +12,26 @@ tool as follows:
 
 Gherkin Lint checks Behat feature files for the slips that make a test
 suite harder to read and maintain. It flags inconsistent indentation,
-duplicated feature or scenario names, empty scenarios, duplicate tags, and
+duplicated feature or scenario names, empty scenarios, duplicate tags and
 trailing spaces. **Vortex** comes with [Gherkin Lint
 configuration](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
 for Behat tests.
 
 This page is for developers who write Behat feature files. It shows how to
-lint them, which rules the shipped configuration changes, and how to turn a
-rule off.
+lint them and how to turn a rule off. It also lists the rules the shipped
+configuration changes.
 
 Gherkin Lint ships with Behat. If you deselect Behat in the
-**Development tools** prompt, the installer removes Gherkin Lint, its
-`gherkinlint.json` configuration file, and its CI step.
+**Development tools** prompt, the installer removes Gherkin Lint,
+`gherkinlint.json` and the Gherkin Lint CI step.
 
 ## Usage
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-To lint the feature files in `tests/behat/features`, run the following
-command:
+To lint the feature files in `tests/behat/features`, run 1 of the following
+commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -58,22 +58,22 @@ rules](https://github.com/dantleech/gherkin-lint-php/blob/master/docs/rules.md).
 
 All global configuration lives in the
 [`gherkinlint.json`](https://github.com/drevops/vortex/blob/main/gherkinlint.json)
-file. Gherkin Lint enables every rule the file doesn't mention, and the
-values in the file override the defaults of the rules it lists.
+file. Gherkin Lint enables every rule by default, and the file overrides
+the settings of the rules it lists.
 
-The shipped file sets the `indentation` rule to 2 spaces per level and moves
-literal blocks, the `"""` doc strings under a step, from the default level 2
-to level 3. The rule checks the following lines:
+The shipped file sets the `indentation` rule to 2 spaces per level. It also
+moves literal blocks, the `"""` doc strings under a step, from the default
+level 2 to level 3. The rule checks the following lines:
 
 | Line | Level | Spaces |
 |------|-------|--------|
 | `Feature:` | 0 | 0 |
-| `Rule:`, `Background:`, `Scenario:`, and `Scenario Outline:` | 1 | 2 |
+| `Rule:`, `Background:`, `Scenario:` and `Scenario Outline:` | 1 | 2 |
 | Scenario steps and `Examples:` | 2 | 4 |
-| Step table rows, the `Examples` header row, and the opening `"""` of a doc string | 3 | 6 |
+| Step table rows, the `Examples` header row and the opening `"""` of a doc string | 3 | 6 |
 
 A doc string therefore starts 6 spaces in, 2 spaces deeper than its step.
-The rule doesn't check any other line, so it skips the following:
+The rule checks only those lines and skips the following:
 
 - Tags
 - The steps under `Background:`
@@ -83,7 +83,7 @@ The rule doesn't check any other line, so it skips the following:
 
 The file also turns off the following rules:
 
-- `keyword-order` - the order of the `Given`, `When`, and `Then` steps in
+- `keyword-order` - the order of the `Given`, `When` and `Then` steps in
   a scenario
 - `no-homogenous-tags` - a tag on every scenario that belongs at the
   feature level
@@ -118,14 +118,13 @@ line. The comment can sit before or after the feature's tags:
 # @gherkinlint-disable-rule keyword-order, someother-rule
 ```
 
-In the example, the second name is a placeholder, and the shipped file
-already turns `keyword-order` off, so replace both with the rules you need.
-Separate the rule names with commas. Gherkin Lint reads the annotation from
-every comment in the file and applies it to the whole file.
+The second rule name in the example is a placeholder. The shipped file
+already turns `keyword-order` off. Replace both names with the rules you
+need, separated by commas. Gherkin Lint reads the annotation from every
+comment in the file and applies it to the whole file.
 
-Gherkin Lint doesn't support ignoring all rules within a file, ignoring code
-blocks, or ignoring individual lines. Per-file rule suppression is the only
-inline mechanism.
+Per-file rule suppression is the only inline mechanism. Gherkin Lint has no
+comment that ignores every rule in a file, a block or a single line.
 
 ## Continuous integration
 

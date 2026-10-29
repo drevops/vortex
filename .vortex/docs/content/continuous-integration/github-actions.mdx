@@ -6,23 +6,23 @@ sidebar_position: 2
 
 [GitHub Actions](https://github.com/features/actions) is the continuous
 integration and delivery service built into GitHub, so your pipeline runs
-right next to the repository and its pull requests. **Vortex** offers it for
-projects hosted on GitHub and ships the pipeline in
-`.github/workflows/build-test-deploy.yml`, with the security checks in
+next to the repository and its pull requests. **Vortex** offers it for
+projects hosted on GitHub. It ships the pipeline in
+`.github/workflows/build-test-deploy.yml` and the security checks in
 `.github/workflows/audit.yml`.
 
 This page is for the lead or DevOps engineer who maintains a **Vortex**
 project's pipeline on GitHub Actions. It shows how to change the parts of
 the pipeline that are specific to GitHub Actions:
 
-- Trigger branches, the security audit workflow, and the nightly schedule
+- Trigger branches, the security audit workflow and the nightly schedule
 - Runner size and disk space
 - Test parallelism
 - Manual deployments and terminal access for debugging
-- Build timeouts, the coverage threshold, and test results
+- Build timeouts, the coverage threshold and test results
 
-The jobs, the database cache, and the split of tests across containers work
-the same on both providers; see the
+The jobs, the database cache and the split of tests across containers work
+the same on both providers. See the
 [Continuous integration overview](./README.mdx). For GitHub's own reference,
 see the [GitHub Actions documentation](https://docs.github.com/en/actions).
 
@@ -37,13 +37,14 @@ in the Installation guide and select **GitHub Actions**.
 
 The following sections change how the pipeline runs on GitHub Actions. Most
 of them edit `.github/workflows/build-test-deploy.yml` or set a repository
-variable under **Settings → Secrets and variables → Actions → Variables**.
+variable under **Settings > Secrets and variables > Actions > Variables**.
 
 ### Update trigger branches
 
-The workflow builds pushes to the branches listed in `on.push.branches`, and
-pull requests that target the branches listed in `on.pull_request.branches`.
-Both lists live in `.github/workflows/build-test-deploy.yml`.
+The workflow builds pushes to the branches listed in `on.push.branches`. It
+also builds pull requests that target the branches listed in
+`on.pull_request.branches`. Both lists live in
+`.github/workflows/build-test-deploy.yml`.
 
 The workflow builds direct pushes and merges to these branches:
 
@@ -66,37 +67,36 @@ It builds pull requests that target these branches:
 
 The pull request list matches the branch that a pull request targets. A
 pull request from `feature/login` into `develop` builds because `develop` is
-listed, and the `feature/**` and `bugfix/**` entries cover pull requests
-that target another feature or bugfix branch.
+listed. The `feature/**` and `bugfix/**` entries cover pull requests that
+target another feature or bugfix branch.
 
 Short-lived `feature/**` and `bugfix/**` branches build only through their
 pull requests, because their pushes aren't in the push list. Tag pushes
 trigger the workflow too (`on.push.tags` is `'*'`), and the `deploy` job
 deploys the tag. Pull requests opened from a `project/**` branch skip every
-job, since pushes to that branch already build it.
+job, because pushes to that branch already build it.
 
-Add a pattern to both lists when pushes to its branches should build, and
-so should pull requests that target them. A pattern in
-`on.pull_request.branches` alone builds only pull requests that target its
-branches, as the shipped `feature/**` and `bugfix/**` entries do.
+To build both pushes to a branch and the pull requests that target it, add
+its pattern to both lists. A pattern in `on.pull_request.branches` alone
+builds only pull requests that target its branches, as the shipped
+`feature/**` and `bugfix/**` entries do.
 
 To add or remove branches:
 
 1. In `.github/workflows/build-test-deploy.yml`, edit the
    `on.push.branches` and `on.pull_request.branches` lists.
-2. In `.github/workflows/audit.yml`, make the same change: the
+2. In `.github/workflows/audit.yml`, make the same change. The
    `Security audit` workflow carries the same lists.
-
-Confirm that the next push or pull request on an added branch starts both
-the `Database, Build, Test and Deploy` and `Security audit` workflows on the
-repository's **Actions** tab.
+3. Confirm that the next push or pull request on an added branch starts
+   both the `Database, Build, Test and Deploy` and `Security audit`
+   workflows on the repository's **Actions** tab.
 
 ### Security audit workflow
 
 The security checks live in a second workflow,
 `.github/workflows/audit.yml`. It triggers on the same branches and tags as
-the main workflow, though not on the nightly schedule. To start it on
-demand, use **Actions → Security audit → Run workflow**.
+the main workflow, and skips the nightly schedule. To start it on demand,
+use **Actions > Security audit > Run workflow**.
 
 See [Security audit](./README.mdx#security-audit) for what it runs and how
 to make it block merges.
@@ -104,12 +104,12 @@ to make it block merges.
 ### Update nightly database schedule
 
 A scheduled run downloads a fresh database dump every day at 18:00 UTC
-(`0 18 * * *`) and caches it, so the next day's builds start from it. Only
-the `database` job runs on the
-schedule; `lint`, `build`, and `deploy` skip scheduled runs. The scheduled
-run also turns off the cache fallback and the front-end build. For a project
-that stores its database in a container image, it imports the dump into a
-clean base image and pushes the result to the registry.
+(`0 18 * * *`) and caches it. The next day's builds start from that dump.
+Only the `database` job runs on the schedule, and the `lint`, `build` and
+`deploy` jobs skip it. The scheduled run also turns off the cache fallback
+and the front-end build. For a project that stores its database in a
+container image, it imports the dump into a clean base image. It then
+pushes the result to the registry.
 
 The schedule ships only when the site provisions from a database dump. To
 change when it runs, update the `on.schedule.cron` value in
@@ -128,10 +128,10 @@ only the `database` job.
 ### Change runner size
 
 Every job in `build-test-deploy.yml` and `audit.yml` runs on
-`ubuntu-latest`. For faster builds, switch a job to one of GitHub's [larger
-runners](https://docs.github.com/en/actions/using-github-hosted-runners/using-larger-runners)
-by changing its `runs-on` value. This might affect your GitHub billing. The
-following example sets a larger runner's label:
+`ubuntu-latest`. For faster builds, switch a job to a [larger
+runner](https://docs.github.com/en/actions/using-github-hosted-runners/using-larger-runners)
+by changing its `runs-on` value. A larger runner might raise your GitHub
+bill. The following example sets a larger runner's label:
 
 ```yaml
 runs-on: ubuntu-latest-4-cores  # Options: ubuntu-latest, ubuntu-latest-4-cores, etc.
@@ -143,9 +143,9 @@ provisioning is disk-heavy. See [Runner disk space](#runner-disk-space).
 ### Runner disk space
 
 GitHub-hosted runners start with most of their root volume already in use.
-Measured on 1 `ubuntu-latest` image, preinstalled software occupied 59 GB of
-a 72 GB volume, leaving the job around 13 GB. Pulled container images,
-database dumps, and every file created while provisioning share what's
+On 1 measured `ubuntu-latest` image, preinstalled software occupied 59 GB
+of a 72 GB volume. That left the job around 13 GB. Pulled container images,
+database dumps and every file created during provisioning share what's
 left.
 
 The jobs report the disk state and save space where they can:
@@ -159,8 +159,8 @@ The jobs report the disk state and save space where they can:
 
 #### Reclaim the preinstalled toolchains
 
-The `build` and `database` jobs can remove these preinstalled toolchains,
-which no **Vortex** job uses, before doing anything else:
+The `build` and `database` jobs can remove these preinstalled toolchains
+before doing anything else. No **Vortex** job uses them:
 
 - GHCup, the Haskell toolchain installer
 - Swift
@@ -172,35 +172,33 @@ The `set --` line of the **Free up disk space on the runner** step lists
 their paths on the runner.
 
 In the preceding measurement, the removal freed about 15 GB in around 14
-seconds, taking the job from roughly 13 GB of headroom to 28 GB.
+seconds. The job's headroom grew from roughly 13 GB to 28 GB.
 
 The removal is destructive to the runner for the rest of the job, so it's
 off by default. Leave it off on a project whose workflow runs a step that
-needs any of those toolchains. To turn it on:
-
-- Set the `VORTEX_CI_FREE_DISK_SPACE` variable to `1` in
-  **Settings → Secrets and variables → Actions → Variables**.
+needs any of those toolchains. To turn it on, set the
+`VORTEX_CI_FREE_DISK_SPACE` variable to `1` in
+**Settings > Secrets and variables > Actions > Variables**.
 
 Confirm that the next `build` job runs the
-**Free up disk space on the runner** step instead of skipping it.
+**Free up disk space on the runner** step.
 
 :::note
 
-Every figure here comes from a single runner image, measured once, and
-GitHub reissues that image regularly. Read the **Report disk usage** output
-of a recent run for the current numbers. If the reclaimed amount has
-shrunk, the path list needs revisiting.
+Every figure here comes from a single runner image, measured once. GitHub
+reissues that image regularly. For the current numbers, read the
+**Report disk usage** output of a recent run. If the reclaimed amount has
+shrunk, revisit the path list.
 
 :::
 
 #### Free even more space
 
-With `VORTEX_CI_FREE_DISK_SPACE` enabled, the Android SDK is the single
-largest remaining tree at about 10 GB, but removing it takes around 50
-seconds. That's why it ships commented out in the workflow. To enable it,
-uncomment the following line in the **Free up disk space on the runner**
-step of both the `build` and `database` jobs in
-`.github/workflows/build-test-deploy.yml`:
+With `VORTEX_CI_FREE_DISK_SPACE` turned on, the Android SDK is the largest
+remaining tree, at about 10 GB. Removing it takes around 50 seconds, so it
+ships commented out in the workflow. To turn it on, uncomment the following
+line in the **Free up disk space on the runner** step of both the `build`
+and `database` jobs in `.github/workflows/build-test-deploy.yml`:
 
 ```yaml
 set -- "$@" /host/usr/local/lib/android
@@ -210,23 +208,22 @@ Confirm that the **Report disk usage** output of the next run shows more
 free space than before.
 
 The removal runs through a container that bind-mounts the runner's root
-filesystem. It has to, because the job itself runs in a container and can't
-reach the host's directories directly. For the same reason, the
-general-purpose disk-cleanup actions on the Marketplace have no effect in a
-**Vortex** job.
+filesystem. The job itself runs in a container and can't reach the host's
+directories directly. For the same reason, the general-purpose disk-cleanup
+actions on the Marketplace have no effect in a **Vortex** job.
 
 #### When space still runs out
 
 If a build stops during provisioning without reporting an error, suspect the
-disk and read the **Report disk usage** output. The fix that removes the
-cause is to reduce what has to fit: a sanitized dump or a
-[database container image](./README.mdx#caching-strategy) instead of a full
-dump. A [larger runner](#change-runner-size) also comes with more disk.
+disk and read the **Report disk usage** output. To remove the cause, reduce
+what has to fit: use a sanitized dump or a
+[database container image](./README.mdx#caching-strategy) in place of a
+full dump. A [larger runner](#change-runner-size) also comes with more disk.
 
 ### Change test parallelism
 
 To get through the tests faster, add instances to the `build` job's matrix
-in `.github/workflows/build-test-deploy.yml`, which ships with 2
+in `.github/workflows/build-test-deploy.yml`. It ships with 2
 (`instance: [0, 1]`):
 
 ```yaml
@@ -241,22 +238,22 @@ for more information. Confirm that the next run lists a `build` job for each
 instance, from `build (0)` to `build (3)`.
 
 Every added container that runs Behat also needs a matching `pN` profile in
-`behat.php`; see [Continuous integration > Adding more
+`behat.php`. See [Continuous integration > Adding more
 containers](./README.mdx#adding-more-containers) for the full procedure.
-[Test parallelism](./README.mdx#test-parallelism) also covers how scenarios
-are balanced across containers and how to move a tool onto a different
+[Test parallelism](./README.mdx#test-parallelism) also covers how to balance
+scenarios across containers and how to move a tool onto a different
 container.
 
 ### Manual deployment
 
-You can deploy straight from the GitHub UI, without running the `lint`,
-`database`, or `build` jobs, for example to redeploy a branch or a pull
-request (PR) that has already passed. A manual run of the workflow takes
-these inputs:
+You can deploy from the GitHub UI and skip the `lint`, `database` and
+`build` jobs. Use it, for example, to redeploy a branch or a pull request
+(PR) that has already passed. A manual run of the workflow takes these
+inputs:
 
 | Input           | Description                                                                                    |
 |-----------------|------------------------------------------------------------------------------------------------|
-| `deploy_target` | Branch name (for example, `develop`) or PR reference (for example, `PR-123`, case-insensitive). Left empty, the run builds, tests, and deploys the branch selected in **Use workflow from** |
+| `deploy_target` | Branch name (for example, `develop`) or PR reference (for example, `PR-123`, case-insensitive). Left empty, the run builds, tests and deploys the branch selected in **Use workflow from** |
 | `override_db`   | Override the existing database in the deployment environment                                   |
 | `enable_terminal` | Start a `tmate` session in the `build` job (see [Terminal access for debugging](#terminal-access-for-debugging)) |
 
@@ -275,18 +272,18 @@ To deploy a branch or a pull request manually:
 With `deploy_target` set, every other job skips and only the `deploy` job
 runs. For a PR target, the workflow looks up the pull request's head branch
 and commit SHA with the GitHub CLI. Confirm that the run shows the `deploy`
-job as succeeded and the `lint`, `database`, and `build` jobs as skipped.
+job as succeeded and the `lint`, `database` and `build` jobs as skipped.
 
 With `override_db` checked, the deployment replaces the environment's
-database with a fresh copy taken from the production environment. Only the
+database with a fresh copy from the production environment. Only the
 `lagoon` deployment type acts on it, even when `VORTEX_DEPLOY_TYPES` lists
-other types as well, and only when it redeploys an environment that already
+other types. It acts only when it redeploys an environment that already
 exists.
 
 :::note
 
-Artifact deployments don't work with a manual deploy, because the artifact
-comes from the `build` job, which a manual deploy skips.
+A manual deploy can't ship an artifact deployment. The artifact comes from
+the `build` job, which a manual deploy skips.
 
 :::
 
@@ -310,7 +307,7 @@ you can inspect the failure in place. Confirm that the
 details.
 
 If nobody connects, the action ends the session 10 minutes after the job's
-other steps finish, and the workflow caps the step at 120 minutes. See
+other steps finish. The workflow caps the step at 120 minutes. See
 [action-tmate](https://github.com/mxschmitt/action-tmate) for more
 information.
 
@@ -340,32 +337,31 @@ The `build` job fails when the line coverage that PHPUnit reports falls
 below a threshold.
 
 Set the threshold in the `VORTEX_CI_CODE_COVERAGE_THRESHOLD` variable, under
-**Settings → Secrets and variables → Actions → Variables**. It defaults to
-`90` (percent). Use a whole number: the check multiplies the value in shell
+**Settings > Secrets and variables > Actions > Variables**. It defaults to
+`90` (percent). Use a whole number. The check multiplies the value in shell
 integer arithmetic, so a decimal such as `85.5` breaks the step.
 
 The **Extract code coverage** step also writes the coverage percentage to
 the job summary. On pull requests, the job posts the coverage summary as a
-comment. Each new report replaces the previous one, and the older comment is
-minimized, so the PR timeline stays clean. To turn the comment off, set
+comment. Each new report hides the older comment and posts a fresh comment,
+so the PR timeline stays clean. To turn the comment off, set
 `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
 
 If you chose Codecov as the code coverage provider at install time, the job
-also uploads the coverage reports to Codecov when the `CODECOV_TOKEN` secret
-is set. A failed upload doesn't fail the job.
+also uploads the coverage reports to it. The upload needs the
+`CODECOV_TOKEN` secret, and a failed upload doesn't fail the job.
 
 ### Test results
 
 PHPUnit and Behat results appear as a check on the commit and on its pull
 requests, and in the summary of the workflow run. Each failing test gets an
-annotation with its failure details, on the check and in the pull request's
-**Files changed** tab. You don't have to download artifacts or dig through
-logs to find a failure. The results come from the JUnit reports the test
-tools already write, so there's nothing extra to set up.
+annotation with its failure details. The annotation shows on the check and
+in the pull request's **Files changed** tab. The results come from the
+JUnit reports that the test tools write, so the check needs no extra setup.
 
 Each parallel build instance publishes its own check, named after its index,
 such as `Test results (0)` and `Test results (1)`. To turn publishing off,
 set `VORTEX_CI_TEST_RESULTS_SKIP` to `1` in
-**Settings → Secrets and variables → Actions → Variables**. The full logs,
+**Settings > Secrets and variables > Actions > Variables**. The full logs,
 including the raw reports and screenshots, stay attached to the run as the
 `test-artifacts-<instance>` artifacts.

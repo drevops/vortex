@@ -24,20 +24,19 @@ The [Xdebug website](https://xdebug.org/) describes the tool as follows:
 > Xdebug is an extension for PHP, and provides a range of features to
 > improve the PHP development experience.
 
-**Vortex** comes with Xdebug pre-installed and configured for local
-development thanks to [Lagoon
-images](https://github.com/uselagoon/lagoon-images).
+The [Lagoon images](https://github.com/uselagoon/lagoon-images) that
+**Vortex** builds on install Xdebug and configure it for local development.
 
-Code coverage doesn't need Xdebug. The CLI image also installs PCOV, a
-coverage-only PHP extension, and PHPUnit collects coverage through PCOV
-whenever it's loaded, so tests report coverage with Xdebug turned off.
+The CLI image also installs PCOV, a coverage-only PHP extension. PHPUnit
+collects coverage through PCOV whenever it's loaded, so tests report
+coverage with Xdebug turned off.
 
 ➡️ See [PHPUnit](../testing/phpunit.mdx)
 
 ### Usage
 
 Xdebug is off by default. `ahoy debug` turns it on by recreating the `cli`,
-`php`, and `nginx` containers with `XDEBUG_ENABLE=true`:
+`php` and `nginx` containers with `XDEBUG_ENABLE=true`:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -55,19 +54,17 @@ Xdebug is off by default. `ahoy debug` turns it on by recreating the `cli`,
 
 When it turns Xdebug on, `ahoy debug` prints
 `Enabled debug configuration. Use 'ahoy up' to disable.` If Xdebug is
-already on, it prints
-`Debug configuration is already enabled. Use 'ahoy up' to disable.` and
-changes nothing.
+already on, `ahoy debug` changes nothing and prints
+`Debug configuration is already enabled. Use 'ahoy up' to disable.`
 
-Lagoon images turn Xdebug on only when `XDEBUG_ENABLE` is `true`, in any
-letter case, so a value such as `1` leaves it off.
+The Lagoon images turn Xdebug on only when `XDEBUG_ENABLE` is `true`, in
+any letter case. A value such as `1` leaves Xdebug off.
 
 Xdebug connects back to port `9003`, its default, on `host.docker.internal`.
-Where that name doesn't resolve, such as on Linux, it connects to the
-container's default gateway instead. Make sure your IDE listens on port
-`9003`.
+Where that name doesn't resolve, such as on Linux, Xdebug connects to the
+container's default gateway. Set your IDE to listen on port `9003`.
 
-To turn it off, recreate the containers without the variable:
+To turn Xdebug off, recreate the containers without the variable:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -85,19 +82,21 @@ To turn it off, recreate the containers without the variable:
 
 `XDEBUG_ENABLE` can also come from `.env` or `.env.local`, which Ahoy loads
 before every command. With `XDEBUG_ENABLE=true` in either file, every
-`ahoy up` starts the containers with Xdebug on, so remove the line to turn
-Xdebug off.
+`ahoy up` starts the containers with Xdebug on. To turn Xdebug off, remove
+the line.
 
-`ahoy info` shows whether Xdebug is on at the moment.
+`ahoy info` shows whether Xdebug is on.
 
 ### CLI
 
-While Xdebug is on, a PHP script you run through a shell in the `cli`
-container, such as with `ahoy cli`, starts a debugging session with no
-browser extension. The Lagoon images export `XDEBUG_TRIGGER` in every shell
-session there. They also set `PHP_IDE_CONFIG` to name the server after the
-local development URL, so PhpStorm reuses the path mapping you set for web
-requests.
+While Xdebug is on, a PHP script you run in a shell in the `cli` container
+starts a debugging session with no browser extension. That includes
+scripts you run through `ahoy cli`. The Lagoon images export
+`XDEBUG_TRIGGER` in every shell session in that container.
+
+The Lagoon images also set `PHP_IDE_CONFIG`, which names the server after
+the local development URL. PhpStorm then reuses the path mapping you set
+for web requests.
 
 Drush is the exception you're most likely to hit. Its shell wrapper,
 `vendor/bin/drush`, sets `XDEBUG_MODE=off` before it starts PHP, for
@@ -105,7 +104,7 @@ performance. To keep Xdebug on, pass `--xdebug`, as in
 `ahoy drush --xdebug <command>`.
 
 If a breakpoint never fires in another command-line tool, check that tool's
-documentation: some tools switch Xdebug off in their own way.
+documentation. Some tools switch Xdebug off in their own way.
 
 ### IDE configuration
 
@@ -114,34 +113,32 @@ project root and `/app` in the container.
 
 #### PhpStorm
 
-By default, PhpStorm stops on a debug connection it can't map to your
-project and prompts you to map it. It accepts connections only while
-listening is on, and the toolbar button with a little bug on it turns
-listening on.
+PhpStorm needs a path mapping, because the code runs in the container,
+which counts as a remote server. The mapping matches your project root to
+`/app` in the container. You set it once, and PhpStorm remembers it.
 
-PhpStorm needs the mapping because the code runs in the container, which
-counts as a remote server. The mapping matches a local directory to `/app`
-in the container. You set it once, and PhpStorm remembers it.
+PhpStorm accepts debug connections only while listening is on. The
+toolbar button with a little bug on it turns listening on. By default,
+PhpStorm stops on a connection it can't map and prompts you to map it.
 
 To use Xdebug on the project for the first time, starting from a fully
 working site, follow these steps:
 
 1. Install the Xdebug helper extension for your browser:
-     - [Chrome Xdebug Helper by
-       JetBrains](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm)
-       extension.
-     - [Firefox Xdebug Helper by
-       JetBrains](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-by-jetbrains/)
-       extension.
-     - [Edge Xdebug Helper by
-       JetBrains](https://microsoftedge.microsoft.com/addons/detail/xdebug-helper-by-jetbrain/kddfioocjgjmmambaijldfbpiaecmoco)
-       add-on.
-
+   - [Chrome Xdebug Helper by
+     JetBrains](https://chromewebstore.google.com/detail/xdebug-helper-by-jetbrain/aoelhdemabeimdhedkidlnbkfhnhgnhm)
+     extension
+   - [Firefox Xdebug Helper by
+     JetBrains](https://addons.mozilla.org/en-US/firefox/addon/xdebug-helper-by-jetbrains/)
+     extension
+   - [Edge Xdebug Helper by
+     JetBrains](https://microsoftedge.microsoft.com/addons/detail/xdebug-helper-by-jetbrain/kddfioocjgjmmambaijldfbpiaecmoco)
+     add-on
 2. In the extension, turn on debugging for the site, as its instructions
    describe. The extension sets the `XDEBUG_SESSION` cookie, which starts a
    debugging session for each request.
-3. To start listening for debug connections, click the toolbar button with
-   the little bug in PhpStorm.
+3. In PhpStorm, click the toolbar button with the little bug to start
+   listening for debug connections.
 4. Set a breakpoint in your IDE. `index.php` in your web root is a good
    place to start.
 5. To turn on Xdebug in the containers, run `ahoy debug` or
@@ -151,11 +148,11 @@ working site, follow these steps:
    project.
 7. In the prompt, map your project root to `/app`.
 
-![PhpStorm server settings with the path mapping to the project root within
-the container](/img/xdebug-phpstorm.png)
+   ![PhpStorm server settings with the path mapping to the project root within
+   the container](/img/xdebug-phpstorm.png)
 
-Confirm that debugging works: refresh the page again, and PhpStorm stops on
-the breakpoint without prompting for a mapping.
+8. Confirm that debugging works: refresh the page again. PhpStorm stops on
+   the breakpoint without prompting for a mapping.
 
 For more detail, see the following pages:
 
@@ -168,33 +165,29 @@ For more detail, see the following pages:
 
 #### Tips and tricks
 
-After your first Xdebug session works, a few changes to PhpStorm's Debug
-settings make everyday debugging smoother:
+After your first Xdebug session works, change these PhpStorm Debug settings
+for everyday debugging:
 
 - Disable the following options:
   - **Break at first line in PHP scripts**
   - **Force break at first line when no path mapping specified**
   - **Force break at first line when a script is outside the project**
-- Increase **Max. simultaneous connections** to `5` or more, so a debug
-  session can't get stuck without showing up in the IDE.
+- Increase **Max. simultaneous connections** to `5` or more. With a lower
+  value, a debug session can get stuck without showing up in the IDE.
 
-## Testing authenticated pages with curl
+## Request authenticated pages with curl
 
 Use `curl` with session cookies to request pages that need a login, such as
-admin pages and protected routes, without opening a browser. It's a tool for
-ad-hoc debugging; automated tests belong in Behat or PHPUnit.
+admin pages and protected routes, without a browser. It suits ad-hoc checks
+during troubleshooting:
 
-### When to use
+- An admin page that returns a 500 error
+- A permission problem
+- Page content you want to verify
 
-The curl approach suits these cases:
+For automated tests, use Behat or PHPUnit.
 
-- Quick ad-hoc debugging of admin page errors (500 errors, permission
-  issues)
-- Investigating issues without spinning up a browser
-- Verifying page content during troubleshooting
-- One-off checks that don't warrant a formal test
-
-### Step-by-step process
+### Sign in and request a page
 
 The following commands sign in once and reuse the saved session cookie for
 later requests:
@@ -252,28 +245,27 @@ The following table explains the curl flags that these commands use:
 
 | Flag | Purpose |
 |------|---------|
-| `-k` | Ignore SSL certificate errors (required for self-signed local certs) |
-| `-c FILE` | Save cookies to FILE after request |
-| `-b FILE` | Send cookies from FILE with request |
-| `-L` | Follow redirects (required for login flow) |
+| `-k` | Ignores SSL certificate errors. Required for self-signed local certificates. |
+| `-c FILE` | Saves cookies to `FILE` after the request. |
+| `-b FILE` | Sends cookies from `FILE` with the request. |
+| `-L` | Follows redirects. Required for the login flow. |
 
-### Important notes
+### Cookies and login links
 
 The following points apply to the saved cookies and the login links:
 
-- Store cookies in the `.data/` directory: Git ignores it, so a session
-  cookie doesn't end up in a commit.
-- Cookies expire after the session timeout, so regenerate them as needed.
+- Store cookies in the `.data/` directory. Git ignores it, so a session
+  cookie can't end up in a commit.
+- Cookies expire after the session timeout. Sign in again to get new ones.
 - Login URLs have the format
   `http://SITE/user/reset/UID/TIMESTAMP/HASH/login`.
-- Login URLs from `ahoy login` can only be used once. `ahoy login` also
-  unblocks user 1 before it generates the link, which a plain `drush uli`
-  doesn't.
+- A login URL works once. By default, `ahoy login` also unblocks user 1
+  before it generates the link. A plain `drush uli` doesn't unblock user 1.
 
 ## Container debugging
 
-To see what a container is doing, or to open a shell or a database prompt
-inside it:
+The following commands show the containers' status and logs, and open a
+shell or a database prompt inside a container:
 
 ```shell
 # Check container status
@@ -290,5 +282,5 @@ docker compose exec cli bash
 docker compose exec database mysql -u drupal -p drupal
 ```
 
-The database name, user, and password are all `drupal` in the local stack,
-so enter `drupal` when `mysql` prompts for the password.
+The database name, user and password are all `drupal` in the local stack.
+Enter `drupal` when `mysql` prompts for the password.

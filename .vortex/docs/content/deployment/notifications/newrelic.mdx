@@ -7,26 +7,28 @@ sidebar_position: 5
 
 The New Relic channel records each deployment as a [deployment
 marker](https://docs.newrelic.com/docs/apm/apm-ui-pages/events/record-deployments/)
-in New Relic APM, so you can line up a code change with the performance
+in New Relic APM. You can then line up a code change with the performance
 data around it.
 
 This page is for the lead or DevOps engineer who sends deployment markers to
-New Relic. It covers the setup steps, every variable the channel reads, and
+New Relic. It covers the setup steps, every variable the channel reads and
 how the channel finds the New Relic application.
 
 ## Setup
 
-To set up New Relic notifications, complete these steps:
+To set up New Relic notifications:
 
 1. [Create a New Relic User API
    Key](https://docs.newrelic.com/docs/apis/intro-apis/new-relic-api-keys/#user-key)
    (format: `NRAK-XXXXXXXXXXXXXXXXXXXXXX`).
-2. In the hosting environment variables of each environment where New Relic
-   APM is configured, such as production and staging, set
-   `NEWRELIC_ENABLED` (or `VORTEX_NOTIFY_NEWRELIC_ENABLED`) to `true`. Leave
-   it unset everywhere else, so other environments make no API calls. The
-   channel treats any non-empty value as on, including `false` and `0`.
-   When both variables are set, `VORTEX_NOTIFY_NEWRELIC_ENABLED` wins.
+2. Turn the channel on in each environment where New Relic APM is
+   configured, such as production and staging. In that environment's
+   hosting variables, set `NEWRELIC_ENABLED` or
+   `VORTEX_NOTIFY_NEWRELIC_ENABLED` to `true`:
+   - Leave both unset everywhere else, so other environments make no API
+     calls.
+   - Any non-empty value turns the channel on, including `false` and `0`.
+   - When both variables are set, `VORTEX_NOTIFY_NEWRELIC_ENABLED` wins.
 3. Add `VORTEX_NOTIFY_NEWRELIC_USER_KEY` to your hosting provider's
    environment variables. Without it, the channel falls back to
    `NEWRELIC_USER_KEY`.
@@ -37,13 +39,13 @@ Confirm that the next deployment of a branch in
 `VORTEX_NOTIFY_NEWRELIC_BRANCHES` recorded a marker. The deployment output
 on your hosting platform shows
 `Created a deployment notification for application`, then
-`[ OK ] Finished New Relic notification.`, and the marker appears on the
+`[ OK ] Finished New Relic notification.` The marker appears on the
 application's charts in New Relic.
 
 ## Environment variables
 
 See the [Notifications](README.mdx) overview for the router, what a failed
-channel stops, the shared `VORTEX_NOTIFY_*` variables, and the **Location**
+channel stops, the shared `VORTEX_NOTIFY_*` variables and the **Location**
 column. The following table lists the variables that the New Relic channel
 reads:
 
@@ -57,7 +59,7 @@ reads:
 | `VORTEX_NOTIFY_NEWRELIC_DESCRIPTION` | No | Default template | `.env` | Deployment description |
 | `VORTEX_NOTIFY_NEWRELIC_CHANGELOG` | No | Description | `.env` | Deployment changelog |
 | `VORTEX_NOTIFY_NEWRELIC_USER` | No | `Deployment robot` | `.env` | User performing deployment |
-| `VORTEX_NOTIFY_NEWRELIC_REVISION` | No | `VORTEX_NOTIFY_NEWRELIC_SHA`, or `<label>-<date>-<time>` without one | Hosting | Deployment revision |
+| `VORTEX_NOTIFY_NEWRELIC_REVISION` | No | `VORTEX_NOTIFY_NEWRELIC_SHA`, or `<label>-<date>-<time>` when the SHA is empty | Hosting | Deployment revision |
 | `VORTEX_NOTIFY_NEWRELIC_ENDPOINT` | No | `https://api.newrelic.com/v2` | `.env` | API endpoint |
 | `VORTEX_NOTIFY_NEWRELIC_BRANCHES` | No | `main,master,develop` | `.env` | Exact branch names to record (comma-separated); empty falls back to the default |
 | `VORTEX_NOTIFY_NEWRELIC_LABEL` | No | `VORTEX_NOTIFY_LABEL` | Hosting | Deployment label |
@@ -72,20 +74,20 @@ name and the deployment label, so a `main` deployment of `your_site` looks
 for `your_site-main`.
 
 When `VORTEX_NOTIFY_NEWRELIC_APPID` is empty, the channel looks the
-application up by name. If no application matches, it skips the
-notification and passes, which is what you want in environments New Relic
-doesn't monitor. An explicit numeric ID skips that lookup, so an ID that
-matches no application fails the channel.
+application up by name. If no application matches, the channel skips the
+notification and passes, so an environment without APM records nothing. An
+explicit numeric ID skips that lookup, so an ID that matches no application
+fails the channel.
 
-The channel fails when New Relic doesn't answer the marker request with
-HTTP `201`. Like most channels, it skips `pre_deployment`.
+The channel fails when New Relic answers the marker request with any status
+other than HTTP `201`. Like most channels, it skips `pre_deployment`.
 
 An empty `VORTEX_NOTIFY_NEWRELIC_BRANCHES` falls back to the default list,
 so list every branch that should record a marker.
 
 ## Example
 
-The following chart shows a deployment marker with its time, user, and
+The following chart shows a deployment marker with its time, user and
 revision:
 
 <img

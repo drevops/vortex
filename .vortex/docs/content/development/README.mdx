@@ -15,16 +15,14 @@ created from **Vortex**. It covers the day-to-day work in 4 areas:
 - Working with the Drupal application
 - Checking your code with linters and tests
 
-Each page covers 1 task or tool and everything about it: daily usage,
-configuration, and how it behaves in the continuous integration pipeline.
-Bigger topics get a subsection, with an overview page that ties its pages
-together. This page walks through the overall process and points you to the
-right page for each task.
+Each page covers 1 task or tool: its daily usage, its configuration and how
+it runs in the continuous integration pipeline. A bigger topic gets a
+subsection with an overview page of its own. Use this page to follow the
+overall process and find the page for each task.
 
-To set up the pipeline, the deployments, or the hosting, see
+To set up the pipeline, the deployments or the hosting, see
 [Continuous integration](../continuous-integration/README.mdx),
-[Deployment](../deployment/README.mdx), and [Hosting](../hosting/README.mdx)
-instead.
+[Deployment](../deployment/README.mdx) and [Hosting](../hosting/README.mdx).
 
 ## Typical development process
 
@@ -60,10 +58,10 @@ uses **Vortex**.
 
 ### Build the project
 
-`ahoy build` rebuilds the project from scratch. It asks you to confirm, and
-then runs these steps in order:
+`ahoy build` rebuilds the project from scratch. After you confirm, it runs
+these steps in order:
 
-1. Removes the containers, the installed dependencies, and the database.
+1. Removes the containers, the installed dependencies and the database.
 2. Builds and starts fresh containers.
 3. Installs the Composer and front-end dependencies.
 4. Compiles the custom theme's assets, when the project has a custom theme.
@@ -87,19 +85,18 @@ then runs these steps in order:
 
 - The project name and the Docker Compose project name
 - The site URL and the path to the web root
-- The database host, username, password, and port, plus the port on your
-  host and the database image when the project uses one
+- The database host, username, password and port
+- The database port on your host
+- The database image, when `VORTEX_DB_IMAGE` is set
 - The Solr and Storybook addresses, when their ports are mapped on your host
 - The Selenium VNC address, where you can watch the browser tests run
 - The mail catcher address
 - Whether Xdebug is on
 
-`ahoy info` prints the `Solr URL on host` line only when the Solr port is
-mapped, so that line shows that Solr is reachable from your machine.
-
-To print a one-time login link as well, pass any argument, such as
-`ahoy info login`. Otherwise, the output ends with a reminder to run
-`ahoy login`, which unblocks user 1 and prints a one-time login link.
+To print a one-time login link too, pass any argument, such as
+`ahoy info login`. Without an argument, the output ends with a reminder to
+run `ahoy login`. That command unblocks user 1 and prints a one-time login
+link.
 
 <AsciinemaPlayer
   src="/img/info.json"
@@ -114,19 +111,19 @@ To print a one-time login link as well, pass any argument, such as
 
 ### Run linters
 
-`ahoy lint` runs 3 groups of linters, and each group also has a command of
-its own:
+`ahoy lint` runs 3 groups of linters. Each group also has a command of its
+own:
 
-- `ahoy lint-be`: the back-end linters PHPCS, PHPStan, and Rector
-- `ahoy lint-fe`: the front-end linters Twig CS Fixer, ESLint, and Stylelint
+- `ahoy lint-be`: the backend linters PHPCS, PHPStan and Rector
+- `ahoy lint-fe`: the frontend linters Twig CS Fixer, ESLint and Stylelint
 - `ahoy lint-tests`: Gherkin Lint for the Behat feature files
 
-`ahoy lint-fix` applies the automatic fixes that Rector, PHPCBF, Twig CS
-Fixer, ESLint, and Stylelint support.
+`ahoy lint-fix` applies the automatic fixes of Rector, PHPCBF, Twig CS
+Fixer, ESLint and Stylelint.
 
 SDC Devel validates the custom theme's components against a provisioned
-site, so it runs separately as `ahoy lint-sdc`. DCLint and Hadolint have no
-Ahoy command: continuous integration runs them from their Docker images.
+site, so it runs separately as `ahoy lint-sdc`. Continuous integration runs
+DCLint and Hadolint from their Docker images. Neither has an Ahoy command.
 
 <AsciinemaPlayer
   src="/img/lint.json"
@@ -139,13 +136,17 @@ Ahoy command: continuous integration runs them from their Docker images.
   terminalLineHeight={1.0}
 />
 
-### Run unit, kernel, and functional tests
+### Run unit, kernel and functional tests
 
-`ahoy test` runs every PHPUnit suite: unit, kernel, functional, and
-functional JavaScript. To run 1 suite, use `ahoy test-unit`,
-`ahoy test-kernel`, `ahoy test-functional`, or
-`ahoy test-functional-javascript`. The Jest tests for JavaScript run
-separately, with `ahoy test-js`.
+`ahoy test` runs every PHPUnit suite: unit, kernel, functional and
+functional JavaScript. To run 1 suite, use its own command:
+
+- `ahoy test-unit`
+- `ahoy test-kernel`
+- `ahoy test-functional`
+- `ahoy test-functional-javascript`
+
+The Jest tests for JavaScript run separately, with `ahoy test-js`.
 
 <AsciinemaPlayer
   src="/img/test.json"
@@ -161,8 +162,8 @@ separately, with `ahoy test-js`.
 ### Run BDD tests
 
 `ahoy test-bdd` runs the Behat tests against the provisioned site. Scenarios
-tagged `@javascript` drive a real browser in the `chrome` container, and the
-rest make plain HTTP requests without a browser.
+tagged `@javascript` drive a real browser in the `chrome` container. All
+other scenarios send HTTP requests from PHP.
 
 <AsciinemaPlayer
   src="/img/test-bdd.json"
@@ -177,17 +178,22 @@ rest make plain HTTP requests without a browser.
 
 ### Re-provision the site
 
-`ahoy provision` runs provisioning again in the running stack, after you
-confirm. When `VORTEX_PROVISION_OVERRIDE_DB` is `1`, it replaces the current
-database with the dump from `.data/db.sql`. Otherwise, an existing site
-keeps its database. `.env` ships the variable as `0`, and
-`.env.local.example` sets it to `1` for local work once you copy that file
-to `.env.local`. A project that keeps its database in a container image
-(`VORTEX_DB_IMAGE`) gets a fresh database container from that image
-instead, whatever the variable says.
+After you confirm, `ahoy provision` runs provisioning again in the running
+stack. The database it starts from depends on the project:
 
-In every case, the provisioning steps run next, from the database updates
-and the configuration import to the deploy hooks and your custom
+- With `VORTEX_PROVISION_OVERRIDE_DB` set to `1`, the command replaces the
+  current database with the dump from `.data/db.sql`.
+- With `VORTEX_PROVISION_OVERRIDE_DB` set to `0`, an existing site keeps
+  its database.
+- With the database in a container image (`VORTEX_DB_IMAGE`), the command
+  starts a fresh database container from that image, whatever
+  `VORTEX_PROVISION_OVERRIDE_DB` says.
+
+`.env` sets `VORTEX_PROVISION_OVERRIDE_DB` to `0`. `.env.local.example` sets
+it to `1` for local work, after you copy that file to `.env.local`.
+
+The provisioning steps run next, from the database updates and the
+configuration import to the deploy hooks and your custom
 `scripts/provision-*.sh` scripts. The command finishes with a one-time login
 link.
 
@@ -219,16 +225,16 @@ The following table lists the pages in this section:
 
 | Page | Description |
 |------|-------------|
-| [Environment](environment/README.mdx) | The container stack, Ahoy, Drush, Doctor, Pygmy, debugging, logs, troubleshooting |
-| [Composer](composer.mdx) | Managing packages, patching, security auditing, the shipped `composer.json` |
-| [Provision](provision.mdx) | Fetching and importing databases, the provisioning flow, deploy hooks |
+| [Environment](environment/README.mdx) | The container stack, Ahoy, Drush, Doctor, Pygmy, debugging, logs and troubleshooting |
+| [Composer](composer.mdx) | Managing packages, patching, security auditing and the shipped `composer.json` |
+| [Provision](provision.mdx) | Fetching and importing databases, the provisioning flow and deploy hooks |
 | [Settings](settings.mdx) | Environment type detection and per-module settings overrides |
-| [Modules](modules/README.mdx) | Every shipped module, the module scaffold, Drupal helpers, generated content, Testmode |
+| [Modules](modules/README.mdx) | Every shipped module, the module scaffold, Drupal helpers, generated content and Testmode |
 | [Themes](themes.mdx) | The theme scaffold and its build system |
 | [Migrations](migrations.mdx) | The optional second database powering Drupal migrations |
 | [Code quality](code-quality/README.mdx) | The linters and how to run them |
-| [Testing](testing/README.mdx) | PHPUnit, Behat, and Jest |
-| [Security](security/README.mdx) | Secret scanning, dependency auditing, environment access |
+| [Testing](testing/README.mdx) | PHPUnit, Behat and Jest |
+| [Security](security/README.mdx) | Secret scanning, dependency auditing and environment access |
 | [Visual regression](visual-regression.mdx) | Diffy-powered visual regression on deployments |
 | [Dependency updates](dependency-updates.mdx) | Automated dependency updates with Renovate |
 | [AI](ai.mdx) | The AI agent configuration files |

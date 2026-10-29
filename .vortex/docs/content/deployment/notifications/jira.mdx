@@ -7,16 +7,16 @@ sidebar_position: 4
 
 The Jira channel posts a comment with the environment and login links on
 the issue named in the branch. It can also move the issue to another status
-and assign it to someone, so the issue tracks the deployment without anyone
-updating it by hand.
+and assign it to someone. The issue then tracks the deployment without
+manual updates.
 
 This page is for the lead or DevOps engineer who connects deployments to a
-Jira project. It covers the setup steps, every variable the channel reads,
+Jira project. It covers the setup steps, every variable the channel reads
 and how the channel finds the issue key in a branch name.
 
 ## Setup
 
-To set up Jira notifications, complete these steps:
+To set up Jira notifications:
 
 1. [Create a Jira API
    token](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/).
@@ -25,7 +25,7 @@ To set up Jira notifications, complete these steps:
 3. Set `VORTEX_NOTIFY_JIRA_USER_EMAIL` in your `.env` file to the email
    address of the account that owns the token.
 4. Set `VORTEX_NOTIFY_JIRA_ENDPOINT` to the URL of your Jira site, for
-   example `https://your-org.atlassian.net`, since the default is
+   example `https://your-org.atlassian.net`. The default is
    `https://jira.atlassian.com`.
 5. Add `jira` to the comma-separated `VORTEX_NOTIFY_CHANNELS` list in your
    `.env` file, for example `VORTEX_NOTIFY_CHANNELS=email,jira`.
@@ -38,12 +38,12 @@ To set up Jira notifications, complete these steps:
 Confirm that the next deployment of a branch with an issue key posted the
 comment. The deployment output on your hosting platform shows
 `Posted comment with ID` and the comment's ID, then
-`[ OK ] Finished JIRA notification.`, and the comment appears on the issue.
+`[ OK ] Finished JIRA notification.` The comment appears on the issue.
 
 ## Environment variables
 
 See the [Notifications](README.mdx) overview for the router, what a failed
-channel stops, the shared `VORTEX_NOTIFY_*` variables, and the **Location**
+channel stops, the shared `VORTEX_NOTIFY_*` variables and the **Location**
 column. The following table lists the variables that the Jira channel
 reads:
 
@@ -77,10 +77,13 @@ Lowercase keys, such as `proj-123`, match too. The key has to open the
 branch name or follow its first `/`. When the branch has no key, the channel
 posts nothing and passes.
 
-A key anywhere else in the name, or a date in the name, produces a value
-that isn't a valid issue key: `feature/foo/PROJ-123` gives
-`feature/PROJ-123`, and `release/2023-04-17` gives `2023-04`. Posting the
-comment then fails with `Unable to create a comment.`
+A key anywhere else in the name, or a date in the name, produces an invalid
+issue key:
+
+- `feature/foo/PROJ-123` gives `feature/PROJ-123`.
+- `release/2023-04-17` gives `2023-04`.
+
+Posting the comment then fails with `Unable to create a comment.`
 
 `VORTEX_NOTIFY_JIRA_BRANCHES` takes exact branch names only, so it can't
 exclude a pattern such as `release/*`. To keep the channel off the

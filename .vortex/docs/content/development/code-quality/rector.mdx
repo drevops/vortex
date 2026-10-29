@@ -9,11 +9,11 @@ as follows:
 
 > Rector instantly upgrades and refactors the PHP code of your application.
 
-Every Drupal major release removes the APIs that the previous one
-deprecated. Rector rewrites your code to replace them, moves it onto PHP 8.4
-language features, and applies the same refactorings across the whole
-codebase at once. Keep it running, and a major upgrade starts with the
-deprecations that Drupal Rector covers already fixed.
+Every Drupal major release removes the APIs that the previous major release
+deprecated. Rector rewrites your code to replace them and moves it onto
+PHP 8.4 language features. It applies each refactoring across the whole
+codebase at once. With Rector in every check, a major upgrade starts with
+the deprecations Drupal Rector covers already fixed.
 
 **Vortex** comes with a [pre-configured Rector
 configuration](https://github.com/drevops/vortex/blob/main/rector.php) for
@@ -21,15 +21,17 @@ Drupal projects, based on the configuration provided by [Drupal
 Rector](https://github.com/palantirnet/drupal-rector).
 
 This page is for developers who keep custom code current with Drupal and
-PHP. It shows how to run Rector and clear its cache, which rule sets
-**Vortex** enables, and how to skip a rule or a file.
+PHP. It shows how to run Rector, clear its cache and skip a rule or a file.
+It also lists the rule sets **Vortex** enables.
 
-Many projects run Rector ad hoc, for a single round of bulk refactoring.
-**Vortex** runs it as a regular code quality check instead: `ahoy lint-be`
-reports the code Rector would change, `ahoy lint-be-fix` applies the
-changes, and the `lint` job in CI fails while any change is pending. Run it
-by hand before a Drupal major upgrade to clear the remaining deprecations,
-and when you refactor legacy code to modernize it in bulk.
+**Vortex** runs Rector as a regular code quality check:
+
+- `ahoy lint-be` reports the code Rector would change.
+- `ahoy lint-be-fix` applies the changes.
+- The `lint` job in CI fails while any change is pending.
+
+Before a Drupal major upgrade, run `ahoy lint-be-fix` to clear the remaining
+deprecations. Run it too when you modernize legacy code in bulk.
 
 ## Usage
 
@@ -38,9 +40,9 @@ and when you refactor legacy code to modernize it in bulk.
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-`ahoy lint-be` runs Rector last, after PHPCS and PHPStan, while the Docker
-Compose command runs Rector alone. To check for code that Rector would
-change, run 1 of the following commands:
+`ahoy lint-be` runs Rector last, after PHPCS and PHPStan. The Docker Compose
+command runs Rector alone. To check for code that Rector would change, run 1
+of the following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -57,7 +59,7 @@ change, run 1 of the following commands:
 
 Confirm that Rector found nothing to change: the output ends with
 `[OK] Rector is done!`. When Rector would change files, it prints a diff
-for each file and exits with code `2`, which fails the check.
+for each file and exits with code `2`. That exit code fails the check.
 
 ### Fix violations
 
@@ -79,14 +81,14 @@ To apply the changes, run 1 of the following commands:
 
 ### Cache management
 
-Rector caches parsed file information and analysis results in the system
-temp directory, `/tmp/rector_cached_files` inside the CLI container, so
-later runs reuse the results for files that haven't changed.
+Rector caches parsed files and analysis results in the system temp
+directory, `/tmp/rector_cached_files` inside the CLI container. Later runs
+reuse the results for files that haven't changed.
 
 Clear the cache in any of the following cases:
 
 - After you change the `rector.php` configuration, such as its rules, skip
-  list, or paths
+  list or paths
 - After you update the `rector/rector` or `palantirnet/drupal-rector`
   packages
 - After you switch to a Git branch with a different Rector configuration
@@ -149,25 +151,26 @@ that each turn on a group of related rules. **Vortex** enables the
 following sets:
 
 - The PHP sets up to the lowest PHP version that the `require.php`
-  constraint in `composer.json` allows, through `withPhpSets()` called
-  without an argument. The shipped constraint, `>=8.4`, resolves to PHP
-  8.4. The sets follow `composer.json`, so `rector.php` needs no change when
-  you move to a new PHP version.
+  constraint in `composer.json` allows. `withPhpSets()`, called without an
+  argument, reads that constraint. The shipped constraint, `>=8.4`,
+  resolves to PHP 8.4. The sets follow `composer.json`, so a PHP version
+  change needs no edit to `rector.php`.
 - The Drupal sets from [Drupal
-  Rector](https://github.com/palantirnet/drupal-rector), resolved from the
-  installed `drupal/core` version, so the rules track core upgrades without
-  changes to `rector.php`.
-- The `codeQuality`, `codingStyle`, `deadCode`, `naming`, `privatization`,
+  Rector](https://github.com/palantirnet/drupal-rector), turned on by
+  `withSetProviders()` and `withComposerBased()`. They resolve from the
+  installed `drupal/core` version, so the rules track core upgrades.
+- The `codeQuality`, `codingStyle`, `deadCode`, `naming`, `privatization`
   and `typeDeclarations` prepared sets.
 - The Behat attribute sets, which convert Behat annotations to PHP 8
   attributes. They ship only when Behat is selected during installation.
 
-On top of the sets, it adds the `DeclareStrictTypesRector` rule and, when
-PHPUnit is selected, `YieldDataProviderRector`, which turns array-returning
-data providers into generators. It also leaves class names unimported, so
-Rector doesn't add `use` statements to the files it changes.
+On top of the sets, `rector.php` adds the `DeclareStrictTypesRector` rule.
+When PHPUnit is selected, it also adds `YieldDataProviderRector`, which
+turns array-returning data providers into generators. `withImportNames()`
+turns off name imports, so Rector adds no `use` statements to the files it
+changes.
 
-To adjust the sets, edit the `withPhpSets()`, `withAttributesSets()`, and
+To adjust the sets, edit the `withPhpSets()`, `withAttributesSets()` and
 `withPreparedSets()` calls in `rector.php`. The [Set
 Lists](https://getrector.com/documentation/set-lists) page describes the
 available sets, and the [Find a Rector
@@ -212,8 +215,8 @@ everywhere, based on the project's coding standards:
 - `RenameVariableToMatchNewTypeRector`
 - `SimplifyEmptyCheckOnEmptyArrayRector`
 
-It also skips `RemoveUnusedPublicMethodParameterRector` for the `src/Hook`
-classes of custom modules and themes, and
+The list skips `RemoveUnusedPublicMethodParameterRector` for the `src/Hook`
+classes of custom modules and themes. It skips
 `StringClassNameToClassConstantRector` for the settings includes. The list
 also skips the `vendor` and `node_modules` directories.
 

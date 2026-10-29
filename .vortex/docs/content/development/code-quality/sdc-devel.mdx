@@ -13,7 +13,7 @@ SDC Devel validates the component YAML files of [Single Directory
 Components](https://www.drupal.org/docs/develop/theming-drupal/using-single-directory-components)
 (SDC) and statically checks their Twig templates for errors and best
 practices. It reports problems such as a template variable that the
-component definition doesn't declare, or a filter applied to the wrong type
+component definition doesn't declare or a filter applied to the wrong type
 of value. A broken component then fails the check before it renders wrong
 on a page.
 
@@ -56,32 +56,32 @@ commands:
 `ahoy lint-sdc` runs `drush sdc-devel:validate` for the theme named in the
 [`DRUPAL_THEME`](../variables.mdx#drupal_theme) variable. The Drush command
 lists the problems it finds in a table, and the Ahoy command prints that
-output. When the output contains `Critical`, `Error(s)`, or `Warning(s)`,
-the Ahoy command also prints `SDC validation reported problems.` and exits
-with code 1.
+output. When the output contains `Critical`, `Error` or `Warning`, the Ahoy
+command also prints `SDC validation reported problems.` and exits with
+code 1.
 
 The match is case-sensitive, and the command exits with code 0 for any
-other output. A theme that has no components, or that isn't enabled, gets
-only a lowercase `[warning] No components found` message, so the command
-exits with code 0 for it too.
+other output. A theme that has no components or isn't enabled gets only a
+lowercase `[warning] No components found` message. The command exits with
+code 0 for that theme too.
 
 Confirm that the components passed: Drush prints
 `No components errors found for`, followed by the theme's machine name.
-Look for that line rather than the exit code, which is also 0 when nothing
-was validated.
+Look for that line, because the exit code is also 0 when nothing was
+validated.
 
-`ahoy lint` doesn't include `ahoy lint-sdc`; run it separately after the
+`ahoy lint` skips SDC Devel, so run `ahoy lint-sdc` separately after the
 site is provisioned.
 
-`ahoy lint-sdc` doesn't take a component ID: it ignores any arguments and
-validates the whole theme. To validate a single component, run the Drush
-command with the component's ID as the second argument:
+`ahoy lint-sdc` ignores any arguments and validates the whole theme. To
+validate a single component, run the Drush command with the component's ID
+as the second argument:
 
 ```shell
 ahoy drush sdc-devel:validate your_site_theme your_site_theme:button
 ```
 
-A component's ID is the theme's machine name, a colon, and the name of the
+A component's ID is the theme's machine name, a colon and the name of the
 component's `*.component.yml` file without that suffix. For example,
 `components/button/button.component.yml` in the theme gives
 `your_site_theme:button`.
@@ -94,9 +94,10 @@ UI at `/admin/reports/ui-components`.
 SDC Devel has no configuration file of its own.
 
 The `scripts/provision-10-enable-dev-modules.sh` provisioning script
-installs the module in the `local`, `ci`, `dev`, and `stage` environments
-and skips it in production. `settings.sdc_devel.php` keeps it out of the
-exported configuration, so enabling it never shows up in a config export.
+installs the module in the `local`, `ci`, `dev` and `stage` environments.
+It skips the module in every other environment, such as production.
+`settings.sdc_devel.php` adds the module to `config_exclude_modules`, so a
+config export leaves it out.
 
 ➡️ See [Provision > Development
 modules](../provision.mdx#development-modules) and [Modules > SDC
@@ -108,16 +109,18 @@ custom theme and the SDC Devel module are selected during installation.
 ## Continuous integration
 
 SDC Devel runs in the `build` job of the [continuous integration
-pipeline](../../continuous-integration/README.mdx), after the site is
-provisioned, on the first container only (see [Test
-parallelism](../../continuous-integration/README.mdx#test-parallelism)). The
-step fails the build when validation reports problems, and exits without
+pipeline](../../continuous-integration/README.mdx) after the site is
+provisioned. It runs on the first container only; see [Test
+parallelism](../../continuous-integration/README.mdx#test-parallelism). The
+step fails the build when validation reports problems. It exits without
 validating when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
-is set to `1`. The step reads that variable from the environment that the
-job loads from `.env`. On GitHub Actions, a repository variable doesn't
-reach the step, so set the value in `.env`. On CircleCI, a project
-environment variable also works, because it takes precedence over `.env`.
+is set to `1`.
+
+The step reads that variable from the environment that the job loads from
+`.env`. On GitHub Actions, set the value in `.env`, because a repository
+variable doesn't reach the step. On CircleCI, a project environment
+variable also works, because it takes precedence over `.env`.
 
 ### Ignoring failures
 

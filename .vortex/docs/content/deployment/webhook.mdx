@@ -6,33 +6,34 @@ sidebar_position: 4
 # Webhook deployment
 
 Webhook deployment triggers a remote deployment by calling an HTTP endpoint.
-Use it with external systems or custom deployment pipelines that expose a
-webhook URL.
+Use it with an external system or a custom deployment pipeline that exposes
+a webhook URL.
 
 This page is for the lead or DevOps engineer whose hosting platform or
 deployment pipeline starts a deployment from a webhook. It covers the
-request the deployment script sends, the variables that shape it, and the
+request the deployment script sends, the variables that shape it and the
 setup steps.
 
 :::note
 
-This is a deployment _type_: it triggers the deployment itself. To call a
-webhook _about_ a deployment (for example, to tell a monitoring system one
-happened), use the [webhook notification channel](notifications/webhook.mdx)
-instead.
+This deployment _type_ triggers the deployment itself. To call a webhook
+_about_ a deployment, for example to tell a monitoring system that a
+deployment happened, use the [webhook notification
+channel](notifications/webhook.mdx).
 
 :::
 
 ## How it works
 
-When `webhook` is included in `$VORTEX_DEPLOY_TYPES`, the deployment script
-calls the configured webhook URL with `curl`, using the configured HTTP
-method and following redirects. It sends no deployment data, so anything
-the receiving end needs has to be in the URL itself. The deployment passes
-when the status of the final response, after any redirects, matches
-`VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS`. Otherwise, including when the
-request can't connect, it stops with
-`[FAIL] Unable to complete webhook deployment.`, which doesn't show the
+When `$VORTEX_DEPLOY_TYPES` includes `webhook`, the deployment script calls
+the configured webhook URL with `curl`. It uses the configured HTTP method
+and follows redirects. The request carries no deployment data, so put
+anything the receiving end needs in the URL itself.
+
+The deployment passes when the status of the final response, after any
+redirects, matches `VORTEX_DEPLOY_WEBHOOK_RESPONSE_STATUS`. Any other
+status, or a request that can't connect, stops the deployment with
+`[FAIL] Unable to complete webhook deployment.` That message leaves out the
 status it received.
 
 ## Configuration
@@ -54,7 +55,7 @@ the webhook deployment script reads:
 
 ### Setup
 
-To set up webhook deployment, complete these steps:
+To set up webhook deployment:
 
 1. Add `webhook` to the comma-separated `VORTEX_DEPLOY_TYPES` list in your
    `.env` file, for example `VORTEX_DEPLOY_TYPES=artifact,webhook`. On its
@@ -65,21 +66,20 @@ To set up webhook deployment, complete these steps:
    ```
 
 2. Set `VORTEX_DEPLOY_WEBHOOK_URL` in your CI provider's settings:
-   - On GitHub Actions, add a repository variable of the same name, which
-     the shipped workflow reads.
+   - On GitHub Actions, add a repository variable of the same name. The
+     shipped workflow reads it.
    - On CircleCI, add a project environment variable.
 3. Optional: If the URL carries a token, keep it in a GitHub Actions secret
-   instead of a variable:
+   in place of a variable:
    1. Add the URL as a repository secret named `VORTEX_DEPLOY_WEBHOOK_URL`.
    2. In `.github/workflows/build-test-deploy.yml`, change the
       `VORTEX_DEPLOY_WEBHOOK_URL` line of the `Deploy` step to read from
-      `secrets` instead of `vars`.
+      `secrets` in place of `vars`.
 
 Confirm that the next deployment called the webhook. The `deploy` job log
-shows `Webhook call completed.`, followed by
-`[ OK ] Finished webhook deployment.` These lines confirm the call and its
-response status only, so check the receiving system to confirm that it ran
-the deployment.
+shows `Webhook call completed.`, then `[ OK ] Finished webhook deployment.`
+These lines confirm only the call and its response status. Check the
+receiving system to confirm that it ran the deployment.
 
 ## Use cases
 

@@ -11,16 +11,16 @@ tool as follows:
 > A tool to automatically fix Twig Coding Standards issues
 
 Twig CS Fixer checks Twig templates for the formatting problems PHPCS
-catches in PHP: indentation, spacing around delimiters and operators,
-trailing whitespace, quote style, and trailing commas. Most of its rules
-can also fix what they find.
+catches in PHP. It covers indentation, spacing around delimiters and
+operators, trailing whitespace, quote style and trailing commas. Most of its
+rules can also fix what they find.
 **Vortex** comes with a [pre-configured Twig CS Fixer
 ruleset](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php) for
 Drupal projects.
 
 This page is for developers who write Twig templates in custom modules or
-themes. It shows how to lint and fix the templates, what the shipped
-ruleset enforces, and how to ignore a rule.
+themes. It shows how to lint and fix the templates and how to ignore a
+rule. It also lists what the shipped ruleset enforces.
 
 ## Usage
 
@@ -76,13 +76,14 @@ All global configuration lives in the
 [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php)
 file.
 
-The ruleset uses the `TwigCsFixer` standard with a 2-space indent. It also
-turns on the rules that can't fix what they find, which Twig CS Fixer skips
-by default, so `lint` reports problems such as badly named variables too.
-It registers Drupal's `trans` tag parser as well, so templates that use
-`{% trans %}` blocks parse.
+The ruleset uses the `TwigCsFixer` standard with a 2-space indent.
+`allowNonFixableRules()` turns on the rules that report problems without a
+fix, which Twig CS Fixer skips by default. `lint` then reports problems
+such as badly named variables too. The configuration also registers
+Drupal's `trans` tag parser, so templates with `{% trans %}` blocks parse.
 
-Targets include custom modules and themes.
+Twig CS Fixer checks the templates in `web/modules/custom` and
+`web/themes/custom`.
 
 To add or remove targets, add or remove the `$finder->in()` calls in
 `.twig-cs-fixer.php`:
@@ -106,12 +107,12 @@ $finder->exclude('myCustomDirectory');
 
 Every error has an identifier in the form `A.B:C:D`, where:
 
-- `A`: the rule short name (mainly made from the class name)
-- `B`: the error identifier (like the error level or a specific name)
+- `A`: the rule short name, mostly derived from the class name
+- `B`: the error identifier, such as the error level or a specific name
 - `C`: the line the error occurs on
 - `D`: the position of the token in that line
 
-All 4 parts are optional: `A`, `A.B`, `A.B:C`, `A.B:C:D`, `A:C`, `A:C:D`,
+All 4 parts are optional: `A`, `A.B`, `A.B:C`, `A.B:C:D`, `A:C`, `A:C:D`
 and `A::D` all work.
 
 To find the identifier of an error you want to ignore, run Twig CS Fixer

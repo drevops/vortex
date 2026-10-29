@@ -5,18 +5,18 @@ sidebar_position: 1
 
 # Releasing
 
-This section is about releasing your project, the site you built from
+This section covers releasing your project, the site you built from
 **Vortex**, to production. It's for the developer or lead who plans and
-runs those releases, and it helps you set up a release process and document
-it for your team.
+runs those releases. Use it to set up a release process and document it for
+your team.
 
 It covers how code moves between environments, how branches and version
-numbers work, and where the automation takes over. Releasing the **Vortex**
-template itself is a different process, documented in [Contributing >
-Maintenance > Release](../contributing/maintenance/release.mdx).
+numbers work and where the automation takes over. Releasing the **Vortex**
+template itself is a separate process. See [Contributing > Maintenance >
+Release](../contributing/maintenance/release.mdx).
 
-A release process has a few moving parts, and **Vortex** provides defaults
-and integration points for each of them:
+A release process has these parts, and **Vortex** provides defaults and
+integration points for each of them:
 
 - **Release flow** - the sequence of environments that code goes through
   from development to production
@@ -32,7 +32,7 @@ and integration points for each of them:
 ## Release flow
 
 The release flow on this page uses 3 environments. Code moves "up" through
-the environments while the database moves "down":
+the environments, and the database moves "down":
 
 ```text
   code:     Development ───► Stage ───► Production
@@ -48,19 +48,18 @@ Each environment has its own job:
 - **Production** - the live, customer-facing site. It's stable and
   reliable, and it's the source of truth for data.
 
-The production database is the primary source of truth: it's what your code
-gets applied to. A release applies a new version of the code to the database
-of a specific environment. To make sure code changes work with real data,
-the lower environments test against a copy of the production database:
+A release applies a new version of the code to the database of a specific
+environment. Production holds the primary database, so the lower
+environments test code against a copy of it:
 
-1. Copy the database from a higher environment to a lower one (for example,
-   production → stage → development).
+1. Copy the database from a higher environment to a lower environment, for
+   example production → stage → development.
 2. Deploy the code to that environment.
 3. Test that everything works against the copied database.
 
-When your site provisions from a database dump, the CI pipeline runs all
-its tests against a copy of the production database too, refreshed daily.
-Code changes are then validated against real data structures as well.
+When your site provisions from a database dump, the CI pipeline also runs
+all its tests against a copy of the production database. The copy refreshes
+daily, so CI checks code changes against real data structures too.
 
 :::note Environment agreement
 
@@ -73,33 +72,39 @@ pre-production, or use different names.
 
 ## Production deployment process
 
-Deploying a release to production is technically the same as deploying to
-any other environment. CI builds and tests the release tag, or the
-`production` branch on branch-based hosting, when it reaches the repository.
+A production deployment works the same way as a deployment to any other
+environment. CI builds and tests the release tag when it reaches the
+repository. On branch-based hosting, CI builds the `production` branch.
 CI then deploys it under the same rules as any other branch or tag (see
-[GitFlow](gitflow.mdx)). Those rules don't cover every tag: CircleCI deploys
-only tags named like `1.2.3`, `1.2.3-rc.1`, or `2023-04-17`, and the Lagoon
-deployment type skips tags.
+[GitFlow](gitflow.mdx)).
+
+Those rules exclude some tags:
+
+- CircleCI deploys only tags named like `1.2.3`, `1.2.3-rc.1` or
+  `2023-04-17`.
+- The Lagoon deployment type skips tags.
 
 On Acquia and Lagoon hosting, **Vortex** integrates directly with the
 platform's own deployment system. On other hosting, wire the provision steps
-into your host's deployment configuration, as long as it supports
+into your host's deployment configuration. Your host has to support
 post-deployment hooks or custom scripts.
 
-On Lagoon, **Vortex** treats an environment as production when Lagoon marks
-it so, or when its branch is the one in `VORTEX_LAGOON_PRODUCTION_BRANCH`,
-which `.env` ships as `main`. To release from a `production` branch, set
-that variable to `production`, and rename the `main` entry under
-`environments` in `.lagoon.yml`, which holds the production cron jobs and
-monitoring.
+On Lagoon, **Vortex** treats an environment as production in 2 cases:
+Lagoon marks it as production, or its branch is the branch in
+`VORTEX_LAGOON_PRODUCTION_BRANCH`. `.env` ships that variable as `main`. To
+release from a `production` branch:
 
-A deployment keeps the database of a site that already exists: provisioning
+1. Set `VORTEX_LAGOON_PRODUCTION_BRANCH` to `production`.
+2. Rename the `main` entry under `environments` in `.lagoon.yml`. That entry
+   holds the production cron jobs and monitoring.
+
+A deployment keeps the database of a site that already exists. Provisioning
 replaces it only when `VORTEX_PROVISION_OVERRIDE_DB` is `1`, and `.env`
 ships it as `0`. On Lagoon, a production deployment also backs up the
 database first and skips sanitization. On a site that provisions from a
-database dump, the Lagoon production deployment also forces
-`VORTEX_PROVISION_OVERRIDE_DB=0`, so even a Lagoon variable set to `1` can't
-replace the production database.
+database dump, the Lagoon production deployment forces
+`VORTEX_PROVISION_OVERRIDE_DB=0`. Even a Lagoon variable set to `1` then
+can't replace the production database.
 
 ➡️ See
 [Development > Provision](../development/provision.mdx#provisioning-flow) to
@@ -112,17 +117,19 @@ Each project keeps its own release documentation next to the code.
 ### `docs/releasing.md`
 
 Your project's `docs/releasing.md` file is the canonical release
-documentation for your team. As shipped, it records the expected release
-outcome and your project's version scheme (left out if you chose Other), and
-it leaves a marked section for project-specific configuration.
+documentation for your team. As shipped, it holds 3 sections:
+
+- The expected release outcome
+- Your project's version scheme, left out if you chose Other
+- A marked section for project-specific configuration
 
 Extend it with the following sections:
 
 - **Detailed release procedures** - an outline of _what_ actions to take
   during releases: creating and finishing releases, deploying to production,
-  rolling back, verifying.
+  rolling back and verifying.
 - **A release run template** - a checklist of _who_ does _what_ and _when_
-  during a release, cloned into a separate runsheet for each release.
+  during a release. Clone it into a separate runsheet for each release.
 
 ## Monitoring
 
@@ -131,20 +138,24 @@ production.
 
 ### New Relic integration
 
-**Vortex** integrates with New Relic for release tracking. To turn it on,
-add `newrelic` to `VORTEX_NOTIFY_CHANNELS` in `.env`. Then, in your hosting
-provider's environment variables, set `VORTEX_NOTIFY_NEWRELIC_ENABLED` to
-`true` and `VORTEX_NOTIFY_NEWRELIC_USER_KEY` to a New Relic user key.
-After that, deployments create a deployment marker in New Relic, so you
-can line up performance changes and errors with the release that caused
-them.
+**Vortex** integrates with New Relic for release tracking. Deployments
+create a deployment marker in New Relic, so you can line up performance
+changes and errors with the release that caused them.
 
-By default, markers go out only for deployments of the `main`, `master`, and
-`develop` branches, matched by exact name. If production deploys from a
-branch named `production`, set `VORTEX_NOTIFY_NEWRELIC_BRANCHES` to
-`main,master,develop,production`: your list replaces the default instead of
-extending it. A tag release deployed to Acquia arrives under a name such as
-`deployment/1.2.3`, which no entry matches, so it gets no marker.
+To turn the markers on:
+
+1. Add `newrelic` to `VORTEX_NOTIFY_CHANNELS` in `.env`.
+2. In your hosting provider's environment variables, set
+   `VORTEX_NOTIFY_NEWRELIC_ENABLED` to `true`.
+3. In the same place, set `VORTEX_NOTIFY_NEWRELIC_USER_KEY` to a New Relic
+   user key.
+
+By default, markers go out only for deployments of the `main`, `master` and
+`develop` branches, matched by exact name. Your own list replaces the
+default. If production deploys from a branch named `production`, set
+`VORTEX_NOTIFY_NEWRELIC_BRANCHES` to `main,master,develop,production`. A tag
+release deployed to Acquia arrives under a name such as `deployment/1.2.3`.
+No entry matches that name, so it gets no marker.
 
 To confirm that New Relic recorded a marker, look for this line in the
 deployment output, followed by how long the request took:
@@ -154,8 +165,8 @@ deployment output, followed by how long the request took:
 ```
 
 The channel also exits with code `0` when it skips the marker, for example
-for an unlisted branch, so a deployment that passes doesn't prove that the
-marker exists.
+for an unlisted branch. A passing deployment doesn't prove that the marker
+exists.
 
 ➡️ See [Deployment > Notifications > New
 Relic](../deployment/notifications/newrelic.mdx)
@@ -167,4 +178,4 @@ The following pages cover the rest of the release process:
 | Topic | Description |
 |-------|-------------|
 | [GitFlow](gitflow.mdx) | Branch structure and release operations |
-| [Versioning](versioning.mdx) | CalVer, SemVer, and custom version schemes |
+| [Versioning](versioning.mdx) | CalVer, SemVer and custom version schemes |

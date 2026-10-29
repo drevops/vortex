@@ -12,15 +12,15 @@ tool as follows:
 > Compose files.
 
 DCLint checks Docker Compose files against best practices, such as quoted
-port mappings and a consistent order of keys within each service, so
-`docker-compose.yml` stays readable as services come and go.
+port mappings and a consistent key order in each service.
+`docker-compose.yml` then stays readable as services come and go.
 **Vortex** comes with a [pre-configured DCLint
 ruleset](https://github.com/drevops/vortex/blob/main/.dclintrc) for its
 Docker Compose files.
 
-This page is for developers who change `docker-compose.yml`. After reading
-it, you can run DCLint the way CI does, fix what it reports, and tell which
-of its findings fail the build.
+This page is for developers who change `docker-compose.yml`. It shows how
+to run DCLint the way CI does and fix what it reports. It also shows which
+findings fail the build.
 
 ## Installation
 
@@ -30,9 +30,9 @@ instructions](https://github.com/zavoloklom/docker-compose-linter#usage-with-nod
 In CI, DCLint runs from its official Docker image.
 
 The installer selects DCLint by default. If you deselect it in the
-**Development tools** prompt, the installer removes the `.dclintrc`
-configuration file, the `dclint` directives in `docker-compose.yml`, and
-the DCLint step from the CI configuration of every supported provider.
+**Development tools** prompt, the installer removes `.dclintrc` and the
+`dclint` directives in `docker-compose.yml`. It also removes the DCLint
+step from the CI configuration of every supported provider.
 
 ## Usage
 
@@ -50,9 +50,9 @@ service keys and unquoted ports, add the `--fix` flag:
 dclint --fix .
 ```
 
-Confirm that the check passed: run `echo $?` straight after DCLint. It
-prints `0` when DCLint found no errors. Warnings still appear in the
-output, but they don't change the exit code.
+Confirm that the check passed: run `echo $?` right after DCLint. It prints
+`0` when DCLint found no errors. Warnings appear in the output and leave
+the exit code at `0`.
 
 ## Configuration
 
@@ -73,14 +73,15 @@ The file turns off the following 4 rules:
 
 It also sets `service-keys-order` to `1` and configures it with 8 groups of
 keys. That rule keeps the keys of every service in `docker-compose.yml` in
-the same order, from core definitions such as `build` and `image` to
-operational metadata such as `labels`. Diffs then stay small and services
-stay comparable. Every rule the file doesn't list keeps the level DCLint
-gives it by default.
+the same order. The order runs from core definitions such as `build` and
+`image` to operational metadata such as `labels`. Diffs then stay small and
+services stay comparable. Every other rule keeps the level DCLint gives it
+by default.
 
-`docker-compose.yml` turns off 1 more rule for a single line. With
-migration enabled, the `database2` service carries a `dclint disable-line`
-directive for `no-duplicate-exported-ports`, with the reason next to it.
+A directive in `docker-compose.yml` turns off 1 more rule for a single
+line. With migration enabled, the `database2` service has a
+`dclint disable-line` directive for `no-duplicate-exported-ports`, with the
+reason next to it.
 DCLint reads the container-only port `3306` as a host port that the
 `database` service already uses. Docker publishes each container-only port
 on its own random host port, so the 2 services don't clash.

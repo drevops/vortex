@@ -19,7 +19,7 @@ import {
   <VerticalTabPanel>
 
     A [Drupal 11](https://www.drupal.org/project/drupal) project with
-    environment-aware settings, module and theme scaffolds, and
+    environment-aware settings, module and theme scaffolds and
     pre-configured contributed modules.
 
     ### Composer-based project
@@ -37,7 +37,7 @@ import {
     - Pre-configured [general
       settings](https://github.com/drevops/vortex/blob/main/web/sites/default/settings.php)
       with the database connection read from environment variables
-    - Environment type detection for `local`, `ci`, `dev`, `stage`, and
+    - Environment type detection for `local`, `ci`, `dev`, `stage` and
       `prod` on every supported hosting provider
     - Per-module settings overrides for each environment type
     - Unit tests for the settings, shipped with the project
@@ -52,7 +52,7 @@ import {
     - [Tests
       scaffold](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/tests)
     - Opt-in [Storybook](https://storybook.js.org/) component library,
-      rendered by Drupal and published at `/storybook` in the `local`, `ci`,
+      rendered by Drupal and published at `/storybook` in the `local`, `ci`
       and `dev` environments
 
     ### Contributed modules
@@ -62,23 +62,23 @@ import {
     - Environment safety:
       [Environment Indicator](https://www.drupal.org/project/environment_indicator),
       [Reroute Email](https://www.drupal.org/project/reroute_email),
-      [Shield](https://www.drupal.org/project/shield), and
+      [Shield](https://www.drupal.org/project/shield) and
       [Stage File Proxy](https://www.drupal.org/project/stage_file_proxy)
     - Search and performance:
       [Search API](https://www.drupal.org/project/search_api) with
       [Search API Solr](https://www.drupal.org/project/search_api_solr),
-      [Redis](https://www.drupal.org/project/redis), and
+      [Redis](https://www.drupal.org/project/redis) and
       [Fast 404](https://www.drupal.org/project/fast_404)
     - Security: [ClamAV](https://www.drupal.org/project/clamav) and
       [Security Kit](https://www.drupal.org/project/seckit)
     - Content and SEO: [Pathauto](https://www.drupal.org/project/pathauto),
       [Redirect](https://www.drupal.org/project/redirect),
-      [XML sitemap](https://www.drupal.org/project/xmlsitemap), and
+      [XML sitemap](https://www.drupal.org/project/xmlsitemap) and
       [RobotsTxt](https://www.drupal.org/project/robotstxt)
     - Development: [Devel](https://www.drupal.org/project/devel),
       [Config Split](https://www.drupal.org/project/config_split),
       [Generated Content](https://www.drupal.org/project/generated_content),
-      [Testmode](https://www.drupal.org/project/testmode), and
+      [Testmode](https://www.drupal.org/project/testmode) and
       [Drupal Helpers](https://www.drupal.org/project/drupal_helpers)
     - Migrations: [Migrate Plus](https://www.drupal.org/project/migrate_plus)
       and [Migrate Tools](https://www.drupal.org/project/migrate_tools), with
@@ -101,7 +101,7 @@ import {
     - [Ahoy](https://github.com/ahoy-cli/ahoy) for short project commands,
       with support for custom commands
     - [Pygmy](https://github.com/pygmystack/pygmy) for local domain names,
-      SSH agent forwarding, and mail capture
+      SSH agent forwarding and mail capture
     - Container images from [Lagoon](https://lagoon.sh/), the same images
       that run on Lagoon hosting
 
@@ -124,7 +124,7 @@ import {
     - [PCOV](https://github.com/krakjoe/pcov) for code coverage
     - Custom PHP settings for each container in `.docker/config/`
     - `ahoy doctor` to check the environment and report problems
-    - `ahoy info` to show the site URL, database credentials, and service
+    - `ahoy info` to show the site URL, database credentials and service
       addresses
 
     :::note Planned features
@@ -165,7 +165,7 @@ import {
     ### Containerized environments
 
     - Drupal runs in the same containerized stack as local development
-    - Identical PHP version, dependency versions, tooling, and
+    - Identical PHP version, dependency versions, tooling and
       configuration
 
     ### Security audit
@@ -231,7 +231,7 @@ import {
     ### Other hosting providers
 
     - Webhook deployments for any provider that accepts a deployment URL
-    - Database fetch from a URL, FTP, S3, or a container registry
+    - Database fetch from a URL, FTP, S3 or a container registry
 
     :::note
 
@@ -252,7 +252,7 @@ import {
     - [PHPCS](https://github.com/PHPCSStandards/PHP_CodeSniffer/) for
       checking PHP coding standards, with the
       [Drupal Coder](https://www.drupal.org/project/coder),
-      [PHPCompatibility](https://github.com/PHPCompatibility/PHPCompatibility),
+      [PHPCompatibility](https://github.com/PHPCompatibility/PHPCompatibility)
       and [DrevOps PHPCS standard](https://github.com/drevops/phpcs-standard)
       rules
     - [PHPStan](https://phpstan.org/) for static code analysis, with
@@ -273,7 +273,7 @@ import {
 
     ### Unit and functional testing
 
-    - [PHPUnit](https://phpunit.de/) for unit, kernel, functional, and
+    - [PHPUnit](https://phpunit.de/) for unit, kernel, functional and
       functional JavaScript tests
     - [Jest](https://jestjs.io/) for JavaScript unit tests
     - Configured for Drupal testing
@@ -294,11 +294,11 @@ import {
 
     - [Diffy](https://diffy.website/) integration for opt-in, post-deploy
       visual regression on pull requests and branch deployments
-    - Configurable label gate, PR comment with summary, and a GitHub check
+    - Configurable label gate, PR comment with summary and a GitHub check
       that you can make required in branch protection
 
     ➡️ See [Code quality](/docs/development/code-quality),
-    [Testing](/docs/development/testing), and
+    [Testing](/docs/development/testing) and
     [Visual regression](/docs/development/visual-regression)
 
   </VerticalTabPanel>
@@ -324,14 +324,14 @@ import {
 
     ### Project-level documentation stored within the codebase
 
-    - Decisions for testing, CI, deployment, and release processes
+    - Decisions for testing, CI, deployment and release processes
     - Operational guides from
       [vortextemplate.com](https://www.vortextemplate.com/docs)
     - Agents receive the same layered guidance as human developers
 
     ### Pre-configured context
 
-    - Development commands, critical rules, and directory layout ship with
+    - Development commands, critical rules and directory layout ship with
       the project
     - Agents can start contributing without lengthy onboarding
 
@@ -344,7 +344,7 @@ import {
 
     - Opt-in [CodeRabbit](https://www.coderabbit.ai/) configuration that
       reviews pull requests against the project's documented conventions
-    - Comments limited to correctness, security, performance, and
+    - Comments limited to correctness, security, performance and
       maintainability, with linting left to the project's own linters
 
     ➡️ See [AI](/docs/development/ai)
@@ -360,7 +360,7 @@ import {
       [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
       Composer package, run the same way in every environment
     - Customization through environment variables
-    - Database sourced from the hosting provider, a URL, FTP, S3, or a
+    - Database sourced from the hosting provider, a URL, FTP, S3 or a
       container image seeded with
       [MariaDB Drupal Data](https://github.com/drevops/mariadb-drupal-data)
 
@@ -368,7 +368,7 @@ import {
 
     - Provision from a database dump or from an installation profile
     - Database sanitization outside production
-    - Database updates, configuration import, and deploy hooks on every
+    - Database updates, configuration import and deploy hooks on every
       deployment
     - Opt-in check that fails provisioning when updates change the
       configuration
@@ -378,7 +378,7 @@ import {
     - Deployment notifications to email, [Slack](https://slack.com/),
       [GitHub](https://github.com/),
       [Jira](https://www.atlassian.com/software/jira),
-      [New Relic](https://newrelic.com/), a webhook, and
+      [New Relic](https://newrelic.com/), a webhook and
       [Diffy](https://diffy.website/)
     - Deployment status on the GitHub pull request
     - Deployed environment details posted as a Jira comment
@@ -390,7 +390,7 @@ import {
       [Renovate](https://www.mend.io/renovate/), as the hosted app or
       self-hosted in CI for projects with restricted third-party access
     - Separate groups and schedules for Drupal core, PHP and JavaScript
-      packages, container images, CI tools, and GitHub Actions
+      packages, container images, CI tools and GitHub Actions
     - Auto-merge flag for each group
     - 14-day minimum release age for new releases, except Drupal core
 
@@ -408,7 +408,7 @@ import {
       for flagging pull requests with merge conflicts
 
     ➡️ See [Provision](/docs/development/provision),
-    [Notifications](/docs/deployment/notifications), and
+    [Notifications](/docs/deployment/notifications) and
     [Dependency updates](/docs/development/dependency-updates)
 
   </VerticalTabPanel>
@@ -433,6 +433,8 @@ import {
       onboarding
     - Tooling information and usage guides for efficient day-to-day use
 
+    ➡️ See [Architecture](/docs/architecture)
+
   </VerticalTabPanel>
 
   <VerticalTab>🌀 Vortex | Consistency across your projects</VerticalTab>
@@ -445,12 +447,12 @@ import {
 
     - **Vortex** has been in development and production use since 2017,
       across education, government, commercial, healthcare, not-for-profit,
-      financial services, and technology sectors.
+      financial services and technology sectors.
     - Kept current with the latest Drupal, PHP, containerization, CI/CD
-      practices, and tooling.
+      practices and tooling.
     - Managed as a product with a dedicated team and a
       [roadmap](/docs/contributing/roadmap).
-    - Released monthly with new features, improvements, and bug fixes.
+    - Released monthly with new features, improvements and bug fixes.
 
     ### Multi-layered automated testing for every change
 

@@ -6,30 +6,33 @@ sidebar_position: 8
 # Migrations
 
 Migrating content from a legacy site means Drupal has to read that site's
-database. **Vortex** can run it for you as an optional second database,
-next to the primary one. When you enable it, a `database2` Docker service
-runs alongside the primary database, and a `settings.migration.php` file
-registers the `$databases['migrate']` connection that Drupal's Migrate API
-uses by default. A provision script then imports the legacy dump and runs
-your migrations in every environment except production.
+database. **Vortex** can run that database for you as an optional second
+database. Turning it on adds 3 parts:
+
+- A `database2` Docker service next to the primary database
+- A `settings.migration.php` file that registers the
+  `$databases['migrate']` connection, which Drupal's Migrate API uses by
+  default
+- A provision script that imports the legacy dump and runs your migrations
+  in every environment except production
 
 This page is for developers bringing content from a legacy site into a
 project built from **Vortex**. It shows how to turn the migration database
-on, fetch the legacy dump, and run your migrations during provisioning. It
+on, fetch the legacy dump and run your migrations during provisioning. It
 also lists every variable and command involved. For writing the migrations
 themselves, see the
 [Migrate API overview](https://www.drupal.org/docs/drupal-apis/migrate-api/migrate-api-overview)
 in the Drupal documentation.
 
-## Enabling the migration database
+## Enable the migration database
 
-### Via the installer
+### With the installer
 
 When you run the **Vortex** installer, answer **Yes** at the
 **Use a second database for migrations?** prompt. Then choose where the
 migration dump comes from at the **Migration database source** prompt. The
-source defaults to your hosting provider, `acquia` or `lagoon`, and to
-`url` without one.
+source defaults to your hosting provider, `acquia` or `lagoon`. Without a
+hosting provider, it defaults to `url`.
 
 ### Manual setup
 
@@ -37,28 +40,29 @@ To add migration support to an existing **Vortex** project, copy the
 following pieces from a fresh **Vortex** install with migration enabled:
 
 1. In `docker-compose.yml`, add the `database2` service, the `DATABASE2_*`
-   environment variables, and the `database2` entries in the
+   environment variables and the `database2` entries in the
    `wait-for-dependencies` service.
 2. In `.env`, add `VORTEX_FETCH_DB2_FILE`, `VORTEX_FETCH_DB2_SOURCE`,
-   `VORTEX_FETCH_DB2_ENVIRONMENT`, and the variables for your fetch source,
+   `VORTEX_FETCH_DB2_ENVIRONMENT` and the variables for your fetch source,
    such as `VORTEX_FETCH_DB2_URL`.
-3. Create `web/sites/default/settings.migration.php` (see
-   [Drupal settings](#drupal-settings)).
+3. Create `web/sites/default/settings.migration.php`. See
+   [Drupal settings](#drupal-settings).
 4. In `web/sites/default/settings.php`, add the block that loads
    `settings.migration.php`, between the per-module overrides and the local
    overrides.
 5. Add the `migrate` connection to the expected values in
    `tests/phpunit/Drupal/DatabaseSettingsTest.php` and
-   `tests/phpunit/Drupal/EnvironmentSettingsTest.php`, and the `DATABASE2_`
-   prefix to `tests/phpunit/Drupal/SettingsTestCase.php`. Without them, the
+   `tests/phpunit/Drupal/EnvironmentSettingsTest.php`.
+6. Add the `DATABASE2_` prefix to
+   `tests/phpunit/Drupal/SettingsTestCase.php`. Without steps 5 and 6, the
    `drupal_settings` tests fail on the extra connection.
-6. Add `scripts/provision-20-migration.sh` and make it executable.
-7. Add the `fetch-db2`, `reload-db2`, and `db2` commands to `.ahoy.yml`.
-8. Require `drupal/migrate_plus` and `drupal/migrate_tools`, and add a
-   migration module: the provision script installs `ys_migrate`.
-9. Add the "Fetch migration DB" step to the `database` job and the dump
-   copy to the `build` job of your CI configuration. On Lagoon, also add the
-   "Fetch migration database" task to `.lagoon.yml`.
+7. Add `scripts/provision-20-migration.sh` and make it executable.
+8. Add the `fetch-db2`, `reload-db2` and `db2` commands to `.ahoy.yml`.
+9. Require `drupal/migrate_plus` and `drupal/migrate_tools`.
+10. Add a migration module. The provision script installs `ys_migrate`.
+11. Add the "Fetch migration DB" step to the `database` job and the dump
+    copy to the `build` job of your CI configuration. On Lagoon, also add
+    the "Fetch migration database" task to `.lagoon.yml`.
 
 Confirm that `ahoy fetch-db2` saves the dump as `.data/db2.sql`, and that
 the next `ahoy provision` prints `Verified migration source database.`
@@ -126,15 +130,15 @@ falls back to `localhost` for the host and an empty port. It also accepts
 
 Each fetch source reads its own settings under the same `VORTEX_FETCH_DB2_`
 prefix, such as `VORTEX_FETCH_DB2_FTP_HOST` or `VORTEX_FETCH_DB2_S3_BUCKET`.
-The installer adds the ones for the source you pick to `.env`.
+The installer adds the settings for the source you pick to `.env`.
 
 ## Docker service
 
 By default, the `database2` service runs the same `uselagoon/mysql-8.4`
 image as the primary database. It uses the image directly, without the
-build step that adds the primary database's `my.cnf`. Set
-`VORTEX_DB2_IMAGE` to run a different image, for example one with the
-migration database already baked in (a database-in-image seed):
+build step that adds the primary database's `my.cnf`. To run a different
+image, set `VORTEX_DB2_IMAGE`. For example, point it at a database-in-image
+seed, which is an image with the migration database already in it:
 
 ```yaml
 database2:
@@ -151,9 +155,9 @@ database2:
     lagoon.type: mariadb
 ```
 
-The image tag tracks the primary database image. Check the shipped
+The image tag tracks the primary database image. See the shipped
 [`docker-compose.yml`](https://github.com/drevops/vortex/blob/main/docker-compose.yml)
-for the current version.
+for the tag in use.
 
 ## Drupal settings
 
@@ -181,23 +185,24 @@ The migration feature adds the following Ahoy commands:
 
 | Command | Description |
 |---------|-------------|
-| `ahoy fetch-db2` | Fetch the migration database dump |
-| `ahoy fetch-db2 --fresh` | Force a fresh fetch |
-| `ahoy reload-db2` | Recreate the `database2` container from its image, discarding its data |
-| `ahoy db2` | Open the migration database in Sequel Ace (macOS) |
+| `ahoy fetch-db2` | Fetches the migration database dump |
+| `ahoy fetch-db2 --fresh` | Forces a fresh fetch |
+| `ahoy reload-db2` | Recreates the `database2` container from its image, discarding its data |
+| `ahoy db2` | Opens the migration database in Sequel Ace (macOS) |
 
 With the default image, `ahoy reload-db2` brings the database back empty.
 The next `ahoy provision` finds the probe table missing and imports the dump
 again (see [Corruption detection](#corruption-detection)).
 
 `ahoy fetch-db2` runs the same `vendor/bin/vortex-fetch-db` script as
-`ahoy fetch-db`, with `VORTEX_DB_INDEX=2`. The index makes the fetch script
-and its source scripts read indexed variable names (for example,
-`VORTEX_FETCH_DB2_SOURCE` instead of `VORTEX_FETCH_DB_SOURCE`, and
-`VORTEX_DB2_IMAGE` instead of `VORTEX_DB_IMAGE`). As a result, every fetch
-source (URL, FTP, Acquia, Lagoon, container registry, and S3) works for the
-migration database too. The import, export, and provision scripts don't
-read the index; the migration provision script imports the dump itself.
+`ahoy fetch-db`, with `VORTEX_DB_INDEX=2`. With the index set, the fetch
+script and its source scripts read indexed variable names. For example,
+they read `VORTEX_FETCH_DB2_SOURCE` in place of `VORTEX_FETCH_DB_SOURCE`.
+They read `VORTEX_DB2_IMAGE` in place of `VORTEX_DB_IMAGE`.
+
+Every fetch source works for the migration database too: URL, FTP, Acquia,
+Lagoon, container registry and S3. The import, export and provision scripts
+ignore the index. The migration provision script imports the dump itself.
 
 ## Provision script
 
@@ -205,7 +210,7 @@ read the index; the migration provision script imports the dump itself.
 reaches the custom scripts, including `ahoy provision`. Custom provision
 scripts run in alphabetical order, so it comes after the demo and
 development modules scripts and before search indexing. In the `prod`
-environment it skips itself, so migrations never run in production.
+environment, the script skips the migrations.
 
 The script does the following, in order:
 
@@ -221,16 +226,21 @@ The script does the following, in order:
 8. Enables the Solr search server again
 9. Prints `drush migrate:status`
 
-The script needs the dump whenever it has to import the source database.
-Locally, `ahoy fetch-db2` downloads it. CI fetches it in the `database` job
-(see [CI integration](#ci-integration)), and on Lagoon `.lagoon.yml` fetches
-it before the provision step. In any other environment, provide the dump
-yourself or set `DRUPAL_MIGRATION_SKIP=1`.
+The script needs the dump whenever it imports the source database. Each
+environment gets the dump in its own way:
+
+- Locally, `ahoy fetch-db2` downloads it.
+- In CI, the `database` job fetches it. See
+  [CI integration](#ci-integration).
+- On Lagoon, `.lagoon.yml` fetches it before the provision step.
+- In any other environment, provide the dump yourself or set
+  `DRUPAL_MIGRATION_SKIP=1`.
 
 On projects with the Solr service, the script disables the search server
-before the migrations and enables it again afterward, so migrated entities
-aren't indexed one at a time. The `scripts/provision-30-search-index.sh`
-script rebuilds the index straight after.
+before the migrations and enables it again afterward. Solr then skips
+indexing each migrated entity as it arrives. The
+`scripts/provision-30-search-index.sh` script rebuilds the index right
+after.
 
 To leave the search server running and index entities as they're migrated,
 set `DRUPAL_MIGRATION_SEARCH_DISABLE=0`.
@@ -238,8 +248,8 @@ set `DRUPAL_MIGRATION_SEARCH_DISABLE=0`.
 ### Configuration variables
 
 The script reads the following variables. Set them in `.env`, in
-`.env.local` on your machine, or in your hosting provider's environment
-variables: `vortex-provision` loads `.env` and `.env.local` and passes the
+`.env.local` on your machine or in your hosting provider's environment
+variables. `vortex-provision` loads `.env` and `.env.local` and passes the
 values on to the custom scripts.
 
 | Variable | Default | Description |
@@ -253,18 +263,18 @@ values on to the custom scripts.
 | `DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE` | `categories` | Table name to probe for corruption detection |
 | `DRUPAL_MIGRATION_SEARCH_DISABLE` | `1` | Disable the Solr search server while migrations run (`0` to keep indexing) |
 
-The provision script sets `VORTEX_PROVISION_OVERRIDE_DB=1` whenever the
-primary database is fresh, so by default the source database is imported
-again along with it. The script reads the dump from `VORTEX_DB_DIR` (default
-`./.data`) and `VORTEX_FETCH_DB2_FILE` (default `db2.sql`), where
-`ahoy fetch-db2` saves it.
+`vortex-provision` sets `VORTEX_PROVISION_OVERRIDE_DB=1` whenever the
+primary database is fresh. By default, the source database is then imported
+again too. The script reads the dump from `VORTEX_DB_DIR` (default
+`./.data`) and `VORTEX_FETCH_DB2_FILE` (default `db2.sql`). `ahoy fetch-db2`
+saves the dump there.
 
-### Adding migrations
+### Add migrations
 
 Each migration is a YAML definition in a module's `migrations` directory.
-The demo one is
+The demo definition is
 `web/modules/custom/ys_migrate/migrations/ys_migrate_categories.yml`.
-Drupal finds the definitions of enabled modules only, and the script's
+Drupal finds the definitions of enabled modules only. The script's
 `Enabling migration modules` step installs `ys_migrate` alone. Put your
 definitions in that module, or add a `drush pm:install` line for your own
 module to that step.
@@ -277,13 +287,13 @@ To run a migration, call the `run_migration` helper in the script's
 run_migration my_migration
 ```
 
-The per-migration entity limit comes from `DRUPAL_MIGRATION_IMPORT_LIMIT`
-(set it to `all` for unlimited), and progress feedback from
-`DRUPAL_MIGRATION_FEEDBACK`. `DRUPAL_MIGRATION_UPDATE=1` adds `--update`.
+The helper passes `DRUPAL_MIGRATION_IMPORT_LIMIT` as `--limit` and
+`DRUPAL_MIGRATION_FEEDBACK` as `--feedback`. `DRUPAL_MIGRATION_UPDATE=1`
+adds `--update`.
 
 The helper resets the migration's status first, so a migration left stuck
 by an interrupted run starts cleanly. It passes any extra arguments
-straight to `drush migrate:import`. When an import fails, it prints the
+directly to `drush migrate:import`. When an import fails, it prints the
 migration's messages and stops the provisioning.
 
 ### Corruption detection
@@ -293,14 +303,16 @@ source database for the table specified in
 `DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE`. If the table is missing (corrupted
 or empty database), the script automatically re-imports the dump file.
 
-Before any migration runs, it probes again, with or without an import. If
-the table is still missing, it lists the tables it found and fails with
-`Migration source database is corrupted.` A missing dump file stops it too,
-with a reminder to run `ahoy fetch-db2`.
+Before any migration runs, the script probes again, with or without an
+import. If the table is still missing, the script lists the tables it found.
+It then fails with the `Migration source database is corrupted.` message. A
+missing dump file also stops the script, with a reminder to run
+`ahoy fetch-db2`.
 
 The default probe table, `categories`, belongs to the demo source database.
 For a real source, set `DRUPAL_MIGRATION_SOURCE_DB_PROBE_TABLE` to a table
-it holds, or the script fails at this check and stops the provisioning.
+in that database. Otherwise, the script fails at this check and stops the
+provisioning.
 
 ## Demo migration module
 
@@ -329,20 +341,20 @@ The migration maps the following source fields:
 ### Dependencies
 
 The module depends on core's Migrate module and on `drupal/migrate_plus` and
-`drupal/migrate_tools`, which stay in `composer.json` when the migration
-feature is enabled. Migrate Plus provides the `table` source plugin, and
-Migrate Tools provides the `drush migrate:*` commands the provision script
-runs.
+`drupal/migrate_tools`. Both packages stay in `composer.json` when the
+migration feature is enabled. Migrate Plus provides the `table` source
+plugin. Migrate Tools provides the `drush migrate:*` commands the provision
+script runs.
 
 ## CI integration
 
-Both CI systems (GitHub Actions and CircleCI) include a migration database
-fetch step in the existing `database` job. Both database files are cached
-together in the same `.data` directory, so the migration dump follows the
-same daily cache as the primary one.
+GitHub Actions and CircleCI both include a migration database fetch step in
+the `database` job. The 2 dump files share the `.data` directory and its
+cache, so the migration dump follows the same daily cache as the primary
+dump.
 
-The `build` job copies the migration database file into the CLI container
-alongside the primary database before running provision.
+Before provisioning, the `build` job copies the migration database file into
+the CLI container, next to the primary database.
 
 ➡️ See [Provision](provision.mdx) for how the custom provision scripts run,
 and [Contributed modules](modules/contributed-modules.mdx) for the shipped

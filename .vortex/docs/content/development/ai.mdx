@@ -7,12 +7,12 @@ sidebar_position: 14
 
 **Vortex** ships instructions for AI coding agents, so an agent that works
 on your project starts with the context a new teammate would get. That
-covers the commands to run, the rules to follow, and where the documentation
+covers the commands to run, the rules to follow and where the documentation
 lives.
 
 This page is for developers who work on a **Vortex** project with an AI
 coding agent such as Claude Code. It explains what each instruction file
-gives the agent, how to add skills of your own, and how to tune automated
+gives the agent, how to add skills of your own and how to tune automated
 code review.
 
 The installer adds the instruction files unless you answer no to its
@@ -26,21 +26,19 @@ following:
 
 ## How it works
 
-The agent instructions follow the same two-tier documentation pattern that
-the rest of **Vortex** uses:
+The agent instructions follow the same 2-tier documentation pattern that
+the rest of **Vortex** uses. Agents get project-level decisions first, then
+**Vortex**-level procedures:
 
 - **What** applies to the project lives in the `docs/` directory. Before an
-  implementation decision, the agent checks the relevant file there for the
-  project's choices, such as testing conventions, CI configuration,
-  deployment rules, and release processes.
+  implementation decision, the agent checks the relevant file there. The
+  files hold the project's choices, such as testing conventions, CI
+  configuration, deployment rules and release processes.
 - **How** to perform operations comes from the
   [Vortex documentation](https://www.vortextemplate.com/docs), this site.
   `AGENTS.md` instructs agents to look for a cached copy in `.artifacts/`
-  first, and to fetch the guide from the website and cache it there when
-  there's no copy yet.
-
-AI agents get the same layered guidance as you do: project-level decisions
-first, then **Vortex**-level procedures.
+  first. Without a cached copy, they fetch the guide from the website and
+  cache it there.
 
 ## Configuration files
 
@@ -52,14 +50,13 @@ It's agent-agnostic, so any AI tool that reads `AGENTS.md` can use it.
 
 The file has these sections, in order:
 
-- **Highest priority rule** - limits every Bash call to exactly 1 simple
-  command, with no chaining, pipes, command substitution, or
-  here-documents.
+- **Highest priority rule** - allows exactly 1 simple command per Bash
+  call. It bans chaining, pipes, command substitution and here-documents.
 - **Daily development tasks** - a reference of `ahoy` commands for building,
-  testing, and managing the local environment.
-- **Before starting any task** - a checklist for the start of every task:
-  the cached documentation in `.artifacts/` first, then the project's
-  `docs/` files, then the website for anything missing.
+  testing and managing the local environment.
+- **Before starting any task** - a checklist for the start of every task.
+  Agents check the cached documentation in `.artifacts/` first, then the
+  project's `docs/` files, then the website for anything missing.
 - **Critical rules** - constraints that agents must always follow:
   - Never modify the shipped scripts in
     `vendor/drevops/vortex-tooling/src/`.
@@ -79,16 +76,16 @@ The file has these sections, in order:
 
 Claude Code loads the
 [`CLAUDE.md`](https://github.com/drevops/vortex/blob/main/CLAUDE.md) file
-automatically at the start of every session. It holds nothing but a heading
-and an `@AGENTS.md` import, so Claude Code reads the full development guide
-along with it, and there's only 1 set of instructions to maintain.
+automatically at the start of every session. It holds only a heading and an
+`@AGENTS.md` import. Claude Code reads the full development guide through
+that import, so there's only 1 set of instructions to maintain.
 
 ### `.claude/settings.json`
 
 The
 [`.claude/settings.json`](https://github.com/drevops/vortex/blob/main/.claude/settings.json)
 file is a checked-in Claude Code settings file that pre-approves every
-`ahoy` command. An agent can then build, provision, lint, and test through
+`ahoy` command. An agent can then build, provision, lint and test through
 `ahoy` without asking you to confirm each call:
 
 ```json
@@ -112,9 +109,8 @@ which Git ignores.
 
 ## Custom skills
 
-Skills are reusable instruction sets that teach an agent a repeatable,
-project-specific task, such as a release checklist or a legacy content
-import procedure.
+A skill is a reusable instruction set for a repeatable, project-specific
+task, such as a release checklist or a legacy content import.
 
 Add a skill by creating a `SKILL.md` file in its own directory under
 `.claude/skills/`:
@@ -140,13 +136,12 @@ Instructions the agent follows when the skill is invoked.
 
 The shipped `.gitignore` un-ignores `.claude/skills/` alongside
 `.claude/settings.json`, so you commit a skill like any other file. Your
-teammates get it after you push the commit and it's merged into the branch
-they work on. Everything else under `.claude/` stays ignored, which keeps
-machine-local Claude state out of the repository.
+teammates get the skill after your commit is merged into the branch they
+work on. Git ignores everything else under `.claude/`, so machine-local
+Claude state stays out of the repository.
 
-Confirm that `git status` lists the new skill as untracked, which shows that
-Git doesn't ignore it. After you commit it, `git ls-files .claude/skills`
-lists its `SKILL.md`, which shows that Git tracks it.
+Confirm that `git status` lists the new skill as untracked. After you commit
+it, `git ls-files .claude/skills` lists its `SKILL.md`.
 
 ## AI code review
 
@@ -166,19 +161,23 @@ The configuration makes these changes to the CodeRabbit defaults:
   the `docs/` entries when you don't keep the project documentation.
 - **Limits comments to issues that matter** - the `chill` review profile
   and the tone instructions restrict comments to correctness, security,
-  performance, and maintainability.
+  performance and maintainability.
 - **Leaves linting to your linters** - CodeRabbit's own PHPCS, PHPMD,
-  PHPStan, ESLint, and Stylelint runs are off. The project runs PHPCS,
-  PHPStan, ESLint, and Stylelint in CI with its own configuration, and
-  doesn't use PHPMD.
-- **Removes extra output** - sequence diagrams, related issues and pull
-  requests, suggested labels and reviewers, the docstring coverage check,
-  and the docstring and unit test generation offers are off.
-- **Skips lock files** - `composer.lock`, `package-lock.json`, and
+  PHPStan, ESLint and Stylelint runs are off. The project runs PHPCS,
+  PHPStan, ESLint and Stylelint in CI with its own configuration. It doesn't
+  use PHPMD.
+- **Removes extra output** - the following parts of a review are off:
+  - Sequence diagrams
+  - The in-progress fortune message
+  - Related issues and pull requests
+  - Suggested labels and reviewers
+  - The docstring coverage check
+  - The docstring and unit test generation offers
+- **Skips lock files** - `composer.lock`, `package-lock.json` and
   `yarn.lock` are excluded from review.
 - **Adds instructions for 2 paths** - CodeRabbit reviews exported
   configuration in `config/` only for changes to permissions, content
-  access, and security settings. It reviews Behat features against
+  access and security settings. It reviews Behat features against
   `docs/testing.md`.
 
 The copy in the **Vortex** repository also excludes the installer's test

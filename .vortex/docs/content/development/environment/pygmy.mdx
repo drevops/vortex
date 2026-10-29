@@ -13,9 +13,9 @@ as follows:
 > work with Docker for Mac! (quite a lot for such a small whale 🐳)
 
 This page is for developers who set up a machine for a **Vortex** project
-or need to get an SSH key back into the CLI container. It explains what
-Pygmy provides, how to install and run it, and how to reconnect the CLI
-container to its SSH agent.
+or need their SSH key back in the CLI container. It explains what
+Pygmy provides and how to install and run it. It also shows how to
+reconnect the CLI container to Pygmy's SSH agent.
 
 Pygmy provides the shared services the **Vortex** container stack relies on:
 
@@ -27,9 +27,8 @@ Pygmy provides the shared services the **Vortex** container stack relies on:
 - A local mail catcher that receives and displays outgoing mail at
   `http://mailhog.docker.amazee.io/`.
 
-They're shared because a single Pygmy instance serves every project on your
-machine: start it once after each boot, and every local stack routes
-through it.
+A single Pygmy instance serves every project on your machine. Start it once
+after each boot, and every local stack routes through it.
 
 The `docker-compose.yml` that ships with **Vortex** depends on Pygmy twice.
 The `nginx` service joins the external `amazeeio-network` that Pygmy
@@ -37,13 +36,12 @@ creates, and the `cli` service takes its SSH agent volume from Pygmy's
 `amazeeio-ssh-agent` container. Both have to exist before Docker Compose can
 create those containers, so start Pygmy before `ahoy up`.
 
-If the network is missing, `ahoy up` fails, because Docker Compose returns
-an error instead of creating a missing external network. If Pygmy's
-containers exist but aren't running, the stack starts, but your SSH key
-isn't available in the CLI container.
+If the network is missing, `ahoy up` fails. Docker Compose returns an error
+for a missing external network. If Pygmy's containers exist but aren't
+running, the stack starts without your SSH key in the CLI container.
 
 [`ahoy doctor`](doctor.mdx) checks that the 4 Pygmy containers are running:
-the SSH agent, the mail catcher, the proxy, and the DNS resolver. It looks
+the SSH agent, the mail catcher, the proxy and the DNS resolver. It looks
 for their names in the output of `pygmy status`:
 
 ```text
@@ -86,32 +84,36 @@ pygmy addkey --key ~/.ssh/path/to/key
 ```
 
 A key you add that way lasts only until the agent container is replaced,
-for example by `pygmy restart`. To load a different key every time
-Pygmy starts, pass it with `--key`, as in
-`pygmy up --key ~/.ssh/path/to/key`; it then replaces the default key.
-`pygmy restart` takes the same `--key` option.
+for example by `pygmy restart`. To load a different key every time Pygmy
+starts, pass it with `--key`, as in `pygmy up --key ~/.ssh/path/to/key`.
+That key then replaces the default key. `pygmy restart` takes the same
+`--key` option.
 
 Whichever way you load a different key, set `VORTEX_SSH_FILE` to its path in
 `.env.local`, so that Doctor checks for the key you use.
 
 `pygmy restart` removes the agent container and creates a new one. If the
 stack is running at the time, the CLI container stays attached to the
-previous agent, so the SSH key is no longer available inside it. The same
-happens when the stack starts before Pygmy.
+previous agent. The SSH key is then missing inside the CLI container. The
+same happens when the stack starts before Pygmy.
 
-A plain `pygmy restart` loads only the default key. If you use a different
-key, load it again first with the command shown earlier, or restart with
-`pygmy restart --key ~/.ssh/path/to/key`. Then recreate the CLI container to
-attach it to the current agent:
+To reattach the CLI container to the current agent:
 
-```shell
-ahoy up --no-deps --force-recreate cli
-```
+1. If you use a different key, add it to the agent again, or restart with
+   `pygmy restart --key ~/.ssh/path/to/key`. A plain
+   `pygmy restart` loads only the default key.
+2. Recreate the CLI container:
 
-Running `ahoy up` on its own isn't enough: Docker Compose leaves a running
-container alone when its configuration hasn't changed.
+   ```shell
+   ahoy up --no-deps --force-recreate cli
+   ```
+
+   A plain `ahoy up` leaves the CLI container attached to the old agent.
+   Docker Compose leaves a running container alone when its configuration
+   hasn't changed.
+
 [`ahoy doctor`](doctor.mdx) checks that the SSH key is available in the CLI
-container and prints this command when it isn't.
+container. When the key is missing, Doctor prints the command from step 2.
 
 Confirm that the key is back: `ahoy doctor` prints
 `[ OK ] SSH key is available within the CLI container.`

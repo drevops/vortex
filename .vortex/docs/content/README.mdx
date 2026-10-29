@@ -2,7 +2,7 @@
 title: ''
 sidebar_label: Introduction
 sidebar_position: 1
-description: Vortex is a Drupal project template for building and deploying Drupal sites. You get a containerized local environment, automated testing and code quality tools, continuous integration pipelines, and integrations with the Acquia and Lagoon hosting platforms, all configured to work together, so your team starts on features instead of infrastructure.
+description: Vortex is a Drupal project template for building and deploying Drupal sites. It ships a containerized local environment, testing and code quality tools, CI pipelines and integrations for the Acquia and Lagoon hosting platforms. They work together, so your team starts on features instead of infrastructure.
 
 ---
 
@@ -22,19 +22,19 @@ description: Vortex is a Drupal project template for building and deploying Drup
 
 **Vortex** is a Drupal project template for building and deploying Drupal
 sites. This introduction is for anyone evaluating it or about to start a
-project with it. By the end, you'll know why the template exists, what it's
-made of, and where to go to install it, get help, or contribute.
+project with it. It covers why the template exists and what it's made of.
+It ends with links to install it, get help and contribute.
 
-A **Vortex** project gives you the following, configured to work together,
-so your team starts on features instead of setting up infrastructure:
+A **Vortex** project comes with the following parts. They're configured to
+work together, so your team starts on features instead of infrastructure:
 
 - A containerized local environment
 - Automated testing and code quality tools
 - Continuous integration pipelines for GitHub Actions or CircleCI
 - Integrations with the Acquia and Lagoon hosting platforms
 
-Every **Vortex** project shares the same structure and tooling, so a
-developer who knows one project knows their way around the next.
+Every **Vortex** project shares the same structure and tooling. A developer
+who has worked on 1 project knows their way around the next.
 
 Renovate keeps the tools the template ships up to date, and automated tests
 check every change to the template. The tests lower the risk of an update
@@ -55,7 +55,7 @@ different:
 
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
   <li>⏱️ Developers lose hours or days setting up their local, continuous
-    integration, and hosting environments</li>
+    integration and hosting environments</li>
   <li>⚠️ Inconsistent setups cause false negatives that erode trust in
     the tools</li>
   <li>🔌 Poorly understood third-party services slow integration and
@@ -141,7 +141,7 @@ for developing and maintaining Drupal projects.
 The template includes the following:
 
 <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
-  <li>💧 A pre-configured Drupal project structure with module, theme, and
+  <li>💧 A pre-configured Drupal project structure with module, theme and
     test boilerplate</li>
   <li>🧰 Pre-configured tools for code quality checks and automated
     testing</li>
@@ -174,7 +174,7 @@ The installer does the following:
   <li>🔄️ Updates existing installations to a newer boilerplate version
     when you run <code>ahoy update-vortex</code></li>
   <li>🔌 Runs as a standalone CLI application that scripts and AI
-    agents can drive with prepared answers, a prompt schema, and a
+    agents can drive with prepared answers, a prompt schema and a
     validation mode</li>
 </ul>
 
@@ -196,8 +196,8 @@ Every project starts from a base with these qualities:
 
 ## 🚀 Quick start
 
-You need PHP 8.3 or later, `curl`, `git`, `tar`, and `composer` to install,
-and Docker, Pygmy, and Ahoy to build the site.
+The installer needs PHP 8.3 or later, `curl`, `git`, `tar` and `composer`.
+Building the site needs Docker, Pygmy and Ahoy.
 
 Run the installer in an empty directory and answer its prompts:
 
@@ -227,6 +227,6 @@ what each step shows
 full text.
 
 The installer leaves the template's `LICENSE` file out of your project,
-along with `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and
+along with `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` and
 `.github/FUNDING.yml`. Your project's `composer.json` declares
 `"license": "proprietary"`.

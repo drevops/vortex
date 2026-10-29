@@ -10,20 +10,19 @@ follows:
 > A mighty CSS linter that helps you avoid errors and enforce conventions.
 
 Stylelint catches mistakes in stylesheets, such as unknown properties,
-invalid property values, and duplicate selectors. It also enforces the
-conventions that keep them consistent, such as alphabetically ordered
-declarations. **Vortex** comes with a [pre-configured Stylelint
+invalid property values and duplicate selectors. It also enforces the
+conventions that keep stylesheets consistent, such as alphabetically
+ordered declarations. **Vortex** comes with a [pre-configured Stylelint
 ruleset](https://github.com/drevops/vortex/blob/main/.stylelintrc.js) for
 Drupal projects.
 
 This page is for developers who write CSS in custom modules or SCSS in the
-custom theme. It shows how to run Stylelint and fix what it reports, what
-the root and theme configurations enforce, and how to ignore a rule.
+custom theme. It shows how to run Stylelint, fix what it reports and ignore
+a rule. It also lists what the root and theme configurations enforce.
 
-In **Vortex**, the root `lint-css` script lints the CSS in custom modules
-only (`web/modules/custom`). The custom theme keeps its own configuration
-in its directory, described under [Theme
-configuration](#theme-configuration).
+In **Vortex**, the root `lint-css` script lints only the CSS in
+`web/modules/custom`. The custom theme has its own configuration, described
+in [Theme configuration](#theme-configuration).
 
 ## Usage
 
@@ -55,8 +54,8 @@ run straight after the command, prints `0`.
 
 ### Fix violations
 
-Stylelint fixes many violations automatically using the `--fix` flag. To
-apply the fixes, run 1 of the following commands:
+Stylelint's `--fix` flag repairs many violations automatically. To apply the
+fixes, run 1 of the following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -74,10 +73,10 @@ apply the fixes, run 1 of the following commands:
   </TabItem>
 </Tabs>
 
-`ahoy lint-fe` and `ahoy lint-fe-fix` also run the `lint` and `lint-fix`
-scripts of the custom theme, which lint the theme's JavaScript and SCSS
-together. To lint or fix only the theme's stylesheets, run its own
-`lint-css` and `lint-css-fix` scripts:
+`ahoy lint-fe` and `ahoy lint-fe-fix` also run the custom theme's `lint` and
+`lint-fix` scripts. Those scripts cover the theme's JavaScript and SCSS
+together. To lint or fix only the theme's stylesheets, run its `lint-css`
+or `lint-css-fix` script:
 
 ```shell
 ahoy cli "npm run --prefix=web/themes/custom/your_site_theme lint-css"
@@ -98,27 +97,28 @@ By default, Stylelint uses the following shared configuration and plugin:
 - `stylelint-config-standard` - the standard shareable configuration
 - `stylelint-order` - plugin that provides the `order/*` rules
 
-The following rules are set on top of the standard configuration:
+The configuration sets the following rules on top of the standard
+configuration:
 
 - `order/properties-alphabetical-order` - declarations within a block must
   be in alphabetical order
 - `at-rule-no-unknown` - unknown at-rules are reported, except the Sass
   at-rules `@extend`, `@at-root`, `@debug`, `@warn`, `@error`, `@if`,
   `@else`, `@for`, `@each`, `@while`, `@include`, `@mixin`, `@function`,
-  `@return`, and `@content`
+  `@return` and `@content`
 - `selector-class-pattern`, `selector-id-pattern`,
-  `custom-property-pattern`, and `keyframes-name-pattern` - disabled, so
-  class, ID, custom property, and keyframes names aren't forced into a
-  naming pattern
+  `custom-property-pattern` and `keyframes-name-pattern` - disabled, so
+  class, ID, custom property and keyframes names can follow any naming
+  pattern
 - `no-descending-specificity` - disabled
 - `font-family-no-missing-generic-family-keyword` - disabled
 
 The `lint-css` script checks only `.css` files. In them,
-`at-rule-no-unknown` skips the listed Sass at-rules, but `@use` and
-`@forward` aren't on the list, so Stylelint reports them as unknown.
+`at-rule-no-unknown` skips the listed Sass at-rules. `@use` and `@forward`
+are missing from the list, so Stylelint reports them as unknown.
 
-Targets include custom modules only. The `--allow-empty-input` flag makes
-the run exit without an error when the glob matches no files:
+The `--allow-empty-input` flag in the root scripts makes the run exit
+without an error when the glob matches no files:
 
 ```json
 {
@@ -141,20 +141,20 @@ also lints `web/sites/default`:
 }
 ```
 
-The root `package.json` lists the `stylelint`, `stylelint-config-standard`,
-and `stylelint-order` packages in its `devDependencies`, and `ahoy fei`
-installs them.
+The root `package.json` lists the `stylelint`, `stylelint-config-standard`
+and `stylelint-order` packages in its `devDependencies`. `ahoy fei` installs
+them.
 
 ### Theme configuration
 
 The custom theme ships its own
 [`.stylelintrc.json`](https://github.com/drevops/vortex/blob/main/web/themes/custom/your_site_theme/.stylelintrc.json)
-and its own `package.json`, because a theme carries its own front-end
-tooling and can be moved into a separate repository.
+and `package.json`, so the theme can move to a separate repository with its
+tooling.
 
 The theme configuration extends `stylelint-config-standard` and
-`stylelint-config-standard-scss`, loads the `stylelint-scss` plugin, uses
-the `string` formatter, and sets the following rules:
+`stylelint-config-standard-scss`. It loads the `stylelint-scss` plugin,
+uses the `string` formatter and sets the following rules:
 
 - `scss/at-extend-no-missing-placeholder` - `@extend` must target a
   placeholder selector
@@ -162,15 +162,14 @@ the `string` formatter, and sets the following rules:
 - `scss/dollar-variable-pattern` - `$variable` names must match
   `^_?[a-z]+([a-z0-9-]+[a-z0-9]+)?$`
 
-Unlike the root configuration, it doesn't load `stylelint-order`, so the
-theme's SCSS doesn't have to list declarations in alphabetical order.
+The theme configuration skips `stylelint-order`, so the theme's SCSS can
+list declarations in any order.
 
-The theme's `lint-css` script targets `scss/**/*.scss`, and the
-configuration ignores `scss/_components.scss`, `fonts/**/*.scss`, and
-`build/.*` through the `ignoreFiles` key. Stylelint reads these entries as
-globs relative to the configuration file, so `build/.*` matches only names
-that start with a dot directly inside `build`. The `scss/**/*.scss` target
-never reaches `build` anyway.
+The theme's `lint-css` script targets `scss/**/*.scss`. The `ignoreFiles`
+key skips `scss/_components.scss`, `fonts/**/*.scss` and `build/.*`.
+Stylelint reads these entries as globs relative to the configuration file.
+`build/.*` therefore matches only names that start with a dot directly
+inside `build`. The `scss/**/*.scss` target never reaches `build` anyway.
 
 ## Ignoring
 
@@ -234,13 +233,13 @@ a {
 Stylelint runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
 violations. CI lints the custom modules and the custom theme in separate
-steps, and skips the theme step when
+steps. It skips the theme step when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
 is set to `1`. On GitHub Actions, the theme step reads a repository
-variable of that name, not the value in `.env`.
+variable of that name and ignores the value in `.env`.
 
-Each step runs the `lint` script of its `package.json`, root or theme,
-which is `npm run lint-js && npm run lint-css`. It stops at the first linter
+Each step runs the `lint` script of the root or theme `package.json`:
+`npm run lint-js && npm run lint-css`. The script stops at the first linter
 that fails, so Stylelint reports nothing until ESLint passes.
 
 ### Ignoring failures

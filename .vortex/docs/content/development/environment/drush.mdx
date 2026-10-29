@@ -19,8 +19,8 @@ The [Drush website](https://www.drush.org/) describes the tool as follows:
 **Vortex** uses Drush wherever it talks to Drupal, from the provisioning
 scripts to the Behat tests. This page is for developers who run Drush
 against their local site or a Lagoon environment. It shows how to run Drush
-in the stack, what the shipped configuration changes, and how to reach a
-Lagoon environment through its site alias.
+in the stack and what the shipped configuration changes. It also shows how
+to reach a Lagoon environment through its site alias.
 
 All the standard Drush commands work, and **Vortex** adds shorthand commands
 for the most common tasks:
@@ -28,9 +28,9 @@ for the most common tasks:
 - `ahoy fetch-db` - fetch the database dump from the source that
   `VORTEX_FETCH_DB_SOURCE` sets, such as a URL or a hosting environment
 - `ahoy import-db` - import the database dump into the local environment
-- `ahoy provision` - import the database dump, or install from a profile,
-  then run database updates, the configuration import, cache rebuilds, and
-  deploy hooks
+- `ahoy provision` - import the database dump or install from a profile.
+  Then run database updates, the configuration import, cache rebuilds and
+  deploy hooks.
 
 ## Usage
 
@@ -60,9 +60,9 @@ The shipped Drush configuration lives in the `drush/` directory:
 
 - [`drush/drush.yml`](https://github.com/drevops/vortex/blob/main/drush/drush.yml)
   passes `--disable-ssl` to the `sql:*` commands (`sql:cli`, `sql:query`,
-  `sql:dump`, `sql:drop`, `sql:create`) and `site:install`, so the database
-  commands connect to the stack's database service without TLS, and adds
-  `--no-tablespaces` to `sql:dump`.
+  `sql:dump`, `sql:drop`, `sql:create`) and to `site:install`. The database
+  commands then connect to the stack's database service without TLS. The
+  file also adds `--no-tablespaces` to `sql:dump`.
 - [`drush/sites/lagoon.site.yml`](https://github.com/drevops/vortex/blob/main/drush/sites/lagoon.site.yml)
   defines the site aliases for Lagoon-hosted environments. See
   [Aliases](#aliases).
@@ -78,25 +78,26 @@ processes, Drush commands included. Any valid PHP ini directive works there.
 PHP finds the file through the `PHP_INI_SCAN_DIR` environment variable,
 which **Vortex** sets in the CLI container image (`.docker/cli.dockerfile`)
 and in the Acquia provision hook (`hooks/library/provision.sh`). Every PHP
-CLI process that sees this scan path loads the file, not only Drush.
-**Vortex** doesn't set it for the `php` container that serves web requests.
-For web requests, set PHP directives in `.docker/config/php/custom.ini`.
-See [PHP configuration](docker.mdx#php-configuration).
+CLI process with this scan path loads the file, Drush included. The `php`
+container that serves web requests doesn't get the scan path. For web
+requests, set PHP directives in `.docker/config/php/custom.ini`. See [PHP
+configuration](docker.mdx#php-configuration).
 
-Both places add the directory after a colon instead of replacing
-`PHP_INI_SCAN_DIR`. The colon keeps the directories PHP already scans: an
-existing `PHP_INI_SCAN_DIR` value, or PHP's default scan directory when the
-variable starts out empty. That way, on Acquia, the hosting provider's own
-PHP ini overrides (such as `sendmail_path`) aren't lost.
+Both places append the directory to `PHP_INI_SCAN_DIR` after a colon. The
+colon keeps the directories PHP already scans. Those are the existing
+`PHP_INI_SCAN_DIR` value, or PHP's default scan directory when the variable
+starts out empty. On Acquia, the hosting provider's own PHP ini overrides,
+such as `sendmail_path`, stay in effect.
 
 Locally, a change to `drush.ini` applies to the next PHP process without a
 rebuild. The project directory is mounted at `/app`, and PHP reads the scan
-directory each time a process starts. In CI and on Lagoon, no host
-directory is mounted. The image build copies the project into `/app`, so a
-change there applies from the next build.
+directory each time a process starts. In CI and on Lagoon, the image build
+copies the project into `/app` instead of mounting it. A change there
+applies from the next build.
 
-To confirm that PHP loads the file, list the ini files it reads, which
-include `/app/drush/php-ini/drush.ini`, or print the memory limit in effect:
+To confirm that PHP loads the file, list the ini files it reads. The list
+includes `/app/drush/php-ini/drush.ini`. You can also print the memory
+limit in effect:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -129,18 +130,17 @@ memory_limit = 1G
 
 This value is sized for database imports and configuration synchronization
 on large sites. It applies to PHP CLI processes that load this scan path,
-including Drush, and doesn't change the memory limit used to serve web
-requests.
+Drush included. Web requests keep their own memory limit.
 
-If a Drush command exhausts this limit, profile the command before raising
-the value. An exhausted 1G limit usually points to a memory leak in custom
-code rather than a limit set too low. Raising the ceiling hides the leak
-until a larger dataset reaches the new limit.
+If a Drush command exhausts this limit, profile the command before you
+raise the value. An exhausted 1G limit usually points to a memory leak in
+custom code. Raising the ceiling hides the leak until a larger dataset
+reaches the new limit.
 
-To give a single command more memory without changing the default, run
-Drush's PHP entry point, `vendor/bin/drush.php`, through `php -d`.
-`vendor/bin/drush` is a shell wrapper, and handing it to `php` prints the
-script instead of running Drush:
+To give a single command more memory, run Drush's PHP entry point,
+`vendor/bin/drush.php`, through `php -d`. Pass `drush.php`, because
+`vendor/bin/drush` is a shell wrapper. Handing the wrapper to `php` prints
+the script instead of running Drush:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -160,20 +160,27 @@ script instead of running Drush:
 
 For Lagoon hosting, the shipped
 [`drush/sites/lagoon.site.yml`](https://github.com/drevops/vortex/blob/main/drush/sites/lagoon.site.yml)
-file defines a wildcard alias, so every environment resolves as
-`@lagoon.<branch-or-pr>` without per-environment entries. You can use the
+file defines a wildcard alias. Every environment resolves as
+`@lagoon.<branch-or-pr>` with no per-environment entries. You can use the
 aliases from your host machine or from inside the container.
 
-The project name is hardcoded in the alias file because Drush doesn't load
-variables from `.env` files. The hardcoded name keeps the aliases working
-identically on the host and in the container. It appears in 2 lines: the
-`user:` value (`your_site-${env-name}` in the template) and the `uri:`
-value. If you change `LAGOON_PROJECT` in `.env`, update both lines to match.
+Drush doesn't load variables from `.env` files, so the alias file
+hardcodes the project name. The hardcoded name makes the aliases work the
+same on the host and in the container. It appears in 2 lines:
 
-The file also hardcodes the details of the Lagoon cluster: the SSH host in
-`host:`, the SSH port in the `-p` option of `ssh.options`, and the route
-domain at the end of `uri:`. If your project runs on another Lagoon
-cluster, replace them with that cluster's values.
+- The `user:` value, `your_site-${env-name}` in the template
+- The `uri:` value
+
+If you change `LAGOON_PROJECT` in `.env`, update both lines to match.
+
+The file also hardcodes these details of the Lagoon cluster:
+
+- The SSH host in `host:`
+- The SSH port in the `-p` option of `ssh.options`
+- The route domain at the end of `uri:`
+
+If your project runs on another Lagoon cluster, replace them with that
+cluster's values.
 
 To run a Drush command against a Lagoon environment, follow the steps in
 the tab that matches how you run Drush:

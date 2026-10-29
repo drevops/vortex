@@ -5,34 +5,37 @@ sidebar_position: 2
 
 # Email
 
-The email channel sends a deployment notice, with links to the new
-environment and its login page, to a list of recipients. It's the default
-channel. It sends through the `sendmail` or `mail` command and fills in the
-message template with `php`, both in the hosting environment that runs the
-notification hook: the Lagoon `cli` service or the Acquia server.
+The email channel sends a deployment notice to a list of recipients, with
+links to the new environment and its login page. It's the default channel.
 
 This page is for the lead or DevOps engineer who sets up deployment emails.
 It covers the setup steps and every variable the channel reads.
 
+The channel runs in the hosting environment that runs the notification
+hook: the Lagoon `cli` service or the Acquia server. It sends through the
+`sendmail` or `mail` command there and fills in the message template with
+`php`.
+
 ## Setup
 
-To set up email notifications, complete these steps:
+To set up email notifications:
 
 1. Make sure the comma-separated `VORTEX_NOTIFY_CHANNELS` list in your
    `.env` file includes `email`, for example
-   `VORTEX_NOTIFY_CHANNELS=email,slack`. It's `email` by default.
+   `VORTEX_NOTIFY_CHANNELS=email,slack`. The list is `email` by default.
 2. Set `VORTEX_NOTIFY_EMAIL_FROM` in your `.env` file to the sender email
    address. Without it, the channel falls back to the `DRUPAL_SITE_EMAIL`
    environment variable, which the shipped `.env` doesn't set.
-3. Set `VORTEX_NOTIFY_EMAIL_RECIPIENTS` in your `.env` file to recipients in
-   the format `email|name`, comma-separated for more than 1. The name is
-   optional, for example `to1@example.com|Jane Doe, to2@example.com`.
+3. Set `VORTEX_NOTIFY_EMAIL_RECIPIENTS` in your `.env` file to the
+   recipients, in the format `email|name`. Separate several recipients with
+   commas. The name is optional, for example
+   `to1@example.com|Jane Doe, to2@example.com`.
 
 Confirm that the next deployment sent the email. The deployment output on
-your hosting platform shows `[ OK ] Finished email notification.`, and each
+your hosting platform shows `[ OK ] Finished email notification.` Each
 recipient gets an email with the subject
 `<project> deployment notification of <label>`. The placeholders are
-`VORTEX_NOTIFY_EMAIL_PROJECT` and `VORTEX_NOTIFY_EMAIL_LABEL`, which default
+`VORTEX_NOTIFY_EMAIL_PROJECT` and `VORTEX_NOTIFY_EMAIL_LABEL`. They default
 to the project name and the deployment label, such as `PR-123` or a branch
 name.
 
@@ -42,7 +45,7 @@ email.
 ## Environment variables
 
 See the [Notifications](README.mdx) overview for the router, what a failed
-channel stops, the shared `VORTEX_NOTIFY_*` variables, and the **Location**
+channel stops, the shared `VORTEX_NOTIFY_*` variables and the **Location**
 column. The following table lists the variables that the email channel
 reads:
 
