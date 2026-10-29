@@ -216,6 +216,7 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-refresh-db
   assert_failure
   assert_output_contains "Exporting the database from the myorg/db image to file ./.data/db.sql."
+  assert_output_contains "[FAIL] Unable to export the database from the myorg/db image to file ./.data/db.sql."
   assert_output_not_contains "Tagged base image"
   assert_output_not_contains "Finished database refresh."
 

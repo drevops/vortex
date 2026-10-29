@@ -115,11 +115,36 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-fetch-db-container-registry
   assert_failure
   assert_output_contains "Tagging base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/myapp."
+  assert_output_contains "[FAIL] Unable to pull base image drevops/mariadb-drupal-data:26.10.0."
   assert_output_not_contains "Tagged base image"
   assert_output_not_contains "Finished database data container image fetch."
 
   # The login and the failed pull: nothing is tagged.
   assert_equal "2" "$(mock_get_call_num "${mock_docker}")"
+
+  popd >/dev/null
+}
+
+@test "fetch-db-container-registry: Fail when the image pull fails" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_docker=$(mock_command "docker")
+  mock_set_side_effect "${mock_docker}" "exit 1" 1
+  mock_set_side_effect "${mock_docker}" "echo 'logged in'" 2
+  mock_set_side_effect "${mock_docker}" "exit 1" 3
+
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
+
+  run .vortex/tooling/src/vortex-fetch-db-container-registry
+  assert_failure
+  assert_output_contains "Fetching myorg/myapp image from the registry."
+  assert_output_contains "[FAIL] Unable to fetch myorg/myapp image from the registry."
+  assert_output_not_contains "Finished database data container image fetch."
+
+  assert_equal "3" "$(mock_get_call_num "${mock_docker}")"
 
   popd >/dev/null
 }

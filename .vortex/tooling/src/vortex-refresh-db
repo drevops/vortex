@@ -63,12 +63,13 @@ provision_db_image="${VORTEX_DB_IMAGE}"
 if [ -n "${VORTEX_DB_IMAGE}" ] && [ -n "${VORTEX_DB_IMAGE_BASE}" ]; then
   if [ "${VORTEX_FETCH_DB_SOURCE}" = "container_registry" ]; then
     task "Exporting the database from the ${VORTEX_DB_IMAGE} image to file ${db_file}."
-    docker compose up --detach
+    export_fail="Unable to export the database from the ${VORTEX_DB_IMAGE} image to file ${db_file}."
+    docker compose up --detach || fail "${export_fail}"
     sleep 15
-    docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/vortex-export-db-file db.sql
+    docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/vortex-export-db-file db.sql || fail "${export_fail}"
     mkdir -p "${VORTEX_DB_DIR}"
-    docker compose --progress quiet cp -L "cli:${db_file_cli}" "${db_file}"
-    docker compose rm --stop --force database
+    docker compose --progress quiet cp -L "cli:${db_file_cli}" "${db_file}" || fail "${export_fail}"
+    docker compose rm --stop --force database || fail "${export_fail}"
     pass "Exported the database from the ${VORTEX_DB_IMAGE} image to file ${db_file}."
   fi
 
@@ -78,7 +79,7 @@ if [ -n "${VORTEX_DB_IMAGE}" ] && [ -n "${VORTEX_DB_IMAGE_BASE}" ]; then
   # the database was exported from it.
   if [ "${VORTEX_FETCH_DB_SOURCE}" = "container_registry" ]; then
     task "Rebuilding the database service on the ${VORTEX_DB_IMAGE_BASE} base image."
-    docker compose build database
+    docker compose build database || fail "Unable to rebuild the database service on the ${VORTEX_DB_IMAGE_BASE} base image."
     pass "Rebuilt the database service on the ${VORTEX_DB_IMAGE_BASE} base image."
   fi
 
@@ -86,14 +87,15 @@ if [ -n "${VORTEX_DB_IMAGE}" ] && [ -n "${VORTEX_DB_IMAGE_BASE}" ]; then
 fi
 
 task "Starting the stack."
-docker compose up --detach
+docker compose up --detach || fail "Unable to start the stack."
 sleep 15
 pass "Started the stack."
 
 if [ -f "${db_file}" ]; then
   task "Copying database dump file ${db_file} into the cli container."
-  docker compose exec -T cli mkdir -p "$(dirname "${db_file_cli}")"
-  docker compose --progress quiet cp -L "${db_file}" "cli:${db_file_cli}"
+  copy_fail="Unable to copy database dump file ${db_file} into the cli container."
+  docker compose exec -T cli mkdir -p "$(dirname "${db_file_cli}")" || fail "${copy_fail}"
+  docker compose --progress quiet cp -L "${db_file}" "cli:${db_file_cli}" || fail "${copy_fail}"
   pass "Copied database dump file ${db_file} into the cli container."
 fi
 
@@ -114,7 +116,7 @@ fi
 
 if [ -z "${VORTEX_DB_IMAGE}" ] && docker compose exec -T cli test -f "${db_file_cli}"; then
   task "Copying database dump file ${db_file} from the cli container."
-  docker compose --progress quiet cp -L "cli:${db_file_cli}" "${db_file}"
+  docker compose --progress quiet cp -L "cli:${db_file_cli}" "${db_file}" || fail "Unable to copy database dump file ${db_file} from the cli container."
   pass "Copied database dump file ${db_file} from the cli container."
 fi
 
