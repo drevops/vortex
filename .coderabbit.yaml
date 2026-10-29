@@ -29,8 +29,10 @@ reviews:
   path_instructions:
     - path: 'config/**/*.yml'
       instructions: 'Exported Drupal configuration. Comment only on changes that grant permissions, expose content or weaken security settings. Ignore UUIDs, hashes and key ordering.'
+    #;< DOCS_PROJECT
     - path: 'tests/behat/**/*.feature'
       instructions: 'Review against the conventions in docs/testing.md.'
+    #;> DOCS_PROJECT
 
   pre_merge_checks:
     docstrings:
@@ -42,7 +44,8 @@ reviews:
     unit_tests:
       enabled: false
 
-  # The project runs these linters in CI with its own configuration.
+  # The project runs PHPCS, PHPStan, ESLint and Stylelint in CI with its own
+  # configuration, and does not use PHPMD.
   tools:
     eslint:
       enabled: false
@@ -59,4 +62,6 @@ knowledge_base:
   code_guidelines:
     filePatterns:
       - 'AGENTS.md'
+      #;< DOCS_PROJECT
       - 'docs/**/*.md'
+      #;> DOCS_PROJECT

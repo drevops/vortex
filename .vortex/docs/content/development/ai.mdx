@@ -162,13 +162,15 @@ repository.
 The configuration makes these changes to the CodeRabbit defaults:
 
 - **Reviews against your conventions** - CodeRabbit reads `AGENTS.md` and
-  the Markdown files in `docs/` as coding guidelines.
+  the Markdown files in `docs/` as coding guidelines. The installer drops
+  the `docs/` entries when you don't keep the project documentation.
 - **Limits comments to issues that matter** - the `chill` review profile
   and the tone instructions restrict comments to correctness, security,
   performance, and maintainability.
 - **Leaves linting to your linters** - CodeRabbit's own PHPCS, PHPMD,
-  PHPStan, ESLint, and Stylelint runs are off. The project runs these
-  tools in CI with its own configuration.
+  PHPStan, ESLint, and Stylelint runs are off. The project runs PHPCS,
+  PHPStan, ESLint, and Stylelint in CI with its own configuration, and
+  doesn't use PHPMD.
 - **Removes extra output** - sequence diagrams, related issues and pull
   requests, suggested labels and reviewers, the docstring coverage check,
   and the docstring and unit test generation offers are off.
