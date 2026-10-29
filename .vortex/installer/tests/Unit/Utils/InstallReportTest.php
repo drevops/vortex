@@ -111,7 +111,7 @@ class InstallReportTest extends UnitTestCase {
     $this->assertSame(sprintf('%s/.logs/vortex-install-%s.txt', self::$sut, date('Y-m-d-His', self::TIMESTAMP)), $file);
     $this->assertFalse($report->isEmpty());
 
-    $content = File::read((string) $file);
+    $content = File::read($file);
 
     $this->assertStringStartsWith('Vortex installation report' . PHP_EOL, $content);
     $this->assertStringContainsString('From: 1.40.0' . PHP_EOL, $content);
