@@ -1,0 +1,9 @@
+extends: existence
+message: "Write 'one' as the digit '1' when it counts something."
+level: warning
+ignorecase: true
+nonword: true
+# 'one' is also a pronoun ('the one that', 'no one', 'one another'), so it is
+# a warning, and the pronoun forms are skipped.
+tokens:
+  - '(?<![-\w])(?<!\b(?:a|an|the|this|that|which|each|every|any|no|some|new|other|another|same|right|wrong|first|last|whichever)\s+)one(?!\s+another\b)(?![-\w])'

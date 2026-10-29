@@ -15,14 +15,14 @@ The build doesn't run on a three-way merge.
 
 The build runs in every environment, ensuring consistency and eliminating manual steps.
 
-The build runs linting, tests, and deployments.
+The build runs linting, tests and deployments.
 
 The build uses the numbering system, chosen at install time and documented in the release notes.
 
 The branch that was just pushed sets the temporary file path.
 
 The page covers the container stack, the Ahoy and Drush command
-wrappers, and the debugging tools.
+wrappers and the debugging tools.
 
 Use a 2-digit suffix to control the order - for
 example, `provision-50-custom.sh` and `provision-60-another-custom.sh`.
@@ -34,6 +34,10 @@ The salt changes with the host name, silently invalidating login and reset links
 - **Use standard tools**: Wherever possible, the template follows conventions and avoids reinvention.
 
 Variables MUST NOT be exported, because a supply-chain attack can read them.
+
+Pick the one that matches your app, and keep a one-off note for no one else.
+
+The build runs 1 stage, and the deploy runs another one.
 
 > Vortex is quoted verbatim, so nothing here is simple, e.g. this will not be checked.
 

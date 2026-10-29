@@ -4,4 +4,4 @@ level: error
 ignorecase: true
 nonword: true
 tokens:
-  - '(?<![-\w])(?:two|three|four|five|six|seven|eight|nine|ten)(?![-\w])'
+  - '(?<![-\w])(?:zero|two|three|four|five|six|seven|eight|nine|ten)(?![-\w])'

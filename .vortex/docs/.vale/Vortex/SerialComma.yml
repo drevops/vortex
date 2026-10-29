@@ -1,0 +1,17 @@
+extends: existence
+message: "Remove the serial comma in '%s'."
+link: 'https://www.vortextemplate.com/docs/contributing/maintenance/documentation'
+scope: sentence
+level: warning
+nonword: true
+# Matches ', and' or ', or' when another comma sits up to 4 words before it,
+# so 'A, B, and C' is reported and a single clause join 'A, and B' is not.
+#
+# Inline code reaches the rule masked with asterisks, so '*' counts as a word
+# character. The guard after the first comma skips text that opens a clause or
+# a phrase rather than a list item: ', which X, and Y' or ', for example, and'.
+#
+# '\s+' between words keeps the match independent of where a paragraph is
+# hard-wrapped.
+tokens:
+  - '(?<=,\s+(?!(?:which|who|whom|whose|that|where|when|while|because|since|although|though|if|unless|so|but|and|or|however|therefore|thus|then|for|from|by|as|to|in|on|at|with|without|such|including|like|not|rather|instead|even)\b)(?:\.?[\w*][\w*''’/-]*\s+){0,3}\.?[\w*][\w*''’/-]*(?:\.[\w*]+)*),\s+(?:and|or)\b'
