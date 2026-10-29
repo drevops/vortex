@@ -11,6 +11,7 @@ use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\FileManager;
+use DrevOps\VortexInstaller\Utils\InstallReport;
 use DrevOps\VortexInstaller\Utils\UpdateRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -144,7 +145,16 @@ class FileManagerTest extends UnitTestCase {
 
     $fm->copyFiles();
 
-    $this->addToAssertionCount(1);
+    $this->assertNull($fm->getReportFile(), 'An empty copy writes no report.');
+    $this->assertSame([], $fm->getReportSummary());
+    $this->assertDirectoryDoesNotExist($destination . '/' . InstallReport::DIR);
+  }
+
+  public function testGetReportSummaryBeforeCopy(): void {
+    $fm = new FileManager($this->createConfig(self::$sut));
+
+    $this->assertNull($fm->getReportFile());
+    $this->assertSame([], $fm->getReportSummary());
   }
 
   public function testCopyFilesRemovesUnmodifiedExcludedPaths(): void {
@@ -331,6 +341,136 @@ class FileManagerTest extends UnitTestCase {
 
     $this->assertNull($fm->getRegistryFile());
     $this->assertFileDoesNotExist($destination . '/' . UpdateRegistry::FILE, 'An untouched file leaves nothing to reconcile.');
+  }
+
+  public function testCopyFilesReportsEveryStatus(): void {
+    $src = self::$sut . '/src_report';
+    $destination = self::$sut . '/dst_report';
+    File::dump(File::mkdir($src) . '/added.txt', 'added');
+    File::dump($src . '/unchanged.txt', 'same');
+    File::dump($src . '/updated.txt', 'next');
+    File::dump($src . '/overwritten.txt', 'next');
+    File::dump($src . '/removed.txt', 'installed');
+    File::dump($src . '/kept.txt', 'installed');
+    File::dump($src . '/.env.local.example', 'EXAMPLE=1');
+
+    $config = $this->createConfig($destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $config->set(Config::VERSION, '1.41.0', TRUE);
+    $fm = new FileManager($config);
+
+    File::dump(File::mkdir($destination) . '/unchanged.txt', 'same');
+    File::dump($destination . '/updated.txt', 'installed');
+    File::dump($destination . '/overwritten.txt', 'project');
+    File::dump($destination . '/removed.txt', 'installed');
+    File::dump($destination . '/kept.txt', 'project');
+    File::dump(File::mkdir($destination . '/scripts/vortex') . '/legacy.sh', 'legacy');
+    $this->stubPreviousTemplate($fm, $destination, [
+      'unchanged.txt' => 'same',
+      'updated.txt' => 'installed',
+      'overwritten.txt' => 'installed',
+      'removed.txt' => 'installed',
+      'kept.txt' => 'installed',
+    ]);
+
+    $fm->snapshotTemplate();
+
+    // The current selection drops them from the staged copy.
+    File::remove($src . '/removed.txt');
+    File::remove($src . '/kept.txt');
+
+    $fm->copyFiles();
+
+    $this->assertSame([
+      InstallReport::STATUS_ADDED => 3,
+      InstallReport::STATUS_UPDATED => 1,
+      InstallReport::STATUS_UNCHANGED => 1,
+      InstallReport::STATUS_OVERWRITTEN => 1,
+      InstallReport::STATUS_REMOVED => 2,
+      InstallReport::STATUS_KEPT => 1,
+    ], $fm->getReportSummary());
+
+    $report = (string) $fm->getReportFile();
+
+    $this->assertStringStartsWith($destination . '/' . InstallReport::DIR . '/' . InstallReport::PREFIX, $report);
+    $this->assertFileContainsString($report, 'From: 1.40.0');
+    $this->assertFileContainsString($report, 'To:   1.41.0');
+
+    $expected = [
+      '.env.local' => InstallReport::STATUS_ADDED,
+      '.env.local.example' => InstallReport::STATUS_ADDED,
+      'added.txt' => InstallReport::STATUS_ADDED,
+      'unchanged.txt' => InstallReport::STATUS_UNCHANGED,
+      'updated.txt' => InstallReport::STATUS_UPDATED,
+      'overwritten.txt' => InstallReport::STATUS_OVERWRITTEN,
+      'removed.txt' => InstallReport::STATUS_REMOVED,
+      'kept.txt' => InstallReport::STATUS_KEPT,
+      'scripts/vortex' => InstallReport::STATUS_REMOVED,
+    ];
+    foreach ($expected as $path => $status) {
+      $this->assertFileContainsString($report, sprintf('  %s%s', str_pad($status, 13), $path) . PHP_EOL, sprintf('Path "%s" is reported as "%s".', $path, $status));
+    }
+
+    $this->assertFileContainsString($destination . '/' . UpdateRegistry::FILE, '### overwritten.txt', 'An overwritten project change is recorded in the registry.');
+    $this->assertFileNotContainsString($destination . '/' . UpdateRegistry::FILE, '### updated.txt', 'A file replaced as-is is not recorded in the registry.');
+  }
+
+  public function testCopyFilesReportsExistingFilesOfProjectThatIsNotVortex(): void {
+    $src = self::$sut . '/src_report_fresh';
+    $destination = self::$sut . '/dst_report_fresh';
+    File::dump(File::mkdir($src) . '/composer.json', '{"name":"template"}');
+    File::dump($src . '/README.md', 'readme');
+    File::dump($src . '/phpcs.xml', 'phpcs');
+
+    $config = $this->createConfig($destination, $src);
+    $config->set(Config::VERSION, '1.41.0', TRUE);
+    $fm = new FileManager($config);
+    $fm->snapshotTemplate();
+
+    File::dump(File::mkdir($destination) . '/composer.json', '{"name":"project"}');
+    File::dump($destination . '/README.md', 'readme');
+
+    $fm->copyFiles();
+
+    $this->assertSame([
+      InstallReport::STATUS_ADDED => 1,
+      InstallReport::STATUS_UNCHANGED => 1,
+      InstallReport::STATUS_OVERWRITTEN => 1,
+    ], $fm->getReportSummary());
+    $this->assertFileNotContainsString((string) $fm->getReportFile(), 'From:', 'A fresh installation has no previous version.');
+    $this->assertNull($fm->getRegistryFile(), 'Without a previous version there is nothing to diff against.');
+  }
+
+  public function testCopyFilesReportsUnreadableProjectFileAsOverwritten(): void {
+    $src = self::$sut . '/src_report_unreadable';
+    $destination = self::$sut . '/dst_report_unreadable';
+    File::dump(File::mkdir($src) . '/phpstan.neon', 'next');
+
+    $config = $this->createConfig($destination, $src);
+    $config->set(Config::IS_VORTEX_PROJECT, TRUE, TRUE);
+    $fm = new FileManager($config);
+
+    File::dump(File::mkdir($destination) . '/phpstan.neon', 'installed');
+    $this->stubPreviousTemplate($fm, $destination, ['phpstan.neon' => 'installed']);
+    $fm->snapshotTemplate();
+
+    // Write-only, so the copy can still replace the file.
+    chmod($destination . '/phpstan.neon', 0200);
+
+    if (is_readable($destination . '/phpstan.neon')) {
+      chmod($destination . '/phpstan.neon', 0644);
+      $this->markTestSkipped('File permissions are not enforced for the current user.');
+    }
+
+    try {
+      $fm->copyFiles();
+    }
+    finally {
+      chmod($destination . '/phpstan.neon', 0644);
+    }
+
+    $this->assertSame([InstallReport::STATUS_OVERWRITTEN => 1], $fm->getReportSummary(), 'A copy that cannot be read cannot be shown to be unmodified.');
+    $this->assertNull($fm->getRegistryFile(), 'Content that cannot be read is not diffed.');
   }
 
   public function testCopyFilesRemovesCommittedManifest(): void {

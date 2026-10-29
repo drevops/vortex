@@ -129,14 +129,20 @@ EOT;
    * @param string|null $registry_file
    *   Path of the registry of project changes the update replaced, or NULL
    *   when the update replaced none.
+   * @param string|null $report_file
+   *   Path of the report of what the installation did to each template file,
+   *   or NULL when none was written.
+   * @param array<string, int> $report_summary
+   *   Count of template files per report status.
    */
-  public function footer(?string $registry_file = NULL): void {
+  public function footer(?string $registry_file = NULL, ?string $report_file = NULL, array $report_summary = []): void {
     $output = '';
     $prefix = '  ';
 
     if ($this->config->isVortexProject()) {
       $title = 'Finished updating Vortex';
       $output .= 'Please review the changes and commit the required files.';
+      $output .= $this->renderReport($report_file, $report_summary);
 
       if ($registry_file !== NULL) {
         $output .= PHP_EOL . PHP_EOL;
@@ -159,10 +165,36 @@ EOT;
 
       $output .= 'Add and commit all files:' . PHP_EOL;
       $output .= $prefix . 'git add -A' . PHP_EOL;
-      $output .= $prefix . 'git commit -m "Initial commit."' . PHP_EOL;
+      $output .= $prefix . 'git commit -m "Initial commit."';
+      $output .= $this->renderReport($report_file, $report_summary) . PHP_EOL;
     }
 
     Tui::box($output, $title);
+  }
+
+  /**
+   * Render the count of files per status and the path of the report.
+   *
+   * @param string|null $report_file
+   *   Path of the report, or NULL when none was written.
+   * @param array<string, int> $report_summary
+   *   Count of template files per report status.
+   *
+   * @return string
+   *   The rendered lines, prefixed with a blank line, or an empty string.
+   */
+  protected function renderReport(?string $report_file, array $report_summary): string {
+    if ($report_file === NULL) {
+      return '';
+    }
+
+    $counts = array_map(fn(string $status, int $count): string => sprintf('%d %s', $count, $status), array_keys($report_summary), $report_summary);
+
+    $output = PHP_EOL . PHP_EOL;
+    $output .= 'Files: ' . implode(', ', $counts) . PHP_EOL;
+    $output .= 'Status of every file is recorded in:' . PHP_EOL;
+
+    return $output . '  ' . File::toRelative($report_file, (string) $this->config->getDestination());
   }
 
   /**

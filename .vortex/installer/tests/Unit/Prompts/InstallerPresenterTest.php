@@ -11,6 +11,7 @@ use DrevOps\VortexInstaller\Prompts\InstallerPresenter;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\InstallReport;
 use DrevOps\VortexInstaller\Utils\Tui;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -170,6 +171,47 @@ class InstallerPresenterTest extends UnitTestCase {
     $this->assertStringContainsString('Finished updating Vortex', $output);
     $this->assertStringContainsString('review the changes', $output);
     $this->assertStringNotContainsString('git add -A', $output);
+    $this->assertStringNotContainsString('Files:', $output, 'Nothing is reported without a report file.');
+  }
+
+  /**
+   * @param bool $is_vortex_project
+   *   Whether the destination already runs Vortex.
+   * @param string|null $registry_file
+   *   Path of the update registry, relative to the destination.
+   * @param array<int, string> $expected
+   *   Substrings the footer must contain, in order.
+   */
+  #[DataProvider('dataProviderFooterReport')]
+  public function testFooterReport(bool $is_vortex_project, ?string $registry_file, array $expected): void {
+    $config = $this->createConfig();
+    $config->set(Config::IS_VORTEX_PROJECT, $is_vortex_project);
+    $destination = (string) $config->getDestination();
+    $presenter = new InstallerPresenter($config);
+
+    $presenter->footer(
+      $registry_file === NULL ? NULL : $destination . '/' . $registry_file,
+      $destination . '/.logs/vortex-install-2026-10-30-101500.txt',
+      [InstallReport::STATUS_ADDED => 2, InstallReport::STATUS_UPDATED => 5, InstallReport::STATUS_OVERWRITTEN => 1],
+    );
+
+    $output = $this->output->fetch();
+    $offset = 0;
+
+    foreach ($expected as $needle) {
+      $position = strpos($output, $needle, $offset);
+      $this->assertNotFalse($position, sprintf('Footer contains "%s" after offset %d.', $needle, $offset));
+      $offset = $position + strlen($needle);
+    }
+  }
+
+  public static function dataProviderFooterReport(): \Iterator {
+    $summary = 'Files: 2 added, 5 updated, 1 overwritten';
+    $path = '.logs/vortex-install-2026-10-30-101500.txt';
+
+    yield 'installation' => [FALSE, NULL, ['Finished installing Vortex', 'git commit', $summary, 'Status of every file is recorded in:', $path]];
+    yield 'update' => [TRUE, NULL, ['Finished updating Vortex', 'review the changes', $summary, 'Status of every file is recorded in:', $path]];
+    yield 'update with registry' => [TRUE, '.logs/vortex-update.md', ['Finished updating Vortex', $summary, $path, 'Project changes replaced by this update are recorded in:', '.logs/vortex-update.md']];
   }
 
   public function testFooterBuildSucceeded(): void {

@@ -52,6 +52,16 @@ class FileManager {
    */
   protected ?string $registryFile = NULL;
 
+  /**
+   * Report of what the copy did to each template file.
+   */
+  protected ?InstallReport $report = NULL;
+
+  /**
+   * Path of the written install report.
+   */
+  protected ?string $reportFile = NULL;
+
   public function __construct(
     protected Config $config,
   ) {}
@@ -171,6 +181,8 @@ class FileManager {
   public function copyFiles(): void {
     $src = $this->config->get(Config::TMP);
     $destination = $this->config->getDestination();
+    $report = new InstallReport((string) $destination);
+    $this->report = $report;
 
     // What the project should hold for a path this install no longer ships.
     $expected = $this->previousTemplateHashes;
@@ -208,7 +220,7 @@ class FileManager {
       File::rmdirIfEmpty($dir);
     }
 
-    $this->recordReplacedChanges($src);
+    $this->recordChanges($src, $report);
 
     if (File::isDir($src) && !File::dirIsEmpty($src)) {
       File::copy($src, $destination);
@@ -216,11 +228,14 @@ class FileManager {
 
     if (!File::exists($destination . '/.env.local') && File::exists($destination . '/.env.local.example')) {
       File::copy($destination . '/.env.local.example', $destination . '/.env.local');
+      $report->add('.env.local', InstallReport::STATUS_ADDED);
     }
 
     $this->removeExcludedPaths($excluded, $expected);
     $this->removeObsoletePaths();
     $this->cleanupPreviousTemplate();
+
+    $this->reportFile = $report->write($this->previousRef, (string) $this->config->get(Config::VERSION), time());
   }
 
   /**
@@ -262,10 +277,12 @@ class FileManager {
       // Without a recorded hash there is nothing to compare the project's copy
       // against, so ownership cannot be established.
       if (!isset($expected[$path]) || hash_file(self::HASH_ALGO, $target) !== $expected[$path]) {
+        $this->report?->add($path, InstallReport::STATUS_KEPT);
         continue;
       }
 
       File::remove($target);
+      $this->report?->add($path, InstallReport::STATUS_REMOVED);
 
       for ($dir = dirname($path); $dir !== '.'; $dir = dirname($dir)) {
         $dirs[$dir] = substr_count($dir, '/');
@@ -281,37 +298,47 @@ class FileManager {
   }
 
   /**
-   * Record the project changes that the copy is about to replace.
+   * Record what the copy is about to do to each staged path.
    *
    * The copy overlays the staged content without regard for what the project
    * put there, so a change the project made to a shipped file is lost. The
    * content of all three sides is only available before the overlay, so the
-   * registry is built first.
+   * report and the registry are built first.
    *
    * @param string $src
    *   The staged template directory.
+   * @param \DrevOps\VortexInstaller\Utils\InstallReport $report
+   *   The report to record each path's status in.
    */
-  protected function recordReplacedChanges(string $src): void {
-    if ($this->previousDir === NULL) {
-      return;
-    }
-
+  protected function recordChanges(string $src, InstallReport $report): void {
     $destination = (string) $this->config->getDestination();
     $registry = new UpdateRegistry($destination);
 
     foreach ($this->relativePaths($src) as $path) {
       $project = $destination . '/' . $path;
 
-      if (!File::isReadable($project)) {
+      if (!File::exists($project)) {
+        $report->add($path, InstallReport::STATUS_ADDED);
         continue;
       }
 
       $next = $src . '/' . $path;
-      $project_hash = hash_file(self::HASH_ALGO, $project);
+      $project_hash = File::isReadable($project) ? hash_file(self::HASH_ALGO, $project) : FALSE;
 
-      // The file still holds what the template put there, or already holds
-      // what the copy would put there, so the copy replaces nothing.
-      if ($project_hash === ($this->previousTemplateHashes[$path] ?? NULL) || $project_hash === hash_file(self::HASH_ALGO, $next)) {
+      if ($project_hash !== FALSE && $project_hash === hash_file(self::HASH_ALGO, $next)) {
+        $report->add($path, InstallReport::STATUS_UNCHANGED);
+        continue;
+      }
+
+      if ($project_hash !== FALSE && $project_hash === ($this->previousTemplateHashes[$path] ?? NULL)) {
+        $report->add($path, InstallReport::STATUS_UPDATED);
+        continue;
+      }
+
+      // A copy that cannot be read cannot be shown to be unmodified.
+      $report->add($path, InstallReport::STATUS_OVERWRITTEN);
+
+      if ($this->previousDir === NULL || $project_hash === FALSE) {
         continue;
       }
 
@@ -322,7 +349,9 @@ class FileManager {
       $registry->add($path, File::isReadable($previous) ? File::read($previous) : NULL, File::read($project), File::read($next));
     }
 
-    $this->registryFile = $registry->write((string) $this->previousRef, (string) $this->config->get(Config::VERSION), date('Y-m-d H:i:s'));
+    if ($this->previousDir !== NULL) {
+      $this->registryFile = $registry->write((string) $this->previousRef, (string) $this->config->get(Config::VERSION), date('Y-m-d H:i:s'));
+    }
   }
 
   /**
@@ -343,6 +372,26 @@ class FileManager {
    */
   public function getRegistryFile(): ?string {
     return $this->registryFile;
+  }
+
+  /**
+   * Get the report of what the copy did to each template file.
+   *
+   * @return string|null
+   *   Path of the report, or NULL when the copy recorded nothing.
+   */
+  public function getReportFile(): ?string {
+    return $this->reportFile;
+  }
+
+  /**
+   * Count the template files the copy recorded per status.
+   *
+   * @return array<string, int>
+   *   Counts keyed by status, without zero counts.
+   */
+  public function getReportSummary(): array {
+    return $this->report?->summary() ?? [];
   }
 
   /**
@@ -413,6 +462,7 @@ class FileManager {
       $path = $destination . '/' . $relative;
       if (File::exists($path)) {
         File::remove($path);
+        $this->report?->add($relative, InstallReport::STATUS_REMOVED);
       }
     }
   }

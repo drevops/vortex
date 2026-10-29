@@ -11,6 +11,7 @@ use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\FileManager;
 use DrevOps\VortexInstaller\Utils\Git;
+use DrevOps\VortexInstaller\Utils\InstallReport;
 use DrevOps\VortexInstaller\Utils\UpdateRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\Process\ExecutableFinder;
@@ -20,6 +21,7 @@ use Symfony\Component\Process\ExecutableFinder;
  */
 #[CoversClass(FileManager::class)]
 #[CoversClass(InstallCommand::class)]
+#[CoversClass(InstallReport::class)]
 #[CoversClass(UpdateRegistry::class)]
 class InstallExcludedPathsTest extends FunctionalTestCase {
 
@@ -110,6 +112,40 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
     $this->assertFileNotContainsString(static::$sut . '/.ahoy.yml', '# Project addition.', 'The update still replaces the project file.');
   }
 
+  public function testInstallAndUpdateWriteReport(): void {
+    $ref = $this->templateRef();
+
+    $this->runInstall(self::PROMPTS_ALL_TOOLS, $ref);
+
+    $report = $this->findReport();
+    $this->assertFileContainsString($report, '  added        composer.json' . PHP_EOL, 'A fresh installation adds every file.');
+    $this->assertFileNotContainsString($report, 'From:', 'A fresh installation has no previous version.');
+    $this->assertApplicationOutputContains(['Status of every file is recorded in:', '.logs/' . InstallReport::PREFIX]);
+
+    // Runs within the same second write the same file name.
+    File::remove(static::$sut . '/' . InstallReport::DIR);
+
+    File::dump(static::$sut . '/.ahoy.yml', File::read(static::$sut . '/.ahoy.yml') . PHP_EOL . '# Project addition.' . PHP_EOL);
+    File::dump(static::$sut . '/phpstan.neon', "parameters:\n  level: 8\n");
+
+    $this->runInstall(self::PROMPTS_WITHOUT_TEST_TOOLS, $ref);
+
+    $report = $this->findReport();
+    $this->assertFileContainsString($report, 'From: ', 'An update names the version the project ran.');
+
+    $expected = [
+      '.ahoy.yml' => InstallReport::STATUS_OVERWRITTEN,
+      '.editorconfig' => InstallReport::STATUS_UNCHANGED,
+      'jest.config.js' => InstallReport::STATUS_REMOVED,
+      'phpstan.neon' => InstallReport::STATUS_KEPT,
+    ];
+    foreach ($expected as $path => $status) {
+      $this->assertFileContainsString($report, sprintf('  %s%s', str_pad($status, 13), $path) . PHP_EOL, sprintf('Path "%s" is reported as "%s".', $path, $status));
+    }
+
+    $this->assertApplicationOutputContains(['Finished updating Vortex', 'Files: ', 'Status of every file is recorded in:', 'Project changes replaced by this update are recorded in:']);
+  }
+
   public function testUpdateRemovesCommittedManifest(): void {
     $ref = $this->templateRef();
 
@@ -137,6 +173,18 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
     foreach ($shipped as $path => $contents) {
       $this->assertStringEqualsFile(static::$sut . '/' . $path, $contents, sprintf('Path "%s" kept its contents.', $path));
     }
+  }
+
+  /**
+   * Get the path of the only install report in the system under test.
+   */
+  protected function findReport(): string {
+    $reports = glob(static::$sut . '/' . InstallReport::DIR . '/' . InstallReport::PREFIX . '*.txt');
+
+    $this->assertIsArray($reports);
+    $this->assertCount(1, $reports, 'The run writes 1 install report.');
+
+    return $reports[0];
   }
 
   /**

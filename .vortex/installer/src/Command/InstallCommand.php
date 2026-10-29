@@ -266,7 +266,7 @@ EOF
       return Command::FAILURE;
     }
 
-    $this->presenter->footer($this->fileManager->getRegistryFile());
+    $this->presenter->footer($this->fileManager->getRegistryFile(), $this->fileManager->getReportFile(), $this->fileManager->getReportSummary());
 
     $should_build = TRUE;
     $requested_build = (bool) $this->config->get(Config::BUILD_NOW);
