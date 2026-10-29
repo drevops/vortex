@@ -117,20 +117,18 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
 
     $this->runInstall(self::PROMPTS_ALL_TOOLS, $ref);
 
-    $report = $this->findReport();
-    $this->assertFileContainsString($report, '  added        composer.json' . PHP_EOL, 'A fresh installation adds every file.');
-    $this->assertFileNotContainsString($report, 'From:', 'A fresh installation has no previous version.');
+    $first = $this->findReport();
+    $this->assertFileContainsString($first, '  added        composer.json' . PHP_EOL, 'A fresh installation adds every file.');
+    $this->assertFileNotContainsString($first, 'From:', 'A fresh installation has no previous version.');
     $this->assertApplicationOutputContains(['Status of every file is recorded in:', '.logs/' . InstallReport::PREFIX]);
-
-    // Runs within the same second write the same file name.
-    File::remove(static::$sut . '/' . InstallReport::DIR);
 
     File::dump(static::$sut . '/.ahoy.yml', File::read(static::$sut . '/.ahoy.yml') . PHP_EOL . '# Project addition.' . PHP_EOL);
     File::dump(static::$sut . '/phpstan.neon', "parameters:\n  level: 8\n");
 
     $this->runInstall(self::PROMPTS_WITHOUT_TEST_TOOLS, $ref);
 
-    $report = $this->findReport();
+    $this->assertFileExists($first, 'An update leaves the earlier report in place.');
+    $report = $this->findReport([$first]);
     $this->assertFileContainsString($report, 'From: ', 'An update names the version the project ran.');
 
     $expected = [
@@ -176,12 +174,17 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
   }
 
   /**
-   * Get the path of the only install report in the system under test.
+   * Get the path of the only install report not written by an earlier run.
+   *
+   * @param array<int, string> $earlier
+   *   Reports written by earlier runs.
    */
-  protected function findReport(): string {
+  protected function findReport(array $earlier = []): string {
     $reports = glob(static::$sut . '/' . InstallReport::DIR . '/' . InstallReport::PREFIX . '*.txt');
 
     $this->assertIsArray($reports);
+
+    $reports = array_values(array_diff($reports, $earlier));
     $this->assertCount(1, $reports, 'The run writes 1 install report.');
 
     return $reports[0];

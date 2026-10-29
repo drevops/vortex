@@ -124,7 +124,13 @@ class InstallReport {
       return NULL;
     }
 
-    $file = sprintf('%s/%s/%s%s.txt', $this->destination, self::DIR, self::PREFIX, date('Y-m-d-His', $timestamp));
+    $base = sprintf('%s/%s/%s%s', $this->destination, self::DIR, self::PREFIX, date('Y-m-d-His', $timestamp));
+    $file = $base . '.txt';
+
+    // Runs within the same second share a timestamp.
+    for ($suffix = 1; File::exists($file); $suffix++) {
+      $file = sprintf('%s-%d.txt', $base, $suffix);
+    }
 
     File::dump($file, $this->render($from, $to, $timestamp));
 

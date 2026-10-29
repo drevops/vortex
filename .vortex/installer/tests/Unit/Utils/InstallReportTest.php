@@ -126,6 +126,25 @@ class InstallReportTest extends UnitTestCase {
     $this->assertStringContainsString('Files:' . PHP_EOL . '  updated      composer.json' . PHP_EOL . '  removed      jest.config.js' . PHP_EOL . '  overwritten  phpstan.neon' . PHP_EOL, $content);
   }
 
+  public function testWriteKeepsReportsOfTheSameSecond(): void {
+    $first = new InstallReport(self::$sut);
+    $first->add('composer.json', InstallReport::STATUS_ADDED);
+
+    $second = new InstallReport(self::$sut);
+    $second->add('composer.json', InstallReport::STATUS_UNCHANGED);
+
+    $third = new InstallReport(self::$sut);
+    $third->add('composer.json', InstallReport::STATUS_UPDATED);
+
+    $base = sprintf('%s/.logs/vortex-install-%s', self::$sut, date('Y-m-d-His', self::TIMESTAMP));
+
+    $this->assertSame($base . '.txt', $first->write(NULL, '1.41.0', self::TIMESTAMP));
+    $this->assertSame($base . '-1.txt', $second->write(NULL, '1.41.0', self::TIMESTAMP));
+    $this->assertSame($base . '-2.txt', $third->write(NULL, '1.41.0', self::TIMESTAMP));
+    $this->assertFileContainsString($base . '.txt', '  added        composer.json', 'A later run leaves the earlier report intact.');
+    $this->assertFileContainsString($base . '-1.txt', '  unchanged    composer.json');
+  }
+
   /**
    * @param string|null $from
    *   Version the project ran.
