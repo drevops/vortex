@@ -17,7 +17,6 @@ export VORTEX_ACQUIA_KEY="${VORTEX_ACQUIA_KEY:?Missing required value.}"
 export VORTEX_ACQUIA_SECRET="${VORTEX_ACQUIA_SECRET:?Missing required value.}"
 export VORTEX_ACQUIA_APP_NAME="${VORTEX_ACQUIA_APP_NAME:-${site}}"
 export VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV="${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV:-${target_env}}"
-export VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE="${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE:-"/var/www/html/${site}.${target_env}/hooks/library/domains.txt"}"
 
 pushd "/var/www/html/${site}.${target_env}" >/dev/null || exit 1
 

@@ -30,12 +30,6 @@ VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME="${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NA
 # An environment name to purge cache for.
 VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV="${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV:-}"
 
-# File with a list of domains to limit the purge to.
-#
-# When the file does not exist, all domains attached to the environment are
-# purged.
-VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE="${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE:-domains.txt}"
-
 # Number of status retrieval retries. If this limit reached and task has not
 # yet finished, the task is considered failed.
 VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES="${VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES:-600}"
@@ -74,18 +68,6 @@ extract_json_items_count() {
 
 extract_json_pagination_total() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data['pagination']['total']) ? print (int) \$data['pagination']['total'] : exit(1);"
-}
-
-in_list() {
-  local needle="${1}"
-  shift
-  local item
-  for item in "$@"; do
-    if [ "${item}" = "${needle}" ]; then
-      return 0
-    fi
-  done
-  return 1
 }
 
 for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
@@ -139,7 +121,7 @@ env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_val
 pass "Retrieved environment ID."
 
 task "Retrieving domains attached to ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment."
-env_domains=()
+domain_list=()
 domains_limit=100
 domains_offset=0
 previous_domains_json=""
@@ -160,7 +142,7 @@ while true; do
 
   while IFS= read -r domain; do
     if [ -n "${domain}" ]; then
-      env_domains+=("${domain}")
+      domain_list+=("${domain}")
     fi
   done < <(echo "${domains_json}" | extract_json_hostnames)
 
@@ -177,63 +159,7 @@ while true; do
     break
   fi
 done
-pass "Retrieved ${#env_domains[@]} domains attached to ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment."
-
-task "Compiling a list of domains."
-
-domain_list=()
-if [ "${#env_domains[@]}" -gt 0 ] && [ -f "${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}" ]; then
-  note "Limiting the purge to domains listed in ${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}."
-
-  # Placeholders resolve to the sub-domain prefix shown in the Acquia UI.
-  target_env="${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV}"
-  target_env_remap=""
-  case "${target_env}" in
-    dev | test2) target_env_remap="${target_env}" ;;
-    test) target_env_remap="stage" ;;
-  esac
-
-  while IFS= read -r domain || [ -n "${domain}" ]; do
-    domain="${domain#"${domain%%[![:space:]]*}"}"
-    domain="${domain%"${domain##*[![:space:]]}"}"
-
-    if [ -z "${domain}" ] || [ "${domain:0:1}" = "#" ]; then
-      continue
-    fi
-
-    # Production domains carry no prefix, so the placeholder and its dot are
-    # removed.
-    if [ "${target_env}" = "prod" ]; then
-      domain="${domain//\$TARGET_ENV_REMAP./}"
-      domain="${domain//\$TARGET_ENV./}"
-    fi
-
-    if [[ ${domain} == *\$TARGET_ENV* ]]; then
-      if [ -z "${target_env_remap}" ]; then
-        note "Skipping domain ${domain} as its placeholder has no value for ${target_env} environment."
-        continue
-      fi
-
-      domain="${domain//\$TARGET_ENV_REMAP/${target_env_remap}}"
-      domain="${domain//\$TARGET_ENV/${target_env}}"
-    fi
-
-    if ! in_list "${domain}" "${env_domains[@]}"; then
-      note "Warning: Skipping domain ${domain} as it is not attached to ${target_env} environment."
-      continue
-    fi
-
-    if [ "${#domain_list[@]}" -gt 0 ] && in_list "${domain}" "${domain_list[@]}"; then
-      continue
-    fi
-
-    domain_list+=("${domain}")
-  done <"${VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE}"
-elif [ "${#env_domains[@]}" -gt 0 ]; then
-  domain_list=("${env_domains[@]}")
-fi
-
-pass "Compiled a list of ${#domain_list[@]} domains."
+pass "Retrieved ${#domain_list[@]} domains attached to ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment."
 
 if [ "${#domain_list[@]}" -gt 0 ]; then
   # The Acquia API aborts a batched purge when any domain fails, so caches

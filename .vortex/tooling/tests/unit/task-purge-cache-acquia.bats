@@ -2,12 +2,12 @@
 ##
 # Unit tests for the 'vortex-task-purge-cache-acquia' script.
 #
-# shellcheck disable=SC2030,SC2031,SC2034,SC2016
+# shellcheck disable=SC2030,SC2031,SC2034
 
 load ../_helper.bash
 
 # Appends the steps that resolve the token, application, environment and the
-# domains attached to the environment.
+# first page of domains attached to the environment.
 #
 # Arguments:
 #   1. env_name: Environment to purge the cache for.
@@ -98,15 +98,15 @@ domains_json() {
   echo "{\"total\":${#items[@]}${pagination},\"_embedded\":{\"items\":[${items[*]}]}}"
 }
 
-# Prints 100 hostnames, 'd<start>.example.com' onwards.
+# Prints wildcard hostnames, which fill a page without adding purges.
 #
 # Arguments:
-#   1. start: Number of the first hostname.
-full_page_hostnames() {
-  local start="${1}"
+#   1. count: Number of hostnames to print.
+wildcard_hostnames() {
+  local count="${1}"
   local i
-  for ((i = start; i < start + 100; i++)); do
-    echo "d${i}.example.com"
+  for ((i = 1; i <= count; i++)); do
+    echo "*.d${i}.example.com"
   done
 }
 
@@ -114,11 +114,8 @@ full_page_hostnames() {
 #
 # Arguments:
 #   1. env_name: Environment to purge the cache for.
-#   2. domains_file: File to limit the purge to. Optional, the variable is left
-#      unset when empty so the script default applies.
 run_purge() {
   local env_name="${1}"
-  local domains_file="${2:-}"
 
   export VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY="test-key"
   export VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET="test-secret"
@@ -127,68 +124,28 @@ run_purge() {
   export VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES="1"
   export VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL="0"
 
-  unset VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE
-  if [ -n "${domains_file}" ]; then
-    export VORTEX_TASK_PURGE_CACHE_ACQUIA_DOMAINS_FILE="${domains_file}"
-  fi
-
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-task-purge-cache-acquia
   steps_run "assert" "${mocks[@]}"
-}
-
-# Asserts that a placeholder in the domains file resolves to the domain the
-# environment has attached.
-#
-# Arguments:
-#   1. env_name: Environment to purge the cache for.
-#   2. line: Line written to the domains file.
-#   3. domain: Domain the line is expected to resolve to.
-assert_placeholder() {
-  local env_name="${1}"
-  local line="${2}"
-  local domain="${3}"
-
-  echo "${line}" >domains-placeholder.txt
-
-  declare -a STEPS=()
-  steps_lookup "${env_name}" "$(domains_json "${domain}" "other.example.com")"
-  STEPS+=(
-    "[ OK ] Retrieved 2 domains attached to ${env_name} environment."
-    "Compiling a list of domains."
-    "Limiting the purge to domains listed in domains-placeholder.txt."
-    "[ OK ] Compiled a list of 1 domains."
-  )
-  steps_purge "${env_name}" "${domain}"
-  STEPS+=(
-    "- Purging cache for ${env_name} environment domain other.example.com."
-    "[ OK ] Finished cache purging in Acquia."
-  )
-
-  run_purge "${env_name}" "domains-placeholder.txt"
-
-  assert_success
 }
 
 @test "task-purge-cache-acquia: purges every domain attached to the environment" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=()
-  steps_lookup "dev" "$(domains_json "sitedev.prod.acquia-sites.com" "dev.example.com" "*.example.com")"
+  steps_lookup "prod" "$(domains_json "siteprod.prod.acquia-sites.com" "example.com" "www.example.com" "*.example.com")"
   STEPS+=(
-    "[ OK ] Retrieved 2 domains attached to dev environment."
-    "Compiling a list of domains."
-    "- Limiting the purge to domains listed in"
-    "[ OK ] Compiled a list of 2 domains."
+    "[ OK ] Retrieved 3 domains attached to prod environment."
   )
-  steps_purge "dev" "sitedev.prod.acquia-sites.com"
-  steps_purge "dev" "dev.example.com"
+  steps_purge "prod" "siteprod.prod.acquia-sites.com"
+  steps_purge "prod" "example.com"
+  steps_purge "prod" "www.example.com"
   STEPS+=(
     "- *.example.com"
     "[ OK ] Finished cache purging in Acquia."
   )
 
-  run_purge "dev"
+  run_purge "prod"
 
   assert_success
 
@@ -202,7 +159,6 @@ assert_placeholder() {
   steps_lookup "ode1" "$(domains_json "siteode1.prod.acquia-sites.com")"
   STEPS+=(
     "[ OK ] Retrieved 1 domains attached to ode1 environment."
-    "[ OK ] Compiled a list of 1 domains."
   )
   steps_purge "ode1" "siteode1.prod.acquia-sites.com"
   STEPS+=(
@@ -216,169 +172,19 @@ assert_placeholder() {
   popd >/dev/null || exit 1
 }
 
-@test "task-purge-cache-acquia: skips a listed domain that is not attached and purges the rest" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  printf "dev.example.com\ndev.missing.example\nsitedev.prod.acquia-sites.com\n" >domains-list.txt
-
-  declare -a STEPS=()
-  steps_lookup "dev" "$(domains_json "sitedev.prod.acquia-sites.com" "dev.example.com" "dev.other.example")"
-  STEPS+=(
-    "[ OK ] Retrieved 3 domains attached to dev environment."
-    "Limiting the purge to domains listed in domains-list.txt."
-    "Warning: Skipping domain dev.missing.example as it is not attached to dev environment."
-    "[ OK ] Compiled a list of 2 domains."
-  )
-  steps_purge "dev" "dev.example.com"
-  steps_purge "dev" "sitedev.prod.acquia-sites.com"
-  STEPS+=(
-    "- Purging cache for dev environment domain dev.missing.example."
-    "- Purging cache for dev environment domain dev.other.example."
-    "[ OK ] Finished cache purging in Acquia."
-  )
-
-  run_purge "dev" "domains-list.txt"
-
-  assert_success
-
-  popd >/dev/null || exit 1
-}
-
-@test "task-purge-cache-acquia: ignores blank lines, comments, whitespace and duplicates in the domains file" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  # The last line has no trailing newline.
-  printf "# Domains to purge.\n\n  dev.example.com  \ndev.example.com\n\$TARGET_ENV_REMAP.example.com" >domains-format.txt
-
-  declare -a STEPS=()
-  steps_lookup "dev" "$(domains_json "dev.example.com")"
-  STEPS+=(
-    "[ OK ] Retrieved 1 domains attached to dev environment."
-    "- Warning: Skipping domain"
-    "[ OK ] Compiled a list of 1 domains."
-  )
-  steps_purge "dev" "dev.example.com"
-  STEPS+=(
-    "[ OK ] Finished cache purging in Acquia."
-  )
-
-  run_purge "dev" "domains-format.txt"
-
-  assert_success
-
-  popd >/dev/null || exit 1
-}
-
-@test "task-purge-cache-acquia: prod strips the placeholder" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  assert_placeholder "prod" '$TARGET_ENV_REMAP.example.com' "example.com"
-
-  popd >/dev/null || exit 1
-}
-
-@test "task-purge-cache-acquia: prod strips the legacy placeholder" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  assert_placeholder "prod" '$TARGET_ENV.example.com' "example.com"
-
-  popd >/dev/null || exit 1
-}
-
-@test "task-purge-cache-acquia: dev prefixes the domain with the environment name" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  assert_placeholder "dev" '$TARGET_ENV_REMAP.example.com' "dev.example.com"
-
-  popd >/dev/null || exit 1
-}
-
-@test "task-purge-cache-acquia: test prefixes the domain with the stage name used in the UI" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  assert_placeholder "test" '$TARGET_ENV_REMAP.example.com' "stage.example.com"
-
-  popd >/dev/null || exit 1
-}
-
-@test "task-purge-cache-acquia: test resolves the legacy placeholder to the environment name" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  assert_placeholder "test" '$TARGET_ENV.example.com' "test.example.com"
-
-  popd >/dev/null || exit 1
-}
-
-@test "task-purge-cache-acquia: test2 prefixes the domain with the environment name" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  assert_placeholder "test2" '$TARGET_ENV_REMAP.example.com' "test2.example.com"
-
-  popd >/dev/null || exit 1
-}
-
-@test "task-purge-cache-acquia: does not evaluate the domains file" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  printf '$(touch evaluated.txt)dev.example.com\ndev.example.com\n' >domains-eval.txt
-
-  declare -a STEPS=()
-  steps_lookup "dev" "$(domains_json "dev.example.com")"
-  STEPS+=(
-    'Warning: Skipping domain $(touch evaluated.txt)dev.example.com as it is not attached to dev environment.'
-    "[ OK ] Compiled a list of 1 domains."
-  )
-  steps_purge "dev" "dev.example.com"
-
-  run_purge "dev" "domains-eval.txt"
-
-  assert_success
-  assert_file_not_exists "evaluated.txt"
-
-  popd >/dev/null || exit 1
-}
-
-@test "task-purge-cache-acquia: unknown environment skips placeholder lines and keeps plain domains" {
-  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  printf '$TARGET_ENV_REMAP.example.com\node1.example.com\n' >domains-unknown.txt
-
-  declare -a STEPS=()
-  steps_lookup "ode1" "$(domains_json "siteode1.prod.acquia-sites.com" "ode1.example.com")"
-  STEPS+=(
-    'Skipping domain $TARGET_ENV_REMAP.example.com as its placeholder has no value for ode1 environment.'
-    "[ OK ] Compiled a list of 1 domains."
-  )
-  steps_purge "ode1" "ode1.example.com"
-  STEPS+=(
-    "- Purging cache for ode1 environment domain siteode1.prod.acquia-sites.com."
-    "[ OK ] Finished cache purging in Acquia."
-  )
-
-  run_purge "ode1" "domains-unknown.txt"
-
-  assert_success
-
-  popd >/dev/null || exit 1
-}
-
 @test "task-purge-cache-acquia: environment without domains purges nothing" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
-
-  echo "dev.example.com" >domains-none.txt
 
   declare -a STEPS=()
   steps_lookup "dev" '{"total":0,"_embedded":{"items":[]}}'
   STEPS+=(
     "[ OK ] Retrieved 0 domains attached to dev environment."
-    "- Limiting the purge to domains listed in"
-    "[ OK ] Compiled a list of 0 domains."
     "Unable to find domains to purge cache for dev environment."
     "- Purging cache for"
     "[ OK ] Finished cache purging in Acquia."
   )
 
-  run_purge "dev" "domains-none.txt"
+  run_purge "dev"
 
   assert_success
 
@@ -391,7 +197,7 @@ assert_placeholder() {
   declare -a STEPS=()
   steps_lookup "dev" "$(domains_json "dev.example.com" "dev.other.example")"
   STEPS+=(
-    "[ OK ] Compiled a list of 2 domains."
+    "[ OK ] Retrieved 2 domains attached to dev environment."
 
     "Purging cache for dev environment domain dev.example.com."
     '@curl -X POST -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token -H Content-Type: application/json -d {"domains":["dev.example.com"]} https://cloud.acquia.com/api/environments/env-id-456/actions/clear-caches # {"error":"forbidden"}'
@@ -416,7 +222,7 @@ assert_placeholder() {
   declare -a STEPS=()
   steps_lookup "dev" "$(domains_json "dev.example.com" "dev.other.example")"
   STEPS+=(
-    "[ OK ] Compiled a list of 2 domains."
+    "[ OK ] Retrieved 2 domains attached to dev environment."
 
     "Purging cache for dev environment domain dev.example.com."
     '@curl -X POST -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token -H Content-Type: application/json -d {"domains":["dev.example.com"]} https://cloud.acquia.com/api/environments/env-id-456/actions/clear-caches # {"_links":{"notification":{"href":"https://cloud.acquia.com/api/notifications/notif-123"}}}'
@@ -445,7 +251,7 @@ assert_placeholder() {
   steps_lookup "dev" '{"error":"not_found","message":"Domain names do not exist on non-hosted applications."}'
   STEPS+=(
     '[FAIL] Unable to retrieve domains attached to dev environment. API response: {"error":"not_found","message":"Domain names do not exist on non-hosted applications."}'
-    "- Compiling a list of domains."
+    "- Purging cache for"
   )
 
   run_purge "dev"
@@ -462,7 +268,7 @@ assert_placeholder() {
   steps_lookup "dev" '<html>Bad Gateway</html>'
   STEPS+=(
     '[FAIL] Unable to retrieve domains attached to dev environment. API response: <html>Bad Gateway</html>'
-    "- Compiling a list of domains."
+    "- Purging cache for"
   )
 
   run_purge "dev"
@@ -475,23 +281,20 @@ assert_placeholder() {
 @test "task-purge-cache-acquia: requests the next page of domains after a full page" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  echo "d101.example.com" >domains-paged.txt
-
-  mapfile -t first_page < <(full_page_hostnames 1)
+  mapfile -t first_page < <(wildcard_hostnames 100)
 
   declare -a STEPS=()
   steps_lookup "dev" "$(domains_json "${first_page[@]}")"
-  steps_lookup_page 100 "$(domains_json "d101.example.com")"
+  steps_lookup_page 100 "$(domains_json "dev.example.com")"
   STEPS+=(
-    "[ OK ] Retrieved 101 domains attached to dev environment."
-    "[ OK ] Compiled a list of 1 domains."
+    "[ OK ] Retrieved 1 domains attached to dev environment."
   )
-  steps_purge "dev" "d101.example.com"
+  steps_purge "dev" "dev.example.com"
   STEPS+=(
     "[ OK ] Finished cache purging in Acquia."
   )
 
-  run_purge "dev" "domains-paged.txt"
+  run_purge "dev"
 
   assert_success
 
@@ -506,7 +309,6 @@ assert_placeholder() {
   steps_lookup_page 2 "$(domains_json --total=3 "dev.third.example")"
   STEPS+=(
     "[ OK ] Retrieved 3 domains attached to dev environment."
-    "[ OK ] Compiled a list of 3 domains."
   )
   steps_purge "dev" "dev.example.com"
   steps_purge "dev" "dev.other.example"
@@ -525,24 +327,21 @@ assert_placeholder() {
 @test "task-purge-cache-acquia: stops paging when the API repeats a page" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
-  echo "d1.example.com" >domains-repeated.txt
-
-  mapfile -t first_page < <(full_page_hostnames 1)
-  page_json="$(domains_json "${first_page[@]}")"
+  mapfile -t page < <(wildcard_hostnames 99)
+  page_json="$(domains_json "${page[@]}" "dev.example.com")"
 
   declare -a STEPS=()
   steps_lookup "dev" "${page_json}"
   steps_lookup_page 100 "${page_json}"
   STEPS+=(
-    "[ OK ] Retrieved 100 domains attached to dev environment."
-    "[ OK ] Compiled a list of 1 domains."
+    "[ OK ] Retrieved 1 domains attached to dev environment."
   )
-  steps_purge "dev" "d1.example.com"
+  steps_purge "dev" "dev.example.com"
   STEPS+=(
     "[ OK ] Finished cache purging in Acquia."
   )
 
-  run_purge "dev" "domains-repeated.txt"
+  run_purge "dev"
 
   assert_success
 
