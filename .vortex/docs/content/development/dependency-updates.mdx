@@ -351,12 +351,16 @@ Create the following required variables in the CircleCI project settings:
 - `RENOVATE_GIT_AUTHOR`: The author of Renovate commits in the format
   `Name <email@example.com>`, such as `Renovate Bot <renovate@example.com>`.
 
-The following optional variables each have a default:
+The following optional variables each have a default. To override a
+default, create the variable in the CircleCI project settings too:
 
 - `RENOVATE_DRY_RUN`: Set to `true` to test runs without making changes
   (default: `false`).
 - `RENOVATE_DEPENDENCY_DASHBOARD`: Set to `true` to enable the dependency
   dashboard (default: `false`).
+
+The job sets the other Renovate variables in
+`.circleci/update-dependencies.yml`, so change them there.
 
 **Manual trigger:** trigger a pipeline from the CircleCI UI with the
 `run_update_dependencies` pipeline parameter set to `true`. The manual run
