@@ -11,6 +11,7 @@ use DrevOps\VortexInstaller\Utils\Env;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\FileManager;
 use DrevOps\VortexInstaller\Utils\Git;
+use DrevOps\VortexInstaller\Utils\InstallReport;
 use DrevOps\VortexInstaller\Utils\UpdateRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\Process\ExecutableFinder;
@@ -20,6 +21,7 @@ use Symfony\Component\Process\ExecutableFinder;
  */
 #[CoversClass(FileManager::class)]
 #[CoversClass(InstallCommand::class)]
+#[CoversClass(InstallReport::class)]
 #[CoversClass(UpdateRegistry::class)]
 class InstallExcludedPathsTest extends FunctionalTestCase {
 
@@ -110,6 +112,46 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
     $this->assertFileNotContainsString(static::$sut . '/.ahoy.yml', '# Project addition.', 'The update still replaces the project file.');
   }
 
+  public function testInstallAndUpdateWriteReport(): void {
+    $ref = $this->templateRef();
+
+    $this->runInstall(self::PROMPTS_ALL_TOOLS, $ref);
+
+    $first = $this->findReport();
+    $this->assertFileContainsString($first, '| `added` | [composer.json](../composer.json) |  |', 'A fresh installation adds every file.');
+    $this->assertFileNotContainsString($first, '**From:**', 'A fresh installation has no previous version.');
+    $this->assertNoFailedFiles($first);
+    $this->assertDirectoryDoesNotExist(substr($first, 0, -strlen(InstallReport::EXTENSION)), 'A fresh installation changes no existing file, so it writes no diff.');
+    $this->assertApplicationOutputContains(['Status and diff of every file are recorded in:', '.logs/' . InstallReport::PREFIX]);
+
+    File::dump(static::$sut . '/.ahoy.yml', File::read(static::$sut . '/.ahoy.yml') . PHP_EOL . '# Project addition.' . PHP_EOL);
+    File::dump(static::$sut . '/phpstan.neon', "parameters:\n  level: 8\n");
+
+    $this->runInstall(self::PROMPTS_WITHOUT_TEST_TOOLS, $ref);
+
+    $this->assertFileExists($first, 'An update leaves the earlier report in place.');
+    $report = $this->findReport([$first]);
+    $this->assertFileContainsString($report, '- **From:** ', 'An update names the version the project ran.');
+    $this->assertNoFailedFiles($report);
+
+    $name = basename($report, InstallReport::EXTENSION);
+    $expected = [
+      sprintf('| `overwritten` | [.ahoy.yml](../.ahoy.yml) | [diff](%s/.ahoy.yml.diff) |', $name),
+      '| `unchanged` | [.editorconfig](../.editorconfig) |  |',
+      sprintf('| `removed` | `jest.config.js` | [diff](%s/jest.config.js.diff) |', $name),
+      '| `kept` | [phpstan.neon](../phpstan.neon) |  |',
+    ];
+    foreach ($expected as $row) {
+      $this->assertFileContainsString($report, $row);
+    }
+
+    $diff_dir = dirname($report) . '/' . $name;
+    $this->assertFileContainsString($diff_dir . '/.ahoy.yml.diff', '-# Project addition.', 'The diff shows the project change the update replaced.');
+    $this->assertFileContainsString($diff_dir . '/jest.config.js.diff', '+++ /dev/null');
+
+    $this->assertApplicationOutputContains(['Finished updating Vortex', 'Files: ', 'Status and diff of every file are recorded in:', 'Project changes replaced by this update are recorded in:']);
+  }
+
   public function testUpdateRemovesCommittedManifest(): void {
     $ref = $this->templateRef();
 
@@ -137,6 +179,36 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
     foreach ($shipped as $path => $contents) {
       $this->assertStringEqualsFile(static::$sut . '/' . $path, $contents, sprintf('Path "%s" kept its contents.', $path));
     }
+  }
+
+  /**
+   * Assert that a report lists no file the copy failed to write.
+   *
+   * The status legend above the summary names every status, so only the
+   * summary and the file list are searched.
+   */
+  protected function assertNoFailedFiles(string $report): void {
+    $content = File::read($report);
+    $listing = substr($content, (int) strpos($content, '## Summary'));
+
+    $this->assertStringNotContainsString('| `' . InstallReport::STATUS_FAILED . '` |', $listing, 'Every template file is written, symlinks included.');
+  }
+
+  /**
+   * Get the path of the only install report not written by an earlier run.
+   *
+   * @param array<int, string> $earlier
+   *   Reports written by earlier runs.
+   */
+  protected function findReport(array $earlier = []): string {
+    $reports = glob(static::$sut . '/' . InstallReport::DIR . '/' . InstallReport::PREFIX . '*' . InstallReport::EXTENSION);
+
+    $this->assertIsArray($reports);
+
+    $reports = array_values(array_diff($reports, $earlier));
+    $this->assertCount(1, $reports, 'The run writes 1 install report.');
+
+    return $reports[0];
   }
 
   /**
