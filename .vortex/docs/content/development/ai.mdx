@@ -134,10 +134,14 @@ The review checks the change against 3 sources, in this order:
    updates, tests and front-end code.
 3. General engineering judgment.
 
-The review skips anything `ahoy lint` already enforces. It sorts findings
-into **Critical**, **Important** and **Minor** and points each one at a
-file and line. It ends with a verdict: **Ready to merge**, **Ready after
-fixes** or **Needs work**.
+For a pull request in another repository, the review uses that
+repository's rules and skips the checklist.
+
+The review skips anything that `ahoy lint` or another lint command in
+`AGENTS.md` already enforces. It sorts findings into **Critical**,
+**Important** and **Minor** and points each one at a file and line. It
+ends with a verdict: **Ready to merge**, **Ready after fixes** or **Needs
+work**. A merged or closed pull request gets follow-ups and no verdict.
 
 ### Adapt the review to your team
 
