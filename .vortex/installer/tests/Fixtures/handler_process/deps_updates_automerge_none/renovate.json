@@ -1,4 +1,4 @@
-@@ -103,7 +103,7 @@
+@@ -109,7 +109,7 @@
                  "!drupal/core-dev"
              ],
              "minimumReleaseAge": "14 days",
@@ -7,7 +7,7 @@
          },
          {
              "description": "Drupal core has no 'minimumReleaseAge', so its security releases are proposed on the next daily run.",
-@@ -128,7 +128,7 @@
+@@ -134,7 +134,7 @@
                  "drupal/core-recommended",
                  "drupal/core-dev"
              ],
@@ -16,7 +16,7 @@
          },
          {
              "groupName": "JavaScript - Non-root packages - Skipped to update manually",
-@@ -179,7 +179,7 @@
+@@ -185,7 +185,7 @@
                  "/.*/"
              ],
              "minimumReleaseAge": "14 days",
@@ -25,7 +25,7 @@
          },
          {
              "groupName": "Container images - All - Major, minor and patch",
-@@ -199,7 +199,7 @@
+@@ -205,7 +205,7 @@
                  "custom.regex"
              ],
              "minimumReleaseAge": "14 days",
@@ -34,7 +34,7 @@
          },
          {
              "description": "npm packages that CI runs at a pinned version through 'npx'.",
-@@ -215,7 +215,7 @@
+@@ -221,7 +221,7 @@
                  "before 3am"
              ],
              "minimumReleaseAge": "14 days",
@@ -43,7 +43,7 @@
          },
          {
              "description": "Renovate publishes several releases a day, so the image that runs Renovate in CircleCI is proposed weekly in a group of its own.",
-@@ -228,7 +228,7 @@
+@@ -234,7 +234,7 @@
                  "before 3am on Sunday"
              ],
              "minimumReleaseAge": "14 days",
@@ -52,7 +52,7 @@
          },
          {
              "groupName": "GitHub Actions - All - Major, minor and patch",
-@@ -241,7 +241,7 @@
+@@ -247,7 +247,7 @@
              ],
              "pinDigests": true,
              "minimumReleaseAge": "14 days",

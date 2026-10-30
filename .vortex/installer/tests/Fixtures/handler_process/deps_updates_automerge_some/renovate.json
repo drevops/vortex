@@ -1,4 +1,4 @@
-@@ -103,7 +103,7 @@
+@@ -109,7 +109,7 @@
                  "!drupal/core-dev"
              ],
              "minimumReleaseAge": "14 days",
@@ -7,7 +7,7 @@
          },
          {
              "description": "Drupal core has no 'minimumReleaseAge', so its security releases are proposed on the next daily run.",
-@@ -179,7 +179,7 @@
+@@ -185,7 +185,7 @@
                  "/.*/"
              ],
              "minimumReleaseAge": "14 days",
@@ -16,7 +16,7 @@
          },
          {
              "groupName": "Container images - All - Major, minor and patch",
-@@ -199,7 +199,7 @@
+@@ -205,7 +205,7 @@
                  "custom.regex"
              ],
              "minimumReleaseAge": "14 days",
