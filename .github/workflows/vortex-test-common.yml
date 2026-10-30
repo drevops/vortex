@@ -277,7 +277,7 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_ACTIONLINT_IGNORE_FAILURE == '1' }}
 
       - name: Check GitHub Actions security with Zizmor
-        uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+        uses: zizmorcore/zizmor-action@85b2b9fb8e3325e7a23d7d0a9d7ba5ae0f999e3e # v0.7.1
         with:
           # Audit only the real workflows. The default '.' also descends into the
           # installer test fixtures, whose normalized '__HASH__' action refs are
