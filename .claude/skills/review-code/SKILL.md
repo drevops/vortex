@@ -119,8 +119,8 @@ about something missing, such as a test.
 | Ready after fixes | Important findings and no Critical ones                      |
 | Ready to merge    | Only Minor findings, non-blocking questions, or no findings |
 
-When there are findings, offer to fix them or post them to the pull
-request. Do neither unless the developer asks.
+When there are findings, end by noting that fixing them or posting them to
+the pull request is a separate request. The review itself does neither.
 
 ## Customizing
 
