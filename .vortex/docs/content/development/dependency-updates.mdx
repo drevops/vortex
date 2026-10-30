@@ -226,9 +226,11 @@ It checks only the dependencies listed in `composer.json` and
 every run.
 
 When Renovate reads no advisories, a security fix arrives as a routine
-update and waits like any other update. The
+update and waits like any other update. Apply a fix that needs a new major
+version yourself, because Renovate skips
+[major updates](#disabled-updates) of PHP and JS packages. The
 [dependency audit](security/dependency-audit.mdx) still reports the
-advisory in CI. To apply the fix sooner,
+advisory in CI. To apply any other fix sooner,
 update the dependency yourself or request the pending update from the
 Dependency Dashboard.
 
