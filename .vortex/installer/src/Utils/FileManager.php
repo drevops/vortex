@@ -282,8 +282,10 @@ class FileManager {
         continue;
       }
 
+      $content = File::read($target);
       File::remove($target);
       $this->report?->add($path, InstallReport::STATUS_REMOVED);
+      $this->report?->addChange($path, $content, NULL);
 
       for ($dir = dirname($path); $dir !== '.'; $dir = dirname($dir)) {
         $dirs[$dir] = substr_count($dir, '/');
@@ -333,13 +335,22 @@ class FileManager {
 
       if ($project_hash !== FALSE && $project_hash === ($this->previousTemplateHashes[$path] ?? NULL)) {
         $report->add($path, InstallReport::STATUS_UPDATED);
+        $report->addChange($path, File::read($project), File::read($next));
         continue;
       }
 
       // A copy that cannot be read cannot be shown to be unmodified.
       $report->add($path, InstallReport::STATUS_OVERWRITTEN);
 
-      if ($this->previousDir === NULL || $project_hash === FALSE) {
+      if ($project_hash === FALSE) {
+        continue;
+      }
+
+      $project_content = File::read($project);
+      $next_content = File::read($next);
+      $report->addChange($path, $project_content, $next_content);
+
+      if ($this->previousDir === NULL) {
         continue;
       }
 
@@ -347,7 +358,7 @@ class FileManager {
       // diff the project's copy against.
       $previous = $this->previousDir . '/' . $path;
 
-      $registry->add($path, File::isReadable($previous) ? File::read($previous) : NULL, File::read($project), File::read($next));
+      $registry->add($path, File::isReadable($previous) ? File::read($previous) : NULL, $project_content, $next_content);
     }
 
     if ($this->previousDir !== NULL) {

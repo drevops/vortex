@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Utils;
 
-use SebastianBergmann\Diff\Differ;
-use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
-
 /**
  * Record of project changes that an update replaced.
  *
@@ -34,7 +31,7 @@ class UpdateRegistry {
   /**
    * Largest content, in bytes, that is rendered as a diff.
    */
-  const MAX_DIFF_BYTES = 102400;
+  const MAX_DIFF_BYTES = Diff::MAX_BYTES;
 
   /**
    * Replaced content, keyed by template-relative path.
@@ -126,14 +123,14 @@ class UpdateRegistry {
   protected function renderEntry(string $path, array $contents): string {
     $content = sprintf('### %s', $path) . PHP_EOL . PHP_EOL;
 
-    foreach (array_filter($contents, is_string(...)) as $side) {
-      if (str_contains($side, "\0")) {
-        return $content . 'Binary file. Recover the project copy from version control.' . PHP_EOL . PHP_EOL;
-      }
+    $skip = Diff::skipReason(...array_values(array_filter($contents, is_string(...))));
 
-      if (strlen($side) > self::MAX_DIFF_BYTES) {
-        return $content . 'File is too large to diff. Recover the project copy from version control.' . PHP_EOL . PHP_EOL;
-      }
+    if ($skip === Diff::SKIP_BINARY) {
+      return $content . 'Binary file. Recover the project copy from version control.' . PHP_EOL . PHP_EOL;
+    }
+
+    if ($skip === Diff::SKIP_TOO_LARGE) {
+      return $content . 'File is too large to diff. Recover the project copy from version control.' . PHP_EOL . PHP_EOL;
     }
 
     if ($contents['previous'] === NULL) {
@@ -170,9 +167,7 @@ class UpdateRegistry {
    *   The fenced diff.
    */
   protected function renderDiff(string $from, string $to, string $from_label, string $to_label): string {
-    $header = sprintf('--- %s', $from_label) . PHP_EOL . sprintf('+++ %s', $to_label) . PHP_EOL;
-    $differ = new Differ(new UnifiedDiffOutputBuilder($header));
-    $diff = rtrim($differ->diff($from, $to));
+    $diff = Diff::unified($from, $to, $from_label, $to_label);
 
     // The template ships Markdown that itself contains fences. A diff renders
     // an unchanged line with a single leading space, which Markdown still

@@ -393,23 +393,40 @@ class FileManagerTest extends UnitTestCase {
     $report = (string) $fm->getReportFile();
 
     $this->assertStringStartsWith($destination . '/' . InstallReport::DIR . '/' . InstallReport::PREFIX, $report);
-    $this->assertFileContainsString($report, 'From: 1.40.0');
-    $this->assertFileContainsString($report, 'To:   1.41.0');
+    $this->assertFileContainsString($report, '- **From:** 1.40.0');
+    $this->assertFileContainsString($report, '- **To:** 1.41.0');
 
+    // Status, whether the file is still in the project, and whether it has a
+    // diff, keyed by path.
     $expected = [
-      '.env.local' => InstallReport::STATUS_ADDED,
-      '.env.local.example' => InstallReport::STATUS_ADDED,
-      'added.txt' => InstallReport::STATUS_ADDED,
-      'unchanged.txt' => InstallReport::STATUS_UNCHANGED,
-      'updated.txt' => InstallReport::STATUS_UPDATED,
-      'overwritten.txt' => InstallReport::STATUS_OVERWRITTEN,
-      'removed.txt' => InstallReport::STATUS_REMOVED,
-      'kept.txt' => InstallReport::STATUS_KEPT,
-      'scripts/vortex' => InstallReport::STATUS_REMOVED,
+      '.env.local' => [InstallReport::STATUS_ADDED, TRUE, FALSE],
+      '.env.local.example' => [InstallReport::STATUS_ADDED, TRUE, FALSE],
+      'added.txt' => [InstallReport::STATUS_ADDED, TRUE, FALSE],
+      'unchanged.txt' => [InstallReport::STATUS_UNCHANGED, TRUE, FALSE],
+      'updated.txt' => [InstallReport::STATUS_UPDATED, TRUE, TRUE],
+      'overwritten.txt' => [InstallReport::STATUS_OVERWRITTEN, TRUE, TRUE],
+      'removed.txt' => [InstallReport::STATUS_REMOVED, FALSE, TRUE],
+      'kept.txt' => [InstallReport::STATUS_KEPT, TRUE, FALSE],
+      'scripts/vortex' => [InstallReport::STATUS_REMOVED, FALSE, FALSE],
     ];
-    foreach ($expected as $path => $status) {
-      $this->assertFileContainsString($report, sprintf('  %s%s', str_pad($status, 13), $path) . PHP_EOL, sprintf('Path "%s" is reported as "%s".', $path, $status));
+    $diff_dir = substr($report, 0, -strlen(InstallReport::EXTENSION));
+
+    foreach ($expected as $path => [$status, $exists, $has_diff]) {
+      $file = $exists ? sprintf('[%s](../%s)', $path, $path) : sprintf('`%s`', $path);
+      $this->assertFileContainsString($report, sprintf('| `%s` | %s |', $status, $file), sprintf('Path "%s" is reported as "%s".', $path, $status));
+
+      if ($has_diff) {
+        $this->assertFileExists($diff_dir . '/' . $path . InstallReport::DIFF_EXTENSION, sprintf('Path "%s" has a diff.', $path));
+      }
+      else {
+        $this->assertFileDoesNotExist($diff_dir . '/' . $path . InstallReport::DIFF_EXTENSION, sprintf('Path "%s" has no diff.', $path));
+      }
     }
+
+    $this->assertFileContainsString($diff_dir . '/updated.txt.diff', '-installed');
+    $this->assertFileContainsString($diff_dir . '/updated.txt.diff', '+next');
+    $this->assertFileContainsString($diff_dir . '/overwritten.txt.diff', '-project', 'The diff starts from the project copy, not the template.');
+    $this->assertFileContainsString($diff_dir . '/removed.txt.diff', '+++ /dev/null');
 
     $this->assertFileContainsString($destination . '/' . UpdateRegistry::FILE, '### overwritten.txt', 'An overwritten project change is recorded in the registry.');
     $this->assertFileNotContainsString($destination . '/' . UpdateRegistry::FILE, '### updated.txt', 'A file replaced as-is is not recorded in the registry.');
@@ -437,7 +454,7 @@ class FileManagerTest extends UnitTestCase {
       InstallReport::STATUS_UNCHANGED => 1,
       InstallReport::STATUS_OVERWRITTEN => 1,
     ], $fm->getReportSummary());
-    $this->assertFileNotContainsString((string) $fm->getReportFile(), 'From:', 'A fresh installation has no previous version.');
+    $this->assertFileNotContainsString((string) $fm->getReportFile(), '**From:**', 'A fresh installation has no previous version.');
     $this->assertNull($fm->getRegistryFile(), 'Without a previous version there is nothing to diff against.');
   }
 
@@ -503,7 +520,7 @@ class FileManagerTest extends UnitTestCase {
 
     $this->assertStringEqualsFile($destination . '/phpstan.neon', 'installed', 'The read-only file kept its content.');
     $this->assertSame([InstallReport::STATUS_ADDED => 1, InstallReport::STATUS_FAILED => 1], $fm->getReportSummary());
-    $this->assertFileContainsString((string) $fm->getReportFile(), '  failed       phpstan.neon' . PHP_EOL, 'A file the copy did not write is not reported as updated.');
+    $this->assertFileContainsString((string) $fm->getReportFile(), '| `failed` | [phpstan.neon](../phpstan.neon) |  |', 'A file the copy did not write is not reported as updated, and has no diff.');
   }
 
   public function testCopyFilesRemovesCommittedManifest(): void {

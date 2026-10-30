@@ -191,7 +191,7 @@ class InstallerPresenterTest extends UnitTestCase {
 
     $presenter->footer(
       $registry_file === NULL ? NULL : $destination . '/' . $registry_file,
-      $destination . '/.logs/vortex-install-2026-10-30-101500.txt',
+      $destination . '/.logs/vortex-install-2026-10-30-101500.md',
       [InstallReport::STATUS_ADDED => 2, InstallReport::STATUS_UPDATED => 5, InstallReport::STATUS_OVERWRITTEN => 1],
     );
 
@@ -207,10 +207,10 @@ class InstallerPresenterTest extends UnitTestCase {
 
   public static function dataProviderFooterReport(): \Iterator {
     $summary = 'Files: 2 added, 5 updated, 1 overwritten';
-    $path = '.logs/vortex-install-2026-10-30-101500.txt';
+    $path = '.logs/vortex-install-2026-10-30-101500.md';
 
-    yield 'installation' => [FALSE, NULL, ['Finished installing Vortex', 'git commit', $summary, 'Status of every file is recorded in:', $path]];
-    yield 'update' => [TRUE, NULL, ['Finished updating Vortex', 'review the changes', $summary, 'Status of every file is recorded in:', $path]];
+    yield 'installation' => [FALSE, NULL, ['Finished installing Vortex', 'git commit', $summary, 'Status and diff of every file are recorded in:', $path]];
+    yield 'update' => [TRUE, NULL, ['Finished updating Vortex', 'review the changes', $summary, 'Status and diff of every file are recorded in:', $path]];
     yield 'update with registry' => [TRUE, '.logs/vortex-update.md', ['Finished updating Vortex', $summary, $path, 'Project changes replaced by this update are recorded in:', '.logs/vortex-update.md']];
   }
 

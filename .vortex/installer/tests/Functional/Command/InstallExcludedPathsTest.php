@@ -118,10 +118,11 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
     $this->runInstall(self::PROMPTS_ALL_TOOLS, $ref);
 
     $first = $this->findReport();
-    $this->assertFileContainsString($first, '  added        composer.json' . PHP_EOL, 'A fresh installation adds every file.');
-    $this->assertFileNotContainsString($first, 'From:', 'A fresh installation has no previous version.');
+    $this->assertFileContainsString($first, '| `added` | [composer.json](../composer.json) |  |', 'A fresh installation adds every file.');
+    $this->assertFileNotContainsString($first, '**From:**', 'A fresh installation has no previous version.');
     $this->assertNoFailedFiles($first);
-    $this->assertApplicationOutputContains(['Status of every file is recorded in:', '.logs/' . InstallReport::PREFIX]);
+    $this->assertDirectoryDoesNotExist(substr($first, 0, -strlen(InstallReport::EXTENSION)), 'A fresh installation changes no existing file, so it writes no diff.');
+    $this->assertApplicationOutputContains(['Status and diff of every file are recorded in:', '.logs/' . InstallReport::PREFIX]);
 
     File::dump(static::$sut . '/.ahoy.yml', File::read(static::$sut . '/.ahoy.yml') . PHP_EOL . '# Project addition.' . PHP_EOL);
     File::dump(static::$sut . '/phpstan.neon', "parameters:\n  level: 8\n");
@@ -130,20 +131,25 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
 
     $this->assertFileExists($first, 'An update leaves the earlier report in place.');
     $report = $this->findReport([$first]);
-    $this->assertFileContainsString($report, 'From: ', 'An update names the version the project ran.');
+    $this->assertFileContainsString($report, '- **From:** ', 'An update names the version the project ran.');
     $this->assertNoFailedFiles($report);
 
+    $name = basename($report, InstallReport::EXTENSION);
     $expected = [
-      '.ahoy.yml' => InstallReport::STATUS_OVERWRITTEN,
-      '.editorconfig' => InstallReport::STATUS_UNCHANGED,
-      'jest.config.js' => InstallReport::STATUS_REMOVED,
-      'phpstan.neon' => InstallReport::STATUS_KEPT,
+      sprintf('| `overwritten` | [.ahoy.yml](../.ahoy.yml) | [diff](%s/.ahoy.yml.diff) |', $name),
+      '| `unchanged` | [.editorconfig](../.editorconfig) |  |',
+      sprintf('| `removed` | `jest.config.js` | [diff](%s/jest.config.js.diff) |', $name),
+      '| `kept` | [phpstan.neon](../phpstan.neon) |  |',
     ];
-    foreach ($expected as $path => $status) {
-      $this->assertFileContainsString($report, sprintf('  %s%s', str_pad($status, 13), $path) . PHP_EOL, sprintf('Path "%s" is reported as "%s".', $path, $status));
+    foreach ($expected as $row) {
+      $this->assertFileContainsString($report, $row);
     }
 
-    $this->assertApplicationOutputContains(['Finished updating Vortex', 'Files: ', 'Status of every file is recorded in:', 'Project changes replaced by this update are recorded in:']);
+    $diff_dir = dirname($report) . '/' . $name;
+    $this->assertFileContainsString($diff_dir . '/.ahoy.yml.diff', '-# Project addition.', 'The diff shows the project change the update replaced.');
+    $this->assertFileContainsString($diff_dir . '/jest.config.js.diff', '+++ /dev/null');
+
+    $this->assertApplicationOutputContains(['Finished updating Vortex', 'Files: ', 'Status and diff of every file are recorded in:', 'Project changes replaced by this update are recorded in:']);
   }
 
   public function testUpdateRemovesCommittedManifest(): void {
@@ -183,9 +189,9 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
    */
   protected function assertNoFailedFiles(string $report): void {
     $content = File::read($report);
-    $listing = substr($content, (int) strpos($content, 'Summary:'));
+    $listing = substr($content, (int) strpos($content, '## Summary'));
 
-    $this->assertStringNotContainsString('  ' . InstallReport::STATUS_FAILED . ' ', $listing, 'Every template file is written, symlinks included.');
+    $this->assertStringNotContainsString('| `' . InstallReport::STATUS_FAILED . '` |', $listing, 'Every template file is written, symlinks included.');
   }
 
   /**
@@ -195,7 +201,7 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
    *   Reports written by earlier runs.
    */
   protected function findReport(array $earlier = []): string {
-    $reports = glob(static::$sut . '/' . InstallReport::DIR . '/' . InstallReport::PREFIX . '*.txt');
+    $reports = glob(static::$sut . '/' . InstallReport::DIR . '/' . InstallReport::PREFIX . '*' . InstallReport::EXTENSION);
 
     $this->assertIsArray($reports);
 

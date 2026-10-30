@@ -192,7 +192,7 @@ EOT;
 
     $output = PHP_EOL . PHP_EOL;
     $output .= 'Files: ' . implode(', ', $counts) . PHP_EOL;
-    $output .= 'Status of every file is recorded in:' . PHP_EOL;
+    $output .= 'Status and diff of every file are recorded in:' . PHP_EOL;
 
     return $output . '  ' . File::toRelative($report_file, (string) $this->config->getDestination());
   }
