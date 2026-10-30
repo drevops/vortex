@@ -306,7 +306,10 @@ To set up CircleCI:
    config and builds every push from then on.
 3. If you created keys in [step 5](#5-create-an-ssh-key-for-deployments),
    add the private key under **Project Settings > SSH Keys**. With separate
-   keys, add both private keys. Otherwise, skip to step 7.
+   keys, add both private keys. Otherwise, remove the `add_ssh_keys` steps
+   from the `database`, `deploy` and `deploy-tags` jobs in
+   `.circleci/config.yml`, then skip to step 6. CircleCI requires each
+   listed fingerprint to match a key in the project settings.
 4. Copy the fingerprint that CircleCI generates for each key you added.
 5. Set the fingerprints in the `aliases` list at the top of
    [`.circleci/config.yml`](https://github.com/drevops/vortex/blob/main/.circleci/config.yml):
