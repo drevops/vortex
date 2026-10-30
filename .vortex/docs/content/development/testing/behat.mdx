@@ -174,7 +174,9 @@ through its own interface: `interface.<module>` or
 `interface.<module>_<key>`. Outside scenarios tagged `@email:TYPE`, messages
 sent through those interfaces bypass the collector. For that case,
 `docker-compose.yml` also points `SSMTP_MAILHUB` at a closed port in CI, so
-delivery fails at the transport, whichever mail plugin produced the message.
+mail sent through sSMTP fails at the transport. A custom SMTP or API
+transport bypasses sSMTP, so give each custom interface a transport that
+doesn't deliver from CI.
 
 The bare `When the test email system queue is cleared` step still needs the
 `@email` tag or an earlier `When the test email system is enabled` step.
