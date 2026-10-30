@@ -97,9 +97,16 @@ the Acquia UI before the first deployment.
 
 `purge-cache.sh` purges every domain attached to the environment, on-demand
 environments included. It reads the list from the Acquia Cloud API, so it
-covers the Acquia domain and every custom domain or sub-domain. It skips
-wildcard domains such as `*.example.com`. Each purge clears Varnish and the
-Platform CDN when it's enabled.
+covers the Acquia domain and every custom domain or sub-domain. Each purge
+clears Varnish and the Platform CDN when it's enabled.
+
+The hook skips wildcard domains such as `*.example.com`. To purge a
+sub-domain that only a wildcard domain serves, add the sub-domain to the
+environment as its own domain.
+
+When Acquia rejects the purge for a domain, the hook prints a warning and
+moves on to the next domain. Check the hook output for `Warning:` lines to
+confirm that every domain was purged.
 
 `notify-deployment.sh` builds the notification URL from Acquia's
 `AH_SITE_NAME` and `AH_REALM` variables:
