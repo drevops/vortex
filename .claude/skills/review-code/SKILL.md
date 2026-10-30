@@ -9,8 +9,10 @@ Review a change the way a senior developer on this project would: against
 the project's own rules first, then the team checklist, then general
 engineering judgment.
 
-The review is read-only. Never edit files, check out branches, push, or
-post to GitHub. Print the report in the conversation and stop.
+The review is read-only. Never edit the project's files, check out
+branches, push, or post to GitHub. Writing to the git-ignored `.artifacts/`
+directory, such as the documentation cache `AGENTS.md` describes, is
+allowed. Print the report in the conversation and stop.
 
 Run every command from the project root.
 
