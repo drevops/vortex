@@ -30,9 +30,8 @@ jobs:
   # - RENOVATE_TOKEN: GitHub access token.
   # - RENOVATE_REPOSITORIES: Repository to run Renovate on as `vendor/repository`.
   # - RENOVATE_GIT_AUTHOR: Author for Renovate commits as `Name <email@example.com>`.
-  # Optional variables, set in the CircleCI project to override their default:
+  # Optional variable, set in the CircleCI project to override its default:
   # - RENOVATE_DRY_RUN: Set to `true` to run without making changes.
-  # - RENOVATE_DEPENDENCY_DASHBOARD: Set to `true` to enable the dashboard.
   # The image environment below is fixed in this file.
   update-dependencies:
     docker:
@@ -70,10 +69,9 @@ jobs:
       - run:
           name: Run Renovate
           command: |
-            # Shell defaults keep a value set in the project settings, which an
-            # image environment value could otherwise mask.
+            # A shell default keeps a value set in the project settings, which
+            # an image environment value could otherwise mask.
             export RENOVATE_DRY_RUN="${RENOVATE_DRY_RUN:-false}"
-            export RENOVATE_DEPENDENCY_DASHBOARD="${RENOVATE_DEPENDENCY_DASHBOARD:-false}"
             renovate
 
 ################################################################################

@@ -160,9 +160,7 @@ The delay applies to routine updates only: a
 [security fix](#security-fixes) skips it.
 
 The Dependency Dashboard lists the updates waiting for the minimum age under
-**Pending Status Checks**, where you can request an update early. The
-self-hosted service turns the dashboard off by default: to see it, set
-`RENOVATE_DEPENDENCY_DASHBOARD` to `true`.
+**Pending Status Checks**, where you can request an update early.
 
 ### Security fixes
 
@@ -312,8 +310,6 @@ a default:
   `yourorg/repo` (default: the current repository).
 - `RENOVATE_DRY_RUN`: Set to `true` to test runs without making changes
   (default: `false`).
-- `RENOVATE_DEPENDENCY_DASHBOARD`: Set to `true` to enable the dependency
-  dashboard (default: `false`).
 
 The workflow runs on a schedule at 11:45 and 23:45 UTC every day. Both
 times fall outside the schedule windows in `renovate.json`, which all end
@@ -351,13 +347,11 @@ Create the following required variables in the CircleCI project settings:
 - `RENOVATE_GIT_AUTHOR`: The author of Renovate commits in the format
   `Name <email@example.com>`, such as `Renovate Bot <renovate@example.com>`.
 
-The following optional variables each have a default. To override a
-default, create the variable in the CircleCI project settings too:
+The following optional variable has a default. To override it, create the
+variable in the CircleCI project settings too:
 
 - `RENOVATE_DRY_RUN`: Set to `true` to test runs without making changes
   (default: `false`).
-- `RENOVATE_DEPENDENCY_DASHBOARD`: Set to `true` to enable the dependency
-  dashboard (default: `false`).
 
 The job fixes `RENOVATE_PLATFORM`, `RENOVATE_AUTODISCOVER`,
 `RENOVATE_DEPENDENCY_DASHBOARD_TITLE` and `LOG_LEVEL` in
@@ -405,6 +399,12 @@ Renovate has found. It groups them under headings such as these:
 - **Open**: updates that already have a PR
 
 To request an update early, tick its checkbox on the dashboard.
+
+`renovate.json` turns the dashboard on through the `config:recommended`
+preset, for the GitHub app and the self-hosted service alike. To turn it
+off, set `"dependencyDashboard": false` in `renovate.json`. A CI variable
+can't turn it off, because Renovate applies `renovate.json` after the
+variables.
 
 In self-hosted mode, the issue title names the CI provider that runs
 Renovate:
