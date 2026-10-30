@@ -38,6 +38,7 @@ $build_job = extract_workflow_job($lines, '/^  build:/');
 $db_image_base = extract_github_env_value(explode("\n", $database_job), 'VORTEX_DB_IMAGE_BASE');
 
 $db_image = 'drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x';
+$db2_image = 'drevops/vortex-dev-mariadb-drupal-data-demo-migration-11.x';
 // The tags differ from the CircleCI ones, so a build never pulls an image
 // exported by the other provider.
 $db_image_tag_fi = 'vortex-dev-didi-database-fi-gha';
@@ -80,6 +81,8 @@ $output = implode("\n", [
     'VORTEX_FETCH_DB_FORCE' => 1,
     'VORTEX_DB_IMAGE' => $db_image,
     'VORTEX_DB_IMAGE_BASE' => $db_image_base,
+    'VORTEX_DB2_IMAGE' => $db2_image,
+    'VORTEX_REFRESH_DB2_PROCEED' => 1,
     'COMPOSE_PROGRESS' => 'plain',
     'VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG' => $db_image_tag_fi,
     'VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED' => 1,

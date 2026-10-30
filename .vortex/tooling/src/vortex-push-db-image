@@ -11,8 +11,14 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# Database index suffix. When set (e.g., "2"), the image of the indexed
+# database service (e.g., 'database2') is pushed as VORTEX_DB2_IMAGE.
+_db_index="${VORTEX_DB_INDEX:-}"
+
 # Container image to push in a form of `<org>/<repository>`.
-VORTEX_EXPORT_DB_IMAGE="${VORTEX_EXPORT_DB_IMAGE:-${VORTEX_DB_IMAGE:-}}"
+_v="VORTEX_EXPORT_DB${_db_index}_IMAGE"
+_vs="VORTEX_DB${_db_index}_IMAGE"
+VORTEX_EXPORT_DB_IMAGE="${!_v:-${!_vs:-}}"
 
 # ------------------------------------------------------------------------------
 
@@ -28,8 +34,8 @@ info "Started database container image push."
 
 [ "${VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED:-}" != "1" ] && pass "Skipped database container image push as VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED is not set to 1." && exit 0
 
-[ -z "${VORTEX_EXPORT_DB_IMAGE}" ] && fail "Container image name is not specified. Please provide container image as a variable VORTEX_EXPORT_DB_IMAGE in a format <org>/<repository>."
+[ -z "${VORTEX_EXPORT_DB_IMAGE}" ] && fail "Container image name is not specified. Please provide container image as a variable VORTEX_EXPORT_DB${_db_index}_IMAGE in a format <org>/<repository>."
 
-VORTEX_PUSH_CONTAINER_REGISTRY_MAP="database=${VORTEX_EXPORT_DB_IMAGE}" "$(dirname "${BASH_SOURCE[0]}")/vortex-push-container-registry"
+VORTEX_PUSH_CONTAINER_REGISTRY_MAP="database${_db_index}=${VORTEX_EXPORT_DB_IMAGE}" "$(dirname "${BASH_SOURCE[0]}")/vortex-push-container-registry"
 
 pass "Finished database container image push."

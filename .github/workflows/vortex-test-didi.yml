@@ -68,6 +68,8 @@ jobs:
         VORTEX_FETCH_DB_FORCE: 1
         VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
         VORTEX_DB_IMAGE_BASE: drevops/mariadb-drupal-data:26.10.0
+        VORTEX_DB2_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-migration-11.x
+        VORTEX_REFRESH_DB2_PROCEED: 1
         COMPOSE_PROGRESS: plain
         VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG: vortex-dev-didi-database-fi-gha
         VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED: 1
@@ -167,10 +169,10 @@ jobs:
       - name: Export DB
         run: |
           if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
+          #;< MIGRATION
+          VORTEX_DB_INDEX=2 ./vendor/bin/vortex-refresh-db
+          #;> MIGRATION
           ./vendor/bin/vortex-refresh-db
-          # 'hashFiles()' runs as the runner user outside the container, so the
-          # root-owned files in '.data' must be readable by others.
-          chmod -R a+rX .data
         timeout-minutes: 30
 
       # Deploy the freshly-exported database image to the container registry.
@@ -666,10 +668,10 @@ jobs:
       - name: Export DB
         run: |
           if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
+          #;< MIGRATION
+          VORTEX_DB_INDEX=2 ./vendor/bin/vortex-refresh-db
+          #;> MIGRATION
           ./vendor/bin/vortex-refresh-db
-          # 'hashFiles()' runs as the runner user outside the container, so the
-          # root-owned files in '.data' must be readable by others.
-          chmod -R a+rX .data
         timeout-minutes: 30
 
       - name: Assert the exported DB image is built on the base image
