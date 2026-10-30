@@ -135,9 +135,9 @@ if [ -n "${_db_index}" ]; then
   docker compose exec -T "${service}" sh -c 'mysql -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" "${MYSQL_DATABASE}"' <"${db_file}" || fail "${import_fail}"
   pass "Imported database dump file ${db_file} into the ${service} service on the ${db_image_base} base image."
 
-  VORTEX_EXPORT_DB_SERVICE_NAME="${service}" VORTEX_EXPORT_DB_IMAGE="${db_image}" "$(dirname "${BASH_SOURCE[0]}")/vortex-export-db-image" "${db_file_name}"
+  env VORTEX_EXPORT_DB_SERVICE_NAME="${service}" VORTEX_EXPORT_DB_IMAGE="${db_image}" "$(dirname "${BASH_SOURCE[0]}")/vortex-export-db-image" "${db_file_name}"
 
-  VORTEX_DB_INDEX="${_db_index}" "$(dirname "${BASH_SOURCE[0]}")/vortex-push-db-image"
+  env VORTEX_DB_INDEX="${_db_index}" "$(dirname "${BASH_SOURCE[0]}")/vortex-push-db-image"
 else
   task "Starting the stack."
   docker compose up --detach || fail "Unable to start the stack."
