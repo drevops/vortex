@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Utils;
 
 use SebastianBergmann\Diff\Differ;
-use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
+use SebastianBergmann\Diff\Output\StrictUnifiedDiffOutputBuilder;
 
 /**
  * Unified diffs of file content.
@@ -37,8 +37,8 @@ class Diff {
    *   The diff with its header, without a trailing newline.
    */
   public static function unified(string $from, string $to, string $from_label, string $to_label): string {
-    $header = sprintf('--- %s', $from_label) . PHP_EOL . sprintf('+++ %s', $to_label) . PHP_EOL;
-    $differ = new Differ(new UnifiedDiffOutputBuilder($header));
+    // Numbered hunks let editors and 'git apply' locate each change.
+    $differ = new Differ(new StrictUnifiedDiffOutputBuilder(['fromFile' => $from_label, 'toFile' => $to_label]));
 
     return rtrim($differ->diff($from, $to));
   }

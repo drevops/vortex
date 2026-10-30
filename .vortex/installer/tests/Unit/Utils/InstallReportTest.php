@@ -165,8 +165,8 @@ class InstallReportTest extends UnitTestCase {
     $this->assertStringContainsString(implode(PHP_EOL, $expected_rows) . PHP_EOL, $content, 'Rows are sorted by path and link to the file and its diff.');
 
     $diff_dir = self::$sut . '/.logs/' . $name;
-    $this->assertStringEqualsFile($diff_dir . '/phpstan.neon.diff', implode(PHP_EOL, ['--- a/phpstan.neon', '+++ b/phpstan.neon', '@@ @@', '-level: 8', '+level: 9']) . PHP_EOL);
-    $this->assertStringEqualsFile($diff_dir . '/jest.config.js.diff', implode(PHP_EOL, ['--- a/jest.config.js', '+++ /dev/null', '@@ @@', '-module.exports = {};']) . PHP_EOL);
+    $this->assertStringEqualsFile($diff_dir . '/phpstan.neon.diff', implode(PHP_EOL, ['--- a/phpstan.neon', '+++ b/phpstan.neon', '@@ -1 +1 @@', '-level: 8', '+level: 9']) . PHP_EOL);
+    $this->assertStringEqualsFile($diff_dir . '/jest.config.js.diff', implode(PHP_EOL, ['--- a/jest.config.js', '+++ /dev/null', '@@ -1 +1,0 @@', '-module.exports = {};']) . PHP_EOL);
     $this->assertFileDoesNotExist($diff_dir . '/composer.json.diff', 'An unchanged file has no diff.');
   }
 
