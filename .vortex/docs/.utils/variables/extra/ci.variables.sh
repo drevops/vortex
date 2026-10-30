@@ -94,9 +94,6 @@ VORTEX_CI_ARTIFACTS=/tmp/artifacts
 # Create a GitHub token with a permission to write to a repository.
 RENOVATE_TOKEN=
 
-# Whether to enable self-hosted Renovate bot dashboard.
-RENOVATE_DEPENDENCY_DASHBOARD=false
-
 # Whether to allow self-hosted Renovate bot make changes to the repository.
 RENOVATE_DRY_RUN=false
 
