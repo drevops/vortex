@@ -228,8 +228,8 @@ class FileManager {
     }
 
     if (!File::exists($destination . '/.env.local') && File::exists($destination . '/.env.local.example')) {
-      File::copy($destination . '/.env.local.example', $destination . '/.env.local');
-      $report->add('.env.local', InstallReport::STATUS_ADDED);
+      $copied = File::copy($destination . '/.env.local.example', $destination . '/.env.local');
+      $report->add('.env.local', $copied ? InstallReport::STATUS_ADDED : InstallReport::STATUS_FAILED);
     }
 
     $this->removeExcludedPaths($excluded, $expected);

@@ -523,6 +523,34 @@ class FileManagerTest extends UnitTestCase {
     $this->assertFileContainsString((string) $fm->getReportFile(), '| `failed` | [phpstan.neon](../phpstan.neon) |  |', 'A file the copy did not write is not reported as updated, and has no diff.');
   }
 
+  public function testCopyFilesReportsEnvLocalTheCopyCouldNotWrite(): void {
+    $src = self::$sut . '/src_report_env_failed';
+    $destination = self::$sut . '/dst_report_env_failed';
+    File::dump(File::mkdir($src) . '/composer.json', '{}');
+    File::dump(File::mkdir($destination) . '/.env.local.example', 'EXAMPLE=1');
+
+    $fm = new FileManager($this->createConfig($destination, $src));
+    $fm->snapshotTemplate();
+
+    // Write-only, so the example exists but cannot be copied.
+    chmod($destination . '/.env.local.example', 0200);
+
+    if (is_readable($destination . '/.env.local.example')) {
+      chmod($destination . '/.env.local.example', 0644);
+      $this->markTestSkipped('File permissions are not enforced for the current user.');
+    }
+
+    try {
+      $fm->copyFiles();
+    }
+    finally {
+      chmod($destination . '/.env.local.example', 0644);
+    }
+
+    $this->assertFileDoesNotExist($destination . '/.env.local');
+    $this->assertSame([InstallReport::STATUS_ADDED => 1, InstallReport::STATUS_FAILED => 1], $fm->getReportSummary(), 'A local environment file that was not created is reported as failed.');
+  }
+
   public function testCopyFilesRemovesCommittedManifest(): void {
     $src = self::$sut . '/src_stale_manifest';
     $destination = self::$sut . '/dst_stale_manifest';
