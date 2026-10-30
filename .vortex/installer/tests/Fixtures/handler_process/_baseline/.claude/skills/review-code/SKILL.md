@@ -18,7 +18,9 @@ Run every command from the project root.
 
 ## 1. Get the diff
 
-**Pull request** (a URL, or a number such as `123` or `#123`):
+**Pull request** (a URL, or a number such as `123`). Drop a leading `#`
+from a number first, because the shell reads `#` as the start of a
+comment.
 
 1. `gh pr view <pr> --json number,title,body,url,state,headRefOid`
 2. `gh pr diff <pr>`
@@ -27,7 +29,9 @@ Pass the full URL as `<pr>` whenever the developer gave one, so `gh` reads
 the right repository. To read a changed file in full at the PR head, take
 `<owner>/<repo>` from the PR URL and run
 `gh api -H "Accept: application/vnd.github.raw" "repos/<owner>/<repo>/contents/<path>?ref=<headRefOid>"`.
-When the PR head is checked out locally, read the files from disk instead.
+When `git cat-file -e <headRefOid>` succeeds, `git show <headRefOid>:<path>`
+reads the same content locally. Never read a PR file from the working
+tree, which can hold uncommitted edits.
 
 When `state` is `MERGED` or `CLOSED`, say so at the top of the report,
 leave out the verdict, and present the findings as follow-ups.
@@ -38,7 +42,9 @@ contributing docs with `gh api`, and skip `checklist.md`.
 
 **Local branch** (no argument):
 
-1. Find the base: the branch the developer names, otherwise
+1. Find the base: the branch the developer names, otherwise the default
+   branch from `git symbolic-ref --short refs/remotes/origin/HEAD`
+   without its `origin/` prefix. When that command fails, use
    `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`.
 2. `git fetch origin <base>`
 3. `git merge-base origin/<base> HEAD` and copy the hash it prints.
@@ -46,8 +52,8 @@ contributing docs with `gh api`, and skip `checklist.md`.
 5. `git status --short` - read untracked files as new files.
 6. `git log --oneline origin/<base>..HEAD` for the intent of the change.
 
-When the diff is empty or the base does not resolve, reply with 1 line
-that says which and stop. When the developer expected changes, also run
+When the base does not resolve, or both the diff and the untracked files
+are empty, reply with 1 line that says which and stop. When the developer expected changes, also run
 `git status --short --ignored` and name any ignored files that match.
 
 ## 2. Load the rules
