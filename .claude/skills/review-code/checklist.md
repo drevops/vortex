@@ -50,10 +50,9 @@ project works. `AGENTS.md` and `docs/` override anything here.
 
 ## Tests
 
-- Changed behavior has a test: PHPUnit in the module's `tests/`
-  directory, a Behat scenario in `tests/behat/features/`, or a test in
-  the suite that already covers the changed code.
-- Behat scenarios wait for conditions, not for a fixed number of seconds.
+- Changed behavior has a test in the suite that covers the changed code.
+- PHPUnit tests sit in the suites that `phpunit.xml` defines.
+- Behat scenarios sit in `tests/behat/features/` and wait for conditions.
 
 ## Front end
 
