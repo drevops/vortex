@@ -126,18 +126,18 @@ In Claude Code, you can also run `/review-code` with the same argument.
 
 The review checks the change against 3 sources, in this order:
 
-1. `AGENTS.md`, the files in `docs/`, and any `AGENTS.md` or `CLAUDE.md`
+1. `AGENTS.md`, the files in `docs/` and any `AGENTS.md` or `CLAUDE.md`
    in a directory the change touches. These record your project's
    decisions and win over the other 2 sources.
 2. `.claude/skills/review-code/checklist.md`, the team's review checklist.
    It covers Drupal security, Drupal APIs, caching, configuration and
-   updates, tests, and front-end code.
+   updates, tests and front-end code.
 3. General engineering judgment.
 
 The review skips anything `ahoy lint` already enforces. It sorts findings
-into **Critical**, **Important**, and **Minor**, points each one at a file
-and line, and ends with a verdict: **Ready to merge**, **Ready after
-fixes**, or **Needs work**.
+into **Critical**, **Important** and **Minor** and points each one at a
+file and line. It ends with a verdict: **Ready to merge**, **Ready after
+fixes** or **Needs work**.
 
 ### Adapt the review to your team
 
