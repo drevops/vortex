@@ -27,8 +27,12 @@ the right repository. To read a changed file in full at the PR head, take
 `gh api -H "Accept: application/vnd.github.raw" "repos/<owner>/<repo>/contents/<path>?ref=<headRefOid>"`.
 When the PR head is checked out locally, read the files from disk instead.
 
-When `state` is `MERGED` or `CLOSED`, say so at the top of the report and
-present the findings as follow-ups.
+When `state` is `MERGED` or `CLOSED`, say so at the top of the report,
+leave out the verdict, and present the findings as follow-ups.
+
+When the pull request belongs to another repository, the rules in step 2
+come from that repository: read its `AGENTS.md`, `CLAUDE.md` and
+contributing docs with `gh api`, and skip `checklist.md`.
 
 **Local branch** (no argument):
 
