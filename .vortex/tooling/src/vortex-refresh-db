@@ -6,8 +6,9 @@
 # the storage the project uses: a dump file or a container image.
 #
 # With database-in-image storage and a base image set in
-# VORTEX_DB_IMAGE_BASE, the database is imported into the base image, so the
-# exported image is built on the base image and not on the fetched image.
+# VORTEX_DB_IMAGE_BASE, a database dump file is imported into the base image,
+# so the exported image is built on the base image and not on the fetched
+# image. The dump file is never exported from a database container image.
 #
 # Every variable of the calling environment is passed to the provisioning in
 # the 'cli' container, so the script is intended to run in CI.
@@ -27,11 +28,19 @@ VORTEX_FETCH_DB_SOURCE="${VORTEX_FETCH_DB_SOURCE:-url}"
 # Container image with the database (database-in-image storage).
 VORTEX_DB_IMAGE="${VORTEX_DB_IMAGE:-}"
 
-# Base container image to import the database into.
+# Base container image to import the database dump file into.
 #
 # Applies to database-in-image storage only. When empty, the database is
 # exported from the fetched container image.
 VORTEX_DB_IMAGE_BASE="${VORTEX_DB_IMAGE_BASE:-}"
+
+# Fetch source of the database dump file to import into the base image.
+#
+# Required when VORTEX_FETCH_DB_SOURCE is 'container_registry' and
+# VORTEX_DB_IMAGE_BASE is set: the database image is built from a dump file,
+# so it needs a dump file source such as 'url', 'ftp', 'acquia', 'lagoon' or
+# 's3'.
+VORTEX_REFRESH_DB_SOURCE="${VORTEX_REFRESH_DB_SOURCE:-}"
 
 # Directory with database dump file.
 VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
@@ -51,6 +60,15 @@ for cmd in docker; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is 
 
 info "Started database refresh."
 
+rebuild_image=0
+[ -n "${VORTEX_DB_IMAGE}" ] && [ -n "${VORTEX_DB_IMAGE_BASE}" ] && rebuild_image=1
+
+if [ "${rebuild_image}" -eq 1 ] && [ "${VORTEX_FETCH_DB_SOURCE}" = "container_registry" ]; then
+  case "${VORTEX_REFRESH_DB_SOURCE}" in
+    "" | container_registry | none) fail "The ${VORTEX_DB_IMAGE} image is built from a database dump file, but VORTEX_REFRESH_DB_SOURCE is \"${VORTEX_REFRESH_DB_SOURCE}\". Set it to the source of the dump file: url, ftp, acquia, lagoon or s3." ;;
+  esac
+fi
+
 db_file="${VORTEX_DB_DIR}/db.sql"
 db_file_cli="/app/${VORTEX_DB_DIR#./}/db.sql"
 
@@ -60,28 +78,14 @@ db_file_cli="/app/${VORTEX_DB_DIR#./}/db.sql"
 # makes the provisioning import the dump file.
 provision_db_image="${VORTEX_DB_IMAGE}"
 
-if [ -n "${VORTEX_DB_IMAGE}" ] && [ -n "${VORTEX_DB_IMAGE_BASE}" ]; then
+if [ "${rebuild_image}" -eq 1 ]; then
   if [ "${VORTEX_FETCH_DB_SOURCE}" = "container_registry" ]; then
-    task "Exporting the database from the ${VORTEX_DB_IMAGE} image to file ${db_file}."
-    export_fail="Unable to export the database from the ${VORTEX_DB_IMAGE} image to file ${db_file}."
-    docker compose up --detach || fail "${export_fail}"
-    sleep 15
-    docker compose exec -T cli ./vendor/drevops/vortex-tooling/src/vortex-export-db-file db.sql || fail "${export_fail}"
-    mkdir -p "${VORTEX_DB_DIR}"
-    docker compose --progress quiet cp -L "cli:${db_file_cli}" "${db_file}" || fail "${export_fail}"
-    docker compose rm --stop --force database || fail "${export_fail}"
-    pass "Exported the database from the ${VORTEX_DB_IMAGE} image to file ${db_file}."
+    # CircleCI re-sources the job variables from BASH_ENV in every bash
+    # script, which would replace the prefixed values.
+    BASH_ENV= VORTEX_FETCH_DB_SOURCE="${VORTEX_REFRESH_DB_SOURCE}" VORTEX_FETCH_DB_FORCE=1 "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db"
   fi
 
   VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="${VORTEX_DB_IMAGE_BASE}" "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db-container-registry"
-
-  # The 'database' service image is already built on the fetched image when
-  # the database was exported from it.
-  if [ "${VORTEX_FETCH_DB_SOURCE}" = "container_registry" ]; then
-    task "Rebuilding the database service on the ${VORTEX_DB_IMAGE_BASE} base image."
-    docker compose build database || fail "Unable to rebuild the database service on the ${VORTEX_DB_IMAGE_BASE} base image."
-    pass "Rebuilt the database service on the ${VORTEX_DB_IMAGE_BASE} base image."
-  fi
 
   provision_db_image=""
 fi
