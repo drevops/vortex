@@ -278,9 +278,6 @@ jobs:
         run: |
           if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
           ./vendor/bin/vortex-refresh-db
-          # 'hashFiles()' runs as the runner user outside the container, so the
-          # root-owned files in '.data' must be readable by others.
-          chmod -R a+rX .data
         timeout-minutes: 30
 
       # Deploy the freshly-exported database image to the container registry.

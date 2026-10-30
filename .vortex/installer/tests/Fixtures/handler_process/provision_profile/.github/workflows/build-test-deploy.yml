@@ -15,7 +15,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -167,148 +164,8 @@
+@@ -167,145 +164,8 @@
          run: docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
          continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
  
@@ -130,9 +130,6 @@
 -        run: |
 -          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
 -          ./vendor/bin/vortex-refresh-db
--          # 'hashFiles()' runs as the runner user outside the container, so the
--          # root-owned files in '.data' must be readable by others.
--          chmod -R a+rX .data
 -        timeout-minutes: 30
 -
 -      # Deploy the freshly-exported database image to the container registry.
@@ -164,7 +161,7 @@
  
      permissions:
        contents: read
-@@ -351,14 +208,6 @@
+@@ -348,14 +208,6 @@
          VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING: "1"
          VORTEX_SSH_REMOVE_ALL_KEYS: "1"
          VORTEX_DEBUG: ${{ vars.VORTEX_DEBUG }}
@@ -179,7 +176,7 @@
  
      steps:
        # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
-@@ -397,29 +246,6 @@
+@@ -394,29 +246,6 @@
        - name: Install Vortex tooling
          run: ./scripts/vortex-tooling.sh
  
@@ -209,7 +206,7 @@
        - name: Login to container registry
          run: ./vendor/bin/vortex-login-container-registry
  
-@@ -595,7 +421,6 @@
+@@ -592,7 +421,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: [build, lint]
