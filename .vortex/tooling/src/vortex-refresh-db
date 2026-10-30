@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+##
+# Refresh the database export from a freshly fetched database.
+#
+# Provisions the site from the fetched database and exports the database to
+# the storage the project uses: a dump file or a container image.
+#
+# With database-in-image storage and a base image set in
+# VORTEX_DB_IMAGE_BASE, a database dump file is imported into the base image,
+# so the exported image is built on the base image and not on the fetched
+# image. The dump file is never exported from a database container image.
+#
+# With VORTEX_DB_INDEX set (e.g., "2" for the migration database), the dump
+# file is imported into the indexed database service on the base image and
+# the service is exported and pushed as VORTEX_DB2_IMAGE, without
+# provisioning. This runs only when VORTEX_REFRESH_DB2_PROCEED is set to 1.
+#
+# Every variable of the calling environment is passed to the provisioning in
+# the 'cli' container, so the script is intended to run in CI.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Database index suffix. When set (e.g., "2"), every DB-related variable
+# lookup uses the indexed variant (e.g., VORTEX_DB2_IMAGE instead of
+# VORTEX_DB_IMAGE).
+_db_index="${VORTEX_DB_INDEX:-}"
+
+# Base container image to import the database dump file into.
+#
+# Applies to database-in-image storage only. When empty, the database is
+# exported from the fetched container image. An indexed database uses
+# VORTEX_DB2_IMAGE_BASE and falls back to this value.
+VORTEX_DB_IMAGE_BASE="${VORTEX_DB_IMAGE_BASE:-}"
+
+# Fetch source of the database dump file to import into the base image.
+#
+# Required when the fetch source is 'container_registry' and a base image is
+# set: the database image is built from a dump file, so it needs a dump file
+# source such as 'url', 'ftp', 'acquia', 'lagoon' or 's3'. An indexed
+# database uses VORTEX_REFRESH_DB2_SOURCE.
+_v="VORTEX_REFRESH_DB${_db_index}_SOURCE"
+VORTEX_REFRESH_DB_SOURCE="${!_v:-}"
+
+# Proceed with the refresh of an indexed database.
+#
+# The primary database is always refreshed. An indexed database, such as the
+# migration database with VORTEX_DB_INDEX=2, is refreshed only when
+# VORTEX_REFRESH_DB2_PROCEED is set to 1.
+_v="VORTEX_REFRESH_DB${_db_index}_PROCEED"
+VORTEX_REFRESH_DB_PROCEED="${!_v:-}"
+
+# Directory with database dump file.
+VORTEX_DB_DIR="${VORTEX_DB_DIR:-./.data}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+# shellcheck disable=SC2043
+for cmd in docker; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
+
+# The indexed values are kept in local variables, so they never replace the
+# exported values that Docker Compose reads for the other services.
+_v="VORTEX_DB${_db_index}_IMAGE"
+db_image="${!_v:-}"
+_v="VORTEX_DB${_db_index}_IMAGE_BASE"
+db_image_base="${!_v:-${VORTEX_DB_IMAGE_BASE}}"
+_v="VORTEX_FETCH_DB${_db_index}_SOURCE"
+fetch_source="${!_v:-url}"
+_v="VORTEX_FETCH_DB${_db_index}_FILE"
+_vs="VORTEX_DB${_db_index}_FILE"
+db_file_name="${!_v:-${!_vs:-${VORTEX_DB_FILE:-db.sql}}}"
+
+db_file="${VORTEX_DB_DIR}/${db_file_name}"
+db_file_cli="/app/${VORTEX_DB_DIR#./}/${db_file_name}"
+
+info "Started database${_db_index:+ ${_db_index}} refresh."
+
+if [ -n "${_db_index}" ]; then
+  [ "${VORTEX_REFRESH_DB_PROCEED}" != "1" ] && pass "Skipped database ${_db_index} refresh as VORTEX_REFRESH_DB${_db_index}_PROCEED is not set to 1." && exit 0
+  [ -z "${db_image}" ] && fail "The database ${_db_index} image is not set. Set VORTEX_DB${_db_index}_IMAGE to the image to refresh."
+  [ -z "${db_image_base}" ] && pass "Skipped database ${_db_index} refresh as no base image is set in VORTEX_DB${_db_index}_IMAGE_BASE or VORTEX_DB_IMAGE_BASE." && exit 0
+fi
+
+rebuild_image=0
+[ -n "${db_image}" ] && [ -n "${db_image_base}" ] && rebuild_image=1
+
+if [ "${rebuild_image}" -eq 1 ] && [ "${fetch_source}" = "container_registry" ]; then
+  case "${VORTEX_REFRESH_DB_SOURCE}" in
+    "" | container_registry | none) fail "The ${db_image} image is built from a database dump file, but VORTEX_REFRESH_DB${_db_index}_SOURCE is \"${VORTEX_REFRESH_DB_SOURCE}\". Set it to the source of the dump file: url, ftp, acquia, lagoon or s3." ;;
+  esac
+fi
+
+"$(dirname "${BASH_SOURCE[0]}")/vortex-login-container-registry"
+
+# The value of VORTEX_DB_IMAGE passed to the provisioning. An empty value
+# makes the provisioning import the dump file.
+provision_db_image="${db_image}"
+
+if [ "${rebuild_image}" -eq 1 ]; then
+  if [ "${fetch_source}" = "container_registry" ]; then
+    # CircleCI re-sources the job variables from BASH_ENV in every bash
+    # script, which would replace the prefixed values.
+    env BASH_ENV='' VORTEX_DB_INDEX="${_db_index}" "VORTEX_FETCH_DB${_db_index}_SOURCE=${VORTEX_REFRESH_DB_SOURCE}" "VORTEX_FETCH_DB${_db_index}_FORCE=1" "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db"
+  fi
+
+  [ -f "${db_file}" ] || fail "The database dump file was not fetched to ${db_file}. Remove the output directory and file name overrides of the database fetch source."
+
+  env VORTEX_DB_INDEX="${_db_index}" "VORTEX_FETCH_DB${_db_index}_CONTAINER_REGISTRY_IMAGE_BASE=${db_image_base}" "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db-container-registry"
+
+  provision_db_image=""
+fi
+
+if [ -n "${_db_index}" ]; then
+  service="database${_db_index}"
+
+  task "Importing database dump file ${db_file} into the ${service} service on the ${db_image_base} base image."
+  import_fail="Unable to import database dump file ${db_file} into the ${service} service."
+  docker compose up --detach --force-recreate "${service}" || fail "${import_fail}"
+  sleep 15
+  # shellcheck disable=SC2016
+  docker compose exec -T "${service}" sh -c 'mysql -u"${MYSQL_USER}" -p"${MYSQL_PASSWORD}" "${MYSQL_DATABASE}"' <"${db_file}" || fail "${import_fail}"
+  pass "Imported database dump file ${db_file} into the ${service} service on the ${db_image_base} base image."
+
+  env VORTEX_EXPORT_DB_SERVICE_NAME="${service}" VORTEX_EXPORT_DB_IMAGE="${db_image}" "$(dirname "${BASH_SOURCE[0]}")/vortex-export-db-image" "${db_file_name}"
+
+  env VORTEX_DB_INDEX="${_db_index}" "$(dirname "${BASH_SOURCE[0]}")/vortex-push-db-image"
+else
+  task "Starting the stack."
+  docker compose up --detach || fail "Unable to start the stack."
+  sleep 15
+  pass "Started the stack."
+
+  if [ -f "${db_file}" ]; then
+    task "Copying database dump file ${db_file} into the cli container."
+    copy_fail="Unable to copy database dump file ${db_file} into the cli container."
+    docker compose exec -T cli mkdir -p "$(dirname "${db_file_cli}")" || fail "${copy_fail}"
+    docker compose --progress quiet cp -L "${db_file}" "cli:${db_file_cli}" || fail "${copy_fail}"
+    pass "Copied database dump file ${db_file} into the cli container."
+  fi
+
+  env_args=()
+  for name in $(compgen -e); do
+    [ "${name}" = "VORTEX_DB_IMAGE" ] && continue
+    env_args+=(-e "${name}")
+  done
+
+  docker compose exec "${env_args[@]}" -e "VORTEX_DB_IMAGE=${provision_db_image}" -e VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 -T cli ./vendor/bin/vortex-provision
+
+  # Database-in-image storage exports the image archive instead of the dump.
+  if [ -n "${db_image}" ]; then
+    rm -f "${db_file}"
+  fi
+
+  "$(dirname "${BASH_SOURCE[0]}")/vortex-export-db" "${db_file_name}"
+
+  if [ -z "${db_image}" ]; then
+    task "Copying database dump file ${db_file} from the cli container."
+    docker compose --progress quiet cp -L "cli:${db_file_cli}" "${db_file}" || fail "Unable to copy database dump file ${db_file} from the cli container."
+    pass "Copied database dump file ${db_file} from the cli container."
+  fi
+fi
+
+# Containers write the exported files as root, so they are made readable by
+# other users.
+if [ -d "${VORTEX_DB_DIR}" ]; then
+  chmod -R a+rX "${VORTEX_DB_DIR}"
+fi
+
+pass "Finished database${_db_index:+ ${_db_index}} refresh."

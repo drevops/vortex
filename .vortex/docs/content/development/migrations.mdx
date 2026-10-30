@@ -117,6 +117,8 @@ database:
 | `VORTEX_FETCH_DB2_URL` | None | URL to fetch the migration database dump |
 | `VORTEX_FETCH_DB2_ENVIRONMENT` | `prod` | Environment to fetch from on Acquia and Lagoon (the installer sets `main` for Lagoon) |
 | `VORTEX_DB2_IMAGE` | None | Migration database container image, for the `database2` service and the `container_registry` source |
+| `VORTEX_REFRESH_DB2_PROCEED` | None | Set to `1` to rebuild `VORTEX_DB2_IMAGE` from the migration dump file in the nightly CI job |
+| `VORTEX_REFRESH_DB2_SOURCE` | None | Dump file source for that rebuild when `VORTEX_FETCH_DB2_SOURCE` is `container_registry` |
 | `DATABASE2_HOST` | `database2` | Migration database host |
 | `DATABASE2_NAME` | `drupal` | Migration database name |
 | `DATABASE2_USERNAME` | `drupal` | Migration database user |
@@ -158,6 +160,18 @@ database2:
 The image tag tracks the primary database image. See the shipped
 [`docker-compose.yml`](https://github.com/drevops/vortex/blob/main/docker-compose.yml)
 for the tag in use.
+
+### Refresh the migration database image
+
+The nightly CI job can rebuild the image in `VORTEX_DB2_IMAGE`, so it
+always holds the latest migration source data. It's off by default. To
+turn it on, set `VORTEX_REFRESH_DB2_PROCEED` to `1`.
+
+The job imports the migration dump file into a clean `database2` service
+started from `VORTEX_DB_IMAGE_BASE`, without provisioning the site. It then
+pushes the result as `VORTEX_DB2_IMAGE`. With the `container_registry`
+fetch source, set `VORTEX_REFRESH_DB2_SOURCE` to the source of the dump
+file, such as `url` or `lagoon`, along with that source's variables.
 
 ## Drupal settings
 

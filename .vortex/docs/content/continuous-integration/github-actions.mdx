@@ -108,7 +108,10 @@ dump. Only the `database` job runs on the schedule, and the `lint`, `build`
 and `deploy` jobs skip it. The scheduled run also turns off the cache
 fallback and the front-end build. For a project that stores its database in
 a container image, it imports the dump into a clean base image, then pushes
-the result to the registry.
+the result to the registry. The image is always built from a dump file.
+With the `container_registry` source, set `VORTEX_REFRESH_DB_SOURCE` to the
+source of that file, such as `url` or `lagoon`, along with that source's
+variables.
 
 The schedule ships only when the site provisions from a database dump. To
 change when it runs, update the `on.schedule.cron` value in

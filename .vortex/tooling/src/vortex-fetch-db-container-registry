@@ -34,12 +34,6 @@ VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="${!_v:-${VORTEX_CONTAINER_REGISTRY_USER
 _v="VORTEX_FETCH_DB${_db_index}_CONTAINER_REGISTRY_PASS"
 VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="${!_v:-${VORTEX_CONTAINER_REGISTRY_PASS:-}}"
 
-# Directory with database dump file.
-_v="VORTEX_FETCH_DB${_db_index}_CONTAINER_REGISTRY_DB_DIR"
-_vs="VORTEX_FETCH_DB${_db_index}_DIR"
-_vss="VORTEX_DB${_db_index}_DIR"
-VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_DIR:-./.data}}}}"
-
 # Base container image to tag as the database container image.
 #
 # When set, the base image is pulled and tagged as the database container
@@ -79,58 +73,32 @@ if [ -n "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}" ]; then
   "$(dirname "${BASH_SOURCE[0]}")/vortex-login-container-registry"
 
   task "Tagging base image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE} as database container image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}."
-  docker pull "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}"
-  docker tag "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}" "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}"
+  docker pull "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}" || fail "Unable to pull base image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}."
+  docker tag "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}" "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" || fail "Unable to tag base image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE} as database container image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}."
   pass "Tagged base image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE} as database container image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}."
 
   pass "Finished database data container image fetch."
   exit 0
 fi
 
-archive_file="${VORTEX_FETCH_DB_CONTAINER_REGISTRY_DB_DIR}/db.tar"
-
-image_found_on_host=0
 if docker image inspect "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" >/dev/null 2>&1; then
   note "Found ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
-  image_found_on_host=1
+
+  if [ "${VORTEX_FETCH_DB_FORCE}" != "1" ]; then
+    note "Using existing ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
+    note "Fetch will not proceed."
+    note "Remove existing image or set VORTEX_FETCH_DB${_db_index}_FORCE value to 1 to force fetch."
+    pass "Finished database data container image fetch."
+    exit 0
+  fi
 else
   note "Not found ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
 fi
 
-image_expanded_successfully=0
-if [ -f "${archive_file}" ]; then
-  task "Found archived database container image file ${archive_file}. Expanding..."
-  docker load -q --input "${archive_file}"
+"$(dirname "${BASH_SOURCE[0]}")/vortex-login-container-registry"
 
-  if docker image inspect "${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" >/dev/null 2>&1; then
-    note "Found expanded ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
-    image_expanded_successfully=1
-  else
-    note "Not found expanded ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
-  fi
-
-  pass "Expanded archived database container image file ${archive_file}."
-fi
-
-# An expanded archive always wins over the image on the host, so the host image
-# is only reused when there is no archive to expand.
-should_fetch=1
-if [ "${image_expanded_successfully}" -eq 1 ]; then
-  should_fetch=0
-elif [ ! -f "${archive_file}" ] && [ "${image_found_on_host}" -eq 1 ] && [ "${VORTEX_FETCH_DB_FORCE}" != "1" ]; then
-  note "Using existing ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image on host."
-  note "Fetch will not proceed."
-  note "Remove existing image or set VORTEX_FETCH_DB${_db_index}_FORCE value to 1 to force fetch."
-  should_fetch=0
-fi
-
-if [ "${should_fetch}" -eq 1 ]; then
-  task "Fetching ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
-
-  "$(dirname "${BASH_SOURCE[0]}")/vortex-login-container-registry"
-
-  docker pull "${VORTEX_FETCH_DB_CONTAINER_REGISTRY}/${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}"
-  pass "Fetched ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
-fi
+task "Fetching ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
+docker pull "${VORTEX_FETCH_DB_CONTAINER_REGISTRY}/${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE}" || fail "Unable to fetch ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
+pass "Fetched ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE} image from the registry."
 
 pass "Finished database data container image fetch."
