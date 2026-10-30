@@ -83,6 +83,7 @@ if [ "${rebuild_image}" -eq 1 ]; then
     # CircleCI re-sources the job variables from BASH_ENV in every bash
     # script, which would replace the prefixed values.
     BASH_ENV='' VORTEX_FETCH_DB_SOURCE="${VORTEX_REFRESH_DB_SOURCE}" VORTEX_FETCH_DB_FORCE=1 "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db"
+    [ -f "${db_file}" ] || fail "The database dump file was not fetched to ${db_file}. Remove the output directory and file name overrides of the ${VORTEX_REFRESH_DB_SOURCE} source."
   fi
 
   VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="${VORTEX_DB_IMAGE_BASE}" "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db-container-registry"
