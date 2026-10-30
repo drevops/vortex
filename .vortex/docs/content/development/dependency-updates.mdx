@@ -347,15 +347,12 @@ Create the following required variables in the CircleCI project settings:
 - `RENOVATE_GIT_AUTHOR`: The author of Renovate commits in the format
   `Name <email@example.com>`, such as `Renovate Bot <renovate@example.com>`.
 
-The following optional variable has a default. To override it, create the
-variable in the CircleCI project settings too:
+To test runs without making changes, also create `RENOVATE_DRY_RUN` and set
+it to `true`.
 
-- `RENOVATE_DRY_RUN`: Set to `true` to test runs without making changes
-  (default: `false`).
-
-The job fixes `RENOVATE_PLATFORM`, `RENOVATE_AUTODISCOVER`,
-`RENOVATE_DEPENDENCY_DASHBOARD_TITLE` and `LOG_LEVEL` in
-`.circleci/update-dependencies.yml`, so change those values there.
+To change `RENOVATE_PLATFORM`, `RENOVATE_AUTODISCOVER`,
+`RENOVATE_DEPENDENCY_DASHBOARD_TITLE` or `LOG_LEVEL`, edit
+`.circleci/update-dependencies.yml`.
 
 **Manual trigger:** trigger a pipeline from the CircleCI UI with the
 `run_update_dependencies` pipeline parameter set to `true`. The manual run
@@ -400,11 +397,8 @@ Renovate has found. It groups them under headings such as these:
 
 To request an update early, tick its checkbox on the dashboard.
 
-`renovate.json` turns the dashboard on through the `config:recommended`
-preset, for the GitHub app and the self-hosted service alike. To turn it
-off, set `"dependencyDashboard": false` in `renovate.json`. A CI variable
-can't turn it off, because Renovate applies `renovate.json` after the
-variables.
+The `config:recommended` preset turns the dashboard on. To turn it off, set
+`"dependencyDashboard": false` in `renovate.json`.
 
 In self-hosted mode, the issue title names the CI provider that runs
 Renovate:

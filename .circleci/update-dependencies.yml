@@ -30,9 +30,7 @@ jobs:
   # - RENOVATE_TOKEN: GitHub access token.
   # - RENOVATE_REPOSITORIES: Repository to run Renovate on as `vendor/repository`.
   # - RENOVATE_GIT_AUTHOR: Author for Renovate commits as `Name <email@example.com>`.
-  # Optional variable, set in the CircleCI project to override its default:
-  # - RENOVATE_DRY_RUN: Set to `true` to run without making changes.
-  # The image environment below is fixed in this file.
+  # Optionally, set RENOVATE_DRY_RUN to `true` to run without making changes.
   update-dependencies:
     docker:
       - image: renovate/renovate:44.176.2
@@ -68,11 +66,7 @@ jobs:
 
       - run:
           name: Run Renovate
-          command: |
-            # A shell default keeps a value set in the project settings, which
-            # an image environment value could otherwise mask.
-            export RENOVATE_DRY_RUN="${RENOVATE_DRY_RUN:-false}"
-            renovate
+          command: renovate
 
 ################################################################################
 # WORKFLOWS
