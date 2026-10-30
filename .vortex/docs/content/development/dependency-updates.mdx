@@ -10,7 +10,9 @@ keeps your project's dependencies current. Renovate opens pull requests for
 new releases of your PHP and JavaScript packages, container images, CI
 tools and GitHub Actions. Every group auto-merges by default. Most groups
 also wait 14 days before they propose a release, which gives a registry
-time to pull a compromised release before it reaches your project.
+time to pull a compromised release before it reaches your project. A fix
+for a published security advisory skips that wait when Renovate can read
+your repository's advisories.
 
 This page is for the lead or DevOps engineer who sets up Renovate for a
 project and decides which updates merge on their own. It covers how updates
@@ -149,24 +151,97 @@ GitHub Actions are aged by the date of the commit that a tag points to. The
 action's publisher controls that date, so for actions the delay is a weaker
 safeguard than for packages from a registry.
 
-#### Security fixes
-
-When Renovate can read your repository's Dependabot alerts, it raises a fix
-for a published advisory right away, without the delay or the schedule.
-Otherwise, a security fix arrives as a routine update and waits like any
-other update. To apply a security fix sooner, update the dependency
-yourself or request the pending update from the Dependency Dashboard.
-
 #### Change the delay
 
 To change the delay for a group, edit its `minimumReleaseAge`. To remove the
 delay, delete the key. Turning auto-merge off for a group keeps its delay,
 so to get those PRs as soon as a release is published, delete the key too.
+The delay applies to routine updates only: a
+[security fix](#security-fixes) skips it.
 
 The Dependency Dashboard lists the updates waiting for the minimum age under
 **Pending Status Checks**, where you can request an update early. The
 self-hosted service turns the dashboard off by default: to see it, set
 `RENOVATE_DEPENDENCY_DASHBOARD` to `true`.
+
+### Security fixes
+
+Renovate raises a PR for a published security advisory on its next run
+after it reads the advisory. The PR skips the minimum release age, the
+group's schedule and the limit on open PRs. It updates the affected
+dependency to the lowest release that fixes the advisory.
+
+Advisory PRs carry the `Dependencies` and `Security` labels, so they stand
+apart from routine updates. The `vulnerabilityAlerts` setting in
+`renovate.json` sets the labels:
+
+```json
+"vulnerabilityAlerts": {
+    "labels": [
+        "Dependencies",
+        "Security"
+    ]
+},
+```
+
+#### Let Renovate read advisories
+
+On GitHub, Renovate reads advisories from the repository's Dependabot
+alerts. Turn on these 2 settings in **Settings > Advanced Security**:
+
+- **Dependency graph**
+- **Dependabot alerts**
+
+Both settings are free on every GitHub plan, for private repositories too.
+The alerts match advisories against `composer.lock` and
+`package-lock.json`, so they cover indirect dependencies as well.
+
+Dependabot alerts only list advisories in the repository's **Security**
+tab. Dependabot opens PRs through 2 separate features: **Dependabot
+security updates** and version updates from a `.github/dependabot.yml`
+file. Leave both off, so Renovate stays the only bot that opens dependency
+PRs.
+
+Renovate also needs permission to read the alerts:
+
+- **Renovate GitHub app**: read access to Dependabot alerts. Check the
+  app's permissions under **Settings > GitHub Apps**.
+- **Self-hosted service**: a `RENOVATE_TOKEN` that reads Dependabot
+  alerts. A classic token's `repo` scope includes that access. A
+  fine-grained token needs the **Dependabot alerts** repository permission
+  set to **Read-only**.
+
+Without that access, Renovate gets no advisories. Each security fix then
+waits like a routine update.
+
+#### Read advisories from OSV
+
+If your organization blocks Dependabot alerts, Renovate can read
+advisories from the [OSV](https://osv.dev) database instead. Add
+`"osvVulnerabilityAlerts": true` to `renovate.json`. Renovate marks the
+option as
+[experimental](https://docs.renovatebot.com/configuration-options/#osvvulnerabilityalerts).
+It checks only the dependencies listed in `composer.json` and
+`package.json`. The self-hosted service downloads the OSV database on
+every run.
+
+When Renovate reads no advisories, a security fix arrives as a routine
+update and waits like any other update. The
+[dependency audit](security/dependency-audit.mdx) still reports the
+advisory in CI. To apply the fix sooner,
+update the dependency yourself or request the pending update from the
+Dependency Dashboard.
+
+#### Batch security fixes with routine updates
+
+To have security fixes wait for their group's schedule and minimum release
+age, turn the fast path off:
+
+```json
+"vulnerabilityAlerts": {
+    "enabled": false
+},
+```
 
 ## Continuous integration
 
@@ -214,8 +289,10 @@ in **Settings > Secrets and variables > Actions**:
 
 - `RENOVATE_TOKEN`: A GitHub personal access token, created as a repository
   secret. A classic token needs the `repo` scope, plus the `workflow` scope
-  so Renovate can update the actions in your workflow files. For the
-  permissions of a fine-grained token, see the
+  so Renovate can update the actions in your workflow files. A
+  fine-grained token also needs read access to Dependabot alerts for
+  [security fixes](#let-renovate-read-advisories). For its other
+  permissions, see the
   [Renovate GitHub platform
   documentation](https://docs.renovatebot.com/modules/platform/github/).
 - `RENOVATE_GIT_AUTHOR`: The author of Renovate commits in the format
@@ -258,8 +335,10 @@ Create the following required variables in the CircleCI project settings:
 
 - `RENOVATE_TOKEN`: A GitHub personal access token. A classic token needs
   the `repo` scope, plus the `workflow` scope so Renovate can update the
-  actions in your workflow files. For the permissions of a fine-grained
-  token, see the [Renovate GitHub platform
+  actions in your workflow files. A fine-grained token also needs read
+  access to Dependabot alerts for
+  [security fixes](#let-renovate-read-advisories). For its other
+  permissions, see the [Renovate GitHub platform
   documentation](https://docs.renovatebot.com/modules/platform/github/).
 - `RENOVATE_REPOSITORIES`: Repository to run Renovate on in the format
   `yourorg/repo`.
