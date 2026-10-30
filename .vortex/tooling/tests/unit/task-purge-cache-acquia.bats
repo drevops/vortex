@@ -32,7 +32,21 @@ steps_lookup() {
     "[ OK ] Retrieved environment ID."
 
     "Retrieving domains attached to ${env_name} environment."
-    "@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/domains # ${domains_json}"
+    "@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/domains?limit=100&offset=0 # ${domains_json}"
+  )
+}
+
+# Appends the request for a further page of the environment domains.
+#
+# Arguments:
+#   1. offset: Offset the page is requested from.
+#   2. domains_json: Response of the environment domains API.
+steps_lookup_page() {
+  local offset="${1}"
+  local domains_json="${2}"
+
+  STEPS+=(
+    "@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/domains?limit=100&offset=${offset} # ${domains_json}"
   )
 }
 
@@ -59,8 +73,16 @@ steps_purge() {
 # A hostname starting with '*' is flagged as a wildcard.
 #
 # Arguments:
+#   1. --total=<n>: Total reported in the pagination block. Optional, the
+#      block is left out when omitted.
 #   @: Hostnames attached to the environment.
 domains_json() {
+  local pagination=""
+  if [ "${1#--total=}" != "${1:-}" ]; then
+    pagination=",\"pagination\":{\"total\":${1#--total=},\"limit\":100,\"offset\":0}"
+    shift
+  fi
+
   local items=()
   local hostname
   local wildcard
@@ -73,7 +95,19 @@ domains_json() {
   done
 
   local IFS=","
-  echo "{\"total\":${#items[@]},\"_embedded\":{\"items\":[${items[*]}]}}"
+  echo "{\"total\":${#items[@]}${pagination},\"_embedded\":{\"items\":[${items[*]}]}}"
+}
+
+# Prints 100 hostnames, 'd<start>.example.com' onwards.
+#
+# Arguments:
+#   1. start: Number of the first hostname.
+full_page_hostnames() {
+  local start="${1}"
+  local i
+  for ((i = start; i < start + 100; i++)); do
+    echo "d${i}.example.com"
+  done
 }
 
 # Runs the task for one environment with the steps in STEPS.
@@ -417,6 +451,100 @@ assert_placeholder() {
   run_purge "dev"
 
   assert_failure
+
+  popd >/dev/null || exit 1
+}
+
+@test "task-purge-cache-acquia: reports a domain lookup response without domains" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=()
+  steps_lookup "dev" '<html>Bad Gateway</html>'
+  STEPS+=(
+    '[FAIL] Unable to retrieve domains attached to dev environment. API response: <html>Bad Gateway</html>'
+    "- Compiling a list of domains."
+  )
+
+  run_purge "dev"
+
+  assert_failure
+
+  popd >/dev/null || exit 1
+}
+
+@test "task-purge-cache-acquia: requests the next page of domains after a full page" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  echo "d101.example.com" >domains-paged.txt
+
+  mapfile -t first_page < <(full_page_hostnames 1)
+
+  declare -a STEPS=()
+  steps_lookup "dev" "$(domains_json "${first_page[@]}")"
+  steps_lookup_page 100 "$(domains_json "d101.example.com")"
+  STEPS+=(
+    "[ OK ] Retrieved 101 domains attached to dev environment."
+    "[ OK ] Compiled a list of 1 domains."
+  )
+  steps_purge "dev" "d101.example.com"
+  STEPS+=(
+    "[ OK ] Finished cache purging in Acquia."
+  )
+
+  run_purge "dev" "domains-paged.txt"
+
+  assert_success
+
+  popd >/dev/null || exit 1
+}
+
+@test "task-purge-cache-acquia: requests the next page of domains until the reported total" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=()
+  steps_lookup "dev" "$(domains_json --total=3 "dev.example.com" "dev.other.example")"
+  steps_lookup_page 2 "$(domains_json --total=3 "dev.third.example")"
+  STEPS+=(
+    "[ OK ] Retrieved 3 domains attached to dev environment."
+    "[ OK ] Compiled a list of 3 domains."
+  )
+  steps_purge "dev" "dev.example.com"
+  steps_purge "dev" "dev.other.example"
+  steps_purge "dev" "dev.third.example"
+  STEPS+=(
+    "[ OK ] Finished cache purging in Acquia."
+  )
+
+  run_purge "dev"
+
+  assert_success
+
+  popd >/dev/null || exit 1
+}
+
+@test "task-purge-cache-acquia: stops paging when the API repeats a page" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  echo "d1.example.com" >domains-repeated.txt
+
+  mapfile -t first_page < <(full_page_hostnames 1)
+  page_json="$(domains_json "${first_page[@]}")"
+
+  declare -a STEPS=()
+  steps_lookup "dev" "${page_json}"
+  steps_lookup_page 100 "${page_json}"
+  STEPS+=(
+    "[ OK ] Retrieved 100 domains attached to dev environment."
+    "[ OK ] Compiled a list of 1 domains."
+  )
+  steps_purge "dev" "d1.example.com"
+  STEPS+=(
+    "[ OK ] Finished cache purging in Acquia."
+  )
+
+  run_purge "dev" "domains-repeated.txt"
+
+  assert_success
 
   popd >/dev/null || exit 1
 }

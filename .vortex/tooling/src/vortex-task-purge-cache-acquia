@@ -68,6 +68,14 @@ extract_json_hostnames() {
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); foreach (\$data['_embedded']['items'] ?? [] as \$item) { if (!empty(\$item['hostname']) && empty(\$item['flags']['wildcard']) && strpos(\$item['hostname'], '*') === FALSE) { print \$item['hostname'] . PHP_EOL; } }"
 }
 
+extract_json_items_count() {
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); is_array(\$data['_embedded']['items'] ?? NULL) ? print count(\$data['_embedded']['items']) : exit(1);"
+}
+
+extract_json_pagination_total() {
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data['pagination']['total']) ? print (int) \$data['pagination']['total'] : exit(1);"
+}
+
 in_list() {
   local needle="${1}"
   shift
@@ -131,19 +139,44 @@ env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_val
 pass "Retrieved environment ID."
 
 task "Retrieving domains attached to ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment."
-domains_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/domains")
-[ "${VORTEX_DEBUG-}" = "1" ] && note "Domains API response: ${domains_json}"
-
-if echo "${domains_json}" | grep -q '"error"'; then
-  fail "Unable to retrieve domains attached to ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment. API response: ${domains_json}"
-fi
-
 env_domains=()
-while IFS= read -r domain; do
-  if [ -n "${domain}" ]; then
-    env_domains+=("${domain}")
+domains_limit=100
+domains_offset=0
+previous_domains_json=""
+while true; do
+  domains_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/domains?limit=${domains_limit}&offset=${domains_offset}")
+  [ "${VORTEX_DEBUG-}" = "1" ] && note "Domains API response: ${domains_json}"
+
+  page_count=$(echo "${domains_json}" | extract_json_items_count) || page_count=""
+  if echo "${domains_json}" | grep -q '"error"' || [ -z "${page_count}" ]; then
+    fail "Unable to retrieve domains attached to ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment. API response: ${domains_json}"
   fi
-done < <(echo "${domains_json}" | extract_json_hostnames)
+
+  # Stops an API that ignores the offset from returning the same page forever.
+  if [ "${page_count}" -eq 0 ] || [ "${domains_json}" = "${previous_domains_json}" ]; then
+    break
+  fi
+  previous_domains_json="${domains_json}"
+
+  while IFS= read -r domain; do
+    if [ -n "${domain}" ]; then
+      env_domains+=("${domain}")
+    fi
+  done < <(echo "${domains_json}" | extract_json_hostnames)
+
+  domains_offset=$((domains_offset + page_count))
+  domains_total=$(echo "${domains_json}" | extract_json_pagination_total) || domains_total=""
+
+  # The API can cap a page below the requested limit, so a short page marks
+  # the end only when the response reports no total.
+  if [ -n "${domains_total}" ]; then
+    if [ "${domains_offset}" -ge "${domains_total}" ]; then
+      break
+    fi
+  elif [ "${page_count}" -lt "${domains_limit}" ]; then
+    break
+  fi
+done
 pass "Retrieved ${#env_domains[@]} domains attached to ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment."
 
 task "Compiling a list of domains."
