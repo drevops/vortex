@@ -193,8 +193,9 @@ alerts. Turn on these 2 settings in **Settings > Advanced Security**:
 - **Dependabot alerts**
 
 Both settings are free on every GitHub plan, for private repositories too.
-The alerts match advisories against `composer.lock` and
-`package-lock.json`, so they cover indirect dependencies as well.
+Renovate raises advisory PRs only for the packages listed in
+`composer.json` and `package.json`. Update an indirect dependency that an
+alert flags yourself.
 
 Dependabot alerts only list advisories in the repository's **Security**
 tab. Dependabot opens PRs through 2 separate features: **Dependabot
@@ -244,6 +245,9 @@ age, turn the fast path off:
     "enabled": false
 },
 ```
+
+Leave `osvVulnerabilityAlerts` off with this setting. With both set,
+Renovate skips the dependencies that OSV flags.
 
 ## Continuous integration
 
