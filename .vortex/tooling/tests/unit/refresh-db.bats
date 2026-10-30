@@ -193,6 +193,33 @@ load ../_helper.bash
   popd >/dev/null
 }
 
+@test "refresh-db: Fails when the refresh source fetches the dump file to another path" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  rm -f .data/db.sql
+
+  export VORTEX_DB_IMAGE="myorg/db"
+  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_FETCH_DB_SOURCE="container_registry"
+  export VORTEX_REFRESH_DB_SOURCE="url"
+
+  stub_sibling "vortex-login-container-registry" "Logged in to the registry."
+  stub_sibling "vortex-fetch-db" "Fetched the dump file elsewhere."
+  stub_sibling "vortex-fetch-db-container-registry" 'Tagged base image ${VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE}.'
+
+  mock_docker=$(mock_command "docker")
+
+  run .vortex/tooling/src/vortex-refresh-db
+  assert_failure
+  assert_output_contains "Fetched the dump file elsewhere."
+  assert_output_contains "[FAIL] The database dump file was not fetched to ./.data/db.sql. Remove the output directory and file name overrides of the url source."
+  assert_output_not_contains "Tagged base image"
+
+  assert_equal "0" "$(mock_get_call_num "${mock_docker}")"
+
+  popd >/dev/null
+}
+
 @test "refresh-db: Fails without a dump file source for a container registry source" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
