@@ -7,10 +7,10 @@ sidebar_position: 1
 
 This section covers where your site _runs_. It's for the lead or DevOps
 engineer who hosts a project built from **Vortex**, and for anyone choosing
-a host for one. Each provider page explains what the integration does and
+where to host it. Each provider page explains what the integration does and
 how **Vortex** detects the environment. It also covers the routine
-operations on that platform, from fetching and copying databases to purging
-caches and running custom commands.
+operations on that platform: fetching and copying databases, purging caches
+and running custom commands.
 
 **Vortex** integrates with 2 hosting providers:
 
@@ -18,30 +18,30 @@ caches and running custom commands.
 - [Lagoon](lagoon.mdx)
 
 For any other provider, choose **Other** or **None** at the installer's
-**Hosting provider** prompt. The 2 answers give the same result: **Vortex**
-leaves out the Acquia and Lagoon integration files, such as their settings
-files, the Acquia hooks, and `.lagoon.yml`. The deployment type then
-defaults to `webhook`. The [roadmap](../contributing/roadmap.mdx) lists the
-hosting integrations under consideration.
+**Hosting provider** prompt. With either answer, the installer leaves out
+the Acquia and Lagoon integration files, such as their settings files, the
+Acquia hooks and `.lagoon.yml`. The deployment type then defaults to
+`webhook`. The [roadmap](../contributing/roadmap.mdx) lists the hosting
+integrations under consideration.
 
-How code _gets to_ a provider (deployment types, triggers, and skip rules)
-lives in the [Deployment](../deployment/README.mdx) section.
+The [Deployment](../deployment/README.mdx) section covers how code _gets
+to_ a provider: deployment types, triggers and skip rules.
 
 ## Hosting providers vs environments
 
 **Hosting providers** are the _platforms_ where your _environments_ run.
-They can be cloud-based or on-premises, and they provide the infrastructure
-to run the webserver, database, and other services your site needs.
+They can be cloud-based or on-premises. They provide the infrastructure for
+the web server, the database and the other services your site needs.
 
-**Environments** are the contained _bundles_ of those infrastructure
-services that run your website. Each one represents a logical stage of your
-deployment and release lifecycle, from local development to production, and
-a single hosting provider can run several of them.
+**Environments** are the contained _bundles_ of those services that run
+your website. Each one is a stage of your deployment and release lifecycle,
+from local development to production. A single hosting provider can run
+several of them.
 
-Hosting providers typically offer DEV, STAGE, and PROD environments. Some
-also support short-lived ephemeral environments, called "preview",
-"on-demand", or "feature" environments. They let you test new features or
-changes in isolation before merging them into the main codebase.
+Hosting providers typically offer DEV, STAGE and PROD environments. Some
+also run short-lived environments for a single change, called "preview",
+"on-demand" or "feature" environments. They let you test a change in
+isolation before you merge it into the main codebase.
 
 **Vortex** detects the environment type at runtime and stores it in
 `$settings['environment']`, so your settings can change the site's behavior

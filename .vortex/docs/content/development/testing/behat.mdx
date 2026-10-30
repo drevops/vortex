@@ -10,22 +10,21 @@ import TabItem from '@theme/TabItem';
 
 **Vortex** uses [Behat](https://behat.org) for Behavior-Driven Development
 (BDD) testing. This page is for the developers who write and run those
-tests. After reading it, you can run any feature or tag, use the shipped
-steps, find the screenshots, and tell how continuous integration (CI)
-splits and retries your scenarios. For unit, kernel, and functional tests
-of PHP code, see [PHPUnit](phpunit.mdx).
+tests. Follow it to run any feature or tag, use the shipped steps, find the
+screenshots and see how continuous integration (CI) splits and retries your
+scenarios. For unit, kernel and functional tests of PHP code, see
+[PHPUnit](phpunit.mdx).
 
-You describe how the site should behave in human-readable stories, written
-in the Gherkin language, and Behat runs every step against the provisioned
-site. These are end-to-end tests, so spend them on your critical user
-journeys, such as logging in or resetting a password.
+You describe how the site should behave in stories written in the Gherkin
+language. Behat runs every step of each story against the provisioned site.
+These are end-to-end tests, so spend them on your critical user journeys,
+such as logging in or resetting a password.
 
 **Vortex** includes a pre-configured
 [`behat.php`](https://github.com/drevops/vortex/blob/main/behat.php) with
 profiles for Drupal projects, and a [browser
 container](https://github.com/drevops/vortex/blob/main/docker-compose.yml)
-running Chrome, which you can watch through a VNC viewer while the tests
-run.
+running Chrome, which you can watch through noVNC while the tests run.
 
 ## Usage
 
@@ -62,9 +61,9 @@ The `--` before Behat's options is optional: Ahoy drops it and passes the
 rest of the line to Behat. See
 [Ahoy > Usage](../environment/ahoy.mdx#usage).
 
-### Discovering available step definitions
+### Discover available step definitions
 
-Behat Steps, Mink, and Behat Screenshot each bring their own steps. To list
+Behat Steps, Mink and Behat Screenshot each bring their own steps. To list
 every step definition your suite can use, run the following command:
 
 <Tabs>
@@ -83,7 +82,7 @@ every step definition your suite can use, run the following command:
   </TabItem>
 </Tabs>
 
-## Writing tests
+## Write tests
 
 Put each feature file in the `tests/behat/features` directory, where the
 `default` suite finds it, and structure it like the following example:
@@ -109,12 +108,12 @@ Feature: Short feature description
 ```
 
 Untagged scenarios run through an HTTP client that doesn't execute
-JavaScript. To run a scenario in a real browser, tag it `@javascript`: it
-then runs in Chrome in the `chrome` container, driven through Selenium.
-Each `@javascript` scenario drives a real browser and runs slower than an
-untagged one, so add the tag only when a scenario needs JavaScript.
+JavaScript. To run a scenario in a real browser, tag it `@javascript`: the
+scenario then runs in Chrome in the `chrome` container, driven through
+Selenium. A `@javascript` scenario runs slower than an untagged scenario, so
+add the tag only when a scenario needs JavaScript.
 
-### Skipping tests
+### Skip tests
 
 To exclude a feature or scenario from the test run, add the `@skipped` tag
 to it. Every profile in `behat.php` filters it out.
@@ -128,20 +127,19 @@ features](https://github.com/drevops/vortex/blob/main/tests/behat/features):
   [homepage](https://github.com/drevops/vortex/blob/main/tests/behat/features/homepage.feature),
   [login](https://github.com/drevops/vortex/blob/main/tests/behat/features/login.feature),
   [password
-  reset](https://github.com/drevops/vortex/blob/main/tests/behat/features/password_reset.feature),
+  reset](https://github.com/drevops/vortex/blob/main/tests/behat/features/password_reset.feature)
   and search
 - The shipped module and service integrations: Redis, ClamAV, redirects,
-  `robots.txt`, XML sitemap, and accessibility
+  `robots.txt`, XML sitemap and accessibility
 - `behat.feature`, which checks that Behat itself is configured correctly
 - The demo features `counter.feature` and `pages.feature`, tagged `@demo`
 
 The installer removes the features for the services and modules you don't
-select. The homepage, login, and Behat configuration features are tagged
+select. The homepage, login and Behat configuration features are tagged
 `@smoke`.
 
 These boilerplate tests run in the continuous integration pipeline from the
-moment you install **Vortex**, and they make a good starting point for your
-own.
+moment you install **Vortex**. They make a good starting point for your own.
 
 ### Email
 
@@ -163,20 +161,22 @@ In the `ci` environment,
 makes the same mail collector the default backend for every message sent
 through `interface.default`. CI therefore stores those messages instead of
 delivering them, even when a scenario isn't tagged. The collector is a
-settings override, not stored configuration, so nothing running inside the
-site can switch it off. [Reroute
+configuration override in a settings file, so a configuration import or a
+change in the UI can't switch it off. [Reroute
 Email](../modules/contributed-modules.mdx#reroute-email) is disabled in
-`ci`, so each stored message keeps its intended recipient instead of the
-rerouting address.
+`ci`, so each stored message keeps its intended recipient.
 
 The collector covers `interface.default`, the only interface the shipped
-configuration defines. A site that routes a module through its own
-interface (`interface.<module>` or `interface.<module>_<key>`, as [Symfony
-Mailer](https://www.drupal.org/project/symfony_mailer) and [Mail
-System](https://www.drupal.org/project/mailsystem) do) bypasses the
-collector for those messages. For that case, `docker-compose.yml` also
-points `SSMTP_MAILHUB` at a closed port in CI, so delivery fails at the
-transport no matter which mail plugin produced the message.
+configuration defines. Sites that use [Symfony
+Mailer](https://www.drupal.org/project/symfony_mailer) or [Mail
+System](https://www.drupal.org/project/mailsystem) can route a module
+through its own interface: `interface.<module>` or
+`interface.<module>_<key>`. Outside scenarios tagged `@email:TYPE`, messages
+sent through those interfaces bypass the collector. For that case,
+`docker-compose.yml` also points `SSMTP_MAILHUB` at a closed port in CI, so
+mail sent through sSMTP fails at the transport. A custom SMTP or API
+transport bypasses sSMTP, so give each custom interface a transport that
+doesn't deliver from CI.
 
 The bare `When the test email system queue is cleared` step still needs the
 `@email` tag or an earlier `When the test email system is enabled` step.
@@ -195,10 +195,9 @@ on. It covers the following topics:
 - An example feature file
 - The process for testing a content type
 
-**Vortex** ships the file in the project's `docs/` directory, and the
-installer keeps it unless you decline its
-**Preserve project documentation?** prompt. Declining it removes the whole
-`docs/` directory.
+**Vortex** ships the file in the project's `docs/` directory. The installer
+keeps it unless you decline its **Preserve project documentation?** prompt.
+Declining the prompt removes the whole `docs/` directory.
 
 ## Configuration
 
@@ -208,7 +207,7 @@ reference](https://docs.behat.org/en/latest/user_guide/configuration.html).
 
 All global configuration takes place in the
 [`behat.php`](https://github.com/drevops/vortex/blob/main/behat.php) file,
-written in PHP, the only configuration format that Behat 4 reads.
+because Behat 4 reads its configuration only from PHP.
 
 By default, Behat runs all tests defined in the `tests/behat/features`
 directory.
@@ -246,19 +245,21 @@ The configuration uses the following contexts and extensions:
 
 - [Behat Steps](https://github.com/drevops/behat-steps): a library of
   reusable Behat steps for Drupal. It also supplies the Drupal integration
-  layer, registered as the
+  layer as the
   `DrevOps\BehatSteps\Extension\ServiceContainer\BehatStepsExtension`
-  extension with the Drupal API, Drush, and black-box backends, the theme's
-  region map, and the message and login selectors.
+  extension. `behat.php` configures it with the Drupal API, Drush and
+  black-box backends, the theme's region map and the message and login
+  selectors.
 - [Mink Extension](https://github.com/FriendsOfBehat/MinkExtension): the
   browser sessions and the base browser vocabulary, registered as the
   `Behat\MinkExtension\ServiceContainer\MinkExtension` extension and the
   `Behat\MinkExtension\Context\MinkContext` context. Untagged scenarios use
-  a BrowserKit session over plain HTTP, and `@javascript` scenarios use the
-  `selenium2` session, which drives Chrome at `http://chrome:4444/wd/hub`.
-- [Behat Screenshot](https://github.com/drevops/behat-screenshot): extension
-  and step definitions to create HTML and image screenshots on demand or
-  when tests fail, registered as the
+  a BrowserKit session that sends HTTP requests from PHP. `@javascript`
+  scenarios use the `selenium2` session, which drives Chrome at
+  `http://chrome:4444/wd/hub`.
+- [Behat Screenshot](https://github.com/drevops/behat-screenshot): the
+  extension and steps that capture HTML and image screenshots on demand or
+  when a test fails, registered as the
   `DrevOps\BehatScreenshotExtension\ServiceContainer\BehatScreenshotExtension`
   extension and the
   `DrevOps\BehatScreenshotExtension\Context\ScreenshotContext` context.
@@ -269,16 +270,15 @@ The
 [`FeatureContext.php`](https://github.com/drevops/vortex/blob/main/tests/behat/bootstrap/FeatureContext.php)
 file is your project's own Behat context. The `default` suite loads it, and
 it's where your custom step definitions and hooks go. Behat 4 reads them
-from PHP attributes, such as `#[Given]` and `#[BeforeScenario]`, and doesn't
-read docblock annotations such as `@Given`.
+from PHP attributes such as `#[Given]` and `#[BeforeScenario]`. It ignores
+docblock annotations such as `@Given`.
 
 `FeatureContext` extends `DrevOps\BehatSteps\DrupalContext` from the
 [Behat Steps](https://github.com/drevops/behat-steps) package. That context
-already carries every step the package provides, so the file holds only the
-project's own step definitions and hooks. Don't also add the package's
-`WebContext` to the suite: `DrupalContext` already includes its steps, and
-registering both is a fatal error, because every web step would be defined
-twice.
+already includes every step the package provides, so the file holds only
+the project's own step definitions and hooks. Don't add the package's
+`WebContext` to the suite. Registering it beside `DrupalContext` defines
+every web step twice, and Behat stops with a fatal error.
 
 ## Reports
 
@@ -290,24 +290,24 @@ Behat writes test run reports in JUnit format to the
 [Behat Screenshot](https://github.com/drevops/behat-screenshot) saves a
 screenshot whenever a step fails, and whenever a step such as
 `I save screenshot` runs. Each capture is an HTML file of the page, headed
-by its URL, feature, step, and time, plus a full-page PNG image for
+by its URL, feature, step and time, plus a full-page PNG image for
 `@javascript` scenarios. The HTTP client behind untagged scenarios can't
 take images, so those get the HTML file only. To capture a screenshot after
 every passed step of a scenario, tag the scenario or its feature
 `@screenshots`.
 
-Screenshots land in the `.logs/screenshots` directory by default, and
-screenshots from earlier runs stay there, because `behat.php` sets `purge`
+Screenshots land in the `.logs/screenshots` directory by default.
+Screenshots from earlier runs stay there, because `behat.php` sets `purge`
 to `FALSE`. To change either behavior, set the matching environment
-variable inside the `cli` container, for example with
-`docker compose exec -e` as the CI step does. `ahoy test-bdd` doesn't pass
-these variables through from your host:
+variable inside the `cli` container:
 
 - `BEHAT_SCREENSHOT_DIR` stores the screenshots in another directory.
 - `BEHAT_SCREENSHOT_PURGE` set to `1` empties the directory at the start of
   a run.
 
-For example, the following command empties the directory, then runs Behat:
+`ahoy test-bdd` doesn't pass these variables through from your host, so set
+them with `docker compose exec -e`, as the CI step does. For example, the
+following command empties the directory, then runs Behat:
 
 ```shell
 docker compose exec -e BEHAT_SCREENSHOT_PURGE=1 cli \
@@ -322,10 +322,10 @@ on under the `animation` key of the `BehatScreenshotExtension` extension,
 with 500 milliseconds between frames (`frame_delay`). The frames are the PNG
 images, so only `@javascript` scenarios produce a GIF.
 
-Animation captures a screenshot after every passed step, and with
-`always_fullscreen` on, each one is a full-page capture. Its cost grows with
-the number of steps and roughly doubles the wall time of a run. To turn
-animation off everywhere, set `animation.enabled` to `FALSE` in
+Animation captures a screenshot after every passed step. With
+`always_fullscreen` on, each capture covers the full page. The cost grows
+with the number of steps and roughly doubles the wall time of a run. To
+turn animation off everywhere, set `animation.enabled` to `FALSE` in
 `behat.php`. To exempt a single scenario or feature, tag it
 `@screenshots:animated:skip`.
 
@@ -338,12 +338,12 @@ animation.
 
 By default, **Vortex** uses Behat's built-in `progress` formatter with its
 `inlineFailures` option turned on in `behat.php`. It prints a dot for each
-passed step and the details of each failed, pending, or undefined step as
-soon as it happens. Without the option, those details wait for the summary
-at the end of the run. The test run continues after a failure while the
-output stays minimal.
+passed step and the details of each failed, pending or undefined step as
+soon as the step runs. Without the option, Behat prints those
+details only in the summary at the end of the run. The test run continues
+after a failure while the output stays minimal.
 
-## Observing the browser
+## Watch the browser
 
 For `@javascript` tests, Behat drives Chrome through Selenium in the
 `chrome` container. That container also runs a VNC server with
@@ -352,21 +352,16 @@ your host machine. To open it, follow the steps for your setup:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
-    1. Print the project information:
-    ```shell
-    ahoy info
-    ```
+    1. Run `ahoy info` to print the project information.
     2. Open the URL on the `Selenium VNC URL on host` line in a browser on
        your host machine. noVNC connects with the password `secret`.
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
-    1. Print the host port that maps to the container's noVNC port, 7900:
-    ```shell
-    docker compose port chrome 7900
-    ```
-    2. Replace `<port>` with the port number after the colon in the output,
-       and open `http://localhost:<port>/?autoconnect=1&password=secret` in
-       a browser on your host machine.
+    1. Run `docker compose port chrome 7900` to print the host port that
+       maps to the container's noVNC port, 7900.
+    2. Open `http://localhost:PORT/?autoconnect=1&password=secret` in a
+       browser on your host machine. Replace `PORT` with the number after
+       the colon in the output of step 1.
   </TabItem>
 </Tabs>
 
@@ -385,7 +380,7 @@ noVNC](/img/behat-novnc.gif)
 ## Continuous integration
 
 In the continuous integration pipeline, Behat runs with `--strict`, so an
-undefined or pending step fails the run there. `ahoy test-bdd` doesn't pass
+undefined or pending step fails the run there. `ahoy test-bdd` runs without
 `--strict`, so to match CI locally, run `ahoy test-bdd -- --strict`.
 
 ### Profiles
@@ -395,20 +390,20 @@ Without a `--profile` option, Behat uses the `default` profile defined in
 
 When the pipeline has more than 1 runner, Behat tests run in parallel across
 the runners, so the suite finishes sooner. Tags mark which runner a feature
-or scenario lands on, and the CI step picks the profile named after the
-runner index, starting from `p0`. **Vortex** supports any number of
-parallel runners but ships only 2 parallel profiles, `p0` and `p1`, to
-match the 2 runners the pipeline starts with:
+or scenario lands on. The CI step picks the profile named after the runner
+index, starting from `p0`. **Vortex** supports any number of parallel
+runners but ships 2 parallel profiles, `p0` and `p1`, to match the 2
+runners the pipeline starts with:
 
-- `p0` (the first runner) is the catch-all: it runs every scenario not
-  tagged `@p1`, plus all `@smoke` scenarios, and skips anything tagged
-  `@skipped`.
-- `p1` (the second runner) runs scenarios tagged `@p1`, plus all `@smoke`
-  scenarios, and skips anything tagged `@skipped`.
+- `p0`, on the first runner, is the catch-all: it runs every scenario not
+  tagged `@p1`, plus all `@smoke` scenarios.
+- `p1`, on the second runner, runs scenarios tagged `@p1`, plus all
+  `@smoke` scenarios.
 
-In practice, leave a feature untagged to run it on the first runner. Tag it
-`@p1` to move it to the second runner, or tag it `@smoke` to run it on every
-runner. A feature you forget to tag still runs on the first runner.
+Both profiles skip anything tagged `@skipped`. In practice, leave a feature
+untagged to run it on the first runner. Tag it `@p1` to move it to the
+second runner, or tag it `@smoke` to run it on every runner. A feature you
+forget to tag still runs on the first runner.
 
 In the following example, with 1 runner, Behat runs both scenarios. With 2
 runners, the first scenario runs on the first runner (untagged scenarios
@@ -436,62 +431,58 @@ To add more `p*` profiles, copy the existing `p1` profile in your
 `behat.php`, change its name and tag filter, and register it in the
 returned `Config`. Then exclude the new tag from the `p0` catch-all, or its
 scenarios run on the first runner as well. See [Adding more
-containers](../../continuous-integration/README.mdx#adding-more-containers)
+containers](../../continuous-integration/README.mdx#add-more-containers)
 for the full steps.
 
 Profile numbers count from the first runner that runs Behat. The CI
 configuration subtracts `VORTEX_CI_BEHAT_PROFILE_OFFSET` (`0` by default)
-from the runner index to pick the profile. As a result, dedicating leading
-runners to other tools requires no profile renumbering or feature
-re-tagging. See [Test
+from the runner index to pick the profile. As a result, you can dedicate
+leading runners to other tools and keep your profile names and feature
+tags. See [Test
 parallelism](../../continuous-integration/README.mdx#test-parallelism) for
 the container mechanics.
 
-To force a profile, set `VORTEX_CI_BEHAT_PROFILE` in the continuous
-integration pipeline configuration (a repository variable in GitHub
-Actions, an environment variable in CircleCI). Every runner then uses that
-profile.
-
-If the pipeline has only 1 runner and `VORTEX_CI_BEHAT_PROFILE` is unset,
-the `default` profile is used and all tests run there except those tagged
-`@skipped`. An explicitly set `VORTEX_CI_BEHAT_PROFILE` stays active even on
-a single runner.
+To force a profile, set `VORTEX_CI_BEHAT_PROFILE`, as a repository
+variable in GitHub Actions or an environment variable in CircleCI. Every
+runner then uses that profile. On a pipeline with 1 runner, Behat uses the
+`default` profile unless `VORTEX_CI_BEHAT_PROFILE` is set.
 
 ### Artifacts
 
 The continuous integration pipeline stores the test results and
-screenshots as artifacts, and the JUnit reports track test performance and
-stability. In GitHub Actions, each runner uploads its `.logs` directory as
-the `test-artifacts-<runner index>` artifact, which you download from the
-run's **Summary** page. Unless `VORTEX_CI_TEST_RESULTS_SKIP` is `1`, the
-JUnit reports also appear among the run's checks as
+screenshots as artifacts. Use the JUnit reports to track test performance
+and stability. In GitHub Actions, each runner uploads its `.logs` directory
+as the `test-artifacts-<runner index>` artifact, which you download from
+the run's **Summary** page. Unless `VORTEX_CI_TEST_RESULTS_SKIP` is `1`,
+the JUnit reports also appear among the run's checks as
 `Test results (<runner index>)`. In CircleCI, the screenshots are in the
 job's **Artifacts** tab and the JUnit reports are in its test results.
 
-**Vortex** passes `BEHAT_SCREENSHOT_ANIMATION_SKIP=1` into the Behat step in
-continuous integration to skip [animation](#animated-screenshots) there,
-while keeping it available for local runs where a recording is worth the
-wait. The variable overrides both `behat.php` and the animation tags.
+In continuous integration, the Behat step passes
+`BEHAT_SCREENSHOT_ANIMATION_SKIP=1` to skip
+[animation](#animated-screenshots), while local runs, where a recording is
+worth the wait, keep animation. The variable overrides both `behat.php` and
+the animation tags.
 
 ### Flaky tests
 
-A Behat scenario can fail now and then without a real bug behind it, on a
+A Behat scenario can occasionally fail without a real bug behind it, on a
 slow page load or a timing-sensitive step. How often depends on the size of
 your site and the resources of the continuous integration runner.
 
-The CI step therefore retries once: when the first run fails, it runs Behat
-again with `--rerun`, which repeats only the scenarios that failed. The step
-fails only when a scenario fails in both runs. If the first run failed
+The CI step therefore retries once: when the first run fails, the step runs
+Behat again with `--rerun`, which repeats only the failed scenarios. The
+step fails only when a scenario fails in both runs. If the first run failed
 without recording a failed scenario, `--rerun` runs the whole profile
 again.
 
 A scenario that passes only on the second run is still flaky, so check the
 first run's output in the job log.
 
-### Ignoring failures
+### Ignore failures
 
 Set `VORTEX_CI_BEHAT_IGNORE_FAILURE` to `1` to let the build pass despite
 failing scenarios. Behat still runs, retries as described in [Flaky
-tests](#flaky-tests), and reports every failure in the job log. See [Ignore
+tests](#flaky-tests) and reports every failure in the job log. See [Ignore
 tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures).

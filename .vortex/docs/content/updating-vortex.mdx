@@ -26,7 +26,7 @@ Updating **Vortex** gives existing projects the following:
 
 `ahoy update-vortex` runs the **Vortex** installer against your project
 without prompts. The installer reads the answers it needs from your
-project, such as the names, services, and hosting provider, and reapplies
+project, such as the names, services and hosting provider, and reapplies
 them to the release it downloads. After the update, review the changes and
 commit them to your project.
 
@@ -48,30 +48,31 @@ for that project's major. There's no automated migration from `1.x` to
 
 Check the following before you run the update:
 
-- Ahoy, `php`, `curl`, `git`, `tar`, and `composer` are available on your
-  machine. The update runs outside the containers: its script stops with
-  `Command php is not available.` or `Command curl is not available.`, and
-  the installer it runs stops with a `Missing required command` error when
-  `git`, `tar`, or `composer` is missing.
+- Ahoy, `php`, `curl`, `git`, `tar` and `composer` are available on your
+  machine, because the update runs outside the containers. Its script stops
+  with `Command php is not available.` or `Command curl is not available.`
+  when 1 of those is missing. The installer it runs stops with a
+  `Missing required command` error when `git`, `tar` or `composer` is
+  missing.
 - The project's containers are running, started with `ahoy up`, because
   step 7 runs Composer inside the `cli` container. On your machine, the
   stack needs Docker and a running Pygmy.
 - The **Vortex** badge is still in your project's `README.md`. The update
-  reads the version your project runs from it. Without the badge, the
-  installer treats your project as a new installation, so it doesn't record
+  reads the version your project runs from the badge. Without it, the
+  installer treats your project as a new installation and records none of
   the customizations it overwrites.
 - Your working tree has no uncommitted changes, so the diff after the update
   holds only what the update changed.
 
 Read the [release notes](https://github.com/drevops/vortex/releases) for
-every version between yours and the target, and look for breaking changes
-that affect your project. Check in particular whether any environment
-variables were added or changed, because your CI and hosting environments
-might need the new values.
+every version between yours and the target. Look for breaking changes that
+affect your project, and for environment variables that were added or
+changed, because your CI and hosting environments might need the new
+values.
 
 ## Update process
 
-Run the update on its own branch, then take it through review, CI, and
+Run the update on its own branch, then take it through review, CI and
 deployment like any other change:
 
 1. Create a new branch for the update:
@@ -88,8 +89,8 @@ deployment like any other change:
 
    Near the end, the update shows **Finished updating Vortex** with a
    reminder to review and commit the changes. When it replaced any of your
-   changes, it also names the file that records them,
-   `.logs/vortex-update.md`.
+   changes, it also names `.logs/vortex-update.md`, the file that records
+   them.
 
    To pin a specific release or commit instead, pass the repository URL with
    the reference after `#`:
@@ -111,32 +112,35 @@ deployment like any other change:
    ```
 
 4. Re-apply your customizations from `.logs/vortex-update.md`, and delete
-   each entry after you've resolved it. Each entry shows your change and the
-   change the new version brings, as 2 diffs. Each update appends a new
-   section to the file, and Git ignores it.
+   each entry after you've resolved it. Each entry shows 2 diffs: your
+   change and the change the new version brings. Each update appends a new
+   section to the file. Git ignores the file.
 
-   Some entries hold less. When the new version leaves the file unchanged,
-   or the version you ran didn't ship it, the entry holds 1 diff. A binary
-   file or a file over 100 KB gets no diff, only a note to recover your copy
-   from version control. The update changes only the working tree, so
-   restore your copy with `git checkout HEAD -- FILE_PATH`, where
-   `FILE_PATH` is the path in the entry's heading.
+   Some entries hold 1 diff or none:
 
-5. Keep the new version in the **Vortex** badge of `README.md` when you
-   re-apply your own `README.md` changes. The next update reads the badge to
-   work out which version your project runs.
+   - When the new version leaves the file unchanged, or the version you ran
+     didn't ship it, the entry holds 1 diff.
+   - A binary file or a file over 100 KB gets no diff, and its entry holds
+     a note to recover your copy from version control. The update changes
+     only the working tree, so restore your copy with
+     `git checkout HEAD -- FILE_PATH`, replacing `FILE_PATH` with the path
+     in the entry's heading.
+
+5. When you re-apply your own `README.md` changes, keep the new version in
+   the **Vortex** badge. The next update reads the badge to work out which
+   version your project runs.
 
 6. Reconcile `composer.json`. The update replaces it with the template's
-   version, and yours has most likely deviated from that, so review the
-   package version changes carefully. If `.logs/vortex-update.md` has an
-   entry for `composer.json`, restore your own file from Git, then apply the
-   entry's change that the update brings by hand. Don't drop the raised
+   version, which most likely differs from yours, so review the package
+   version changes carefully. If `.logs/vortex-update.md` has an entry for
+   `composer.json`, restore your own file from Git, then apply the new
+   version's change from that entry by hand. Keep the raised
    `drevops/vortex-tooling` constraint: a release that changes the scripts
    raises it, and the old constraint keeps the old scripts.
 
-7. Run `ahoy composer update`. It regenerates `composer.lock`, which the
-   update itself leaves alone, so the build installs the versions you chose
-   rather than the stale locked ones.
+7. Run `ahoy composer update`. This command regenerates `composer.lock`,
+   which the update leaves alone, so the build installs the versions from
+   your reconciled `composer.json`.
 
 8. Stage and commit the changes in small chunks, so each one is easier to
    review and revert.
@@ -147,9 +151,10 @@ deployment like any other change:
    ahoy build
    ```
 
-   Answer `y` when the build asks to remove the containers, build files, and
-   database. The build provisions the site again and ends with the project
-   information, including the site's local URL and a one-time login link.
+   When the build asks to remove the containers, build files and database,
+   answer `y`. The build provisions the site again and ends with the
+   project information, including the site's local URL and a one-time login
+   link.
 
 10. Push the branch:
 
@@ -166,7 +171,7 @@ deployment like any other change:
     production.
 
 13. Schedule the production release, and leave enough time for spot checks
-    and a rollback if you need one.
+    and a possible rollback.
 
 Confirm that the update is complete:
 
@@ -179,13 +184,14 @@ Confirm that the update is complete:
 Follow these practices:
 
 - Update **Vortex** monthly, or at least quarterly, to keep your project
-  secure and up to date, and sooner when a release carries security patches.
+  secure and up to date, and sooner when a release carries security
+  patches.
 - Test each update in development before it reaches production.
 - Update environments in stages: development → staging → production.
 - Keep track of what changed and why.
-- Watch for issues in the days following an update.
+- Watch for issues in the days after an update.
 
-## Getting help
+## Get help
 
 If you hit a problem during an update:
 

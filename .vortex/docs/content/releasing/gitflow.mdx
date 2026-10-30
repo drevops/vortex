@@ -7,16 +7,21 @@ sidebar_position: 2
 
 This page is for the developer or lead who releases a project built from
 **Vortex**. It explains the git-flow branching model and walks you through
-a release from start to production, so you can run one and check that it
-worked.
+a release from start to production, so you can run a release and check that
+it worked.
 
 git-flow is a versioning workflow, first described in [A successful Git
-branching model](https://nvie.com/posts/a-successful-git-branching-model/):
-a branching model that keeps development code and production code apart.
-Work lands on `develop`, `main` holds only production-ready code, and a
-short-lived branch carries each feature, release, and hotfix. **Vortex**
-builds its defaults around these branch names: the CI triggers, the
-deployment branch patterns, and the release notes workflow all expect them.
+branching model](https://nvie.com/posts/a-successful-git-branching-model/),
+with a branching model that keeps development code and production code
+apart:
+
+- Work lands on `develop`.
+- `main` holds only production-ready code.
+- A short-lived branch carries each feature, release and hotfix.
+
+**Vortex** builds its defaults around these branch names: the CI triggers,
+the deployment branch patterns and the release notes workflow all expect
+them.
 
 The following diagram shows a release from start to deployment:
 
@@ -53,17 +58,18 @@ git-flow uses the following branches:
 <details>
   <summary><code>production</code> branch</summary>
 
-  When your hosting can deploy a specific Git tag, you need no separate
-  `production` branch: you tag releases on `main` and deploy those tags.
+  When your hosting can deploy a specific Git tag, you tag releases on
+  `main` and deploy those tags, so no separate `production` branch is
+  needed.
 
   Some providers, Lagoon among them, deploy only from a Git branch, and the
-  **Vortex** Lagoon deployment skips tags. On those, you must create a
+  **Vortex** Lagoon deployment skips tags. On those providers, create a
   `production` branch and sync code from `main` to `production` after each
   release.
 
-  CI could copy `main` to `production` whenever a release is tagged, but
-  **Vortex** deliberately leaves that step to a person. That way, nothing
-  reaches production without someone deciding it should.
+  CI could copy `main` to `production` whenever a release is tagged.
+  **Vortex** deliberately leaves that step to a person, so nothing reaches
+  the `production` branch without someone deciding it should.
 
 </details>
 
@@ -73,14 +79,15 @@ Make sure you have the following:
 
 - The git-flow command-line extension, which provides the `git flow`
   commands
-- A clone of the project's repository set up with `git flow init`, with
-  `main` as the branch for production releases, `develop` as the
-  development branch, and no version tag prefix, so tags read `X.Y.Z`
+- A clone of the project's repository set up with `git flow init`. Use
+  `main` as the branch for production releases and `develop` as the
+  development branch. Leave the version tag prefix empty, so tags read
+  `X.Y.Z`.
 - Permission to push branches and tags to the project's repository
 
 The
 [git-flow cheat sheet](https://danielkummer.github.io/git-flow-cheatsheet/)
-covers how to install the extension, and gives a quick reference on its
+shows how to install the extension and gives a quick reference on its
 commands.
 
 ## Release operations
@@ -94,7 +101,7 @@ in your [version scheme](versioning.mdx). To run a release:
    git flow release start X.Y.Z
    ```
 
-   This creates a `release/X.Y.Z` branch from `develop`.
+   The command creates a `release/X.Y.Z` branch from `develop`.
 
 2. Push the release branch to the remote, with
    `git push origin release/X.Y.Z`. CI builds and deploys `release/*`
@@ -117,11 +124,12 @@ in your [version scheme](versioning.mdx). To run a release:
    - Merges the release branch to `main`
    - Tags the release
    - Merges back to `develop`
-   - Deletes the local release branch, and leaves the pushed one in place
+   - Deletes only the local release branch, so the remote copy stays
 
-5. Push `main`, `develop`, and the new tag, with
-   `git push origin main develop X.Y.Z`. CI builds and deploys the pushed
-   branches and the tag.
+5. Push `main`, `develop` and the new tag, with
+   `git push origin main develop X.Y.Z`. CI builds the pushed branches and
+   the tag, then deploys them under the
+   [Deployment](../deployment/README.mdx) rules.
 
 6. Deploy to production:
    - **Tag-based hosting:** deploy the tag to your production environment
@@ -137,15 +145,15 @@ in your [version scheme](versioning.mdx). To run a release:
 
 ## Expected release outcome
 
-Confirm that the release meets these criteria, which also ship in your
-project's `docs/releasing.md`:
+Confirm that the release meets these criteria, which your project's
+`docs/releasing.md` also lists:
 
 - The release branch exists as `release/X.Y.Z` in the GitHub repository.
 - The release tag exists as `X.Y.Z` in the GitHub repository.
 - The `HEAD` of the `main` branch has the `X.Y.Z` tag.
 - The hash of the `HEAD` of the `main` branch exists in the `develop`
   branch, so everything pushed to `main` also exists in `develop`. This
-  matters when `main` had hotfixes not yet merged to `develop`.
+  check matters when `main` had hotfixes not yet merged to `develop`.
 - GitHub has no open pull requests related to the release.
 - On branch-based hosting, the hash of the `HEAD` of the `production`
   branch matches the hash of the `HEAD` of the `main` branch.

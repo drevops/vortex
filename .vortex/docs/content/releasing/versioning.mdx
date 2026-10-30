@@ -7,8 +7,8 @@ sidebar_position: 3
 
 This page is for the developer or lead who decides how a project built from
 **Vortex** numbers its releases. It compares the schemes the installer
-offers and shows how your choice drives the release notes. You can then
-pick a scheme and keep the draft release notes numbered to match.
+offers and shows how your choice drives the release notes. Afterward, you
+can pick a scheme and keep the draft release notes numbered to match.
 
 A version scheme decides what your release numbers look like and what they
 tell the people who read them. **Vortex** supports
@@ -16,14 +16,14 @@ tell the people who read them. **Vortex** supports
 [Semantic Versioning (SemVer)](https://semver.org/), and leaves room for a
 scheme of your own.
 
-During installation, you choose between CalVer, SemVer, and Other, a custom
-scheme. CalVer is the default. The installer keeps the matching version
-scheme section in your project's `docs/releasing.md` and removes the rest.
+During installation, you choose CalVer, SemVer or Other, a custom scheme.
+CalVer is the default. The installer keeps the matching version scheme
+section in your project's `docs/releasing.md` and removes the rest.
 
 ## Calendar versioning (CalVer)
 
-**Format:** `YY.M.Z` (for example, `25.1.0`, `25.11.1`). No part has a
-leading zero:
+**Format:** `YY.M.Z` (for example, `25.1.0`, `25.11.1`). No part starts
+with a padding `0`:
 
 - `YY` = Short year
 - `M` = Short month
@@ -35,8 +35,7 @@ CalVer has these advantages:
 
 - The number shows when a release happened, which helps when you ship
   multiple releases a month.
-- Stakeholders can immediately understand "this is from January 2025"
-  without memorizing version numbers.
+- Stakeholders read "this is from January 2025" straight from the number.
 - The order is chronological, with no ambiguity about major versus minor
   changes.
 - Non-technical audiences find releases easier to reference ("our Q1 2025
@@ -47,15 +46,15 @@ CalVer has these advantages:
 The following CalVer versions are valid and invalid:
 
 - ✅ Correct: `25.1.0`, `25.11.1`, `25.1.10`, `25.10.1`
-- ❌ Incorrect: `25.0.0` (no month 0), `2025.1.1` (full year), `25.01.0`
-  (leading zero), `01.1.0` (leading zero in year)
+- ❌ Incorrect: `25.0.0` (no month `0`), `2025.1.1` (full year), `25.01.0`
+  (padded month), `01.1.0` (padded year)
 
 See [CalVer.org](https://calver.org/) for the full convention.
 
 ## Semantic versioning (SemVer)
 
-**Format:** `X.Y.Z` (for example, `1.0.0`, `2.3.5`). No part has a leading
-zero:
+**Format:** `X.Y.Z` (for example, `1.0.0`, `2.3.5`). No part starts with a
+padding `0`:
 
 - `X` = Major release version
 - `Y` = Minor release version
@@ -77,20 +76,19 @@ The following SemVer versions are valid and invalid:
 
 - ✅ Correct: `0.1.0`, `1.0.0`, `1.0.1`, `1.0.10`
 - ❌ Incorrect: `0.1` (missing patch), `1` (missing minor and patch),
-  `1.0.01` (leading zero)
+  `1.0.01` (padded patch)
 
 See [SemVer.org](https://semver.org/) for the full specification.
 
 ## Other
 
-If you have a custom versioning scheme, or don't want to commit to CalVer
-or SemVer yet, choose **Other**. The installer then removes both version
-scheme sections from `docs/releasing.md`, so you can describe your own
-approach there.
+Choose **Other** for a custom versioning scheme, or to leave the choice
+open. The installer then removes both version scheme sections from
+`docs/releasing.md`, so you can describe your own approach there.
 
 ## Configuration
 
-You choose the version scheme once, during installation, and the installer
+You choose the version scheme once, during installation. The installer
 stores it in `.env`:
 
 ```shell
@@ -100,7 +98,7 @@ VORTEX_RELEASE_VERSION_SCHEME=calver  # or semver, or other
 When you update **Vortex**, the installer reads this value back, so the
 update keeps your choice. Nothing else in the template reads it from
 `.env`: the release notes workflow takes the scheme from a repository
-variable instead, as the following section describes.
+variable, as the following section describes.
 
 ### Release notes publishing
 
@@ -108,34 +106,33 @@ variable instead, as the following section describes.
 `.github/workflows/draft-release-notes.yml`, that keeps a draft of your next
 release's notes up to date with
 [release-drafter](https://github.com/release-drafter/release-drafter). It
-runs on GitHub Actions even when CircleCI runs the rest of your pipeline,
-and the installer removes it for code hosted outside GitHub.
+runs on GitHub Actions even when CircleCI runs the rest of your pipeline.
+The installer removes it for code hosted outside GitHub.
 
 The draft works as follows:
 
 - The draft updates on every push to the `develop` branch and on every tag
   push.
 - For CalVer, the workflow proposes the current year and month with `0` as
-  the last segment (for example, `26.10.0` in October 2026). It always
+  the last segment, for example `26.10.0` in October 2026. It always
   proposes `0`, so when the month already has a release, raise the last
   segment to the next free number, for example `26.10.1`.
-- For SemVer, release-drafter resolves the next version itself: it raises
-  the minor number of the previous release, as the `version-resolver`
-  category in `.github/release-drafter.yml` sets it. Any other scheme value,
-  `other` included, takes the same path.
+- For SemVer, release-drafter resolves the next version itself: the
+  `version-resolver` category in `.github/release-drafter.yml` makes it
+  raise the minor number of the previous release. Any other scheme value,
+  `other` included, gets the same SemVer resolution.
 - Release notes accumulate changes until the release is finalized.
 - When you finish the release, use the draft to publish the final release
   notes.
 
 The workflow reads the scheme from the `VORTEX_RELEASE_VERSION_SCHEME`
 repository variable and defaults to `calver` when the variable is unset. It
-loads `.env` too, but keeps the value it already has, so the `.env` setting
-doesn't drive this workflow.
+loads `.env` too, but the repository variable's value wins over `.env`, so
+the `.env` setting doesn't drive this workflow.
 
-To number the draft for SemVer or Other:
-
-- Set the `VORTEX_RELEASE_VERSION_SCHEME` repository variable to `semver` or
-  `other` under **Settings → Secrets and variables → Actions → Variables**.
+To number the draft for SemVer or Other, set the
+`VORTEX_RELEASE_VERSION_SCHEME` repository variable to `semver` or `other`
+under **Settings > Secrets and variables > Actions > Variables**.
 
 Confirm that the next run of the `Draft release notes` workflow skips its
 **Generate CalVer version** step.

@@ -14,16 +14,17 @@ tool as follows:
 > coding standard violations. PHP_CodeSniffer is an essential development
 > tool that ensures your code remains clean and consistent.
 
-PHPCS holds your PHP to the Drupal coding standards, so every custom module,
-theme, and script follows the same conventions and code review can skip the
-formatting nitpicks. **Vortex** comes with a [pre-configured PHPCS
+PHPCS reports where your PHP breaks the Drupal coding standards.
+Fixing those violations keeps custom modules, themes and scripts on the same
+conventions, so code review can skip the formatting nitpicks. **Vortex**
+comes with a [pre-configured PHPCS
 ruleset](https://github.com/drevops/vortex/blob/main/phpcs.xml) for Drupal
-projects. It also requires strict types and checks compatibility with your
-PHP version, and the bundled `phpcbf` command fixes the violations that
-have an automatic fix.
+projects. The ruleset adds a strict types check and a compatibility check
+for your PHP version. The bundled `phpcbf` command fixes the violations
+that have an automatic fix.
 
 This page is for developers who write PHP in a **Vortex** project. It shows
-how to check and fix your code, what the shipped ruleset enforces, and how
+how to check and fix your code, what the shipped ruleset enforces and how
 to ignore a rule.
 
 ## Usage
@@ -33,8 +34,8 @@ to ignore a rule.
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-`ahoy lint-be` runs PHPCS first, then PHPStan and Rector, while the Docker
-Compose command runs PHPCS alone. To check the code, run 1 of the following
+The Ahoy command runs PHPCS, then PHPStan and Rector. The Docker Compose
+command runs PHPCS alone. To check the code, run 1 of the following
 commands:
 
 <Tabs>
@@ -51,12 +52,12 @@ commands:
 </Tabs>
 
 Confirm that the check passed: PHPCS prints no `FILE:` report, and
-`echo $?`, run straight after the command, prints `0`.
+`echo $?` prints `0` right after the command.
 
 ### Fix violations
 
 The PHPCS report marks each violation that PHPCBF can fix with `[x]`. To fix
-them, run 1 of the following commands:
+the marked violations, run 1 of the following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -87,28 +88,30 @@ By default, PHPCS checks against the following standards and sniffs:
 - `Generic.PHP.RequireStrictTypes` - a `declare(strict_types=1);` statement
   in every file
 - `PHPCompatibility` - compatibility with the PHP version in `testVersion`
-- `DrevOps` - snake_case names for local variables and parameters, and
-  PHPUnit data providers that start with `dataProvider`, match the name of
-  their test, and come after it
+- `DrevOps` - the DrevOps standard, which requires the following:
+  - Snake_case names for local variables and parameters
+  - PHPUnit data providers that start with `dataProvider`, match the name of
+    their test and come after it
 - `SlevomatCodingStandard.TypeHints.DNFTypeHintFormat` - no spaces around
   `|` and `&` in union and intersection types, set through its
   `withSpacesAroundOperators` property
 
-On top of these, the ruleset adds 3 whitespace sniffs from the standards
-that ship with PHPCS, and reports them as warnings. They flag a blank line
-after a function's opening brace, and a blank line before or after a control
+The ruleset also adds 3 whitespace sniffs from the standards that ship with
+PHPCS and reports them as warnings. They flag a blank line after a
+function's opening brace and a blank line before or after a control
 structure's closing brace. Warnings fail the check too, because PHPCS exits
-with a non-zero code when it reports any. The ruleset also allows long array
-lines in test files and exempts the Behat contexts from the project class
-name prefix.
+with a non-zero code when it reports any.
+
+The ruleset allows long array lines in test files. It also exempts the
+Behat contexts from the project class name prefix.
 
 The ruleset sets the following command-line arguments for every run:
 
 - `colors` - colored output
 - `s` - the sniff code after each message
 - `p` - a progress indicator
-- `parallel` set to `10` - 10 files checked at the same time; adjust it to
-  the number of CPU cores available
+- `parallel` set to `10` - 10 parallel processes, which you can change to
+  match your CPU cores
 
 PHPCS checks the following paths, which the `<file>` entries in `phpcs.xml`
 list:
@@ -121,8 +124,8 @@ list:
 - `scripts`
 
 Within them, PHPCS checks files with the `inc`, `info`, `install`,
-`module`, `php`, `profile`, `test`, and `theme` extensions, and skips
-minified files and the `build`, `fonts`, `images`, and `node_modules`
+`module`, `php`, `profile`, `test` and `theme` extensions. It skips
+minified files and the `build`, `fonts`, `images` and `node_modules`
 directories of custom themes.
 
 To add or remove targets, add or remove the `<file>` entries in
@@ -132,20 +135,22 @@ To add or remove targets, add or remove the `<file>` entries in
 <file>path/to/dir_or_file</file>
 ```
 
-The `PHPCompatibility` checks run against PHP `8.4`, the `testVersion` value
-in `phpcs.xml`, which matches the `composer.json` key `config.platform.php`
-(`8.4.27`). PHPCS doesn't read that key, so update both when you move to a
-new PHP version:
+The `PHPCompatibility` checks run against the `testVersion` value in
+`phpcs.xml`, set to `8.4`. The `composer.json` key `config.platform.php`
+pins PHP `8.4.27`, a patch release of the same version. PHPCS doesn't read
+that key, so update both values when you move to a new PHP version. The
+`testVersion` line looks like this:
 
 ```xml
 <config name="testVersion" value="8.4"/>
 ```
 
-## Ignoring
+## Ignore violations
 
 To ignore a rule across the project, configure it in the
 [`phpcs.xml`](https://github.com/drevops/vortex/blob/main/phpcs.xml) file.
-This example turns a rule off for the files that match the patterns:
+The following example turns a rule off for the files that match its
+patterns:
 
 ```xml
 <!-- Comment about why this rule is excluded. -->
@@ -193,11 +198,11 @@ PHPCS runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
 violations.
 
-### Ignoring failures
+### Ignore failures
 
 To let the build pass anyway, set the `VORTEX_CI_PHPCS_IGNORE_FAILURE` CI
 variable to `1`. PHPCS still runs and prints every violation in the job
-log, so you can see exactly what you're letting through.
+log, so you can see what you're letting through.
 
 ➡️ See [Continuous integration > Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures)

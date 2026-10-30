@@ -11,11 +11,11 @@ environment and its login page.
 
 This page is for the lead or DevOps engineer who sends deployment messages
 to Slack. It covers the setup steps, every variable the notification channel
-reads, and what each message contains.
+reads and what each message contains.
 
 ## Setup
 
-To set up Slack notifications, complete these steps:
+To set up Slack notifications:
 
 1. [Create a Slack app and Incoming
    Webhook](https://api.slack.com/messaging/webhooks).
@@ -26,14 +26,14 @@ To set up Slack notifications, complete these steps:
 
 Confirm that the next deployment posted to Slack. The deployment output on
 your hosting platform shows `Notification sent to Slack.`, then
-`[ OK ] Finished Slack notification.`, and the message appears in the Slack
+`[ OK ] Finished Slack notification.` The message appears in the Slack
 channel. The notification fails when Slack answers with any HTTP status
 other than `200`.
 
 ## Environment variables
 
 See the [Notifications](README.mdx) overview for the router, what a failed
-channel stops, the shared `VORTEX_NOTIFY_*` variables, and the **Location**
+channel stops, the shared `VORTEX_NOTIFY_*` variables and the **Location**
 column. The following table lists the variables that the `slack`
 notification channel reads:
 
@@ -58,9 +58,9 @@ notification channel reads:
 **Vortex** posts a Slack message for both `pre_deployment` and
 `post_deployment` events:
 
-- **Pre-deployment:** Gray color with "Deployment Starting" status, and no
-  environment or login links, since the site isn't up yet
-- **Post-deployment:** Green color with "Deployment Complete" status
+- **Pre-deployment:** Gray color with "Deployment Starting" status and no
+  environment or login links, because the deployment hasn't finished yet.
+- **Post-deployment:** Green color with "Deployment Complete" status.
 
 Each message is a Slack attachment with the following parts:
 
@@ -70,13 +70,13 @@ Each message is a Slack attachment with the following parts:
   timestamp.
 - **Environment** and **Login** fields with **View Site** and **Login Here**
   links, in post-deployment messages only.
-- The collected deployment log, when deployment logs are on. A
+- The collected deployment log, when `VORTEX_NOTIFY_SLACK_LOG` is `1`. A
   pre-deployment message goes out before provisioning, so it never carries
   that deployment's provisioning log.
 - A `Vortex Deployment` footer.
 
-Slack uses the fallback text from the message template in notifications and
-in clients that can't display attachments.
+Slack shows the fallback text from the message template in notifications
+and in clients that can't display attachments.
 
 ## Example
 

@@ -1,10 +1,9 @@
 # FAQs
 
-These are the questions teams ask while deciding whether to adopt
-**Vortex**, with straight answers, trade-offs included. After you start
-working in a project, the [Development FAQs](development/faqs.mdx) cover the
-day-to-day questions, such as clearing caches, using Xdebug, or adding
-modules and patches.
+This page answers the questions teams ask while they decide whether to
+adopt **Vortex**, including the trade-offs. For day-to-day questions inside
+a project, such as clearing caches, using Xdebug or adding modules and
+patches, see the [Development FAQs](development/faqs.mdx).
 
 ## Why use Vortex instead of the Drupal Composer template?
 
@@ -19,28 +18,29 @@ to add everything else:
 
 Then you need to test that everything works together correctly.
 
-You also need to watch for _false negatives_: faulty tests that pass
-silently in CI but fail at release time and block your deployment. And you
-need to maintain all this across every project you run.
+You also need to watch for _false negatives_: faulty tests that pass in CI
+but fail at release time and block your deployment. Then you maintain the
+whole setup across every project you run.
 
 **Vortex** ships those pieces already wired together and tested. You can
-override anything in your project and still receive future updates, though
-you re-apply your changes to the files each update replaces. Your team gets
-the same documentation and tooling on every project.
+override anything in your project and keep receiving updates, though each
+update replaces the files the template ships and you re-apply your
+overrides from `.logs/vortex-update.md`. Your team gets the same
+documentation and tooling on every project.
 
 ## Can I use Vortex with an existing project?
 
 Yes. You install **Vortex** into a clean working copy, then merge your
 project back into it. See
-[Installation](installation.mdx#installing-vortex-into-an-existing-project)
+[Installation](installation.mdx#install-vortex-into-an-existing-project)
 for the steps.
 
 ## Can I keep my existing CI provider?
 
-Yes, but you'll need to update your CI configuration to call the **Vortex**
-scripts. **Vortex** ships ready-made configurations for GitHub Actions and
-CircleCI only, in `.github/workflows/build-test-deploy.yml` and
-`.circleci/config.yml`, so use those as the reference for which scripts to
+Yes, if you update your CI configuration to call the **Vortex** scripts.
+**Vortex** ships ready-made configurations for GitHub Actions and CircleCI
+only, in `.github/workflows/build-test-deploy.yml` and
+`.circleci/config.yml`, so use them as the reference for which scripts to
 run and in what order.
 
 In those configurations, each job installs the scripts with
@@ -58,28 +58,28 @@ each job does.
 
 ## Can I keep my existing hosting?
 
-Yes, but you'll need to adapt the deployment to your hosting provider.
-Outside Acquia and Lagoon, the `artifact` deployment type pushes the built
-code to a Git repository your host deploys from. The `webhook` type calls a
-URL that starts your host's deployment instead. See
+Yes, if you adapt the deployment to your hosting provider. Outside Acquia
+and Lagoon, the `artifact` deployment type pushes the built code to a Git
+repository your host deploys from. The `webhook` type calls a URL that
+starts your host's deployment. See
 [Artifact deployment](deployment/artifact.mdx) and
 [Webhook deployment](deployment/webhook.mdx) for the setup.
 
 ## Can I change things I don't like?
 
 Yes. **Vortex** is a template, so every file it gives you is yours to
-change, and you can disable or remove any feature. You maintain those
-changes yourself, though: each update replaces the files the template
-ships, and you re-apply your changes from `.logs/vortex-update.md`.
+change. You can disable or remove any feature. You maintain those changes
+yourself: each update replaces the files the template ships, and you
+re-apply your changes from `.logs/vortex-update.md`.
 
 If you disagree with a decision in **Vortex**, [open an
 issue](https://github.com/drevops/vortex/issues) and let's talk it through.
 
 ## Isn't this overkill for my project?
 
-**Vortex** offers its full feature set to every project, whatever its size,
-but you don't have to take everything. The installer asks about each
-feature, so you install only the ones you want.
+**Vortex** offers its full feature set to every project, whatever its size.
+The installer asks about each feature, so you install only the ones you
+want.
 
 If you're sure you don't need what it offers, **Vortex** might not be the
 right fit, and that's fine.
@@ -90,20 +90,19 @@ right fit, and that's fine.
 together. You can customize many things, but some defaults exist to keep
 the tools compatible with each other.
 
-If something feels unreasonably opinionated, we treat that as a defect and
-we'd like to fix it. Tell us in the [issue
-queue](https://github.com/drevops/vortex/issues).
+If something feels unreasonably opinionated, we treat that as a defect to
+fix. Tell us in the [issue queue](https://github.com/drevops/vortex/issues).
 
 ## How hard is it to upgrade?
 
 The update itself is 1 command, `ahoy update-vortex`, which pulls in the
-latest **Vortex** release for your major version. It replaces the files the
-template ships and records the project changes it overwrote in
-`.logs/vortex-update.md`, as long as your `README.md` still carries the
-**Vortex** badge. An update that overwrites your changes adds a section to
-that file, with an entry per file that usually holds 2 diffs: your change
-and the change the update brings. Re-applying those changes and reviewing
-the diff is the manual part, much like merging changes between projects.
+latest **Vortex** release for your major version and replaces the files the
+template ships. When your `README.md` still carries the **Vortex** badge,
+the update records the project changes it overwrote in
+`.logs/vortex-update.md`. Each such update adds a section to that file,
+with 1 entry per file that usually holds 2 diffs: your change and the
+change the update brings. Re-applying those changes and reviewing the diff
+is the manual part, much like merging changes between projects.
 
 That manual work is the trade-off of building on an upgradable project
 template instead of a dependency package. With a template, you have full
@@ -116,13 +115,13 @@ version arrives when `ahoy update-vortex` brings a `composer.json` with a
 raised constraint.
 
 Near the end, the update shows a **Finished updating Vortex** box. If it
-shows **Finished installing Vortex** instead, the update didn't find the
-**Vortex** badge in `README.md` and recorded nothing.
+shows **Finished installing Vortex**, the update didn't find the **Vortex**
+badge in `README.md` and recorded nothing.
 [Updating Vortex](updating-vortex.mdx) covers the full procedure.
 
 ## How easy is it to choose the features that I need?
 
 The [installer](installation.mdx) walks you through the features prompt by
-prompt and installs only the ones you pick. You run it when you create a
-project, and `ahoy update-vortex` runs it again on every update with the
-answers it finds in your project.
+prompt and installs only the ones you pick. You run the installer when you
+create a project. `ahoy update-vortex` runs it again on every update, with
+the answers it reads from your project.

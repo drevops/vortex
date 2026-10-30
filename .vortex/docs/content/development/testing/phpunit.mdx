@@ -8,22 +8,22 @@ sidebar_position: 4
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-[PHPUnit](https://phpunit.de/) tests your custom PHP code, and this page is
-for the developers who write those tests on a project built from
-**Vortex**. It shows how to run any suite or a single test, what the shipped
-configuration enforces, and which results can fail a build in continuous
-integration (CI). To unit-test JavaScript behaviors instead, see
+[PHPUnit](https://phpunit.de/) tests your custom PHP code. This page is for
+the developers who write those tests on a project built from **Vortex**. It
+covers running any suite or a single test, what the shipped configuration
+enforces and which results can fail a build in continuous integration (CI).
+To unit-test JavaScript behaviors instead, see
 [Jest](jest.mdx).
 
 **Vortex** sets PHPUnit up with 4 test suites that follow Drupal's test
-types. Unit tests check a class in isolation, kernel and functional tests
+types. Unit tests check a class in isolation. Kernel and functional tests
 check it against a bootstrapped Drupal, and functional JavaScript tests
 drive a real browser.
 
 **Vortex** includes a PHPUnit configuration in
 [`phpunit.xml`](https://github.com/drevops/vortex/blob/main/phpunit.xml),
 based on Drupal core's `core/phpunit.xml.dist`, so you can customize the
-test suites per project.
+test suites in that file for your project.
 
 ## Usage
 
@@ -73,13 +73,13 @@ Run the tests with Ahoy, or with Docker Compose directly:
   </TabItem>
 </Tabs>
 
-## Writing tests
+## Write tests
 
 Put each test in the `tests/src/` directory of its custom module or theme,
-in the `Unit`, `Kernel`, `Functional`, or `FunctionalJavascript`
+in the `Unit`, `Kernel`, `Functional` or `FunctionalJavascript`
 subdirectory, so the matching test suite collects it.
 
-### Skipping tests
+### Skip tests
 
 `phpunit.xml` excludes the `skipped` group by default, so a
 `#[Group('skipped')]` attribute on a test class or method takes it out of
@@ -95,11 +95,11 @@ public function testSomethingToSkip(): void {
 ```
 
 Calling `markTestSkipped()` instead fails the run, because `phpunit.xml`
-sets `failOnSkipped`. Use the attribute rather than the older
-`@group skipped` docblock annotation, too. PHPUnit 11 still reads that
-docblock and leaves the test out, but it reports a deprecation, which
-`failOnPhpunitDeprecation` turns into a failed run. On a method that
-carries any attribute, PHPUnit ignores the docblock, so the test runs.
+sets `failOnSkipped`. Use the attribute in place of the `@group skipped`
+docblock annotation. PHPUnit 11 still reads that docblock and leaves the
+test out. It also reports a deprecation, which `failOnPhpunitDeprecation`
+turns into a failed run. On a method that carries any other attribute,
+PHPUnit ignores the docblock entirely, so the test runs.
 
 ### Boilerplate
 
@@ -109,13 +109,13 @@ they make a good starting point for your own:
 
 - [Base custom module
   tests](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/tests/src):
-  unit, kernel, functional, and functional JavaScript tests
+  unit, kernel, functional and functional JavaScript tests
 - [Custom theme
   tests](https://github.com/drevops/vortex/blob/main/web/themes/custom/your_site_theme/tests/src):
-  unit, kernel, functional, and functional JavaScript tests
+  unit, kernel, functional and functional JavaScript tests
 - [Demo custom module
   tests](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/tests/src):
-  unit, kernel, and functional JavaScript tests of its counter block
+  unit, kernel and functional JavaScript tests of its counter block
 - [Project-level
   tests](https://github.com/drevops/vortex/blob/main/tests/phpunit): the
   Drupal settings tests and the CI configuration tests, described in the
@@ -123,17 +123,16 @@ they make a good starting point for your own:
 
 The installer removes the tests of a module you deselect at its
 **Custom modules** prompt. It removes the custom theme's tests when you
-choose Olivero, Claro, or Stark at its **Theme** prompt.
+choose Olivero, Claro or Stark at its **Theme** prompt.
 
 #### Drupal settings tests
 
 The [Drupal settings
 tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal)
 check that the site gets the right settings for the environment type it
-runs in. Every module's settings multiply against 5 environment types
-(`local`, `ci`, `dev`, `stage`, and `prod`), so a missed override is a
-common mistake. It shows up only after you deploy to the environment that
-lacks it.
+runs in. Every module's settings vary across 5 environment types (`local`,
+`ci`, `dev`, `stage` and `prod`), so a missed override is a common mistake.
+It shows up only after you deploy to the environment that lacks it.
 
 Each test class covers 1 area:
 
@@ -150,15 +149,15 @@ to `settings.php` and the files it includes.
 
 The [CircleCI configuration
 tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/CircleCiConfigTest.php)
-check the CircleCI configuration that's hardest to eyeball: the regular
-expressions that filter the branches and tags before they're deployed to
-the hosting environment. They match each filter against sample branch and
-tag names, and check that no filter pattern exceeds the 128 characters the
-CircleCI compiler accepts.
+check the regular expressions that filter which branches and tags deploy to
+the hosting environment, because these filters are hard to review by eye.
+The tests match each filter against sample branch and tag names and check
+that no filter pattern exceeds the 128 characters the CircleCI compiler
+accepts.
 
 The installer keeps this test only when you choose **CircleCI** at its
-**Continuous Integration provider** prompt. The test looks the deployment
-jobs up by their position in the `commit` workflow, so if you move a job in
+**Continuous Integration provider** prompt. The test finds the deployment
+jobs by their position in the `commit` workflow, so if you move a job in
 that list, update the test too. Keep the test in step with your continuous
 integration configuration.
 
@@ -174,10 +173,9 @@ on. It covers the following topics:
 - Data providers
 - Kernel tests for services
 
-**Vortex** ships the file in the project's `docs/` directory, and the
-installer keeps it unless you decline its
-**Preserve project documentation?** prompt. Declining it removes the whole
-`docs/` directory.
+**Vortex** ships the file in the project's `docs/` directory. The installer
+keeps it unless you decline its **Preserve project documentation?** prompt.
+Declining the prompt removes the whole `docs/` directory.
 
 ## Configuration
 
@@ -197,9 +195,9 @@ file in the project root. It configures the following:
 - Excluded `skipped` group
 - HTML output logger for browser tests
 
-The configuration is strict. A warning, a skipped test, or a PHPUnit
-deprecation fails the run, and the run stops at the first error, failure,
-warning, or risky test.
+The configuration is strict. A warning, a skipped test or a PHPUnit
+deprecation fails the run. The run stops at the first error, failure,
+warning or risky test.
 
 The following table lists the environment variables that `phpunit.xml` sets
 for the tests:
@@ -228,7 +226,7 @@ on CircleCI projects, the CircleCI configuration test.
   browser (Chrome through Selenium) for JavaScript interactions
 
 Each suite collects the matching `tests/src/` directory (`Unit`, `Kernel`,
-`Functional`, or `FunctionalJavascript`) of every custom module and theme.
+`Functional` or `FunctionalJavascript`) of every custom module and theme.
 The `unit` suite also collects `tests/phpunit`.
 
 To add test targets, add a directory to a test suite:
@@ -306,12 +304,11 @@ Coverage leaves out the following files:
 Files that no test runs still count, at 0%, because `phpunit.xml` sets
 `includeUncoveredFiles`.
 
-### Ignoring lines from coverage
+### Exclude lines from coverage
 
-Sometimes you need to leave code out of coverage. For example, when testing
-a module that uses a third-party library, you don't need to test the library
-itself. `phpunit.xml` sets `disableCodeCoverageIgnore` to `false`, so the
-following annotations take effect.
+Some code needs no coverage, such as a call into a third-party library that
+has its own tests. `phpunit.xml` sets `disableCodeCoverageIgnore` to
+`false`, so the following annotations take effect.
 
 To ignore a method from coverage, add a `@codeCoverageIgnore` annotation to
 the method docblock:
@@ -342,7 +339,7 @@ only (see [Test
 parallelism](../../continuous-integration/README.mdx#test-parallelism)). It
 runs with coverage by default, and the pipeline stores the coverage reports
 as artifacts. The pipeline also collects the JUnit report to track test
-performance and stability: GitHub Actions publishes it as [test
+performance and stability. GitHub Actions publishes it as [test
 results](../../continuous-integration/github-actions.mdx#test-results), and
 CircleCI stores it with the job's test results.
 
@@ -362,25 +359,25 @@ environment variable in CircleCI.
 The check reads the line rate from `cobertura.xml`. When the rate is too
 low, the job log shows a line such as
 `FAIL: coverage 85.50% is below threshold 90%`. The check has no
-ignore-failure variable of its own, so it still runs, and can still fail the
-build, when you ignore PHPUnit failures.
+ignore-failure variable of its own, so it still runs and can still fail the
+build when you ignore PHPUnit failures.
 
 On pull requests, CI posts the coverage summary as a PR comment, with the
-threshold and a collapsible per-class breakdown. Each new report replaces
-the previous one: older comments are minimized to keep the PR timeline
-clean. GitHub Actions and CircleCI tag their comments with separate hidden
-markers, so each provider minimizes only its own comments.
+threshold and a collapsible per-class breakdown. CI minimizes the older
+comments with each new report, so the PR timeline stays clean. GitHub
+Actions and CircleCI tag their comments with separate hidden markers, so
+each provider minimizes only its own comments.
 
 CircleCI posts the comment only when a `GITHUB_TOKEN` environment variable
-is set. Without one, the step prints `GITHUB_TOKEN is not set. Skipping.`
-and moves on. GitHub Actions also writes the coverage percentage to the job
-summary.
+is set. Without the token, the step prints
+`GITHUB_TOKEN is not set. Skipping.` and moves on. GitHub Actions also
+writes the coverage percentage to the job summary.
 
 To turn the comment off, set `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to
 `1`, as a repository variable in GitHub Actions or an environment variable
 in CircleCI.
 
-### Ignoring failures
+### Ignore failures
 
 Set `VORTEX_CI_PHPUNIT_IGNORE_FAILURE` to `1` to let the build pass despite
 failing tests. PHPUnit still runs and reports the failure in the job log,

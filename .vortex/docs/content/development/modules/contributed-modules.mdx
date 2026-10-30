@@ -5,23 +5,20 @@ sidebar_position: 2
 
 # Contributed modules
 
-**Vortex** ships up to 26 contributed modules, each pre-configured and wired
-into the environment-aware settings and the provisioning scripts. This page
-lists all 26 in alphabetical order: what each one does, why it ships, how
-it's installed, and how it's configured.
+This reference is for developers and leads on a project built from
+**Vortex**. It lists all 26 contributed modules the template can ship, in
+alphabetical order: what each module does, how it's installed and how it's
+configured. Use it to check what a module does in each environment and
+which variables change that.
 
-It's a reference for developers and leads on a project built from
-**Vortex**. Use it to check what a module does in each environment and which
-variables change that.
-
-➡️ See [Overview](README.mdx) for the mechanisms that require, configure,
+➡️ See [Overview](README.mdx) for the mechanisms that require, configure
 and install these modules.
 
 ## ClamAV
 
 [ClamAV](https://www.drupal.org/project/clamav) scans uploaded files for
-malware with the ClamAV engine before they're saved. Ships only when the
-ClamAV service is selected.
+malware with the ClamAV engine before they're saved. Ships only when you
+select the ClamAV service in the installer.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh),
@@ -41,7 +38,7 @@ The override reads the following variables:
 | Variable                     | Purpose                                                              |
 |------------------------------|----------------------------------------------------------------------|
 | `DRUPAL_CLAMAV_ENABLED`      | Applies the override only when set to `1`                            |
-| `DRUPAL_CLAMAV_MODE`         | `daemon` (any case) selects daemon mode; any other value, `0` included, or none, selects executable mode |
+| `DRUPAL_CLAMAV_MODE`         | `daemon`, in any case, selects daemon mode. An unset variable or any other value, `0` included, selects executable mode |
 | `CLAMAV_HOST`, `CLAMAV_PORT` | Daemon host and port, `clamav:3310` by default                       |
 
 ## Coffee
@@ -69,20 +66,20 @@ can carry its own configuration, such as development-only modules.
 ### Configuration
 
 [`settings.config_split.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.config_split.php)
-enables the split matching the detected environment (`local`, `ci`, `dev`,
+enables the split matching the detected environment (`local`, `ci`, `dev`
 or `stage`), so each environment imports only its own set. The template
-ships empty `config/local`, `config/ci`, `config/dev`, and `config/stage`
+ships empty `config/local`, `config/ci`, `config/dev` and `config/stage`
 directories but no splits, so create a split with the matching machine name
-before the override has anything to enable.
+to give the override something to enable.
 
 ## Config Update
 
 [Configuration Update Manager](https://www.drupal.org/project/config_update)
 provides the revert and update functions that other modules build on.
-Provisioning installs only this base `config_update` module. The reports
-and the Drush commands that report, revert, and import configuration
-changes relative to the defaults that modules ship come from its
-`config_update_ui` submodule. Install that submodule when you need them.
+Provisioning installs only this base `config_update` module. Its
+`config_update_ui` submodule adds reports and Drush commands that report,
+revert and import configuration changes relative to the defaults that
+modules ship. Install that submodule when you need them.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
@@ -94,7 +91,7 @@ No settings override.
 ## Devel
 
 [Devel](https://www.drupal.org/project/devel) is a suite of development
-tools for inspecting variables, entities, and the service container while
+tools for inspecting variables, entities and the service container while
 debugging.
 
 - **Installed:** During development provisioning by
@@ -109,7 +106,7 @@ excludes it from the exported configuration.
 
 [Drupal helpers](https://www.drupal.org/project/drupal_helpers) gives deploy
 hooks and update scripts static facades for common jobs, such as creating
-taxonomy trees, menu links, users, and redirects.
+taxonomy trees, menu links, users and redirects.
 
 - **Installed:** As a dependency of the `ys_demo` demo module, declared in
   [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml).
@@ -124,8 +121,8 @@ No settings override.
 
 [Environment
 Indicator](https://www.drupal.org/project/environment_indicator) shows a
-colored banner identifying the current environment to prevent accidental
-changes on the wrong site.
+colored banner that names the current environment, so changes don't land
+on the wrong site by accident.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
@@ -134,17 +131,18 @@ changes on the wrong site.
 
 [`settings.environment_indicator.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.environment_indicator.php)
 names the indicator after the detected environment and colors it per
-environment: red for production, yellow for stage, and green for dev. Every
+environment: red for production, yellow for stage and green for dev. Every
 other environment, `local` and `ci` included, gets a dark green banner with
-white text. It also turns on the toolbar integration and the favicon marker.
+white text. The override also turns on the toolbar integration and the
+favicon marker.
 
 ## Fast 404
 
 [Fast 404](https://www.drupal.org/project/fast_404) answers requests for
 missing files without bootstrapping Drupal. Drupal core already returns a
 lightweight 404 for the same file extensions, but only after a full
-bootstrap. On a site serving many such requests, the saving is the bootstrap
-itself.
+bootstrap. On a site serving many such requests, Fast 404 saves that
+bootstrap each time.
 
 - **Installed:** Never enabled as a Drupal module. The handler runs from the
   settings file during the settings load, before the module system exists,
@@ -157,10 +155,10 @@ applies only when the module's code is present, and calls
 `fast404_preboot()` with the following settings:
 
 - A request for a missing file with the `txt`, `png`, `gif`, `jpg`, `jpeg`,
-  `css`, `js`, `ico`, `swf`, `flv`, `cgi`, `bat`, `pl`, `dll`, `exe`, or
+  `css`, `js`, `ico`, `swf`, `flv`, `cgi`, `bat`, `pl`, `dll`, `exe` or
   `asp` extension gets the fast 404, unless its path starts with `/robots`
   or `/system/files`.
-- `index.php`, `rss.xml`, `cron.php`, and `xmlrpc.php` are on the URL
+- `index.php`, `rss.xml`, `cron.php` and `xmlrpc.php` are on the URL
   allowlist, which the module checks before the extensions.
 - Requests for missing image style derivatives reach Drupal, which
   generates each derivative on its first request. Drupal generates a
@@ -213,7 +211,7 @@ migration.
 ## Migrate Tools
 
 [Migrate Tools](https://www.drupal.org/project/migrate_tools) provides Drush
-commands and a UI to run, roll back, and monitor migrations.
+commands and a UI to run, roll back and monitor migrations.
 [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh)
 drives it during provisioning. Ships only when the migration feature is
 selected. Otherwise, the installer removes the requirement.
@@ -234,8 +232,8 @@ migration.
 
 [Navigation Extra
 Tools](https://www.drupal.org/project/navigation_extra_tools) adds a
-**Tools** menu to the core Navigation module, with shortcuts that flush
-caches, rebuild the theme registry, run cron, and run database updates.
+**Tools** menu to the core Navigation module, whose shortcuts flush caches,
+rebuild the theme registry, run cron and run database updates.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
@@ -246,8 +244,8 @@ No settings override.
 
 ## Pathauto
 
-[Pathauto](https://www.drupal.org/project/pathauto) automatically generates
-URL aliases for content based on configurable patterns.
+[Pathauto](https://www.drupal.org/project/pathauto) generates URL aliases
+for content from configurable patterns.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
@@ -282,14 +280,15 @@ service is selected.
 
 [`settings.redis.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.redis.php)
 points the connection at the Redis service, makes Redis the default cache
-backend, registers the module's container YAML files, and swaps the
+backend, registers the module's container YAML files and swaps the
 bootstrap container over. Nothing applies until the module's code is on
 disk and `DRUPAL_REDIS_ENABLED` is set to `1`. The override looks for the
 `web/modules/contrib/redis` directory, so the module doesn't need to be
-installed yet. The variable lets a 2-stage deployment provision the service
-before switching the cache, and the shipped `.env` file sets it to `1`.
+installed yet. With the variable, a first deployment can add the Redis
+service, and a second deployment can then switch the cache. The shipped
+`.env` file sets the variable to `1`.
 
-The cache backend, the container YAML files, and the bootstrap container
+The cache backend, the container YAML files and the bootstrap container
 switch also need the `redis` PHP extension, or
 `VORTEX_REDIS_EXTENSION_LOADED` set to `1` in its place. Without either,
 the override sets only the connection. It reads the following variables:
@@ -298,14 +297,14 @@ the override sets only the connection. It reads the following variables:
 |------------------------------------|-------------------------------------------|
 | `DRUPAL_REDIS_ENABLED`             | Applies the override when set to `1` and the module's code is on disk |
 | `REDIS_HOST`, `REDIS_SERVICE_PORT` | Connection host and port, `redis:6379` by default |
-| `VORTEX_REDIS_EXTENSION_LOADED`    | When set to `1`, applies the cache backend, the container YAML files, and the bootstrap container switch without the `redis` PHP extension |
+| `VORTEX_REDIS_EXTENSION_LOADED`    | When set to `1`, applies the cache backend, the container YAML files and the bootstrap container switch without the `redis` PHP extension |
 
 ## Reroute Email
 
 [Reroute Email](https://www.drupal.org/project/reroute_email) intercepts
-outgoing emails and redirects them to a configurable address instead of the
-intended recipients. You can then test email features in non-production
-environments without accidentally delivering mail to real users.
+outgoing emails and sends them to a configurable address. You can then test
+email features in non-production environments and keep the mail away from
+real users.
 
 - **Installed:** During development provisioning by
   [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh),
@@ -314,14 +313,14 @@ environments without accidentally delivering mail to real users.
 ### Configuration
 
 [`settings.reroute_email.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.reroute_email.php)
-excludes the module from the exported configuration and enables rerouting in
-every environment except `local`, `ci`, and `prod`.
+excludes the module from the exported configuration and enables rerouting
+in every environment except `local`, `ci` and `prod`.
 
 Rerouting replaces the recipient of an outgoing message with the configured
 address, unless that recipient matches `DRUPAL_REROUTE_EMAIL_ALLOWED`. With
-rerouting disabled, every message reaches its intended recipient. Rerouting
-is therefore disabled only where that delivery is either wanted or already
-intercepted by other means.
+rerouting disabled, every message reaches its intended recipient. The
+override disables rerouting where that delivery is wanted, or where other
+means already intercept the mail.
 
 The following table shows where rerouting is on, and why:
 
@@ -330,25 +329,25 @@ The following table shows where rerouting is on, and why:
 | Local       | No                | [Pygmy](../environment/pygmy.mdx) already catches outgoing mail  |
 | CI          | No                | The [mail collector](../testing/behat.mdx#email) stores messages instead of sending them |
 | Dev         | **Yes**           | Prevents accidental delivery to real users                      |
-| Stage       | **Yes**           | Stage runs a copy of production content, so any address that survives database sanitization is a real one |
+| Stage       | **Yes**           | Stage runs a copy of production content, so any address that survives database sanitization is real |
 | Prod        | No                | Production emails must reach actual recipients                  |
 
 Rerouting is the fall-through default, so it's also enabled in any custom
-environment type, such as one set through `ENVIRONMENT_TYPE`. Lagoon and
-Acquia usually detect pull request environments as `dev`, so those get
-rerouting like any other `dev` environment. A custom environment type gets
-the module only after you add the type to the provisioning scripts, and
-until then nothing reroutes its mail. ➡️ See
+environment type, such as a type set through `ENVIRONMENT_TYPE`. Lagoon and
+Acquia usually detect pull request environments as `dev`, so those
+environments get rerouting too. The module itself reaches a custom
+environment type only after you add the type to the provisioning scripts,
+and until then that environment's mail goes to its real recipients. ➡️ See
 [Provision](../provision.mdx#development-modules)
 
-Rerouting is off in `ci` so that tests can assert on the address a message
-was sent to. With rerouting on, every message would carry the rerouting
-address instead of the intended one.
+Rerouting is off in `ci`, so tests can assert on the address a message was
+sent to. With rerouting on, every message would carry the rerouting
+address.
 
 A site that deselects this module during
 [installation](../../installation.mdx) still sends no mail from `ci`,
-because the mail collector stores messages there regardless. That site does
-send mail to real recipients in `dev`, `stage`, and custom environments.
+because the mail collector stores messages there. That site does send mail
+to real recipients in `dev`, `stage` and custom environments.
 
 The override reads the following variables:
 
@@ -358,8 +357,8 @@ The override reads the following variables:
 | `DRUPAL_REROUTE_EMAIL_ALLOWED` | `*@your-site-domain.example`         | Pattern for addresses allowed to bypass rerouting    |
 
 To disable email rerouting in an environment where it would otherwise be
-enabled, set `DRUPAL_REROUTE_EMAIL_DISABLED` to `1` there. This is the
-supported way for a `stage` environment to send real mail during user
+enabled, set `DRUPAL_REROUTE_EMAIL_DISABLED` to `1` there. Use this
+variable when a `stage` environment must send real mail during user
 acceptance testing.
 
 <details>
@@ -373,10 +372,10 @@ acceptance testing.
 
 [RobotsTxt](https://www.drupal.org/project/robotstxt) serves `robots.txt`
 from Drupal and lets you edit it in the administration UI, which helps when
-the file can't live on disk, for example in multisite setups. **Vortex**
-keeps core's static `robots.txt` out of the webroot through the
-`drupal-scaffold` file mapping in `composer.json`, so the module answers
-every request for it.
+the file can't live on disk, for example in multisite setups. The
+`drupal-scaffold` file mapping in `composer.json` keeps core's static
+`robots.txt` out of the webroot, so the module answers every request for
+the file.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
@@ -387,8 +386,9 @@ every request for it.
 serves a `Disallow: /` file outside production, so non-production
 environments aren't indexed.
 
-To confirm it, open `/robots.txt` on a non-production site. On `dev` and
-`stage`, Shield asks for its credentials first. The response contains
+To confirm the override, open `/robots.txt` on a non-production site. On
+`dev` and `stage`, Shield asks for its credentials first. The response
+contains
 `User-agent: *` and `Disallow: /`.
 
 ## SDC Devel
@@ -408,8 +408,8 @@ excludes it from the exported configuration.
 ## Search API
 
 [Search API](https://www.drupal.org/project/search_api) provides a framework
-for building search experiences with pluggable indexing backends. It stays
-required in every project.
+for building search experiences with pluggable indexing backends. Every
+project keeps its Composer requirement.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh),
@@ -460,9 +460,8 @@ site by requiring HTTP authentication credentials.
 ### Configuration
 
 [`settings.shield.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.shield.php)
-forces Shield on in non-production environments other than `local` and `ci`,
-where it's forced off. Production is left untouched, so Shield stays under
-UI control there.
+forces Shield off in `local` and `ci`, and on in every other non-production
+environment. In production, Shield stays under UI control.
 
 The following table shows where Shield is on, and why:
 
@@ -484,13 +483,13 @@ The override reads the following variables:
 | `DRUPAL_SHIELD_ALLOW_ACME_CHALLENGE` | None    | Set to `1` to keep the `/.well-known/acme-challenge/*` path open for Let's Encrypt certificate generation |
 
 Shield stays on in `dev` and `stage` even when the credentials are missing.
-Set `DRUPAL_SHIELD_USER` and `DRUPAL_SHIELD_PASS` in those environments, or
-the prompt accepts only the credentials stored in the site's configuration,
-if there are any.
+Set `DRUPAL_SHIELD_USER` and `DRUPAL_SHIELD_PASS` in those environments.
+Without them, the prompt accepts only the credentials stored in the site's
+configuration, and a site with none stored locks everyone out.
 
 To disable Shield in an environment where it would otherwise be enabled,
-set `DRUPAL_SHIELD_DISABLED` to `1` there. This is useful for temporary
-access during debugging or when an environment doesn't require protection.
+set `DRUPAL_SHIELD_DISABLED` to `1` there. Use it for temporary access
+while debugging, or in an environment that needs no protection.
 
 <details>
 <summary>Example <code>settings.shield.php</code></summary>
@@ -515,8 +514,8 @@ sets the origin from `DRUPAL_STAGE_FILE_PROXY_ORIGIN` outside production.
 The shipped `.env` file sets it to `https://www.your-site-domain.example`.
 When `DRUPAL_SHIELD_USER` and `DRUPAL_SHIELD_PASS` are both set, the
 override adds them to an `https://` origin URL, so a shielded origin still
-serves files. It also turns off redirects to the origin, so the module
-downloads each requested file and keeps a local copy.
+serves files. It also sets `hotlink` to `FALSE`, so the module downloads
+each requested file and keeps a local copy.
 
 ## Storybook
 
@@ -531,12 +530,12 @@ requires a custom theme.
   which also turns on Twig development mode in the `local` environment.
 
 Later in provisioning, `scripts/provision-50-storybook.sh` builds the static
-component library in the `local`, `ci`, and `dev` environments.
+component library in the `local`, `ci` and `dev` environments.
 
 ### Configuration
 
 [`settings.storybook.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.storybook.php)
-excludes it from the exported configuration. In the `local`, `ci`, and `dev`
+excludes it from the exported configuration. In the `local`, `ci` and `dev`
 environments, it also loads `services.storybook.yml`, which turns on the
 module's development mode and lets the Storybook development server on
 `localhost` fetch story renders.

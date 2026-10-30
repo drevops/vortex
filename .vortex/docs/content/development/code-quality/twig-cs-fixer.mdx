@@ -12,15 +12,15 @@ tool as follows:
 
 Twig CS Fixer checks Twig templates for the formatting problems PHPCS
 catches in PHP: indentation, spacing around delimiters and operators,
-trailing whitespace, quote style, and trailing commas. Most of its rules
-can also fix what they find.
+trailing whitespace, quote style and trailing commas. Most of its rules can
+also fix what they find.
 **Vortex** comes with a [pre-configured Twig CS Fixer
 ruleset](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php) for
 Drupal projects.
 
 This page is for developers who write Twig templates in custom modules or
 themes. It shows how to lint and fix the templates, what the shipped
-ruleset enforces, and how to ignore a rule.
+ruleset enforces and how to ignore a rule.
 
 ## Usage
 
@@ -76,15 +76,16 @@ All global configuration lives in the
 [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php)
 file.
 
-The ruleset uses the `TwigCsFixer` standard with a 2-space indent. It also
-turns on the rules that can't fix what they find, which Twig CS Fixer skips
-by default, so `lint` reports problems such as badly named variables too.
-It registers Drupal's `trans` tag parser as well, so templates that use
-`{% trans %}` blocks parse.
+The ruleset uses the `TwigCsFixer` standard with a 2-space indent.
+`allowNonFixableRules()` turns on the non-fixable rules, which Twig CS
+Fixer skips by default, so `lint` also reports problems such as badly named
+variables. The configuration also registers Drupal's `trans` tag parser, so
+templates with `{% trans %}` blocks parse.
 
-Targets include custom modules and themes.
+Twig CS Fixer checks the templates in `web/modules/custom` and
+`web/themes/custom`.
 
-To add or remove targets, add or remove the `$finder->in()` calls in
+To change the checked directories, edit the `$finder->in()` calls in
 `.twig-cs-fixer.php`:
 
 ```php
@@ -93,7 +94,7 @@ $finder->in(__DIR__ . '/web/modules/custom');
 $finder->in(__DIR__ . '/web/themes/custom');
 ```
 
-## Ignoring
+## Ignore violations
 
 To exclude a directory from linting, call `$finder->exclude()` in the
 [`.twig-cs-fixer.php`](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php)
@@ -106,13 +107,13 @@ $finder->exclude('myCustomDirectory');
 
 Every error has an identifier in the form `A.B:C:D`, where:
 
-- `A`: the rule short name (mainly made from the class name)
-- `B`: the error identifier (like the error level or a specific name)
+- `A`: the rule short name, mostly derived from the class name
+- `B`: the error identifier, such as the error level or a specific name
 - `C`: the line the error occurs on
 - `D`: the position of the token in that line
 
-All 4 parts are optional: `A`, `A.B`, `A.B:C`, `A.B:C:D`, `A:C`, `A:C:D`,
-and `A::D` all work.
+The parts are optional, so each of these forms works: `A`, `A.B`, `A.B:C`,
+`A.B:C:D`, `A:C`, `A:C:D` and `A::D`.
 
 To find the identifier of an error you want to ignore, run Twig CS Fixer
 with the `--debug` option. `ahoy lint-fe` doesn't pass extra options to the
@@ -164,7 +165,7 @@ Twig CS Fixer runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
 violations.
 
-### Ignoring failures
+### Ignore failures
 
 To let the build pass anyway, set the
 `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE` CI variable to `1`. Twig CS Fixer

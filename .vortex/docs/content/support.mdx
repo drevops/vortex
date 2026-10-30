@@ -1,13 +1,12 @@
 ---
-description: Where to get help with Vortex, how to report a bug or a security issue, and how to support the project
+description: Where to get help with Vortex, how to report a bug or a security issue and how to support the project
 ---
 
 # Support
 
 This page is for anyone who uses **Vortex** or is evaluating it and needs
-help. It lists where to get answers, from the documentation to the
-community and paid support, and explains how to report a bug or a security
-issue.
+help. It lists where to get answers, from the documentation to community
+and paid support. It also explains how to report a bug or a security issue.
 
 If you're new to **Vortex**, start with the [Installation
 guide](/docs/installation), then explore the [Features](/docs/features).
@@ -27,7 +26,7 @@ Start here. These resources cover the common problems:
 
 A clean `ahoy doctor` run ends with
 `[ OK ] All required checks have passed.` A failing check prints a `[FAIL]`
-line, usually with a suggested fix, and stops the run there.
+line, usually with a suggested fix, and stops the run.
 
 ### Community support
 
@@ -64,26 +63,33 @@ Before you report a problem, do the following:
   [GitHub](https://github.com/drevops/vortex/issues)
 - Run diagnostics with `ahoy doctor`
 - Review the [FAQs](/docs/faqs) for common solutions
-- If you can, reproduce the problem in a clean environment
+- Reproduce the problem in a clean environment, if you can
 
 Include the following in your report:
 
-- System information from `ahoy doctor info`. The report redacts your
-  username, IPv4 addresses, 36-character `ID:` values, and hex strings of 40
-  or more characters, but only in the binary paths and the `docker info`
-  output. Everything else stays as printed, including the operating system
-  details and the host name that `docker info` reports, so read the report
-  before you post it
+- System information from `ahoy doctor info`
 - Steps to reproduce the problem
 - Error messages and logs
 - Your **Vortex** version, from the **Vortex** badge in your project's
-  `README.md`, and your configuration details
+  `README.md`
+- Your configuration details
+
+Read the `ahoy doctor info` report before you post it. In the binary paths
+and the `docker info` output, the report redacts these values:
+
+- Your username
+- IPv4 addresses
+- 36-character `ID:` values
+- Hex strings of 40 or more characters
+
+The rest of the report stays as printed, including the operating system
+details and the `docker info` host name.
 
 ## 🔒 Security issues
 
-Report security vulnerabilities by email to
-[support@drevops.com](mailto:support@drevops.com), never in a public GitHub
-issue, so a fix can ship before the problem is public.
+Never report a security vulnerability in a public GitHub issue: email it to
+[support@drevops.com](mailto:support@drevops.com), so a fix can ship before
+the problem is public.
 
 ## 🤝 Contributing
 

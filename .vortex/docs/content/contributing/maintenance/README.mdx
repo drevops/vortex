@@ -6,11 +6,10 @@ sidebar_position: 1
 # Maintenance
 
 This section is for people who maintain **Vortex** itself: the template,
-the installer, the tooling package, the documentation, and the releases.
-Its pages explain how each part works and how to change, test, and publish
-it. If you're building a site from **Vortex**, the rest of the
-documentation, starting from the [Introduction](../../README.mdx), is where
-you want to be.
+the installer, the tooling package, the documentation and the releases.
+Its pages explain how each part works and how to change, test and publish
+it. To build a site from **Vortex**, start from the
+[Introduction](../../README.mdx) instead.
 
 The maintenance tooling lives in `.vortex/`, a directory the installer
 leaves out of every consumer site. The `ahoy` commands on these pages come
@@ -24,12 +23,13 @@ The following table lists the maintenance pages:
 | [Template](template.mdx) | Writing the template's shell scripts and testing the template |
 | [Installer](installer.mdx) | How the template installer works and how its snapshot tests run |
 | [Tooling](tooling.mdx) | Maintaining the `drevops/vortex-tooling` scripts package |
-| [Documentation](documentation.mdx) | Writing, checking, and publishing the **Vortex** documentation |
+| [Documentation](documentation.mdx) | Writing, checking and publishing the **Vortex** documentation |
 | [Release](release.mdx) | The versioning strategy and the release process |
 
 The `.vortex/skills/` directory holds AI agent skills for the same work.
-Claude Code loads them as the `vortex` plugin, which the repository's
-`.claude/settings.json` enables. The directory holds 5 skills:
+The repository's `.claude/settings.json` enables them as the `vortex`
+plugin, so Claude Code loads them in this repository. The directory holds 5
+skills:
 
 - `prepare-vortex-release` - runs the operations of the
   [release checklist](release.mdx#release-process) and drafts the release
@@ -41,4 +41,4 @@ Claude Code loads them as the `vortex` plugin, which the repository's
 - `update-vortex-ci-runner` - tests a canary build of `drevops/ci-runner`,
   then pins its released version
 - `update-vortex-dev-deps` - refreshes the Composer and Yarn development
-  dependencies of `.vortex/docs`, `.vortex/installer`, and `.vortex/tests`
+  dependencies of `.vortex/docs`, `.vortex/installer` and `.vortex/tests`

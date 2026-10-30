@@ -10,23 +10,23 @@ The [ESLint website](https://eslint.org/) describes the tool as follows:
 > ECMAScript/JavaScript code, with the goal of making code more consistent
 > and avoiding bugs.
 
-ESLint catches JavaScript mistakes before they reach a browser: a broken
-import, an unused variable, or a `console.log()` call left in shipped code.
-**Vortex** comes with a [pre-configured ESLint
+ESLint catches JavaScript mistakes before they reach a browser, such as a
+broken import, an unused variable or a `console.log()` call. **Vortex**
+comes with a [pre-configured ESLint
 ruleset](https://github.com/drevops/vortex/blob/main/eslint.config.mjs) for
-Drupal projects, along with [Prettier](https://prettier.io/) integration, so
-formatting problems show up in the same check as any other mistake.
+Drupal projects, including [Prettier](https://prettier.io/), so formatting
+problems show up in the same check as any other mistake.
 
 This page is for developers who write JavaScript in custom modules or the
 custom theme. It shows how to run ESLint and fix what it reports, what the
-shipped configuration enforces, and how to ignore a rule. For problems with
+shipped configuration enforces and how to ignore a rule. For problems with
 ESLint itself, see the
 [ESLint repository](https://github.com/eslint/eslint).
 
-In **Vortex**, the root `lint-js` script lints custom modules only
-(`web/modules/custom`). The custom theme carries its own `eslint.config.mjs`
-and `package.json` in its directory, so it can move to a separate
-repository with its tooling intact.
+In **Vortex**, the root `lint-js` script lints only the custom modules in
+`web/modules/custom`. The custom theme has its own `eslint.config.mjs` and
+`package.json`, so it can move to a separate repository with its tooling.
+`ahoy lint-fe` lints both.
 
 ## Usage
 
@@ -53,14 +53,14 @@ To check the code, run 1 of the following commands:
   </TabItem>
 </Tabs>
 
-Confirm that the check passed: ESLint lists no problems, and `echo $?`,
-run straight after the command, prints `0`.
+Confirm that the check passed: ESLint lists no problems, and `echo $?`
+prints `0` right after the command.
 
 ### Fix violations
 
-ESLint's `--fix` flag repairs many violations automatically, and the
-Prettier integration reformats the code in the same pass. To apply both,
-run 1 of the following commands:
+ESLint's `--fix` flag repairs many violations automatically. The Prettier
+integration reformats the code in the same pass. To apply both, run 1 of the
+following commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -91,7 +91,7 @@ By default, ESLint checks against the following presets:
 
 - `@eslint/js` recommended - the rules ESLint itself ships
 - `eslint-plugin-import-x` recommended - import correctness: modules that
-  resolve, names the module exports, and no duplicate imports
+  resolve, names the module exports and no duplicate imports
 - `eslint-plugin-jsdoc` recommended - documentation block correctness
 - `eslint-plugin-prettier` recommended - Prettier integration for code
   formatting
@@ -100,8 +100,8 @@ By default, ESLint checks against the following presets:
 - `eslint-plugin-no-jquery` - the full rule set, discouraging jQuery where
   the browser has an equivalent
 
-The configuration follows the one Drupal core adopts for its own JavaScript,
-so the 2 configurations stay comparable as core evolves.
+The configuration mirrors the one Drupal core uses for its own JavaScript,
+so the 2 configurations stay comparable as core changes.
 
 The import rules come from `eslint-plugin-import-x`, a fork of the
 `eslint-plugin-import` plugin that Drupal core uses. Their names start with
@@ -130,7 +130,7 @@ On top of the presets, the configuration sets the following rules:
 The `jsdoc` settings also prefer `@return` to `@returns` and `@prop` to
 `@property`, matching the tag names Drupal uses.
 
-The configuration parses code as ECMAScript 2020 and declares the browser
+The configuration parses code as ECMAScript 2020. It declares the browser
 and Node.js globals, plus read-only globals for Drupal and the libraries it
 loads:
 
@@ -165,11 +165,12 @@ loads:
 }
 ```
 
-Files ending in `.test.js` also get the Jest globals, can nest callbacks 5
-levels deep instead of 3, and skip the `jsdoc/check-tag-names` rule.
+Files ending in `.test.js` also get the Jest globals and skip the
+`jsdoc/check-tag-names` rule. Their callbacks can nest 5 levels deep
+instead of 3.
 
-Targets include custom modules only. The `--max-warnings=0` flag makes
-warnings fail the check too:
+The `--max-warnings=0` flag in the root `lint-js` script makes warnings fail
+the check too:
 
 ```json
 {
@@ -180,8 +181,8 @@ warnings fail the check too:
 ```
 
 To add or remove targets, change the paths in the `lint-js` and
-`lint-fix-js` scripts in `package.json`. The following `lint-js` script
-also lints `web/sites/default`:
+`lint-fix-js` scripts in the root `package.json`. The following `lint-js`
+script also lints `web/sites/default`:
 
 ```json
 {
@@ -192,20 +193,20 @@ also lints `web/sites/default`:
 ```
 
 The custom theme runs ESLint from its own `package.json` and
-`eslint.config.mjs`. The theme configuration sets the same presets, rules,
-and globals, has no `.test.js` override, and ignores only `node_modules`,
-`build`, and minified files. Its `lint-js` script checks `js/**/*.js`
-without the minified files and doesn't pass `--max-warnings=0`, so warnings
-don't fail the theme check.
+`eslint.config.mjs`. Its presets, rules and globals match the root
+configuration. The theme setup differs only in the following 3 ways:
+
+- The theme configuration ignores only `node_modules`, `build` and minified
+  files.
+- The theme configuration has no `.test.js` override.
+- The theme's `lint-js` script checks `js/**/*.js` without the minified
+  files and omits `--max-warnings=0`, so warnings don't fail the theme
+  check.
 
 ### Prettier integration
 
-`eslint-plugin-prettier` runs Prettier inside ESLint, and the
-`"prettier/prettier": "error"` rule reports every formatting difference as
-an ESLint error. Formatting problems then fail the same check as any other
-violation.
-
-`ahoy lint-fe-fix` applies both ESLint's fixes and Prettier's formatting.
+`eslint-plugin-prettier` runs Prettier inside ESLint, so formatting problems
+fail the same check as any other violation.
 
 Besides the widths in [Line width](#line-width), the root `.prettierrc.json`
 sets the following options:
@@ -213,41 +214,41 @@ sets the following options:
 - `singleQuote` set to `true`, so strings use single quotes
 - `semi` set to `true`, so statements end with a semicolon
 - `trailingComma` set to `all`, so a list that wraps across lines ends with
-  a comma wherever the syntax allows one
+  a comma wherever the syntax allows it
 - `plugins` set to `@homer0/prettier-plugin-jsdoc`, which formats
   documentation blocks
 - `jsdocReplaceTagsSynonyms` set to `false`, so the plugin keeps a tag
-  synonym such as `@arg` instead of replacing it with the official tag
+  synonym such as `@arg` as written
 - `jsdocUseTypeScriptTypesCasing` set to `false`, so the plugin keeps the
   casing of basic types such as `String` and `Object` as written
 
 #### Line width
 
 **Vortex** sets `printWidth` to `160` in
-[`.prettierrc.json`](https://github.com/drevops/vortex/blob/main/.prettierrc.json)
-instead of the Prettier default of `80`, so a statement stays on 1 line
-unless it's longer than 160 characters. The `jsdocPrintWidth` option of the
+[`.prettierrc.json`](https://github.com/drevops/vortex/blob/main/.prettierrc.json),
+up from the Prettier default of `80`, so a statement stays on 1 line until
+it's longer than 160 characters. The `jsdocPrintWidth` option of the
 `@homer0/prettier-plugin-jsdoc` plugin holds documentation blocks to `80`
-columns, matching the width the PHP coding standard applies to comments.
+columns, the comment width of the Drupal PHP coding standards.
 
-CSS carries its own override, a `printWidth` of `10000` and double quotes,
-so Prettier never wraps a declaration. Prettier only reaches CSS when it's
-invoked directly, such as from an editor on save. Within **Vortex**,
+CSS has its own override: a `printWidth` of `10000` and double quotes, so
+Prettier never wraps a declaration. Prettier formats CSS only when something
+runs it directly, such as an editor on save. Within **Vortex**,
 [Stylelint](stylelint.mdx) lints the stylesheets.
 
 The custom theme ships a second `.prettierrc.json` with the same settings,
-because a theme carries its own front-end tooling and can be moved into a
-separate repository. The root and the theme also ship a `.prettierignore`
-that excludes `node_modules` and `*.yml` files from Prettier.
+so the theme can move to a separate repository with its tooling. The root
+and the theme each ship a `.prettierignore` that excludes `node_modules`
+and `*.yml` files from Prettier.
 
-## Ignoring
+## Ignore violations
 
 ### Global ignoring
 
 To ignore paths globally, list them in the `ignores` entry of the
 [`eslint.config.mjs`](https://github.com/drevops/vortex/blob/main/eslint.config.mjs)
 file. The shipped list skips dependencies, core and contributed code,
-uploaded files, build output, and minified scripts:
+uploaded files, build output and minified scripts:
 
 ```js
 {
@@ -308,14 +309,16 @@ console.log('Debug'); // eslint-disable-line no-console
 ESLint runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
 violations. CI lints the custom modules and the custom theme in separate
-steps, and skips the theme step when
+steps. It skips the theme step when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)
-is set to `1`. On GitHub Actions, the theme step reads a repository
-variable of that name, not the value in `.env`. Each step runs the `lint`
-script, which stops at the first linter that fails, so an ESLint failure
-keeps Stylelint from running in that step.
+is set to `1`. On GitHub Actions, the theme step reads
+`VORTEX_FRONTEND_BUILD_SKIP` from a repository variable and ignores `.env`.
 
-### Ignoring failures
+Each step runs the `lint` script, which runs ESLint and then Stylelint and
+stops at the first failure, so an ESLint failure stops Stylelint from
+running in that step.
+
+### Ignore failures
 
 To let the build pass anyway, set the `VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE`
 CI variable to `1`. ESLint still runs and prints its violations in the job

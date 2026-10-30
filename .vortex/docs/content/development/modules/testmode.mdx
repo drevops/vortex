@@ -7,9 +7,10 @@ sidebar_position: 5
 
 [Testmode](https://www.drupal.org/project/testmode) keeps live and generated
 content out of Behat assertions. While test mode is on, it filters the
-listings in the views you register down to the items whose title, name, or
-email matches a test pattern. A scenario then sees only what it created,
-even on a site full of demo pages or a copy of production.
+listings in the views you register. Only nodes with a matching title, terms
+with a matching name and users with a matching email remain. A scenario's
+assertions then cover only test content, even on a site full of demo pages
+or a copy of production.
 
 This page is for developers writing Behat tests on a project built from
 **Vortex**. It shows how to register a view with Testmode and how to turn
@@ -35,8 +36,8 @@ Testmode keeps its on/off flag in the state system, so switching it never
 touches configuration. While it's on, users with the
 `administer site configuration` permission see a warning on every page. The
 warning starts with `Test mode is enabled.` and links to the Testmode
-settings at `/admin/config/development/testmode`. That warning is how you'll
-spot a test run that stopped before switching test mode off.
+settings at `/admin/config/development/testmode`. A warning outside a test
+run means a run stopped before it switched test mode off.
 
 To turn test mode off by hand, use 1 of the following:
 
@@ -71,21 +72,24 @@ Testmode is configured through the `testmode.settings` configuration object:
 | `pattern_user` | string[] | MySQL LIKE patterns for user emails |
 | `list_term` | bool | If true, filters the taxonomy term overview page with the term patterns. If false, leaves that page unfiltered |
 
-By default, Testmode filters the `content` and `user_admin_people` views,
-matches node titles and term names against `[TEST%` and user emails against
-`%example%`, and filters the term overview page.
+The default settings do the following:
+
+- Filter the `content` and `user_admin_people` views
+- Match node titles and term names against `[TEST%`
+- Match user emails against `%example%`
+- Filter the term overview page
 
 **Vortex** adds `testmode` to `config_exclude_modules` in
 [`settings.testmode.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.testmode.php),
 so the module and its settings stay out of the exported configuration.
-Configuration import therefore never enables it, which is why
+Configuration import therefore doesn't enable the module, so
 [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh)
-installs it alongside the other
-[development modules](../provision.mdx#development-modules), in the `local`,
-`ci`, `dev`, and `stage` environments. It's also a declared dependency of
-the `ys_demo` module, so installing the demo module brings it in as well.
+installs it instead, with the other
+[development modules](../provision.mdx#development-modules), in the
+`local`, `ci`, `dev` and `stage` environments. The `ys_demo` module also
+declares it as a dependency, so installing the demo module brings it in.
 
-### Registering a view programmatically
+### Register a view programmatically
 
 The `Testmode` singleton reads and writes that configuration. The settings
 stay out of the exported configuration, so register a view from a deploy
@@ -122,10 +126,10 @@ table:
 | `list_term` | `getListTerm()` | `setTermsList()` |
 
 The view and pattern setters accept an array or a newline-separated string.
-The `list_term` setter takes a boolean, and its name doesn't mirror the
-getter's: to stop filtering the term overview page, call
-`setTermsList(FALSE)`. On the settings page, the same switch is the
-**Include Taxonomy Terms Overview** checkbox.
+The `list_term` setter takes a boolean. Its method name, `setTermsList()`,
+doesn't mirror the getter's `getListTerm()`. To stop filtering the term
+overview page, call `setTermsList(FALSE)`. On the settings page, the same
+switch is the **Include Taxonomy Terms Overview** checkbox.
 
 To drive the mode itself, the singleton has the following methods:
 
@@ -138,11 +142,11 @@ To drive the mode itself, the singleton has the following methods:
 ## Behat integration
 
 The `@testmode` tag turns test mode on for a single scenario and off again
-when it ends. It comes from `TestmodeTrait` in
-[`behat-steps`](https://github.com/drevops/behat-steps), which the
-`DrupalContext` class that `FeatureContext` extends already includes, so
-the tag works without extra wiring. A tagged scenario fails straight away
-if the `testmode` module isn't enabled:
+when it ends. The tag comes from `TestmodeTrait` in
+[`behat-steps`](https://github.com/drevops/behat-steps). `FeatureContext`
+extends the `DrupalContext` class, which already includes the trait, so the
+tag works without extra wiring. A tagged scenario fails straight away if
+the `testmode` module isn't enabled:
 
 ```gherkin
 @testmode
@@ -172,8 +176,8 @@ The `ys_demo` module puts these pieces together:
 - It ships a pages view at `/pages`.
 - It registers the view with Testmode in the
   `ys_demo_deploy_configure_testmode` deploy hook.
-- It's covered by the
+- The
   [`pages.feature`](https://github.com/drevops/vortex/blob/main/tests/behat/features/pages.feature)
-  Behat feature in `tests/behat/features`, which demonstrates the
-  `@testmode` tag against the [generated content](generated-content.mdx) it
-  filters out.
+  Behat feature in `tests/behat/features` covers the view and demonstrates
+  the `@testmode` tag against the
+  [generated content](generated-content.mdx) that the view filters out.

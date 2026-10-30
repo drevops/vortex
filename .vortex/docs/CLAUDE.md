@@ -46,8 +46,11 @@ docs/
 - Acronyms: CI/CD, SSH, API, BDD, PHPUnit
 - Contractions (`doesn't`, `it's`, `can't`), present tense, and `you` for
   the reader.
-- Digits for numbers from 2 to 10 (`2 majors`), the Oxford comma, and
-  `for example` instead of `e.g.`.
+- Digits for every number (`1 file`, `2 majors`, `0 errors`), no serial
+  comma (`install, configure and run`), and `for example` instead of
+  `e.g.`. Ordinals in prose (`the first step`) and fixed expressions
+  (`one-off`) stay words.
+- Sentences of 30 words or fewer, with 1 idea each.
 - Environment variables, file names, commands, and package names are inline
   code, in link labels too. Inside single-line JSX or HTML elements such as
   `<summary>`, use `<code>` tags instead of backticks.
@@ -94,7 +97,9 @@ Errors fail the run and CI; warnings are advisory. Lint a single page with
   comments.
 - Blockquotes are skipped because they quote upstream projects verbatim. The
   generated table in `content/development/variables.mdx` is skipped too; the
-  hand-written prose above it is linted.
+  hand-written prose above it is linted. MDX `import` statements and JSX
+  `<li>` items are skipped (`BlockIgnores` in `.vale.ini`) so they don't
+  merge into 1 long sentence.
 
 ## Diagrams
 

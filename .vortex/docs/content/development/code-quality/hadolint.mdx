@@ -11,15 +11,15 @@ tool as follows:
 > images.
 
 Hadolint checks Dockerfiles against best practices, such as pinning the
-versions of installed packages, and runs ShellCheck over the shell commands
-in `RUN` instructions. **Vortex** lints the Dockerfiles in `.docker`, which
-build the images for its services, with the default rules. Where a rule
-doesn't fit, the Dockerfile carries a `hadolint ignore=` directive with the
-reason next to it, such as `DL3018` where the package set tracks the pinned
-base image.
+versions of installed packages. It also runs ShellCheck over the shell
+commands in `RUN` instructions. **Vortex** lints the Dockerfiles in
+`.docker`, which build its service images, with the default rules. Where a
+rule doesn't fit, the Dockerfile has a `hadolint ignore=` directive with
+the reason next to it, such as `DL3018` where the package set tracks the
+pinned base image.
 
 This page is for developers who change the Dockerfiles in `.docker`. It
-shows how to install and run Hadolint, how to ignore a rule, and how CI
+shows how to install and run Hadolint, how to ignore a rule and how CI
 reports what Hadolint finds.
 
 ## Installation
@@ -43,16 +43,15 @@ To lint the Dockerfiles, run the following command from the project root:
 hadolint .docker/*.dockerfile
 ```
 
-CI lints every file under `.docker`, subdirectories included, that's named
-`Dockerfile` or ends in `.dockerfile`. The shipped `.docker` directory holds
-only top-level `.dockerfile` files, so this command checks the same files.
-If you add a `Dockerfile` or a subdirectory, add those paths to the command.
+The glob covers every shipped Dockerfile, because the shipped `.docker`
+directory holds only top-level `.dockerfile` files. CI also picks up a
+`Dockerfile` or a subdirectory, so add those paths to the command when you
+create them.
 
-Confirm that the check passed: run `echo $?` straight after Hadolint. It
-prints `0` when Hadolint found no violation at the `info` severity or
-higher.
+Confirm that the check passed: `echo $?`, run right after Hadolint, prints
+`0` when Hadolint found no violation at the `info` severity or higher.
 
-## Ignoring
+## Ignore violations
 
 To ignore rules for the whole file, add a `global ignore` directive to the
 file header:
@@ -84,15 +83,15 @@ RUN apk add --no-cache tzdata
 
 Hadolint runs in the `lint` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) and fails the build on
-any violation at the `info` severity or higher, the default failure
-threshold of Hadolint. Findings at the `style` severity appear in the job
-log without failing the build.
+any violation at the `info` severity or higher, which is Hadolint's default
+failure threshold. Findings at the `style` severity appear in the job log
+without failing the build.
 
-The step lints each file under `.docker`, subdirectories included, that's
-named `Dockerfile` or ends in `.dockerfile`, and stops at the first file
+The step lints every file under `.docker` and its subdirectories that's
+named `Dockerfile` or ends in `.dockerfile`. It stops at the first file
 that fails.
 
-### Ignoring failures
+### Ignore failures
 
 To let the build pass despite violations, set the
 `VORTEX_CI_HADOLINT_IGNORE_FAILURE` CI variable to `1`. Hadolint still runs

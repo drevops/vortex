@@ -7,20 +7,22 @@ sidebar_position: 1
 
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
-**Vortex** ships 10 code quality tools that check the code of a Drupal
-project, from PHP and Twig templates to Docker Compose files and
+**Vortex** ships 10 code quality tools for a Drupal project, which check
+everything from PHP and Twig templates to Docker Compose files and
 Dockerfiles. They catch coding standard violations, type errors, deprecated
-APIs, and formatting drift while the change is still on your branch, so
-review can focus on what the code does. The defaults work for Drupal
-projects without changes, and every tool except Hadolint and SDC Devel keeps
-them in a configuration file in the project root.
+APIs and formatting drift while the change is on your branch, so review can
+focus on what the code does.
+
+The defaults suit a Drupal project as shipped. Every tool except Hadolint
+and SDC Devel reads its settings from a configuration file in the project
+root.
 
 This page is for developers working on a project built from **Vortex**. It
-shows which tool checks which files, how to run the tools and fix what they
-report, and how the CI pipeline uses them. Each tool's own page covers its
+shows which tool checks which files, how to run the tools, how to fix what
+they report and how CI uses them. Each tool's own page covers its
 configuration and how to ignore a rule.
 
-The following table lists each tool, what it checks, and the command that
+The following table lists each tool, what it checks and the command that
 runs it:
 
 | Tool                               | Checks                                                                | Command                         |
@@ -36,13 +38,11 @@ runs it:
 | [Stylelint](stylelint.mdx)         | CSS in custom modules, SCSS in the custom theme                       | `ahoy lint-fe`                  |
 | [Twig CS Fixer](twig-cs-fixer.mdx) | Twig templates                                                        | `ahoy lint-fe`                  |
 
-## Running
+## Run the linters
 
-`ahoy lint` runs the back-end linters (PHPCS, PHPStan, and Rector), the
-front-end linters (Twig CS Fixer, ESLint, and Stylelint), and Gherkin Lint
-for the Behat features. That's 7 of the 10 tools: SDC Devel needs a
-provisioned site, so it has its own `ahoy lint-sdc` command, and DCLint
-and Hadolint run outside Ahoy.
+`ahoy lint` runs 7 of the 10 tools through `ahoy lint-be`, `ahoy lint-fe`
+and `ahoy lint-tests`. SDC Devel needs a provisioned site, so it has its own
+`ahoy lint-sdc` command. DCLint and Hadolint run outside Ahoy.
 
 <AsciinemaPlayer
   src="/img/lint.json"
@@ -55,12 +55,11 @@ and Hadolint run outside Ahoy.
   terminalLineHeight={1.0}
 />
 
-The checks are grouped into Ahoy commands, each with a matching fix command
-where the tools support automatic fixes:
+The following table lists the Ahoy lint commands and their fix commands:
 
 | Command           | Tools                                                                  | Fix command        |
 |-------------------|------------------------------------------------------------------------|--------------------|
-| `ahoy lint`       | The tools of `ahoy lint-be`, `ahoy lint-fe`, and `ahoy lint-tests`     | `ahoy lint-fix`    |
+| `ahoy lint`       | The tools of `ahoy lint-be`, `ahoy lint-fe` and `ahoy lint-tests`      | `ahoy lint-fix`    |
 | `ahoy lint-be`    | PHPCS, PHPStan, Rector                                                 | `ahoy lint-be-fix` |
 | `ahoy lint-fe`    | Twig CS Fixer, ESLint, Stylelint (custom modules and the custom theme) | `ahoy lint-fe-fix` |
 | `ahoy lint-tests` | Gherkin Lint                                                           | None               |
@@ -68,37 +67,36 @@ where the tools support automatic fixes:
 
 `ahoy lint-fix` runs `ahoy lint-be-fix` and then `ahoy lint-fe-fix`.
 `ahoy lint-be-fix` runs Rector and then PHPCBF, the fixer that ships with
-PHPCS. `ahoy lint-fe-fix` runs Twig CS Fixer, ESLint, and Stylelint with
-their fix flags. PHPStan and Gherkin Lint only report problems, so you fix
-what they find by hand.
+PHPCS. `ahoy lint-fe-fix` runs Twig CS Fixer, ESLint and Stylelint with
+their fix flags. PHPStan and Gherkin Lint only report problems, so fix what
+they find by hand.
 
-Each command runs its tools one after another and stops at the first one
-that fails. In `ahoy lint`, a PHPCS violation therefore keeps PHPStan,
-Rector, the front-end linters, and Gherkin Lint from running until you fix
-it.
+Each command runs its tools in order and stops at the first tool that
+fails. A PHPCS violation stops the whole `ahoy lint` run, so no later tool
+reports until you fix it.
 
-Confirm that every check passed: run `echo $?` straight after the command.
-It prints `0` when every tool passed, and a non-zero code when 1 of them
-failed. After `ahoy lint`, a `0` covers only the 7 tools it runs, not SDC
-Devel, DCLint, or Hadolint.
+To confirm that every check passed, run `echo $?` right after the command.
+It prints `0` when every tool passed and a non-zero code when a tool
+failed. After `ahoy lint`, a `0` covers only the 7 tools it runs.
 
-**Vortex** doesn't install DCLint or Hadolint, so neither has an Ahoy
-command. To run them by hand, install them on your machine, as the
-[DCLint](dclint.mdx#installation) and [Hadolint](hadolint.mdx#installation)
-pages describe. In continuous integration, they run from their official
-Docker images.
+**Vortex** doesn't install DCLint or Hadolint in the project. To run them by
+hand, install them on your machine as the [DCLint](dclint.mdx#installation)
+and [Hadolint](hadolint.mdx#installation) pages describe. In CI, they run
+from their official Docker images.
 
 ## Continuous integration
 
-The same linters run in the `lint` job of the [continuous integration
-pipeline](../../continuous-integration/README.mdx) and fail the build on
-violations. Some findings, such as DCLint warnings, appear in the job log
-without failing the build; each tool's page says which. The deployment job
-waits for the `lint` job, so a branch that fails linting doesn't deploy. SDC
-Devel runs in the `build` job instead, after the site is provisioned.
+Every tool except SDC Devel runs in the `lint` job of the [continuous
+integration pipeline](../../continuous-integration/README.mdx) and fails
+the build on violations. SDC Devel runs in the `build` job instead, after
+the site is provisioned. The deployment job waits for the `lint` job, so a
+branch that fails linting doesn't deploy.
 
-To let the build pass anyway, set a tool's `VORTEX_CI_*_IGNORE_FAILURE` CI
-variable to `1`. The tool still runs and prints its violations in the job
-log, so you can see what you're letting through. See [Ignore tool
-failures](../../continuous-integration/README.mdx#ignore-tool-failures) for
-the variable each tool uses.
+Some findings, such as DCLint warnings, appear in the job log without
+failing the build. Each tool's page says which findings those are.
+
+To let the build pass despite a tool's violations, set its
+`VORTEX_CI_*_IGNORE_FAILURE` CI variable to `1`. The tool still runs and
+prints its violations in the job log, so you can see what you're letting
+through. For the variable each tool uses, see [Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures).

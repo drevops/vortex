@@ -10,15 +10,16 @@ import TabItem from '@theme/TabItem';
 
 Logs are where you find out why a container won't start or why a page
 throws an error. This page is for developers tracking down either problem
-in the local stack, and it shows the commands that read each kind of log.
+in the local stack. It shows the commands that read each kind of log.
 
-Each container writes its output to Docker's log, and `ahoy logs` shows it
-by running `docker compose logs` with any arguments you add. Drupal records
-its own messages in the watchdog log, which Drush reads.
+Each container writes its output to Docker's log. `ahoy logs` shows that
+log by running `docker compose logs` with any arguments you add. Drupal
+records its own messages in the watchdog log, which Drush reads.
 
-`ahoy up` scans the container logs right after starting the stack and fails
-if any container has logged `[Error]`. When that happens, or when
-[Doctor](doctor.mdx) reports a container that isn't running, start here:
+`ahoy up` scans the container logs right after it starts the stack and
+fails if any container has logged `[Error]`. When that happens, or when
+[Doctor](doctor.mdx) reports a container that isn't running, start with
+these commands:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -46,15 +47,18 @@ if any container has logged `[Error]`. When that happens, or when
 In `ahoy logs -- --tail=50 cli`, Ahoy drops the `--` and passes the rest to
 `docker compose logs`; see [Usage](ahoy.mdx#usage) on the Ahoy page.
 
-You can pass any service name from `docker-compose.yml`: `cli`, `nginx`,
-`php`, `database`, `chrome`, and `wait-for-dependencies`, plus `database2`,
-`redis`, `solr`, and `clamav` if you enabled them in the installer.
+You can pass any service name from `docker-compose.yml`:
+
+- `cli`, `nginx`, `php`, `database`, `chrome` and `wait-for-dependencies`
+- `database2`, `redis`, `solr` and `clamav`, if you enabled them in the
+  installer
+
 `docker compose config --services` prints the names in your project.
 
 ## Follow the logs
 
-To follow the output live, add `-f`, and add a service name to narrow it
-to 1 container:
+To follow the output live, add `-f`. To narrow the output to 1 container,
+also add a service name:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -80,9 +84,10 @@ Press <kbd>Ctrl+C</kbd> to stop following.
 ## Fix a failed start
 
 `ahoy up` runs `docker compose up --detach`, then exits with status 1 when
-`docker compose logs` contains the exact, case-sensitive text `[Error]`. It
-doesn't print the matching line. Each log line starts with the name of the
-container that wrote it, so search the logs for the line and its container:
+`docker compose logs` contains the exact, case-sensitive text `[Error]`.
+`ahoy up` doesn't print the matching line. Each log line starts with the
+name of the container that wrote it, so the following command shows each
+matching line with its container:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -98,14 +103,21 @@ container that wrote it, so search the logs for the line and its container:
 </Tabs>
 
 A container keeps its log until it's removed, so an old `[Error]` line
-keeps failing `ahoy up` after you fix the cause. Recreate that container to
-start a new log, for example with `ahoy up -- --force-recreate <service>`.
+keeps failing `ahoy up` after you fix the cause. To start a new log,
+recreate that container, for example with
+`ahoy up -- --force-recreate <service>`.
 
-[Doctor](doctor.mdx) checks that the `cli`, `php`, `nginx`, and `database`
-containers are running, in that order. At the first one that isn't, it
-prints `Run 'ahoy up'.` and `Run 'ahoy logs <service>' to see error logs.`,
-with the service's name in place of `<service>`, then stops. Read that log,
-fix the cause, and run `ahoy up` again.
+[Doctor](doctor.mdx) checks that the `cli`, `php`, `nginx` and `database`
+containers are running, in that order. At the first container that isn't
+running, Doctor prints these lines and stops:
+
+```text
+Run 'ahoy up'.
+Run 'ahoy logs <service>' to see error logs.
+```
+
+Doctor prints the service name in place of `<service>`. Read that log, fix
+the cause and run `ahoy up` again.
 
 Confirm that the stack is healthy by checking both of these:
 

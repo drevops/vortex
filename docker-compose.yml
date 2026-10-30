@@ -12,7 +12,7 @@
 #;   safely removed for your project. They are automatically removed when
 #;   installing or updating Vortex.
 #;
-# See more about Docker at https://www.vortextemplate.com/docs/docker/
+# See more about Docker at https://www.vortextemplate.com/docs/development/environment/docker
 # For YAML support of anchors and references, see http://blog.daemonl.com/2016/02/yaml.html
 
 # ------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ x-user: &default-user
   user: '1000'
 
 # Volumes available in each container to share application data.
-# See more about Docker host volume mounting at https://www.vortextemplate.com/docs/docker#host-volume-mounting-in-docker-based-projects
+# See more about Docker host volume mounting at https://www.vortextemplate.com/docs/development/environment/docker#volumes-definitions
 x-volumes: &default-volumes
   volumes:
     # All application files mounted into container.

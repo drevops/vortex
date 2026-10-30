@@ -9,15 +9,14 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 **Vortex** uses [Jest](https://jestjs.io/) to unit-test the JavaScript
-behaviors in your custom Drupal modules, and this page is for the
-developers who write those behaviors. It shows how to run the tests, write a
-test for a behavior, and read the coverage report. Jest covers custom
-modules only, so theme JavaScript needs its own test setup. To test
-JavaScript in a real browser against the running site, see
-[Behat](behat.mdx).
+behaviors in your custom Drupal modules. This page is for the developers who
+write those behaviors. It covers running the tests, writing a test for a
+behavior and reading the coverage report. Jest covers custom modules only,
+so theme JavaScript needs its own test setup. To test JavaScript in a real
+browser against the running site, see [Behat](behat.mdx).
 
-Each test loads a behavior into a simulated browser environment and checks
-what it does in isolation, without a real browser or a Drupal bootstrap.
+Each test loads a behavior into jsdom, which simulates a browser, then
+checks what the behavior does in isolation.
 
 **Vortex** comes with a [pre-configured Jest
 setup](https://github.com/drevops/vortex/blob/main/jest.config.js) that
@@ -41,7 +40,7 @@ Run the tests with the following commands:
   </TabItem>
 </Tabs>
 
-### Running tests matching a pattern
+### Run tests matching a pattern
 
 `ahoy test-js` doesn't forward extra arguments, so run subsets through
 `ahoy cli`. Jest then runs only the test files whose path matches the
@@ -60,7 +59,7 @@ pattern, `ys_demo` in this example:
   </TabItem>
 </Tabs>
 
-### Running a specific test by name
+### Run a specific test by name
 
 Jest's `-t` option runs only the tests whose name matches:
 
@@ -78,17 +77,17 @@ Jest's `-t` option runs only the tests whose name matches:
   </TabItem>
 </Tabs>
 
-## Writing tests
+## Write tests
 
 Drupal JavaScript files wrap their code in an immediately invoked function
-expression (IIFE), `((Drupal) => { ... })(Drupal)`, where `Drupal` is a
+expression (IIFE): `((Drupal) => { ... })(Drupal)`, where `Drupal` is a
 global object. A test sets up the globals the source file needs, then loads
 the file with `require()`.
 
 ### Test file structure
 
-Jest finds a `.test.js` file anywhere under a module's `js/` directory. Put
-each test file in a `tests/` subdirectory of that `js/` directory:
+Jest finds a `.test.js` file anywhere under a module's `js/` directory. By
+convention, each test file goes in a `tests/` subdirectory of `js/`:
 
 ```text
 web/modules/custom/my_module/
@@ -130,7 +129,7 @@ describe('Drupal.behaviors.myModule', () => {
 });
 ```
 
-### Loading Drupal behaviors
+### Load Drupal behaviors
 
 The `require()` call executes the source file's IIFE, which receives
 `global.Drupal` as its `Drupal` parameter and registers the behavior. After
@@ -139,7 +138,7 @@ The `require()` call executes the source file's IIFE, which receives
 The `jest.resetModules()` call before `require()` clears the module cache,
 so the IIFE runs again for each test with a fresh `global.Drupal` object.
 
-### Mocking globals
+### Mock globals
 
 Set globals in `beforeEach` and clean them up in `afterEach`:
 
@@ -150,7 +149,7 @@ Set globals in `beforeEach` and clean them up in `afterEach`:
 | `drupalSettings` | `global.drupalSettings = { path: { baseUrl: '/' } }` | When the source file reads `drupalSettings` |
 | `localStorage` | Provided by jsdom; call `localStorage.clear()` | When the source file uses `localStorage` |
 
-### Testing DOM interactions
+### Test DOM interactions
 
 The `jsdom` environment provides `document` and `window`. Set up HTML before
 each test:
@@ -169,7 +168,7 @@ document.querySelector('[data-action="save"]').click();
 expect(document.querySelector('[data-status]').textContent).toBe('Saved');
 ```
 
-### Testing timed behavior
+### Test timed behavior
 
 Use Jest fake timers for `setTimeout` and `setInterval`:
 
@@ -186,28 +185,32 @@ jest.useRealTimers();
 
 ### ESLint compatibility
 
-The `eslint.config.mjs` file includes an override for `*.test.js` files. It
-adds the Jest globals, raises the `max-nested-callbacks` limit from 3 to 5
-for the nesting that test suites routinely build up, and turns off
-`jsdoc/check-tag-names` so the `@jest-environment` docblock passes. Test
-files need no ESLint configuration of their own.
+The `eslint.config.mjs` file includes an override for `*.test.js` files, so
+test files need no ESLint configuration of their own. The override makes the
+following changes:
+
+- Adds the Jest globals
+- Raises the `max-nested-callbacks` limit from 3 to 5, for the nesting that
+  test suites build up
+- Turns off `jsdoc/check-tag-names`, so the `@jest-environment` docblock
+  passes
 
 The lint script runs ESLint with `--max-warnings=0`, so a warning fails the
 lint like an error does. That includes a callback nested deeper than 5
-levels, and an `eslint-disable` comment for a rule the configuration doesn't
-enable, which ESLint reports as an unused directive.
+levels and an `eslint-disable` comment for a rule the configuration doesn't
+turn on, which ESLint reports as an unused directive.
 
 ### Boilerplate
 
 **Vortex** provides a Jest test boilerplate,
 [`ys_demo.test.js`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/js/tests/ys_demo.test.js)
 in the Demo custom module. It tests a counter block through DOM
-manipulation, `localStorage`, click events, and fake timers.
+manipulation, `localStorage`, click events and fake timers.
 
 This boilerplate test runs in the continuous integration pipeline from the
-moment you install **Vortex**, and it makes a good starting point for your
-own JavaScript tests. The installer keeps it only when you keep the Demo
-module at its **Custom modules** prompt.
+moment you install **Vortex**. It makes a good starting point for your own
+JavaScript tests. The installer keeps it only when you keep the Demo module
+at its **Custom modules** prompt.
 
 ## Configuration
 
@@ -219,32 +222,29 @@ All global configuration takes place in the
 file.
 
 By default, Jest discovers and runs test files with the `.test.js` extension
-in `web/modules/custom/*/js/` directories and their subdirectories. It
-covers custom modules only: theme JavaScript sits outside its roots, so a
-theme needs its own test setup.
+in `web/modules/custom/*/js/` directories and their subdirectories.
 
 The configuration uses the `jsdom` test environment to provide browser
-globals like `document`, `window`, and `localStorage`.
+globals such as `document`, `window` and `localStorage`.
 
 ### Test discovery
 
 The `jest.config.js` file scans `web/modules/custom/` for modules that
 contain a `js/` directory, and adds each as an absolute root path for test
 discovery. When no module has a `js/` directory, `web/modules/custom` itself
-becomes the only root. Adding a new custom module with JavaScript tests
-requires no configuration changes.
+becomes the only root.
 
 The `test` script in `package.json` runs Jest with `--passWithNoTests`, so a
-project without any JavaScript tests still passes. Jest doesn't warn about a
-file that discovery misses, such as a test outside a module's `js/`
-directory or one whose name doesn't end in `.test.js`. The skipped file
-doesn't fail the run, even when it's the only test file. To confirm that
-your test ran, check that Jest prints a `PASS` or `FAIL` line with its path,
-and that the `Test Suites:` count in the summary includes it.
+project without any JavaScript tests still passes. Discovery silently misses
+a test outside a module's `js/` directory or a test whose name doesn't end
+in `.test.js`. The missed file doesn't fail the run, even when it's the only
+test file. To confirm that your test ran, check that Jest prints a
+`PASS` or `FAIL` line with its path, and that the `Test Suites:` count in
+the summary includes it.
 
 ## Reports
 
-Jest writes coverage reports only, and no JUnit test report.
+Jest writes only coverage reports and no JUnit test report.
 
 ### Coverage
 
@@ -256,7 +256,7 @@ with the following settings:
 
 - **Source files**: all `*.js` files in `web/modules/custom/*/js/`
   directories and their subdirectories, excluding `*.test.js` files
-- **Reporters**: text (terminal summary), lcov, HTML, and Cobertura XML
+- **Reporters**: text (terminal summary), lcov, HTML and Cobertura XML
 - **Output directory**: `.logs/coverage/jest`
 
 After a run, the coverage reports are in the following locations:
@@ -283,7 +283,7 @@ requests, which read only the PHPUnit report. If you use Codecov, its upload
 covers the whole `.logs/coverage` directory, Jest's `cobertura.xml`
 included.
 
-### Ignoring failures
+### Ignore failures
 
 Set `VORTEX_CI_JEST_IGNORE_FAILURE` to `1` to let the build pass despite
 failing tests. Jest still runs and reports every failure in the job log. See

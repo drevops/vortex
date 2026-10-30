@@ -5,25 +5,26 @@ sidebar_position: 1
 
 # Modules
 
-**Vortex** isn't a Drupal distribution. It ships no installation profile
-unless you ask the installer for a custom one. The only recipe it carries
-is the small `recipes/page` recipe, which creates the demo content model
-during provisioning.
-
-What it does ship is up to 26 contributed modules, depending on your
-installer answers, each already wired into the environment-aware
-[settings](../settings.mdx) and the [provisioning](../provision.mdx)
-scripts. You add the rest after the initial setup is done.
-
 This page is for developers working on a project built from **Vortex**. It
-explains how each shipped module is required, configured, and installed, and
-what the installer removes when you leave a module out. For what each module
-does, see [Contributed modules](contributed-modules.mdx). For the custom
-modules, see [Module scaffold](module-scaffold.mdx).
+explains how the template requires, configures and installs each shipped
+module, and what the installer removes when you leave a module out. For
+what each module does, see [Contributed modules](contributed-modules.mdx).
+For the custom modules, see [Module scaffold](module-scaffold.mdx).
 
-The installer can remove every module in this section except Search API,
-which stays required even without the Solr service. Its **Modules** question
-lists 19 of them. Deselecting one removes the following in a single pass:
+**Vortex** ships up to 26 contributed modules, depending on your installer
+answers, each already wired into the environment-aware
+[settings](../settings.mdx) and, where it needs installing, the
+[provisioning](../provision.mdx) scripts. You add the rest of your modules
+after the initial setup.
+
+**Vortex** isn't a Drupal distribution. It ships an installation profile
+only when you ask the installer for a custom profile. The only recipe it
+ships is `recipes/page`, which creates the demo content model during
+provisioning.
+
+The installer can remove every shipped module except Search API. The
+installer's **Modules** question lists 19 of the shipped modules.
+Deselecting 1 removes the following in a single pass:
 
 - Its Composer requirement
 - Its settings override
@@ -32,23 +33,24 @@ lists 19 of them. Deselecting one removes the following in a single pass:
 - Its assertions in the settings tests
 - Any other block the template marks for it, such as its variables in `.env`
 
-Keep Drupal helpers when you keep the demo module: `ys_demo` declares it as
-a dependency and uses it in its deploy hooks, so `ys_demo` can't install
-without it.
+If you keep the demo module, keep Drupal helpers selected too: `ys_demo`
+declares it as a dependency and calls it in its deploy hooks, so `ys_demo`
+can't install without it.
 
-The other 7 of the 26 modules aren't in the **Modules** question:
+The remaining 7 modules sit outside the **Modules** question:
 
-- ClamAV, Redis, and Search API Solr follow the **Services** question.
+- ClamAV, Redis and Search API Solr follow the **Services** question.
 - Migrate Plus and Migrate Tools follow the
   **Use a second database for migrations?** question.
 - Storybook follows the **Storybook component library?** question, which
   the installer asks only when you choose a custom theme.
-- Search API follows no question and always stays.
+- Search API follows no question and stays required even without the Solr
+  service.
 
-The **Modules** and **Services** questions select every option by default,
-but the migration and Storybook questions default to No. A run with every
-default answer therefore removes Migrate Plus, Migrate Tools, and
-Storybook, and keeps the other 23 modules.
+The **Modules** and **Services** questions select every option by default.
+The migration and Storybook questions default to No. A run with every
+default answer therefore keeps 23 modules and removes Migrate Plus, Migrate
+Tools and Storybook.
 
 ## How modules are configured
 
@@ -58,30 +60,33 @@ project:
 | Mechanism | Location | Effect |
 |-----------|----------|--------|
 | Composer requirement | `require` in [`composer.json`](https://github.com/drevops/vortex/blob/main/composer.json) | Makes the module available to the site. ➡️ See [`composer.json`](../composer.mdx#require) |
-| Settings override | `web/sites/default/includes/modules/settings.<module>.php` | Applies configuration conditioned on the detected environment, reading values from environment variables. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
-| Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a module that never reaches production out of the exported configuration, so enabling it locally never dirties the config. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
-| Provisioning | [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh) | Stands up the demo site in the `local`, `ci`, `dev`, and `stage` environments. Applies the `recipes/page` content model, sets the site name, and replaces core's `toolbar` with core's `navigation` as the administration interface. Installs the contrib, service, and custom site modules (including core's `media`), and runs their deploy hooks. ➡️ See [Provision](../provision.mdx#demo-modules) |
-| Development provisioning | [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) | Installs the modules that never reach production (the development tools and the email rerouting safety net) in the same 4 environments, plus the Storybook module when Storybook is selected. ➡️ See [Provision](../provision.mdx#development-modules) |
-| Migration provisioning | [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh) | Installs the `ys_migrate` demo migration module, and with it Migrate Plus and Migrate Tools, in every environment except `prod`, unless `DRUPAL_MIGRATION_SKIP` is set to `1`. Ships only with the migration feature. ➡️ See [Migrations](../migrations.mdx) |
+| Settings override | `web/sites/default/includes/modules/settings.<module>.php` | Applies configuration for the detected environment, reading values from environment variables. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
+| Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a module that never reaches production out of the exported configuration, so enabling it locally leaves the config unchanged. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
+| Provisioning | [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh) | Builds the demo site in the `local`, `ci`, `dev` and `stage` environments. Applies the `recipes/page` content model, sets the site name and replaces core's `toolbar` with core's `navigation` as the administration interface. Installs the contrib, service and custom site modules, including core's `media`, then runs their deploy hooks. ➡️ See [Provision](../provision.mdx#demo-modules) |
+| Development provisioning | [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) | Installs the modules that never reach production in the same 4 environments: the development tools and the email rerouting safety net. Also installs the Storybook module when Storybook is selected. ➡️ See [Provision](../provision.mdx#development-modules) |
+| Migration provisioning | [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh) | Installs the `ys_migrate` demo migration module, and with it Migrate Plus and Migrate Tools, in every environment except `prod`. Skips the install when `DRUPAL_MIGRATION_SKIP` is set to `1`. Ships only with the migration feature. ➡️ See [Migrations](../migrations.mdx) |
 | Module dependency | [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml) | Installs Drupal helpers and Testmode as dependencies of the demo module. ➡️ See [Demo module](module-scaffold.mdx#demo-module) |
 
-A module can be required without being installed anywhere: the settings
-override is then ready for the day the project enables it. `seckit` is the
-only module shipped that way on purpose. Fast 404 is never installed either,
-because its handler runs straight from the settings file. Every other module
-on the [Contributed modules](contributed-modules.mdx) page is installed by
-one of the preceding mechanisms, so selecting the module is enough to get it
-enabled.
+2 shipped modules are required but never installed:
 
-Leaving out the demo module or the Solr service breaks that for 1 module
-each. Drupal helpers arrives only as a dependency of `ys_demo`, so a project
-without the demo module has it required but not installed. Search API stays
-required without Solr, but the line that installs it leaves with the
-service.
+- `seckit` has its settings override in place. Enable the module when the
+  project needs it.
+- Fast 404 runs its handler straight from the settings file, so it needs no
+  install.
+
+1 of the preceding mechanisms installs every other module on the
+[Contributed modules](contributed-modules.mdx) page, so a module you select
+is enabled after provisioning. Leaving out 2 features each leaves 1 more
+module required but not installed:
+
+- Without the demo module, nothing installs Drupal helpers. It arrives only
+  as a dependency of `ys_demo`.
+- Without the Solr service, nothing installs Search API. The installer
+  removes the line that installs it together with the service.
 
 ## Check which modules are enabled
 
-When provisioning runs its custom scripts in the `local`, `ci`, `dev`, and
+When provisioning runs its custom scripts in the `local`, `ci`, `dev` and
 `stage` environments, the output includes the following lines:
 
 - `Installed contrib modules.` and `Installed custom site modules.` from
@@ -92,8 +97,8 @@ When provisioning runs its custom scripts in the `local`, `ci`, `dev`, and
   `Installed Devel module.`, except SDC Devel, which prints
   `Installed Single Directory Component development tools.`
 
-In `prod` and any other environment type, the 2 scripts print
-`Skipped demo modules operations in production environment.` and
+In `prod` and any other environment type, the demo and development scripts
+print `Skipped demo modules operations in production environment.` and
 `Skipped installing development modules in production environment.`
 instead.
 

@@ -9,14 +9,13 @@ import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 The **Vortex** installer is a self-contained Symfony Console application
 that turns the template into a project shaped by your answers. This page is
 for contributors who change the installer. It explains how the installer
-works, how its tests and snapshots run, how it's released, and how its demo
-video gets recorded. To install **Vortex** with it, see
+works, how its tests and snapshots run and how it's released, and covers
+recording its demo video. To install **Vortex** with it, see
 [Installation](../../installation.mdx) instead.
 
 The installer lives in the same repository as the template, at
-`.vortex/installer/`. That way, a single pull request can change a template
-file together with the installer logic that handles it, and the 2 stay in
-step.
+`.vortex/installer/`. A single pull request can then change a template file
+together with the installer logic that handles it, so the 2 stay in step.
 
 <AsciinemaPlayer
   src="/img/installer.json"
@@ -31,17 +30,18 @@ step.
 
 ## Architecture
 
-The installer is written in PHP rather than shell because it touches many
-parts of the template and has to manage every permutation of the template's
-variants. PHP also gives it a terminal UI through
-[Laravel Prompts](https://github.com/laravel/prompts), which takes you
-through the questions one at a time. Pass `--no-interaction` and it asks
-nothing at all: it installs new and existing projects, and updates them,
-unattended, which suits automated pipelines and CI environments.
+The installer is written in PHP because it touches many parts of the
+template and has to manage every permutation of the template's variants.
+PHP also gives it a terminal UI through
+[Laravel Prompts](https://github.com/laravel/prompts), which asks the
+questions 1 at a time. With `--no-interaction`, it asks nothing at all: it
+installs and updates projects unattended, which suits automated pipelines
+and CI environments.
 
-Each prompt pre-fills its answer, and you can change it when the installer
-asks. With `--no-interaction`, the pre-filled value is the answer. The
-installer takes it from the first of these sources that has one:
+Each prompt pre-fills an answer, and you can change the answer when the
+installer asks. With `--no-interaction`, the pre-filled value is the
+answer. The installer takes it from the first of these sources that has a
+value:
 
 1. **Prompt answers** - a JSON object passed with `--prompts`, either inline
    or as a path to a JSON file. Its keys are the prompt IDs that `--schema`
@@ -52,36 +52,40 @@ installer takes it from the first of these sources that has one:
    `composer.json`, `.env`, hosting-specific files like `.lagoon.yml`).
 3. **Handler defaults** - fallback values defined by each handler.
 
-The profile, theme, and web root prompts go a step further. When discovery
+The profile, theme and web root prompts go a step further. When discovery
 finds a value, or an earlier answer settles it, the installer uses that
-value without asking, and that value wins over `--prompts`. Choosing Acquia
+value without asking. For these 3 prompts, that value wins over
+`--prompts`. Choosing Acquia
 hosting, for example, settles the web root.
 
-Together with `--no-interaction`, `--prompts` runs a whole installation
-without a single question, which is how the installer's own tests drive
-every scenario. To check a prompts file before such a run, validate it:
+`--prompts` with `--no-interaction` runs a whole installation without a
+single question, which is how the installer's own tests drive every
+scenario. To check a prompts file before such a run, validate it:
 
 ```shell
 php installer.php --prompts=prompts.json --validate
 ```
 
-The command prints a JSON object with `valid`, `errors`, `warnings`, and
-`resolved` keys. It exits with `0` when `valid` is `true` and with `1`
-otherwise; warnings, such as an answer whose condition isn't met, don't
-make the object invalid. Without `--prompts`, or when the input isn't a
-JSON object, it prints an error message and exits with `1`.
+The command prints a JSON object with the `valid`, `errors`, `warnings`
+and `resolved` keys. It exits with `0` when `valid` is `true` and with `1`
+otherwise. A warning, such as an answer whose condition isn't met, leaves
+the object valid. Without `--prompts`, or when the `--prompts` value isn't
+a JSON object, the command prints an error message and exits with `1`.
 
 `--config` takes a different JSON object: the installer's own settings,
 keyed by their `VORTEX_INSTALLER_*` names, such as
 `VORTEX_INSTALLER_TEMPLATE_REPO`. An environment variable with the same name
 wins over the value in the JSON.
 
-The final **Run the site build now?** question is the only one with an
-environment variable of its own. `VORTEX_INSTALLER_PROMPT_BUILD_NOW` sets
-its default: `0` or an empty value defaults to no, and any other value, or
-leaving the variable unset, defaults to yes. `--build` skips the question
-and runs the build. A run with `--no-interaction` never asks the question,
-so the variable has no effect there: the build runs only with `--build`.
+The final **Run the site build now?** question is the only question with
+an environment variable of its own:
+
+- `VORTEX_INSTALLER_PROMPT_BUILD_NOW` sets its default. `0` or an empty
+  value defaults to no. Any other value, or an unset variable, defaults to
+  yes.
+- `--build` skips the question and runs the build.
+- A run with `--no-interaction` never asks the question, so the variable
+  has no effect there. The build runs only with `--build`.
 
 An installation runs in this order:
 
@@ -89,31 +93,30 @@ An installation runs in this order:
    [installer PHAR](https://www.vortextemplate.com/install) and run it with
    `php installer.php`. `InstallCommand` orchestrates the rest.
 2. `PromptManager` collects your choices through the prompts. The installer
-   shows a summary of the answers, and in an interactive run, it asks
+   shows a summary of the answers, and in an interactive run, it then asks
    **Proceed with installing Vortex?**
 3. The installer downloads the template at the requested reference into a
    temporary directory.
 4. `PromptManager` runs the handlers in `processWeight()` order, lowest
    first. Each handler covers 1 aspect of the template, such as the CI
-   provider, hosting, services, the theme, or the deployment types, and
+   provider, hosting, services, the theme or the deployment types, and
    queues file operations based on the answers.
 5. `PromptManager` applies every queued file operation at once. Conditional
    tokens decide which content stays.
 6. The installer copies the customized files to the destination directory
    and prepares the demo content.
-7. The installer runs the site build when you pass `--build` or answer yes
-   to **Run the site build now?**, which only an interactive run asks.
+7. The installer runs the site build when you pass `--build`, or when you
+   answer yes to **Run the site build now?** in an interactive run.
 
 The result is a fully customized Drupal project.
 
 ### Conditional token system
 
 The installer handles replacements and additions with string substitution.
-It also uses a token system to exclude whole blocks of content from template
-files. For an optional feature, you wrap the relevant content in token
-markers instead of writing logic that removes lines from configuration
-files, scripts, or documentation. When the feature isn't selected, the
-installer removes everything between the markers.
+To exclude whole blocks of content from template files, it uses tokens. For
+an optional feature, wrap the relevant content in token markers, which work
+in configuration files, scripts and documentation. When the feature isn't
+selected, the installer removes everything between the markers.
 
 In a Markdown file, the markers are link reference comments:
 
@@ -123,7 +126,7 @@ Content removed if feature not selected
 [//]: # (#;> TOKEN_NAME)
 ```
 
-In a shell script, a YAML file, or another file that takes `#` comments,
+In a shell script, a YAML file or another file that takes `#` comments,
 the markers are comment lines:
 
 ```bash
@@ -132,29 +135,30 @@ Content removed if feature not selected
 #;> TOKEN_NAME
 ```
 
-The installer matches any line that contains a marker and removes the whole
-line, so a marker can also sit inside another comment syntax, such as
-`<!-- #;< TOOL_BEHAT -->` in `phpcs.xml`. The match is a substring match: a
-marker for a token that starts with another token's name, such as
-`TOOL_PHPUNIT_BEHAT` for `TOOL_PHPUNIT`, also counts as a marker for the
-shorter token.
+The installer removes every line that contains a marker. A marker can
+therefore sit inside another comment syntax, such as
+`<!-- #;< TOOL_BEHAT -->` in `phpcs.xml`. The match is a substring match.
+So a marker for `TOOL_PHPUNIT_BEHAT` also counts as a marker for
+`TOOL_PHPUNIT`, because the longer name starts with the shorter name.
 
 A token with a `!` prefix, such as `#;< !PROVISION_TYPE_PROFILE`, works the
 other way round: the installer removes its content when the feature is
-selected. Content between `VORTEX_DEV` markers always goes, because it
-exists only for maintaining **Vortex** itself.
+selected. The installer always removes content between `VORTEX_DEV`
+markers, because that content exists only for maintaining **Vortex**
+itself.
 
-After the other handlers have run, the installer deletes every remaining
-line that contains `#;`. That removes the markers of the selected features,
-which keep their content. It also removes the internal comments that start
-with `#;`, so a note that explains the template to its maintainers never
-reaches a consumer site.
+After the other handlers have run, the `Internal` handler deletes every
+remaining line that contains `#;`. That removes the markers of the
+selected features, which keep their content. It also removes the internal
+comments that start with `#;`, so a note for the template's maintainers
+never reaches a consumer site.
 
-The installer also deletes every `#####` prefix followed by a space. A line
+The installer also removes every `#####` prefix that a space follows, and
+it keeps the rest of the line. A line
 that the template keeps commented out with that prefix becomes active in
 the consumer site, as the `VORTEX_DB_IMAGE` example in `.env` does.
 
-## Testing
+## Test the installer
 
 The installer has unit tests for individual components and functional tests
 for full installation scenarios.
@@ -163,11 +167,11 @@ for full installation scenarios.
 
 Unit tests in `tests/Unit/` check each component in isolation, with
 PHPUnit's own mock objects standing in for collaborators such as the HTTP
-client. They cover the following:
+client. The tests cover the following:
 
-- The utilities in `src/Utils/`, such as `Yaml`, `File`, `Git`, `Validator`,
+- The utilities in `src/Utils/`, such as `Yaml`, `File`, `Git`, `Validator`
   and `Strings`
-- The downloaders, the runners, and the logger
+- The downloaders, the runners and the logger
 - The task output and the prompt schema
 - The prompt manager
 - The discovery logic of the handlers
@@ -177,12 +181,12 @@ client. They cover the following:
 Each scenario runs the installer to create a fresh project from the
 **Vortex** template with 1 combination of answers, then checks the
 resulting files. A single template change can affect more than 100 of these
-scenarios. Snapshot testing shows that impact as a set of diffs, so you can
-review a change across every scenario before it reaches a consumer site.
+scenarios. Snapshot tests show that impact as a set of diffs, so you can
+review a change across every scenario before it ships.
 
 The scenarios live in functional test classes that extend
-`AbstractHandlerProcessTestCase`, most of them dedicated to 1 handler or a
-small group of related handlers. `BaselineHandlerProcessTest` covers the
+`AbstractHandlerProcessTestCase`, most of which cover 1 handler or a small
+group of related handlers. `BaselineHandlerProcessTest` covers the
 default installation. A scenario that changes an answer passes it to the
 installer through `--prompts`.
 
@@ -199,11 +203,9 @@ pattern:
   class's `dataProviderHandlerProcess()`.
 
 When a test runs, the snapshot library applies the scenario's diffs on top
-of the baseline and compares the result against the actual installer output.
-Before the comparison, the test replaces version numbers in the output with
-`__VERSION__`, so a version bump alone doesn't change any fixture. Storing
-only the differences, instead of a copy of the entire template for each
-scenario, keeps the fixture files maintainable.
+of the baseline and compares the result against the actual installer
+output. Before the comparison, the test replaces version numbers in the
+output with `__VERSION__`, so a version bump alone changes no fixture.
 
 The fixture directories in
 `.vortex/installer/tests/Fixtures/handler_process/` include scenarios for
@@ -215,7 +217,7 @@ these areas, among many others:
 - **Deployment**: artifact, webhook, Lagoon, all combined
 - **Database sources**: Acquia, Lagoon, FTP, S3, URL, container registry
 
-### Running tests
+### Run tests
 
 Run the installer tests from the `.vortex/installer/` directory:
 
@@ -240,7 +242,7 @@ the same suite with coverage, the way CI does. CI runs it on PHP 8.3 and
 8.4, after it checks that `composer.json` is normalized and runs
 `composer lint`.
 
-### Updating snapshots
+### Update snapshots
 
 Never edit fixture files by hand. When the template or the installer logic
 changes, regenerate the snapshots from the `.vortex/` directory:
@@ -250,61 +252,62 @@ cd .vortex
 ahoy update-snapshots
 ```
 
-The regeneration *runs the installer for every permutation*, starting a
-fresh project for each scenario, and updates the fixture files to match the
-current output. It runs the baseline first and then the scenarios, 8 at a
-time, and it commits the regenerated installer fixtures as it goes. The
-changes land as diffs in version control, where you can review exactly how
-a template or installer change affects each scenario.
+The regeneration *runs the installer for every scenario*, with a fresh
+project for each scenario, and updates the fixture files to match the
+current output. The baseline runs first, then the scenarios in 8 parallel
+jobs. The command commits the regenerated installer fixtures as it goes.
+Review the diffs in version control to see how a change affects each
+scenario.
 
-The same command refreshes the Docker Compose configuration fixtures in
-`.vortex/tests/phpunit/Fixtures/` first. That step doesn't commit, and when
-one of those fixtures changes, the run stops with a failure before it
-reaches the installer. Commit the updated fixtures and run the command
-again.
+The same command first refreshes the Docker Compose configuration fixtures
+in `.vortex/tests/phpunit/Fixtures/`. That step doesn't commit. When 1 of
+those fixtures changes, the run stops with a failure before it reaches the
+installer. Commit the updated fixtures and run the command again.
 
 :::caution
 
 Commit your template and installer changes before running
 `ahoy update-snapshots`. The snapshots regenerate from the committed
 baseline, so the run misses any uncommitted change. `ahoy update-snapshots`
-is the only sanctioned way to regenerate fixtures: invoking the test suite
-with `UPDATE_SNAPSHOTS` by hand bypasses part of the workflow and produces
+is the only sanctioned way to regenerate fixtures: running the test suite
+with `UPDATE_SNAPSHOTS` by hand skips part of the workflow and produces
 partial, inconsistent fixtures.
 
 :::
 
-## Releasing
+## Release the installer
 
 [Box](https://github.com/box-project/box) packages the installer as a PHAR
 archive: `composer build` in `.vortex/installer`, or `ahoy build-installer`
-from `.vortex/`, writes it to `build/installer.phar`. The
-`Vortex - Release docs` workflow builds it on every tag and publishes it
-with the documentation at the
-[installer download URL](https://www.vortextemplate.com/install), so the
-[release process](release.mdx) needs no separate installer step.
+from `.vortex/`, writes it to `build/installer.phar`.
 
-The workflow sets the version that the PHAR reports: the tag name for a tag
-build, or the full commit SHA for a branch build. When you run the workflow
-by hand, you can enter a version that the build reports instead. A local
-build with `composer build` or `ahoy build-installer` always reports
-`development`, whichever branch is checked out.
+The `Vortex - Release docs` workflow builds the PHAR on every tag. It
+publishes the PHAR with the documentation at the
+[installer download URL](https://www.vortextemplate.com/install), so the
+[release process](release.mdx) has no separate installer step.
+
+The workflow sets the version that the PHAR reports:
+
+- A tag build reports the tag name.
+- A branch build reports the full commit SHA.
+- A run you start by hand reports its `version` input when you fill it in.
+- A local build with `composer build` or `ahoy build-installer` always
+  reports `development`, on any branch.
 
 Each publish also refreshes the per-major pins at `/v1/install` and
-`/v2/install`: the current major's installer comes from the release ref, and
-the other major's binary comes from its `{N}.x` branch. The bare `/install`
-serves a copy of the pin that `VORTEX_CURRENT_MAJOR` selects.
+`/v2/install`: the current major's installer comes from the release ref,
+and the other major's binary comes from its `{N}.x` branch. The bare
+`/install` serves a copy of the pin that `VORTEX_CURRENT_MAJOR` selects.
 
-The workflow also publishes from every branch whose name contains
-`release-docs` or `release-installer`, which lets you test installer
-changes before a formal release. Those builds go to the live site, though,
-so until the next publish, everyone who downloads `/install` gets that
-branch's build.
+`Vortex - Release docs` also publishes from every branch whose name contains
+`release-docs` or `release-installer`, so you can test installer changes
+before a formal release. Those builds go to the live site, so until the
+next publish, everyone who downloads `/install` gets that branch's build.
 
 ## Installer video
 
 The documentation includes an interactive recording of the installer,
-captured with [asciinema](https://asciinema.org/). It's one of the 9
+captured with [asciinema](https://asciinema.org/). It's 1 of the 9
 terminal demo videos that the PHP orchestrator at
 `.vortex/docs/.utils/update-videos.php` produces with the shared
 `VideoRecorder` class. For the installer video, the pipeline runs these
@@ -316,9 +319,9 @@ steps:
    human-like delays and accepts the default answer to every other prompt.
 3. Records the session with `asciinema rec` into a JSON cast file.
 4. Post-processes the recording: it drops the spawn line, replaces local
-   paths with neutral ones, and masks tokens and other credentials.
+   paths with neutral ones and masks tokens and other credentials.
 5. Decodes the cast to text at `.artifacts/videos/installer.txt` and stops
-   if the output reports an error, a warning, or a failure.
+   if the output reports an error, a warning or a failure.
 6. Renders the cast to an animated SVG with the custom
    `svg-term-render.js` script, and 1 frame of it to the PNG poster with
    `sharp-cli`.
@@ -339,18 +342,18 @@ ahoy update-videos installer
 
 Re-record the installer video whenever the prompt flow changes, because the
 recording captures the live prompts. The command doesn't commit its output,
-so review the diff under `.vortex/docs/static/img/` and commit manually.
+so review the diff under `.vortex/docs/static/img/` and commit it yourself.
 
 `sharp-cli`, which renders the PNG posters, is a declared dependency of
 `.vortex/docs`, so `yarn.lock` pins it and the existing
 `yarn install --frozen-lockfile` installs it.
 
-`asciinema` is downloaded rather than installed from a lockfile, so the
-workflows that regenerate the video in CI pin it explicitly.
+`asciinema` is downloaded without a lockfile, so the workflows that
+regenerate the video in CI pin it explicitly.
 `.github/workflows/vortex-release.yml` and
 `.github/workflows/vortex-test-installer.yml` each set `ASCIINEMA_VERSION`
 and `ASCIINEMA_SHA256`, and they check the download against that checksum
 before running it. Bump both workflows together, so the release and the
-installer test always generate assets with identical tooling. Neither
-workflow publishes the video it records: the step only proves that
+installer test generate assets with identical tooling. Neither workflow
+publishes the video it records: the recording step only proves that
 recording still works.

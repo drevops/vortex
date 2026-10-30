@@ -12,42 +12,48 @@ It comes with a deploy file and a test scaffold already in place.
 
 This page is for developers adding custom code to a project built from
 **Vortex**. It describes the custom modules the template ships, so you can
-decide what to build on, what to learn from, and what to remove. The
-installer's **Custom modules** question selects which of the base, search,
-and demo modules ship, and all 3 are selected by default. The installer
-still drops the search module when the **Services** question leaves out
-Solr, which that question selects by default. `ys_migrate` follows the
-**Use a second database for migrations?** question instead, which defaults
-to No. For the contributed modules, see
-[Contributed modules](contributed-modules.mdx).
+decide what to build on, what to learn from and what to remove. For the
+contributed modules, see [Contributed modules](contributed-modules.mdx).
 
-Keep a custom `ys_base` module in your project to hold general-purpose code
-that doesn't belong in a dedicated, feature-specific module.
+The following installer questions decide which custom modules ship:
 
-The `ys` prefix abbreviates your project's machine name (`your_site` here).
+- **Custom modules** selects the base, search and demo modules. All 3 are
+  selected by default.
+- **Services** drops the search module when you leave Solr out. Solr is
+  selected by default.
+- **Use a second database for migrations?** decides `ys_migrate`. It
+  defaults to No.
+
+Use `ys_base` for general-purpose code that doesn't belong in a dedicated,
+feature-specific module.
+
+The `ys` prefix abbreviates your project's machine name, `your_site` here.
 Use the same prefix for all your custom modules, and the site machine name
-for the theme, so each module and theme shows which project it belongs to.
-The installer suggests both. Its **Custom modules prefix** question offers
-up to 4 characters from the machine name. A name with underscores gives the
-initials of its words, such as `ys` for `your_site` or `sw` for
-`star_wars`. A name without underscores gives its first 4 characters. Its
-**Custom theme machine name** question offers the machine name itself.
+for the theme, so each module and theme name identifies its project. The
+installer suggests both names:
+
+- The **Custom modules prefix** question offers up to 4 characters from the
+  machine name. A name with underscores gives the initials of its words,
+  such as `ys` for `your_site` or `sw` for `star_wars`. A name without
+  underscores gives its first 4 characters.
+- The **Custom theme machine name** question offers the machine name
+  itself.
 
 The `your_site` and `ys` names, and the other tokens like them, are
-placeholders. The installer replaces them with your project's own names when
-you install **Vortex**. The one exception is `ys_migrate`, which keeps its
-name.
+placeholders. The installer replaces them with your project's own names
+when you install **Vortex**. The 1 exception is `ys_migrate`, which keeps
+its name.
 
 ## Deploy file
 
 The
 [`ys_base.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/ys_base.deploy.php)
-file is a Drush deploy file: Drush runs each of its `ys_base_deploy_*()`
-functions once, during site [provisioning](../provision.mdx), and records
+file is a Drush deploy file: during site [provisioning](../provision.mdx),
+Drush runs each of its `ys_base_deploy_*()` functions once and records
 which ones have run. Its single hook,
-`ys_base_deploy_install_active_theme()`, installs the core Olivero theme and
-sets it as the default, then does the same for the custom theme when the
-project has one.
+`ys_base_deploy_install_active_theme()`, installs the core Olivero theme
+and sets it as the default. When the project has a custom theme, the hook
+also installs that theme and makes it the default in place of Olivero.
 
 ## Demo module
 
@@ -61,12 +67,15 @@ contributed modules:
   as a dependency, so it installs together with `ys_demo`)
 
 The demo module ships a pages view at `/pages` and a generated content
-plugin that populates it. It also ships the deploy hooks that place a
-counter block, add the `Pages` menu link, and register the view with
-Testmode. The counter block, with its CSS, JavaScript, and Twig template,
-also exercises the test tooling. It has Unit, Kernel, and
-FunctionalJavascript PHPUnit tests, a Jest test, and the `counter.feature`
-Behat feature.
+plugin that populates it. Its deploy hooks place a counter block, add the
+`Pages` menu link and register the view with Testmode.
+
+The counter block, with its CSS, JavaScript and Twig template, also
+exercises the test tooling. It has the following tests:
+
+- Unit, Kernel and FunctionalJavascript PHPUnit tests
+- A Jest test
+- The `counter.feature` Behat feature
 
 To confirm the demo module works on a provisioned site, check the
 following:
@@ -76,8 +85,9 @@ following:
 - A **Counter Block** shows in the `content` region of the default theme.
 - The main menu has a **Pages** link.
 
-`ahoy test-bdd -- --tags=@counter` runs its Behat feature, and
-`ahoy test-js` runs its Jest test with those of the other custom modules.
+`ahoy test-bdd -- --tags=@counter` runs the demo module's Behat feature.
+`ahoy test-js` runs its Jest test together with those of the other custom
+modules.
 
 Leaving the demo module out of the **Custom modules** question removes the
 following:
@@ -100,33 +110,35 @@ them.
 
 2 more custom modules ship alongside the scaffold and demo modules:
 
-- `ys_search` - configures the Search API index, the Solr server, and the
+- `ys_search` configures the Search API index, the Solr server and the
   search view for the [Solr service](../environment/docker.mdx#services),
   and brings in the `workflows` and `content_moderation` core modules. On
-  install it uninstalls core's `search` module, and its deploy hook attaches
+  install, it uninstalls core's `search` module. Its deploy hook attaches
   an editorial workflow to the `page` content type. It ships only with the
   Solr service.
-- `ys_migrate` - a demo migration module that migrates the `categories`
+- `ys_migrate` is a demo migration module that migrates the `categories`
   table of the second database into `tags` terms. It ships only with the
   migration feature (see [Migrations](../migrations.mdx)).
 
 ## Tests scaffold
 
 The `ys_base` module's `tests` directory holds a working example test and a
-base class for each PHPUnit test type: Unit, Kernel, Functional, and
-FunctionalJavascript. A new test then starts from something that already
-runs. It ships when PHPUnit is selected during installation.
+base class for each PHPUnit test type: Unit, Kernel, Functional and
+FunctionalJavascript. A new test then starts from a copy of a passing test.
+The directory ships when PHPUnit is selected during installation.
 
 To start a kernel test, copy `tests/src/Kernel/ExampleTest.php` and rename
 the file and the class. The copy extends `YsBaseKernelTestBase`, which the
-installer renames after your prefix. For a test in another module, put the
-copy in that module's `tests/src/Kernel` directory, set its namespace to
-`Drupal\Tests\<module>\Kernel`, and import the base class from
-`Drupal\Tests\ys_base\Kernel`. `ahoy test-kernel` runs it, because the
-`kernel` suite in `phpunit.xml` collects every
+installer renames after your prefix.
+
+For a test in another module, put the copy in that module's
+`tests/src/Kernel` directory, set its namespace to
+`Drupal\Tests\<module>\Kernel` and import the base class from
+`Drupal\Tests\ys_base\Kernel`. `ahoy test-kernel` runs the test, because
+the `kernel` suite in `phpunit.xml` collects every
 `web/modules/custom/**/tests/src/Kernel` directory.
 
-Its `Traits` directory adds the following 5 helper traits for writing tests:
+The `ys_base` tests also include a `Traits` directory with 5 helper traits:
 
 - `ArrayTrait`
 - `AssertTrait`

@@ -16,22 +16,23 @@ follows:
 > Ahoy is command line tool that gives each of your projects their own CLI
 > app with zero code and dependencies.
 
-Ahoy wraps longer commands into short, memorable ones, so your development
-workflow stays the same across projects and team members. This page is for
-developers who run those commands every day. It shows how to call them and
-add your own, and how Ahoy hands environment variables to the containers.
+Ahoy wraps longer commands into short ones, so your workflow stays the same
+across projects and team members. This page is for developers who run those
+commands every day. It shows how to call them and add your own, and explains
+how Ahoy hands environment variables to the containers.
 
 **Vortex** comes with a [pre-configured
 `.ahoy.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.yml) that
 wraps the most common development tasks. [Shipped
 commands](#shipped-commands) lists every command it defines.
 
-It also ships an example local Ahoy file,
+**Vortex** also ships an example local Ahoy file,
 [`.ahoy.local.example.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.local.example.yml).
-Copy it to `.ahoy.local.yml` and add your own commands there: Git ignores
-the copy, and `ahoy local <command>` runs the commands you put in it.
-`ahoy local --help` lists them, not `ahoy --help`, and the `local` command
-exists only while `.ahoy.local.yml` does.
+To add commands for your machine only, copy it to `.ahoy.local.yml` and add
+them there. The shipped `.gitignore` excludes the copy. Run a local command
+with `ahoy local COMMAND`, and list the local commands with
+`ahoy local --help`.
+The `local` command exists only while `.ahoy.local.yml` does.
 
 ## Usage
 
@@ -49,22 +50,21 @@ ahoy --help
 ```
 
 Everything after the command name reaches the command, flags included. A
-`--` right after the command name is optional: Ahoy removes it before it
-runs the command, so `ahoy test-bdd -- --tags=@smoke` passes
-`--tags=@smoke` to Behat. Ahoy's own flags, such as `--help`, `--version`,
-and `--file`, go before the command name.
+`--` right after the command name is optional: Ahoy removes it, so
+`ahoy test-bdd -- --tags=@smoke` passes `--tags=@smoke` to Behat. Ahoy's
+own flags, such as `--help`, `--version` and `--file`, go before the
+command name.
 
-Ahoy looks for `.ahoy.yml` in the current directory and its parents, and it
-runs every command from the directory that holds the file, the project root.
-You can call Ahoy from any directory in the project. The project root also
-holds `.ahoy.local.yml`, `.env`, and `.env.local`, and Git ignores
-`.env.local` as it does `.ahoy.local.yml`.
+Ahoy looks for `.ahoy.yml` in the current directory and its parents. It
+runs every command from the project root, the directory that holds the
+file. You can call Ahoy from any directory in the project.
+`.ahoy.local.yml`, `.env` and `.env.local` live in the project root too.
 
-Every command runs through the entrypoint at the bottom of `.ahoy.yml`. It
-loads your environment variables and makes sure the `drevops/vortex-tooling`
-package is in `vendor/`. On a fresh clone, the first command installs it,
-so host-side commands such as `ahoy doctor` and `ahoy fetch-db` work before
-you've run `composer install`.
+Every command runs through the entrypoint at the bottom of `.ahoy.yml`. The
+entrypoint loads your environment variables. It also installs the
+`drevops/vortex-tooling` package into `vendor/` when it's missing. On a
+fresh clone, host-side commands such as `ahoy doctor` and `ahoy fetch-db`
+work before you've run `composer install`.
 
 ## Configuration
 
@@ -81,11 +81,11 @@ commands:
     cmd: vendor/bin/phpunit --group="smoke" "$@"
 ```
 
-Ahoy runs commands on your host. To run one in the `cli` container, prefix
-it with `ahoy cli`, the way the shipped `ahoy test` command does.
+Ahoy runs commands on your host. To run a command in the `cli` container,
+prefix it with `ahoy cli`, the way the shipped `ahoy test` command does.
 
-The following command has a usage line and runs PHPUnit and `ahoy info`
-after you confirm:
+The following command has a usage line. After you confirm, it runs PHPUnit
+and then `ahoy info`:
 
 ```yml
 commands:
@@ -108,22 +108,22 @@ waits 3 seconds, so you can still press <kbd>Ctrl+C</kbd>. To skip the wait,
 also set `AHOY_CONFIRM_WAIT_SKIP=1`. Any non-empty value counts as a yes, so
 `AHOY_CONFIRM_RESPONSE=n` cancels nothing.
 
-Confirm that Ahoy picked up a new command: `ahoy --help` lists it, with its
-usage line when it has one.
+Confirm that Ahoy picked up a new command: `ahoy --help` lists it next to
+its `usage` text.
 
-## Loading environment variables
+## Environment variables
 
-The entrypoint loads `.env` and then `.env.local` and exports every variable
-they define, so a value in `.env.local` overrides the one in `.env`.
-Anything already exported in your shell wins over both files, so
+The entrypoint loads `.env` and then `.env.local`, and exports every
+variable they define, so a value in `.env.local` overrides the one in
+`.env`. A variable already exported in your shell wins over both files, so
 `VORTEX_DEBUG=1 ahoy provision` turns on debug output whatever the files
 say.
 
 ➡️ See [Variables](../variables.mdx)
 
-## Running CLI commands
+## Run commands in the CLI container
 
-`ahoy cli` runs a command in the `cli` container, where PHP, Composer, and
+`ahoy cli` runs a command in the `cli` container, where PHP, Composer and
 Drush live. Without arguments, it opens an interactive shell there:
 
 <Tabs>
@@ -150,15 +150,16 @@ container:
 
 - `TERM` and `LOCALDEV_URL`
 - Any variable whose name starts with `COMPOSE_`, `GITHUB_`, `PACKAGE_`,
-  `DOCKER_`, `DRUPAL_`, `VORTEX_`, or `ENVIRONMENT_`
+  `DOCKER_`, `DRUPAL_`, `VORTEX_` or `ENVIRONMENT_`
 
-Your shell's variables here include the ones the entrypoint loaded from
-`.env` and `.env.local`, so a `DRUPAL_` or `VORTEX_` value in `.env.local`
-reaches the command without recreating the container. `ahoy cli` joins its
-arguments into a single `bash -c` string, so escape a double quote inside an
-argument that contains spaces as `\"`.
+The entrypoint exports `.env` and `.env.local` into your shell first, so a
+`DRUPAL_` or `VORTEX_` value in `.env.local` reaches the command without
+recreating the container.
 
-You can also use shortcuts for common commands:
+`ahoy cli` joins its arguments into a single `bash -c` string, so in an
+argument that contains spaces, escape each double quote as `\"`.
+
+The following shortcuts run Drush and Composer in the `cli` container:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -179,10 +180,13 @@ You can also use shortcuts for common commands:
   </TabItem>
 </Tabs>
 
-The shortcuts add a little on top of the plain commands. `ahoy drush` passes
-`-l ${LOCALDEV_URL}`, so the links Drush prints point at your local site.
-`ahoy composer` lifts Composer's memory limit (`COMPOSER_MEMORY_LIMIT=-1`)
-and, when `PACKAGE_TOKEN` is set, registers it as a GitHub token.
+The shortcuts add a little on top of the plain commands:
+
+- `ahoy drush` passes `-l ${LOCALDEV_URL}`, so the links Drush prints point
+  at your local site.
+- `ahoy composer` lifts Composer's memory limit
+  (`COMPOSER_MEMORY_LIMIT=-1`). When `PACKAGE_TOKEN` is set, it registers
+  the token as a GitHub token.
 
 ## Shipped commands
 
@@ -191,22 +195,22 @@ defines:
 
 | Area | Commands | What they do |
 |------|----------|--------------|
-| Project | `build`, `info`, `reset`, `doctor`, `update-vortex` | `build` rebuilds the project from scratch, `info` shows the project details, `reset` removes the containers and build files, `doctor` finds setup problems, and `update-vortex` updates the project from the template |
-| Containers | `up`, `down`, `start`, `stop`, `restart`, `logs`, `cli` | `up` builds and starts the containers, `down` removes them with their volumes, `start`, `stop`, and `restart` act on existing containers, `logs` shows their logs, and `cli` opens a shell or runs a command in `cli` |
-| Composer and Drush | `composer`, `drush`, `login` | `composer` and `drush` run those tools in `cli`, and `login` unblocks user 1 and prints a one-time login link |
-| Database | `fetch-db`, `import-db`, `export-db`, `provision`, `reload-db`, `pull-db`, `db` | `fetch-db` fetches the dump, `import-db` imports it, `export-db` exports a dump or image, `provision` provisions the site, `reload-db` rebuilds the database container, `pull-db` downloads the database image, and `db` opens the database in Sequel Ace |
-| Migration database | `fetch-db2`, `reload-db2`, `db2` | The same jobs as `fetch-db`, `reload-db`, and `db`, for the second database |
-| Front-end assets | `fei`, `fe`, `fed`, `few` | `fei` installs the front-end dependencies, `fe` builds the theme assets, `fed` builds them for development, and `few` watches them and rebuilds on change |
-| Storybook | `storybook`, `storybook-build`, `storybook-stories` | `storybook` starts the development server, `storybook-build` builds the library served at `/storybook`, and `storybook-stories` generates the stories |
-| Code quality | `lint`, `lint-be`, `lint-fe`, `lint-tests`, `lint-sdc`, `lint-fix`, `lint-be-fix`, `lint-fe-fix` | `lint` runs `lint-be`, `lint-fe`, and `lint-tests`, `lint-fix` runs `lint-be-fix` and `lint-fe-fix`, and `lint-sdc` validates the components of a provisioned site |
-| Tests | `test`, `test-unit`, `test-kernel`, `test-functional`, `test-functional-javascript`, `test-js`, `test-bdd` | `test` runs every PHPUnit suite, `test-unit`, `test-kernel`, `test-functional`, and `test-functional-javascript` run 1 suite each, `test-js` runs Jest, and `test-bdd` runs Behat. Every command except `test-js` passes extra arguments to its test runner, as in `ahoy test -- --filter=testMethodName` |
-| Debugging and caches | `debug`, `flush-redis` | `debug` turns on Xdebug, and `flush-redis` flushes the Redis cache |
-| Deployment | `deploy` | Runs a deployment by hand, after you confirm; deployments usually run in CI |
-| Local commands | `local` | Runs the commands in `.ahoy.local.yml` |
+| Project | `build`, `info`, `reset`, `doctor`, `update-vortex` | `build` rebuilds the project from scratch. `info` shows the project details. `reset` removes the containers and build files. `doctor` finds setup problems. `update-vortex` updates the project from the template. |
+| Containers | `up`, `down`, `start`, `stop`, `restart`, `logs`, `cli` | `up` builds and starts the containers. `down` removes them with their volumes. `start`, `stop` and `restart` act on existing containers. `logs` shows their logs. `cli` opens a shell or runs a command in `cli`. |
+| Composer and Drush | `composer`, `drush`, `login` | `composer` and `drush` run those tools in `cli`. `login` unblocks user 1 and prints a one-time login link. |
+| Database | `fetch-db`, `import-db`, `export-db`, `provision`, `reload-db`, `pull-db`, `db` | `fetch-db` fetches the dump. `import-db` imports it. `export-db` exports a dump or image. `provision` provisions the site. `reload-db` rebuilds the database container. `pull-db` downloads the database image. `db` opens the database in Sequel Ace. |
+| Migration database | `fetch-db2`, `reload-db2`, `db2` | The same jobs as `fetch-db`, `reload-db` and `db`, for the second database. |
+| Front-end assets | `fei`, `fe`, `fed`, `few` | `fei` installs the front-end dependencies. `fe` builds the theme assets. `fed` builds them for development. `few` watches them and rebuilds on change. |
+| Storybook | `storybook`, `storybook-build`, `storybook-stories` | `storybook` starts the development server. `storybook-build` builds the library served at `/storybook`. `storybook-stories` generates the stories. |
+| Code quality | `lint`, `lint-be`, `lint-fe`, `lint-tests`, `lint-sdc`, `lint-fix`, `lint-be-fix`, `lint-fe-fix` | `lint` runs `lint-be`, `lint-fe` and `lint-tests`. `lint-fix` runs `lint-be-fix` and `lint-fe-fix`. `lint-sdc` validates the components of a provisioned site. |
+| Tests | `test`, `test-unit`, `test-kernel`, `test-functional`, `test-functional-javascript`, `test-js`, `test-bdd` | `test` runs every PHPUnit suite. `test-unit`, `test-kernel`, `test-functional` and `test-functional-javascript` run 1 suite each. `test-js` runs Jest, and `test-bdd` runs Behat. Every command except `test-js` passes extra arguments to its test runner, as in `ahoy test -- --filter=testMethodName`. |
+| Debugging and caches | `debug`, `flush-redis` | `debug` turns on Xdebug. `flush-redis` flushes the Redis cache. |
+| Deployment | `deploy` | Runs a deployment by hand, after you confirm. Deployments usually run in CI. |
+| Local commands | `local` | Runs the commands in `.ahoy.local.yml`. |
 
 The installer leaves out the commands for features and tools you didn't
 select, such as `flush-redis` without Redis or `test-bdd` without Behat.
-`ahoy --help` lists the commands your project has, and `ahoy help` followed
-by a command name, such as `ahoy help few`, prints that command's usage
-line. Many commands also have aliases, such as `ahoy rebuild` for
-`ahoy build` or `ahoy ssh` for `ahoy cli`.
+`ahoy --help` lists the commands your project has. `ahoy help` followed by
+a command name, such as `ahoy help few`, prints that command's usage line.
+Many commands also have aliases, such as `ahoy rebuild` for `ahoy build` or
+`ahoy ssh` for `ahoy cli`.

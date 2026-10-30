@@ -5,45 +5,44 @@ sidebar_position: 8
 
 # Diffy
 
-The Diffy channel starts a visual regression run against the newly deployed
-environment, through the shipped GitHub Actions workflow.
+The Diffy channel asks the shipped GitHub Actions workflow to run a visual
+regression test against the newly deployed environment.
 
 This page is for the lead or DevOps engineer who runs Diffy visual
 regression tests after deployments. It covers how the channel hands off to
-the workflow, the setup steps, and every variable the channel reads.
+the workflow, the setup steps and every variable the channel reads.
 
-The channel never calls Diffy itself. It sends your repository a GitHub
-`repository_dispatch` event, and the
-[`test-vr.yml`](../../development/visual-regression.mdx) workflow runs the
-Diffy comparison and posts the result back to the pull request. The
-dispatch succeeds only when GitHub answers with HTTP `204`; any other
-status fails the channel.
+The channel sends your repository a GitHub `repository_dispatch` event, and
+the [`test-vr.yml`](../../development/visual-regression.mdx) workflow does
+the rest. The workflow runs the Diffy comparison and posts the result back
+to the pull request. The channel itself never calls Diffy. The dispatch
+succeeds only when GitHub answers with HTTP `204`, and any other status
+fails the channel.
 
 ## Setup
 
-To set up Diffy notifications, complete these steps:
+To set up Diffy notifications:
 
-1. Enable visual regression during installation (or ship `test-vr.yml`
-   manually). See
-   [Visual regression](../../development/visual-regression.mdx).
+1. Enable visual regression during installation, or ship `test-vr.yml` by
+   hand. See [Visual regression](../../development/visual-regression.mdx).
 2. Add a GitHub token with `repo` scope as `VORTEX_NOTIFY_DIFFY_TOKEN` to
-   the hosting environment (falls back to `VORTEX_NOTIFY_GITHUB_TOKEN`, then
-   `GITHUB_TOKEN`).
+   the hosting environment (when it's unset, the channel uses
+   `VORTEX_NOTIFY_GITHUB_TOKEN`, then `GITHUB_TOKEN`).
 3. Add the repository, in `owner/repo` format, as
-   `VORTEX_NOTIFY_DIFFY_REPOSITORY` to the hosting environment (falls back
-   to `VORTEX_NOTIFY_GITHUB_REPOSITORY`).
+   `VORTEX_NOTIFY_DIFFY_REPOSITORY` to the hosting environment. When it's
+   unset, the channel uses `VORTEX_NOTIFY_GITHUB_REPOSITORY`.
 4. Add `diffy` to the comma-separated `VORTEX_NOTIFY_CHANNELS` list in your
    `.env` file, for example `VORTEX_NOTIFY_CHANNELS=email,diffy`. The
-   installer doesn't add it for you, even when you enable visual regression.
+   installer leaves `diffy` out, even when you enable visual regression.
 
 Confirm that the next deployment started a run. The deployment output on
-your hosting platform shows `[ OK ] Finished Diffy notification.`, and the
+your hosting platform shows `[ OK ] Finished Diffy notification.` The
 repository's **Actions** tab lists a **Test - Visual regression** run.
 
 ## Environment variables
 
 See the [Notifications](README.mdx) overview for the router, what a failed
-channel stops, the shared `VORTEX_NOTIFY_*` variables, and the **Location**
+channel stops, the shared `VORTEX_NOTIFY_*` variables and the **Location**
 column. The following table lists the variables that the Diffy channel
 reads:
 
@@ -60,10 +59,10 @@ reads:
 | `VORTEX_NOTIFY_DIFFY_EVENT` | No | `VORTEX_NOTIFY_EVENT` | Hosting | Deployment event; `pre_deployment` dispatches nothing |
 
 The workflow treats a deployment whose URL contains `pr-<number>` as a pull
-request deployment. By default, it compares one only when the pull request
-carries the `VR` label or its head branch matches `deps/*`. It compares any
-other deployment only when its branch matches `VR_DIFFY_BRANCHES`.
-[Automatic on
+request deployment. By default, the workflow compares a pull request
+deployment when either the pull request carries the `VR` label or its head
+branch matches `deps/*`. It compares any other deployment only when its
+branch matches the `VR_DIFFY_BRANCHES` repository variable. [Automatic on
 deployments](../../development/visual-regression.mdx#1-automatic-on-deployments)
 covers these settings.
 

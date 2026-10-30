@@ -5,9 +5,9 @@ sidebar_position: 3
 # CircleCI
 
 [CircleCI](https://circleci.com/) is a hosted continuous integration and
-delivery service. **Vortex** offers it whichever code host you use, while
-GitHub Actions is offered only for repositories on GitHub. The pipeline
-lives in `.circleci/config.yml`, and the security checks run there as a
+delivery service. **Vortex** offers it for repositories on any code host,
+and offers GitHub Actions only for repositories on GitHub. The pipeline
+lives in `.circleci/config.yml`. The security checks run there as a
 separate `audit` workflow.
 
 This page is for the lead or DevOps engineer who maintains a **Vortex**
@@ -22,9 +22,9 @@ pipeline that are specific to CircleCI:
 Running Renovate on CircleCI adds a second file,
 `.circleci/update-dependencies.yml`, with a scheduled trigger of its own
 (see [Dependency updates > Setting up the self-hosted
-service](../development/dependency-updates.mdx#setting-up-the-self-hosted-service)).
-The jobs, the database cache, and the split of tests across containers work
-the same on both providers; see the
+service](../development/dependency-updates.mdx#set-up-the-self-hosted-service)).
+The jobs, the database cache and the split of tests across containers work
+the same on both providers. See the
 [Continuous integration overview](./README.mdx). For CircleCI's own
 reference, see the [CircleCI documentation](https://circleci.com/docs/).
 
@@ -39,11 +39,11 @@ in the Installation guide and select **CircleCI**.
 
 The following sections change how the pipeline runs on CircleCI. Most of
 them edit `.circleci/config.yml` or set a project environment variable
-under **Project Settings → Environment Variables**.
+under **Project Settings > Environment Variables**.
 
 ### Update deployment branches
 
-The `database`, `lint`, and `build` jobs of the `commit` workflow and the
+The `database`, `lint` and `build` jobs of the `commit` workflow and the
 `audit` job of the `audit` workflow run on every branch and every tag. The
 `deploy` job runs only for branches that match a list of regular expressions
 in the `workflows` section of `.circleci/config.yml`:
@@ -61,11 +61,11 @@ in the `workflows` section of `.circleci/config.yml`:
 | `ci*` | Temporary CI testing branches (for example, `ci`, `ci-debug`) |
 | `N.x` | Major version branches (for example, `1.x`, `2.x`) |
 
-The patterns in the table are shorthand for those expressions. `release/**`
-and `hotfix/**` match only a version after the slash: `1.2.3`, `1.2.3-rc.1`,
-`2023-04-17`, or `2023-04-17.1`. `feature/**` and `bugfix/**` match a single
-name made of letters, digits, `-`, `.`, `,`, and `_`, so `feature/a/b`
-doesn't deploy.
+Each pattern in the table is shorthand for 1 of those expressions.
+`release/**` and `hotfix/**` match only a version after the slash: `1.2.3`,
+`1.2.3-rc.1`, `2023-04-17` or `2023-04-17.1`. `feature/**` and `bugfix/**`
+match a single name made of letters, digits, `-`, `.`, `,` and `_`, so
+`feature/a/b` doesn't deploy.
 
 2 special cases apply on top of the branch filter:
 
@@ -85,14 +85,13 @@ To change which branches deploy:
    `dataProviderDeployBranchRegex()` to match. The test checks every
    expression against them, and also checks that no filter pattern exceeds
    the 128-character limit of the CircleCI compiler.
+3. Confirm that the test passes:
 
-Confirm that the test passes:
+   ```shell
+   ahoy test-unit -- --filter=CircleCiConfigTest
+   ```
 
-```shell
-ahoy test-unit -- --filter=CircleCiConfigTest
-```
-
-PHPUnit reports `OK` with no failures.
+   PHPUnit reports `OK` with no failures.
 
 ### Update nightly database schedule
 
@@ -100,22 +99,22 @@ The `nightly-db` workflow runs the `database-nightly` job: the regular
 `database` job with the cache fallback turned off, so it always downloads a
 fresh dump. It also skips the front-end build. For a project that stores
 its database in a container image, it imports the dump into a clean base
-image and pushes the result to the registry.
+image, then pushes the result to the registry.
 
 The job saves the dump under the current day's cache key, and CircleCI
-never overwrites a saved key. If another `database` job already saved that
-key earlier in the day, the fresh dump isn't cached, and the next day's
-builds fall back to the earlier cache.
+never overwrites a saved key. If another `database` job saved that key
+earlier in the day, the fresh dump isn't cached. The next day's builds then
+fall back to the dump that the earlier job saved.
 
-The workflow is scheduled against the `develop` branch. If your project
-doesn't use one, change the branch in the `filters.branches.only` list of
-the `nightly-db` workflow's `triggers` entry, in the `workflows` section at
-the end of `.circleci/config.yml`. The workflow ships only when the site
-provisions from a database dump.
+The workflow is scheduled against the `develop` branch. If your project has
+no `develop` branch, change the branch in the `filters.branches.only` list
+of the `nightly-db` workflow's `triggers` entry, in the `workflows` section
+at the end of `.circleci/config.yml`. The installer adds the workflow only
+when the site provisions from a database dump.
 
 To change when it runs, update the `nightly_db_schedule` YAML anchor in
-`.circleci/config.yml`: a named value near the top of the file that the
-workflow's trigger reuses
+`.circleci/config.yml`. The anchor is a named value near the top of the
+file that the workflow's trigger reuses
 ([cron format](https://crontab.guru/#0_18_*_*_*), UTC timezone):
 
 ```yaml
@@ -129,16 +128,17 @@ only the `database-nightly` job.
 
 For faster builds, raise the [runner resource
 class](https://circleci.com/docs/resource-class-overview/) in the shared
-`runner_config` block that every job uses. It ships as `medium`. This might
-affect your CircleCI billing. The following setting raises it to `large`:
+`runner_config` block that every job uses. It ships as `medium`. A larger
+class might raise your CircleCI bill. The following setting raises it to
+`large`:
 
 ```yaml
 resource_class: large  # Options: small, medium, large, xlarge
 ```
 
-Resource classes scale CPU and memory only. Disk space isn't tied to the
-resource class, so upgrading it doesn't help a job that runs out of space.
-See [Runner disk space](./README.mdx#runner-disk-space).
+Resource classes scale CPU and memory only. A larger class doesn't help a
+job that runs out of disk space. See
+[Runner disk space](./README.mdx#runner-disk-space).
 
 ### Change test parallelism
 
@@ -155,10 +155,10 @@ parallel](https://circleci.com/docs/parallelism-faster-jobs/) for more
 information. Confirm that the next `build` job shows 4 parallel runs.
 
 Every added container that runs Behat also needs a matching `pN` profile in
-`behat.php`; see [Continuous integration > Adding more
-containers](./README.mdx#adding-more-containers) for the full procedure.
-[Test parallelism](./README.mdx#test-parallelism) also covers how scenarios
-are balanced across containers and how to move a tool onto a different
+`behat.php`. See [Continuous integration > Adding more
+containers](./README.mdx#add-more-containers) for the full procedure.
+[Test parallelism](./README.mdx#test-parallelism) also covers how to balance
+scenarios across containers and how to move a tool onto a different
 container.
 
 ### SSH access for debugging
@@ -205,26 +205,26 @@ The `build` job fails when the line coverage that PHPUnit reports falls
 below a threshold.
 
 Set the threshold in the `VORTEX_CI_CODE_COVERAGE_THRESHOLD` environment
-variable, under **Project Settings → Environment Variables**. It defaults to
+variable, under **Project Settings > Environment Variables**. It defaults to
 `90` (percent). Use a whole number: the check multiplies the value in shell
 integer arithmetic, so a decimal such as `85.5` breaks the step.
 
 The job can also post the coverage summary as a comment on a GitHub pull
-request. That needs a `GITHUB_TOKEN` environment variable with permission
-to post comments; without one, the step skips the comment. Each new report
-replaces the previous one, and older comments are minimized, so the pull
-request timeline stays clean. To turn the comment off, set
+request. The comment needs a `GITHUB_TOKEN` environment variable with
+permission to post comments. Without the token, the step skips the comment.
+When the step posts a new report, it minimizes the older comments, so the
+pull request timeline stays clean. To turn the comment off, set
 `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
 
 If you chose Codecov as the code coverage provider at install time, the job
-also uploads the coverage reports to Codecov when `CODECOV_TOKEN` is set,
-except on `deps/*` branches. The uploader runs with `-Z`, so a failed upload
-fails the job.
+also uploads the coverage reports to it when `CODECOV_TOKEN` is set, except
+on `deps/*` branches. The uploader runs with `-Z`, so a failed upload fails
+the job.
 
 ### Test results
 
 The `build` job stores the JUnit reports of PHPUnit and Behat with
 CircleCI's `store_test_results` step, so the job's **Tests** tab lists the
 failing tests with their messages. Each parallel container stores its own
-results. The logs, coverage reports, and screenshots stay attached to the
-job on its **Artifacts** tab.
+results. The logs, coverage reports and screenshots stay attached to the job
+on its **Artifacts** tab.
