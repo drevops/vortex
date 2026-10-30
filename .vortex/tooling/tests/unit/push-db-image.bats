@@ -59,6 +59,24 @@ load ../_helper.bash
   popd >/dev/null
 }
 
+@test "push-db-image: Pushes the indexed database service as the indexed image" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  export VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1
+  export VORTEX_DB_INDEX="2"
+  export VORTEX_DB_IMAGE="myorg/primary"
+  export VORTEX_DB2_IMAGE="myorg/migration"
+  unset VORTEX_EXPORT_DB_IMAGE VORTEX_EXPORT_DB2_IMAGE
+
+  stub_sibling "vortex-push-container-registry" 'Pushed with map: ${VORTEX_PUSH_CONTAINER_REGISTRY_MAP}'
+
+  run .vortex/tooling/src/vortex-push-db-image
+  assert_success
+  assert_output_contains "Pushed with map: database2=myorg/migration"
+
+  popd >/dev/null
+}
+
 @test "push-db-image: Fails when the image name is not specified" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

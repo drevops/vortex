@@ -342,6 +342,9 @@ jobs:
           name: Export DB
           command: |
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
+            #;< MIGRATION
+            VORTEX_DB_INDEX=2 ./vendor/bin/vortex-refresh-db
+            #;> MIGRATION
             ./vendor/bin/vortex-refresh-db
           no_output_timeout: 30m
 
