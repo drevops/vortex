@@ -124,6 +124,8 @@ ahoy test-bdd -- --tags=@tagname  # Run Behat tests with specific tag
 - `config/default/` - Drupal configuration
 - `scripts/` - Project scripts
 - `patches/` - Module patches
+- `.claude/skills/` - Project skills, such as `review-code` for reviewing
+  a branch or a pull request
 
 ## Documentation
 

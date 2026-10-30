@@ -7,7 +7,7 @@ description: Use when asked to review code, review the current branch, check cha
 
 Review a change the way a senior developer on this project would: against
 the project's own rules first, then the team checklist, then general
-engineering judgement.
+engineering judgment.
 
 The review is read-only. Never edit files, check out branches, push, or
 post to GitHub. Print the report in the conversation and stop.
@@ -18,7 +18,7 @@ Run every command from the project root.
 
 **Pull request** (a URL, or a number such as `123` or `#123`):
 
-1. `gh pr view <pr> --json number,title,body,url,state,baseRefName,headRefOid`
+1. `gh pr view <pr> --json number,title,body,url,state,headRefOid`
 2. `gh pr diff <pr>`
 
 Pass the full URL as `<pr>` whenever the developer gave one, so `gh` reads
@@ -56,7 +56,7 @@ Apply them in this order. An earlier source wins over a later one.
    touches, and the files in `docs/` - the decisions this project made.
    When they allow something the checklist would flag, do not flag it.
 2. `checklist.md` in this directory - the team's review checklist.
-3. General judgement: correctness, security, data loss, error handling,
+3. General judgment: correctness, security, data loss, error handling,
    and missing tests.
 
 Skip anything the project's linters already enforce: `ahoy lint` and any
