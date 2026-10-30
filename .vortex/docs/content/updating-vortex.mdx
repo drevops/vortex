@@ -88,9 +88,10 @@ deployment like any other change:
    ```
 
    Near the end, the update shows **Finished updating Vortex** with a
-   reminder to review and commit the changes. When it replaced any of your
-   changes, it also names `.logs/vortex-update.md`, the file that records
-   them.
+   reminder to review and commit the changes. It counts the files per
+   status and names `.logs/vortex-install-TIMESTAMP.md`, the report that
+   lists each file with its status. When it replaced any of your changes, it
+   also names `.logs/vortex-update.md`, the file that records them.
 
    To pin a specific release or commit instead, pass the repository URL with
    the reference after `#`:
@@ -110,6 +111,29 @@ deployment like any other change:
    git status
    git diff
    ```
+
+   Read the diff alongside `.logs/vortex-install-TIMESTAMP.md`, where
+   `TIMESTAMP` is the date and time the update ran. Each row of the report
+   gives a status and a link to the file. When the update changed the file,
+   the row also links to a diff of that change. The update assigns each file
+   1 of these statuses:
+
+   | Status        | What the update did                                                          |
+   |---------------|------------------------------------------------------------------------------|
+   | `added`       | Your project didn't have the file, so the update added it.                   |
+   | `updated`     | You hadn't changed the file, so the update replaced it with the new version. |
+   | `unchanged`   | The file already matched the new version.                                    |
+   | `overwritten` | The update replaced a file that held your changes or that it couldn't read.  |
+   | `removed`     | The update no longer installs the file, so it removed the file.              |
+   | `kept`        | You had changed a file the update no longer installs, so the update kept it. |
+   | `failed`      | The update couldn't write the new version of the file.                       |
+
+   The update writes the diffs to `.logs/vortex-install-TIMESTAMP/`, 1
+   `.diff` file per changed file, at the file's own path. Each diff runs
+   from your copy before the update to the copy the update left. Every
+   `overwritten` file needs your changes re-applied, and its diff shows the
+   changes the update replaced. A reviewer compares the report with the
+   final diff to tell a deliberate edit from a missed one.
 
 4. Re-apply your customizations from `.logs/vortex-update.md`, and delete
    each entry after you've resolved it. Each entry shows 2 diffs: your
