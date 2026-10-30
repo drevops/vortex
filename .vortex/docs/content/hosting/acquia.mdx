@@ -105,8 +105,8 @@ sub-domain that only a wildcard domain serves, add the sub-domain to the
 environment as its own domain.
 
 When Acquia rejects the purge for a domain, the hook prints a warning and
-moves on to the next domain. Check the hook output for `Warning:` lines to
-confirm that every domain was purged.
+moves on to the next domain. The hook still ends with a `[ OK ] Finished`
+line, so confirm that its output has no `Warning:` lines.
 
 `notify-deployment.sh` builds the notification URL from Acquia's
 `AH_SITE_NAME` and `AH_REALM` variables:
