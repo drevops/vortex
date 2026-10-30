@@ -62,8 +62,8 @@ code 1.
 
 The match is case-sensitive, and the command exits with code 0 for any
 other output. A theme that has no components or isn't enabled gets only a
-lowercase `[warning] No components found` message. The command exits with
-code 0 for that theme too.
+lowercase `[warning] No components found` message, so the command exits
+with code 0 for that theme too.
 
 Confirm that the components passed: Drush prints
 `No components errors found for`, followed by the theme's machine name.
@@ -94,8 +94,8 @@ UI at `/admin/reports/ui-components`.
 SDC Devel has no configuration file of its own.
 
 The `scripts/provision-10-enable-dev-modules.sh` provisioning script
-installs the module in the `local`, `ci`, `dev` and `stage` environments.
-It skips the module in every other environment, such as production.
+installs the module in the `local`, `ci`, `dev` and `stage` environments
+and skips it in every other environment, such as production.
 `settings.sdc_devel.php` adds the module to `config_exclude_modules`, so a
 config export leaves it out.
 
@@ -110,8 +110,8 @@ custom theme and the SDC Devel module are selected during installation.
 
 SDC Devel runs in the `build` job of the [continuous integration
 pipeline](../../continuous-integration/README.mdx) after the site is
-provisioned. It runs on the first container only; see [Test
-parallelism](../../continuous-integration/README.mdx#test-parallelism). The
+provisioned, on the first container only (see [Test
+parallelism](../../continuous-integration/README.mdx#test-parallelism)). The
 step fails the build when validation reports problems. The step exits
 without validating when
 [`VORTEX_FRONTEND_BUILD_SKIP`](../variables.mdx#vortex_frontend_build_skip)

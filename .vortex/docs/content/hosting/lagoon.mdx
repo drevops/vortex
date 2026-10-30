@@ -30,8 +30,8 @@ The following sections describe what the integration does on Lagoon.
   deployment](../deployment/lagoon.mdx))
 - Run custom commands on Lagoon environments
 
-These tasks read the project name (`LAGOON_PROJECT`) from your `.env` file.
-They read the SSH key settings, such as `VORTEX_FETCH_DB_SSH_FILE`, from
+These tasks read the project name (`LAGOON_PROJECT`) from your `.env` file
+and the SSH key settings, such as `VORTEX_FETCH_DB_SSH_FILE`, from
 `.env.local`.
 
 ### Deployment automation
@@ -41,15 +41,15 @@ On each deployment, **Vortex** runs these steps on Lagoon:
 1. Notifies configured channels that the deployment is starting
 2. In production, backs up the database to
    `web/sites/default/files/private/pre_deployment_backups`
-3. In every other environment, fetches the database dump for provisioning
+3. In every other environment, fetches the database dump that provisioning
+   imports into a new environment, or into an existing environment when
+   `VORTEX_PROVISION_OVERRIDE_DB` is `1`
 4. Provisions the site: runs database updates, imports configuration,
    rebuilds caches and runs Drupal's deploy hooks (`drush deploy:hook`)
 5. Notifies configured channels about the finished deployment
 
-Provisioning imports that dump into a new environment, or into an existing
-environment when `VORTEX_PROVISION_OVERRIDE_DB` is `1`. Sites that install
-from a profile skip step 3. Projects with a migration source database also
-fetch that database before provisioning.
+Sites that install from a profile skip step 3. Projects with a migration
+source database also fetch that database before provisioning.
 
 In production, provisioning never sanitizes the database. With the default
 `database` provision type, it keeps the existing production database.
@@ -62,7 +62,7 @@ both. Other environments get no cron job.
 
 ### Environment detection
 
-**Vortex** detects Lagoon by its `LAGOON_KUBERNETES` variable. It then
+**Vortex** detects Lagoon by its `LAGOON_KUBERNETES` variable and then
 applies the settings in
 [`web/sites/default/includes/providers/settings.lagoon.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/providers/settings.lagoon.php).
 That file applies the following settings:
@@ -78,7 +78,7 @@ That file applies the following settings:
   defined it.
 
 An environment is production when Lagoon sets its `LAGOON_ENVIRONMENT_TYPE`
-variable to `production`. It's also production when its branch name equals
+variable to `production`, or when its branch name equals
 `VORTEX_LAGOON_PRODUCTION_BRANCH` exactly. That variable lives in `.env`
 and is `main` by default. Otherwise, `main`, `master`, `release/*` and
 `hotfix/*` branches count as staging. Every other branch counts as
@@ -118,8 +118,7 @@ add `--fresh`.
 
 The `custom` operation of the `vortex-task` runner runs a command in a
 Lagoon environment through the Lagoon CLI. Run it from the project root, on
-your machine or in a CI job. It needs an SSH key that your Lagoon user
-accepts:
+your machine or in a CI job, with an SSH key that your Lagoon user accepts:
 
 ```shell
 VORTEX_PLATFORM=lagoon \
@@ -160,8 +159,8 @@ shows a `Created` line for the task, then ends with the finish line:
 [ OK ] Finished Lagoon task Automation task.
 ```
 
-These lines confirm that Lagoon queued the task. The Lagoon CLI returns as
-soon as the task exists, so they don't show whether the command succeeded.
+These lines confirm that Lagoon queued the task, not that the command
+succeeded, because the Lagoon CLI returns as soon as the task exists.
 Follow the task and its output in the environment's tasks in the Lagoon
 UI. When Lagoon rejects the request, the script stops with the Lagoon
 CLI's error before the `Created` line.

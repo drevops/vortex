@@ -37,9 +37,9 @@ environment for the branch or pull request. A new branch or pull request
 gets a fresh deployment, and an existing environment gets a redeployment.
 
 For a redeployment, the script sets `VORTEX_PROVISION_OVERRIDE_DB` on the
-environment while Lagoon queues the build. The value is `1` when the
-[deployment action](README.mdx#deployment-action) is `deploy_override_db`,
-and `0` for any other action. After Lagoon queues the build, the script
+environment while Lagoon queues the build: `1` when the [deployment
+action](README.mdx#deployment-action) is `deploy_override_db`, and `0` for
+any other action. After Lagoon queues the build, the script
 restores `VORTEX_PROVISION_OVERRIDE_DB` to its earlier value, or removes it
 if the environment had none. When the script can't read the environment's
 variables, it leaves `VORTEX_PROVISION_OVERRIDE_DB` unchanged and prints a
@@ -54,11 +54,11 @@ These rules decide what happens to a branch's environment:
 - The `destroy` deployment action deletes the branch's environment.
 
 When Lagoon refuses a deployment because the project has reached its
-environment limit, the script reports it. The build still passes. To fail
-it, set `VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED` to `1`.
+environment limit, the script reports it. The build still passes unless
+you set `VORTEX_DEPLOY_LAGOON_FAIL_ENV_LIMIT_EXCEEDED` to `1` to fail it.
 
-Lagoon doesn't support tag deployments. For a tag, the script reports this,
-skips the deployment and passes.
+Lagoon doesn't support tag deployments, so for a tag the script reports
+this, skips the deployment and passes.
 
 ## Configuration
 
@@ -123,8 +123,8 @@ To set up Lagoon deployment:
 
 Confirm that the next deployment reached Lagoon. The `deploy` job log shows
 `Requested deployment of environment` or
-`Requested redeployment of environment` with your project and branch. The
-log then shows `[ OK ] Finished Lagoon deployment.` Without a
+`Requested redeployment of environment` with your project and branch,
+followed by `[ OK ] Finished Lagoon deployment.` Without a
 `Lagoon environment limit exceeded.` line, that means Lagoon accepted the
 request. The build's own result shows in the Lagoon UI.
 
@@ -172,8 +172,8 @@ The endpoint defaults to `https://hooks.lagoon.amazeeio.cloud/`. To use
 another Lagoon instance, set the `LAGOON_WEBHOOK_ENDPOINT` repository
 variable.
 
-The installer keeps this workflow for CircleCI projects too. If GitHub
-Actions is enabled for the repository, the workflow still runs there. The
+The installer keeps this workflow for CircleCI projects too, so the
+workflow still runs if GitHub Actions is enabled for the repository. The
 CircleCI config has no step that removes pull request environments.
 
 ## See also

@@ -6,7 +6,7 @@ sidebar_position: 6
 # Slack
 
 The `slack` notification channel posts deployment messages to a channel in
-your Slack workspace through an incoming webhook. Each message links to the
+your Slack workspace through an incoming webhook, with links to the
 environment and its login page.
 
 This page is for the lead or DevOps engineer who sends deployment messages
@@ -58,9 +58,8 @@ notification channel reads:
 **Vortex** posts a Slack message for both `pre_deployment` and
 `post_deployment` events:
 
-- **Pre-deployment:** Gray color with "Deployment Starting" status. The
-  message has no environment or login links, because the deployment hasn't
-  finished yet.
+- **Pre-deployment:** Gray color with "Deployment Starting" status and no
+  environment or login links, because the deployment hasn't finished yet.
 - **Post-deployment:** Green color with "Deployment Complete" status.
 
 Each message is a Slack attachment with the following parts:

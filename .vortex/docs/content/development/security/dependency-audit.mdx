@@ -11,9 +11,8 @@ import TabItem from '@theme/TabItem';
 Every package your project installs is code you didn't write, and security
 advisories against those packages appear all the time. This page is for the
 developers and leads who act on those advisories in a project built from
-**Vortex**. It shows how to run the audit and decide what fails it. It also
-covers recording an assessed exception and finding each result in
-continuous integration (CI).
+**Vortex**. It shows how to run the audit, decide what fails it, record an
+assessed exception and find each result in continuous integration (CI).
 
 The dependency audit checks your packages against those advisories with
 each ecosystem's own package manager:
@@ -119,7 +118,7 @@ The `advisories` and `abandoned` sections accept the following keys:
 For assessed exceptions, `advisories` also accepts `ignore-id` and
 `ignore-severity`. Composer's [`policy`
 documentation](https://getcomposer.org/doc/06-config.md#policy) covers the
-rest. That includes the `malware` and `cooldown` policies and the per-entry
+rest, including the `malware` and `cooldown` policies and the per-entry
 `on-audit` and `on-block` scoping of `ignore-id`.
 
 :::note Composer 2.10+
@@ -143,9 +142,9 @@ takes advisory publication out of dependency resolution, so updates stay
 reproducible. `advisories.audit` stays at `fail`, so `composer audit` and
 the CI security audit workflow still surface every vulnerability.
 
-If your project needs dependency resolution to stop hard on advisories, set
-`advisories.block` to `true`. A production site with strict supply-chain
-controls is 1 example.
+If your project needs dependency resolution to stop hard on advisories, as
+a production site with strict supply-chain controls might, set
+`advisories.block` to `true`.
 
 ### Ignore PHP advisories
 
@@ -191,11 +190,10 @@ the workflow, even though installs and updates go through.
 #### Ignore failures
 
 Set `VORTEX_CI_COMPOSER_AUDIT_IGNORE_FAILURE` to `1` to let the workflow
-pass anyway. In GitHub Actions, set it as a repository variable. In
-CircleCI, set it as an environment variable. The audit still runs and
-reports every advisory in the job log. Treat the variable as a one-off
-bypass while you deal with a known advisory, because it lets every new
-advisory through too.
+pass anyway, as a repository variable in GitHub Actions or an environment
+variable in CircleCI. The audit still runs and reports every advisory in
+the job log. Treat the variable as a one-off bypass while you deal with a
+known advisory, because it lets every new advisory through too.
 
 ➡️ See [Ignore tool
 failures](../../continuous-integration/README.mdx#ignore-tool-failures).
@@ -315,11 +313,11 @@ what fails `npm audit`.
 CI runs the audit through [audit-ci](https://github.com/IBM/audit-ci),
 which takes its threshold from the `--high` flag in each CI audit step.
 When you change the threshold, update both `.npmrc` files and the flag in
-each CI audit step. The flag lives in the CI
-configuration, outside `package-audit.jsonc`, because `audit-ci` passes
-every advisory when no threshold is set.
+each CI audit step. The flag lives in the CI configuration, outside
+`package-audit.jsonc`, because `audit-ci` passes every advisory when no
+threshold is set.
 
-The threshold is deliberately left out of the **Vortex** variables. It
+The threshold is deliberately left out of the **Vortex** variables: it
 belongs to npm's own configuration, where a project changes it directly.
 
 ### Ignore JavaScript advisories
@@ -351,14 +349,14 @@ To apply the pin, complete these steps:
    ahoy cli "npm install --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME}"
    ```
 
-3. Commit both files. Name the advisory that the entry addresses in the
+3. Commit both files, naming the advisory that the entry addresses in the
    commit message, the same as for the Composer exceptions.
 
 Confirm that the advisory is gone: run the audit from [Usage](#usage-1)
 again and check that its ID no longer appears in the output.
 
 When no patched version exists, or the advisory doesn't affect your
-project, add it to the `allowlist` in `package-audit.jsonc`. That file sits
+project, add it to the `allowlist` in `package-audit.jsonc`, which sits
 next to the same `package.json`. `npm audit` has no per-advisory ignore
 list, so CI runs the audit through
 [audit-ci](https://github.com/IBM/audit-ci), which applies the allowlist.
@@ -387,8 +385,8 @@ The allowlist follows these rules:
   until it's resolved or the entry is renewed.
 - An entry with `active` set to `false` doesn't apply.
 - In the text output, an entry that matches no advisory prints
-  `Consider not allowlisting advisory:` followed by its ID. `audit-ci`
-  prints that line as a suggestion to remove the entry.
+  `Consider not allowlisting advisory:` followed by its ID, as a suggestion
+  to remove the entry.
 
 Key each entry by the advisory's GitHub ID, the last part of the advisory
 link that `npm audit` prints. `audit-ci` also accepts the following key
@@ -400,10 +398,10 @@ forms, described in the [audit-ci README](https://github.com/IBM/audit-ci):
 
 The root and the custom theme each have their own `package-audit.jsonc`,
 so an advisory found in both trees needs an entry in both files. The file
-is optional. Without it, the audit of that tree runs with no allowlist.
+is optional: without it, the audit of that tree runs with no allowlist.
 
-Confirm that the entry applies: run that tree's `audit-ci` command from
-[Usage](#usage-1). The output lists the advisory under
+Confirm that the entry applies: that tree's `audit-ci` command from
+[Usage](#usage-1) lists the advisory under
 `Found vulnerable allowlisted advisories:` and doesn't fail on it.
 
 ### Continuous integration
@@ -411,15 +409,14 @@ Confirm that the entry applies: run that tree's `audit-ci` command from
 The [security audit
 workflow](../../continuous-integration/README.mdx#security-audit) audits
 both dependency trees with `audit-ci`, pinned to an exact version in the CI
-configuration. Each audit step passes `--high` and `--package-lock-only`.
-Each step adds the tree's `package-audit.jsonc` when the file exists. The
-audit
+configuration. Each audit step passes `--high` and `--package-lock-only`,
+and adds the tree's `package-audit.jsonc` when the file exists. The audit
 reads what the lock files pin, so it needs no installed tree.
 
 In GitHub Actions, the audit steps print `audit-ci`'s JSON output, which is
 npm's own report. The code scanning upload converts that same report. The
-JSON output leaves out the messages about allowlisted and unused entries.
-The text output prints them, in CircleCI and in the [Usage](#usage-1)
+JSON output leaves out the messages about allowlisted and unused entries,
+which the text output prints in CircleCI and in the [Usage](#usage-1)
 commands.
 
 #### Ignore failures

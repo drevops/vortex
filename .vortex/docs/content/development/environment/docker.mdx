@@ -37,17 +37,17 @@ Docker runs each service your project needs, such as a web server or a
 database server, in its own _container_. A container is an isolated
 environment that can still talk to the other containers.
 
-Containers start from _images_. An image is a template that defines what's
-installed in a container and how it's configured. Every container started
-from an image has the same content and configuration.
+Containers start from _images_, templates that define what's installed in
+a container and how it's configured, so every container started from an
+image has the same content and configuration.
 
-Docker is the engine that runs those containers. It lets them share the
+Docker is the engine that runs those containers: it lets them share the
 host's resources and talk to each other. Locally, you control it with the
 [Docker CLI](https://github.com/docker/cli), `docker`.
 
 [Docker Compose](https://github.com/docker/compose) describes a
-multi-container application in a single `docker-compose.yml` file. All the
-containers that work together are defined and managed in 1 place.
+multi-container application in a single `docker-compose.yml` file, so all
+the containers that work together are defined and managed in 1 place.
 
 Drupal needs several service containers, so you mostly use the Docker
 Compose CLI, `docker compose`. Its commands work on the `docker-compose.yml`
@@ -108,7 +108,7 @@ connect, run `ahoy info` again.
 
 ## `docker-compose.yml` anatomy
 
-Docker Compose reads its configuration from `docker-compose.yml`. When
+Docker Compose reads its configuration from `docker-compose.yml`, and when
 `docker-compose.override.yml` exists, Compose merges it on top. Git ignores
 the override file, so it's the place for changes that apply only to your
 machine. Both are YAML files, and YAML [supports anchors and
@@ -126,10 +126,10 @@ The file that ships with **Vortex** has these sections:
 ### Volumes definitions
 
 Volumes share data between containers. When the host supports volume
-mounting, your machine shares the data too. You edit a file in your editor,
+mounting, your machine shares the data too: you edit a file in your editor,
 and the running containers get the change straight away.
 
-Local development relies on this. The `x-volumes` anchor mounts the code
+Local development relies on this: the `x-volumes` anchor mounts the code
 into the `cli`, `nginx`, `php` and `chrome` containers. It defines 2
 mounts:
 
@@ -142,12 +142,12 @@ mounts:
   often than code.
 
 The anchor also carries 2 commented-out mounts for environments without
-volume mounting support. CircleCI is 1 of them, because its containers run
-on a remote Docker server. Before CI starts the stack, on GitHub Actions
-and CircleCI alike, it edits `docker-compose.yml` to delete every line
-marked `###`. That drops the host mounts. CI also uncomments every line
-marked `##`, which swaps in the named volumes `app` and `files`. The
-top-level `volumes` section declares them.
+volume mounting support, such as CircleCI, whose containers run on a
+remote Docker server. Before CI starts the stack, on GitHub Actions and
+CircleCI alike, it edits `docker-compose.yml` to delete every line marked
+`###`. That drops the host mounts. CI also uncomments every line marked
+`##`, which swaps in the named volumes `app` and `files` that the
+top-level `volumes` section declares.
 
 The top-level `volumes` section also declares `solr` for the Solr index
 when Solr is enabled. When you host on Lagoon with Storybook enabled, it
@@ -180,12 +180,11 @@ does the optional `database2`. On Linux, files a container writes into a
 host mount keep that numeric ID. With matching IDs, the files the site
 writes belong to you, such as uploads in `web/sites/default/files`.
 
-On Linux, if your user ID isn't `1000`, change the value in
-`docker-compose.yml`. `id -u` prints your user ID. Then run `ahoy up` to
-recreate the containers that use it. The file is committed, so the change
-applies to everyone on the project. To change it only on your machine, set
-`user` on the services that use the anchor in `docker-compose.override.yml`
-instead.
+On Linux, if your user ID isn't `1000` (`id -u` prints it), change the
+value in `docker-compose.yml`, then run `ahoy up` to recreate the
+containers that use it. The file is committed, so the change applies to
+everyone on the project. To change it only on your machine, set `user` on
+the services that use the anchor in `docker-compose.override.yml` instead.
 
 The `cli` service runs as `root` instead of using the anchor. On Linux,
 files it creates in the project can end up owned by `root` on your
@@ -194,15 +193,15 @@ machine, such as a freshly installed `vendor` directory. For the fix, see
 
 ### Container environment variables
 
-Docker Compose reads the `.env` file in the project root. It uses the
+Docker Compose reads the `.env` file in the project root and uses the
 values to fill in the `${VAR}` references in `docker-compose.yml`. A
 variable already set in your shell takes precedence over the same variable
-in `.env`. Compose doesn't pass `.env` to the containers wholesale. It sets
+in `.env`. Compose doesn't pass `.env` to the containers wholesale: it sets
 only the variables a service lists under `environment`.
 
-In this file, the services list them through the `x-environment` anchor.
-Every service except `redis` and `wait-for-dependencies` merges it in.
-Compose sets the values when it creates a container. A change reaches a
+In this file, the services list them through the `x-environment` anchor,
+which every service except `redis` and `wait-for-dependencies` merges in.
+Compose sets the values when it creates a container, so a change reaches a
 running container only after `ahoy up` or `docker compose up -d` recreates
 it.
 
@@ -227,8 +226,8 @@ environment:
   command, so `ahoy up` fills the `${VAR}` references with your local
   overrides. A bare `docker compose up -d` doesn't get them.
 - Every `vendor/bin/vortex-*` script loads `.env` and then `.env.local` from
-  its working directory when it starts. That holds on the host and inside
-  the containers.
+  its working directory when it starts, on the host and inside the
+  containers.
 
 For a variable that `docker-compose.yml` doesn't list, web requests get the
 value from `.env`, never from `.env.local`. To use a value from
@@ -238,14 +237,14 @@ value from `.env`, never from `.env.local`. To use a value from
 Inside the `cli` container, commands get variables from 2 more sources:
 
 - `ahoy cli` and every Ahoy command built on it forward your shell's `TERM`
-  and `LOCALDEV_URL`. They also forward any variable that starts with
-  `COMPOSE_`, `GITHUB_`, `PACKAGE_`, `DOCKER_`, `DRUPAL_`, `VORTEX_` or
-  `ENVIRONMENT_`. The values reach the command on its next run, with no
-  container recreated.
+  and `LOCALDEV_URL`, plus any variable that starts with `COMPOSE_`,
+  `GITHUB_`, `PACKAGE_`, `DOCKER_`, `DRUPAL_`, `VORTEX_` or `ENVIRONMENT_`.
+  The values reach the command on its next run, with no container
+  recreated.
 - The `~/.bashrc` in the Lagoon images reads `.env` at the start of every
-  bash session. Commands run through `bash` get the `.env` variables that
-  `docker-compose.yml` doesn't list. `~/.bashrc` keeps any variable the
-  container already has. A process Docker starts directly, such as
+  bash session, so commands run through `bash` get the `.env` variables
+  that `docker-compose.yml` doesn't list. `~/.bashrc` keeps any variable
+  the container already has. A process Docker starts directly, such as
   `docker compose exec cli php`, skips `~/.bashrc`.
 
 The `x-environment` anchor itself holds only 2 kinds of variables:
@@ -271,13 +270,13 @@ Any other variable belongs in `.env`. The anchor defines these variables:
   `DATABASE2_USERNAME`, `DATABASE2_PASSWORD` and `DATABASE2_PORT`
 
 The `nginx` service adds 1 pass-through variable of its own,
-`VORTEX_WEBSERVER_MAINTENANCE_MODE`. It turns on the [static maintenance
+`VORTEX_WEBSERVER_MAINTENANCE_MODE`, which turns on the [static maintenance
 page](../../hosting/lagoon.mdx#serve-a-maintenance-page).
 
-In CI, the `##` marker also switches on `SSMTP_MAILHUB`. It points outgoing
-mail at a closed port, so no message leaves a test run. If you host on
-Lagoon, its environments don't read the `x-environment` values from
-`docker-compose.yml`.
+In CI, the `##` marker also switches on `SSMTP_MAILHUB`, which points
+outgoing mail at a closed port, so no message leaves a test run. If you
+host on Lagoon, its environments don't read the `x-environment` values
+from `docker-compose.yml`.
 
 The following 3 lines from the anchor show how a value gets its default:
 
@@ -291,7 +290,7 @@ LAGOON_ROUTE: *default-url
 
 Each of these lines does the following:
 
-- `TZ: ${TZ:-UTC}` - takes `TZ` from your environment or `.env`. It falls
+- `TZ: ${TZ:-UTC}` - takes `TZ` from your environment or `.env` and falls
   back to `UTC` when `TZ` is unset or empty.
 - `LOCALDEV_URL: &default-url
   ${COMPOSE_PROJECT_NAME:-example-site}.docker.amazee.io` - sets
@@ -315,7 +314,7 @@ that **Vortex** ships defines the following services. The optional ones are
 there only when you enable the matching feature in the installer:
 
 - `cli` - runs a shell for commands in the context of the project, such as
-  `composer` or `drush`. It never handles web requests. The `nginx` and
+  `composer` or `drush`, and never handles web requests. The `nginx` and
   `php` builds copy the application code from the `cli` image, so all 3
   contain the same code. On Lagoon, cron jobs run in this container too.
 
@@ -343,8 +342,8 @@ there only when you enable the matching feature in the installer:
   migration feature is enabled.
 - `redis` - an optional container that runs a Redis-compatible
   ([Valkey](https://valkey.io/)) server, which stores the application cache.
-- `solr` - an optional container that runs an Apache Solr 9 search server.
-  It stores the application's search index and provides full-text search.
+- `solr` - an optional container that runs an Apache Solr 9 search server,
+  which stores the application's search index and provides full-text search.
 
   The image is built from `.docker/solr.dockerfile` on top of the Lagoon
   `uselagoon/solr-9-drupal` image. The configuration set lives in
@@ -356,16 +355,16 @@ there only when you enable the matching feature in the installer:
   which Drupal uses to scan uploaded files for viruses.
 - `chrome` - runs Chromium, the open source browser that Chrome is built
   from, for the Behat tests. It's based on the official Selenium image,
-  which comes with the extra tools a browser needs in a container. Those
-  tools include a virtual desktop. `ahoy info` prints a VNC URL where you
-  can watch that desktop while the tests run.
+  which comes with the extra tools a browser needs in a container, such as a
+  virtual desktop. `ahoy info` prints a VNC URL where you can watch that
+  desktop while the tests run.
 - `wait-for-dependencies` - runs a script that waits for the applications
   in other containers to accept connections. Docker Compose starts
   containers in dependency order, but a started container isn't always
-  ready. This container polls the `database` port. When they're present,
-  it also polls the `clamav`, `database2`, `redis` and `solr` ports and
-  runs a Solr query against the `drupal` core. The `cli` service waits for
-  it to exit with exit code `0`, so the stack is ready after it exits.
+  ready. This container polls the `database` port and, when they're
+  present, the `clamav`, `database2`, `redis` and `solr` ports, and runs a
+  Solr query against the `drupal` core. The `cli` service waits for it to
+  exit with exit code `0`, so the stack is ready after it exits.
 
 ### Networks
 
@@ -394,23 +393,22 @@ a service in its file:
 PHP reads `conf.d` in alphabetical order, so `custom.ini` loads after
 Lagoon's `00-lagoon-php.ini` and overrides its defaults. Those defaults
 include the values of `PHP_*` environment variables, such as
-`PHP_MEMORY_LIMIT`. The `php` file turns off session upload progress. See
+`PHP_MEMORY_LIMIT`. The `php` file turns off session upload progress: see
 [PHP settings](../security/README.mdx#php-settings).
 
 In the `cli` container, PHP loads
-[`drush/php-ini/drush.ini`](drush.mdx#php-runtime-configuration) last. A
+[`drush/php-ini/drush.ini`](drush.mdx#php-runtime-configuration) last, so a
 directive set in both files takes its `drush.ini` value.
 
-The images include `custom.ini` at build time. After you change it, rebuild
-the images and recreate the containers with `ahoy up --build`.
+The images include `custom.ini` at build time, so after you change it,
+rebuild the images and recreate the containers with `ahoy up --build`.
 
 ## Build context and `.dockerignore`
 
-When Docker builds an image, it sends a build context to the build engine.
-The build context is the set of files the build can copy into the image.
-**Vortex** controls it with a `.dockerignore` file written as a deny list.
-Every file is part of the context by default, and the file lists only what
-must stay out.
+When Docker builds an image, it sends a build context, the set of files the
+build can copy into the image, to the build engine. **Vortex** controls it
+with a `.dockerignore` file written as a deny list. Every file is part of
+the context by default, and the file lists only what must stay out.
 
 The file excludes the following from the image build context:
 
@@ -430,9 +428,9 @@ The file excludes the following from the image build context:
   `**/.logs`, `**/.phpunit.cache`, `**/.twig-cs-fixer.cache`,
   `web/themes/**/build`).
 - When the matching features are enabled, the Storybook output
-  (`web/themes/**/*.stories.json`, `web/themes/**/storybook-static`). The
-  same goes for the database cache key files that the GitHub Actions
-  workflow writes (`db_cache_*`).
+  (`web/themes/**/*.stories.json`, `web/themes/**/storybook-static`) and the
+  database cache key files that the GitHub Actions workflow writes
+  (`db_cache_*`).
 
 Keeping these files out of the context does 3 jobs:
 
@@ -442,8 +440,8 @@ Keeping these files out of the context does 3 jobs:
   own `composer install`. A `vendor` directory from the host would overwrite
   the `vendor` directory that the build installed.
 
-Everything not listed is included, such as application code,
-configuration, `composer.json` and settings files. A new file you add
+Everything not listed, such as application code, configuration,
+`composer.json` and settings files, is included, so a new file you add
 reaches the build with no change to `.dockerignore`. That includes `.env`,
 which the CLI image copies in so that Composer scripts can read the
 project's variables.
@@ -452,7 +450,7 @@ project's variables.
 
 After you edit `docker-compose.yml`, validate it before you run a build.
 The following command parses the file and resolves its variables and
-anchors. It prints the result, or the error that stopped it:
+anchors, then prints the result, or the error that stopped it:
 
 ```shell
 docker compose -f docker-compose.yml config

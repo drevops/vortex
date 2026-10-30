@@ -7,18 +7,19 @@ sidebar_position: 2
 
 This page is for the developer or lead who releases a project built from
 **Vortex**. It explains the git-flow branching model and walks you through
-a release from start to production. Afterward, you can run a release and
-check that it worked.
+a release from start to production, so you can run a release and check that
+it worked.
 
 git-flow is a versioning workflow, first described in [A successful Git
-branching model](https://nvie.com/posts/a-successful-git-branching-model/).
-Its branching model keeps development code and production code apart:
+branching model](https://nvie.com/posts/a-successful-git-branching-model/),
+with a branching model that keeps development code and production code
+apart:
 
 - Work lands on `develop`.
 - `main` holds only production-ready code.
 - A short-lived branch carries each feature, release and hotfix.
 
-**Vortex** builds its defaults around these branch names. The CI triggers,
+**Vortex** builds its defaults around these branch names: the CI triggers,
 the deployment branch patterns and the release notes workflow all expect
 them.
 
@@ -58,7 +59,8 @@ git-flow uses the following branches:
   <summary><code>production</code> branch</summary>
 
   When your hosting can deploy a specific Git tag, you tag releases on
-  `main` and deploy those tags. No separate `production` branch is needed.
+  `main` and deploy those tags, so no separate `production` branch is
+  needed.
 
   Some providers, Lagoon among them, deploy only from a Git branch, and the
   **Vortex** Lagoon deployment skips tags. On those providers, create a

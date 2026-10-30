@@ -1,9 +1,9 @@
 # FAQs
 
 This page answers the questions teams ask while they decide whether to
-adopt **Vortex**. The answers include the trade-offs. For day-to-day
-questions inside a project, such as clearing caches, using Xdebug or adding
-modules and patches, see the [Development FAQs](development/faqs.mdx).
+adopt **Vortex**, including the trade-offs. For day-to-day questions inside
+a project, such as clearing caches, using Xdebug or adding modules and
+patches, see the [Development FAQs](development/faqs.mdx).
 
 ## Why use Vortex instead of the Drupal Composer template?
 
@@ -23,10 +23,10 @@ but fail at release time and block your deployment. Then you maintain the
 whole setup across every project you run.
 
 **Vortex** ships those pieces already wired together and tested. You can
-override anything in your project and keep receiving updates. Each update
-replaces the files the template ships, and you re-apply your overrides
-from `.logs/vortex-update.md`. Your team gets the same documentation and
-tooling on every project.
+override anything in your project and keep receiving updates, though each
+update replaces the files the template ships and you re-apply your
+overrides from `.logs/vortex-update.md`. Your team gets the same
+documentation and tooling on every project.
 
 ## Can I use Vortex with an existing project?
 
@@ -37,10 +37,11 @@ for the steps.
 
 ## Can I keep my existing CI provider?
 
-Yes. Update your CI configuration to call the **Vortex** scripts.
+Yes, if you update your CI configuration to call the **Vortex** scripts.
 **Vortex** ships ready-made configurations for GitHub Actions and CircleCI
-only: `.github/workflows/build-test-deploy.yml` and `.circleci/config.yml`.
-Use them as the reference for which scripts to run and in what order.
+only, in `.github/workflows/build-test-deploy.yml` and
+`.circleci/config.yml`, so use them as the reference for which scripts to
+run and in what order.
 
 In those configurations, each job installs the scripts with
 `./scripts/vortex-tooling.sh`, then calls them from `vendor/bin/` in this
@@ -57,8 +58,8 @@ each job does.
 
 ## Can I keep my existing hosting?
 
-Yes. Adapt the deployment to your hosting provider. Outside Acquia and
-Lagoon, the `artifact` deployment type pushes the built code to a Git
+Yes, if you adapt the deployment to your hosting provider. Outside Acquia
+and Lagoon, the `artifact` deployment type pushes the built code to a Git
 repository your host deploys from. The `webhook` type calls a URL that
 starts your host's deployment. See
 [Artifact deployment](deployment/artifact.mdx) and
@@ -68,7 +69,7 @@ starts your host's deployment. See
 
 Yes. **Vortex** is a template, so every file it gives you is yours to
 change. You can disable or remove any feature. You maintain those changes
-yourself. Each update replaces the files the template ships, and you
+yourself: each update replaces the files the template ships, and you
 re-apply your changes from `.logs/vortex-update.md`.
 
 If you disagree with a decision in **Vortex**, [open an
@@ -86,20 +87,20 @@ right fit, and that's fine.
 ## Isn't this too opinionated?
 
 **Vortex** is opinionated where it has to be for everything to work
-together. You can customize many things. Some defaults exist to keep the
-tools compatible with each other.
+together. You can customize many things, but some defaults exist to keep
+the tools compatible with each other.
 
 If something feels unreasonably opinionated, we treat that as a defect to
 fix. Tell us in the [issue queue](https://github.com/drevops/vortex/issues).
 
 ## How hard is it to upgrade?
 
-The update itself is 1 command, `ahoy update-vortex`. It pulls in the
+The update itself is 1 command, `ahoy update-vortex`, which pulls in the
 latest **Vortex** release for your major version and replaces the files the
 template ships. When your `README.md` still carries the **Vortex** badge,
 the update records the project changes it overwrote in
 `.logs/vortex-update.md`. Each such update adds a section to that file,
-with 1 entry per file. An entry usually holds 2 diffs: your change and the
+with 1 entry per file that usually holds 2 diffs: your change and the
 change the update brings. Re-applying those changes and reviewing the diff
 is the manual part, much like merging changes between projects.
 

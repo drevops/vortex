@@ -17,8 +17,8 @@ ruleset](https://github.com/drevops/vortex/blob/main/.stylelintrc.js) for
 Drupal projects.
 
 This page is for developers who write CSS in custom modules or SCSS in the
-custom theme. It shows how to run Stylelint, fix what it reports and ignore
-a rule. It also lists what the root and theme configurations enforce.
+custom theme. It shows how to run Stylelint and fix what it reports, what
+the root and theme configurations enforce and how to ignore a rule.
 
 In **Vortex**, the root `lint-css` script lints only the CSS in
 `web/modules/custom`. The custom theme has its own configuration, described
@@ -74,8 +74,8 @@ fixes, run 1 of the following commands:
 </Tabs>
 
 `ahoy lint-fe` and `ahoy lint-fe-fix` also run the custom theme's `lint` and
-`lint-fix` scripts. Those scripts cover the theme's JavaScript and SCSS
-together. To lint or fix only the theme's stylesheets, run the theme's
+`lint-fix` scripts, which cover the theme's JavaScript and SCSS together.
+To lint or fix only the theme's stylesheets, run the theme's
 `lint-css` or `lint-css-fix` script, named unlike the root `lint-fix-css`:
 
 ```shell
@@ -167,9 +167,9 @@ list declarations in any order.
 
 The theme's `lint-css` script targets `scss/**/*.scss`. The `ignoreFiles`
 key skips `scss/_components.scss`, `fonts/**/*.scss` and `build/.*`.
-Stylelint reads these entries as globs relative to the configuration file.
-`build/.*` therefore matches only names that start with a dot directly
-inside `build`. The `scss/**/*.scss` target never reaches `build` anyway.
+Stylelint reads these entries as globs relative to the configuration file,
+so `build/.*` matches only names that start with a dot directly inside
+`build`. The `scss/**/*.scss` target never reaches `build` anyway.
 
 ## Ignore violations
 

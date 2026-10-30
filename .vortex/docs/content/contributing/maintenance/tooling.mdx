@@ -5,21 +5,20 @@ sidebar_position: 4
 
 # Tooling
 
-`.vortex/tooling/` holds the shell scripts that consumer projects run. They
-cover provisioning, database work, deployment, notifications and helpers
-such as `doctor` and `info`. This page is for contributors who change the
-scripts. It covers the package layout, the script conventions, the test
-levels and how the package gets published. To use the scripts in a
-project, see [Architecture > Automation
+`.vortex/tooling/` holds the shell scripts that consumer projects run for
+provisioning, database work, deployment, notifications and helpers such as
+`doctor` and `info`. This page is for contributors who change the scripts:
+it covers the package layout, the script conventions, the test levels and
+how the package gets published. To use the scripts in a project, see
+[Architecture > Automation
 scripts](../../architecture.mdx#automation-scripts).
 
 The scripts are published as the standalone
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
 Composer package. Consumer projects install the package and run the
-user-facing scripts from `vendor/bin/vortex-*`. The user-facing scripts are
-the ones listed under `bin` in the package `composer.json`. The other
-scripts, such as the per-channel `vortex-notify-*` scripts, run through
-those entry points.
+user-facing scripts, the ones listed under `bin` in the package
+`composer.json`, from `vendor/bin/vortex-*`. The other scripts, such as
+the per-channel `vortex-notify-*` scripts, run through those entry points.
 
 ## Package layout
 
@@ -45,8 +44,8 @@ and `tests/` as `export-ignore`. The published archive holds the rest:
 - `README.md` and `LICENSE`
 
 While you develop **Vortex** itself, Composer installs the package from the
-in-tree copy. The template's root `composer.json` declares it as a `path`
-repository with a pinned version. The installer strips that entry, so
+in-tree copy, which the template's root `composer.json` declares as a
+`path` repository with a pinned version. The installer strips that entry, so
 Composer on consumer sites installs the published package from Packagist.
 The same version is also pinned in `scripts/vortex-tooling.sh` and
 `.vortex/tests/phpunit/Traits/SutTrait.php`.
@@ -67,7 +66,7 @@ The output helpers have a strict contract:
 
 - `info` marks the start and the end of an operation.
 - `task` announces work that's starting. Every `task` must be closed by a
-  `pass` or a `fail`, even when the work itself can't fail. The output then
+  `pass` or a `fail`, even when the work itself can't fail, so the output
   always shows whether a step succeeded.
 - `pass` reports success. It closes the open task, or it stands on its own
   for a check that holds or a step that's skipped or finished. In the
@@ -84,15 +83,15 @@ drush search-api:server-disable solr || true
 pass "Disabled Search API Solr server."
 ```
 
-The example comes from `scripts/provision-20-migration.sh`. Its `|| true`
-is deliberate: the disable is best-effort, so a failed disable doesn't stop
+The `|| true` in the example from `scripts/provision-20-migration.sh` is
+deliberate: the disable is best-effort, so a failed disable doesn't stop
 the script. The contract still requires the closing `pass`, so the step
 reports an outcome.
 
 In a shipped script, a `pass` that closes a task prints `[ OK ]`, the
 message and the task's duration in seconds, such as
 `[ OK ] Disabled Search API Solr server. (2s)`. The provision subscripts in
-`scripts/` define simpler helpers. In the example's own script, `pass`
+`scripts/` define simpler helpers, so in the example's own script, `pass`
 prints the message after a `+` marker, with no duration.
 
 See [Template > Write scripts](template.mdx#write-scripts) for the
@@ -108,7 +107,7 @@ To add a user-facing script:
    `.vortex/tooling/composer.json`.
 
 Composer creates a `vendor/bin` entry only for the scripts in that list.
-Leave helper scripts off it. `vortex-notify`, for example, runs each
+Leave helper scripts off it: `vortex-notify`, for example, runs each
 `vortex-notify-*` channel script by path from `src/`.
 
 ## Test the tooling
@@ -132,7 +131,7 @@ Tests cover the scripts at 3 levels:
   ahoy test-bats tooling/tests/unit/deploy.bats
   ```
 
-  `ahoy test-bats` needs a path. Without a path, BATS stops with
+  `ahoy test-bats` needs a path: without a path, BATS stops with
   `Must specify at least one <test>`. Each test runs the scripts from a
   copy of the repository at its last commit, so commit your changes before
   you run it. The exception is `update-vortex.bats`, which runs
@@ -147,9 +146,8 @@ Tests cover the scripts at 3 levels:
   runs the whole suite in its `vortex-test-common` job. The job uses
   `.vortex/tests/test.common.sh`, the script behind `ahoy test-common`,
   which runs BATS on `.vortex/tooling/tests/unit`. The job also sets
-  `VORTEX_DEV_TEST_COVERAGE_DIR`. With that variable set, the script runs
-  BATS through `kcov` and writes the scripts' code coverage to that
-  directory.
+  `VORTEX_DEV_TEST_COVERAGE_DIR`, so the script runs BATS through `kcov`
+  and writes the scripts' code coverage to that directory.
 
 - **Integration** - the template's PHPUnit functional tests in
   `.vortex/tests/` run the scripts end-to-end. See
@@ -166,9 +164,9 @@ repository. It runs on every push to `main`, `2.x` and any branch whose
 name contains `vortex-tooling`. The mirror branch takes the source branch
 name.
 
-Each push publishes 1 commit to the mirror. The commit is empty when
-nothing in `.vortex/tooling/` changed. Its subject matches the subject of
-the pushed commit. Its body records provenance in 2 lines,
+Each push publishes 1 commit to the mirror, which is empty when nothing in
+`.vortex/tooling/` changed. Its subject matches the subject of the pushed
+commit. Its body records provenance in 2 lines,
 `Source: drevops/vortex@<sha>` and `Branch: <branch>`.
 
 A branch that's new to the mirror starts there as an orphan with no shared

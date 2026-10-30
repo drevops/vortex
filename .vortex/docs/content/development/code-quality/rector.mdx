@@ -22,8 +22,8 @@ Drupal projects, based on the configuration provided by [Drupal
 Rector](https://github.com/palantirnet/drupal-rector).
 
 This page is for developers who keep custom code current with Drupal and
-PHP. It shows how to run Rector, clear its cache and skip a rule or a file.
-It also lists the rule sets **Vortex** enables.
+PHP. It shows how to run Rector and clear its cache, which rule sets
+**Vortex** enables and how to skip a rule or a file.
 
 **Vortex** runs Rector as a regular code quality check:
 
@@ -31,8 +31,8 @@ It also lists the rule sets **Vortex** enables.
 - `ahoy lint-be-fix` applies the changes.
 - The `lint` job in CI fails while any change is pending.
 
-Before a Drupal major upgrade, run `ahoy lint-be-fix` to clear the remaining
-deprecations. Run it too when you modernize legacy code in bulk.
+Run `ahoy lint-be-fix` before a Drupal major upgrade to clear the remaining
+deprecations, and when you modernize legacy code in bulk.
 
 ## Usage
 
@@ -60,7 +60,7 @@ for code that Rector would change, run 1 of the following commands:
 
 Confirm that Rector found nothing to change: the output ends with
 `[OK] Rector is done!`. When Rector would change files, it prints a diff
-for each file and exits with code `2`. That exit code fails the check.
+for each file and exits with code `2`, which fails the check.
 
 ### Fix violations
 
@@ -83,8 +83,8 @@ To apply the changes, run 1 of the following commands:
 ### Cache management
 
 Rector caches parsed files and analysis results in the system temp
-directory, `/tmp/rector_cached_files` inside the CLI container. Later runs
-reuse the results for files that haven't changed.
+directory, `/tmp/rector_cached_files` inside the CLI container, so later
+runs reuse the results for files that haven't changed.
 
 Clear the cache in any of the following cases:
 
@@ -152,24 +152,24 @@ that each turn on a group of related rules. **Vortex** enables the
 following sets:
 
 - The PHP sets up to the lowest PHP version that the `require.php`
-  constraint in `composer.json` allows. `withPhpSets()`, called without an
-  argument, reads that constraint. The shipped constraint, `>=8.4`,
-  resolves to PHP 8.4. The sets follow `composer.json`, so a PHP version
-  change needs no edit to `rector.php`.
+  constraint in `composer.json` allows, through `withPhpSets()`, which reads
+  that constraint when called without an argument. The shipped constraint,
+  `>=8.4`, resolves to PHP 8.4. The sets follow `composer.json`, so a PHP
+  version change needs no edit to `rector.php`.
 - The Drupal sets from [Drupal
   Rector](https://github.com/palantirnet/drupal-rector), turned on by
-  `withSetProviders()` and `withComposerBased()`. They resolve from the
+  `withSetProviders()` and `withComposerBased()` and resolved from the
   installed `drupal/core` version, so the rules track core upgrades.
 - The `codeQuality`, `codingStyle`, `deadCode`, `naming`, `privatization`
   and `typeDeclarations` prepared sets.
 - The Behat attribute sets, which convert Behat annotations to PHP 8
   attributes. They ship only when Behat is selected during installation.
 
-On top of the sets, `rector.php` adds the `DeclareStrictTypesRector` rule.
-When PHPUnit is selected, it also adds `YieldDataProviderRector`, which
-turns array-returning data providers into generators. `withImportNames()`
-is called with `importNames: FALSE`, so Rector adds no `use` statements to
-the files it changes.
+On top of the sets, `rector.php` adds the `DeclareStrictTypesRector` rule
+and, when PHPUnit is selected, `YieldDataProviderRector`, which turns
+array-returning data providers into generators. `withImportNames()` is
+called with `importNames: FALSE`, so Rector adds no `use` statements to the
+files it changes.
 
 To adjust the sets, edit the `withPhpSets()`, `withAttributesSets()` and
 `withPreparedSets()` calls in `rector.php`. The [Set
@@ -217,7 +217,7 @@ everywhere, based on the project's coding standards:
 - `SimplifyEmptyCheckOnEmptyArrayRector`
 
 The list skips `RemoveUnusedPublicMethodParameterRector` for the `src/Hook`
-classes of custom modules and themes. It skips
+classes of custom modules and themes, and
 `StringClassNameToClassConstantRector` for the settings includes. The list
 also skips the `vendor` and `node_modules` directories.
 

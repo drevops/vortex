@@ -59,7 +59,7 @@ already on, `ahoy debug` changes nothing and prints
 `Debug configuration is already enabled. Use 'ahoy up' to disable.`
 
 The Lagoon images turn Xdebug on only when `XDEBUG_ENABLE` is `true`, in
-any letter case. A value such as `1` leaves Xdebug off.
+any letter case, so a value such as `1` leaves Xdebug off.
 
 Xdebug connects back to port `9003`, its default, on `host.docker.internal`.
 Where that name doesn't resolve, such as on Linux, Xdebug connects to the
@@ -83,21 +83,21 @@ To turn Xdebug off, recreate the containers without the variable:
 
 `XDEBUG_ENABLE` can also come from `.env` or `.env.local`, which Ahoy loads
 before every command. With `XDEBUG_ENABLE=true` in either file, every
-`ahoy up` starts the containers with Xdebug on. To turn Xdebug off, remove
-the line and run `ahoy up`.
+`ahoy up` starts the containers with Xdebug on, so to turn Xdebug off,
+remove the line and run `ahoy up`.
 
 `ahoy info` shows whether Xdebug is on.
 
 ### CLI
 
-While Xdebug is on, a PHP script you run in a shell in the `cli` container
-starts a debugging session with no browser extension. That includes
-scripts you run through `ahoy cli`. The Lagoon images set
-`XDEBUG_TRIGGER` in every shell session in that container.
+While Xdebug is on, a PHP script you run in a shell in the `cli` container,
+including through `ahoy cli`, starts a debugging session with no browser
+extension. The Lagoon images set `XDEBUG_TRIGGER` in every shell session in
+that container.
 
 The Lagoon images also set `PHP_IDE_CONFIG`, which names the server after
-the local development URL. PhpStorm then reuses the path mapping you set
-for web requests.
+the local development URL, so PhpStorm reuses the path mapping you set for
+web requests.
 
 Drush is the exception you're most likely to hit. Its shell wrapper,
 `vendor/bin/drush`, sets `XDEBUG_MODE=off` before it starts PHP, for
@@ -105,7 +105,7 @@ performance. To keep Xdebug on, pass `--xdebug`, as in
 `ahoy drush --xdebug <command>`.
 
 If a breakpoint never fires in another command-line tool, check that tool's
-documentation. Some tools switch Xdebug off in their own way.
+documentation: some tools switch Xdebug off in their own way.
 
 ### IDE configuration
 
@@ -152,8 +152,8 @@ working site, follow these steps:
    ![PhpStorm server settings with the path mapping to the project root within
    the container](/img/xdebug-phpstorm.png)
 
-8. Confirm that debugging works: refresh the page again. PhpStorm stops on
-   the breakpoint without prompting for a mapping.
+8. Confirm that debugging works: refresh the page again, and PhpStorm stops
+   on the breakpoint without prompting for a mapping.
 
 For more detail, see the following pages:
 
@@ -173,8 +173,8 @@ for everyday debugging:
   - **Break at first line in PHP scripts**
   - **Force break at first line when no path mapping specified**
   - **Force break at first line when a script is outside the project**
-- Increase **Max. simultaneous connections** to `5` or more. With a lower
-  value, a debug session can get stuck without showing up in the IDE.
+- Increase **Max. simultaneous connections** to `5` or more, because with a
+  lower value, a debug session can get stuck without showing up in the IDE.
 
 ## Request authenticated pages with curl
 
@@ -255,14 +255,15 @@ The following table explains the curl flags that these commands use:
 
 The following points apply to the saved cookies and the login links:
 
-- Store cookies in the `.data/` directory. The shipped `.gitignore`
-  excludes it, so a session cookie stays out of your commits.
-- Cookies expire after the session timeout. Sign in again to get new ones.
+- Store cookies in the `.data/` directory: the shipped `.gitignore` excludes
+  it, so a session cookie stays out of your commits.
+- Cookies expire after the session timeout, so sign in again to get new
+  ones.
 - Login URLs have the format
   `http://SITE/user/reset/UID/TIMESTAMP/HASH/login`.
-- A login URL works once. `ahoy login` also unblocks user 1 before it
-  generates the link, unless `VORTEX_LOGIN_UNBLOCK_ADMIN` is `0`. A plain
-  `drush uli` doesn't unblock user 1.
+- A login URL works once. Unless `VORTEX_LOGIN_UNBLOCK_ADMIN` is `0`,
+  `ahoy login` also unblocks user 1 before it generates the link, which a
+  plain `drush uli` doesn't.
 
 ## Container debugging
 
@@ -284,5 +285,5 @@ docker compose exec cli bash
 docker compose exec database mysql -u drupal -p drupal
 ```
 
-The database name, user and password are all `drupal` in the local stack.
-Enter `drupal` when `mysql` prompts for the password.
+The database name, user and password are all `drupal` in the local stack,
+so enter `drupal` when `mysql` prompts for the password.

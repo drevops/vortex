@@ -7,9 +7,9 @@ sidebar_position: 2
 
 This reference is for developers and leads on a project built from
 **Vortex**. It lists all 26 contributed modules the template can ship, in
-alphabetical order. Each entry says what the module does, how it's
-installed and how it's configured. Use it to check what a module does in
-each environment and which variables change that.
+alphabetical order: what each module does, how it's installed and how it's
+configured. Use it to check what a module does in each environment and
+which variables change that.
 
 ➡️ See [Overview](README.mdx) for the mechanisms that require, configure
 and install these modules.
@@ -66,10 +66,10 @@ can carry its own configuration, such as development-only modules.
 ### Configuration
 
 [`settings.config_split.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.config_split.php)
-enables the split matching the detected environment: `local`, `ci`, `dev`
-or `stage`. Each environment then imports only its own set. The template
+enables the split matching the detected environment (`local`, `ci`, `dev`
+or `stage`), so each environment imports only its own set. The template
 ships empty `config/local`, `config/ci`, `config/dev` and `config/stage`
-directories, but no splits. Create a split with the matching machine name
+directories but no splits, so create a split with the matching machine name
 to give the override something to enable.
 
 ## Config Update
@@ -78,8 +78,8 @@ to give the override something to enable.
 provides the revert and update functions that other modules build on.
 Provisioning installs only this base `config_update` module. Its
 `config_update_ui` submodule adds reports and Drush commands that report,
-revert and import configuration changes. The changes are relative to the
-defaults that modules ship. Install that submodule when you need them.
+revert and import configuration changes relative to the defaults that
+modules ship. Install that submodule when you need them.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
@@ -232,7 +232,7 @@ migration.
 
 [Navigation Extra
 Tools](https://www.drupal.org/project/navigation_extra_tools) adds a
-**Tools** menu to the core Navigation module. Its shortcuts flush caches,
+**Tools** menu to the core Navigation module, whose shortcuts flush caches,
 rebuild the theme registry, run cron and run database updates.
 
 - **Installed:** During demo provisioning by
@@ -279,11 +279,11 @@ service is selected.
 ### Configuration
 
 [`settings.redis.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.redis.php)
-points the connection at the Redis service and makes Redis the default
-cache backend. It also registers the module's container YAML files and
-swaps the bootstrap container over. Nothing applies until the module's code
-is on disk and `DRUPAL_REDIS_ENABLED` is set to `1`. The override looks for
-the `web/modules/contrib/redis` directory, so the module doesn't need to be
+points the connection at the Redis service, makes Redis the default cache
+backend, registers the module's container YAML files and swaps the
+bootstrap container over. Nothing applies until the module's code is on
+disk and `DRUPAL_REDIS_ENABLED` is set to `1`. The override looks for the
+`web/modules/contrib/redis` directory, so the module doesn't need to be
 installed yet. With the variable, a first deployment can add the Redis
 service, and a second deployment can then switch the cache. The shipped
 `.env` file sets the variable to `1`.
@@ -313,7 +313,7 @@ real users.
 ### Configuration
 
 [`settings.reroute_email.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.reroute_email.php)
-excludes the module from the exported configuration. It enables rerouting
+excludes the module from the exported configuration and enables rerouting
 in every environment except `local`, `ci` and `prod`.
 
 Rerouting replaces the recipient of an outgoing message with the configured
@@ -336,8 +336,8 @@ Rerouting is the fall-through default, so it's also enabled in any custom
 environment type, such as a type set through `ENVIRONMENT_TYPE`. Lagoon and
 Acquia usually detect pull request environments as `dev`, so those
 environments get rerouting too. The module itself reaches a custom
-environment type only after you add the type to the provisioning scripts.
-Until then, that environment's mail goes to its real recipients. ➡️ See
+environment type only after you add the type to the provisioning scripts,
+and until then that environment's mail goes to its real recipients. ➡️ See
 [Provision](../provision.mdx#development-modules)
 
 Rerouting is off in `ci`, so tests can assert on the address a message was
@@ -371,11 +371,11 @@ acceptance testing.
 ## RobotsTxt
 
 [RobotsTxt](https://www.drupal.org/project/robotstxt) serves `robots.txt`
-from Drupal and lets you edit it in the administration UI. That helps when
+from Drupal and lets you edit it in the administration UI, which helps when
 the file can't live on disk, for example in multisite setups. The
 `drupal-scaffold` file mapping in `composer.json` keeps core's static
-`robots.txt` out of the webroot. The module therefore answers every request
-for the file.
+`robots.txt` out of the webroot, so the module answers every request for
+the file.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
@@ -536,9 +536,9 @@ component library in the `local`, `ci` and `dev` environments.
 
 [`settings.storybook.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.storybook.php)
 excludes it from the exported configuration. In the `local`, `ci` and `dev`
-environments, it also loads `services.storybook.yml`. That file turns on
-the module's development mode. It also lets the Storybook development
-server on `localhost` fetch story renders.
+environments, it also loads `services.storybook.yml`, which turns on the
+module's development mode and lets the Storybook development server on
+`localhost` fetch story renders.
 
 ➡️ See [Storybook](../themes.mdx#storybook) for the component library and
 its commands.

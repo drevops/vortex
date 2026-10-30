@@ -19,8 +19,8 @@ ruleset](https://github.com/drevops/vortex/blob/main/.dclintrc) for its
 Docker Compose files.
 
 This page is for developers who change `docker-compose.yml`. It shows how
-to run DCLint the way CI does and fix what it reports. It also shows which
-findings fail the build.
+to run DCLint the way CI does, fix what it reports and tell which findings
+fail the build.
 
 ## Installation
 
@@ -73,11 +73,10 @@ The file turns off the following 4 rules:
 
 It also sets `service-keys-order` to `1` and configures it with 8 groups of
 keys. That rule checks that the keys of every service in
-`docker-compose.yml` follow the same order. The order runs from core
-definitions such as `build` and `image` to operational metadata such as
-`labels`. Diffs then stay small and
-services stay comparable. Every other rule keeps the level DCLint gives it
-by default.
+`docker-compose.yml` follow the same order, from core definitions such as
+`build` and `image` to operational metadata such as `labels`. Diffs then
+stay small and services stay comparable. Every other rule keeps the level
+DCLint gives it by default.
 
 A directive in `docker-compose.yml` turns off a fifth rule, for 1 line
 only. With migration enabled, the `database2` service has a

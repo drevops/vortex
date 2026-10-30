@@ -26,8 +26,8 @@ To set up Diffy notifications:
 1. Enable visual regression during installation, or ship `test-vr.yml` by
    hand. See [Visual regression](../../development/visual-regression.mdx).
 2. Add a GitHub token with `repo` scope as `VORTEX_NOTIFY_DIFFY_TOKEN` to
-   the hosting environment. When `VORTEX_NOTIFY_DIFFY_TOKEN` is unset, the
-   channel uses `VORTEX_NOTIFY_GITHUB_TOKEN`, then `GITHUB_TOKEN`.
+   the hosting environment (when it's unset, the channel uses
+   `VORTEX_NOTIFY_GITHUB_TOKEN`, then `GITHUB_TOKEN`).
 3. Add the repository, in `owner/repo` format, as
    `VORTEX_NOTIFY_DIFFY_REPOSITORY` to the hosting environment. When it's
    unset, the channel uses `VORTEX_NOTIFY_GITHUB_REPOSITORY`.

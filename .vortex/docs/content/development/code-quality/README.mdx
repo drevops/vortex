@@ -7,20 +7,20 @@ sidebar_position: 1
 
 import AsciinemaPlayer from '@site/src/components/AsciinemaPlayer';
 
-**Vortex** ships 10 code quality tools for a Drupal project. They check
+**Vortex** ships 10 code quality tools for a Drupal project, which check
 everything from PHP and Twig templates to Docker Compose files and
 Dockerfiles. They catch coding standard violations, type errors, deprecated
-APIs and formatting drift while the change is on your branch. Review can
-then focus on what the code does.
+APIs and formatting drift while the change is on your branch, so review can
+focus on what the code does.
 
 The defaults suit a Drupal project as shipped. Every tool except Hadolint
 and SDC Devel reads its settings from a configuration file in the project
 root.
 
 This page is for developers working on a project built from **Vortex**. It
-shows which tool checks which files and how to run the tools. It also
-covers fixing what they report and how CI uses them. Each tool's own page
-covers its configuration and how to ignore a rule.
+shows which tool checks which files, how to run the tools, how to fix what
+they report and how CI uses them. Each tool's own page covers its
+configuration and how to ignore a rule.
 
 The following table lists each tool, what it checks and the command that
 runs it:

@@ -97,13 +97,13 @@ VORTEX_RELEASE_VERSION_SCHEME=calver  # or semver, or other
 
 When you update **Vortex**, the installer reads this value back, so the
 update keeps your choice. Nothing else in the template reads it from
-`.env`. The release notes workflow takes the scheme from a repository
+`.env`: the release notes workflow takes the scheme from a repository
 variable, as the following section describes.
 
 ### Release notes publishing
 
 **Vortex** ships a GitHub Actions workflow,
-`.github/workflows/draft-release-notes.yml`. It keeps a draft of your next
+`.github/workflows/draft-release-notes.yml`, that keeps a draft of your next
 release's notes up to date with
 [release-drafter](https://github.com/release-drafter/release-drafter). It
 runs on GitHub Actions even when CircleCI runs the rest of your pipeline.
@@ -115,9 +115,9 @@ The draft works as follows:
   push.
 - For CalVer, the workflow proposes the current year and month with `0` as
   the last segment, for example `26.10.0` in October 2026. It always
-  proposes `0`. When the month already has a release, raise the last
+  proposes `0`, so when the month already has a release, raise the last
   segment to the next free number, for example `26.10.1`.
-- For SemVer, release-drafter resolves the next version itself. The
+- For SemVer, release-drafter resolves the next version itself: the
   `version-resolver` category in `.github/release-drafter.yml` makes it
   raise the minor number of the previous release. Any other scheme value,
   `other` included, gets the same SemVer resolution.
@@ -127,8 +127,8 @@ The draft works as follows:
 
 The workflow reads the scheme from the `VORTEX_RELEASE_VERSION_SCHEME`
 repository variable and defaults to `calver` when the variable is unset. It
-loads `.env` too, but the repository variable's value wins over `.env`. The
-`.env` setting doesn't drive this workflow.
+loads `.env` too, but the repository variable's value wins over `.env`, so
+the `.env` setting doesn't drive this workflow.
 
 To number the draft for SemVer or Other, set the
 `VORTEX_RELEASE_VERSION_SCHEME` repository variable to `semver` or `other`

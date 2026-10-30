@@ -32,8 +32,8 @@ Without Ahoy, run `./vendor/bin/vortex-doctor` from the project root. The
 `ahoy` command must still be installed, because Doctor requires it on every
 run.
 
-Doctor runs its checks in order and reports each one on its own line. It
-stops at the first check that fails.
+Doctor runs its checks in order, reports each one on its own line and stops
+at the first check that fails.
 
 <details>
   <summary>Expand to see the <code>ahoy doctor</code> video</summary>
@@ -54,8 +54,8 @@ stops at the first check that fails.
 Doctor runs these checks, in this order:
 
 1. **Tools** - the `docker`, `pygmy` and `ahoy` commands are installed.
-2. **Port** - port 80 on the host is either free or held by Docker. Doctor
-   skips this check on Linux.
+2. **Port** - port 80 on the host is either free or held by Docker (Doctor
+   skips this check on Linux).
 3. **Pygmy** - all 4 Pygmy services are running: the SSH agent, the mail
    catcher, the proxy and the DNS server. For the container names Doctor
    looks for, see [Pygmy](pygmy.mdx).
@@ -68,8 +68,8 @@ Doctor runs these checks, in this order:
    the key still isn't available in the container.
 6. **Webserver** - the web server answers at the local development URL with
    HTTP status 200 or 403. Doctor reads the URL from `LOCALDEV_URL` in the
-   CLI container. When `LOCALDEV_URL` is empty, Doctor skips this check and
-   the bootstrap check.
+   CLI container and skips this check and the bootstrap check when the
+   variable is empty.
 7. **Bootstrap** - the home page HTML contains `charset=`, a sign that the
    Drupal site bootstrapped. The bootstrap check runs only as part of the
    webserver check.
@@ -80,8 +80,8 @@ skipped prints nothing. An SSH warning isn't a failure, so a run with an
 SSH warning still ends with that line.
 
 Before the first check, Doctor makes sure the `docker`, `pygmy` and `ahoy`
-commands exist. If a command is missing, Doctor stops with
-`Command <name> is not available.` Doctor runs this command check even with
+commands exist and stops with `Command <name> is not available.` if a
+command is missing. Doctor runs this command check even with
 the tools check turned off, and for `ahoy doctor info` too. As a result,
 the tools check always passes when it runs.
 
@@ -120,8 +120,8 @@ defaults to `${HOME}/.ssh/id_rsa`.
   preset suits environments without running Pygmy services or a routable
   local URL, such as CI.
 - `VORTEX_DOCTOR_CHECK_PREFLIGHT=1` - turns the tools, port and Pygmy
-  checks on and the rest off. Use it to validate a machine before the stack
-  is up. With this preset, a check variable you set yourself still wins.
+  checks on and the rest off, to validate a machine before the stack is up.
+  With this preset, a check variable you set yourself still wins.
 
 ## Print a system report
 
@@ -149,7 +149,7 @@ Doctor redacts the following, but only in the binary paths and the
 - IPv4 addresses
 
 Everything else stays as printed, such as the host name that `docker info`
-reports. Read the report before you share it.
+reports, so read the report before you share it.
 
 <details>
   <summary>Expand to see the <code>ahoy doctor info</code> video</summary>

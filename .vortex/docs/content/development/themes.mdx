@@ -21,8 +21,8 @@ its **Theme** prompt, which is the default. Picking Olivero, Claro or Stark
 removes the scaffold, and most of this page then doesn't apply.
 
 The installer renames `your_site_theme` to the name you enter at the
-**Custom theme machine name** prompt. That name defaults to the site's
-machine name. Custom modules use a shorter module prefix, such as `ys_` for
+**Custom theme machine name** prompt, which defaults to the site's machine
+name. Custom modules use a shorter module prefix, such as `ys_` for
 `your_site`. The theme extends the core Olivero theme.
 
 Front-end theming often follows project and team preferences. The scaffold
@@ -125,9 +125,8 @@ into both. For a theme you add later, point both variables at it.
 
 Neither variable sets Drupal's default theme. The
 `ys_base_deploy_install_active_theme()` deploy hook in `ys_base.deploy.php`
-does that. It installs Olivero and the theme named in the hook, then makes
-that theme the default. The installer writes your theme's machine name into
-the hook.
+installs Olivero and the theme whose machine name the installer writes into
+the hook, then makes that theme the default.
 
 Provisioning runs deploy hooks with `drush deploy:hook`, which runs each
 hook once per site. To make a new theme the default:
@@ -185,16 +184,16 @@ your_site_theme/
 The theme defines 1 asset library, `global-styling`, in
 `your_site_theme.libraries.yml`. `your_site_theme.info.yml` attaches it to
 every page. The library loads the compiled
-`build/css/your_site_theme.min.css` and `build/js/your_site_theme.min.js`.
-It depends on `core/jquery`, `core/drupal` and `core/drupalSettings`.
+`build/css/your_site_theme.min.css` and `build/js/your_site_theme.min.js`
+and depends on `core/jquery`, `core/drupal` and `core/drupalSettings`.
 
 ## Single Directory Components
 
 The theme ships a sample [Single Directory
 Component](https://www.drupal.org/docs/develop/theming-drupal/using-single-directory-components)
-(SDC) in `components/button`.
-`templates/layout/region--footer-bottom.html.twig` uses it to render a
-"back to top" link whenever the footer region has content.
+(SDC) in `components/button`, which
+`templates/layout/region--footer-bottom.html.twig` uses to render a "back to
+top" link whenever the footer region has content.
 
 The button component takes the following props and slot:
 
@@ -266,24 +265,23 @@ address.
 A third command, `ahoy storybook-stories`, only generates the stories. Add
 `--watch` to keep regenerating them as the Twig story templates change.
 
-The development server runs on its own origin. In the `local`, `ci` and
+The development server runs on its own origin, so in the `local`, `ci` and
 `dev` environments, `services.storybook.yml` shares story renders with
 `localhost` and `127.0.0.1` origins on any port. `services.storybook.yml`
-also replaces the `cors.config` from `services.yml` there. If your site
+also replaces the `cors.config` from `services.yml` there, so if your site
 already shares responses with other origins, list them in
 `services.storybook.yml` too.
 
 The component library at `/storybook` is a static copy built during
-provisioning. The build fixes the list of stories and their arguments.
-Drupal renders each story's markup when you open it. After you add, remove
-or rename a story, or change its arguments, run `ahoy storybook-build` to
-update `/storybook`. The development server picks up those changes on its
-own.
+provisioning. The build fixes the list of stories and their arguments,
+while Drupal renders each story's markup when you open it. After you add,
+remove or rename a story, or change its arguments, run
+`ahoy storybook-build` to update `/storybook`. The development server picks
+up those changes on its own.
 
 In the `local` environment, provisioning turns on Twig development mode. An
 edit to a component template then shows up in the development server and in
-`/storybook` on the next render. It needs no cache rebuild and no library
-build.
+`/storybook` on the next render, with no cache rebuild and no library build.
 
 ### Customize locations
 
@@ -345,7 +343,7 @@ directory at `/storybook`.
 The build runs only in the `local`, `ci` and `dev` environments, where the
 story render route is reachable. It's also skipped when the theme's
 dependencies aren't installed. To skip the build and shorten provisioning,
-set `DRUPAL_STORYBOOK_SKIP=1`. Then run `ahoy storybook-build` when you need
+set `DRUPAL_STORYBOOK_SKIP=1`, then run `ahoy storybook-build` when you need
 the library.
 
 In the `dev` environment, [Shield](modules/contributed-modules.mdx#shield)
@@ -353,7 +351,7 @@ protects the story render route, so a story renders only after the browser
 has the Shield credentials. The web server serves the static application at
 `/storybook` and its story index directly, so Shield doesn't protect them.
 
-On Lagoon, the CLI and web containers run in separate pods. A dedicated
+On Lagoon, the CLI and web containers run in separate pods, so a dedicated
 persistent `storybook` volume shares the `storybook-static` directory
 between them. Acquia deployment artifacts carry no theme dependencies, so
 the application isn't built on Acquia.

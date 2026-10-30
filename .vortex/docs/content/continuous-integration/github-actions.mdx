@@ -41,10 +41,9 @@ variable under **Settings > Secrets and variables > Actions > Variables**.
 
 ### Update trigger branches
 
-The workflow builds pushes to the branches listed in `on.push.branches`. It
-also builds pull requests that target the branches listed in
-`on.pull_request.branches`. Both lists live in
-`.github/workflows/build-test-deploy.yml`.
+The workflow builds pushes to the branches listed in `on.push.branches` and
+pull requests that target the branches listed in `on.pull_request.branches`.
+Both lists live in `.github/workflows/build-test-deploy.yml`.
 
 The workflow builds direct pushes and merges to these branches:
 
@@ -85,7 +84,7 @@ To add or remove branches:
 
 1. In `.github/workflows/build-test-deploy.yml`, edit the
    `on.push.branches` and `on.pull_request.branches` lists.
-2. In `.github/workflows/audit.yml`, make the same change. The
+2. In `.github/workflows/audit.yml`, make the same change: the
    `Security audit` workflow carries the same lists.
 3. Confirm that the next push or pull request on an added branch starts
    both the `Database, Build, Test and Deploy` and `Security audit`
@@ -104,12 +103,12 @@ to make it block merges.
 ### Update nightly database schedule
 
 A scheduled run downloads a fresh database dump every day at 18:00 UTC
-(`0 18 * * *`) and caches it. The next day's builds start from that dump.
-Only the `database` job runs on the schedule, and the `lint`, `build` and
-`deploy` jobs skip it. The scheduled run also turns off the cache fallback
-and the front-end build. For a project that stores its database in a
-container image, it imports the dump into a clean base image. It then
-pushes the result to the registry.
+(`0 18 * * *`) and caches it, so the next day's builds start from that
+dump. Only the `database` job runs on the schedule, and the `lint`, `build`
+and `deploy` jobs skip it. The scheduled run also turns off the cache
+fallback and the front-end build. For a project that stores its database in
+a container image, it imports the dump into a clean base image, then pushes
+the result to the registry.
 
 The schedule ships only when the site provisions from a database dump. To
 change when it runs, update the `on.schedule.cron` value in
@@ -144,7 +143,7 @@ provisioning is disk-heavy. See [Runner disk space](#runner-disk-space).
 
 GitHub-hosted runners start with most of their root volume already in use.
 On 1 measured `ubuntu-latest` image, preinstalled software occupied 59 GB
-of a 72 GB volume. That left the job around 13 GB. Pulled container images,
+of a 72 GB volume, leaving the job around 13 GB. Pulled container images,
 database dumps and every file created during provisioning share what's
 left.
 
@@ -159,8 +158,8 @@ The jobs report the disk state and save space where they can:
 
 #### Reclaim the preinstalled toolchains
 
-The `build` and `database` jobs can remove these preinstalled toolchains
-before doing anything else. No **Vortex** job uses them:
+The `build` and `database` jobs can remove these preinstalled toolchains,
+which no **Vortex** job uses, before doing anything else:
 
 - GHCup, the Haskell toolchain installer
 - Swift
@@ -172,7 +171,7 @@ The `set --` line of the **Free up disk space on the runner** step lists
 their paths on the runner.
 
 In the preceding measurement, the removal freed about 15 GB in around 14
-seconds. The job's headroom grew from roughly 13 GB to 28 GB.
+seconds, so the job's headroom grew from roughly 13 GB to 28 GB.
 
 The removal is destructive to the runner for the rest of the job, so it's
 off by default. Leave it off on a project whose workflow runs a step that
@@ -223,7 +222,7 @@ full dump. A [larger runner](#change-runner-size) also comes with more disk.
 ### Change test parallelism
 
 To get through the tests faster, add instances to the `build` job's matrix
-in `.github/workflows/build-test-deploy.yml`. It ships with 2
+in `.github/workflows/build-test-deploy.yml`, which ships with 2
 (`instance: [0, 1]`):
 
 ```yaml
@@ -282,8 +281,8 @@ environment that already exists.
 
 :::note
 
-A manual deploy can't ship an artifact deployment. The artifact comes from
-the `build` job, which a manual deploy skips.
+A manual deploy can't ship an artifact deployment, because the artifact
+comes from the `build` job, which a manual deploy skips.
 
 :::
 
@@ -338,7 +337,7 @@ below a threshold.
 
 Set the threshold in the `VORTEX_CI_CODE_COVERAGE_THRESHOLD` variable, under
 **Settings > Secrets and variables > Actions > Variables**. It defaults to
-`90` (percent). Use a whole number. The check multiplies the value in shell
+`90` (percent). Use a whole number: the check multiplies the value in shell
 integer arithmetic, so a decimal such as `85.5` breaks the step.
 
 The **Extract code coverage** step also writes the coverage percentage to
@@ -348,15 +347,15 @@ so the PR timeline stays clean. To turn the comment off, set
 `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
 
 If you chose Codecov as the code coverage provider at install time, the job
-also uploads the coverage reports to it. The upload needs the
-`CODECOV_TOKEN` secret, and a failed upload doesn't fail the job.
+also uploads the coverage reports to it when the `CODECOV_TOKEN` secret is
+set. A failed upload doesn't fail the job.
 
 ### Test results
 
 PHPUnit and Behat results appear as a check on the commit and on its pull
 requests, and in the summary of the workflow run. Each failing test gets an
-annotation with its failure details. The annotation shows on the check and
-in the pull request's **Files changed** tab. The results come from the
+annotation with its failure details, on the check and in the pull request's
+**Files changed** tab. The results come from the
 JUnit reports that the test tools write, so the check needs no extra setup.
 
 Each parallel build instance publishes its own check, named after its index,

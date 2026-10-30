@@ -15,12 +15,12 @@ versions of installed packages. It also runs ShellCheck over the shell
 commands in `RUN` instructions. **Vortex** lints the Dockerfiles in
 `.docker`, which build its service images, with the default rules. Where a
 rule doesn't fit, the Dockerfile has a `hadolint ignore=` directive with
-the reason next to it. For example, `DL3018` is ignored where the package
-set tracks the pinned base image.
+the reason next to it, such as `DL3018` where the package set tracks the
+pinned base image.
 
 This page is for developers who change the Dockerfiles in `.docker`. It
-shows how to install and run Hadolint and how to ignore a rule. It also
-covers how CI reports what Hadolint finds.
+shows how to install and run Hadolint, how to ignore a rule and how CI
+reports what Hadolint finds.
 
 ## Installation
 
@@ -82,7 +82,7 @@ RUN apk add --no-cache tzdata
 ## Continuous integration
 
 Hadolint runs in the `lint` job of the [continuous integration
-pipeline](../../continuous-integration/README.mdx). It fails the build on
+pipeline](../../continuous-integration/README.mdx) and fails the build on
 any violation at the `info` severity or higher, which is Hadolint's default
 failure threshold. Findings at the `style` severity appear in the job log
 without failing the build.

@@ -12,8 +12,8 @@ instead.
 
 You can keep updating your project long after the initial setup, to pick up
 each release's features and bug fixes. The update replaces the files the
-template ships. It records every customization it overwrites, so you can
-re-apply each one.
+template ships, but it records every customization it overwrites, so you
+can re-apply each one.
 
 ## Overview
 
@@ -26,7 +26,7 @@ Updating **Vortex** gives existing projects the following:
 
 `ahoy update-vortex` runs the **Vortex** installer against your project
 without prompts. The installer reads the answers it needs from your
-project, such as the names, services and hosting provider. It reapplies
+project, such as the names, services and hosting provider, and reapplies
 them to the release it downloads. After the update, review the changes and
 commit them to your project.
 
@@ -67,7 +67,8 @@ Check the following before you run the update:
 Read the [release notes](https://github.com/drevops/vortex/releases) for
 every version between yours and the target. Look for breaking changes that
 affect your project, and for environment variables that were added or
-changed. Your CI and hosting environments might need the new values.
+changed, because your CI and hosting environments might need the new
+values.
 
 ## Update process
 
@@ -119,26 +120,26 @@ deployment like any other change:
 
    - When the new version leaves the file unchanged, or the version you ran
      didn't ship it, the entry holds 1 diff.
-   - A binary file or a file over 100 KB gets no diff. Its entry holds a
-     note to recover your copy from version control. The update changes
+   - A binary file or a file over 100 KB gets no diff, and its entry holds
+     a note to recover your copy from version control. The update changes
      only the working tree, so restore your copy with
-     `git checkout HEAD -- FILE_PATH`. Replace `FILE_PATH` with the path in
-     the entry's heading.
+     `git checkout HEAD -- FILE_PATH`, replacing `FILE_PATH` with the path
+     in the entry's heading.
 
 5. When you re-apply your own `README.md` changes, keep the new version in
    the **Vortex** badge. The next update reads the badge to work out which
    version your project runs.
 
 6. Reconcile `composer.json`. The update replaces it with the template's
-   version, which most likely differs from yours. Review the package
+   version, which most likely differs from yours, so review the package
    version changes carefully. If `.logs/vortex-update.md` has an entry for
-   `composer.json`, restore your own file from Git. Then apply the new
+   `composer.json`, restore your own file from Git, then apply the new
    version's change from that entry by hand. Keep the raised
-   `drevops/vortex-tooling` constraint. A release that changes the scripts
+   `drevops/vortex-tooling` constraint: a release that changes the scripts
    raises it, and the old constraint keeps the old scripts.
 
-7. Run `ahoy composer update`. The update leaves `composer.lock` alone, and
-   this command regenerates it. The build then installs the versions from
+7. Run `ahoy composer update`. This command regenerates `composer.lock`,
+   which the update leaves alone, so the build installs the versions from
    your reconciled `composer.json`.
 
 8. Stage and commit the changes in small chunks, so each one is easier to
@@ -151,8 +152,9 @@ deployment like any other change:
    ```
 
    When the build asks to remove the containers, build files and database,
-   answer `y`. The build provisions the site again. It ends with the project
-   information, including the site's local URL and a one-time login link.
+   answer `y`. The build provisions the site again and ends with the
+   project information, including the site's local URL and a one-time login
+   link.
 
 10. Push the branch:
 
@@ -182,7 +184,7 @@ Confirm that the update is complete:
 Follow these practices:
 
 - Update **Vortex** monthly, or at least quarterly, to keep your project
-  secure and up to date. Update sooner when a release carries security
+  secure and up to date, and sooner when a release carries security
   patches.
 - Test each update in development before it reaches production.
 - Update environments in stages: development → staging → production.

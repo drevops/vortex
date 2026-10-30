@@ -9,17 +9,17 @@ import TabItem from '@theme/TabItem';
 # Continuous integration
 
 This page is for the lead or DevOps engineer who maintains the continuous
-integration (CI) pipeline of a project built from **Vortex**. It
-also helps developers who need to understand a failing CI run. It explains
-what each job does and how the database cache, the security audit and the
-test split work. Use it to tune the pipeline and read its results.
+integration (CI) pipeline of a project built from **Vortex**. It also helps
+developers who need to understand a failing CI run. It explains what each
+job does and how the database cache, the security audit and the test split
+work, so you can tune the pipeline and read its results.
 
 **Vortex** ships the pipeline for [GitHub Actions](./github-actions.mdx) and
 [CircleCI](./circleci.mdx). Each run lints your code, builds and provisions
 the site and then runs the tests. On the branches you deploy, it deploys
 the result after the `build` and `lint` jobs pass. The pipeline has the
-same structure on both providers. Pick the one your project uses and follow
-its setup instructions.
+same structure on both providers, so pick the one your project uses and
+follow its setup instructions.
 
 Settings that exist on only 1 provider, such as trigger branches, schedules
 and runner sizes, live on that provider's page.
@@ -204,7 +204,7 @@ prints npm's own report.
 The `vortex-convert-audit-sarif` script from the
 [Vortex tooling package](../contributing/maintenance/tooling.mdx) converts
 each report file. The workflow passes the report format, `composer` or
-`npm`, as the script's second argument. That argument takes precedence over
+`npm`, as the script's second argument, which takes precedence over
 [`VORTEX_CONVERT_AUDIT_SARIF_FORMAT`](../development/variables.mdx#vortex_convert_audit_sarif_format).
 For the theme report, the workflow also passes the theme's
 `package-lock.json` as the third argument, so each finding points at the
@@ -219,10 +219,10 @@ the workflow.
 Code scanning must be available on the repository. Public repositories have
 it, and private repositories need a GitHub Code Security license.
 
-Without code scanning, the upload step fails and the workflow carries on.
-The same happens on pull requests from forks, where the workflow token is
-read-only. The checks still report their findings in the job log and still
-fail the workflow. Every report is also attached to the run as the
+Without code scanning, and on pull requests from forks where the workflow
+token is read-only, the upload step fails and the workflow carries on. The
+checks still report their findings in the job log and still fail the
+workflow. Every report is also attached to the run as the
 `security-findings` artifact.
 
 CircleCI has no code scanning destination. On CircleCI, the same checks run
@@ -240,12 +240,12 @@ for what dismissing a finding does and doesn't change.
 A build can produce files that belong in the repository, such as exported
 configuration, compiled front-end assets, generated documentation and
 scaffolded files. Left unnoticed, the repository and the build output drift
-apart. The next developer to run the build then gets changes they didn't
+apart, so the next developer to run the build gets changes they didn't
 make.
 
 The `build` job runs `vendor/bin/vortex-check-worktree-changes` after the
-tests and after their results are stored. A dirty tree then never hides
-the results that would explain it. The step fails when the working tree
+tests and after their results are stored, so a dirty tree never hides the
+results that would explain it. The step fails when the working tree
 holds modified or untracked files, and it prints each one with its Git
 status:
 
@@ -310,17 +310,17 @@ from `VORTEX_CI_DB_CACHE_TIMESTAMP`, a `date` format that defaults to
 `+%Y%m%d`. The key leaves out the branch being built, so runs on every
 branch look up the same cache.
 
-GitHub Actions also scopes caches by branch. A run restores only caches
+GitHub Actions also scopes caches by branch: a run restores only caches
 saved on its own branch or on the default branch. A pull request run can
 also restore caches from its base branch. The scheduled run saves its cache
 on the default branch, so every run can restore it. CircleCI shares caches
 across all branches of a project.
 
 When no cache exists for the current day, a run falls back to the most
-recent earlier cache for the same source branch. That's normally the
-previous day's cache. `VORTEX_CI_DB_CACHE_FALLBACK` controls this and
-defaults to `yes`. The scheduled run sets it to `no`, so it always
-downloads a fresh dump.
+recent earlier cache for the same source branch, normally the previous
+day's cache. `VORTEX_CI_DB_CACHE_FALLBACK` controls this and defaults to
+`yes`. The scheduled run sets it to `no`, so it always downloads a fresh
+dump.
 
 Neither provider overwrites a saved cache key, so the first job to save the
 day's key wins. GitHub Actions saves the cache only when a job changed the
@@ -330,17 +330,17 @@ day's key, so the scheduled run's dump is cached only when no earlier job
 saved it (see [CircleCI > Update nightly database
 schedule](./circleci.mdx#update-nightly-database-schedule)).
 
-The 3 variables live in the CI configuration. On GitHub Actions, they sit
-in the container `env` block of the `database` and `build` jobs. On
-CircleCI, they sit in the shared `runner_config` block.
+The 3 variables live in the CI configuration: in the container `env` block
+of the `database` and `build` jobs on GitHub Actions and in the shared
+`runner_config` block on CircleCI.
 
 :::note
 
 Caching makes the biggest difference on projects with a lot of data.
 
 With a large database (over 1 GB), the import itself can take a long time.
-At that size, package the dump into a container image overnight. A
-sanitized dump that holds only the data the tests need also helps.
+At that size, package the dump into a container image overnight, or use a
+sanitized dump that holds only the data the tests need.
 
 **Vortex** can both create and use a database container image with the data
 built in. To create the first image, use [MariaDB data container for Drupal
@@ -381,9 +381,9 @@ future **Vortex** update ships.
 
 ## Trigger conditions
 
-Both providers build on branch pushes, pull requests and tag pushes. They
-also run a nightly schedule that refreshes the database cache, when the
-site provisions from a database dump. They deploy tags differently. GitHub
+Both providers build on branch pushes, pull requests and tag pushes, plus
+a nightly schedule that refreshes the database cache when the site
+provisions from a database dump. They deploy tags differently. GitHub
 Actions deploys every tag it builds. CircleCI deploys only tags named after
 a semantic version (`1.2.3`, `1.2.3-rc.1`) or a date (`2023-04-17`,
 `2023-04-17.1`).
@@ -393,7 +393,7 @@ The exact branch filters differ per provider:
 - **GitHub Actions** builds pushes to long-lived branches: `production`,
   `main`, `master`, `develop`, `release/**`, `hotfix/**` and `project/**`.
   A pull request from any branch builds when it targets 1 of those
-  branches, or a `feature/**` or `bugfix/**` branch. That's how
+  branches, or a `feature/**` or `bugfix/**` branch, which is how
   short-lived branches get built. Pull requests opened from a `project/**`
   branch skip every job, because pushes to that branch already build it.
   See [GitHub Actions > Update trigger
@@ -488,9 +488,9 @@ Each tool's step then reads its own flag as its first line:
 </Tabs>
 
 `VORTEX_CI_RUNNER_INDEX` and `VORTEX_CI_RUNNER_TOTAL` hold the current
-container's index and the container count. Both providers use the same
-names. The Behat step subtracts `VORTEX_CI_BEHAT_PROFILE_OFFSET` from the
-container index to get its profile number (see
+container's index and the container count, under the same names on both
+providers. The Behat step subtracts `VORTEX_CI_BEHAT_PROFILE_OFFSET` from
+the container index to get its profile number (see
 [Give a tool its own container](#give-a-tool-its-own-container)).
 
 To run your own tool on a specific container, add a flag next to the others
@@ -517,8 +517,8 @@ echo "export VORTEX_CI_IS_CYPRESS_RUNNER=$([ "${CIRCLE_NODE_INDEX:-0}" -eq 1 ] &
 
 To move a tool onto a container of its own:
 
-1. Add a container for the tool. The default configuration has only
-   containers `0` and `1`. See [Adding more
+1. Add a container for the tool, because the default configuration has
+   only containers `0` and `1`. See [Adding more
    containers](#add-more-containers).
 2. Point the tool's flag at the new container.
 3. Exclude the new container from Behat.
@@ -545,7 +545,7 @@ scenario without a `@pX` tag. With the dedicated container at the end, the
 offset stays `0`. The containers before it keep their profiles.
 
 To dedicate a leading container instead, raise the offset by 1 for each
-leading container you exclude from Behat. The first Behat container then
+leading container you exclude from Behat, so the first Behat container
 still selects the `p0` catch-all. The following example, on 3 containers,
 pins every tool that runs once to container `0` and keeps Behat off it:
 
@@ -666,8 +666,8 @@ up and running, on either provider.
 The shipped CI configuration turns off strict host-key checking for the SSH
 connections the pipeline makes to the hosting provider. Pinning the host
 keys is the secure alternative. With `VORTEX_SSH_KNOWN_HOSTS` set, the SSH
-setup writes the keys to `known_hosts` and keeps strict checking on. It
-does so even where `VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING` is set.
+setup writes the keys to `known_hosts` and keeps strict checking on, even
+where `VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING` is set.
 
 To pin the host keys:
 
@@ -690,8 +690,8 @@ To pin the host keys:
 
 On GitHub Actions, the steps that load the SSH keys also take a
 `known_hosts` input from the `VORTEX_FETCH_DB_SSH_KNOWN_HOSTS` and
-`VORTEX_DEPLOY_SSH_KNOWN_HOSTS` repository variables. They skip the input
-when those variables are empty. Those 2 variables leave strict checking
+`VORTEX_DEPLOY_SSH_KNOWN_HOSTS` repository variables, and skip it when
+those variables are empty. Those 2 variables leave strict checking
 off, because the SSH setup still turns it off without
 `VORTEX_SSH_KNOWN_HOSTS`. After you map `VORTEX_SSH_KNOWN_HOSTS`, you don't
 need them.
@@ -723,8 +723,8 @@ What else helps depends on the provider:
   preinstalled toolchains. See [GitHub Actions > Runner disk
   space](./github-actions.mdx#runner-disk-space).
 - On CircleCI, disk space doesn't grow with the [resource
-  class](./circleci.mdx#change-runner-resource-class). A larger class adds
-  CPU and memory but no extra room for the build.
+  class](./circleci.mdx#change-runner-resource-class), so a larger class
+  adds CPU and memory but no extra room for the build.
 
 ### Update CI runner image
 

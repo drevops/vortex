@@ -12,8 +12,8 @@ your team.
 
 It covers how code moves between environments, how branches and version
 numbers work and where the automation takes over. Releasing the **Vortex**
-template itself is a separate process. See [Contributing > Maintenance >
-Release](../contributing/maintenance/release.mdx).
+template itself is a separate process, documented in [Contributing >
+Maintenance > Release](../contributing/maintenance/release.mdx).
 
 A release process has these parts, and **Vortex** provides defaults and
 integration points for each of them:
@@ -58,9 +58,9 @@ against real data in a lower environment:
 3. Test that everything works against the copied database.
 
 When your site provisions from a database dump, the CI pipeline also runs
-all its tests against a copy of the database from the configured source.
-The copy refreshes daily. When the source is production, CI checks code
-changes against real data structures too.
+all its tests against a copy of the database from the configured source,
+refreshed daily. When the source is production, CI checks code changes
+against real data structures too.
 
 :::note Environment agreement
 
@@ -74,9 +74,9 @@ pre-production, or use different names.
 ## Production deployment process
 
 A production deployment works the same way as a deployment to any other
-environment. CI builds and tests the release tag when you push it. On
-branch-based hosting, CI builds the `production` branch. CI then deploys
-the tag or branch under the same rules as any other branch or tag (see
+environment. CI builds and tests the release tag when you push it, or the
+`production` branch on branch-based hosting. CI then deploys the tag or
+branch under the same rules as any other branch or tag (see
 [GitFlow](gitflow.mdx)).
 
 Some tags don't deploy:
@@ -87,13 +87,13 @@ Some tags don't deploy:
 
 On Acquia and Lagoon hosting, **Vortex** integrates directly with the
 platform's own deployment system. On other hosting, wire the provision steps
-into your host's deployment configuration. Your host has to support
+into your host's deployment configuration, as long as your host supports
 post-deployment hooks or custom scripts.
 
 On Lagoon, **Vortex** treats an environment as production in 2 cases:
 Lagoon marks it as production, or its branch is the branch in
-`VORTEX_LAGOON_PRODUCTION_BRANCH`. `.env` ships that variable as `main`. To
-release from a `production` branch:
+`VORTEX_LAGOON_PRODUCTION_BRANCH`, which `.env` ships as `main`. To release
+from a `production` branch:
 
 1. Set `VORTEX_LAGOON_PRODUCTION_BRANCH` to `production`.
 2. Rename the `main` entry under `environments` in `.lagoon.yml` to
@@ -104,7 +104,7 @@ replaces it only when `VORTEX_PROVISION_OVERRIDE_DB` is `1`, and `.env`
 ships it as `0`. On Lagoon, a production deployment also backs up the
 database first and skips sanitization. On a site that provisions from a
 database dump, the Lagoon production deployment forces
-`VORTEX_PROVISION_OVERRIDE_DB=0`. A value of `1` set in Lagoon then has no
+`VORTEX_PROVISION_OVERRIDE_DB=0`, so a value of `1` set in Lagoon has no
 effect on production.
 
 ➡️ See
@@ -130,7 +130,8 @@ Extend it with the following sections:
   during releases: creating and finishing releases, deploying to production,
   rolling back and verifying.
 - **A release run template** - a checklist of _who_ does _what_ and _when_
-  during a release. Clone it into a separate runsheet for each release.
+  during a release, which you clone into a separate runsheet for each
+  release.
 
 ## Monitoring
 
@@ -152,11 +153,11 @@ To turn the markers on:
    user key.
 
 By default, markers go out only for deployments of the `main`, `master` and
-`develop` branches, matched by exact name. Your own list replaces the
-default. If production deploys from a branch named `production`, set
-`VORTEX_NOTIFY_NEWRELIC_BRANCHES` to `main,master,develop,production`. A tag
-release deployed to Acquia arrives under a name such as `deployment/1.2.3`.
-No entry matches that name, so it gets no marker.
+`develop` branches, matched by exact name. If production deploys from a
+branch named `production`, set `VORTEX_NOTIFY_NEWRELIC_BRANCHES` to
+`main,master,develop,production`, because your own list replaces the
+default. A tag release deployed to Acquia arrives under a name such as
+`deployment/1.2.3`, which no entry matches, so it gets no marker.
 
 To confirm that New Relic recorded a marker, look for this line in the
 deployment output, followed by how long the request took:
@@ -166,9 +167,8 @@ deployment output, followed by how long the request took:
 ```
 
 The New Relic notification script also exits with code `0` when it skips
-the marker, for example
-for an unlisted branch. A passing deployment doesn't prove that the marker
-exists.
+the marker, for example for an unlisted branch. A passing deployment
+doesn't prove that the marker exists.
 
 ➡️ See [Deployment > Notifications > New
 Relic](../deployment/notifications/newrelic.mdx)

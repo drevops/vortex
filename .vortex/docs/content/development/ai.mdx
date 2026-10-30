@@ -31,14 +31,14 @@ the rest of **Vortex** uses. Agents get project-level decisions first, then
 **Vortex**-level procedures:
 
 - **What** applies to the project lives in the `docs/` directory. Before an
-  implementation decision, the agent checks the relevant file there. The
-  files hold the project's choices, such as testing conventions, CI
-  configuration, deployment rules and release processes.
+  implementation decision, the agent checks the relevant file there for the
+  project's choices, such as testing conventions, CI configuration,
+  deployment rules and release processes.
 - **How** to perform operations comes from the
   [Vortex documentation](https://www.vortextemplate.com/docs), this site.
   `AGENTS.md` instructs agents to look for a cached copy in `.artifacts/`
-  first. Without a cached copy, they fetch the guide from the website and
-  cache it there.
+  first and, without one, to fetch the guide from the website and cache it
+  there.
 
 ## Configuration files
 
@@ -51,12 +51,12 @@ It's agent-agnostic, so any AI tool that reads `AGENTS.md` can use it.
 The file has these sections, in order:
 
 - **Highest priority rule** - allows exactly 1 simple command per Bash
-  call. It bans chaining, pipes, command substitution and here-documents.
+  call, with no chaining, pipes, command substitution or here-documents.
 - **Daily development tasks** - a reference of `ahoy` commands for building,
   testing and managing the local environment.
-- **Before starting any task** - a checklist for the start of every task.
-  Agents check the cached documentation in `.artifacts/` first, then the
-  project's `docs/` files, then the website for anything missing.
+- **Before starting any task** - a checklist for the start of every task:
+  check the cached documentation in `.artifacts/` first, then the project's
+  `docs/` files, then the website for anything missing.
 - **Critical rules** - constraints that agents must always follow:
   - Never modify the shipped scripts in
     `vendor/drevops/vortex-tooling/src/`.

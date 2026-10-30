@@ -1,6 +1,6 @@
 # Architecture
 
-This page explains how the **Vortex** template fits together. It's for
+This page explains how the **Vortex** template fits together, for
 developers and leads who want the big picture before they start a project
 or while they evaluate the template. It covers the design principles, the
 lifecycle your code follows from your machine to production and the parts
@@ -37,9 +37,8 @@ import CodeLifecycle from './_code-lifecycle.mdx';
 ## Local development environment
 
 Your project runs locally in containers. Docker Compose starts a stack built
-from the Lagoon container images. Lagoon runs the same images in production,
-and CI runs them too, so your local environment matches CI and Lagoon
-hosting.
+from the Lagoon container images, which Lagoon runs in production and CI
+runs too, so your local environment matches CI and Lagoon hosting.
 
 [Ahoy](https://ahoy-cli.dev/) wraps multi-step tasks like provisioning,
 testing and database imports in short commands such as `ahoy provision`
@@ -112,9 +111,9 @@ Local overrides go into `.env.local`, which Git ignores.
 
 ### Router scripts
 
-**Vortex** has 6 _router_ scripts. A router is an entry point that reads
-your configuration and hands the work to the script for your setup. Ahoy
-and CI call the same router on every setup. Each router picks its script as
+**Vortex** has 6 _router_ scripts: entry points that read your
+configuration and hand the work to the script for your setup. Ahoy and CI
+call the same router on every setup. Each router picks its script as
 follows:
 
 - `vortex-fetch-db` fetches a database from the source in
@@ -122,11 +121,11 @@ follows:
   `container_registry`, `acquia` or `lagoon`.
 - `vortex-export-db` exports the database to a dump file, or to a container
   image when `VORTEX_DB_IMAGE` is set.
-- `vortex-import-db` imports a dump file. When you call it from the host, it
-  runs the import inside the `cli` container.
-- `vortex-deploy` runs each deployment type listed in `VORTEX_DEPLOY_TYPES`:
-  `artifact`, `lagoon` or `webhook`. The same call deploys to Acquia, Lagoon
-  or any host with a deployment webhook.
+- `vortex-import-db` imports a dump file, and runs the import inside the
+  `cli` container when you call it from the host.
+- `vortex-deploy` runs each deployment type listed in `VORTEX_DEPLOY_TYPES`
+  (`artifact`, `lagoon` or `webhook`), so the same call deploys to Acquia,
+  Lagoon or any host with a deployment webhook.
 - `vortex-notify` sends a notification to each channel listed in
   `VORTEX_NOTIFY_CHANNELS`: email, Slack, New Relic, GitHub, Jira, a webhook
   or Diffy.
@@ -157,7 +156,7 @@ follows:
 
 Provisioning is central to how **Vortex** works. A single script,
 `vortex-provision` (`ahoy provision` locally), replaces a series of manual
-Drush commands. The script handles the following:
+Drush commands and handles the following:
 
 - Importing a database dump, or installing Drupal from a profile
 - Running updates, config imports, cache rebuilds and deploy hooks
@@ -185,8 +184,8 @@ conditionally or creating demo content.
   `web/sites/default/includes/modules/`, with the per-environment logic
   inside that file.
 
-Keeping each module's settings in its own file avoids config sprawl. You
-can remove a module's settings cleanly when you no longer need them.
+Keeping each module's settings in its own file avoids config sprawl and
+lets you remove a module's settings cleanly when you no longer need them.
 
 PHPUnit tests in `tests/phpunit/Drupal/` check that these settings load
 correctly in each environment.
@@ -262,8 +261,7 @@ tweak them.
 
 **Vortex** relies on environment variables to configure its behavior across
 local, CI and hosting environments. Define them in the `.env` file, or set
-them in your CI and hosting environments. Secrets belong in the CI and
-hosting environments.
+them in your CI and hosting environments, which is where secrets belong.
 
 ➡️ See [Variables](./development/variables)
 
@@ -300,9 +298,9 @@ Other platforms work through the `artifact` and `webhook` deployment types.
 ## Documentation & onboarding
 
 Besides this documentation site, **Vortex** adds a `docs/` scaffold to your
-repository for project-specific decisions. To leave it out, answer **No**
-at the installer's **Preserve project documentation?** prompt. The scaffold
-has a page for each of these topics:
+repository for project-specific decisions, unless you answer **No** at the
+installer's **Preserve project documentation?** prompt. The scaffold has a
+page for each of these topics:
 
 - Testing conventions
 - CI, when the project has a CI provider

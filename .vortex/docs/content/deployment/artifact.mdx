@@ -20,11 +20,11 @@ When `$VORTEX_DEPLOY_TYPES` includes `artifact`, CI and the deployment
 script go through these steps:
 
 1. The `build` job builds the stack and copies the codebase out of the `cli`
-   container. The copy happens before development dependencies install, so
-   it holds production dependencies only.
-2. The `deploy` job restores that copy and runs the deployment script. The
-   script downloads the [Git artifact tool](#git-artifact-tool) and verifies
-   its checksum.
+   container before development dependencies install, so the copy holds
+   production dependencies only.
+2. The `deploy` job restores that copy and runs the deployment script, which
+   downloads the [Git artifact tool](#git-artifact-tool) and verifies its
+   checksum.
 3. The script copies `.git` and `.gitignore.artifact` from the repository
    checkout into the copied codebase. The tool then applies the
    `.gitignore.artifact` rules to control which files are included.
@@ -129,11 +129,11 @@ branch with the same name as the deployed branch.
 [`git-artifact`](https://github.com/drevops/git-artifact) packages and
 pushes files to remote repositories.
 
-Some hosting providers, such as Acquia, restrict certain build operations.
-You build the site somewhere else, then deploy the result, and the tool
+Some hosting providers, such as Acquia, restrict certain build operations,
+so you build the site somewhere else, then deploy the result. The tool
 handles that transfer. A `.gitignore.artifact` file controls which files go
 across. Each push replaces the history of the destination branch with the
-history of the source branch. The source repository stays untouched.
+history of the source branch, while the source repository stays untouched.
 
 **Vortex** ships 2 files for this:
 
@@ -148,9 +148,8 @@ CI uses them to build the artifact and push it to the remote repository,
 such as Acquia's, with no manual steps.
 
 The deployment script downloads the `git-artifact` binary from [GitHub
-Releases](https://github.com/drevops/git-artifact/releases). It checks the
-binary's SHA256 checksum before running it, and a mismatch stops the
-deployment.
+Releases](https://github.com/drevops/git-artifact/releases) and checks its
+SHA256 checksum before running it. A mismatch stops the deployment.
 
 These variables control the version and the checksum:
 
@@ -179,8 +178,8 @@ Cleanup is opt-in. These variables control it, and they go in `.env`:
 - `VORTEX_DEPLOY_ARTIFACT_CLEANUP_PATTERN`: branches eligible for pruning.
   Cleanup runs only when this variable is set, and it's empty by default.
   The value is a comma-separated list of globs, for example
-  `feature/*,bugfix/*`. It can also be a single regular expression literal,
-  for example `/^feature\/.+$/`. A branch matching any pattern is eligible.
+  `feature/*,bugfix/*`, or a single regular expression literal, for example
+  `/^feature\/.+$/`. A branch matching any pattern is eligible.
 - `VORTEX_DEPLOY_ARTIFACT_CLEANUP_AGE`: the number of days since a matching
   branch's last commit after which the branch counts as stale (default:
   `7`).
@@ -192,8 +191,8 @@ default branch. A failed cleanup doesn't fail the deployment.
 
 The `.gitignore.artifact` file controls which files go into the deployment
 artifact. During deployment, `git-artifact` applies its rules in place of
-the standard `.gitignore`. These rules decide what reaches the hosting Git
-repository.
+the standard `.gitignore`, so these rules decide what reaches the hosting
+Git repository.
 
 **Vortex** writes `.gitignore.artifact` as a deny list: every file deploys
 by default, and the file lists only what stays out of production. The
@@ -215,8 +214,8 @@ It excludes these groups, shown here with their main entries:
   `.DS_Store`).
 - Development, continuous integration and AI configuration (`.ahoy.yml`,
   `.circleci`, `.claude`, `.docker`, `.github`, `CLAUDE.md`,
-  `docker-compose.yml`). The group also holds the database cache key files
-  that the GitHub Actions workflow writes (`db_cache_*`).
+  `docker-compose.yml`), plus the database cache key files that the GitHub
+  Actions workflow writes (`db_cache_*`).
 - Documentation and testing configuration (`docs`, `tests`, `behat.php`,
   `phpunit.xml`, `phpcs.xml`).
 - Dependency manifests and lock files not needed at runtime

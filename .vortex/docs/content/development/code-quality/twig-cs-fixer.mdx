@@ -11,16 +11,16 @@ tool as follows:
 > A tool to automatically fix Twig Coding Standards issues
 
 Twig CS Fixer checks Twig templates for the formatting problems PHPCS
-catches in PHP. It covers indentation, spacing around delimiters and
-operators, trailing whitespace, quote style and trailing commas. Most of its
-rules can also fix what they find.
+catches in PHP: indentation, spacing around delimiters and operators,
+trailing whitespace, quote style and trailing commas. Most of its rules can
+also fix what they find.
 **Vortex** comes with a [pre-configured Twig CS Fixer
 ruleset](https://github.com/drevops/vortex/blob/main/.twig-cs-fixer.php) for
 Drupal projects.
 
 This page is for developers who write Twig templates in custom modules or
-themes. It shows how to lint and fix the templates and how to ignore a
-rule. It also lists what the shipped ruleset enforces.
+themes. It shows how to lint and fix the templates, what the shipped
+ruleset enforces and how to ignore a rule.
 
 ## Usage
 
@@ -77,10 +77,10 @@ All global configuration lives in the
 file.
 
 The ruleset uses the `TwigCsFixer` standard with a 2-space indent.
-Twig CS Fixer skips non-fixable rules by default, and
-`allowNonFixableRules()` turns them on. `lint` then also reports problems
-such as badly named variables. The configuration also registers
-Drupal's `trans` tag parser, so templates with `{% trans %}` blocks parse.
+`allowNonFixableRules()` turns on the non-fixable rules, which Twig CS
+Fixer skips by default, so `lint` also reports problems such as badly named
+variables. The configuration also registers Drupal's `trans` tag parser, so
+templates with `{% trans %}` blocks parse.
 
 Twig CS Fixer checks the templates in `web/modules/custom` and
 `web/themes/custom`.

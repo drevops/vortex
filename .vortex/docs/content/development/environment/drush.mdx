@@ -19,8 +19,8 @@ The [Drush website](https://www.drush.org/) describes the tool as follows:
 **Vortex** uses Drush wherever it talks to Drupal, from the provisioning
 scripts to the Behat tests. This page is for developers who run Drush
 against their local site or a Lagoon environment. It shows how to run Drush
-in the stack and what the shipped configuration changes. It also shows how
-to reach a Lagoon environment through its site alias.
+in the stack, what the shipped configuration changes and how to reach a
+Lagoon environment through its site alias.
 
 All the standard Drush commands work, and **Vortex** adds shorthand commands
 for the most common tasks:
@@ -28,9 +28,9 @@ for the most common tasks:
 - `ahoy fetch-db` - fetch the database dump from the source that
   `VORTEX_FETCH_DB_SOURCE` sets, such as a URL or a hosting environment
 - `ahoy import-db` - import the database dump into the local environment
-- `ahoy provision` - import the database dump or install from a profile.
-  Then run database updates, the configuration import, cache rebuilds and
-  deploy hooks.
+- `ahoy provision` - import the database dump or install from a profile,
+  then run database updates, the configuration import, cache rebuilds and
+  deploy hooks
 
 ## Usage
 
@@ -92,12 +92,11 @@ such as `sendmail_path`, stay in effect.
 Locally, a change to `drush.ini` applies to the next PHP process without a
 rebuild. The project directory is mounted at `/app`, and PHP reads the scan
 directory each time a process starts. In CI and on Lagoon, the image build
-copies the project into `/app` instead of mounting it. A change there
+copies the project into `/app` instead of mounting it, so a change there
 applies from the next build.
 
-To confirm that PHP loads the file, list the ini files it reads. The list
-includes `/app/drush/php-ini/drush.ini`. You can also print the memory
-limit in effect:
+To confirm that PHP loads the file, list the ini files it reads, which
+include `/app/drush/php-ini/drush.ini`, or print the memory limit in effect:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -130,7 +129,7 @@ memory_limit = 1G
 
 This value is sized for database imports and configuration synchronization
 on large sites. It applies to PHP CLI processes that load this scan path,
-Drush included. Web requests keep their own memory limit.
+Drush included, but web requests keep their own memory limit.
 
 If a Drush command exhausts this limit, profile the command before you
 raise the value. An exhausted 1G limit usually points to a memory leak in
@@ -139,8 +138,8 @@ reaches the new limit.
 
 To give a single command more memory, run Drush's PHP entry point,
 `vendor/bin/drush.php`, through `php -d`. Pass `drush.php`, because
-`vendor/bin/drush` is a shell wrapper. Handing the wrapper to `php` prints
-the script instead of running Drush:
+`vendor/bin/drush` is a shell wrapper and handing it to `php` prints the
+script instead of running Drush:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -160,7 +159,7 @@ the script instead of running Drush:
 
 For Lagoon hosting, the shipped
 [`drush/sites/lagoon.site.yml`](https://github.com/drevops/vortex/blob/main/drush/sites/lagoon.site.yml)
-file defines a wildcard alias. Every environment resolves as
+file defines a wildcard alias, so every environment resolves as
 `@lagoon.<branch-or-pr>` with no per-environment entries. You can use the
 aliases from your host machine or from inside the container.
 

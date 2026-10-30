@@ -25,9 +25,9 @@ containers or the site itself.
 
 ## Site not loading
 
-A stopped Pygmy service, a stopped container or a web server that doesn't
-answer keeps the site from loading. Doctor checks for each of these causes.
-If Doctor reports a stopped container, run `ahoy up` as it suggests, or
+Doctor checks for the causes that keep the site from loading: a stopped
+Pygmy service, a stopped container or a web server that doesn't answer. If
+Doctor reports a stopped container, run `ahoy up` as it suggests, or
 `docker compose up -d` without Ahoy. Both commands start the container and
 keep your database.
 
@@ -57,12 +57,12 @@ commands:
   </TabItem>
 </Tabs>
 
-After `down` and `up`, the stack has a fresh database.
-That's why `ahoy down` asks you to confirm first. The database lives on an
-anonymous volume. Plain `docker compose down` leaves that volume on disk,
-but the next `up` doesn't mount it again.
+After `down` and `up`, the stack has a fresh database, so `ahoy down` asks
+you to confirm first. The database lives on an anonymous volume, which
+plain `docker compose down` leaves on disk but the next `up` doesn't mount
+again.
 
-Provision the site again with `ahoy provision`. Without Ahoy, run
+Provision the site again with `ahoy provision` or, without Ahoy, with
 `docker compose exec cli ./vendor/bin/vortex-provision`.
 
 Confirm that the site is back: `ahoy doctor` ends with
@@ -91,9 +91,8 @@ a last resort:
 </Tabs>
 
 If `docker compose ps` shows the `database` container stopped or
-restarting, read its log. Run `ahoy logs database`, or
-`docker compose logs database` without Ahoy. The log usually says why the
-container stopped.
+restarting, the log from `ahoy logs database` or, without Ahoy,
+`docker compose logs database` usually says why the container stopped.
 
 Both last resorts wipe the local database. `ahoy build` provisions the site
 again. After the Docker Compose commands, provision the site yourself with

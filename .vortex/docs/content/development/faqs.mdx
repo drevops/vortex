@@ -136,8 +136,8 @@ Turn Xdebug on in the containers, then start a debug session from your IDE:
     Use the same commands to debug CLI scripts.
 
     To turn Xdebug off, run `ahoy up`. The `ahoy info` line suggests
-    `ahoy up cli` instead. That command recreates only the `cli` container,
-    so web requests still run with Xdebug in the `php` container.
+    `ahoy up cli` instead, but that command recreates only the `cli`
+    container, so web requests still run with Xdebug in the `php` container.
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     1. Run `XDEBUG_ENABLE=true docker compose up -d cli php nginx`. To
@@ -219,7 +219,7 @@ If your stack is already running, follow these steps:
       container from that image first.
 
     To see which case applies to you, also check both variables in
-    `.env.local`. A value there overrides the one in `.env`.
+    `.env.local`: a value there overrides the one in `.env`.
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     1. Switch to your branch.
@@ -230,7 +230,7 @@ If your stack is already running, follow these steps:
 
     The provision script updates the environment to match the current
     branch. Like `ahoy provision`, it keeps an existing site's database by
-    default. It skips the confirmation and never reloads the database
+    default, but it skips the confirmation and never reloads the database
     container.
 
     For a fully clean environment, run the following commands, which mirror
@@ -320,8 +320,8 @@ To add a module's code to the project, require it with Composer:
 </Tabs>
 
 Then install the module with `drush pm:install` and export the
-configuration with `drush config:export`. The next configuration import
-then keeps the module installed.
+configuration with `drush config:export`, so the next configuration import
+keeps the module installed.
 
 ➡️ See [Composer > Install dependencies](composer.mdx#install-dependencies)
 and [Modules](modules/README.mdx)
@@ -331,7 +331,7 @@ and [Modules](modules/README.mdx)
 To patch a module, follow these steps:
 
 1. Add the patch to `extra.patches` in `composer.json`, under the package's
-   name. Use the patch description as the key and the patch URL or local
+   name, with the patch description as the key and the patch URL or local
    path as the value:
 
    ```json
@@ -400,7 +400,7 @@ for your project.
 ## What should I do when `npm audit` reports a security vulnerability?
 
 The CI security audit workflow runs `npm audit` through `audit-ci` against
-the root and the custom theme's dependency trees. It fails on advisories
+the root and the custom theme's dependency trees, and fails on advisories
 rated `high` or higher. The `Audit npm packages` step checks the root, and
 `Audit npm packages of the theme` checks the theme in
 `web/themes/custom/your_site_theme`. When a step reports an advisory,
@@ -408,16 +408,16 @@ follow these steps in the directory it checks:
 
 1. Try updating the affected package to a newer version that resolves the
    advisory: `npm update <package-name>`.
-2. Run `npm audit` to review the advisory details and assess whether it
-   affects your project. The details include which direct dependency pulls
-   the affected package in.
+2. Run `npm audit` to review the advisory details, including which direct
+   dependency pulls the affected package in, and assess whether it affects
+   your project.
 3. When the affected package isn't a direct dependency, pin a patched
-   version with an `overrides` entry in `package.json`. Then run
+   version with an `overrides` entry in `package.json`, then run
    `npm install`.
 4. If no fixed version exists or the vulnerability doesn't affect you, add
    the advisory to the `allowlist` in that directory's
-   `package-audit.jsonc`. Give the entry notes and an expiry date. The root
-   and theme files each apply only to their own tree.
+   `package-audit.jsonc`, with notes and an expiry date. The root and theme
+   files each apply only to their own tree.
 5. Optional: To let CI pass while you address the advisory, set
    `VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE` to `1`. Set it as a repository
    variable on GitHub Actions or as an environment variable in the CircleCI

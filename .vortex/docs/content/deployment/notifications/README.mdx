@@ -5,8 +5,8 @@ sidebar_position: 1
 
 # Notifications
 
-**Vortex** announces each deployment on the channels you turn on. Your team
-hears about a new environment and gets a link to log in to it, without
+**Vortex** announces each deployment on the channels you turn on, so your
+team hears about a new environment and gets a link to log in to it, without
 watching CI.
 
 This page is for the lead or DevOps engineer who sets up deployment
@@ -54,7 +54,7 @@ whatever order you list them in:
 - [`diffy`](diffy.mdx) - starts a Diffy visual regression run through
   GitHub Actions.
 
-An unset or empty `VORTEX_NOTIFY_CHANNELS` means `email`. To turn
+An unset or empty `VORTEX_NOTIFY_CHANNELS` means `email`, so to turn
 notifications off, set `VORTEX_NOTIFY_SKIP`. The installer offers every
 channel except `diffy`, which you add by hand. The router matches the names
 as substrings and doesn't validate them, so a misspelled channel sends
@@ -80,7 +80,7 @@ The **Location** column in this section and on the channel pages says where
 a value usually lives:
 
 - `.env` holds project-wide settings that you commit.
-- Hosting means secrets and per-deployment values. You set them in the
+- Hosting means secrets and per-deployment values: you set them in the
   hosting platform's environment variables, or the hosting hook and the
   router set them at run time.
 
@@ -113,8 +113,8 @@ Lagoon tasks and the Acquia hook put in them:
 | `VORTEX_NOTIFY_LOGIN_URL` | No | Login URL for the `%login_url%` token; defaults to `<environment_url>/user/login` |
 | `VORTEX_NOTIFY_EVENT` | No | Deployment event: `post_deployment` (default) or `pre_deployment`; any other value fails the run. Lagoon: `pre_deployment`, then `post_deployment`. Acquia: not set, so `post_deployment` |
 
-Only Slack and GitHub act on `pre_deployment`. The other 5 channels skip
-it.
+Only Slack and GitHub act on `pre_deployment`, and the other 5 channels
+skip it.
 
 ## Branch filtering
 
@@ -135,8 +135,8 @@ VORTEX_NOTIFY_NEWRELIC_BRANCHES=main,staging
 ```
 
 New Relic defaults to `main,master,develop`, and all other channels default
-to no filter. An empty New Relic value falls back to that default. To let
-New Relic run on other branches, list every branch you want.
+to no filter. An empty New Relic value falls back to that default, so to
+let New Relic run on other branches, list every branch you want.
 
 ## Message templates and tokens
 
@@ -189,8 +189,8 @@ there and truncates it at the start of each run.
 
 When `VORTEX_NOTIFY_LOG=1`, the router collects every non-empty log in that
 directory, each as its own titled section. It passes the path of the
-collected file to the channels as `VORTEX_NOTIFY_LOG_FILE`. When it
-collected nothing, `VORTEX_NOTIFY_LOG_FILE` stays empty.
+collected file to the channels as `VORTEX_NOTIFY_LOG_FILE`, which stays
+empty when it collected nothing.
 
 The email, Slack, Jira and webhook channels add the collected logs to their
 message, each in its own way:

@@ -15,13 +15,13 @@ behavior and reading the coverage report. Jest covers custom modules only,
 so theme JavaScript needs its own test setup. To test JavaScript in a real
 browser against the running site, see [Behat](behat.mdx).
 
-Each test loads a behavior into jsdom, which simulates a browser. The test
-then checks what the behavior does in isolation.
+Each test loads a behavior into jsdom, which simulates a browser, then
+checks what the behavior does in isolation.
 
 **Vortex** comes with a [pre-configured Jest
 setup](https://github.com/drevops/vortex/blob/main/jest.config.js) that
-finds the tests in every custom module with a `js/` directory. A new test
-file runs without any configuration change.
+finds the tests in every custom module with a `js/` directory, so a new
+test file runs without any configuration change.
 
 ## Usage
 
@@ -80,9 +80,9 @@ Jest's `-t` option runs only the tests whose name matches:
 ## Write tests
 
 Drupal JavaScript files wrap their code in an immediately invoked function
-expression (IIFE): `((Drupal) => { ... })(Drupal)`. `Drupal` is a global
-object. A test sets up the globals the source file needs, then
-loads the file with `require()`.
+expression (IIFE): `((Drupal) => { ... })(Drupal)`, where `Drupal` is a
+global object. A test sets up the globals the source file needs, then loads
+the file with `require()`.
 
 ### Test file structure
 
@@ -197,9 +197,8 @@ following changes:
 
 The lint script runs ESLint with `--max-warnings=0`, so a warning fails the
 lint like an error does. That includes a callback nested deeper than 5
-levels. It also includes an `eslint-disable` comment for a rule the
-configuration doesn't turn on. ESLint reports that comment as an unused
-directive.
+levels and an `eslint-disable` comment for a rule the configuration doesn't
+turn on, which ESLint reports as an unused directive.
 
 ### Boilerplate
 
@@ -239,13 +238,13 @@ The `test` script in `package.json` runs Jest with `--passWithNoTests`, so a
 project without any JavaScript tests still passes. Discovery silently misses
 a test outside a module's `js/` directory or a test whose name doesn't end
 in `.test.js`. The missed file doesn't fail the run, even when it's the only
-test file. To confirm that
-your test ran, check that Jest prints a `PASS` or `FAIL` line with its path.
-The `Test Suites:` count in the summary also includes it.
+test file. To confirm that your test ran, check that Jest prints a
+`PASS` or `FAIL` line with its path, and that the `Test Suites:` count in
+the summary includes it.
 
 ## Reports
 
-Jest writes only coverage reports. It has no JUnit test report.
+Jest writes only coverage reports and no JUnit test report.
 
 ### Coverage
 

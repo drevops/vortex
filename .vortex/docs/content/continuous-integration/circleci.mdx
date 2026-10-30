@@ -20,7 +20,7 @@ pipeline that are specific to CircleCI:
 - The coverage threshold and test results
 
 Running Renovate on CircleCI adds a second file,
-`.circleci/update-dependencies.yml`. It has a scheduled trigger of its own
+`.circleci/update-dependencies.yml`, with a scheduled trigger of its own
 (see [Dependency updates > Setting up the self-hosted
 service](../development/dependency-updates.mdx#set-up-the-self-hosted-service)).
 The jobs, the database cache and the split of tests across containers work
@@ -43,10 +43,10 @@ under **Project Settings > Environment Variables**.
 
 ### Update deployment branches
 
-The `database`, `lint` and `build` jobs of the `commit` workflow run on
-every branch and every tag. So does the `audit` job of the `audit`
-workflow. The `deploy` job runs only for branches that match a list of
-regular expressions in the `workflows` section of `.circleci/config.yml`:
+The `database`, `lint` and `build` jobs of the `commit` workflow and the
+`audit` job of the `audit` workflow run on every branch and every tag. The
+`deploy` job runs only for branches that match a list of regular expressions
+in the `workflows` section of `.circleci/config.yml`:
 
 | Pattern | Description |
 |---------|-------------|
@@ -73,7 +73,7 @@ match a single name made of letters, digits, `-`, `.`, `,` and `_`, so
   `CIRCLE_PULL_REQUEST`, the URL of the pull request associated with the
   build. A long-lived project branch deploys only from builds that have no
   associated pull request.
-- Tags deploy through a separate `deploy-tags` job. It runs only for tags
+- Tags deploy through a separate `deploy-tags` job, which runs only for tags
   named after a semantic version (`1.2.3`, `1.2.3-rc.1`) or a date
   (`2023-04-17`, `2023-04-17.1`). The `deploy` job itself ignores tags.
 
@@ -83,7 +83,7 @@ To change which branches deploy:
    filter of the `deploy` job.
 2. In `tests/phpunit/CircleCiConfigTest.php`, update the branch names in
    `dataProviderDeployBranchRegex()` to match. The test checks every
-   expression against them. It also checks that no filter pattern exceeds
+   expression against them, and also checks that no filter pattern exceeds
    the 128-character limit of the CircleCI compiler.
 3. Confirm that the test passes:
 
@@ -95,11 +95,11 @@ To change which branches deploy:
 
 ### Update nightly database schedule
 
-The `nightly-db` workflow runs the `database-nightly` job. That job is the
-regular `database` job with the cache fallback turned off, so it always
-downloads a fresh dump. It also skips the front-end build. For a project
-that stores its database in a container image, it imports the dump into a
-clean base image. It then pushes the result to the registry.
+The `nightly-db` workflow runs the `database-nightly` job: the regular
+`database` job with the cache fallback turned off, so it always downloads a
+fresh dump. It also skips the front-end build. For a project that stores
+its database in a container image, it imports the dump into a clean base
+image, then pushes the result to the registry.
 
 The job saves the dump under the current day's cache key, and CircleCI
 never overwrites a saved key. If another `database` job saved that key
@@ -108,9 +108,9 @@ fall back to the dump that the earlier job saved.
 
 The workflow is scheduled against the `develop` branch. If your project has
 no `develop` branch, change the branch in the `filters.branches.only` list
-of the `nightly-db` workflow's `triggers` entry. That entry is in the
-`workflows` section at the end of `.circleci/config.yml`. The installer
-adds the workflow only when the site provisions from a database dump.
+of the `nightly-db` workflow's `triggers` entry, in the `workflows` section
+at the end of `.circleci/config.yml`. The installer adds the workflow only
+when the site provisions from a database dump.
 
 To change when it runs, update the `nightly_db_schedule` YAML anchor in
 `.circleci/config.yml`. The anchor is a named value near the top of the
@@ -143,7 +143,7 @@ job that runs out of disk space. See
 ### Change test parallelism
 
 To get through the tests faster, raise the `parallelism` of the `build`
-job in `.circleci/config.yml`. It ships as `2`:
+job in `.circleci/config.yml`, which ships as `2`:
 
 ```yaml
 build:
@@ -206,7 +206,7 @@ below a threshold.
 
 Set the threshold in the `VORTEX_CI_CODE_COVERAGE_THRESHOLD` environment
 variable, under **Project Settings > Environment Variables**. It defaults to
-`90` (percent). Use a whole number. The check multiplies the value in shell
+`90` (percent). Use a whole number: the check multiplies the value in shell
 integer arithmetic, so a decimal such as `85.5` breaks the step.
 
 The job can also post the coverage summary as a comment on a GitHub pull
@@ -217,14 +217,14 @@ pull request timeline stays clean. To turn the comment off, set
 `VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP` to `1`.
 
 If you chose Codecov as the code coverage provider at install time, the job
-also uploads the coverage reports to it. The upload needs `CODECOV_TOKEN`
-and skips `deps/*` branches. The uploader runs with `-Z`, so a failed
-upload fails the job.
+also uploads the coverage reports to it when `CODECOV_TOKEN` is set, except
+on `deps/*` branches. The uploader runs with `-Z`, so a failed upload fails
+the job.
 
 ### Test results
 
 The `build` job stores the JUnit reports of PHPUnit and Behat with
-CircleCI's `store_test_results` step. The job's **Tests** tab then lists
-the failing tests with their messages. Each parallel container stores its
-own results. The logs, coverage reports and screenshots stay attached to
-the job on its **Artifacts** tab.
+CircleCI's `store_test_results` step, so the job's **Tests** tab lists the
+failing tests with their messages. Each parallel container stores its own
+results. The logs, coverage reports and screenshots stay attached to the job
+on its **Artifacts** tab.

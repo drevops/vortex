@@ -21,8 +21,8 @@ ruleset](https://github.com/drevops/vortex/blob/main/phpstan.neon) for
 Drupal projects, so the analysis runs on every build without setup.
 
 This page is for developers who write PHP in a **Vortex** project. It shows
-how to run PHPStan and what the shipped configuration analyzes. It also
-covers how to ignore an error you can't fix. For PHPStan itself, see the
+how to run PHPStan, what the shipped configuration analyzes and how to
+ignore an error you can't fix. For PHPStan itself, see the
 [PHPStan user guide](https://phpstan.org/user-guide/getting-started).
 
 ## Usage
@@ -67,18 +67,18 @@ All global configuration lives in the
 [`phpstan.neon`](https://github.com/drevops/vortex/blob/main/phpstan.neon)
 file.
 
-The analysis runs at [level 7](https://phpstan.org/user-guide/rule-levels).
-The Drupal-specific rules come from
+The analysis runs at [level 7](https://phpstan.org/user-guide/rule-levels),
+with the Drupal-specific rules from
 [`mglaman/phpstan-drupal`](https://github.com/mglaman/phpstan-drupal), which
 `phpstan/extension-installer` loads automatically.
 
 The `phpVersion` value in `phpstan.neon`, set to `80427`, makes PHPStan
-treat the code as PHP 8.4.27. The `composer.json` key `config.platform.php`
-pins the same version. PHPStan doesn't read that key, so update both when
-you move to a new PHP version.
+treat the code as PHP 8.4.27, the version the `composer.json` key
+`config.platform.php` pins. PHPStan doesn't read that key, so update both
+when you move to a new PHP version.
 
-`treatPhpDocTypesAsCertain` is set to `false`. PHPStan then relies on native
-type declarations, because the types in doc comments go out of date.
+`treatPhpDocTypesAsCertain` is set to `false` because the types in doc
+comments go out of date, so PHPStan relies on native type declarations.
 
 The `ignoreErrors` list silences 2 errors that Drupal code can't avoid:
 

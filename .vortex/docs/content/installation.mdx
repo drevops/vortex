@@ -33,8 +33,8 @@ To build the site on your machine, you also need:
 - [Ahoy](/docs/development/environment/ahoy)
 - A running [Pygmy](/docs/development/environment/pygmy)
 
-The installer checks for `git`, `tar` and `composer` when it starts. If 1
-of them is missing, it stops with a `Missing required command` error.
+The installer checks for `git`, `tar` and `composer` when it starts, and
+stops with a `Missing required command` error if 1 of them is missing.
 
 ## Install Vortex into a new project
 
@@ -60,7 +60,7 @@ Keep the machine names short, quick to type and distinct from each other.
 These patterns work for the 2 names you'll type most:
 
 - **Custom modules prefix** - the first letters of the site name. Use the
-  first 2 letters of a single-word name (`Falcon` becomes `fa`). Use the
+  first 2 letters of a single-word name (`Falcon` becomes `fa`), or the
   first letter of each word of a multi-word name (`Star Wars` becomes
   `sw`). Your custom modules then read as `sw_base` and `sw_search`.
 - **Custom theme machine name** - the whole site name, as short as possible
@@ -120,8 +120,8 @@ curl -SsL https://www.vortextemplate.com/install > installer.php && php installe
 
 The `/install` path serves the installer for the major line this site
 documents at `/docs`. Each installer installs the latest release of its own
-line. A line with no release yet gets its development branch. To install a
-specific line, download the installer from that line's path:
+line, or its development branch when the line has no release yet. To
+install a specific line, download the installer from that line's path:
 
 - `https://www.vortextemplate.com/v1/install` for the `1.x` line
 - `https://www.vortextemplate.com/v2/install` for the `2.x` line
@@ -145,9 +145,9 @@ git commit -m "Initial commit"
 
 To put the project on GitHub:
 
-1. Create an empty repository on GitHub. Leave out the README, license and
-   `.gitignore` files, so the repository has no commits that conflict with
-   yours.
+1. Create an empty repository on GitHub and leave out the README, license
+   and `.gitignore` files, so the repository has no commits that conflict
+   with yours.
 2. Push the initial commit with the commands GitHub shows for an existing
    repository. GitHub then lists your files on the repository's page.
 
@@ -173,11 +173,11 @@ Generate a key pair for the automation:
 ssh-keygen -m PEM -t rsa -b 4096 -C "deployer+myproject@example.com" -f ~/.ssh/deployer_myproject -N ""
 ```
 
-The command writes the private key to the path after `-f`. It writes the
-public key to the same path with `.pub` added. Neither key has a
-passphrase. Replace the example project name in the comment and the path
-with your own. Every supported hosting and continuous integration provider
-accepts the `-m PEM -t rsa` format.
+The command writes the private key to the path after `-f` and the public
+key to the same path with `.pub` added, neither with a passphrase. Replace
+the example project name in the comment and the path with your own. Every
+supported hosting and continuous integration provider accepts the
+`-m PEM -t rsa` format.
 
 You can also generate 2 separate key pairs: 1 with read access for database
 fetches and 1 with write access for deployments. You can then revoke each
@@ -249,10 +249,10 @@ To set up Lagoon:
 3. If your Lagoon project name differs, correct it in `.env` and in
    `drush/sites/lagoon.site.yml`, then commit and push the change.
 4. Set a unique, long, random `DRUPAL_HASH_SALT` variable on every Lagoon
-   environment (dev, stage, production). Lagoon doesn't supply a salt, and
-   without the variable **Vortex** derives it from the database host. When
-   the host changes, the salt changes too. Every outstanding one-time login
-   and password-reset link then stops working without an error.
+   environment (dev, stage, production), because Lagoon doesn't supply a
+   salt. Without the variable, **Vortex** derives it from the database
+   host. When the host changes, the salt changes too, so every outstanding
+   one-time login and password-reset link stops working without an error.
 
 </TabItem>
 </Tabs>
@@ -260,7 +260,7 @@ To set up Lagoon:
 ### 7. Set up continuous integration
 
 If you answered **None** at the **Continuous Integration provider** prompt,
-the project has no pipeline. Skip this step and step 8.
+the project has no pipeline, so skip this step and step 8.
 
 Both providers run the same workflow. The
 [Continuous integration](/docs/continuous-integration) section covers its
@@ -316,7 +316,7 @@ To set up CircleCI:
    `db_ssh_fingerprint` for database fetches and `deploy_ssh_fingerprint`
    for deployments. With a single key, both take the same fingerprint.
    On Acquia, the database job loads the `db_ssh_fingerprint` key but
-   doesn't use it. Set `db_ssh_fingerprint` to the deployment key's
+   doesn't use it, so set `db_ssh_fingerprint` to the deployment key's
    fingerprint too.
 6. Commit and push the change to `.circleci/config.yml`.
 7. On Acquia, add the API key and secret from [step 6](#6-set-up-hosting)
@@ -335,9 +335,9 @@ On Lagoon, the pipeline fetches and deploys with the SSH keys you added.
 
 ### 8. Run your first build
 
-Push to a branch your pipeline builds, such as `main` or `develop`. You can
-also open a pull request against 1 of them. Your continuous integration
-provider builds the codebase, runs the tests and deploys according to your
+Push to a branch your pipeline builds, such as `main` or `develop`, or open
+a pull request against 1 of them. Your continuous integration provider
+builds the codebase, runs the tests and deploys according to your
 configuration. If a required value is missing, the job fails with a
 `Missing required value for ...` message that names the variable.
 
@@ -354,7 +354,7 @@ Confirm that the first build passed:
 
 ## Install Vortex into an existing project
 
-The installer can't predict what state your project is in. You install
+The installer can't predict what state your project is in, so you install
 **Vortex** into a clean working copy, then merge your existing project back
 into it.
 
@@ -410,8 +410,8 @@ To bring your own code back on top of the installed structure:
 1. Copy your files back from the temporary directory over the installed
    ones.
 2. Review the diff and keep changes selectively.
-3. Merge `composer.json` by hand so every **Vortex** entry survives. That
-   includes the `drevops/vortex-tooling` requirement that provides the
+3. Merge `composer.json` by hand so every **Vortex** entry survives,
+   including the `drevops/vortex-tooling` requirement that provides the
    scripts.
 4. Run `composer update` to regenerate `composer.lock`, then review its
    changes.

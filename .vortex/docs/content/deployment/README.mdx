@@ -48,11 +48,11 @@ router supports 3 types:
 - [`lagoon`](lagoon.mdx) - asks the Lagoon platform, through the Lagoon CLI,
   to deploy the branch or pull request.
 
-The types always run in the same order: `artifact`, then `webhook`, then
-`lagoon`. The order you list them in doesn't change it. The router matches
-the names as substrings and doesn't validate them. A misspelled type
-deploys nothing, and the job still passes. An empty list stops the job with
-the message `Missing required value for VORTEX_DEPLOY_TYPES`.
+The types always run in the same order, `artifact`, then `webhook`, then
+`lagoon`, whatever the order you list them in. The router matches the names
+as substrings and doesn't validate them, so a misspelled type deploys
+nothing and the job still passes. An empty list stops the job with the
+message `Missing required value for VORTEX_DEPLOY_TYPES`.
 
 The installer's default follows your hosting choice:
 
@@ -62,8 +62,8 @@ The installer's default follows your hosting choice:
 
 After the code lands on Acquia or Lagoon, the hosting platform runs the
 provisioning and notification scripts. That part runs on the hosting side,
-outside the `deploy` job. See [Hosting](../hosting/README.mdx) and
-[Notifications](notifications/README.mdx).
+outside the `deploy` job, so [Hosting](../hosting/README.mdx) and
+[Notifications](notifications/README.mdx) cover it.
 
 <details>
 <summary>Expand to see deployment in the complete code lifecycle</summary>
@@ -95,22 +95,22 @@ The router then deploys the branch with each type in
 `$VORTEX_DEPLOY_TYPES`.
 
 On GitHub Actions, a pull request deploys its branch when it's opened,
-updated or reopened. Its base branch has to be a branch in the preceding
-list, a `feature/*` branch or a `bugfix/*` branch. Depending on the hosting
-platform, a pull request deployment can create a temporary environment named
-after it, such as `pr-123` on Lagoon.
+updated or reopened against a branch in the preceding list, a `feature/*`
+branch or a `bugfix/*` branch. Depending on the hosting platform, a pull
+request deployment can create a temporary environment named after it, such
+as `pr-123` on Lagoon.
 
 On GitHub Actions, short-lived `feature/*` and `bugfix/*` branches deploy
-through their pull requests. A direct push to them doesn't deploy, because
-deploying both would double every CI run and every deployment. Branches that
+through their pull requests rather than direct pushes, because deploying
+both would double every CI run and every deployment. Branches that
 automated dependency updates create (`deps/*`) never deploy, on either CI
 provider.
 
 CircleCI matches branch names against regular expressions. Its patterns
-also match pushes to `feature/*`, `bugfix/*` and `ci*` branches. Major
-version branches such as `2.x` match too. The patterns match `release/*`
-and `hotfix/*` branches only when the name after the slash is a version or
-a date. CircleCI builds each push. When a deployed branch has an open pull
+also match pushes to `feature/*`, `bugfix/*` and `ci*` branches and to major
+version branches such as `2.x`. The patterns match `release/*` and
+`hotfix/*` branches only when the name after the slash is a version or a
+date. CircleCI builds each push: when a deployed branch has an open pull
 request, the build deploys it as that pull request, such as `pr-123`.
 
 A `project/*` branch is a long-lived branch for a larger feature or project
@@ -150,11 +150,11 @@ By default, a deployment keeps the environment's existing database.
 - `deploy` - deploys the code and keeps the environment's database. An
   empty value, the default, does the same.
 - `deploy_override_db` - deploys the code and replaces the environment's
-  database during provisioning. The new database is a copy from the
-  configured database source, which is production by default on Lagoon.
-  On a Lagoon production environment, `.lagoon.yml` sets
-  `VORTEX_PROVISION_OVERRIDE_DB=0`, so production keeps its database. A
-  site that provisions from a profile reads that value from `.env` instead.
+  database during provisioning with a copy from the configured database
+  source, which is production by default on Lagoon. On a Lagoon production
+  environment, `.lagoon.yml` sets `VORTEX_PROVISION_OVERRIDE_DB=0`, so
+  production keeps its database. A site that provisions from a profile
+  reads that value from `.env` instead.
 - `destroy` - removes the deployed environment, on platforms that support
   it (Lagoon).
 
@@ -185,16 +185,15 @@ To skip specific pull requests or branches:
 
 1. Set `$VORTEX_DEPLOY_ALLOW_SKIP` to `1`.
 2. List the pull requests in `$VORTEX_DEPLOY_SKIP_PRS`, the branches in
-   `$VORTEX_DEPLOY_SKIP_BRANCHES` or both. The following sections show each
-   list.
+   `$VORTEX_DEPLOY_SKIP_BRANCHES` or both, as the following sections show.
 
 Each list takes a single value or a comma-separated list without spaces.
 Entries match exactly, with no wildcards.
 
 Confirm that the next build of a listed pull request or branch skips its
 deployment. The `deploy` job log shows `Found PR 42 in skip list.` or
-`Found branch feature/test in skip list.` Then it shows
-`Skipped deployment` followed by your deployment types.
+`Found branch feature/test in skip list.`, followed by `Skipped deployment`
+and your deployment types.
 
 #### Skip specific pull requests
 
@@ -242,8 +241,8 @@ VORTEX_DEPLOY_SKIP_BRANCHES=feature/test,hotfix/urgent
 The label gate makes pull request deployments opt-in: a pull request gets
 an environment only after someone labels it. The skip lists work the other
 way: everything deploys except what they list. Use the gate to limit the
-number and cost of per-PR environments. The gate also keeps
-work-in-progress pull requests out of environments.
+number and cost of per-PR environments, or to keep work-in-progress pull
+requests out of environments.
 
 To turn the gate on, set `$VORTEX_DEPLOY_ALLOW_LABEL` to the name of the
 label that authorizes deployment:
@@ -266,10 +265,10 @@ a comma-separated list that CI fills in from the pull request event:
   trigger, so a label added to an open pull request takes effect on the
   next push. A manual deployment of a pull request carries no labels,
   so the gate skips it.
-- CircleCI doesn't provide labels. To use the gate there, fill in
+- CircleCI doesn't provide labels, so to use the gate there, fill in
   `$VORTEX_DEPLOY_PR_LABELS` yourself, for example from the GitHub API.
 
-Confirm that the gate works. The `deploy` job of a pull request without the
+Confirm that the gate works: the `deploy` job of a pull request without the
 label logs `PR 123 does not carry the "deploy" label.` and deploys nothing.
 
 The label gate and the skip lists combine. The router checks the skip lists

@@ -14,13 +14,13 @@ ESLint catches JavaScript mistakes before they reach a browser, such as a
 broken import, an unused variable or a `console.log()` call. **Vortex**
 comes with a [pre-configured ESLint
 ruleset](https://github.com/drevops/vortex/blob/main/eslint.config.mjs) for
-Drupal projects. The ruleset includes [Prettier](https://prettier.io/), so
-formatting problems show up in the same check as any other mistake.
+Drupal projects, including [Prettier](https://prettier.io/), so formatting
+problems show up in the same check as any other mistake.
 
 This page is for developers who write JavaScript in custom modules or the
-custom theme. It shows how to run ESLint, fix what it reports and ignore a
-rule. It also lists what the shipped configuration enforces. For problems
-with ESLint itself, see the
+custom theme. It shows how to run ESLint and fix what it reports, what the
+shipped configuration enforces and how to ignore a rule. For problems with
+ESLint itself, see the
 [ESLint repository](https://github.com/eslint/eslint).
 
 In **Vortex**, the root `lint-js` script lints only the custom modules in
@@ -226,8 +226,8 @@ sets the following options:
 
 **Vortex** sets `printWidth` to `160` in
 [`.prettierrc.json`](https://github.com/drevops/vortex/blob/main/.prettierrc.json),
-up from the Prettier default of `80`. A statement then stays on 1 line
-until it's longer than 160 characters. The `jsdocPrintWidth` option of the
+up from the Prettier default of `80`, so a statement stays on 1 line until
+it's longer than 160 characters. The `jsdocPrintWidth` option of the
 `@homer0/prettier-plugin-jsdoc` plugin holds documentation blocks to `80`
 columns, the comment width of the Drupal PHP coding standards.
 
@@ -315,8 +315,8 @@ is set to `1`. On GitHub Actions, the theme step reads
 `VORTEX_FRONTEND_BUILD_SKIP` from a repository variable and ignores `.env`.
 
 Each step runs the `lint` script, which runs ESLint and then Stylelint and
-stops at the first failure. An ESLint failure therefore stops Stylelint
-from running in that step.
+stops at the first failure, so an ESLint failure stops Stylelint from
+running in that step.
 
 ### Ignore failures
 

@@ -29,7 +29,7 @@ feature-specific module.
 
 The `ys` prefix abbreviates your project's machine name, `your_site` here.
 Use the same prefix for all your custom modules, and the site machine name
-for the theme. Each module and theme name then identifies its project. The
+for the theme, so each module and theme name identifies its project. The
 installer suggests both names:
 
 - The **Custom modules prefix** question offers up to 4 characters from the
@@ -48,7 +48,7 @@ its name.
 
 The
 [`ys_base.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/ys_base.deploy.php)
-file is a Drush deploy file. During site [provisioning](../provision.mdx),
+file is a Drush deploy file: during site [provisioning](../provision.mdx),
 Drush runs each of its `ys_base_deploy_*()` functions once and records
 which ones have run. Its single hook,
 `ys_base_deploy_install_active_theme()`, installs the core Olivero theme
@@ -111,14 +111,14 @@ them.
 2 more custom modules ship alongside the scaffold and demo modules:
 
 - `ys_search` configures the Search API index, the Solr server and the
-  search view for the [Solr service](../environment/docker.mdx#services).
-  It brings in the `workflows` and `content_moderation` core modules. On
+  search view for the [Solr service](../environment/docker.mdx#services),
+  and brings in the `workflows` and `content_moderation` core modules. On
   install, it uninstalls core's `search` module. Its deploy hook attaches
   an editorial workflow to the `page` content type. It ships only with the
   Solr service.
-- `ys_migrate` is a demo migration module. It migrates the `categories`
+- `ys_migrate` is a demo migration module that migrates the `categories`
   table of the second database into `tags` terms. It ships only with the
-  migration feature. See [Migrations](../migrations.mdx).
+  migration feature (see [Migrations](../migrations.mdx)).
 
 ## Tests scaffold
 
@@ -132,8 +132,8 @@ the file and the class. The copy extends `YsBaseKernelTestBase`, which the
 installer renames after your prefix.
 
 For a test in another module, put the copy in that module's
-`tests/src/Kernel` directory. Set its namespace to
-`Drupal\Tests\<module>\Kernel`, and import the base class from
+`tests/src/Kernel` directory, set its namespace to
+`Drupal\Tests\<module>\Kernel` and import the base class from
 `Drupal\Tests\ys_base\Kernel`. `ahoy test-kernel` runs the test, because
 the `kernel` suite in `phpunit.xml` collects every
 `web/modules/custom/**/tests/src/Kernel` directory.

@@ -12,7 +12,7 @@ what each module does, see [Contributed modules](contributed-modules.mdx).
 For the custom modules, see [Module scaffold](module-scaffold.mdx).
 
 **Vortex** ships up to 26 contributed modules, depending on your installer
-answers. Each one is already wired into the environment-aware
+answers, each already wired into the environment-aware
 [settings](../settings.mdx) and, where it needs installing, the
 [provisioning](../provision.mdx) scripts. You add the rest of your modules
 after the initial setup.
@@ -33,7 +33,7 @@ Deselecting 1 removes the following in a single pass:
 - Its assertions in the settings tests
 - Any other block the template marks for it, such as its variables in `.env`
 
-If you keep the demo module, keep Drupal helpers selected too. `ys_demo`
+If you keep the demo module, keep Drupal helpers selected too: `ys_demo`
 declares it as a dependency and calls it in its deploy hooks, so `ys_demo`
 can't install without it.
 
@@ -44,7 +44,7 @@ The remaining 7 modules sit outside the **Modules** question:
   **Use a second database for migrations?** question.
 - Storybook follows the **Storybook component library?** question, which
   the installer asks only when you choose a custom theme.
-- Search API follows no question. It stays required even without the Solr
+- Search API follows no question and stays required even without the Solr
   service.
 
 The **Modules** and **Services** questions select every option by default.
@@ -94,7 +94,7 @@ When provisioning runs its custom scripts in the `local`, `ci`, `dev` and
   service, such as `Installed Redis module.`
 - 1 line per development module from
   `scripts/provision-10-enable-dev-modules.sh`, such as
-  `Installed Devel module.` SDC Devel prints
+  `Installed Devel module.`, except SDC Devel, which prints
   `Installed Single Directory Component development tools.`
 
 In `prod` and any other environment type, the demo and development scripts

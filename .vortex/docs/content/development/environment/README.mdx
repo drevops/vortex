@@ -114,7 +114,7 @@ that match what changed:
 </Tabs>
 
 If the branch changes `docker-compose.yml` or a file in `.docker/`, rebuild
-the images and recreate the containers. Run `ahoy up --build`, or
+the images and recreate the containers with `ahoy up --build`, or
 `docker compose up -d --build` without Ahoy.
 
 Confirm that the stack is healthy: `ahoy doctor` ends with
@@ -123,8 +123,8 @@ Confirm that the stack is healthy: `ahoy doctor` ends with
 ## Reset the project
 
 `ahoy reset` takes the stack down and deletes what the build installed, so
-your next `ahoy build` starts clean. After you confirm, it runs `ahoy down`.
-That removes the containers and their volumes, your local database
+your next `ahoy build` starts clean. After you confirm, it runs `ahoy down`,
+which removes the containers and their volumes, your local database
 included. `ahoy reset` then deletes the following:
 
 - `vendor`
@@ -142,7 +142,7 @@ at the current commit. After the soft reset, it runs these steps:
 4. Removes empty directories.
 
 The hard reset deletes your `.env.local`, the database dumps in `.data` and
-every other local override. Copy out anything you want to keep first.
+every other local override, so copy out anything you want to keep first.
 
 The following commands run each kind of reset:
 
@@ -180,7 +180,7 @@ To change a variable that `docker-compose.yml` passes to the containers,
 such as `DRUPAL_THEME`:
 
 1. Set the new value in `.env.local` or in `.env`.
-2. Recreate the containers. A plain restart keeps the old value:
+2. Recreate the containers (a plain restart keeps the old value):
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -201,15 +201,15 @@ its own reads only `.env`, so the Docker Compose command applies only
 `docker compose --env-file .env --env-file .env.local up -d`.
 
 Confirm that a container has the new value with
-`docker compose exec cli printenv VARIABLE_NAME`. Replace `VARIABLE_NAME`
-with the name of the variable you changed.
+`docker compose exec cli printenv VARIABLE_NAME`, where `VARIABLE_NAME` is
+the name of the variable you changed.
 
 Drupal also reads variables that `docker-compose.yml` doesn't pass, such as
 `DRUPAL_CLAMAV_ENABLED`. For web requests, PHP-FPM loads them from `.env`
-when its container starts. PHP-FPM never reads `.env.local`. To apply a
-change to `.env`, run `ahoy restart` or `docker compose restart`. A change
-to these variables leaves the container's configuration as it was, so
-`ahoy up` keeps the container running.
+when its container starts and never reads `.env.local`. To apply a change
+to `.env`, run `ahoy restart` or `docker compose restart`. A change to
+these variables leaves the container's configuration as it was, so `ahoy up`
+keeps the container running.
 
 To set such a variable on your machine only, such as a credential that
 must stay out of the committed `.env`:
@@ -226,10 +226,10 @@ must stay out of the committed `.env`:
 2. Set its value in `.env.local`.
 3. Run `ahoy up`.
 
-The `vendor/bin/vortex-*` scripts read both files each time they start. A
-variable that only the `vortex-*` scripts use, such as
-`VORTEX_PROVISION_OVERRIDE_DB`, takes effect without recreating anything.
-The [Docker page](docker.mdx#container-environment-variables) explains how
+A variable that only the `vendor/bin/vortex-*` scripts use, such as
+`VORTEX_PROVISION_OVERRIDE_DB`, takes effect without recreating anything,
+because the scripts read both files each time they start. The
+[Docker page](docker.mdx#container-environment-variables) explains how
 each value reaches a container.
 
 ➡️ See [Variables](../variables.mdx) for the full variable reference.

@@ -29,7 +29,7 @@ files:
 - Every file in `.vortex/tooling/src/`
 
 For each file, the script runs `shellcheck` and then
-`shfmt -i 2 -ci -s -d`. It stops at the first file that fails. Both
+`shfmt -i 2 -ci -s -d`, and it stops at the first file that fails. Both
 commands must be on your `PATH`.
 
 ### Requirements
@@ -57,7 +57,7 @@ defines:
     ```
 
    Scripts in `.vortex/tooling/src/` also carry a line between the comment
-   block and `set -eu`. That line loads `.env` and `.env.local` without
+   block and `set -eu` that loads `.env` and `.env.local` without
    overriding real environment variables. Copy it verbatim from any script
    in that directory, together with the ShellCheck directive that disables
    `SC1090` and `SC1091` for it.
@@ -100,7 +100,7 @@ defines:
    work that's starting, so it always reports its outcome, even when the
    work itself can't fail.
 
-   Keep the `# @formatter:off` and `# @formatter:on` markers.
+   Keep the `# @formatter:off` and `# @formatter:on` markers:
    `lint.scripts.sh` hides the lines between them from `shfmt`, so each
    helper stays on 1 line. The helpers differ by kind of script:
    - The scripts in `.vortex/tooling/src/` extend `task` and `pass` with a
@@ -162,7 +162,7 @@ defines:
 18. MUST use a script-specific prefix. For example, the variable that skips
     notifications in `vortex-notify` is `VORTEX_NOTIFY_SKIP`.
 19. MAY rely on another script's variables that lack a script-specific
-    prefix. MUST declare such variables in the header of the file.
+    prefix, but MUST declare such variables in the header of the file.
 20. MAY call other **Vortex** scripts (discouraged), but MUST source them
     instead of creating a sub-process. Sourcing runs the called script in
     the current shell, so both scripts share the same variables.
@@ -194,8 +194,8 @@ When you create or update **Vortex** variables, follow these guidelines:
 
 6. Variables SHOULD NOT be exported into the global scope unless absolutely
    necessary. Values in `.env` SHOULD have default values set, but SHOULD
-   be commented out. They stay visible that way without reaching the
-   global scope.
+   be commented out, so they stay visible without reaching the global
+   scope.
 
 ### Boilerplate script
 
@@ -237,12 +237,12 @@ scripts:
 
 Each test runs 1 script in isolation, with mocks standing in for external
 commands such as `drush`, `docker` and `composer`. The tests can then check
-how a script handles environment variables, flags and edge cases. They need
-no running Drupal site or Docker containers.
+how a script handles environment variables, flags and edge cases without a
+running Drupal site or Docker containers.
 
 The [`bats-helpers`](https://github.com/drevops/bats-helpers) library
 provides a step-based testing approach with built-in mocking and
-assertions. You define the expected inputs and outputs for each script.
+assertions, so you define the expected inputs and outputs for each script.
 
 No unit test starts a container, so the unit tests run much faster than
 the end-to-end tests. The test files in `.vortex/tooling/tests/unit/` cover
@@ -335,11 +335,11 @@ own:
 - `composer test-functional` runs the end-to-end tests, without coverage.
 
 The `Vortex - Test` workflow splits the functional suite into 6 parallel
-batches by PHPUnit group, `p0` to `p5`. Give every new test method a
+batches by PHPUnit group, `p0` to `p5`, so give every new test method a
 `#[Group('pN')]` attribute. A test without a `pN` group runs in CI only if
-it's in the `postbuild` group. `PostBuildTest` declares that group, and a
-CircleCI job runs it after the `build` job. To run 1 batch locally, pass
-its group: `composer test-functional -- --group=p1`.
+it's in the `postbuild` group, which `PostBuildTest` declares and a
+CircleCI job runs after the `build` job. To run 1 batch locally, pass its
+group: `composer test-functional -- --group=p1`.
 
 The suite reads these environment variables:
 
@@ -359,7 +359,7 @@ The suite reads these environment variables:
 - `TEST_VORTEX_DEBUG` - set to `1` for debug output.
 - `TEST_CIRCLECI_TOKEN` - a CircleCI API token for the post-build checks in
   `PostBuildTest`, the only test that reads it. The test skips itself
-  outside CircleCI. You need the token only on CircleCI, where the test
+  outside CircleCI, so you need the token only on CircleCI, where the test
   fails without it.
 
 Functional tests rely on database fixtures; see
@@ -434,7 +434,7 @@ The script needs the following:
 - A Docker Hub session with push permission to `drevops/` for any image
   mode.
 - The `demo-image`, `test-image` and `all` modes download `seed.sh` from a
-  pinned `drevops/mariadb-drupal-data` release. They verify it against a
+  pinned `drevops/mariadb-drupal-data` release and verify it against a
   recorded SHA-256 checksum. To adopt a newer release, update `SEED_URL`
   and `SEED_SHA256` together.
 - Those modes build each image for `linux/amd64` and `linux/arm64` through

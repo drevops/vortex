@@ -52,14 +52,14 @@ reads:
 
 Separate multiple headers with `|`, for example
 `Content-type: application/json|Authorization: Bearer API_KEY`. A value of
-your own replaces the default header. When your service expects JSON,
+your own replaces the default header, so when your service expects JSON,
 include `Content-type: application/json` in your value. When a header
 carries a credential, set the headers in the hosting environment variables.
 The deployment output prints the full header value, credential included, so
 restrict who can read the deployment log.
 
-The scripts load `.env` as a Bash file. Wrap a value that holds spaces, `|`
-or JSON in single quotes:
+The scripts load `.env` as a Bash file, so wrap a value that holds spaces,
+`|` or JSON in single quotes:
 
 ```shell title=".env"
 VORTEX_NOTIFY_WEBHOOK_PAYLOAD='{"text": "%message%"}'

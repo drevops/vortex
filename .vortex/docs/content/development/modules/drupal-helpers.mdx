@@ -8,8 +8,8 @@ sidebar_position: 3
 Deploy hooks and update scripts often create taxonomy trees, place blocks
 or import redirects from a CSV file.
 [Drupal helpers](https://www.drupal.org/project/drupal_helpers) turns each
-of those jobs into a method on a static facade. A deploy hook
-then reads as a short list of changes instead of entity API boilerplate.
+of those jobs into a method on a static facade, so a deploy hook reads as a
+short list of changes instead of entity API boilerplate.
 
 This page is for developers writing deploy hooks on a project built from
 **Vortex**. It shows how to call the helpers, which facades exist and how
@@ -119,8 +119,8 @@ Without a sandbox, both methods process every item in 1 pass. The
 bundle and optional conditions. The `batch()` method takes any array of
 items.
 
-Both methods return `NULL` while batches remain. After the last batch, they
-return the completion message for Drush to print, such as
+Both methods return `NULL` while batches remain and, after the last batch,
+the completion message for Drush to print, such as
 `Processed 120 node entities.` Each pass handles 50 items by default. To
 change the batch size, pass a second argument to the facade, for example
 `Helper::entity($sandbox, 100)`.
@@ -133,4 +133,4 @@ file uses `Helper::menu()` to add a `Pages` link to the main navigation
 during deployment. The hook checks for an existing link with `findItem()`
 before it creates the link. In its default safe mode, `createTree()`
 already matches links by title within their parent and creates only the
-missing ones. Running the hook again therefore creates no duplicate.
+missing ones, so running the hook again creates no duplicate.

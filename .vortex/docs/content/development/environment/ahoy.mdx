@@ -18,8 +18,8 @@ follows:
 
 Ahoy wraps longer commands into short ones, so your workflow stays the same
 across projects and team members. This page is for developers who run those
-commands every day. It shows how to call them and add your own. It also
-explains how Ahoy hands environment variables to the containers.
+commands every day. It shows how to call them and add your own, and explains
+how Ahoy hands environment variables to the containers.
 
 **Vortex** comes with a [pre-configured
 `.ahoy.yml`](https://github.com/drevops/vortex/blob/main/.ahoy.yml) that
@@ -50,9 +50,9 @@ ahoy --help
 ```
 
 Everything after the command name reaches the command, flags included. A
-`--` right after the command name is optional, because Ahoy removes it. For
-example, `ahoy test-bdd -- --tags=@smoke` passes `--tags=@smoke` to Behat.
-Ahoy's own flags, such as `--help`, `--version` and `--file`, go before the
+`--` right after the command name is optional: Ahoy removes it, so
+`ahoy test-bdd -- --tags=@smoke` passes `--tags=@smoke` to Behat. Ahoy's
+own flags, such as `--help`, `--version` and `--file`, go before the
 command name.
 
 Ahoy looks for `.ahoy.yml` in the current directory and its parents. It
@@ -99,7 +99,7 @@ commands:
 
 Each command runs under `bash -e`, so a multi-line command stops at the
 first line that fails. `ahoy confirm` is a hidden helper in the shipped
-`.ahoy.yml`. It asks the question and carries on only when you answer `y` or
+`.ahoy.yml`: it asks the question and carries on only when you answer `y` or
 `true`.
 
 To answer every prompt in advance, set `AHOY_CONFIRM_RESPONSE=y`, for
@@ -114,10 +114,10 @@ its `usage` text.
 ## Environment variables
 
 The entrypoint loads `.env` and then `.env.local`, and exports every
-variable they define. A value in `.env.local` overrides the one in `.env`.
-A variable already exported in your shell wins over both files. For
-example, `VORTEX_DEBUG=1 ahoy provision` turns on debug output whatever the
-files say.
+variable they define, so a value in `.env.local` overrides the one in
+`.env`. A variable already exported in your shell wins over both files, so
+`VORTEX_DEBUG=1 ahoy provision` turns on debug output whatever the files
+say.
 
 ➡️ See [Variables](../variables.mdx)
 
@@ -156,7 +156,7 @@ The entrypoint exports `.env` and `.env.local` into your shell first, so a
 `DRUPAL_` or `VORTEX_` value in `.env.local` reaches the command without
 recreating the container.
 
-`ahoy cli` joins its arguments into a single `bash -c` string. In an
+`ahoy cli` joins its arguments into a single `bash -c` string, so in an
 argument that contains spaces, escape each double quote as `\"`.
 
 The following shortcuts run Drush and Composer in the `cli` container:

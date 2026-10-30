@@ -16,7 +16,7 @@ Each container writes its output to Docker's log. `ahoy logs` shows that
 log by running `docker compose logs` with any arguments you add. Drupal
 records its own messages in the watchdog log, which Drush reads.
 
-`ahoy up` scans the container logs right after it starts the stack. It
+`ahoy up` scans the container logs right after it starts the stack and
 fails if any container has logged `[Error]`. When that happens, or when
 [Doctor](doctor.mdx) reports a container that isn't running, start with
 these commands:
@@ -83,11 +83,11 @@ Press <kbd>Ctrl+C</kbd> to stop following.
 
 ## Fix a failed start
 
-`ahoy up` runs `docker compose up --detach`. It then exits with status 1
-when `docker compose logs` contains the exact, case-sensitive text
-`[Error]`. `ahoy up` doesn't print the matching line. Each log line starts
-with the name of the container that wrote it, so the following command
-shows each matching line with its container:
+`ahoy up` runs `docker compose up --detach`, then exits with status 1 when
+`docker compose logs` contains the exact, case-sensitive text `[Error]`.
+`ahoy up` doesn't print the matching line. Each log line starts with the
+name of the container that wrote it, so the following command shows each
+matching line with its container:
 
 <Tabs>
   <TabItem value="ahoy" label="Ahoy" default>
@@ -102,9 +102,10 @@ shows each matching line with its container:
   </TabItem>
 </Tabs>
 
-A container keeps its log until it's removed. An old `[Error]` line keeps
-failing `ahoy up` after you fix the cause. To start a new log, recreate
-that container, for example with `ahoy up -- --force-recreate <service>`.
+A container keeps its log until it's removed, so an old `[Error]` line
+keeps failing `ahoy up` after you fix the cause. To start a new log,
+recreate that container, for example with
+`ahoy up -- --force-recreate <service>`.
 
 [Doctor](doctor.mdx) checks that the `cli`, `php`, `nginx` and `database`
 containers are running, in that order. At the first container that isn't

@@ -7,8 +7,8 @@ sidebar_position: 4
 
 The Jira channel posts a comment with the environment and login links on
 the issue named in the branch. It can also move the issue to another status
-and assign it to someone. The issue then tracks the deployment without
-manual updates.
+and assign it to someone, so the issue tracks the deployment without manual
+updates.
 
 This page is for the lead or DevOps engineer who connects deployments to a
 Jira project. It covers the setup steps, every variable the channel reads
@@ -25,7 +25,7 @@ To set up Jira notifications:
 3. Set `VORTEX_NOTIFY_JIRA_USER_EMAIL` in your `.env` file to the email
    address of the account that owns the token.
 4. Set `VORTEX_NOTIFY_JIRA_ENDPOINT` to the URL of your Jira site, for
-   example `https://your-org.atlassian.net`. The default is
+   example `https://your-org.atlassian.net`, because the default is
    `https://jira.atlassian.com`.
 5. Add `jira` to the comma-separated `VORTEX_NOTIFY_CHANNELS` list in your
    `.env` file, for example `VORTEX_NOTIFY_CHANNELS=email,jira`.

@@ -16,9 +16,8 @@ script.
 
 This page is for developers and DevOps engineers who configure a project's
 scripts locally, in CI or on the hosting platform. It explains where a
-value can come from and which one wins. The
-[variables list](#variables-list) at the end of the page documents every
-variable.
+value can come from and which one wins, then documents every variable in
+the [variables list](#variables-list) at the end of the page.
 
 Variables come in 2 main types:
 
@@ -27,13 +26,13 @@ stay the same for the life of the project. You usually set them in the
 `.env` file, or in the environment settings of your CI or hosting provider.
 
 **Runtime variables** change during the project's life to alter how a
-script behaves. For example, a runtime variable can change how a deployment
-runs or skip deploying a particular branch in CI.
+script behaves, for example to change how a deployment runs or skip
+deploying a particular branch in CI.
 
 ## `.env` and `.env.local` files
 
 `.env` holds the project's shared values and is committed with the code.
-It lists only some of the variables. The scripts set defaults for many
+It lists only some of the variables: the scripts set defaults for many
 optional ones, and the [variables list](#variables-list) documents them.
 To use a value other than the default, add the variable to `.env`.
 
@@ -54,17 +53,17 @@ Each source in the following list overrides the ones before it:
 5. The value in `.env.local`, where the last assignment in the file wins
 6. The value from the environment
 
-Each script loads `.env` and then `.env.local` itself. The script then
-restores every variable your environment had already exported. A value set
-in your shell, in CI or on the hosting platform wins over both files.
+Each script loads `.env` and then `.env.local` itself, then restores every
+variable your environment had already exported. A value set in your shell,
+in CI or on the hosting platform wins over both files.
 
 ## Naming conventions
 
 Variables that **Vortex** scripts own start with the `VORTEX_` prefix,
 which keeps them apart from everything else in the environment. A few go
-without it, such as `WEBROOT` and `PACKAGE_TOKEN`. `LOCALDEV_URL` holds the
-local development URL. It shares its value with the unprefixed
-`LAGOON_ROUTE` hosting route, so it stays unprefixed too.
+without it, such as `WEBROOT` and `PACKAGE_TOKEN`. `LOCALDEV_URL`, the local
+development URL, shares its value with the unprefixed `LAGOON_ROUTE`
+hosting route, so it stays unprefixed too.
 
 Drupal-specific variables start with the `DRUPAL_` prefix.
 

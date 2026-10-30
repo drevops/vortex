@@ -95,8 +95,7 @@ these steps in order:
 
 To print a one-time login link too, pass any argument, such as
 `ahoy info login`. Without an argument, the output ends with a reminder to
-run `ahoy login`. That command unblocks user 1 and prints a one-time login
-link.
+run `ahoy login`, which unblocks user 1 and prints a one-time login link.
 
 <AsciinemaPlayer
   src="/img/info.json"
@@ -123,7 +122,8 @@ fixer), Twig CS Fixer, ESLint and Stylelint.
 
 SDC Devel validates the custom theme's components against a provisioned
 site, so it runs separately as `ahoy lint-sdc`. Continuous integration runs
-DCLint and Hadolint from their Docker images. Neither has an Ahoy command.
+DCLint and Hadolint from their Docker images, so neither has an Ahoy
+command.
 
 <AsciinemaPlayer
   src="/img/lint.json"

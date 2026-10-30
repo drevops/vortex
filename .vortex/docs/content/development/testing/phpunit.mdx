@@ -10,9 +10,9 @@ import TabItem from '@theme/TabItem';
 
 [PHPUnit](https://phpunit.de/) tests your custom PHP code. This page is for
 the developers who write those tests on a project built from **Vortex**. It
-covers running any suite or a single test and what the shipped
-configuration enforces. It also lists which results can fail a build in
-continuous integration (CI). To unit-test JavaScript behaviors instead, see
+covers running any suite or a single test, what the shipped configuration
+enforces and which results can fail a build in continuous integration (CI).
+To unit-test JavaScript behaviors instead, see
 [Jest](jest.mdx).
 
 **Vortex** sets PHPUnit up with 4 test suites that follow Drupal's test
@@ -22,8 +22,8 @@ drive a real browser.
 
 **Vortex** includes a PHPUnit configuration in
 [`phpunit.xml`](https://github.com/drevops/vortex/blob/main/phpunit.xml),
-based on Drupal core's `core/phpunit.xml.dist`. Customize the test suites
-in that file for your project.
+based on Drupal core's `core/phpunit.xml.dist`, so you can customize the
+test suites in that file for your project.
 
 ## Usage
 
@@ -130,9 +130,9 @@ choose Olivero, Claro or Stark at its **Theme** prompt.
 The [Drupal settings
 tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/Drupal)
 check that the site gets the right settings for the environment type it
-runs in. Every module's settings vary across 5 environment types: `local`,
-`ci`, `dev`, `stage` and `prod`. A missed override is a common mistake, and
-it shows up only after you deploy to the environment that lacks it.
+runs in. Every module's settings vary across 5 environment types (`local`,
+`ci`, `dev`, `stage` and `prod`), so a missed override is a common mistake.
+It shows up only after you deploy to the environment that lacks it.
 
 Each test class covers 1 area:
 
@@ -150,15 +150,15 @@ to `settings.php` and the files it includes.
 The [CircleCI configuration
 tests](https://github.com/drevops/vortex/blob/main/tests/phpunit/CircleCiConfigTest.php)
 check the regular expressions that filter which branches and tags deploy to
-the hosting environment. These filters are hard to review by eye. The tests
-match each filter against sample branch and tag names. They also check
+the hosting environment, because these filters are hard to review by eye.
+The tests match each filter against sample branch and tag names and check
 that no filter pattern exceeds the 128 characters the CircleCI compiler
 accepts.
 
 The installer keeps this test only when you choose **CircleCI** at its
 **Continuous Integration provider** prompt. The test finds the deployment
-jobs by their position in the `commit` workflow. If you move a job in that
-list, update the test too. Keep the test in step with your continuous
+jobs by their position in the `commit` workflow, so if you move a job in
+that list, update the test too. Keep the test in step with your continuous
 integration configuration.
 
 ### Project conventions
@@ -211,8 +211,8 @@ for the tests:
 | `MINK_DRIVER_ARGS_WEBDRIVER` | Chrome at `http://chrome:4444/wd/hub`   | Starts Chrome for functional JavaScript tests                |
 
 By default, PHPUnit runs the tests of your custom modules and themes, plus
-the project-level tests in `tests/phpunit`. Those are the Drupal settings
-tests and, on CircleCI projects, the CircleCI configuration test.
+the project-level tests in `tests/phpunit`: the Drupal settings tests and,
+on CircleCI projects, the CircleCI configuration test.
 
 ### Test suites
 
@@ -359,8 +359,8 @@ environment variable in CircleCI.
 The check reads the line rate from `cobertura.xml`. When the rate is too
 low, the job log shows a line such as
 `FAIL: coverage 85.50% is below threshold 90%`. The check has no
-ignore-failure variable of its own. The check still runs and can still fail
-the build when you ignore PHPUnit failures.
+ignore-failure variable of its own, so it still runs and can still fail the
+build when you ignore PHPUnit failures.
 
 On pull requests, CI posts the coverage summary as a PR comment, with the
 threshold and a collapsible per-class breakdown. CI minimizes the older

@@ -26,7 +26,7 @@ provisioning steps and deploy hooks. For how code reaches a hosting
 environment before provisioning runs there, see
 [Deployment](../deployment/README.mdx).
 
-A single script does the whole job: `vortex-provision`. It ships in the
+A single script does the whole job: `vortex-provision`, which ships in the
 [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
 Composer package and installs at `vendor/bin/vortex-provision`. Your
 machine, CI and every hosting environment run that same script. The steps
@@ -38,9 +38,9 @@ environment type change what the steps do.
 Drush has a command for each deployment step, such as `drush updatedb`,
 `drush config:import` and `drush deploy:hook`. Running them by hand assumes
 the site is already bootstrapped and stable. That assumption breaks during
-an initial setup. It also breaks in environments that come and go, such as
-CI pipelines, container builds or multisite setups. There, a script has to
-run the steps in the right order and decide which of them apply.
+an initial setup, and in environments that come and go, such as CI
+pipelines, container builds or multisite setups. There, a script has to run
+the steps in the right order and decide which of them apply.
 
 The provision script does that orchestration:
 
@@ -133,18 +133,18 @@ decision. A site that isn't installed yet gets a fresh installation from the
 profile.
 
 With the `profile` type, an installed site keeps its database and skips
-sanitization. If `VORTEX_PROVISION_OVERRIDE_DB` is `1`, the script
-reinstalls the site from the profile. Everything after the installation
-runs the same way for both types.
+sanitization, unless `VORTEX_PROVISION_OVERRIDE_DB` is `1`, which makes the
+script reinstall the site from the profile. Everything after the
+installation runs the same way for both types.
 
 With a database container image, an installed site keeps the database the
 image provides, and the script imports nothing. The script still treats
-that database as fresh. It sanitizes the database and sets
+that database as fresh: it sanitizes the database and sets
 `VORTEX_PROVISION_OVERRIDE_DB=1` for your custom scripts.
 
 Right after the skip check (①), the script checks that the configuration
-directory in `$settings['config_sync_directory']` exists. If the directory
-is missing, the script stops with an error.
+directory in `$settings['config_sync_directory']` exists, and stops with an
+error if the directory is missing.
 
 ### Customize the flow
 
@@ -152,11 +152,11 @@ The following environment variables steer the flow:
 
 1. `VORTEX_PROVISION_SKIP=1`<br/>
    Skip provisioning entirely. The script exits as soon as it starts and
-   leaves the site alone. Use it in an emergency, when every kind of
+   leaves the site alone, so use it in an emergency, when every kind of
    automation has to stop.<br/><br/>
 2. `VORTEX_PROVISION_TYPE=profile`<br/>
-   Install Drupal from the profile in `DRUPAL_PROFILE` instead of importing
-   a `database` dump. `DRUPAL_PROFILE` defaults to `standard`. With exported
+   Install Drupal from the profile in `DRUPAL_PROFILE`, which defaults to
+   `standard`, instead of importing a `database` dump. With exported
    configuration present, the script runs
    `drush site:install --existing-config`, so the site installs from your
    configuration. This type suits sites without a persistent database. It
@@ -179,10 +179,10 @@ The following environment variables steer the flow:
    when no database is available. It applies to the `database` provision
    type only.<br/><br/>
 5. `VORTEX_PROVISION_POST_OPERATIONS_SKIP=1`<br/>
-   Stop right after the database import or profile installation. The script
-   skips every later step, from maintenance mode to the final configuration
-   check. CI uses it to cache a database in the state it was fetched, before
-   any updates run.<br/><br/>
+   Stop right after the database import or profile installation, so the
+   script skips every later step, from maintenance mode to the final
+   configuration check. CI uses it to cache a database in the state it was
+   fetched, before any updates run.<br/><br/>
 6. `VORTEX_PROVISION_USE_MAINTENANCE_MODE=1`<br/>
    Put the site into maintenance mode right after the database import or
    installation, and take it out again at the end. Visitors then don't reach
@@ -191,8 +191,8 @@ The following environment variables steer the flow:
 7. `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1`<br/>
    Fail the provisioning when `drush updatedb` changes active configuration.
    The script exports the configuration before and after the updates and
-   compares the 2 copies. `drush config:import` then can't silently
-   overwrite what an update hook changed. On failure, the script lists the
+   compares the 2 copies, so `drush config:import` can't silently overwrite
+   what an update hook changed. On failure, the script lists the
    changed files and keeps both exports for you to review. The check needs
    exported configuration files and is off by default.<br/><br/>
 8. `VORTEX_PROVISION_CACHE_REBUILD_AFTER_DB_UPDATE_SKIP=1`<br/>
@@ -283,9 +283,9 @@ maintenance page](../hosting/lagoon.mdx#serve-a-maintenance-page).
 
 ### Database sanitization
 
-Sanitization replaces real user data with safe values. A copy of production
-then can't email real people from a test run or show their details to the
-team. The script runs `drush sql:sanitize`, which does the following:
+Sanitization replaces real user data with safe values, so a copy of
+production can't email real people from a test run or show their details to
+the team. The script runs `drush sql:sanitize`, which does the following:
 
 - Replaces account email addresses and passwords
 - Scrubs the values of user fields
@@ -295,7 +295,7 @@ team. The script runs `drush sql:sanitize`, which does the following:
 :::warning
 
 Sanitization changes the imported database and leaves the dump file
-unchanged. Anyone with access to the dump can still read its sensitive
+unchanged, so anyone with access to the dump can still read its sensitive
 data.
 
 If your database holds highly sensitive data, sanitize the dump before it
@@ -310,7 +310,7 @@ Sanitization runs by default whenever provisioning brings in a fresh
 database: a dump import, a profile installation or a database container
 image. A fallback installation is the exception, because it skips every
 step after the install. Apart from a container image, sanitization is
-skipped whenever the script keeps an existing database. That includes a
+skipped whenever the script keeps an existing database, and that includes a
 database the hosting platform copied in, for example from production.
 
 Production keeps its own database between deployments, so it isn't
@@ -328,8 +328,8 @@ or in your hosting provider's environment variables:
 - `VORTEX_PROVISION_SANITIZE_DB_EMAIL=user_%uid@your-site-domain.example`\
   Replace every account email address with this pattern. Drush replaces
   `%uid` with the user ID. It also accepts `%mail`, the original address
-  with `@` changed to `_`. `%name` stands for the username with spaces
-  changed to `_`. `.env` ships with this value. Without it, the script uses
+  with `@` changed to `_`, and `%name`, the username with spaces changed to
+  `_`. `.env` ships with this value. Without it, the script uses
   `user+%uid@localhost`.<br/><br/>
 - `VORTEX_PROVISION_SANITIZE_DB_PASSWORD=<random or exact>`\
   Replace account passwords with this exact value. By default, the script
@@ -423,9 +423,9 @@ the latest backup. On Lagoon, it creates a new dump in place of reusing the
 dump made earlier that day.
 
 The dump stays in `.data` and goes into the database only when you import
-it. You can then reuse it, so refreshing the local environment needs no
-new fetch. To use a dump you downloaded yourself, name it `db.sql` and put
-it in the `.data` directory.
+it, so you can reuse it: refreshing the local environment needs no new
+fetch. To use a dump you downloaded yourself, name it `db.sql` and put it
+in the `.data` directory.
 
 ### Refresh the database
 
@@ -458,9 +458,9 @@ following:
 - Unblocks user 1 and prints a one-time login link at the end
 
 The dump replaces the current database only when no site is installed yet
-or `VORTEX_PROVISION_OVERRIDE_DB=1` is set. `.env.local.example` sets that
-variable, so it applies after you copy the file to `.env.local`. Otherwise,
-the site keeps its database and only the later steps run.
+or `VORTEX_PROVISION_OVERRIDE_DB=1` is set, which `.env.local.example` sets
+once you copy the file to `.env.local`. Otherwise, the site keeps its
+database and only the later steps run.
 
 To provision the site, run the following command:
 
@@ -546,25 +546,25 @@ database, run the following command:
 Confirm that the output includes `Exported database dump saved`, followed
 by the path of the new file.
 
-These dumps let you return the local environment to a known state later.
-Rename a dump to `.data/db.sql` and run `ahoy import-db`, or pass its path
+These dumps let you return the local environment to a known state later:
+rename a dump to `.data/db.sql` and run `ahoy import-db`, or pass its path
 to `ahoy import-db` directly. To pick the filename yourself, pass it to the
 export: `ahoy export-db db.sql` writes `.data/db.sql`. With
 `VORTEX_DB_IMAGE` set, the command exports a database container image
 instead of a file.
 
-Cache tables are exported with their structure and without their data.
-Drupal rebuilds them on demand, and their contents would only inflate the
-dump. To choose which tables are exported this way, set
+Cache tables are exported with their structure and without their data,
+because Drupal rebuilds them on demand and their contents would only
+inflate the dump. To choose which tables are exported this way, set
 `VORTEX_EXPORT_DB_FILE_STRUCTURE_TABLES` to a comma-separated list of table
 names. Each name can use the `*` wildcard, and the default is `cache*`. To
 export the data of every table, set the variable to an empty value.
 
 ## Run custom scripts
 
-Near the end of each run, the provision script runs your custom scripts. It
-runs them after sanitization, while the site is still in maintenance mode.
-Use them for tasks specific to your project, such as enabling modules
+Near the end of each run, the provision script runs your custom scripts,
+after sanitization and while the site is still in maintenance mode. Use
+them for tasks specific to your project, such as enabling modules
 conditionally or running migrations in a set order.
 
 To add a custom script:
@@ -577,16 +577,16 @@ To add a custom script:
 3. Run `ahoy provision`.
 
    Confirm that the provisioning output shows
-   `Running custom post-install script "./scripts/provision-50-custom.sh".`
-   A `Completed running of custom post-install script` line for the same
-   file follows later.
+   `Running custom post-install script "./scripts/provision-50-custom.sh".`,
+   followed later by a `Completed running of custom post-install script`
+   line for the same file.
 
 The provision script finds the file on each run, so there's nothing to
 register. `VORTEX_PROVISION_SCRIPTS_DIR` changes the directory it looks in,
 which defaults to `./scripts`.
 
 Scripts run in alphabetical order, so start each name with a 2-digit number
-to set the order. For example, `provision-50-custom.sh` runs before
+to set the order: `provision-50-custom.sh`, for example, runs before
 `provision-60-another-custom.sh`. Every matching script runs in every
 environment, production included. Each script has to check where it runs,
 and the shipped scripts check the environment type first. A script that
@@ -622,8 +622,8 @@ fi
 
 To act only on a fresh database, check `VORTEX_PROVISION_OVERRIDE_DB`. The
 provision script sets it to `1` for your scripts whenever the database is
-new. A new database comes from a dump import, a profile installation or a
-container image. The following check reads the variable:
+new: from a dump import, a profile installation or a container image. The
+following check reads the variable:
 
 ```shell
 if [ "${VORTEX_PROVISION_OVERRIDE_DB:-0}" = "1" ]; then
@@ -633,8 +633,8 @@ else
 fi
 ```
 
-The shipped `scripts/provision-40-example.sh` combines both checks. Use it
-as a starting point for your own scripts:
+The shipped `scripts/provision-40-example.sh` combines both checks, so use
+it as a starting point for your own scripts:
 
 <details>
   <summary>Example of a custom provision script</summary>
@@ -663,8 +663,8 @@ your own.
 ### Development modules
 
 **Vortex** ships a `scripts/provision-10-enable-dev-modules.sh` custom
-script. It installs the following modules in this order, each one only when
-the installer kept it:
+script that installs the following modules in this order, each one only
+when the installer kept it:
 
 - [SDC Devel](https://www.drupal.org/project/sdc_devel)
 - [Storybook](https://www.drupal.org/project/storybook), on projects with
@@ -699,19 +699,18 @@ of either set of modules, remove the corresponding script.
 
 Projects with the [Generated
 Content](https://www.drupal.org/project/generated_content) module install it
-from the same `scripts/provision-10-enable-dev-modules.sh` custom script.
-The script installs it after the development modules and before the search
-index is rebuilt.
+from the same `scripts/provision-10-enable-dev-modules.sh` custom script,
+after the development modules and before the search index is rebuilt.
 
 The module creates content from its own `hook_modules_installed()` when
-`GENERATED_CONTENT_CREATE=1` is set. The script installs the module with
-that variable, so the content appears as part of the install. The site
+`GENERATED_CONTENT_CREATE=1` is set, so the script installs the module with
+that variable and the content appears as part of the install. The site
 modules that provide the generated content plugins are already enabled by
 then, so the module picks up their plugins.
 
 To opt out of the content, set `DRUPAL_GENERATED_CONTENT_SKIP=1` in the
 `.env` file or in your hosting provider's environment variables. The module
-is still installed. You can generate the content later from the
+is still installed, so you can generate the content later from the
 administration interface at `/admin/config/development/generated-content`
 or with Drush, for example
 `drush generated-content:create-content node page 20`.
@@ -756,8 +755,8 @@ To opt out of search indexing, set `DRUPAL_SEARCH_INDEX_SKIP=1` in the
 ## Deploy hooks
 
 Update hooks automate database schema changes, data migrations and
-environment-specific deployment tasks. A change then ships together with
-the code that needs it, and nobody applies it by hand.
+environment-specific deployment tasks, so a change ships together with the
+code that needs it, and nobody applies it by hand.
 
 ### Hook types overview
 
@@ -775,7 +774,7 @@ All these hooks run automatically during the
 and post-update hooks, and `drush deploy:hook` runs the deploy hooks.
 
 For changes tied to a deployment, use deploy hooks. Each deploy hook runs
-only once. After it runs, Drush records its name in Drupal's key-value
+only once: after it runs, Drush records its name in Drupal's key-value
 store and skips it from then on.
 
 ### Example deploy hook

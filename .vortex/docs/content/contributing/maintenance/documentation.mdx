@@ -6,7 +6,7 @@ sidebar_position: 5
 
 This page is for contributors who write or change the **Vortex**
 documentation. It explains how the 2 kinds of documentation divide the
-work. It also covers building, checking and publishing this site, and
+work, and covers building, checking and publishing this site, and
 recording its demo videos.
 
 **Vortex** has 2 kinds of documentation, split by the question each one
@@ -21,14 +21,14 @@ answers:
 
 The per-project files record a project's own decisions, such as its testing
 conventions, its CI and hosting setup and its release configuration. They
-link here for **how** to carry each decision out. The how-to then lives in
-1 place, and a fix to it reaches every project.
+link here for **how** to carry each decision out, so the how-to lives in 1
+place and a fix to it reaches every project.
 
 ## www.vortextemplate.com
 
 This site holds the generic how-to guides for every project built from the
-**Vortex** template. They cover the tooling, the automation and the
-operations those projects share.
+**Vortex** template: the tooling, the automation and the operations those
+projects share.
 
 The site is built with Docusaurus and written in MDX, which is Markdown
 with React components. Its source lives in the
@@ -77,7 +77,7 @@ ahoy update-docs
 ```
 
 The documentation workflows run the same extraction and fail when its
-result differs from the committed page. Commit the result together with
+result differs from the committed page, so commit the result together with
 the change that caused it. A running `ahoy docs` server picks up the new
 content straight away.
 
@@ -99,7 +99,7 @@ ahoy test-docs
 `tests/` with ESLint and Prettier. `ahoy lint-docs-fix` applies the fixes
 that ESLint, Prettier and markdownlint can make on their own.
 `ahoy test-docs` installs the site's dependencies when they're missing,
-and `ahoy lint-docs` doesn't. On a fresh checkout, run `ahoy install`
+and `ahoy lint-docs` doesn't, so on a fresh checkout, run `ahoy install`
 first.
 
 When cspell rejects a correct word, add it to the `words` list in
@@ -110,16 +110,16 @@ on a broken link. A link to a missing anchor only prints a warning,
 so look for those in the build output.
 
 Lines can't run past 76 characters, and markdownlint enforces the limit.
-Code blocks, tables and headings are exempt. So is a line that holds only 1
-unbroken token, such as a long URL. Code inside a JSX element such as
-`<TabItem>` still counts, so split a long command there with `\`.
+Code blocks, tables and headings are exempt, and so is a line that holds
+only 1 unbroken token, such as a long URL. Code inside a JSX element such
+as `<TabItem>` still counts, so split a long command there with `\`.
 
 ### Prose style
 
 [Vale](https://vale.sh) checks the prose of every page against the house
 style. `yarn install` in `.vortex/docs` installs the Vale binary from the
 [Vale npm package](https://www.npmjs.com/package/@vvago/vale), a
-development dependency of the site. Vale reports 2 levels of alert. Errors
+development dependency of the site. Vale reports 2 levels of alert: errors
 fail the run and the continuous integration build, and warnings are
 advisory.
 
@@ -230,21 +230,21 @@ and what it records:
 | `doctor` | `ahoy doctor` |
 | `doctor-info` | `ahoy doctor info` |
 
-To re-record every video, run `ahoy update-videos` from `.vortex/`. To
-record a subset, pass the video names, separated by spaces or commas. For
+Run `ahoy update-videos` from `.vortex/` to re-record every video, or pass
+the video names, separated by spaces or commas, to record a subset. For
 each video, the command writes `<name>.json`, `<name>.svg` and
 `<name>.png` to `.vortex/docs/static/img/`.
 
-A default run wipes the workspace in `.artifacts/tmp/videos-workspace/`.
-It then builds the installer and installs a fresh project there. Every
-video except `installer` needs that project built, so the run builds it
-once. Add `--keep` to reuse the existing workspace and its running Docker
-stack and skip that bootstrap. A `--keep` run can't re-record `installer`.
+A default run wipes the workspace in `.artifacts/tmp/videos-workspace/`,
+builds the installer and installs a fresh project there. Every video
+except `installer` needs that project built, so the run builds it once.
+Add `--keep` to reuse the existing workspace and its running Docker stack
+and skip that bootstrap. A `--keep` run can't re-record `installer`.
 
 The recorder decodes every recording to text at
 `.artifacts/videos/<name>.txt`. It doesn't render a recording whose output
 reports an error, a warning or a failure, so every video shows commands
-that succeed. No flag overrides that check. Fix the command that printed
+that succeed. No flag overrides that check: fix the command that printed
 the output, then record again.
 
 Recording needs these commands on your `PATH`:
@@ -253,7 +253,7 @@ Recording needs these commands on your `PATH`:
   video
 - `ahoy` and `docker` for every video except `installer`
 
-The command doesn't commit anything. Review the diff under
+The command doesn't commit anything, so review the diff under
 `.vortex/docs/static/img/` and commit it yourself. For the recording
 pipeline, see [Installer > Installer video](installer.mdx#installer-video).
 
@@ -262,12 +262,11 @@ pipeline, see [Installer > Installer video](installer.mdx#installer-video).
 The published site serves 2 majors at once. The `VORTEX_CURRENT_MAJOR`
 repository variable picks the current major, and it defaults to `1`. The
 build serves a snapshot of that major's branch, `main`, as the default
-version at `/docs`. It serves the other major's `{N}.x` branch at
-`/docs/v{N}`.
+version at `/docs`, and the other major's `{N}.x` branch at `/docs/v{N}`.
 
-The other major's pages carry a banner. The banner reads "unreleased" when
-that major is newer than the current major, and "unmaintained" when it's
-older. `/docs/v{current}` redirects to `/docs`.
+The other major's pages carry a banner that reads "unreleased" when that
+major is newer than the current major, and "unmaintained" when it's older.
+`/docs/v{current}` redirects to `/docs`.
 
 The content on each branch links against the bare `/docs` mount, so an
 absolute link such as `/docs/development/testing/behat` points at the
@@ -275,9 +274,9 @@ current major. The build moves the other major's content under
 `/docs/v{N}` and re-points those links at the major they were written for.
 A link that already names a version keeps its target.
 
-The build rewrites only Markdown link targets. Write an absolute docs link
-as `[label](/docs/...)`, never inside a JSX attribute. Write every other
-link the way it reads on its own branch.
+The build rewrites only Markdown link targets, so write an absolute docs
+link as `[label](/docs/...)`, never inside a JSX attribute. Write every
+other link the way it reads on its own branch.
 
 Static assets work the same way. Both majors record their own demo videos
 and diagrams under the same `static/img` names. The build serves the other
@@ -298,9 +297,9 @@ ahoy docs-combined
 ahoy docs-combined-serve
 ```
 
-The build writes only inside `docs_combined`, a git-ignored copy of `docs`.
-Every run rebuilds it from scratch, and you can delete it at any time. The
-build only reads the tracked `docs` directory, so `ahoy docs` and
+The build writes only inside `docs_combined`, a git-ignored copy of `docs`
+that every run rebuilds from scratch and that you can delete at any time.
+The build only reads the tracked `docs` directory, so `ahoy docs` and
 `ahoy build-docs` keep working on this branch's documentation alone.
 
 The build treats this checkout as the current major, unless
@@ -334,8 +333,8 @@ documentation checks pass:
   request from this repository, the workflow posts the preview link on it
   as a comment.
 
-A `release-docs` or `release-installer` branch publishes to the live site.
-Until the next publish, everyone gets that branch's documentation and
+A `release-docs` or `release-installer` branch publishes to the live site,
+so until the next publish, everyone gets that branch's documentation and
 installer.
 
 ## Consumer site documentation

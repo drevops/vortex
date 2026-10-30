@@ -64,8 +64,8 @@ versions of its own dependencies, pick 1 of 2 fixes:
 - Require each of those dependencies with a stability flag too.
 - Lower `minimum-stability` in `composer.json`.
 
-A stability level allows itself and everything more stable. A
-`minimum-stability` of `beta` allows `beta`, `RC` and stable releases. It
+A stability level allows itself and everything more stable, so a
+`minimum-stability` of `beta` allows `beta`, `RC` and stable releases but
 rejects `alpha` and `dev`:
 
 ```json
@@ -74,8 +74,9 @@ rejects `alpha` and `dev`:
 }
 ```
 
-**Vortex** ships `prefer-stable` set to `true`. Keep it, so Composer still
-picks a stable release whenever a stable release satisfies the constraint.
+Keep `prefer-stable` set to `true`, as **Vortex** ships it, so Composer
+still picks a stable release whenever a stable release satisfies the
+constraint.
 
 ## Add JavaScript and CSS libraries (npm packages)
 
@@ -219,8 +220,8 @@ also has fewer versions to consider, so dependency resolution runs faster.
 
 :::note
 
-**Vortex** bumps automatically because it's built for Drupal sites. On an
-application project like a site, you control the whole dependency tree.
+**Vortex** bumps automatically because it's built for Drupal sites,
+application projects where you control the whole dependency tree.
 
 A library, which is a reusable package, keeps its constraints as broad as
 possible to spare downstream users [dependency
@@ -280,13 +281,13 @@ package-specific path must come before the catch-all for its type.
 
 ## Vortex tooling package
 
-**Vortex** ships its operational scripts as the
+**Vortex** ships its operational scripts, such as the database,
+provisioning, deployment and notification scripts, as the
 [`drevops/vortex-tooling`](https://github.com/drevops/vortex-tooling)
-Composer package. They include the database, provisioning, deployment and
-notification scripts. The scripts live in
-`vendor/drevops/vortex-tooling/src/`. Composer exposes each entry-point
-script as a binary under `vendor/bin/vortex-*`, such as
-`vendor/bin/vortex-provision` or `vendor/bin/vortex-fetch-db`.
+Composer package. The scripts live in `vendor/drevops/vortex-tooling/src/`.
+Composer exposes each entry-point script as a binary under
+`vendor/bin/vortex-*`, such as `vendor/bin/vortex-provision` or
+`vendor/bin/vortex-fetch-db`.
 
 See [Architecture > Automation
 scripts](../architecture.mdx#automation-scripts) for how the scripts are
@@ -332,8 +333,8 @@ replaces the files whenever it reinstalls or updates the package. Customize
 the scripts through their [environment variables](variables.mdx), or add
 your own scripts under `scripts/`, such as
 [custom provision scripts](provision.mdx#run-custom-scripts). When
-neither is enough, apply a [patch](#patch-dependencies). Composer applies it
-again whenever it installs or updates the package.
+neither is enough, apply a [patch](#patch-dependencies), which Composer
+applies again whenever it installs or updates the package.
 
 :::
 
@@ -529,11 +530,11 @@ reference, the audit commands and how to ignore assessed advisories.
 **Vortex** ships a pre-configured `composer.json` with the packages a Drupal
 project needs and the development tools that check your code quality.
 
-The `composer.json` file is Composer's core configuration file. It declares
+The `composer.json` file is Composer's core configuration file: it declares
 your project's dependencies, where they install and how Composer behaves.
 The `lint` job in continuous integration checks it with
-`composer validate --strict` and `composer normalize --dry-run`. After you
-edit the file by hand, run `ahoy composer normalize`.
+`composer validate --strict` and `composer normalize --dry-run`, so after
+you edit the file by hand, run `ahoy composer normalize`.
 
 This section describes each part of the file and its role.
 
@@ -558,8 +559,8 @@ fills in your site and organization names.
 
 #### `type`
 
-`type` sets how Composer and the tools built on it treat the package. The
-type can change how the package is installed and used. **Vortex** sets it to
+`type` sets how Composer and the tools built on it treat the package, which
+can change how the package is installed and used. **Vortex** sets it to
 `project`, the type for an application.
 
 #### `license`
@@ -708,9 +709,9 @@ setting, when set to `true`, makes Composer choose a stable release over a
 pre-release whenever a stable release satisfies the constraint. A
 requirement with a stability flag, such as
 `"drupal/config_update": "^2@alpha"`, then gets an alpha only while no
-stable 2.x release exists. The same applies when
-you lower `minimum-stability` for a fix that's only in a pre-release. Every
-package with a stable release still gets that stable release.
+stable 2.x release exists. The same applies when you lower
+`minimum-stability` for a fix that's only in a pre-release: every package
+with a stable release still gets that stable release.
 
 #### `config`
 

@@ -6,13 +6,12 @@ sidebar_position: 4
 # Generated Content
 
 [Generated Content](https://www.drupal.org/project/generated_content) fills
-a site with placeholder content from code. A rebuilt environment then comes
+a site with placeholder content from code, so a rebuilt environment comes
 back with pages, terms and files already in place. You write a plugin per
 bundle, and the module runs the plugins in order. The module runs the
 plugins when it's installed with `GENERATED_CONTENT_CREATE=1`, or whenever
-you ask it to.
-Plugins built on its static helpers produce identical output on every run,
-which visual regression tests and consistent demo sites need.
+you ask it to. Plugins built on its static helpers produce identical output
+on every run, which visual regression tests and consistent demo sites need.
 
 This page is for developers on a project built from **Vortex** who need
 demo or test content. It shows how to write a generator plugin, which
@@ -23,9 +22,9 @@ is the reference for its full API.
 ## Plugin system
 
 Each generator is a PHP class in a module's `src/Plugin/GeneratedContent/`
-directory. The class carries the `#[GeneratedContent]` attribute and
-extends `GeneratedContentPluginBase`. Its `generate()` method creates the
-entities and returns them, so the module can track them for cleanup.
+directory, carrying the `#[GeneratedContent]` attribute and extending
+`GeneratedContentPluginBase`. Its `generate()` method creates the entities
+and returns them, so the module can track them for cleanup.
 
 ### Create a plugin
 
@@ -107,7 +106,7 @@ following examples show some of its methods. The module documentation lists
 the full set.
 
 Static helpers return the same values on every run, which visual
-regression testing needs. They read a fixed list of text in order. The
+regression testing needs. They read a fixed list of text in order, so the
 output stays stable as long as the plugins make the same calls in the same
 order:
 
@@ -117,8 +116,8 @@ $this->helper::staticSentence(5);     // Sentence of 5 words.
 $this->helper::staticRichText(3);     // 3 paragraphs of HTML.
 ```
 
-Random helpers vary on every run. They suit content that only needs to make
-the site look populated:
+Random helpers vary on every run, which suits content that only needs to
+make the site look populated:
 
 ```php
 $this->helper::randomName();
@@ -139,7 +138,7 @@ $node->set('field_author', $this->helper::staticUser());
 
 Asset helpers create managed files. By default, `createFile()` draws a
 random image for `png`, `jpg` and `jpeg`. For any other extension, it
-writes a placeholder text file under that extension. It also raises a PHP
+writes a placeholder text file under that extension and also raises a PHP
 notice, unless the extension is `txt`.
 
 To get a real file, pass the static generation type as the third argument.
@@ -155,7 +154,7 @@ static type covers the following extensions:
 - `xls` and `xlsx`
 
 For any other extension, such as `csv`, `createFile()` throws an exception
-before it creates a file. The message reads
+before it creates a file, with the message
 `Assets of type csv do not exist.` The following calls create a random
 image and a static PDF:
 
@@ -186,7 +185,7 @@ drush generated-content:create-content node page 20
 ```
 
 The command needs all 3 arguments. It splits the count into batches of 50
-and runs the bundle's plugin once per batch. The plugin decides how many
+and runs the bundle's plugin once per batch, so the plugin decides how many
 entities each run creates. With `20`, the `Page` plugin runs once and
 creates its 20 pages. Confirm that the new pages appear in the content list
 at `/admin/content`.
@@ -209,16 +208,16 @@ To generate content from the administration interface, go to
 page needs the `generate content` permission. It lists every plugin with
 its weight, its tracking setting and the number of entities it created.
 
-Select the plugins to process, or none to process them all. Then click
+Select the plugins to process, or none to process them all, then click
 **Generate**, **Delete** or **Regenerate**. **Delete** removes only the
 entities the module tracks.
 
 ### Environment variable
 
 With `GENERATED_CONTENT_CREATE=1` set, installing `generated_content` or a
-module that provides plugins generates the content. An install during a
-configuration import generates nothing. Generation runs only while no
-generated content exists, so a module installed later adds no duplicates.
+module that provides plugins generates the content, except during a
+configuration import. Generation runs only while no generated content
+exists, so a module installed later adds no duplicates.
 `GENERATED_CONTENT_ITEMS` limits generation to a comma-separated list of
 `entity_type-bundle` pairs:
 
@@ -230,7 +229,7 @@ GENERATED_CONTENT_ITEMS="taxonomy_term-tags,node-page"
 
 **Vortex** installs the module from
 [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh)
-in the `local`, `ci`, `dev` and `stage` environments. The script sets
+in the `local`, `ci`, `dev` and `stage` environments and sets
 `GENERATED_CONTENT_CREATE=1` for that install, so the content arrives with
 the module. Setting `DRUPAL_GENERATED_CONTENT_SKIP=1` installs the module
 without the content.

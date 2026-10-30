@@ -44,7 +44,7 @@ To turn test mode off by hand, use 1 of the following:
 - On the Testmode settings page, select **Disabled** under **Test mode**,
   then click **Save configuration**.
 - From code, call `Testmode::getInstance()->disableTestMode()`.
-- With Drush, delete the state flag. Then invalidate the `testmode:views`
+- With Drush, delete the state flag, then invalidate the `testmode:views`
   cache tag that Testmode adds to the views it filters, so their cached
   listings are rebuilt.
 
@@ -82,7 +82,7 @@ The default settings do the following:
 **Vortex** adds `testmode` to `config_exclude_modules` in
 [`settings.testmode.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.testmode.php),
 so the module and its settings stay out of the exported configuration.
-Configuration import therefore doesn't enable the module.
+Configuration import therefore doesn't enable the module, so
 [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh)
 installs it instead, with the other
 [development modules](../provision.mdx#development-modules), in the
@@ -93,7 +93,7 @@ declares it as a dependency, so installing the demo module brings it in.
 
 The `Testmode` singleton reads and writes that configuration. The settings
 stay out of the exported configuration, so register a view from a deploy
-hook in your module's `MODULE.deploy.php` file. `ys_demo` does this in
+hook in your module's `MODULE.deploy.php` file, as `ys_demo` does in
 `ys_demo.deploy.php`:
 
 ```php
@@ -178,6 +178,6 @@ The `ys_demo` module puts these pieces together:
   `ys_demo_deploy_configure_testmode` deploy hook.
 - The
   [`pages.feature`](https://github.com/drevops/vortex/blob/main/tests/behat/features/pages.feature)
-  Behat feature in `tests/behat/features` covers the view. The feature
-  demonstrates the `@testmode` tag against the
+  Behat feature in `tests/behat/features` covers the view and demonstrates
+  the `@testmode` tag against the
   [generated content](generated-content.mdx) that the view filters out.
