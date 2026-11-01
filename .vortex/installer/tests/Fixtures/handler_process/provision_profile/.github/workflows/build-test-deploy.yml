@@ -94,7 +94,7 @@
 -            echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
 -            echo "VORTEX_FRONTEND_BUILD_SKIP=1"
 -            # Import the fetched database into a clean base image (if database-in-image storage is used).
--            echo "VORTEX_DB_IMAGE_BASE=drevops/mariadb-drupal-data:__VERSION__"
+-            echo "VORTEX_DB_IMAGE_BASE=drevops/db-data-mysql-8.4:__VERSION__"
 -            # Deploy container image (if database-in-image storage is used).
 -            echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
 -          } >> "$GITHUB_ENV"
