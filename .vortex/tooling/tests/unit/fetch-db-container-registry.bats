@@ -79,7 +79,7 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'tagged base image'" 3
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
-  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
@@ -87,14 +87,14 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-fetch-db-container-registry
   assert_success
   assert_output_contains "[INFO] Started database data container image fetch."
-  assert_output_contains "Tagging base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/myapp."
-  assert_output_contains "[ OK ] Tagged base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/myapp."
+  assert_output_contains "Tagging base image drevops/db-data-mysql-8.4:26.11.0 as database container image myorg/myapp."
+  assert_output_contains "[ OK ] Tagged base image drevops/db-data-mysql-8.4:26.11.0 as database container image myorg/myapp."
   assert_output_contains "[ OK ] Finished database data container image fetch."
   assert_output_not_contains "Fetching myorg/myapp image from the registry."
 
   assert_equal "3" "$(mock_get_call_num "${mock_docker}")"
-  assert_string_contains "$(mock_get_call_args "${mock_docker}" 2)" "pull drevops/mariadb-drupal-data:26.10.0"
-  assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "tag drevops/mariadb-drupal-data:26.10.0 myorg/myapp"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 2)" "pull drevops/db-data-mysql-8.4:26.11.0"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "tag drevops/db-data-mysql-8.4:26.11.0 myorg/myapp"
 
   popd >/dev/null
 }
@@ -107,15 +107,15 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "exit 1" 2
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
-  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"
 
   run .vortex/tooling/src/vortex-fetch-db-container-registry
   assert_failure
-  assert_output_contains "Tagging base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/myapp."
-  assert_output_contains "[FAIL] Unable to pull base image drevops/mariadb-drupal-data:26.10.0."
+  assert_output_contains "Tagging base image drevops/db-data-mysql-8.4:26.11.0 as database container image myorg/myapp."
+  assert_output_contains "[FAIL] Unable to pull base image drevops/db-data-mysql-8.4:26.11.0."
   assert_output_not_contains "Tagged base image"
   assert_output_not_contains "Finished database data container image fetch."
 
@@ -159,16 +159,16 @@ load ../_helper.bash
 
   export VORTEX_DB_INDEX="2"
   export VORTEX_DB2_IMAGE="myorg/migration-db"
-  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   export VORTEX_FETCH_DB2_CONTAINER_REGISTRY="registry.example.com"
   export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_USER="testuser"
   export VORTEX_FETCH_DB2_CONTAINER_REGISTRY_PASS="testpass"
 
   run .vortex/tooling/src/vortex-fetch-db-container-registry
   assert_success
-  assert_output_contains "[ OK ] Tagged base image drevops/mariadb-drupal-data:26.10.0 as database container image myorg/migration-db."
+  assert_output_contains "[ OK ] Tagged base image drevops/db-data-mysql-8.4:26.11.0 as database container image myorg/migration-db."
 
-  assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "tag drevops/mariadb-drupal-data:26.10.0 myorg/migration-db"
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 3)" "tag drevops/db-data-mysql-8.4:26.11.0 myorg/migration-db"
 
   popd >/dev/null
 }
@@ -184,7 +184,7 @@ load ../_helper.bash
   mock_set_side_effect "${mock_docker}" "echo 'pulled image'" 3
 
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_IMAGE="myorg/myapp"
-  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_DB_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY="registry.example.com"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_USER="testuser"
   export VORTEX_FETCH_DB_CONTAINER_REGISTRY_PASS="testpass"

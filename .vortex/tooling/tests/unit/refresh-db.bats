@@ -91,7 +91,7 @@ load ../_helper.bash
   touch .data/db.sql
 
   export VORTEX_DB_IMAGE="myorg/db"
-  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_DB_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   export VORTEX_FETCH_DB_SOURCE="url"
 
   stub_sibling "vortex-login-container-registry" "Logged in to the registry."
@@ -107,7 +107,7 @@ load ../_helper.bash
 
   run .vortex/tooling/src/vortex-refresh-db
   assert_success
-  assert_output_contains "Tagged base image drevops/mariadb-drupal-data:26.10.0."
+  assert_output_contains "Tagged base image drevops/db-data-mysql-8.4:26.11.0."
   assert_output_not_contains "Exporting the database from the myorg/db image"
   assert_output_not_contains "Rebuilding the database service"
   assert_output_contains "[ OK ] Copied database dump file ./.data/db.sql into the cli container."
@@ -128,7 +128,7 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_DB_IMAGE="myorg/db"
-  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_DB_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   export VORTEX_FETCH_DB_SOURCE="container_registry"
   export VORTEX_REFRESH_DB_SOURCE="url"
   touch "${BUILD_DIR}/bash_env"
@@ -151,7 +151,7 @@ load ../_helper.bash
   assert_success
   # The dump file comes from the refresh source, never from the fetched image.
   assert_output_contains "Fetched from url with force 1 and BASH_ENV []."
-  assert_output_contains "Tagged base image drevops/mariadb-drupal-data:26.10.0."
+  assert_output_contains "Tagged base image drevops/db-data-mysql-8.4:26.11.0."
   assert_output_contains "[ OK ] Copied database dump file ./.data/db.sql into the cli container."
   assert_output_contains "Exported the database to db.sql."
   assert_output_contains "[ OK ] Finished database refresh."
@@ -197,7 +197,7 @@ load ../_helper.bash
   rm -f .data/db.sql
 
   export VORTEX_DB_IMAGE="myorg/db"
-  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_DB_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   export VORTEX_FETCH_DB_SOURCE="container_registry"
   export VORTEX_REFRESH_DB_SOURCE="url"
 
@@ -222,7 +222,7 @@ load ../_helper.bash
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   export VORTEX_DB_IMAGE="myorg/db"
-  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_DB_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   export VORTEX_FETCH_DB_SOURCE="container_registry"
 
   stub_sibling "vortex-login-container-registry" "Logged in to the registry."
@@ -275,7 +275,7 @@ load ../_helper.bash
 
   export VORTEX_DB_INDEX="2"
   export VORTEX_DB2_IMAGE="myorg/migration-db"
-  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_DB_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   unset VORTEX_REFRESH_DB2_PROCEED
 
   stub_sibling "vortex-login-container-registry" "Logged in to the registry."
@@ -320,7 +320,7 @@ load ../_helper.bash
 
   export VORTEX_DB_INDEX="2"
   export VORTEX_REFRESH_DB2_PROCEED=1
-  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_DB_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   unset VORTEX_DB2_IMAGE
 
   mock_docker=$(mock_command "docker")
@@ -343,7 +343,7 @@ load ../_helper.bash
   export VORTEX_DB_INDEX="2"
   export VORTEX_DB2_IMAGE="myorg/migration-db"
   export VORTEX_REFRESH_DB2_PROCEED=1
-  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_DB_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   export VORTEX_FETCH_DB2_SOURCE="url"
   unset VORTEX_DB2_IMAGE_BASE
 
@@ -364,8 +364,8 @@ load ../_helper.bash
   assert_output_contains "[INFO] Started database 2 refresh."
   # A file source is fetched by the migration fetch step, not by the refresh.
   assert_output_not_contains "Fetched the dump file."
-  assert_output_contains "Tagged base image drevops/mariadb-drupal-data:26.10.0 for index 2."
-  assert_output_contains "[ OK ] Imported database dump file ./.data/db2.sql into the database2 service on the drevops/mariadb-drupal-data:26.10.0 base image."
+  assert_output_contains "Tagged base image drevops/db-data-mysql-8.4:26.11.0 for index 2."
+  assert_output_contains "[ OK ] Imported database dump file ./.data/db2.sql into the database2 service on the drevops/db-data-mysql-8.4:26.11.0 base image."
   assert_output_contains "Exported service database2 as myorg/migration-db to db2.sql."
   assert_output_contains "Pushed database 2 image."
   assert_output_not_contains "Exported the primary database."
@@ -387,7 +387,7 @@ load ../_helper.bash
   export VORTEX_DB_INDEX="2"
   export VORTEX_DB2_IMAGE="myorg/migration-db"
   export VORTEX_REFRESH_DB2_PROCEED=1
-  export VORTEX_DB2_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_DB2_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   export VORTEX_FETCH_DB2_SOURCE="container_registry"
   export VORTEX_REFRESH_DB2_SOURCE="url"
 
@@ -406,7 +406,7 @@ load ../_helper.bash
   run .vortex/tooling/src/vortex-refresh-db
   assert_success
   assert_output_contains "Fetched index 2 from url with force 1."
-  assert_output_contains "Tagged base image drevops/mariadb-drupal-data:26.10.0."
+  assert_output_contains "Tagged base image drevops/db-data-mysql-8.4:26.11.0."
   assert_output_contains "Exported service database2."
   assert_output_contains "Pushed database 2 image."
   assert_output_contains "[ OK ] Finished database 2 refresh."
@@ -425,7 +425,7 @@ load ../_helper.bash
   export VORTEX_DB_INDEX="2"
   export VORTEX_DB2_IMAGE="myorg/migration-db"
   export VORTEX_REFRESH_DB2_PROCEED=1
-  export VORTEX_DB_IMAGE_BASE="drevops/mariadb-drupal-data:26.10.0"
+  export VORTEX_DB_IMAGE_BASE="drevops/db-data-mysql-8.4:26.11.0"
   export VORTEX_FETCH_DB2_SOURCE="url"
 
   stub_sibling "vortex-login-container-registry" "Logged in to the registry."

@@ -343,9 +343,12 @@ At that size, package the dump into a container image overnight, or use a
 sanitized dump that holds only the data the tests need.
 
 **Vortex** can both create and use a database container image with the data
-built in. To create the first image, use [MariaDB data container for Drupal
-with database captured as Docker
-layers](https://github.com/drevops/mariadb-drupal-data).
+built in. To create the first image, use [Database data
+images](https://github.com/drevops/database-data-images). The scheduled run
+builds on `drevops/db-data-mysql-8.4`, which matches the default database
+service. For a project on MariaDB, set `VORTEX_DB_IMAGE_BASE` in the CI
+configuration to `drevops/db-data-mariadb-10.11`. MySQL can't open a MariaDB
+data directory, so moving an image to MySQL means rebuilding it from a dump.
 
 Other tools serve the same goal. [Drush GDPR
 Dumper](https://github.com/robiningelbrecht/drush-gdpr-dumper), for example,
