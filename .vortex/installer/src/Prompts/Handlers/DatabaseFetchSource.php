@@ -140,6 +140,13 @@ class DatabaseFetchSource extends AbstractHandler {
         File::removeTokenAsync($token);
       }
     }
+
+    // DB_IN_IMAGE wraps code shared by both databases, so either database
+    // stored in an image keeps it.
+    $is_migration_in_image = ($this->responses[Migration::id()] ?? NULL) === TRUE && ($this->responses[MigrationFetchSource::id()] ?? NULL) === MigrationFetchSource::CONTAINER_REGISTRY;
+    if ($v !== self::CONTAINER_REGISTRY && !$is_migration_in_image) {
+      File::removeTokenAsync('DB_IN_IMAGE');
+    }
   }
 
 }

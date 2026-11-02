@@ -121,6 +121,7 @@ Content removed if feature not selected
 | CI       | `CI_PROVIDER_GHA`, `CI_PROVIDER_CIRCLECI`                                          |
 | Hosting  | `HOSTING_LAGOON`, `HOSTING_ACQUIA`                                                 |
 | Deploy   | `DEPLOY_TYPES_WEBHOOK`, `DEPLOY_TYPES_ARTIFACT`                                    |
+| Database | `DB_FETCH_SOURCE_*`, `MIGRATION_DB_FETCH_SOURCE_*`, `DB_IN_IMAGE` (either database uses `container_registry`) |
 
 ### Handler Locations
 

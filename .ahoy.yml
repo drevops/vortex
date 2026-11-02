@@ -179,7 +179,9 @@ commands:
     usage: Provision a site from the database dump or profile.
     cmd: |
       ahoy confirm "Running this command will remove your current database. Are you sure?" || exit 0
-      [ -n "${VORTEX_DB_IMAGE}" ] && AHOY_CONFIRM_RESPONSE=y ahoy reload-db
+      #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
+      AHOY_CONFIRM_RESPONSE=y ahoy reload-db
+      #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
       ahoy cli ./vendor/bin/vortex-provision
       [ "${VORTEX_SHOW_LOGIN:-1}" = "1" ] && ahoy login || true
 
@@ -196,9 +198,11 @@ commands:
       ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
       ./vendor/bin/vortex-import-db "$@"
 
+  #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
   pull-db:
     usage: Download database image with the latest nightly dump. Run "ahoy reload-db" to reload DB in the running stack.
-    cmd: \[ -n "${VORTEX_DB_IMAGE}" \] && docker pull ${VORTEX_DB_IMAGE} || true
+    cmd: docker pull "${VORTEX_DB_IMAGE}"
+  #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
 
   reset:
     usage: Remove containers, all build files. Use with `--hard` to reset repository to the last commit.

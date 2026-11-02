@@ -453,8 +453,8 @@ use `ahoy provision`. Besides the flow itself, the command does the
 following:
 
 - Asks for confirmation before it starts
-- Reloads the database container from its image first, when
-  `VORTEX_DB_IMAGE` is set
+- Reloads the database container from its image first, with the
+  `container_registry` database source
 - Unblocks user 1 and prints a one-time login link at the end
 
 The dump replaces the current database only when no site is installed yet
