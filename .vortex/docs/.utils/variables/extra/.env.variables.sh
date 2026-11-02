@@ -6,7 +6,7 @@
 
 # Name of the database container image to use.
 #
-# See https://github.com/drevops/mariadb-drupal-data to seed your DB image.
+# See https://github.com/drevops/database-data-images to seed your DB image.
 VORTEX_DB_IMAGE=
 
 # Password replacement used for sanitized database.

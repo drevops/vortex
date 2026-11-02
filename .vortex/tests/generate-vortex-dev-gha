@@ -38,6 +38,7 @@ $build_job = extract_workflow_job($lines, '/^  build:/');
 $db_image_base = extract_github_env_value(explode("\n", $database_job), 'VORTEX_DB_IMAGE_BASE');
 
 $db_image = 'drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x';
+$db2_image = 'drevops/vortex-dev-mariadb-drupal-data-demo-migration-11.x';
 // The tags differ from the CircleCI ones, so a build never pulls an image
 // exported by the other provider.
 $db_image_tag_fi = 'vortex-dev-didi-database-fi-gha';
@@ -80,6 +81,8 @@ $output = implode("\n", [
     'VORTEX_FETCH_DB_FORCE' => 1,
     'VORTEX_DB_IMAGE' => $db_image,
     'VORTEX_DB_IMAGE_BASE' => $db_image_base,
+    'VORTEX_DB2_IMAGE' => $db2_image,
+    'VORTEX_REFRESH_DB2_PROCEED' => 1,
     'COMPOSE_PROGRESS' => 'plain',
     'VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG' => $db_image_tag_fi,
     'VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED' => 1,
@@ -93,10 +96,12 @@ $output = implode("\n", [
   ]),
   '',
   '  # DIDI-II variant jobs',
-  build_variant_workflow_job($database_job, 'vortex-dev-database-ii', [], [
+  build_variant_workflow_job($database_job, 'vortex-dev-database-ii', database_ii_replacements(), [
     'VORTEX_FETCH_DB_SOURCE' => 'container_registry',
     'VORTEX_FETCH_DB_FORCE' => 1,
     'VORTEX_DB_IMAGE' => $db_image,
+    'VORTEX_DB_IMAGE_BASE' => $db_image_base,
+    'VORTEX_REFRESH_DB_SOURCE' => 'url',
     'COMPOSE_PROGRESS' => 'plain',
     'VORTEX_PUSH_CONTAINER_REGISTRY_IMAGE_TAG' => $db_image_tag_ii,
     'VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED' => 1,
@@ -281,6 +286,54 @@ function build_job_replacements(string $name, string $database_job): array {
     'name: test-artifacts-' => sprintf('name: test-artifacts-%s-', $name),
     'name: code-artifact' => sprintf('name: code-artifact-%s', $name),
     'check_name: Test results (' => sprintf('check_name: Test results %s (', $name),
+  ];
+}
+
+/**
+ * Build the replacements for the DIDI-II database variant job.
+ *
+ * Adds steps that record the layers of the fetched database image and assert
+ * that the exported image is built on the base image and not on the fetched
+ * image. The fetched image holds the database of the previous run, so its top
+ * layer must not appear in the exported image.
+ *
+ * @return array<string, string>
+ *   Replacement strings keyed by the string they replace.
+ */
+function database_ii_replacements(): array {
+  $layers = "docker image inspect --format '{{range .RootFS.Layers}}{{println .}}{{end}}'";
+
+  $record = implode("\n", [
+    '      - name: Record the fetched DB image layers',
+    sprintf('        run: %s "${VORTEX_DB_IMAGE}" | grep . | tee "${RUNNER_TEMP}/fetched-layers"', $layers),
+    '',
+    '      - name: Export DB',
+    '',
+  ]);
+
+  $assert = implode("\n", [
+    '      - name: Assert the exported DB image is built on the base image',
+    '        run: |',
+    sprintf('          %s "${VORTEX_DB_IMAGE_BASE}" | grep . >"${RUNNER_TEMP}/base-layers"', $layers),
+    sprintf('          %s "${VORTEX_DB_IMAGE}" | grep . >"${RUNNER_TEMP}/exported-layers"', $layers),
+    '          echo "==> Layers: base $(wc -l <"${RUNNER_TEMP}/base-layers"), fetched $(wc -l <"${RUNNER_TEMP}/fetched-layers"), exported $(wc -l <"${RUNNER_TEMP}/exported-layers")."',
+    '          if ! head -n "$(wc -l <"${RUNNER_TEMP}/base-layers")" "${RUNNER_TEMP}/exported-layers" | diff -q "${RUNNER_TEMP}/base-layers" - >/dev/null; then',
+    '            echo "==> The exported DB image is not built on ${VORTEX_DB_IMAGE_BASE}."',
+    '            exit 1',
+    '          fi',
+    '          fetched_top="$(tail -n 1 "${RUNNER_TEMP}/fetched-layers")"',
+    '          if ! grep -qx "${fetched_top}" "${RUNNER_TEMP}/base-layers" && grep -qx "${fetched_top}" "${RUNNER_TEMP}/exported-layers"; then',
+    '            echo "==> The exported DB image is built on the fetched image."',
+    '            exit 1',
+    '          fi',
+    '          echo "==> The exported DB image is built on ${VORTEX_DB_IMAGE_BASE}."',
+    '',
+    '      # Deploy the freshly-exported database image to the container registry.',
+  ]);
+
+  return [
+    "      - name: Export DB\n" => $record,
+    '      # Deploy the freshly-exported database image to the container registry.' => $assert,
   ];
 }
 

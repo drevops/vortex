@@ -433,9 +433,9 @@ The script needs the following:
 - The `docker`, `ahoy`, `curl`, `sed` and `php` commands on your `PATH`.
 - A Docker Hub session with push permission to `drevops/` for any image
   mode.
-- The `demo-image`, `test-image` and `all` modes download `seed.sh` from a
-  pinned `drevops/mariadb-drupal-data` release and verify it against a
-  recorded SHA-256 checksum. To adopt a newer release, update `SEED_URL`
+- The `demo-image`, `test-image` and `all` modes download `seed.mysql.sh`
+  from a pinned `drevops/database-data-images` release and verify it against
+  a recorded SHA-256 checksum. To adopt a newer release, update `SEED_URL`
   and `SEED_SHA256` together.
 - Those modes build each image for `linux/amd64` and `linux/arm64` through
   a Docker Buildx builder named `vortex-seed`, using the `docker-container`

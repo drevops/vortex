@@ -55,7 +55,8 @@ docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" mysql -e "UNLOCK TABLE
 pass "Locked and unlocked tables before upgrade."
 
 task "Running forced service upgrade."
-docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" sh -c "mariadb-upgrade --force || mariadb-upgrade --force"
+# MySQL upgrades its data directory at startup and ships no upgrade binary.
+docker compose exec -T "${VORTEX_EXPORT_DB_SERVICE_NAME}" sh -c "if command -v mariadb-upgrade >/dev/null 2>&1; then mariadb-upgrade --force || mariadb-upgrade --force; fi"
 pass "Ran forced service upgrade."
 
 task "Locking tables after upgrade."

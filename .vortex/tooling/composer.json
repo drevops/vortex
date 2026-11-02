@@ -34,6 +34,7 @@
         "src/vortex-notify",
         "src/vortex-provision",
         "src/vortex-push-db-image",
+        "src/vortex-refresh-db",
         "src/vortex-reset",
         "src/vortex-storybook",
         "src/vortex-task",
