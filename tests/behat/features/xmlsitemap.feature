@@ -8,8 +8,8 @@ Feature: XML Sitemap
   Scenario: Verify sitemap.xml exists and is accessible
     Given I am an anonymous user
     When I run the drush command "xmlsitemap:regenerate"
-    And I go to "/sitemap.xml"
-    Then the response status code should be 200
+    And I send a REST "GET" request to "/sitemap.xml"
+    Then the REST response status code should be 200
     And the response should be in XML format
     And the XML should use the namespace "http://www.sitemaps.org/schemas/sitemap/0.9"
     And the XML element "//*[local-name()='urlset']" should exist
