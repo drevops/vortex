@@ -382,6 +382,33 @@ forward when an update needs to reset every project's cache. Bump only its
 last segment, so your own cache resets never collide with the prefix that a
 future **Vortex** update ships.
 
+### Dump file source for a database image
+
+The scheduled run builds a database container image from a dump file. With
+the `container_registry` fetch source, set `VORTEX_REFRESH_DB_SOURCE` to the
+source of that file: `url`, `ftp`, `acquia`, `lagoon` or `s3`.
+
+`VORTEX_REFRESH_DB_SOURCE` selects a fetch script, and each fetch script
+reads its own variables. The installer adds to `.env` the variables of the
+fetch source you picked, so a `container_registry` project usually lacks
+them. Add the variables of your dump file source:
+
+| Source | Variables |
+|---|---|
+| `url` | `VORTEX_FETCH_DB_URL`, with HTTP Basic credentials in the URL. Add `VORTEX_FETCH_DB_UNZIP_PASSWORD` for a password-protected zip file. |
+| `ftp` | `VORTEX_FETCH_DB_FTP_HOST`, `VORTEX_FETCH_DB_FTP_PORT`, `VORTEX_FETCH_DB_FTP_FILE`, `VORTEX_FETCH_DB_FTP_USER` and `VORTEX_FETCH_DB_FTP_PASS` |
+| `s3` | `VORTEX_FETCH_DB_S3_BUCKET`, `VORTEX_FETCH_DB_S3_REGION`, `VORTEX_FETCH_DB_S3_ACCESS_KEY` and `VORTEX_FETCH_DB_S3_SECRET_KEY`. Add `VORTEX_FETCH_DB_S3_PREFIX` for a dump in a subfolder. |
+| `acquia` | `VORTEX_ACQUIA_KEY`, `VORTEX_ACQUIA_SECRET`, `VORTEX_ACQUIA_APP_NAME`, `VORTEX_FETCH_DB_ACQUIA_DB_NAME` and `VORTEX_FETCH_DB_ENVIRONMENT` |
+| `lagoon` | `LAGOON_PROJECT`, `VORTEX_FETCH_DB_ENVIRONMENT` and `VORTEX_FETCH_DB_SSH_FINGERPRINT`, the fingerprint of an SSH key with access to that environment |
+
+Store passwords, keys and secrets as CI secrets, not in `.env`.
+
+For the migration database, set `VORTEX_REFRESH_DB2_SOURCE` and the
+`VORTEX_FETCH_DB2_` form of each `VORTEX_FETCH_DB_` variable, such as
+`VORTEX_FETCH_DB2_URL`. `LAGOON_PROJECT` and the 3 `VORTEX_ACQUIA_`
+variables apply to both databases. See [Refresh the migration database
+image](../development/migrations.mdx#refresh-the-migration-database-image).
+
 ## Trigger conditions
 
 Both providers build on branch pushes, pull requests and tag pushes, plus

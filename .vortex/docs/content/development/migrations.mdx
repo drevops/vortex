@@ -171,7 +171,11 @@ The job imports the migration dump file into a clean `database2` service
 started from `VORTEX_DB_IMAGE_BASE`, without provisioning the site. It then
 pushes the result as `VORTEX_DB2_IMAGE`. With the `container_registry`
 fetch source, set `VORTEX_REFRESH_DB2_SOURCE` to the source of the dump
-file, such as `url` or `lagoon`, along with that source's variables.
+file, such as `url` or `lagoon`. Then add the variables of that source with
+the `VORTEX_FETCH_DB2_` prefix, such as `VORTEX_FETCH_DB2_URL`. [Dump file
+source for a database
+image](../continuous-integration/README.mdx#dump-file-source-for-a-database-image)
+lists the variables of each source.
 
 ## Drupal settings
 

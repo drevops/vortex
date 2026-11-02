@@ -102,7 +102,8 @@ its database in a container image, it imports the dump into a clean base
 image, then pushes the result to the registry. The image is always built
 from a dump file. With the `container_registry` source, set
 `VORTEX_REFRESH_DB_SOURCE` to the source of that file, such as `url` or
-`lagoon`, along with that source's variables.
+`lagoon`. Then add the variables of that source, listed in [Dump file source
+for a database image](./README.mdx#dump-file-source-for-a-database-image).
 
 The job saves the dump under the current day's cache key, and CircleCI
 never overwrites a saved key. If another `database` job saved that key
