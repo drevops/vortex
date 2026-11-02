@@ -1,4 +1,4 @@
-@@ -206,7 +206,6 @@
+@@ -201,7 +201,6 @@
    lint-fe:
      usage: Lint front-end code.
      cmd: |
@@ -6,7 +6,7 @@
        ahoy cli "npm run lint"
        ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
  
-@@ -238,7 +237,6 @@
+@@ -233,7 +232,6 @@
    lint-fe-fix:
      usage: Fix lint issues of front-end code.
      cmd: |

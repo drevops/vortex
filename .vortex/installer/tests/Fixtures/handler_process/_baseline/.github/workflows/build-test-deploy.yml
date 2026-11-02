@@ -241,10 +241,6 @@ jobs:
           {
             echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
             echo "VORTEX_FRONTEND_BUILD_SKIP=1"
-            # Import the fetched database into a clean base image (if database-in-image storage is used).
-            echo "VORTEX_DB_IMAGE_BASE=drevops/db-data-mysql-8.4:__VERSION__"
-            # Deploy container image (if database-in-image storage is used).
-            echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
           } >> "$GITHUB_ENV"
 
       - name: Create cache keys files for database caching
@@ -278,17 +274,6 @@ jobs:
         run: |
           if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
           ./vendor/bin/vortex-refresh-db
-        timeout-minutes: 30
-
-      # Deploy the freshly-exported database image to the container registry.
-      # No-op unless a fresh DB was fetched (the fetch semaphore), the project
-      # uses database-in-image storage (VORTEX_DB_IMAGE), and deployment was
-      # requested (VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED, in the script).
-      - name: Deploy DB image
-        run: |
-          if [ -z "${VORTEX_DB_IMAGE:-}" ]; then echo "==> Database-in-image storage is not used. DB image deployment will not proceed."; exit 0; fi
-          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB image deployment will not proceed."; exit 0; fi
-          ./vendor/bin/vortex-push-db-image
         timeout-minutes: 30
 
       # Save cache per default branch and the timestamp.

@@ -6,7 +6,7 @@
        export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2)
        export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
        ahoy cli ./vendor/bin/vortex-info "$@"
-@@ -188,6 +189,20 @@
+@@ -183,6 +184,20 @@
      cmd: |
        ahoy cli "pkill -9 -f grunt" || true
        ahoy cli "cd ${WEBROOT}/themes/custom/${DRUPAL_THEME} && npm run watch"
