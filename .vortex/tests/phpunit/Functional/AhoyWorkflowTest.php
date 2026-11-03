@@ -64,6 +64,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyLintBeRector();
 
+    $this->subtestAhoyLintBeBaseline();
+
     $this->subtestAhoyLintFe();
 
     $this->subtestAhoyLintSdc();

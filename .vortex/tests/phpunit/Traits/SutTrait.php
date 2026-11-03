@@ -507,6 +507,7 @@ trait SutTrait {
     $this->assertFileExists('gherkinlint.json');
     $this->assertFileExists('phpcs.xml');
     $this->assertFileExists('phpstan.neon');
+    $this->assertFileDoesNotExist('phpstan-baseline.neon');
     $this->assertFileExists('phpunit.xml');
     $this->assertFileDoesNotExist('.gitattributes');
 

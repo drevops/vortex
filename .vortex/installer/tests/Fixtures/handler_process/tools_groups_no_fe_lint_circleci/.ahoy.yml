@@ -1,4 +1,4 @@
-@@ -202,8 +202,6 @@
+@@ -206,8 +206,6 @@
      usage: Lint front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
@@ -7,7 +7,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -234,8 +232,6 @@
+@@ -238,8 +236,6 @@
      usage: Fix lint issues of front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
@@ -16,7 +16,7 @@
  
    test:
      usage: Run all PHPUnit tests.
-@@ -257,10 +253,6 @@
+@@ -261,10 +257,6 @@
    test-functional-javascript:
      usage: Run PHPUnit functional JavaScript tests.
      cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"
