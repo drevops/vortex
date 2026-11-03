@@ -329,7 +329,7 @@ class Tools extends AbstractHandler {
           $cj->removeSubNode('require-dev', 'phpstan/extension-installer');
           $cj->removeConfigSetting('allow-plugins.phpstan/extension-installer');
         },
-        'files' => ['phpstan.neon'],
+        'files' => ['phpstan.neon', 'phpstan-baseline-loader.php'],
         'strings' => [
           '/^.*\bphpstan\b.*\n?/m',
           '/^.*@phpstan.*\n?/m',

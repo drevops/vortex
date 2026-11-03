@@ -55,6 +55,7 @@ trait DeploymentTrait {
     $this->assertFileDoesNotExist($dir . '/gherkinlint.json', 'gherkinlint.json should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/phpcs.xml', 'phpcs.xml should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/phpstan.neon', 'phpstan.neon should not exist in deployment');
+    $this->assertFileDoesNotExist($dir . '/phpstan-baseline-loader.php', 'phpstan-baseline-loader.php should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/renovate.json', 'renovate.json should not exist in deployment');
     $this->assertFileDoesNotExist($dir . '/.gitignore.artifact', '.gitignore.artifact should not exist in deployment');
 

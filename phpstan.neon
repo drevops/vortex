@@ -7,6 +7,9 @@
 #
 # Paths are passed as CLI arguments.
 
+includes:
+  - phpstan-baseline-loader.php
+
 parameters:
 
   level: 7

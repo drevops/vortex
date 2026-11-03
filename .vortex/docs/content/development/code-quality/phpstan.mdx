@@ -21,8 +21,9 @@ ruleset](https://github.com/drevops/vortex/blob/main/phpstan.neon) for
 Drupal projects, so the analysis runs on every build without setup.
 
 This page is for developers who write PHP in a **Vortex** project. It shows
-how to run PHPStan, what the shipped configuration analyzes and how to
-ignore an error you can't fix. For PHPStan itself, see the
+how to run PHPStan, what the shipped configuration analyzes, how to ignore
+an error you can't fix and how to onboard an existing codebase with a
+baseline. For PHPStan itself, see the
 [PHPStan user guide](https://phpstan.org/user-guide/getting-started).
 
 ## Usage
@@ -154,6 +155,59 @@ comment on the line before it:
 // @phpstan-ignore-next-line
 $a = 1;
 ```
+
+## Baseline for an existing codebase
+
+When you install **Vortex** into an existing codebase, the first analysis
+reports every error that the code already has. A baseline records those
+errors in `phpstan-baseline.neon`, and PHPStan then reports only the errors
+that the baseline doesn't record. New and changed code still has to pass
+level 7, and you fix the recorded errors over time.
+
+Use the baseline only to onboard existing code. To ignore a new error, see
+[Ignore violations](#ignore-violations).
+
+`phpstan.neon` includes `phpstan-baseline-loader.php`, which loads
+`phpstan-baseline.neon` when the file exists. Without the file, the
+analysis runs the shipped configuration unchanged.
+
+### Generate the baseline
+
+To record the current errors in `phpstan-baseline.neon`, run 1 of the
+following commands:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy lint-be-baseline
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli vendor/bin/phpstan \
+      --generate-baseline=phpstan-baseline.neon \
+      --allow-empty-baseline
+    ```
+  </TabItem>
+</Tabs>
+
+PHPStan prints `[OK] Baseline generated with` and the number of errors it
+recorded. Commit `phpstan-baseline.neon`. CI reads the committed file and
+never generates one, so a new error can't enter the baseline unnoticed.
+
+Run `ahoy lint-be` and confirm that PHPStan prints `[OK] No errors`.
+
+### Shrink the baseline
+
+After you fix a recorded error, PHPStan fails with `Ignored error pattern`
+and `was not matched in reported errors`, because the baseline still
+records the error. To remove the fixed errors from the baseline, run
+`ahoy lint-be-baseline` again and commit the updated file.
+
+Regenerate the baseline only after you fix errors. A regeneration records
+every error in the code, including a new one you meant to fix.
+
+When the baseline records no errors, delete `phpstan-baseline.neon`.
 
 ## Continuous integration
 

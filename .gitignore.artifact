@@ -73,6 +73,8 @@ web/sites/simpletest
 /jest.config.js
 /phpcs.xml
 /phpstan.neon
+/phpstan-baseline.neon
+/phpstan-baseline-loader.php
 /phpunit.xml
 /postcss.config.js
 /rector.php

@@ -526,6 +526,81 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyLintBeBaseline(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $baseline_file = 'phpstan-baseline.neon';
+    $fixed_file = $webroot . '/modules/custom/sw_base/src/BaselineCanaryFixed.php';
+    $kept_file = $webroot . '/modules/custom/sw_base/src/BaselineCanaryKept.php';
+    $new_file = $webroot . '/modules/custom/sw_base/src/BaselineCanaryNew.php';
+    // Raw format prints 1 error per line, so a long class name is never
+    // wrapped across lines of the table output.
+    $phpstan = 'ahoy cli vendor/bin/phpstan --error-format=raw';
+
+    $this->logSubstep('Assert that existing violations fail the analysis');
+    File::dump($fixed_file, $this->baselineCanary('BaselineCanaryFixed'));
+    File::dump($kept_file, $this->baselineCanary('BaselineCanaryKept'));
+    $this->syncToContainer([$fixed_file, $kept_file]);
+    $this->cmdFail($phpstan, ['* BaselineCanaryFixed::number()', '* BaselineCanaryKept::number()'], tio: 300, ito: 180, txt: '`phpstan` fails on violations in existing code');
+
+    $this->logSubstep('Assert that the baseline makes the analysis pass');
+    $this->cmd('ahoy lint-be-baseline', ['* Baseline generated'], tio: 300, ito: 180, txt: '`ahoy lint-be-baseline` records the existing violations');
+    $this->syncToHost($baseline_file);
+    $this->assertFileContainsString($baseline_file, 'BaselineCanaryFixed.php', 'Baseline should record the violation that gets fixed later');
+    $this->assertFileContainsString($baseline_file, 'BaselineCanaryKept.php', 'Baseline should record the violation that stays');
+    $this->cmd($phpstan, tio: 300, ito: 180, txt: '`phpstan` passes with the existing violations in the baseline');
+
+    $this->logSubstep('Assert that a new violation still fails the analysis');
+    File::dump($new_file, $this->baselineCanary('BaselineCanaryNew'));
+    $this->syncToContainer($new_file);
+    $this->cmdFail($phpstan, ['* BaselineCanaryNew::number()', '! BaselineCanaryKept::number()'], tio: 300, ito: 180, txt: '`phpstan` fails on a violation that the baseline does not record');
+    $this->removePathHostAndContainer($new_file);
+
+    // The kept violation proves that regeneration reads every current error
+    // instead of applying the baseline it replaces.
+    $this->logSubstep('Assert that a fixed violation must be removed from the baseline');
+    $this->removePathHostAndContainer($fixed_file);
+    $this->cmdFail($phpstan, ['* was not matched in reported errors'], tio: 300, ito: 180, txt: '`phpstan` fails on a baseline entry for a fixed violation');
+    $this->cmd('ahoy lint-be-baseline', tio: 300, ito: 180, txt: '`ahoy lint-be-baseline` regenerates the baseline without the fixed violation');
+    $this->syncToHost($baseline_file);
+    $this->assertFileNotContainsString($baseline_file, 'BaselineCanaryFixed.php', 'Regenerated baseline should not record the fixed violation');
+    $this->assertFileContainsString($baseline_file, 'BaselineCanaryKept.php', 'Regenerated baseline should still record the remaining violation');
+    $this->cmd($phpstan, tio: 300, ito: 180, txt: '`phpstan` passes with the regenerated baseline');
+
+    $this->removePathHostAndContainer($kept_file);
+    $this->removePathHostAndContainer($baseline_file);
+
+    $this->logStepFinish();
+  }
+
+  /**
+   * Build a class whose method returns a value of the wrong type.
+   */
+  protected function baselineCanary(string $class): string {
+    return <<<PHP
+      <?php
+
+      declare(strict_types=1);
+
+      namespace Drupal\\sw_base;
+
+      /**
+       * Holds a type error for the PHPStan baseline assertion.
+       */
+      class {$class} {
+
+        /**
+         * Returns a number.
+         */
+        public function number(): int {
+          return 'one';
+        }
+
+      }
+
+      PHP;
+  }
+
   protected function subtestAhoyLintFe(string $webroot = 'web'): void {
     $this->logStepStart();
 

@@ -272,6 +272,12 @@ commands:
       ahoy cli vendor/bin/phpstan
       ahoy cli vendor/bin/rector --dry-run
 
+  #;< TOOL_PHPSTAN
+  lint-be-baseline:
+    usage: Record the current PHPStan violations in the baseline to onboard an existing codebase.
+    cmd: ahoy cli vendor/bin/phpstan --generate-baseline=phpstan-baseline.neon --allow-empty-baseline
+  #;> TOOL_PHPSTAN
+
   lint-fe:
     usage: Lint front-end code.
     cmd: |
