@@ -161,8 +161,8 @@ $a = 1;
 When you install **Vortex** into an existing codebase, the first analysis
 reports every error that the code already has. A baseline records those
 errors in `phpstan-baseline.neon`, and PHPStan then reports only the errors
-that the baseline doesn't record. New and changed code still has to pass
-level 7, and you fix the recorded errors over time.
+that the baseline doesn't record. Every new error fails the analysis, and
+you fix the recorded errors over time.
 
 Use the baseline only to onboard existing code. To ignore a new error, see
 [Ignore violations](#ignore-violations).
