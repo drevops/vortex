@@ -27,7 +27,7 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
-@@ -209,14 +224,6 @@
+@@ -213,14 +228,6 @@
      usage: Lint tests code.
      cmd: |
        ahoy cli vendor/bin/gherkinlint lint tests/behat/features

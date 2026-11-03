@@ -6,7 +6,7 @@
  
    lint-be:
      usage: Lint back-end code.
-@@ -205,11 +204,6 @@
+@@ -209,11 +208,6 @@
        ahoy cli "npm run lint"
        ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint"
  
@@ -18,7 +18,7 @@
    lint-sdc:
      usage: Validate Single Directory Components (requires a provisioned site).
      cmd: |
-@@ -237,35 +231,9 @@
+@@ -241,35 +235,9 @@
        ahoy cli "npm run lint-fix"
        ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
  

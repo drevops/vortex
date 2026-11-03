@@ -1,8 +1,13 @@
-@@ -195,7 +195,6 @@
+@@ -195,12 +195,7 @@
      usage: Lint back-end code.
      cmd: |
        ahoy cli vendor/bin/phpcs
 -      ahoy cli vendor/bin/phpstan
        ahoy cli vendor/bin/rector --dry-run
+-
+-  lint-be-baseline:
+-    usage: Record the current PHPStan violations in the baseline to onboard an existing codebase.
+-    cmd: ahoy cli vendor/bin/phpstan --generate-baseline=phpstan-baseline.neon --allow-empty-baseline
  
    lint-fe:
+     usage: Lint front-end code.
