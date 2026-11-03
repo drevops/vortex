@@ -167,9 +167,8 @@ you fix the recorded errors over time.
 Use the baseline only to onboard existing code. To ignore a new error, see
 [Ignore violations](#ignore-violations).
 
-`phpstan.neon` includes `phpstan-baseline-loader.php`, which loads
-`phpstan-baseline.neon` when the file exists. Without the file, the
-analysis runs the shipped configuration unchanged.
+`phpstan.neon` ships with the include of `phpstan-baseline.neon` commented
+out, so PHPStan uses the baseline only after you uncomment it.
 
 ### Generate the baseline
 
@@ -192,8 +191,18 @@ following commands:
 </Tabs>
 
 PHPStan prints `[OK] Baseline generated with` and the number of errors it
-recorded. Commit `phpstan-baseline.neon`. CI reads the committed file and
-never generates one, so a new error can't enter the baseline unnoticed.
+recorded.
+
+To load the baseline, uncomment the `includes` lines in `phpstan.neon`:
+
+```yaml
+includes:
+  - phpstan-baseline.neon
+```
+
+Commit `phpstan-baseline.neon` and `phpstan.neon`. CI reads the committed
+baseline and never generates one, so a new error can't enter the baseline
+unnoticed.
 
 Run `ahoy cli vendor/bin/phpstan` and confirm that PHPStan prints
 `[OK] No errors`. `ahoy lint-be` runs PHPCS first and stops on its errors,
@@ -209,7 +218,9 @@ records the error. To remove the fixed errors from the baseline, run
 Regenerate the baseline only after you fix errors. A regeneration records
 every error in the code, including a new one you meant to fix.
 
-When the baseline records no errors, delete `phpstan-baseline.neon`.
+When the baseline records no errors, delete `phpstan-baseline.neon` and
+comment out the `includes` lines in `phpstan.neon` again. PHPStan stops
+with an error when an included file is missing.
 
 ## Continuous integration
 

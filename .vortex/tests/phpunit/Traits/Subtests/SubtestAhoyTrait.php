@@ -530,6 +530,9 @@ trait SubtestAhoyTrait {
     $this->logStepStart();
 
     $baseline_file = 'phpstan-baseline.neon';
+    $config_file = 'phpstan.neon';
+    $include_commented = "# includes:\n#   - phpstan-baseline.neon";
+    $include = "includes:\n  - phpstan-baseline.neon";
     $fixed_file = $webroot . '/modules/custom/sw_base/src/BaselineCanaryFixed.php';
     $kept_file = $webroot . '/modules/custom/sw_base/src/BaselineCanaryKept.php';
     $new_file = $webroot . '/modules/custom/sw_base/src/BaselineCanaryNew.php';
@@ -543,11 +546,18 @@ trait SubtestAhoyTrait {
     $this->syncToContainer([$fixed_file, $kept_file]);
     $this->cmdFail($phpstan, ['* BaselineCanaryFixed::number()', '* BaselineCanaryKept::number()'], tio: 300, ito: 180, txt: '`phpstan` fails on violations in existing code');
 
-    $this->logSubstep('Assert that the baseline makes the analysis pass');
+    $this->logSubstep('Assert that a baseline is not loaded while its include is commented out');
     $this->cmd('ahoy lint-be-baseline', ['* Baseline generated'], tio: 300, ito: 180, txt: '`ahoy lint-be-baseline` records the existing violations');
     $this->syncToHost($baseline_file);
     $this->assertFileContainsString($baseline_file, 'BaselineCanaryFixed.php', 'Baseline should record the violation that gets fixed later');
     $this->assertFileContainsString($baseline_file, 'BaselineCanaryKept.php', 'Baseline should record the violation that stays');
+    $this->cmdFail($phpstan, ['* BaselineCanaryKept::number()'], tio: 300, ito: 180, txt: '`phpstan` ignores the baseline while the shipped include is commented out');
+
+    $this->logSubstep('Assert that the baseline makes the analysis pass');
+    $this->assertFileContainsString($config_file, $include_commented, 'phpstan.neon should ship the baseline include commented out');
+    $this->fileBackup($config_file);
+    File::replaceContentInFile($config_file, $include_commented, $include);
+    $this->syncToContainer($config_file);
     $this->cmd($phpstan, tio: 300, ito: 180, txt: '`phpstan` passes with the existing violations in the baseline');
 
     $this->logSubstep('Assert that a new violation still fails the analysis');
@@ -569,6 +579,8 @@ trait SubtestAhoyTrait {
 
     $this->removePathHostAndContainer($kept_file);
     $this->removePathHostAndContainer($baseline_file);
+    $this->fileRestore($config_file);
+    $this->syncToContainer($config_file);
 
     $this->logStepFinish();
   }
