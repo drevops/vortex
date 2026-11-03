@@ -28,7 +28,7 @@
          </testsuite>
      </testsuites>
  
-@@ -101,17 +101,17 @@
+@@ -101,18 +101,18 @@
      </coverage>
      <source>
          <include>
@@ -44,18 +44,20 @@
          <exclude>
 -            <directory suffix="Test.php">web/modules/custom</directory>
 -            <directory suffix=".deploy.php">web/modules/custom</directory>
+-            <directory suffix=".api.php">web/modules/custom</directory>
 -            <directory>web/modules/custom/**/node_modules</directory>
 -            <directory suffix="Test.php">web/themes/custom</directory>
 -            <directory>web/themes/custom/**/node_modules</directory>
 +            <directory suffix="Test.php">docroot/modules/custom</directory>
 +            <directory suffix=".deploy.php">docroot/modules/custom</directory>
++            <directory suffix=".api.php">docroot/modules/custom</directory>
 +            <directory>docroot/modules/custom/**/node_modules</directory>
 +            <directory suffix="Test.php">docroot/themes/custom</directory>
 +            <directory>docroot/themes/custom/**/node_modules</directory>
              <directory>tests</directory>
          </exclude>
      </source>
-@@ -127,7 +127,7 @@
+@@ -128,7 +128,7 @@
               to DRUPAL_ROOT/sites/simpletest/browser_output.
               @see https://www.drupal.org/project/drupal/issues/2992069 -->
          <bootstrap class="Drupal\TestTools\Extension\HtmlLogging\HtmlOutputLogger">

@@ -27,9 +27,9 @@
              <directory>web/sites/default/includes</directory>
              <directory>web/sites/default/settings.php</directory>
          </include>
-@@ -110,8 +105,6 @@
-             <directory suffix="Test.php">web/modules/custom</directory>
+@@ -111,8 +106,6 @@
              <directory suffix=".deploy.php">web/modules/custom</directory>
+             <directory suffix=".api.php">web/modules/custom</directory>
              <directory>web/modules/custom/**/node_modules</directory>
 -            <directory suffix="Test.php">web/themes/custom</directory>
 -            <directory>web/themes/custom/**/node_modules</directory>
