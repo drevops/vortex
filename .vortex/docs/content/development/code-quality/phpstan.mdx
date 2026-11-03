@@ -195,7 +195,9 @@ PHPStan prints `[OK] Baseline generated with` and the number of errors it
 recorded. Commit `phpstan-baseline.neon`. CI reads the committed file and
 never generates one, so a new error can't enter the baseline unnoticed.
 
-Run `ahoy lint-be` and confirm that PHPStan prints `[OK] No errors`.
+Run `ahoy cli vendor/bin/phpstan` and confirm that PHPStan prints
+`[OK] No errors`. `ahoy lint-be` runs PHPCS first and stops on its errors,
+so it can end before PHPStan runs.
 
 ### Shrink the baseline
 
