@@ -1,4 +1,15 @@
-@@ -274,9 +274,13 @@
+@@ -241,6 +241,10 @@
+           {
+             echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
+             echo "VORTEX_FRONTEND_BUILD_SKIP=1"
++            # Import the fetched database into a clean base image.
++            echo "VORTEX_DB_IMAGE_BASE=drevops/db-data-mysql-8.4:__VERSION__"
++            # Deploy container image.
++            echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
+           } >> "$GITHUB_ENV"
+ 
+       - name: Create cache keys files for database caching
+@@ -270,9 +274,13 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
@@ -12,7 +23,7 @@
            ./vendor/bin/vortex-refresh-db
          timeout-minutes: 30
  
-@@ -446,6 +450,11 @@
+@@ -431,6 +439,11 @@
              docker compose exec cli mkdir -p .data
              docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
              rm -f .data/db.sql

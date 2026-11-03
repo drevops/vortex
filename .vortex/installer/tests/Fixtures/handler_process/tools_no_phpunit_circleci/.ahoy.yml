@@ -1,4 +1,4 @@
-@@ -242,27 +242,6 @@
+@@ -237,27 +237,6 @@
        ahoy cli "npm run lint-fix"
        ahoy cli "npm run --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} lint-fix"
  

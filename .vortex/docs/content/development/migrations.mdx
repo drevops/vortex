@@ -163,17 +163,17 @@ for the tag in use.
 
 ### Refresh the migration database image
 
-The nightly CI job can rebuild the image in `VORTEX_DB2_IMAGE`, so it
-always holds the latest migration source data. It's off by default. To
-turn it on, set `VORTEX_REFRESH_DB2_PROCEED` to `1`.
+With the `container_registry` migration source, the nightly CI job can
+rebuild the image in `VORTEX_DB2_IMAGE`, so it always holds the latest
+migration source data. It's off by default. To turn it on, set
+`VORTEX_REFRESH_DB2_PROCEED` to `1`.
 
 The job imports the migration dump file into a clean `database2` service
 started from `VORTEX_DB_IMAGE_BASE`, without provisioning the site. It then
-pushes the result as `VORTEX_DB2_IMAGE`. With the `container_registry`
-fetch source, set `VORTEX_REFRESH_DB2_SOURCE` to the source of the dump
-file, such as `url` or `lagoon`. Then add the variables of that source with
-the `VORTEX_FETCH_DB2_` prefix, such as `VORTEX_FETCH_DB2_URL`. [Dump file
-source for a database
+pushes the result as `VORTEX_DB2_IMAGE`. Set `VORTEX_REFRESH_DB2_SOURCE`
+to the source of the dump file, such as `url` or `lagoon`. Then add the
+variables of that source with the `VORTEX_FETCH_DB2_` prefix, such as
+`VORTEX_FETCH_DB2_URL`. [Dump file source for a database
 image](../continuous-integration/README.mdx#dump-file-source-for-a-database-image)
 lists the variables of each source.
 

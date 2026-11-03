@@ -162,23 +162,26 @@ jobs:
           name: Export DB
           command: |
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> Database fetch semaphore file is missing. DB export will not proceed." && exit 0
-            #;< MIGRATION
+            #;< MIGRATION_DB_FETCH_SOURCE_CONTAINER_REGISTRY
             VORTEX_DB_INDEX=2 ./vendor/bin/vortex-refresh-db
-            #;> MIGRATION
+            #;> MIGRATION_DB_FETCH_SOURCE_CONTAINER_REGISTRY
             ./vendor/bin/vortex-refresh-db
           no_output_timeout: 30m
 
+      #;< DB_FETCH_SOURCE_CONTAINER_REGISTRY
       # Deploy the freshly-exported database image to the container registry.
-      # No-op unless a fresh DB was fetched (the fetch semaphore), the project
-      # uses database-in-image storage (VORTEX_DB_IMAGE), and deployment was
-      # requested (VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED, in the script).
+      # No-op unless a fresh DB was fetched (the fetch semaphore) and deployment
+      # was requested (VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED, in the script).
       - run:
           name: Deploy DB image
           command: |
+            #;< VORTEX_DEV
             [ -z "${VORTEX_DB_IMAGE:-}" ] && echo "==> Database-in-image storage is not used. DB image deployment will not proceed." && exit 0
+            #;> VORTEX_DEV
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB image deployment will not proceed." && exit 0
             ./vendor/bin/vortex-push-db-image
           no_output_timeout: 30m
+      #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
 
       - save_cache:
           # Save cache per default branch and the timestamp.
