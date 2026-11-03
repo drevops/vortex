@@ -7,8 +7,11 @@
 #
 # Paths are passed as CLI arguments.
 
-includes:
-  - phpstan-baseline-loader.php
+# To onboard an existing codebase, generate a baseline of its current
+# violations with 'ahoy lint-be-baseline' and uncomment the lines below.
+# @see https://www.vortextemplate.com/docs/development/code-quality/phpstan#baseline-for-an-existing-codebase
+# includes:
+#   - phpstan-baseline.neon
 
 parameters:
 
