@@ -6,11 +6,13 @@
  use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
  use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
  use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
-@@ -85,7 +84,6 @@
+@@ -83,9 +82,5 @@
+   // carry the autoload paths and the file extensions Drupal executes PHP
+   // from, so this file declares neither.
    ->withComposerBased(drupal: TRUE)
-   // Additional rules.
-   ->withRules([
+-  // Additional rules.
+-  ->withRules([
 -    YieldDataProviderRector::class,
-   ])
+-  ])
    // Import configuration.
    ->withImportNames(importNames: FALSE, importDocBlockNames: FALSE);

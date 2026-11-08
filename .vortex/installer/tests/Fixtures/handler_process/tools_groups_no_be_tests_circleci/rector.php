@@ -15,11 +15,13 @@
    // Code quality improvement sets.
    ->withPreparedSets(
      codeQuality: TRUE,
-@@ -85,7 +82,6 @@
+@@ -83,9 +80,5 @@
+   // carry the autoload paths and the file extensions Drupal executes PHP
+   // from, so this file declares neither.
    ->withComposerBased(drupal: TRUE)
-   // Additional rules.
-   ->withRules([
+-  // Additional rules.
+-  ->withRules([
 -    YieldDataProviderRector::class,
-   ])
+-  ])
    // Import configuration.
    ->withImportNames(importNames: FALSE, importDocBlockNames: FALSE);
