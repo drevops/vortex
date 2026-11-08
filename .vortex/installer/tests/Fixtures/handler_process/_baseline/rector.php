@@ -16,8 +16,6 @@
 
 declare(strict_types=1);
 
-use DrupalRector\Set\DrupalSetProvider;
-use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodingStyle\Rector\Catch_\CatchExceptionNameMatchingTypeRector;
@@ -27,21 +25,13 @@ use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\ClassMethod\RemoveUnusedPublicMethodParameterRector;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
-use Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector;
-use Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector;
-use Rector\Naming\Rector\ClassMethod\RenameVariableToMatchNewTypeRector;
-use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchExprVariableRector;
-use Rector\Naming\Rector\Foreach_\RenameForeachValueVariableToMatchMethodCallReturnTypeRector;
 use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\Php81\Rector\Array_\ArrayToFirstClassCallableRector;
-use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
 use Rector\PHPUnit\CodeQuality\Rector\Class_\YieldDataProviderRector;
 use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
 use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
 use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
-use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
-use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return RectorConfig::configure()
   ->withPaths([
@@ -53,12 +43,9 @@ return RectorConfig::configure()
   ])
   ->withSkip([
     // Specific rules to skip based on project coding standards.
-    AddOverrideAttributeToOverriddenMethodsRector::class,
     ArrayToFirstClassCallableRector::class,
     CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,
-    CompleteDynamicPropertiesRector::class,
-    DisallowedEmptyRuleFixerRector::class,
     InlineArrayReturnAssignRector::class,
     NewlineAfterStatementRector::class,
     NewlineBeforeNewAssignSetRector::class,
@@ -71,11 +58,6 @@ return RectorConfig::configure()
       __DIR__ . '/web/modules/custom/*/src/Hook/*',
       __DIR__ . '/web/themes/custom/*/src/Hook/*',
     ],
-    RenameForeachValueVariableToMatchExprVariableRector::class,
-    RenameForeachValueVariableToMatchMethodCallReturnTypeRector::class,
-    RenameParamToMatchTypeRector::class,
-    RenameVariableToMatchMethodCallReturnTypeRector::class,
-    RenameVariableToMatchNewTypeRector::class,
     SimplifyEmptyCheckOnEmptyArrayRector::class,
     StringClassNameToClassConstantRector::class => [
       __DIR__ . '/web/sites/default/includes/*',
@@ -94,19 +76,15 @@ return RectorConfig::configure()
     codeQuality: TRUE,
     codingStyle: TRUE,
     deadCode: TRUE,
-    naming: TRUE,
     privatization: TRUE,
     typeDeclarations: TRUE,
   )
-  // Drupal deprecation fixes for the installed `drupal/core` version. Both
-  // calls are required: the provider supplies the sets, `withComposerBased()`
-  // enables the group. The sets carry the autoload paths and the file
-  // extensions Drupal executes PHP from, so this file declares neither.
-  ->withSetProviders(DrupalSetProvider::class)
+  // Drupal deprecation fixes for the installed `drupal/core` version. The sets
+  // carry the autoload paths and the file extensions Drupal executes PHP
+  // from, so this file declares neither.
   ->withComposerBased(drupal: TRUE)
   // Additional rules.
   ->withRules([
-    DeclareStrictTypesRector::class,
     YieldDataProviderRector::class,
   ])
   // Import configuration.
