@@ -85,9 +85,11 @@ return RectorConfig::configure()
   // carry the autoload paths and the file extensions Drupal executes PHP
   // from, so this file declares neither.
   ->withComposerBased(drupal: TRUE)
+  #;< TOOL_PHPUNIT
   // Additional rules.
   ->withRules([
     YieldDataProviderRector::class,
   ])
+  #;> TOOL_PHPUNIT
   // Import configuration.
   ->withImportNames(importNames: FALSE, importDocBlockNames: FALSE);
