@@ -1,0 +1,119 @@
+@@ -42,15 +42,6 @@
+ 
+ Climb only as high as the assertion needs. Each step up costs more time on every run, and more setup to keep working. Prefer many cheap tests for the logic and 1 expensive test for the wiring.
+ 
+-| Type                  | Base class                                            | Directory under `web/modules/custom/<module>/` | Use for                                                                                     |
+-|-----------------------|-------------------------------------------------------|------------------------------------------------|---------------------------------------------------------------------------------------------|
+-| Unit                  | `Drupal\Tests\UnitTestCase`                           | `tests/src/Unit`                               | A class whose collaborators can be mocked: no database, no container                         |
+-| Kernel                | `Drupal\KernelTests\KernelTestBase`                   | `tests/src/Kernel`                             | Services, entities, fields, plugins, configuration and queries against a real database      |
+-| Functional            | `Drupal\Tests\BrowserTestBase`                        | `tests/src/Functional`                         | Routing, forms, redirects and status codes over real HTTP requests                           |
+-| Functional JavaScript | `Drupal\FunctionalJavascriptTests\WebDriverTestBase`  | `tests/src/FunctionalJavascript`               | Behavior that needs JavaScript in Chrome                                                     |
+-
+-A kernel test installs only the modules in `$modules`. A functional test installs a whole site for every test method, so it is the slowest PHPUnit type by far.
+-
+ The last step is a Behat scenario: a user journey across pages, run against the provisioned site. Spend scenarios on the journeys that matter most, such as logging in, editing content or submitting a form, and keep edge cases in cheaper tests.
+ 
+ ## Avoid tests that pass without proving anything
+@@ -66,102 +57,6 @@
+ - Prefix test content with `[TEST]`, as `docs/testing.md` requires, so leftovers are recognizable.
+ - Create every entity, user and setting a test relies on inside the test. Never depend on content that happens to exist in your local database, because CI and other developers start from a different one.
+ - Restore any configuration or state a test changes, in a step that runs even when the test fails.
+-
+-## Unit, kernel and functional tests
+-
+-### Run them
+-
+-Kernel and functional tests need the running stack (`ahoy up`), because they use the `database`, `nginx` and `chrome` containers that `phpunit.xml` points at.
+-
+-```shell
+-ahoy test-unit
+-ahoy test-kernel
+-ahoy test-functional
+-ahoy test-functional-javascript
+-ahoy test web/modules/custom/<module>/tests/src/Kernel/<Name>Test.php
+-ahoy test -- --filter=<testMethodName>
+-ahoy test -- --group=<group>
+-```
+-
+-`ahoy test` runs all 4 suites. The `unit` suite also collects the project-level tests in `tests/phpunit`. When you change `web/sites/default/settings.php` or a file it includes, update the settings tests in `tests/phpunit/Drupal/` in the same change.
+-
+-### What the strict configuration means for you
+-
+-`phpunit.xml` stops the run at the first error, failure, warning or risky test, and fails it on any skipped test or PHPUnit deprecation. In practice:
+-
+-- A test with no assertion is risky and stops the run. So is a test that prints output.
+-- `markTestSkipped()` fails the run. To park a test, add `#[Group('skipped')]`, which `phpunit.xml` excludes, and remove it again before you finish.
+-- Write test metadata as attributes, as the shipped tests do: `#[Group('...')]`, `#[DataProvider('...')]`, imported from `PHPUnit\Framework\Attributes`. A docblock annotation such as `@dataProvider` triggers a PHPUnit deprecation that fails the run, and PHPUnit ignores docblock metadata entirely on a method that has any attribute. Use the attribute form even where an example in `docs/testing.md` shows a docblock annotation.
+-- Kernel, functional and functional JavaScript test classes carry `#[RunTestsInSeparateProcesses]`, as the shipped tests do. Copy it.
+-- Because the run stops at the first failure, a green filtered run says nothing about the rest of the suite. Run the full suite of each type you touched before you finish.
+-- CI fails the build when line coverage drops below `VORTEX_CI_CODE_COVERAGE_THRESHOLD` (default `90`). Files that no test runs count at 0%, so a new class without tests lowers coverage. The summary is in `.logs/coverage/phpunit/coverage.txt`.
+-
+-See https://www.vortextemplate.com/docs/development/testing/phpunit for the configuration, reports and CI behavior.
+-
+-### Shared base classes
+-
+-`web/modules/custom/sw_base/tests/src/` provides `SwBaseUnitTestBase`, `SwBaseKernelTestBase` and `SwBaseFunctionalTestBase`. They add the `ArrayTrait`, `AssertTrait`, `MockTrait` and `ReflectionTrait` helpers from `tests/src/Traits/`, and the functional base sets the `stark` theme. Read the traits before writing a helper of your own, and extend these bases when a test needs them.
+-
+-### Data providers
+-
+-Put the cases of 1 behavior in a data provider instead of copying the test method. Follow the naming and placement rules in `docs/testing.md`, and give every row a key that describes the case, so a failure names it:
+-
+-```php
+-#[DataProvider('dataProviderTitleToSlug')]
+-public function testTitleToSlug(string $title, string $expected): void {
+-  $this->assertSame($expected, my_module_slug($title));
+-}
+-
+-public static function dataProviderTitleToSlug(): \Iterator {
+-  yield 'spaces become hyphens' => ['[TEST] Annual report', 'test-annual-report'];
+-  yield 'empty title' => ['', ''];
+-}
+-```
+-
+-A provider multiplies the cost of its test. 10 rows on a functional test install 10 sites, so keep the matrix in a unit or kernel test and cover the HTTP wiring with 1 functional test.
+-
+-### Concrete checks against false passes
+-
+-Assert the precondition before the loop, and the page before the absence:
+-
+-```php
+-$this->assertCount(3, $terms);
+-foreach ($terms as $term) {
+-  $this->assertStringStartsWith('[TEST]', $term->label());
+-}
+-
+-$this->assertSession()->statusCodeEquals(200);
+-$this->assertSession()->pageTextContains('[TEST] Public page');
+-$this->assertSession()->pageTextNotContains('[TEST] Private note');
+-```
+-
+-Test a permission gate with 2 logged-in users in a functional test (`$modules` includes `node`):
+-
+-```php
+-public function testPageCreateAccess(): void {
+-  $this->drupalCreateContentType(['type' => 'page']);
+-
+-  $this->drupalLogin($this->drupalCreateUser(['access content']));
+-  $this->drupalGet('node/add/page');
+-  $this->assertSession()->statusCodeEquals(403);
+-
+-  $this->drupalLogin($this->drupalCreateUser(['create page content']));
+-  $this->drupalGet('node/add/page');
+-  $this->assertSession()->statusCodeEquals(200);
+-}
+-```
+-
+-For a whole family of routes, a kernel test can pin each route's requirement, so loosening it fails a test without any HTTP request:
+-
+-```php
+-$this->container->get('router.builder')->rebuild();
+-$route = $this->container->get('router.route_provider')->getRouteByName('my_module.report');
+-$this->assertSame('view my_module reports', $route->getRequirement('_permission'));
+-```
+-
+-### Fixtures
+-
+-Kernel and functional tests install a throwaway site in the `SIMPLETEST_DB` database under a table prefix. Nothing they create reaches the local site, and nothing from the local site exists in them: create content types, fields, users and content in `setUp()` or in the test. In a kernel test, list every module the code needs in `$modules`, and install the entity schemas and configuration it reads with `installEntitySchema()` and `installConfig()`.
+ 
+ ## Behat scenarios
+ 
