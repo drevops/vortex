@@ -21,6 +21,10 @@ class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCas
           $test->assertFileNotContainsString(static::$sut . '/.claude/settings.json', 'enabledPlugins');
           $test->assertFileExists(static::$sut . '/.claude/skills/review-code/SKILL.md');
           $test->assertFileExists(static::$sut . '/.claude/skills/review-code/checklist.md');
+          // Snapshots skip broken links, and this link resolves only after
+          // 'composer install'.
+          $test->assertTrue(is_link(static::$sut . '/.claude/skills/create-behat-step'));
+          $test->assertSame('../../vendor/drevops/behat-steps/skills/create-behat-step', readlink(static::$sut . '/.claude/skills/create-behat-step'));
       }),
     ];
     yield 'ai_instructions_disabled' => [
