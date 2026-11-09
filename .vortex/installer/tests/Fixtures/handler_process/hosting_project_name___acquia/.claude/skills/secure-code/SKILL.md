@@ -34,7 +34,7 @@
  
  ## Dependencies
  
-@@ -120,7 +120,7 @@
+@@ -121,7 +121,7 @@
  
  - Audit the custom theme's packages with `ahoy cli "npm audit --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME}"`.
  
