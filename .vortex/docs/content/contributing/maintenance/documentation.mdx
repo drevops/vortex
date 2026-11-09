@@ -313,9 +313,12 @@ both build the combined site.
 
 `Vortex - Release docs` (`.github/workflows/vortex-release.yml`) publishes
 the [live site](https://www.vortextemplate.com/docs/) to GitHub Pages. The
-same run builds the installer and publishes it at
-[`/install`](https://www.vortextemplate.com/install). The workflow runs in
-these cases:
+same run builds the installer and publishes it at the per-major pins, such
+as `/v1/install`. The bare
+[`/install`](https://www.vortextemplate.com/install) redirects to the
+installer of the latest release, as
+[Installer > Release the installer](installer.mdx#release-the-installer)
+describes. The workflow runs in these cases:
 
 - On every tag
 - On every push to a branch whose name contains `release-docs` or
@@ -335,7 +338,7 @@ documentation checks pass:
 
 A `release-docs` or `release-installer` branch publishes to the live site,
 so until the next publish, everyone gets that branch's documentation and
-installer.
+the current major's pinned installer.
 
 ## Consumer site documentation
 

@@ -138,6 +138,62 @@ curl -SsL https://www.vortextemplate.com/install > installer.php && php installe
   alt="Vortex installer screenshot"
 />
 
+<details>
+<summary>Verify the installer before you run it</summary>
+
+`https://www.vortextemplate.com/install` redirects to the `installer.php`
+attached to the latest **Vortex** release. Each release signs the checksum
+of that file with GPG and records a GitHub build attestation for it.
+
+1. Download the installer of the latest release:
+
+   ```bash
+   curl -SsL https://www.vortextemplate.com/install > installer.php
+   ```
+
+2. Verify the installer with [GitHub CLI](https://cli.github.com):
+
+   ```bash
+   gh attestation verify installer.php --repo drevops/vortex
+   ```
+
+   Or verify it with GPG:
+
+   ```bash
+   BASE=https://github.com/drevops/vortex/releases/latest/download
+   RAW=https://raw.githubusercontent.com/drevops/vortex/main
+
+   curl -SsLO $BASE/SHA256SUMS
+   curl -SsLO $BASE/SHA256SUMS.asc
+   curl -SsLO $RAW/.vortex/installer/PUBLIC_KEY.asc
+
+   gpg --show-keys --with-fingerprint PUBLIC_KEY.asc
+   gpg --import PUBLIC_KEY.asc
+   gpg --verify SHA256SUMS.asc SHA256SUMS && sha256sum -c SHA256SUMS
+   ```
+
+   On macOS, replace `sha256sum -c` with `shasum -a 256 -c`. Confirm that
+   `gpg --verify` reports a good signature from the key with this
+   fingerprint, and that `sha256sum` reports `installer.php: OK`:
+
+   ```text
+   BE1972E4A3147C3DC47CA41910EA19916EE32196
+   ```
+
+   Stop and delete `installer.php` when any check fails.
+
+3. When every check passes, run the installer:
+
+   ```bash
+   php installer.php
+   ```
+
+[Verify the installer][verify-installer] explains what each check proves.
+
+[verify-installer]: https://www.vortextemplate.com/docs/installation#verify-the-installer
+
+</details>
+
 Alternatively, clone this repository and edit out the sections you don't
 need.
 
@@ -162,6 +218,8 @@ at https://vortex-docs.netlify.app/install:
 ```bash
 curl -SsL https://vortex-docs.netlify.app/install > installer.php && php installer.php
 ```
+
+The development installer has no attestation or signature.
 
 ## See Vortex in production
 

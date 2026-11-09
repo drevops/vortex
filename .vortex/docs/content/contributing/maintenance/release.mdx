@@ -66,13 +66,15 @@ To promote a new major version on the published site, set the
 `VORTEX_CURRENT_MAJOR` repository variable to its number. It's a GitHub
 Actions variable on the `drevops/vortex` repository, under
 **Settings > Secrets and variables > Actions**, on the **Variables** tab.
-The documentation default and the installer's bare `/install` URL both
-follow it, while the per-major docs and the `/v{N}/install` pins are always
-published.
+The documentation default follows it, while the per-major docs and the
+`/v{N}/install` pins are always published. The bare `/install` URL serves
+the installer of the latest GitHub release instead, as
+[Installer > Release the installer](installer.mdx#release-the-installer)
+describes.
 
 The workflows read the variable only when they run. The next
-`Vortex - Release docs` run applies a change to the live site and
-`/install`. To publish straight away, run that workflow by hand.
+`Vortex - Release docs` run applies a change to the live site. To publish
+straight away, run that workflow by hand.
 
 When `main` advances to a new major version, the branches change like this:
 
@@ -232,21 +234,29 @@ To release a new version of **Vortex**:
 20. Tag the **Vortex** release and push the tag. The push runs the
     `Vortex - Release docs` workflow, which publishes the documentation and
     the installer.
-21. Publish the GitHub release, with the following template as its body:
+21. Publish the GitHub release, with the following template as its body.
+    Publishing runs the `Vortex - Release installer` workflow, which
+    attaches the installer to the release. For a release of a superseded
+    major, such as a `1.x` release after `2.0.0`, clear the
+    **Set as the latest release** checkbox, so `/install` keeps serving the
+    current major.
 
 import CodeBlock from '@theme/CodeBlock';
 import ReleaseTemplate from '!!raw-loader!./_release_template.md'
 
 <CodeBlock language="markdown">{ReleaseTemplate}</CodeBlock>
 
-Confirm that the release is live: the `Vortex - Release docs` workflow run
-for the tag succeeds, and the published installer reports the new version.
-To check the installer, run these commands:
+Confirm that the release is live: the `Vortex - Release docs` and
+`Vortex - Release installer` workflow runs succeed, and the release lists
+`installer.php`, `SHA256SUMS` and `SHA256SUMS.asc` as assets. To check the
+published installer, run these commands:
 
 ```shell
 curl -SsL https://www.vortextemplate.com/install > installer.php
 php installer.php --version
+gh attestation verify installer.php --repo drevops/vortex
 ```
 
 The second command prints `Vortex Installer` followed by the tag, for
-example `Vortex Installer 1.42.0`.
+example `Vortex Installer 1.42.0`. The third command fails when the
+installer isn't the attested release asset.

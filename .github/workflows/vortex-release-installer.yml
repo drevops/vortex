@@ -1,0 +1,169 @@
+# This action is used for Vortex maintenance. It will not be used in the scaffolded project.
+name: Vortex - Release installer
+
+# Attaches 'installer.php', 'SHA256SUMS' and 'SHA256SUMS.asc' to a release,
+# with a build attestation for 'installer.php' and 'SHA256SUMS'. A Cloudflare
+# redirect rule sends 'https://www.vortextemplate.com/install' to the
+# 'installer.php' of the latest release.
+#
+# A manual run attaches the installer to an existing release again.
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vortex-release-installer-${{ github.event.release.tag_name || inputs.version }}
+  cancel-in-progress: false
+
+# The key that signs 'SHA256SUMS'. Its public key is '.vortex/installer/PUBLIC_KEY.asc'.
+env:
+  RELEASE_GPG_FINGERPRINT: BE1972E4A3147C3DC47CA41910EA19916EE32196
+
+jobs:
+  vortex-release-installer:
+    runs-on: ubuntu-latest
+
+    # The signing key is a secret of this environment, so its protection rules
+    # apply before the job can read the key.
+    environment: release
+
+    permissions:
+      contents: write # Upload the release assets.
+      id-token: write # Sign the build attestations.
+      attestations: write # Record the build attestations.
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # The workflow's own ref holds the public key, which an older release
+      # may predate.
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      # The version becomes part of a 'sed' replacement and of asset URLs, so
+      # it is limited to the characters a tag of this repository uses.
+      - name: Set release version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUTS_VERSION: ${{ inputs.version }}
+        run: |
+          version="${RELEASE_TAG:-${INPUTS_VERSION}}"
+          [[ "${version}" =~ ^[0-9A-Za-z._+-]+$ ]] || { echo "::error::Invalid release version '${version}'."; exit 1; }
+          gh release view "${version}" --repo "${GITHUB_REPOSITORY}" --json tagName > /dev/null || { echo "::error::Version ${version} has no GitHub release."; exit 1; }
+          echo "RELEASE_VERSION=${version}" >> "$GITHUB_ENV"
+          echo "Release version: ${version}"
+
+      - name: Checkout release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: refs/tags/${{ env.RELEASE_VERSION }}
+          path: release-src
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: 8.3
+
+      - name: Install dependencies
+        run: composer install
+        working-directory: release-src/.vortex/installer
+
+      - name: Build installer
+        run: |
+          sed -i "s/\"vortex-installer-version\": \"development\"/\"vortex-installer-version\": \"${RELEASE_VERSION}\"/g" box.json
+          composer build
+          reported="$(php build/installer.phar --version)"
+          [ "${reported}" = "Vortex Installer ${RELEASE_VERSION}" ] || { echo "::error::The installer reports '${reported}', not 'Vortex Installer ${RELEASE_VERSION}'."; exit 1; }
+        working-directory: release-src/.vortex/installer
+
+      - name: Check installer
+        run: ./build/installer.phar --no-interaction --no-cleanup --destination=test
+        working-directory: release-src/.vortex/installer
+
+      # The asset takes the name that the installation instructions save the
+      # download as, so 'sha256sum -c SHA256SUMS' finds it.
+      - name: Generate checksums
+        run: |
+          mkdir -p .release
+          cp release-src/.vortex/installer/build/installer.phar .release/installer.php
+          cd .release
+          sha256sum installer.php > SHA256SUMS
+
+      - name: Import GPG key
+        env:
+          RELEASE_GPG_PRIVATE_KEY: ${{ secrets.VORTEX_RELEASE_GPG_PRIVATE_KEY }}
+        run: |
+          [ -n "${RELEASE_GPG_PRIVATE_KEY}" ] || { echo "::error::The VORTEX_RELEASE_GPG_PRIVATE_KEY secret of the 'release' environment is not set."; exit 1; }
+          echo "${RELEASE_GPG_PRIVATE_KEY}" | gpg --batch --import
+
+      # VORTEX_RELEASE_GPG_PASSPHRASE is needed only for a key that has a
+      # passphrase.
+      - name: Sign checksums
+        working-directory: .release
+        env:
+          RELEASE_GPG_PASSPHRASE: ${{ secrets.VORTEX_RELEASE_GPG_PASSPHRASE }}
+        run: |
+          if [ -n "${RELEASE_GPG_PASSPHRASE}" ]; then
+            echo "${RELEASE_GPG_PASSPHRASE}" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --local-user "${RELEASE_GPG_FINGERPRINT}" --detach-sign --armor SHA256SUMS
+          else
+            gpg --batch --yes --local-user "${RELEASE_GPG_FINGERPRINT}" --detach-sign --armor SHA256SUMS
+          fi
+
+      # Checks the signature with only the committed public key in the keyring.
+      # 'gpg --verify' accepts any key in the keyring, so the signature must
+      # also come from the pinned fingerprint.
+      - name: Verify signature
+        run: |
+          export GNUPGHOME="${RUNNER_TEMP}/gnupg-verify"
+          mkdir -m 700 "${GNUPGHOME}"
+          gpg --batch --import .vortex/installer/PUBLIC_KEY.asc
+          gpg --batch --status-fd 1 --verify .release/SHA256SUMS.asc .release/SHA256SUMS > "${RUNNER_TEMP}/gpg-status.txt"
+          grep -q "^\[GNUPG:\] VALIDSIG ${RELEASE_GPG_FINGERPRINT} " "${RUNNER_TEMP}/gpg-status.txt" || { echo "::error::SHA256SUMS is not signed by the Vortex release key ${RELEASE_GPG_FINGERPRINT}."; exit 1; }
+          (cd .release && sha256sum -c SHA256SUMS)
+
+      - name: Attest release assets
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            .release/installer.php
+            .release/SHA256SUMS
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${RELEASE_VERSION}" --repo "${GITHUB_REPOSITORY}" .release/installer.php .release/SHA256SUMS .release/SHA256SUMS.asc --clobber
+
+      # Each URL must serve the uploaded installer byte for byte, and the copy
+      # that users download must carry the attestation.
+      - name: Verify latest installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest="$(gh release view --repo "${GITHUB_REPOSITORY}" --json tagName --jq .tagName)"
+          if [ "${latest}" != "${RELEASE_VERSION}" ]; then
+            echo "Release ${RELEASE_VERSION} is not the latest release (${latest}), so the latest download is not checked."
+            exit 0
+          fi
+          for url in "https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/installer.php" https://www.vortextemplate.com/install https://vortextemplate.com/install; do
+            curl -fsSL "${url}" -o "${RUNNER_TEMP}/latest-installer.php"
+            cmp "${RUNNER_TEMP}/latest-installer.php" .release/installer.php || { echo "::error::${url} does not serve the uploaded installer."; exit 1; }
+            echo "${url} serves the uploaded installer."
+          done
+          gh attestation verify "${RUNNER_TEMP}/latest-installer.php" --repo "${GITHUB_REPOSITORY}"

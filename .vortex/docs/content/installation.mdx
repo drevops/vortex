@@ -116,6 +116,9 @@ non-interactive installation:
 curl -SsL https://www.vortextemplate.com/install > installer.php && php installer.php --agent-help
 ```
 
+To check the installer before you run it, see
+[Verify the installer](#verify-the-installer).
+
 :::note Major versions
 
 The `/install` path serves the installer for the major line this site
@@ -435,6 +438,82 @@ Follow the rest of the new project steps in order:
 3. [Set up continuous integration](#7-set-up-continuous-integration).
 4. [Run your first build](#8-run-your-first-build), and confirm that it
    passed.
+
+## Verify the installer
+
+The installer runs on your machine with your permissions, so check that
+it's the file the **Vortex** release workflow built. The `/install` URL
+redirects to the `installer.php` asset of the latest
+[release on GitHub](https://github.com/drevops/vortex/releases/latest).
+
+### Verify with the GitHub CLI
+
+The release workflow records a build attestation for `installer.php`.
+GitHub Actions signs the attestation and ties it to the commit and the
+workflow run that built the file.
+
+To verify the installer with the [GitHub CLI](https://cli.github.com)
+before you run it:
+
+```shell
+curl -SsL https://www.vortextemplate.com/install > installer.php
+gh attestation verify installer.php --repo drevops/vortex && php installer.php
+```
+
+`gh attestation verify` fails when the file changed after the build or came
+from another repository's workflows. The `&&` then stops the installer from
+running.
+
+### Verify with GPG
+
+Each release also carries `SHA256SUMS` and `SHA256SUMS.asc`. `SHA256SUMS`
+holds the SHA-256 checksum of `installer.php`, and `SHA256SUMS.asc` is its
+GPG signature. The **Vortex** release key signs it, with the fingerprint
+`BE1972E4A3147C3DC47CA41910EA19916EE32196`.
+
+To verify the installer with GPG:
+
+1. Download the installer, the checksum file and its signature:
+
+   ```shell
+   curl -SsL https://www.vortextemplate.com/install > installer.php
+   curl -SsLO https://github.com/drevops/vortex/releases/latest/download/SHA256SUMS
+   curl -SsLO https://github.com/drevops/vortex/releases/latest/download/SHA256SUMS.asc
+   ```
+
+2. Import the public key of the release key from the repository:
+
+   ```shell
+   curl -SsL https://raw.githubusercontent.com/drevops/vortex/main/.vortex/installer/PUBLIC_KEY.asc | gpg --import
+   ```
+
+3. Check the signature of the checksum file:
+
+   ```shell
+   gpg --verify SHA256SUMS.asc SHA256SUMS
+   ```
+
+   Confirm that the output reports `Good signature` and that its
+   `using RSA key` line shows the release key's fingerprint. GPG also warns
+   that the key isn't certified until you mark it as trusted in your
+   keyring.
+
+4. Check the installer against the checksum:
+
+   ```shell
+   sha256sum -c SHA256SUMS
+   ```
+
+   On macOS, run `shasum -a 256 -c SHA256SUMS` instead. Confirm that the
+   output reads `installer.php: OK`.
+
+Run `php installer.php` only after both steps 3 and 4 pass. When either
+step fails, delete `installer.php`.
+
+Both checks cover the installer at `/install`. The per-major installers at
+`/v1/install` and `/v2/install` and the
+[development installer](https://vortex-docs.netlify.app/install) have no
+attestation or signature.
 
 ## What's next
 
