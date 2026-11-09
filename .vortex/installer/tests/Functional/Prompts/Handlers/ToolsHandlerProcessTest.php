@@ -438,18 +438,24 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::BEHAT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
-        'behat',
-        'behat/behat',
-        'lullabot/mink-selenium2-driver',
-        'friends-of-behat/mink-extension',
-        'drupal/drupal-extension',
-        'ahoy test-bdd',
-        'gherkinlint',
-        'gherkin-lint',
-        'gherkin',
-        'bdd',
-      ])),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertSutNotContains([
+            'behat',
+            'behat/behat',
+            'lullabot/mink-selenium2-driver',
+            'friends-of-behat/mink-extension',
+            'drupal/drupal-extension',
+            'ahoy test-bdd',
+            'gherkinlint',
+            'gherkin-lint',
+            'gherkin',
+            'bdd',
+          ]);
+
+          // The link targets 'vendor/', which the SUT lacks, so
+          // 'file_exists()' is FALSE whether or not the link was removed.
+          $test->assertFalse(is_link(static::$sut . '/.claude/skills/create-behat-step'));
+      }),
     ];
     yield 'tools_no_behat_circleci' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {

@@ -514,6 +514,7 @@ class Tools extends AbstractHandler {
           'behat.php',
           'tests/behat',
           'gherkinlint.json',
+          '.claude/skills/create-behat-step',
         ],
         'strings' => [
           '/^.*\bbehat\b.*\n?/m',
