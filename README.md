@@ -138,9 +138,59 @@ curl -SsL https://www.vortextemplate.com/install > installer.php && php installe
   alt="Vortex installer screenshot"
 />
 
-To check the installer before you run it, see [Verify the installer].
+<details>
+<summary>Verify the installer before you run it</summary>
 
-[Verify the installer]: https://www.vortextemplate.com/docs/installation#verify-the-installer
+`https://www.vortextemplate.com/install` redirects to the `installer.php`
+attached to the latest **Vortex** release. Each release signs the checksum
+of that file with GPG and records a GitHub build attestation for it.
+
+1. Download the installer of the latest release:
+
+   ```bash
+   curl -SsL https://www.vortextemplate.com/install > installer.php
+   ```
+
+2. Verify the installer with [GitHub CLI](https://cli.github.com):
+
+   ```bash
+   gh attestation verify installer.php --repo drevops/vortex
+   ```
+
+   Or verify it with GPG:
+
+   ```bash
+   BASE=https://github.com/drevops/vortex/releases/latest/download
+   RAW=https://raw.githubusercontent.com/drevops/vortex/main
+
+   curl -SsLO $BASE/SHA256SUMS
+   curl -SsLO $BASE/SHA256SUMS.asc
+   curl -SsLO $RAW/.vortex/installer/PUBLIC_KEY.asc
+
+   gpg --show-keys --with-fingerprint PUBLIC_KEY.asc
+   gpg --import PUBLIC_KEY.asc
+   gpg --verify SHA256SUMS.asc SHA256SUMS
+   sha256sum -c SHA256SUMS    # macOS: shasum -a 256 -c SHA256SUMS
+   ```
+
+   Confirm that `gpg --verify` reports a good signature from the key with
+   this fingerprint:
+
+   ```text
+   BE1972E4A3147C3DC47CA41910EA19916EE32196
+   ```
+
+3. Run the verified installer:
+
+   ```bash
+   php installer.php
+   ```
+
+[Verify the installer][verify-installer] explains what each check proves.
+
+[verify-installer]: https://www.vortextemplate.com/docs/installation#verify-the-installer
+
+</details>
 
 Alternatively, clone this repository and edit out the sections you don't
 need.

@@ -3,8 +3,8 @@
 # Lint the Vortex release signing key.
 #
 # Passes when '.vortex/installer/PUBLIC_KEY.asc' has the fingerprint that
-# 'vortex-release-installer.yml' pins, the installation docs show that
-# fingerprint, and the key does not expire within 60 days.
+# 'vortex-release-installer.yml' pins, the installation docs and 'README.md'
+# show that fingerprint, and the key does not expire within 60 days.
 #
 # LCOV_EXCL_START
 
@@ -17,7 +17,7 @@ WORKFLOW="${ROOT_DIR}/.github/workflows/vortex-release-installer.yml"
 
 PUBLIC_KEY="${ROOT_DIR}/.vortex/installer/PUBLIC_KEY.asc"
 
-DOCS="${ROOT_DIR}/.vortex/docs/content/installation.mdx"
+DOCS=("${ROOT_DIR}/.vortex/docs/content/installation.mdx" "${ROOT_DIR}/README.md")
 
 # Days before the expiry of the key when this check starts to fail.
 EXPIRY_NOTICE_DAYS=60
@@ -31,7 +31,9 @@ key="$(gpg --batch --show-keys --with-colons "${PUBLIC_KEY}" 2>/dev/null)"
 
 grep -q "^fpr:::::::::${fingerprint}:$" <<<"${key}" || { echo "ERROR: ${PUBLIC_KEY} does not hold the key ${fingerprint}."; exit 1; }
 
-grep -qF "${fingerprint}" "${DOCS}" || { echo "ERROR: ${DOCS} does not show the fingerprint ${fingerprint}."; exit 1; }
+for doc in "${DOCS[@]}"; do
+  grep -qF "${fingerprint}" "${doc}" || { echo "ERROR: ${doc} does not show the fingerprint ${fingerprint}."; exit 1; }
+done
 
 expires="$(awk -F: '$1 == "pub" { print $7; exit }' <<<"${key}")"
 if [ -n "${expires}" ] && [ "${expires}" -lt "$(($(date +%s) + EXPIRY_NOTICE_DAYS * 86400))" ]; then
