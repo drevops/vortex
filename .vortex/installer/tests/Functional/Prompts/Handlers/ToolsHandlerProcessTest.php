@@ -452,9 +452,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
             'bdd',
           ]);
 
-          // The link targets 'vendor/', which the SUT lacks, so
-          // 'file_exists()' is FALSE whether or not the link was removed.
-          $test->assertFalse(is_link(static::$sut . '/.claude/skills/create-behat-step'));
+          $test->assertDirectoryDoesNotExist(static::$sut . '/.claude/skills/create-behat-step');
       }),
     ];
     yield 'tools_no_behat_circleci' => [

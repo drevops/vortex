@@ -173,11 +173,11 @@ Claude Code:
 ```
 
 The skill ships inside the `drevops/behat-steps` package.
-`.claude/skills/create-behat-step` is a symbolic link to the skill's
-directory in `vendor/`, so the skill matches the package version that
-Composer installs. The link resolves after `composer install`.
+`.claude/skills/create-behat-step/SKILL.md` tells the agent to follow the
+package's own `SKILL.md` in `vendor/`, so the instructions match the
+package version that Composer installs.
 
-The installer removes the link when you deselect Behat in its
+The installer removes the skill when you deselect Behat in its
 **Development tools** prompt. The
 [Behat Steps AI guide](https://behat-steps.drevops.com/guides/ai-assistants)
 describes each step the skill takes.
