@@ -443,9 +443,9 @@ Follow the rest of the new project steps in order:
 
 The installer runs on your machine with your permissions, so check that
 it's the file the **Vortex** release workflow built. The `/install` URL
-serves the `installer.php` asset of the latest
-[release on GitHub](https://github.com/drevops/vortex/releases/latest).
-Both of the following checks compare your download with that release.
+serves the `installer.php` asset of a
+[release on GitHub](https://github.com/drevops/vortex/releases), normally
+the latest release.
 
 ### Verify with the GitHub CLI
 
@@ -472,12 +472,13 @@ holds the SHA-256 checksum of `installer.php`, and `SHA256SUMS.asc` is its
 GPG signature. The **Vortex** release key signs it, with the fingerprint
 `755E824E80F849135F5F4043E71EDB25C4F6D89D`.
 
-To verify the installer with GPG:
+To verify the installer of the latest release with GPG:
 
-1. Download the installer, the checksum file and its signature:
+1. Download the installer, the checksum file and its signature from the
+   latest release:
 
    ```shell
-   curl -SsL https://www.vortextemplate.com/install > installer.php
+   curl -SsLO https://github.com/drevops/vortex/releases/latest/download/installer.php
    curl -SsLO https://github.com/drevops/vortex/releases/latest/download/SHA256SUMS
    curl -SsLO https://github.com/drevops/vortex/releases/latest/download/SHA256SUMS.asc
    ```
@@ -508,10 +509,14 @@ To verify the installer with GPG:
    On macOS, run `shasum -a 256 -c SHA256SUMS` instead. Confirm that the
    output reads `installer.php: OK`.
 
-Both checks cover the installer at `/install` and at the path of its major
-line, such as `/v1/install`. The installer of the other major line and the
-[development installer](https://vortex-docs.netlify.app/install) have no
-attestation or signature.
+   The installer at `/install` is a copy of a release's `installer.php`.
+   `sha256sum -c SHA256SUMS` passes on that copy too when it comes from the
+   latest release.
+
+The installer at `/install` and at the path of its major line, such as
+`/v1/install`, has an attestation. The installer of the other major line
+and the [development installer](https://vortex-docs.netlify.app/install)
+have no attestation or signature.
 
 ## What's next
 
