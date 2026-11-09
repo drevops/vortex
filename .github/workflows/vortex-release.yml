@@ -7,11 +7,10 @@ on:
       - '*'
     branches:
       - '**release-docs**'
-      - '**release-installer**'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Override version (leave empty for auto-discovery)'
+        description: 'Release to publish the installer of (leave empty for the latest release)'
         required: false
         type: string
 
@@ -19,31 +18,88 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
+# The key that signs 'SHA256SUMS'. Its public key is '.vortex/PUBLIC_KEY.asc'.
+env:
+  RELEASE_GPG_FINGERPRINT: 755E824E80F849135F5F4043E71EDB25C4F6D89D
+
 jobs:
 
   vortex-release-installer:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read # Checkout the repository; only builds and uploads the PHAR artifact.
+      contents: write # Upload the installer and its checksums to the release.
+      id-token: write # Sign the build attestations.
+      attestations: write # Record the build attestations of the installer and its checksums.
 
     outputs:
       release-version: ${{ steps.version.outputs.value }}
 
-    # The current major (built from this ref) and the other major (built from
-    # its '{N}.x' branch) are both derived from 'VORTEX_CURRENT_MAJOR' (default
-    # 1), so a single variable bump promotes a new major with no workflow edits.
+    # The current major (built from the release tag) and the other major (built
+    # from its '{N}.x' branch) are both derived from 'VORTEX_CURRENT_MAJOR'
+    # (default 1), so a single variable bump promotes a new major with no
+    # workflow edits.
     env:
       CURRENT_MAJOR: ${{ vars.VORTEX_CURRENT_MAJOR || '1' }}
       OTHER_MAJOR: ${{ (vars.VORTEX_CURRENT_MAJOR || '1') == '1' && '2' || '1' }}
 
     steps:
+      # The live '/install' always serves the installer of a release: the
+      # pushed tag, the 'version' input, or the latest release.
+      - name: Set release version
+        id: version
+        run: |
+          if [ -n "${INPUTS_VERSION}" ]; then
+            version="${INPUTS_VERSION}"
+          elif [ "${REF_TYPE}" = "tag" ]; then
+            version="${REF_NAME}"
+          else
+            version="$(gh release view --repo "${GITHUB_REPOSITORY}" --json tagName --jq .tagName)"
+          fi
+          if ! gh release view "${version}" --repo "${GITHUB_REPOSITORY}" --json tagName > /dev/null; then
+            echo "::error::Version ${version} has no GitHub release. Publish the release from the Releases page, which also creates the tag."
+            exit 1
+          fi
+          assets="$(gh release view "${version}" --repo "${GITHUB_REPOSITORY}" --json assets --jq '.assets[].name')"
+          if grep -qx 'installer.php' <<< "${assets}"; then
+            echo "RELEASE_HAS_INSTALLER=1" >> "$GITHUB_ENV"
+          else
+            echo "RELEASE_HAS_INSTALLER=0" >> "$GITHUB_ENV"
+          fi
+          echo "RELEASE_VERSION=${version}" >> "$GITHUB_ENV"
+          echo "value=${version}" >> "$GITHUB_OUTPUT"
+          echo "Release version: ${version}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUTS_VERSION: ${{ inputs.version }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+
+      # The workflow's own ref holds the public key, which a backfilled older
+      # release may predate.
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
+      - name: Checkout release tag
+        if: env.RELEASE_HAS_INSTALLER == '0'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: refs/tags/${{ env.RELEASE_VERSION }}
+          path: release-src
+          persist-credentials: false
+
+      # A rerun reuses the uploaded installer, so an installer already on the
+      # site keeps matching the release.
+      - name: Download released installer
+        if: env.RELEASE_HAS_INSTALLER == '1'
+        run: gh release download "${RELEASE_VERSION}" --repo "${GITHUB_REPOSITORY}" --dir .release --pattern installer.php --pattern SHA256SUMS --pattern SHA256SUMS.asc
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Cache Composer dependencies
+        if: env.RELEASE_HAS_INSTALLER == '0'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: /tmp/composer-cache
@@ -55,48 +111,84 @@ jobs:
           php-version: 8.3
 
       - name: Install dependencies
+        if: env.RELEASE_HAS_INSTALLER == '0'
         run: composer install
-        working-directory: .vortex/installer
-
-      - name: Set release version
-        id: version
-        run: |
-          if [ -n "${INPUTS_VERSION}" ]; then
-            version="${INPUTS_VERSION}"
-          else
-            TAG=""
-            SHA=""
-            if [ "${REF_TYPE}" = "tag" ]; then TAG="${REF_NAME}"; fi
-            if [ "${REF_TYPE}" = "branch" ]; then SHA="${REF_SHA}"; fi
-            version="${TAG:-${SHA}}"
-          fi
-          echo "RELEASE_VERSION=$version" >> "$GITHUB_ENV"
-          echo "value=$version" >> "$GITHUB_OUTPUT"
-          echo "Release version: $version"
-        working-directory: .vortex/installer
-        env:
-          INPUTS_VERSION: ${{ inputs.version }}
-          REF_TYPE: ${{ github.ref_type }}
-          REF_NAME: ${{ github.ref_name }}
-          REF_SHA: ${{ github.sha }}
+        working-directory: release-src/.vortex/installer
 
       - name: Build PHAR
+        if: env.RELEASE_HAS_INSTALLER == '0'
         run: |
           sed -i "s/\"vortex-installer-version\": \"development\"/\"vortex-installer-version\": \"${RELEASE_VERSION}\"/g" box.json
           composer build
-        working-directory: .vortex/installer
+        working-directory: release-src/.vortex/installer
 
       - name: Test PHAR
+        if: env.RELEASE_HAS_INSTALLER == '0'
         run: |
           ./build/installer.phar --version
           ./build/installer.phar --no-interaction --no-cleanup --destination=test || exit 1
-        working-directory: .vortex/installer
+        working-directory: release-src/.vortex/installer
+
+      # The asset takes the name that the installation instructions save the
+      # download as, so 'sha256sum -c SHA256SUMS' finds it.
+      - name: Checksum installer
+        if: env.RELEASE_HAS_INSTALLER == '0'
+        run: |
+          mkdir -p .release
+          cp release-src/.vortex/installer/build/installer.phar .release/installer.php
+          cd .release
+          sha256sum installer.php > SHA256SUMS
+
+      - name: Sign checksums
+        if: env.RELEASE_HAS_INSTALLER == '0'
+        env:
+          RELEASE_GPG_PRIVATE_KEY: ${{ secrets.VORTEX_RELEASE_GPG_PRIVATE_KEY }}
+        run: |
+          if [ -z "${RELEASE_GPG_PRIVATE_KEY}" ]; then
+            echo "::error::The VORTEX_RELEASE_GPG_PRIVATE_KEY secret is not set, so the checksums can't be signed."
+            exit 1
+          fi
+          export GNUPGHOME="${RUNNER_TEMP}/gnupg-sign"
+          mkdir -m 700 "${GNUPGHOME}"
+          echo "${RELEASE_GPG_PRIVATE_KEY}" | gpg --batch --import
+          gpg --batch --yes --local-user "${RELEASE_GPG_FINGERPRINT}" --detach-sign --armor .release/SHA256SUMS
+
+      - name: Attest installer and checksums
+        if: env.RELEASE_HAS_INSTALLER == '0'
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            .release/installer.php
+            .release/SHA256SUMS
+
+      # Checks a reused installer the same way as a new one, with the committed
+      # public key in an empty keyring. 'gpg --verify' accepts any key in the
+      # keyring, so the signature must also come from the pinned fingerprint.
+      - name: Verify installer
+        run: |
+          export GNUPGHOME="${RUNNER_TEMP}/gnupg-verify"
+          mkdir -m 700 "${GNUPGHOME}"
+          gpg --batch --import .vortex/PUBLIC_KEY.asc
+          gpg --batch --status-fd 1 --verify .release/SHA256SUMS.asc .release/SHA256SUMS > "${RUNNER_TEMP}/gpg-status.txt"
+          grep -q "^\[GNUPG:\] VALIDSIG ${RELEASE_GPG_FINGERPRINT} " "${RUNNER_TEMP}/gpg-status.txt" || { echo "::error::SHA256SUMS of ${RELEASE_VERSION} is not signed by the Vortex release key."; exit 1; }
+          (cd .release && sha256sum -c SHA256SUMS)
+          gh attestation verify .release/installer.php --repo "${GITHUB_REPOSITORY}"
+          gh attestation verify .release/SHA256SUMS --repo "${GITHUB_REPOSITORY}"
+          php .release/installer.php --version | grep -F "Vortex Installer ${RELEASE_VERSION}" || { echo "::error::The installer does not report version ${RELEASE_VERSION}."; exit 1; }
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Upload installer to the release
+        if: env.RELEASE_HAS_INSTALLER == '0'
+        run: gh release upload "${RELEASE_VERSION}" --repo "${GITHUB_REPOSITORY}" .release/installer.php .release/SHA256SUMS .release/SHA256SUMS.asc --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Upload v${{ env.CURRENT_MAJOR }} installer artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: vortex-installer-v${{ env.CURRENT_MAJOR }}
-          path: .vortex/installer/build/installer.phar
+          path: .release/installer.php
           if-no-files-found: error
 
       # Build the other major from its '{N}.x' branch so it is published
@@ -133,6 +225,7 @@ jobs:
       contents: read # Checkout the repository and build the documentation site.
       pages: write # Deploy the built site via 'actions/deploy-pages'.
       id-token: write # OIDC token required by 'actions/deploy-pages' to publish to GitHub Pages.
+      attestations: read # Verify the attestation of the deployed installer.
 
     environment:
       name: github-pages
@@ -184,10 +277,12 @@ jobs:
           path: installer-v2
 
       # Publish both majors. '/v1/install' and '/v2/install' are the stable
-      # per-major pins, always built from each major's own source. The bare
-      # '/install' is a copy of the current major's pin, selected by the
-      # 'VORTEX_CURRENT_MAJOR' repository variable (default 1) - bumping that one
-      # variable is the only action needed to promote a new major.
+      # per-major pins: the current major's pin is the installer attached to
+      # the release, and the other major's pin is built from its '{N}.x'
+      # branch. The bare '/install' is a copy of the current major's pin,
+      # selected by the 'VORTEX_CURRENT_MAJOR' repository variable (default 1) -
+      # bumping that one variable is the only action needed to promote a new
+      # major.
       - name: Copy binaries to docs
         run: |
           case "${CURRENT_MAJOR}" in
@@ -195,10 +290,10 @@ jobs:
             *) echo "Invalid VORTEX_CURRENT_MAJOR='${CURRENT_MAJOR}'. Expected 1 or 2."; exit 1 ;;
           esac
           mkdir -p ../.vortex/docs/static/v1 ../.vortex/docs/static/v2
-          # Each artifact holds exactly one PHAR, but its filename depends on
+          # Each artifact holds exactly one binary, but its filename depends on
           # what that major ships, so it is matched rather than named.
-          cp ../installer-v1/*.phar ../.vortex/docs/static/v1/install
-          cp ../installer-v2/*.phar ../.vortex/docs/static/v2/install
+          cp ../installer-v1/* ../.vortex/docs/static/v1/install
+          cp ../installer-v2/* ../.vortex/docs/static/v2/install
           cp "../.vortex/docs/static/v${CURRENT_MAJOR}/install" ../.vortex/docs/static/install
           php ../.vortex/docs/static/install --version
 
@@ -241,4 +336,26 @@ jobs:
           path: .vortex/docs_combined/build
 
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
+
+      # GitHub Pages caches a page for up to 10 minutes, so the site can serve
+      # the previous installer for a while after the deployment.
+      - name: Verify deployed installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        timeout-minutes: 20
+        run: |
+          url="${PAGE_URL%/}/install"
+          expected="$(sha256sum ../.vortex/docs/static/install | cut -d ' ' -f 1)"
+          for attempt in $(seq 1 15); do
+            if curl -fsSL "${url}" -o "${RUNNER_TEMP}/install" && [ "$(sha256sum "${RUNNER_TEMP}/install" | cut -d ' ' -f 1)" = "${expected}" ]; then
+              gh attestation verify "${RUNNER_TEMP}/install" --repo "${GITHUB_REPOSITORY}"
+              exit 0
+            fi
+            echo "Attempt ${attempt}: ${url} does not serve the released installer yet."
+            sleep 60
+          done
+          echo "::error::${url} does not serve the released installer."
+          exit 1

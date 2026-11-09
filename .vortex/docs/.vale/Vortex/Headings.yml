@@ -20,6 +20,7 @@ exceptions+:
   - Gherkin Lint
   - Git
   - GitFlow
+  - GPG
   - JavaScript
   - Migrate Plus
   - Migrate Tools

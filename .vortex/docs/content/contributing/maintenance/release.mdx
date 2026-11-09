@@ -229,10 +229,11 @@ To release a new version of **Vortex**:
     fixtures itself.
 18. Re-record the demo videos with `cd .vortex && ahoy update-videos`.
 19. Commit the recorded videos under `.vortex/docs/static/img/`.
-20. Tag the **Vortex** release and push the tag. The push runs the
-    `Vortex - Release docs` workflow, which publishes the documentation and
-    the installer.
-21. Publish the GitHub release, with the following template as its body:
+20. Publish the GitHub release on the **Releases** page, with a new tag
+    named after the version. Publishing the release creates the tag, which
+    runs the `Vortex - Release docs` workflow. The workflow attaches the
+    installer to the release, then publishes the documentation and the
+    installer. Use the following template as the release body:
 
 import CodeBlock from '@theme/CodeBlock';
 import ReleaseTemplate from '!!raw-loader!./_release_template.md'
@@ -240,13 +241,16 @@ import ReleaseTemplate from '!!raw-loader!./_release_template.md'
 <CodeBlock language="markdown">{ReleaseTemplate}</CodeBlock>
 
 Confirm that the release is live: the `Vortex - Release docs` workflow run
-for the tag succeeds, and the published installer reports the new version.
-To check the installer, run these commands:
+for the tag succeeds, and the release lists `installer.php`, `SHA256SUMS`
+and `SHA256SUMS.asc` as assets. To check the published installer, run these
+commands:
 
 ```shell
 curl -SsL https://www.vortextemplate.com/install > installer.php
 php installer.php --version
+gh attestation verify installer.php --repo drevops/vortex
 ```
 
 The second command prints `Vortex Installer` followed by the tag, for
-example `Vortex Installer 1.42.0`.
+example `Vortex Installer 1.42.0`. The third command fails when the
+installer isn't the attested release asset.

@@ -138,6 +138,10 @@ curl -SsL https://www.vortextemplate.com/install > installer.php && php installe
   alt="Vortex installer screenshot"
 />
 
+To check the installer before you run it, see [Verify the installer].
+
+[Verify the installer]: https://www.vortextemplate.com/docs/installation#verify-the-installer
+
 Alternatively, clone this repository and edit out the sections you don't
 need.
 
@@ -162,6 +166,8 @@ at https://vortex-docs.netlify.app/install:
 ```bash
 curl -SsL https://vortex-docs.netlify.app/install > installer.php && php installer.php
 ```
+
+The development installer has no attestation or signature.
 
 ## See Vortex in production
 
