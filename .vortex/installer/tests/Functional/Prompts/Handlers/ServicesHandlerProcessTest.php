@@ -37,6 +37,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertSutNotContains('solr');
           $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-30-search-index.sh');
+          $test->assertDirectoryDoesNotExist(static::$sut . '/.claude/skills/configure-search');
       }),
     ];
     yield 'services_none' => [

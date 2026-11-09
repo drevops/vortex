@@ -21,7 +21,9 @@ class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCas
           $test->assertFileNotContainsString(static::$sut . '/.claude/settings.json', 'enabledPlugins');
           $test->assertFileExists(static::$sut . '/.claude/skills/review-code/SKILL.md');
           $test->assertFileExists(static::$sut . '/.claude/skills/review-code/checklist.md');
-          $test->assertFileExists(static::$sut . '/.claude/skills/create-behat-step/SKILL.md');
+          foreach (['create-behat-step', 'manage-config', 'reconcile-config', 'write-tests', 'secure-code', 'debug-performance', 'create-component', 'configure-search'] as $skill) {
+            $test->assertFileExists(static::$sut . '/.claude/skills/' . $skill . '/SKILL.md');
+          }
       }),
     ];
     yield 'ai_instructions_disabled' => [

@@ -12,9 +12,8 @@ lives.
 
 This page is for developers who work on a **Vortex** project with an AI
 coding agent such as Claude Code. It explains what each instruction file
-gives the agent and how to use the shipped `review-code` and
-`create-behat-step` skills. It also covers adding skills of your own or
-from other projects, and tuning automated code review.
+gives the agent and how to use the shipped skills. It also covers adding
+skills of your own and tuning automated code review.
 
 The installer adds the instruction files unless you answer no to its
 **Provide AI agent instructions?** prompt. Answering no leaves out the
@@ -172,8 +171,8 @@ Claude Code:
 /create-behat-step a Then step that checks that the page with a title is authored by a user
 ```
 
-The skill ships inside the `drevops/behat-steps` package.
-`.claude/skills/create-behat-step/SKILL.md` tells the agent to follow the
+The skill ships inside the `drevops/behat-steps` package. Through
+`.claude/skills/create-behat-step/SKILL.md`, the agent follows the
 package's own `SKILL.md` in `vendor/`, so the instructions match the
 package version that Composer installs.
 
@@ -181,6 +180,26 @@ The installer removes the skill when you deselect Behat in its
 **Development tools** prompt. The
 [Behat Steps AI guide](https://behat-steps.drevops.com/guides/ai-assistants)
 describes each step the skill takes.
+
+## Development skills
+
+**Vortex** ships skills for the tasks a Drupal team repeats on a project.
+Each skill uses the project's `ahoy` commands, directories and settings.
+
+Ask your agent for the task, or run the skill by name in Claude Code, such
+as `/reconcile-config`. The installer ships a skill only when the project
+has what the skill works on:
+
+| Skill | Use it to | Shipped when |
+|---|---|---|
+| `manage-config` | Preview and apply configuration imports and exports, change a single item and work with configuration splits | Always |
+| `reconcile-config` | Compare a deployed environment's database with the configuration in code and resolve each difference | Always |
+| `write-tests` | Pick the test type for a change and reproduce a bug in a failing test before fixing it | PHPUnit or Behat is selected |
+| `create-migration` | Write and run migrations against the migration database | The migration database is enabled |
+| `secure-code` | Write custom code that handles access, input, output, files and secrets safely | Always |
+| `debug-performance` | Find slow pages, missing cacheability metadata and the source of uncacheable responses | Always |
+| `create-component` | Create or change a Single Directory Component in the custom theme | A custom theme is selected |
+| `configure-search` | Configure and debug Search API indexes, servers and reindexing | Solr is selected |
 
 ## Custom skills
 
@@ -217,71 +236,6 @@ Claude state stays out of the repository.
 
 Confirm that `git status` lists the new skill as untracked. After you commit
 it, `git ls-files .claude/skills` lists its `SKILL.md`.
-
-## Skills from other projects
-
-Other Drupal projects publish skills that you can add with the
-[skills CLI](https://skills.sh). Where a skill goes depends on what it
-relies on:
-
-- A skill that relies on your project, such as its `ahoy` commands or its
-  configuration layout, goes into the project. Commit it, so the whole
-  team uses the same version.
-- A skill that holds general Drupal knowledge goes on your machine.
-
-### Add a skill to the project
-
-Run the skills CLI from the project root:
-
-```bash
-npx skills add <owner>/<repo> --skill <name> --agent claude-code --copy
-```
-
-The `--copy` flag writes real files to `.claude/skills/<name>/` in place
-of symbolic links, so you can adapt and commit them. Before you commit,
-make 2 changes:
-
-1. Keep the upstream license notice in the skill directory.
-2. Replace commands for other local environments and hosts, such as
-   `ddev drush`, with the matching `ahoy` commands from `AGENTS.md`.
-
-The following skills fit a **Vortex** project after you adapt their
-commands:
-
-| Skill | Source | License | Covers |
-|---|---|---|---|
-| `drupal-config-mgmt` | [`grasmash/drupal-claude-skills`](https://github.com/grasmash/drupal-claude-skills) | MIT | Configuration import and export with a diff preview, single-item changes and Config Split |
-| `drupal-config-reconcile` | [`grasmash/drupal-claude-skills`](https://github.com/grasmash/drupal-claude-skills) | MIT | Configuration drift between a deployed environment and `config/default`, resolved item by item |
-| `drupal-testing` | [`grasmash/drupal-claude-skills`](https://github.com/grasmash/drupal-claude-skills) | MIT | The PHPUnit test type for a change, and a failing test that reproduces a bug first |
-
-The `drupal-testing` sections on ExistingSite tests need Drupal Test
-Traits, which **Vortex** doesn't install.
-
-### Install a skill for yourself
-
-Add the `-g` flag to install a skill for your user account. The skill then
-works in every project you open, and the repository doesn't change:
-
-```bash
-npx skills add <owner>/<repo> --skill <name> -g
-```
-
-The following skills hold Drupal knowledge that applies to any site:
-
-| Skill | Source | Covers |
-|---|---|---|
-| `drupal-security` | [`madsnorgaard/drupal-agent-resources`](https://github.com/madsnorgaard/drupal-agent-resources) | Drupal secure coding |
-| `ivangrynenko-cursorrules-drupal` | [`grasmash/drupal-claude-skills`](https://github.com/grasmash/drupal-claude-skills) | OWASP Top 10 rules for Drupal code |
-| `drupal-performance` | [`grasmash/drupal-claude-skills`](https://github.com/grasmash/drupal-claude-skills) | Query counts per route and cache headers |
-| `drupal-cache-debugging` | [`sparkfabrik/sf-agents-harness`](https://github.com/sparkfabrik/sf-agents-harness) | Cache metadata, including the sources of `max-age: 0` |
-| `drupal-module-finder` | [`ivanboring/drupal-module-finder`](https://github.com/ivanboring/drupal-module-finder) | Contributed modules on Drupal.org |
-| `drupal-sdc-twig` | [`kanopi/cms-cultivator`](https://github.com/kanopi/cms-cultivator) | Twig escaping and the props, slots and schemas of Single Directory Components |
-| `drupal-search-api` | [`grasmash/drupal-claude-skills`](https://github.com/grasmash/drupal-claude-skills) | Search API and Solr |
-| `drupal-drush` | [`edutrul/drupal-ai`](https://github.com/edutrul/drupal-ai) | Drush commands |
-| `drupal-migrations` | [`edutrul/drupal-ai`](https://github.com/edutrul/drupal-ai) | Migrate API for Drupal 7 upgrades, CSV or JSON imports and custom plugins |
-
-The [Migrations](migrations.mdx) page covers the second database and the
-`ys_migrate` module that **Vortex** ships for migrations.
 
 ## AI code review
 

@@ -583,6 +583,7 @@ class Tools extends AbstractHandler {
       ],
       'test' => [
         'tools' => [self::PHPUNIT, self::BEHAT],
+        'files' => ['.claude/skills/write-tests'],
         'ahoy' => [
           '/^\h*test:\R\h*usage:\h*Run all tests\.\R\h*cmd:\h*\|$/um',
           '/^\h*lint-tests:\R\h*usage:\h*Lint tests code\.\R\h*cmd:\h*\|\h*\R^\h*$/um',

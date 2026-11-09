@@ -453,6 +453,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           ]);
 
           $test->assertDirectoryDoesNotExist(static::$sut . '/.claude/skills/create-behat-step');
+          $test->assertFileExists(static::$sut . '/.claude/skills/write-tests/SKILL.md');
       }),
     ];
     yield 'tools_no_behat_circleci' => [
@@ -595,22 +596,26 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPUNIT, Tools::BEHAT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
-        'phpunit',
-        'ahoy test-unit',
-        'ahoy test-kernel',
-        'ahoy test-functional',
-        'behat',
-        'behat/behat',
-        'lullabot/mink-selenium2-driver',
-        'friends-of-behat/mink-extension',
-        'drupal/drupal-extension',
-        'ahoy test-bdd',
-        'gherkinlint',
-        'gherkin-lint',
-        'gherkin',
-        'publish-unit-test-result-action',
-      ])),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertSutNotContains([
+            'phpunit',
+            'ahoy test-unit',
+            'ahoy test-kernel',
+            'ahoy test-functional',
+            'behat',
+            'behat/behat',
+            'lullabot/mink-selenium2-driver',
+            'friends-of-behat/mink-extension',
+            'drupal/drupal-extension',
+            'ahoy test-bdd',
+            'gherkinlint',
+            'gherkin-lint',
+            'gherkin',
+            'publish-unit-test-result-action',
+          ]);
+
+          $test->assertDirectoryDoesNotExist(static::$sut . '/.claude/skills/write-tests');
+      }),
     ];
     yield 'tools_groups_no_be_tests_circleci' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
