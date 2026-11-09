@@ -158,18 +158,18 @@ following sets:
   version change needs no edit to `rector.php`.
 - The Drupal sets from [Drupal
   Rector](https://github.com/palantirnet/drupal-rector), turned on by
-  `withSetProviders()` and `withComposerBased()` and resolved from the
-  installed `drupal/core` version, so the rules track core upgrades.
-- The `codeQuality`, `codingStyle`, `deadCode`, `naming`, `privatization`
-  and `typeDeclarations` prepared sets.
+  `withComposerBased()` and resolved from the installed `drupal/core`
+  version, so the rules track core upgrades.
+- The `codeQuality`, `codingStyle`, `deadCode`, `privatization` and
+  `typeDeclarations` prepared sets. The `codeQuality` set adds
+  `declare(strict_types=1)` to type-safe files.
 - The Behat attribute sets, which convert Behat annotations to PHP 8
   attributes. They ship only when Behat is selected during installation.
 
-On top of the sets, `rector.php` adds the `DeclareStrictTypesRector` rule
-and, when PHPUnit is selected, `YieldDataProviderRector`, which turns
-array-returning data providers into generators. `withImportNames()` is
-called with `importNames: FALSE`, so Rector adds no `use` statements to the
-files it changes.
+On top of the sets, `rector.php` adds `YieldDataProviderRector` when PHPUnit
+is selected. The rule turns array-returning data providers into generators.
+`withImportNames()` is called with `importNames: FALSE`, so Rector adds no
+`use` statements to the files it changes.
 
 To adjust the sets, edit the `withPhpSets()`, `withAttributesSets()` and
 `withPreparedSets()` calls in `rector.php`. The [Set
@@ -192,15 +192,12 @@ To skip a rule across the project, add it to `withSkip()` in the
 ])
 ```
 
-The shipped `withSkip()` list already skips the following 20 rules
+The shipped `withSkip()` list already skips the following 12 rules
 everywhere, based on the project's coding standards:
 
-- `AddOverrideAttributeToOverriddenMethodsRector`
 - `ArrayToFirstClassCallableRector`
 - `CatchExceptionNameMatchingTypeRector`
 - `ChangeSwitchToMatchRector`
-- `CompleteDynamicPropertiesRector`
-- `DisallowedEmptyRuleFixerRector`
 - `InlineArrayReturnAssignRector`
 - `NewlineAfterStatementRector`
 - `NewlineBeforeNewAssignSetRector`
@@ -209,11 +206,6 @@ everywhere, based on the project's coding standards:
 - `PrivatizeFinalClassPropertyRector`
 - `PrivatizeLocalGetterToPropertyRector`
 - `RemoveAlwaysTrueIfConditionRector`
-- `RenameForeachValueVariableToMatchExprVariableRector`
-- `RenameForeachValueVariableToMatchMethodCallReturnTypeRector`
-- `RenameParamToMatchTypeRector`
-- `RenameVariableToMatchMethodCallReturnTypeRector`
-- `RenameVariableToMatchNewTypeRector`
 - `SimplifyEmptyCheckOnEmptyArrayRector`
 
 The list skips `RemoveUnusedPublicMethodParameterRector` for the `src/Hook`

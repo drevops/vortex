@@ -1,4 +1,4 @@
-@@ -45,10 +45,10 @@
+@@ -35,10 +35,10 @@
  
  return RectorConfig::configure()
    ->withPaths([
@@ -13,7 +13,7 @@
      __DIR__ . '/tests',
    ])
    ->withSkip([
-@@ -68,8 +68,8 @@
+@@ -55,12 +55,12 @@
      PrivatizeLocalGetterToPropertyRector::class,
      RemoveAlwaysTrueIfConditionRector::class,
      RemoveUnusedPublicMethodParameterRector::class => [
@@ -22,10 +22,6 @@
 +      __DIR__ . '/docroot/modules/custom/*/src/Hook/*',
 +      __DIR__ . '/docroot/themes/custom/*/src/Hook/*',
      ],
-     RenameForeachValueVariableToMatchExprVariableRector::class,
-     RenameForeachValueVariableToMatchMethodCallReturnTypeRector::class,
-@@ -78,7 +78,7 @@
-     RenameVariableToMatchNewTypeRector::class,
      SimplifyEmptyCheckOnEmptyArrayRector::class,
      StringClassNameToClassConstantRector::class => [
 -      __DIR__ . '/web/sites/default/includes/*',
