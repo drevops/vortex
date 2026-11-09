@@ -60,12 +60,14 @@ jobs:
             echo "::error::Version ${version} has no GitHub release. Publish the release from the Releases page, which also creates the tag."
             exit 1
           fi
+          # A cancelled run can leave some of the assets uploaded, so a release
+          # is reused only with all 3; otherwise the build replaces them.
           assets="$(gh release view "${version}" --repo "${GITHUB_REPOSITORY}" --json assets --jq '.assets[].name')"
-          if grep -qx 'installer.php' <<< "${assets}"; then
-            echo "RELEASE_HAS_INSTALLER=1" >> "$GITHUB_ENV"
-          else
-            echo "RELEASE_HAS_INSTALLER=0" >> "$GITHUB_ENV"
-          fi
+          has_installer=1
+          for asset in installer.php SHA256SUMS SHA256SUMS.asc; do
+            grep -qx "${asset}" <<< "${assets}" || has_installer=0
+          done
+          echo "RELEASE_HAS_INSTALLER=${has_installer}" >> "$GITHUB_ENV"
           echo "RELEASE_VERSION=${version}" >> "$GITHUB_ENV"
           echo "value=${version}" >> "$GITHUB_OUTPUT"
           echo "Release version: ${version}"

@@ -292,19 +292,19 @@ Each run publishes the installer of 1 release:
 - In a run you start by hand, the release that its `version` input names
 - In any other run, the latest release
 
-When that release has no `installer.php` yet, the workflow builds the PHAR
-from the release tag. The PHAR reports the tag as its version. A local
-build with `composer build` or `ahoy build-installer` reports
-`development`, on any branch. The workflow uploads 3 assets to the
-release:
+The installer of a release consists of 3 assets:
 
 - `installer.php` - the PHAR
 - `SHA256SUMS` - the SHA-256 checksum of `installer.php`
 - `SHA256SUMS.asc` - the detached GPG signature of `SHA256SUMS`
 
-It records a build attestation for `installer.php` and `SHA256SUMS` before
-the upload. A rerun downloads the uploaded assets instead, so an installer
-already on the site keeps matching its release. To add the assets to an
+When the release is missing any of them, the workflow builds the PHAR from
+the release tag and uploads all 3. The PHAR reports the tag as its version.
+A local build with `composer build` or `ahoy build-installer` reports
+`development`, on any branch. The workflow records a build attestation for
+`installer.php` and `SHA256SUMS` before the upload. A rerun downloads the
+uploaded assets instead, so an installer already on the site keeps
+matching its release. To add the assets to an
 older release, run the workflow by hand with that release as `version`.
 
 Every run verifies the installer before the deployment. It checks the
