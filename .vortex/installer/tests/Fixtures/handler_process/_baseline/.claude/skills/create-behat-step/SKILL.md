@@ -11,6 +11,12 @@ match the release of the package that the project installs.
 Read `vendor/drevops/behat-steps/skills/create-behat-step/SKILL.md` and
 follow it, with the description this skill was invoked with.
 
-When that file is missing, run `ahoy composer install` and read it again.
-When it is still missing, the installed `drevops/behat-steps` release is
-older than 4.0: stop and tell the user that this skill needs 4.x.
+When that file is missing:
+
+1. Run `ahoy composer install`. When the command fails, stop and report
+   its error to the user.
+2. Read the file again.
+3. When it is still missing, run `ahoy composer show drevops/behat-steps`.
+   For a release before 4.0, tell the user that this skill needs 4.x.
+   For any other result, report the version and the missing path. Then
+   stop.
