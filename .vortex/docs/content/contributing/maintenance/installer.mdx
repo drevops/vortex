@@ -281,58 +281,76 @@ partial, inconsistent fixtures.
 archive: `composer build` in `.vortex/installer`, or `ahoy build-installer`
 from `.vortex/`, writes it to `build/installer.phar`.
 
-The `Vortex - Release docs` workflow attaches the PHAR to each GitHub
-release as `installer.php`. It serves the same file at the
-[installer download URL](https://www.vortextemplate.com/install), so the
-[release process](release.mdx) has no separate installer step.
+The [installer download URL](https://www.vortextemplate.com/install)
+serves the installer attached to the latest GitHub release, so the
+[release process](release.mdx) has no separate installer step. A
+Cloudflare redirect rule on the `vortextemplate.com` zone sends `/install`
+with a `302` to the `installer.php` asset of the
+[latest release](https://github.com/drevops/vortex/releases/latest).
 
-Each run publishes the installer of 1 release:
+### Release assets
 
-- On a tag, the release of that tag
-- In a run you start by hand, the release that its `version` input names
-- In any other run, the latest release
-
-The installer of a release consists of 3 assets:
+The `Vortex - Release installer` workflow
+(`.github/workflows/vortex-release-installer.yml`) runs when a release is
+published. It builds the PHAR from the release tag and attaches 3 assets
+to the release:
 
 - `installer.php` - the PHAR
 - `SHA256SUMS` - the SHA-256 checksum of `installer.php`
 - `SHA256SUMS.asc` - the detached GPG signature of `SHA256SUMS`
 
-When the release is missing any of them, the workflow builds the PHAR from
-the release tag and uploads all 3. The PHAR reports the tag as its version.
-A local build with `composer build` or `ahoy build-installer` reports
-`development`, on any branch. The workflow records a build attestation for
-`installer.php` and `SHA256SUMS` before the upload. A rerun downloads the
-uploaded assets instead, so an installer already on the site keeps
-matching its release. To add the assets to an
-older release, run the workflow by hand with that release as `version`.
+Before the upload, the workflow checks the signature against
+`.vortex/installer/PUBLIC_KEY.asc` and the pinned fingerprint. It also
+records a build attestation for `installer.php` and `SHA256SUMS`. For the
+latest release, it then checks that
+`releases/latest/download/installer.php` and `/install` serve the uploaded
+file, and runs `gh attestation verify` on the download.
 
-Every run verifies the installer before the deployment. It checks the
-signature against `.vortex/PUBLIC_KEY.asc` and the pinned fingerprint, the
-checksum, both attestations and the reported version. After the
-deployment, it downloads `/install` until the site serves that file, then
-runs `gh attestation verify` on the download. GitHub Pages caches a page
-for up to 10 minutes, so this step can wait that long.
+To attach the assets to an existing release again, run the workflow by
+hand with the release as `version`. The run replaces the assets the
+release already has.
 
-The release key signs `SHA256SUMS`. 3 places hold it:
+The `release` environment of the repository holds the signing key:
 
-- The `VORTEX_RELEASE_GPG_PRIVATE_KEY` repository secret holds its private
-  key, without a passphrase. A build fails when the secret is missing.
-- `.vortex/PUBLIC_KEY.asc` holds its public key.
-- `RELEASE_GPG_FINGERPRINT` in `.github/workflows/vortex-release.yml` pins
-  its fingerprint.
+- `VORTEX_RELEASE_GPG_PRIVATE_KEY` holds the private key.
+- `VORTEX_RELEASE_GPG_PASSPHRASE` holds its passphrase.
 
-To rotate the key, change all 3 together. Then update the fingerprint in
-[Installation](../../installation.mdx#verify-the-installer).
+The environment allows deployments from tags only, so a manual run needs
+a branch policy for the branch it runs from.
+
+The public key is `.vortex/installer/PUBLIC_KEY.asc`, and
+`RELEASE_GPG_FINGERPRINT` in the workflow pins its fingerprint.
+`.vortex/tests/lint.release-key.sh` checks on every pull request that the
+key, the pinned fingerprint and
+[Installation > Verify the installer](../../installation.mdx#verify-the-installer)
+agree. The check fails 60 days before the key expires. To extend the key,
+run `gpg --quick-set-expire <FINGERPRINT> 2y` and export the public key to
+`.vortex/installer/PUBLIC_KEY.asc` again. The fingerprint stays the same.
+
+### Documentation builds
+
+The `Vortex - Release docs` workflow builds the PHAR on every tag and
+publishes it with the documentation. The workflow sets the version that
+the PHAR reports:
+
+- A tag build reports the tag name.
+- A branch build reports the full commit SHA.
+- A run you start by hand reports its `version` input when you fill it in.
+- A local build with `composer build` or `ahoy build-installer` always
+  reports `development`, on any branch.
 
 Each publish also refreshes the per-major pins at `/v1/install` and
-`/v2/install`. The current major's pin is the release's `installer.php`,
-and the other major's binary comes from its `{N}.x` branch. The bare
-`/install` serves a copy of the pin that `VORTEX_CURRENT_MAJOR` selects.
+`/v2/install`: the current major's installer comes from the release ref,
+and the other major's binary comes from its `{N}.x` branch. GitHub Pages
+also holds a copy of the pin that `VORTEX_CURRENT_MAJOR` selects at the
+bare `/install`. The Cloudflare redirect serves the release asset at that
+path in its place.
 
-To try installer changes before a release, download `/install` from the
-documentation preview of the pull request. Each preview serves the
-installer built from its branch.
+`Vortex - Release docs` also publishes from every branch whose name contains
+`release-docs` or `release-installer`, so you can test installer changes
+before a formal release. Those builds go to the live site, so until the
+next publish, everyone who downloads the current major's pin, such as
+`/v1/install`, gets that branch's build.
 
 ## Installer video
 

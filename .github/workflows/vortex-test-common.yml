@@ -285,3 +285,6 @@ jobs:
           inputs: .github/workflows/
           config: .vortex/tests/zizmor.yml
         continue-on-error: ${{ vars.VORTEX_CI_ZIZMOR_IGNORE_FAILURE == '1' }}
+
+      - name: Check the release signing key
+        run: ./.vortex/tests/lint.release-key.sh

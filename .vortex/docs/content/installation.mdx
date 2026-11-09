@@ -443,9 +443,8 @@ Follow the rest of the new project steps in order:
 
 The installer runs on your machine with your permissions, so check that
 it's the file the **Vortex** release workflow built. The `/install` URL
-serves the `installer.php` asset of a
-[release on GitHub](https://github.com/drevops/vortex/releases), normally
-the latest release.
+redirects to the `installer.php` asset of the latest
+[release on GitHub](https://github.com/drevops/vortex/releases/latest).
 
 ### Verify with the GitHub CLI
 
@@ -470,15 +469,14 @@ from another repository's workflows.
 Each release also carries `SHA256SUMS` and `SHA256SUMS.asc`. `SHA256SUMS`
 holds the SHA-256 checksum of `installer.php`, and `SHA256SUMS.asc` is its
 GPG signature. The **Vortex** release key signs it, with the fingerprint
-`755E824E80F849135F5F4043E71EDB25C4F6D89D`.
+`BE1972E4A3147C3DC47CA41910EA19916EE32196`.
 
-To verify the installer of the latest release with GPG:
+To verify the installer with GPG:
 
-1. Download the installer, the checksum file and its signature from the
-   latest release:
+1. Download the installer, the checksum file and its signature:
 
    ```shell
-   curl -SsLO https://github.com/drevops/vortex/releases/latest/download/installer.php
+   curl -SsL https://www.vortextemplate.com/install > installer.php
    curl -SsLO https://github.com/drevops/vortex/releases/latest/download/SHA256SUMS
    curl -SsLO https://github.com/drevops/vortex/releases/latest/download/SHA256SUMS.asc
    ```
@@ -486,7 +484,7 @@ To verify the installer of the latest release with GPG:
 2. Import the public key of the release key from the repository:
 
    ```shell
-   curl -SsL https://raw.githubusercontent.com/drevops/vortex/main/.vortex/PUBLIC_KEY.asc | gpg --import
+   curl -SsL https://raw.githubusercontent.com/drevops/vortex/main/.vortex/installer/PUBLIC_KEY.asc | gpg --import
    ```
 
 3. Check the signature of the checksum file:
@@ -509,14 +507,10 @@ To verify the installer of the latest release with GPG:
    On macOS, run `shasum -a 256 -c SHA256SUMS` instead. Confirm that the
    output reads `installer.php: OK`.
 
-   The installer at `/install` is a copy of a release's `installer.php`.
-   `sha256sum -c SHA256SUMS` passes on that copy too when it comes from the
-   latest release.
-
-The installer at `/install` and at the path of its major line, such as
-`/v1/install`, has an attestation. The installer of the other major line
-and the [development installer](https://vortex-docs.netlify.app/install)
-have no attestation or signature.
+Both checks cover the installer at `/install`. The per-major installers at
+`/v1/install` and `/v2/install` and the
+[development installer](https://vortex-docs.netlify.app/install) have no
+attestation or signature.
 
 ## What's next
 
