@@ -457,12 +457,12 @@ before you run it:
 
 ```shell
 curl -SsL https://www.vortextemplate.com/install > installer.php
-gh attestation verify installer.php --repo drevops/vortex
-php installer.php
+gh attestation verify installer.php --repo drevops/vortex && php installer.php
 ```
 
 `gh attestation verify` fails when the file changed after the build or came
-from another repository's workflows.
+from another repository's workflows. The `&&` then stops the installer from
+running.
 
 ### Verify with GPG
 
@@ -506,6 +506,9 @@ To verify the installer with GPG:
 
    On macOS, run `shasum -a 256 -c SHA256SUMS` instead. Confirm that the
    output reads `installer.php: OK`.
+
+Run `php installer.php` only after both steps 3 and 4 pass. When either
+step fails, delete `installer.php`.
 
 Both checks cover the installer at `/install`. The per-major installers at
 `/v1/install` and `/v2/install` and the

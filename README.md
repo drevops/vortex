@@ -169,18 +169,20 @@ of that file with GPG and records a GitHub build attestation for it.
 
    gpg --show-keys --with-fingerprint PUBLIC_KEY.asc
    gpg --import PUBLIC_KEY.asc
-   gpg --verify SHA256SUMS.asc SHA256SUMS
-   sha256sum -c SHA256SUMS    # macOS: shasum -a 256 -c SHA256SUMS
+   gpg --verify SHA256SUMS.asc SHA256SUMS && sha256sum -c SHA256SUMS
    ```
 
-   Confirm that `gpg --verify` reports a good signature from the key with
-   this fingerprint:
+   On macOS, replace `sha256sum -c` with `shasum -a 256 -c`. Confirm that
+   `gpg --verify` reports a good signature from the key with this
+   fingerprint, and that `sha256sum` reports `installer.php: OK`:
 
    ```text
    BE1972E4A3147C3DC47CA41910EA19916EE32196
    ```
 
-3. Run the verified installer:
+   Stop and delete `installer.php` when any check fails.
+
+3. When every check passes, run the installer:
 
    ```bash
    php installer.php
