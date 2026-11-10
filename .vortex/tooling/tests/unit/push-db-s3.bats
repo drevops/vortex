@@ -28,6 +28,7 @@ load ../_helper.bash
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
 
   export VORTEX_PUSH_DB_S3_ACCESS_KEY="testaccesskey"
   export VORTEX_PUSH_DB_S3_SECRET_KEY="testsecretkey"
@@ -67,6 +68,7 @@ load ../_helper.bash
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
 
   export VORTEX_PUSH_DB_S3_ACCESS_KEY="testaccesskey"
   export VORTEX_PUSH_DB_S3_SECRET_KEY="testsecretkey"
@@ -115,6 +117,7 @@ load ../_helper.bash
   export S3_REGION="us-east-1"
   # Clear prefix shortcut to prevent environment leakage.
   unset S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
   export VORTEX_PUSH_DB_S3_DB_DIR=".data"
   export VORTEX_PUSH_DB_S3_DB_FILE="db.sql"
 
@@ -147,6 +150,7 @@ load ../_helper.bash
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
 
   export VORTEX_PUSH_DB_S3_ACCESS_KEY="testaccesskey"
   export VORTEX_PUSH_DB_S3_SECRET_KEY="testsecretkey"
@@ -186,6 +190,7 @@ load ../_helper.bash
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
 
   export VORTEX_PUSH_DB_S3_ACCESS_KEY="testaccesskey"
   export VORTEX_PUSH_DB_S3_SECRET_KEY="testsecretkey"
@@ -225,6 +230,7 @@ load ../_helper.bash
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
 
   export VORTEX_PUSH_DB_S3_ACCESS_KEY="testaccesskey"
   export VORTEX_PUSH_DB_S3_SECRET_KEY="testsecretkey"
@@ -263,6 +269,7 @@ load ../_helper.bash
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
 
   export VORTEX_PUSH_DB_S3_ACCESS_KEY="testaccesskey"
   export VORTEX_PUSH_DB_S3_SECRET_KEY="testsecretkey"
@@ -292,6 +299,7 @@ load ../_helper.bash
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
 
   export VORTEX_PUSH_DB_S3_ACCESS_KEY=""
   export VORTEX_PUSH_DB_S3_SECRET_KEY="testsecretkey"
@@ -317,6 +325,7 @@ load ../_helper.bash
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
 
   export VORTEX_PUSH_DB_S3_ACCESS_KEY="testaccesskey"
   export VORTEX_PUSH_DB_S3_SECRET_KEY=""
@@ -342,6 +351,7 @@ load ../_helper.bash
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
 
   export VORTEX_PUSH_DB_S3_ACCESS_KEY="testaccesskey"
   export VORTEX_PUSH_DB_S3_SECRET_KEY="testsecretkey"
@@ -367,6 +377,7 @@ load ../_helper.bash
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
 
   export VORTEX_PUSH_DB_S3_ACCESS_KEY="testaccesskey"
   export VORTEX_PUSH_DB_S3_SECRET_KEY="testsecretkey"
@@ -395,6 +406,7 @@ load ../_helper.bash
 
   # Clear shortcut variables to prevent environment leakage.
   unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
 
   export VORTEX_PUSH_DB_S3_ACCESS_KEY="testaccesskey"
   export VORTEX_PUSH_DB_S3_SECRET_KEY="testsecretkey"
@@ -408,6 +420,54 @@ load ../_helper.bash
   steps_run "assert" "${mocks[@]}"
 
   assert_failure
+
+  popd >/dev/null
+}
+
+@test "push-db-s3: Use the database fetch values" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  echo "database content" >.data/db2.sql
+
+  declare -a STEPS=(
+    "[INFO] Started database dump push to S3."
+
+    "Local file:     .data/db2.sql"
+    "Remote file:    store/db2.sql"
+    "S3 bucket:      fetch-bucket"
+    "S3 region:      eu-west-1"
+    "S3 prefix:      store/"
+
+    "@curl * # 0 # 200"
+
+    "[ OK ] Finished database dump push to S3."
+  )
+
+  unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+
+  export VORTEX_PUSH_DB_S3_ACCESS_KEY=""
+  export VORTEX_PUSH_DB_S3_SECRET_KEY=""
+  export VORTEX_PUSH_DB_S3_BUCKET=""
+  export VORTEX_PUSH_DB_S3_REGION=""
+  export VORTEX_PUSH_DB_S3_PREFIX=""
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="fetch-access-key"
+  export VORTEX_FETCH_DB_S3_SECRET_KEY="fetch-secret-key"
+  export VORTEX_FETCH_DB_S3_BUCKET="fetch-bucket"
+  export VORTEX_FETCH_DB_S3_REGION="eu-west-1"
+  export VORTEX_FETCH_DB_S3_PREFIX="store"
+  export VORTEX_PUSH_DB_S3_DB_DIR=".data"
+  # The remote file name follows the dump file name.
+  export VORTEX_PUSH_DB_S3_DB_FILE="db2.sql"
+  unset VORTEX_PUSH_DB_S3_REMOTE_FILE
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-push-db-s3
+  steps_run "assert" "${mocks[@]}"
+
+  assert_success
+
+  rm -rf .data
 
   popd >/dev/null
 }
