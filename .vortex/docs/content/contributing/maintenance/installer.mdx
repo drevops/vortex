@@ -138,8 +138,9 @@ Content removed if feature not selected
 The installer removes every line that contains a marker. A marker can
 therefore sit inside another comment syntax, such as
 `<!-- #;< TOOL_BEHAT -->` in `phpcs.xml`. The match is a substring match.
-So a marker for `TOOL_PHPUNIT_BEHAT` also counts as a marker for
-`TOOL_PHPUNIT`, because the longer name starts with the shorter name.
+So a token name must not contain the name of another token: a marker for
+`TOOL_PHPUNIT_BEHAT` would also count as a marker for `TOOL_PHPUNIT`. Name
+a group token after the group, such as `TOOL_GROUP_TEST`.
 
 A token with a `!` prefix, such as `#;< !PROVISION_TYPE_PROFILE`, works the
 other way round: the installer removes its content when the feature is

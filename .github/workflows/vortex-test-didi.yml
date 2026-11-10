@@ -507,7 +507,7 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
 
-      #;< TOOL_PHPUNIT_BEHAT
+      #;< TOOL_GROUP_TEST
       - name: Publish test results to GitHub Checks
         if: ${{ !cancelled() && vars.VORTEX_CI_TEST_RESULTS_SKIP != '1' }}
         uses: EnricoMi/publish-unit-test-result-action@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
@@ -517,7 +517,7 @@ jobs:
           test_file_prefix: "-/app/"
           files: |
             .logs/test_results/**/*.xml
-      #;> TOOL_PHPUNIT_BEHAT
+      #;> TOOL_GROUP_TEST
 
       - name: Upload exported codebase as an artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -1027,7 +1027,7 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
 
-      #;< TOOL_PHPUNIT_BEHAT
+      #;< TOOL_GROUP_TEST
       - name: Publish test results to GitHub Checks
         if: ${{ !cancelled() && vars.VORTEX_CI_TEST_RESULTS_SKIP != '1' }}
         uses: EnricoMi/publish-unit-test-result-action@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
@@ -1037,7 +1037,7 @@ jobs:
           test_file_prefix: "-/app/"
           files: |
             .logs/test_results/**/*.xml
-      #;> TOOL_PHPUNIT_BEHAT
+      #;> TOOL_GROUP_TEST
 
       - name: Upload exported codebase as an artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

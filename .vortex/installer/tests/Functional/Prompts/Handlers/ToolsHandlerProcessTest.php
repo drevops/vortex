@@ -280,6 +280,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/.prettierignore');
           $test->assertFileContainsString($pj, '"stylelint":');
           $test->assertFileExists(static::$sut . '/.stylelintrc.js');
+          $test->assertFileContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'Lint module code with NodeJS linters');
 
           $tpj = static::themeManifest();
           $test->assertFileNotContainsString($tpj, '"eslint":');
@@ -407,12 +408,16 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPUNIT]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
-        'phpunit',
-        'ahoy test-unit',
-        'ahoy test-kernel',
-        'ahoy test-functional',
-      ])),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertSutNotContains([
+            'phpunit',
+            'ahoy test-unit',
+            'ahoy test-kernel',
+            'ahoy test-functional',
+          ]);
+
+          $test->assertFileContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'Publish test results to GitHub Checks');
+      }),
     ];
     yield 'tools_no_phpunit_circleci' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {

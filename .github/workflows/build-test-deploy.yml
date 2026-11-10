@@ -149,9 +149,9 @@ jobs:
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
             if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
             COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
-          #;< TOOL_ESLINT_STYLELINT
+          #;< TOOL_GROUP_FRONTEND_LINTING
           docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c "npm ci"
-          #;> TOOL_ESLINT_STYLELINT
+          #;> TOOL_GROUP_FRONTEND_LINTING
 
       - name: Validate Composer configuration is normalized
         run: docker compose exec -T cli composer normalize --dry-run
@@ -187,7 +187,7 @@ jobs:
         continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}
       #;> TOOL_BEHAT
 
-      #;< TOOL_ESLINT_STYLELINT
+      #;< TOOL_GROUP_FRONTEND_LINTING
       - name: Lint module code with NodeJS linters
         run: docker compose exec -T cli bash -c "npm run lint"
         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
@@ -198,7 +198,7 @@ jobs:
         run: docker compose exec -T cli bash -c "npm --prefix=\${WEBROOT}/themes/custom/\${DRUPAL_THEME} run lint"
         continue-on-error: ${{ vars.VORTEX_CI_NODEJS_LINT_IGNORE_FAILURE == '1' }}
       #;> DRUPAL_THEME
-      #;> TOOL_ESLINT_STYLELINT
+      #;> TOOL_GROUP_FRONTEND_LINTING
 
   #;< !PROVISION_TYPE_PROFILE
   database:
@@ -658,7 +658,7 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
 
-      #;< TOOL_PHPUNIT_BEHAT
+      #;< TOOL_GROUP_TEST
       - name: Publish test results to GitHub Checks
         if: ${{ !cancelled() && vars.VORTEX_CI_TEST_RESULTS_SKIP != '1' }}
         uses: EnricoMi/publish-unit-test-result-action@7622c5bf3d112a72ab4fa3951c2aa5723d8ab92d # v2.25.0
@@ -668,7 +668,7 @@ jobs:
           test_file_prefix: "-/app/"
           files: |
             .logs/test_results/**/*.xml
-      #;> TOOL_PHPUNIT_BEHAT
+      #;> TOOL_GROUP_TEST
 
       - name: Upload exported codebase as an artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
