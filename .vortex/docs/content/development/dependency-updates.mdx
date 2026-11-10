@@ -468,8 +468,10 @@ The `constraints` setting pins Renovate to the Composer minor version in the
 
 Renovate proposes new `drevops/ci-runner` releases for GitHub Actions, but
 it leaves the constraint unchanged. When a new image ships a new Composer
-minor version, update the constraint in the same pull request. To print the
-Composer version of an image, run:
+minor version, update the constraint and the lock in the same pull request,
+as [Update CI runner
+image](../continuous-integration/README.mdx#update-ci-runner-image)
+describes. To print the Composer version of an image, run:
 
 ```shell
 docker run --rm drevops/ci-runner:VERSION composer --version

@@ -124,7 +124,10 @@ Watch GitHub Actions via `gh pr checks <PR>` and CircleCI via the PR link.
   `testVersion`).
 - **Composer minor bump** in canary: `composer validate --strict` reports
   "The lock file is not up to date" for a lock written by the previous
-  minor. Update `constraints.composer` in `renovate.json` in Phase 2.
+  minor. Rewrite the lock's `content-hash` with the canary's Composer,
+  commit it to the canary branch and re-run CI:
+  `docker run --rm -v "$PWD":/app -w /app drevops/ci-runner:canary composer update --lock --no-install`.
+  Update `constraints.composer` in `renovate.json` in Phase 2.
 - A tool removed from the canary image.
 - Cache key issues (rare: cache keys are tied to Lagoon versions, not
   ci-runner).
@@ -186,8 +189,22 @@ docker run --rm drevops/ci-runner:<NEW_VERSION> composer --version
 ```
 
 If the minor version differs from `constraints.composer` (for example, the
-image reports `2.11.1` and the constraint is `2.10.*`), set the constraint
-to the new minor (`2.11.*`) in the same commit as the image update.
+image reports `2.11.1` and the constraint is `2.10.*`), make both changes
+in the same commit as the image update:
+
+1. Rewrite the `content-hash` in `composer.lock` with the image's Composer,
+   unless the canary branch already did. `constraints.composer` does not
+   touch the existing lock, so a lock from the previous minor still fails
+   `composer validate --strict`.
+
+   ```bash
+   docker run --rm -v "$PWD":/app -w /app drevops/ci-runner:<NEW_VERSION> composer update --lock --no-install
+   ```
+
+2. Set `constraints.composer` to the new minor (`2.11.*`).
+
+Skip step 1 in a repository with no committed `composer.lock`, such as the
+Vortex template itself.
 
 ### 4. Commit and push on the same branch
 
