@@ -14,6 +14,7 @@ stub_fetch_scripts() {
   stub_sibling "vortex-fetch-db-lagoon" "Fetched from lagoon."
   stub_sibling "vortex-fetch-db-container-registry" "Fetched from container_registry."
   stub_sibling "vortex-fetch-db-s3" "Fetched from s3."
+  stub_sibling "vortex-fetch-db-gdrive" "Fetched from gdrive."
 }
 
 @test "fetch-db: Fetch with URL source" {
@@ -307,7 +308,7 @@ EOF
 
   export VORTEX_FETCH_DB_PROCEED="1"
 
-  for db_source in url ftp acquia lagoon container_registry s3; do
+  for db_source in url ftp acquia lagoon container_registry s3 gdrive; do
     export VORTEX_FETCH_DB_SOURCE="${db_source}"
 
     run .vortex/tooling/src/vortex-fetch-db
@@ -315,7 +316,7 @@ EOF
     assert_output_contains "Fetched from ${db_source}."
     assert_output_contains "Finished database fetch."
 
-    for other_source in url ftp acquia lagoon container_registry s3; do
+    for other_source in url ftp acquia lagoon container_registry s3 gdrive; do
       if [ "${other_source}" != "${db_source}" ]; then
         assert_output_not_contains "Fetched from ${other_source}."
       fi
@@ -357,7 +358,7 @@ EOF
   run .vortex/tooling/src/vortex-fetch-db
   assert_failure_status 1
   assert_output_contains "Started database fetch."
-  assert_output_contains 'Unsupported database source "VORTEX_CONTAINER_REGISTRY" in VORTEX_FETCH_DB_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, none.'
+  assert_output_contains 'Unsupported database source "VORTEX_CONTAINER_REGISTRY" in VORTEX_FETCH_DB_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, gdrive, none.'
   assert_output_not_contains "Fetched from"
   assert_output_not_contains "Finished database fetch."
   assert_file_not_exists "${BUILD_DIR}/fetch-db-fresh"
@@ -397,7 +398,7 @@ EOF
   run .vortex/tooling/src/vortex-fetch-db
   assert_failure_status 1
   assert_output_contains "Started database 2 fetch."
-  assert_output_contains 'Unsupported database source "sftp" in VORTEX_FETCH_DB2_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, none.'
+  assert_output_contains 'Unsupported database source "sftp" in VORTEX_FETCH_DB2_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, gdrive, none.'
   assert_output_not_contains "Finished database 2 fetch."
 
   popd >/dev/null

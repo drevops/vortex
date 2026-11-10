@@ -13,20 +13,23 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 set -o pipefail
 
+# The S3 values fall back to the values the database is fetched with, so a
+# bucket used as the fetch source is configured once.
+
 # AWS access key.
-VORTEX_PUSH_DB_S3_ACCESS_KEY="${VORTEX_PUSH_DB_S3_ACCESS_KEY:-${S3_ACCESS_KEY:-}}"
+VORTEX_PUSH_DB_S3_ACCESS_KEY="${VORTEX_PUSH_DB_S3_ACCESS_KEY:-${VORTEX_FETCH_DB_S3_ACCESS_KEY:-${S3_ACCESS_KEY:-}}}"
 
 # AWS secret key.
-VORTEX_PUSH_DB_S3_SECRET_KEY="${VORTEX_PUSH_DB_S3_SECRET_KEY:-${S3_SECRET_KEY:-}}"
+VORTEX_PUSH_DB_S3_SECRET_KEY="${VORTEX_PUSH_DB_S3_SECRET_KEY:-${VORTEX_FETCH_DB_S3_SECRET_KEY:-${S3_SECRET_KEY:-}}}"
 
 # S3 bucket name.
-VORTEX_PUSH_DB_S3_BUCKET="${VORTEX_PUSH_DB_S3_BUCKET:-${S3_BUCKET:-}}"
+VORTEX_PUSH_DB_S3_BUCKET="${VORTEX_PUSH_DB_S3_BUCKET:-${VORTEX_FETCH_DB_S3_BUCKET:-${S3_BUCKET:-}}}"
 
 # S3 region.
-VORTEX_PUSH_DB_S3_REGION="${VORTEX_PUSH_DB_S3_REGION:-${S3_REGION:-}}"
+VORTEX_PUSH_DB_S3_REGION="${VORTEX_PUSH_DB_S3_REGION:-${VORTEX_FETCH_DB_S3_REGION:-${S3_REGION:-}}}"
 
 # S3 prefix (path within the bucket).
-VORTEX_PUSH_DB_S3_PREFIX="${VORTEX_PUSH_DB_S3_PREFIX:-${S3_PREFIX:-}}"
+VORTEX_PUSH_DB_S3_PREFIX="${VORTEX_PUSH_DB_S3_PREFIX:-${VORTEX_FETCH_DB_S3_PREFIX:-${S3_PREFIX:-}}}"
 
 # Directory with database dump file.
 VORTEX_PUSH_DB_S3_DB_DIR="${VORTEX_PUSH_DB_S3_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
@@ -35,7 +38,10 @@ VORTEX_PUSH_DB_S3_DB_DIR="${VORTEX_PUSH_DB_S3_DB_DIR:-${VORTEX_DB_DIR:-./.data}}
 VORTEX_PUSH_DB_S3_DB_FILE="${VORTEX_PUSH_DB_S3_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
 
 # Remote database dump file name.
-VORTEX_PUSH_DB_S3_REMOTE_FILE="${VORTEX_PUSH_DB_S3_REMOTE_FILE:-db.sql}"
+#
+# Defaults to the database dump file name, which is the name the database is
+# fetched with.
+VORTEX_PUSH_DB_S3_REMOTE_FILE="${VORTEX_PUSH_DB_S3_REMOTE_FILE:-${VORTEX_PUSH_DB_S3_DB_FILE}}"
 
 # S3 storage class.
 VORTEX_PUSH_DB_S3_STORAGE_CLASS="${VORTEX_PUSH_DB_S3_STORAGE_CLASS:-STANDARD}"

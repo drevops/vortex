@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+##
+# Fetch DB dump from Google Drive.
+#
+# Authenticates with a Google Cloud service account key and downloads the file
+# with the database dump file name from a Google Drive folder. The folder may
+# be in a shared drive.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+
+# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
+# use the indexed variant.
+_db_index="${VORTEX_DB_INDEX:-}"
+
+# Google Cloud service account key: the JSON content or a path to the JSON
+# key file.
+_v="VORTEX_FETCH_DB${_db_index}_GDRIVE_SERVICE_ACCOUNT_KEY"
+VORTEX_FETCH_DB_GDRIVE_SERVICE_ACCOUNT_KEY="${!_v:-${VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY:-}}"
+
+# Google Drive folder ID with the database dump file.
+#
+# The ID is the last segment of the folder URL. The folder must be shared with
+# the service account.
+_v="VORTEX_FETCH_DB${_db_index}_GDRIVE_FOLDER_ID"
+VORTEX_FETCH_DB_GDRIVE_FOLDER_ID="${!_v:-}"
+
+# Directory with database dump file.
+_v="VORTEX_FETCH_DB${_db_index}_GDRIVE_DB_DIR"
+_vs="VORTEX_FETCH_DB${_db_index}_DIR"
+_vss="VORTEX_DB${_db_index}_DIR"
+VORTEX_FETCH_DB_GDRIVE_DB_DIR="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_DIR:-./.data}}}}"
+
+# Database dump file name.
+#
+# The same name is used for the file in the Google Drive folder.
+_v="VORTEX_FETCH_DB${_db_index}_GDRIVE_DB_FILE"
+_vs="VORTEX_FETCH_DB${_db_index}_FILE"
+_vss="VORTEX_DB${_db_index}_FILE"
+VORTEX_FETCH_DB_GDRIVE_DB_FILE="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_FILE:-db.sql}}}}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+extract_json_last_value() {
+  local key="${1}"
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+}
+
+extract_json_value() {
+  local key="${1}"
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+}
+
+# Print a Google OAuth access token for a service account key and a scope.
+#
+# The key is passed to PHP in the environment, so it never appears in the
+# process list.
+gdrive_access_token() {
+  local key="${1}"
+  local scope="${2}"
+
+  [ -f "${key}" ] && key="$(cat "${key}")"
+
+  local assertion
+  # shellcheck disable=SC2016
+  assertion=$(GDRIVE_KEY="${key}" GDRIVE_SCOPE="${scope}" php -r '$k=json_decode((string) getenv("GDRIVE_KEY"), TRUE); if (!is_array($k) || empty($k["client_email"]) || empty($k["private_key"])) { exit(1); } $b=fn($s) => rtrim(strtr(base64_encode($s), "+/", "-_"), "="); $t=time(); $u=$b(json_encode(["alg" => "RS256", "typ" => "JWT"])) . "." . $b(json_encode(["iss" => $k["client_email"], "scope" => getenv("GDRIVE_SCOPE"), "aud" => "https://oauth2.googleapis.com/token", "iat" => $t, "exp" => $t + 3600])); if (!@openssl_sign($u, $s, $k["private_key"], OPENSSL_ALGO_SHA256)) { exit(1); } print $u . "." . $b($s);') || return 1
+
+  local token_json
+  token_json=$(curl -sS -L https://oauth2.googleapis.com/token --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer" --data-urlencode "assertion=${assertion}") || return 1
+
+  echo "${token_json}" | extract_json_value "access_token"
+}
+
+# Print the ID of the most recently modified file with a name in a folder.
+#
+# Prints nothing when the folder has no such file, and fails when the folder
+# cannot be listed.
+gdrive_find_file() {
+  local token="${1}"
+  local folder_id="${2}"
+  local name="${3}"
+
+  local files_json
+  files_json=$(curl -sS -G https://www.googleapis.com/drive/v3/files -H "Authorization: Bearer ${token}" --data-urlencode "q=name = '${name//\'/\\\'}' and '${folder_id}' in parents and trashed = false" --data-urlencode "fields=files(id)" --data-urlencode "orderBy=modifiedTime desc" --data-urlencode "pageSize=1" --data-urlencode "supportsAllDrives=true" --data-urlencode "includeItemsFromAllDrives=true") || return 1
+
+  local files
+  files=$(echo "${files_json}" | extract_json_value "files") || return 1
+
+  echo "${files}" | extract_json_last_value "id" || true
+}
+
+for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
+
+[ -z "${VORTEX_FETCH_DB_GDRIVE_SERVICE_ACCOUNT_KEY}" ] && fail "Missing required value for VORTEX_FETCH_DB${_db_index}_GDRIVE_SERVICE_ACCOUNT_KEY or VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY."
+[ -z "${VORTEX_FETCH_DB_GDRIVE_FOLDER_ID}" ] && fail "Missing required value for VORTEX_FETCH_DB${_db_index}_GDRIVE_FOLDER_ID."
+
+info "Started database dump fetch from Google Drive."
+
+note "Remote file: ${VORTEX_FETCH_DB_GDRIVE_DB_FILE}"
+note "Local path:  ${VORTEX_FETCH_DB_GDRIVE_DB_DIR}/${VORTEX_FETCH_DB_GDRIVE_DB_FILE}"
+note "Folder ID:   ${VORTEX_FETCH_DB_GDRIVE_FOLDER_ID}"
+
+task "Authenticating with the service account."
+token=$(gdrive_access_token "${VORTEX_FETCH_DB_GDRIVE_SERVICE_ACCOUNT_KEY}" "https://www.googleapis.com/auth/drive.readonly") || fail "Unable to authenticate with the service account. Check that VORTEX_FETCH_DB${_db_index}_GDRIVE_SERVICE_ACCOUNT_KEY or VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY is a valid service account JSON key."
+pass "Authenticated with the service account."
+
+task "Finding the database dump file in the folder."
+file_id=$(gdrive_find_file "${token}" "${VORTEX_FETCH_DB_GDRIVE_FOLDER_ID}" "${VORTEX_FETCH_DB_GDRIVE_DB_FILE}") || fail "Unable to list the ${VORTEX_FETCH_DB_GDRIVE_FOLDER_ID} folder. Check that the folder ID is correct and that the folder is shared with the service account."
+[ -z "${file_id}" ] && fail "Unable to find the ${VORTEX_FETCH_DB_GDRIVE_DB_FILE} file in the ${VORTEX_FETCH_DB_GDRIVE_FOLDER_ID} folder."
+pass "Found the database dump file with ID ${file_id}."
+
+mkdir -p "${VORTEX_FETCH_DB_GDRIVE_DB_DIR}"
+
+task "Downloading the database dump file."
+curl -sS -f -L -H "Authorization: Bearer ${token}" -o "${VORTEX_FETCH_DB_GDRIVE_DB_DIR}/${VORTEX_FETCH_DB_GDRIVE_DB_FILE}" "https://www.googleapis.com/drive/v3/files/${file_id}?alt=media&supportsAllDrives=true" || fail "Unable to download the database dump file."
+pass "Downloaded the database dump file."
+
+# Enable xtrace only after the authenticated requests so the access token is
+# never written to the trace output.
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+pass "Finished database dump fetch from Google Drive."

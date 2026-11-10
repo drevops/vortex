@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+##
+# Push DB dump to Google Drive.
+#
+# Authenticates with a Google Cloud service account key and uploads the
+# database dump file to a Google Drive folder. A file with the same name in
+# the folder is replaced in place, so its ID and sharing settings are kept.
+#
+# Service accounts have no storage quota of their own, so the folder must be
+# in a shared drive.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+set -o pipefail
+
+# Google Cloud service account key: the JSON content or a path to the JSON
+# key file.
+VORTEX_PUSH_DB_GDRIVE_SERVICE_ACCOUNT_KEY="${VORTEX_PUSH_DB_GDRIVE_SERVICE_ACCOUNT_KEY:-${VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY:-}}"
+
+# Google Drive folder ID to push the database dump file to.
+#
+# Defaults to the folder the database is fetched from.
+VORTEX_PUSH_DB_GDRIVE_FOLDER_ID="${VORTEX_PUSH_DB_GDRIVE_FOLDER_ID:-${VORTEX_FETCH_DB_GDRIVE_FOLDER_ID:-}}"
+
+# Directory with database dump file.
+VORTEX_PUSH_DB_GDRIVE_DB_DIR="${VORTEX_PUSH_DB_GDRIVE_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
+
+# Database dump file name.
+#
+# The same name is used for the file in the Google Drive folder.
+VORTEX_PUSH_DB_GDRIVE_DB_FILE="${VORTEX_PUSH_DB_GDRIVE_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+extract_json_last_value() {
+  local key="${1}"
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+}
+
+extract_json_value() {
+  local key="${1}"
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+}
+
+# Print a Google OAuth access token for a service account key and a scope.
+#
+# The key is passed to PHP in the environment, so it never appears in the
+# process list.
+gdrive_access_token() {
+  local key="${1}"
+  local scope="${2}"
+
+  [ -f "${key}" ] && key="$(cat "${key}")"
+
+  local assertion
+  # shellcheck disable=SC2016
+  assertion=$(GDRIVE_KEY="${key}" GDRIVE_SCOPE="${scope}" php -r '$k=json_decode((string) getenv("GDRIVE_KEY"), TRUE); if (!is_array($k) || empty($k["client_email"]) || empty($k["private_key"])) { exit(1); } $b=fn($s) => rtrim(strtr(base64_encode($s), "+/", "-_"), "="); $t=time(); $u=$b(json_encode(["alg" => "RS256", "typ" => "JWT"])) . "." . $b(json_encode(["iss" => $k["client_email"], "scope" => getenv("GDRIVE_SCOPE"), "aud" => "https://oauth2.googleapis.com/token", "iat" => $t, "exp" => $t + 3600])); if (!@openssl_sign($u, $s, $k["private_key"], OPENSSL_ALGO_SHA256)) { exit(1); } print $u . "." . $b($s);') || return 1
+
+  local token_json
+  token_json=$(curl -sS -L https://oauth2.googleapis.com/token --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer" --data-urlencode "assertion=${assertion}") || return 1
+
+  echo "${token_json}" | extract_json_value "access_token"
+}
+
+# Print the ID of the most recently modified file with a name in a folder.
+#
+# Prints nothing when the folder has no such file, and fails when the folder
+# cannot be listed.
+gdrive_find_file() {
+  local token="${1}"
+  local folder_id="${2}"
+  local name="${3}"
+
+  local files_json
+  files_json=$(curl -sS -G https://www.googleapis.com/drive/v3/files -H "Authorization: Bearer ${token}" --data-urlencode "q=name = '${name//\'/\\\'}' and '${folder_id}' in parents and trashed = false" --data-urlencode "fields=files(id)" --data-urlencode "orderBy=modifiedTime desc" --data-urlencode "pageSize=1" --data-urlencode "supportsAllDrives=true" --data-urlencode "includeItemsFromAllDrives=true") || return 1
+
+  local files
+  files=$(echo "${files_json}" | extract_json_value "files") || return 1
+
+  echo "${files}" | extract_json_last_value "id" || true
+}
+
+for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
+
+[ -z "${VORTEX_PUSH_DB_GDRIVE_SERVICE_ACCOUNT_KEY}" ] && fail "Missing required value for VORTEX_PUSH_DB_GDRIVE_SERVICE_ACCOUNT_KEY or VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY."
+[ -z "${VORTEX_PUSH_DB_GDRIVE_FOLDER_ID}" ] && fail "Missing required value for VORTEX_PUSH_DB_GDRIVE_FOLDER_ID or VORTEX_FETCH_DB_GDRIVE_FOLDER_ID."
+
+local_file="${VORTEX_PUSH_DB_GDRIVE_DB_DIR}/${VORTEX_PUSH_DB_GDRIVE_DB_FILE}"
+[ ! -f "${local_file}" ] && fail "Database dump file ${local_file} does not exist."
+
+info "Started database dump push to Google Drive."
+
+note "Local file:  ${local_file}"
+note "Remote file: ${VORTEX_PUSH_DB_GDRIVE_DB_FILE}"
+note "Folder ID:   ${VORTEX_PUSH_DB_GDRIVE_FOLDER_ID}"
+
+task "Authenticating with the service account."
+token=$(gdrive_access_token "${VORTEX_PUSH_DB_GDRIVE_SERVICE_ACCOUNT_KEY}" "https://www.googleapis.com/auth/drive") || fail "Unable to authenticate with the service account. Check that VORTEX_PUSH_DB_GDRIVE_SERVICE_ACCOUNT_KEY or VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY is a valid service account JSON key."
+pass "Authenticated with the service account."
+
+file_id=$(gdrive_find_file "${token}" "${VORTEX_PUSH_DB_GDRIVE_FOLDER_ID}" "${VORTEX_PUSH_DB_GDRIVE_DB_FILE}") || fail "Unable to list the ${VORTEX_PUSH_DB_GDRIVE_FOLDER_ID} folder. Check that the folder ID is correct and that the folder is shared with the service account."
+
+upload_url="https://www.googleapis.com/upload/drive/v3/files"
+if [ -n "${file_id}" ]; then
+  note "Replacing the existing file with ID ${file_id}."
+  request_type="PATCH"
+  upload_url="${upload_url}/${file_id}"
+  metadata="{}"
+else
+  note "Creating a new file in the folder."
+  request_type="POST"
+  metadata=$(GDRIVE_NAME="${VORTEX_PUSH_DB_GDRIVE_DB_FILE}" GDRIVE_FOLDER_ID="${VORTEX_PUSH_DB_GDRIVE_FOLDER_ID}" php -r 'print json_encode(["name" => getenv("GDRIVE_NAME"), "parents" => [getenv("GDRIVE_FOLDER_ID")]]);')
+fi
+
+# A resumable upload session accepts the whole file in a single request, so
+# the dump is not limited by the 5 MB multipart upload size.
+task "Starting the upload session."
+session_headers=$(curl -sS -X "${request_type}" -D - -o /dev/null -H "Authorization: Bearer ${token}" -H "Content-Type: application/json; charset=UTF-8" -H "X-Upload-Content-Type: application/octet-stream" --data "${metadata}" "${upload_url}?uploadType=resumable&supportsAllDrives=true") || fail "Unable to start the upload session."
+session_url=$(echo "${session_headers}" | sed -n 's/^[Ll]ocation: *//p' | tr -d '\r')
+[ -z "${session_url}" ] && fail "Unable to start the upload session: the response has no upload location. Check that the folder is in a shared drive and that the service account can edit it."
+pass "Started the upload session."
+
+task "Uploading the database dump file."
+set +e
+response=$(curl -sS -X PUT --upload-file "${local_file}" -H "Content-Type: application/octet-stream" --write-out "\n%{http_code}" "${session_url}")
+curl_status=$?
+set -e
+
+# Enable xtrace only after the authenticated requests so the access token and
+# the upload session URL are never written to the trace output.
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+[ "${curl_status}" -ne 0 ] && fail "Google Drive upload request failed with curl exit ${curl_status}."
+
+http_code=$(echo "${response}" | tail -1)
+response_body=$(echo "${response}" | sed '$d')
+
+case "${http_code}" in
+  2*) ;;
+  *)
+    [ -n "${response_body}" ] && echo "Response: ${response_body}"
+    fail "Unable to push to Google Drive: HTTP status ${http_code}."
+    ;;
+esac
+pass "Uploaded the database dump file."
+
+pass "Finished database dump push to Google Drive."
