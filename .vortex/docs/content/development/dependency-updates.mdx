@@ -446,8 +446,8 @@ needs to migrate `renovate.json` to a newer configuration format.
 ### Composer version
 
 Renovate writes `composer.lock` with its own copy of Composer. CI checks the
-lock with `composer validate --strict`, using the Composer in the
-[CI runner image](../continuous-integration/README.mdx#update-ci-runner-image).
+lock with `composer validate --strict`, using the Composer in the [CI
+runner image](../continuous-integration/README.mdx#update-ci-runner-image).
 Composer 2.11 adds the `config.policy` block of `composer.json` to the
 lock's `content-hash`, and Composer 2.10 leaves it out. **Vortex** ships a
 `config.policy` block, so a lock written by 1 of these versions fails
