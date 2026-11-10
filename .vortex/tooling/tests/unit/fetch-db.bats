@@ -404,7 +404,8 @@ EOF
     run .vortex/tooling/src/vortex-fetch-db
     assert_failure
     assert_output_contains "[FAIL] The database dump file pushed to gdrive is fetched from an upstream source, but VORTEX_REFRESH_DB_SOURCE is \"${refresh_source}\". Set it to the source of the dump file: url, ftp, acquia or lagoon."
-    assert_output_not_contains "Fetched from"
+    assert_output_not_contains "Fetched from gdrive."
+    assert_output_not_contains "Finished database fetch."
     assert_file_not_exists "${BUILD_DIR}/fetch-db-fresh"
   done
 
