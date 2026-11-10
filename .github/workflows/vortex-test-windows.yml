@@ -78,7 +78,8 @@ jobs:
         with:
           distribution: Ubuntu-24.04
           wsl-version: '2'
-          additional-packages: curl ca-certificates docker.io docker-compose-v2 docker-buildx
+          # Ahoy bootstraps the tooling package on the host with PHP and Composer.
+          additional-packages: curl ca-certificates git unzip docker.io docker-compose-v2 docker-buildx php-cli php-curl php-mbstring php-xml php-zip composer
 
       - name: Start Docker in WSL2
         shell: wsl-bash {0}
