@@ -82,7 +82,7 @@
  
        - name: Provision site
          run: |
-@@ -435,71 +385,6 @@
+@@ -435,72 +385,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli ./vendor/bin/vortex-provision
          timeout-minutes: 30
  
@@ -123,7 +123,8 @@
 -          VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 -
 -      - name: Post coverage summary as PR comment
--        if: ${{ github.event_name == 'pull_request' && env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
+-        # Fork pull requests get a read-only token that cannot post comments.
+-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
 -        uses: marocchino/sticky-pull-request-comment@__HASH__ # __VERSION__
 -        with:
 -          header: coverage-gha
@@ -154,7 +155,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -512,19 +397,6 @@
+@@ -513,19 +397,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -174,7 +175,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -541,16 +413,6 @@
+@@ -542,16 +413,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

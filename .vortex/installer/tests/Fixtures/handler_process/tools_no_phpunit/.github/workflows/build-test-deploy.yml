@@ -6,7 +6,7 @@
        VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        # Runs on every instance, using the `p<instance index - offset>` profile.
        VORTEX_CI_IS_BEHAT_RUNNER: true
-@@ -439,66 +438,6 @@
+@@ -439,67 +438,6 @@
          if: ${{ env.VORTEX_CI_IS_JEST_RUNNER == 'true' }}
          run: docker compose exec -T cli bash -c "npm test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
@@ -43,7 +43,8 @@
 -          VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 -
 -      - name: Post coverage summary as PR comment
--        if: ${{ github.event_name == 'pull_request' && env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
+-        # Fork pull requests get a read-only token that cannot post comments.
+-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
 -        uses: marocchino/sticky-pull-request-comment@__HASH__ # __VERSION__
 -        with:
 -          header: coverage-gha
