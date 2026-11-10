@@ -24,7 +24,7 @@
  
      container:
        # https://hub.docker.com/r/drevops/ci-runner
-@@ -440,67 +429,6 @@
+@@ -440,66 +429,6 @@
          run: docker compose exec -T cli bash -c "npm test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
  
@@ -60,8 +60,7 @@
 -          VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 -
 -      - name: Post coverage summary as PR comment
--        # Fork pull requests get a read-only token that cannot post comments.
--        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
+-        if: ${{ github.event_name == 'pull_request' && env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
 -        uses: marocchino/sticky-pull-request-comment@__HASH__ # __VERSION__
 -        with:
 -          header: coverage-gha
@@ -92,7 +91,7 @@
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
          run: |
-@@ -513,19 +441,6 @@
+@@ -512,19 +441,6 @@
            fi
          continue-on-error: ${{ vars.VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE == '1' }}
  
@@ -112,7 +111,7 @@
        - name: Process test logs and artifacts
          if: always()
          run: |
-@@ -542,16 +457,6 @@
+@@ -541,16 +457,6 @@
            path: .logs
            include-hidden-files: true
            if-no-files-found: error

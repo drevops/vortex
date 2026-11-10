@@ -52,7 +52,7 @@
        - name: Test with PHPUnit
          if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
          run: docker compose exec -T cli vendor/bin/phpunit
-@@ -500,18 +482,6 @@
+@@ -499,18 +481,6 @@
            fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
