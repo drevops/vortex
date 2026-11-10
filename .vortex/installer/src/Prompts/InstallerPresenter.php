@@ -117,7 +117,6 @@ EOT;
       }
 
       $content .= 'Press ' . Tui::yellow('Ctrl+C') . ' at any time to exit the installer.' . PHP_EOL;
-      $content .= 'Press ' . Tui::yellow('Ctrl+U') . ' at any time to go back to the previous step.' . PHP_EOL;
     }
 
     Tui::box($content, $title);
