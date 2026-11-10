@@ -41,7 +41,7 @@ VORTEX_FETCH_FILES_ENVIRONMENT="${VORTEX_FETCH_FILES_ENVIRONMENT:-${VORTEX_FETCH
 
 # Public files directory in the Acquia environment.
 #
-# Defaults to '/mnt/files/<site>.<environment>/sites/default/files'.
+# Defaults to '/mnt/files/SITE.ENVIRONMENT/sites/default/files'.
 VORTEX_FETCH_FILES_ACQUIA_REMOTE_DIR="${VORTEX_FETCH_FILES_ACQUIA_REMOTE_DIR:-}"
 
 # SSH key fingerprint used to connect to a remote.
@@ -126,8 +126,8 @@ ssh_url=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_va
 [ -z "${ssh_url}" ] && fail "Unable to retrieve SSH address for \"${VORTEX_FETCH_FILES_ENVIRONMENT}\" environment. API response: ${envs_json}"
 pass "Retrieved ${VORTEX_FETCH_FILES_ENVIRONMENT} environment SSH address."
 
-# The SSH user is '<site>.<environment>', which also names the files mount of
-# the environment.
+# The SSH user is 'SITE.ENVIRONMENT', which also names the files mount of the
+# environment.
 ssh_user="${ssh_url%%@*}"
 remote_dir="${VORTEX_FETCH_FILES_ACQUIA_REMOTE_DIR:-/mnt/files/${ssh_user}/sites/default/files}"
 
