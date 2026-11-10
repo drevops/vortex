@@ -240,22 +240,19 @@ expect {
   }
 }
 
-# A multiselect that scrolls prints its selection count in the bottom border,
-# so the corner follows the count instead of a line.
+# A widget hides the cursor before it draws its first frame, and the completed
+# frame repeats the label without it, so only a prompt waiting for input
+# matches.
 while {1} {
   expect {
-    "Proceed with installing Vortex?" {
-      after 2000
-      safe_send "\r"
-    }
-    "Vortex will be installed into your project" {
+    -re {\x1b\[\?25l[^\r\n]*Proceed with installing Vortex} {
       after 2000
       safe_send "\r"
     }
     "Finished installing Vortex" {
       break
     }
-    -re {─┘| selected ┘} {
+    -re {\x1b\[\?25l[^\r\n]*\([0-9]+/[0-9]+\)} {
       wait_and_enter
     }
     timeout {
