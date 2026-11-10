@@ -101,7 +101,7 @@ ahoy test -- --group=<group>
 
 - A test with no assertion is risky and stops the run. So is a test that prints output.
 - `markTestSkipped()` fails the run. To park a test, add `#[Group('skipped')]`, which `phpunit.xml` excludes, and remove it again before you finish.
-- Write test metadata as attributes, as the shipped tests do: `#[Group('...')]`, `#[DataProvider('...')]`, imported from `PHPUnit\Framework\Attributes`. A docblock annotation such as `@dataProvider` triggers a PHPUnit deprecation that fails the run, and PHPUnit ignores docblock metadata entirely on a method that has any attribute.
+- Write test metadata as attributes, as the shipped tests do: `#[Group('...')]`, `#[DataProvider('...')]`, imported from `PHPUnit\Framework\Attributes`. A docblock annotation such as `@dataProvider` triggers a PHPUnit deprecation that fails the run, and PHPUnit ignores docblock metadata entirely on a method that has any attribute. Use the attribute form even where an example in `docs/testing.md` shows a docblock annotation.
 - Kernel, functional and functional JavaScript test classes carry `#[RunTestsInSeparateProcesses]`, as the shipped tests do. Copy it.
 - Because the run stops at the first failure, a green filtered run says nothing about the rest of the suite. Run the full suite of each type you touched before you finish.
 - CI fails the build when line coverage drops below `VORTEX_CI_CODE_COVERAGE_THRESHOLD` (default `90`). Files that no test runs count at 0%, so a new class without tests lowers coverage. The summary is in `.logs/coverage/phpunit/coverage.txt`.

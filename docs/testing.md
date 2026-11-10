@@ -24,12 +24,12 @@ All PHPUnit tests must follow this structure:
 namespace Drupal\Tests\my_module\Unit;
 
 use Drupal\Tests\UnitTestCase;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests for MyClass.
+ *
+ * @group my_module
  */
-#[Group('my_module')]
 class MyClassTest extends UnitTestCase {
 
   /**
@@ -73,14 +73,14 @@ class MyClassTest extends UnitTestCase {
 
 ### Data providers
 
-Always use data providers for testing multiple input/output combinations.
-Import `PHPUnit\Framework\Attributes\DataProvider` in the test class:
+Always use data providers for testing multiple input/output combinations:
 
 ```php
 /**
  * Test my function with various inputs.
+ *
+ * @dataProvider dataProviderMyFunction
  */
-#[DataProvider('dataProviderMyFunction')]
 public function testMyFunction(string $input, string $expected): void {
   $this->assertEquals($expected, my_function($input));
 }
@@ -107,14 +107,12 @@ For Kernel tests that need Drupal services:
 namespace Drupal\Tests\my_module\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests for MyService.
+ *
+ * @group my_module
  */
-#[Group('my_module')]
-#[RunTestsInSeparateProcesses]
 class MyServiceTest extends KernelTestBase {
 
   /**

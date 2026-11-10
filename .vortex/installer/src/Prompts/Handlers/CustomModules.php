@@ -187,8 +187,6 @@ DOC;
       if ($path) {
         File::remove($path);
       }
-
-      File::remove($t . '/tests/behat/features/search.feature');
     }
 
     // The 'page' content model is shared: the demo module attaches behavior to

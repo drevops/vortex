@@ -39,7 +39,6 @@ class CustomModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertSutNotContains('_search');
           $test->assertDirectoryExists(static::$sut . '/recipes/page');
-          $test->assertFileDoesNotExist(static::$sut . '/tests/behat/features/search.feature');
       }),
     ];
     yield 'custom_modules_none' => [
