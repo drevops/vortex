@@ -79,6 +79,9 @@ site from:
 - Caches the dump, so the `build` job and later runs skip the download
 - On the nightly run of a project that stores its database in a container
   image, pushes the refreshed image to the registry
+- On the nightly run of a project with the `s3` or `gdrive` fetch source,
+  pushes a sanitized dump to that source (see [Push the sanitized database
+  to a dump store](#push-the-sanitized-database-to-a-dump-store))
 
 The job exists only when the site provisions from a database dump. With the
 `profile` provision type, the pipeline has no `database` job and no nightly
@@ -386,7 +389,7 @@ future **Vortex** update ships.
 
 The scheduled run builds a database container image from a dump file. With
 the `container_registry` fetch source, set `VORTEX_REFRESH_DB_SOURCE` to the
-source of that file: `url`, `ftp`, `acquia`, `lagoon` or `s3`.
+source of that file: `url`, `ftp`, `acquia`, `lagoon`, `s3` or `gdrive`.
 
 `VORTEX_REFRESH_DB_SOURCE` selects a fetch script, and each fetch script
 reads its own variables. The installer adds to `.env` the variables of the
@@ -408,6 +411,54 @@ For the migration database, set `VORTEX_REFRESH_DB2_SOURCE` and the
 `VORTEX_FETCH_DB2_URL`. `LAGOON_PROJECT` and the 3 `VORTEX_ACQUIA_`
 variables apply to both databases. See [Refresh the migration database
 image](../development/migrations.mdx#refresh-the-migration-database-image).
+
+### Push the sanitized database to a dump store
+
+A dump store is an `s3` or `gdrive` fetch source that holds a sanitized
+copy of your hosting database. Developers and branch builds fetch that
+copy and need no hosting access. On the nightly run, the `database` job
+fetches a dump from `VORTEX_REFRESH_DB_SOURCE` and sanitizes it. Its
+**Push DB** step then uploads the dump to the fetch source.
+
+To refresh a dump store every night:
+
+1. In `.env`, set `VORTEX_FETCH_DB_SOURCE` to `s3` or `gdrive`. The
+   installer sets it and adds the variables of that source.
+2. In `.env`, set `VORTEX_REFRESH_DB_SOURCE` to the hosting source: `url`,
+   `ftp`, `acquia` or `lagoon`. Add the variables of that source from the
+   table in [Dump file source for a database
+   image](#dump-file-source-for-a-database-image).
+3. Add the credentials of the dump store as CI secrets:
+
+   | Source | Secrets |
+   |---|---|
+   | `s3` | `VORTEX_FETCH_DB_S3_ACCESS_KEY` and `VORTEX_FETCH_DB_S3_SECRET_KEY` |
+   | `gdrive` | `VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY`, with the content of the JSON key file |
+
+   GitHub Actions passes these secrets to the `database` job. Add the
+   secrets of the hosting source to the `env` block of that job.
+
+4. After the next nightly run, confirm that its **Push DB** step ends with
+   `Finished database push.`
+
+The `s3` push writes to the bucket, region and prefix that the fetch
+reads. The `gdrive` push replaces a file with the same name in place, so
+the file keeps its ID and sharing. Both pushes stop with an error when
+`VORTEX_PROVISION_SANITIZE_DB_SKIP` is `1`.
+
+The `gdrive` source signs in with a Google Cloud service account key.
+Service accounts have no storage of their own, so the folder must be in a
+shared drive. To set up the folder:
+
+1. In the Google Cloud console, enable the Google Drive API and create a
+   service account with a JSON key.
+2. In a shared drive, create a folder and add the service account email
+   as a **Content manager**.
+3. Copy the folder ID, the last segment of the folder URL, into
+   `VORTEX_FETCH_DB_GDRIVE_FOLDER_ID` in `.env`.
+4. Give developers the key of a second service account with the
+   **Viewer** role. They set `VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY` in
+   `.env.local` to the path of the key file or to its content.
 
 ## Trigger conditions
 
