@@ -171,7 +171,14 @@ class FileManager {
       // drawn inside the TUI.
       $runner = new ProcessRunner();
       $runner->getLogger()->disable();
-      $runner->run('git', args: ['-c', 'advice.defaultBranchName=false', '--work-tree=' . $destination, '--git-dir=' . $destination . '/.git', 'init'], output: new NullOutput());
+      $args = [
+        '-c',
+        'advice.defaultBranchName=false',
+        '--work-tree=' . $destination,
+        '--git-dir=' . $destination . '/.git',
+        'init',
+      ];
+      $runner->run('git', args: $args, output: new NullOutput());
 
       if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
         throw new \RuntimeException(sprintf('Unable to initialize Git repository in directory "%s".', $destination));
