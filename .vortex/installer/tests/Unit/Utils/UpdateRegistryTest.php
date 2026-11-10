@@ -101,8 +101,8 @@ class UpdateRegistryTest extends UnitTestCase {
     $file = (string) $registry->write('1.40.0', '1.41.0', '2026-09-07 09:31:22');
 
     $this->assertFileContainsString($file, '````diff', 'The fence outgrows the longest backtick run in the diff.');
-    $this->assertFileContainsString($file, PHP_EOL . '````' . PHP_EOL, 'The closing fence matches the opening one.');
-    $this->assertStringNotContainsString('```' . PHP_EOL . '```diff', File::read($file), 'No entry opens with a fence the diff can close.');
+    $this->assertFileContainsString($file, "\n" . '````' . "\n", 'The closing fence matches the opening one.');
+    $this->assertStringNotContainsString('```' . "\n" . '```diff', File::read($file), 'No entry opens with a fence the diff can close.');
   }
 
   public function testWriteSortsEntriesByPath(): void {
