@@ -218,7 +218,9 @@ commands:
     usage: Install front-end assets.
     aliases: [fe-install]
     cmd: |
+      #;< TOOL_NPM
       ahoy cli "npm ci"
+      #;> TOOL_NPM
       #;< DRUPAL_THEME
       ahoy cli "npm --prefix=${WEBROOT}/themes/custom/${DRUPAL_THEME} ci"
       #;> DRUPAL_THEME

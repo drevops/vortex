@@ -1,4 +1,12 @@
-@@ -187,33 +187,11 @@
+@@ -164,7 +164,6 @@
+     usage: Install front-end assets.
+     aliases: [fe-install]
+     cmd: |
+-      ahoy cli "npm ci"
+       ahoy cli "npm --prefix=${WEBROOT}/themes/custom/${DRUPAL_THEME} ci"
+ 
+   fe:
+@@ -187,33 +186,11 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
@@ -32,7 +40,7 @@
    lint-sdc:
      usage: Validate Single Directory Components (requires a provisioned site).
      cmd: |
-@@ -225,52 +203,11 @@
+@@ -225,52 +202,11 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |

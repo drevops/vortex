@@ -560,6 +560,8 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileExists(static::$sut . '/web/themes/custom/star_wars/.npmrc');
           $test->assertSutNotContains(['/name: Audit npm packages$/m']);
           $test->assertSutContains(['/name: Audit npm packages of the theme$/m']);
+          $test->assertFileNotContainsString(static::$sut . '/.ahoy.yml', 'ahoy cli "npm ci"');
+          $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'themes/custom/${DRUPAL_THEME} ci"');
       }),
     ];
     yield 'tools_groups_no_fe_lint_circleci' => [
