@@ -590,6 +590,10 @@ class Tools extends AbstractHandler {
         ],
         'token' => 'TOOL_GROUP_TEST',
       ],
+      'lint_all' => [
+        'tools' => [self::PHPCS, self::PHPSTAN, self::RECTOR, self::ESLINT, self::STYLELINT, self::TWIG_CS_FIXER, self::DCLINT, self::HADOLINT, self::BEHAT],
+        'files' => ['.claude/skills/fix-lint'],
+      ],
       'frontend_linting' => [
         'tools' => [self::ESLINT, self::STYLELINT],
         // Each linter rewrites 'lint' to call the other one, so with both

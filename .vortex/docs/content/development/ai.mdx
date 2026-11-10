@@ -192,6 +192,12 @@ has what the skill works on:
 
 | Skill | Use it to | Shipped when |
 |---|---|---|
+| `set-up-environment` | Build the local environment, get a database and fix the stack when it doesn't start | Always |
+| `create-module` | Add or extend a custom module with services, hooks, plugins, routes and update hooks | Always |
+| `create-content-type` | Add content types, fields and displays, and ship them as configuration or a recipe | Always |
+| `debug-errors` | Find the cause of an error in the logs, the provisioning output or with Xdebug | Always |
+| `fix-lint` | Make `ahoy lint` pass and fix what the automatic fixers can't | A linter is selected |
+| `update-dependencies` | Update Drupal core, modules and packages, and maintain the patches | Always |
 | `manage-config` | Preview and apply configuration imports and exports, change a single item and work with configuration splits | Always |
 | `reconcile-config` | Compare a deployed environment's database with the configuration in code and resolve each difference | Always |
 | `write-tests` | Pick the test type for a change and reproduce a bug in a failing test before fixing it | PHPUnit or Behat is selected |

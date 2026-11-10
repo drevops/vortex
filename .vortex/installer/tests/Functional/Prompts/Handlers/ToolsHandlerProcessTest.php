@@ -51,6 +51,7 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/jest.config.js');
           $test->assertFileDoesNotExist(static::$sut . '/.dclintrc');
           $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'hadolint');
+          $test->assertDirectoryDoesNotExist(static::$sut . '/.claude/skills/fix-lint');
 
           $test->assertSutContains([
             '/\blint-fe:/',
@@ -64,13 +65,17 @@ class ToolsHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[Tools::id()] = array_values(array_diff($tools, [Tools::PHPCS]));
           $test->prompts[CiProvider::id()] = CiProvider::GITHUB_ACTIONS;
       }),
-      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains([
-        'phpcs',
-        'phpcbf',
-        'dealerdirect/phpcodesniffer-composer-installer',
-        'drupal/coder',
-        'squizlabs/php_codesniffer',
-      ])),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertSutNotContains([
+            'phpcs',
+            'phpcbf',
+            'dealerdirect/phpcodesniffer-composer-installer',
+            'drupal/coder',
+            'squizlabs/php_codesniffer',
+          ]);
+
+          $test->assertFileExists(static::$sut . '/.claude/skills/fix-lint/SKILL.md');
+      }),
     ];
     yield 'tools_no_phpcs_circleci' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {

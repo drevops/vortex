@@ -132,6 +132,7 @@ The Security Kit module ships with the project but provisioning doesn't install 
 - Add packages with `ahoy composer require <vendor/package>`, then run `ahoy composer audit`.
 - The project's Composer policy in `composer.json` doesn't block installs on advisories but fails the audit, so a vulnerable package installs quietly. Run the audit after every dependency change.
 - Ignore an advisory only after assessing it: add its ID under `config.policy.advisories.ignore-id` in `composer.json` with the reason, and repeat the reason in the commit message. See [Dependency audit](https://www.vortextemplate.com/docs/development/security/dependency-audit).
+
 [//]: # (#;< TOOL_NPM)
 
 - Audit the root JavaScript packages with `ahoy cli "npm audit"`.
