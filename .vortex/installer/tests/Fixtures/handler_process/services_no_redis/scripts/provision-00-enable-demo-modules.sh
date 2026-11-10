@@ -1,6 +1,6 @@
-@@ -66,10 +66,6 @@
- drush pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap
- pass "Installed contrib modules."
+@@ -71,10 +71,6 @@
+ drush config:set system.theme admin gin
+ pass "Set Gin as the administration theme."
  
 -task "Installing Redis module."
 -drush pm:install redis || true

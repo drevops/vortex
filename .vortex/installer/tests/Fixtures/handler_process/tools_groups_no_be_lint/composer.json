@@ -1,4 +1,4 @@
-@@ -40,18 +40,11 @@
+@@ -50,18 +50,11 @@
          "dantleech/gherkin-lint": "__VERSION__",
          "drevops/behat-screenshot": "__VERSION__",
          "drevops/behat-steps": "__VERSION__",
@@ -17,7 +17,7 @@
          "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
          "softcreatr/jsonpath": "^0.10 || ^1.0",
-@@ -77,11 +70,9 @@
+@@ -87,11 +80,9 @@
          "allow-plugins": {
              "composer/installers": true,
              "cweagans/composer-patches": true,

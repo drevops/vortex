@@ -1,4 +1,4 @@
-@@ -36,15 +36,9 @@
+@@ -46,15 +46,9 @@
          "drush/drush": "__VERSION__"
      },
      "require-dev": {

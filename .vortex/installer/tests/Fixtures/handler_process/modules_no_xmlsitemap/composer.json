@@ -1,7 +1,7 @@
-@@ -32,7 +32,6 @@
-         "drupal/shield": "__VERSION__",
+@@ -42,7 +42,6 @@
          "drupal/stage_file_proxy": "__VERSION__",
          "drupal/testmode": "__VERSION__",
+         "drupal/views_bulk_operations": "__VERSION__",
 -        "drupal/xmlsitemap": "__VERSION__",
          "drush/drush": "__VERSION__"
      },
