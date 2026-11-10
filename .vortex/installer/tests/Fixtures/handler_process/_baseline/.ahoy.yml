@@ -122,6 +122,11 @@ commands:
       case " $* " in *" --fresh "*) export VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1;; esac
       ./vendor/bin/vortex-fetch-db
 
+  fetch-files:
+    usage: Fetch public files.
+    aliases: [download-files, files-download, files-fetch]
+    cmd: ./vendor/bin/vortex-fetch-files
+
   reload-db:
     usage: Reload the database container using local database image.
     cmd: |

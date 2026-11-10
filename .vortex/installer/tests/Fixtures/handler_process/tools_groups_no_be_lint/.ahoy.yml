@@ -1,4 +1,4 @@
-@@ -187,21 +187,9 @@
+@@ -192,21 +192,9 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
@@ -20,7 +20,7 @@
    lint-fe:
      usage: Lint front-end code.
      cmd: |
-@@ -225,14 +213,7 @@
+@@ -230,14 +218,7 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |

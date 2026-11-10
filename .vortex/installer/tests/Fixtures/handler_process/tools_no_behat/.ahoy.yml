@@ -1,4 +1,4 @@
-@@ -189,7 +189,6 @@
+@@ -194,7 +194,6 @@
      cmd: |
        ahoy lint-be
        ahoy lint-fe
@@ -6,7 +6,7 @@
  
    lint-be:
      usage: Lint back-end code.
-@@ -212,8 +211,6 @@
+@@ -217,8 +216,6 @@
    lint-tests:
      usage: Lint tests code.
      cmd: |
@@ -15,7 +15,7 @@
    lint-sdc:
      usage: Validate Single Directory Components (requires a provisioned site).
      cmd: |
-@@ -265,11 +262,6 @@
+@@ -270,11 +267,6 @@
    test-js:
      usage: Run Jest JavaScript unit tests.
      cmd: ahoy cli "npm test"
