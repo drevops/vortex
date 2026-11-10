@@ -36,11 +36,26 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/devel')),
     ];
+    yield 'modules_no_diff' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('diff');
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertSutNotContains('drupal/diff');
+        $test->assertFileNotContainsString(static::$sut . '/scripts/provision-00-enable-demo-modules.sh', ' diff ');
+      }),
+    ];
     yield 'modules_no_drupal_helpers' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('drupal_helpers');
       }),
       static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/drupal_helpers')),
+    ];
+    yield 'modules_no_entity_usage' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('entity_usage');
+      }),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('entity_usage')),
     ];
     yield 'modules_no_environment_indicator' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
@@ -54,6 +69,12 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('fast_404')),
     ];
+    yield 'modules_no_field_group' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('field_group');
+      }),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('field_group')),
+    ];
     yield 'modules_no_generated_content' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('generated_content');
@@ -64,6 +85,40 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
         // with only its content generation removed.
         $test->assertFileExists(static::$sut . '/scripts/provision-10-enable-dev-modules.sh');
         $test->assertFileNotContainsString(static::$sut . '/scripts/provision-10-enable-dev-modules.sh', 'GENERATED_CONTENT_CREATE');
+      }),
+    ];
+    yield 'modules_no_gin' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('gin');
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertSutNotContains('drupal/gin');
+        $test->assertFileNotContainsString(static::$sut . '/scripts/provision-00-enable-demo-modules.sh', 'theme:install gin');
+        $test->assertFileNotContainsString(static::$sut . '/scripts/provision-00-enable-demo-modules.sh', 'system.theme admin gin');
+      }),
+    ];
+    yield 'modules_no_linkit' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('linkit');
+      }),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('linkit')),
+    ];
+    yield 'modules_no_menu_trail_by_path' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('menu_trail_by_path');
+      }),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('menu_trail_by_path')),
+    ];
+    yield 'modules_no_metatag' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('metatag');
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        // Schema.org Metatag remains selected and its name contains the
+        // module name, so the assertions target the package and the install.
+        $test->assertSutNotContains('drupal/metatag');
+        $test->assertFileNotContainsString(static::$sut . '/scripts/provision-00-enable-demo-modules.sh', ' metatag ');
+        $test->assertFileDoesNotExist(static::$sut . '/tests/behat/features/metatag.feature');
       }),
     ];
     yield 'modules_no_navigation_extra_tools' => [
@@ -102,6 +157,21 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('robotstxt')),
     ];
+    yield 'modules_no_scheduled_transitions' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('scheduled_transitions');
+      }),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('scheduled_transitions')),
+    ];
+    yield 'modules_no_schema_metatag' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('schema_metatag');
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertSutNotContains('schema_metatag');
+        $test->assertFileExists(static::$sut . '/tests/behat/features/metatag.feature');
+      }),
+    ];
     yield 'modules_no_sdc_devel' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('sdc_devel');
@@ -137,6 +207,12 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
         // The only scenario in the pages feature asserts Testmode filtering.
         $test->assertFileDoesNotExist(static::$sut . '/tests/behat/features/pages.feature');
       }),
+    ];
+    yield 'modules_no_views_bulk_operations' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('views_bulk_operations');
+      }),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('views_bulk_operations')),
     ];
     yield 'modules_no_xmlsitemap' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
