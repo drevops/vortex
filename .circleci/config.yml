@@ -363,6 +363,18 @@ jobs:
           no_output_timeout: 30m
       #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
 
+      #;< DB_PUSH
+      # Push the freshly-exported sanitized database dump to the database fetch
+      # source. No-op unless a fresh DB was fetched (the fetch semaphore) and the
+      # push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
+      - run:
+          name: Push DB
+          command: |
+            [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB push will not proceed." && exit 0
+            ./vendor/bin/vortex-push-db
+          no_output_timeout: 30m
+      #;> DB_PUSH
+
       - save_cache:
           # Save cache per default branch and the timestamp.
           # The cache will not be saved if it already exists.
@@ -387,6 +399,10 @@ jobs:
       # Deploy container image.
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED: 1
       #;> DB_IN_IMAGE
+      #;< DB_PUSH
+      # Refresh the database dump in the database fetch source.
+      VORTEX_PUSH_DB_PROCEED: 1
+      #;> DB_PUSH
       # Do not build the Drupal front-end.
       VORTEX_FRONTEND_BUILD_SKIP: 1
   #;> !PROVISION_TYPE_PROFILE

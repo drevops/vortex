@@ -88,6 +88,7 @@ fixture_gdrive_key() {
   mock_curl=$(mock_command "curl")
   mock_set_output "${mock_curl}" '{"access_token":"test-token"}' 1
   mock_set_output "${mock_curl}" '{"files":[{"id":"file-456"}]}' 2
+  mock_set_status "${mock_curl}" 0 3
 
   run .vortex/tooling/src/vortex-fetch-db-gdrive
   assert_success
@@ -117,6 +118,7 @@ fixture_gdrive_key() {
   mock_curl=$(mock_command "curl")
   mock_set_output "${mock_curl}" '{"access_token":"test-token"}' 1
   mock_set_output "${mock_curl}" '{"files":[{"id":"file-3"}]}' 2
+  mock_set_status "${mock_curl}" 0 3
 
   run .vortex/tooling/src/vortex-fetch-db-gdrive
   assert_success
@@ -143,6 +145,7 @@ fixture_gdrive_key() {
   mock_curl=$(mock_command "curl")
   mock_set_output "${mock_curl}" '{"access_token":"test-token"}' 1
   mock_set_output "${mock_curl}" '{"files":[{"id":"file-456"}]}' 2
+  mock_set_status "${mock_curl}" 0 3
 
   run .vortex/tooling/src/vortex-fetch-db-gdrive
   assert_success
