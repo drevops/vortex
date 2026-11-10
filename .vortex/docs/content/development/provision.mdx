@@ -560,6 +560,68 @@ inflate the dump. To choose which tables are exported this way, set
 names. Each name can use the `*` wildcard, and the default is `cache*`. To
 export the data of every table, set the variable to an empty value.
 
+## Files
+
+The public files directory, `web/sites/default/files`, holds uploaded files
+such as images and documents. It's mounted from your machine into the
+containers, so the local site serves every file you put there.
+
+### Fetch the files
+
+`ahoy fetch-files` copies the public files of another environment into the
+local public files directory. Like the database fetch, it runs on the host.
+`VORTEX_FETCH_FILES_SOURCE` sets where the files come from, and accepts the
+following values:
+
+- `url`, the default: the tar archive at `VORTEX_FETCH_FILES_URL`
+- `acquia`: the files of an Acquia environment
+- `lagoon`: the files of a Lagoon environment
+- `none`: no source; you put the files into the directory yourself
+
+Any other value stops the command with an error that lists these values.
+For Acquia and Lagoon projects, the installer sets the source to match the
+hosting provider.
+
+The `url` archive holds the content of the files directory at its root,
+and can be compressed. Put HTTP Basic Authentication credentials into the
+URL.
+
+The hosting sources copy the environment named in
+`VORTEX_FETCH_FILES_ENVIRONMENT`. When that variable is empty, they copy
+the environment in `VORTEX_FETCH_DB_ENVIRONMENT`. They connect over SSH
+with the key in `VORTEX_FETCH_FILES_SSH_FILE` or
+`VORTEX_FETCH_FILES_SSH_FINGERPRINT`. The `acquia` source also reads
+`VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET`, and calls the Acquia Cloud
+API to look up the SSH address of the environment.
+
+To fetch the files, run the following command in the project root:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    # Fetch public files
+    ahoy fetch-files
+    ```
+  </TabItem>
+  <TabItem value="host" label="Host">
+    ```shell
+    # Fetch public files
+    ./vendor/bin/vortex-fetch-files
+    ```
+  </TabItem>
+</Tabs>
+
+Confirm that the output ends with `Finished files fetch.`
+
+The fetch adds new files and updates changed ones. Local files missing from
+the source stay in place. The hosting sources skip the `css`, `js`, `php`
+and `styles` directories, because Drupal regenerates their content on
+demand. To change the skipped directories, set `VORTEX_FETCH_FILES_EXCLUDE`
+to a space-separated list of directory names. Set it to an empty value to
+copy every directory.
+
+The fetch copies public files only.
+
 ## Run custom scripts
 
 Near the end of each run, the provision script runs your custom scripts,
