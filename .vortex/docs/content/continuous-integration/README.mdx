@@ -787,6 +787,25 @@ everywhere the image appears:
 Confirm that a search for `drevops/ci-runner:` in those files finds only the
 new tag and digest.
 
+A lock written by a different Composer minor version can fail
+`composer validate` in CI. When the new image ships a new Composer minor
+version, make 2 more changes in the same pull request:
+
+1. Rewrite the `content-hash` in `composer.lock` with the Composer in the
+   new image:
+
+   ```shell
+   docker run --rm -v "$PWD":/app -w /app drevops/ci-runner:VERSION \
+     composer update --lock --no-install
+   ```
+
+   Replace `VERSION` with the new image tag. The command keeps every
+   package at its locked version.
+
+2. Set `constraints.composer` in `renovate.json` to the new minor version,
+   such as `2.11.*`. See [Composer
+   version](../development/dependency-updates.mdx#composer-version).
+
 When Renovate manages your dependencies, as it does by default, it proposes
 new image releases for the GitHub Actions workflows. Nothing in its
 configuration matches the `image:` line in `.circleci/config.yml`, so on
