@@ -586,7 +586,7 @@ class Tools extends AbstractHandler {
           '/^\h*test:\R\h*usage:\h*Run all tests\.\R\h*cmd:\h*\|$/um',
           '/^\h*lint-tests:\R\h*usage:\h*Lint tests code\.\R\h*cmd:\h*\|\h*\R^\h*$/um',
         ],
-        'token' => 'TOOL_PHPUNIT_BEHAT',
+        'token' => 'TOOL_GROUP_TEST',
       ],
       'frontend_linting' => [
         'tools' => [self::ESLINT, self::STYLELINT],
@@ -610,7 +610,7 @@ class Tools extends AbstractHandler {
           '/^\|\h*`npm run lint`.*\n?/m',
           '/^\|\h*`npm run lint-fix`.*\n?/m',
         ],
-        'token' => 'TOOL_ESLINT_STYLELINT',
+        'token' => 'TOOL_GROUP_FRONTEND_LINTING',
       ],
       'frontend_testing' => [
         'tools' => [self::JEST],
