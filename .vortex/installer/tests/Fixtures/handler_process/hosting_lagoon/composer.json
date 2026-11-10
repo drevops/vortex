@@ -1,8 +1,8 @@
-@@ -19,6 +19,7 @@
-         "drupal/environment_indicator": "__VERSION__",
-         "drupal/fast_404": "__VERSION__",
+@@ -23,6 +23,7 @@
+         "drupal/field_group": "__VERSION__",
          "drupal/generated_content": "__VERSION__",
+         "drupal/gin": "__VERSION__",
 +        "drupal/lagoon_logs": "__VERSION__",
-         "drupal/navigation_extra_tools": "__VERSION__",
-         "drupal/pathauto": "__VERSION__",
-         "drupal/redirect": "__VERSION__",
+         "drupal/linkit": "__VERSION__",
+         "drupal/menu_trail_by_path": "__VERSION__",
+         "drupal/metatag": "__VERSION__",

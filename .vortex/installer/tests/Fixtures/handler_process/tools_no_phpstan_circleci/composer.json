@@ -1,4 +1,4 @@
-@@ -45,13 +45,10 @@
+@@ -55,13 +55,10 @@
          "ergebnis/composer-normalize": "__VERSION__",
          "friends-of-behat/mink-extension": "__VERSION__",
          "lullabot/mink-selenium2-driver": "__VERSION__",
@@ -12,7 +12,7 @@
          "phpunit/phpunit": "__VERSION__",
          "pyrech/composer-changelogs": "__VERSION__",
          "softcreatr/jsonpath": "^0.10 || ^1.0",
-@@ -81,7 +78,6 @@
+@@ -91,7 +88,6 @@
              "drupal/core-composer-scaffold": true,
              "ergebnis/composer-normalize": true,
              "php-http/discovery": true,

@@ -153,7 +153,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -322,7 +325,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -500,7 +506,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -693,7 +702,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -944,7 +956,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -1116,7 +1131,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -1295,7 +1313,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -1659,7 +1680,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -1835,7 +1859,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -1918,6 +1945,7 @@ assert_provision_info() {
 
   # Create the data directory but do NOT create the dump file.
   mkdir "./.data"
+  mkdir -p "./web/modules/contrib/shield"
 
   export VORTEX_PROVISION_FALLBACK_TO_PROFILE=1
 
@@ -1969,6 +1997,66 @@ assert_provision_info() {
   popd >/dev/null || exit 1
 }
 
+@test "Provision: DB; no site; fallback to profile; Shield not available" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  # Remove .env file to test in isolation.
+  rm ./.env && touch ./.env
+  rm -f ./scripts/provision-20-migration.sh
+  rm -f ./scripts/provision-30-search-index.sh
+  rm -f ./scripts/provision-50-storybook.sh
+
+  export VORTEX_PROVISION_SANITIZE_DB_PASSWORD="MOCK_DB_SANITIZE_PASSWORD"
+  export CI=1
+
+  # Create the data directory but do NOT create the dump file.
+  mkdir "./.data"
+  rm -rf "./web/modules/contrib/shield"
+
+  export VORTEX_PROVISION_FALLBACK_TO_PROFILE=1
+
+  create_global_command_wrapper "vendor/bin/drush"
+
+  declare -a STEPS=(
+    # Drush status calls.
+    "@drush -y --version # Drush Commandline Tool mocked_drush_version"
+    "@drush -y status --field=drupal-version # mocked_core_version"
+    "@drush -y status --fields=bootstrap # fail"
+    "@drush -y php:eval print realpath(\Drupal\Core\Site\Settings::get(\"config_sync_directory\")); # $(pwd)/config/default"
+
+    # Site provisioning information.
+    "Provisioning site from the database dump file."
+    "Dump file path: $(pwd)/.data/db.sql"
+    "Existing site was not found."
+
+    # Fallback to profile without Shield.
+    "Database dump file is not available. Falling back to profile installation."
+    "@drush -y sql:drop"
+    "@drush -y site:install standard --site-name=Example site --site-mail=webmaster@example.com --account-name=admin install_configure_form.enable_update_status_module=NULL install_configure_form.enable_update_status_emails=NULL"
+    "Shield is not available, so the site is not protected."
+    "Installed a site from the profile."
+
+    # Drupal environment information.
+    "Current Drupal environment: ci"
+    "@drush -y php:eval print \Drupal\Core\Site\Settings::get('environment'); # ci"
+
+    # Post-provision operations skipped (set internally by fallback).
+    "Skipped running of post-provision operations as VORTEX_PROVISION_POST_OPERATIONS_SKIP is set to 1."
+
+    # Installation completion.
+    "Finished site provisioning"
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-provision
+  assert_success
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Provision: DB; no site; with container image; fallback to profile" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -1983,6 +2071,7 @@ assert_provision_info() {
 
   mkdir "./.data"
   touch "./.data/db.sql"
+  mkdir -p "./web/modules/contrib/shield"
 
   export VORTEX_PROVISION_FALLBACK_TO_PROFILE=1
 
@@ -2133,7 +2222,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -2327,7 +2419,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -2574,7 +2669,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -2856,7 +2954,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -3054,7 +3155,10 @@ assert_provision_info() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -3235,7 +3339,10 @@ prepare_status_report_run() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."
@@ -3564,7 +3671,10 @@ prepare_status_report_run() {
     "@drush -y php:eval print \Drupal::moduleHandler()->moduleExists('toolbar'); # 0 # 1"
     "@drush -y pm:uninstall toolbar"
     "    > Installing contrib modules."
-    "@drush -y pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap"
+    "@drush -y pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap"
+    "    > Setting Gin as the administration theme."
+    "@drush -y theme:install gin"
+    "@drush -y config:set system.theme admin gin"
     "    > Installing Redis module."
     "@drush -y pm:install redis"
     "    > Installing and configuring ClamAV."

@@ -1,8 +1,8 @@
-@@ -18,7 +18,6 @@
-         "drupal/drupal_helpers": "__VERSION__",
+@@ -21,7 +21,6 @@
          "drupal/environment_indicator": "__VERSION__",
          "drupal/fast_404": "__VERSION__",
+         "drupal/field_group": "__VERSION__",
 -        "drupal/generated_content": "__VERSION__",
-         "drupal/navigation_extra_tools": "__VERSION__",
-         "drupal/pathauto": "__VERSION__",
-         "drupal/redirect": "__VERSION__",
+         "drupal/gin": "__VERSION__",
+         "drupal/linkit": "__VERSION__",
+         "drupal/menu_trail_by_path": "__VERSION__",

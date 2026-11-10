@@ -1,0 +1,8 @@
+@@ -25,7 +25,6 @@
+         "drupal/gin": "__VERSION__",
+         "drupal/linkit": "__VERSION__",
+         "drupal/menu_trail_by_path": "__VERSION__",
+-        "drupal/metatag": "__VERSION__",
+         "drupal/navigation_extra_tools": "__VERSION__",
+         "drupal/pathauto": "__VERSION__",
+         "drupal/redirect": "__VERSION__",

@@ -7,7 +7,7 @@
  pass "Set site name."
  
  # Use the core Navigation module as the administration interface and remove
-@@ -84,11 +84,11 @@
+@@ -89,11 +89,11 @@
  # Note that deployment hooks for already enabled modules have run in the
  # parent "provision.sh" script.
  task "Installing custom site modules."

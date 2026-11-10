@@ -6,10 +6,11 @@
        VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        # Runs on every instance, using the `p<instance index - offset>` profile.
        VORTEX_CI_IS_BEHAT_RUNNER: true
-@@ -440,66 +439,6 @@
+@@ -439,66 +438,6 @@
+         if: ${{ env.VORTEX_CI_IS_JEST_RUNNER == 'true' }}
          run: docker compose exec -T cli bash -c "npm test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
- 
+-
 -      - name: Test with PHPUnit
 -        if: ${{ env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' }}
 -        run: docker compose exec -T cli vendor/bin/phpunit
@@ -69,24 +70,6 @@
 -          fi
 -        env:
 -          VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
--
+ 
        - name: Validate Single Directory Components
          if: ${{ env.VORTEX_CI_IS_SDC_DEVEL_RUNNER == 'true' }}
-         run: |
-@@ -541,16 +480,6 @@
-           path: .logs
-           include-hidden-files: true
-           if-no-files-found: error
--
--      - name: Publish test results to GitHub Checks
--        if: ${{ !cancelled() && vars.VORTEX_CI_TEST_RESULTS_SKIP != '1' }}
--        uses: EnricoMi/publish-unit-test-result-action@__HASH__ # __VERSION__
--        with:
--          check_name: Test results (${{ matrix.instance }})
--          comment_mode: "off"
--          test_file_prefix: "-/app/"
--          files: |
--            .logs/test_results/**/*.xml
- 
-       - name: Upload exported codebase as an artifact
-         uses: actions/upload-artifact@__HASH__ # __VERSION__
