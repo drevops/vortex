@@ -126,3 +126,56 @@ jobs:
           name: vortex-installer
           path: .vortex/installer/build/installer.phar
           if-no-files-found: error
+
+  vortex-test-installer-windows:
+    runs-on: windows-latest
+
+    permissions:
+      contents: read # Checkout the repository; no GITHUB_TOKEN writes are performed.
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN || github.token }}
+      COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.TEST_GITHUB_TOKEN || github.token }}"}}'
+
+    steps:
+      # The installer downloads the template as an archive, which keeps LF line
+      # endings and symlinks, so the checkout must match it byte for byte.
+      - name: Keep line endings on checkout
+        run: git config --global core.autocrlf false
+
+      - name: Keep symlinks on checkout
+        run: git config --global core.symlinks true
+
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Set default branch name
+        run: git config --global init.defaultBranch main
+
+      - name: Install dependencies
+        run: composer install
+        working-directory: .vortex/installer
+
+      - name: Run tests
+        run: composer test
+        working-directory: .vortex/installer
+
+      - name: Build PHAR
+        run: composer build
+        working-directory: .vortex/installer
+
+      - name: Check PHAR version
+        run: php build/installer.phar --version
+        working-directory: .vortex/installer
+
+      - name: Install with PHAR
+        run: php build/installer.phar --no-interaction --no-cleanup --destination=test
+        working-directory: .vortex/installer

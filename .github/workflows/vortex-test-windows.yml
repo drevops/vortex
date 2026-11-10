@@ -1,0 +1,151 @@
+# This action is used for Vortex maintenance. It will not be used in the scaffolded project.
+name: Vortex - Test on Windows
+
+on:
+  push:
+    branches:
+      - main
+      - release/**
+      - project/**
+      - '*.x'
+  pull_request:
+    branches:
+      - main
+      - feature/**
+      - bugfix/**
+      - release/**
+      - project/**
+      - '*.x'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Installs the template with native Windows PHP, then builds and runs the
+  # stack with Docker Engine inside a WSL2 distribution.
+  vortex-test-windows-stack:
+    runs-on: windows-latest
+
+    timeout-minutes: 90
+
+    permissions:
+      contents: read # Checkout the repository; no GITHUB_TOKEN writes are performed.
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN || github.token }}
+      COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.TEST_GITHUB_TOKEN || github.token }}"}}'
+      PACKAGE_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN || github.token }}
+      VORTEX_CONTAINER_REGISTRY_USER: ${{ secrets.VORTEX_CONTAINER_REGISTRY_USER }}
+      VORTEX_CONTAINER_REGISTRY_PASS: ${{ secrets.VORTEX_CONTAINER_REGISTRY_PASS }}
+      AHOY_CONFIRM_RESPONSE: y
+      AHOY_CONFIRM_WAIT_SKIP: 1
+      # Variables passed from Windows into WSL; '/p' converts the path.
+      WSLENV: PACKAGE_TOKEN:VORTEX_CONTAINER_REGISTRY_USER:VORTEX_CONTAINER_REGISTRY_PASS:AHOY_CONFIRM_RESPONSE:AHOY_CONFIRM_WAIT_SKIP:RUNNER_TEMP/p
+
+    steps:
+      # The installer downloads the template as an archive, which keeps LF line
+      # endings and symlinks, so the checkout must match it byte for byte.
+      - name: Keep line endings on checkout
+        run: git config --global core.autocrlf false
+
+      - name: Keep symlinks on checkout
+        run: git config --global core.symlinks true
+
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: Set default branch name
+        run: git config --global init.defaultBranch main
+
+      - name: Install installer dependencies
+        run: composer install
+        working-directory: .vortex/installer
+
+      - name: Install Vortex from the checkout on Windows
+        run: php .vortex/installer/installer.php --no-interaction --uri="$env:GITHUB_WORKSPACE" --destination="$env:RUNNER_TEMP\star_wars"
+
+      - name: Setup WSL2
+        uses: Vampire/setup-wsl@4c48163d9f981914dd8caa0fc335fe19cca5bff4 # v7.2.0
+        with:
+          distribution: Ubuntu-24.04
+          wsl-version: '2'
+          additional-packages: curl ca-certificates docker.io docker-compose-v2 docker-buildx
+
+      - name: Start Docker in WSL2
+        shell: wsl-bash {0}
+        run: |
+          service docker start
+          timeout 60 sh -c 'until docker info >/dev/null 2>&1; do sleep 1; done'
+          docker version
+          docker compose version
+
+      - name: Install Ahoy in WSL2
+        shell: wsl-bash {0}
+        run: |
+          version=2.4.0
+          curl -fsSL -o /usr/local/bin/ahoy "https://github.com/ahoy-cli/ahoy/releases/download/v${version}/ahoy-bin-linux-amd64"
+          chmod +x /usr/local/bin/ahoy
+          ahoy --version
+
+      - name: Login to container registry
+        if: env.VORTEX_CONTAINER_REGISTRY_USER != ''
+        shell: wsl-bash {0}
+        run: echo "${VORTEX_CONTAINER_REGISTRY_PASS}" | docker login --username "${VORTEX_CONTAINER_REGISTRY_USER}" --password-stdin
+
+      # Docker runs inside the distribution, so the project lives on its own
+      # filesystem and bind mounts behave as on a Windows workstation.
+      - name: Copy the project into WSL2
+        shell: wsl-bash {0}
+        run: cp -a "${RUNNER_TEMP}/star_wars" /root/star_wars
+
+      - name: Check the project has no CRLF line endings
+        shell: wsl-bash {0}
+        run: |
+          if grep -rlI $'\r' --exclude-dir=.git /root/star_wars; then
+            echo "Files above contain CRLF line endings."
+            exit 1
+          fi
+
+      # Stand-ins for the network and SSH agent container that Pygmy provides.
+      - name: Start local routing stubs
+        shell: wsl-bash {0}
+        run: |
+          docker network create amazeeio-network
+          docker run --detach --name amazeeio-ssh-agent pygmystack/ssh-agent
+
+      - name: Build the stack
+        shell: wsl-bash {0}
+        run: |
+          cd /root/star_wars
+          ahoy build
+
+      - name: Check the site responds
+        shell: wsl-bash {0}
+        run: |
+          cd /root/star_wars
+          docker compose exec -T cli curl -fsSL --output /dev/null http://nginx:8080
+
+      - name: Check Ahoy commands
+        shell: wsl-bash {0}
+        run: |
+          cd /root/star_wars
+          ahoy info
+          ahoy drush status
+          ahoy lint
+          ahoy test-unit
+
+      - name: Show container logs
+        if: failure()
+        shell: wsl-bash {0}
+        run: |
+          cd /root/star_wars
+          docker compose logs --tail 200
