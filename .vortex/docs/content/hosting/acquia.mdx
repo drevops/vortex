@@ -183,6 +183,24 @@ database from the `VORTEX_FETCH_DB_ENVIRONMENT` environment, which is
 `prod` in the shipped `.env`. It reuses an existing local dump. To create a
 new backup and download it, add `--fresh`.
 
+### Fetch files
+
+To copy the public files of your Acquia environment into
+`web/sites/default/files`, run the following command:
+
+```shell
+ahoy fetch-files
+```
+
+For Acquia projects, the installer sets the files source
+(`VORTEX_FETCH_FILES_SOURCE`) to `acquia`. The command looks up the SSH
+address of the environment through the Acquia Cloud API. It then copies the
+files over SSH with `rsync`, adding new files and updating changed ones.
+The environment comes from `VORTEX_FETCH_FILES_ENVIRONMENT`, or from
+`VORTEX_FETCH_DB_ENVIRONMENT` when the first variable is empty. See
+[Fetch the files](../development/provision.mdx#fetch-the-files) for the
+directories it skips.
+
 ### Run a hosting task
 
 The `vortex-task` runner copies databases and files between environments

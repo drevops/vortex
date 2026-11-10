@@ -32,10 +32,10 @@
 +      case " $* " in *" --fresh "*) export VORTEX_FETCH_DB2_FRESH=1 VORTEX_FETCH_DB2_FORCE=1;; esac
 +      VORTEX_DB_INDEX=2 ./vendor/bin/vortex-fetch-db
 +
-   reload-db:
-     usage: Reload the database container using local database image.
-     cmd: |
-@@ -129,6 +145,13 @@
+   fetch-files:
+     usage: Fetch public files.
+     aliases: [download-files, files-download, files-fetch]
+@@ -134,6 +150,13 @@
        docker compose rm --force --stop --volumes database
        docker compose build database
        ahoy up
