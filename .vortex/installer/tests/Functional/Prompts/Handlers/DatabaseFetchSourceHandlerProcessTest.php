@@ -36,6 +36,9 @@ class DatabaseFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestCa
     yield 'db_fetch_source_s3' => [
       static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::S3),
     ];
+    yield 'db_fetch_source_gdrive' => [
+      static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[DatabaseFetchSource::id()] = DatabaseFetchSource::GDRIVE),
+    ];
   }
 
 }

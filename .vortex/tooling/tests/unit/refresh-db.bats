@@ -386,6 +386,10 @@ load ../_helper.bash
 
   mock_command "sleep" >/dev/null
   mock_docker=$(mock_command "docker")
+  mock_set_output "${mock_docker}" "Started the stack." 1
+  mock_set_output "${mock_docker}" "Created the directory." 2
+  mock_set_output "${mock_docker}" "Copied the dump file." 3
+  mock_set_output "${mock_docker}" "Provisioned the site." 4
   mock_set_status "${mock_docker}" 1 5
 
   run .vortex/tooling/src/vortex-refresh-db

@@ -77,6 +77,20 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_FTP_HOST');
       }),
     ];
+    yield 'migration_fetch_source_gdrive' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Migration::id()] = TRUE;
+          $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::GDRIVE;
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE=gdrive');
+          $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_GDRIVE_FOLDER_ID=');
+          $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_URL=');
+          $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_S3_BUCKET');
+          // The migration database is fetched from the store but never pushed.
+          $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'vortex-push-db');
+      }),
+    ];
     yield 'migration_fetch_source_container_registry' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Migration::id()] = TRUE;

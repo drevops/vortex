@@ -21,6 +21,8 @@ class MigrationFetchSource extends AbstractHandler {
 
   const S3 = 's3';
 
+  const GDRIVE = 'gdrive';
+
   /**
    * {@inheritdoc}
    */
@@ -53,6 +55,7 @@ class MigrationFetchSource extends AbstractHandler {
       self::LAGOON => 'Lagoon environment',
       self::CONTAINER_REGISTRY => 'Container registry',
       self::S3 => 'S3 bucket',
+      self::GDRIVE => 'Google Drive',
     ];
 
     if (isset($responses[HostingProvider::id()])) {
@@ -130,6 +133,7 @@ class MigrationFetchSource extends AbstractHandler {
       self::LAGOON,
       self::CONTAINER_REGISTRY,
       self::S3,
+      self::GDRIVE,
     ];
 
     foreach ($types as $type) {
