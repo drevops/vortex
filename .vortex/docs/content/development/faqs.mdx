@@ -124,7 +124,7 @@ Turn Xdebug on in the containers, then start a debug session from your IDE:
        the command prints
        `Enabled debug configuration. Use 'ahoy up' to disable.` To check
        the state later, run `ahoy info`: its `Xdebug` line reads
-       `Enabled ('ahoy up cli' to disable)` while Xdebug is on.
+       `Enabled ('ahoy up' to disable)` while Xdebug is on.
     2. Turn on listening for incoming debug connections in your IDE.
     3. If your IDE asks for a server URL, give it the URL as it appears in
        the browser.
@@ -135,9 +135,7 @@ Turn Xdebug on in the containers, then start a debug session from your IDE:
 
     Use the same commands to debug CLI scripts.
 
-    To turn Xdebug off, run `ahoy up`. The `ahoy info` line suggests
-    `ahoy up cli` instead, but that command recreates only the `cli`
-    container, so web requests still run with Xdebug in the `php` container.
+    To turn Xdebug off, run `ahoy up`.
   </TabItem>
   <TabItem value="docker-compose" label="Docker Compose">
     1. Run `XDEBUG_ENABLE=true docker compose up -d cli php nginx`. To
