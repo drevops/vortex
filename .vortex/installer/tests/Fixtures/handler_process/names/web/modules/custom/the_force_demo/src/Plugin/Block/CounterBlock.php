@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace Drupal\the_force_demo\Plugin\Block;
 
+use Drupal\Core\Block\Attribute\Block;
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Provides a counter block with increment/decrement buttons.
- *
- * @Block(
- *   id = "the_force_demo_counter_block",
- *   admin_label = @Translation("Counter Block"),
- *   category = @Translation("YS Demo"),
- * )
  */
+#[Block(
+  id: 'the_force_demo_counter_block',
+  admin_label: new TranslatableMarkup('Counter Block'),
+  category: new TranslatableMarkup('YS Demo'),
+)]
 class CounterBlock extends BlockBase {
 
   /**
