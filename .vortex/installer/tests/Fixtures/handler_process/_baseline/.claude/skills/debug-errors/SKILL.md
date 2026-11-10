@@ -130,7 +130,7 @@ A failed provisioning leaves the site in maintenance mode. Turn it off with `aho
 Xdebug is off by default. See [Xdebug](https://www.vortextemplate.com/docs/development/environment/debugging#xdebug) for the IDE setup.
 
 - Turn it on with `ahoy debug`. It recreates the `cli`, `php` and `nginx` containers with `XDEBUG_ENABLE=true` and prints `Enabled debug configuration. Use 'ahoy up' to disable.`
-- Turn it off with `ahoy up`. The `Xdebug` line of `ahoy info` suggests `ahoy up cli`, but that recreates only `cli`, and web requests keep Xdebug in `php`.
+- Turn it off with `ahoy up`.
 - `XDEBUG_ENABLE=true` in `.env` or `.env.local` keeps Xdebug on for every `ahoy up`, so remove the line to turn it off for good.
 - Xdebug connects to port `9003` on `host.docker.internal`. The IDE listens on `9003` and maps the project root to `/app`.
 - Web requests start a session with the `XDEBUG_SESSION` cookie, which an Xdebug browser extension sets, or with `?XDEBUG_SESSION_START=1` in the URL.

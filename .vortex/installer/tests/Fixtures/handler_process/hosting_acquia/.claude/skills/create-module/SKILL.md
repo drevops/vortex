@@ -33,7 +33,7 @@
  - Put each plugin in the directory its manager scans, such as `src/Plugin/Block/` for blocks, and start its ID with the module name: `sw_base_latest_pages`.
  - Declare cache metadata on everything a plugin renders. Use the `debug-performance` skill when output stays stale or a page stops caching.
  
-@@ -79,7 +79,7 @@
+@@ -77,7 +77,7 @@
  
  - Put the module's default configuration in `config/install/`, and configuration that depends on another optional module in `config/optional/`. Drupal installs it once, when the module is installed. Existing sites receive later changes only through the exported configuration in `config/default` or through an update hook.
  - Describe every configuration item the module defines in `config/schema/sw_base.schema.yml`.
@@ -42,7 +42,7 @@
  - Export configuration changes with the `manage-config` skill.
  
  - When you add a settings file, add its assertions to the settings tests in `tests/phpunit/Drupal/`.
-@@ -134,7 +134,7 @@
+@@ -132,7 +132,7 @@
  - **Through configuration.** Once the project exports its configuration, `config/default/core.extension.yml` lists every enabled module. The configuration import during provisioning installs a newly listed module on every environment, production included, before the deploy hooks run. Export `core.extension` and the module's configuration with the `manage-config` skill. This is the path for any module production needs.
  - **Through a provision script.** The template ships `config/default` without configuration, so provisioning skips the import until the project exports it. Until then, modules come from the provision scripts: `scripts/provision-00-enable-demo-modules.sh` runs `drush pm:install` for the shipped modules. That script exits before installing anything in production, so a module installed only there never reaches production. To install a module on every environment before the configuration is exported, add your own `scripts/provision-<NN>-<name>.sh` with the environment checks it needs.
  
@@ -51,7 +51,7 @@
  
  ## Add tests
  
-@@ -144,7 +144,7 @@
+@@ -142,7 +142,7 @@
  - Run them with `ahoy test-unit`, `ahoy test-kernel`, `ahoy test-functional` and `ahoy test-functional-javascript`.
  - Use the `write-tests` skill to decide what to test and how.
  

@@ -7,7 +7,7 @@
  ## Inject services
  
  - Never call `\Drupal::` in a class. Services, hook classes, plugins, controllers and forms receive their dependencies through the constructor. `\Drupal::` is acceptable only in procedural files such as `.module`, `.install`, `.post_update.php` and `.deploy.php`, as the shipped modules use it.
-@@ -99,8 +97,6 @@
+@@ -97,8 +95,6 @@
  - Skip work by environment with `\Drupal\Core\Site\Settings::get('environment')` and the `ENVIRONMENT_*` constants that `settings.php` defines, such as `ENVIRONMENT_PROD`.
  - When an update hook changes configuration, export the same change to `config/default`. Otherwise, the configuration import that follows `updatedb` reverts it. Setting `VORTEX_PROVISION_VERIFY_CONFIG_UNCHANGED_AFTER_UPDATE=1` makes provisioning fail when that happens.
  - Process large data sets in passes through the `$sandbox` argument and `$sandbox['#finished']`.

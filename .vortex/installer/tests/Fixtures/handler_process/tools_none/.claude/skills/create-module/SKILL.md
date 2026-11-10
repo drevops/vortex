@@ -7,7 +7,7 @@
  ## Add plugins
  
  - Declare a plugin with its PHP attribute, never with a docblock annotation. A block plugin uses `#[Block(...)]` from `Drupal\Core\Block\Attribute\Block`. Find the attribute of any other plugin type in the `Attribute` namespace of the module that defines the type, such as `web/core/lib/Drupal/Core/Field/Attribute/` for field formatters and widgets.
-@@ -82,8 +80,6 @@
+@@ -80,8 +78,6 @@
  - Values that differ per environment go in a settings file, `web/sites/default/includes/modules/settings.sw_base.php`, which `settings.php` loads on its own. Read them from environment variables with the `DRUPAL_` prefix. See [Per-module overrides](https://www.vortextemplate.com/docs/development/settings#per-module-overrides).
  - Export configuration changes with the `manage-config` skill.
  
@@ -16,7 +16,7 @@
  ## Choose an update hook or a deploy hook
  
  | Hook                      | File                      | Run by                                           | Use for                                                                        |
-@@ -139,16 +135,6 @@
+@@ -137,16 +133,6 @@
  ## Add tests
  
  Read `docs/testing.md` for the testing conventions this project agreed on. Put each test where its tool collects it.

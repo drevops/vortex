@@ -64,8 +64,6 @@ Copy the keys from a shipped `.info.yml` file. `core_version_requirement: ^11` m
 - Put each plugin in the directory its manager scans, such as `src/Plugin/Block/` for blocks, and start its ID with the module name: `sw_base_latest_pages`.
 - Declare cache metadata on everything a plugin renders. Use the `debug-performance` skill when output stays stale or a page stops caching.
 
-- `CounterBlock` in `sw_demo` still declares its plugin with the `@Block` annotation. Don't copy that part.
-
 ## Add routes, controllers and forms
 
 - Define routes in `sw_base.routing.yml`, with names that start with `sw_base.`. Give every route a `requirements` entry, usually `_permission`. Use `_access: 'TRUE'` only for a route that is intentionally public.

@@ -7,7 +7,7 @@
  - `sw_demo` demonstrates the patterns: a block plugin with a library and a Twig template, deploy hooks and a view in `config/install`. Read it for examples, but never add production code to it, because projects remove the demo module.
  
  ## Name and place the module
-@@ -143,8 +141,6 @@
+@@ -141,8 +139,6 @@
  - Put PHP tests in the module's `tests/src/Unit`, `tests/src/Kernel`, `tests/src/Functional` and `tests/src/FunctionalJavascript` directories, with the namespace `Drupal\Tests\sw_base\<Type>`. `phpunit.xml` collects these directories from every custom module, so a new module needs no registration.
  - Run them with `ahoy test-unit`, `ahoy test-kernel`, `ahoy test-functional` and `ahoy test-functional-javascript`.
  - Use the `write-tests` skill to decide what to test and how.

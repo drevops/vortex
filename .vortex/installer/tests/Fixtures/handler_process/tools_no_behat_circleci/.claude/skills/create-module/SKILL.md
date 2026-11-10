@@ -1,4 +1,4 @@
-@@ -148,8 +148,6 @@
+@@ -146,8 +146,6 @@
  
  - Put JavaScript tests in the module's `js/` directory as `<name>.test.js`. `jest.config.js` collects the `js/` directory of every custom module. Run them with `ahoy test-js`.
  

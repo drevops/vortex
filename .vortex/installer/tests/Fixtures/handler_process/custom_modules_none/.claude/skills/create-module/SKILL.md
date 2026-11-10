@@ -18,16 +18,7 @@
  - `rector.php` skips `RemoveUnusedPublicMethodParameterRector` for `web/modules/custom/*/src/Hook/*`, so `ahoy lint-fix` keeps hook parameters that a method doesn't use. Keep the full hook signature.
  
  ## Add plugins
-@@ -64,8 +58,6 @@
- - Put each plugin in the directory its manager scans, such as `src/Plugin/Block/` for blocks, and start its ID with the module name: `sw_base_latest_pages`.
- - Declare cache metadata on everything a plugin renders. Use the `debug-performance` skill when output stays stale or a page stops caching.
- 
--- `CounterBlock` in `sw_demo` still declares its plugin with the `@Block` annotation. Don't copy that part.
--
- ## Add routes, controllers and forms
- 
- - Define routes in `sw_base.routing.yml`, with names that start with `sw_base.`. Give every route a `requirements` entry, usually `_permission`. Use `_access: 'TRUE'` only for a route that is intentionally public.
-@@ -143,8 +135,6 @@
+@@ -141,8 +135,6 @@
  - Put PHP tests in the module's `tests/src/Unit`, `tests/src/Kernel`, `tests/src/Functional` and `tests/src/FunctionalJavascript` directories, with the namespace `Drupal\Tests\sw_base\<Type>`. `phpunit.xml` collects these directories from every custom module, so a new module needs no registration.
  - Run them with `ahoy test-unit`, `ahoy test-kernel`, `ahoy test-functional` and `ahoy test-functional-javascript`.
  - Use the `write-tests` skill to decide what to test and how.

@@ -1,4 +1,4 @@
-@@ -82,8 +82,6 @@
+@@ -80,8 +80,6 @@
  - Values that differ per environment go in a settings file, `web/sites/default/includes/modules/settings.sw_base.php`, which `settings.php` loads on its own. Read them from environment variables with the `DRUPAL_` prefix. See [Per-module overrides](https://www.vortextemplate.com/docs/development/settings#per-module-overrides).
  - Export configuration changes with the `manage-config` skill.
  
@@ -7,7 +7,7 @@
  ## Choose an update hook or a deploy hook
  
  | Hook                      | File                      | Run by                                           | Use for                                                                        |
-@@ -139,12 +137,6 @@
+@@ -137,12 +135,6 @@
  ## Add tests
  
  Read `docs/testing.md` for the testing conventions this project agreed on. Put each test where its tool collects it.

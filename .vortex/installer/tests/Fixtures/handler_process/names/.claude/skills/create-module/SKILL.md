@@ -53,16 +53,13 @@
  
  - `rector.php` skips `RemoveUnusedPublicMethodParameterRector` for `web/modules/custom/*/src/Hook/*`, so `ahoy lint-fix` keeps hook parameters that a method doesn't use. Keep the full hook signature.
  
-@@ -61,15 +61,15 @@
+@@ -61,13 +61,13 @@
  ## Add plugins
  
  - Declare a plugin with its PHP attribute, never with a docblock annotation. A block plugin uses `#[Block(...)]` from `Drupal\Core\Block\Attribute\Block`. Find the attribute of any other plugin type in the `Attribute` namespace of the module that defines the type, such as `web/core/lib/Drupal/Core/Field/Attribute/` for field formatters and widgets.
 -- Put each plugin in the directory its manager scans, such as `src/Plugin/Block/` for blocks, and start its ID with the module name: `sw_base_latest_pages`.
 +- Put each plugin in the directory its manager scans, such as `src/Plugin/Block/` for blocks, and start its ID with the module name: `the_force_base_latest_pages`.
  - Declare cache metadata on everything a plugin renders. Use the `debug-performance` skill when output stays stale or a page stops caching.
- 
--- `CounterBlock` in `sw_demo` still declares its plugin with the `@Block` annotation. Don't copy that part.
-+- `CounterBlock` in `the_force_demo` still declares its plugin with the `@Block` annotation. Don't copy that part.
  
  ## Add routes, controllers and forms
  
@@ -73,7 +70,7 @@
  - Put controllers in `src/Controller/`, extending `ControllerBase` and returning render arrays. Put forms in `src/Form/`, extending `FormBase`, or `ConfigFormBase` for a settings form whose elements save through `#config_target`.
  - Change state only from a Form API form or from a route with `_csrf_token: 'TRUE'`.
  - Rebuild caches after changing routes, services or plugins: `ahoy drush cr`.
-@@ -78,8 +78,8 @@
+@@ -76,8 +76,8 @@
  ## Ship configuration with the module
  
  - Put the module's default configuration in `config/install/`, and configuration that depends on another optional module in `config/optional/`. Drupal installs it once, when the module is installed. Existing sites receive later changes only through the exported configuration in `config/default` or through an update hook.
@@ -84,7 +81,7 @@
  - Export configuration changes with the `manage-config` skill.
  
  - When you add a settings file, add its assertions to the settings tests in `tests/phpunit/Drupal/`.
-@@ -88,11 +88,11 @@
+@@ -86,11 +86,11 @@
  
  | Hook                      | File                      | Run by                                           | Use for                                                                        |
  |---------------------------|---------------------------|--------------------------------------------------|--------------------------------------------------------------------------------|
@@ -100,7 +97,7 @@
  - Drupal records the latest update number when it installs a module and marks the module's post-update hooks as run. Neither runs on a new install, so do the same work in `hook_install()` when a fresh install needs it.
  - Drush runs each deploy hook once per environment and records its name in the `deploy_hook` key-value store. Every deploy hook of a newly installed module runs on the next `drush deploy:hook`. Never rename a deploy hook that has run anywhere, because the new name runs again.
  - Make every deploy hook safe to run on a site where its work already exists: load the block, link or entity before you create it, and return early when it exists. Return a message for Drush to print.
-@@ -127,7 +127,7 @@
+@@ -125,7 +125,7 @@
  
  ## Enable the module on every environment
  
@@ -109,7 +106,7 @@
  2. Confirm it is enabled: `ahoy drush pm:list --type=module --status=enabled`
  3. Choose how the other environments install it, from the 2 options below.
  
-@@ -140,11 +140,11 @@
+@@ -138,11 +138,11 @@
  
  Read `docs/testing.md` for the testing conventions this project agreed on. Put each test where its tool collects it.
  
