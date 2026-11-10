@@ -92,11 +92,15 @@ class HostingProvider extends AbstractHandler {
       File::removeTokenAsync('!HOSTING_ACQUIA');
       File::removeTokenAsync('!SETTINGS_PROVIDER_ACQUIA');
 
+      $this->setFilesFetchSource(self::ACQUIA);
+
       $this->removeLagoon();
     }
     elseif ($v === self::LAGOON) {
       File::removeTokenAsync('!HOSTING_LAGOON');
       File::removeTokenAsync('!SETTINGS_PROVIDER_LAGOON');
+
+      $this->setFilesFetchSource(self::LAGOON);
 
       $this->removeAcquia();
 
@@ -114,6 +118,12 @@ class HostingProvider extends AbstractHandler {
 
       File::remove(sprintf('%s/%s/.htaccess', $t, $w));
     }
+  }
+
+  protected function setFilesFetchSource(string $source): void {
+    Env::writeValueDotenv('VORTEX_FETCH_FILES_SOURCE', $source, $this->tmpDir . '/.env');
+
+    File::removeTokenAsync('FILES_FETCH_SOURCE_URL');
   }
 
   protected function removeAcquia(): void {

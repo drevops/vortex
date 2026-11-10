@@ -17,16 +17,24 @@ class HostingProviderHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[HostingProvider::id()] = HostingProvider::ACQUIA;
           $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
-      // Cannot assert for the full absence of 'lagoon' since we use Lagoon
-      // images for local and CI even with Acquia.
-      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('lagoon_')),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          // Cannot assert for the full absence of 'lagoon' since we use Lagoon
+          // images for local and CI even with Acquia.
+          $test->assertSutNotContains('lagoon_');
+          $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_FILES_SOURCE=acquia');
+          $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_FILES_URL');
+      }),
     ];
     yield 'hosting_lagoon' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[HostingProvider::id()] = HostingProvider::LAGOON;
           $test->prompts[AiCodeInstructions::id()] = TRUE;
       }),
-      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('acquia')),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertSutNotContains('acquia');
+          $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_FILES_SOURCE=lagoon');
+          $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_FILES_URL');
+      }),
     ];
   }
 
