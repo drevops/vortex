@@ -64,6 +64,13 @@ jobs:
         VORTEX_CI_DB_CACHE_FALLBACK: "yes"
         # Which branch to use as a source of DB caches.
         VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
+        #;< DB_FETCH_SOURCE_S3
+        VORTEX_FETCH_DB_S3_ACCESS_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_ACCESS_KEY }}
+        VORTEX_FETCH_DB_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_SECRET_KEY }}
+        #;> DB_FETCH_SOURCE_S3
+        #;< DB_FETCH_SOURCE_GDRIVE
+        VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY: ${{ secrets.VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY }}
+        #;> DB_FETCH_SOURCE_GDRIVE
         VORTEX_FETCH_DB_SOURCE: url
         VORTEX_FETCH_DB_FORCE: 1
         VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
@@ -129,6 +136,10 @@ jobs:
             # Deploy container image.
             echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
             #;> DB_IN_IMAGE
+            #;< DB_PUSH
+            # Refresh the database dump in the database fetch source.
+            echo "VORTEX_PUSH_DB_PROCEED=1"
+            #;> DB_PUSH
           } >> "$GITHUB_ENV"
 
       - name: Create cache keys files for database caching
@@ -190,6 +201,17 @@ jobs:
           ./vendor/bin/vortex-push-db-image
         timeout-minutes: 30
       #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
+
+      #;< DB_PUSH
+      # Push the freshly-exported sanitized database dump to the database fetch
+      # source. No-op unless a fresh DB was fetched (the fetch semaphore) and the
+      # push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
+      - name: Push DB
+        run: |
+          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
+          ./vendor/bin/vortex-push-db
+        timeout-minutes: 30
+      #;> DB_PUSH
 
       # Save cache per default branch and the timestamp.
       # The cache will not be saved if it already exists.
@@ -570,6 +592,13 @@ jobs:
         VORTEX_CI_DB_CACHE_FALLBACK: "yes"
         # Which branch to use as a source of DB caches.
         VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii
+        #;< DB_FETCH_SOURCE_S3
+        VORTEX_FETCH_DB_S3_ACCESS_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_ACCESS_KEY }}
+        VORTEX_FETCH_DB_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_SECRET_KEY }}
+        #;> DB_FETCH_SOURCE_S3
+        #;< DB_FETCH_SOURCE_GDRIVE
+        VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY: ${{ secrets.VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY }}
+        #;> DB_FETCH_SOURCE_GDRIVE
         VORTEX_FETCH_DB_SOURCE: container_registry
         VORTEX_FETCH_DB_FORCE: 1
         VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
@@ -634,6 +663,10 @@ jobs:
             # Deploy container image.
             echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
             #;> DB_IN_IMAGE
+            #;< DB_PUSH
+            # Refresh the database dump in the database fetch source.
+            echo "VORTEX_PUSH_DB_PROCEED=1"
+            #;> DB_PUSH
           } >> "$GITHUB_ENV"
 
       - name: Create cache keys files for database caching
@@ -714,6 +747,17 @@ jobs:
           ./vendor/bin/vortex-push-db-image
         timeout-minutes: 30
       #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
+
+      #;< DB_PUSH
+      # Push the freshly-exported sanitized database dump to the database fetch
+      # source. No-op unless a fresh DB was fetched (the fetch semaphore) and the
+      # push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
+      - name: Push DB
+        run: |
+          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
+          ./vendor/bin/vortex-push-db
+        timeout-minutes: 30
+      #;> DB_PUSH
 
       # Save cache per default branch and the timestamp.
       # The cache will not be saved if it already exists.

@@ -375,9 +375,14 @@ following values:
 - `container_registry`: a database container image, pulled instead of a
   file
 - `s3`: a file in an S3 bucket
+- `gdrive`: a file in a Google Drive folder
 - `none`: no source; you put the dump into `.data` yourself
 
 Any other value stops the command with an error that lists these values.
+
+The nightly CI run can refresh an `s3` or `gdrive` source with a sanitized
+dump from your hosting. See [Push the sanitized database to a dump
+store](../continuous-integration/README.mdx#push-the-sanitized-database-to-a-dump-store).
 
 Each source reads its own settings, which the
 [Variables reference](variables.mdx) lists. The hosting sources copy the
