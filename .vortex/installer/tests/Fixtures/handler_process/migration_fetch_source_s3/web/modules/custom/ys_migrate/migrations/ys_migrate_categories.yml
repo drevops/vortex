@@ -17,8 +17,8 @@ source:
 
 process:
   name: name
-  description__value: description
-  description__format:
+  description/value: description
+  description/format:
     plugin: default_value
     default_value: plain_text
   vid:

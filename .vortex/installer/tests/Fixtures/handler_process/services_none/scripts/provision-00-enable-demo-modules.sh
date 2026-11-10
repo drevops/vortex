@@ -19,7 +19,7 @@
  #
  # Note that deployment hooks for already enabled modules have run in the
 @@ -85,8 +72,6 @@
- # parent "provision.sh" script.
+ # parent "vortex-provision" script.
  task "Installing custom site modules."
  drush pm:install sw_base
 -
