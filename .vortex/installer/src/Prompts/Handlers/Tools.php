@@ -481,7 +481,7 @@ class Tools extends AbstractHandler {
         'ahoy' => [
           '/^.*phpunit.*\n?/m',
           'ahoy test',
-          '/^\h*test:\R\h*usage:\h*usage: Run all PHPUnit tests\.$/um',
+          '/^\h*test:\R\h*usage:\h*Run all PHPUnit tests\.$/um',
           'ahoy test-unit',
           '/^\h*test-unit:\R\h*usage:\h*Run PHPUnit unit tests\.$/um',
           'ahoy test-kernel',
