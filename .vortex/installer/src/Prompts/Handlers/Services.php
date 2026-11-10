@@ -154,7 +154,6 @@ class Services extends AbstractHandler {
     if (!in_array(self::SOLR, $v)) {
       File::remove($t . '/.docker/config/solr');
       File::remove($t . '/.docker/solr.dockerfile');
-      File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.solr.php');
       File::remove($t . '/tests/behat/features/search.feature');
       File::remove($t . '/scripts/provision-30-search-index.sh');
       File::remove($t . '/.claude/skills/configure-search');
