@@ -1,18 +1,27 @@
-@@ -14,24 +14,20 @@
+@@ -14,7 +14,6 @@
          "drupal/config_update": "__VERSION__",
          "drupal/core-composer-scaffold": "__VERSION__",
          "drupal/core-recommended": "__VERSION__",
 -        "drupal/devel": "__VERSION__",
+         "drupal/diff": "__VERSION__",
          "drupal/drupal_helpers": "__VERSION__",
+         "drupal/entity_usage": "__VERSION__",
+@@ -21,7 +20,6 @@
          "drupal/environment_indicator": "__VERSION__",
          "drupal/fast_404": "__VERSION__",
+         "drupal/field_group": "__VERSION__",
 -        "drupal/generated_content": "__VERSION__",
-         "drupal/navigation_extra_tools": "__VERSION__",
+         "drupal/gin": "__VERSION__",
+         "drupal/linkit": "__VERSION__",
+         "drupal/menu_trail_by_path": "__VERSION__",
+@@ -30,17 +28,15 @@
          "drupal/pathauto": "__VERSION__",
          "drupal/redirect": "__VERSION__",
          "drupal/redis": "__VERSION__",
 -        "drupal/reroute_email": "__VERSION__",
          "drupal/robotstxt": "__VERSION__",
+         "drupal/scheduled_transitions": "__VERSION__",
+         "drupal/schema_metatag": "__VERSION__",
 -        "drupal/sdc_devel": "__VERSION__",
          "drupal/search_api": "__VERSION__",
          "drupal/search_api_solr": "__VERSION__",
@@ -21,6 +30,6 @@
          "drupal/stage_file_proxy": "__VERSION__",
 -        "drupal/testmode": "__VERSION__",
 +        "drupal/storybook": "__VERSION__",
+         "drupal/views_bulk_operations": "__VERSION__",
          "drupal/xmlsitemap": "__VERSION__",
          "drush/drush": "__VERSION__"
-     },

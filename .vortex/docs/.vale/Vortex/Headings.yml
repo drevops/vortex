@@ -14,14 +14,17 @@ exceptions+:
   - CSS
   - DOM
   - Drupal Helpers
+  - Entity Usage
   - FAQs
   - FeatureContext
+  - Field Group
   - Generated Content
   - Gherkin Lint
   - Git
   - GitFlow
   - GPG
   - JavaScript
+  - Menu Trail By Path
   - Migrate Plus
   - Migrate Tools
   - Navigation Extra Tools
@@ -32,6 +35,8 @@ exceptions+:
   - PRs
   - Reroute Email
   - RobotsTxt
+  - Scheduled Transitions
+  - Schema.org Metatag
   - SDC Devel
   - Security Kit
   - SemVer
@@ -39,6 +44,7 @@ exceptions+:
   - SSH
   - Stage File Proxy
   - Twig CS Fixer
+  - Views Bulk Operations
   - vs
   - www.vortextemplate.com
   - XML Sitemap

@@ -1,6 +1,6 @@
-@@ -20,7 +20,6 @@
-         "drupal/fast_404": "__VERSION__",
-         "drupal/generated_content": "__VERSION__",
+@@ -27,7 +27,6 @@
+         "drupal/menu_trail_by_path": "__VERSION__",
+         "drupal/metatag": "__VERSION__",
          "drupal/navigation_extra_tools": "__VERSION__",
 -        "drupal/pathauto": "__VERSION__",
          "drupal/redirect": "__VERSION__",

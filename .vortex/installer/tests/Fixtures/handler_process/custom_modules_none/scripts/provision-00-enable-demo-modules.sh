@@ -16,7 +16,7 @@
  task "Setting site name."
  drush php:eval "\Drupal::service('config.factory')->getEditable('system.site')->set('name', 'star wars')->save();"
  pass "Set site name."
-@@ -84,11 +73,7 @@
+@@ -89,11 +78,7 @@
  # Note that deployment hooks for already enabled modules have run in the
  # parent "provision.sh" script.
  task "Installing custom site modules."

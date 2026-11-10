@@ -6,13 +6,16 @@
          "drupal/coffee": "__VERSION__",
          "drupal/config_split": "__VERSION__",
          "drupal/config_update": "__VERSION__",
-@@ -22,12 +21,10 @@
+@@ -29,7 +28,6 @@
          "drupal/navigation_extra_tools": "__VERSION__",
          "drupal/pathauto": "__VERSION__",
          "drupal/redirect": "__VERSION__",
 -        "drupal/redis": "__VERSION__",
          "drupal/reroute_email": "__VERSION__",
          "drupal/robotstxt": "__VERSION__",
+         "drupal/scheduled_transitions": "__VERSION__",
+@@ -36,7 +34,6 @@
+         "drupal/schema_metatag": "__VERSION__",
          "drupal/sdc_devel": "__VERSION__",
          "drupal/search_api": "__VERSION__",
 -        "drupal/search_api_solr": "__VERSION__",

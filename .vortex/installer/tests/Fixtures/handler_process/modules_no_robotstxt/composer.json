@@ -1,8 +1,8 @@
-@@ -24,7 +24,6 @@
+@@ -31,7 +31,6 @@
          "drupal/redirect": "__VERSION__",
          "drupal/redis": "__VERSION__",
          "drupal/reroute_email": "__VERSION__",
 -        "drupal/robotstxt": "__VERSION__",
+         "drupal/scheduled_transitions": "__VERSION__",
+         "drupal/schema_metatag": "__VERSION__",
          "drupal/sdc_devel": "__VERSION__",
-         "drupal/search_api": "__VERSION__",
-         "drupal/search_api_solr": "__VERSION__",

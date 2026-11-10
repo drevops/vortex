@@ -1,6 +1,6 @@
-@@ -66,19 +66,6 @@
- drush pm:install coffee config_split config_update media environment_indicator navigation_extra_tools pathauto redirect robotstxt shield stage_file_proxy xmlsitemap
- pass "Installed contrib modules."
+@@ -71,19 +71,6 @@
+ drush config:set system.theme admin gin
+ pass "Set Gin as the administration theme."
  
 -task "Installing Redis module."
 -drush pm:install redis || true
@@ -18,7 +18,7 @@
  # Enable custom site module and run its deployment hooks.
  #
  # Note that deployment hooks for already enabled modules have run in the
-@@ -85,8 +72,6 @@
+@@ -90,8 +77,6 @@
  # parent "provision.sh" script.
  task "Installing custom site modules."
  drush pm:install sw_base
