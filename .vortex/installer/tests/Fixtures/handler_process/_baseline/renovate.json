@@ -16,7 +16,7 @@
     "commitBodyTable": true,
     "rangeStrategy": "bump",
     "constraints": {
-        "composer": "2.10.*"
+        "composer": "2.11.*"
     },
     "timezone": "UTC",
     "configMigration": true,

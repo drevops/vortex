@@ -1,6 +1,6 @@
 @@ -18,7 +18,7 @@
      "constraints": {
-         "composer": "2.10.*"
+         "composer": "2.11.*"
      },
 -    "timezone": "UTC",
 +    "timezone": "America/New_York",
