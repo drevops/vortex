@@ -7,14 +7,17 @@
  
  - Extend an existing module when the code belongs to the feature that module already owns.
  - Create a new module for a new feature with its own configuration, routes or dependencies, so the feature can be enabled, disabled and removed on its own.
-@@ -26,7 +26,7 @@
+@@ -26,9 +26,9 @@
  
  ## Name and place the module
  
 -- Create the module in `web/modules/custom/<prefix>_<feature>/`. The directory, the `.info.yml` file and every other file name start with the machine name.
 +- Create the module in `docroot/modules/custom/<prefix>_<feature>/`. The directory, the `.info.yml` file and every other file name start with the machine name.
  - Use lowercase letters, digits and underscores, at most 50 characters. Drupal refuses to install a longer name.
- - Every custom module shares 1 prefix, `ys` in the template, which the installer replaced with the project's own. Read it from an existing `*_base`, `*_demo` or `*_search` directory. When none exists, ask the developer.
+-- Every custom module shares 1 prefix, `ys` in the template, which the installer replaced with the project's own. Read it from the start of an existing module directory name in `web/modules/custom/`. When none exists, ask the developer.
++- Every custom module shares 1 prefix, `ys` in the template, which the installer replaced with the project's own. Read it from the start of an existing module directory name in `docroot/modules/custom/`. When none exists, ask the developer.
+ 
+ ## Write the info file
  
 @@ -56,11 +56,11 @@
  

@@ -28,7 +28,7 @@ List the custom modules first: `ls web/modules/custom`.
 
 - Create the module in `web/modules/custom/<prefix>_<feature>/`. The directory, the `.info.yml` file and every other file name start with the machine name.
 - Use lowercase letters, digits and underscores, at most 50 characters. Drupal refuses to install a longer name.
-- Every custom module shares 1 prefix, `ys` in the template, which the installer replaced with the project's own. Read it from an existing `*_base`, `*_demo` or `*_search` directory. When none exists, ask the developer.
+- Every custom module shares 1 prefix, `ys` in the template, which the installer replaced with the project's own. Read it from the start of an existing module directory name in `web/modules/custom/`. When none exists, ask the developer.
 
 ## Write the info file
 
