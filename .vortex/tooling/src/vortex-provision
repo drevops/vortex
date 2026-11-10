@@ -241,7 +241,11 @@ provision_from_profile() {
   # A fallback install has no real content or configuration, so Shield
   # protects the site and post-provision operations are skipped.
   if [ "${is_fallback}" = "1" ]; then
-    drush pm:install shield
+    if [ -d "${WEBROOT}/modules/contrib/shield" ]; then
+      drush pm:install shield
+    else
+      note "Shield is not available, so the site is not protected."
+    fi
     export VORTEX_PROVISION_POST_OPERATIONS_SKIP=1
   fi
 
