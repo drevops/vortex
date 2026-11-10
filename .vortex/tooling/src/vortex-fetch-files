@@ -45,7 +45,7 @@ case "${VORTEX_FETCH_FILES_SOURCE}" in
 esac
 
 if [ -z "${fetch_script}" ]; then
-  pass "Skipped fetching as VORTEX_FETCH_FILES_SOURCE is set to \"none\"."
+  pass 'Skipped fetching as VORTEX_FETCH_FILES_SOURCE is set to "none".'
   exit 0
 fi
 

@@ -75,6 +75,7 @@ load ../_helper.bash
   )
 
   export VORTEX_FETCH_FILES_LAGOON_PROJECT="testproject"
+  export VORTEX_FETCH_FILES_ENVIRONMENT="main"
   export VORTEX_FETCH_FILES_LAGOON_SSH_HOST="ssh.example.com"
   export VORTEX_FETCH_FILES_LAGOON_SSH_PORT="2020"
   export VORTEX_FETCH_FILES_LAGOON_SSH_USER="custom-user"
