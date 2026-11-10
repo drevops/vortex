@@ -122,6 +122,9 @@ Watch GitHub Actions via `gh pr checks <PR>` and CircleCI via the PR link.
   ci-runner image but pinned in project configs: `composer.json`
   `config.platform.php`, `phpstan.neon` `phpVersion`, `phpcs.xml`
   `testVersion`).
+- **Composer minor bump** in canary: `composer validate --strict` reports
+  "The lock file is not up to date" for a lock written by the previous
+  minor. Update `constraints.composer` in `renovate.json` in Phase 2.
 - A tool removed from the canary image.
 - Cache key issues (rare: cache keys are tied to Lagoon versions, not
   ci-runner).
@@ -171,7 +174,22 @@ with:
 drevops/ci-runner:<NEW_VERSION>@sha256:<NEW_HASH>
 ```
 
-### 3. Commit and push on the same branch
+### 3. Match Renovate's Composer version
+
+Renovate writes `composer.lock` with the Composer version set in
+`constraints.composer` in `renovate.json`. CI validates the lock with the
+Composer in the image. Composer minor versions can compute `content-hash`
+differently, so the 2 must share a minor version.
+
+```bash
+docker run --rm drevops/ci-runner:<NEW_VERSION> composer --version
+```
+
+If the minor version differs from `constraints.composer` (for example, the
+image reports `2.11.1` and the constraint is `2.10.*`), set the constraint
+to the new minor (`2.11.*`) in the same commit as the image update.
+
+### 4. Commit and push on the same branch
 
 ```bash
 git commit -m "Updated 'drevops/ci-runner' to '<NEW_VERSION>'."
@@ -181,7 +199,7 @@ git commit -m "Updated 'drevops/ci-runner' to '<NEW_VERSION>'."
 git push
 ```
 
-### 4. Update PR metadata
+### 5. Update PR metadata
 
 ```bash
 gh pr edit <PR> --title "Updated 'drevops/ci-runner' to '<NEW_VERSION>'."
@@ -189,7 +207,7 @@ gh pr edit <PR> --title "Updated 'drevops/ci-runner' to '<NEW_VERSION>'."
 
 Add a comment summarising the canary -> release transition.
 
-### 5. Monitor CI
+### 6. Monitor CI
 
 Same as Phase 1 Step 6. On success:
 

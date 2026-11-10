@@ -15,6 +15,9 @@
     "prHourlyLimit": 0,
     "commitBodyTable": true,
     "rangeStrategy": "bump",
+    "constraints": {
+        "composer": "2.10.*"
+    },
     "timezone": "UTC",
     "configMigration": true,
     "internalChecksFilter": "strict",
