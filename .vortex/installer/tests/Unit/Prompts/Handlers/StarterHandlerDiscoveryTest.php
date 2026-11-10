@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Prompts\Handlers\Starter;
 use DrevOps\VortexInstaller\Utils\Config;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Starter::class)]
@@ -16,15 +15,15 @@ class StarterHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
   public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
     yield 'starter - prompt' => [
-      [Starter::id() => Key::ENTER],
+      [Starter::id() => self::KEY_ENTER],
       [Starter::id() => Starter::LOAD_DATABASE_DEMO] + $expected_defaults,
     ];
     yield 'starter - prompt - Drupal profile' => [
-      [Starter::id() => Key::DOWN . Key::ENTER],
+      [Starter::id() => self::KEY_DOWN . self::KEY_ENTER],
       [Starter::id() => Starter::INSTALL_PROFILE_CORE] + $expected_defaults,
     ];
     yield 'starter - prompt - Drupal CMS profile' => [
-      [Starter::id() => Key::DOWN . Key::DOWN . Key::ENTER],
+      [Starter::id() => self::KEY_DOWN . self::KEY_DOWN . self::KEY_ENTER],
       [
         Starter::id() => Starter::INSTALL_PROFILE_DRUPALCMS,
         Profile::id() => Starter::INSTALL_PROFILE_DRUPALCMS_PATH,

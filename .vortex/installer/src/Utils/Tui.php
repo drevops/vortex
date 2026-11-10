@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Utils;
 
-use Laravel\Prompts\Prompt;
-use Laravel\Prompts\Terminal;
+use AlexSkrypnyk\Prompty\Prompty;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableStyle;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use function Laravel\Prompts\confirm;
-use function Laravel\Prompts\error;
-use function Laravel\Prompts\info;
-use function Laravel\Prompts\intro;
-use function Laravel\Prompts\note;
-use function Laravel\Prompts\table;
+use Symfony\Component\Console\Terminal;
 
 class Tui {
 
@@ -26,15 +23,16 @@ class Tui {
     self::$output = $output;
     self::$isInteractive = $is_interactive;
 
-    // Symfony console styles are not used here because Laravel Prompts does
-    // not correctly calculate the length of strings with style tags, which
-    // breaks the layout. Instead, helpers in this class apply ANSI escape
-    // codes directly.
-    Prompt::setOutput($output);
-
-    if (!$is_interactive) {
-      Prompt::interactive(FALSE);
-    }
+    // The writer reads the output on each call, so a replacement set with
+    // setOutput() receives the prompts too. Raw output keeps the prompt frames
+    // away from the console formatter.
+    Prompty::configure(
+      unicode: TRUE,
+      ansi: $output->isDecorated(),
+      output: fn(string $chunk) => self::$output->write($chunk, FALSE, OutputInterface::OUTPUT_RAW),
+      interactive: $is_interactive,
+      placeholder_fallback: FALSE,
+    );
   }
 
   public static function output(): OutputInterface {
@@ -46,23 +44,25 @@ class Tui {
 
   public static function setOutput(OutputInterface $output): void {
     self::$output = $output;
-    Prompt::setOutput($output);
   }
 
   public static function info(string $message): void {
-    intro($message);
+    $lines = array_map(fn(string $line): string => ' ' . $line . ' ', explode(PHP_EOL, $message));
+    $longest = max(array_map(mb_strlen(...), $lines));
+
+    self::block(array_map(fn(string $line): string => " \033[46m\033[30m" . mb_str_pad($line, $longest) . "\033[39m\033[49m", $lines));
   }
 
   public static function note(string $message): void {
-    note($message);
+    self::block(array_map(fn(string $line): string => ' ' . $line, explode(PHP_EOL, $message)));
   }
 
   public static function success(string $message): void {
-    info($message);
+    self::block(array_map(fn(string $line): string => "\033[32m " . $line . "\033[39m", explode(PHP_EOL, $message)));
   }
 
   public static function error(string $message): void {
-    error('✕ ' . $message);
+    self::block(array_map(fn(string $line): string => "\033[31m " . $line . "\033[39m", explode(PHP_EOL, '✕ ' . $message)));
   }
 
   public static function confirm(string $label, bool $default = TRUE, ?string $hint = NULL): bool {
@@ -70,11 +70,8 @@ class Tui {
       return $default;
     }
 
-    return confirm(
-      label: $label,
-      default: $default,
-      hint: $hint ?? '',
-    );
+    // A cancelled prompt answers NULL, which declines.
+    return (bool) Prompty::confirm($label, default: $default, help: $hint ?? '');
   }
 
   public static function line(string $message, int $padding = 1): void {
@@ -190,8 +187,8 @@ class Tui {
       $rows[] = [$key, $value];
     }
 
-    intro(PHP_EOL . self::normalizeText($title) . PHP_EOL);
-    table($header, $rows);
+    self::info(PHP_EOL . self::normalizeText($title) . PHP_EOL);
+    self::table($header, $rows);
   }
 
   public static function box(string $content, ?string $title = NULL, ?int $width = NULL): void {
@@ -212,7 +209,46 @@ class Tui {
 
     $rows[] = [$content];
 
-    table([], $rows);
+    self::table([], $rows);
+  }
+
+  /**
+   * Render rows as a bordered table with a 1-column margin.
+   *
+   * @param array<int, string> $header
+   *   Header cells. An empty header draws no header row.
+   * @param array<int, array<int, string>> $rows
+   *   Table rows.
+   */
+  public static function table(array $header, array $rows): void {
+    $style = (new TableStyle())
+      ->setHorizontalBorderChars('─')
+      ->setVerticalBorderChars('│', '│')
+      ->setCellHeaderFormat("\033[2m<fg=default>%s</>\033[22m")
+      ->setCellRowFormat('<fg=default>%s</>');
+
+    if (empty($header)) {
+      $style->setCrossingChars('┼', '<fg=gray>┌', '┬', '┐', '┤', '┘</>', '┴', '└', '├', '<fg=gray>┌', '┬', '┐');
+    }
+    else {
+      $style->setCrossingChars('┼', '<fg=gray>┌', '┬', '┐', '┤', '┘</>', '┴', '└', '├');
+    }
+
+    $buffered = new BufferedOutput(OutputInterface::VERBOSITY_NORMAL, self::output()->isDecorated());
+
+    (new Table($buffered))->setHeaders($header)->setRows($rows)->setStyle($style)->render();
+
+    self::block(array_map(fn(string $line): string => ' ' . $line, explode(PHP_EOL, trim($buffered->fetch(), PHP_EOL))));
+  }
+
+  /**
+   * Write lines as a block separated from the output around it.
+   *
+   * @param array<int, string> $lines
+   *   Lines to write.
+   */
+  protected static function block(array $lines): void {
+    self::output()->write(PHP_EOL . implode('', array_map(fn(string $line): string => $line . PHP_EOL, $lines)) . PHP_EOL);
   }
 
   public static function center(string $text, int $width = 80, ?string $border = NULL): string {
@@ -244,7 +280,7 @@ class Tui {
   }
 
   public static function terminalWidth(int $max = 100): int {
-    return min($max, max(20, (new Terminal())->cols()));
+    return min($max, max(20, (new Terminal())->getWidth()));
   }
 
   public static function normalizeText(string $text): string {

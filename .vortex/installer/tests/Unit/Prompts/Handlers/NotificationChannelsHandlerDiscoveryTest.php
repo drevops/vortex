@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\NotificationChannels;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(NotificationChannels::class)]
@@ -17,7 +16,7 @@ class NotificationChannelsHandlerDiscoveryTest extends AbstractHandlerDiscoveryT
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'notification channels - prompt' => [
-      [NotificationChannels::id() => Key::ENTER],
+      [NotificationChannels::id() => self::KEY_ENTER],
       $expected_defaults,
     ];
     yield 'notification channels - discovery - email only' => [

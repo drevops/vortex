@@ -199,7 +199,11 @@ EOF
       Tui::line(Tui::dim('Press any key to continue...'));
       Tui::getChar();
 
-      $this->promptManager->runPrompts();
+      if (!$this->promptManager->runPrompts()) {
+        Tui::info('Aborting project installation. No files were changed.');
+
+        return Command::FAILURE;
+      }
 
       Tui::list($this->promptManager->getResponsesSummary(), 'Installation summary');
 

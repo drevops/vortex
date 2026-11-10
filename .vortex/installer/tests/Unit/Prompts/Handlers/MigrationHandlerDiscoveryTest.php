@@ -10,7 +10,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Yaml;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Migration::class)]
@@ -20,19 +19,19 @@ class MigrationHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'migration - prompt - disabled' => [
-      [Migration::id() => Key::ENTER],
+      [Migration::id() => self::KEY_ENTER],
       [Migration::id() => FALSE] + $expected_defaults,
     ];
     yield 'migration - prompt - enabled' => [
       [
-        Migration::id() => Key::LEFT . Key::ENTER,
-        MigrationFetchSource::id() => Key::ENTER,
+        Migration::id() => self::KEY_LEFT . self::KEY_ENTER,
+        MigrationFetchSource::id() => self::KEY_ENTER,
       ],
       [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::URL] + $expected_defaults,
     ];
     yield 'migration - discovery - database2 exists' => [
       [
-        MigrationFetchSource::id() => Key::ENTER,
+        MigrationFetchSource::id() => self::KEY_ENTER,
       ],
       [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::URL] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {

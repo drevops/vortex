@@ -33,7 +33,7 @@ together with the installer logic that handles it, so the 2 stay in step.
 The installer is written in PHP because it touches many parts of the
 template and has to manage every permutation of the template's variants.
 PHP also gives it a terminal UI through
-[Laravel Prompts](https://github.com/laravel/prompts), which asks the
+[Prompty](https://github.com/AlexSkrypnyk/prompty), which asks the
 questions 1 at a time. With `--no-interaction`, it asks nothing at all: it
 installs and updates projects unattended, which suits automated pipelines
 and CI environments.

@@ -26,6 +26,7 @@ PHPCS
 PHPStan
 PHPUnit
 PhpStorm
+Prompty
 Pygmy
 Rector
 Renovate

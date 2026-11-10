@@ -6,7 +6,6 @@ namespace DrevOps\VortexInstaller\Task;
 
 use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Tui;
-use function Laravel\Prompts\spin;
 
 class Task {
 
@@ -50,8 +49,7 @@ class Task {
       Tui::setOutput($original_output);
     }
     else {
-      // @phpstan-ignore-next-line
-      $return = spin($action, Tui::yellow($label));
+      $return = self::spin($action, Tui::yellow($label));
       self::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Strings::isAsciiStart($label) ? 2 : 3);
     }
 
@@ -65,6 +63,29 @@ class Task {
     }
 
     return $return;
+  }
+
+  /**
+   * Show the label while the action runs, then erase it.
+   *
+   * @param \Closure $action
+   *   The action to run.
+   * @param string $label
+   *   The label to show while the action runs.
+   *
+   * @return mixed
+   *   The value the action returns.
+   */
+  protected static function spin(\Closure $action, string $label): mixed {
+    Tui::output()->write(PHP_EOL . ' ' . Tui::cyan('⠂') . ' ' . $label . PHP_EOL);
+
+    try {
+      return $action();
+    }
+    finally {
+      // Move to the start of the blank line above the label and clear down.
+      Tui::output()->write("\033[999D\033[2A\033[J");
+    }
   }
 
   protected static function label(string $message, ?string $hint = NULL, ?array $sublist = NULL, int $sublist_indent = 3): void {

@@ -8,7 +8,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(AssignAuthorPr::class)]
@@ -19,7 +18,7 @@ class PullRequestHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'auto assign pr - prompt' => [
-      [AssignAuthorPr::id() => Key::ENTER],
+      [AssignAuthorPr::id() => self::KEY_ENTER],
       [AssignAuthorPr::id() => TRUE] + $expected_defaults,
     ];
     yield 'auto assign pr - discovery' => [
@@ -52,7 +51,7 @@ class PullRequestHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       },
     ];
     yield 'label merge conflicts - prompt' => [
-      [LabelMergeConflictsPr::id() => Key::ENTER],
+      [LabelMergeConflictsPr::id() => self::KEY_ENTER],
       [LabelMergeConflictsPr::id() => TRUE] + $expected_defaults,
     ];
     yield 'label merge conflicts - discovery' => [

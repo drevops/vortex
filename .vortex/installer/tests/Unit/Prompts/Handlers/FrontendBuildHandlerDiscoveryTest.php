@@ -8,7 +8,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\FrontendBuild;
 use DrevOps\VortexInstaller\Prompts\Handlers\Storybook;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Utils\Config;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(FrontendBuild::class)]
@@ -25,11 +24,11 @@ class FrontendBuildHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
     $expected_defaults_core[Storybook::id()] = NULL;
 
     yield 'frontend build - prompt' => [
-      [FrontendBuild::id() => Key::ENTER],
+      [FrontendBuild::id() => self::KEY_ENTER],
       [FrontendBuild::id() => TRUE] + $expected_defaults,
     ];
     yield 'frontend build - not shown for core theme' => [
-      [Theme::id() => Key::DOWN . Key::ENTER],
+      [Theme::id() => self::KEY_DOWN . self::KEY_ENTER],
       [Theme::id() => Theme::OLIVERO] + $expected_defaults_core,
     ];
     yield 'frontend build - discovery - build in container' => [

@@ -8,7 +8,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Yaml;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Services::class)]
@@ -18,7 +17,7 @@ class ServicesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'services - prompt' => [
-      [Services::id() => Key::ENTER],
+      [Services::id() => self::KEY_ENTER],
       [Services::id() => [Services::CLAMAV, Services::REDIS, Services::SOLR]] + $expected_defaults,
     ];
     yield 'services - discovery - solr' => [

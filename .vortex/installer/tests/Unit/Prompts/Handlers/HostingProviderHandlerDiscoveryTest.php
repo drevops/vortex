@@ -11,7 +11,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(HostingProvider::class)]
@@ -20,7 +19,7 @@ class HostingProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCa
   public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
     yield 'hosting provider - prompt' => [
-      [HostingProvider::id() => Key::ENTER],
+      [HostingProvider::id() => self::KEY_ENTER],
       [HostingProvider::id() => HostingProvider::NONE] + $expected_defaults,
     ];
     yield 'hosting provider - discovery - Acquia' => [
@@ -50,7 +49,7 @@ class HostingProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCa
       },
     ];
     yield 'hosting provider - discovery - Lagoon' => [
-      [],
+      [HostingProvider::id() => self::KEY_ENTER . self::KEY_ENTER],
       [
         HostingProvider::id() => HostingProvider::LAGOON,
         HostingProjectName::id() => 'myproject',

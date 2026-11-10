@@ -9,7 +9,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Storybook;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Storybook::class)]
@@ -26,15 +25,15 @@ class StorybookHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_defaults_core[Storybook::id()] = NULL;
 
     yield 'storybook - prompt - disabled' => [
-      [Storybook::id() => Key::ENTER],
+      [Storybook::id() => self::KEY_ENTER],
       [Storybook::id() => FALSE] + $expected_defaults,
     ];
     yield 'storybook - prompt - enabled' => [
-      [Storybook::id() => Key::LEFT . Key::ENTER],
+      [Storybook::id() => self::KEY_LEFT . self::KEY_ENTER],
       [Storybook::id() => TRUE] + $expected_defaults,
     ];
     yield 'storybook - not shown for core theme' => [
-      [Theme::id() => Key::DOWN . Key::ENTER],
+      [Theme::id() => self::KEY_DOWN . self::KEY_ENTER],
       [Theme::id() => Theme::OLIVERO] + $expected_defaults_core,
     ];
     yield 'storybook - discovery - provision script present' => [

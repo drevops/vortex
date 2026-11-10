@@ -9,7 +9,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesAutomerge;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(DependencyUpdatesProvider::class)]
@@ -21,7 +20,7 @@ class DependencyUpdatesProviderHandlerDiscoveryTest extends AbstractHandlerDisco
     $expected_installed = static::getExpectedInstalled();
     $all_groups = array_keys(DependencyUpdatesAutomerge::GROUPS);
     yield 'dependency updates provider - prompt' => [
-      [DependencyUpdatesProvider::id() => Key::ENTER],
+      [DependencyUpdatesProvider::id() => self::KEY_ENTER],
       [DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP] + $expected_defaults,
     ];
     yield 'dependency updates provider - discovery - renovate self-hosted - gha' => [
@@ -75,11 +74,11 @@ class DependencyUpdatesProviderHandlerDiscoveryTest extends AbstractHandlerDisco
       },
     ];
     yield 'dependency updates automerge - prompt - deselect first group' => [
-      [DependencyUpdatesAutomerge::id() => Key::SPACE . Key::ENTER],
+      [DependencyUpdatesAutomerge::id() => self::KEY_SPACE . self::KEY_ENTER],
       [DependencyUpdatesAutomerge::id() => array_values(array_diff($all_groups, [DependencyUpdatesAutomerge::PHP]))] + $expected_defaults,
     ];
     yield 'dependency updates automerge - prompt - skipped without renovate' => [
-      [DependencyUpdatesProvider::id() => Key::DOWN . Key::DOWN . Key::ENTER],
+      [DependencyUpdatesProvider::id() => self::KEY_DOWN . self::KEY_DOWN . self::KEY_ENTER],
       [
         DependencyUpdatesProvider::id() => DependencyUpdatesProvider::NONE,
         DependencyUpdatesAutomerge::id() => NULL,

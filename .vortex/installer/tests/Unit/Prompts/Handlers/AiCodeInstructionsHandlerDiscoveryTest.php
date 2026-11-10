@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(AiCodeInstructions::class)]
@@ -17,7 +16,7 @@ class AiCodeInstructionsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTes
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'ai instructions - prompt' => [
-      [AiCodeInstructions::id() => Key::ENTER],
+      [AiCodeInstructions::id() => self::KEY_ENTER],
       [AiCodeInstructions::id() => TRUE] + $expected_defaults,
     ];
     yield 'ai instructions - discovery' => [

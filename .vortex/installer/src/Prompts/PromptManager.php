@@ -53,10 +53,7 @@ use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Tui;
-use Laravel\Prompts\FormBuilder;
-use Laravel\Prompts\FormStep;
 use Symfony\Component\Console\Output\OutputInterface;
-use function Laravel\Prompts\form;
 
 /**
  * Centralized place for providing prompts and their processing.
@@ -66,7 +63,7 @@ class PromptManager {
   /**
    * Total number of top-level responses.
    *
-   * Counted from the form in runPrompts() and used to display the progress of
+   * Counted from the steps in runPrompts() and used to display the progress of
    * the prompts.
    */
   protected int $totalResponses = 0;
@@ -125,152 +122,45 @@ class PromptManager {
    *
    * In non-interactive mode, each prompt returns its default, which includes
    * values discovered from the existing codebase.
+   *
+   * @return bool
+   *   TRUE when every prompt was answered, FALSE when the user cancelled one.
    */
-  public function runPrompts(): void {
+  public function runPrompts(): bool {
     // Quiet the TUI output in non-interactive mode; the original verbosity is
-    // restored after the form completes.
+    // restored after the prompts complete.
     $original_verbosity = Tui::output()->getVerbosity();
     if ($this->config->getNoInteraction()) {
       Tui::output()->setVerbosity(OutputInterface::VERBOSITY_QUIET);
     }
 
-    // @formatter:off
-    // phpcs:disable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
-    // phpcs:disable Drupal.WhiteSpace.Comma.TooManySpaces
-    // phpcs:disable Drupal.WhiteSpace.ObjectOperatorIndent.Indent
-    // phpcs:disable Drupal.WhiteSpace.ScopeIndent.IncorrectExact
-    $form = form()
-      ->intro('General information')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(Name::class), Name::id())
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(MachineName::class, $r), MachineName::id())
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(Org::class, $r), Org::id())
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(OrgMachineName::class, $r), OrgMachineName::id())
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(Domain::class, $r), Domain::id())
+    $sections = $this->steps();
 
-      ->intro('Drupal')
-      ->addIf(
-          fn(array $r): bool => $this->handler(Starter::id())->shouldRun($r),
-          fn(array $r, $pr, $n): mixed => $this->prompt(Starter::class, $r),
-          Starter::id()
-        )
-      ->add(
-          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Profile::id(), $r, fn(): mixed => $this->prompt(Profile::class)),
-          Profile::id()
-        )
-        ->addIf(
-            fn(array $r): bool => $this->handler(ProfileCustom::id())->shouldRun($r),
-            fn($r, $pr, $n): mixed => $this->prompt(ProfileCustom::class),
-            ProfileCustom::id()
-          )
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(Modules::class, $r), Modules::id())
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(ModulePrefix::class, $r), ModulePrefix::id())
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(CustomModules::class, $r), CustomModules::id())
-      ->add(
-          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Theme::id(), $r, fn(): mixed => $this->prompt(Theme::class)),
-          Theme::id()
-        )
-        ->addIf(
-            fn(array $r): bool => $this->handler(ThemeCustom::id())->shouldRun($r),
-            fn(array $r, $pr, $n): mixed => $this->prompt(ThemeCustom::class, $r),
-            ThemeCustom::id()
-          )
-        ->addIf(
-            fn(array $r): bool => $this->handler(FrontendBuild::id())->shouldRun($r),
-            fn(array $r, $pr, $n): mixed => $this->prompt(FrontendBuild::class, $r),
-            FrontendBuild::id()
-          )
-        ->addIf(
-            fn(array $r): bool => $this->handler(Storybook::id())->shouldRun($r),
-            fn(array $r, $pr, $n): mixed => $this->prompt(Storybook::class, $r),
-            Storybook::id()
-          )
+    $this->totalResponses = array_sum(array_map(count(...), $sections));
 
-      ->intro('Code repository')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(CodeProvider::class), CodeProvider::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(VersionScheme::class), VersionScheme::id())
+    $responses = [];
 
-      ->intro('Environment')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(Timezone::class), Timezone::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(Services::class), Services::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(Tools::class), Tools::id())
+    foreach ($sections as $section => $steps) {
+      Tui::info($section);
 
-      ->intro('Hosting')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(HostingProvider::class), HostingProvider::id())
-      ->addIf(
-          fn(array $r): bool => $this->handler(HostingProjectName::id())->shouldRun($r),
-          fn(array $r, $pr, $n): mixed => $this->prompt(HostingProjectName::class, $r),
-          HostingProjectName::id()
-        )
-      ->add(
-          fn(array $r, $pr, $n): string => $this->resolveOrPrompt(Webroot::id(), $r, fn(): mixed => $this->prompt(Webroot::class, $r)),
-          Webroot::id()
-        )
+      foreach ($steps as $id => $step) {
+        if (!$this->handler($id)->shouldRun($responses)) {
+          $responses[$id] = NULL;
+          continue;
+        }
 
-      ->intro('Deployment')
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(DeployTypes::class, $r), DeployTypes::id())
+        $response = $step($responses);
 
-      ->intro('Workflow')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(ProvisionType::class), ProvisionType::id())
-      ->addIf(
-          fn(array $r): bool => $this->handler(DatabaseFetchSource::id())->shouldRun($r),
-          fn(array $r, $pr, $n): mixed => $this->prompt(DatabaseFetchSource::class, $r),
-          DatabaseFetchSource::id()
-        )
-        ->addIf(
-            fn(array $r): bool => $this->handler(DatabaseImage::id())->shouldRun($r),
-            fn(array $r, $pr, $n): mixed => $this->prompt(DatabaseImage::class, $r),
-            DatabaseImage::id()
-          )
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(Migration::class), Migration::id())
-      ->addIf(
-          fn(array $r): bool => $this->handler(MigrationFetchSource::id())->shouldRun($r),
-          fn(array $r, $pr, $n): mixed => $this->prompt(MigrationFetchSource::class, $r),
-          MigrationFetchSource::id()
-        )
-        ->addIf(
-            fn(array $r): bool => $this->handler(MigrationImage::id())->shouldRun($r),
-            fn(array $r, $pr, $n): mixed => $this->prompt(MigrationImage::class, $r),
-            MigrationImage::id()
-          )
+        // A widget answers NULL only when the user cancels it.
+        if ($response === NULL) {
+          Tui::output()->setVerbosity($original_verbosity);
 
-      ->intro('Notifications')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(NotificationChannels::class), NotificationChannels::id())
+          return FALSE;
+        }
 
-      ->intro('Continuous Integration')
-      ->add(fn(array $r, $pr, $n): mixed => $this->prompt(CiProvider::class, $r), CiProvider::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(VisualRegression::class), VisualRegression::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(Gitleaks::class), Gitleaks::id())
-
-      ->intro('Automations')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(DependencyUpdatesProvider::class), DependencyUpdatesProvider::id())
-        ->addIf(
-            fn(array $r): bool => $this->handler(DependencyUpdatesAutomerge::id())->shouldRun($r),
-            fn(array $r, $pr, $n): mixed => $this->prompt(DependencyUpdatesAutomerge::class, $r),
-            DependencyUpdatesAutomerge::id()
-          )
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(CodeCoverageProvider::class), CodeCoverageProvider::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(AssignAuthorPr::class), AssignAuthorPr::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(LabelMergeConflictsPr::class), LabelMergeConflictsPr::id())
-
-      ->intro('Documentation')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(PreserveDocsProject::class), PreserveDocsProject::id())
-
-      ->intro('AI')
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(AiCodeInstructions::class), AiCodeInstructions::id())
-      ->add(fn($r, $pr, $n): mixed => $this->prompt(AiCodeReview::class), AiCodeReview::id());
-
-    // @formatter:on
-    // phpcs:enable Generic.Functions.FunctionCallArgumentSpacing.TooMuchSpaceAfterComma
-    // phpcs:enable Drupal.WhiteSpace.Comma.TooManySpaces
-    // phpcs:enable Drupal.WhiteSpace.ObjectOperatorIndent.Indent
-    // phpcs:enable Drupal.WhiteSpace.ScopeIndent.IncorrectExact
-
-    $this->totalResponses = $this->countPrompts($form);
-
-    $responses = $form->submit();
-
-    // Filter out elements with numeric keys returned by intro() calls.
-    $responses = array_filter($responses, fn($key): bool => !is_numeric($key), ARRAY_FILTER_USE_KEY);
+        $responses[$id] = $response;
+      }
+    }
 
     if ($this->config->getNoInteraction()) {
       Tui::output()->setVerbosity($original_verbosity);
@@ -294,6 +184,88 @@ class PromptManager {
     // Discovery covers only the handlers that read the destination, so the
     // collected answers fill the rest.
     $this->discoveredResponses = $this->normalizeResponses(array_replace($responses, $this->discoveredResponses));
+
+    return TRUE;
+  }
+
+  /**
+   * Define the prompts in the order they are asked, grouped by section.
+   *
+   * Every step runs only when its handler's shouldRun() accepts the responses
+   * collected so far; a skipped step responds with NULL.
+   *
+   * @return array<string, array<string, \Closure(array): mixed>>
+   *   Steps keyed by handler ID, grouped under their section heading.
+   */
+  protected function steps(): array {
+    return [
+      'General information' => [
+        Name::id() => fn(array $r): mixed => $this->prompt(Name::class),
+        MachineName::id() => fn(array $r): mixed => $this->prompt(MachineName::class, $r),
+        Org::id() => fn(array $r): mixed => $this->prompt(Org::class, $r),
+        OrgMachineName::id() => fn(array $r): mixed => $this->prompt(OrgMachineName::class, $r),
+        Domain::id() => fn(array $r): mixed => $this->prompt(Domain::class, $r),
+      ],
+      'Drupal' => [
+        Starter::id() => fn(array $r): mixed => $this->prompt(Starter::class, $r),
+        Profile::id() => fn(array $r): ?string => $this->resolveOrPrompt(Profile::id(), $r, fn(): mixed => $this->prompt(Profile::class)),
+        ProfileCustom::id() => fn(array $r): mixed => $this->prompt(ProfileCustom::class),
+        Modules::id() => fn(array $r): mixed => $this->prompt(Modules::class, $r),
+        ModulePrefix::id() => fn(array $r): mixed => $this->prompt(ModulePrefix::class, $r),
+        CustomModules::id() => fn(array $r): mixed => $this->prompt(CustomModules::class, $r),
+        Theme::id() => fn(array $r): ?string => $this->resolveOrPrompt(Theme::id(), $r, fn(): mixed => $this->prompt(Theme::class)),
+        ThemeCustom::id() => fn(array $r): mixed => $this->prompt(ThemeCustom::class, $r),
+        FrontendBuild::id() => fn(array $r): mixed => $this->prompt(FrontendBuild::class, $r),
+        Storybook::id() => fn(array $r): mixed => $this->prompt(Storybook::class, $r),
+      ],
+      'Code repository' => [
+        CodeProvider::id() => fn(array $r): mixed => $this->prompt(CodeProvider::class),
+        VersionScheme::id() => fn(array $r): mixed => $this->prompt(VersionScheme::class),
+      ],
+      'Environment' => [
+        Timezone::id() => fn(array $r): mixed => $this->prompt(Timezone::class),
+        Services::id() => fn(array $r): mixed => $this->prompt(Services::class),
+        Tools::id() => fn(array $r): mixed => $this->prompt(Tools::class),
+      ],
+      'Hosting' => [
+        HostingProvider::id() => fn(array $r): mixed => $this->prompt(HostingProvider::class),
+        HostingProjectName::id() => fn(array $r): mixed => $this->prompt(HostingProjectName::class, $r),
+        Webroot::id() => fn(array $r): ?string => $this->resolveOrPrompt(Webroot::id(), $r, fn(): mixed => $this->prompt(Webroot::class, $r)),
+      ],
+      'Deployment' => [
+        DeployTypes::id() => fn(array $r): mixed => $this->prompt(DeployTypes::class, $r),
+      ],
+      'Workflow' => [
+        ProvisionType::id() => fn(array $r): mixed => $this->prompt(ProvisionType::class),
+        DatabaseFetchSource::id() => fn(array $r): mixed => $this->prompt(DatabaseFetchSource::class, $r),
+        DatabaseImage::id() => fn(array $r): mixed => $this->prompt(DatabaseImage::class, $r),
+        Migration::id() => fn(array $r): mixed => $this->prompt(Migration::class),
+        MigrationFetchSource::id() => fn(array $r): mixed => $this->prompt(MigrationFetchSource::class, $r),
+        MigrationImage::id() => fn(array $r): mixed => $this->prompt(MigrationImage::class, $r),
+      ],
+      'Notifications' => [
+        NotificationChannels::id() => fn(array $r): mixed => $this->prompt(NotificationChannels::class),
+      ],
+      'Continuous Integration' => [
+        CiProvider::id() => fn(array $r): mixed => $this->prompt(CiProvider::class, $r),
+        VisualRegression::id() => fn(array $r): mixed => $this->prompt(VisualRegression::class),
+        Gitleaks::id() => fn(array $r): mixed => $this->prompt(Gitleaks::class),
+      ],
+      'Automations' => [
+        DependencyUpdatesProvider::id() => fn(array $r): mixed => $this->prompt(DependencyUpdatesProvider::class),
+        DependencyUpdatesAutomerge::id() => fn(array $r): mixed => $this->prompt(DependencyUpdatesAutomerge::class, $r),
+        CodeCoverageProvider::id() => fn(array $r): mixed => $this->prompt(CodeCoverageProvider::class),
+        AssignAuthorPr::id() => fn(array $r): mixed => $this->prompt(AssignAuthorPr::class),
+        LabelMergeConflictsPr::id() => fn(array $r): mixed => $this->prompt(LabelMergeConflictsPr::class),
+      ],
+      'Documentation' => [
+        PreserveDocsProject::id() => fn(array $r): mixed => $this->prompt(PreserveDocsProject::class),
+      ],
+      'AI' => [
+        AiCodeInstructions::id() => fn(array $r): mixed => $this->prompt(AiCodeInstructions::class),
+        AiCodeReview::id() => fn(array $r): mixed => $this->prompt(AiCodeReview::class),
+      ],
+    ];
   }
 
   /**
@@ -573,27 +545,6 @@ class PromptManager {
   }
 
   /**
-   * Count the prompts a form defines.
-   *
-   * Steps added by intro() carry no name, so the named steps are the prompts.
-   * Conditional steps are counted as well, because whether they run depends on
-   * answers the run has not collected yet, so the result is the most prompts a
-   * run can ask.
-   *
-   * @param \Laravel\Prompts\FormBuilder $form
-   *   The form built in runPrompts().
-   *
-   * @return int
-   *   The number of prompts.
-   */
-  protected function countPrompts(FormBuilder $form): int {
-    /** @var array<int, \Laravel\Prompts\FormStep> $steps */
-    $steps = (new \ReflectionProperty($form, 'steps'))->getValue($form);
-
-    return count(array_filter($steps, fn(FormStep $step): bool => $step->name !== NULL));
-  }
-
-  /**
    * Collect and initialize handlers.
    */
   protected function initHandlers(): void {
@@ -676,13 +627,23 @@ class PromptManager {
    *   The prompt result.
    */
   protected function prompt(string $handler_class, array $responses = []): mixed {
-    $fn = $this->handler($handler_class::id())->type()->promptFunction();
+    $type = $this->handler($handler_class::id())->type();
+    $args = $this->args($handler_class, NULL, $responses);
 
-    return $fn(...$this->args($handler_class, NULL, $responses));
+    $response = $type->promptFunction()(...$args);
+
+    // The widget answers in option order. Keeping the selected defaults in
+    // their own order first leaves a discovered list in the order the project
+    // already has it.
+    if ($type === PromptType::MultiSelect && is_array($response) && is_array($args['default'] ?? NULL)) {
+      $response = array_values(array_unique(array_merge(array_intersect($args['default'], $response), $response)));
+    }
+
+    return $response;
   }
 
   /**
-   * Convert handler properties to Laravel prompts.
+   * Convert handler properties to Prompty widget arguments.
    *
    * Kept deliberately unoptimized to ease debugging and future changes.
    *
@@ -694,7 +655,7 @@ class PromptManager {
    *   Current form responses for context-aware methods.
    *
    * @return array
-   *   Array of prompt arguments suitable for Laravel prompts.
+   *   Array of named arguments for the handler's Prompty widget.
    */
   protected function args(string $handler_class, mixed $default_override = NULL, array $responses = []): array {
     $id = $handler_class::id();
@@ -702,20 +663,12 @@ class PromptManager {
 
     $args = [
       'label' => $this->label($handler->label()),
-      'hint' => $handler->hint($responses),
+      'help' => $handler->hint($responses),
       'placeholder' => $handler->placeholder($responses),
       'transform' => $handler->transform(),
-      'validate' => $handler->validate(),
+      'validate' => $this->validator($handler),
+      'description' => $handler::description($responses),
     ];
-
-    $description = $handler::description($responses);
-    if ($description !== NULL) {
-      $args['description'] = PHP_EOL . $description . PHP_EOL;
-    }
-
-    if ($handler->isRequired()) {
-      $args['required'] = TRUE;
-    }
 
     $options = $handler->options($responses);
     if (is_array($options)) {
@@ -744,11 +697,51 @@ class PromptManager {
       $default = $default_from_handler;
     }
 
+    // The widgets reject a default outside the options, so a default that no
+    // longer matches one is dropped and the widget starts from its first
+    // option.
+    if (is_array($options) && $handler->type() === PromptType::Select && !array_key_exists((string) $default, $options)) {
+      $default = NULL;
+    }
+
+    if (is_array($options) && $handler->type() === PromptType::MultiSelect && is_array($default)) {
+      $default = array_values(array_filter($default, fn($value): bool => array_key_exists($value, $options)));
+    }
+
     if ($default !== NULL && $default !== '') {
       $args['default'] = $default;
     }
 
     return array_filter($args, fn($value): bool => $value !== NULL);
+  }
+
+  /**
+   * Build the validator for a handler's prompt.
+   *
+   * A required prompt rejects an empty answer before the handler's own
+   * validation runs.
+   *
+   * @param \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface $handler
+   *   The handler.
+   *
+   * @return \Closure|null
+   *   The validator, or NULL when the answer is not validated.
+   */
+  protected function validator(HandlerInterface $handler): ?\Closure {
+    $validate = $handler->validate();
+    $is_required = $handler->isRequired();
+
+    if ($validate === NULL && !$is_required) {
+      return NULL;
+    }
+
+    return function (mixed $value) use ($validate, $is_required): ?string {
+      if ($is_required && ($value === '' || $value === [])) {
+        return 'Required.';
+      }
+
+      return $validate === NULL ? NULL : $validate($value);
+    };
   }
 
   /**
@@ -761,10 +754,10 @@ class PromptManager {
    * @param callable $prompt
    *   The prompt callable to use if the value is not resolved.
    *
-   * @return string
-   *   The resolved value.
+   * @return string|null
+   *   The resolved value, or NULL when the prompt was cancelled.
    */
-  protected function resolveOrPrompt(string $handler_id, array $r, callable $prompt): string {
+  protected function resolveOrPrompt(string $handler_id, array $r, callable $prompt): ?string {
     $handler = $this->handler($handler_id);
     $resolved = $handler->resolvedValue($r);
 
@@ -782,7 +775,9 @@ class PromptManager {
       return $resolved;
     }
 
-    return (string) $prompt();
+    $value = $prompt();
+
+    return $value === NULL ? NULL : (string) $value;
   }
 
   /**

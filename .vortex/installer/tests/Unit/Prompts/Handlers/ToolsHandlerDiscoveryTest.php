@@ -8,7 +8,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Tools;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Tools::class)]
@@ -18,7 +17,7 @@ class ToolsHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'tools - prompt - defaults' => [
-      [Tools::id() => Key::ENTER],
+      [Tools::id() => self::KEY_ENTER],
       [Tools::id() => [Tools::BEHAT, Tools::DCLINT, Tools::ESLINT, Tools::HADOLINT, Tools::JEST, Tools::PHPCS, Tools::PHPSTAN, Tools::PHPUNIT, Tools::RECTOR, Tools::STYLELINT, Tools::TWIG_CS_FIXER]] + $expected_defaults,
     ];
     yield 'tools - discovery - all tools' => [

@@ -4,32 +4,51 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Traits;
 
+use AlexSkrypnyk\Prompty\PromptyTestTrait;
 use DrevOps\VortexInstaller\Utils\Tui;
-use Laravel\Prompts\Output\BufferedConsoleOutput;
-use Laravel\Prompts\Prompt;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 trait TuiTrait {
 
-  protected static function tuiSetUp(): void {
-    Tui::init((new BufferedConsoleOutput()), FALSE);
+  use PromptyTestTrait;
 
-    // Override how validation is handled (it expects a user input on incorrect
-    // validation) to throw an exception instead so that we can assert on it
-    // in the tests.
-    Prompt::validateUsing(function (Prompt $prompt, mixed $value): null {
-      if (is_callable($prompt->validate)) {
-        $error = ($prompt->validate)($value);
-        if ($error) {
-          throw new \RuntimeException(sprintf('Validation failed with error "%s".', $error));
-        }
-      }
-
-      return NULL;
-    });
+  protected static function tuiSetUp(bool $is_interactive = FALSE): void {
+    Tui::init(new BufferedOutput(), $is_interactive);
   }
 
-  protected static function tuiTeardown(): void {
-    Prompt::validateUsing(NULL);
+  protected function tuiTeardown(): void {
+    // Tui::init() configures a new Prompty instance in the next test.
+    $this->promptyTearDown();
+  }
+
+  /**
+   * Feed keystrokes to the prompts.
+   *
+   * A rejected answer throws instead of re-prompting, so a test can assert on
+   * the validation message rather than on a prompt cancelled at the end of the
+   * input.
+   *
+   * @param array<int, string> $keystrokes
+   *   Keystrokes in the order the prompts read them.
+   */
+  protected function tuiInput(array $keystrokes): void {
+    $stream = fopen('php://memory', 'r+');
+
+    if ($stream === FALSE) {
+      throw new \RuntimeException('Could not open a memory stream for the keystrokes.');
+    }
+
+    fwrite($stream, implode('', $keystrokes));
+    rewind($stream);
+
+    $instance = $this->promptyGetStatic('instance');
+
+    if (!is_object($instance)) {
+      throw new \RuntimeException('Prompty is not initialized. Call tuiSetUp() first.');
+    }
+
+    $this->promptySetProperty($instance, 'input', $stream);
+    $this->promptyThrowOnInvalid();
   }
 
   /**

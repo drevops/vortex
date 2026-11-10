@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Utils\Config;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Webroot::class)]
@@ -17,7 +16,7 @@ class WebrootHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_defaults = static::getExpectedDefaults();
     yield 'webroot - prompt' => [
       [
-        HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+        HostingProvider::id() => self::KEY_DOWN . self::KEY_DOWN . self::KEY_DOWN . self::KEY_ENTER,
         Webroot::id() => 'my_webroot',
       ],
       [
@@ -27,7 +26,7 @@ class WebrootHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     ];
     yield 'webroot - prompt - capitalization' => [
       [
-        HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+        HostingProvider::id() => self::KEY_DOWN . self::KEY_DOWN . self::KEY_DOWN . self::KEY_ENTER,
         Webroot::id() => 'MyWebroot',
       ],
       [
@@ -37,7 +36,7 @@ class WebrootHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     ];
     yield 'webroot - prompt - invalid' => [
       [
-        HostingProvider::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER,
+        HostingProvider::id() => self::KEY_DOWN . self::KEY_DOWN . self::KEY_DOWN . self::KEY_ENTER,
         Webroot::id() => 'my webroot',
       ],
       'Please enter a valid webroot name: only lowercase letters, numbers, and underscores are allowed.',

@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeReview;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(AiCodeReview::class)]
@@ -17,11 +16,11 @@ class AiCodeReviewHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase 
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'ai code review - prompt' => [
-      [AiCodeReview::id() => Key::ENTER],
+      [AiCodeReview::id() => self::KEY_ENTER],
       [AiCodeReview::id() => FALSE] + $expected_defaults,
     ];
     yield 'ai code review - prompt - enabled' => [
-      [AiCodeReview::id() => Key::LEFT . Key::ENTER],
+      [AiCodeReview::id() => self::KEY_LEFT . self::KEY_ENTER],
       [AiCodeReview::id() => TRUE] + $expected_defaults,
     ];
     yield 'ai code review - discovery' => [

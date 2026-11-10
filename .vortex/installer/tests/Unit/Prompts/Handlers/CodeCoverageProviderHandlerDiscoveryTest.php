@@ -8,7 +8,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeCoverageProvider;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(CodeCoverageProvider::class)]
@@ -18,7 +17,7 @@ class CodeCoverageProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryT
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'code coverage provider - prompt' => [
-      [CodeCoverageProvider::id() => Key::ENTER],
+      [CodeCoverageProvider::id() => self::KEY_ENTER],
       [CodeCoverageProvider::id() => CodeCoverageProvider::NONE] + $expected_defaults,
     ];
     yield 'code coverage provider - discovery - codecov - gha' => [
