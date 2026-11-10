@@ -13,10 +13,8 @@ on:
 jobs:
   vortex-test-docs:
     runs-on: ubuntu-latest
-    # Only run if the triggering workflow succeeded. Fork pull requests are
-    # tested by 'vortex-test-docs-fork' in 'vortex-test-installer.yml' instead,
-    # so fork code never runs with this job's secrets and write token.
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository
+    # Only run if the triggering workflow succeeded
+    if: github.event.workflow_run.conclusion == 'success'
 
     permissions:
       contents: read # Checkout the repository at the triggering commit.
@@ -159,6 +157,7 @@ jobs:
       # 'workflow_run' event does not carry; the next step posts the link instead.
       - name: Deploy to Netlify
         id: netlify
+        if: github.event.workflow_run.head_repository.full_name == github.repository
         uses: nwtgck/actions-netlify@d22a32a27c918fe470bbc562e984f80ec48c2668 # v4.0
         with:
           publish-dir: '.vortex/docs_combined/build'
