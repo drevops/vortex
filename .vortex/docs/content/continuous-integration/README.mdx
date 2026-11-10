@@ -433,7 +433,7 @@ To refresh a dump store every night:
    | Source | Secrets |
    |---|---|
    | `s3` | `VORTEX_FETCH_DB_S3_ACCESS_KEY` and `VORTEX_FETCH_DB_S3_SECRET_KEY` |
-   | `gdrive` | `VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY`, with the content of the JSON key file |
+   | `gdrive` | `VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY`, with the content of the JSON key file on 1 line, such as the output of `jq -c . key.json` |
 
    GitHub Actions passes these secrets to the `database` job. Add the
    secrets of the hosting source to the `env` block of that job.
@@ -458,7 +458,7 @@ shared drive. To set up the folder:
    `VORTEX_FETCH_DB_GDRIVE_FOLDER_ID` in `.env`.
 4. Give developers the key of a second service account with the
    **Viewer** role. They set `VORTEX_GDRIVE_SERVICE_ACCOUNT_KEY` in
-   `.env.local` to the path of the key file or to its content.
+   `.env.local` to the path of the key file.
 
 ## Trigger conditions
 

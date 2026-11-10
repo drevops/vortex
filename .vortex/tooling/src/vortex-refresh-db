@@ -16,9 +16,8 @@
 # provisioning. This runs only when VORTEX_REFRESH_DB2_PROCEED is set to 1.
 #
 # With a dump store fetch source ('gdrive' or 's3') and VORTEX_PUSH_DB_PROCEED
-# set to 1, the dump file is fetched from VORTEX_REFRESH_DB_SOURCE before
-# provisioning and the database is sanitized after it, so the exported dump
-# can be pushed to the store with 'vortex-push-db'.
+# set to 1, the database is sanitized after provisioning, so the exported
+# dump can be pushed to the store with 'vortex-push-db'.
 #
 # Every variable of the calling environment is passed to the provisioning in
 # the 'cli' container, so the script is intended to run in CI.
@@ -52,8 +51,8 @@ VORTEX_DB_IMAGE_BASE="${VORTEX_DB_IMAGE_BASE:-}"
 # indexed database uses VORTEX_REFRESH_DB2_SOURCE.
 #
 # Also required when the fetch source is a dump store ('gdrive' or 's3') and
-# VORTEX_PUSH_DB_PROCEED is set to 1: the dump pushed to the store comes from
-# an upstream source such as 'url', 'ftp', 'acquia' or 'lagoon'.
+# VORTEX_PUSH_DB_PROCEED is set to 1: 'vortex-fetch-db' then fetches the dump
+# from this source, such as 'url', 'ftp', 'acquia' or 'lagoon'.
 _v="VORTEX_REFRESH_DB${_db_index}_SOURCE"
 VORTEX_REFRESH_DB_SOURCE="${!_v:-}"
 
@@ -108,7 +107,7 @@ rebuild_image=0
 [ -n "${db_image}" ] && [ -n "${db_image_base}" ] && rebuild_image=1
 
 # A dump store ('gdrive' or 's3') receives the dump this refresh exports, so
-# with a push requested the dump is fetched again from its upstream source.
+# with a push requested the exported dump must be sanitized.
 refresh_store=0
 if [ -z "${_db_index}" ] && [ -z "${db_image}" ] && [ "${VORTEX_PUSH_DB_PROCEED:-}" = "1" ]; then
   case "${fetch_source}" in
@@ -116,11 +115,8 @@ if [ -z "${_db_index}" ] && [ -z "${db_image}" ] && [ "${VORTEX_PUSH_DB_PROCEED:
   esac
 fi
 
-if [ "${refresh_store}" -eq 1 ]; then
-  case "${VORTEX_REFRESH_DB_SOURCE}" in
-    "" | gdrive | s3 | container_registry | none) fail "The database dump file pushed to ${fetch_source} is fetched from an upstream source, but VORTEX_REFRESH_DB_SOURCE is \"${VORTEX_REFRESH_DB_SOURCE}\". Set it to the source of the dump file: url, ftp, acquia or lagoon." ;;
-  esac
-  [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP:-}" = "1" ] && fail "The database dump file pushed to ${fetch_source} must be sanitized, but VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
+if [ "${refresh_store}" -eq 1 ] && [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP:-}" = "1" ]; then
+  fail "The database dump file pushed to ${fetch_source} must be sanitized, but VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
 fi
 
 if [ "${rebuild_image}" -eq 1 ] && [ "${fetch_source}" = "container_registry" ]; then
@@ -130,16 +126,6 @@ if [ "${rebuild_image}" -eq 1 ] && [ "${fetch_source}" = "container_registry" ];
 fi
 
 "$(dirname "${BASH_SOURCE[0]}")/vortex-login-container-registry"
-
-if [ "${refresh_store}" -eq 1 ]; then
-  # The dump fetched from the store is removed, so the check below proves the
-  # upstream source wrote a new one.
-  rm -f "${db_file}"
-  # CircleCI re-sources the job variables from BASH_ENV in every bash
-  # script, which would replace the prefixed values.
-  env BASH_ENV='' "VORTEX_FETCH_DB_SOURCE=${VORTEX_REFRESH_DB_SOURCE}" "VORTEX_FETCH_DB_FORCE=1" "$(dirname "${BASH_SOURCE[0]}")/vortex-fetch-db"
-  [ -f "${db_file}" ] || fail "The database dump file was not fetched to ${db_file}. Remove the output directory and file name overrides of the database fetch source."
-fi
 
 # The value of VORTEX_DB_IMAGE passed to the provisioning. An empty value
 # makes the provisioning import the dump file.
