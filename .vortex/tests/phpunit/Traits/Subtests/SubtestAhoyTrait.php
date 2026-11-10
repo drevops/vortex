@@ -98,6 +98,24 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyFetchFiles(): void {
+    $this->logStepStart();
+
+    $archive_src = static::$tmp . '/fetch_files_src';
+    File::dump($archive_src . '/fetch-files-test/document.txt', 'Fetched public file');
+    $archive = static::$tmp . '/fetch_files.tar';
+    (new \PharData($archive))->buildFromDirectory($archive_src);
+
+    $this->fileAddVar('.env', 'VORTEX_FETCH_FILES_URL', 'file://' . $archive);
+    $this->cmd('ahoy fetch-files', ['* Finished files fetch from URL.', '* Finished files fetch.'], 'Fetch public files');
+    $this->assertFileContainsString('web/sites/default/files/fetch-files-test/document.txt', 'Fetched public file', 'Fetched public file should be extracted into the public files directory');
+
+    $this->fileRestore('.env');
+    File::rmdir('web/sites/default/files/fetch-files-test');
+
+    $this->logStepFinish();
+  }
+
   protected function subtestAhoyCli(): void {
     $this->logStepStart();
 

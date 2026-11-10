@@ -42,6 +42,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyDotEnv();
 
+    $this->subtestAhoyFetchFiles();
+
     $this->subtestAhoyContainerLogs();
 
     $this->subtestAhoyComposer();
