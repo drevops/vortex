@@ -568,8 +568,11 @@ jobs:
           VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}
 
       - name: Post coverage summary as PR comment
-        # Fork pull requests get a read-only token that cannot post comments.
-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
+        if: ${{ github.event_name == 'pull_request' && env.VORTEX_CI_IS_PHPUNIT_RUNNER == 'true' && vars.VORTEX_CI_CODE_COVERAGE_PR_COMMENT_SKIP != '1' }}
+        #;< VORTEX_DEV
+        # Fork pull requests get a read-only token, so posting the comment fails.
+        continue-on-error: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        #;> VORTEX_DEV
         uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
           header: coverage-gha
