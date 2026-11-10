@@ -6,10 +6,10 @@ sidebar_position: 2
 # Contributed modules
 
 This reference is for developers and leads on a project built from
-**Vortex**. It lists all 26 contributed modules the template can ship, in
-alphabetical order: what each module does, how it's installed and how it's
-configured. Use it to check what a module does in each environment and
-which variables change that.
+**Vortex**. It lists all 35 contributed modules and the 1 contributed theme
+the template can ship, in alphabetical order: what each does, how it's
+installed and how it's configured. Use it to check what a module does in
+each environment and which variables change that.
 
 ➡️ See [Overview](README.mdx) for the mechanisms that require, configure
 and install these modules.
@@ -102,6 +102,18 @@ debugging.
 [`settings.devel.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.devel.php)
 excludes it from the exported configuration.
 
+## Diff
+
+[Diff](https://www.drupal.org/project/diff) compares 2 revisions of an
+entity and highlights the changes between them.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
+### Configuration
+
+No settings override.
+
 ## Drupal Helpers
 
 [Drupal helpers](https://www.drupal.org/project/drupal_helpers) gives deploy
@@ -116,6 +128,19 @@ taxonomy trees, menu links, users and redirects.
 No settings override.
 
 ➡️ See [Drupal helpers](drupal-helpers.mdx) for the helper facades.
+
+## Entity Usage
+
+[Entity Usage](https://www.drupal.org/project/entity_usage) tracks which
+entities reference each other. Editors can then see where an item is used
+before they change or delete it.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
+### Configuration
+
+No settings override.
 
 ## Environment Indicator
 
@@ -168,6 +193,18 @@ applies only when the module's code is present, and calls
   queries the database before Drupal has connected to it. The redirect check
   that goes with the path check is off too.
 
+## Field Group
+
+[Field Group](https://www.drupal.org/project/field_group) groups fields
+into tabs, fieldsets and details elements on entity forms and displays.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
+### Configuration
+
+No settings override.
+
 ## Generated Content
 
 [Generated Content](https://www.drupal.org/project/generated_content)
@@ -187,6 +224,61 @@ excludes it from the exported configuration.
 
 ➡️ See [Generated Content](generated-content.mdx) for the plugin system and
 the demo plugin.
+
+## Gin
+
+[Gin](https://www.drupal.org/project/gin) is an administration theme built
+on Claro. Composer also brings in its `gin_toolbar` module. Provisioning
+leaves `gin_toolbar` uninstalled, because the template uses the core
+Navigation module for the administration menu.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh),
+  which also sets it as the administration theme.
+
+### Configuration
+
+No settings override. The maintenance theme stays Claro.
+
+## Linkit
+
+[Linkit](https://www.drupal.org/project/linkit) adds autocomplete for site
+content to the CKEditor 5 link dialog.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
+### Configuration
+
+No settings override.
+
+## Menu Trail By Path
+
+[Menu Trail By Path](https://www.drupal.org/project/menu_trail_by_path)
+sets the active menu trail from the URL path. A parent menu item then stays
+active on pages that have no menu link of their own.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
+### Configuration
+
+No settings override.
+
+## Metatag
+
+[Metatag](https://www.drupal.org/project/metatag) manages meta tags, such
+as the canonical URL and the page description, with defaults per entity
+type.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
+### Configuration
+
+No settings override. The module's own defaults apply, and
+`tests/behat/features/metatag.feature` checks the homepage for its
+canonical and shortlink tags.
 
 ## Migrate Plus
 
@@ -391,6 +483,35 @@ To confirm the override, open `/robots.txt` on a non-production site. On
 contains
 `User-agent: *` and `Disallow: /`.
 
+## Scheduled Transitions
+
+[Scheduled
+Transitions](https://www.drupal.org/project/scheduled_transitions)
+schedules a revision to change its moderation state, such as publishing at
+a set date and time. Installing it also installs the core Content
+Moderation module and the Dynamic Entity Reference module.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
+### Configuration
+
+No settings override.
+
+## Schema.org Metatag
+
+[Schema.org Metatag](https://www.drupal.org/project/schema_metatag) adds
+Schema.org structured data, output as JSON-LD, to Metatag. It requires
+Metatag, so Composer and provisioning bring Metatag in even when Metatag
+is deselected during installation.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
+### Configuration
+
+No settings override.
+
 ## SDC Devel
 
 [SDC Devel](https://www.drupal.org/project/sdc_devel) provides development
@@ -560,6 +681,20 @@ excludes it from the exported configuration.
 
 ➡️ See [Testmode](testmode.mdx) for the configuration and the Behat
 integration.
+
+## Views Bulk Operations
+
+[Views Bulk
+Operations](https://www.drupal.org/project/views_bulk_operations) adds a
+bulk operations form to views, so editors can run 1 action on many
+selected items.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
+### Configuration
+
+No settings override.
 
 ## XML Sitemap
 
