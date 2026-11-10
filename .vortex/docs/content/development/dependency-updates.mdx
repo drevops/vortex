@@ -451,8 +451,11 @@ runner image](../continuous-integration/README.mdx#update-ci-runner-image).
 Composer 2.11 adds the `config.policy` block of `composer.json` to the
 lock's `content-hash`, and Composer 2.10 leaves it out. **Vortex** ships a
 `config.policy` block, so a lock written by 1 of these versions fails
-validation on the other. The error reads "The lock file is not up to date
-with the latest changes in composer.json".
+validation on the other, with this error:
+
+```text
+The lock file is not up to date with the latest changes in composer.json
+```
 
 The `constraints` setting pins Renovate to the Composer minor version in the
 `drevops/ci-runner` image:
