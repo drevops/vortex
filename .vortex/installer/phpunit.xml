@@ -44,7 +44,5 @@
     </logging>
     <php>
         <ini name="memory_limit" value="4G"/>
-        <!-- A fixed width keeps Prompty from querying the terminal on every print. -->
-        <env name="COLUMNS" value="80"/>
     </php>
 </phpunit>

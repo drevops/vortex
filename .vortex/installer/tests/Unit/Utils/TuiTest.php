@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
+use AlexSkrypnyk\Prompty\Prompty;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Tui;
@@ -99,11 +100,10 @@ INPUT,
   }
 
   public function testTerminalWidth(): void {
-    static::envSet('COLUMNS', '60');
     Tui::init(new BufferedOutput());
 
-    $this->assertSame(60, Tui::terminalWidth());
-    $this->assertSame(50, Tui::terminalWidth(50));
+    $this->assertSame(min(100, max(20, Prompty::terminalWidth())), Tui::terminalWidth());
+    $this->assertSame(min(10, max(20, Prompty::terminalWidth())), Tui::terminalWidth(10));
   }
 
   #[DataProvider('dataProviderBox')]
