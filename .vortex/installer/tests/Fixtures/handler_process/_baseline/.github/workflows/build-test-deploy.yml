@@ -241,6 +241,8 @@ jobs:
           {
             echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
             echo "VORTEX_FRONTEND_BUILD_SKIP=1"
+            # Refresh the database dumps in the fetch sources that are dump stores.
+            echo "VORTEX_PUSH_DB_PROCEED=1"
           } >> "$GITHUB_ENV"
 
       - name: Create cache keys files for database caching

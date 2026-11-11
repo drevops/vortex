@@ -1,4 +1,13 @@
-@@ -270,6 +270,9 @@
+@@ -191,6 +191,8 @@
+         VORTEX_CI_DB_CACHE_FALLBACK: "yes"
+         # Which branch to use as a source of DB caches.
+         VORTEX_CI_DB_CACHE_BRANCH: "develop"
++        VORTEX_FETCH_DB2_FTP_USER: ${{ secrets.VORTEX_FETCH_DB2_FTP_USER }}
++        VORTEX_FETCH_DB2_FTP_PASS: ${{ secrets.VORTEX_FETCH_DB2_FTP_PASS }}
+ 
+     steps:
+       # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
+@@ -272,6 +274,9 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
@@ -8,7 +17,22 @@
        - name: Export DB
          run: |
            if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
-@@ -431,6 +434,11 @@
+@@ -278,6 +283,14 @@
+           ./vendor/bin/vortex-refresh-db
+         timeout-minutes: 30
+ 
++      # Push the freshly-fetched migration database dump to its fetch source,
++      # next to the primary dump. No-op unless the push was requested.
++      - name: Push migration DB
++        run: |
++          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
++          VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db
++        timeout-minutes: 30
++
+       # Save cache per default branch and the timestamp.
+       # The cache will not be saved if it already exists.
+       # Note that the cache fallback flag is enabled for this case in order
+@@ -433,6 +446,11 @@
              docker compose exec cli mkdir -p .data
              docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
              rm -f .data/db.sql

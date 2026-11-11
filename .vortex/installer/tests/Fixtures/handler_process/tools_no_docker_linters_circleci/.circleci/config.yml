@@ -291,6 +291,8 @@ jobs:
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
       # Enforce fresh DB build (do not rely on fallback caches).
       VORTEX_CI_DB_CACHE_FALLBACK: 'no'
+      # Refresh the database dumps in the fetch sources that are dump stores.
+      VORTEX_PUSH_DB_PROCEED: 1
       # Do not build the Drupal front-end.
       VORTEX_FRONTEND_BUILD_SKIP: 1
 
