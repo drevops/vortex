@@ -65,8 +65,8 @@ permission before running.
 Triggers that require re-recording:
 - New `Handlers/*.php` class or handler removal.
 - Wording change to `label()` or `hint()` of any existing handler.
-- Adding, removing or reordering prompts inside
-  `PromptManager::runPrompts()`, which also moves the progress denominator.
+- Adding, removing or reordering prompts inside `PromptManager::steps()`,
+  which also changes the step count in each label.
 
 ## Conditional Token System
 
@@ -133,9 +133,11 @@ Content removed if feature not selected
 
 ### Ordering
 
-`PromptManager::runPrompts()` is the catalogue of prompts: the `form()`
-chain lists every prompt, in order, under its section heading. Add a new
-prompt there, and the progress denominator follows automatically.
+`PromptManager::steps()` is the catalogue of prompts: it lists every prompt,
+in order, under its section heading. `runPrompts()` runs them as 1
+`Prompty::flow()`, with each handler's `shouldRun()` as the step's
+condition. Add a new prompt to `steps()`, and the step count follows
+automatically.
 
 Processing runs in a different order, so each handler declares its own
 `processWeight()` - lowest first, broadly the reverse of the prompt order so

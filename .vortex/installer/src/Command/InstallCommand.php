@@ -193,11 +193,9 @@ EOF
           hint: fn(): string => sprintf('Checking repository "%s" and reference "%s"', $this->artifact->getRepo(), $this->artifact->getRef()),
           success: fn(string $return): string => $return
         );
-        Tui::line('');
       }
 
-      Tui::line(Tui::dim('Press any key to continue...'));
-      Tui::getChar();
+      Tui::pause('Press any key to continue...');
 
       if (!$this->promptManager->runPrompts()) {
         Tui::info('Aborting project installation. No files were changed.');
@@ -290,7 +288,7 @@ EOF
     if ($should_build) {
       $build_ok = Task::action(
         label: 'Building site',
-        action: fn(): bool => $this->runBuildCommand($output),
+        action: fn(): bool => $this->runBuildCommand(Tui::output()),
         streaming: TRUE,
       );
 

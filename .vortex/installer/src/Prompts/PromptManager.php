@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts;
 
+use AlexSkrypnyk\Prompty\Prompty;
 use DrevOps\VortexInstaller\Prompts\Handlers\AbstractHandler;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeReview;
@@ -61,14 +62,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class PromptManager {
 
   /**
-   * Total number of top-level responses.
-   *
-   * Counted from the steps in runPrompts() and used to display the progress of
-   * the prompts.
-   */
-  protected int $totalResponses = 0;
-
-  /**
    * Array of responses.
    */
   protected array $responses = [];
@@ -80,13 +73,6 @@ class PromptManager {
    * produced with the same preceding responses in context.
    */
   protected array $discoveredResponses = [];
-
-  /**
-   * Current response index.
-   *
-   * Used to display the progress of the prompts.
-   */
-  protected int $currentResponseIndex = 0;
 
   /**
    * Array of handlers.
@@ -134,37 +120,17 @@ class PromptManager {
       Tui::output()->setVerbosity(OutputInterface::VERBOSITY_QUIET);
     }
 
-    $sections = $this->steps();
+    $responses = Prompty::flow($this->flowSteps(...), numbering: 'total', env_prefix: 'VORTEX_INSTALLER_PROMPT_');
 
-    $this->totalResponses = array_sum(array_map(count(...), $sections));
+    Tui::output()->setVerbosity($original_verbosity);
 
-    $responses = [];
-
-    foreach ($sections as $section => $steps) {
-      Tui::info($section);
-
-      foreach ($steps as $id => $step) {
-        if (!$this->handler($id)->shouldRun($responses)) {
-          $responses[$id] = NULL;
-          continue;
-        }
-
-        $response = $step($responses);
-
-        // A widget answers NULL only when the user cancels it.
-        if ($response === NULL) {
-          Tui::output()->setVerbosity($original_verbosity);
-
-          return FALSE;
-        }
-
-        $responses[$id] = $response;
-      }
+    // The flow answers NULL only when the user cancels a step.
+    if ($responses === NULL) {
+      return FALSE;
     }
 
-    if ($this->config->getNoInteraction()) {
-      Tui::output()->setVerbosity($original_verbosity);
-    }
+    // A step skipped by its condition is absent from the flow's answers.
+    $responses += array_fill_keys(array_keys(array_merge(...array_values($this->steps()))), NULL);
 
     $this->responses = $this->normalizeResponses($responses);
 
@@ -189,13 +155,39 @@ class PromptManager {
   }
 
   /**
+   * Build the flow from the prompt catalogue.
+   *
+   * Each step and its condition receive every earlier step's answer, with NULL
+   * for a step its condition skipped.
+   *
+   * @return array<int|string, mixed>
+   *   A section heading for each group, followed by its steps keyed by handler
+   *   ID. A step runs only when its handler's shouldRun() accepts the answers
+   *   collected so far.
+   */
+  protected function flowSteps(): array {
+    $flow = [];
+    $earlier = [];
+
+    foreach ($this->steps() as $section => $steps) {
+      $flow[] = Prompty::section($section);
+
+      foreach ($steps as $id => $step) {
+        $skipped = $earlier;
+        $flow[$id] = Prompty::step(fn(array $r): mixed => $step($r + $skipped), condition: fn(array $r): bool => $this->handler($id)->shouldRun($r + $skipped));
+        $earlier[$id] = NULL;
+      }
+    }
+
+    return $flow;
+  }
+
+  /**
    * Define the prompts in the order they are asked, grouped by section.
    *
-   * Every step runs only when its handler's shouldRun() accepts the responses
-   * collected so far; a skipped step responds with NULL.
-   *
    * @return array<string, array<string, \Closure(array): mixed>>
-   *   Steps keyed by handler ID, grouped under their section heading.
+   *   Steps keyed by handler ID, grouped under their section heading. Each step
+   *   receives the answers collected so far and returns the widget to ask.
    */
   protected function steps(): array {
     return [
@@ -208,12 +200,12 @@ class PromptManager {
       ],
       'Drupal' => [
         Starter::id() => fn(array $r): mixed => $this->prompt(Starter::class, $r),
-        Profile::id() => fn(array $r): ?string => $this->resolveOrPrompt(Profile::id(), $r, fn(): mixed => $this->prompt(Profile::class)),
+        Profile::id() => fn(array $r): mixed => $this->resolveOrPrompt(Profile::id(), $r, fn(): mixed => $this->prompt(Profile::class)),
         ProfileCustom::id() => fn(array $r): mixed => $this->prompt(ProfileCustom::class),
         Modules::id() => fn(array $r): mixed => $this->prompt(Modules::class, $r),
         ModulePrefix::id() => fn(array $r): mixed => $this->prompt(ModulePrefix::class, $r),
         CustomModules::id() => fn(array $r): mixed => $this->prompt(CustomModules::class, $r),
-        Theme::id() => fn(array $r): ?string => $this->resolveOrPrompt(Theme::id(), $r, fn(): mixed => $this->prompt(Theme::class)),
+        Theme::id() => fn(array $r): mixed => $this->resolveOrPrompt(Theme::id(), $r, fn(): mixed => $this->prompt(Theme::class)),
         ThemeCustom::id() => fn(array $r): mixed => $this->prompt(ThemeCustom::class, $r),
         FrontendBuild::id() => fn(array $r): mixed => $this->prompt(FrontendBuild::class, $r),
         Storybook::id() => fn(array $r): mixed => $this->prompt(Storybook::class, $r),
@@ -230,7 +222,7 @@ class PromptManager {
       'Hosting' => [
         HostingProvider::id() => fn(array $r): mixed => $this->prompt(HostingProvider::class),
         HostingProjectName::id() => fn(array $r): mixed => $this->prompt(HostingProjectName::class, $r),
-        Webroot::id() => fn(array $r): ?string => $this->resolveOrPrompt(Webroot::id(), $r, fn(): mixed => $this->prompt(Webroot::class, $r)),
+        Webroot::id() => fn(array $r): mixed => $this->resolveOrPrompt(Webroot::id(), $r, fn(): mixed => $this->prompt(Webroot::class, $r)),
       ],
       'Deployment' => [
         DeployTypes::id() => fn(array $r): mixed => $this->prompt(DeployTypes::class, $r),
@@ -524,27 +516,6 @@ class PromptManager {
   }
 
   /**
-   * Generate a label for a prompt.
-   *
-   * @param string $text
-   *   The text to display in the label.
-   * @param string|null $suffix
-   *   An optional suffix to display in the label.
-   *
-   * @return string
-   *   The formatted label text.
-   */
-  protected function label(string $text, ?string $suffix = NULL): string {
-    if ($suffix === NULL) {
-      $this->currentResponseIndex++;
-    }
-
-    $suffix = $suffix !== NULL ? $this->currentResponseIndex . '.' . $suffix : $this->currentResponseIndex;
-
-    return $text . ' ' . Tui::dim('(' . $suffix . '/' . $this->totalResponses . ')');
-  }
-
-  /**
    * Collect and initialize handlers.
    */
   protected function initHandlers(): void {
@@ -624,22 +595,12 @@ class PromptManager {
    *   Current form responses for context-aware methods.
    *
    * @return mixed
-   *   The prompt result.
+   *   The widget call for the flow step.
    */
   protected function prompt(string $handler_class, array $responses = []): mixed {
-    $type = $this->handler($handler_class::id())->type();
-    $args = $this->args($handler_class, NULL, $responses);
+    $fn = $this->handler($handler_class::id())->type()->promptFunction();
 
-    $response = $type->promptFunction()(...$args);
-
-    // The widget answers in option order. Keeping the selected defaults in
-    // their own order first leaves a discovered list in the order the project
-    // already has it.
-    if ($type === PromptType::MultiSelect && is_array($response) && is_array($args['default'] ?? NULL)) {
-      $response = array_values(array_unique(array_merge(array_intersect($args['default'], $response), $response)));
-    }
-
-    return $response;
+    return $fn(...$this->args($handler_class, NULL, $responses));
   }
 
   /**
@@ -662,18 +623,24 @@ class PromptManager {
     $handler = $this->handler($id);
 
     $args = [
-      'label' => $this->label($handler->label()),
+      'label' => $handler->label(),
       'help' => $handler->hint($responses),
       'placeholder' => $handler->placeholder($responses),
       'transform' => $handler->transform(),
-      'validate' => $this->validator($handler),
+      'validate' => $handler->validate(),
       'description' => $handler::description($responses),
+      'required' => $handler->isRequired() ?: NULL,
     ];
 
     $options = $handler->options($responses);
     if (is_array($options)) {
       $args['options'] = $options;
       $args['scroll'] = 10;
+    }
+
+    // A discovered list keeps the order the project already has it in.
+    if ($handler->type() === PromptType::MultiSelect) {
+      $args['order'] = 'default';
     }
 
     $default_from_handler = $handler->default($responses);
@@ -716,35 +683,6 @@ class PromptManager {
   }
 
   /**
-   * Build the validator for a handler's prompt.
-   *
-   * A required prompt rejects an empty answer before the handler's own
-   * validation runs.
-   *
-   * @param \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface $handler
-   *   The handler.
-   *
-   * @return \Closure|null
-   *   The validator, or NULL when the answer is not validated.
-   */
-  protected function validator(HandlerInterface $handler): ?\Closure {
-    $validate = $handler->validate();
-    $is_required = $handler->isRequired();
-
-    if ($validate === NULL && !$is_required) {
-      return NULL;
-    }
-
-    return function (mixed $value) use ($validate, $is_required): ?string {
-      if ($is_required && ($value === '' || $value === [])) {
-        return 'Required.';
-      }
-
-      return $validate === NULL ? NULL : $validate($value);
-    };
-  }
-
-  /**
    * Resolve a value via handler or prompt the user.
    *
    * @param string $handler_id
@@ -754,10 +692,11 @@ class PromptManager {
    * @param callable $prompt
    *   The prompt callable to use if the value is not resolved.
    *
-   * @return string|null
-   *   The resolved value, or NULL when the prompt was cancelled.
+   * @return mixed
+   *   The widget call for the flow step. A resolved value answers the step
+   *   without asking.
    */
-  protected function resolveOrPrompt(string $handler_id, array $r, callable $prompt): ?string {
+  protected function resolveOrPrompt(string $handler_id, array $r, callable $prompt): mixed {
     $handler = $this->handler($handler_id);
     $resolved = $handler->resolvedValue($r);
 
@@ -772,12 +711,12 @@ class PromptManager {
       // discovery for handlers that never reach a prompt.
       $this->discoveredResponses[$handler_id] = $resolved;
 
-      return $resolved;
+      // A text widget accepts any value, including a name outside the
+      // handler's options.
+      return Prompty::text($handler->label(), discovered: $resolved);
     }
 
-    $value = $prompt();
-
-    return $value === NULL ? NULL : (string) $value;
+    return $prompt();
   }
 
   /**

@@ -118,6 +118,7 @@ class InstallerPresenterTest extends UnitTestCase {
 
     $output = $this->output->fetch();
     $this->assertStringContainsString('Ctrl+C', $output);
+    $this->assertStringContainsString('Ctrl+U', $output);
   }
 
   public function testHeaderNonInteractiveHidesControls(): void {
@@ -130,6 +131,7 @@ class InstallerPresenterTest extends UnitTestCase {
 
     $output = $this->output->fetch();
     $this->assertStringNotContainsString('Ctrl+C', $output);
+    $this->assertStringNotContainsString('Ctrl+U', $output);
     $this->assertStringContainsString('non-interactive', $output);
   }
 

@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Task;
 
-use DrevOps\VortexInstaller\Utils\Strings;
+use AlexSkrypnyk\Prompty\Prompty;
 use DrevOps\VortexInstaller\Utils\Tui;
+use Symfony\Component\Console\Output\StreamOutput;
 
 class Task {
-
-  protected static string $message;
-
-  protected static ?string $hint;
 
   public static function action(
     \Closure|string $label,
@@ -27,102 +24,92 @@ class Task {
       throw new \InvalidArgumentException('Action must be callable.');
     }
 
-    $label = Tui::normalizeText($label);
+    // Prompty draws 1 task at a time, so a task inside a streamed task is
+    // part of that task's output.
+    if (Tui::isCaptured()) {
+      return self::plain($label, $action, $hint, $success, $failure);
+    }
 
+    $output = Tui::output();
+    $is_interactive = Tui::isInteractive();
+
+    $run = function () use ($action, $output, $is_interactive, $streaming): mixed {
+      if ($streaming) {
+        Tui::capture(TRUE);
+      }
+
+      try {
+        return $action();
+      }
+      finally {
+        if ($streaming) {
+          Tui::capture(FALSE);
+        }
+
+        // A command run by the action initializes the TUI with its own output,
+        // so the result line needs this command's output back.
+        Tui::init($output, $is_interactive);
+      }
+    };
+
+    // Lines written to php://output go through the output buffer that a
+    // streamed task captures.
     if ($streaming) {
-      $original_output = Tui::output();
+      $stream = fopen('php://output', 'w');
 
-      $task_output = new TaskOutput($original_output);
+      if ($stream === FALSE) {
+        throw new \RuntimeException('Could not open php://output for a streamed task.');
+      }
 
-      self::start($label);
-
-      Tui::setOutput($task_output);
-
-      ob_start(function (string|iterable $buffer) use ($task_output): string {
-        $task_output->write($buffer);
-        return '';
-      }, 1);
-
-      $return = $action();
-
-      ob_end_clean();
-      Tui::setOutput($original_output);
-    }
-    else {
-      $return = self::spin($action, Tui::yellow($label));
-      self::label($label, $hint && is_callable($hint) ? $hint() : $hint, is_array($return) ? $return : NULL, Strings::isAsciiStart($label) ? 2 : 3);
+      Tui::setOutput(new StreamOutput($stream, $output->getVerbosity(), $output->isDecorated()));
     }
 
-    if ($return === FALSE) {
-      $failure = $failure && is_callable($failure) ? $failure() : $failure;
-      Tui::error($failure ? Tui::normalizeText($failure) : 'FAILED');
+    try {
+      return Prompty::task($label, action: $run, hint: $hint ?? '', success: $success ?? '', failure: $failure ?? '', stream: $streaming);
     }
-    else {
-      $success = $success && is_callable($success) ? $success($return) : $success;
-      self::ok($success ? Tui::normalizeText($success) : 'OK');
+    finally {
+      Tui::setOutput($output);
     }
-
-    return $return;
   }
 
   /**
-   * Show the label while the action runs, then erase it.
+   * Run an action and report it as plain lines.
    *
+   * @param string $label
+   *   The task label.
    * @param \Closure $action
    *   The action to run.
-   * @param string $label
-   *   The label to show while the action runs.
+   * @param \Closure|string|null $hint
+   *   The hint, or a callable that receives the action's return value.
+   * @param \Closure|string|null $success
+   *   The success message, or a callable that receives the return value.
+   * @param \Closure|string|null $failure
+   *   The failure message, or a callable that receives the return value.
    *
    * @return mixed
    *   The value the action returns.
    */
-  protected static function spin(\Closure $action, string $label): mixed {
-    Tui::output()->write(PHP_EOL . ' ' . Tui::cyan('⠂') . ' ' . $label . PHP_EOL);
+  protected static function plain(string $label, \Closure $action, \Closure|string|null $hint, \Closure|string|null $success, \Closure|string|null $failure): mixed {
+    Tui::line($label, 0);
 
-    try {
-      return $action();
-    }
-    finally {
-      // Move to the start of the blank line above the label and clear down.
-      Tui::output()->write("\033[999D\033[2A\033[J");
-    }
-  }
+    $return = $action();
 
-  protected static function label(string $message, ?string $hint = NULL, ?array $sublist = NULL, int $sublist_indent = 3): void {
-    $width = Tui::terminalWidth();
-    $right_offset = 10;
-
-    $message = '✦ ' . $message;
-    $message = Tui::normalizeText($message);
-
-    self::$message = Tui::blue(wordwrap($message, $width - $right_offset, PHP_EOL));
-    self::$hint = $hint ? wordwrap(Tui::normalizeText($hint), $width - $right_offset, PHP_EOL) : NULL;
-
-    Tui::note(self::$message);
-    Tui::note(str_repeat(Tui::caretUp(), 5));
-
-    if (self::$hint) {
-      Tui::note(str_repeat(' ', $sublist_indent) . Tui::dim(self::$hint));
-      Tui::note(str_repeat(Tui::caretUp(), 5));
+    $hint = is_callable($hint) ? $hint($return) : $hint;
+    if ($hint) {
+      Tui::line($hint, 2);
     }
 
-    if (is_array($sublist)) {
-      foreach ($sublist as $value) {
-        Tui::note(str_repeat(' ', $sublist_indent) . Tui::dim($value));
-        Tui::note(str_repeat(Tui::caretUp(), 5));
-      }
+    foreach (is_array($return) ? $return : [] as $detail) {
+      Tui::line((string) $detail, 2);
     }
-  }
 
-  protected static function ok(string $text = 'OK'): void {
-    $ok = Tui::green(Tui::normalizeText('✓ ' . $text));
-    Tui::note($ok);
-    Tui::note(str_repeat(Tui::caretUp(), 4));
-  }
+    $is_ok = $return !== FALSE;
+    $message = $is_ok ? $success : $failure;
+    $message = is_callable($message) ? $message($return) : $message;
 
-  protected static function start(string $label): void {
-    $message = '✦ ' . $label;
-    Tui::line(Tui::blue(Tui::normalizeText($message)));
+    Tui::line(($is_ok ? '✓ ' : '✕ ') . ($message ?: ($is_ok ? 'OK' : 'FAILED')), 0);
+
+    return $return;
   }
 
 }

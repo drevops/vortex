@@ -52,10 +52,18 @@ value:
    `composer.json`, `.env`, hosting-specific files like `.lagoon.yml`).
 3. **Handler defaults** - fallback values defined by each handler.
 
+An environment variable named `VORTEX_INSTALLER_PROMPT_` followed by the
+uppercased prompt ID answers that prompt, so the installer doesn't ask it.
+For example, `VORTEX_INSTALLER_PROMPT_HOSTING_PROVIDER=lagoon` answers the
+hosting prompt. The variable wins over the 3 preceding sources. A prompt
+with several choices reads a comma-separated list. A yes or no prompt reads
+`1`, `true` and `yes` as yes, and `0`, `false` and `no` as no. An invalid
+value stops the installer at that prompt.
+
 The profile, theme and web root prompts go a step further. When discovery
 finds a value, or an earlier answer settles it, the installer uses that
 value without asking. For these 3 prompts, that value wins over
-`--prompts`. Choosing Acquia
+`--prompts` and the environment variable. Choosing Acquia
 hosting, for example, settles the web root.
 
 `--prompts` with `--no-interaction` runs a whole installation without a
@@ -77,8 +85,8 @@ keyed by their `VORTEX_INSTALLER_*` names, such as
 `VORTEX_INSTALLER_TEMPLATE_REPO`. An environment variable with the same name
 wins over the value in the JSON.
 
-The final **Run the site build now?** question is the only question with
-an environment variable of its own:
+The final **Run the site build now?** question comes after the summary, and
+its environment variable sets the question's default:
 
 - `VORTEX_INSTALLER_PROMPT_BUILD_NOW` sets its default. `0` or an empty
   value defaults to no. Any other value, or an unset variable, defaults to

@@ -201,6 +201,9 @@ proc wait_and_enter {} {
 }
 
 set env(VORTEX_INSTALLER_PROMPT_BUILD_NOW) 0
+# The prompts below match Unicode symbols, so the installer output is decoded
+# as UTF-8 whatever the locale.
+encoding system utf-8
 spawn php installer.php --destination=star_wars --uri=$installer_uri
 
 expect {
@@ -240,19 +243,18 @@ expect {
   }
 }
 
-# A widget hides the cursor before it draws its first frame, and the completed
-# frame repeats the label without it, so only a prompt waiting for input
-# matches.
+# A prompt waiting for input starts with the active symbol, U+25C7, and an
+# answered one with the completed symbol, so only a waiting prompt matches.
 while {1} {
   expect {
-    -re {\x1b\[\?25l[^\r\n]*Proceed with installing Vortex} {
+    -re {◇[^\r\n]*Proceed with installing Vortex} {
       after 2000
       safe_send "\r"
     }
     "Finished installing Vortex" {
       break
     }
-    -re {\x1b\[\?25l[^\r\n]*\([0-9]+/[0-9]+\)} {
+    -re {◇[^\r\n]*\([0-9]+/[0-9]+\)} {
       wait_and_enter
     }
     timeout {

@@ -32,22 +32,7 @@ trait TuiTrait {
    *   Keystrokes in the order the prompts read them.
    */
   protected function tuiInput(array $keystrokes): void {
-    $stream = fopen('php://memory', 'r+');
-
-    if ($stream === FALSE) {
-      throw new \RuntimeException('Could not open a memory stream for the keystrokes.');
-    }
-
-    fwrite($stream, implode('', $keystrokes));
-    rewind($stream);
-
-    $instance = $this->promptyGetStatic('instance');
-
-    if (!is_object($instance)) {
-      throw new \RuntimeException('Prompty is not initialized. Call tuiSetUp() first.');
-    }
-
-    $this->promptySetProperty($instance, 'input', $stream);
+    $this->promptyInput(implode('', $keystrokes));
     $this->promptyThrowOnInvalid();
   }
 
