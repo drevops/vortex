@@ -366,41 +366,6 @@ EXPECTED,
     $this->assertFalse($result);
   }
 
-  public function testCapturedWritesPlainLines(): void {
-    $output = new BufferedOutput();
-    Tui::init($output);
-
-    Tui::capture(TRUE);
-    $this->assertTrue(Tui::isCaptured());
-
-    // A command run while captured keeps Prompty drawing to the first output.
-    $nested = new BufferedOutput();
-    Tui::init($nested);
-
-    Tui::info('Info line');
-    Tui::success('Success line');
-    Tui::error('Error line');
-    Tui::note('Note line');
-    Tui::box('Box content', 'Box title');
-    Tui::table(['Name', 'Value'], [['key1', 'value1'], 'Section']);
-
-    Tui::capture(FALSE);
-    $this->assertFalse(Tui::isCaptured());
-
-    $this->assertSame(implode(PHP_EOL, [
-      'Info line',
-      '✓ Success line',
-      '✕ Error line',
-      'Note line',
-      'Box title',
-      'Box content',
-      'Name: Value',
-      'key1: value1',
-      'Section',
-    ]) . PHP_EOL, $nested->fetch());
-    $this->assertSame('', $output->fetch());
-  }
-
   public function testPauseNonInteractive(): void {
     $output = new BufferedOutput();
     Tui::init($output, FALSE);

@@ -13,41 +13,20 @@ class Tui {
 
   protected static OutputInterface $output;
 
-  /**
-   * The output Prompty draws to.
-   *
-   * Only init() sets it, so setOutput() redirects lines but not Prompty's
-   * frames.
-   */
-  protected static OutputInterface $promptyOutput;
-
   protected static bool $isInteractive = TRUE;
-
-  /**
-   * The number of streamed tasks whose action is running.
-   *
-   * While it is above 0, output is the content of the outer task, so it is
-   * written as plain lines to $output instead of being drawn by Prompty.
-   */
-  protected static int $captureDepth = 0;
 
   public static function init(OutputInterface $output, bool $is_interactive = TRUE): void {
     self::$output = $output;
     self::$isInteractive = $is_interactive;
 
-    // A command run inside a streamed task keeps Prompty drawing the task.
-    if (self::isCaptured()) {
-      return;
-    }
-
-    self::$promptyOutput = $output;
-
-    // Raw output keeps the prompt frames away from the console formatter.
+    // Raw output keeps the prompt frames away from the console formatter. The
+    // callback binds $output rather than reading self::$output, so setOutput()
+    // and a later init() leave a running task on the output it started on.
     Prompty::configure(
       labels: ['done' => 'OK', 'failed' => 'FAILED'],
       unicode: TRUE,
       ansi: $output->isDecorated(),
-      output: fn(string $chunk) => self::$promptyOutput->write($chunk, FALSE, OutputInterface::OUTPUT_RAW),
+      output: fn(string $chunk) => $output->write($chunk, FALSE, OutputInterface::OUTPUT_RAW),
       interactive: $is_interactive,
       placeholder_fallback: FALSE,
     );
@@ -68,34 +47,20 @@ class Tui {
     return self::$isInteractive;
   }
 
-  /**
-   * Start or end capturing output as the content of a streamed task.
-   *
-   * @param bool $is_captured
-   *   TRUE when a streamed task's action starts, FALSE when it ends.
-   */
-  public static function capture(bool $is_captured): void {
-    self::$captureDepth = max(0, self::$captureDepth + ($is_captured ? 1 : -1));
-  }
-
-  public static function isCaptured(): bool {
-    return self::$captureDepth > 0;
-  }
-
   public static function info(string $message): void {
-    self::isCaptured() ? self::line($message, 0) : Prompty::note($message);
+    Prompty::note($message);
   }
 
   public static function note(string $message): void {
-    self::isCaptured() ? self::line($message, 0) : Prompty::output(explode(PHP_EOL, $message));
+    Prompty::output(explode(PHP_EOL, $message));
   }
 
   public static function success(string $message): void {
-    self::isCaptured() ? self::line('✓ ' . $message, 0) : Prompty::note($message, type: 'success');
+    Prompty::note($message, type: 'success');
   }
 
   public static function error(string $message): void {
-    self::isCaptured() ? self::line('✕ ' . $message, 0) : Prompty::note($message, type: 'error');
+    Prompty::note($message, type: 'error');
   }
 
   public static function confirm(string $label, bool $default = TRUE, ?string $hint = NULL): bool {
@@ -188,12 +153,6 @@ class Tui {
   }
 
   public static function box(string $content, ?string $title = NULL): void {
-    if (self::isCaptured()) {
-      self::line(trim(($title ? $title . PHP_EOL : '') . $content), 0);
-
-      return;
-    }
-
     Prompty::box($content, title: $title ?? '');
   }
 
@@ -206,14 +165,6 @@ class Tui {
    *   Table rows. A string row spans every column.
    */
   public static function table(array $header, array $rows): void {
-    if (self::isCaptured()) {
-      foreach (array_merge($header === [] ? [] : [$header], $rows) as $row) {
-        self::line(is_array($row) ? implode(': ', $row) : $row, 0);
-      }
-
-      return;
-    }
-
     Prompty::table($rows, headers: $header);
   }
 

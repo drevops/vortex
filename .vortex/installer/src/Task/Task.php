@@ -24,28 +24,14 @@ class Task {
       throw new \InvalidArgumentException('Action must be callable.');
     }
 
-    // Prompty draws 1 task at a time, so a task inside a streamed task is
-    // part of that task's output.
-    if (Tui::isCaptured()) {
-      return self::plain($label, $action, $hint, $success, $failure);
-    }
-
     $output = Tui::output();
     $is_interactive = Tui::isInteractive();
 
-    $run = function () use ($action, $output, $is_interactive, $streaming): mixed {
-      if ($streaming) {
-        Tui::capture(TRUE);
-      }
-
+    $run = function () use ($action, $output, $is_interactive): mixed {
       try {
         return $action();
       }
       finally {
-        if ($streaming) {
-          Tui::capture(FALSE);
-        }
-
         // A command run by the action initializes the TUI with its own output,
         // so the result line needs this command's output back.
         Tui::init($output, $is_interactive);
@@ -70,46 +56,6 @@ class Task {
     finally {
       Tui::setOutput($output);
     }
-  }
-
-  /**
-   * Run an action and report it as plain lines.
-   *
-   * @param string $label
-   *   The task label.
-   * @param \Closure $action
-   *   The action to run.
-   * @param \Closure|string|null $hint
-   *   The hint, or a callable that receives the action's return value.
-   * @param \Closure|string|null $success
-   *   The success message, or a callable that receives the return value.
-   * @param \Closure|string|null $failure
-   *   The failure message, or a callable that receives the return value.
-   *
-   * @return mixed
-   *   The value the action returns.
-   */
-  protected static function plain(string $label, \Closure $action, \Closure|string|null $hint, \Closure|string|null $success, \Closure|string|null $failure): mixed {
-    Tui::line($label, 0);
-
-    $return = $action();
-
-    $hint = is_callable($hint) ? $hint($return) : $hint;
-    if ($hint) {
-      Tui::line($hint, 2);
-    }
-
-    foreach (is_array($return) ? $return : [] as $detail) {
-      Tui::line((string) $detail, 2);
-    }
-
-    $is_ok = $return !== FALSE;
-    $message = $is_ok ? $success : $failure;
-    $message = is_callable($message) ? $message($return) : $message;
-
-    Tui::line(($is_ok ? '✓ ' : '✕ ') . ($message ?: ($is_ok ? 'OK' : 'FAILED')), 0);
-
-    return $return;
   }
 
 }

@@ -128,6 +128,17 @@ class TaskTest extends UnitTestCase {
           label: 'Inner failing task',
           action: fn(): bool => FALSE,
         );
+        Task::action(
+          label: 'Inner streamed task',
+          action: function (): bool {
+            Tui::line('Inner streamed line');
+
+            return TRUE;
+          },
+          success: 'Inner streamed done',
+          streaming: TRUE,
+        );
+        Tui::line('Outer line after inner tasks');
 
         return TRUE;
       },
@@ -138,13 +149,15 @@ class TaskTest extends UnitTestCase {
     $actual = $output->fetch();
 
     $this->assertTrue($result);
-    $this->assertFalse(Tui::isCaptured());
     $this->assertStringContainsString('Outer task', $actual);
     $this->assertStringContainsString('Inner task', $actual);
     $this->assertStringContainsString('Inner hint', $actual);
     $this->assertStringContainsString('detail 1', $actual);
     $this->assertStringContainsString('✓ Inner done', $actual);
-    $this->assertStringContainsString('✕ FAILED', $actual);
+    $this->assertStringContainsString('▲ FAILED', $actual);
+    $this->assertStringContainsString('Inner streamed line', $actual);
+    $this->assertStringContainsString('✓ Inner streamed done', $actual);
+    $this->assertStringContainsString('Outer line after inner tasks', $actual);
     $this->assertStringContainsString('✓ Outer done', $actual);
   }
 
