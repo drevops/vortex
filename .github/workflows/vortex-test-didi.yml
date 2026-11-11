@@ -81,15 +81,15 @@ jobs:
         VORTEX_FETCH_DB2_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB2_S3_SECRET_KEY }}
         #;> MIGRATION_DB_FETCH_SOURCE_S3
         #;< VORTEX_DEV
-        # FTP server that receives the demo database on the nightly run, under
-        # a suffix that tells this provider's dumps apart, with a timestamped
+        # FTP server that receives the demo database on the nightly run, in a
+        # directory that tells this provider's dumps apart, with a timestamped
         # copy of each push.
         VORTEX_PUSH_DB_FTP_HOST: ${{ secrets.VORTEX_PUSH_DB_FTP_HOST }}
         VORTEX_PUSH_DB_FTP_PORT: ${{ secrets.VORTEX_PUSH_DB_FTP_PORT }}
         VORTEX_PUSH_DB_FTP_USER: ${{ secrets.VORTEX_PUSH_DB_FTP_USER }}
         VORTEX_PUSH_DB_FTP_PASS: ${{ secrets.VORTEX_PUSH_DB_FTP_PASS }}
+        VORTEX_PUSH_DB_FTP_DIR: ${{ vars.VORTEX_PUSH_DB_FTP_DIR || 'gha' }}
         VORTEX_PUSH_DB_FTP_FILE: ${{ vars.VORTEX_PUSH_DB_FTP_FILE || 'db.sql' }}
-        VORTEX_PUSH_DB_FILE_SUFFIX: _gha
         VORTEX_PUSH_DB_TIMESTAMPED_COPY: 1
         #;> VORTEX_DEV
         VORTEX_FETCH_DB_SOURCE: url
@@ -221,29 +221,27 @@ jobs:
         timeout-minutes: 30
       #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
 
-      #;< DB_PUSH
-      # Push the freshly-exported sanitized database dump to the database fetch
-      # source. No-op unless a fresh DB was fetched (the fetch semaphore) and the
-      # push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
+      # Push the freshly-exported sanitized database dump to the push
+      # destinations. No-op unless a fresh DB was fetched (the fetch semaphore) and
+      # the push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
       - name: Push DB
         run: |
           if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
           ./vendor/bin/vortex-push-db
           #;< VORTEX_DEV
-          if [ -n "${VORTEX_PUSH_DB_FTP_HOST:-}" ]; then VORTEX_FETCH_DB_SOURCE=ftp VORTEX_REFRESH_DB_SOURCE=url ./vendor/bin/vortex-push-db; fi
+          if [ -n "${VORTEX_PUSH_DB_FTP_HOST:-}" ]; then VORTEX_PUSH_DB_DESTINATIONS=ftp ./vendor/bin/vortex-push-db; fi
           #;> VORTEX_DEV
         timeout-minutes: 30
-      #;> DB_PUSH
 
-      #;< MIGRATION_DB_PUSH
-      # Push the freshly-fetched migration database dump to its fetch source,
+      #;< MIGRATION
+      # Push the freshly-fetched migration database dump to its push destinations,
       # next to the primary dump. No-op unless the push was requested.
       - name: Push migration DB
         run: |
           if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
           VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db
         timeout-minutes: 30
-      #;> MIGRATION_DB_PUSH
+      #;> MIGRATION
 
       # Save cache per default branch and the timestamp.
       # The cache will not be saved if it already exists.
@@ -641,15 +639,15 @@ jobs:
         VORTEX_FETCH_DB2_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB2_S3_SECRET_KEY }}
         #;> MIGRATION_DB_FETCH_SOURCE_S3
         #;< VORTEX_DEV
-        # FTP server that receives the demo database on the nightly run, under
-        # a suffix that tells this provider's dumps apart, with a timestamped
+        # FTP server that receives the demo database on the nightly run, in a
+        # directory that tells this provider's dumps apart, with a timestamped
         # copy of each push.
         VORTEX_PUSH_DB_FTP_HOST: ${{ secrets.VORTEX_PUSH_DB_FTP_HOST }}
         VORTEX_PUSH_DB_FTP_PORT: ${{ secrets.VORTEX_PUSH_DB_FTP_PORT }}
         VORTEX_PUSH_DB_FTP_USER: ${{ secrets.VORTEX_PUSH_DB_FTP_USER }}
         VORTEX_PUSH_DB_FTP_PASS: ${{ secrets.VORTEX_PUSH_DB_FTP_PASS }}
+        VORTEX_PUSH_DB_FTP_DIR: ${{ vars.VORTEX_PUSH_DB_FTP_DIR || 'gha' }}
         VORTEX_PUSH_DB_FTP_FILE: ${{ vars.VORTEX_PUSH_DB_FTP_FILE || 'db.sql' }}
-        VORTEX_PUSH_DB_FILE_SUFFIX: _gha
         VORTEX_PUSH_DB_TIMESTAMPED_COPY: 1
         #;> VORTEX_DEV
         VORTEX_FETCH_DB_SOURCE: container_registry
@@ -799,29 +797,27 @@ jobs:
         timeout-minutes: 30
       #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
 
-      #;< DB_PUSH
-      # Push the freshly-exported sanitized database dump to the database fetch
-      # source. No-op unless a fresh DB was fetched (the fetch semaphore) and the
-      # push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
+      # Push the freshly-exported sanitized database dump to the push
+      # destinations. No-op unless a fresh DB was fetched (the fetch semaphore) and
+      # the push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
       - name: Push DB
         run: |
           if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
           ./vendor/bin/vortex-push-db
           #;< VORTEX_DEV
-          if [ -n "${VORTEX_PUSH_DB_FTP_HOST:-}" ]; then VORTEX_FETCH_DB_SOURCE=ftp VORTEX_REFRESH_DB_SOURCE=url ./vendor/bin/vortex-push-db; fi
+          if [ -n "${VORTEX_PUSH_DB_FTP_HOST:-}" ]; then VORTEX_PUSH_DB_DESTINATIONS=ftp ./vendor/bin/vortex-push-db; fi
           #;> VORTEX_DEV
         timeout-minutes: 30
-      #;> DB_PUSH
 
-      #;< MIGRATION_DB_PUSH
-      # Push the freshly-fetched migration database dump to its fetch source,
+      #;< MIGRATION
+      # Push the freshly-fetched migration database dump to its push destinations,
       # next to the primary dump. No-op unless the push was requested.
       - name: Push migration DB
         run: |
           if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
           VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db
         timeout-minutes: 30
-      #;> MIGRATION_DB_PUSH
+      #;> MIGRATION
 
       # Save cache per default branch and the timestamp.
       # The cache will not be saved if it already exists.

@@ -148,8 +148,8 @@ class DatabaseFetchSource extends AbstractHandler {
       File::removeTokenAsync('DB_IN_IMAGE');
     }
 
-    // DB_PUSH wraps the nightly push of the sanitized dump, which only an
-    // 'ftp' or 's3' source accepts.
+    // DB_PUSH wraps the upstream source of a dump store, which only an
+    // 'ftp' or 's3' source can be.
     if (!in_array($v, [self::FTP, self::S3], TRUE)) {
       File::removeTokenAsync('DB_PUSH');
     }

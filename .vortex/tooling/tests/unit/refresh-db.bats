@@ -318,6 +318,33 @@ load ../_helper.bash
   popd >/dev/null
 }
 
+@test "refresh-db: Sanitizes the database for push destinations from any fetch source" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  echo "upstream" >.data/db.sql
+
+  unset VORTEX_DB_IMAGE VORTEX_DB_IMAGE_BASE VORTEX_REFRESH_DB_SOURCE
+  export VORTEX_FETCH_DB_SOURCE="lagoon"
+  export VORTEX_PUSH_DB_PROCEED=1
+  export VORTEX_PUSH_DB_DESTINATIONS="ftp,s3"
+
+  stub_sibling "vortex-login-container-registry" "Logged in to the registry."
+  stub_sibling "vortex-export-db" 'Exported the database to ${1}.'
+
+  mock_command "sleep" >/dev/null
+  mock_docker=$(mock_command "docker")
+
+  run .vortex/tooling/src/vortex-refresh-db
+  assert_success
+  assert_output_contains "[ OK ] Finished database refresh."
+
+  assert_string_contains "$(mock_get_call_args "${mock_docker}" 5)" "-T cli ./vendor/drevops/vortex-tooling/src/vortex-provision-sanitize-db"
+  assert_equal "6" "$(mock_get_call_num "${mock_docker}")"
+
+  popd >/dev/null
+}
+
 @test "refresh-db: Exports an ftp source database unsanitized without a refresh source" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -359,7 +386,7 @@ load ../_helper.bash
 
   run .vortex/tooling/src/vortex-refresh-db
   assert_failure
-  assert_output_contains "[FAIL] The database dump file pushed to ftp must be sanitized, but VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
+  assert_output_contains "[FAIL] The pushed database dump file must be sanitized, but VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
   assert_output_not_contains "Logged in to the registry."
   assert_equal "0" "$(mock_get_call_num "${mock_docker}")"
 

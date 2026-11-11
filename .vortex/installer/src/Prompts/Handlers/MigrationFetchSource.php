@@ -142,8 +142,8 @@ class MigrationFetchSource extends AbstractHandler {
       }
     }
 
-    // MIGRATION_DB_PUSH wraps the nightly push of the migration dump, which
-    // only an 'ftp' or 's3' source accepts.
+    // MIGRATION_DB_PUSH wraps the upstream source of a dump store, which
+    // only an 'ftp' or 's3' source can be.
     if (!in_array($v, [self::FTP, self::S3], TRUE)) {
       File::removeTokenAsync('MIGRATION_DB_PUSH');
     }
