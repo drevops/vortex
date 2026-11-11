@@ -13,7 +13,7 @@ setup_ftp_fetch_values() {
   export VORTEX_FETCH_DB_FTP_HOST="ftp.example.com"
   export VORTEX_FETCH_DB_FTP_PORT="21"
   export VORTEX_FETCH_DB_FTP_FILE="db.sql"
-  unset VORTEX_PUSH_DB_FTP_USER VORTEX_PUSH_DB_FTP_PASS VORTEX_PUSH_DB_FTP_HOST VORTEX_PUSH_DB_FTP_PORT VORTEX_PUSH_DB_FTP_FILE VORTEX_PUSH_DB_FILE_SUFFIX VORTEX_PUSH_DB_TIMESTAMPED_COPY
+  unset VORTEX_PUSH_DB_FTP_USER VORTEX_PUSH_DB_FTP_PASS VORTEX_PUSH_DB_FTP_HOST VORTEX_PUSH_DB_FTP_PORT VORTEX_PUSH_DB_FTP_FILE VORTEX_PUSH_DB_FTP_DIR VORTEX_FETCH_DB_FTP_DIR VORTEX_PUSH_DB_FILE_SUFFIX VORTEX_PUSH_DB_TIMESTAMPED_COPY
 }
 
 @test "push-db-ftp: Upload only the latest dump by default" {
@@ -255,6 +255,92 @@ setup_ftp_fetch_values() {
   assert_failure
   assert_output_contains "[ OK ] Uploaded the database dump file."
   assert_output_contains "[FAIL] Unable to push the timestamped copy of the database dump file to FTP."
+
+  rm -rf .data
+
+  popd >/dev/null
+}
+
+@test "push-db-ftp: Push to the remote directory with any slashes" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  echo "database content" >.data/db.sql
+
+  setup_ftp_fetch_values
+
+  mock_curl=$(mock_command "curl")
+
+  call=0
+  for dir in "nightly/gha" "/nightly/gha" "nightly/gha/" "/nightly/gha/" "//nightly/gha//"; do
+    export VORTEX_PUSH_DB_FTP_DIR="${dir}"
+    call=$((call + 1))
+
+    run .vortex/tooling/src/vortex-push-db-ftp
+    assert_success
+    assert_output_contains "Remote file: nightly/gha/db.sql"
+
+    # The rename commands run in the remote directory, so they use bare names.
+    args="$(mock_get_call_args "${mock_curl}" "${call}")"
+    assert_string_contains "${args}" "--quote -RNTO db.sql"
+    assert_string_contains "${args}" "ftp://ftp.example.com:21/nightly/gha/db.sql.uploading"
+  done
+
+  rm -rf .data
+
+  popd >/dev/null
+}
+
+@test "push-db-ftp: Push to the directory the database is fetched from" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  echo "database content" >.data/db.sql
+
+  setup_ftp_fetch_values
+  export VORTEX_FETCH_DB_FTP_DIR="/shared/"
+  export VORTEX_FETCH_DB_FTP_FILE="site/db.sql"
+
+  mock_curl=$(mock_command "curl")
+
+  run .vortex/tooling/src/vortex-push-db-ftp
+  assert_success
+  # The directory goes in front of any directories in the file name.
+  assert_output_contains "Remote file: shared/site/db.sql"
+  assert_string_contains "$(mock_get_call_args "${mock_curl}" 1)" "ftp://ftp.example.com:21/shared/site/db.sql.uploading"
+
+  # A push directory overrides the fetch directory.
+  export VORTEX_PUSH_DB_FTP_DIR="circleci"
+  run .vortex/tooling/src/vortex-push-db-ftp
+  assert_success
+  assert_output_contains "Remote file: circleci/site/db.sql"
+  assert_string_contains "$(mock_get_call_args "${mock_curl}" 2)" "ftp://ftp.example.com:21/circleci/site/db.sql.uploading"
+
+  rm -rf .data
+
+  popd >/dev/null
+}
+
+@test "push-db-ftp: Push to the root directory without a remote directory" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  echo "database content" >.data/db.sql
+
+  setup_ftp_fetch_values
+
+  mock_curl=$(mock_command "curl")
+
+  call=0
+  for dir in "" "/" "//"; do
+    export VORTEX_PUSH_DB_FTP_DIR="${dir}"
+    call=$((call + 1))
+
+    run .vortex/tooling/src/vortex-push-db-ftp
+    assert_success
+    assert_output_contains "Remote file: db.sql"
+    assert_string_contains "$(mock_get_call_args "${mock_curl}" "${call}")" "ftp://ftp.example.com:21/db.sql.uploading"
+  done
 
   rm -rf .data
 
