@@ -242,15 +242,15 @@ jobs:
         VORTEX_FETCH_DB2_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB2_S3_SECRET_KEY }}
         #;> MIGRATION_DB_FETCH_SOURCE_S3
         #;< VORTEX_DEV
-        # FTP server that receives the demo database on the nightly run, under
-        # a suffix that tells this provider's dumps apart, with a timestamped
+        # FTP server that receives the demo database on the nightly run, in a
+        # directory that tells this provider's dumps apart, with a timestamped
         # copy of each push.
         VORTEX_PUSH_DB_FTP_HOST: ${{ secrets.VORTEX_PUSH_DB_FTP_HOST }}
         VORTEX_PUSH_DB_FTP_PORT: ${{ secrets.VORTEX_PUSH_DB_FTP_PORT }}
         VORTEX_PUSH_DB_FTP_USER: ${{ secrets.VORTEX_PUSH_DB_FTP_USER }}
         VORTEX_PUSH_DB_FTP_PASS: ${{ secrets.VORTEX_PUSH_DB_FTP_PASS }}
+        VORTEX_PUSH_DB_FTP_DIR: ${{ vars.VORTEX_PUSH_DB_FTP_DIR || 'gha' }}
         VORTEX_PUSH_DB_FTP_FILE: ${{ vars.VORTEX_PUSH_DB_FTP_FILE || 'db.sql' }}
-        VORTEX_PUSH_DB_FILE_SUFFIX: _gha
         VORTEX_PUSH_DB_TIMESTAMPED_COPY: 1
         #;> VORTEX_DEV
 
