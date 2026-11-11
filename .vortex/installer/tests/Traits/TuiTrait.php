@@ -32,7 +32,7 @@ trait TuiTrait {
    *   Keystrokes in the order the prompts read them.
    */
   protected function tuiInput(array $keystrokes): void {
-    $this->promptyInput(implode('', $keystrokes));
+    $this->promptyInput($this->promptyKeys(...$keystrokes));
     $this->promptyThrowOnInvalid();
   }
 

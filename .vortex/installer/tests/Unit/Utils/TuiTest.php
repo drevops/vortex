@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
 use AlexSkrypnyk\Prompty\Prompty;
+use AlexSkrypnyk\Prompty\PromptyTestTrait;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
-use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Tui;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -14,6 +14,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 #[CoversClass(Tui::class)]
 class TuiTest extends UnitTestCase {
+
+  use PromptyTestTrait;
 
   public function testInit(): void {
     $output = new BufferedOutput();
@@ -113,7 +115,7 @@ INPUT,
 
     Tui::box($content, $title);
 
-    $actual = Strings::stripAnsiColors($output->fetch());
+    $actual = $this->promptyNormalizeOutput($output->fetch());
     foreach ($expected as $expected_string) {
       $this->assertStringContainsString($expected_string, $actual);
     }
