@@ -37,7 +37,7 @@ jobs:
         environment:
           RENOVATE_PLATFORM: 'github'
           RENOVATE_AUTODISCOVER: false
-          RENOVATE_DEPENDENCY_DASHBOARD_TITLE: 'Renovate Dependency Dashboard (self-hosted) by CircleCI'
+          RENOVATE_DEPENDENCY_DASHBOARD: '{"title":"Renovate Dependency Dashboard (self-hosted) by CircleCI","labels":["Dependencies"]}'
           LOG_LEVEL: 'debug'
 
     steps:
