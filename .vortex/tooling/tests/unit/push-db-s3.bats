@@ -603,11 +603,11 @@ setup_s3_push() {
   mock_set_output "${mock_curl}" $'<Error><Code>InternalError</Code></Error>\n200' 1
   mock_set_output "${mock_curl}" $'<Error><Code>AccessDenied</Code></Error>\n403' 2
 
-  for status in 200 403; do
+  for code in 200 403; do
     run .vortex/tooling/src/vortex-push-db-s3
     assert_failure
     assert_output_contains "Response: <Error><Code>"
-    assert_output_contains "[FAIL] Unable to keep the current database dump as the previous one: HTTP status ${status}."
+    assert_output_contains "[FAIL] Unable to keep the current database dump as the previous one: HTTP status ${code}."
     assert_output_not_contains "Uploaded the database dump file."
   done
 
