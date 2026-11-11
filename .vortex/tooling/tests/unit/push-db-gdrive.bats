@@ -295,3 +295,34 @@ fixture_gdrive_key() {
 
   popd >/dev/null
 }
+
+@test "push-db-gdrive: Push the database dump file the database is fetched with" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  echo "database content" >.data/db_fetched.sql
+  fixture_gdrive_key
+
+  export VORTEX_PUSH_DB_GDRIVE_SERVICE_ACCOUNT_KEY="${BUILD_DIR}/gdrive.json"
+  export VORTEX_PUSH_DB_GDRIVE_FOLDER_ID="folder-123"
+  export VORTEX_FETCH_DB_FILE="db_fetched.sql"
+  unset VORTEX_PUSH_DB_GDRIVE_DB_DIR VORTEX_PUSH_DB_GDRIVE_DB_FILE
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" '{"access_token":"test-token"}' 1
+  mock_set_output "${mock_curl}" '{"files":[]}' 2
+  mock_set_output "${mock_curl}" $'HTTP/2 200\r\nlocation: https://www.googleapis.com/upload/drive/v3/files?upload_id=session-5\r\n' 3
+  mock_set_output "${mock_curl}" $'{"id":"file-new"}\n200' 4
+
+  run .vortex/tooling/src/vortex-push-db-gdrive
+  assert_success
+  assert_output_contains "Local file:  ./.data/db_fetched.sql"
+  assert_output_contains "Remote file: db_fetched.sql"
+
+  assert_string_contains "$(mock_get_call_args "${mock_curl}" 2)" "q=name = 'db_fetched.sql' and"
+  assert_string_contains "$(mock_get_call_args "${mock_curl}" 4)" "--upload-file ./.data/db_fetched.sql"
+
+  rm -rf .data
+
+  popd >/dev/null
+}

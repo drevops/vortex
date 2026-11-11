@@ -35,7 +35,9 @@ VORTEX_PUSH_DB_S3_PREFIX="${VORTEX_PUSH_DB_S3_PREFIX:-${VORTEX_FETCH_DB_S3_PREFI
 VORTEX_PUSH_DB_S3_DB_DIR="${VORTEX_PUSH_DB_S3_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
 
 # Database dump file name.
-VORTEX_PUSH_DB_S3_DB_FILE="${VORTEX_PUSH_DB_S3_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
+#
+# Defaults to the name the database is fetched and refreshed with.
+VORTEX_PUSH_DB_S3_DB_FILE="${VORTEX_PUSH_DB_S3_DB_FILE:-${VORTEX_FETCH_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}}"
 
 # Remote database dump file name.
 #
