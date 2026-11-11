@@ -123,8 +123,9 @@ To make the migration source a dump store, set
 
 Before you begin, create an FTP account that can write to a directory on
 the server. The push uploads the dump under a temporary name, then renames
-it into place, so a failed upload keeps the latest dump. The server must allow the `DELE`, `RNFR` and `RNTO`
-commands, which standard FTP servers do.
+it into place, so a failed upload keeps the latest dump. The server must
+allow the `DELE`, `RNFR` and `RNTO` commands, which standard FTP servers
+do.
 
 1. In `.env`, set the fetch source and the server:
 

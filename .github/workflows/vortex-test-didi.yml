@@ -82,13 +82,15 @@ jobs:
         #;> MIGRATION_DB_FETCH_SOURCE_S3
         #;< VORTEX_DEV
         # FTP server that receives the demo database on the nightly run, under
-        # a prefix that tells this provider's dumps apart.
+        # a suffix that tells this provider's dumps apart, with a timestamped
+        # copy of each push.
         VORTEX_PUSH_DB_FTP_HOST: ${{ secrets.VORTEX_PUSH_DB_FTP_HOST }}
         VORTEX_PUSH_DB_FTP_PORT: ${{ secrets.VORTEX_PUSH_DB_FTP_PORT }}
         VORTEX_PUSH_DB_FTP_USER: ${{ secrets.VORTEX_PUSH_DB_FTP_USER }}
         VORTEX_PUSH_DB_FTP_PASS: ${{ secrets.VORTEX_PUSH_DB_FTP_PASS }}
         VORTEX_PUSH_DB_FTP_FILE: ${{ vars.VORTEX_PUSH_DB_FTP_FILE || 'db.sql' }}
-        VORTEX_PUSH_DB_FILE_PREFIX: gha-
+        VORTEX_PUSH_DB_FILE_SUFFIX: _gha
+        VORTEX_PUSH_DB_TIMESTAMPED_COPY: 1
         #;> VORTEX_DEV
         VORTEX_FETCH_DB_SOURCE: url
         VORTEX_FETCH_DB_FORCE: 1
@@ -640,13 +642,15 @@ jobs:
         #;> MIGRATION_DB_FETCH_SOURCE_S3
         #;< VORTEX_DEV
         # FTP server that receives the demo database on the nightly run, under
-        # a prefix that tells this provider's dumps apart.
+        # a suffix that tells this provider's dumps apart, with a timestamped
+        # copy of each push.
         VORTEX_PUSH_DB_FTP_HOST: ${{ secrets.VORTEX_PUSH_DB_FTP_HOST }}
         VORTEX_PUSH_DB_FTP_PORT: ${{ secrets.VORTEX_PUSH_DB_FTP_PORT }}
         VORTEX_PUSH_DB_FTP_USER: ${{ secrets.VORTEX_PUSH_DB_FTP_USER }}
         VORTEX_PUSH_DB_FTP_PASS: ${{ secrets.VORTEX_PUSH_DB_FTP_PASS }}
         VORTEX_PUSH_DB_FTP_FILE: ${{ vars.VORTEX_PUSH_DB_FTP_FILE || 'db.sql' }}
-        VORTEX_PUSH_DB_FILE_PREFIX: gha-
+        VORTEX_PUSH_DB_FILE_SUFFIX: _gha
+        VORTEX_PUSH_DB_TIMESTAMPED_COPY: 1
         #;> VORTEX_DEV
         VORTEX_FETCH_DB_SOURCE: container_registry
         VORTEX_FETCH_DB_FORCE: 1
