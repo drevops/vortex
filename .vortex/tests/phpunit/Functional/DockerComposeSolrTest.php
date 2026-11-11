@@ -94,7 +94,8 @@ class DockerComposeSolrTest extends FunctionalTestCase {
       $process = $this->processRun('docker compose exec -T solr curl -sf', [static::SOLR_URL . '/admin/cores?action=STATUS&core=drupal&wt=json']);
       $decoded = json_decode($process->getOutput(), TRUE);
 
-      if ($process->isSuccessful() && is_array($decoded)) {
+      // A core that is still loading is listed without its 'index' details.
+      if ($process->isSuccessful() && is_array($decoded) && (isset($decoded['initFailures']['drupal']) || isset($decoded['status']['drupal']['index']))) {
         $status = $decoded;
         break;
       }
@@ -102,7 +103,7 @@ class DockerComposeSolrTest extends FunctionalTestCase {
       sleep(2);
     }
 
-    $this->assertNotEmpty($status, 'Solr should respond to the core admin API');
+    $this->assertNotEmpty($status, 'Solr should finish loading the core');
     $this->assertArrayNotHasKey('drupal', (array) ($status['initFailures'] ?? []), 'Core should not fail to load: ' . json_encode($status['initFailures'] ?? []));
     $this->assertSame('drupal', $status['status']['drupal']['name'] ?? NULL, 'Core should be loaded');
   }
