@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9c147eb0b284e96b6ec7a822122c3170",
+    "content-hash": "c6b904705c0ed93c2bae17966052e6fe",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -78,7 +78,7 @@
         },
         {
             "name": "alexskrypnyk/prompty",
-            "version": "dev-main",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/prompty.git",
@@ -105,7 +105,6 @@
                 "phpunit/phpunit": "^12.5.43",
                 "rector/rector": "^2.6.2"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -6569,7 +6568,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "alexskrypnyk/prompty": 20,
         "drupal/coder": 15
     },
     "prefer-stable": false,
