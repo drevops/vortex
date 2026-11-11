@@ -169,8 +169,8 @@ import {
 
     - _Lint_ the code without provisioning a site
     - _Fetch the database_ from the hosting provider and cache it for the
-      day, with a nightly refresh of the database container image or of a
-      sanitized dump in S3 or Google Drive
+      day, with a nightly refresh of the database image or of a sanitized
+      dump on FTP or S3
     - _Build_ and test a fully provisioned site, with
       [Behat](https://docs.behat.org/en/latest/) tests split
       across parallel containers
@@ -245,8 +245,7 @@ import {
     ### Other hosting providers
 
     - Webhook deployments for any provider that accepts a deployment URL
-    - Database fetch from a URL, FTP, S3, Google Drive or a container
-      registry
+    - Database fetch from a URL, FTP, S3 or a container registry
 
     :::note
 
@@ -375,8 +374,7 @@ import {
       [`drevops/vortex-tooling`](https://packagist.org/packages/drevops/vortex-tooling)
       Composer package, run the same way in every environment
     - Customization through environment variables
-    - Database sourced from the hosting provider, a URL, FTP, S3, Google
-      Drive or a
+    - Database sourced from the hosting provider, a URL, FTP, S3 or a
       container image seeded with
       [Database data images](https://github.com/drevops/database-data-images)
 

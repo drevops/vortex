@@ -372,8 +372,22 @@ jobs:
           command: |
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB push will not proceed." && exit 0
             ./vendor/bin/vortex-push-db
+            #;< VORTEX_DEV
+            if [ -n "${VORTEX_PUSH_DB_FTP_HOST:-}" ]; then VORTEX_FETCH_DB_SOURCE=ftp VORTEX_REFRESH_DB_SOURCE=url ./vendor/bin/vortex-push-db; fi
+            #;> VORTEX_DEV
           no_output_timeout: 30m
       #;> DB_PUSH
+
+      #;< MIGRATION_DB_PUSH
+      # Push the freshly-fetched migration database dump to its fetch source,
+      # next to the primary dump. No-op unless the push was requested.
+      - run:
+          name: Push migration DB
+          command: |
+            [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB push will not proceed." && exit 0
+            VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db
+          no_output_timeout: 30m
+      #;> MIGRATION_DB_PUSH
 
       - save_cache:
           # Save cache per default branch and the timestamp.
@@ -399,10 +413,12 @@ jobs:
       # Deploy container image.
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED: 1
       #;> DB_IN_IMAGE
-      #;< DB_PUSH
-      # Refresh the database dump in the database fetch source.
+      # Refresh the database dumps in the fetch sources that are dump stores.
       VORTEX_PUSH_DB_PROCEED: 1
-      #;> DB_PUSH
+      #;< VORTEX_DEV
+      # Tell this provider's demo database dumps apart on the test FTP server.
+      VORTEX_PUSH_DB_FILE_PREFIX: circleci-
+      #;> VORTEX_DEV
       # Do not build the Drupal front-end.
       VORTEX_FRONTEND_BUILD_SKIP: 1
   #;> !PROVISION_TYPE_PROFILE

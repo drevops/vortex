@@ -21,8 +21,6 @@ class MigrationFetchSource extends AbstractHandler {
 
   const S3 = 's3';
 
-  const GDRIVE = 'gdrive';
-
   /**
    * {@inheritdoc}
    */
@@ -55,7 +53,6 @@ class MigrationFetchSource extends AbstractHandler {
       self::LAGOON => 'Lagoon environment',
       self::CONTAINER_REGISTRY => 'Container registry',
       self::S3 => 'S3 bucket',
-      self::GDRIVE => 'Google Drive',
     ];
 
     if (isset($responses[HostingProvider::id()])) {
@@ -133,7 +130,6 @@ class MigrationFetchSource extends AbstractHandler {
       self::LAGOON,
       self::CONTAINER_REGISTRY,
       self::S3,
-      self::GDRIVE,
     ];
 
     foreach ($types as $type) {
@@ -144,6 +140,12 @@ class MigrationFetchSource extends AbstractHandler {
       else {
         File::removeTokenAsync($token);
       }
+    }
+
+    // MIGRATION_DB_PUSH wraps the nightly push of the migration dump, which
+    // only an 'ftp' or 's3' source accepts.
+    if (!in_array($v, [self::FTP, self::S3], TRUE)) {
+      File::removeTokenAsync('MIGRATION_DB_PUSH');
     }
   }
 

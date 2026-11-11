@@ -21,8 +21,6 @@ class DatabaseFetchSource extends AbstractHandler {
 
   const S3 = 's3';
 
-  const GDRIVE = 'gdrive';
-
   const NONE = 'none';
 
   /**
@@ -57,7 +55,6 @@ class DatabaseFetchSource extends AbstractHandler {
       self::LAGOON => 'Lagoon environment',
       self::CONTAINER_REGISTRY => 'Container registry',
       self::S3 => 'S3 bucket',
-      self::GDRIVE => 'Google Drive',
       self::NONE => 'None',
     ];
 
@@ -132,7 +129,6 @@ class DatabaseFetchSource extends AbstractHandler {
       self::LAGOON,
       self::CONTAINER_REGISTRY,
       self::S3,
-      self::GDRIVE,
     ];
 
     foreach ($types as $type) {
@@ -152,9 +148,9 @@ class DatabaseFetchSource extends AbstractHandler {
       File::removeTokenAsync('DB_IN_IMAGE');
     }
 
-    // DB_PUSH wraps the nightly push of the sanitized dump, which only a
-    // dump store source accepts.
-    if (!in_array($v, [self::S3, self::GDRIVE], TRUE)) {
+    // DB_PUSH wraps the nightly push of the sanitized dump, which only an
+    // 'ftp' or 's3' source accepts.
+    if (!in_array($v, [self::FTP, self::S3], TRUE)) {
       File::removeTokenAsync('DB_PUSH');
     }
   }
