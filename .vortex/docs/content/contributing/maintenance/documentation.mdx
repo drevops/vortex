@@ -325,16 +325,17 @@ describes. The workflow runs in these cases:
   `release-installer`
 - When you run it by hand
 
-`Vortex - Test docs` (`.github/workflows/vortex-test-docs.yml`) runs after
-the `Vortex - Test installer` workflow succeeds. On the `2.x` branch, it
-runs after `Vortex - Test CLI` instead. It publishes only when its own
-documentation checks pass:
+`Vortex - Test docs` (`.github/workflows/vortex-test-docs.yml`) runs on
+pushes and pull requests. It builds the installer, or the CLI on the `2.x`
+branch, then runs the documentation checks. It publishes only when those
+checks pass:
 
 - A push to `main` goes to the
   [development site](https://vortex-docs.netlify.app) on Netlify.
 - Any other branch gets a draft preview. When the branch has a pull
-  request from this repository, the workflow posts the preview link on it
-  as a comment.
+  request, the workflow posts the preview link on it as a comment.
+- A pull request from a fork runs only the checks, because forks don't
+  receive the Netlify token.
 
 A `release-docs` or `release-installer` branch publishes to the live site,
 so until the next publish, everyone gets that branch's documentation and
