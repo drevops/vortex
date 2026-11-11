@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+##
+# Push DB dump to FTP.
+#
+# Keeps 2 copies of the database dump file on the FTP server: the current
+# dump under the remote file name and the dump it replaced with a '-previous'
+# suffix, such as 'db.sql' and 'db-previous.sql'. The fetch always finds the
+# current dump under the remote file name.
+#
+# The dump is uploaded under a temporary name and renamed into place only
+# after the upload succeeds, so a failed upload keeps the current dump.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+
+# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
+# use the indexed variant, so each database pushes its own dump file.
+_db_index="${VORTEX_DB_INDEX:-}"
+
+# The FTP values fall back to the values the database is fetched with, so a
+# server used as the fetch source is configured once.
+
+# The FTP user.
+_v="VORTEX_PUSH_DB${_db_index}_FTP_USER"
+_vs="VORTEX_FETCH_DB${_db_index}_FTP_USER"
+VORTEX_PUSH_DB_FTP_USER="${!_v:-${!_vs:-}}"
+
+# The FTP password.
+_v="VORTEX_PUSH_DB${_db_index}_FTP_PASS"
+_vs="VORTEX_FETCH_DB${_db_index}_FTP_PASS"
+VORTEX_PUSH_DB_FTP_PASS="${!_v:-${!_vs:-}}"
+
+# The FTP host.
+_v="VORTEX_PUSH_DB${_db_index}_FTP_HOST"
+_vs="VORTEX_FETCH_DB${_db_index}_FTP_HOST"
+VORTEX_PUSH_DB_FTP_HOST="${!_v:-${!_vs:-}}"
+
+# The FTP port.
+_v="VORTEX_PUSH_DB${_db_index}_FTP_PORT"
+_vs="VORTEX_FETCH_DB${_db_index}_FTP_PORT"
+VORTEX_PUSH_DB_FTP_PORT="${!_v:-${!_vs:-21}}"
+
+# The remote file name, including any directories.
+_v="VORTEX_PUSH_DB${_db_index}_FTP_FILE"
+_vs="VORTEX_FETCH_DB${_db_index}_FTP_FILE"
+VORTEX_PUSH_DB_FTP_FILE="${!_v:-${!_vs:-}}"
+
+# Directory with database dump file.
+_v="VORTEX_PUSH_DB${_db_index}_FTP_DB_DIR"
+_vs="VORTEX_FETCH_DB${_db_index}_DIR"
+_vss="VORTEX_DB${_db_index}_DIR"
+VORTEX_PUSH_DB_FTP_DB_DIR="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_DIR:-./.data}}}}"
+
+# Database dump file name.
+#
+# Defaults to the name the database is fetched and refreshed with.
+_v="VORTEX_PUSH_DB${_db_index}_FTP_DB_FILE"
+_vs="VORTEX_FETCH_DB${_db_index}_FILE"
+_vss="VORTEX_DB${_db_index}_FILE"
+VORTEX_PUSH_DB_FTP_DB_FILE="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_FILE:-db.sql}}}}"
+
+# Prefix for the names of the pushed database dump files.
+#
+# Use a different prefix in each place that pushes to the same storage, such
+# as 'gha-' and 'circleci-', to tell their dumps apart. A fetch reads the
+# prefixed name only when its remote file name includes the prefix.
+VORTEX_PUSH_DB_FILE_PREFIX="${VORTEX_PUSH_DB_FILE_PREFIX:-}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+# Print a value quoted for a curl config file.
+curl_config_quote() {
+  local value="${1//\\/\\\\}"
+  printf '"%s"' "${value//\"/\\\"}"
+}
+
+# shellcheck disable=SC2043
+for cmd in curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
+
+[ -z "${VORTEX_PUSH_DB_FTP_USER}" ] && fail "Missing required value for VORTEX_PUSH_DB${_db_index}_FTP_USER or VORTEX_FETCH_DB${_db_index}_FTP_USER."
+[ -z "${VORTEX_PUSH_DB_FTP_PASS}" ] && fail "Missing required value for VORTEX_PUSH_DB${_db_index}_FTP_PASS or VORTEX_FETCH_DB${_db_index}_FTP_PASS."
+[ -z "${VORTEX_PUSH_DB_FTP_HOST}" ] && fail "Missing required value for VORTEX_PUSH_DB${_db_index}_FTP_HOST or VORTEX_FETCH_DB${_db_index}_FTP_HOST."
+[ -z "${VORTEX_PUSH_DB_FTP_FILE}" ] && fail "Missing required value for VORTEX_PUSH_DB${_db_index}_FTP_FILE or VORTEX_FETCH_DB${_db_index}_FTP_FILE."
+
+local_file="${VORTEX_PUSH_DB_FTP_DB_DIR}/${VORTEX_PUSH_DB_FTP_DB_FILE}"
+[ ! -f "${local_file}" ] && fail "Database dump file ${local_file} does not exist."
+
+remote_dir=""
+remote_name="${VORTEX_PUSH_DB_FTP_FILE#/}"
+if [[ ${remote_name} == */* ]]; then
+  remote_dir="${remote_name%/*}/"
+  remote_name="${remote_name##*/}"
+fi
+
+current_name="${VORTEX_PUSH_DB_FILE_PREFIX}${remote_name}"
+if [[ ${remote_name} == *.* ]]; then
+  previous_name="${VORTEX_PUSH_DB_FILE_PREFIX}${remote_name%.*}-previous.${remote_name##*.}"
+else
+  previous_name="${VORTEX_PUSH_DB_FILE_PREFIX}${remote_name}-previous"
+fi
+upload_name="${current_name}.uploading"
+
+info "Started database${_db_index:+ ${_db_index}} dump push to FTP."
+
+note "Local file:    ${local_file}"
+note "Remote file:   ${remote_dir}${current_name}"
+note "Previous file: ${remote_dir}${previous_name}"
+note "FTP host:      ${VORTEX_PUSH_DB_FTP_HOST}:${VORTEX_PUSH_DB_FTP_PORT}"
+
+# The credentials go to curl on stdin, so they never appear in the process
+# list. The commands after the upload run in the remote directory: the
+# previous dump is replaced by the current one, and the upload takes the
+# current name. Only the final rename must succeed, since the first push has
+# no current or previous dump.
+task "Uploading the database dump file and keeping the dump it replaces."
+curl_config="user = $(curl_config_quote "${VORTEX_PUSH_DB_FTP_USER}:${VORTEX_PUSH_DB_FTP_PASS}")"
+echo "${curl_config}" | curl --silent --show-error --config - --ftp-create-dirs --upload-file "${local_file}" \
+  --quote "-*DELE ${previous_name}" \
+  --quote "-*RNFR ${current_name}" \
+  --quote "-*RNTO ${previous_name}" \
+  --quote "-RNFR ${upload_name}" \
+  --quote "-RNTO ${current_name}" \
+  "ftp://${VORTEX_PUSH_DB_FTP_HOST}:${VORTEX_PUSH_DB_FTP_PORT}/${remote_dir}${upload_name}" || fail "Unable to push the database dump file to FTP."
+pass "Uploaded the database dump file and kept the dump it replaced."
+
+# Enable xtrace only after the request so the credentials are never written
+# to the trace output.
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+pass "Finished database${_db_index:+ ${_db_index}} dump push to FTP."

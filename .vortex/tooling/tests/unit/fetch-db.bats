@@ -14,7 +14,6 @@ stub_fetch_scripts() {
   stub_sibling "vortex-fetch-db-lagoon" "Fetched from lagoon."
   stub_sibling "vortex-fetch-db-container-registry" "Fetched from container_registry."
   stub_sibling "vortex-fetch-db-s3" "Fetched from s3."
-  stub_sibling "vortex-fetch-db-gdrive" "Fetched from gdrive."
 }
 
 @test "fetch-db: Fetch with URL source" {
@@ -308,7 +307,7 @@ EOF
 
   export VORTEX_FETCH_DB_PROCEED="1"
 
-  for db_source in url ftp acquia lagoon container_registry s3 gdrive; do
+  for db_source in url ftp acquia lagoon container_registry s3; do
     export VORTEX_FETCH_DB_SOURCE="${db_source}"
 
     run .vortex/tooling/src/vortex-fetch-db
@@ -316,7 +315,7 @@ EOF
     assert_output_contains "Fetched from ${db_source}."
     assert_output_contains "Finished database fetch."
 
-    for other_source in url ftp acquia lagoon container_registry s3 gdrive; do
+    for other_source in url ftp acquia lagoon container_registry s3; do
       if [ "${other_source}" != "${db_source}" ]; then
         assert_output_not_contains "Fetched from ${other_source}."
       fi
@@ -335,7 +334,7 @@ EOF
   export VORTEX_PUSH_DB_PROCEED="1"
   export VORTEX_REFRESH_DB_SOURCE="lagoon"
 
-  for db_source in gdrive s3; do
+  for db_source in ftp s3; do
     export VORTEX_FETCH_DB_SOURCE="${db_source}"
 
     run .vortex/tooling/src/vortex-fetch-db
@@ -349,62 +348,82 @@ EOF
   popd >/dev/null
 }
 
+@test "fetch-db: Fetch an indexed dump store source from its refresh source with a push requested" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  stub_fetch_scripts
+
+  export VORTEX_DB_INDEX=3
+  export VORTEX_FETCH_DB3_SOURCE="ftp"
+  export VORTEX_FETCH_DB3_PROCEED="1"
+  export VORTEX_FETCH_DB3_DIR="${BUILD_DIR}/db3"
+  export VORTEX_PUSH_DB_PROCEED="1"
+  export VORTEX_REFRESH_DB3_SOURCE="url"
+  export VORTEX_REFRESH_DB_SOURCE="lagoon"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_success
+  assert_output_contains "Fetching from the url source in VORTEX_REFRESH_DB3_SOURCE as VORTEX_PUSH_DB_PROCEED is set to 1."
+  assert_output_contains "Fetched from url."
+  assert_output_not_contains "Fetched from ftp."
+  assert_output_not_contains "Fetched from lagoon."
+
+  popd >/dev/null
+}
+
 @test "fetch-db: Fetch a dump store source from the store without a push requested" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   stub_fetch_scripts
 
-  export VORTEX_FETCH_DB_SOURCE="gdrive"
+  export VORTEX_FETCH_DB_SOURCE="ftp"
   export VORTEX_FETCH_DB_PROCEED="1"
   export VORTEX_REFRESH_DB_SOURCE="lagoon"
   unset VORTEX_PUSH_DB_PROCEED
 
   run .vortex/tooling/src/vortex-fetch-db
   assert_success
-  assert_output_contains "Fetched from gdrive."
+  assert_output_contains "Fetched from ftp."
   assert_output_not_contains "Fetched from lagoon."
 
   popd >/dev/null
 }
 
-@test "fetch-db: Fetch an indexed dump store source from the store with a push requested" {
+@test "fetch-db: Fetch an ftp source without a refresh source as an upstream source" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   stub_fetch_scripts
 
-  export VORTEX_DB_INDEX=3
-  export VORTEX_FETCH_DB3_SOURCE="gdrive"
-  export VORTEX_FETCH_DB3_PROCEED="1"
-  export VORTEX_FETCH_DB3_DIR="${BUILD_DIR}/db3"
+  export VORTEX_FETCH_DB_SOURCE="ftp"
+  export VORTEX_FETCH_DB_PROCEED="1"
   export VORTEX_PUSH_DB_PROCEED="1"
-  export VORTEX_REFRESH_DB_SOURCE="lagoon"
+  export VORTEX_REFRESH_DB_SOURCE=""
 
   run .vortex/tooling/src/vortex-fetch-db
   assert_success
-  # Only the primary database is pushed to a dump store.
-  assert_output_contains "Fetched from gdrive."
-  assert_output_not_contains "Fetched from lagoon."
+  assert_output_not_contains "Fetching from the"
+  assert_output_contains "Fetched from ftp."
 
   popd >/dev/null
 }
 
-@test "fetch-db: Fail without an upstream source for a dump store source with a push requested" {
+@test "fetch-db: Fail with an invalid upstream source for a dump store source with a push requested" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   stub_fetch_scripts
 
-  export VORTEX_FETCH_DB_SOURCE="gdrive"
+  export VORTEX_FETCH_DB_SOURCE="ftp"
   export VORTEX_FETCH_DB_PROCEED="1"
   export VORTEX_PUSH_DB_PROCEED="1"
   export VORTEX_FETCH_DB_SEMAPHORE="${BUILD_DIR}/fetch-db-fresh"
 
-  for refresh_source in "" gdrive s3 container_registry none; do
+  for refresh_source in ftp container_registry none; do
     export VORTEX_REFRESH_DB_SOURCE="${refresh_source}"
 
     run .vortex/tooling/src/vortex-fetch-db
     assert_failure
-    assert_output_contains "[FAIL] The database dump file pushed to gdrive is fetched from an upstream source, but VORTEX_REFRESH_DB_SOURCE is \"${refresh_source}\". Set it to the source of the dump file: url, ftp, acquia or lagoon."
-    assert_output_not_contains "Fetched from gdrive."
+    assert_output_contains "[FAIL] The database dump file pushed to ftp is fetched from an upstream source, but VORTEX_REFRESH_DB_SOURCE is \"${refresh_source}\". Set it to another source of the dump file: url, ftp, acquia, lagoon or s3."
+    assert_output_not_contains "Fetched from ftp."
     assert_output_not_contains "Finished database fetch."
     assert_file_not_exists "${BUILD_DIR}/fetch-db-fresh"
   done
@@ -444,7 +463,7 @@ EOF
   run .vortex/tooling/src/vortex-fetch-db
   assert_failure_status 1
   assert_output_contains "Started database fetch."
-  assert_output_contains 'Unsupported database source "VORTEX_CONTAINER_REGISTRY" in VORTEX_FETCH_DB_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, gdrive, none.'
+  assert_output_contains 'Unsupported database source "VORTEX_CONTAINER_REGISTRY" in VORTEX_FETCH_DB_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, none.'
   assert_output_not_contains "Fetched from"
   assert_output_not_contains "Finished database fetch."
   assert_file_not_exists "${BUILD_DIR}/fetch-db-fresh"
@@ -484,7 +503,7 @@ EOF
   run .vortex/tooling/src/vortex-fetch-db
   assert_failure_status 1
   assert_output_contains "Started database 2 fetch."
-  assert_output_contains 'Unsupported database source "sftp" in VORTEX_FETCH_DB2_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, gdrive, none.'
+  assert_output_contains 'Unsupported database source "sftp" in VORTEX_FETCH_DB2_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, none.'
   assert_output_not_contains "Finished database 2 fetch."
 
   popd >/dev/null
