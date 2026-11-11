@@ -1,4 +1,4 @@
-@@ -313,7 +313,6 @@
+@@ -322,7 +322,6 @@
        VORTEX_CI_RUNNER_INDEX: ${{ strategy.job-index }}
        VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
        VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -6,7 +6,7 @@
        VORTEX_CI_IS_SDC_DEVEL_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        # Runs on every instance, using the `p<instance index - offset>` profile.
        VORTEX_CI_IS_BEHAT_RUNNER: true
-@@ -441,66 +440,6 @@
+@@ -450,66 +449,6 @@
          if: ${{ env.VORTEX_CI_IS_JEST_RUNNER == 'true' }}
          run: docker compose exec -T cli bash -c "npm test"
          continue-on-error: ${{ vars.VORTEX_CI_JEST_IGNORE_FAILURE == '1' }}
