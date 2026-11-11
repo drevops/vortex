@@ -56,6 +56,10 @@ class CiProvider extends AbstractHandler {
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
+    if (isset($responses[CodeProvider::id()]) && $responses[CodeProvider::id()] !== CodeProvider::GITHUB) {
+      return self::CIRCLECI;
+    }
+
     return self::GITHUB_ACTIONS;
   }
 

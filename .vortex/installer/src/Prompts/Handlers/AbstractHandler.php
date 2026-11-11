@@ -261,17 +261,6 @@ abstract class AbstractHandler implements HandlerInterface {
 
     $default = $this->override ?? $this->discover() ?? $this->default($results);
 
-    // The widgets reject a default outside the options, so a default that no
-    // longer matches one is dropped and the widget starts from its first
-    // option.
-    if (is_array($options) && $type === PromptType::Select && (!is_string($default) || !array_key_exists($default, $options))) {
-      $default = NULL;
-    }
-
-    if (is_array($options) && $type === PromptType::MultiSelect && is_array($default)) {
-      $default = array_values(array_filter($default, fn($value): bool => array_key_exists($value, $options)));
-    }
-
     if ($default !== NULL && $default !== '') {
       $arguments['default'] = $default;
     }
