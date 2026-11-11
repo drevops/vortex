@@ -64,6 +64,8 @@ jobs:
 
       - name: Validate Renovate configuration
         uses: suzuki-shunsuke/github-action-renovate-config-validator@__HASH__ # __VERSION__
+        with:
+          validator_version: __VERSION__
 
       - name: Run Renovate
         if: steps.check-requirements.outputs.should_run == 'true'
@@ -71,6 +73,7 @@ jobs:
         with:
           configurationFile: renovate.json
           token: ${{ secrets.RENOVATE_TOKEN }}
+          renovate-version: __VERSION__
         env:
           RENOVATE_PLATFORM: 'github'
           RENOVATE_AUTODISCOVER: false
