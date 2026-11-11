@@ -65,8 +65,8 @@ permission before running.
 Triggers that require re-recording:
 - New `Handlers/*.php` class or handler removal.
 - Wording change to `label()` or `hint()` of any existing handler.
-- Adding, removing or reordering prompts inside `PromptManager::steps()`,
-  which also changes the step count in each label.
+- Adding, removing or reordering prompts in the `PromptManager::runPrompts()`
+  chain, which also changes the step count in each label.
 
 ## Conditional Token System
 
@@ -133,13 +133,14 @@ Content removed if feature not selected
 
 ### Ordering
 
-`PromptManager::steps()` is the catalogue of prompts: it lists every prompt,
-in order, under its section heading. `runPrompts()` runs them as 1
-`Prompty::flow()`, with each handler's `shouldRun()` as the step's
-condition. Add a new prompt to `steps()`, and the step count follows
-automatically. A prompt whose `shouldRun()` reads another prompt's answer
-also goes in `PromptManager::children()` under that prompt, so it is asked
-as a nested step.
+`PromptManager::runPrompts()` declares the whole prompt flow as 1
+`Prompty::flow()` chain: each `->section()` heading, then its handlers in
+order with `->add()`. A prompt whose `shouldRun()` reads another prompt's
+answer goes between `->children()` and `->end()` under that prompt, so it is
+asked as a nested step. The chain holds structure only: each handler is a
+Prompty step, so its `shouldRun()` decides whether it is asked and its
+label, options and default decide what it shows. Add a new prompt to the
+chain, and the step count follows automatically.
 
 Processing runs in a different order, so each handler declares its own
 `processWeight()` - lowest first, broadly the reverse of the prompt order so

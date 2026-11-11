@@ -68,9 +68,6 @@ class PromptManager {
 
   /**
    * Responses describing the destination as the handlers found it.
-   *
-   * Collected while the prompts run, so each value is the one discovery
-   * produced with the same preceding responses in context.
    */
   protected array $discoveredResponses = [];
 
@@ -80,15 +77,6 @@ class PromptManager {
    * @var array<string, \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface>
    */
   protected array $handlers = [];
-
-  /**
-   * Prompt overrides from --prompts CLI option.
-   *
-   * Keyed by handler ID with validated values.
-   *
-   * @var array<string, mixed>
-   */
-  protected array $promptOverrides = [];
 
   /**
    * PromptManager constructor.
@@ -120,7 +108,84 @@ class PromptManager {
       Tui::output()->setVerbosity(OutputInterface::VERBOSITY_QUIET);
     }
 
-    $responses = Prompty::flow($this->flowSteps(...), numbering: 'total', env_prefix: 'VORTEX_INSTALLER_PROMPT_');
+    // Each handler decides whether its step is asked and what it shows, so
+    // the chain declares only the order, the sections and the nesting.
+    $h = $this->handlers;
+
+    // phpcs:disable Drupal.WhiteSpace.ObjectOperatorIndent -- Indentation follows the nesting of the steps.
+    $responses = Prompty::flow()
+      ->section('General information')
+        ->add($h[Name::id()])
+        ->add($h[MachineName::id()])
+        ->add($h[Org::id()])
+        ->add($h[OrgMachineName::id()])
+        ->add($h[Domain::id()])
+      ->section('Drupal')
+        ->add($h[Starter::id()])
+        ->add($h[Profile::id()])
+          ->children()
+            ->add($h[ProfileCustom::id()])
+          ->end()
+        ->add($h[Modules::id()])
+        ->add($h[ModulePrefix::id()])
+        ->add($h[CustomModules::id()])
+        ->add($h[Theme::id()])
+          ->children()
+            ->add($h[ThemeCustom::id()])
+            ->add($h[FrontendBuild::id()])
+            ->add($h[Storybook::id()])
+          ->end()
+      ->section('Code repository')
+        ->add($h[CodeProvider::id()])
+        ->add($h[VersionScheme::id()])
+      ->section('Environment')
+        ->add($h[Timezone::id()])
+        ->add($h[Services::id()])
+        ->add($h[Tools::id()])
+      ->section('Hosting')
+        ->add($h[HostingProvider::id()])
+          ->children()
+            ->add($h[HostingProjectName::id()])
+          ->end()
+        ->add($h[Webroot::id()])
+      ->section('Deployment')
+        ->add($h[DeployTypes::id()])
+      ->section('Workflow')
+        ->add($h[ProvisionType::id()])
+          ->children()
+            ->add($h[DatabaseFetchSource::id()])
+              ->children()
+                ->add($h[DatabaseImage::id()])
+              ->end()
+          ->end()
+        ->add($h[Migration::id()])
+          ->children()
+            ->add($h[MigrationFetchSource::id()])
+              ->children()
+                ->add($h[MigrationImage::id()])
+              ->end()
+          ->end()
+      ->section('Notifications')
+        ->add($h[NotificationChannels::id()])
+      ->section('Continuous Integration')
+        ->add($h[CiProvider::id()])
+        ->add($h[VisualRegression::id()])
+        ->add($h[Gitleaks::id()])
+      ->section('Automations')
+        ->add($h[DependencyUpdatesProvider::id()])
+          ->children()
+            ->add($h[DependencyUpdatesAutomerge::id()])
+          ->end()
+        ->add($h[CodeCoverageProvider::id()])
+        ->add($h[AssignAuthorPr::id()])
+        ->add($h[LabelMergeConflictsPr::id()])
+      ->section('Documentation')
+        ->add($h[PreserveDocsProject::id()])
+      ->section('AI')
+        ->add($h[AiCodeInstructions::id()])
+        ->add($h[AiCodeReview::id()])
+      ->run(numbering: 'total', env_prefix: 'VORTEX_INSTALLER_PROMPT_');
+    // phpcs:enable Drupal.WhiteSpace.ObjectOperatorIndent
 
     Tui::output()->setVerbosity($original_verbosity);
 
@@ -129,196 +194,24 @@ class PromptManager {
       return FALSE;
     }
 
-    // A step skipped by its condition is absent from the flow's answers.
-    $responses += array_fill_keys(array_keys(array_merge(...array_values($this->steps()))), NULL);
-
     $this->responses = $this->normalizeResponses($responses);
 
-    // A conditional prompt this run skips never reaches args(), so its handler
-    // is asked directly. Otherwise the answer describing the destination would
-    // be replaced by the one describing this run.
-    foreach ($this->handlers as $id => $handler) {
-      if (!isset($this->discoveredResponses[$id])) {
-        $discovered = $handler->discover();
+    // A value read from the destination describes the project as installed,
+    // so it replaces the answer this run collected.
+    $discovered = [];
 
-        if ($discovered !== NULL) {
-          $this->discoveredResponses[$id] = $discovered;
-        }
+    foreach ($this->handlers as $id => $handler) {
+      $resolved = $handler->resolvedValue($responses);
+      $value = is_string($resolved) ? $resolved : $handler->discover();
+
+      if ($value !== NULL) {
+        $discovered[$id] = $value;
       }
     }
 
-    // Discovery covers only the handlers that read the destination, so the
-    // collected answers fill the rest.
-    $this->discoveredResponses = $this->normalizeResponses(array_replace($responses, $this->discoveredResponses));
+    $this->discoveredResponses = $this->normalizeResponses(array_replace($responses, $discovered));
 
     return TRUE;
-  }
-
-  /**
-   * Build the flow from the prompt catalogue.
-   *
-   * Each step and its condition receive every earlier step's answer, with NULL
-   * for a step its condition skipped.
-   *
-   * @return array<int|string, mixed>
-   *   A section heading for each group, followed by its top-level steps keyed
-   *   by handler ID. A step runs only when its handler's shouldRun() accepts
-   *   the answers collected so far.
-   */
-  protected function flowSteps(): array {
-    $builders = [];
-    $skipped = [];
-    $earlier = [];
-
-    foreach ($this->steps() as $steps) {
-      foreach ($steps as $id => $step) {
-        $builders[$id] = $step;
-        $skipped[$id] = $earlier;
-        $earlier[$id] = NULL;
-      }
-    }
-
-    $children = $this->children();
-    $nested = array_merge(...array_values($children));
-
-    $flow = [];
-
-    foreach ($this->steps() as $section => $steps) {
-      $flow[] = Prompty::section($section);
-
-      foreach (array_keys($steps) as $id) {
-        if (!in_array($id, $nested, TRUE)) {
-          $flow[$id] = $this->flowStep($id, $builders, $skipped, $children);
-        }
-      }
-    }
-
-    return $flow;
-  }
-
-  /**
-   * Build a flow step and the steps nested under it.
-   *
-   * @param string $id
-   *   The handler ID.
-   * @param array<string, \Closure(array): mixed> $builders
-   *   Step builders keyed by handler ID.
-   * @param array<string, array<string, null>> $skipped
-   *   For each handler ID, the earlier step IDs with NULL values.
-   * @param array<string, array<int, string>> $children
-   *   Child handler IDs keyed by their parent handler ID.
-   *
-   * @return array<string, mixed>
-   *   The Prompty step.
-   */
-  protected function flowStep(string $id, array $builders, array $skipped, array $children): array {
-    $step = $builders[$id];
-    $earlier = $skipped[$id];
-
-    $nested = [];
-    foreach ($children[$id] ?? [] as $child_id) {
-      $nested[$child_id] = $this->flowStep($child_id, $builders, $skipped, $children);
-    }
-
-    return Prompty::step(fn(array $r): mixed => $step($r + $earlier), condition: fn(array $r): bool => $this->handler($id)->shouldRun($r + $earlier), children: $nested);
-  }
-
-  /**
-   * Define which prompts are asked under the answer they depend on.
-   *
-   * @return array<string, array<int, string>>
-   *   Child handler IDs keyed by the handler ID whose answer decides whether
-   *   they are asked.
-   */
-  protected function children(): array {
-    return [
-      Profile::id() => [ProfileCustom::id()],
-      Theme::id() => [ThemeCustom::id(), FrontendBuild::id(), Storybook::id()],
-      HostingProvider::id() => [HostingProjectName::id()],
-      ProvisionType::id() => [DatabaseFetchSource::id()],
-      DatabaseFetchSource::id() => [DatabaseImage::id()],
-      Migration::id() => [MigrationFetchSource::id()],
-      MigrationFetchSource::id() => [MigrationImage::id()],
-      DependencyUpdatesProvider::id() => [DependencyUpdatesAutomerge::id()],
-    ];
-  }
-
-  /**
-   * Define the prompts in the order they are asked, grouped by section.
-   *
-   * @return array<string, array<string, \Closure(array): mixed>>
-   *   Steps keyed by handler ID, grouped under their section heading. Each step
-   *   receives the answers collected so far and returns the widget to ask.
-   */
-  protected function steps(): array {
-    return [
-      'General information' => [
-        Name::id() => fn(array $r): mixed => $this->prompt(Name::class),
-        MachineName::id() => fn(array $r): mixed => $this->prompt(MachineName::class, $r),
-        Org::id() => fn(array $r): mixed => $this->prompt(Org::class, $r),
-        OrgMachineName::id() => fn(array $r): mixed => $this->prompt(OrgMachineName::class, $r),
-        Domain::id() => fn(array $r): mixed => $this->prompt(Domain::class, $r),
-      ],
-      'Drupal' => [
-        Starter::id() => fn(array $r): mixed => $this->prompt(Starter::class, $r),
-        Profile::id() => fn(array $r): mixed => $this->resolveOrPrompt(Profile::id(), $r, fn(): mixed => $this->prompt(Profile::class)),
-        ProfileCustom::id() => fn(array $r): mixed => $this->prompt(ProfileCustom::class),
-        Modules::id() => fn(array $r): mixed => $this->prompt(Modules::class, $r),
-        ModulePrefix::id() => fn(array $r): mixed => $this->prompt(ModulePrefix::class, $r),
-        CustomModules::id() => fn(array $r): mixed => $this->prompt(CustomModules::class, $r),
-        Theme::id() => fn(array $r): mixed => $this->resolveOrPrompt(Theme::id(), $r, fn(): mixed => $this->prompt(Theme::class)),
-        ThemeCustom::id() => fn(array $r): mixed => $this->prompt(ThemeCustom::class, $r),
-        FrontendBuild::id() => fn(array $r): mixed => $this->prompt(FrontendBuild::class, $r),
-        Storybook::id() => fn(array $r): mixed => $this->prompt(Storybook::class, $r),
-      ],
-      'Code repository' => [
-        CodeProvider::id() => fn(array $r): mixed => $this->prompt(CodeProvider::class),
-        VersionScheme::id() => fn(array $r): mixed => $this->prompt(VersionScheme::class),
-      ],
-      'Environment' => [
-        Timezone::id() => fn(array $r): mixed => $this->prompt(Timezone::class),
-        Services::id() => fn(array $r): mixed => $this->prompt(Services::class),
-        Tools::id() => fn(array $r): mixed => $this->prompt(Tools::class),
-      ],
-      'Hosting' => [
-        HostingProvider::id() => fn(array $r): mixed => $this->prompt(HostingProvider::class),
-        HostingProjectName::id() => fn(array $r): mixed => $this->prompt(HostingProjectName::class, $r),
-        Webroot::id() => fn(array $r): mixed => $this->resolveOrPrompt(Webroot::id(), $r, fn(): mixed => $this->prompt(Webroot::class, $r)),
-      ],
-      'Deployment' => [
-        DeployTypes::id() => fn(array $r): mixed => $this->prompt(DeployTypes::class, $r),
-      ],
-      'Workflow' => [
-        ProvisionType::id() => fn(array $r): mixed => $this->prompt(ProvisionType::class),
-        DatabaseFetchSource::id() => fn(array $r): mixed => $this->prompt(DatabaseFetchSource::class, $r),
-        DatabaseImage::id() => fn(array $r): mixed => $this->prompt(DatabaseImage::class, $r),
-        Migration::id() => fn(array $r): mixed => $this->prompt(Migration::class),
-        MigrationFetchSource::id() => fn(array $r): mixed => $this->prompt(MigrationFetchSource::class, $r),
-        MigrationImage::id() => fn(array $r): mixed => $this->prompt(MigrationImage::class, $r),
-      ],
-      'Notifications' => [
-        NotificationChannels::id() => fn(array $r): mixed => $this->prompt(NotificationChannels::class),
-      ],
-      'Continuous Integration' => [
-        CiProvider::id() => fn(array $r): mixed => $this->prompt(CiProvider::class, $r),
-        VisualRegression::id() => fn(array $r): mixed => $this->prompt(VisualRegression::class),
-        Gitleaks::id() => fn(array $r): mixed => $this->prompt(Gitleaks::class),
-      ],
-      'Automations' => [
-        DependencyUpdatesProvider::id() => fn(array $r): mixed => $this->prompt(DependencyUpdatesProvider::class),
-        DependencyUpdatesAutomerge::id() => fn(array $r): mixed => $this->prompt(DependencyUpdatesAutomerge::class, $r),
-        CodeCoverageProvider::id() => fn(array $r): mixed => $this->prompt(CodeCoverageProvider::class),
-        AssignAuthorPr::id() => fn(array $r): mixed => $this->prompt(AssignAuthorPr::class),
-        LabelMergeConflictsPr::id() => fn(array $r): mixed => $this->prompt(LabelMergeConflictsPr::class),
-      ],
-      'Documentation' => [
-        PreserveDocsProject::id() => fn(array $r): mixed => $this->prompt(PreserveDocsProject::class),
-      ],
-      'AI' => [
-        AiCodeInstructions::id() => fn(array $r): mixed => $this->prompt(AiCodeInstructions::class),
-        AiCodeReview::id() => fn(array $r): mixed => $this->prompt(AiCodeReview::class),
-      ],
-    ];
   }
 
   /**
@@ -642,162 +535,9 @@ class PromptManager {
 
     foreach ($raw as $key => $value) {
       if (isset($this->handlers[$key])) {
-        $this->promptOverrides[$key] = $value;
+        $this->handlers[$key]->setOverride($value);
       }
     }
-  }
-
-  /**
-   * Dispatch a prompt using the handler's type enum.
-   *
-   * @param string $handler_class
-   *   The handler class name.
-   * @param array $responses
-   *   Current form responses for context-aware methods.
-   *
-   * @return mixed
-   *   The widget call for the flow step.
-   */
-  protected function prompt(string $handler_class, array $responses = []): mixed {
-    $fn = $this->handler($handler_class::id())->type()->promptFunction();
-
-    return $fn(...$this->args($handler_class, NULL, $responses));
-  }
-
-  /**
-   * Convert handler properties to Prompty widget arguments.
-   *
-   * Kept deliberately unoptimized to ease debugging and future changes.
-   *
-   * @param string $handler_class
-   *   The handler class name.
-   * @param mixed $default_override
-   *   Optional override for the default value (for response dependencies).
-   * @param array $responses
-   *   Current form responses for context-aware methods.
-   *
-   * @return array
-   *   Array of named arguments for the handler's Prompty widget.
-   */
-  protected function args(string $handler_class, mixed $default_override = NULL, array $responses = []): array {
-    $id = $handler_class::id();
-    $handler = $this->handler($id);
-
-    $args = [
-      'label' => $handler->label(),
-      'help' => $handler->hint($responses),
-      'placeholder' => $handler->placeholder($responses),
-      'transform' => $handler->transform(),
-      'validate' => $handler->validate(),
-      'description' => $handler::description($responses),
-      'required' => $handler->isRequired() ?: NULL,
-    ];
-
-    $options = $handler->options($responses);
-    if (is_array($options)) {
-      $args['options'] = $options;
-      $args['scroll'] = 10;
-    }
-
-    // A discovered list keeps the order the project already has it in.
-    if ($handler->type() === PromptType::MultiSelect) {
-      $args['order'] = 'default';
-    }
-
-    $default_from_handler = $handler->default($responses);
-    $default_from_prompts = $this->promptOverrides[$id] ?? NULL;
-    $default_from_discovery = $handler->discover();
-
-    if ($default_from_discovery !== NULL) {
-      $this->discoveredResponses[$id] = $default_from_discovery;
-    }
-
-    if ($default_from_prompts !== NULL) {
-      $default = $default_from_prompts;
-    }
-    elseif ($default_from_discovery !== NULL) {
-      $default = $default_from_discovery;
-    }
-    elseif ($default_override !== NULL) {
-      $default = $default_override;
-    }
-    else {
-      $default = $default_from_handler;
-    }
-
-    // The widgets reject a default outside the options, so a default that no
-    // longer matches one is dropped and the widget starts from its first
-    // option.
-    if (is_array($options) && $handler->type() === PromptType::Select && !array_key_exists((string) $default, $options)) {
-      $default = NULL;
-    }
-
-    if (is_array($options) && $handler->type() === PromptType::MultiSelect && is_array($default)) {
-      $default = array_values(array_filter($default, fn($value): bool => array_key_exists($value, $options)));
-    }
-
-    if ($default !== NULL && $default !== '') {
-      $args['default'] = $default;
-    }
-
-    return array_filter($args, fn($value): bool => $value !== NULL);
-  }
-
-  /**
-   * Resolve a value via handler or prompt the user.
-   *
-   * @param string $handler_id
-   *   The handler ID.
-   * @param array $r
-   *   Current form responses for context-aware methods.
-   * @param callable $prompt
-   *   The prompt callable to use if the value is not resolved.
-   *
-   * @return mixed
-   *   The widget call for the flow step. A resolved value answers the step
-   *   without asking.
-   */
-  protected function resolveOrPrompt(string $handler_id, array $r, callable $prompt): mixed {
-    $handler = $this->handler($handler_id);
-    $resolved = $handler->resolvedValue($r);
-
-    if (is_string($resolved)) {
-      $message = $handler->resolvedMessage($r, $resolved);
-
-      if ($message) {
-        Tui::success($message);
-      }
-
-      // A resolved value is read from the destination, so it stands in for
-      // discovery for handlers that never reach a prompt.
-      $this->discoveredResponses[$handler_id] = $resolved;
-
-      // A text widget accepts any value, including a name outside the
-      // handler's options.
-      return Prompty::text($handler->label(), discovered: $resolved);
-    }
-
-    return $prompt();
-  }
-
-  /**
-   * Get a registered handler.
-   *
-   * @param string $id
-   *   The handler ID.
-   *
-   * @return \DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface
-   *   The handler instance.
-   *
-   * @throws \RuntimeException
-   *   If no handler is registered for the ID.
-   */
-  protected function handler(string $id): HandlerInterface {
-    if (!array_key_exists($id, $this->handlers)) {
-      throw new \RuntimeException(sprintf('Handler for "%s" not found.', $id));
-    }
-
-    return $this->handlers[$id];
   }
 
 }

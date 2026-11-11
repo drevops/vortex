@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
+use AlexSkrypnyk\Prompty\PromptyStepInterface;
 use DrevOps\VortexInstaller\Prompts\PromptType;
 
 /**
  * The interface for the prompt handlers.
+ *
+ * Each handler is a Prompty flow step: it decides whether it is asked and what
+ * its widget shows.
  */
-interface HandlerInterface {
+interface HandlerInterface extends PromptyStepInterface {
 
   /**
    * Reserved dependency key for system-state conditions.
@@ -200,6 +204,15 @@ interface HandlerInterface {
    *   The message to display, or null if no message needed.
    */
   public function resolvedMessage(array $responses, mixed $resolved): ?string;
+
+  /**
+   * Set the answer supplied with the --prompts option.
+   *
+   * @param string|bool|array|null $override
+   *   The supplied answer, which pre-fills the prompt ahead of discovery and
+   *   the handler default.
+   */
+  public function setOverride(null|string|bool|array $override): static;
 
   /**
    * Set the responses.

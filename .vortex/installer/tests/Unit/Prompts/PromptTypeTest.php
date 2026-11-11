@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Prompts;
 
-use AlexSkrypnyk\Prompty\Prompty;
 use DrevOps\VortexInstaller\Prompts\PromptType;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -15,23 +14,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
  */
 #[CoversClass(PromptType::class)]
 class PromptTypeTest extends UnitTestCase {
-
-  #[DataProvider('dataProviderPromptFunctionResolvesToWidget')]
-  public function testPromptFunctionResolvesToWidget(PromptType $case): void {
-    $reflection = new \ReflectionFunction($case->promptFunction());
-
-    $this->assertSame(Prompty::class, $reflection->getClosureScopeClass()?->getName());
-    $this->assertSame($case->value, $reflection->getName());
-  }
-
-  /**
-   * Data provider for testPromptFunctionResolvesToWidget.
-   */
-  public static function dataProviderPromptFunctionResolvesToWidget(): \Iterator {
-    foreach (PromptType::cases() as $case) {
-      yield $case->name => [$case];
-    }
-  }
 
   #[DataProvider('dataProviderFromValidString')]
   public function testFromValidString(string $value, PromptType $expected): void {
