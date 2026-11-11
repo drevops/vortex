@@ -112,34 +112,43 @@ class DockerComposeWorkflowTest extends FunctionalTestCase {
   /**
    * Test Package token handling during build.
    *
-   * Make sure to run with
-   * export TEST_PACKAGE_TOKEN=real_github_token_with_access_to_private_package
-   * or this test will fail.
+   * Set TEST_PACKAGE_TOKEN to a GitHub token with access to the private
+   * package to also test the build with and without the token. Without it,
+   * the private package is not added and only the 'auth.json' exclusion
+   * from the image is tested.
    */
   #[Group('p2')]
   public function testDockerComposePackageToken(): void {
     $this->prepareSut();
 
-    $package_token = getenv('TEST_PACKAGE_TOKEN');
-    $this->assertNotEmpty($package_token, 'TEST_PACKAGE_TOKEN environment variable must be set');
+    $package_token = (string) getenv('TEST_PACKAGE_TOKEN');
 
-    $this->logSubstep('Adding private package to composer.json');
-    File::remove('composer.lock');
-    $this->cmd('composer config repositories.test-private-package vcs git@github.com:drevops/test-private-package.git');
-    $this->cmd('composer require --no-update drevops/test-private-package:^1');
-    $this->assertFileContainsString('composer.json', 'drevops/test-private-package', 'composer.json should contain private package');
-    File::remove('composer.lock');
+    if ($package_token !== '') {
+      $this->logSubstep('Adding private package to composer.json');
+      File::remove('composer.lock');
+      $this->cmd('composer config repositories.test-private-package vcs git@github.com:drevops/test-private-package.git');
+      $this->cmd('composer require --no-update drevops/test-private-package:^1');
+      $this->assertFileContainsString('composer.json', 'drevops/test-private-package', 'composer.json should contain private package');
+      File::remove('composer.lock');
+    }
 
     $this->logSubstep('Adding a decoy auth.json to the build context');
     // The bogus token leaves both build outcomes unchanged, so the assertion
     // below tests only whether the file reaches the image.
     File::dump('auth.json', json_encode(['github-oauth' => ['github.com' => 'decoy-token']], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 
-    $this->logSubstep('Building without PACKAGE_TOKEN - should fail');
-    $this->cmdFail('docker compose build cli --no-cache', '* did not complete successfully', txt: 'Build stack images without token should fail', env: ['PACKAGE_TOKEN' => FALSE], tio: 900);
+    if ($package_token === '') {
+      $this->logNote('TEST_PACKAGE_TOKEN is not set - skipping the private package build tests.');
+      $this->logSubstep('Building without the private package - should succeed');
+      $this->cmd('docker compose build cli --no-cache', txt: 'Build stack images without the private package should succeed', env: ['PACKAGE_TOKEN' => FALSE], tio: 900);
+    }
+    else {
+      $this->logSubstep('Building without PACKAGE_TOKEN - should fail');
+      $this->cmdFail('docker compose build cli --no-cache', '* did not complete successfully', txt: 'Build stack images without token should fail', env: ['PACKAGE_TOKEN' => FALSE], tio: 900);
 
-    $this->logSubstep('Building with PACKAGE_TOKEN - should succeed');
-    $this->cmd('docker compose build cli --no-cache', txt: 'Build stack images with token should succeed', env: ['PACKAGE_TOKEN' => $package_token], tio: 900);
+      $this->logSubstep('Building with PACKAGE_TOKEN - should succeed');
+      $this->cmd('docker compose build cli --no-cache', txt: 'Build stack images with token should succeed', env: ['PACKAGE_TOKEN' => $package_token], tio: 900);
+    }
 
     $this->logSubstep('Asserting that auth.json is absent from the built image');
     $this->assertFileExists('auth.json', 'auth.json should still exist in the build context');

@@ -158,6 +158,11 @@ commands:
   #;> MIGRATION
   #;> !PROVISION_TYPE_PROFILE
 
+  fetch-files:
+    usage: Fetch public files.
+    aliases: [download-files, files-download, files-fetch]
+    cmd: ./vendor/bin/vortex-fetch-files
+
   reload-db:
     usage: Reload the database container using local database image.
     cmd: |

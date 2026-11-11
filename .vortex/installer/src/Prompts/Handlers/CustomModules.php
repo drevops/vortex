@@ -41,9 +41,8 @@ class CustomModules extends AbstractHandler {
 Select which custom modules to include in your project:
 
     ○ {$base}
-      Starter module with common site utilities (mail handling,
-      deploy hooks) and test scaffolding for Unit, Kernel,
-      Functional, and FunctionalJavascript tests.
+      Starter module with deploy hooks and test scaffolding for
+      Unit, Kernel, Functional, and FunctionalJavascript tests.
 
     ○ {$search}
       Custom Solr search integration module. Requires the Solr

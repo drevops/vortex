@@ -114,6 +114,23 @@ database in that environment and downloads the dump. It reuses a dump made
 earlier the same day, and an existing local dump too. To make a new dump,
 add `--fresh`.
 
+### Fetch files
+
+To copy the public files of your Lagoon environment into
+`web/sites/default/files`, run the following command:
+
+```shell
+ahoy fetch-files
+```
+
+For Lagoon projects, the installer sets the files source
+(`VORTEX_FETCH_FILES_SOURCE`) to `lagoon`. The command connects over SSH
+and copies the files with `rsync`, adding new files and updating changed
+ones. The environment comes from `VORTEX_FETCH_FILES_ENVIRONMENT`, or from
+`VORTEX_FETCH_DB_ENVIRONMENT` when the first variable is empty. See
+[Fetch the files](../development/provision.mdx#fetch-the-files) for the
+directories it skips.
+
 ### Run a custom task
 
 The `custom` operation of the `vortex-task` runner runs a command in a
