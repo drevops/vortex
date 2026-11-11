@@ -58,7 +58,7 @@ class DockerComposeSolrTest extends FunctionalTestCase {
     $this->solrIndexDocument();
 
     $this->logSubstep('Writing a Solr 8 response writer into the core config on the volume');
-    $this->cmd('docker compose exec -T solr sed -i', arg: ['s#</config>#<queryResponseWriter name="xslt" class="solr.XSLTResponseWriter"/></config>#', '/var/solr/data/drupal/conf/solrconfig.xml'], txt: 'Inject Solr 8 config into the core on the volume');
+    $this->cmd('docker compose exec -T solr sed -i', txt: 'Inject Solr 8 config into the core on the volume', arg: ['s#</config>#<queryResponseWriter name="xslt" class="solr.XSLTResponseWriter"/></config>#', '/var/solr/data/drupal/conf/solrconfig.xml']);
     $this->cmd('docker compose exec -T solr grep -q solr.XSLTResponseWriter /var/solr/data/drupal/conf/solrconfig.xml', txt: 'Core config on the volume should contain the Solr 8 response writer');
 
     $this->logSubstep('Rolling out the same image on the same volume');
@@ -90,28 +90,34 @@ class DockerComposeSolrTest extends FunctionalTestCase {
     // The image tag is shared across SUTs, so build to avoid a stale image.
     $this->cmd('docker compose up -d --build solr' . ($recreate ? ' --force-recreate' : ''), txt: 'Start Solr container', tio: 600);
 
-    $status = [];
+    $failures = [];
+    $core = [];
     for ($i = 0; $i < 60; $i++) {
       $process = $this->processRun('docker compose exec -T solr curl -sf', [static::SOLR_URL . '/admin/cores?action=STATUS&core=drupal&wt=json']);
       $decoded = json_decode($process->getOutput(), TRUE);
 
-      // A core that is still loading is listed without its 'index' details.
-      if ($process->isSuccessful() && is_array($decoded) && (isset($decoded['initFailures']['drupal']) || isset($decoded['status']['drupal']['index']))) {
-        $status = $decoded;
-        break;
+      if ($process->isSuccessful() && is_array($decoded)) {
+        $failures = is_array($decoded['initFailures'] ?? NULL) ? $decoded['initFailures'] : [];
+        $statuses = is_array($decoded['status'] ?? NULL) ? $decoded['status'] : [];
+        $core = is_array($statuses['drupal'] ?? NULL) ? $statuses['drupal'] : [];
+
+        // A core that is still loading is listed without its 'index' details.
+        if (isset($failures['drupal']) || isset($core['index'])) {
+          break;
+        }
       }
 
       sleep(2);
     }
 
-    $this->assertNotEmpty($status, 'Solr should finish loading the core');
-    $this->assertArrayNotHasKey('drupal', (array) ($status['initFailures'] ?? []), 'Core should not fail to load: ' . json_encode($status['initFailures'] ?? []));
-    $this->assertSame('drupal', $status['status']['drupal']['name'] ?? NULL, 'Core should be loaded');
+    $this->assertArrayNotHasKey('drupal', $failures, 'Core should not fail to load: ' . json_encode($failures));
+    $this->assertArrayHasKey('index', $core, 'Solr should finish loading the core');
+    $this->assertSame('drupal', $core['name'] ?? NULL, 'Core should be loaded');
   }
 
   protected function solrIndexDocument(): void {
     $this->logSubstep('Indexing a document');
-    $this->cmd('docker compose exec -T solr curl -sf -H Content-Type:application/json --data-binary', arg: ['[{"id":"' . static::SOLR_DOC_ID . '"}]', static::SOLR_URL . '/drupal/update?commit=true'], txt: 'Index a document');
+    $this->cmd('docker compose exec -T solr curl -sf -H Content-Type:application/json --data-binary', txt: 'Index a document', arg: ['[{"id":"' . static::SOLR_DOC_ID . '"}]', static::SOLR_URL . '/drupal/update?commit=true']);
     $this->assertSame(1, $this->solrDocumentCount(), 'Indexed document should be searchable');
   }
 
