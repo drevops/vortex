@@ -351,6 +351,16 @@ there only when you enable the matching feature in the installer:
   and keep it under version control. You reach Solr from the host on a
   random port, which `docker compose port solr 8983` prints. The Solr admin
   interface is at `http://localhost:<port>/solr/`.
+
+  The container recreates the `drupal` core from the image's config-set on
+  every start. A config-set change reaches an existing core on the next
+  deployment, even when `/var/solr` is a persistent volume. The index lives
+  in `/var/solr/drupal`, outside the core directory, so it survives each
+  restart. The build fails when the config-set's `dataDir` line differs from
+  `<dataDir>${solr.data.dir:}</dataDir>`, because the index would otherwise
+  sit inside the recreated core. After a config-set change that alters the
+  schema, reindex the content with `ahoy drush search-api:rebuild-tracker`
+  and `ahoy drush search-api:index`.
 - `clamav` - an optional container that runs a ClamAV antivirus server,
   which Drupal uses to scan uploaded files for viruses.
 - `chrome` - runs Chromium, the open source browser that Chrome is built
