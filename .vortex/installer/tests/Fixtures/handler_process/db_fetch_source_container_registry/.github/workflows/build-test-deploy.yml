@@ -24,4 +24,4 @@
 +          ./vendor/bin/vortex-push-db-image
          timeout-minutes: 30
  
-       # Save cache per default branch and the timestamp.
+       # Push the freshly-exported sanitized database dump to the push

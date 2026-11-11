@@ -268,6 +268,16 @@ jobs:
             ./vendor/bin/vortex-refresh-db
           no_output_timeout: 30m
 
+      # Push the freshly-exported sanitized database dump to the push
+      # destinations. No-op unless a fresh DB was fetched (the fetch semaphore) and
+      # the push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
+      - run:
+          name: Push DB
+          command: |
+            [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB push will not proceed." && exit 0
+            ./vendor/bin/vortex-push-db
+          no_output_timeout: 30m
+
       - save_cache:
           # Save cache per default branch and the timestamp.
           # The cache will not be saved if it already exists.
