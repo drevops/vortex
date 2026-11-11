@@ -87,8 +87,10 @@ refreshes the store from the upstream source:
   └── db_20261111-180000.sql
 ```
 
-`db.sql` always holds the latest dump, and fetching downloads it. By
-default, it's the only file a push creates. To keep a history of the
+`db.sql` always holds the latest dump, and fetching downloads it. With a
+file suffix, the latest dump is the suffixed file, such as `db_gha.sql`
+(see [Tell pushes apart](#tell-pushes-apart)). By default, it's the only
+file a push creates. To keep a history of the
 pushed dumps, set `VORTEX_PUSH_DB_TIMESTAMPED_COPY=1` in `.env`. Each push
 then also creates a copy named with its UTC time, identical to `db.sql`
 at that moment. Nothing removes the copies, so clear out the old ones
@@ -203,8 +205,23 @@ fails for a larger dump. On FTP, the timestamped copy is a second upload.
 
 `VORTEX_PUSH_DB_FILE_SUFFIX` adds a suffix before the extension of the
 pushed files, such as `db_gha.sql` and `db_gha_20261111-180000.sql`. Use a
-different suffix in each place that pushes to the same store. A fetch reads
-the suffixed file only when its remote filename includes the suffix.
+different suffix in each place that pushes to the same store.
+
+The push takes its remote filename from the fetch, then adds the suffix. To
+fetch a suffixed dump from an FTP store, set both filenames, so the suffix
+appears once:
+
+```shell
+# The push adds the suffix to this name.
+VORTEX_PUSH_DB_FTP_FILE=your_site/db.sql
+# The fetch reads the suffixed name.
+VORTEX_FETCH_DB_FTP_FILE=your_site/db_gha.sql
+```
+
+For S3, use the push remote filename `VORTEX_PUSH_DB_S3_REMOTE_FILE` in
+place of `VORTEX_PUSH_DB_FTP_FILE`. The S3 fetch names the local dump after
+the remote file, so fetching a suffixed dump from S3 also renames the local
+dump.
 
 ## What's next
 
