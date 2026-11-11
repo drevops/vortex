@@ -7,9 +7,11 @@
     "labels": [
         "Dependencies"
     ],
-    "dependencyDashboardLabels": [
-        "Dependencies"
-    ],
+    "dependencyDashboard": {
+        "labels": [
+            "Dependencies"
+        ]
+    },
     "assignees": [],
     "prConcurrentLimit": 10,
     "prHourlyLimit": 0,
@@ -230,17 +232,30 @@
             "automerge": true
         },
         {
-            "description": "Renovate publishes several releases a day, so the image that runs Renovate in CircleCI is proposed weekly in a group of its own.",
+            "description": "Renovate publishes several releases a day, so the Renovate version that CI runs and validates with is proposed weekly in a group of its own.",
             "groupName": "CI tools - Renovate - Major, minor and patch",
             "groupSlug": "ci-tools-renovate-major-minor-patch",
-            "matchFileNames": [
-                ".circleci/update-dependencies.yml"
+            "matchManagers": [
+                "custom.regex"
+            ],
+            "matchPackageNames": [
+                "renovate"
             ],
             "schedule": [
                 "before 3am on Sunday"
             ],
             "minimumReleaseAge": "14 days",
             "automerge": true
+        },
+        {
+            "description": "The 'renovate-version' input is tracked by the custom manager above, so it moves with the rest of the Renovate group.",
+            "matchManagers": [
+                "github-actions"
+            ],
+            "matchDepNames": [
+                "ghcr.io/renovatebot/renovate"
+            ],
+            "enabled": false
         },
         {
             "groupName": "GitHub Actions - All - Major, minor and patch",
@@ -302,6 +317,19 @@
                 "image:\\s*[\"']?(?<depName>renovate/renovate):(?<currentValue>\\d+\\.\\d+\\.\\d+)(?:-[a-z]+)?[\"']?\\s"
             ],
             "packageNameTemplate": "renovate",
+            "datasourceTemplate": "npm",
+            "versioningTemplate": "npm"
+        },
+        {
+            "description": "The Renovate version that GitHub Actions runs Renovate and its configuration validator with.",
+            "customType": "regex",
+            "managerFilePatterns": [
+                "/^\\.github/workflows/.+\\.yml$/"
+            ],
+            "matchStrings": [
+                "(?:renovate-version|validator_version):\\s*[\"']?(?<currentValue>\\d+\\.\\d+\\.\\d+)[\"']?\\s"
+            ],
+            "depNameTemplate": "renovate",
             "datasourceTemplate": "npm",
             "versioningTemplate": "npm"
         }

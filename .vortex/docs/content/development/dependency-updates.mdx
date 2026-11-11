@@ -38,17 +38,18 @@ of each:
 | **JS packages** | All npm packages (root `package.json` only) | Minor, patch | Weekly, Sunday before 2 AM UTC | 14 days |
 | **Container images** | Images in `.docker/` and `docker-compose.yml`, and the images CI starts with `docker run` | Major, minor, patch | Daily before 3 AM UTC | 14 days for Docker Hub images |
 | **CI tools** | npm packages that CI runs at a pinned version through `npx` | Major, minor, patch | Daily before 3 AM UTC | 14 days |
-| **Renovate image** | The `renovate/renovate` image in `.circleci/update-dependencies.yml` | Major, minor, patch | Weekly, Sunday before 3 AM UTC | 14 days |
+| **Renovate version** | The `renovate/renovate` image in `.circleci/update-dependencies.yml`, and the `renovate-version` and `validator_version` inputs in `.github/workflows/` | Major, minor, patch | Weekly, Sunday before 3 AM UTC | 14 days |
 | **GitHub Actions** | All actions, and the container images that the jobs in `.github/workflows/` run in, all pinned to digests | Major, minor, patch | Daily before 3 AM UTC | 14 days |
 
 A schedule is a time window. Renovate creates a group's branches only during
 a run that falls inside the group's window. The schedule itself never starts
 a run.
 
-Renovate publishes several releases a day, so the image that runs Renovate
-in CircleCI has a group of its own with a weekly schedule. In the daily CI
-tools group, the Renovate image would get a new pull request almost every
-day.
+Renovate publishes several releases a day, so the Renovate version has a
+group of its own with a weekly schedule. In the daily CI tools group, it
+would get a new pull request almost every day. The group updates every pin
+of the version in 1 pull request, so CI validates `renovate.json` with the
+same Renovate version that runs the update.
 
 ### Auto-merge
 
@@ -328,6 +329,11 @@ opens at most 10 PRs and waits for the
 `preserve_schedules` option to keep the schedules and skip the updates that
 aren't due, the way a scheduled run does.
 
+**Renovate version:** the job runs Renovate and its configuration validator
+at the version in the `renovate-version` and `validator_version` inputs.
+Renovate keeps both up to date through the
+[Renovate version](#update-rules) group.
+
 **Debug logging:** enabled by default with `LOG_LEVEL: 'debug'`.
 
 </TabItem>
@@ -368,9 +374,10 @@ in `renovate.json` too, so to get PRs from scheduled runs, pick times inside
 the windows.
 
 **Renovate version:** the job runs a pinned `renovate/renovate` image, which
-Renovate keeps up to date through the [Renovate image](#update-rules) group.
-Renovate tracks the image only while its tag is a full version such as
-`44.176.2`. It doesn't track a digest or a floating tag such as `44`.
+Renovate keeps up to date through the [Renovate version](#update-rules)
+group. Renovate tracks the image only while its tag is a full version
+such as `44.176.2`. It doesn't track a digest or a floating tag such as
+`44`.
 
 **Debug logging:** enabled by default with `LOG_LEVEL: 'debug'`.
 
@@ -422,10 +429,11 @@ Renovate reads only the files that the managers in `enabledManagers` cover:
 - `dockerfile` for the Dockerfiles in `.docker/`
 - `docker-compose` for `docker-compose.yml`
 - `github-actions` for the workflows in `.github/workflows/`
-- `custom.regex` for 4 custom managers: the `IMAGE` build argument in
+- `custom.regex` for 5 custom managers: the `IMAGE` build argument in
   `docker-compose.yml`, the `docker run` and `npx --yes` lines in
-  `.circleci/config.yml` and `.github/workflows/`, and the
-  `renovate/renovate` image in `.circleci/update-dependencies.yml`
+  `.circleci/config.yml` and `.github/workflows/`, the `renovate/renovate`
+  image in `.circleci/update-dependencies.yml`, and the `renovate-version`
+  and `validator_version` inputs in `.github/workflows/`
 
 Renovate leaves the other image references in `.circleci/config.yml`
 untracked, such as the `drevops/ci-runner` image that the jobs run in.
@@ -491,7 +499,7 @@ look:
 - **Commit body table:** `commitBodyTable: true` - every update commit
   carries a table of its updates in the commit message body.
 - **Dashboard labels:** the Renovate dependency dashboard issue is labeled
-  `Dependencies` (`dependencyDashboardLabels`).
+  `Dependencies` (`dependencyDashboard.labels`).
 
 ### Disabled updates
 
