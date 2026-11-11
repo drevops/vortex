@@ -701,14 +701,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, lint]
     #;< !PROVISION_TYPE_PROFILE
-    #;< VORTEX_DEV
-    # Fork pull requests get no deployment secrets, and their branch does not
-    # exist in this repository. Consumer sites get the condition below.
-    if: >-
-      ${{ !cancelled() && (inputs.deploy_target || (success() && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/'))))
-      && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
-    #;> VORTEX_DEV
-    ##### if: ${{ !cancelled() && (inputs.deploy_target || (success() && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
+    if: ${{ !cancelled() && (inputs.deploy_target || (success() && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
     #;> !PROVISION_TYPE_PROFILE
 
     permissions:
@@ -727,6 +720,18 @@ jobs:
     steps:
       - name: Preserve $HOME set in the container
         run: echo HOME=/root >> "$GITHUB_ENV" # https://github.com/actions/runner/issues/863
+
+      #;< VORTEX_DEV
+      # Fork pull requests get no deployment secrets, and their branch exists
+      # only in the fork, so check out the head commit and deploy nothing.
+      - name: Disable deployment for fork pull requests
+        if: ${{ github.event.pull_request.head.repo.fork }}
+        run: |
+          echo "DEPLOY_BRANCH=${PR_HEAD_SHA}" >> "$GITHUB_ENV"
+          echo "VORTEX_DEPLOY_TYPES=none" >> "$GITHUB_ENV"
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      #;> VORTEX_DEV
 
       - name: Resolve deploy target
         if: ${{ inputs.deploy_target }}
