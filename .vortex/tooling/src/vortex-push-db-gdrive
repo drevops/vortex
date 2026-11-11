@@ -32,8 +32,9 @@ VORTEX_PUSH_DB_GDRIVE_DB_DIR="${VORTEX_PUSH_DB_GDRIVE_DB_DIR:-${VORTEX_DB_DIR:-.
 
 # Database dump file name.
 #
-# The same name is used for the file in the Google Drive folder.
-VORTEX_PUSH_DB_GDRIVE_DB_FILE="${VORTEX_PUSH_DB_GDRIVE_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}"
+# Defaults to the name the database is fetched and refreshed with. The same
+# name is used for the file in the Google Drive folder.
+VORTEX_PUSH_DB_GDRIVE_DB_FILE="${VORTEX_PUSH_DB_GDRIVE_DB_FILE:-${VORTEX_FETCH_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}}"
 
 # ------------------------------------------------------------------------------
 

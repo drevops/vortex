@@ -471,3 +471,41 @@ load ../_helper.bash
 
   popd >/dev/null
 }
+
+@test "push-db-s3: Push the database dump file the database is fetched with" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  echo "database content" >.data/db_fetched.sql
+
+  declare -a STEPS=(
+    "[INFO] Started database dump push to S3."
+
+    "Local file:     ./.data/db_fetched.sql"
+    "Remote file:    db_fetched.sql"
+
+    "@curl * # 0 # 200"
+
+    "[ OK ] Finished database dump push to S3."
+  )
+
+  unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
+
+  export VORTEX_PUSH_DB_S3_ACCESS_KEY="testaccesskey"
+  export VORTEX_PUSH_DB_S3_SECRET_KEY="testsecretkey"
+  export VORTEX_PUSH_DB_S3_BUCKET="test-bucket"
+  export VORTEX_PUSH_DB_S3_REGION="ap-southeast-2"
+  export VORTEX_FETCH_DB_FILE="db_fetched.sql"
+  unset VORTEX_PUSH_DB_S3_DB_DIR VORTEX_PUSH_DB_S3_DB_FILE VORTEX_PUSH_DB_S3_REMOTE_FILE
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-push-db-s3
+  steps_run "assert" "${mocks[@]}"
+
+  assert_success
+
+  rm -rf .data
+
+  popd >/dev/null
+}
