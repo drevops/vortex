@@ -33,7 +33,7 @@ jobs:
   # Optionally, set RENOVATE_DRY_RUN to `true` to run without making changes.
   update-dependencies:
     docker:
-      - image: renovate/renovate:44.181.5
+      - image: renovate/renovate:44.233.0
         environment:
           RENOVATE_PLATFORM: 'github'
           RENOVATE_AUTODISCOVER: false
