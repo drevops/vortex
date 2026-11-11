@@ -245,6 +245,7 @@ expect {
 
 # A prompt waiting for input starts with the active symbol, U+25C7, and an
 # answered one with the completed symbol, so only a waiting prompt matches.
+# A top-level prompt is numbered "(5/36)" and a nested one "(5.1)".
 while {1} {
   expect {
     -re {◇[^\r\n]*Proceed with installing Vortex} {
@@ -254,7 +255,7 @@ while {1} {
     "Finished installing Vortex" {
       break
     }
-    -re {◇[^\r\n]*\([0-9]+/[0-9]+\)} {
+    -re {◇[^\r\n]*\([0-9]+(\.[0-9]+)*(/[0-9]+)?\)} {
       wait_and_enter
     }
     timeout {

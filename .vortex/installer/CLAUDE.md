@@ -137,7 +137,9 @@ Content removed if feature not selected
 in order, under its section heading. `runPrompts()` runs them as 1
 `Prompty::flow()`, with each handler's `shouldRun()` as the step's
 condition. Add a new prompt to `steps()`, and the step count follows
-automatically.
+automatically. A prompt whose `shouldRun()` reads another prompt's answer
+also goes in `PromptManager::children()` under that prompt, so it is asked
+as a nested step.
 
 Processing runs in a different order, so each handler declares its own
 `processWeight()` - lowest first, broadly the reverse of the prompt order so

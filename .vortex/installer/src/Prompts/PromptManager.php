@@ -161,25 +161,86 @@ class PromptManager {
    * for a step its condition skipped.
    *
    * @return array<int|string, mixed>
-   *   A section heading for each group, followed by its steps keyed by handler
-   *   ID. A step runs only when its handler's shouldRun() accepts the answers
-   *   collected so far.
+   *   A section heading for each group, followed by its top-level steps keyed
+   *   by handler ID. A step runs only when its handler's shouldRun() accepts
+   *   the answers collected so far.
    */
   protected function flowSteps(): array {
-    $flow = [];
+    $builders = [];
+    $skipped = [];
     $earlier = [];
 
-    foreach ($this->steps() as $section => $steps) {
-      $flow[] = Prompty::section($section);
-
+    foreach ($this->steps() as $steps) {
       foreach ($steps as $id => $step) {
-        $skipped = $earlier;
-        $flow[$id] = Prompty::step(fn(array $r): mixed => $step($r + $skipped), condition: fn(array $r): bool => $this->handler($id)->shouldRun($r + $skipped));
+        $builders[$id] = $step;
+        $skipped[$id] = $earlier;
         $earlier[$id] = NULL;
       }
     }
 
+    $children = $this->children();
+    $nested = array_merge(...array_values($children));
+
+    $flow = [];
+
+    foreach ($this->steps() as $section => $steps) {
+      $flow[] = Prompty::section($section);
+
+      foreach (array_keys($steps) as $id) {
+        if (!in_array($id, $nested, TRUE)) {
+          $flow[$id] = $this->flowStep($id, $builders, $skipped, $children);
+        }
+      }
+    }
+
     return $flow;
+  }
+
+  /**
+   * Build a flow step and the steps nested under it.
+   *
+   * @param string $id
+   *   The handler ID.
+   * @param array<string, \Closure(array): mixed> $builders
+   *   Step builders keyed by handler ID.
+   * @param array<string, array<string, null>> $skipped
+   *   For each handler ID, the earlier step IDs with NULL values.
+   * @param array<string, array<int, string>> $children
+   *   Child handler IDs keyed by their parent handler ID.
+   *
+   * @return array<string, mixed>
+   *   The Prompty step.
+   */
+  protected function flowStep(string $id, array $builders, array $skipped, array $children): array {
+    $step = $builders[$id];
+    $earlier = $skipped[$id];
+
+    $nested = [];
+    foreach ($children[$id] ?? [] as $child_id) {
+      $nested[$child_id] = $this->flowStep($child_id, $builders, $skipped, $children);
+    }
+
+    return Prompty::step(fn(array $r): mixed => $step($r + $earlier), condition: fn(array $r): bool => $this->handler($id)->shouldRun($r + $earlier), children: $nested);
+  }
+
+  /**
+   * Define which prompts are asked under the answer they depend on.
+   *
+   * @return array<string, array<int, string>>
+   *   Child handler IDs keyed by the handler ID whose answer decides whether
+   *   they are asked.
+   */
+  protected function children(): array {
+    return [
+      Profile::id() => [ProfileCustom::id()],
+      Theme::id() => [ThemeCustom::id(), FrontendBuild::id(), Storybook::id()],
+      HostingProvider::id() => [HostingProjectName::id()],
+      ProvisionType::id() => [DatabaseFetchSource::id()],
+      DatabaseFetchSource::id() => [DatabaseImage::id()],
+      Migration::id() => [MigrationFetchSource::id()],
+      MigrationFetchSource::id() => [MigrationImage::id()],
+      DependencyUpdatesProvider::id() => [DependencyUpdatesAutomerge::id()],
+    ];
   }
 
   /**
