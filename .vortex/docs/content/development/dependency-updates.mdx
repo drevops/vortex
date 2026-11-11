@@ -498,8 +498,9 @@ look:
   schedules in the [update rules](#update-rules) limit the rate.
 - **Commit body table:** `commitBodyTable: true` - every update commit
   carries a table of its updates in the commit message body.
-- **Dashboard labels:** the Renovate dependency dashboard issue is labeled
-  `Dependencies` (`dependencyDashboard.labels`).
+- **Dashboard labels:** in self-hosted mode, the dependency dashboard issue
+  is labeled `Dependencies` through the `RENOVATE_DEPENDENCY_DASHBOARD`
+  variable in the CI job.
 
 ### Disabled updates
 
