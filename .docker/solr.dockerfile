@@ -18,13 +18,18 @@ COPY .docker/config/solr/config-set /solr-conf/conf/
 USER root
 
 # Apply custom modifications for Lagoon environment compatibility.
+# The index is moved out of the core directory, which is recreated on every
+# start, so the build fails if the dataDir replacement does not apply.
 RUN sed -i -e "s#<dataDir>\${solr.data.dir:}#<dataDir>/var/solr/\${solr.core.name}#g" /solr-conf/conf/solrconfig.xml && \
+    grep -q "<dataDir>/var/solr/\${solr.core.name}</dataDir>" /solr-conf/conf/solrconfig.xml && \
     sed -i -e "s#solr.lock.type:native#solr.lock.type:none#g" /solr-conf/conf/solrconfig.xml && \
     sed -i -e "s#solr.autoSoftCommit.MaxTime=5000#solr.autoSoftCommit.MaxTime=-1#g" /solr-conf/conf/solrcore.properties
 
 # hadolint ignore=DL3066 # named account provided by the base image
 USER solr
 
-# solr-precreate is provided by the base Solr container image.
-# It pre-creates the core and then starts Solr in the foreground.
-CMD ["solr-precreate", "drupal", "/solr-conf"]
+# solr-recreate and solr-foreground are provided by the base Solr container
+# image. solr-recreate replaces the core config on the persistent volume with
+# the config-set from this image on every start, so config-set changes reach
+# existing cores. exec makes Solr the direct child of tini to receive SIGTERM.
+CMD ["sh", "-c", "solr-recreate drupal /solr-conf && exec solr-foreground"]
