@@ -94,6 +94,8 @@ jobs:
       # version.
       - name: Validate Renovate configuration
         uses: suzuki-shunsuke/github-action-renovate-config-validator@1e1604219a6b38ae9a10aff42a28a3656322c31a # v2.4.1
+        with:
+          validator_version: 44.233.0
 
       - name: Install Ahoy
         run: |
