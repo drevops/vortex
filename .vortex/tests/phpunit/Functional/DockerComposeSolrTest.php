@@ -40,7 +40,6 @@ class DockerComposeSolrTest extends FunctionalTestCase {
     $this->logSubstep('Changing the config-set and rolling out a new image on the same volume');
     File::replaceContentInFile('.docker/config/solr/config-set/solrcore.properties', 'solr.mlt.timeAllowed=2000', 'solr.mlt.timeAllowed=2345');
     $this->assertFileContainsString('.docker/config/solr/config-set/solrcore.properties', 'solr.mlt.timeAllowed=2345');
-    $this->cmd('docker compose build solr', txt: 'Build Solr image with the changed config-set', tio: 600);
     $this->solrStart(recreate: TRUE);
 
     $this->logSubstep('Asserting the existing core uses the changed config-set');
@@ -87,7 +86,8 @@ class DockerComposeSolrTest extends FunctionalTestCase {
    */
   protected function solrStart(bool $recreate = FALSE): void {
     $this->logSubstep($recreate ? 'Recreating the Solr container' : 'Starting the Solr container');
-    $this->cmd('docker compose up -d solr' . ($recreate ? ' --force-recreate' : ''), txt: 'Start Solr container', tio: 600);
+    // The image tag is shared across SUTs, so build to avoid a stale image.
+    $this->cmd('docker compose up -d --build solr' . ($recreate ? ' --force-recreate' : ''), txt: 'Start Solr container', tio: 600);
 
     $status = [];
     for ($i = 0; $i < 60; $i++) {
