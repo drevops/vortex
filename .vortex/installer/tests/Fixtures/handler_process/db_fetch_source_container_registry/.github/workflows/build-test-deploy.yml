@@ -6,10 +6,10 @@
 +            echo "VORTEX_DB_IMAGE_BASE=drevops/db-data-mysql-8.4:__VERSION__"
 +            # Deploy container image.
 +            echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
+             # Refresh the database dumps in the fetch sources that are dump stores.
+             echo "VORTEX_PUSH_DB_PROCEED=1"
            } >> "$GITHUB_ENV"
- 
-       - name: Create cache keys files for database caching
-@@ -274,6 +278,15 @@
+@@ -276,6 +280,15 @@
          run: |
            if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
            ./vendor/bin/vortex-refresh-db

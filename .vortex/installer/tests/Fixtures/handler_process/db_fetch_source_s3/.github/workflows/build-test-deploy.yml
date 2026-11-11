@@ -7,16 +7,7 @@
  
      steps:
        # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
-@@ -241,6 +243,8 @@
-           {
-             echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
-             echo "VORTEX_FRONTEND_BUILD_SKIP=1"
-+            # Refresh the database dump in the database fetch source.
-+            echo "VORTEX_PUSH_DB_PROCEED=1"
-           } >> "$GITHUB_ENV"
- 
-       - name: Create cache keys files for database caching
-@@ -274,6 +278,15 @@
+@@ -276,6 +278,15 @@
          run: |
            if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
            ./vendor/bin/vortex-refresh-db
