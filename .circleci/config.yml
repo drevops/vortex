@@ -416,8 +416,10 @@ jobs:
       # Refresh the database dumps in the fetch sources that are dump stores.
       VORTEX_PUSH_DB_PROCEED: 1
       #;< VORTEX_DEV
-      # Tell this provider's demo database dumps apart on the test FTP server.
-      VORTEX_PUSH_DB_FILE_PREFIX: circleci-
+      # Tell this provider's demo database dumps apart on the test FTP server,
+      # with a timestamped copy of each push.
+      VORTEX_PUSH_DB_FILE_SUFFIX: _circleci
+      VORTEX_PUSH_DB_TIMESTAMPED_COPY: 1
       #;> VORTEX_DEV
       # Do not build the Drupal front-end.
       VORTEX_FRONTEND_BUILD_SKIP: 1

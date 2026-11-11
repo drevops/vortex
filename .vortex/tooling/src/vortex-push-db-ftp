@@ -2,13 +2,14 @@
 ##
 # Push DB dump to FTP.
 #
-# Keeps 2 copies of the database dump file on the FTP server: the current
-# dump under the remote file name and the dump it replaced with a '-previous'
-# suffix, such as 'db.sql' and 'db-previous.sql'. The fetch always finds the
-# current dump under the remote file name.
+# Uploads the database dump file under the remote file name, such as
+# 'db.sql', which always holds the latest dump that the fetch downloads. With
+# VORTEX_PUSH_DB_TIMESTAMPED_COPY set to 1, the dump is also uploaded under a
+# name with a UTC timestamp, such as 'db_20261111-180000.sql', to keep a
+# history.
 #
-# The dump is uploaded under a temporary name and renamed into place only
-# after the upload succeeds, so a failed upload keeps the current dump.
+# Each file is uploaded under a temporary name and renamed into place only
+# after the upload succeeds, so a failed upload keeps the existing file.
 #
 # IMPORTANT! This script runs outside the container on the host system.
 #
@@ -64,12 +65,18 @@ _vs="VORTEX_FETCH_DB${_db_index}_FILE"
 _vss="VORTEX_DB${_db_index}_FILE"
 VORTEX_PUSH_DB_FTP_DB_FILE="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_FILE:-db.sql}}}}"
 
-# Prefix for the names of the pushed database dump files.
+# Suffix for the names of the pushed database dump files.
 #
-# Use a different prefix in each place that pushes to the same storage, such
-# as 'gha-' and 'circleci-', to tell their dumps apart. A fetch reads the
-# prefixed name only when its remote file name includes the prefix.
-VORTEX_PUSH_DB_FILE_PREFIX="${VORTEX_PUSH_DB_FILE_PREFIX:-}"
+# Goes before the extension, so 'db.sql' becomes 'db_gha.sql' with '_gha'.
+# Use a different suffix in each place that pushes to the same storage. A
+# fetch reads the suffixed name only when its remote file name includes it.
+VORTEX_PUSH_DB_FILE_SUFFIX="${VORTEX_PUSH_DB_FILE_SUFFIX:-}"
+
+# Also push a copy of the database dump file named with a UTC timestamp.
+#
+# Set to 1 to keep a history of the pushed dumps. The fetch never reads the
+# timestamped copies.
+VORTEX_PUSH_DB_TIMESTAMPED_COPY="${VORTEX_PUSH_DB_TIMESTAMPED_COPY:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -85,6 +92,22 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 curl_config_quote() {
   local value="${1//\\/\\\\}"
   printf '"%s"' "${value//\"/\\\"}"
+}
+
+# Upload the database dump file to a name in the remote directory.
+#
+# The credentials go to curl on stdin, so they never appear in the process
+# list. The commands after the upload run in the remote directory: the
+# existing file is removed and the upload takes its name.
+ftp_upload() {
+  local name="${1}"
+  local upload_name="${name}.uploading"
+
+  echo "user = $(curl_config_quote "${VORTEX_PUSH_DB_FTP_USER}:${VORTEX_PUSH_DB_FTP_PASS}")" | curl --silent --show-error --config - --ftp-create-dirs --upload-file "${local_file}" \
+    --quote "-*DELE ${name}" \
+    --quote "-RNFR ${upload_name}" \
+    --quote "-RNTO ${name}" \
+    "ftp://${VORTEX_PUSH_DB_FTP_HOST}:${VORTEX_PUSH_DB_FTP_PORT}/${remote_dir}${upload_name}"
 }
 
 # shellcheck disable=SC2043
@@ -105,36 +128,31 @@ if [[ ${remote_name} == */* ]]; then
   remote_name="${remote_name##*/}"
 fi
 
-current_name="${VORTEX_PUSH_DB_FILE_PREFIX}${remote_name}"
+base="${remote_name}"
+ext=""
 if [[ ${remote_name} == *.* ]]; then
-  previous_name="${VORTEX_PUSH_DB_FILE_PREFIX}${remote_name%.*}-previous.${remote_name##*.}"
-else
-  previous_name="${VORTEX_PUSH_DB_FILE_PREFIX}${remote_name}-previous"
+  base="${remote_name%.*}"
+  ext=".${remote_name##*.}"
 fi
-upload_name="${current_name}.uploading"
+current_name="${base}${VORTEX_PUSH_DB_FILE_SUFFIX}${ext}"
+timestamped_name="${base}${VORTEX_PUSH_DB_FILE_SUFFIX}_$(date -u +%Y%m%d-%H%M%S)${ext}"
 
 info "Started database${_db_index:+ ${_db_index}} dump push to FTP."
 
-note "Local file:    ${local_file}"
-note "Remote file:   ${remote_dir}${current_name}"
-note "Previous file: ${remote_dir}${previous_name}"
-note "FTP host:      ${VORTEX_PUSH_DB_FTP_HOST}:${VORTEX_PUSH_DB_FTP_PORT}"
+note "Local file:  ${local_file}"
+note "Remote file: ${remote_dir}${current_name}"
+note "FTP host:    ${VORTEX_PUSH_DB_FTP_HOST}:${VORTEX_PUSH_DB_FTP_PORT}"
 
-# The credentials go to curl on stdin, so they never appear in the process
-# list. The commands after the upload run in the remote directory: the
-# previous dump is replaced by the current one, and the upload takes the
-# current name. Only the final rename must succeed, since the first push has
-# no current or previous dump.
-task "Uploading the database dump file and keeping the dump it replaces."
-curl_config="user = $(curl_config_quote "${VORTEX_PUSH_DB_FTP_USER}:${VORTEX_PUSH_DB_FTP_PASS}")"
-echo "${curl_config}" | curl --silent --show-error --config - --ftp-create-dirs --upload-file "${local_file}" \
-  --quote "-*DELE ${previous_name}" \
-  --quote "-*RNFR ${current_name}" \
-  --quote "-*RNTO ${previous_name}" \
-  --quote "-RNFR ${upload_name}" \
-  --quote "-RNTO ${current_name}" \
-  "ftp://${VORTEX_PUSH_DB_FTP_HOST}:${VORTEX_PUSH_DB_FTP_PORT}/${remote_dir}${upload_name}" || fail "Unable to push the database dump file to FTP."
-pass "Uploaded the database dump file and kept the dump it replaced."
+task "Uploading the database dump file."
+ftp_upload "${current_name}" || fail "Unable to push the database dump file to FTP."
+pass "Uploaded the database dump file."
+
+if [ "${VORTEX_PUSH_DB_TIMESTAMPED_COPY}" = "1" ]; then
+  # FTP has no copy command, so the copy is a second upload.
+  task "Uploading the timestamped copy ${remote_dir}${timestamped_name}."
+  ftp_upload "${timestamped_name}" || fail "Unable to push the timestamped copy of the database dump file to FTP."
+  pass "Uploaded the timestamped copy ${remote_dir}${timestamped_name}."
+fi
 
 # Enable xtrace only after the request so the credentials are never written
 # to the trace output.

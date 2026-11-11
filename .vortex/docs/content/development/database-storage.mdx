@@ -78,18 +78,21 @@ refreshes the store from the upstream source:
        │  provisions the dump, sanitizes it and exports it
        ▼
   Push DB (vortex-push-db)
-       │  1. keeps the current dump as db-previous.sql
-       │  2. uploads the new dump as db.sql
+       │  1. replaces db.sql with the new dump
+       │  2. with VORTEX_PUSH_DB_TIMESTAMPED_COPY=1, adds a timestamped copy
        ▼
   FTP server or S3 bucket
-  ├── db.sql            ◀── ahoy fetch-db, branch builds
-  └── db-previous.sql
+  ├── db.sql                    ◀── ahoy fetch-db, branch builds
+  ├── db_20261110-180000.sql    timestamped copies, opt-in
+  └── db_20261111-180000.sql
 ```
 
-The store always holds 2 copies: the current dump and the dump it
-replaced. Fetching reads the current dump. To fetch the previous dump from
-an FTP store, set `VORTEX_FETCH_DB_FTP_FILE` to its path in `.env.local`,
-for example `your_site/db-previous.sql`.
+`db.sql` always holds the latest dump, and fetching downloads it. By
+default, it's the only file a push creates. To keep a history of the
+pushed dumps, set `VORTEX_PUSH_DB_TIMESTAMPED_COPY=1` in `.env`. Each push
+then also creates a copy named with its UTC time, identical to `db.sql`
+at that moment. Nothing removes the copies, so clear out the old ones
+yourself.
 
 Every other CI run fetches from the store, so only the nightly run needs
 the credentials of the upstream source.
@@ -105,10 +108,10 @@ Its files sit next to the primary dump in the same store:
 
 ```text
   FTP server or S3 bucket
-  ├── db.sql             primary database (VORTEX_FETCH_DB_FTP_FILE)
-  ├── db-previous.sql
-  ├── db2.sql            migration database (VORTEX_FETCH_DB2_FTP_FILE)
-  └── db2-previous.sql
+  ├── db.sql                     primary database (VORTEX_FETCH_DB_FTP_FILE)
+  ├── db_20261111-180000.sql
+  ├── db2.sql                    migration database (VORTEX_FETCH_DB2_FTP_FILE)
+  └── db2_20261111-180000.sql
 ```
 
 To make the migration source a dump store, set
@@ -120,7 +123,7 @@ To make the migration source a dump store, set
 
 Before you begin, create an FTP account that can write to a directory on
 the server. The push uploads the dump under a temporary name, then renames
-the files into place. The server must allow the `DELE`, `RNFR` and `RNTO`
+it into place, so a failed upload keeps the latest dump. The server must allow the `DELE`, `RNFR` and `RNTO`
 commands, which standard FTP servers do.
 
 1. In `.env`, set the fetch source and the server:
@@ -167,19 +170,10 @@ Before you begin, create a private S3 bucket with public access blocked.
          "Effect": "Allow",
          "Action": ["s3:GetObject", "s3:PutObject"],
          "Resource": "arn:aws:s3:::your-bucket/*"
-       },
-       {
-         "Effect": "Allow",
-         "Action": ["s3:ListBucket"],
-         "Resource": "arn:aws:s3:::your-bucket"
        }
      ]
    }
    ```
-
-   The push copies the current dump before the upload. Without
-   `s3:ListBucket`, S3 answers a missing dump with an access error, and
-   the first push fails.
 
 2. In `.env`, set the fetch source and the bucket:
 
@@ -200,15 +194,16 @@ Before you begin, create a private S3 bucket with public access blocked.
 6. After the next nightly run, confirm that the **Push DB** step ends with
    `Finished database push.` and that the bucket holds `db.sql`.
 
-S3 copies a dump of up to 5 GB in 1 request, so the push fails for a
-larger dump.
+S3 makes the timestamped copy on its side, so the dump is uploaded once.
+S3 copies a dump of up to 5 GB in 1 request, so the timestamped copy
+fails for a larger dump. On FTP, the timestamped copy is a second upload.
 
 ## Tell pushes apart
 
-`VORTEX_PUSH_DB_FILE_PREFIX` adds a prefix to the names of the pushed
-files, such as `gha-db.sql` and `gha-db-previous.sql`. Use a different
-prefix in each place that pushes to the same store. A fetch reads the
-prefixed files only when its remote filename includes the prefix.
+`VORTEX_PUSH_DB_FILE_SUFFIX` adds a suffix before the extension of the
+pushed files, such as `db_gha.sql` and `db_gha_20261111-180000.sql`. Use a
+different suffix in each place that pushes to the same store. A fetch reads
+the suffixed file only when its remote filename includes the suffix.
 
 ## What's next
 
