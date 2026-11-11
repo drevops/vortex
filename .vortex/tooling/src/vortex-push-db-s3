@@ -4,13 +4,11 @@
 #
 # Uses AWS Signature Version 4 with curl (no AWS CLI required).
 #
-# Keeps 2 copies of the database dump file in the bucket: the current dump
-# under the remote file name and the dump it replaced with a '-previous'
-# suffix, such as 'db.sql' and 'db-previous.sql'. The fetch always finds the
-# current dump under the remote file name.
-#
-# The current dump is copied to the previous one on the S3 side before the
-# upload, so a failed upload keeps the current dump.
+# Uploads the database dump file under the remote file name, such as
+# 'db.sql', which always holds the latest dump that the fetch downloads. With
+# VORTEX_PUSH_DB_TIMESTAMPED_COPY set to 1, the uploaded object is also copied
+# to a name with a UTC timestamp, such as 'db_20261111-180000.sql', to keep a
+# history.
 #
 # IMPORTANT! This script runs outside the container on the host system.
 #
@@ -77,12 +75,18 @@ VORTEX_PUSH_DB_S3_REMOTE_FILE="${!_v:-${!_vs:-${VORTEX_PUSH_DB_S3_DB_FILE}}}"
 # S3 storage class.
 VORTEX_PUSH_DB_S3_STORAGE_CLASS="${VORTEX_PUSH_DB_S3_STORAGE_CLASS:-STANDARD}"
 
-# Prefix for the names of the pushed database dump files.
+# Suffix for the names of the pushed database dump files.
 #
-# Use a different prefix in each place that pushes to the same storage, such
-# as 'gha-' and 'circleci-', to tell their dumps apart. A fetch reads the
-# prefixed name only when its remote file name includes the prefix.
-VORTEX_PUSH_DB_FILE_PREFIX="${VORTEX_PUSH_DB_FILE_PREFIX:-}"
+# Goes before the extension, so 'db.sql' becomes 'db_gha.sql' with '_gha'.
+# Use a different suffix in each place that pushes to the same storage. A
+# fetch reads the suffixed name only when its remote file name includes it.
+VORTEX_PUSH_DB_FILE_SUFFIX="${VORTEX_PUSH_DB_FILE_SUFFIX:-}"
+
+# Also push a copy of the database dump file named with a UTC timestamp.
+#
+# Set to 1 to keep a history of the pushed dumps. The fetch never reads the
+# timestamped copies.
+VORTEX_PUSH_DB_TIMESTAMPED_COPY="${VORTEX_PUSH_DB_TIMESTAMPED_COPY:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -198,8 +202,8 @@ info "Started database${_db_index:+ ${_db_index}} dump push to S3."
 
 [ -n "${VORTEX_PUSH_DB_S3_PREFIX}" ] && VORTEX_PUSH_DB_S3_PREFIX="${VORTEX_PUSH_DB_S3_PREFIX%/}/"
 
-# The file name prefix and the '-previous' suffix apply to the file name, not
-# to the directories in the remote file name.
+# The suffix and the timestamp apply to the file name, not to the directories
+# in the remote file name.
 remote_dir=""
 remote_name="${VORTEX_PUSH_DB_S3_REMOTE_FILE}"
 if [[ ${remote_name} == */* ]]; then
@@ -207,45 +211,24 @@ if [[ ${remote_name} == */* ]]; then
   remote_name="${remote_name##*/}"
 fi
 
-current_file="${remote_dir}${VORTEX_PUSH_DB_FILE_PREFIX}${remote_name}"
+base="${remote_name}"
+ext=""
 if [[ ${remote_name} == *.* ]]; then
-  previous_file="${remote_dir}${VORTEX_PUSH_DB_FILE_PREFIX}${remote_name%.*}-previous.${remote_name##*.}"
-else
-  previous_file="${remote_dir}${VORTEX_PUSH_DB_FILE_PREFIX}${remote_name}-previous"
+  base="${remote_name%.*}"
+  ext=".${remote_name##*.}"
 fi
+current_file="${remote_dir}${base}${VORTEX_PUSH_DB_FILE_SUFFIX}${ext}"
+timestamped_file="${remote_dir}${base}${VORTEX_PUSH_DB_FILE_SUFFIX}_$(date -u +%Y%m%d-%H%M%S)${ext}"
 
 object_key="$(uri_encode_key "${VORTEX_PUSH_DB_S3_PREFIX}${current_file}")"
-previous_key="$(uri_encode_key "${VORTEX_PUSH_DB_S3_PREFIX}${previous_file}")"
+timestamped_key="$(uri_encode_key "${VORTEX_PUSH_DB_S3_PREFIX}${timestamped_file}")"
 
 note "Local file:     ${local_file}"
 note "Remote file:    ${VORTEX_PUSH_DB_S3_PREFIX}${current_file}"
-note "Previous file:  ${VORTEX_PUSH_DB_S3_PREFIX}${previous_file}"
 note "S3 bucket:      ${VORTEX_PUSH_DB_S3_BUCKET}"
 note "S3 region:      ${VORTEX_PUSH_DB_S3_REGION}"
 [ -n "${VORTEX_PUSH_DB_S3_PREFIX}" ] && note "S3 prefix:      ${VORTEX_PUSH_DB_S3_PREFIX}"
 note "Storage class:  ${VORTEX_PUSH_DB_S3_STORAGE_CLASS}"
-
-# A copy can fail after S3 has sent a 200 status, so a success needs the copy
-# result in the body. A missing current dump means this is the first push.
-task "Keeping the current database dump as the previous one."
-set +e
-response=$(s3_put "${previous_key}" "$(hash_sha256 "")" "" "x-amz-copy-source:/${VORTEX_PUSH_DB_S3_BUCKET}/${object_key}")
-curl_status=$?
-set -e
-
-[ "${curl_status}" -ne 0 ] && fail "S3 copy request failed with curl exit ${curl_status}."
-
-http_code=$(echo "${response}" | tail -1)
-response_body=$(echo "${response}" | sed '$d')
-
-if [[ ${http_code} == 2* ]] && [[ ${response_body} == *"<CopyObjectResult"* ]]; then
-  pass "Kept the current database dump as the previous one."
-elif [ "${http_code}" = "404" ]; then
-  pass "Skipped keeping the previous database dump as there is no current one."
-else
-  [ -n "${response_body}" ] && echo "Response: ${response_body}"
-  fail "Unable to keep the current database dump as the previous one: HTTP status ${http_code}."
-fi
 
 if command -v file >/dev/null; then
   content_type="$(file --brief --mime-type "${local_file}")"
@@ -261,10 +244,6 @@ response=$(s3_put "${object_key}" "${payload_hash}" "${local_file}" "content-typ
 curl_status=$?
 set -e
 
-# Enable xtrace only after the signed requests so credentials and the
-# signatures are never written to the trace output.
-[ "${VORTEX_DEBUG-}" = "1" ] && set -x
-
 [ "${curl_status}" -ne 0 ] && fail "S3 push request failed with curl exit ${curl_status}."
 
 http_code=$(echo "${response}" | tail -1)
@@ -278,5 +257,31 @@ case "${http_code}" in
     ;;
 esac
 pass "Uploaded the database dump file."
+
+if [ "${VORTEX_PUSH_DB_TIMESTAMPED_COPY}" = "1" ]; then
+  # The copy runs on the S3 side, so the dump is uploaded only once. A copy
+  # can fail after S3 has sent a 200 status, so a success needs the copy
+  # result in the body.
+  task "Copying the database dump file to ${VORTEX_PUSH_DB_S3_PREFIX}${timestamped_file}."
+  set +e
+  response=$(s3_put "${timestamped_key}" "$(hash_sha256 "")" "" "x-amz-copy-source:/${VORTEX_PUSH_DB_S3_BUCKET}/${object_key}")
+  curl_status=$?
+  set -e
+
+  [ "${curl_status}" -ne 0 ] && fail "S3 copy request failed with curl exit ${curl_status}."
+
+  http_code=$(echo "${response}" | tail -1)
+  response_body=$(echo "${response}" | sed '$d')
+
+  if [[ ${http_code} != 2* ]] || [[ ${response_body} != *"<CopyObjectResult"* ]]; then
+    [ -n "${response_body}" ] && echo "Response: ${response_body}"
+    fail "Unable to copy the database dump file to the timestamped copy: HTTP status ${http_code}."
+  fi
+  pass "Copied the database dump file to ${VORTEX_PUSH_DB_S3_PREFIX}${timestamped_file}."
+fi
+
+# Enable xtrace only after the signed requests so credentials and the
+# signatures are never written to the trace output.
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 pass "Finished database${_db_index:+ ${_db_index}} dump push to S3."

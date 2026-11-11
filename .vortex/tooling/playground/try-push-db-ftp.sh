@@ -3,8 +3,8 @@
 # Manual test script for FTP database push.
 #
 # Uploads a database dump file to an FTP server using push-db-ftp. Run it
-# twice to check that the second run keeps the first dump as
-# 'db-previous.sql' next to the new 'db.sql'.
+# twice to check that the second run replaces 'db.sql'. Set
+# VORTEX_PUSH_DB_TIMESTAMPED_COPY=1 to also upload a timestamped copy.
 #
 # Usage:
 #   export FTP_HOST="ftp.example.com"
