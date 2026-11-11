@@ -58,7 +58,8 @@ class DockerComposeSolrTest extends FunctionalTestCase {
     $this->solrIndexDocument();
 
     $this->logSubstep('Writing a Solr 8 response writer into the core config on the volume');
-    $this->cmd('docker compose exec -T solr sed -i', arg: ['s#<config>#<config><queryResponseWriter name="xslt" class="solr.XSLTResponseWriter"/>#', '/var/solr/data/drupal/conf/solrconfig.xml'], txt: 'Inject Solr 8 config into the core on the volume');
+    $this->cmd('docker compose exec -T solr sed -i', arg: ['s#</config>#<queryResponseWriter name="xslt" class="solr.XSLTResponseWriter"/></config>#', '/var/solr/data/drupal/conf/solrconfig.xml'], txt: 'Inject Solr 8 config into the core on the volume');
+    $this->cmd('docker compose exec -T solr grep -q solr.XSLTResponseWriter /var/solr/data/drupal/conf/solrconfig.xml', txt: 'Core config on the volume should contain the Solr 8 response writer');
 
     $this->logSubstep('Rolling out the same image on the same volume');
     $this->solrStart(recreate: TRUE);
