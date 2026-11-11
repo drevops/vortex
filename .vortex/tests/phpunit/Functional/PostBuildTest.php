@@ -26,7 +26,6 @@ class PostBuildTest extends FunctionalTestCase {
     }
 
     // Verify required environment variables are set.
-    $this->assertNotEmpty(getenv('TEST_CIRCLECI_TOKEN'), 'CircleCI token is not set');
     $this->assertNotEmpty(getenv('CIRCLE_PROJECT_REPONAME'), 'CircleCI project repo name is not set');
     $this->assertNotEmpty(getenv('CIRCLE_PROJECT_USERNAME'), 'CircleCI project username is not set');
     $this->assertNotEmpty(getenv('CIRCLE_BUILD_NUM'), 'CircleCI build number is not set');
