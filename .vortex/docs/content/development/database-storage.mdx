@@ -121,6 +121,27 @@ To make the migration source a dump store, set
 **Push migration DB** step pushes the migration dump as fetched, because
 **Vortex** sanitizes only the Drupal database.
 
+### Push to several destinations
+
+The database is always fetched from 1 source, but the nightly run can push
+it to several destinations. List them in `VORTEX_PUSH_DB_DESTINATIONS`,
+separated by commas or spaces:
+
+```shell
+VORTEX_PUSH_DB_DESTINATIONS=ftp,s3
+```
+
+Each destination reads its own push variables, such as
+`VORTEX_PUSH_DB_FTP_HOST` or `VORTEX_PUSH_DB_S3_BUCKET`. When a destination
+is also the fetch source, its push variables fall back to the fetch values.
+A destination can be pushed to from any fetch source, so a project that
+fetches from `lagoon` can keep sanitized copies on FTP and S3.
+
+When `VORTEX_PUSH_DB_DESTINATIONS` is empty, the push goes to the dump store
+fetch source. The push refuses to push to the fetch source itself
+without `VORTEX_REFRESH_DB_SOURCE`, because the push would replace the dump
+it fetched. The migration database uses `VORTEX_PUSH_DB2_DESTINATIONS`.
+
 ## Set up an FTP dump store
 
 Before you begin, create an FTP account that can write to a directory on
@@ -135,8 +156,13 @@ do.
    VORTEX_FETCH_DB_SOURCE=ftp
    VORTEX_FETCH_DB_FTP_HOST=ftp.example.com
    VORTEX_FETCH_DB_FTP_PORT=21
-   VORTEX_FETCH_DB_FTP_FILE=your_site/db.sql
+   VORTEX_FETCH_DB_FTP_DIR=your_site
+   VORTEX_FETCH_DB_FTP_FILE=db.sql
    ```
+
+   `VORTEX_FETCH_DB_FTP_DIR` is the directory on the server, relative to
+   the FTP account. Leading and trailing slashes are optional. Leave it
+   empty for the root directory.
 
 2. In `.env`, uncomment `VORTEX_REFRESH_DB_SOURCE` and set it to your
    upstream source, for example `lagoon`. Add the variables and secrets of
@@ -203,9 +229,25 @@ fails for a larger dump. On FTP, the timestamped copy is a second upload.
 
 ## Tell pushes apart
 
+When several places push to the same store, such as GitHub Actions and
+CircleCI, give each its own directory. The push directory falls back to the
+fetch directory:
+
+| Store | Push directory | Fetch directory |
+|---|---|---|
+| FTP | `VORTEX_PUSH_DB_FTP_DIR` | `VORTEX_FETCH_DB_FTP_DIR` |
+| S3 | `VORTEX_PUSH_DB_S3_PREFIX` | `VORTEX_FETCH_DB_S3_PREFIX` |
+
+For example, set `VORTEX_PUSH_DB_FTP_DIR=gha` in GitHub Actions and
+`VORTEX_PUSH_DB_FTP_DIR=circleci` in CircleCI. Each provider then keeps its
+own `db.sql`. A developer fetches from 1 of them with
+`VORTEX_FETCH_DB_FTP_DIR` in `.env.local`.
+
+### Use a file suffix
+
 `VORTEX_PUSH_DB_FILE_SUFFIX` adds a suffix before the extension of the
-pushed files, such as `db_gha.sql` and `db_gha_20261111-180000.sql`. Use a
-different suffix in each place that pushes to the same store.
+pushed files, such as `db_gha.sql` and `db_gha_20261111-180000.sql`. It
+keeps the pushes in 1 directory.
 
 The push takes its remote filename from the fetch, then adds the suffix. To
 fetch a suffixed dump from an FTP store, set both filenames, so the suffix
