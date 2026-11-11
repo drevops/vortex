@@ -1,9 +1,0 @@
-name: star wars Migrate
-type: module
-description: Migrations for star wars site.
-core_version_requirement: ^11
-package: star_wars
-dependencies:
-  - drupal:migrate
-  - migrate_plus:migrate_plus
-  - migrate_tools:migrate_tools

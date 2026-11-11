@@ -21,6 +21,7 @@ load ../_helper.bash
     "S3 region:      ap-southeast-2"
     "Storage class:  STANDARD"
 
+    "@curl * # 0 # <CopyObjectResult></CopyObjectResult>\n200"
     "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump push to S3."
@@ -61,6 +62,7 @@ load ../_helper.bash
     "Local file:     ./.data/db.sql"
     "Remote file:    db.sql"
 
+    "@curl * # 0 # <CopyObjectResult></CopyObjectResult>\n200"
     "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump push to S3."
@@ -100,6 +102,7 @@ load ../_helper.bash
     "S3 bucket:      shortcut-bucket"
     "S3 region:      us-east-1"
 
+    "@curl * # 0 # <CopyObjectResult></CopyObjectResult>\n200"
     "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump push to S3."
@@ -143,6 +146,7 @@ load ../_helper.bash
 
     "Remote file:    backup/db_latest.sql"
 
+    "@curl * # 0 # <CopyObjectResult></CopyObjectResult>\n200"
     "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump push to S3."
@@ -183,6 +187,7 @@ load ../_helper.bash
     "Remote file:    backups/daily/db.sql"
     "S3 prefix:      backups/daily/"
 
+    "@curl * # 0 # <CopyObjectResult></CopyObjectResult>\n200"
     "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump push to S3."
@@ -223,6 +228,7 @@ load ../_helper.bash
     "Remote file:    backups/daily/db.sql"
     "S3 prefix:      backups/daily/"
 
+    "@curl * # 0 # <CopyObjectResult></CopyObjectResult>\n200"
     "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump push to S3."
@@ -261,6 +267,7 @@ load ../_helper.bash
   declare -a STEPS=(
     "[INFO] Started database dump push to S3."
 
+    "@curl * # 0 # <CopyObjectResult></CopyObjectResult>\n200"
     "@curl * # 0 # AccessDenied\n403"
 
     "[FAIL] Unable to push to S3: HTTP status 403."
@@ -439,6 +446,7 @@ load ../_helper.bash
     "S3 region:      eu-west-1"
     "S3 prefix:      store/"
 
+    "@curl * # 0 # <CopyObjectResult></CopyObjectResult>\n200"
     "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump push to S3."
@@ -484,6 +492,7 @@ load ../_helper.bash
     "Local file:     ./.data/db_fetched.sql"
     "Remote file:    db_fetched.sql"
 
+    "@curl * # 0 # <CopyObjectResult></CopyObjectResult>\n200"
     "@curl * # 0 # 200"
 
     "[ OK ] Finished database dump push to S3."
@@ -504,6 +513,142 @@ load ../_helper.bash
   steps_run "assert" "${mocks[@]}"
 
   assert_success
+
+  rm -rf .data
+
+  popd >/dev/null
+}
+
+# Exports the variables of a push to the 'test-bucket' bucket with the
+# 'backups/' prefix.
+setup_s3_push() {
+  mkdir -p .data
+  echo "database content" >.data/db.sql
+
+  unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_FETCH_DB_S3_ACCESS_KEY="" VORTEX_FETCH_DB_S3_SECRET_KEY="" VORTEX_FETCH_DB_S3_BUCKET="" VORTEX_FETCH_DB_S3_REGION="" VORTEX_FETCH_DB_S3_PREFIX=""
+
+  export VORTEX_PUSH_DB_S3_ACCESS_KEY="testaccesskey"
+  export VORTEX_PUSH_DB_S3_SECRET_KEY="testsecretkey"
+  export VORTEX_PUSH_DB_S3_BUCKET="test-bucket"
+  export VORTEX_PUSH_DB_S3_REGION="ap-southeast-2"
+  export VORTEX_PUSH_DB_S3_PREFIX="backups"
+  export VORTEX_PUSH_DB_S3_DB_DIR=".data"
+  export VORTEX_PUSH_DB_S3_DB_FILE="db.sql"
+  unset VORTEX_PUSH_DB_S3_REMOTE_FILE VORTEX_PUSH_DB_FILE_PREFIX
+}
+
+@test "push-db-s3: Keep the current dump as the previous one before the upload" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  setup_s3_push
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" $'<CopyObjectResult></CopyObjectResult>\n200' 1
+  mock_set_output "${mock_curl}" "200" 2
+
+  run .vortex/tooling/src/vortex-push-db-s3
+  assert_success
+  assert_output_contains "Remote file:    backups/db.sql"
+  assert_output_contains "Previous file:  backups/db-previous.sql"
+  assert_output_contains "[ OK ] Kept the current database dump as the previous one."
+  assert_output_contains "[ OK ] Uploaded the database dump file."
+  assert_output_contains "[ OK ] Finished database dump push to S3."
+
+  assert_equal "2" "$(mock_get_call_num "${mock_curl}")"
+
+  # The copy names the current dump as its source and sends no body.
+  copy_args="$(mock_get_call_args "${mock_curl}" 1)"
+  assert_string_contains "${copy_args}" "--request PUT"
+  assert_string_contains "${copy_args}" "--header x-amz-copy-source: /test-bucket/backups/db.sql"
+  assert_string_not_contains "${copy_args}" "--upload-file"
+  assert_string_contains "${copy_args}" "https://test-bucket.s3.ap-southeast-2.amazonaws.com/backups/db-previous.sql"
+
+  upload_args="$(mock_get_call_args "${mock_curl}" 2)"
+  assert_string_contains "${upload_args}" "--upload-file .data/db.sql"
+  assert_string_contains "${upload_args}" "https://test-bucket.s3.ap-southeast-2.amazonaws.com/backups/db.sql"
+
+  rm -rf .data
+
+  popd >/dev/null
+}
+
+@test "push-db-s3: Upload the first dump when there is no current one" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  setup_s3_push
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" $'<Error><Code>NoSuchKey</Code></Error>\n404' 1
+  mock_set_output "${mock_curl}" "200" 2
+
+  run .vortex/tooling/src/vortex-push-db-s3
+  assert_success
+  assert_output_contains "[ OK ] Skipped keeping the previous database dump as there is no current one."
+  assert_output_contains "[ OK ] Finished database dump push to S3."
+  assert_equal "2" "$(mock_get_call_num "${mock_curl}")"
+
+  rm -rf .data
+
+  popd >/dev/null
+}
+
+@test "push-db-s3: Fail without uploading when the current dump cannot be kept" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  setup_s3_push
+
+  # A copy error can come with a 200 status. Each run makes 1 request.
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" $'<Error><Code>InternalError</Code></Error>\n200' 1
+  mock_set_output "${mock_curl}" $'<Error><Code>AccessDenied</Code></Error>\n403' 2
+
+  for status in 200 403; do
+    run .vortex/tooling/src/vortex-push-db-s3
+    assert_failure
+    assert_output_contains "Response: <Error><Code>"
+    assert_output_contains "[FAIL] Unable to keep the current database dump as the previous one: HTTP status ${status}."
+    assert_output_not_contains "Uploaded the database dump file."
+  done
+
+  assert_equal "2" "$(mock_get_call_num "${mock_curl}")"
+
+  rm -rf .data
+
+  popd >/dev/null
+}
+
+@test "push-db-s3: Push an indexed database with a file name prefix" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  echo "migration content" >.data/db2.sql
+
+  unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX
+  export VORTEX_DB_INDEX=2
+  export VORTEX_FETCH_DB2_S3_ACCESS_KEY="db2-access-key"
+  export VORTEX_FETCH_DB2_S3_SECRET_KEY="db2-secret-key"
+  export VORTEX_FETCH_DB2_S3_BUCKET="db2-bucket"
+  export VORTEX_FETCH_DB2_S3_REGION="eu-west-1"
+  export VORTEX_FETCH_DB2_S3_PREFIX=""
+  export VORTEX_FETCH_DB2_FILE="db2.sql"
+  export VORTEX_PUSH_DB_FILE_PREFIX="circleci-"
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" $'<CopyObjectResult></CopyObjectResult>\n200' 1
+  mock_set_output "${mock_curl}" "200" 2
+
+  run .vortex/tooling/src/vortex-push-db-s3
+  assert_success
+  assert_output_contains "[INFO] Started database 2 dump push to S3."
+  assert_output_contains "Local file:     ./.data/db2.sql"
+  assert_output_contains "Remote file:    circleci-db2.sql"
+  assert_output_contains "Previous file:  circleci-db2-previous.sql"
+  assert_output_contains "S3 bucket:      db2-bucket"
+  assert_output_contains "[ OK ] Finished database 2 dump push to S3."
+
+  assert_string_contains "$(mock_get_call_args "${mock_curl}" 1)" "--header x-amz-copy-source: /db2-bucket/circleci-db2.sql"
+  assert_string_contains "$(mock_get_call_args "${mock_curl}" 2)" "https://db2-bucket.s3.eu-west-1.amazonaws.com/circleci-db2.sql"
 
   rm -rf .data
 

@@ -1,9 +1,0 @@
-@@ -26,6 +26,8 @@
-         "drupal/linkit": "__VERSION__",
-         "drupal/menu_trail_by_path": "__VERSION__",
-         "drupal/metatag": "__VERSION__",
-+        "drupal/migrate_plus": "__VERSION__",
-+        "drupal/migrate_tools": "__VERSION__",
-         "drupal/navigation_extra_tools": "__VERSION__",
-         "drupal/pathauto": "__VERSION__",
-         "drupal/redirect": "__VERSION__",

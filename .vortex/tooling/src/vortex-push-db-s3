@@ -4,6 +4,14 @@
 #
 # Uses AWS Signature Version 4 with curl (no AWS CLI required).
 #
+# Keeps 2 copies of the database dump file in the bucket: the current dump
+# under the remote file name and the dump it replaced with a '-previous'
+# suffix, such as 'db.sql' and 'db-previous.sql'. The fetch always finds the
+# current dump under the remote file name.
+#
+# The current dump is copied to the previous one on the S3 side before the
+# upload, so a failed upload keeps the current dump.
+#
 # IMPORTANT! This script runs outside the container on the host system.
 #
 # shellcheck disable=SC1090,SC1091
@@ -13,40 +21,68 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 set -o pipefail
 
+# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
+# use the indexed variant, so each database pushes its own dump file.
+_db_index="${VORTEX_DB_INDEX:-}"
+
 # The S3 values fall back to the values the database is fetched with, so a
 # bucket used as the fetch source is configured once.
 
 # AWS access key.
-VORTEX_PUSH_DB_S3_ACCESS_KEY="${VORTEX_PUSH_DB_S3_ACCESS_KEY:-${VORTEX_FETCH_DB_S3_ACCESS_KEY:-${S3_ACCESS_KEY:-}}}"
+_v="VORTEX_PUSH_DB${_db_index}_S3_ACCESS_KEY"
+_vs="VORTEX_FETCH_DB${_db_index}_S3_ACCESS_KEY"
+VORTEX_PUSH_DB_S3_ACCESS_KEY="${!_v:-${!_vs:-${S3_ACCESS_KEY:-}}}"
 
 # AWS secret key.
-VORTEX_PUSH_DB_S3_SECRET_KEY="${VORTEX_PUSH_DB_S3_SECRET_KEY:-${VORTEX_FETCH_DB_S3_SECRET_KEY:-${S3_SECRET_KEY:-}}}"
+_v="VORTEX_PUSH_DB${_db_index}_S3_SECRET_KEY"
+_vs="VORTEX_FETCH_DB${_db_index}_S3_SECRET_KEY"
+VORTEX_PUSH_DB_S3_SECRET_KEY="${!_v:-${!_vs:-${S3_SECRET_KEY:-}}}"
 
 # S3 bucket name.
-VORTEX_PUSH_DB_S3_BUCKET="${VORTEX_PUSH_DB_S3_BUCKET:-${VORTEX_FETCH_DB_S3_BUCKET:-${S3_BUCKET:-}}}"
+_v="VORTEX_PUSH_DB${_db_index}_S3_BUCKET"
+_vs="VORTEX_FETCH_DB${_db_index}_S3_BUCKET"
+VORTEX_PUSH_DB_S3_BUCKET="${!_v:-${!_vs:-${S3_BUCKET:-}}}"
 
 # S3 region.
-VORTEX_PUSH_DB_S3_REGION="${VORTEX_PUSH_DB_S3_REGION:-${VORTEX_FETCH_DB_S3_REGION:-${S3_REGION:-}}}"
+_v="VORTEX_PUSH_DB${_db_index}_S3_REGION"
+_vs="VORTEX_FETCH_DB${_db_index}_S3_REGION"
+VORTEX_PUSH_DB_S3_REGION="${!_v:-${!_vs:-${S3_REGION:-}}}"
 
 # S3 prefix (path within the bucket).
-VORTEX_PUSH_DB_S3_PREFIX="${VORTEX_PUSH_DB_S3_PREFIX:-${VORTEX_FETCH_DB_S3_PREFIX:-${S3_PREFIX:-}}}"
+_v="VORTEX_PUSH_DB${_db_index}_S3_PREFIX"
+_vs="VORTEX_FETCH_DB${_db_index}_S3_PREFIX"
+VORTEX_PUSH_DB_S3_PREFIX="${!_v:-${!_vs:-${S3_PREFIX:-}}}"
 
 # Directory with database dump file.
-VORTEX_PUSH_DB_S3_DB_DIR="${VORTEX_PUSH_DB_S3_DB_DIR:-${VORTEX_DB_DIR:-./.data}}"
+_v="VORTEX_PUSH_DB${_db_index}_S3_DB_DIR"
+_vs="VORTEX_DB${_db_index}_DIR"
+VORTEX_PUSH_DB_S3_DB_DIR="${!_v:-${!_vs:-${VORTEX_DB_DIR:-./.data}}}"
 
 # Database dump file name.
 #
 # Defaults to the name the database is fetched and refreshed with.
-VORTEX_PUSH_DB_S3_DB_FILE="${VORTEX_PUSH_DB_S3_DB_FILE:-${VORTEX_FETCH_DB_FILE:-${VORTEX_DB_FILE:-db.sql}}}"
+_v="VORTEX_PUSH_DB${_db_index}_S3_DB_FILE"
+_vs="VORTEX_FETCH_DB${_db_index}_FILE"
+_vss="VORTEX_DB${_db_index}_FILE"
+VORTEX_PUSH_DB_S3_DB_FILE="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_FILE:-db.sql}}}}"
 
 # Remote database dump file name.
 #
-# Defaults to the database dump file name, which is the name the database is
-# fetched with.
-VORTEX_PUSH_DB_S3_REMOTE_FILE="${VORTEX_PUSH_DB_S3_REMOTE_FILE:-${VORTEX_PUSH_DB_S3_DB_FILE}}"
+# Defaults to the remote file name the database is fetched from, then to the
+# database dump file name.
+_v="VORTEX_PUSH_DB${_db_index}_S3_REMOTE_FILE"
+_vs="VORTEX_FETCH_DB${_db_index}_S3_DB_FILE"
+VORTEX_PUSH_DB_S3_REMOTE_FILE="${!_v:-${!_vs:-${VORTEX_PUSH_DB_S3_DB_FILE}}}"
 
 # S3 storage class.
 VORTEX_PUSH_DB_S3_STORAGE_CLASS="${VORTEX_PUSH_DB_S3_STORAGE_CLASS:-STANDARD}"
+
+# Prefix for the names of the pushed database dump files.
+#
+# Use a different prefix in each place that pushes to the same storage, such
+# as 'gha-' and 'circleci-', to tell their dumps apart. A fetch reads the
+# prefixed name only when its remote file name includes the prefix.
+VORTEX_PUSH_DB_FILE_PREFIX="${VORTEX_PUSH_DB_FILE_PREFIX:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -94,36 +130,122 @@ aws_signature() {
   hmac_sha256 "hexkey:${signing_key}" "${string_to_sign}"
 }
 
+# Send a signed PUT request for an object and print the response body
+# followed by the HTTP status code on the last line.
+#
+# Arguments: the encoded object key, the payload hash, the file to upload
+# (empty for none), then any extra 'name:value' headers to sign, with
+# lowercase names.
+s3_put() {
+  local key="${1}"
+  local payload_hash="${2}"
+  local upload_file="${3}"
+  shift 3
+
+  local host="${VORTEX_PUSH_DB_S3_BUCKET}.s3.${VORTEX_PUSH_DB_S3_REGION}.amazonaws.com"
+  local date_short date_long
+  date_short=$(date -u +'%Y%m%d')
+  date_long=$(date -u +'%Y%m%dT%H%M%SZ')
+
+  local canonical_headers signed_headers
+  canonical_headers=$(printf '%s\n' "host:${host}" "x-amz-content-sha256:${payload_hash}" "x-amz-date:${date_long}" "x-amz-server-side-encryption:AES256" "x-amz-storage-class:${VORTEX_PUSH_DB_S3_STORAGE_CLASS}" "$@" | LC_ALL=C sort)
+  signed_headers=$(echo "${canonical_headers}" | cut -d: -f1 | paste -sd ';' -)
+
+  local canonical_request="PUT
+/${key}
+
+${canonical_headers}
+
+${signed_headers}
+${payload_hash}"
+
+  local canonical_request_hash
+  canonical_request_hash=$(hash_sha256 "${canonical_request}")
+
+  local string_to_sign="AWS4-HMAC-SHA256
+${date_long}
+${date_short}/${VORTEX_PUSH_DB_S3_REGION}/s3/aws4_request
+${canonical_request_hash}"
+
+  local signature
+  signature=$(aws_signature "${VORTEX_PUSH_DB_S3_SECRET_KEY}" "${date_short}" "${VORTEX_PUSH_DB_S3_REGION}" "s3" "${string_to_sign}")
+
+  local args=(--silent --show-error --location --proto-redir "=https" --connect-timeout "${VORTEX_PUSH_DB_S3_CONNECT_TIMEOUT:-10}" --max-time "${VORTEX_PUSH_DB_S3_MAX_TIME:-300}" --request PUT --write-out "\n%{http_code}")
+  if [ -n "${upload_file}" ]; then
+    args+=(--upload-file "${upload_file}")
+  fi
+
+  local header
+  while IFS= read -r header; do
+    args+=(--header "${header%%:*}: ${header#*:}")
+  done <<<"${canonical_headers}"
+  args+=(--header "Authorization: AWS4-HMAC-SHA256 Credential=${VORTEX_PUSH_DB_S3_ACCESS_KEY}/${date_short}/${VORTEX_PUSH_DB_S3_REGION}/s3/aws4_request, SignedHeaders=${signed_headers}, Signature=${signature}")
+
+  curl "${args[@]}" "https://${host}/${key}"
+}
+
 for cmd in curl openssl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
-[ -z "${VORTEX_PUSH_DB_S3_ACCESS_KEY}" ] && fail "Missing required value for VORTEX_PUSH_DB_S3_ACCESS_KEY."
-[ -z "${VORTEX_PUSH_DB_S3_SECRET_KEY}" ] && fail "Missing required value for VORTEX_PUSH_DB_S3_SECRET_KEY."
-[ -z "${VORTEX_PUSH_DB_S3_BUCKET}" ] && fail "Missing required value for VORTEX_PUSH_DB_S3_BUCKET."
-[ -z "${VORTEX_PUSH_DB_S3_REGION}" ] && fail "Missing required value for VORTEX_PUSH_DB_S3_REGION."
+[ -z "${VORTEX_PUSH_DB_S3_ACCESS_KEY}" ] && fail "Missing required value for VORTEX_PUSH_DB${_db_index}_S3_ACCESS_KEY."
+[ -z "${VORTEX_PUSH_DB_S3_SECRET_KEY}" ] && fail "Missing required value for VORTEX_PUSH_DB${_db_index}_S3_SECRET_KEY."
+[ -z "${VORTEX_PUSH_DB_S3_BUCKET}" ] && fail "Missing required value for VORTEX_PUSH_DB${_db_index}_S3_BUCKET."
+[ -z "${VORTEX_PUSH_DB_S3_REGION}" ] && fail "Missing required value for VORTEX_PUSH_DB${_db_index}_S3_REGION."
 
 local_file="${VORTEX_PUSH_DB_S3_DB_DIR}/${VORTEX_PUSH_DB_S3_DB_FILE}"
 [ ! -f "${local_file}" ] && fail "Database dump file ${local_file} does not exist."
 
-info "Started database dump push to S3."
+info "Started database${_db_index:+ ${_db_index}} dump push to S3."
 
 [ -n "${VORTEX_PUSH_DB_S3_PREFIX}" ] && VORTEX_PUSH_DB_S3_PREFIX="${VORTEX_PUSH_DB_S3_PREFIX%/}/"
 
-request_type="PUT"
-auth_type="AWS4-HMAC-SHA256"
-service="s3"
-base_url=".${service}.${VORTEX_PUSH_DB_S3_REGION}.amazonaws.com"
-date_short=$(date -u +'%Y%m%d')
-date_long=$(date -u +'%Y%m%dT%H%M%SZ')
+# The file name prefix and the '-previous' suffix apply to the file name, not
+# to the directories in the remote file name.
+remote_dir=""
+remote_name="${VORTEX_PUSH_DB_S3_REMOTE_FILE}"
+if [[ ${remote_name} == */* ]]; then
+  remote_dir="${remote_name%/*}/"
+  remote_name="${remote_name##*/}"
+fi
 
-object_key="$(uri_encode_key "${VORTEX_PUSH_DB_S3_PREFIX}${VORTEX_PUSH_DB_S3_REMOTE_FILE}")"
-object_url="https://${VORTEX_PUSH_DB_S3_BUCKET}${base_url}/${object_key}"
+current_file="${remote_dir}${VORTEX_PUSH_DB_FILE_PREFIX}${remote_name}"
+if [[ ${remote_name} == *.* ]]; then
+  previous_file="${remote_dir}${VORTEX_PUSH_DB_FILE_PREFIX}${remote_name%.*}-previous.${remote_name##*.}"
+else
+  previous_file="${remote_dir}${VORTEX_PUSH_DB_FILE_PREFIX}${remote_name}-previous"
+fi
+
+object_key="$(uri_encode_key "${VORTEX_PUSH_DB_S3_PREFIX}${current_file}")"
+previous_key="$(uri_encode_key "${VORTEX_PUSH_DB_S3_PREFIX}${previous_file}")"
 
 note "Local file:     ${local_file}"
-note "Remote file:    ${VORTEX_PUSH_DB_S3_PREFIX}${VORTEX_PUSH_DB_S3_REMOTE_FILE}"
+note "Remote file:    ${VORTEX_PUSH_DB_S3_PREFIX}${current_file}"
+note "Previous file:  ${VORTEX_PUSH_DB_S3_PREFIX}${previous_file}"
 note "S3 bucket:      ${VORTEX_PUSH_DB_S3_BUCKET}"
 note "S3 region:      ${VORTEX_PUSH_DB_S3_REGION}"
 [ -n "${VORTEX_PUSH_DB_S3_PREFIX}" ] && note "S3 prefix:      ${VORTEX_PUSH_DB_S3_PREFIX}"
 note "Storage class:  ${VORTEX_PUSH_DB_S3_STORAGE_CLASS}"
+
+# A copy can fail after S3 has sent a 200 status, so a success needs the copy
+# result in the body. A missing current dump means this is the first push.
+task "Keeping the current database dump as the previous one."
+set +e
+response=$(s3_put "${previous_key}" "$(hash_sha256 "")" "" "x-amz-copy-source:/${VORTEX_PUSH_DB_S3_BUCKET}/${object_key}")
+curl_status=$?
+set -e
+
+[ "${curl_status}" -ne 0 ] && fail "S3 copy request failed with curl exit ${curl_status}."
+
+http_code=$(echo "${response}" | tail -1)
+response_body=$(echo "${response}" | sed '$d')
+
+if [[ ${http_code} == 2* ]] && [[ ${response_body} == *"<CopyObjectResult"* ]]; then
+  pass "Kept the current database dump as the previous one."
+elif [ "${http_code}" = "404" ]; then
+  pass "Skipped keeping the previous database dump as there is no current one."
+else
+  [ -n "${response_body}" ] && echo "Response: ${response_body}"
+  fail "Unable to keep the current database dump as the previous one: HTTP status ${http_code}."
+fi
 
 if command -v file >/dev/null; then
   content_type="$(file --brief --mime-type "${local_file}")"
@@ -133,51 +255,14 @@ fi
 
 payload_hash=$(openssl dgst -sha256 <"${local_file}" | sed 's/^.* //')
 
-header_list='content-type;host;x-amz-content-sha256;x-amz-date;x-amz-server-side-encryption;x-amz-storage-class'
-
-canonical_request="\
-${request_type}
-/${object_key}
-
-content-type:${content_type}
-host:${VORTEX_PUSH_DB_S3_BUCKET}${base_url}
-x-amz-content-sha256:${payload_hash}
-x-amz-date:${date_long}
-x-amz-server-side-encryption:AES256
-x-amz-storage-class:${VORTEX_PUSH_DB_S3_STORAGE_CLASS}
-
-${header_list}
-${payload_hash}"
-
-canonical_request_hash=$(hash_sha256 "${canonical_request}")
-
-string_to_sign="\
-${auth_type}
-${date_long}
-${date_short}/${VORTEX_PUSH_DB_S3_REGION}/${service}/aws4_request
-${canonical_request_hash}"
-
-signature=$(aws_signature "${VORTEX_PUSH_DB_S3_SECRET_KEY}" "${date_short}" "${VORTEX_PUSH_DB_S3_REGION}" "${service}" "${string_to_sign}")
-
+task "Uploading the database dump file."
 set +e
-response=$(curl --silent --show-error --location --proto-redir =https \
-  --connect-timeout "${VORTEX_PUSH_DB_S3_CONNECT_TIMEOUT:-10}" \
-  --max-time "${VORTEX_PUSH_DB_S3_MAX_TIME:-300}" \
-  --request "${request_type}" --upload-file "${local_file}" \
-  --header "Content-Type: ${content_type}" \
-  --header "Host: ${VORTEX_PUSH_DB_S3_BUCKET}${base_url}" \
-  --header "X-Amz-Content-SHA256: ${payload_hash}" \
-  --header "X-Amz-Date: ${date_long}" \
-  --header "X-Amz-Server-Side-Encryption: AES256" \
-  --header "X-Amz-Storage-Class: ${VORTEX_PUSH_DB_S3_STORAGE_CLASS}" \
-  --header "Authorization: ${auth_type} Credential=${VORTEX_PUSH_DB_S3_ACCESS_KEY}/${date_short}/${VORTEX_PUSH_DB_S3_REGION}/${service}/aws4_request, SignedHeaders=${header_list}, Signature=${signature}" \
-  --write-out "\n%{http_code}" \
-  "${object_url}")
+response=$(s3_put "${object_key}" "${payload_hash}" "${local_file}" "content-type:${content_type}")
 curl_status=$?
 set -e
 
-# Enable xtrace only after the signed request so credentials and the
-# signature are never written to the trace output.
+# Enable xtrace only after the signed requests so credentials and the
+# signatures are never written to the trace output.
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
 [ "${curl_status}" -ne 0 ] && fail "S3 push request failed with curl exit ${curl_status}."
@@ -192,5 +277,6 @@ case "${http_code}" in
     fail "Unable to push to S3: HTTP status ${http_code}."
     ;;
 esac
+pass "Uploaded the database dump file."
 
-pass "Finished database dump push to S3."
+pass "Finished database${_db_index:+ ${_db_index}} dump push to S3."

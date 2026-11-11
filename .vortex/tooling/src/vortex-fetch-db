@@ -55,17 +55,20 @@ info "Started database${_db_index:+ ${_db_index}} fetch."
 
 [ "${VORTEX_FETCH_DB_PROCEED}" != "1" ] && pass "Skipped database fetch as VORTEX_FETCH_DB_PROCEED is not set to 1." && exit 0
 
-# A dump store ('gdrive' or 's3') receives the dump that the nightly refresh
-# pushes, so with a push requested the dump comes from its upstream source.
-# The store may hold no dump yet on the first push.
-if [ -z "${_db_index}" ] && [ "${VORTEX_PUSH_DB_PROCEED:-}" = "1" ]; then
+# An 'ftp' or 's3' source with an upstream source in VORTEX_REFRESH_DB_SOURCE
+# is a dump store: it receives the dump that the nightly refresh pushes, so
+# with a push requested the dump comes from the upstream source. The store
+# may hold no dump yet on the first push.
+_v="VORTEX_REFRESH_DB${_db_index}_SOURCE"
+refresh_source="${!_v:-}"
+if [ "${VORTEX_PUSH_DB_PROCEED:-}" = "1" ] && [ -n "${refresh_source}" ]; then
   case "${VORTEX_FETCH_DB_SOURCE}" in
-    gdrive | s3)
-      case "${VORTEX_REFRESH_DB_SOURCE:-}" in
-        "" | gdrive | s3 | container_registry | none) fail "The database dump file pushed to ${VORTEX_FETCH_DB_SOURCE} is fetched from an upstream source, but VORTEX_REFRESH_DB_SOURCE is \"${VORTEX_REFRESH_DB_SOURCE:-}\". Set it to the source of the dump file: url, ftp, acquia or lagoon." ;;
+    ftp | s3)
+      case "${refresh_source}" in
+        "${VORTEX_FETCH_DB_SOURCE}" | container_registry | none) fail "The database dump file pushed to ${VORTEX_FETCH_DB_SOURCE} is fetched from an upstream source, but VORTEX_REFRESH_DB${_db_index}_SOURCE is \"${refresh_source}\". Set it to another source of the dump file: url, ftp, acquia, lagoon or s3." ;;
       esac
-      note "Fetching from the ${VORTEX_REFRESH_DB_SOURCE} source in VORTEX_REFRESH_DB_SOURCE as VORTEX_PUSH_DB_PROCEED is set to 1."
-      VORTEX_FETCH_DB_SOURCE="${VORTEX_REFRESH_DB_SOURCE}"
+      note "Fetching from the ${refresh_source} source in VORTEX_REFRESH_DB${_db_index}_SOURCE as VORTEX_PUSH_DB_PROCEED is set to 1."
+      VORTEX_FETCH_DB_SOURCE="${refresh_source}"
       ;;
   esac
 fi
@@ -79,9 +82,8 @@ case "${VORTEX_FETCH_DB_SOURCE}" in
   lagoon) fetch_script="vortex-fetch-db-lagoon" ;;
   container_registry) fetch_script="vortex-fetch-db-container-registry" ;;
   s3) fetch_script="vortex-fetch-db-s3" ;;
-  gdrive) fetch_script="vortex-fetch-db-gdrive" ;;
   none) fetch_script="" ;;
-  *) fail "Unsupported database source \"${VORTEX_FETCH_DB_SOURCE}\" in VORTEX_FETCH_DB${_db_index}_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, gdrive, none." ;;
+  *) fail "Unsupported database source \"${VORTEX_FETCH_DB_SOURCE}\" in VORTEX_FETCH_DB${_db_index}_SOURCE. Use one of: url, ftp, acquia, lagoon, container_registry, s3, none." ;;
 esac
 
 # Skip file existence check for container_registry source as the database is

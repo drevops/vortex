@@ -5,8 +5,13 @@
 # This is a router script to call relevant scripts based on type.
 #
 # The database dump file is pushed to the storage the database is fetched
-# from, set in VORTEX_FETCH_DB_SOURCE. Only the 'gdrive' and 's3' sources
-# accept a push; the push is skipped for other sources.
+# from, set in VORTEX_FETCH_DB_SOURCE. Only an 'ftp' or 's3' source with an
+# upstream source in VORTEX_REFRESH_DB_SOURCE accepts a push (a dump store);
+# the push is skipped for other sources.
+#
+# With VORTEX_DB_INDEX set (e.g., "2" for the migration database), the
+# indexed database pushes its own dump file with the indexed variables, so
+# several databases share 1 storage.
 #
 # IMPORTANT! This script runs outside the container on the host system.
 #
@@ -17,6 +22,10 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
+# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
+# use the indexed variant.
+_db_index="${VORTEX_DB_INDEX:-}"
+
 # Proceed with push.
 #
 # Set to 1 in the nightly CI job only, so the storage is refreshed once a day
@@ -24,7 +33,12 @@ set -eu
 VORTEX_PUSH_DB_PROCEED="${VORTEX_PUSH_DB_PROCEED:-}"
 
 # Database fetch source, which is also the push destination.
-VORTEX_FETCH_DB_SOURCE="${VORTEX_FETCH_DB_SOURCE:-url}"
+_v="VORTEX_FETCH_DB${_db_index}_SOURCE"
+VORTEX_FETCH_DB_SOURCE="${!_v:-url}"
+
+# Upstream source of the pushed database dump file.
+_v="VORTEX_REFRESH_DB${_db_index}_SOURCE"
+VORTEX_REFRESH_DB_SOURCE="${!_v:-}"
 
 # ------------------------------------------------------------------------------
 
@@ -36,19 +50,24 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
-info "Started database push."
+info "Started database${_db_index:+ ${_db_index}} push."
 
 [ "${VORTEX_PUSH_DB_PROCEED}" != "1" ] && pass "Skipped database push as VORTEX_PUSH_DB_PROCEED is not set to 1." && exit 0
 
 case "${VORTEX_FETCH_DB_SOURCE}" in
-  gdrive) push_script="vortex-push-db-gdrive" ;;
+  ftp) push_script="vortex-push-db-ftp" ;;
   s3) push_script="vortex-push-db-s3" ;;
-  *) pass "Skipped database push as the \"${VORTEX_FETCH_DB_SOURCE}\" database source in VORTEX_FETCH_DB_SOURCE does not accept a push. Use one of: gdrive, s3." && exit 0 ;;
+  *) pass "Skipped database push as the \"${VORTEX_FETCH_DB_SOURCE}\" database source in VORTEX_FETCH_DB${_db_index}_SOURCE does not accept a push. Use one of: ftp, s3." && exit 0 ;;
 esac
 
-# The pushed dump leaves the hosting and CI, so it must be sanitized.
-[ "${VORTEX_PROVISION_SANITIZE_DB_SKIP:-}" = "1" ] && fail "Refused to push the database as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1 and the database dump is not sanitized."
+# Without an upstream source, the fetch source is where the dump comes from,
+# and a push would replace that dump with its own export.
+[ -z "${VORTEX_REFRESH_DB_SOURCE}" ] && pass "Skipped database push as VORTEX_REFRESH_DB${_db_index}_SOURCE is not set, so the ${VORTEX_FETCH_DB_SOURCE} source is not a dump store." && exit 0
 
-"$(dirname "${BASH_SOURCE[0]}")/${push_script}"
+# The pushed dump leaves the hosting and CI, so it must be sanitized. Only the
+# primary database is sanitized: an indexed database is pushed as fetched.
+[ -z "${_db_index}" ] && [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP:-}" = "1" ] && fail "Refused to push the database as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1 and the database dump is not sanitized."
 
-pass "Finished database push."
+env VORTEX_DB_INDEX="${_db_index}" "$(dirname "${BASH_SOURCE[0]}")/${push_script}"
+
+pass "Finished database${_db_index:+ ${_db_index}} push."

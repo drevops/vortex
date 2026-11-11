@@ -236,7 +236,7 @@ load ../_helper.bash
 
     run .vortex/tooling/src/vortex-refresh-db
     assert_failure
-    assert_output_contains "[FAIL] The myorg/db image is built from a database dump file, but VORTEX_REFRESH_DB_SOURCE is \"${refresh_source}\". Set it to the source of the dump file: url, ftp, acquia, lagoon, s3 or gdrive."
+    assert_output_contains "[FAIL] The myorg/db image is built from a database dump file, but VORTEX_REFRESH_DB_SOURCE is \"${refresh_source}\". Set it to the source of the dump file: url, ftp, acquia, lagoon or s3."
     assert_output_not_contains "Logged in to the registry."
     assert_output_not_contains "Fetched the dump file."
   done
@@ -259,7 +259,8 @@ load ../_helper.bash
   stub_sibling "vortex-fetch-db" "Fetched the dump file."
   stub_sibling "vortex-export-db" 'Exported the database to ${1}.'
 
-  export VORTEX_FETCH_DB_SOURCE="gdrive"
+  export VORTEX_FETCH_DB_SOURCE="ftp"
+  export VORTEX_REFRESH_DB_SOURCE="lagoon"
 
   mock_command "sleep" >/dev/null
   mock_docker=$(mock_command "docker")
@@ -296,7 +297,8 @@ load ../_helper.bash
   echo "store" >.data/db.sql
 
   unset VORTEX_DB_IMAGE VORTEX_DB_IMAGE_BASE VORTEX_PUSH_DB_PROCEED
-  export VORTEX_FETCH_DB_SOURCE="gdrive"
+  export VORTEX_FETCH_DB_SOURCE="ftp"
+  export VORTEX_REFRESH_DB_SOURCE="lagoon"
 
   stub_sibling "vortex-login-container-registry" "Logged in to the registry."
   stub_sibling "vortex-export-db" 'Exported the database to ${1}.'
@@ -316,11 +318,38 @@ load ../_helper.bash
   popd >/dev/null
 }
 
+@test "refresh-db: Exports an ftp source database unsanitized without a refresh source" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  echo "upstream" >.data/db.sql
+
+  unset VORTEX_DB_IMAGE VORTEX_DB_IMAGE_BASE VORTEX_REFRESH_DB_SOURCE
+  export VORTEX_FETCH_DB_SOURCE="ftp"
+  export VORTEX_PUSH_DB_PROCEED=1
+
+  stub_sibling "vortex-login-container-registry" "Logged in to the registry."
+  stub_sibling "vortex-export-db" 'Exported the database to ${1}.'
+
+  mock_command "sleep" >/dev/null
+  mock_docker=$(mock_command "docker")
+
+  run .vortex/tooling/src/vortex-refresh-db
+  assert_success
+  assert_output_contains "[ OK ] Finished database refresh."
+
+  # Without a refresh source, the ftp source is not a dump store.
+  assert_equal "5" "$(mock_get_call_num "${mock_docker}")"
+
+  popd >/dev/null
+}
+
 @test "refresh-db: Fails when the sanitization is skipped for a dump store source with a push requested" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   unset VORTEX_DB_IMAGE VORTEX_DB_IMAGE_BASE
-  export VORTEX_FETCH_DB_SOURCE="gdrive"
+  export VORTEX_FETCH_DB_SOURCE="ftp"
+  export VORTEX_REFRESH_DB_SOURCE="lagoon"
   export VORTEX_PUSH_DB_PROCEED=1
   export VORTEX_PROVISION_SANITIZE_DB_SKIP=1
 
@@ -330,7 +359,7 @@ load ../_helper.bash
 
   run .vortex/tooling/src/vortex-refresh-db
   assert_failure
-  assert_output_contains "[FAIL] The database dump file pushed to gdrive must be sanitized, but VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
+  assert_output_contains "[FAIL] The database dump file pushed to ftp must be sanitized, but VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
   assert_output_not_contains "Logged in to the registry."
   assert_equal "0" "$(mock_get_call_num "${mock_docker}")"
 
@@ -345,6 +374,7 @@ load ../_helper.bash
 
   unset VORTEX_DB_IMAGE VORTEX_DB_IMAGE_BASE
   export VORTEX_FETCH_DB_SOURCE="s3"
+  export VORTEX_REFRESH_DB_SOURCE="lagoon"
   export VORTEX_PUSH_DB_PROCEED=1
 
   stub_sibling "vortex-login-container-registry" "Logged in to the registry."
