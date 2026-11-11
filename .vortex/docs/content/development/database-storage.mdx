@@ -221,7 +221,7 @@ VORTEX_FETCH_DB_FTP_FILE=your_site/db_gha.sql
 The S3 fetch names the local dump after the remote file. To fetch a
 suffixed dump from an S3 store, rename the dump everywhere with
 `VORTEX_DB_FILE`, which the fetch, the refresh and the import all read.
-Then set the push remote filename to the unsuffixed name:
+Then set the push remote filename to the name without the suffix:
 
 ```shell
 # The fetch, the refresh and the import use the suffixed name.
