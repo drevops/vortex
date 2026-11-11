@@ -158,6 +158,8 @@ jobs:
         with:
           php-version: '8.4'
           coverage: none
+          # The archiver tests build their zip fixtures with 'ZipArchive'.
+          extensions: zip
 
       - name: Set default branch name
         run: git config --global init.defaultBranch main

@@ -297,7 +297,8 @@ class FileManager {
       $this->report?->add($path, InstallReport::STATUS_REMOVED);
       $this->report?->addChange($path, $content, NULL);
 
-      for ($dir = dirname($path); $dir !== '.'; $dir = dirname($dir)) {
+      // A rooted path never reaches '.', and on Windows dirname('/') is '\'.
+      for ($dir = dirname($path); $dir !== '.' && $dir !== dirname($dir); $dir = dirname($dir)) {
         $dirs[$dir] = substr_count($dir, '/');
       }
     }
@@ -496,7 +497,10 @@ class FileManager {
     $root = File::dir($directory);
     $files = File::scandir($root, File::ignoredPaths());
 
-    return array_map(fn(string $file): string => ltrim(str_replace($root, '', $file), DIRECTORY_SEPARATOR), $files);
+    // Windows returns mixed separators, and every path key uses '/'.
+    $root = str_replace(DIRECTORY_SEPARATOR, '/', $root);
+
+    return array_map(fn(string $file): string => ltrim(str_replace($root, '', str_replace(DIRECTORY_SEPARATOR, '/', $file)), '/'), $files);
   }
 
   /**
