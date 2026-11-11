@@ -53,8 +53,9 @@ VORTEX_PUSH_DB_S3_PREFIX="${!_v:-${!_vs:-${S3_PREFIX:-}}}"
 
 # Directory with database dump file.
 _v="VORTEX_PUSH_DB${_db_index}_S3_DB_DIR"
-_vs="VORTEX_DB${_db_index}_DIR"
-VORTEX_PUSH_DB_S3_DB_DIR="${!_v:-${!_vs:-${VORTEX_DB_DIR:-./.data}}}"
+_vs="VORTEX_FETCH_DB${_db_index}_DIR"
+_vss="VORTEX_DB${_db_index}_DIR"
+VORTEX_PUSH_DB_S3_DB_DIR="${!_v:-${!_vs:-${!_vss:-${VORTEX_DB_DIR:-./.data}}}}"
 
 # Database dump file name.
 #
@@ -175,8 +176,12 @@ ${canonical_request_hash}"
   signature=$(aws_signature "${VORTEX_PUSH_DB_S3_SECRET_KEY}" "${date_short}" "${VORTEX_PUSH_DB_S3_REGION}" "s3" "${string_to_sign}")
 
   local args=(--silent --show-error --location --proto-redir "=https" --connect-timeout "${VORTEX_PUSH_DB_S3_CONNECT_TIMEOUT:-10}" --max-time "${VORTEX_PUSH_DB_S3_MAX_TIME:-300}" --request PUT --write-out "\n%{http_code}")
+  # curl sends no length for a PUT without a body, and S3 rejects such a
+  # request.
   if [ -n "${upload_file}" ]; then
     args+=(--upload-file "${upload_file}")
+  else
+    args+=(--header "Content-Length: 0")
   fi
 
   local header

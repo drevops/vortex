@@ -579,6 +579,8 @@ setup_s3_push() {
   copy_args="$(mock_get_call_args "${mock_curl}" 2)"
   assert_string_contains "${copy_args}" "--header x-amz-copy-source: /test-bucket/backups/db.sql"
   assert_string_not_contains "${copy_args}" "--upload-file"
+  assert_string_contains "${copy_args}" "--header Content-Length: 0"
+  assert_string_not_contains "$(mock_get_call_args "${mock_curl}" 1)" "Content-Length: 0"
   [[ ${copy_args} =~ https://test-bucket\.s3\.ap-southeast-2\.amazonaws\.com/backups/db_[0-9]{8}-[0-9]{6}\.sql ]]
 
   rm -rf .data
@@ -629,6 +631,10 @@ setup_s3_push() {
   export VORTEX_FETCH_DB2_S3_REGION="eu-west-1"
   export VORTEX_FETCH_DB2_S3_PREFIX=""
   export VORTEX_FETCH_DB2_FILE="db2.sql"
+  # The dump directory follows the directory the database is fetched to.
+  mkdir -p .data/db2
+  mv .data/db2.sql .data/db2/db2.sql
+  export VORTEX_FETCH_DB2_DIR=".data/db2"
   export VORTEX_PUSH_DB_FILE_SUFFIX="_circleci"
   export VORTEX_PUSH_DB_TIMESTAMPED_COPY=1
 
@@ -639,7 +645,7 @@ setup_s3_push() {
   run .vortex/tooling/src/vortex-push-db-s3
   assert_success
   assert_output_contains "[INFO] Started database 2 dump push to S3."
-  assert_output_contains "Local file:     ./.data/db2.sql"
+  assert_output_contains "Local file:     .data/db2/db2.sql"
   assert_output_contains "Remote file:    db2_circleci.sql"
   assert_output_contains "S3 bucket:      db2-bucket"
   assert_output_contains "[ OK ] Copied the database dump file to db2_circleci_"
