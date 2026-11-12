@@ -121,8 +121,8 @@ class GitTest extends UnitTestCase {
     try {
       $tracked = Git::getTrackedFiles($temp_dir);
       $this->assertCount(2, $tracked);
-      $this->assertContains($temp_dir . DIRECTORY_SEPARATOR . 'test.txt', $tracked);
-      $this->assertContains($temp_dir . DIRECTORY_SEPARATOR . 'another.txt', $tracked);
+      $this->assertContains($temp_dir . '/test.txt', $tracked);
+      $this->assertContains($temp_dir . '/another.txt', $tracked);
     }
     finally {
       $this->cleanupTempGitRepo($temp_dir);
