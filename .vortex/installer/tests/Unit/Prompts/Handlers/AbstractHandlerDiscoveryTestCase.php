@@ -52,7 +52,6 @@ use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Prompt;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
@@ -73,7 +72,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
 
     static::envUnsetProjectVars();
 
-    static::tuiSetUp();
+    static::tuiSetUp(TRUE);
 
     static::$sut = File::mkdir(static::$sut . DIRECTORY_SEPARATOR . 'myproject');
   }
@@ -82,7 +81,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
    * {@inheritdoc}
    */
   protected function tearDown(): void {
-    static::tuiTeardown();
+    $this->tuiTeardown();
 
     parent::tearDown();
   }
@@ -109,7 +108,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
 
     $answers = array_replace(static::defaultTuiAnswers(), $answers);
     $keystrokes = static::tuiKeystrokes($answers, 40);
-    Prompt::fake($keystrokes);
+    $this->tuiInput($keystrokes);
 
     $pm = new PromptManager($config);
     $pm->runPrompts();

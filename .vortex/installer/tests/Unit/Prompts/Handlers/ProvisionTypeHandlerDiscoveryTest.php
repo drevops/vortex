@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Utils\Config;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(ProvisionType::class)]
@@ -16,7 +15,7 @@ class ProvisionTypeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
   public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
     yield 'provision type - prompt' => [
-      [ProvisionType::id() => Key::ENTER],
+      [ProvisionType::id() => self::KEY_ENTER],
       [ProvisionType::id() => ProvisionType::DATABASE] + $expected_defaults,
     ];
     yield 'provision type - discovery - database' => [

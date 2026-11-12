@@ -35,7 +35,7 @@ class TaskTest extends UnitTestCase {
 
     $expected_output = is_array($expected_output) ? $expected_output : [$expected_output];
     foreach ($expected_output as $expected) {
-      $this->assertStringContainsString(Tui::normalizeText($expected), $actual);
+      $this->assertStringContainsString($expected, $actual);
     }
   }
 
@@ -109,6 +109,56 @@ class TaskTest extends UnitTestCase {
       'failure' => fn(): string => 'Failed dynamically',
       'expected_output' => 'Failed dynamically',
     ];
+  }
+
+  public function testActionNestedInStreamingTask(): void {
+    $output = new BufferedOutput();
+    Tui::init($output);
+
+    $result = Task::action(
+      label: 'Outer task',
+      action: function (): bool {
+        Task::action(
+          label: 'Inner task',
+          action: fn(): array => ['detail 1'],
+          hint: 'Inner hint',
+          success: 'Inner done',
+        );
+        Task::action(
+          label: 'Inner failing task',
+          action: fn(): bool => FALSE,
+        );
+        Task::action(
+          label: 'Inner streamed task',
+          action: function (): bool {
+            Tui::line('Inner streamed line');
+
+            return TRUE;
+          },
+          success: 'Inner streamed done',
+          streaming: TRUE,
+        );
+        Tui::line('Outer line after inner tasks');
+
+        return TRUE;
+      },
+      success: 'Outer done',
+      streaming: TRUE,
+    );
+
+    $actual = $output->fetch();
+
+    $this->assertTrue($result);
+    $this->assertStringContainsString('Outer task', $actual);
+    $this->assertStringContainsString('Inner task', $actual);
+    $this->assertStringContainsString('Inner hint', $actual);
+    $this->assertStringContainsString('detail 1', $actual);
+    $this->assertStringContainsString('✓ Inner done', $actual);
+    $this->assertStringContainsString('▲ FAILED', $actual);
+    $this->assertStringContainsString('Inner streamed line', $actual);
+    $this->assertStringContainsString('✓ Inner streamed done', $actual);
+    $this->assertStringContainsString('Outer line after inner tasks', $actual);
+    $this->assertStringContainsString('✓ Outer done', $actual);
   }
 
   public function testActionInvalidArgument(): void {

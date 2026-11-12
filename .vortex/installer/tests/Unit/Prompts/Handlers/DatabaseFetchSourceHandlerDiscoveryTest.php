@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(DatabaseFetchSource::class)]
@@ -14,7 +13,7 @@ class DatabaseFetchSourceHandlerDiscoveryTest extends AbstractHandlerDiscoveryTe
   public static function dataProviderRunPrompts(): \Iterator {
     $expected_defaults = static::getExpectedDefaults();
     yield 'database fetch source - prompt' => [
-      [DatabaseFetchSource::id() => Key::ENTER],
+      [DatabaseFetchSource::id() => self::KEY_ENTER],
       [DatabaseFetchSource::id() => DatabaseFetchSource::URL] + $expected_defaults,
     ];
     yield 'database fetch source - discovery' => [

@@ -15,22 +15,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 #[CoversClass(PromptType::class)]
 class PromptTypeTest extends UnitTestCase {
 
-  #[DataProvider('dataProviderPromptFunctionResolvesToNamedHelper')]
-  public function testPromptFunctionResolvesToNamedHelper(PromptType $case): void {
-    $reflection = new \ReflectionFunction($case->promptFunction());
-
-    $this->assertSame('Laravel\Prompts\\' . $case->value, $reflection->getName());
-  }
-
-  /**
-   * Data provider for testPromptFunctionResolvesToNamedHelper.
-   */
-  public static function dataProviderPromptFunctionResolvesToNamedHelper(): \Iterator {
-    foreach (PromptType::cases() as $case) {
-      yield $case->name => [$case];
-    }
-  }
-
   #[DataProvider('dataProviderFromValidString')]
   public function testFromValidString(string $value, PromptType $expected): void {
     $this->assertSame($expected, PromptType::from($value));
@@ -45,12 +29,6 @@ class PromptTypeTest extends UnitTestCase {
     yield 'multiselect' => ['multiselect', PromptType::MultiSelect];
     yield 'confirm' => ['confirm', PromptType::Confirm];
     yield 'suggest' => ['suggest', PromptType::Suggest];
-    yield 'number' => ['number', PromptType::Number];
-    yield 'textarea' => ['textarea', PromptType::Textarea];
-    yield 'password' => ['password', PromptType::Password];
-    yield 'search' => ['search', PromptType::Search];
-    yield 'multisearch' => ['multisearch', PromptType::MultiSearch];
-    yield 'pause' => ['pause', PromptType::Pause];
   }
 
   public function testFromInvalidString(): void {

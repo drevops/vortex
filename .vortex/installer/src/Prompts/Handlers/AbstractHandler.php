@@ -7,6 +7,7 @@ namespace DrevOps\VortexInstaller\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\PromptType;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\Converter;
+use DrevOps\VortexInstaller\Utils\Tui;
 
 abstract class AbstractHandler implements HandlerInterface {
 
@@ -36,6 +37,11 @@ abstract class AbstractHandler implements HandlerInterface {
    * Array of all responses.
    */
   protected array $responses;
+
+  /**
+   * The answer supplied with the --prompts option.
+   */
+  protected null|string|bool|array $override = NULL;
 
   /**
    * Constructor.
@@ -180,6 +186,86 @@ abstract class AbstractHandler implements HandlerInterface {
    */
   public function resolvedMessage(array $responses, mixed $resolved): ?string {
     return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setOverride(null|string|bool|array $override): static {
+    $this->override = $override;
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function key(): string {
+    return static::id();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function widget(): string {
+    return $this->type()->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function condition(array $results): bool {
+    return $this->shouldRun($results);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function arguments(array $results): array {
+    $type = $this->type();
+    $options = $this->options($results);
+
+    $arguments = [
+      'label' => $this->label(),
+      'help' => $this->hint($results),
+      'placeholder' => $this->placeholder($results),
+      'transform' => $this->transform(),
+      'validate' => $this->validate(),
+      'description' => static::description($results),
+      'required' => $this->isRequired() ?: NULL,
+      'options' => $options,
+      'scroll' => is_array($options) ? 10 : NULL,
+      // A discovered list keeps the order the project already has it in.
+      'order' => $type === PromptType::MultiSelect ? 'default' : NULL,
+    ];
+
+    // A value read from the destination answers the step without asking, and
+    // may name a profile or theme outside the options.
+    $resolved = $this->resolvedValue($results);
+
+    if (is_string($resolved)) {
+      $message = $this->resolvedMessage($results, $resolved);
+
+      if ($message) {
+        Tui::success($message);
+      }
+
+      if (is_array($options) && !array_key_exists($resolved, $options)) {
+        $arguments['options'] = $options + [$resolved => $resolved];
+      }
+
+      $arguments['discovered'] = $resolved;
+
+      return array_filter($arguments, fn(mixed $value): bool => $value !== NULL);
+    }
+
+    $default = $this->override ?? $this->discover() ?? $this->default($results);
+
+    if ($default !== NULL && $default !== '') {
+      $arguments['default'] = $default;
+    }
+
+    return array_filter($arguments, fn(mixed $value): bool => $value !== NULL);
   }
 
   /**

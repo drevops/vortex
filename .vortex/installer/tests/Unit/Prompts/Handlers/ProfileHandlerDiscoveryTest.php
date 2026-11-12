@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\Profile;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Profile::class)]
@@ -17,15 +16,15 @@ class ProfileHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'profile - prompt' => [
-      [Profile::id() => Key::DOWN . Key::ENTER],
+      [Profile::id() => self::KEY_DOWN . self::KEY_ENTER],
       [Profile::id() => 'minimal'] + $expected_defaults,
     ];
     yield 'profile - prompt - custom' => [
-      [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'myprofile'],
+      [Profile::id() => self::KEY_DOWN . self::KEY_DOWN . self::KEY_DOWN . self::KEY_ENTER . 'myprofile' . self::KEY_ENTER],
       [Profile::id() => 'myprofile'] + $expected_defaults,
     ];
     yield 'profile - prompt - invalid' => [
-      [Profile::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER . 'my profile'],
+      [Profile::id() => self::KEY_DOWN . self::KEY_DOWN . self::KEY_DOWN . self::KEY_ENTER . 'my profile'],
       'Please enter a valid profile name: only lowercase letters, numbers, and underscores are allowed.',
     ];
     yield 'profile - discovery' => [

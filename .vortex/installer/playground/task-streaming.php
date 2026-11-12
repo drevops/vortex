@@ -129,23 +129,25 @@ echo "--- Streaming mode: nested spinner (cursor control) ---" . PHP_EOL;
 Task::action(
   label: 'Streaming task with nested spinner',
   action: function () {
-    // The nested command uses spin() which outputs cursor control sequences.
-    \Laravel\Prompts\spin(
-      function () {
+    // The nested non-streaming task outputs cursor control sequences.
+    Task::action(
+      label: 'Nested spinner task...',
+      action: function () {
         usleep(300000);
         usleep(300000);
         usleep(300000);
+        return true;
       },
-      'Nested spinner task...'
     );
 
     echo "AFTER SPINNER 1\n";
-    \Laravel\Prompts\spin(
-      function () {
+    Task::action(
+      label: 'Another nested spinner task...',
+      action: function () {
         usleep(1000000);
         usleep(1000000);
+        return true;
       },
-      'Another nested spinner task...'
     );
 
     echo "AFTER SPINNER 2\n";

@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\Modules;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Modules::class)]
@@ -17,7 +16,7 @@ class ModulesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'modules - prompt' => [
-      [Modules::id() => Key::ENTER],
+      [Modules::id() => self::KEY_ENTER],
       [Modules::id() => array_keys(Modules::getAvailableModules())] + $expected_defaults,
     ];
     yield 'modules - discovery - some modules' => [

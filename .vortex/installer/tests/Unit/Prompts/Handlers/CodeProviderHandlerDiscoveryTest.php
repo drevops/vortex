@@ -9,7 +9,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\Git;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(CodeProvider::class)]
@@ -19,11 +18,11 @@ class CodeProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase 
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'code repo - prompt' => [
-      [CodeProvider::id() => Key::ENTER],
+      [CodeProvider::id() => self::KEY_ENTER],
       [CodeProvider::id() => CodeProvider::GITHUB] + $expected_defaults,
     ];
     yield 'code repo - prompt - other' => [
-      [CodeProvider::id() => Key::DOWN . Key::ENTER],
+      [CodeProvider::id() => self::KEY_DOWN . self::KEY_ENTER],
       [
         CodeProvider::id() => CodeProvider::OTHER,
         CiProvider::id() => CiProvider::CIRCLECI,

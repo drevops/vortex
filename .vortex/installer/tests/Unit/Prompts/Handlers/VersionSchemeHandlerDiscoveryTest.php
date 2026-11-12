@@ -6,7 +6,6 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\VersionScheme;
 use DrevOps\VortexInstaller\Utils\Config;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(VersionScheme::class)]
@@ -16,7 +15,7 @@ class VersionSchemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'version scheme - prompt' => [
-      [VersionScheme::id() => Key::ENTER],
+      [VersionScheme::id() => self::KEY_ENTER],
       $expected_defaults,
     ];
     yield 'version scheme - discovery - calver' => [

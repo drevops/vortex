@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace DrevOps\VortexInstaller\Tests\Unit\Utils;
 
+use AlexSkrypnyk\Prompty\Prompty;
+use AlexSkrypnyk\Prompty\PromptyTestTrait;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
-use DrevOps\VortexInstaller\Utils\Strings;
 use DrevOps\VortexInstaller\Utils\Tui;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -14,14 +15,18 @@ use Symfony\Component\Console\Output\BufferedOutput;
 #[CoversClass(Tui::class)]
 class TuiTest extends UnitTestCase {
 
+  use PromptyTestTrait;
+
   public function testInit(): void {
     $output = new BufferedOutput();
 
     Tui::init($output);
     $this->assertSame($output, Tui::output());
+    $this->assertTrue(Tui::isInteractive());
 
     Tui::init($output, FALSE);
     $this->assertSame($output, Tui::output());
+    $this->assertFalse(Tui::isInteractive());
   }
 
   public function testOutputNotInitialized(): void {
@@ -32,34 +37,24 @@ class TuiTest extends UnitTestCase {
     $this->assertSame($output, Tui::output());
   }
 
-  public function testInfo(): void {
+  #[DataProvider('dataProviderMessages')]
+  public function testMessages(string $method, string $message, array $expected): void {
     $output = new BufferedOutput();
     Tui::init($output);
 
-    Tui::info('Test info message');
+    Tui::$method($message);
 
     $actual = $output->fetch();
-    $this->assertStringContainsString('Test info message', $actual);
+    foreach ($expected as $expected_string) {
+      $this->assertStringContainsString($expected_string, $actual);
+    }
   }
 
-  public function testNote(): void {
-    $output = new BufferedOutput();
-    Tui::init($output);
-
-    Tui::note('Test note message');
-
-    $actual = $output->fetch();
-    $this->assertStringContainsString('Test note message', $actual);
-  }
-
-  public function testError(): void {
-    $output = new BufferedOutput();
-    Tui::init($output);
-
-    Tui::error('Test error message');
-
-    $actual = $output->fetch();
-    $this->assertStringContainsString('✕ Test error message', $actual);
+  public static function dataProviderMessages(): \Iterator {
+    yield 'info' => ['info', 'Test info message', ['Test info message']];
+    yield 'note' => ['note', "Line 1\nLine 2", ['Line 1', 'Line 2']];
+    yield 'success' => ['success', 'Operation succeeded', ['✓', 'Operation succeeded']];
+    yield 'error' => ['error', 'Test error message', ['✕', 'Test error message']];
   }
 
   #[DataProvider('dataProviderColorMethods')]
@@ -106,355 +101,30 @@ INPUT,
     ];
   }
 
-  public function testEscapeMultilineViaPublicMethod(): void {
-    // escapeMultiline() is protected, so green() exercises it.
-    $text = <<<'TEXT'
-Line 1
-Line 2
-TEXT;
-
-    $result = Tui::green($text);
-    // The escape sequence appears without the leading backslash in the
-    // actual output.
-    $this->assertStringContainsString('[32m', $result);
-    $this->assertStringContainsString('Line 1', $result);
-    $this->assertStringContainsString('Line 2', $result);
-  }
-
-  public function testCaretMethods(): void {
-    $this->assertSame("\033[B", Tui::caretDown());
-    $this->assertSame("\033[A", Tui::caretUp());
-  }
-
-  public function testCaretEol(): void {
-    $result = Tui::caretEol('Short');
-    $this->assertSame("\033[5C", $result);
-
-    $multiline = <<<'TEXT'
-Short
-Longer line
-TEXT;
-    $result = Tui::caretEol($multiline);
-    $this->assertSame("\033[11C", $result);
-  }
-
   public function testTerminalWidth(): void {
-    $width = Tui::terminalWidth();
-    $this->assertGreaterThanOrEqual(20, $width);
+    Tui::init(new BufferedOutput());
+
+    $this->assertSame(min(100, max(20, Prompty::terminalWidth())), Tui::terminalWidth());
+    $this->assertSame(min(10, max(20, Prompty::terminalWidth())), Tui::terminalWidth(10));
   }
 
   #[DataProvider('dataProviderBox')]
-  public function testBox(
-    string $content,
-    ?string $title,
-    ?int $width,
-    ?int $terminal_width,
-    string $expected_output,
-  ): void {
+  public function testBox(string $content, ?string $title, array $expected): void {
     $output = new BufferedOutput();
     Tui::init($output);
 
-    if ($terminal_width !== NULL) {
-      static::envSet('COLUMNS', (string) $terminal_width);
+    Tui::box($content, $title);
+
+    $actual = $this->promptyNormalizeOutput($output->fetch());
+    foreach ($expected as $expected_string) {
+      $this->assertStringContainsString($expected_string, $actual);
     }
-
-    if ($width !== NULL) {
-      Tui::box($content, $title, $width);
-    }
-    else {
-      Tui::box($content, $title);
-    }
-
-    $actual = $output->fetch();
-
-    $actual_clean = Strings::stripAnsiColors($actual);
-    $expected_clean = Strings::stripAnsiColors($expected_output);
-
-    $this->assertSame($expected_clean, $actual_clean);
   }
 
   public static function dataProviderBox(): \Iterator {
-    yield 'simple content without title' => [
-      'content' => 'Simple content',
-      'title' => NULL,
-      'width' => 50,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌────────────────┐
- │ Simple content │
- └────────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'content with title' => [
-      'content' => 'Content with title',
-      'title' => 'Box Title',
-      'width' => 50,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌────────────────────┐
- │ Box Title          │
- │ ─────────          │
- │                    │
- │ Content with title │
- └────────────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'empty content with title' => [
-      'content' => '',
-      'title' => 'Empty Content',
-      'width' => 40,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌───────────────┐
- │ Empty Content │
- │ ───────────── │
- │               │
- │               │
- └───────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'empty title' => [
-      'content' => 'Content with empty title',
-      'title' => '',
-      'width' => 40,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌──────────────────────────┐
- │ Content with empty title │
- └──────────────────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'single character content' => [
-      'content' => 'X',
-      'title' => 'A',
-      'width' => 25,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌───┐
- │ A │
- │ ─ │
- │   │
- │ X │
- └───┘
-
-
-EXPECTED,
-    ];
-    yield 'whitespace only content' => [
-      'content' => '   ',
-      'title' => NULL,
-      'width' => 30,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌─────┐
- │     │
- └─────┘
-
-
-EXPECTED,
-    ];
-    yield 'terminal width constraint' => [
-      'content' => 'Terminal width test',
-      'title' => 'Narrow Terminal',
-      'width' => 100,
-      'terminal_width' => 30,
-      'expected_output' => <<<EXPECTED
-
- ┌─────────────────────┐
- │ Narrow Terminal     │
- │ ───────────────     │
- │                     │
- │ Terminal width test │
- └─────────────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'default width when not specified' => [
-      'content' => 'Default width content',
-      'title' => 'Default Width',
-      'width' => NULL,
-      'terminal_width' => 50,
-      'expected_output' => <<<EXPECTED
-
- ┌───────────────────────┐
- │ Default Width         │
- │ ─────────────         │
- │                       │
- │ Default width content │
- └───────────────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'long content word wrapping' => [
-      'content' => 'This is a very long line of content that should definitely be wrapped when the box width is narrow',
-      'title' => 'Long Content Test',
-      'width' => 40,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌───────────────────────────────────┐
- │ Long Content Test                 │
- │ ─────────────────                 │
- │                                   │
- │ This is a very long line of       │
- │ content that should definitely be │
- │ wrapped when the box width is     │
- │ narrow                            │
- └───────────────────────────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'long title word wrapping' => [
-      'content' => 'Short line',
-      'title' => 'This is a very long title that should be wrapped across multiple lines when the box width is constrained',
-      'width' => 35,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌───────────────────────────────┐
- │ This is a very long title     │
- │ that should be wrapped across │
- │ multiple lines when the box   │
- │ width is constrained          │
- │ ─────────────────────────     │
- │                               │
- │ Short line                    │
- └───────────────────────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'multiline content with literal newlines' => [
-      'content' => "Multi\nLine\nContent\nHere",
-      'title' => 'Multi-Line Test',
-      'width' => 30,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌─────────────────┐
- │ Multi-Line Test │
- │ ─────────────── │
- │                 │
- │ Multi           │
- │ Line            │
- │ Content         │
- │ Here            │
- └─────────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'narrow width wrapping' => [
-      'content' => 'This line has some words and should wrap nicely',
-      'title' => NULL,
-      'width' => 25,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌────────────────────┐
- │ This line has some │
- │ words and should   │
- │ wrap nicely        │
- └────────────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'unbreakable long word' => [
-      'content' => 'OneVeryLongWordThatCannotBeWrappedNormally',
-      'title' => 'Unbreakable',
-      'width' => 20,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌────────────────┐
- │ Unbreakable    │
- │ ───────────    │
- │                │
- │ OneVeryLongWor │
- │ dThatCannotBeW │
- │ rappedNormally │
- └────────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'multi paragraph content' => [
-      'content' => "Paragraph one with some text.\n\nParagraph two with more text after empty line.",
-      'title' => 'Multi-Paragraph',
-      'width' => 45,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌────────────────────────────────────┐
- │ Multi-Paragraph                    │
- │ ───────────────                    │
- │                                    │
- │ Paragraph one with some text.      │
- │                                    │
- │ Paragraph two with more text after │
- │ empty line.                        │
- └────────────────────────────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'content with special characters' => [
-      'content' => 'Content with émojis 🌟 and special chars ñáéíóú that affect wrapping calculations',
-      'title' => 'Special Chars',
-      'width' => 35,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌────────────────────────────┐
- │ Special Chars              │
- │ ─────────────              │
- │                            │
- │ Content with émojis 🌟 and │
- │ special chars ñáéíóú       │
- │ that affect wrapping       │
- │ calculations               │
- └────────────────────────────┘
-
-
-EXPECTED,
-    ];
-    yield 'extreme narrow width' => [
-      'content' => 'Short',
-      'title' => 'Normal Title',
-      'width' => 10,
-      'terminal_width' => 100,
-      'expected_output' => <<<EXPECTED
-
- ┌────────┐
- │ Normal │
- │ Title  │
- │ ────── │
- │        │
- │ Shor   │
- │ t      │
- └────────┘
-
-
-EXPECTED,
-    ];
+    yield 'content without title' => ['Simple content', NULL, ['┌', '│ Simple content │', '┘']];
+    yield 'content with title' => ['Content with title', 'Box Title', ['Box Title', 'Content with title']];
+    yield 'multiline content' => ["Multi\nLine", 'Multi-Line Test', ['Multi-Line Test', '│ Multi ', '│ Line ']];
   }
 
   #[DataProvider('dataProviderList')]
@@ -491,108 +161,16 @@ EXPECTED,
     ];
   }
 
-  #[DataProvider('dataProviderUtfPadding')]
-  public function testUtfPadding(
-    string $char,
-    ?string $terminal_emulator,
-    ?string $term_program,
-    string $expected_padding,
-  ): void {
-    if ($terminal_emulator !== NULL) {
-      static::envSet('TERMINAL_EMULATOR', $terminal_emulator);
-    }
-    else {
-      static::envUnset('TERMINAL_EMULATOR');
-    }
+  public function testTable(): void {
+    $output = new BufferedOutput();
+    Tui::init($output);
 
-    if ($term_program !== NULL) {
-      static::envSet('TERM_PROGRAM', $term_program);
-    }
-    else {
-      static::envUnset('TERM_PROGRAM');
-    }
+    Tui::table(['Name', 'Value'], [['key1', 'value1'], 'Section']);
 
-    $reflection = new \ReflectionClass(Tui::class);
-    $method = $reflection->getMethod('utfPadding');
-
-    $result = $method->invoke(NULL, $char);
-    $this->assertSame($expected_padding, $result);
-  }
-
-  public static function dataProviderUtfPadding(): \Iterator {
-    yield 'JetBrains with 1-byte UTF-8 char' => [
-    // 2 bytes, 1 mb_strlen
-      'char' => 'é',
-      'terminal_emulator' => 'JetBrains-something',
-      'term_program' => NULL,
-      'expected_padding' => ' ',
-    ];
-    yield 'JetBrains with 3-byte UTF-8 char' => [
-      // 3 bytes, 1 mb_strlen
-      'char' => 'あ',
-      'terminal_emulator' => 'JetBrains-IDE',
-      'term_program' => NULL,
-      'expected_padding' => ' ',
-    ];
-    yield 'JetBrains with 4-byte UTF-8 char' => [
-      // 4 bytes, 1 mb_strlen - should NOT get padding (len >= 4)
-      'char' => '🌟',
-      'terminal_emulator' => 'JetBrains-IDE',
-      'term_program' => NULL,
-      'expected_padding' => '',
-    ];
-    yield 'Non-JetBrains terminal' => [
-      'char' => 'é',
-      'terminal_emulator' => 'other-terminal',
-      'term_program' => NULL,
-      'expected_padding' => '',
-    ];
-    yield 'Apple Terminal with multi-byte char under 8 bytes' => [
-      // 2 chars × 3 bytes = 6 bytes total, mblen=2, len=6 < 8
-      'char' => 'あい',
-      'terminal_emulator' => NULL,
-      'term_program' => 'Apple_Terminal',
-      'expected_padding' => ' ',
-    ];
-    yield 'Apple Terminal with long multi-byte string' => [
-      // 5 chars × 3 bytes = 15 bytes, mblen=5, len=15 >= 8
-      'char' => 'あいうえお',
-      'terminal_emulator' => NULL,
-      'term_program' => 'Apple_Terminal',
-      'expected_padding' => '',
-    ];
-    yield 'Apple Terminal with single-byte char' => [
-      // Single byte, single mb_strlen.
-      'char' => 'A',
-      'terminal_emulator' => NULL,
-      'term_program' => 'Apple_Terminal',
-      'expected_padding' => '',
-    ];
-    yield 'No special terminal with UTF-8' => [
-      'char' => '🌟',
-      'terminal_emulator' => NULL,
-      'term_program' => NULL,
-      'expected_padding' => '',
-    ];
-    yield 'Regular ASCII character' => [
-      'char' => 'A',
-      'terminal_emulator' => NULL,
-      'term_program' => NULL,
-      'expected_padding' => '',
-    ];
-    yield 'Both JetBrains and Apple set' => [
-      'char' => 'é',
-      'terminal_emulator' => 'JetBrains-IDE',
-      'term_program' => 'Apple_Terminal',
-      // JetBrains condition should trigger first.
-      'expected_padding' => ' ',
-    ];
-    yield 'Empty environment values' => [
-      'char' => 'é',
-      'terminal_emulator' => '',
-      'term_program' => '',
-      'expected_padding' => '',
-    ];
+    $actual = $output->fetch();
+    $this->assertStringContainsString('Name', $actual);
+    $this->assertStringContainsString('key1', $actual);
+    $this->assertStringContainsString('Section', $actual);
   }
 
   #[DataProvider('dataProviderCenter')]
@@ -743,52 +321,6 @@ EXPECTED,
     ];
   }
 
-  #[DataProvider('dataProviderNormalizeText')]
-  public function testNormalizeText(string $input, string $expected): void {
-    $result = Tui::normalizeText($input);
-    $this->assertEquals($expected, $result);
-  }
-
-  public static function dataProviderNormalizeText(): \Iterator {
-    yield 'multiple spaces' => [
-      'input' => 'Hello    world',
-      'expected' => 'Hello world',
-    ];
-    yield 'multiple types of whitespace' => [
-      'input' => "Hello\t\t  \n  world",
-      'expected' => 'Hello world',
-    ];
-    yield 'leading and trailing spaces with multiple interior spaces' => [
-      'input' => '  Hello    world  ',
-      'expected' => ' Hello world ',
-    ];
-    // Test non-ASCII text gets whitespace normalized + UTF padding.
-    yield 'text starting with non-ASCII character' => [
-      'input' => 'éHello    world',
-      'expected' => 'éHello    world',
-    ];
-    yield 'simple ASCII text' => [
-      'input' => 'Hello world',
-      'expected' => 'Hello world',
-    ];
-    yield 'ASCII text with UTF-8 characters' => [
-      'input' => 'Hello 🌟 world',
-      'expected' => 'Hello 🌟 world',
-    ];
-    yield 'empty string' => [
-      'input' => '',
-      'expected' => '',
-    ];
-    yield 'single space' => [
-      'input' => ' ',
-      'expected' => ' ',
-    ];
-    yield 'only multiple spaces' => [
-      'input' => '    ',
-      'expected' => ' ',
-    ];
-  }
-
   public function testSetOutput(): void {
     $output1 = new BufferedOutput();
     $output2 = new BufferedOutput();
@@ -798,16 +330,11 @@ EXPECTED,
 
     Tui::setOutput($output2);
     $this->assertSame($output2, Tui::output());
-  }
 
-  public function testSuccess(): void {
-    $output = new BufferedOutput();
-    Tui::init($output);
-
-    Tui::success('Operation succeeded');
-
-    $actual = $output->fetch();
-    $this->assertStringContainsString('Operation succeeded', $actual);
+    // Prompty keeps drawing to the output passed to init().
+    Tui::info('Drawn by Prompty');
+    $this->assertStringContainsString('Drawn by Prompty', $output1->fetch());
+    $this->assertSame('', $output2->fetch());
   }
 
   public function testLine(): void {
@@ -841,12 +368,13 @@ EXPECTED,
     $this->assertFalse($result);
   }
 
-  public function testGetCharNonInteractive(): void {
+  public function testPauseNonInteractive(): void {
     $output = new BufferedOutput();
     Tui::init($output, FALSE);
 
-    $result = Tui::getChar();
-    $this->assertEquals('', $result);
+    Tui::pause('Press any key to continue...');
+
+    $this->assertStringNotContainsString('Press any key to continue...', $output->fetch());
   }
 
 }

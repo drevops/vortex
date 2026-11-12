@@ -41,40 +41,18 @@ class Services extends AbstractHandler {
    * {@inheritdoc}
    */
   public function options(array $responses): ?array {
-    $options = [
+    return [
       self::CLAMAV => 'ClamAV',
       self::SOLR => 'Solr',
       self::REDIS => 'Redis',
     ];
-
-    // Hide Solr if the search custom module is not selected and Solr is not
-    // already discovered in the existing codebase.
-    if (isset($responses[CustomModules::id()])) {
-      $custom_modules = $responses[CustomModules::id()];
-      if (is_array($custom_modules) && !in_array(CustomModules::SEARCH, $custom_modules)) {
-        $discovered = $this->discover();
-        $solr_discovered = is_array($discovered) && in_array(self::SOLR, $discovered);
-        if (!$solr_discovered) {
-          unset($options[self::SOLR]);
-        }
-      }
-    }
-
-    return $options;
   }
 
   /**
    * {@inheritdoc}
    */
   public function default(array $responses): null|string|bool|array {
-    $defaults = [self::CLAMAV, self::REDIS, self::SOLR];
-
-    $options = $this->options($responses);
-    if (is_array($options)) {
-      return array_values(array_intersect($defaults, array_keys($options)));
-    }
-
-    return $defaults;
+    return [self::CLAMAV, self::REDIS, self::SOLR];
   }
 
   /**

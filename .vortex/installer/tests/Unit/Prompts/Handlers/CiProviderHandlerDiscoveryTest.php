@@ -7,7 +7,6 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(CiProvider::class)]
@@ -17,7 +16,7 @@ class CiProviderHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_defaults = static::getExpectedDefaults();
     $expected_installed = static::getExpectedInstalled();
     yield 'ci provider - prompt' => [
-      [CiProvider::id() => Key::ENTER],
+      [CiProvider::id() => self::KEY_ENTER],
       [CiProvider::id() => CiProvider::GITHUB_ACTIONS] + $expected_defaults,
     ];
     yield 'ci provider - discovery - gha' => [

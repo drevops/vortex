@@ -9,7 +9,6 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Storybook;
 use DrevOps\VortexInstaller\Prompts\Handlers\Theme;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
-use Laravel\Prompts\Key;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(Theme::class)]
@@ -28,29 +27,29 @@ class ThemeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
     $expected_installed_core[FrontendBuild::id()] = NULL;
     $expected_installed_core[Storybook::id()] = NULL;
 
-    $clear_keys = implode('', array_fill(0, 20, Key::BACKSPACE));
+    $clear_keys = implode('', array_fill(0, 20, self::KEY_BACKSPACE));
     yield 'theme - prompt - olivero' => [
-      [Theme::id() => Key::DOWN . Key::ENTER],
+      [Theme::id() => self::KEY_DOWN . self::KEY_ENTER],
       [Theme::id() => Theme::OLIVERO] + $expected_defaults_core,
     ];
     yield 'theme - prompt - claro' => [
-      [Theme::id() => Key::DOWN . Key::DOWN . Key::ENTER],
+      [Theme::id() => self::KEY_DOWN . self::KEY_DOWN . self::KEY_ENTER],
       [Theme::id() => Theme::CLARO] + $expected_defaults_core,
     ];
     yield 'theme - prompt - stark' => [
-      [Theme::id() => Key::DOWN . Key::DOWN . Key::DOWN . Key::ENTER],
+      [Theme::id() => self::KEY_DOWN . self::KEY_DOWN . self::KEY_DOWN . self::KEY_ENTER],
       [Theme::id() => Theme::STARK] + $expected_defaults_core,
     ];
     yield 'theme - prompt - custom' => [
-      [Theme::id() => Key::ENTER . $clear_keys . 'mytheme'],
+      [Theme::id() => self::KEY_ENTER . $clear_keys . 'mytheme'],
       [Theme::id() => 'mytheme'] + $expected_defaults,
     ];
     yield 'theme - prompt - custom - invalid' => [
-      [Theme::id() => Key::ENTER . $clear_keys . 'my theme'],
+      [Theme::id() => self::KEY_ENTER . $clear_keys . 'my theme'],
       'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
     ];
     yield 'theme - prompt - custom - invalid - capitalization' => [
-      [Theme::id() => Key::ENTER . $clear_keys . 'MyTheme'],
+      [Theme::id() => self::KEY_ENTER . $clear_keys . 'MyTheme'],
       'Please enter a valid theme machine name: only lowercase letters, numbers, and underscores are allowed.',
     ];
     yield 'theme - discovery - olivero' => [
