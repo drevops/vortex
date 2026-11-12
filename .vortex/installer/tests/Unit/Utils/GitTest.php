@@ -99,7 +99,7 @@ class GitTest extends UnitTestCase {
       Git::getTrackedFiles($temp_dir);
     }
     finally {
-      File::remove($temp_dir);
+      static::removeGitRepository($temp_dir);
     }
   }
 
@@ -182,7 +182,7 @@ class GitTest extends UnitTestCase {
 
   protected function cleanupTempGitRepo(string $temp_dir): void {
     if (File::isDir($temp_dir)) {
-      File::remove($temp_dir);
+      static::removeGitRepository($temp_dir);
     }
   }
 
