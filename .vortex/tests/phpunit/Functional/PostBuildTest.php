@@ -25,6 +25,10 @@ class PostBuildTest extends FunctionalTestCase {
       $this->markTestSkipped('This test is only run on CircleCI');
     }
 
+    if (empty(getenv('TEST_CIRCLECI_TOKEN'))) {
+      $this->markTestSkipped('TEST_CIRCLECI_TOKEN is not set - skipping the CircleCI post-build tests.');
+    }
+
     // Verify required environment variables are set.
     $this->assertNotEmpty(getenv('CIRCLE_PROJECT_REPONAME'), 'CircleCI project repo name is not set');
     $this->assertNotEmpty(getenv('CIRCLE_PROJECT_USERNAME'), 'CircleCI project username is not set');

@@ -19,10 +19,11 @@ trait CircleCiTrait {
    *   The workflow ID.
    */
   protected function circleCiGetWorkflowIdFromJobNumber(int $job_number): string {
+    $token = getenv('TEST_CIRCLECI_TOKEN');
     $username = getenv('CIRCLE_PROJECT_USERNAME');
     $reponame = getenv('CIRCLE_PROJECT_REPONAME');
 
-    if (!$username || !$reponame) {
+    if (!$token || !$username || !$reponame) {
       throw new \RuntimeException('Required CircleCI environment variables are not set.');
     }
 
@@ -33,7 +34,7 @@ trait CircleCiTrait {
       $job_number
     );
 
-    $response = $this->circleCiApiRequest($url);
+    $response = $this->circleCiApiRequest($url, $token);
     $data = json_decode((string) $response, TRUE, 512, JSON_THROW_ON_ERROR);
 
     if (!is_array($data)) {
@@ -57,10 +58,16 @@ trait CircleCiTrait {
    *   Array of previous job numbers.
    */
   protected function circleCiGetPreviousJobNumbers(int $current_job_number): array {
+    $token = getenv('TEST_CIRCLECI_TOKEN');
+
+    if (!$token) {
+      throw new \RuntimeException('TEST_CIRCLECI_TOKEN environment variable is not set.');
+    }
+
     $workflow_id = $this->circleCiGetWorkflowIdFromJobNumber($current_job_number);
 
     $url = sprintf('https://circleci.com/api/v2/workflow/%s/job', $workflow_id);
-    $response = $this->circleCiApiRequest($url);
+    $response = $this->circleCiApiRequest($url, $token);
     $workflow_data = json_decode((string) $response, TRUE, 512, JSON_THROW_ON_ERROR);
 
     if (!is_array($workflow_data)) {
@@ -119,10 +126,11 @@ trait CircleCiTrait {
    *   Array of artifacts data.
    */
   protected function circleCiGetJobArtifacts(int $job_number): array {
+    $token = getenv('TEST_CIRCLECI_TOKEN');
     $username = getenv('CIRCLE_PROJECT_USERNAME');
     $reponame = getenv('CIRCLE_PROJECT_REPONAME');
 
-    if (!$username || !$reponame) {
+    if (!$token || !$username || !$reponame) {
       throw new \RuntimeException('Required CircleCI environment variables are not set.');
     }
 
@@ -133,7 +141,7 @@ trait CircleCiTrait {
       $job_number
     );
 
-    $response = $this->circleCiApiRequest($url);
+    $response = $this->circleCiApiRequest($url, $token);
 
     $data = json_decode((string) $response, TRUE, 512, JSON_THROW_ON_ERROR);
 
@@ -154,10 +162,11 @@ trait CircleCiTrait {
    *   Array of test metadata.
    */
   protected function circleCiGetJobTestMetadata(int $job_number): array {
+    $token = getenv('TEST_CIRCLECI_TOKEN');
     $username = getenv('CIRCLE_PROJECT_USERNAME');
     $reponame = getenv('CIRCLE_PROJECT_REPONAME');
 
-    if (!$username || !$reponame) {
+    if (!$token || !$username || !$reponame) {
       throw new \RuntimeException('Required CircleCI environment variables are not set.');
     }
 
@@ -168,7 +177,7 @@ trait CircleCiTrait {
       $job_number
     );
 
-    $response = $this->circleCiApiRequest($url);
+    $response = $this->circleCiApiRequest($url, $token);
 
     $data = json_decode((string) $response, TRUE, 512, JSON_THROW_ON_ERROR);
 
@@ -182,30 +191,25 @@ trait CircleCiTrait {
   /**
    * Make a CircleCI API request.
    *
-   * The request is authenticated with TEST_CIRCLECI_TOKEN when it is set.
-   * Without it, the request is anonymous, which the API allows for public
-   * projects.
-   *
    * @param string $url
    *   The API URL.
+   * @param string $token
+   *   The CircleCI API token.
    *
    * @return string
    *   The response body.
    */
-  protected function circleCiApiRequest(string $url): string {
-    if (empty($url)) {
-      throw new \InvalidArgumentException('URL must be provided for CircleCI API request.');
+  protected function circleCiApiRequest(string $url, string $token): string {
+    if (empty($url) || empty($token)) {
+      throw new \InvalidArgumentException('URL and token must be provided for CircleCI API request.');
     }
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-
-    $token = (string) getenv('TEST_CIRCLECI_TOKEN');
-
-    if ($token !== '') {
-      curl_setopt($ch, CURLOPT_HTTPHEADER, ['Circle-Token: ' . $token]);
-    }
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+      'Circle-Token: ' . $token,
+    ]);
 
     $response = curl_exec($ch);
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);

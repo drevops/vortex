@@ -359,8 +359,7 @@ The suite reads these environment variables:
 - `TEST_VORTEX_DEBUG` - set to `1` for debug output.
 - `TEST_CIRCLECI_TOKEN` - a CircleCI API token for the post-build checks in
   `PostBuildTest`, the only test that reads it. The test skips itself
-  outside CircleCI. Without the token, the test calls the CircleCI API
-  anonymously, which works for a public project.
+  outside CircleCI and when the token isn't set.
 
 Functional tests rely on database fixtures; see
 [Update test assets](#update-test-assets).
