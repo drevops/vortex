@@ -8,9 +8,10 @@ sidebar_position: 8
 The Diffy channel asks the shipped GitHub Actions workflow to run a visual
 regression test against the newly deployed environment.
 
-This page is for the lead or DevOps engineer who runs Diffy visual
-regression tests after deployments. It covers how the channel hands off to
-the workflow, the setup steps and every variable the channel reads.
+This page is for the lead or DevOps engineer who runs
+[Diffy](https://diffy.website/drupal/) visual regression tests after
+deployments. It covers how the channel hands off to the workflow, the setup
+steps and every variable the channel reads.
 
 The channel sends your repository a GitHub `repository_dispatch` event, and
 the [`test-vr.yml`](../../development/visual-regression.mdx) workflow does

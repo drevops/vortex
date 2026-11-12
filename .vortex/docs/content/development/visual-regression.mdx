@@ -511,10 +511,13 @@ Diffy report it links to, before you merge.
 ## Costs and quotas
 
 Diffy plans count screenshots per month, and every comparison captures each
-page at each breakpoint. Frequent automated dispatches use up a plan, so
-limit which branches trigger comparisons. **Vortex**'s default gating keeps
-the run rate low: only PRs with the `VR` label or a `deps/*` head branch
-run, and non-PR deployments never run.
+page at each breakpoint. The workflow compares a deployed URL as a custom
+environment, which Diffy includes in its paid plans; the
+[Diffy pricing page](https://diffy.website/pricing/) lists them. Frequent
+automated dispatches use up a plan, so limit which branches trigger
+comparisons. **Vortex**'s default gating keeps the run rate low: only PRs
+with the `VR` label or a `deps/*` head branch run, and non-PR deployments
+never run.
 
 The following variables tune the gating to your team's review rhythm:
 
