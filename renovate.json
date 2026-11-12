@@ -7,11 +7,6 @@
     "labels": [
         "Dependencies"
     ],
-    "dependencyDashboard": {
-        "labels": [
-            "Dependencies"
-        ]
-    },
     "assignees": [],
     "prConcurrentLimit": 10,
     "prHourlyLimit": 0,

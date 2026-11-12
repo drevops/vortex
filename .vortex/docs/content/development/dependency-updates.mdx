@@ -357,7 +357,7 @@ To test runs without making changes, also create `RENOVATE_DRY_RUN` and set
 it to `true`.
 
 To change `RENOVATE_PLATFORM`, `RENOVATE_AUTODISCOVER`,
-`RENOVATE_DEPENDENCY_DASHBOARD_TITLE` or `LOG_LEVEL`, edit
+`RENOVATE_DEPENDENCY_DASHBOARD` or `LOG_LEVEL`, edit
 `.circleci/update-dependencies.yml`.
 
 **Manual trigger:** trigger a pipeline from the CircleCI UI with the
@@ -498,8 +498,9 @@ look:
   schedules in the [update rules](#update-rules) limit the rate.
 - **Commit body table:** `commitBodyTable: true` - every update commit
   carries a table of its updates in the commit message body.
-- **Dashboard labels:** the Renovate dependency dashboard issue is labeled
-  `Dependencies` (`dependencyDashboard.labels`).
+- **Dashboard labels:** in self-hosted mode, the dependency dashboard issue
+  is labeled `Dependencies` through the `RENOVATE_DEPENDENCY_DASHBOARD`
+  variable in the CI job.
 
 ### Disabled updates
 
