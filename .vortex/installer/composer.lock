@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b26b07015b663906f1a9e3d798c0c28e",
+    "content-hash": "2121f14e6629a6640352ec219edae361",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "e8608546d5ec77ce71ec9aef4701062f3ad5bd06"
+                "reference": "c42935739cea4fc9d5ff2181be01b8a9fc5e647a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/e8608546d5ec77ce71ec9aef4701062f3ad5bd06",
-                "reference": "e8608546d5ec77ce71ec9aef4701062f3ad5bd06",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/c42935739cea4fc9d5ff2181be01b8a9fc5e647a",
+                "reference": "c42935739cea4fc9d5ff2181be01b8a9fc5e647a",
                 "shasum": ""
             },
             "require": {
@@ -3568,35 +3568,35 @@
         },
         {
             "name": "alexskrypnyk/snapshot",
-            "version": "1.5.0",
+            "version": "dev-feature/ci-windows",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/snapshot.git",
-                "reference": "c7575d620d78c0160939d275f89d51877fc6e5db"
+                "reference": "f7227dcdac185cc46c1f339b5eb24606e7f14cb9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/snapshot/zipball/c7575d620d78c0160939d275f89d51877fc6e5db",
-                "reference": "c7575d620d78c0160939d275f89d51877fc6e5db",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/snapshot/zipball/f7227dcdac185cc46c1f339b5eb24606e7f14cb9",
+                "reference": "f7227dcdac185cc46c1f339b5eb24606e7f14cb9",
                 "shasum": ""
             },
             "require": {
-                "alexskrypnyk/file": "^1.2.0",
+                "alexskrypnyk/file": "dev-feature/165-windows-symlinks as 1.3.1",
                 "php": ">=8.3",
                 "sebastian/diff": "^6.0 || ^7.0"
             },
             "require-dev": {
-                "alexskrypnyk/phpunit-helpers": "^1.0.0",
+                "alexskrypnyk/phpunit-helpers": "^1.2.1",
                 "composer": ">=2.10",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
                 "drevops/phpcs-standard": "^0.7",
                 "drupal/coder": "^9.0.1",
-                "ergebnis/composer-normalize": "^2.52.0",
+                "ergebnis/composer-normalize": "^2.57.0",
                 "phpbench/phpbench": "^1.7.0",
-                "phpstan/phpstan": "^2.2.13",
-                "phpunit/phpunit": "^12.5.34",
-                "rector/rector": "^2.6.6",
-                "symfony/process": "^7.4.18"
+                "phpstan/phpstan": "^2.3.5",
+                "phpunit/phpunit": "^12.5.44",
+                "rector/rector": "^2.8.4",
+                "symfony/process": "^7.4.22"
             },
             "bin": [
                 "bin/update-snapshots"
@@ -3629,14 +3629,10 @@
                 {
                     "url": "https://github.com/alexskrypnyk",
                     "type": "github"
-                },
-                {
-                    "url": "https://www.patreon.com/alexskrypnyk",
-                    "type": "patreon"
                 }
             ],
-            "time": "2026-09-06T03:28:06+00:00",
-            "published-time": "2026-09-06T03:58:05+00:00"
+            "time": "2026-11-13T22:30:07+00:00",
+            "published-time": "2026-11-13T22:30:48+00:00"
         },
         {
             "name": "bamarni/composer-bin-plugin",
@@ -6563,11 +6559,18 @@
             "version": "dev-feature/165-windows-symlinks",
             "alias": "1.3.1",
             "alias_normalized": "1.3.1.0"
+        },
+        {
+            "package": "alexskrypnyk/snapshot",
+            "version": "dev-feature/ci-windows",
+            "alias": "1.5.0",
+            "alias_normalized": "1.5.0.0"
         }
     ],
     "minimum-stability": "stable",
     "stability-flags": {
         "alexskrypnyk/file": 20,
+        "alexskrypnyk/snapshot": 20,
         "drupal/coder": 15
     },
     "prefer-stable": false,
