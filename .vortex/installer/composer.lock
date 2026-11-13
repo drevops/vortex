@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "bf3f6c3261d4476f3eca0ef19f25b3aa89e3ba32"
+                "reference": "e8608546d5ec77ce71ec9aef4701062f3ad5bd06"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/bf3f6c3261d4476f3eca0ef19f25b3aa89e3ba32",
-                "reference": "bf3f6c3261d4476f3eca0ef19f25b3aa89e3ba32",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/e8608546d5ec77ce71ec9aef4701062f3ad5bd06",
+                "reference": "e8608546d5ec77ce71ec9aef4701062f3ad5bd06",
                 "shasum": ""
             },
             "require": {
@@ -69,8 +69,8 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-13T10:11:58+00:00",
-            "published-time": "2026-11-13T10:12:28+00:00"
+            "time": "2026-11-13T11:51:57+00:00",
+            "published-time": "2026-11-13T11:52:27+00:00"
         },
         {
             "name": "alexskrypnyk/prompty",
