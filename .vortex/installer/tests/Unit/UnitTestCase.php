@@ -47,11 +47,6 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   protected array $globalServerBackup;
 
   /**
-   * The working directory before the test ran.
-   */
-  protected string $cwdBackup;
-
-  /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
@@ -63,7 +58,6 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
     if ($cwd === FALSE) {
       throw new \RuntimeException('Failed to determine current working directory.');
     }
-    $this->cwdBackup = $cwd;
 
     // Run tests from the root of the repo.
     self::locationsInit($cwd . '/../../');
@@ -75,11 +69,6 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   protected function tearDown(): void {
     static::envReset();
     $this->envRestore();
-
-    // Windows cannot remove a directory that is the current working directory,
-    // so leave the workspace before it is removed.
-    chdir($this->cwdBackup);
-
     parent::tearDown();
   }
 
