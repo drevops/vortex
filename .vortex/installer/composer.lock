@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "25dbe27ada24f5a335ee5f228022cdea",
+    "content-hash": "f3bba2410f06b6f2b9a2939caf7851bb",
     "packages": [
         {
             "name": "alexskrypnyk/file",
-            "version": "dev-feature/171-copy-mode-paths",
+            "version": "dev-feature/scandir-symlinks",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "9932d9e01a8ac2a912e3efdd713466614879426c"
+                "reference": "2320857d2bb60e947021c6a6c9d932f7c10a6c7f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/9932d9e01a8ac2a912e3efdd713466614879426c",
-                "reference": "9932d9e01a8ac2a912e3efdd713466614879426c",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/2320857d2bb60e947021c6a6c9d932f7c10a6c7f",
+                "reference": "2320857d2bb60e947021c6a6c9d932f7c10a6c7f",
                 "shasum": ""
             },
             "require": {
@@ -100,7 +100,7 @@
                     "url": "https://github.com/alexskrypnyk"
                 }
             ],
-            "time": "2026-11-14T09:07:20+00:00"
+            "time": "2026-11-14T11:22:24+00:00"
         },
         {
             "name": "alexskrypnyk/prompty",
@@ -3602,20 +3602,20 @@
         },
         {
             "name": "alexskrypnyk/snapshot",
-            "version": "dev-feature/ci-windows",
+            "version": "dev-feature/scandir-symlinks",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/snapshot.git",
-                "reference": "060b84c6f144dada1154ad6bfd0f24ca85386c81"
+                "reference": "76d9772b890be108ed4dce1eb224397719f53796"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/snapshot/zipball/060b84c6f144dada1154ad6bfd0f24ca85386c81",
-                "reference": "060b84c6f144dada1154ad6bfd0f24ca85386c81",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/snapshot/zipball/76d9772b890be108ed4dce1eb224397719f53796",
+                "reference": "76d9772b890be108ed4dce1eb224397719f53796",
                 "shasum": ""
             },
             "require": {
-                "alexskrypnyk/file": "dev-feature/171-copy-mode-paths#31e8eb50c1d93f1e2c148df36432ad7afd05fbf3 as 1.3.1",
+                "alexskrypnyk/file": "dev-feature/scandir-symlinks#2320857d2bb60e947021c6a6c9d932f7c10a6c7f as 1.4.0",
                 "php": ">=8.3",
                 "sebastian/diff": "^6.0 || ^7.0"
             },
@@ -3699,7 +3699,7 @@
                     "url": "https://github.com/alexskrypnyk"
                 }
             ],
-            "time": "2026-11-14T09:03:43+00:00"
+            "time": "2026-11-14T11:28:48+00:00"
         },
         {
             "name": "bamarni/composer-bin-plugin",
@@ -6623,13 +6623,13 @@
     "aliases": [
         {
             "package": "alexskrypnyk/file",
-            "version": "dev-feature/171-copy-mode-paths",
-            "alias": "1.3.1",
-            "alias_normalized": "1.3.1.0"
+            "version": "dev-feature/scandir-symlinks",
+            "alias": "1.4.0",
+            "alias_normalized": "1.4.0.0"
         },
         {
             "package": "alexskrypnyk/snapshot",
-            "version": "dev-feature/ci-windows",
+            "version": "dev-feature/scandir-symlinks",
             "alias": "1.5.1",
             "alias_normalized": "1.5.1.0"
         }
