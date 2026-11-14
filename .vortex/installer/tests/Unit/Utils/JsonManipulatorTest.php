@@ -64,6 +64,10 @@ class JsonManipulatorTest extends UnitTestCase {
   }
 
   public function testFromFileWithNonReadableFile(): void {
+    if (PHP_OS_FAMILY === 'Windows') {
+      $this->markTestSkipped('Windows does not restrict reads by file mode.');
+    }
+
     $temp_file = $this->createTempJsonFile(self::SAMPLE_JSON);
     File::chmod($temp_file, 0000);
 

@@ -39,6 +39,10 @@ class FileTest extends UnitTestCase {
 
   public static function dataProviderToRelative(): \Iterator {
     $cwd = getcwd();
+    if ($cwd === FALSE) {
+      throw new \RuntimeException('Failed to determine current working directory.');
+    }
+
     yield 'absolute path with base' => [
       '/var/www/project/file.txt',
       '/var/www',
@@ -77,7 +81,7 @@ class FileTest extends UnitTestCase {
     yield 'current directory with null base' => [
       $cwd,
       NULL,
-      $cwd,
+      str_replace(DIRECTORY_SEPARATOR, '/', $cwd),
     ];
     yield 'relative path with null base' => [
       'test/file.txt',

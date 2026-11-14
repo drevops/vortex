@@ -34,6 +34,11 @@ class InstallReport {
    */
   const DIFF_EXTENSION = '.diff';
 
+  /**
+   * Line ending of the written files, kept LF on every platform.
+   */
+  const EOL = "\n";
+
   const STATUS_ADDED = 'added';
 
   const STATUS_UPDATED = 'updated';
@@ -207,7 +212,7 @@ class InstallReport {
       $to_label = $change['to'] === NULL ? '/dev/null' : 'b/' . $path;
       $diff = Diff::unified($change['from'], (string) $change['to'], 'a/' . $path, $to_label);
 
-      File::dump($dir . '/' . $path . self::DIFF_EXTENSION, $diff . PHP_EOL);
+      File::dump($dir . '/' . $path . self::DIFF_EXTENSION, $diff . self::EOL);
 
       $links[$path] = sprintf('[diff](%s)', $this->encodeLink(basename($dir) . '/' . $path . self::DIFF_EXTENSION));
     }
@@ -234,35 +239,35 @@ class InstallReport {
     // The report sits in DIR, so project paths are reached from its parent.
     $root = str_repeat('../', substr_count(self::DIR, '/') + 1);
 
-    $content = '# Vortex installation report' . PHP_EOL . PHP_EOL;
+    $content = '# Vortex installation report' . self::EOL . self::EOL;
 
     if ($from !== NULL && $from !== '') {
-      $content .= sprintf('- **From:** %s', $from) . PHP_EOL;
+      $content .= sprintf('- **From:** %s', $from) . self::EOL;
     }
 
-    $content .= sprintf('- **To:** %s', $to) . PHP_EOL;
-    $content .= sprintf('- **Date:** %s', date('Y-m-d H:i:s', $timestamp)) . PHP_EOL . PHP_EOL;
+    $content .= sprintf('- **To:** %s', $to) . self::EOL;
+    $content .= sprintf('- **Date:** %s', date('Y-m-d H:i:s', $timestamp)) . self::EOL . self::EOL;
 
-    $content .= '## Statuses' . PHP_EOL . PHP_EOL;
-    $content .= '| Status | Meaning |' . PHP_EOL . '|---|---|' . PHP_EOL;
+    $content .= '## Statuses' . self::EOL . self::EOL;
+    $content .= '| Status | Meaning |' . self::EOL . '|---|---|' . self::EOL;
     foreach (self::STATUSES as $status => $description) {
-      $content .= sprintf('| `%s` | %s |', $status, $description) . PHP_EOL;
+      $content .= sprintf('| `%s` | %s |', $status, $description) . self::EOL;
     }
 
-    $content .= PHP_EOL . '## Summary' . PHP_EOL . PHP_EOL;
-    $content .= '| Status | Files |' . PHP_EOL . '|---|---|' . PHP_EOL;
+    $content .= self::EOL . '## Summary' . self::EOL . self::EOL;
+    $content .= '| Status | Files |' . self::EOL . '|---|---|' . self::EOL;
     foreach ($this->summary() as $status => $count) {
-      $content .= sprintf('| `%s` | %d |', $status, $count) . PHP_EOL;
+      $content .= sprintf('| `%s` | %d |', $status, $count) . self::EOL;
     }
 
-    $content .= PHP_EOL . '## Files' . PHP_EOL . PHP_EOL;
-    $content .= 'Each diff shows the project copy before the installation as `a/` and the copy it left as `b/`.' . PHP_EOL . PHP_EOL;
-    $content .= '| Status | File | Change |' . PHP_EOL . '|---|---|---|' . PHP_EOL;
+    $content .= self::EOL . '## Files' . self::EOL . self::EOL;
+    $content .= 'Each diff shows the project copy before the installation as `a/` and the copy it left as `b/`.' . self::EOL . self::EOL;
+    $content .= '| Status | File | Change |' . self::EOL . '|---|---|---|' . self::EOL;
     foreach ($this->getEntries() as $path => $status) {
       // A removed path has no file left to link to.
       $file = File::exists($this->destination . '/' . $path) ? sprintf('[%s](%s)', $path, $this->encodeLink($root . $path)) : sprintf('`%s`', $path);
 
-      $content .= sprintf('| `%s` | %s | %s |', $status, $file, $links[$path] ?? '') . PHP_EOL;
+      $content .= sprintf('| `%s` | %s | %s |', $status, $file, $links[$path] ?? '') . self::EOL;
     }
 
     return $content;

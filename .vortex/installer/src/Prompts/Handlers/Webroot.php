@@ -103,7 +103,7 @@ class Webroot extends AbstractHandler {
    * {@inheritdoc}
    */
   public function transform(): ?callable {
-    return fn(string $v): string => rtrim($v, DIRECTORY_SEPARATOR);
+    return fn(string $v): string => rtrim($v, '/');
   }
 
   /**

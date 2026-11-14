@@ -86,14 +86,14 @@ class PharTest extends FunctionalTestCase {
     fwrite(STDERR, 'Building installer PHAR file...');
     if (!File::exists('vendor')) {
       $exit_code = 0;
-      passthru('composer install --no-dev --optimize-autoloader >/dev/null 2>&1 ', $exit_code);
+      exec('composer install --no-dev --optimize-autoloader 2>&1', $output, $exit_code);
       if ($exit_code !== 0) {
         throw new \RuntimeException('Failed to install dependencies for PHAR build.');
       }
     }
 
     $exit_code = 0;
-    passthru('composer build >/dev/null 2>&1', $exit_code);
+    exec('composer build 2>&1', $output, $exit_code);
 
     if ($exit_code !== 0) {
       throw new \RuntimeException('Failed to build PHAR file.');

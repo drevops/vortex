@@ -112,6 +112,20 @@ abstract class UnitTestCase extends UpstreamUnitTestCase {
   }
 
   /**
+   * Remove a directory that holds Git's read-only object files.
+   *
+   * Windows refuses to unlink a read-only file, so the tree is made writable
+   * first.
+   */
+  protected static function removeGitRepository(string $path): void {
+    if (File::exists($path)) {
+      File::chmod($path, 0777, TRUE);
+    }
+
+    File::remove($path);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function locationsFixturesDir(): string {
