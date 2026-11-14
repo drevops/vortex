@@ -99,7 +99,7 @@ class GitTest extends UnitTestCase {
       Git::getTrackedFiles($temp_dir);
     }
     finally {
-      File::remove($temp_dir);
+      static::removeGitRepository($temp_dir);
     }
   }
 
@@ -121,8 +121,8 @@ class GitTest extends UnitTestCase {
     try {
       $tracked = Git::getTrackedFiles($temp_dir);
       $this->assertCount(2, $tracked);
-      $this->assertContains($temp_dir . DIRECTORY_SEPARATOR . 'test.txt', $tracked);
-      $this->assertContains($temp_dir . DIRECTORY_SEPARATOR . 'another.txt', $tracked);
+      $this->assertContains($temp_dir . '/test.txt', $tracked);
+      $this->assertContains($temp_dir . '/another.txt', $tracked);
     }
     finally {
       $this->cleanupTempGitRepo($temp_dir);
@@ -182,7 +182,7 @@ class GitTest extends UnitTestCase {
 
   protected function cleanupTempGitRepo(string $temp_dir): void {
     if (File::isDir($temp_dir)) {
-      File::remove($temp_dir);
+      static::removeGitRepository($temp_dir);
     }
   }
 

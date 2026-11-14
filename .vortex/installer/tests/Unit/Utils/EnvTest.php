@@ -210,6 +210,10 @@ class EnvTest extends UnitTestCase {
   }
 
   public function testParseDotenvFileReadFailure(): void {
+    if (PHP_OS_FAMILY === 'Windows') {
+      $this->markTestSkipped('Windows does not restrict reads by file mode.');
+    }
+
     $filename = $this->createFixtureEnvFile('VAR=value');
     File::chmod($filename, 0000);
 
@@ -278,6 +282,10 @@ class EnvTest extends UnitTestCase {
   }
 
   public function testWriteValueDotenvFileReadFailure(): void {
+    if (PHP_OS_FAMILY === 'Windows') {
+      $this->markTestSkipped('Windows does not restrict reads by file mode.');
+    }
+
     $filename = $this->createFixtureEnvFile('VAR=value');
     File::chmod($filename, 0000);
 

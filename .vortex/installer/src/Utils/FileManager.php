@@ -7,6 +7,9 @@ namespace DrevOps\VortexInstaller\Utils;
 use DrevOps\VortexInstaller\Downloader\Artifact;
 use DrevOps\VortexInstaller\Downloader\Downloader;
 use DrevOps\VortexInstaller\Downloader\RepositoryDownloader;
+use DrevOps\VortexInstaller\Runner\ProcessRunner;
+use DrevOps\VortexInstaller\Runner\RunnerInterface;
+use Symfony\Component\Console\Output\NullOutput;
 
 /**
  * File operations for the installation process.
@@ -163,14 +166,21 @@ class FileManager {
     if (!File::exists($destination . '/.git')) {
       $messages[] = sprintf('Initializing a new Git repository in directory "%s".', $destination);
 
-      // The destination arrives from a CLI option, the environment or a config
-      // file, so it is escaped rather than interpolated into the shell string.
       // 'git init' writes the initial branch advice to stderr when
-      // 'init.defaultBranch' is unset, and passthru() draws it inside the TUI.
-      $command = sprintf('git -c advice.defaultBranchName=false --work-tree=%s --git-dir=%s init > /dev/null', escapeshellarg($destination), escapeshellarg($destination . '/.git'));
-      passthru($command, $exit_code);
+      // 'init.defaultBranch' is unset, so the output is captured rather than
+      // drawn inside the TUI.
+      $runner = new ProcessRunner();
+      $runner->getLogger()->disable();
+      $args = [
+        '-c',
+        'advice.defaultBranchName=false',
+        '--work-tree=' . $destination,
+        '--git-dir=' . $destination . '/.git',
+        'init',
+      ];
+      $runner->run('git', args: $args, output: new NullOutput());
 
-      if ($exit_code !== 0) {
+      if ($runner->getExitCode() !== RunnerInterface::EXIT_SUCCESS) {
         throw new \RuntimeException(sprintf('Unable to initialize Git repository in directory "%s".', $destination));
       }
     }
@@ -223,7 +233,9 @@ class FileManager {
     $this->recordChanges($src, $report);
 
     if (File::isDir($src) && !File::dirIsEmpty($src)) {
-      File::copy($src, $destination);
+      // $src is removed after the install, and Windows reads symlink targets
+      // as absolute paths into it, so the targets are kept relative.
+      File::copy($src, $destination, symlink_mode: File::SYMLINK_MODE_RELATIVE);
       $this->recordFailedCopies($src, $report);
     }
 
@@ -287,7 +299,8 @@ class FileManager {
       $this->report?->add($path, InstallReport::STATUS_REMOVED);
       $this->report?->addChange($path, $content, NULL);
 
-      for ($dir = dirname($path); $dir !== '.'; $dir = dirname($dir)) {
+      // A rooted path never reaches '.', and on Windows dirname('/') is '\'.
+      for ($dir = dirname($path); $dir !== '.' && $dir !== dirname($dir); $dir = dirname($dir)) {
         $dirs[$dir] = substr_count($dir, '/');
       }
     }
@@ -394,7 +407,9 @@ class FileManager {
       }
 
       // A side that cannot be read cannot be compared, so its status stands.
-      $staged_hash = File::isReadable($target) ? hash_file(self::HASH_ALGO, $src . '/' . $path) : FALSE;
+      // On Windows, hash_file() fails on a staged path behind a directory
+      // symlink that is_readable() accepts, so its warning is suppressed.
+      $staged_hash = File::isReadable($target) ? @hash_file(self::HASH_ALGO, $src . '/' . $path) : FALSE;
 
       if ($staged_hash === FALSE) {
         continue;
@@ -486,7 +501,10 @@ class FileManager {
     $root = File::dir($directory);
     $files = File::scandir($root, File::ignoredPaths());
 
-    return array_map(fn(string $file): string => ltrim(str_replace($root, '', $file), DIRECTORY_SEPARATOR), $files);
+    // Windows returns mixed separators, and every path key uses '/'.
+    $root = File::toForwardSlashes($root);
+
+    return array_map(fn(string $file): string => ltrim(str_replace($root, '', File::toForwardSlashes($file)), '/'), $files);
   }
 
   /**

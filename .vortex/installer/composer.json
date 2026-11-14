@@ -19,7 +19,7 @@
     "require": {
         "php": ">=8.3",
         "alexskrypnyk/file": "^1.4.1",
-        "alexskrypnyk/prompty": "^1.2.0",
+        "alexskrypnyk/prompty": "^1.3.2",
         "alexskrypnyk/str2name": "^1.7.0",
         "composer/composer": "^2.11.1",
         "czproject/git-php": "^4.6",
@@ -32,7 +32,7 @@
         "symfony/yaml": "^7.4.23"
     },
     "require-dev": {
-        "alexskrypnyk/phpunit-helpers": "^1.2",
+        "alexskrypnyk/phpunit-helpers": "^1.2.1",
         "alexskrypnyk/snapshot": "^1.6.0",
         "bamarni/composer-bin-plugin": "^1.9.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
@@ -45,13 +45,6 @@
         "rector/rector": "^2.8.4",
         "symfony/finder": "^7.4.23"
     },
-    "repositories": [
-        {
-            "name": "prompty",
-            "type": "vcs",
-            "url": "https://github.com/AlexSkrypnyk/prompty"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "DrevOps\\VortexInstaller\\": "src/"

@@ -146,27 +146,27 @@ class InstallReportTest extends UnitTestCase {
 
     $content = File::read($file);
 
-    $this->assertStringStartsWith('# Vortex installation report' . PHP_EOL, $content);
-    $this->assertStringContainsString('- **From:** 1.40.0' . PHP_EOL, $content);
-    $this->assertStringContainsString('- **To:** 1.41.0' . PHP_EOL, $content);
-    $this->assertStringContainsString('- **Date:** ' . date('Y-m-d H:i:s', self::TIMESTAMP) . PHP_EOL, $content);
+    $this->assertStringStartsWith('# Vortex installation report' . "\n", $content);
+    $this->assertStringContainsString('- **From:** 1.40.0' . "\n", $content);
+    $this->assertStringContainsString('- **To:** 1.41.0' . "\n", $content);
+    $this->assertStringContainsString('- **Date:** ' . date('Y-m-d H:i:s', self::TIMESTAMP) . "\n", $content);
 
     foreach (InstallReport::STATUSES as $status => $description) {
       $this->assertStringContainsString(sprintf('| `%s` | %s |', $status, $description), $content, 'Every status is described.');
     }
 
-    $this->assertStringContainsString('| `unchanged` | 1 |' . PHP_EOL . '| `overwritten` | 1 |' . PHP_EOL . '| `removed` | 1 |' . PHP_EOL, $content);
+    $this->assertStringContainsString('| `unchanged` | 1 |' . "\n" . '| `overwritten` | 1 |' . "\n" . '| `removed` | 1 |' . "\n", $content);
 
     $expected_rows = [
       '| `unchanged` | [composer.json](../composer.json) |  |',
       sprintf('| `removed` | `jest.config.js` | [diff](%s/jest.config.js.diff) |', $name),
       sprintf('| `overwritten` | [phpstan.neon](../phpstan.neon) | [diff](%s/phpstan.neon.diff) |', $name),
     ];
-    $this->assertStringContainsString(implode(PHP_EOL, $expected_rows) . PHP_EOL, $content, 'Rows are sorted by path and link to the file and its diff.');
+    $this->assertStringContainsString(implode("\n", $expected_rows) . "\n", $content, 'Rows are sorted by path and link to the file and its diff.');
 
     $diff_dir = self::$sut . '/.logs/' . $name;
-    $this->assertStringEqualsFile($diff_dir . '/phpstan.neon.diff', implode(PHP_EOL, ['--- a/phpstan.neon', '+++ b/phpstan.neon', '@@ -1 +1 @@', '-level: 8', '+level: 9']) . PHP_EOL);
-    $this->assertStringEqualsFile($diff_dir . '/jest.config.js.diff', implode(PHP_EOL, ['--- a/jest.config.js', '+++ /dev/null', '@@ -1 +1,0 @@', '-module.exports = {};']) . PHP_EOL);
+    $this->assertStringEqualsFile($diff_dir . '/phpstan.neon.diff', implode("\n", ['--- a/phpstan.neon', '+++ b/phpstan.neon', '@@ -1 +1 @@', '-level: 8', '+level: 9']) . "\n");
+    $this->assertStringEqualsFile($diff_dir . '/jest.config.js.diff', implode("\n", ['--- a/jest.config.js', '+++ /dev/null', '@@ -1 +1,0 @@', '-module.exports = {};']) . "\n");
     $this->assertFileDoesNotExist($diff_dir . '/composer.json.diff', 'An unchanged file has no diff.');
   }
 

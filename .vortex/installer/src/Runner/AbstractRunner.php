@@ -167,7 +167,8 @@ abstract class AbstractRunner implements RunnerInterface {
    * {@inheritdoc}
    */
   public function getOutput(bool $as_array = FALSE, ?int $lines = NULL): string|array {
-    $output_lines = explode(PHP_EOL, $this->output);
+    // Processes write LF on every platform, including Windows.
+    $output_lines = preg_split('/\r?\n/', $this->output) ?: [];
 
     if ($lines !== NULL) {
       $output_lines = array_slice($output_lines, 0, $lines);
@@ -177,7 +178,7 @@ abstract class AbstractRunner implements RunnerInterface {
       return $output_lines;
     }
 
-    return implode(PHP_EOL, $output_lines);
+    return implode("\n", $output_lines);
   }
 
   /**

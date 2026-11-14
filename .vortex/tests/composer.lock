@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c67180048455021585a4dab0cda87e4a",
+    "content-hash": "f694636fdadbc4a68a6f0bd18b6010ca",
     "packages": [
         {
             "name": "cweagans/composer-configurable-plugin",
@@ -263,16 +263,16 @@
         },
         {
             "name": "alexskrypnyk/phpunit-helpers",
-            "version": "1.2.0",
+            "version": "1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/phpunit-helpers.git",
-                "reference": "ddb4f51c6265359b58a4b803668a4a1d3586a0e3"
+                "reference": "f100edfd38a98636b6c863d9ee9d2f4b0eb4841c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/ddb4f51c6265359b58a4b803668a4a1d3586a0e3",
-                "reference": "ddb4f51c6265359b58a4b803668a4a1d3586a0e3",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/phpunit-helpers/zipball/f100edfd38a98636b6c863d9ee9d2f4b0eb4841c",
+                "reference": "f100edfd38a98636b6c863d9ee9d2f4b0eb4841c",
                 "shasum": ""
             },
             "require": {
@@ -286,11 +286,11 @@
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
                 "drevops/phpcs-standard": "^0.7",
                 "drupal/coder": "^9.0.1",
-                "ergebnis/composer-normalize": "^2.53.0",
-                "laravel/serializable-closure": "^2.0.16",
+                "ergebnis/composer-normalize": "^2.57.0",
+                "laravel/serializable-closure": "^2.2.0",
                 "phpbench/phpbench": "^1.7",
-                "phpstan/phpstan": "^2.2.14",
-                "rector/rector": "^2.6.7",
+                "phpstan/phpstan": "^2.3.5",
+                "rector/rector": "^2.8.4",
                 "squizlabs/php_codesniffer": "^4.0.4",
                 "symfony/console": "^6.4 || ^7.2 || ^8.0"
             },
@@ -322,14 +322,10 @@
                 {
                     "url": "https://github.com/alexskrypnyk",
                     "type": "github"
-                },
-                {
-                    "url": "https://www.patreon.com/alexskrypnyk",
-                    "type": "patreon"
                 }
             ],
-            "time": "2026-09-21T02:30:10+00:00",
-            "published-time": "2026-09-21T02:31:42+00:00"
+            "time": "2026-11-13T10:04:52+00:00",
+            "published-time": "2026-11-13T10:05:49+00:00"
         },
         {
             "name": "alexskrypnyk/shellvar",

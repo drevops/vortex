@@ -169,7 +169,7 @@ class Tui {
   }
 
   public static function center(string $text, int $width = 80, ?string $border = NULL): string {
-    $lines = explode(PHP_EOL, $text);
+    $lines = preg_split('/\r?\n/', $text) ?: [];
     $centered_lines = [];
 
     $max_length = 0;
@@ -193,7 +193,7 @@ class Tui {
       $centered_lines[] = $border;
     }
 
-    return implode(PHP_EOL, $centered_lines);
+    return implode("\n", $centered_lines);
   }
 
   public static function terminalWidth(int $max = 100): int {

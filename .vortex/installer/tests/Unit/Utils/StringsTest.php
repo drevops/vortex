@@ -774,14 +774,14 @@ class StringsTest extends UnitTestCase {
       "🔹 Hello 世界 ✨\n🔹 Goodbye 🌍 ✨",
     ];
     yield 'complex_multiline_with_php_eol' => [
-      "<?php\nfunction test() {\n  return 'hello';\n}",
+      '<?php' . PHP_EOL . 'function test() {' . PHP_EOL . "  return 'hello';" . PHP_EOL . '}',
       '  ',
       '',
       PHP_EOL,
       "  <?php" . PHP_EOL . "  function test() {" . PHP_EOL . "    return 'hello';" . PHP_EOL . "  }",
     ];
     yield 'empty_eol_fallback_to_php_eol' => [
-      "line one\nline two\nline three",
+      'line one' . PHP_EOL . 'line two' . PHP_EOL . 'line three',
       '> ',
       ' <',
       '',

@@ -276,6 +276,10 @@ class ProcessRunnerTest extends UnitTestCase {
   }
 
   public function testRunWithWorkingDirectory(): void {
+    if (PHP_OS_FAMILY === 'Windows') {
+      $this->markTestSkipped('The MSYS "pwd" on Windows prints POSIX-style paths.');
+    }
+
     $runner = new ProcessRunner();
     $test_dir = self::$tmp . '/test_subdir';
     File::mkdir($test_dir);
@@ -292,6 +296,10 @@ class ProcessRunnerTest extends UnitTestCase {
   }
 
   public function testResolveCommandWithRelativePath(): void {
+    if (PHP_OS_FAMILY === 'Windows') {
+      $this->markTestSkipped('Windows decides whether a file is executable by its extension.');
+    }
+
     $runner = new TestableProcessRunner();
     $test_dir = self::$tmp . '/test_scripts';
     File::mkdir($test_dir);

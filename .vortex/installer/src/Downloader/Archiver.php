@@ -195,7 +195,9 @@ class Archiver implements ArchiverInterface {
     $top_dir = reset($entries);
     $source_path = $source . '/' . $top_dir;
 
-    File::copy($source_path, $destination);
+    // $source is a temporary directory, and Windows reads symlink targets as
+    // absolute paths into it, so the targets are kept relative.
+    File::copy($source_path, $destination, symlink_mode: File::SYMLINK_MODE_RELATIVE);
   }
 
 }

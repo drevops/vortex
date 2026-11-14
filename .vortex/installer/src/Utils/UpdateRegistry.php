@@ -34,6 +34,11 @@ class UpdateRegistry {
   const MAX_DIFF_BYTES = Diff::MAX_BYTES;
 
   /**
+   * Line ending of the written file, kept LF on every platform.
+   */
+  const EOL = "\n";
+
+  /**
    * Replaced content, keyed by template-relative path.
    *
    * @var array<string, array{previous: string|null, project: string, next: string}>
@@ -88,7 +93,7 @@ class UpdateRegistry {
 
     ksort($this->entries);
 
-    $content = sprintf('## %s to %s, %s', $from, $to, $time) . PHP_EOL . PHP_EOL;
+    $content = sprintf('## %s to %s, %s', $from, $to, $time) . self::EOL . self::EOL;
 
     foreach ($this->entries as $path => $contents) {
       $content .= $this->renderEntry($path, $contents);
@@ -102,7 +107,7 @@ class UpdateRegistry {
       throw new \RuntimeException(sprintf('Unable to read the update registry "%s".', $file));
     }
 
-    $existing = File::exists($file) ? File::read($file) : self::HEADING . PHP_EOL;
+    $existing = File::exists($file) ? File::read($file) : self::HEADING . self::EOL;
 
     File::dump($file, $existing . $content);
 
@@ -121,32 +126,32 @@ class UpdateRegistry {
    *   The rendered entry.
    */
   protected function renderEntry(string $path, array $contents): string {
-    $content = sprintf('### %s', $path) . PHP_EOL . PHP_EOL;
+    $content = sprintf('### %s', $path) . self::EOL . self::EOL;
 
     $skip = Diff::skipReason(...array_values(array_filter($contents, is_string(...))));
 
     if ($skip === Diff::SKIP_BINARY) {
-      return $content . 'Binary file. Recover the project copy from version control.' . PHP_EOL . PHP_EOL;
+      return $content . 'Binary file. Recover the project copy from version control.' . self::EOL . self::EOL;
     }
 
     if ($skip === Diff::SKIP_TOO_LARGE) {
-      return $content . 'File is too large to diff. Recover the project copy from version control.' . PHP_EOL . PHP_EOL;
+      return $content . 'File is too large to diff. Recover the project copy from version control.' . self::EOL . self::EOL;
     }
 
     if ($contents['previous'] === NULL) {
-      $content .= 'The version the project runs did not ship this file. Project content that the update replaced:' . PHP_EOL . PHP_EOL;
+      $content .= 'The version the project runs did not ship this file. Project content that the update replaced:' . self::EOL . self::EOL;
 
       return $content . $this->renderDiff($contents['project'], $contents['next'], 'project', 'update');
     }
 
-    $content .= 'Project change that the update replaced:' . PHP_EOL . PHP_EOL;
+    $content .= 'Project change that the update replaced:' . self::EOL . self::EOL;
     $content .= $this->renderDiff($contents['previous'], $contents['project'], 'installed', 'project');
 
     if ($contents['previous'] === $contents['next']) {
-      return $content . 'The update ships this file unchanged.' . PHP_EOL . PHP_EOL;
+      return $content . 'The update ships this file unchanged.' . self::EOL . self::EOL;
     }
 
-    $content .= 'Change that the update brings:' . PHP_EOL . PHP_EOL;
+    $content .= 'Change that the update brings:' . self::EOL . self::EOL;
 
     return $content . $this->renderDiff($contents['previous'], $contents['next'], 'installed', 'update');
   }
@@ -175,7 +180,7 @@ class UpdateRegistry {
     preg_match_all('/`{3,}/', $diff, $matches);
     $fence = str_repeat('`', $matches[0] === [] ? 3 : max(3, max(array_map(strlen(...), $matches[0])) + 1));
 
-    return $fence . 'diff' . PHP_EOL . $diff . PHP_EOL . $fence . PHP_EOL . PHP_EOL;
+    return $fence . 'diff' . self::EOL . $diff . self::EOL . $fence . self::EOL . self::EOL;
   }
 
 }

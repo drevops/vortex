@@ -150,8 +150,9 @@ class Profile extends AbstractHandler {
 
     Env::writeValueDotenv('DRUPAL_PROFILE', $v, $t . '/.env');
 
-    // Assume that profiles provided as a path are contrib profiles.
-    $is_contrib_profile = str_contains($v, DIRECTORY_SEPARATOR);
+    // Assume that profiles provided as a path are contrib profiles. The path is
+    // read inside the containers, so it uses '/' on every host.
+    $is_contrib_profile = str_contains($v, '/');
 
     if (in_array($v, [self::STANDARD, self::MINIMAL, self::DEMO_UMAMI]) || $is_contrib_profile) {
       File::remove(sprintf('%s/%s/profiles/your_site_profile', $t, $w));

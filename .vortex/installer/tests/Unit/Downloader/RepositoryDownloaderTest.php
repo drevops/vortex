@@ -680,7 +680,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   protected function removeGitRepo(string $repo_dir): void {
-    File::remove($repo_dir);
+    static::removeGitRepository($repo_dir);
   }
 
   protected function createMockArchiverWithExtract(): MockObject {
