@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a93cdb20519d7e1c84ac8828bff55396",
+    "content-hash": "579d917241ddb7ac1246a2660223d68f",
     "packages": [
         {
             "name": "alexskrypnyk/file",
@@ -108,32 +108,7 @@
                     "PromptyTestTrait.php"
                 ]
             },
-            "autoload-dev": {
-                "classmap": [
-                    "tests/phpunit"
-                ]
-            },
-            "scripts": {
-                "lint": [
-                    "phpcs",
-                    "phpstan",
-                    "rector --dry-run",
-                    "php .util/check-embed.php"
-                ],
-                "lint-fix": [
-                    "rector",
-                    "phpcbf"
-                ],
-                "reset": [
-                    "rm -Rf vendor vendor-bin composer.lock"
-                ],
-                "test": [
-                    "phpunit --no-coverage"
-                ],
-                "test-coverage": [
-                    "phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -153,11 +128,12 @@
             },
             "funding": [
                 {
-                    "type": "github",
-                    "url": "https://github.com/alexskrypnyk"
+                    "url": "https://github.com/alexskrypnyk",
+                    "type": "github"
                 }
             ],
-            "time": "2026-11-14T13:55:41+00:00"
+            "time": "2026-11-14T13:55:41+00:00",
+            "published-time": "2026-11-14T13:56:43+00:00"
         },
         {
             "name": "alexskrypnyk/str2name",

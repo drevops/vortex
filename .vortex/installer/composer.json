@@ -45,13 +45,6 @@
         "rector/rector": "^2.8.4",
         "symfony/finder": "^7.4.23"
     },
-    "repositories": [
-        {
-            "name": "prompty",
-            "type": "vcs",
-            "url": "https://github.com/AlexSkrypnyk/prompty"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "DrevOps\\VortexInstaller\\": "src/"
