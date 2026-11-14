@@ -407,8 +407,9 @@ class FileManager {
       }
 
       // A side that cannot be read cannot be compared, so its status stands.
-      $staged = $src . '/' . $path;
-      $staged_hash = File::isReadable($target) && File::isReadable($staged) ? hash_file(self::HASH_ALGO, $staged) : FALSE;
+      // On Windows, hash_file() fails on a staged path behind a directory
+      // symlink that is_readable() accepts, so its warning is suppressed.
+      $staged_hash = File::isReadable($target) ? @hash_file(self::HASH_ALGO, $src . '/' . $path) : FALSE;
 
       if ($staged_hash === FALSE) {
         continue;
