@@ -17,7 +17,7 @@ class DownloaderTest extends UnitTestCase {
 
   public function testDownloadSuccess(): void {
     $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_response = $this->createMock(ResponseInterface::class);
+    $mock_response = $this->createStub(ResponseInterface::class);
     $mock_response->method('getStatusCode')->willReturn(200);
     $mock_http_client->expects($this->once())
       ->method('request')
@@ -37,9 +37,9 @@ class DownloaderTest extends UnitTestCase {
   }
 
   public function testDownloadFailure(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_http_client = $this->createStub(ClientInterface::class);
     $mock_http_client->method('request')
-      ->willThrowException(new RequestException('Network error', $this->createMock(RequestInterface::class)));
+      ->willThrowException(new RequestException('Network error', $this->createStub(RequestInterface::class)));
 
     $destination = self::$tmp . '/downloaded_file.sql';
 
@@ -53,7 +53,7 @@ class DownloaderTest extends UnitTestCase {
 
   public function testDownloadFollowsRedirects(): void {
     $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_response = $this->createMock(ResponseInterface::class);
+    $mock_response = $this->createStub(ResponseInterface::class);
     $mock_response->method('getStatusCode')->willReturn(200);
 
     $mock_http_client->expects($this->once())
@@ -80,7 +80,7 @@ class DownloaderTest extends UnitTestCase {
 
   public function testDownloadWithCustomHeaders(): void {
     $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_response = $this->createMock(ResponseInterface::class);
+    $mock_response = $this->createStub(ResponseInterface::class);
     $mock_response->method('getStatusCode')->willReturn(200);
 
     $custom_headers = [

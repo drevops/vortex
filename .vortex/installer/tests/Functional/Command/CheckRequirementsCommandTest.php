@@ -12,7 +12,6 @@ use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Tests\Helpers\TuiOutput;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Process\ExecutableFinder;
 
 /**
@@ -37,17 +36,17 @@ class CheckRequirementsCommandTest extends FunctionalTestCase {
       $command_inputs = $before($command_inputs, self::$tmp);
     }
     // Create a mock ExecutableFinder.
-    $mock_finder = $this->createMock(ExecutableFinder::class);
+    $mock_finder = $this->createStub(ExecutableFinder::class);
     $mock_finder->method('find')
       ->willReturnCallback(fn(string $name) => $executable_finder_callback($name));
 
     // Create a mock ProcessRunner.
-    $mock_runner = $this->createMock(ProcessRunner::class);
+    $mock_runner = $this->createStub(ProcessRunner::class);
 
     // Set up common default behaviors.
     $current_command = '';
     $mock_runner->method('run')
-      ->willReturnCallback(function (string $command) use ($mock_runner, &$current_command): MockObject {
+      ->willReturnCallback(function (string $command) use ($mock_runner, &$current_command): ProcessRunner {
         $current_command = $command;
         return $mock_runner;
       });

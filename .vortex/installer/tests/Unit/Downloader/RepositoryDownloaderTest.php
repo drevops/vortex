@@ -25,12 +25,12 @@ use Symfony\Component\Console\Output\NullOutput;
 class RepositoryDownloaderTest extends UnitTestCase {
 
   public function testDownloadWithMockedArchiver(): void {
-    $mock_http_client = $this->createMockHttpClient();
+    $mock_http_client = $this->stubHttpClient();
     /** @var \PHPUnit\Framework\MockObject\MockObject&\DrevOps\VortexInstaller\Downloader\ArchiverInterface $mock_archiver */
     $mock_archiver = $this->createMockArchiver();
     $mock_archiver->expects($this->once())->method('validate');
     $mock_archiver->expects($this->once())->method('extract');
-    $mock_file_downloader = $this->createMockFileDownloader();
+    $mock_file_downloader = $this->stubFileDownloader();
     $destination = self::$tmp . '/destination';
     File::mkdir($destination);
     File::dump($destination . '/composer.json', '{}');
@@ -40,9 +40,9 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   public function testDownloadThrowsExceptionWhenComposerJsonMissing(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    $mock_file_downloader = $this->createMockFileDownloader();
+    $mock_http_client = $this->createStub(ClientInterface::class);
+    $mock_archiver = $this->createStub(ArchiverInterface::class);
+    $mock_file_downloader = $this->stubFileDownloader();
 
     $destination = self::$tmp . '/destination';
     File::mkdir($destination);
@@ -56,9 +56,9 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   public function testDownloadFromRemoteCallsArchiverCorrectly(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_http_client = $this->createStub(ClientInterface::class);
     $mock_archiver = $this->createMock(ArchiverInterface::class);
-    $mock_file_downloader = $this->createMockFileDownloader();
+    $mock_file_downloader = $this->stubFileDownloader();
 
     $mock_archiver->expects($this->once())->method('validate')->with($this->stringContains('vortex_archive_'));
     $mock_archiver->expects($this->once())->method('extract')->with($this->stringContains('vortex_archive_'), $this->anything(), TRUE);
@@ -72,9 +72,9 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   public function testDownloadArchiveCreatesTemporaryFile(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    $mock_file_downloader = $this->createMockFileDownloader();
+    $mock_http_client = $this->createStub(ClientInterface::class);
+    $mock_archiver = $this->createStub(ArchiverInterface::class);
+    $mock_file_downloader = $this->stubFileDownloader();
     $destination = self::$tmp . '/destination';
     File::mkdir($destination);
     File::dump($destination . '/composer.json', '{}');
@@ -84,9 +84,9 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   public function testDownloadArchiveHandlesHttpError(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    $mock_file_downloader = $this->createMock(Downloader::class);
+    $mock_http_client = $this->createStub(ClientInterface::class);
+    $mock_archiver = $this->createStub(ArchiverInterface::class);
+    $mock_file_downloader = $this->createStub(Downloader::class);
     $mock_file_downloader->method('download')->willThrowException(new \RuntimeException('HTTP 404 error'));
     $destination = self::$tmp . '/destination';
     File::mkdir($destination);
@@ -97,9 +97,9 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   public function testDownloadArchiveHandlesRequestException(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    $mock_file_downloader = $this->createMock(Downloader::class);
+    $mock_http_client = $this->createStub(ClientInterface::class);
+    $mock_archiver = $this->createStub(ArchiverInterface::class);
+    $mock_file_downloader = $this->createStub(Downloader::class);
     $mock_file_downloader->method('download')->willThrowException(new \RuntimeException('Network error'));
     $destination = self::$tmp . '/destination';
     File::mkdir($destination);
@@ -111,15 +111,15 @@ class RepositoryDownloaderTest extends UnitTestCase {
 
   #[DataProvider('dataProviderDiscoverLatestReleaseRemote')]
   public function testDiscoverLatestReleaseRemote(string $repo, mixed $release_data, bool $throw_exception, bool $skip_mock_setup, ?string $expected_version, ?string $expected_exception, ?string $expected_message): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_http_client = $this->createStub(ClientInterface::class);
 
     if (!$skip_mock_setup) {
       if ($throw_exception) {
-        $mock_http_client->method('request')->willThrowException(new RequestException('API error', $this->createMock(RequestInterface::class)));
+        $mock_http_client->method('request')->willThrowException(new RequestException('API error', $this->createStub(RequestInterface::class)));
       }
       else {
-        $mock_response = $this->createMock(ResponseInterface::class);
-        $mock_body = $this->createMock(StreamInterface::class);
+        $mock_response = $this->createStub(ResponseInterface::class);
+        $mock_body = $this->createStub(StreamInterface::class);
         $mock_response->method('getBody')->willReturn($mock_body);
 
         $release_json = is_array($release_data) ? json_encode($release_data) : $release_data;
@@ -131,8 +131,8 @@ class RepositoryDownloaderTest extends UnitTestCase {
       }
     }
 
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    $mock_file_downloader = $this->createMockFileDownloader();
+    $mock_archiver = $this->createStub(ArchiverInterface::class);
+    $mock_file_downloader = $this->stubFileDownloader();
     $destination = self::$tmp . '/destination_' . uniqid();
     File::mkdir($destination);
 
@@ -272,12 +272,12 @@ class RepositoryDownloaderTest extends UnitTestCase {
   }
 
   public function testDownloadFromRemoteWithGitSuffix(): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_response = $this->createMock(ResponseInterface::class);
+    $mock_http_client = $this->createStub(ClientInterface::class);
+    $mock_response = $this->createStub(ResponseInterface::class);
     $mock_response->method('getStatusCode')->willReturn(200);
     $mock_http_client->method('request')->willReturn($mock_response);
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    $mock_file_downloader = $this->createMockFileDownloader();
+    $mock_archiver = $this->createStub(ArchiverInterface::class);
+    $mock_file_downloader = $this->stubFileDownloader();
     $destination = self::$tmp . '/destination';
     File::mkdir($destination);
     File::dump($destination . '/composer.json', '{}');
@@ -293,18 +293,18 @@ class RepositoryDownloaderTest extends UnitTestCase {
       ['tag_name' => '1.39.0', 'draft' => FALSE],
     ]);
 
-    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_http_client = $this->createStub(ClientInterface::class);
     $mock_http_client->method('request')->willReturnCallback(function (string $method, string $url) use ($release_json): ResponseInterface {
-      $response = $this->createMock(ResponseInterface::class);
+      $response = $this->createStub(ResponseInterface::class);
       $response->method('getStatusCode')->willReturn(200);
-      $body = $this->createMock(StreamInterface::class);
+      $body = $this->createStub(StreamInterface::class);
       $body->method('getContents')->willReturn(str_contains($url, '/releases') ? $release_json : 'ok');
       $response->method('getBody')->willReturn($body);
       return $response;
     });
 
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    $mock_file_downloader = $this->createMockFileDownloader();
+    $mock_archiver = $this->createStub(ArchiverInterface::class);
+    $mock_file_downloader = $this->stubFileDownloader();
     $destination = self::$tmp . '/destination_' . uniqid();
     File::mkdir($destination);
     File::dump($destination . '/composer.json', '{}');
@@ -319,18 +319,18 @@ class RepositoryDownloaderTest extends UnitTestCase {
       ['tag_name' => '1.40.0', 'draft' => FALSE],
     ]);
 
-    $mock_http_client = $this->createMock(ClientInterface::class);
+    $mock_http_client = $this->createStub(ClientInterface::class);
     $mock_http_client->method('request')->willReturnCallback(function (string $method, string $url) use ($release_json): ResponseInterface {
-      $response = $this->createMock(ResponseInterface::class);
+      $response = $this->createStub(ResponseInterface::class);
       $response->method('getStatusCode')->willReturn(200);
-      $body = $this->createMock(StreamInterface::class);
+      $body = $this->createStub(StreamInterface::class);
       $body->method('getContents')->willReturn(str_contains($url, '/releases') ? $release_json : 'ok');
       $response->method('getBody')->willReturn($body);
       return $response;
     });
 
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
-    $mock_file_downloader = $this->createMockFileDownloader();
+    $mock_archiver = $this->createStub(ArchiverInterface::class);
+    $mock_file_downloader = $this->stubFileDownloader();
     $destination = self::$tmp . '/destination_' . uniqid();
     File::mkdir($destination);
     File::dump($destination . '/composer.json', '{}');
@@ -426,8 +426,8 @@ class RepositoryDownloaderTest extends UnitTestCase {
       ['tag_name' => 'v1.5.0', 'draft' => FALSE],
     ]);
     $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_response = $this->createMock(ResponseInterface::class);
-    $mock_body = $this->createMock(StreamInterface::class);
+    $mock_response = $this->createStub(ResponseInterface::class);
+    $mock_body = $this->createStub(StreamInterface::class);
     $mock_response->method('getBody')->willReturn($mock_body);
     $mock_body->method('getContents')->willReturn($release_json);
     $mock_response->method('getStatusCode')->willReturn(200);
@@ -438,7 +438,7 @@ class RepositoryDownloaderTest extends UnitTestCase {
       $this->assertEquals('Bearer test_token_12345', $options['headers']['Authorization']);
       return $mock_response;
     });
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
+    $mock_archiver = $this->createStub(ArchiverInterface::class);
     $mock_file_downloader = $this->createMock(Downloader::class);
     $mock_file_downloader->expects($this->once())->method('download')->willReturnCallback(function ($url, $dest, array $headers): void {
       $this->assertArrayHasKey('Authorization', $headers);
@@ -454,8 +454,8 @@ class RepositoryDownloaderTest extends UnitTestCase {
 
   public function testDownloadArchiveWithGithubToken(): void {
     static::envSet('GITHUB_TOKEN', 'test_token_67890');
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_archiver = $this->createMock(ArchiverInterface::class);
+    $mock_http_client = $this->createStub(ClientInterface::class);
+    $mock_archiver = $this->createStub(ArchiverInterface::class);
     $mock_file_downloader = $this->createMock(Downloader::class);
     $mock_file_downloader->expects($this->once())->method('download')->willReturnCallback(function ($url, $dest, array $headers): void {
       $this->assertArrayHasKey('Authorization', $headers);
@@ -544,8 +544,8 @@ class RepositoryDownloaderTest extends UnitTestCase {
    * Stub a client answering every request with a single status code.
    */
   protected function stubStatusClient(int $status_code): ClientInterface {
-    $client = $this->createMock(ClientInterface::class);
-    $response = $this->createMock(ResponseInterface::class);
+    $client = $this->createStub(ClientInterface::class);
+    $response = $this->createStub(ResponseInterface::class);
     $response->method('getStatusCode')->willReturn($status_code);
     $client->method('request')->willReturn($response);
 
@@ -561,17 +561,17 @@ class RepositoryDownloaderTest extends UnitTestCase {
    *   Message for the thrown request exception when no status code is given.
    */
   protected function stubRefClient(?int $status_code, ?string $exception_message = NULL): ClientInterface {
-    $client = $this->createMock(ClientInterface::class);
-    $repo_response = $this->createMock(ResponseInterface::class);
+    $client = $this->createStub(ClientInterface::class);
+    $repo_response = $this->createStub(ResponseInterface::class);
     $repo_response->method('getStatusCode')->willReturn(200);
 
     $ref_response = NULL;
     if ($status_code !== NULL) {
-      $ref_response = $this->createMock(ResponseInterface::class);
+      $ref_response = $this->createStub(ResponseInterface::class);
       $ref_response->method('getStatusCode')->willReturn($status_code);
     }
 
-    $request = $this->createMock(RequestInterface::class);
+    $request = $this->createStub(RequestInterface::class);
     $client->method('request')->willReturnCallback(function ($method, $url) use ($repo_response, $ref_response, $exception_message, $request): ResponseInterface {
       if (!str_contains($url, '/archive/')) {
         return $repo_response;
@@ -591,16 +591,16 @@ class RepositoryDownloaderTest extends UnitTestCase {
    * Stub a client that fails every request with a transport error.
    */
   protected function stubThrowingClient(string $message): ClientInterface {
-    $client = $this->createMock(ClientInterface::class);
-    $client->method('request')->willThrowException(new RequestException($message, $this->createMock(RequestInterface::class)));
+    $client = $this->createStub(ClientInterface::class);
+    $client->method('request')->willThrowException(new RequestException($message, $this->createStub(RequestInterface::class)));
 
     return $client;
   }
 
   #[DataProvider('dataProviderValidateRemoteArtifact')]
   public function testValidateRemoteArtifact(string $ref): void {
-    $mock_http_client = $this->createMock(ClientInterface::class);
-    $mock_response = $this->createMock(ResponseInterface::class);
+    $mock_http_client = $this->createStub(ClientInterface::class);
+    $mock_response = $this->createStub(ResponseInterface::class);
     $mock_response->method('getStatusCode')->willReturn(200);
     $mock_http_client->method('request')->willReturn($mock_response);
     $downloader = new RepositoryDownloader($mock_http_client);
@@ -631,10 +631,10 @@ class RepositoryDownloaderTest extends UnitTestCase {
     yield 'custom ref' => ['main'];
   }
 
-  protected function createMockHttpClient(int $status_code = 200, string $body_content = 'mock content'): ClientInterface {
-    $mock_client = $this->createMock(ClientInterface::class);
-    $mock_response = $this->createMock(ResponseInterface::class);
-    $mock_body = $this->createMock(StreamInterface::class);
+  protected function stubHttpClient(int $status_code = 200, string $body_content = 'mock content'): ClientInterface {
+    $mock_client = $this->createStub(ClientInterface::class);
+    $mock_response = $this->createStub(ResponseInterface::class);
+    $mock_body = $this->createStub(StreamInterface::class);
     $mock_response->method('getBody')->willReturn($mock_body);
     $mock_body->method('getContents')->willReturn($body_content);
     $mock_response->method('getStatusCode')->willReturn($status_code);
@@ -692,12 +692,8 @@ class RepositoryDownloaderTest extends UnitTestCase {
     return $mock_archiver;
   }
 
-  /**
-   * @return \PHPUnit\Framework\MockObject\MockObject&\DrevOps\VortexInstaller\Downloader\Downloader
-   *   Mock file downloader.
-   */
-  protected function createMockFileDownloader(): MockObject {
-    return $this->createMock(Downloader::class);
+  protected function stubFileDownloader(): Downloader {
+    return $this->createStub(Downloader::class);
   }
 
 }

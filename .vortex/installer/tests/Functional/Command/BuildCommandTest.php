@@ -14,7 +14,6 @@ use DrevOps\VortexInstaller\Tests\Functional\FunctionalTestCase;
 use DrevOps\VortexInstaller\Tests\Helpers\TuiOutput;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Process\ExecutableFinder;
 
 /**
@@ -42,12 +41,12 @@ class BuildCommandTest extends FunctionalTestCase {
       $command_inputs = $before($command_inputs, self::$tmp);
     }
     // Create a mock ProcessRunner for ahoy build.
-    $build_process_runner = $this->createMock(ProcessRunner::class);
+    $build_process_runner = $this->createStub(ProcessRunner::class);
 
     // Set up common default behaviors.
     $current_command = '';
     $build_process_runner->method('run')
-      ->willReturnCallback(function (string $command) use ($build_process_runner, &$current_command): MockObject {
+      ->willReturnCallback(function (string $command) use ($build_process_runner, &$current_command): ProcessRunner {
         $current_command = $command;
         return $build_process_runner;
       });
@@ -84,7 +83,7 @@ class BuildCommandTest extends FunctionalTestCase {
       });
 
     // Mock logger to prevent errors in showSuccessSummary/showFailureSummary.
-    $mock_logger = $this->createMock(FileLoggerInterface::class);
+    $mock_logger = $this->createStub(FileLoggerInterface::class);
     $mock_logger->method('getPath')->willReturn('/tmp/mock.log');
     $build_process_runner->method('getLogger')->willReturn($mock_logger);
 
@@ -93,7 +92,7 @@ class BuildCommandTest extends FunctionalTestCase {
 
     // Always register CheckRequirementsCommand with mocked runner and finder.
     // Mock ExecutableFinder.
-    $requirements_finder = $this->createMock(ExecutableFinder::class);
+    $requirements_finder = $this->createStub(ExecutableFinder::class);
     $final_finder_callback = $requirements_finder_callback ?? fn(string $name): string => '/usr/bin/' . $name;
     $requirements_finder->method('find')
       ->willReturnCallback(fn(string $name) => $final_finder_callback($name));
@@ -110,11 +109,11 @@ class BuildCommandTest extends FunctionalTestCase {
 
     // Mock ProcessRunner - use provided callback or default to
     // success (exit code 0).
-    $requirements_runner = $this->createMock(ProcessRunner::class);
+    $requirements_runner = $this->createStub(ProcessRunner::class);
 
     $current_requirements_command = '';
     $requirements_runner->method('run')
-      ->willReturnCallback(function (string $command) use ($requirements_runner, &$current_requirements_command): MockObject {
+      ->willReturnCallback(function (string $command) use ($requirements_runner, &$current_requirements_command): ProcessRunner {
         $current_requirements_command = $command;
         return $requirements_runner;
       });

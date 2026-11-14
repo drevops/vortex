@@ -22,7 +22,6 @@ use DrevOps\VortexInstaller\Utils\FileManager;
 use DrevOps\VortexInstaller\Utils\OptionsResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Process\ExecutableFinder;
 
 /**
@@ -49,15 +48,15 @@ class InstallCommandTest extends FunctionalTestCase {
     bool $download_should_fail = FALSE,
   ): void {
     // 1. Mock ExecutableFinder for InstallCommand (requirements checking).
-    $executable_finder = $this->createMock(ExecutableFinder::class);
+    $executable_finder = $this->createStub(ExecutableFinder::class);
     $executable_finder->method('find')
       ->willReturnCallback(fn(string $name) => $install_executable_finder_find_callback($name));
 
     // 2. Mock ProcessRunner for BuildCommand (runs 'ahoy build').
-    $build_runner = $this->createMock(ProcessRunner::class);
+    $build_runner = $this->createStub(ProcessRunner::class);
     $build_runner_command = '';
     $build_runner->method('run')
-      ->willReturnCallback(function (string $command) use ($build_runner, &$build_runner_command): MockObject {
+      ->willReturnCallback(function (string $command) use ($build_runner, &$build_runner_command): ProcessRunner {
         $build_runner_command = $command;
         return $build_runner;
       });
@@ -68,7 +67,7 @@ class InstallCommandTest extends FunctionalTestCase {
     // Mock other BuildCommand runner methods.
     $build_runner->method('getOutput')->willReturnCallback(fn(bool $as_array = FALSE): array|string => $as_array ? ['Mock build output line 1', 'Mock build output line 2'] : 'Mock build output');
     $build_runner->method('getCommand')->willReturn('ahoy build');
-    $mock_logger = $this->createMock(FileLoggerInterface::class);
+    $mock_logger = $this->createStub(FileLoggerInterface::class);
     $mock_logger->method('getPath')->willReturn('/tmp/mock.log');
     $build_runner->method('getLogger')->willReturn($mock_logger);
     $build_runner->method('setCwd')->willReturn($build_runner);
@@ -76,10 +75,10 @@ class InstallCommandTest extends FunctionalTestCase {
     $build_runner->method('getExecutableFinder')->willReturn($executable_finder);
 
     // 3. Mock ProcessRunner for CheckRequirementsCommand.
-    $check_requirements_runner = $this->createMock(ProcessRunner::class);
+    $check_requirements_runner = $this->createStub(ProcessRunner::class);
     $check_requirements_runner_command = '';
     $check_requirements_runner->method('run')
-      ->willReturnCallback(function (string $command) use ($check_requirements_runner, &$check_requirements_runner_command): MockObject {
+      ->willReturnCallback(function (string $command) use ($check_requirements_runner, &$check_requirements_runner_command): ProcessRunner {
         $check_requirements_runner_command = $command;
         return $check_requirements_runner;
       });
@@ -96,7 +95,7 @@ class InstallCommandTest extends FunctionalTestCase {
     $install_command->setExecutableFinder($executable_finder);
 
     if ($download_should_fail) {
-      $mock_downloader = $this->createMock(RepositoryDownloader::class);
+      $mock_downloader = $this->createStub(RepositoryDownloader::class);
       $mock_downloader->method('download')->willThrowException(new \RuntimeException('Failed to download Vortex.'));
       $install_command->setRepositoryDownloader($mock_downloader);
     }
@@ -508,14 +507,14 @@ class InstallCommandTest extends FunctionalTestCase {
    */
   #[DataProvider('dataProviderInstallCommandMajorGate')]
   public function testInstallCommandMajorGate(?string $version, string $composer_json, bool $mock_download_fail, string $expected_message): void {
-    $executable_finder = $this->createMock(ExecutableFinder::class);
+    $executable_finder = $this->createStub(ExecutableFinder::class);
     $executable_finder->method('find')->willReturnCallback(fn(string $command): string => '/usr/bin/' . $command);
 
     $install_command = new InstallCommand();
     $install_command->setExecutableFinder($executable_finder);
 
     if ($mock_download_fail) {
-      $mock_downloader = $this->createMock(RepositoryDownloader::class);
+      $mock_downloader = $this->createStub(RepositoryDownloader::class);
       $mock_downloader->method('download')->willThrowException(new \RuntimeException('Failed to download Vortex.'));
       $install_command->setRepositoryDownloader($mock_downloader);
     }

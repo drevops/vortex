@@ -345,7 +345,7 @@ class AbstractRunnerTest extends UnitTestCase {
   public function testResolveOutputWithNull(): void {
     $runner = new ConcreteRunner();
 
-    $mock_output = $this->createMock(OutputInterface::class);
+    $mock_output = $this->createStub(OutputInterface::class);
     Tui::init($mock_output);
 
     $output = $runner->resolveOutputPublic(NULL);
@@ -356,7 +356,7 @@ class AbstractRunnerTest extends UnitTestCase {
 
   public function testResolveOutputWithProvided(): void {
     $runner = new ConcreteRunner();
-    $mock_output = $this->createMock(OutputInterface::class);
+    $mock_output = $this->createStub(OutputInterface::class);
 
     $output = $runner->resolveOutputPublic($mock_output);
 
