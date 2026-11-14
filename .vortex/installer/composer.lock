@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f3bba2410f06b6f2b9a2939caf7851bb",
+    "content-hash": "4772787b65dc552bb66b63ac9c74050a",
     "packages": [
         {
             "name": "alexskrypnyk/file",
-            "version": "dev-feature/scandir-symlinks",
+            "version": "1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "2320857d2bb60e947021c6a6c9d932f7c10a6c7f"
+                "reference": "8a5e5ef2cd94df39f3a0487e15f47c859c12519f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/2320857d2bb60e947021c6a6c9d932f7c10a6c7f",
-                "reference": "2320857d2bb60e947021c6a6c9d932f7c10a6c7f",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/8a5e5ef2cd94df39f3a0487e15f47c859c12519f",
+                "reference": "8a5e5ef2cd94df39f3a0487e15f47c859c12519f",
                 "shasum": ""
             },
             "require": {
@@ -45,38 +45,7 @@
                     "AlexSkrypnyk\\File\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "AlexSkrypnyk\\File\\Benchmarks\\": "benchmarks",
-                    "AlexSkrypnyk\\File\\Tests\\": "tests"
-                }
-            },
-            "scripts": {
-                "benchmark": [
-                    "mkdir -p .logs >/dev/null && phpbench run --report=aggregate --dump-file .logs/performance-report.json --output html --output csv --output console"
-                ],
-                "benchmark-compare": [
-                    "mkdir -p .logs >/dev/null && .github/scripts/benchmark-compare.sh"
-                ],
-                "lint": [
-                    "phpcs",
-                    "phpstan",
-                    "rector --dry-run"
-                ],
-                "lint-fix": [
-                    "rector",
-                    "phpcbf"
-                ],
-                "reset": [
-                    "rm -Rf vendor composer.lock"
-                ],
-                "test": [
-                    "phpunit --no-coverage"
-                ],
-                "test-coverage": [
-                    "php -d pcov.directory=. vendor/bin/phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
@@ -96,11 +65,12 @@
             },
             "funding": [
                 {
-                    "type": "github",
-                    "url": "https://github.com/alexskrypnyk"
+                    "url": "https://github.com/alexskrypnyk",
+                    "type": "github"
                 }
             ],
-            "time": "2026-11-14T11:22:24+00:00"
+            "time": "2026-11-14T12:01:32+00:00",
+            "published-time": "2026-11-14T12:02:06+00:00"
         },
         {
             "name": "alexskrypnyk/prompty",
@@ -3602,20 +3572,20 @@
         },
         {
             "name": "alexskrypnyk/snapshot",
-            "version": "dev-feature/scandir-symlinks",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/snapshot.git",
-                "reference": "76d9772b890be108ed4dce1eb224397719f53796"
+                "reference": "54ae8667225bcc077fd2623a4725b283ca40aa0f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/snapshot/zipball/76d9772b890be108ed4dce1eb224397719f53796",
-                "reference": "76d9772b890be108ed4dce1eb224397719f53796",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/snapshot/zipball/54ae8667225bcc077fd2623a4725b283ca40aa0f",
+                "reference": "54ae8667225bcc077fd2623a4725b283ca40aa0f",
                 "shasum": ""
             },
             "require": {
-                "alexskrypnyk/file": "dev-feature/scandir-symlinks#2320857d2bb60e947021c6a6c9d932f7c10a6c7f as 1.4.0",
+                "alexskrypnyk/file": "^1.4.1",
                 "php": ">=8.3",
                 "sebastian/diff": "^6.0 || ^7.0"
             },
@@ -3641,41 +3611,7 @@
                     "AlexSkrypnyk\\Snapshot\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "AlexSkrypnyk\\Snapshot\\Benchmarks\\": "benchmarks",
-                    "AlexSkrypnyk\\Snapshot\\Tests\\": "tests/phpunit"
-                },
-                "classmap": [
-                    "tests/phpunit"
-                ]
-            },
-            "scripts": {
-                "benchmark": [
-                    "mkdir -p .logs >/dev/null && phpbench run --ref=baseline --report=aggregate --dump-file .logs/performance-report.json --output html --output csv --output console"
-                ],
-                "benchmark-baseline": [
-                    "mkdir -p .logs .phpbench >/dev/null && phpbench run --store --tag=baseline --report=aggregate --dump-file .logs/performance-report.json --output html --output csv --output console"
-                ],
-                "lint": [
-                    "phpcs",
-                    "phpstan",
-                    "rector --dry-run"
-                ],
-                "lint-fix": [
-                    "rector",
-                    "phpcbf"
-                ],
-                "reset": [
-                    "rm -Rf vendor composer.lock"
-                ],
-                "test": [
-                    "phpunit --no-coverage"
-                ],
-                "test-coverage": [
-                    "phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-3.0-or-later"
             ],
@@ -3695,11 +3631,12 @@
             },
             "funding": [
                 {
-                    "type": "github",
-                    "url": "https://github.com/alexskrypnyk"
+                    "url": "https://github.com/alexskrypnyk",
+                    "type": "github"
                 }
             ],
-            "time": "2026-11-14T11:28:48+00:00"
+            "time": "2026-11-14T12:08:48+00:00",
+            "published-time": "2026-11-14T12:09:25+00:00"
         },
         {
             "name": "bamarni/composer-bin-plugin",
@@ -6620,24 +6557,9 @@
             "published-time": "2025-12-08T11:19:39+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "alexskrypnyk/file",
-            "version": "dev-feature/scandir-symlinks",
-            "alias": "1.4.0",
-            "alias_normalized": "1.4.0.0"
-        },
-        {
-            "package": "alexskrypnyk/snapshot",
-            "version": "dev-feature/scandir-symlinks",
-            "alias": "1.5.1",
-            "alias_normalized": "1.5.1.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "alexskrypnyk/file": 20,
-        "alexskrypnyk/snapshot": 20,
         "drupal/coder": 15
     },
     "prefer-stable": false,
