@@ -699,7 +699,7 @@ class FileManagerTest extends UnitTestCase {
       $config->set($name, $value);
     }
 
-    $result = (new FileManager($config))->prepareDemo($this->createMock(Downloader::class));
+    $result = (new FileManager($config))->prepareDemo($this->createStub(Downloader::class));
 
     $messages = is_array($result) ? $result : [$result];
     $this->assertStringContainsString($expected_message, implode(PHP_EOL, array_map(strval(...), $messages)));

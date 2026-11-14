@@ -43,7 +43,7 @@ class InstallerPresenterTest extends UnitTestCase {
     $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
-    $mock_pm = $this->createMock(PromptManager::class);
+    $mock_pm = $this->createStub(PromptManager::class);
     $presenter->setPromptManager($mock_pm);
 
     // No exception means success - prompt manager was accepted.
@@ -219,7 +219,7 @@ class InstallerPresenterTest extends UnitTestCase {
     $presenter = new InstallerPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
-    $mock_pm->method('runPostBuild')
+    $mock_pm->expects($this->once())->method('runPostBuild')
       ->with(InstallerPresenter::BUILD_RESULT_SUCCESS)
       ->willReturn('');
     $presenter->setPromptManager($mock_pm);
@@ -237,7 +237,7 @@ class InstallerPresenterTest extends UnitTestCase {
     $presenter = new InstallerPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
-    $mock_pm->method('runPostBuild')
+    $mock_pm->expects($this->once())->method('runPostBuild')
       ->with(InstallerPresenter::BUILD_RESULT_SUCCESS)
       ->willReturn('Setup GitHub Actions: ...');
     $presenter->setPromptManager($mock_pm);
@@ -255,7 +255,7 @@ class InstallerPresenterTest extends UnitTestCase {
 
     $mock_pm = $this->createMock(PromptManager::class);
     $mock_pm->method('getResponses')->willReturn([Starter::id() => $starter]);
-    $mock_pm->method('runPostBuild')
+    $mock_pm->expects($this->once())->method('runPostBuild')
       ->with(InstallerPresenter::BUILD_RESULT_SKIPPED)
       ->willReturn('');
     $presenter->setPromptManager($mock_pm);
@@ -303,7 +303,7 @@ class InstallerPresenterTest extends UnitTestCase {
     $config = $this->createConfig();
     $presenter = new InstallerPresenter($config);
 
-    $mock_pm = $this->createMock(PromptManager::class);
+    $mock_pm = $this->createStub(PromptManager::class);
     $mock_pm->method('getResponses')->willReturn([]);
     $mock_pm->method('runPostBuild')->willReturn('');
     $presenter->setPromptManager($mock_pm);
@@ -320,7 +320,7 @@ class InstallerPresenterTest extends UnitTestCase {
     $presenter = new InstallerPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
-    $mock_pm->method('runPostBuild')
+    $mock_pm->expects($this->once())->method('runPostBuild')
       ->with(InstallerPresenter::BUILD_RESULT_FAILED)
       ->willReturn('');
     $presenter->setPromptManager($mock_pm);
@@ -341,7 +341,7 @@ class InstallerPresenterTest extends UnitTestCase {
     $presenter = new InstallerPresenter($config);
 
     $mock_pm = $this->createMock(PromptManager::class);
-    $mock_pm->method('runPostBuild')
+    $mock_pm->expects($this->once())->method('runPostBuild')
       ->with(InstallerPresenter::BUILD_RESULT_FAILED)
       ->willReturn('Check hosting config');
     $presenter->setPromptManager($mock_pm);

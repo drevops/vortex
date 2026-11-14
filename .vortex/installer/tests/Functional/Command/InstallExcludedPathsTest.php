@@ -222,7 +222,7 @@ class InstallExcludedPathsTest extends FunctionalTestCase {
    * Run a non-interactive install into the system under test.
    */
   protected function runInstall(string $prompts, string $ref): void {
-    $executable_finder = $this->createMock(ExecutableFinder::class);
+    $executable_finder = $this->createStub(ExecutableFinder::class);
     $executable_finder->method('find')->willReturnCallback(fn(string $command): string => '/usr/bin/' . $command);
 
     $install_command = new InstallCommand();

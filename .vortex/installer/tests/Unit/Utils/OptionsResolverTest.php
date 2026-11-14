@@ -26,7 +26,7 @@ class OptionsResolverTest extends UnitTestCase {
   }
 
   public function testCheckRequirementsPassesWhenAllPresent(): void {
-    $finder = $this->createMock(ExecutableFinder::class);
+    $finder = $this->createStub(ExecutableFinder::class);
     $finder->method('find')->willReturn('/usr/bin/mock');
 
     OptionsResolver::checkRequirements($finder);
@@ -36,7 +36,7 @@ class OptionsResolverTest extends UnitTestCase {
 
   #[DataProvider('dataProviderCheckRequirementsThrowsOnMissing')]
   public function testCheckRequirementsThrowsOnMissing(string $missing_command): void {
-    $finder = $this->createMock(ExecutableFinder::class);
+    $finder = $this->createStub(ExecutableFinder::class);
     $finder->method('find')
       ->willReturnCallback(fn(string $name): ?string => $name === $missing_command ? NULL : '/usr/bin/' . $name);
 
@@ -53,7 +53,7 @@ class OptionsResolverTest extends UnitTestCase {
   }
 
   public function testCheckRequirementsStopsAtFirstMissing(): void {
-    $finder = $this->createMock(ExecutableFinder::class);
+    $finder = $this->createStub(ExecutableFinder::class);
     $finder->method('find')->willReturn(NULL);
 
     $this->expectException(\RuntimeException::class);
