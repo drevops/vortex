@@ -188,6 +188,12 @@ jobs:
           include-hidden-files: true
           if-no-files-found: ignore
 
+      # The suite leaves a PHAR behind, and Box fails on Windows when it
+      # replaces an existing one.
+      - name: Remove the PHAR built by the tests
+        run: if (Test-Path build/installer.phar) { Remove-Item -Force build/installer.phar }
+        working-directory: .vortex/installer
+
       - name: Build PHAR
         run: composer build
         working-directory: .vortex/installer
