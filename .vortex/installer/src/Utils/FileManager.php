@@ -407,7 +407,8 @@ class FileManager {
       }
 
       // A side that cannot be read cannot be compared, so its status stands.
-      $staged_hash = File::isReadable($target) ? hash_file(self::HASH_ALGO, $src . '/' . $path) : FALSE;
+      $staged = $src . '/' . $path;
+      $staged_hash = File::isReadable($target) && File::isReadable($staged) ? hash_file(self::HASH_ALGO, $staged) : FALSE;
 
       if ($staged_hash === FALSE) {
         continue;

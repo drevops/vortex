@@ -523,6 +523,22 @@ class FileManagerTest extends UnitTestCase {
     $this->assertFileContainsString((string) $fm->getReportFile(), '| `failed` | [phpstan.neon](../phpstan.neon) |  |', 'A file the copy did not write is not reported as updated, and has no diff.');
   }
 
+  public function testRecordFailedCopiesKeepsStatusWhenStagedFileIsUnreadable(): void {
+    $src = File::mkdir(self::$sut . '/src_staged_unreadable');
+    $destination = self::$sut . '/dst_staged_unreadable';
+    File::dump(File::mkdir($destination) . '/composer.json', '{}');
+
+    $fm = new FileManager($this->createConfig($destination, $src));
+    $report = new InstallReport($destination);
+    $report->add('composer.json', InstallReport::STATUS_ADDED);
+
+    // The staged copy is missing, as a path behind a directory symlink in the
+    // staged tree is on Windows.
+    $this->callProtectedMethod($fm, 'recordFailedCopies', [$src, $report]);
+
+    $this->assertSame(['composer.json' => InstallReport::STATUS_ADDED], $report->getEntries(), 'A staged copy that cannot be read leaves the status unchanged.');
+  }
+
   public function testCopyFilesReportsEnvLocalTheCopyCouldNotWrite(): void {
     $src = self::$sut . '/src_report_env_failed';
     $destination = self::$sut . '/dst_report_env_failed';
