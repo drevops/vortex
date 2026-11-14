@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c6b904705c0ed93c2bae17966052e6fe",
+    "content-hash": "25dbe27ada24f5a335ee5f228022cdea",
     "packages": [
         {
             "name": "alexskrypnyk/file",
-            "version": "1.3.0",
+            "version": "dev-feature/171-copy-mode-paths",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/file.git",
-                "reference": "cd9212a3a7da51cf6a5daff8f0218c46be9c2479"
+                "reference": "9932d9e01a8ac2a912e3efdd713466614879426c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/cd9212a3a7da51cf6a5daff8f0218c46be9c2479",
-                "reference": "cd9212a3a7da51cf6a5daff8f0218c46be9c2479",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/file/zipball/9932d9e01a8ac2a912e3efdd713466614879426c",
+                "reference": "9932d9e01a8ac2a912e3efdd713466614879426c",
                 "shasum": ""
             },
             "require": {
@@ -25,16 +25,16 @@
                 "symfony/filesystem": "^7.4.21 || ^8.0.15"
             },
             "require-dev": {
-                "alexskrypnyk/phpunit-helpers": "^1.2.0",
+                "alexskrypnyk/phpunit-helpers": "^1.2.1",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
                 "drevops/phpcs-standard": "^0.7",
                 "drupal/coder": "^9.0.1",
-                "ergebnis/composer-normalize": "^2.54.0",
+                "ergebnis/composer-normalize": "^2.57.0",
                 "mikey179/vfsstream": "^1.6.12",
                 "phpbench/phpbench": "^1.7.0",
-                "phpstan/phpstan": "^2.3.1",
-                "phpunit/phpunit": "^11.5.57",
-                "rector/rector": "^2.7.0"
+                "phpstan/phpstan": "^2.3.5",
+                "phpunit/phpunit": "^11.5.58",
+                "rector/rector": "^2.8.4"
             },
             "suggest": {
                 "phpunit/phpunit": "Required for using FileAssertionsTrait and DirectoryAssertionsTrait (^11)"
@@ -45,7 +45,38 @@
                     "AlexSkrypnyk\\File\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "AlexSkrypnyk\\File\\Benchmarks\\": "benchmarks",
+                    "AlexSkrypnyk\\File\\Tests\\": "tests"
+                }
+            },
+            "scripts": {
+                "benchmark": [
+                    "mkdir -p .logs >/dev/null && phpbench run --report=aggregate --dump-file .logs/performance-report.json --output html --output csv --output console"
+                ],
+                "benchmark-compare": [
+                    "mkdir -p .logs >/dev/null && .github/scripts/benchmark-compare.sh"
+                ],
+                "lint": [
+                    "phpcs",
+                    "phpstan",
+                    "rector --dry-run"
+                ],
+                "lint-fix": [
+                    "rector",
+                    "phpcbf"
+                ],
+                "reset": [
+                    "rm -Rf vendor composer.lock"
+                ],
+                "test": [
+                    "phpunit --no-coverage"
+                ],
+                "test-coverage": [
+                    "php -d pcov.directory=. vendor/bin/phpunit"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
@@ -65,16 +96,11 @@
             },
             "funding": [
                 {
-                    "url": "https://github.com/alexskrypnyk",
-                    "type": "github"
-                },
-                {
-                    "url": "https://www.patreon.com/alexskrypnyk",
-                    "type": "patreon"
+                    "type": "github",
+                    "url": "https://github.com/alexskrypnyk"
                 }
             ],
-            "time": "2026-10-21T12:43:31+00:00",
-            "published-time": "2026-10-21T12:44:51+00:00"
+            "time": "2026-11-14T09:07:20+00:00"
         },
         {
             "name": "alexskrypnyk/prompty",
@@ -3576,35 +3602,35 @@
         },
         {
             "name": "alexskrypnyk/snapshot",
-            "version": "1.5.0",
+            "version": "dev-feature/ci-windows",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AlexSkrypnyk/snapshot.git",
-                "reference": "c7575d620d78c0160939d275f89d51877fc6e5db"
+                "reference": "060b84c6f144dada1154ad6bfd0f24ca85386c81"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AlexSkrypnyk/snapshot/zipball/c7575d620d78c0160939d275f89d51877fc6e5db",
-                "reference": "c7575d620d78c0160939d275f89d51877fc6e5db",
+                "url": "https://api.github.com/repos/AlexSkrypnyk/snapshot/zipball/060b84c6f144dada1154ad6bfd0f24ca85386c81",
+                "reference": "060b84c6f144dada1154ad6bfd0f24ca85386c81",
                 "shasum": ""
             },
             "require": {
-                "alexskrypnyk/file": "^1.2.0",
+                "alexskrypnyk/file": "dev-feature/171-copy-mode-paths#31e8eb50c1d93f1e2c148df36432ad7afd05fbf3 as 1.3.1",
                 "php": ">=8.3",
                 "sebastian/diff": "^6.0 || ^7.0"
             },
             "require-dev": {
-                "alexskrypnyk/phpunit-helpers": "^1.0.0",
+                "alexskrypnyk/phpunit-helpers": "^1.2.1",
                 "composer": ">=2.10",
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
                 "drevops/phpcs-standard": "^0.7",
                 "drupal/coder": "^9.0.1",
-                "ergebnis/composer-normalize": "^2.52.0",
+                "ergebnis/composer-normalize": "^2.57.0",
                 "phpbench/phpbench": "^1.7.0",
-                "phpstan/phpstan": "^2.2.13",
-                "phpunit/phpunit": "^12.5.34",
-                "rector/rector": "^2.6.6",
-                "symfony/process": "^7.4.18"
+                "phpstan/phpstan": "^2.3.5",
+                "phpunit/phpunit": "^12.5.44",
+                "rector/rector": "^2.8.4",
+                "symfony/process": "^7.4.22"
             },
             "bin": [
                 "bin/update-snapshots"
@@ -3615,7 +3641,41 @@
                     "AlexSkrypnyk\\Snapshot\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "AlexSkrypnyk\\Snapshot\\Benchmarks\\": "benchmarks",
+                    "AlexSkrypnyk\\Snapshot\\Tests\\": "tests/phpunit"
+                },
+                "classmap": [
+                    "tests/phpunit"
+                ]
+            },
+            "scripts": {
+                "benchmark": [
+                    "mkdir -p .logs >/dev/null && phpbench run --ref=baseline --report=aggregate --dump-file .logs/performance-report.json --output html --output csv --output console"
+                ],
+                "benchmark-baseline": [
+                    "mkdir -p .logs .phpbench >/dev/null && phpbench run --store --tag=baseline --report=aggregate --dump-file .logs/performance-report.json --output html --output csv --output console"
+                ],
+                "lint": [
+                    "phpcs",
+                    "phpstan",
+                    "rector --dry-run"
+                ],
+                "lint-fix": [
+                    "rector",
+                    "phpcbf"
+                ],
+                "reset": [
+                    "rm -Rf vendor composer.lock"
+                ],
+                "test": [
+                    "phpunit --no-coverage"
+                ],
+                "test-coverage": [
+                    "phpunit"
+                ]
+            },
             "license": [
                 "GPL-3.0-or-later"
             ],
@@ -3635,16 +3695,11 @@
             },
             "funding": [
                 {
-                    "url": "https://github.com/alexskrypnyk",
-                    "type": "github"
-                },
-                {
-                    "url": "https://www.patreon.com/alexskrypnyk",
-                    "type": "patreon"
+                    "type": "github",
+                    "url": "https://github.com/alexskrypnyk"
                 }
             ],
-            "time": "2026-09-06T03:28:06+00:00",
-            "published-time": "2026-09-06T03:58:05+00:00"
+            "time": "2026-11-14T09:03:43+00:00"
         },
         {
             "name": "bamarni/composer-bin-plugin",
@@ -6565,9 +6620,24 @@
             "published-time": "2025-12-08T11:19:39+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "alexskrypnyk/file",
+            "version": "dev-feature/171-copy-mode-paths",
+            "alias": "1.3.1",
+            "alias_normalized": "1.3.1.0"
+        },
+        {
+            "package": "alexskrypnyk/snapshot",
+            "version": "dev-feature/ci-windows",
+            "alias": "1.5.1",
+            "alias_normalized": "1.5.1.0"
+        }
+    ],
     "minimum-stability": "stable",
     "stability-flags": {
+        "alexskrypnyk/file": 20,
+        "alexskrypnyk/snapshot": 20,
         "drupal/coder": 15
     },
     "prefer-stable": false,
