@@ -65,8 +65,7 @@ class Internal extends AbstractHandler {
         '/.docker/config/solr/config-set/',
       ];
       // Windows returns mixed separators, and the ignore list uses '/'.
-      $root = str_replace(DIRECTORY_SEPARATOR, '/', $t);
-      $relative_path = str_replace($root, '', str_replace(DIRECTORY_SEPARATOR, '/', $file->getPathname()));
+      $relative_path = str_replace(File::toForwardSlashes($t), '', File::toForwardSlashes($file->getPathname()));
       $should_ignore = FALSE;
       foreach ($ignore_empty_line_processing as $item_path) {
         if (str_starts_with($relative_path, $item_path)) {

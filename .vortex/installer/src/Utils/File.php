@@ -25,7 +25,7 @@ class File extends UpstreamFile {
    * Check if path is internal.
    */
   public static function isInternal(string $path): bool {
-    $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
+    $path = static::toForwardSlashes($path);
 
     if (str_starts_with($path, './')) {
       $path = substr($path, 1);
@@ -186,11 +186,11 @@ class File extends UpstreamFile {
    */
   public static function toRelative(string $path, ?string $base = NULL): string {
     $base ??= (string) getcwd();
-    $absolute = str_replace(DIRECTORY_SEPARATOR, '/', self::absolute($path, $base));
+    $absolute = static::toForwardSlashes(static::absolute($path, $base));
 
     // realpath() rebuilds the path with the platform separator, so the base
     // is resolved the same way before it is stripped.
-    $base = str_replace(DIRECTORY_SEPARATOR, '/', self::realpath($base));
+    $base = static::toForwardSlashes(static::realpath($base));
 
     return str_replace($base . '/', '', $absolute);
   }

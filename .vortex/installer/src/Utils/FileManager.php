@@ -502,9 +502,9 @@ class FileManager {
     $files = File::scandir($root, File::ignoredPaths());
 
     // Windows returns mixed separators, and every path key uses '/'.
-    $root = str_replace(DIRECTORY_SEPARATOR, '/', $root);
+    $root = File::toForwardSlashes($root);
 
-    return array_map(fn(string $file): string => ltrim(str_replace($root, '', str_replace(DIRECTORY_SEPARATOR, '/', $file)), '/'), $files);
+    return array_map(fn(string $file): string => ltrim(str_replace($root, '', File::toForwardSlashes($file)), '/'), $files);
   }
 
   /**

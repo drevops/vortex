@@ -81,7 +81,7 @@ class FileTest extends UnitTestCase {
     yield 'current directory with null base' => [
       $cwd,
       NULL,
-      str_replace(DIRECTORY_SEPARATOR, '/', $cwd),
+      File::toForwardSlashes($cwd),
     ];
     yield 'relative path with null base' => [
       'test/file.txt',
