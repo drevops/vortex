@@ -64,6 +64,34 @@ jobs:
         VORTEX_CI_DB_CACHE_FALLBACK: "yes"
         # Which branch to use as a source of DB caches.
         VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-fi
+        #;< DB_FETCH_SOURCE_FTP
+        VORTEX_FETCH_DB_FTP_USER: ${{ secrets.VORTEX_FETCH_DB_FTP_USER }}
+        VORTEX_FETCH_DB_FTP_PASS: ${{ secrets.VORTEX_FETCH_DB_FTP_PASS }}
+        #;> DB_FETCH_SOURCE_FTP
+        #;< DB_FETCH_SOURCE_S3
+        VORTEX_FETCH_DB_S3_ACCESS_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_ACCESS_KEY }}
+        VORTEX_FETCH_DB_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_SECRET_KEY }}
+        #;> DB_FETCH_SOURCE_S3
+        #;< MIGRATION_DB_FETCH_SOURCE_FTP
+        VORTEX_FETCH_DB2_FTP_USER: ${{ secrets.VORTEX_FETCH_DB2_FTP_USER }}
+        VORTEX_FETCH_DB2_FTP_PASS: ${{ secrets.VORTEX_FETCH_DB2_FTP_PASS }}
+        #;> MIGRATION_DB_FETCH_SOURCE_FTP
+        #;< MIGRATION_DB_FETCH_SOURCE_S3
+        VORTEX_FETCH_DB2_S3_ACCESS_KEY: ${{ secrets.VORTEX_FETCH_DB2_S3_ACCESS_KEY }}
+        VORTEX_FETCH_DB2_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB2_S3_SECRET_KEY }}
+        #;> MIGRATION_DB_FETCH_SOURCE_S3
+        #;< VORTEX_DEV
+        # FTP server that receives the demo database on the nightly run, in a
+        # directory that tells this provider's dumps apart, with a timestamped
+        # copy of each push.
+        VORTEX_PUSH_DB_FTP_HOST: ${{ secrets.VORTEX_PUSH_DB_FTP_HOST }}
+        VORTEX_PUSH_DB_FTP_PORT: ${{ secrets.VORTEX_PUSH_DB_FTP_PORT }}
+        VORTEX_PUSH_DB_FTP_USER: ${{ secrets.VORTEX_PUSH_DB_FTP_USER }}
+        VORTEX_PUSH_DB_FTP_PASS: ${{ secrets.VORTEX_PUSH_DB_FTP_PASS }}
+        VORTEX_PUSH_DB_FTP_DIR: ${{ vars.VORTEX_PUSH_DB_FTP_DIR || 'gha' }}
+        VORTEX_PUSH_DB_FTP_FILE: ${{ vars.VORTEX_PUSH_DB_FTP_FILE || 'db.sql' }}
+        VORTEX_PUSH_DB_TIMESTAMPED_COPY: 1
+        #;> VORTEX_DEV
         VORTEX_FETCH_DB_SOURCE: url
         VORTEX_FETCH_DB_FORCE: 1
         VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
@@ -129,6 +157,8 @@ jobs:
             # Deploy container image.
             echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
             #;> DB_IN_IMAGE
+            # Refresh the database dumps in the fetch sources that are dump stores.
+            echo "VORTEX_PUSH_DB_PROCEED=1"
           } >> "$GITHUB_ENV"
 
       - name: Create cache keys files for database caching
@@ -190,6 +220,28 @@ jobs:
           ./vendor/bin/vortex-push-db-image
         timeout-minutes: 30
       #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
+
+      # Push the freshly-exported sanitized database dump to the push
+      # destinations. No-op unless a fresh DB was fetched (the fetch semaphore) and
+      # the push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
+      - name: Push DB
+        run: |
+          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
+          ./vendor/bin/vortex-push-db
+          #;< VORTEX_DEV
+          if [ -n "${VORTEX_PUSH_DB_FTP_HOST:-}" ]; then VORTEX_PUSH_DB_DESTINATIONS=ftp ./vendor/bin/vortex-push-db; fi
+          #;> VORTEX_DEV
+        timeout-minutes: 30
+
+      #;< MIGRATION
+      # Push the freshly-fetched migration database dump to its push destinations,
+      # next to the primary dump. No-op unless the push was requested.
+      - name: Push migration DB
+        run: |
+          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
+          VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db
+        timeout-minutes: 30
+      #;> MIGRATION
 
       # Save cache per default branch and the timestamp.
       # The cache will not be saved if it already exists.
@@ -570,6 +622,34 @@ jobs:
         VORTEX_CI_DB_CACHE_FALLBACK: "yes"
         # Which branch to use as a source of DB caches.
         VORTEX_CI_DB_CACHE_BRANCH: vortex-dev-didi-ii
+        #;< DB_FETCH_SOURCE_FTP
+        VORTEX_FETCH_DB_FTP_USER: ${{ secrets.VORTEX_FETCH_DB_FTP_USER }}
+        VORTEX_FETCH_DB_FTP_PASS: ${{ secrets.VORTEX_FETCH_DB_FTP_PASS }}
+        #;> DB_FETCH_SOURCE_FTP
+        #;< DB_FETCH_SOURCE_S3
+        VORTEX_FETCH_DB_S3_ACCESS_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_ACCESS_KEY }}
+        VORTEX_FETCH_DB_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_SECRET_KEY }}
+        #;> DB_FETCH_SOURCE_S3
+        #;< MIGRATION_DB_FETCH_SOURCE_FTP
+        VORTEX_FETCH_DB2_FTP_USER: ${{ secrets.VORTEX_FETCH_DB2_FTP_USER }}
+        VORTEX_FETCH_DB2_FTP_PASS: ${{ secrets.VORTEX_FETCH_DB2_FTP_PASS }}
+        #;> MIGRATION_DB_FETCH_SOURCE_FTP
+        #;< MIGRATION_DB_FETCH_SOURCE_S3
+        VORTEX_FETCH_DB2_S3_ACCESS_KEY: ${{ secrets.VORTEX_FETCH_DB2_S3_ACCESS_KEY }}
+        VORTEX_FETCH_DB2_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB2_S3_SECRET_KEY }}
+        #;> MIGRATION_DB_FETCH_SOURCE_S3
+        #;< VORTEX_DEV
+        # FTP server that receives the demo database on the nightly run, in a
+        # directory that tells this provider's dumps apart, with a timestamped
+        # copy of each push.
+        VORTEX_PUSH_DB_FTP_HOST: ${{ secrets.VORTEX_PUSH_DB_FTP_HOST }}
+        VORTEX_PUSH_DB_FTP_PORT: ${{ secrets.VORTEX_PUSH_DB_FTP_PORT }}
+        VORTEX_PUSH_DB_FTP_USER: ${{ secrets.VORTEX_PUSH_DB_FTP_USER }}
+        VORTEX_PUSH_DB_FTP_PASS: ${{ secrets.VORTEX_PUSH_DB_FTP_PASS }}
+        VORTEX_PUSH_DB_FTP_DIR: ${{ vars.VORTEX_PUSH_DB_FTP_DIR || 'gha' }}
+        VORTEX_PUSH_DB_FTP_FILE: ${{ vars.VORTEX_PUSH_DB_FTP_FILE || 'db.sql' }}
+        VORTEX_PUSH_DB_TIMESTAMPED_COPY: 1
+        #;> VORTEX_DEV
         VORTEX_FETCH_DB_SOURCE: container_registry
         VORTEX_FETCH_DB_FORCE: 1
         VORTEX_DB_IMAGE: drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x
@@ -634,6 +714,8 @@ jobs:
             # Deploy container image.
             echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
             #;> DB_IN_IMAGE
+            # Refresh the database dumps in the fetch sources that are dump stores.
+            echo "VORTEX_PUSH_DB_PROCEED=1"
           } >> "$GITHUB_ENV"
 
       - name: Create cache keys files for database caching
@@ -714,6 +796,28 @@ jobs:
           ./vendor/bin/vortex-push-db-image
         timeout-minutes: 30
       #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
+
+      # Push the freshly-exported sanitized database dump to the push
+      # destinations. No-op unless a fresh DB was fetched (the fetch semaphore) and
+      # the push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
+      - name: Push DB
+        run: |
+          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
+          ./vendor/bin/vortex-push-db
+          #;< VORTEX_DEV
+          if [ -n "${VORTEX_PUSH_DB_FTP_HOST:-}" ]; then VORTEX_PUSH_DB_DESTINATIONS=ftp ./vendor/bin/vortex-push-db; fi
+          #;> VORTEX_DEV
+        timeout-minutes: 30
+
+      #;< MIGRATION
+      # Push the freshly-fetched migration database dump to its push destinations,
+      # next to the primary dump. No-op unless the push was requested.
+      - name: Push migration DB
+        run: |
+          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
+          VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db
+        timeout-minutes: 30
+      #;> MIGRATION
 
       # Save cache per default branch and the timestamp.
       # The cache will not be saved if it already exists.

@@ -294,6 +294,25 @@ jobs:
             ./vendor/bin/vortex-refresh-db
           no_output_timeout: 30m
 
+      # Push the freshly-exported sanitized database dump to the push
+      # destinations. No-op unless a fresh DB was fetched (the fetch semaphore) and
+      # the push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
+      - run:
+          name: Push DB
+          command: |
+            [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB push will not proceed." && exit 0
+            ./vendor/bin/vortex-push-db
+          no_output_timeout: 30m
+
+      # Push the freshly-fetched migration database dump to its push destinations,
+      # next to the primary dump. No-op unless the push was requested.
+      - run:
+          name: Push migration DB
+          command: |
+            [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB push will not proceed." && exit 0
+            VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db
+          no_output_timeout: 30m
+
       - save_cache:
           # Save cache per default branch and the timestamp.
           # The cache will not be saved if it already exists.
@@ -312,6 +331,8 @@ jobs:
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
       # Enforce fresh DB build (do not rely on fallback caches).
       VORTEX_CI_DB_CACHE_FALLBACK: 'no'
+      # Refresh the database dumps in the fetch sources that are dump stores.
+      VORTEX_PUSH_DB_PROCEED: 1
       # Do not build the Drupal front-end.
       VORTEX_FRONTEND_BUILD_SKIP: 1
 

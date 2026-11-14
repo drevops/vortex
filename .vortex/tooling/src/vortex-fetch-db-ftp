@@ -35,6 +35,13 @@ VORTEX_FETCH_DB_FTP_PORT="${!_v:-}"
 _v="VORTEX_FETCH_DB${_db_index}_FTP_FILE"
 VORTEX_FETCH_DB_FTP_FILE="${!_v:-}"
 
+# The directory on the FTP server that holds the file.
+#
+# Joined in front of the file name. Leading and trailing slashes are optional.
+# Empty for the root directory of the FTP account.
+_v="VORTEX_FETCH_DB${_db_index}_FTP_DIR"
+VORTEX_FETCH_DB_FTP_DIR="${!_v:-}"
+
 # Directory with database dump file.
 _v="VORTEX_FETCH_DB${_db_index}_FTP_DB_DIR"
 _vs="VORTEX_FETCH_DB${_db_index}_DIR"
@@ -57,6 +64,19 @@ pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START)
 fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
 # @formatter:on
 
+# Print a remote directory with no leading slash and 1 trailing slash, so it
+# joins a file name. Prints nothing for an empty or root directory.
+ftp_dir() {
+  local dir="${1}"
+
+  while [[ ${dir} == /* ]]; do dir="${dir#/}"; done
+  while [[ ${dir} == */ ]]; do dir="${dir%/}"; done
+
+  if [ -n "${dir}" ]; then
+    printf '%s/' "${dir}"
+  fi
+}
+
 # shellcheck disable=SC2043
 for cmd in curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
@@ -66,10 +86,18 @@ for cmd in curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is no
 [ -z "${VORTEX_FETCH_DB_FTP_PORT}" ] && fail "Missing required value for VORTEX_FETCH_DB_FTP_PORT."
 [ -z "${VORTEX_FETCH_DB_FTP_FILE}" ] && fail "Missing required value for VORTEX_FETCH_DB_FTP_FILE."
 
+remote_dir="$(ftp_dir "${VORTEX_FETCH_DB_FTP_DIR}")"
+remote_file="${VORTEX_FETCH_DB_FTP_FILE}"
+if [ -n "${remote_dir}" ]; then
+  remote_file="${remote_dir}${remote_file#/}"
+fi
+
 info "Started database dump fetch from FTP."
+
+note "Remote file: ${remote_file}"
 
 mkdir -p "${VORTEX_FETCH_DB_FTP_DB_DIR}"
 
-curl -u "${VORTEX_FETCH_DB_FTP_USER}":"${VORTEX_FETCH_DB_FTP_PASS}" "ftp://${VORTEX_FETCH_DB_FTP_HOST}:${VORTEX_FETCH_DB_FTP_PORT}/${VORTEX_FETCH_DB_FTP_FILE}" -o "${VORTEX_FETCH_DB_FTP_DB_DIR}/${VORTEX_FETCH_DB_FTP_DB_FILE}"
+curl -u "${VORTEX_FETCH_DB_FTP_USER}":"${VORTEX_FETCH_DB_FTP_PASS}" "ftp://${VORTEX_FETCH_DB_FTP_HOST}:${VORTEX_FETCH_DB_FTP_PORT}/${remote_file}" -o "${VORTEX_FETCH_DB_FTP_DB_DIR}/${VORTEX_FETCH_DB_FTP_DB_FILE}"
 
 pass "Finished database dump fetch from FTP."

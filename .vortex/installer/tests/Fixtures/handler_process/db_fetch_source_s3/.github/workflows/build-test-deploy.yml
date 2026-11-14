@@ -1,0 +1,9 @@
+@@ -191,6 +191,8 @@
+         VORTEX_CI_DB_CACHE_FALLBACK: "yes"
+         # Which branch to use as a source of DB caches.
+         VORTEX_CI_DB_CACHE_BRANCH: "develop"
++        VORTEX_FETCH_DB_S3_ACCESS_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_ACCESS_KEY }}
++        VORTEX_FETCH_DB_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_SECRET_KEY }}
+ 
+     steps:
+       # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.

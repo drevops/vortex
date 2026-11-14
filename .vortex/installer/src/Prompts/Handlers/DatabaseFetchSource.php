@@ -150,6 +150,12 @@ class DatabaseFetchSource extends AbstractHandler {
     if ($v !== self::CONTAINER_REGISTRY && !$is_migration_in_image) {
       File::removeTokenAsync('DB_IN_IMAGE');
     }
+
+    // DB_PUSH wraps the upstream source of a dump store, which only an
+    // 'ftp' or 's3' source can be.
+    if (!in_array($v, [self::FTP, self::S3], TRUE)) {
+      File::removeTokenAsync('DB_PUSH');
+    }
   }
 
 }

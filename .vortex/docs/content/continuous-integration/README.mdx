@@ -79,6 +79,9 @@ site from:
 - Caches the dump, so the `build` job and later runs skip the download
 - On the nightly run of a project that stores its database in a container
   image, pushes the refreshed image to the registry
+- On the nightly run of a project with push destinations or a dump store,
+  pushes the sanitized dump to the FTP server or S3 bucket (see [Database
+  storage](../development/database-storage.mdx#fetch-from-a-dump-store))
 
 The job exists only when the site provisions from a database dump. With the
 `profile` provision type, the pipeline has no `database` job and no nightly

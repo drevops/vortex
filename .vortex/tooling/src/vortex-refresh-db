@@ -15,6 +15,11 @@
 # the service is exported and pushed as VORTEX_DB2_IMAGE, without
 # provisioning. This runs only when VORTEX_REFRESH_DB2_PROCEED is set to 1.
 #
+# With VORTEX_PUSH_DB_PROCEED set to 1 and a push destination, either in
+# VORTEX_PUSH_DB_DESTINATIONS or an 'ftp' or 's3' fetch source with an
+# upstream source in VORTEX_REFRESH_DB_SOURCE (a dump store), the database is
+# sanitized after provisioning, so 'vortex-push-db' pushes a sanitized dump.
+#
 # Every variable of the calling environment is passed to the provisioning in
 # the 'cli' container, so the script is intended to run in CI.
 #
@@ -39,12 +44,17 @@ _db_index="${VORTEX_DB_INDEX:-}"
 # VORTEX_DB2_IMAGE_BASE and falls back to this value.
 VORTEX_DB_IMAGE_BASE="${VORTEX_DB_IMAGE_BASE:-}"
 
-# Fetch source of the database dump file to import into the base image.
+# Upstream fetch source of the database dump file.
 #
 # Required when the fetch source is 'container_registry' and a base image is
 # set: the database image is built from a dump file, so it needs a dump file
 # source such as 'url', 'ftp', 'acquia', 'lagoon' or 's3'. An indexed
 # database uses VORTEX_REFRESH_DB2_SOURCE.
+#
+# With an 'ftp' or 's3' fetch source, setting this value makes the fetch
+# source a dump store: with VORTEX_PUSH_DB_PROCEED set to 1, 'vortex-fetch-db'
+# fetches the dump from this source and 'vortex-push-db' pushes the exported
+# dump to the store.
 _v="VORTEX_REFRESH_DB${_db_index}_SOURCE"
 VORTEX_REFRESH_DB_SOURCE="${!_v:-}"
 
@@ -97,6 +107,23 @@ fi
 
 rebuild_image=0
 [ -n "${db_image}" ] && [ -n "${db_image_base}" ] && rebuild_image=1
+
+# A push destination receives the dump this refresh exports, so with a push
+# requested the exported dump must be sanitized.
+refresh_store=0
+if [ -z "${_db_index}" ] && [ -z "${db_image}" ] && [ "${VORTEX_PUSH_DB_PROCEED:-}" = "1" ]; then
+  if [ -n "${VORTEX_PUSH_DB_DESTINATIONS:-}" ]; then
+    refresh_store=1
+  elif [ -n "${VORTEX_REFRESH_DB_SOURCE}" ]; then
+    case "${fetch_source}" in
+      ftp | s3) refresh_store=1 ;;
+    esac
+  fi
+fi
+
+if [ "${refresh_store}" -eq 1 ] && [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP:-}" = "1" ]; then
+  fail "The pushed database dump file must be sanitized, but VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1."
+fi
 
 if [ "${rebuild_image}" -eq 1 ] && [ "${fetch_source}" = "container_registry" ]; then
   case "${VORTEX_REFRESH_DB_SOURCE}" in
@@ -159,6 +186,12 @@ else
   done
 
   docker compose exec "${env_args[@]}" -e "VORTEX_DB_IMAGE=${provision_db_image}" -e VORTEX_PROVISION_POST_OPERATIONS_SKIP=1 -T cli ./vendor/bin/vortex-provision
+
+  # The provisioning skips the post-provision operations, which include the
+  # sanitization, so the dump leaves the hosting and CI only after this step.
+  if [ "${refresh_store}" -eq 1 ]; then
+    docker compose exec "${env_args[@]}" -T cli ./vendor/drevops/vortex-tooling/src/vortex-provision-sanitize-db || fail "Unable to sanitize the database."
+  fi
 
   # Database-in-image storage exports the image archive instead of the dump.
   if [ -n "${db_image}" ]; then

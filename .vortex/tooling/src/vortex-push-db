@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+##
+# Push database dump.
+#
+# This is a router script to call relevant scripts based on type.
+#
+# The database dump file is pushed to every destination in
+# VORTEX_PUSH_DB_DESTINATIONS, such as 'ftp,s3'. When it is empty and the
+# 'ftp' or 's3' fetch source has an upstream source in
+# VORTEX_REFRESH_DB_SOURCE (a dump store), the dump is pushed to the fetch
+# source. The database is always fetched from 1 source.
+#
+# With VORTEX_DB_INDEX set (e.g., "2" for the migration database), the
+# indexed database pushes its own dump file with the indexed variables, so
+# several databases share 1 storage.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Database index suffix. When set (e.g., "2"), all DB-related variable lookups
+# use the indexed variant.
+_db_index="${VORTEX_DB_INDEX:-}"
+
+# Proceed with push.
+#
+# Set to 1 in the nightly CI job only, so the storage is refreshed once a day
+# and never from a feature branch build.
+VORTEX_PUSH_DB_PROCEED="${VORTEX_PUSH_DB_PROCEED:-}"
+
+# Destinations to push the database dump file to: 'ftp', 's3' or both,
+# separated by commas or spaces.
+#
+# Defaults to the fetch source when it is a dump store. Each destination reads
+# its own variables, such as VORTEX_PUSH_DB_FTP_HOST for 'ftp'.
+_v="VORTEX_PUSH_DB${_db_index}_DESTINATIONS"
+VORTEX_PUSH_DB_DESTINATIONS="${!_v:-}"
+
+# Database fetch source.
+_v="VORTEX_FETCH_DB${_db_index}_SOURCE"
+VORTEX_FETCH_DB_SOURCE="${!_v:-url}"
+
+# Upstream source of the pushed database dump file.
+_v="VORTEX_REFRESH_DB${_db_index}_SOURCE"
+VORTEX_REFRESH_DB_SOURCE="${!_v:-}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+info "Started database${_db_index:+ ${_db_index}} push."
+
+[ "${VORTEX_PUSH_DB_PROCEED}" != "1" ] && pass "Skipped database push as VORTEX_PUSH_DB_PROCEED is not set to 1." && exit 0
+
+# A dump store receives the dump that the nightly refresh exports.
+if [ -z "${VORTEX_PUSH_DB_DESTINATIONS}" ] && [ -n "${VORTEX_REFRESH_DB_SOURCE}" ]; then
+  case "${VORTEX_FETCH_DB_SOURCE}" in
+    ftp | s3) VORTEX_PUSH_DB_DESTINATIONS="${VORTEX_FETCH_DB_SOURCE}" ;;
+  esac
+fi
+
+destinations=()
+for destination in ${VORTEX_PUSH_DB_DESTINATIONS//,/ }; do
+  case "${destination}" in
+    ftp | s3) ;;
+    *) fail "Unsupported database push destination \"${destination}\" in VORTEX_PUSH_DB${_db_index}_DESTINATIONS. Use one or more of: ftp, s3." ;;
+  esac
+
+  # Pushing to the fetch source replaces the dump it fetched with its own
+  # export, so the source must be a dump store refreshed from upstream.
+  if [ "${destination}" = "${VORTEX_FETCH_DB_SOURCE}" ] && [ -z "${VORTEX_REFRESH_DB_SOURCE}" ]; then
+    fail "Refused to push the database to the \"${destination}\" fetch source as VORTEX_REFRESH_DB${_db_index}_SOURCE is not set, so the push would replace the dump it fetched."
+  fi
+
+  destinations+=("${destination}")
+done
+
+[ "${#destinations[@]}" -eq 0 ] && pass "Skipped database push as VORTEX_PUSH_DB${_db_index}_DESTINATIONS is empty and the \"${VORTEX_FETCH_DB_SOURCE}\" fetch source is not a dump store." && exit 0
+
+# The pushed dump leaves the hosting and CI, so it must be sanitized. Only the
+# primary database is sanitized: an indexed database is pushed as fetched.
+[ -z "${_db_index}" ] && [ "${VORTEX_PROVISION_SANITIZE_DB_SKIP:-}" = "1" ] && fail "Refused to push the database as VORTEX_PROVISION_SANITIZE_DB_SKIP is set to 1 and the database dump is not sanitized."
+
+for destination in "${destinations[@]}"; do
+  note "Pushing to the ${destination} destination."
+  env VORTEX_DB_INDEX="${_db_index}" "$(dirname "${BASH_SOURCE[0]}")/vortex-push-db-${destination}"
+done
+
+pass "Finished database${_db_index:+ ${_db_index}} push."

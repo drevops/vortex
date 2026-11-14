@@ -55,6 +55,24 @@ info "Started database${_db_index:+ ${_db_index}} fetch."
 
 [ "${VORTEX_FETCH_DB_PROCEED}" != "1" ] && pass "Skipped database fetch as VORTEX_FETCH_DB_PROCEED is not set to 1." && exit 0
 
+# An 'ftp' or 's3' source with an upstream source in VORTEX_REFRESH_DB_SOURCE
+# is a dump store: it receives the dump that the nightly refresh pushes, so
+# with a push requested the dump comes from the upstream source. The store
+# may hold no dump yet on the first push.
+_v="VORTEX_REFRESH_DB${_db_index}_SOURCE"
+refresh_source="${!_v:-}"
+if [ "${VORTEX_PUSH_DB_PROCEED:-}" = "1" ] && [ -n "${refresh_source}" ]; then
+  case "${VORTEX_FETCH_DB_SOURCE}" in
+    ftp | s3)
+      case "${refresh_source}" in
+        "${VORTEX_FETCH_DB_SOURCE}" | container_registry | none) fail "The database dump file pushed to ${VORTEX_FETCH_DB_SOURCE} is fetched from an upstream source, but VORTEX_REFRESH_DB${_db_index}_SOURCE is \"${refresh_source}\". Set it to another source of the dump file: url, ftp, acquia, lagoon or s3." ;;
+      esac
+      note "Fetching from the ${refresh_source} source in VORTEX_REFRESH_DB${_db_index}_SOURCE as VORTEX_PUSH_DB_PROCEED is set to 1."
+      VORTEX_FETCH_DB_SOURCE="${refresh_source}"
+      ;;
+  esac
+fi
+
 # The fetch script is resolved before the existing dump check, so an
 # unsupported source fails even when a cached dump would be reused.
 case "${VORTEX_FETCH_DB_SOURCE}" in

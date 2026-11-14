@@ -241,6 +241,8 @@ jobs:
           {
             echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
             echo "VORTEX_FRONTEND_BUILD_SKIP=1"
+            # Refresh the database dumps in the fetch sources that are dump stores.
+            echo "VORTEX_PUSH_DB_PROCEED=1"
           } >> "$GITHUB_ENV"
 
       - name: Create cache keys files for database caching
@@ -274,6 +276,15 @@ jobs:
         run: |
           if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
           ./vendor/bin/vortex-refresh-db
+        timeout-minutes: 30
+
+      # Push the freshly-exported sanitized database dump to the push
+      # destinations. No-op unless a fresh DB was fetched (the fetch semaphore) and
+      # the push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
+      - name: Push DB
+        run: |
+          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
+          ./vendor/bin/vortex-push-db
         timeout-minutes: 30
 
       # Save cache per default branch and the timestamp.

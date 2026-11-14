@@ -379,6 +379,10 @@ following values:
 
 Any other value stops the command with an error that lists these values.
 
+An `ftp` or `s3` source can also be a dump store that the nightly CI run
+refreshes with a sanitized dump. See [Database
+storage](database-storage.mdx).
+
 Each source reads its own settings, which the
 [Variables reference](variables.mdx) lists. The hosting sources copy the
 environment named in `VORTEX_FETCH_DB_ENVIRONMENT`. `.env` ships with

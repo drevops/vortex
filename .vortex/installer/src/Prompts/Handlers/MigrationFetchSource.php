@@ -144,6 +144,12 @@ class MigrationFetchSource extends AbstractHandler {
         File::removeTokenAsync($token);
       }
     }
+
+    // MIGRATION_DB_PUSH wraps the upstream source of a dump store, which
+    // only an 'ftp' or 's3' source can be.
+    if (!in_array($v, [self::FTP, self::S3], TRUE)) {
+      File::removeTokenAsync('MIGRATION_DB_PUSH');
+    }
   }
 
 }

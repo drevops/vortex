@@ -27,6 +27,9 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
           $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'VORTEX_DB_INDEX=2 ./vendor/bin/vortex-refresh-db');
           $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'VORTEX_DB_IMAGE_BASE');
           $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'Deploy DB image');
+          // Any migration source can push to its own destinations.
+          $test->assertFileContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db');
+          $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_REFRESH_DB2_SOURCE=url');
       }),
     ];
     yield 'migration_fetch_source_ftp' => [
@@ -39,6 +42,7 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_FTP_HOST');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_URL=');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_S3_BUCKET');
+          $test->assertFileContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db');
       }),
     ];
     yield 'migration_fetch_source_acquia' => [
@@ -75,6 +79,7 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_S3_BUCKET');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_URL=');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_FTP_HOST');
+          $test->assertFileContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db');
       }),
     ];
     yield 'migration_fetch_source_container_registry' => [
