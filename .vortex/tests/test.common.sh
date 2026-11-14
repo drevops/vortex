@@ -31,7 +31,9 @@ bats() {
   pushd "${ROOT_DIR}" >/dev/null || exit 1
   if [ -n "${VORTEX_DEV_TEST_COVERAGE_DIR:-}" ]; then
     mkdir -p "${VORTEX_DEV_TEST_COVERAGE_DIR}"
-    kcov --include-pattern=.sh,.bash --bash-parse-files-in-dir="${SCRIPTS_DIR}","${BATS_DIR}" --exclude-pattern=vendor,node_modules "${VORTEX_DEV_TEST_COVERAGE_DIR}" "${TOOLING_DIR}/node_modules/.bin/bats" "$@"
+    # The default PS4 method prints multi-line '[[ ]]' operands from the trace
+    # to stdout, so the DEBUG trap method keeps the test output clean.
+    kcov --bash-method=DEBUG --include-pattern=.sh,.bash --bash-parse-files-in-dir="${SCRIPTS_DIR}","${BATS_DIR}" --exclude-pattern=vendor,node_modules "${VORTEX_DEV_TEST_COVERAGE_DIR}" "${TOOLING_DIR}/node_modules/.bin/bats" "$@"
   else
     "${TOOLING_DIR}/node_modules/.bin/bats" "$@"
   fi
