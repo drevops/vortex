@@ -12,9 +12,8 @@ lives.
 
 This page is for developers who work on a **Vortex** project with an AI
 coding agent such as Claude Code. It explains what each instruction file
-gives the agent and how to review code with the shipped `review-code`
-skill. It also covers adding skills of your own and tuning automated code
-review.
+gives the agent and how to use the shipped skills. It also covers adding
+skills of your own and tuning automated code review.
 
 The installer adds the instruction files unless you answer no to its
 **Provide AI agent instructions?** prompt. Answering no leaves out the
@@ -156,6 +155,57 @@ Edit the file that owns the rule you want to change, then commit it:
 For example, to stop the review flagging `\Drupal::` calls in a legacy
 module, record that decision in `AGENTS.md`. The review reads it on every
 run and doesn't flag what it allows.
+
+## Write Behat steps
+
+The `create-behat-step` skill writes a Behat step of your own when no
+registered step does what a scenario needs. It builds the step on the
+public helpers of [Behat Steps](https://github.com/drevops/behat-steps),
+in a trait that your `FeatureContext` uses. It also adds a scenario that
+runs the step.
+
+Describe the step to your agent, or run the skill with the description in
+Claude Code:
+
+```text
+/create-behat-step a Then step that checks that the page with a title is authored by a user
+```
+
+The skill ships inside the `drevops/behat-steps` package. Through
+`.claude/skills/create-behat-step/SKILL.md`, the agent follows the
+package's own `SKILL.md` in `vendor/`, so the instructions match the
+package version that Composer installs.
+
+The installer removes the skill when you deselect Behat in its
+**Development tools** prompt. The
+[Behat Steps AI guide](https://behat-steps.drevops.com/guides/ai-assistants)
+describes each step the skill takes.
+
+## Development skills
+
+**Vortex** ships skills for the tasks a Drupal team repeats on a project.
+Each skill uses the project's `ahoy` commands, directories and settings.
+
+Ask your agent for the task, or run the skill by name in Claude Code, such
+as `/reconcile-config`. The installer ships a skill only when the project
+has what the skill works on:
+
+| Skill | Use it to | Shipped when |
+|---|---|---|
+| `set-up-environment` | Build the local environment, get a database and fix the stack when it doesn't start | Always |
+| `create-module` | Add or extend a custom module with services, hooks, plugins, routes and update hooks | Always |
+| `create-content-type` | Add content types, fields and displays, and ship them as configuration or a recipe | Always |
+| `debug-errors` | Find the cause of an error in the logs, the provisioning output or with Xdebug | Always |
+| `fix-lint` | Make `ahoy lint` pass and fix what the automatic fixers can't | A linter is selected |
+| `update-dependencies` | Update Drupal core, modules and packages, and maintain the patches | Always |
+| `manage-config` | Preview and apply configuration imports and exports, change a single item and work with configuration splits | Always |
+| `reconcile-config` | Compare a deployed environment's database with the configuration in code and resolve each difference | Always |
+| `write-tests` | Pick the test type for a change and reproduce a bug in a failing test before fixing it | PHPUnit or Behat is selected |
+| `create-migration` | Write and run migrations against the migration database | The migration database is enabled |
+| `secure-code` | Write custom code that handles access, input, output, files and secrets safely | Always |
+| `debug-performance` | Find slow pages, missing cacheability metadata and the code that stops a response from being cached | Always |
+| `create-component` | Create or change a Single Directory Component in the custom theme | A custom theme is selected |
+| `configure-search` | Configure and debug Search API servers and indexes, and rebuild an index | Solr is selected |
 
 ## Custom skills
 

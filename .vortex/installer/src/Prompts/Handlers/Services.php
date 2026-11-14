@@ -134,6 +134,7 @@ class Services extends AbstractHandler {
       File::remove($t . '/.docker/solr.dockerfile');
       File::remove($t . '/tests/behat/features/search.feature');
       File::remove($t . '/scripts/provision-30-search-index.sh');
+      File::remove($t . '/.claude/skills/configure-search');
       JsonManipulator::updateFile($t . '/composer.json', function (JsonManipulator $cj): void {
         $cj->removeSubNode('require', 'drupal/solr');
         $cj->removeSubNode('require', 'drupal/search_api_solr');

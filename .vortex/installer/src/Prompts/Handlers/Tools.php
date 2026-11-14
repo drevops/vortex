@@ -514,6 +514,7 @@ class Tools extends AbstractHandler {
           'behat.php',
           'tests/behat',
           'gherkinlint.json',
+          '.claude/skills/create-behat-step',
         ],
         'strings' => [
           '/^.*\bbehat\b.*\n?/m',
@@ -582,11 +583,26 @@ class Tools extends AbstractHandler {
       ],
       'test' => [
         'tools' => [self::PHPUNIT, self::BEHAT],
+        'files' => ['.claude/skills/write-tests'],
         'ahoy' => [
           '/^\h*test:\R\h*usage:\h*Run all tests\.\R\h*cmd:\h*\|$/um',
           '/^\h*lint-tests:\R\h*usage:\h*Lint tests code\.\R\h*cmd:\h*\|\h*\R^\h*$/um',
         ],
         'token' => 'TOOL_GROUP_TEST',
+      ],
+      'lint_all' => [
+        'tools' => [
+          self::PHPCS,
+          self::PHPSTAN,
+          self::RECTOR,
+          self::ESLINT,
+          self::STYLELINT,
+          self::TWIG_CS_FIXER,
+          self::DCLINT,
+          self::HADOLINT,
+          self::BEHAT,
+        ],
+        'files' => ['.claude/skills/fix-lint'],
       ],
       'frontend_linting' => [
         'tools' => [self::ESLINT, self::STYLELINT],

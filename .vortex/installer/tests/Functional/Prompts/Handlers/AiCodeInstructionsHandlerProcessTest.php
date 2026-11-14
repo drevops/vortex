@@ -21,6 +21,20 @@ class AiCodeInstructionsHandlerProcessTest extends AbstractHandlerProcessTestCas
           $test->assertFileNotContainsString(static::$sut . '/.claude/settings.json', 'enabledPlugins');
           $test->assertFileExists(static::$sut . '/.claude/skills/review-code/SKILL.md');
           $test->assertFileExists(static::$sut . '/.claude/skills/review-code/checklist.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/create-behat-step/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/manage-config/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/reconcile-config/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/write-tests/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/secure-code/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/debug-performance/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/create-component/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/configure-search/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/set-up-environment/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/debug-errors/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/create-module/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/create-content-type/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/fix-lint/SKILL.md');
+          $test->assertFileExists(static::$sut . '/.claude/skills/update-dependencies/SKILL.md');
       }),
     ];
     yield 'ai_instructions_disabled' => [
