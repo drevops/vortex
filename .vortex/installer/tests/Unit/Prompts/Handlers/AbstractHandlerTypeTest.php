@@ -23,6 +23,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Gitleaks;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
+use DrevOps\VortexInstaller\Prompts\Handlers\Lighthouse;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
@@ -118,6 +119,7 @@ class AbstractHandlerTypeTest extends UnitTestCase {
     yield 'ai_code_instructions' => [AiCodeInstructions::id(), PromptType::Confirm];
     yield 'ai_code_review' => [AiCodeReview::id(), PromptType::Confirm];
     yield 'visual_regression' => [VisualRegression::id(), PromptType::Confirm];
+    yield 'lighthouse' => [Lighthouse::id(), PromptType::Confirm];
     yield 'gitleaks' => [Gitleaks::id(), PromptType::Confirm];
     yield 'frontend_build' => [FrontendBuild::id(), PromptType::Confirm];
     yield 'storybook' => [Storybook::id(), PromptType::Confirm];

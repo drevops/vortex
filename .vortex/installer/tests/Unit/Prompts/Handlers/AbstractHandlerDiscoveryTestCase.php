@@ -24,6 +24,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Gitleaks;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
+use DrevOps\VortexInstaller\Prompts\Handlers\Lighthouse;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
@@ -163,6 +164,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       MigrationImage::id() => NULL,
       CiProvider::id() => CiProvider::GITHUB_ACTIONS,
       VisualRegression::id() => FALSE,
+      Lighthouse::id() => FALSE,
       Gitleaks::id() => TRUE,
       DependencyUpdatesProvider::id() => DependencyUpdatesProvider::RENOVATEBOT_APP,
       DependencyUpdatesAutomerge::id() => array_keys(DependencyUpdatesAutomerge::GROUPS),
@@ -250,6 +252,7 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       NotificationChannels::id() => static::TUI_DEFAULT,
       CiProvider::id() => static::TUI_DEFAULT,
       VisualRegression::id() => static::TUI_DEFAULT,
+      Lighthouse::id() => static::TUI_DEFAULT,
       Gitleaks::id() => static::TUI_DEFAULT,
       DependencyUpdatesProvider::id() => static::TUI_DEFAULT,
       DependencyUpdatesAutomerge::id() => static::TUI_DEFAULT,

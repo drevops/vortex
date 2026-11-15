@@ -290,6 +290,24 @@ services:
       lagoon.type: none # Do not deploy in Lagoon.
     #;> HOSTING_LAGOON
 
+  #;< LIGHTHOUSE
+  # Lighthouse container, used for performance, accessibility, best practices and SEO audits.
+  # Started on demand with `ahoy test-lighthouse`, so `ahoy up` does not pull or start it.
+  lighthouse:
+    image: patrickhulce/lhci-client:0.16.1
+    profiles: [lighthouse]
+    environment:
+      <<: *default-environment
+    <<: *default-volumes
+    working_dir: /app
+    user: root # Write reports to the shared application volume. Chrome runs with '--no-sandbox' as a result.
+    shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
+    #;< HOSTING_LAGOON
+    labels:
+      lagoon.type: none # Do not deploy in Lagoon.
+    #;> HOSTING_LAGOON
+  #;> LIGHTHOUSE
+
   # Helper container to wait for services to become available.
   wait-for-dependencies:
     image: drevops/docker-wait-for-dependencies:26.10.0

@@ -25,6 +25,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\LabelMergeConflictsPr;
+use DrevOps\VortexInstaller\Prompts\Handlers\Lighthouse;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
@@ -170,6 +171,7 @@ class PromptManager {
       ->section('Continuous Integration')
         ->add($h[CiProvider::id()])
         ->add($h[VisualRegression::id()])
+        ->add($h[Lighthouse::id()])
         ->add($h[Gitleaks::id()])
       ->section('Automations')
         ->add($h[DependencyUpdatesProvider::id()])
@@ -418,6 +420,7 @@ class PromptManager {
     $values['Continuous Integration'] = Tui::LIST_SECTION_TITLE;
     $values['CI provider'] = $responses[CiProvider::id()];
     $values['Visual regression testing'] = Converter::bool($responses[VisualRegression::id()]);
+    $values['Lighthouse audits'] = Converter::bool($responses[Lighthouse::id()]);
     $values['Secret scanning with Gitleaks'] = Converter::bool($responses[Gitleaks::id()]);
 
     $values['Automations'] = Tui::LIST_SECTION_TITLE;

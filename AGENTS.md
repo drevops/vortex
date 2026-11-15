@@ -87,6 +87,12 @@ ahoy test-js  # Run Jest JavaScript unit tests
 # Behat testing
 ahoy test-bdd # Run Behat tests
 ahoy test-bdd -- --tags=@tagname  # Run Behat tests with specific tag
+#;< LIGHTHOUSE
+
+# Lighthouse audits
+ahoy test-lighthouse          # Audit the configured pages, reports in .logs/lighthouse
+ahoy test-lighthouse /about   # Audit specific paths
+#;> LIGHTHOUSE
 ```
 
 ## Before Starting Any Task
