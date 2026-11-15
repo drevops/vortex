@@ -1,13 +1,13 @@
-@@ -3,7 +3,6 @@
-     <description>Custom PHPCS Standard, based on Drupal standards.</description>
+@@ -13,7 +13,6 @@
+     <config name="testVersion" value="8.4"/>
  
      <file>web/modules/custom</file>
 -    <file>web/themes/custom</file>
      <file>web/sites/default/settings.php</file>
      <file>web/sites/default/includes</file>
      <file>tests</file>
-@@ -43,10 +42,6 @@
-     <config name="testVersion" value="8.4"/>
+@@ -20,10 +19,6 @@
+     <file>scripts</file>
  
      <!-- Exclude theme assets. -->
 -    <exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>
@@ -16,4 +16,4 @@
 -    <exclude-pattern>web\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>
      <exclude-pattern>*\.min\.*</exclude-pattern>
  
-     <!-- Force no empty lines after function opening brace. -->
+     <rule ref="Drupal"/>
