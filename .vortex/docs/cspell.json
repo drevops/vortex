@@ -86,6 +86,7 @@
         "phpcompatibility",
         "phpspec",
         "phpstorm",
+        "polysite",
         "postbuild",
         "preboot",
         "prompty",
