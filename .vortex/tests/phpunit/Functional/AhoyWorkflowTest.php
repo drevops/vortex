@@ -151,6 +151,18 @@ class AhoyWorkflowTest extends FunctionalTestCase {
     $this->subtestAhoyStorybook();
   }
 
+  #[Group('p4')]
+  public function testAhoyWorkflowLighthouse(): void {
+    static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
+    static::$sutInstallerPrompts = ['lighthouse' => TRUE];
+    $this->prepareSut();
+    $this->adjustAhoyForUnmountedVolumes();
+
+    $this->subtestAhoyBuild();
+
+    $this->subtestAhoyLighthouse();
+  }
+
   #[Group('p3')]
   public function testAhoyBuildIdempotence(): void {
     static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];

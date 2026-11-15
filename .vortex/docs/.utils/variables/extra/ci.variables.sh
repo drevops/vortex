@@ -81,6 +81,12 @@ VORTEX_CI_BEHAT_PROFILE=
 # Ignore Jest test failures.
 VORTEX_CI_JEST_IGNORE_FAILURE=0
 
+# Ignore Lighthouse audit failures. Set to 0 to fail the build when a score is below its budget.
+VORTEX_CI_LIGHTHOUSE_IGNORE_FAILURE=1
+
+# Skip the Lighthouse audit.
+VORTEX_CI_LIGHTHOUSE_SKIP=0
+
 # Ignore working tree check failures.
 VORTEX_CI_WORKTREE_CHANGES_IGNORE_FAILURE=0
 
