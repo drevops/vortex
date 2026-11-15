@@ -300,8 +300,8 @@ services:
       <<: *default-environment
     <<: *default-volumes
     working_dir: /app
-    user: root # Write reports to the shared application volume. Chrome runs with '--no-sandbox' as a result.
     shm_size: '1gb' # Increase '/dev/shm' partition size to avoid browser crashing.
+    user: root # Write reports to the shared application volume. Chrome runs with '--no-sandbox' as a result.
     #;< HOSTING_LAGOON
     labels:
       lagoon.type: none # Do not deploy in Lagoon.
