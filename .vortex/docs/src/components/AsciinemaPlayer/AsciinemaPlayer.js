@@ -91,7 +91,6 @@ const AsciinemaPlayer = ({
           }
         }
       } catch (error) {
-        // eslint-disable-next-line no-console
         console.error('Failed to load Asciinema player:', error);
       }
     };
