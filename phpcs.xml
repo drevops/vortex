@@ -2,12 +2,29 @@
 <ruleset name="custom">
     <description>Custom PHPCS Standard, based on Drupal standards.</description>
 
+    <arg name="extensions" value="inc,info,install,module,php,profile,test,theme"/>
+    <arg name="colors"/>
+    <arg value="sp"/>
+
+    <!-- Adjust the number of parallel processes to run based on the number of CPU cores available. -->
+    <arg name="parallel" value="10"/>
+
+    <!-- Lint code against platform version specified in composer.json key "config.platform.php". -->
+    <config name="testVersion" value="8.4"/>
+
     <file>web/modules/custom</file>
     <file>web/themes/custom</file>
     <file>web/sites/default/settings.php</file>
     <file>web/sites/default/includes</file>
     <file>tests</file>
     <file>scripts</file>
+
+    <!-- Exclude theme assets. -->
+    <exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>
+    <exclude-pattern>web\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
+    <exclude-pattern>web\/themes\/custom\/.*\/images\/.*</exclude-pattern>
+    <exclude-pattern>web\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>
+    <exclude-pattern>*\.min\.*</exclude-pattern>
 
     <rule ref="Drupal"/>
     <rule ref="DrupalPractice"/>
@@ -19,35 +36,6 @@
             <property name="withSpacesAroundOperators" value="no"/>
         </properties>
     </rule>
-
-    <!-- Fail on debug calls. Add an element to forbid another function. -->
-    <rule ref="Drupal.Functions.DiscouragedFunctions">
-        <properties>
-            <property name="error" value="true"/>
-            <property name="forbiddenFunctions" type="array" extend="true">
-                <element key="var_dump" value="null"/>
-                <element key="print_r" value="null"/>
-                <element key="dump" value="null"/>
-            </property>
-        </properties>
-    </rule>
-
-    <arg name="extensions" value="inc,info,install,module,php,profile,test,theme"/>
-    <arg name="colors"/>
-    <arg value="sp"/>
-
-    <!-- Adjust the number of parallel processes to run based on the number of CPU cores available. -->
-    <arg name="parallel" value="10"/>
-
-    <!-- Lint code against platform version specified in composer.json key "config.platform.php". -->
-    <config name="testVersion" value="8.4"/>
-
-    <!-- Exclude theme assets. -->
-    <exclude-pattern>web\/themes\/custom\/.*\/build\/.*</exclude-pattern>
-    <exclude-pattern>web\/themes\/custom\/.*\/fonts\/.*</exclude-pattern>
-    <exclude-pattern>web\/themes\/custom\/.*\/images\/.*</exclude-pattern>
-    <exclude-pattern>web\/themes\/custom\/.*\/node_modules\/.*</exclude-pattern>
-    <exclude-pattern>*\.min\.*</exclude-pattern>
 
     <!-- Force no empty lines after function opening brace. -->
     <rule ref="Squiz.WhiteSpace.FunctionOpeningBraceSpace">
@@ -77,4 +65,16 @@
         <exclude-pattern>*\/tests\/behat\/bootstrap/*\.php</exclude-pattern>
     </rule>
     <!-- #;> TOOL_BEHAT -->
+
+    <!-- Fail on debug calls. Add an element to forbid another function. -->
+    <rule ref="Drupal.Functions.DiscouragedFunctions">
+        <properties>
+            <property name="error" value="true"/>
+            <property name="forbiddenFunctions" type="array" extend="true">
+                <element key="var_dump" value="null"/>
+                <element key="print_r" value="null"/>
+                <element key="dump" value="null"/>
+            </property>
+        </properties>
+    </rule>
 </ruleset>
