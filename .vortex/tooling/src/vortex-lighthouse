@@ -121,7 +121,7 @@ collect_sitemap() {
 #
 # A category Lighthouse could not score is printed with an empty score.
 report_scores() {
-  node -e 'const r = require(process.argv[1]); for (const [id, c] of Object.entries(r.categories || {})) console.log(id + " " + (c.score === null ? "" : Math.round(c.score * 100)));' "${1}"
+  node -e 'const r = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")); for (const [id, c] of Object.entries(r.categories || {})) console.log(id + " " + (c.score === null ? "" : Math.round(c.score * 100)));' "${1}"
 }
 
 info "Started Lighthouse audit."
