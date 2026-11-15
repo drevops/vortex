@@ -191,8 +191,9 @@ of GitHub Actions and CircleCI. It reads the same `.env` configuration as
 because the CI step doesn't pass the CI provider's variables into the
 container.
 
-The reports ship in the job's test artifacts with the rest of `.logs/`. On
-GitHub Actions, the step also adds the summary table to the workflow run
+The reports ship in the job's test artifacts with the rest of `.logs/`, so
+keep `VORTEX_LIGHTHOUSE_REPORT_DIR` inside `.logs/` for CI to upload them.
+On GitHub Actions, the step also adds the summary table to the workflow run
 summary.
 
 ### Make the audit blocking
@@ -223,7 +224,7 @@ The audit reads the following variables:
 | `VORTEX_LIGHTHOUSE_BUDGET_ACCESSIBILITY`  | `0`                                                   | Minimum accessibility score, `0` to report only            |
 | `VORTEX_LIGHTHOUSE_BUDGET_BEST_PRACTICES` | `0`                                                   | Minimum best practices score, `0` to report only           |
 | `VORTEX_LIGHTHOUSE_BUDGET_SEO`            | `0`                                                   | Minimum SEO score, `0` to report only                      |
-| `VORTEX_LIGHTHOUSE_REPORT_DIR`            | `.logs/lighthouse`                                    | Directory for the reports                                  |
+| `VORTEX_LIGHTHOUSE_REPORT_DIR`            | `.logs/lighthouse`                                    | Directory for the reports, inside `.logs/` for CI uploads  |
 | `VORTEX_LIGHTHOUSE_CHROME_FLAGS`          | `--headless=new --no-sandbox --disable-dev-shm-usage` | Flags passed to Chrome                                     |
 | `VORTEX_CI_LIGHTHOUSE_IGNORE_FAILURE`     | `1`                                                   | CI only: `0` fails the build when a score is below budget  |
 | `VORTEX_CI_LIGHTHOUSE_SKIP`               | `0`                                                   | CI only: `1` skips the audit                               |

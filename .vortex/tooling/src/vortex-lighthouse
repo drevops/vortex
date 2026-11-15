@@ -91,7 +91,7 @@ resolve_url() {
 
 # Print the '<loc>' values of the sitemap XML on stdin, 1 per line.
 sitemap_locs() {
-  tr -d '\r' | grep -o '<loc>[^<]*</loc>' | sed -e 's#<loc>##' -e 's#</loc>##' -e 's#&amp;#\&#g' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' || true
+  tr -d '\r\n' | grep -o '<loc>[^<]*</loc>' | sed -e 's#<loc>##' -e 's#</loc>##' -e 's#&amp;#\&#g' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' || true
 }
 
 # Add up to VORTEX_LIGHTHOUSE_SITEMAP_LIMIT pages of a sitemap to
@@ -213,9 +213,11 @@ index=0
 for url in "${unique[@]}"; do
   index=$((index + 1))
 
-  # The index keeps the names of different pages with similar paths apart.
+  # The index keeps the names of different pages with similar paths apart, so
+  # the path part can be cut to stay within the 255-byte file name limit.
   name="$(url_path "${url}" | tr -cs 'A-Za-z0-9' '-')"
   name="${name#-}"
+  name="${name:0:100}"
   name="${name%-}"
   name="$(printf '%02d' "${index}")-${name:-front}"
 

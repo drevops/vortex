@@ -89,6 +89,30 @@ lighthouse_env_reset() {
   popd >/dev/null || exit 1
 }
 
+@test "Lighthouse: cut a long path in the report name" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  lighthouse_env_reset
+
+  long="$(printf 'a%.0s' {1..300})"
+  stem="search-q-$(printf 'a%.0s' {1..91})"
+
+  declare -a STEPS=(
+    "@lighthouse http://nginx:8080/search?q=${long} ${LH_ARGS} --output-path=.logs/lighthouse/01-${stem} # 0 #  # cp ./lh-fixtures/good.json .logs/lighthouse/01-${stem}.report.json"
+
+    "Finished Lighthouse audit."
+  )
+
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-lighthouse "/search?q=${long}"
+  assert_success
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
 @test "Lighthouse: audit configured pages on desktop with custom settings" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -138,10 +162,10 @@ lighthouse_env_reset() {
   export VORTEX_LIGHTHOUSE_SITEMAP=/sitemap.xml
   export VORTEX_LIGHTHOUSE_SITEMAP_LIMIT=3
 
-  # Hosts are replaced with the base URL, the front page is not repeated and
-  # the 4th page is over the limit.
+  # Hosts are replaced with the base URL, a '<loc>' wrapped across lines is
+  # read, the front page is not repeated and the 4th page is over the limit.
   declare -a STEPS=(
-    '@wget -q -O - http://nginx:8080/sitemap.xml # 0 # <?xml version="1.0"?>\n<urlset>\n<url><loc>https://www.example.com/</loc></url>\n<url><loc> http://example-site.docker.amazee.io/node/1 </loc></url>\n<url><loc>https://www.example.com/search?a=1&amp;b=2</loc></url>\n<url><loc>https://www.example.com/node/4</loc></url>\n</urlset>'
+    '@wget -q -O - http://nginx:8080/sitemap.xml # 0 # <?xml version="1.0"?>\n<urlset>\n<url><loc>https://www.example.com/</loc></url>\n<url><loc>\n  http://example-site.docker.amazee.io/node/1\n</loc></url>\n<url><loc>https://www.example.com/search?a=1&amp;b=2</loc></url>\n<url><loc>https://www.example.com/node/4</loc></url>\n</urlset>'
     "@lighthouse http://nginx:8080/ ${LH_ARGS} --output-path=.logs/lighthouse/01-front # 0 #  # cp ./lh-fixtures/good.json .logs/lighthouse/01-front.report.json"
     "@lighthouse http://nginx:8080/node/1 ${LH_ARGS} --output-path=.logs/lighthouse/02-node-1 # 0 #  # cp ./lh-fixtures/good.json .logs/lighthouse/02-node-1.report.json"
     "@lighthouse http://nginx:8080/search?a=1&b=2 ${LH_ARGS} --output-path=.logs/lighthouse/03-search-a-1-b-2 # 0 #  # cp ./lh-fixtures/good.json .logs/lighthouse/03-search-a-1-b-2.report.json"
