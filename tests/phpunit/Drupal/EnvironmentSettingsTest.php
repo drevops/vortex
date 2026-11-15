@@ -52,7 +52,7 @@ class EnvironmentSettingsTest extends SettingsTestCase {
 
     $this->requireSettingsFile();
 
-    $this->assertEquals($expected_env, $this->settings['environment'], print_r($vars, TRUE));
+    $this->assertEquals($expected_env, $this->settings['environment'], var_export($vars, TRUE));
   }
 
   /**

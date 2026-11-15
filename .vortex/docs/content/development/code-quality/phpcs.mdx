@@ -87,6 +87,10 @@ By default, PHPCS checks against the following standards and sniffs:
 - `DrupalPractice` - Drupal best practices
 - `Generic.PHP.RequireStrictTypes` - a `declare(strict_types=1);` statement
   in every file
+- `Drupal.Functions.DiscouragedFunctions` - debug calls, reported as
+  errors instead of the standard's warnings. The `Drupal` standard lists
+  the Devel helpers such as `dpm()` and `kint()`, plus `eval()` and
+  `fnmatch()`. The ruleset adds `var_dump()`, `print_r()` and `dump()`
 - `PHPCompatibility` - compatibility with the PHP version in `testVersion`
 - `DrevOps` - the DrevOps standard, which requires the following:
   - Snake_case names for local variables and parameters
@@ -95,6 +99,14 @@ By default, PHPCS checks against the following standards and sniffs:
 - `SlevomatCodingStandard.TypeHints.DNFTypeHintFormat` - no spaces around
   `|` and `&` in union and intersection types, set through its
   `withSpacesAroundOperators` property
+
+To forbid another function, add an `<element>` to the `forbiddenFunctions`
+property of `Drupal.Functions.DiscouragedFunctions` in `phpcs.xml`. The
+property's `extend="true"` attribute keeps the standard's list:
+
+```xml
+<element key="debug" value="null"/>
+```
 
 The ruleset also adds 3 whitespace sniffs from the standards that ship with
 PHPCS and reports them as warnings. They flag a blank line after a
