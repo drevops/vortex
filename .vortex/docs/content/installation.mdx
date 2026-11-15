@@ -287,9 +287,13 @@ To set up GitHub Actions:
    secret too, for database fetches. With separate keys, use the read-only
    key. Acquia fetches the database through the Acquia Cloud API, so it
    needs no such secret.
-4. On Acquia, add the API key and secret from [step 6](#6-set-up-hosting)
+4. On Lagoon, add the project's webhook token as the `LAGOON_WEBHOOK_TOKEN`
+   secret, so Lagoon removes a pull request's environment when the pull
+   request closes. [Lagoon deployment](/docs/deployment/lagoon#environments)
+   says where to find the token.
+5. On Acquia, add the API key and secret from [step 6](#6-set-up-hosting)
    as the `VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET` repository secrets.
-5. On Acquia, add these 2 variables under
+6. On Acquia, add these 2 variables under
    **Settings > Secrets and variables > Actions > Variables**:
    - `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE`: your application's Git repository
      URL
@@ -330,6 +334,10 @@ To set up CircleCI:
      URL
    - `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL`: the email address for the
      deployment commits
+9. On Lagoon with GitHub Actions enabled for the repository, add the
+   project's webhook token in GitHub as the `LAGOON_WEBHOOK_TOKEN` secret.
+   [Lagoon deployment](/docs/deployment/lagoon#environments) says where to
+   find the token and why the secret is needed.
 
 On Lagoon, the pipeline fetches and deploys with the SSH keys you added.
 

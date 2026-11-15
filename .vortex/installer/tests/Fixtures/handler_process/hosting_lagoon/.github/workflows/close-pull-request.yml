@@ -17,12 +17,30 @@ jobs:
     steps:
       - name: Remove environment after a PR is closed
         run: |
-          cat "$GITHUB_EVENT_PATH" | curl \
+          if [ -z "${LAGOON_WEBHOOK_TOKEN}" ]; then echo "LAGOON_WEBHOOK_TOKEN secret is not set."; exit 1; fi
+
+          # Lagoon verifies the signature as GitHub webhooks do, so sign the
+          # exact bytes sent as the body.
+          signature_sha256="$(openssl dgst -sha256 -hmac "${LAGOON_WEBHOOK_TOKEN}" "$GITHUB_EVENT_PATH" | sed 's/^.* //')"
+          signature_sha1="$(openssl dgst -sha1 -hmac "${LAGOON_WEBHOOK_TOKEN}" "$GITHUB_EVENT_PATH" | sed 's/^.* //')"
+
+          status=0
+          response="$(curl \
+            --silent \
+            --show-error \
+            --fail-with-body \
             -X POST \
             --header "Content-Type: application/json" \
             --header "X-GitHub-Delivery: ${RUNNER_TRACKING_ID:7}" \
             --header "X-GitHub-Event: pull_request" \
-            --data-binary @- \
-            "${LAGOON_WEBHOOK_ENDPOINT:-https://hooks.lagoon.amazeeio.cloud/}"
+            --header "X-Hub-Signature-256: sha256=${signature_sha256}" \
+            --header "X-Hub-Signature: sha1=${signature_sha1}" \
+            --data-binary @"$GITHUB_EVENT_PATH" \
+            "${LAGOON_WEBHOOK_ENDPOINT:-https://webhook.amazeeio.cloud/}")" || status=$?
+          echo "${response}"
+
+          # Lagoon answers a rejected webhook with HTTP 200 and an error body.
+          if [ "${status}" != "0" ] || echo "${response}" | grep -q '"error"'; then exit 1; fi
         env:
           LAGOON_WEBHOOK_ENDPOINT: ${{ vars.LAGOON_WEBHOOK_ENDPOINT }}
+          LAGOON_WEBHOOK_TOKEN: ${{ secrets.LAGOON_WEBHOOK_TOKEN }}
