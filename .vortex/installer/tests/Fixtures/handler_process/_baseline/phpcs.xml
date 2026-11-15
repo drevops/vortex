@@ -20,6 +20,18 @@
         </properties>
     </rule>
 
+    <!-- Fail on debug calls. Add an element to forbid another function. -->
+    <rule ref="Drupal.Functions.DiscouragedFunctions">
+        <properties>
+            <property name="error" value="true"/>
+            <property name="forbiddenFunctions" type="array" extend="true">
+                <element key="var_dump" value="null"/>
+                <element key="print_r" value="null"/>
+                <element key="dump" value="null"/>
+            </property>
+        </properties>
+    </rule>
+
     <arg name="extensions" value="inc,info,install,module,php,profile,test,theme"/>
     <arg name="colors"/>
     <arg value="sp"/>

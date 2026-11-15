@@ -13,7 +13,7 @@
      <file>tests</file>
      <file>scripts</file>
  
-@@ -31,10 +31,10 @@
+@@ -43,10 +43,10 @@
      <config name="testVersion" value="8.4"/>
  
      <!-- Exclude theme assets. -->
