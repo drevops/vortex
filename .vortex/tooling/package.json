@@ -4,6 +4,6 @@
     "description": "Packages used for testing the drevops/vortex-tooling shell scripts.",
     "license": "GPL-3.0-or-later",
     "devDependencies": {
-        "bats-helpers": "npm:@drevops/bats-helpers@^2.3.1"
+        "bats-helpers": "github:drevops/bats-helpers#c408f82b39ea2e7f1a069a2cf2f91489454dd206"
     }
 }
