@@ -2,9 +2,10 @@
 # yarn lockfile v1
 
 
-"bats-helpers@github:drevops/bats-helpers#2.3.1":
+"bats-helpers@npm:@drevops/bats-helpers@^2.3.1":
   version "2.3.1"
-  resolved "https://codeload.github.com/drevops/bats-helpers/tar.gz/aaf28c2694e7b04d300493d3524b04750b6ff9df"
+  resolved "https://registry.yarnpkg.com/@drevops/bats-helpers/-/bats-helpers-2.3.1.tgz#4a5c365792cb1c9636a012daba4eef4a8b24351c"
+  integrity sha512-aZ7Le5anI14IbVPNZ3cVLD5oAIM/c2bjJMB5YUafVkcVVbWXVrqgI7fGY5ftkiKFMfV8Pl8MIdHiUJQuMSKJGA==
   dependencies:
     bats "^1.13"
 
