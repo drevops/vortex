@@ -334,6 +334,10 @@ To set up CircleCI:
      URL
    - `VORTEX_DEPLOY_ARTIFACT_GIT_USER_EMAIL`: the email address for the
      deployment commits
+9. On Lagoon with GitHub Actions enabled for the repository, add the
+   project's webhook token in GitHub as the `LAGOON_WEBHOOK_TOKEN` secret.
+   [Lagoon deployment](/docs/deployment/lagoon#environments) says where to
+   find the token and why the secret is needed.
 
 On Lagoon, the pipeline fetches and deploys with the SSH keys you added.
 
