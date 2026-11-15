@@ -69,6 +69,7 @@ export default defineConfig(
       // Kept from the previous ruleset: console calls left in shipped code
       // print to every visitor's browser.
       'no-console': 'error',
+      'no-debugger': 'error',
       'operator-linebreak': [
         'error',
         'after',

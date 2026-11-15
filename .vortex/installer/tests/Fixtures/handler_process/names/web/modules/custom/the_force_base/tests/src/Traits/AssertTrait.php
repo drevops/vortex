@@ -32,7 +32,7 @@ trait AssertTrait {
         return;
       }
     }
-    $this->fail(sprintf('Failed asserting that string "%s" is present in array %s.', $needle, print_r($haystack, TRUE)));
+    $this->fail(sprintf('Failed asserting that string "%s" is present in array %s.', $needle, var_export($haystack, TRUE)));
   }
 
 }

@@ -502,6 +502,51 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyLintBeDebugCalls(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Assert that debug calls in custom code fail BE lint as errors');
+    $module_file = $webroot . '/modules/custom/sw_base/sw_base.deploy.php';
+    $theme_file = $webroot . '/themes/custom/star_wars/star_wars.theme';
+    $this->fileAppend($module_file, "\nvar_dump(1);\nprint_r(1);\ndump(1);\ndpm(1);\nkint(1);\n");
+    $this->fileAppend($theme_file, "\nvar_dump(1);\n");
+    $this->syncToContainer([$module_file, $theme_file]);
+
+    // 'dpm()' and 'kint()' come from the Drupal standard's own list, so they
+    // prove the ruleset extends that list instead of replacing it.
+    $this->cmdFail('ahoy lint-be', [
+      '* sw_base.deploy.php',
+      '* star_wars.theme',
+      '* The use of function var_dump() is forbidden',
+      '* The use of function print_r() is forbidden',
+      '* The use of function dump() is forbidden',
+      '* The use of function dpm() is forbidden',
+      '* The use of function kint() is forbidden',
+      '* Drupal.Functions.DiscouragedFunctions.Found',
+      '! is discouraged',
+      '! Drupal.Functions.DiscouragedFunctions.Discouraged',
+    ], tio: 120, ito: 90, txt: '`ahoy lint-be` fails with errors on debug calls in a custom module and a custom theme');
+
+    $this->fileRestore($module_file);
+    $this->fileRestore($theme_file);
+    $this->syncToContainer([$module_file, $theme_file]);
+
+    $this->logSubstep('Assert that debug calls in contrib and core code are not linted');
+    $contrib_dir = $webroot . '/modules/contrib/sw_debug_canary';
+    $contrib_file = $contrib_dir . '/sw_debug_canary.module';
+    $core_file = $webroot . '/core/sw_debug_canary.php';
+    File::dump($contrib_file, "<?php\n\nvar_dump(1);\n");
+    File::dump($core_file, "<?php\n\nvar_dump(1);\n");
+    $this->syncToContainer([$contrib_file, $core_file]);
+
+    $this->cmd('ahoy cli vendor/bin/phpcs', '! The use of function var_dump() is forbidden', tio: 120, ito: 90, txt: '`phpcs` passes with debug calls in contrib and core code');
+
+    $this->removePathHostAndContainer($contrib_dir);
+    $this->removePathHostAndContainer($core_file);
+
+    $this->logStepFinish();
+  }
+
   protected function subtestAhoyLintBeRector(string $webroot = 'web'): void {
     $this->logStepStart();
 
@@ -654,6 +699,34 @@ trait SubtestAhoyTrait {
 
     $this->removePathHostAndContainer($test_file1);
     $this->removePathHostAndContainer($test_file2);
+
+    $this->logStepFinish();
+  }
+
+  protected function subtestAhoyLintFeDebugCalls(string $webroot = 'web'): void {
+    $this->logStepStart();
+
+    $canary = "console.log('canary');\ndebugger;\n";
+
+    // The module and theme linters run in sequence and the first failure stops
+    // the run, so each location is asserted on its own.
+    $this->logSubstep('Assert that debug calls in custom module JS fail FE lint');
+    $module_file = $webroot . '/modules/custom/sw_base/js/sw_base_debug_canary.js';
+    File::dump($module_file, $canary);
+    $this->syncToContainer($module_file);
+
+    $this->cmdFail('ahoy lint-fe', ['* sw_base_debug_canary.js', '* no-console', '* no-debugger'], tio: 120, ito: 90, txt: '`ahoy lint-fe` fails on `console.log()` and `debugger` in custom module JS');
+
+    $this->removePathHostAndContainer($module_file);
+
+    $this->logSubstep('Assert that debug calls in custom theme JS fail FE lint');
+    $theme_file = $webroot . '/themes/custom/star_wars/js/star_wars_debug_canary.js';
+    File::dump($theme_file, $canary);
+    $this->syncToContainer($theme_file);
+
+    $this->cmdFail('ahoy lint-fe', ['* star_wars_debug_canary.js', '* no-console', '* no-debugger'], tio: 120, ito: 90, txt: '`ahoy lint-fe` fails on `console.log()` and `debugger` in custom theme JS');
+
+    $this->removePathHostAndContainer($theme_file);
 
     $this->logStepFinish();
   }
