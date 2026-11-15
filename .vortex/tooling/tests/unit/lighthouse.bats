@@ -101,7 +101,7 @@ lighthouse_env_reset() {
   export VORTEX_LIGHTHOUSE_CHROME_FLAGS="--headless=new"
 
   mkdir -p reports/lh
-  touch reports/lh/stale.report.json
+  touch reports/lh/stale.report.json reports/lh/stale.report.html reports/lh/summary.md reports/lh/phpunit.xml
 
   declare -a STEPS=(
     "@lighthouse http://web.local/ --quiet --chrome-flags=--headless=new --only-categories=performance,accessibility,best-practices,seo --output=json --output=html --output-path=reports/lh/01-front --preset=desktop # 0 #  # cp ./lh-fixtures/good.json reports/lh/01-front.report.json"
@@ -120,8 +120,10 @@ lighthouse_env_reset() {
 
   steps_run "assert" "${mocks[@]}"
 
-  # Reports of a previous run are removed.
+  # Reports of a previous run are removed, and files of other tools are kept.
   assert_file_not_exists "reports/lh/stale.report.json"
+  assert_file_not_exists "reports/lh/stale.report.html"
+  assert_file_exists "reports/lh/phpunit.xml"
   assert_file_contains "reports/lh/summary.md" "## Lighthouse audit (desktop)"
   assert_file_contains "reports/lh/summary.md" "| http://web.local/node/1 | 91 | 100 | 96 | 80 |"
 
@@ -145,7 +147,7 @@ lighthouse_env_reset() {
     "@lighthouse http://nginx:8080/search?a=1&b=2 ${LH_ARGS} --output-path=.logs/lighthouse/03-search-a-1-b-2 # 0 #  # cp ./lh-fixtures/good.json .logs/lighthouse/03-search-a-1-b-2.report.json"
 
     "Discovering pages from the sitemap http://nginx:8080/sitemap.xml."
-    "Discovered 3 of 4 page(s) from the sitemap."
+    "Discovered 3 page(s) from the sitemap."
     "Pages to audit: 3"
     "- /node/4"
     "Finished Lighthouse audit."
@@ -168,15 +170,22 @@ lighthouse_env_reset() {
 
   export VORTEX_LIGHTHOUSE_URLS="/about"
   export VORTEX_LIGHTHOUSE_SITEMAP=https://www.example.com/sitemap.xml
+  export VORTEX_LIGHTHOUSE_SITEMAP_LIMIT=2
 
+  # A child sitemap needs no '.xml' suffix, and the 3rd child is not fetched
+  # because the first 2 already reach the limit.
   declare -a STEPS=(
-    '@wget -q -O - https://www.example.com/sitemap.xml # 0 # <sitemapindex><sitemap><loc>https://www.example.com/sitemap.xml?page=1</loc></sitemap></sitemapindex>'
-    '@wget -q -O - http://nginx:8080/sitemap.xml?page=1 # 0 # <urlset><url><loc>https://www.example.com/node/2</loc></url></urlset>'
+    '@wget -q -O - https://www.example.com/sitemap.xml # 0 # <sitemapindex><sitemap><loc>https://www.example.com/sitemaps/pages</loc></sitemap><sitemap><loc>https://www.example.com/sitemap.xml?page=2</loc></sitemap><sitemap><loc>https://www.example.com/sitemap.xml?page=3</loc></sitemap></sitemapindex>'
+    '@wget -q -O - http://nginx:8080/sitemaps/pages # 0 # <urlset><url><loc>https://www.example.com/node/2</loc></url></urlset>'
+    '@wget -q -O - http://nginx:8080/sitemap.xml?page=2 # 0 # <urlset><url><loc>https://www.example.com/node/3</loc></url><url><loc>https://www.example.com/node/4</loc></url></urlset>'
     "@lighthouse http://nginx:8080/about ${LH_ARGS} --output-path=.logs/lighthouse/01-about # 0 #  # cp ./lh-fixtures/good.json .logs/lighthouse/01-about.report.json"
     "@lighthouse http://nginx:8080/node/2 ${LH_ARGS} --output-path=.logs/lighthouse/02-node-2 # 0 #  # cp ./lh-fixtures/good.json .logs/lighthouse/02-node-2.report.json"
+    "@lighthouse http://nginx:8080/node/3 ${LH_ARGS} --output-path=.logs/lighthouse/03-node-3 # 0 #  # cp ./lh-fixtures/good.json .logs/lighthouse/03-node-3.report.json"
 
-    "Discovered 1 of 1 page(s) from the sitemap."
-    "Pages to audit: 2"
+    "Discovered 2 page(s) from the sitemap."
+    "Pages to audit: 3"
+    "- /node/4"
+    "- page=3"
     "Finished Lighthouse audit."
   )
 

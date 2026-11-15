@@ -94,26 +94,32 @@ sitemap_locs() {
   tr -d '\r' | grep -o '<loc>[^<]*</loc>' | sed -e 's#<loc>##' -e 's#</loc>##' -e 's#&amp;#\&#g' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' || true
 }
 
-# Add the pages of a sitemap to 'sitemap_pages'.
+# Add up to VORTEX_LIGHTHOUSE_SITEMAP_LIMIT pages of a sitemap to
+# 'sitemap_pages'.
 #
 # A sitemap index is followed 1 level deep. Page hosts are replaced with the
 # base URL, because the public host does not resolve inside the container.
 collect_sitemap() {
-  local url="${1}" depth="${2}" content loc
+  local url="${1}" depth="${2}" content loc is_index=0
 
   content="$(wget -q -O - "${url}")" || fail "Unable to fetch the sitemap ${url}."
 
+  case "${content}" in
+    *"<sitemapindex"*) is_index=1 ;;
+  esac
+
   while IFS= read -r loc; do
+    if [ "${#sitemap_pages[@]}" -ge "${VORTEX_LIGHTHOUSE_SITEMAP_LIMIT}" ]; then
+      break
+    fi
+
     [ -z "${loc}" ] && continue
 
-    case "${loc%%\?*}" in
-      *.xml)
-        if [ "${depth}" -eq 0 ]; then
-          collect_sitemap "$(resolve_url "$(url_path "${loc}")")" 1
-        fi
-        ;;
-      *) sitemap_pages+=("$(resolve_url "$(url_path "${loc}")")") ;;
-    esac
+    if [ "${is_index}" = "0" ]; then
+      sitemap_pages+=("$(resolve_url "$(url_path "${loc}")")")
+    elif [ "${depth}" -eq 0 ]; then
+      collect_sitemap "$(resolve_url "$(url_path "${loc}")")" 1
+    fi
   done < <(printf '%s\n' "${content}" | sitemap_locs)
 }
 
@@ -159,15 +165,9 @@ if [ -n "${VORTEX_LIGHTHOUSE_SITEMAP}" ]; then
 
   sitemap_pages=()
   collect_sitemap "${sitemap}" 0
+  urls+=(${sitemap_pages[@]+"${sitemap_pages[@]}"})
 
-  discovered=0
-  for url in ${sitemap_pages[@]+"${sitemap_pages[@]}"}; do
-    [ "${discovered}" -ge "${VORTEX_LIGHTHOUSE_SITEMAP_LIMIT}" ] && break
-    urls+=("${url}")
-    discovered=$((discovered + 1))
-  done
-
-  pass "Discovered ${discovered} of ${#sitemap_pages[@]} page(s) from the sitemap."
+  pass "Discovered ${#sitemap_pages[@]} page(s) from the sitemap."
 fi
 
 # Drop repeated URLs, keeping the first occurrence.
@@ -192,8 +192,10 @@ note "Pages to audit: ${#unique[@]}"
 note "Form factor: ${VORTEX_LIGHTHOUSE_FORM_FACTOR}"
 note "Reports: ${VORTEX_LIGHTHOUSE_REPORT_DIR}"
 
-rm -rf "${VORTEX_LIGHTHOUSE_REPORT_DIR}"
+# Only the files this script writes are removed, so a report directory shared
+# with other tools keeps their results.
 mkdir -p "${VORTEX_LIGHTHOUSE_REPORT_DIR}"
+rm -f "${VORTEX_LIGHTHOUSE_REPORT_DIR}"/*.report.html "${VORTEX_LIGHTHOUSE_REPORT_DIR}"/*.report.json "${VORTEX_LIGHTHOUSE_REPORT_DIR}/summary.md"
 
 summary="${VORTEX_LIGHTHOUSE_REPORT_DIR}/summary.md"
 {
