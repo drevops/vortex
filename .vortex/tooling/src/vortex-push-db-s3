@@ -24,32 +24,33 @@ set -o pipefail
 _db_index="${VORTEX_DB_INDEX:-}"
 
 # The S3 values fall back to the values the database is fetched with, so a
-# bucket used as the fetch source is configured once.
+# bucket used as the fetch source is configured once. An indexed database then
+# falls back to the primary push values, so several databases share 1 bucket.
 
 # AWS access key.
 _v="VORTEX_PUSH_DB${_db_index}_S3_ACCESS_KEY"
 _vs="VORTEX_FETCH_DB${_db_index}_S3_ACCESS_KEY"
-VORTEX_PUSH_DB_S3_ACCESS_KEY="${!_v:-${!_vs:-${S3_ACCESS_KEY:-}}}"
+VORTEX_PUSH_DB_S3_ACCESS_KEY="${!_v:-${!_vs:-${VORTEX_PUSH_DB_S3_ACCESS_KEY:-${S3_ACCESS_KEY:-}}}}"
 
 # AWS secret key.
 _v="VORTEX_PUSH_DB${_db_index}_S3_SECRET_KEY"
 _vs="VORTEX_FETCH_DB${_db_index}_S3_SECRET_KEY"
-VORTEX_PUSH_DB_S3_SECRET_KEY="${!_v:-${!_vs:-${S3_SECRET_KEY:-}}}"
+VORTEX_PUSH_DB_S3_SECRET_KEY="${!_v:-${!_vs:-${VORTEX_PUSH_DB_S3_SECRET_KEY:-${S3_SECRET_KEY:-}}}}"
 
 # S3 bucket name.
 _v="VORTEX_PUSH_DB${_db_index}_S3_BUCKET"
 _vs="VORTEX_FETCH_DB${_db_index}_S3_BUCKET"
-VORTEX_PUSH_DB_S3_BUCKET="${!_v:-${!_vs:-${S3_BUCKET:-}}}"
+VORTEX_PUSH_DB_S3_BUCKET="${!_v:-${!_vs:-${VORTEX_PUSH_DB_S3_BUCKET:-${S3_BUCKET:-}}}}"
 
 # S3 region.
 _v="VORTEX_PUSH_DB${_db_index}_S3_REGION"
 _vs="VORTEX_FETCH_DB${_db_index}_S3_REGION"
-VORTEX_PUSH_DB_S3_REGION="${!_v:-${!_vs:-${S3_REGION:-}}}"
+VORTEX_PUSH_DB_S3_REGION="${!_v:-${!_vs:-${VORTEX_PUSH_DB_S3_REGION:-${S3_REGION:-}}}}"
 
 # S3 prefix (path within the bucket).
 _v="VORTEX_PUSH_DB${_db_index}_S3_PREFIX"
 _vs="VORTEX_FETCH_DB${_db_index}_S3_PREFIX"
-VORTEX_PUSH_DB_S3_PREFIX="${!_v:-${!_vs:-${S3_PREFIX:-}}}"
+VORTEX_PUSH_DB_S3_PREFIX="${!_v:-${!_vs:-${VORTEX_PUSH_DB_S3_PREFIX:-${S3_PREFIX:-}}}}"
 
 # Directory with database dump file.
 _v="VORTEX_PUSH_DB${_db_index}_S3_DB_DIR"

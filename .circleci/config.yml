@@ -371,9 +371,6 @@ jobs:
           command: |
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB push will not proceed." && exit 0
             ./vendor/bin/vortex-push-db
-            #;< VORTEX_DEV
-            if [ -n "${VORTEX_PUSH_DB_FTP_HOST:-}" ]; then VORTEX_PUSH_DB_DESTINATIONS=ftp ./vendor/bin/vortex-push-db; fi
-            #;> VORTEX_DEV
           no_output_timeout: 30m
 
       #;< MIGRATION
@@ -415,7 +412,10 @@ jobs:
       VORTEX_PUSH_DB_PROCEED: 1
       #;< VORTEX_DEV
       # Tell this provider's demo database dumps apart on the test FTP server
-      # by directory, with a timestamped copy of each push.
+      # by directory, with a timestamped copy of each push. The destinations
+      # and the FTP server come from the VORTEX_PUSH_DB_DESTINATIONS,
+      # VORTEX_PUSH_DB2_DESTINATIONS and VORTEX_PUSH_DB_FTP_* project
+      # variables.
       VORTEX_PUSH_DB_FTP_DIR: circleci
       VORTEX_PUSH_DB_TIMESTAMPED_COPY: 1
       #;> VORTEX_DEV

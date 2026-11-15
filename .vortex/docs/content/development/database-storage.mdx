@@ -140,7 +140,13 @@ fetches from `lagoon` can keep sanitized copies on FTP and S3.
 When `VORTEX_PUSH_DB_DESTINATIONS` is empty, the push goes to the dump store
 fetch source. The push refuses to push to the fetch source itself
 without `VORTEX_REFRESH_DB_SOURCE`, because the push would replace the dump
-it fetched. The migration database uses `VORTEX_PUSH_DB2_DESTINATIONS`.
+it fetched.
+
+The migration database reads its own list in
+`VORTEX_PUSH_DB2_DESTINATIONS`. Its connection values, such as
+`VORTEX_PUSH_DB2_FTP_HOST`, fall back to the primary push values, so both
+databases can share 1 server or bucket. Each database keeps its own file
+name.
 
 ## Set up an FTP dump store
 

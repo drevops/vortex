@@ -151,6 +151,48 @@ setup_ftp_fetch_values() {
   popd >/dev/null
 }
 
+@test "push-db-ftp: Push an indexed database to the primary push server" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  echo "migration content" >.data/db2.sql
+
+  setup_ftp_fetch_values
+  export VORTEX_PUSH_DB_FTP_USER="push-user"
+  export VORTEX_PUSH_DB_FTP_PASS="push-pass"
+  export VORTEX_PUSH_DB_FTP_HOST="push.example.com"
+  export VORTEX_PUSH_DB_FTP_PORT="2121"
+  export VORTEX_PUSH_DB_FTP_DIR="gha"
+  export VORTEX_PUSH_DB_FTP_FILE="db.sql"
+  export VORTEX_DB_INDEX=2
+  export VORTEX_FETCH_DB2_FTP_USER=""
+  export VORTEX_FETCH_DB2_FTP_PASS=""
+  export VORTEX_FETCH_DB2_FTP_HOST=""
+  export VORTEX_FETCH_DB2_FTP_PORT=""
+  export VORTEX_FETCH_DB2_FTP_DIR=""
+  export VORTEX_FETCH_DB2_FTP_FILE="db2.sql"
+  export VORTEX_FETCH_DB2_FILE="db2.sql"
+
+  mock_curl=$(mock_command "curl")
+  mock_set_side_effect "${mock_curl}" "cat >${BUILD_DIR}/curl-config" 1
+
+  run .vortex/tooling/src/vortex-push-db-ftp
+  assert_success
+  # The server and the directory are shared, while the file stays the
+  # indexed database's own.
+  assert_output_contains "Local file:  ./.data/db2.sql"
+  assert_output_contains "Remote file: gha/db2.sql"
+  assert_output_contains "FTP host:    push.example.com:2121"
+  assert_output_contains "[ OK ] Finished database 2 dump push to FTP."
+
+  assert_string_contains "$(mock_get_call_args "${mock_curl}" 1)" "ftp://push.example.com:2121/gha/db2.sql.uploading"
+  assert_file_contains "${BUILD_DIR}/curl-config" 'user = "push-user:push-pass"'
+
+  rm -rf .data
+
+  popd >/dev/null
+}
+
 @test "push-db-ftp: Escape quotes and backslashes in the credentials" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

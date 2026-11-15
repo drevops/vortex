@@ -81,9 +81,13 @@ jobs:
         VORTEX_FETCH_DB2_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB2_S3_SECRET_KEY }}
         #;> MIGRATION_DB_FETCH_SOURCE_S3
         #;< VORTEX_DEV
-        # FTP server that receives the demo database on the nightly run, in a
-        # directory that tells this provider's dumps apart, with a timestamped
-        # copy of each push.
+        # Push destinations of the demo databases on the nightly run. Empty
+        # repository variables skip the push.
+        VORTEX_PUSH_DB_DESTINATIONS: ${{ vars.VORTEX_PUSH_DB_DESTINATIONS }}
+        VORTEX_PUSH_DB2_DESTINATIONS: ${{ vars.VORTEX_PUSH_DB2_DESTINATIONS }}
+        # FTP server that receives both demo databases, in a directory that
+        # tells this provider's dumps apart, with a timestamped copy of each
+        # push.
         VORTEX_PUSH_DB_FTP_HOST: ${{ secrets.VORTEX_PUSH_DB_FTP_HOST }}
         VORTEX_PUSH_DB_FTP_PORT: ${{ secrets.VORTEX_PUSH_DB_FTP_PORT }}
         VORTEX_PUSH_DB_FTP_USER: ${{ secrets.VORTEX_PUSH_DB_FTP_USER }}
@@ -228,9 +232,6 @@ jobs:
         run: |
           if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
           ./vendor/bin/vortex-push-db
-          #;< VORTEX_DEV
-          if [ -n "${VORTEX_PUSH_DB_FTP_HOST:-}" ]; then VORTEX_PUSH_DB_DESTINATIONS=ftp ./vendor/bin/vortex-push-db; fi
-          #;> VORTEX_DEV
         timeout-minutes: 30
 
       #;< MIGRATION
@@ -655,9 +656,13 @@ jobs:
         VORTEX_FETCH_DB2_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB2_S3_SECRET_KEY }}
         #;> MIGRATION_DB_FETCH_SOURCE_S3
         #;< VORTEX_DEV
-        # FTP server that receives the demo database on the nightly run, in a
-        # directory that tells this provider's dumps apart, with a timestamped
-        # copy of each push.
+        # Push destinations of the demo databases on the nightly run. Empty
+        # repository variables skip the push.
+        VORTEX_PUSH_DB_DESTINATIONS: ${{ vars.VORTEX_PUSH_DB_DESTINATIONS }}
+        VORTEX_PUSH_DB2_DESTINATIONS: ${{ vars.VORTEX_PUSH_DB2_DESTINATIONS }}
+        # FTP server that receives both demo databases, in a directory that
+        # tells this provider's dumps apart, with a timestamped copy of each
+        # push.
         VORTEX_PUSH_DB_FTP_HOST: ${{ secrets.VORTEX_PUSH_DB_FTP_HOST }}
         VORTEX_PUSH_DB_FTP_PORT: ${{ secrets.VORTEX_PUSH_DB_FTP_PORT }}
         VORTEX_PUSH_DB_FTP_USER: ${{ secrets.VORTEX_PUSH_DB_FTP_USER }}
@@ -820,9 +825,6 @@ jobs:
         run: |
           if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
           ./vendor/bin/vortex-push-db
-          #;< VORTEX_DEV
-          if [ -n "${VORTEX_PUSH_DB_FTP_HOST:-}" ]; then VORTEX_PUSH_DB_DESTINATIONS=ftp ./vendor/bin/vortex-push-db; fi
-          #;> VORTEX_DEV
         timeout-minutes: 30
 
       #;< MIGRATION

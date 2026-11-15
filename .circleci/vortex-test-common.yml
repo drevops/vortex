@@ -191,9 +191,6 @@ jobs:
           command: |
             [ ! -f /tmp/fetch-db-fresh ] && echo "==> No freshly fetched database. DB push will not proceed." && exit 0
             ./vendor/bin/vortex-push-db
-            #;< VORTEX_DEV
-            if [ -n "${VORTEX_PUSH_DB_FTP_HOST:-}" ]; then VORTEX_PUSH_DB_DESTINATIONS=ftp ./vendor/bin/vortex-push-db; fi
-            #;> VORTEX_DEV
           no_output_timeout: 30m
 
       #;< MIGRATION

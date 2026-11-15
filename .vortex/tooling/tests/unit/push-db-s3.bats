@@ -658,3 +658,43 @@ setup_s3_push() {
 
   popd >/dev/null
 }
+
+@test "push-db-s3: Push an indexed database to the primary push bucket" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mkdir -p .data
+  echo "migration content" >.data/db2.sql
+
+  unset S3_ACCESS_KEY S3_SECRET_KEY S3_BUCKET S3_REGION S3_PREFIX VORTEX_PUSH_DB_FILE_SUFFIX VORTEX_PUSH_DB_TIMESTAMPED_COPY
+  export VORTEX_PUSH_DB_S3_ACCESS_KEY="push-access-key"
+  export VORTEX_PUSH_DB_S3_SECRET_KEY="push-secret-key"
+  export VORTEX_PUSH_DB_S3_BUCKET="push-bucket"
+  export VORTEX_PUSH_DB_S3_REGION="eu-west-1"
+  export VORTEX_PUSH_DB_S3_PREFIX="gha"
+  export VORTEX_DB_INDEX=2
+  export VORTEX_FETCH_DB2_S3_ACCESS_KEY=""
+  export VORTEX_FETCH_DB2_S3_SECRET_KEY=""
+  export VORTEX_FETCH_DB2_S3_BUCKET=""
+  export VORTEX_FETCH_DB2_S3_REGION=""
+  export VORTEX_FETCH_DB2_S3_PREFIX=""
+  export VORTEX_FETCH_DB2_FILE="db2.sql"
+  unset VORTEX_FETCH_DB2_S3_DB_FILE
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" "200" 1
+
+  run .vortex/tooling/src/vortex-push-db-s3
+  assert_success
+  # The bucket and the prefix are shared, while the file stays the indexed
+  # database's own.
+  assert_output_contains "Local file:     ./.data/db2.sql"
+  assert_output_contains "Remote file:    gha/db2.sql"
+  assert_output_contains "S3 bucket:      push-bucket"
+  assert_output_contains "[ OK ] Finished database 2 dump push to S3."
+
+  assert_string_contains "$(mock_get_call_args "${mock_curl}" 1)" "https://push-bucket.s3.eu-west-1.amazonaws.com/gha/db2.sql"
+
+  rm -rf .data
+
+  popd >/dev/null
+}
