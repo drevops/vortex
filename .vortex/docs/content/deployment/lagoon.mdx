@@ -168,13 +168,29 @@ types](https://docs.lagoon.sh/concepts-advanced/environment-types/).
 On GitHub, the shipped `.github/workflows/close-pull-request.yml` workflow
 runs when a pull request closes. The workflow forwards the event to the
 Lagoon webhook endpoint, so Lagoon removes the pull request's environment.
-The endpoint defaults to `https://hooks.lagoon.amazeeio.cloud/`. To use
-another Lagoon instance, set the `LAGOON_WEBHOOK_ENDPOINT` repository
-variable.
+Lagoon accepts only webhooks signed with the project's webhook token. The
+workflow signs the event with the `LAGOON_WEBHOOK_TOKEN` repository secret.
+
+To add the secret:
+
+1. In the Lagoon UI, copy the **Webhook token** value from the project's
+   **Details** page. For a polysite, copy the organization's webhook token
+   instead.
+2. In GitHub, add the value under
+   **Settings > Secrets and variables > Actions** as the
+   `LAGOON_WEBHOOK_TOKEN` repository secret.
+
+When the secret is missing, the workflow fails with
+`LAGOON_WEBHOOK_TOKEN secret is not set.`. The workflow also fails when
+Lagoon rejects the request, and it prints Lagoon's response on every run.
+
+The endpoint defaults to `https://webhook.amazeeio.cloud/`. To use another
+Lagoon instance, set the `LAGOON_WEBHOOK_ENDPOINT` repository variable.
 
 The installer keeps this workflow for CircleCI projects too, so the
-workflow still runs if GitHub Actions is enabled for the repository. The
-CircleCI config has no step that removes pull request environments.
+workflow still runs if GitHub Actions is enabled for the repository. Add
+the `LAGOON_WEBHOOK_TOKEN` secret to such a repository too. The CircleCI
+config has no step that removes pull request environments.
 
 ## See also
 
