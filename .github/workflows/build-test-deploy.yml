@@ -655,7 +655,7 @@ jobs:
         run: |
           status=0
           docker compose run --rm -T lighthouse ./vendor/bin/vortex-lighthouse || status=$?
-          docker compose exec -T cli cat .logs/lighthouse/summary.md >> "${GITHUB_STEP_SUMMARY}" 2>/dev/null || true
+          docker compose exec -T cli cat "${VORTEX_LIGHTHOUSE_REPORT_DIR:-.logs/lighthouse}/summary.md" >> "${GITHUB_STEP_SUMMARY}" 2>/dev/null || true
           exit "${status}"
         continue-on-error: ${{ vars.VORTEX_CI_LIGHTHOUSE_IGNORE_FAILURE != '0' }}
         timeout-minutes: 30
