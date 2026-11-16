@@ -77,6 +77,7 @@ class ProductionGuardListener implements ConfigAwareInterface, LoggerAwareInterf
 
     $this->logger?->error('Refusing to run {command} against the production site alias {alias}. Set {variable}=1 to bypass this guard.', $context);
     $event->disableCommand();
+    $event->stopPropagation();
   }
 
   /**
