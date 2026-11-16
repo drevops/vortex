@@ -62,7 +62,10 @@ The shipped Drush configuration lives in the `drush/` directory:
   passes `--disable-ssl` to the `sql:*` commands (`sql:cli`, `sql:query`,
   `sql:dump`, `sql:drop`, `sql:create`) and to `site:install`. The database
   commands then connect to the stack's database service without TLS. The
-  file also adds `--no-tablespaces` to `sql:dump`.
+  file also adds `--no-tablespaces` to `sql:dump` and lists the production
+  site aliases. See [Production guard](#production-guard).
+- [`drush/Listeners/ProductionGuardListener.php`](https://github.com/drevops/vortex/blob/main/drush/Listeners/ProductionGuardListener.php)
+  blocks destructive commands that target a production site alias.
 - [`drush/sites/lagoon.site.yml`](https://github.com/drevops/vortex/blob/main/drush/sites/lagoon.site.yml)
   defines the site aliases for Lagoon-hosted environments. See
   [Aliases](#aliases).
@@ -250,3 +253,84 @@ machine:
     ```
   </TabItem>
 </Tabs>
+
+## Production guard
+
+**Vortex** blocks 4 destructive Drush commands when they target a
+production site alias. A mistyped `drush sql:sync @self @prod` then fails
+before it overwrites the production database. The following table lists
+the guarded commands and the alias the guard checks for each one:
+
+| Command        | Alias the guard checks                                   |
+|----------------|----------------------------------------------------------|
+| `sql:sync`     | The target, such as `@prod` in `drush sql:sync @self @prod` |
+| `core:rsync`   | The target, such as `@prod` in `drush core:rsync @self:%files @prod:%files` |
+| `sql:drop`     | The selected site, such as `@prod` in `drush @prod sql:drop` |
+| `site:install` | The selected site, such as `@prod` in `drush @prod site:install` |
+
+A blocked command stops before Drush connects to the site, and Drush prints
+this error:
+
+```text
+ [error]  Refusing to run sql:drop against the production site alias @prod. Set VORTEX_DRUSH_PRODUCTION_GUARD_SKIP=1 to bypass this guard.
+```
+
+The guard checks the alias where you type the command. A command you run on
+the production server itself, such as after `drush @prod ssh`, targets no
+alias, so the guard lets it run.
+
+### Production aliases
+
+`drush/drush.yml` lists the production aliases under
+`vortex.production_aliases`:
+
+```yaml
+vortex:
+  production_aliases:
+    - prod
+```
+
+An entry matches the alias with that name and every alias whose environment
+has that name. The `prod` entry matches `@prod`, `@self.prod` and
+`@lagoon.prod`. It doesn't match `@production` or `@your_site.preprod`. An
+entry with a site name, such as `lagoon.main`, matches only that alias.
+
+On Lagoon, the alias of the production environment is
+`@lagoon.<branch>`, where `<branch>` is the value of
+`VORTEX_LAGOON_PRODUCTION_BRANCH`. With the default `main` branch, add
+`lagoon.main` to the list:
+
+```yaml
+vortex:
+  production_aliases:
+    - prod
+    - lagoon.main
+```
+
+### Bypass the guard
+
+To run a guarded command against production on purpose, set
+`VORTEX_DRUSH_PRODUCTION_GUARD_SKIP` to `1` for that command. Drush prints a
+warning that names the variable, then runs the command:
+
+<Tabs>
+  <TabItem value="host" label="Host" default>
+    ```shell
+    VORTEX_DRUSH_PRODUCTION_GUARD_SKIP=1 drush @prod sql:drop
+    ```
+  </TabItem>
+  <TabItem value="ahoy" label="Ahoy">
+    ```shell
+    VORTEX_DRUSH_PRODUCTION_GUARD_SKIP=1 ahoy drush @prod sql:drop
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec -e VORTEX_DRUSH_PRODUCTION_GUARD_SKIP=1 cli \
+      drush @prod sql:drop
+    ```
+  </TabItem>
+</Tabs>
+
+Set the variable on the command line only. An `export` in your shell turns
+off the guard for every command that follows.
