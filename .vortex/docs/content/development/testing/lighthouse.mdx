@@ -1,0 +1,243 @@
+---
+sidebar_label: Lighthouse
+sidebar_position: 5
+---
+
+# Lighthouse
+
+[Lighthouse](https://developer.chrome.com/docs/lighthouse) loads a page in
+Chrome and scores it from 0 to 100 in 4 categories: performance,
+accessibility, best practices and SEO. An audit on every build catches a
+heavier page or a lost meta description before launch.
+
+This page is for developers on a project built from **Vortex** who run the
+audit, set its budgets and read its reports. **Vortex** ships the audit as
+an option. It runs locally with Ahoy and in the continuous integration
+pipeline after the tests.
+
+The installer adds the audit when you answer yes to its **Performance and
+SEO audits with Lighthouse?** question, which defaults to no. To add it to a
+project installed without it, run `ahoy update-vortex --interactive` and
+answer yes to that question.
+
+## How it works
+
+The audit runs in a `lighthouse` container built from the official
+[Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci) image, which
+bundles Chrome and Lighthouse. The container belongs to the `lighthouse`
+Docker Compose profile, so `ahoy up` skips it. Docker Compose starts it for
+each audit and removes it afterward.
+
+```text
+┌─ ahoy test-lighthouse or the CI step ───────┐
+│                                             │
+│   docker compose run --rm lighthouse        │
+│                                             │
+└──────────────────┬──────────────────────────┘
+                   ▼
+┌─ lighthouse container ──────────────────────┐
+│                                             │
+│   Collect the pages from the arguments,     │
+│   the page list and the sitemap             │
+│                  │                          │
+│                  ▼                          │
+│   Audit every page at http://nginx:8080     │
+│                  │                          │
+│                  ▼                          │
+│   Write the reports to .logs/lighthouse/    │
+│                  │                          │
+│                  ▼                          │
+│   Compare the scores with the budgets       │
+│                                             │
+└─────────────────────────────────────────────┘
+```
+
+The container shares the project files with the `cli` container, so
+the reports land in the project's `.logs/lighthouse/` directory.
+
+## Run the audit
+
+The audit needs a built and provisioned site, because it loads the pages
+that the `nginx` container serves. Run it against the configured pages:
+
+```shell
+ahoy test-lighthouse
+```
+
+To audit other pages for 1 run, pass their paths or URLs:
+
+```shell
+ahoy test-lighthouse / /about-us /node/12
+```
+
+The command prints each page's scores, then the path of the summary:
+
+```text
+[TASK] Auditing http://nginx:8080/.
+       Performance: 87
+       Accessibility: 96
+       Best practices: 100
+       SEO: 92
+[ OK ] Audited http://nginx:8080/. (18s)
+       Summary: .logs/lighthouse/summary.md
+[ OK ] Finished Lighthouse audit.
+```
+
+## Configure the pages
+
+The audit covers the front page by default. To audit more pages, list them
+in `VORTEX_LIGHTHOUSE_URLS` in the `.env` file, separated by commas or
+spaces:
+
+```ini
+VORTEX_LIGHTHOUSE_URLS=/,/about-us,/news
+```
+
+The audit resolves a path against `VORTEX_LIGHTHOUSE_BASE_URL`, which
+defaults to `http://nginx:8080`. That's the web server's address inside the
+Docker network. A full URL is audited unchanged.
+
+### Discover pages from the sitemap
+
+To add the pages a sitemap lists, set `VORTEX_LIGHTHOUSE_SITEMAP` to the
+sitemap's path or URL:
+
+```ini
+VORTEX_LIGHTHOUSE_SITEMAP=/sitemap.xml
+VORTEX_LIGHTHOUSE_SITEMAP_LIMIT=10
+```
+
+**Vortex** ships the
+[XML sitemap](https://www.drupal.org/project/xmlsitemap) module, which
+serves `/sitemap.xml` after cron generates it. The audit
+reads the sitemap as follows:
+
+- It replaces the host of each sitemap URL with
+  `VORTEX_LIGHTHOUSE_BASE_URL` and keeps the path, because the container
+  can't reach the public host.
+- It follows a sitemap index 1 level deep.
+- It adds the sitemap pages after the pages in `VORTEX_LIGHTHOUSE_URLS`,
+  up to `VORTEX_LIGHTHOUSE_SITEMAP_LIMIT` pages.
+- It skips a sitemap page that's already in `VORTEX_LIGHTHOUSE_URLS`.
+
+The audit fails when it can't fetch the sitemap.
+
+### Audit as a desktop
+
+Lighthouse emulates a mobile device by default. To audit with its desktop
+preset, set `VORTEX_LIGHTHOUSE_FORM_FACTOR` to `desktop`.
+
+## Set budgets
+
+A budget is the minimum score a category must reach, from 0 to 100. Each
+category has its own variable. The default, `0`, reports the score without
+enforcing it:
+
+```ini
+VORTEX_LIGHTHOUSE_BUDGET_PERFORMANCE=70
+VORTEX_LIGHTHOUSE_BUDGET_ACCESSIBILITY=90
+VORTEX_LIGHTHOUSE_BUDGET_BEST_PRACTICES=90
+VORTEX_LIGHTHOUSE_BUDGET_SEO=80
+```
+
+The audit checks every page, then fails when any score is below its
+budget. A category that Lighthouse couldn't score counts as below its
+budget.
+
+Set each budget a few points below your current score, and raise it as you
+fix the findings. Performance scores change from run to run and from
+machine to machine. Leave a margin of 5 to 10 points on the performance
+budget, so the audit doesn't fail on that variation.
+
+## Reports
+
+Each run removes the previous reports and writes the following files to
+`.logs/lighthouse/`:
+
+| File                   | Content                                                       |
+|------------------------|---------------------------------------------------------------|
+| `01-front.report.html` | The full Lighthouse report for the page, to open in a browser |
+| `01-front.report.json` | The same report as JSON, for scripts and other tools          |
+| `summary.md`           | A table of every page's scores, with budget breaches marked   |
+
+Each report name starts with the page's position in the list, followed by
+its path. For example, `/about-us` as the second page gives
+`02-about-us.report.html`.
+
+### Read a report
+
+Open the HTML report in a browser. Each category score links to the audits
+behind it:
+
+- **Performance** starts with the Core Web Vitals metrics, such as Largest
+  Contentful Paint. Its **Diagnostics** list names the files and scripts
+  that cost the most time.
+- **Accessibility** lists the failed checks, such as missing image text
+  alternatives, with the elements that fail them.
+- **Best practices** covers browser console errors, deprecated APIs and
+  insecure requests.
+- **SEO** checks what search engines read, such as the meta description and
+  the link text.
+
+An environment that blocks search engines, for example with a `noindex`
+header, scores lower on SEO than production. Set the SEO budget from the
+score of the environment the audit runs in.
+
+## Continuous integration
+
+The `build` job runs the audit after the tests, on the first CI container
+of GitHub Actions and CircleCI. It reads the same `.env` configuration as
+`ahoy test-lighthouse`. Set the `VORTEX_LIGHTHOUSE_*` variables in `.env`,
+because the CI step doesn't pass the CI provider's variables into the
+container.
+
+The reports ship in the job's test artifacts with the rest of `.logs/`, so
+keep `VORTEX_LIGHTHOUSE_REPORT_DIR` inside `.logs/` for CI to upload them.
+On GitHub Actions, the step also adds the summary table to the workflow run
+summary.
+
+### Make the audit blocking
+
+The audit is advisory in CI by default, so a score below its budget never
+fails the build. On GitHub Actions, the step shows as failed and the job
+passes. On CircleCI, the step passes and its log shows the breach.
+
+To fail the build when a score is below its budget, set
+`VORTEX_CI_LIGHTHOUSE_IGNORE_FAILURE` to `0` in your CI provider's
+settings. On GitHub Actions, add it as a repository variable under
+**Settings > Secrets and variables > Actions**.
+
+To skip the audit in CI, set `VORTEX_CI_LIGHTHOUSE_SKIP` to `1`.
+
+## Variables
+
+The audit reads the following variables:
+
+| Variable                                  | Default                                               | Purpose                                                    |
+|-------------------------------------------|-------------------------------------------------------|------------------------------------------------------------|
+| `VORTEX_LIGHTHOUSE_BASE_URL`              | `http://nginx:8080`                                   | Site address, as the `lighthouse` container reaches it     |
+| `VORTEX_LIGHTHOUSE_URLS`                  | `/`                                                   | Comma- or space-separated paths or URLs to audit           |
+| `VORTEX_LIGHTHOUSE_SITEMAP`               | None                                                  | Sitemap path or URL to add pages from                      |
+| `VORTEX_LIGHTHOUSE_SITEMAP_LIMIT`         | `10`                                                  | Maximum number of pages to add from the sitemap            |
+| `VORTEX_LIGHTHOUSE_FORM_FACTOR`           | `mobile`                                              | Device to emulate: `mobile` or `desktop`                   |
+| `VORTEX_LIGHTHOUSE_BUDGET_PERFORMANCE`    | `0`                                                   | Minimum performance score, `0` to report only              |
+| `VORTEX_LIGHTHOUSE_BUDGET_ACCESSIBILITY`  | `0`                                                   | Minimum accessibility score, `0` to report only            |
+| `VORTEX_LIGHTHOUSE_BUDGET_BEST_PRACTICES` | `0`                                                   | Minimum best practices score, `0` to report only           |
+| `VORTEX_LIGHTHOUSE_BUDGET_SEO`            | `0`                                                   | Minimum SEO score, `0` to report only                      |
+| `VORTEX_LIGHTHOUSE_REPORT_DIR`            | `.logs/lighthouse`                                    | Directory for the reports, inside `.logs/` for CI uploads  |
+| `VORTEX_LIGHTHOUSE_CHROME_FLAGS`          | `--headless=new --no-sandbox --disable-dev-shm-usage` | Flags passed to Chrome                                     |
+| `VORTEX_CI_LIGHTHOUSE_IGNORE_FAILURE`     | `1`                                                   | CI only: `0` fails the build when a score is below budget  |
+| `VORTEX_CI_LIGHTHOUSE_SKIP`               | `0`                                                   | CI only: `1` skips the audit                               |
+
+➡️ See [Variables](../variables.mdx) for every variable **Vortex** reads.
+
+## Remove the audit
+
+To remove the audit, delete the following from your project:
+
+- The `lighthouse` service in `docker-compose.yml`
+- The `test-lighthouse` command in `.ahoy.yml`
+- The **Audit with Lighthouse** step in your CI configuration
+
+Re-running the installer and answering no to its **Performance and SEO
+audits with Lighthouse?** question removes all 3.

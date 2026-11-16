@@ -1,0 +1,12 @@
+@@ -276,6 +276,11 @@
+     aliases: [test-behat]
+     cmd: ahoy cli php -d memory_limit=-1 vendor/bin/behat --colors "$@"
+ 
++  test-lighthouse:
++    usage: Run Lighthouse performance, accessibility, best practices and SEO audits. Pass paths to audit them instead of the configured pages.
++    aliases: [lighthouse]
++    cmd: docker compose run --rm $(env | cut -f1 -d= | grep -E '^(TERM|LOCALDEV_URL)$|^(COMPOSE|DOCKER|DRUPAL|VORTEX|ENVIRONMENT)_' | sed 's/^/-e /') lighthouse ./vendor/bin/vortex-lighthouse "$@"
++
+   debug:
+     usage: Enable PHP Xdebug.
+     aliases: [xdebug]

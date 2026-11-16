@@ -1134,6 +1134,38 @@ trait SubtestAhoyTrait {
     $this->fail(sprintf('Compiled stories in %s should contain the "%s" story with a server ID', $stories_file, $story_name));
   }
 
+  protected function subtestAhoyLighthouse(): void {
+    $this->logStepStart();
+
+    $this->logSubstep('Audit the front page and a path passed as an argument');
+    $this->cmd('ahoy test-lighthouse / /user/login', [
+      '* Pages to audit: 2',
+      '* Audited http://nginx:8080/.',
+      '* Audited http://nginx:8080/user/login.',
+      '* Performance: ',
+      '* SEO: ',
+      '* Finished Lighthouse audit.',
+    ], '`ahoy test-lighthouse` should audit every page and finish without budgets', tio: 600);
+
+    $this->logSubstep('Assert that the reports are written for every page');
+    foreach (['01-front', '02-user-login'] as $name) {
+      foreach (['html', 'json'] as $format) {
+        $this->cmd(sprintf('docker compose exec -T cli test -s .logs/lighthouse/%s.report.%s', $name, $format), txt: sprintf('The %s report of %s should exist', $format, $name));
+      }
+    }
+    $this->cmd('docker compose exec -T cli cat .logs/lighthouse/summary.md', ['* | Page | Performance | Accessibility | Best practices | SEO |', '* | http://nginx:8080/user/login |'], 'The summary should list every audited page');
+
+    $this->logSubstep('Assert that scores below the budgets fail the audit');
+    $this->cmdFail('ahoy test-lighthouse /', ['* below budget', '* score(s) below the budget.'], '`ahoy test-lighthouse` should fail when scores are below the budgets', env: [
+      'VORTEX_LIGHTHOUSE_BUDGET_PERFORMANCE' => '100',
+      'VORTEX_LIGHTHOUSE_BUDGET_ACCESSIBILITY' => '100',
+      'VORTEX_LIGHTHOUSE_BUDGET_BEST_PRACTICES' => '100',
+      'VORTEX_LIGHTHOUSE_BUDGET_SEO' => '100',
+    ], tio: 600);
+
+    $this->logStepFinish();
+  }
+
   protected function subtestAhoyDebug(): void {
     $this->logStepStart();
 

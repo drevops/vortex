@@ -1,0 +1,260 @@
+#!/usr/bin/env bash
+##
+# Audit pages with Lighthouse and compare the category scores with budgets.
+#
+# Usage:
+#   vortex-lighthouse [<path or URL> ...]
+#
+# Runs inside the 'lighthouse' container, which provides Lighthouse and
+# Chrome. Paths and URLs passed as arguments replace VORTEX_LIGHTHOUSE_URLS.
+#
+# Writes an HTML and a JSON report for every audited page, and a Markdown
+# summary of all scores, to VORTEX_LIGHTHOUSE_REPORT_DIR. Exits with an error
+# when a score is below its budget.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# URL of the site to audit, as reachable from the Lighthouse container.
+VORTEX_LIGHTHOUSE_BASE_URL="${VORTEX_LIGHTHOUSE_BASE_URL:-http://nginx:8080}"
+
+# Comma- or space-separated list of paths or URLs to audit.
+#
+# Paths are resolved against VORTEX_LIGHTHOUSE_BASE_URL.
+VORTEX_LIGHTHOUSE_URLS="${VORTEX_LIGHTHOUSE_URLS:-/}"
+
+# Path or URL of a sitemap to discover additional pages to audit from.
+#
+# Page hosts in the sitemap are replaced with VORTEX_LIGHTHOUSE_BASE_URL.
+# Empty to audit only VORTEX_LIGHTHOUSE_URLS.
+VORTEX_LIGHTHOUSE_SITEMAP="${VORTEX_LIGHTHOUSE_SITEMAP:-}"
+
+# Maximum number of pages to audit from the sitemap.
+VORTEX_LIGHTHOUSE_SITEMAP_LIMIT="${VORTEX_LIGHTHOUSE_SITEMAP_LIMIT:-10}"
+
+# Device to emulate: 'mobile' or 'desktop'.
+VORTEX_LIGHTHOUSE_FORM_FACTOR="${VORTEX_LIGHTHOUSE_FORM_FACTOR:-mobile}"
+
+# Minimum performance score from 0 to 100. 0 to report without enforcing.
+VORTEX_LIGHTHOUSE_BUDGET_PERFORMANCE="${VORTEX_LIGHTHOUSE_BUDGET_PERFORMANCE:-0}"
+
+# Minimum accessibility score from 0 to 100. 0 to report without enforcing.
+VORTEX_LIGHTHOUSE_BUDGET_ACCESSIBILITY="${VORTEX_LIGHTHOUSE_BUDGET_ACCESSIBILITY:-0}"
+
+# Minimum best practices score from 0 to 100. 0 to report without enforcing.
+VORTEX_LIGHTHOUSE_BUDGET_BEST_PRACTICES="${VORTEX_LIGHTHOUSE_BUDGET_BEST_PRACTICES:-0}"
+
+# Minimum SEO score from 0 to 100. 0 to report without enforcing.
+VORTEX_LIGHTHOUSE_BUDGET_SEO="${VORTEX_LIGHTHOUSE_BUDGET_SEO:-0}"
+
+# Directory to write the reports to.
+VORTEX_LIGHTHOUSE_REPORT_DIR="${VORTEX_LIGHTHOUSE_REPORT_DIR:-.logs/lighthouse}"
+
+# Flags passed to Chrome.
+VORTEX_LIGHTHOUSE_CHROME_FLAGS="${VORTEX_LIGHTHOUSE_CHROME_FLAGS:---headless=new --no-sandbox --disable-dev-shm-usage}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+# Lighthouse category IDs, in report order, with their titles and budgets.
+categories=(performance accessibility best-practices seo)
+titles=("Performance" "Accessibility" "Best practices" "SEO")
+budgets=("${VORTEX_LIGHTHOUSE_BUDGET_PERFORMANCE}" "${VORTEX_LIGHTHOUSE_BUDGET_ACCESSIBILITY}" "${VORTEX_LIGHTHOUSE_BUDGET_BEST_PRACTICES}" "${VORTEX_LIGHTHOUSE_BUDGET_SEO}")
+
+# Print the path, query and fragment of a URL, or '/' when it has none.
+url_path() {
+  local rest="${1#*://}"
+  case "${rest}" in
+    */*) echo "/${rest#*/}" ;;
+    *) echo "/" ;;
+  esac
+}
+
+# Print a URL for a path, or the URL itself when it is absolute.
+resolve_url() {
+  case "${1}" in
+    *://*) echo "${1}" ;;
+    *) echo "${VORTEX_LIGHTHOUSE_BASE_URL%/}/${1#/}" ;;
+  esac
+}
+
+# Print the '<loc>' values of the sitemap XML on stdin, 1 per line.
+sitemap_locs() {
+  tr -d '\r\n' | grep -o '<loc>[^<]*</loc>' | sed -e 's#<loc>##' -e 's#</loc>##' -e 's#&amp;#\&#g' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' || true
+}
+
+# Add up to VORTEX_LIGHTHOUSE_SITEMAP_LIMIT pages of a sitemap to
+# 'sitemap_pages'.
+#
+# A sitemap index is followed 1 level deep. Page hosts are replaced with the
+# base URL, because the public host does not resolve inside the container.
+collect_sitemap() {
+  local url="${1}" depth="${2}" content loc is_index=0
+
+  content="$(wget -q -O - "${url}")" || fail "Unable to fetch the sitemap ${url}."
+
+  case "${content}" in
+    *"<sitemapindex"*) is_index=1 ;;
+  esac
+
+  while IFS= read -r loc; do
+    if [ "${#sitemap_pages[@]}" -ge "${VORTEX_LIGHTHOUSE_SITEMAP_LIMIT}" ]; then
+      break
+    fi
+
+    [ -z "${loc}" ] && continue
+
+    if [ "${is_index}" = "0" ]; then
+      sitemap_pages+=("$(resolve_url "$(url_path "${loc}")")")
+    elif [ "${depth}" -eq 0 ]; then
+      collect_sitemap "$(resolve_url "$(url_path "${loc}")")" 1
+    fi
+  done < <(printf '%s\n' "${content}" | sitemap_locs)
+}
+
+# Print the category scores of a JSON report as '<category> <score>' lines.
+#
+# A category Lighthouse could not score is printed with an empty score.
+report_scores() {
+  node -e 'const r = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")); for (const [id, c] of Object.entries(r.categories || {})) console.log(id + " " + (c.score === null ? "" : Math.round(c.score * 100)));' "${1}"
+}
+
+info "Started Lighthouse audit."
+
+case "${VORTEX_LIGHTHOUSE_FORM_FACTOR}" in
+  mobile | desktop) ;;
+  *) fail "Unsupported form factor '${VORTEX_LIGHTHOUSE_FORM_FACTOR}'. Use 'mobile' or 'desktop'." ;;
+esac
+
+for i in "${!categories[@]}"; do
+  if ! [[ ${budgets[${i}]} =~ ^[0-9]+$ ]] || [ "${budgets[${i}]}" -gt 100 ]; then
+    fail "${titles[${i}]} budget '${budgets[${i}]}' must be a number from 0 to 100."
+  fi
+done
+
+if ! [[ ${VORTEX_LIGHTHOUSE_SITEMAP_LIMIT} =~ ^[0-9]+$ ]]; then
+  fail "Sitemap limit '${VORTEX_LIGHTHOUSE_SITEMAP_LIMIT}' must be a number."
+fi
+
+urls=()
+
+if [ "$#" -gt 0 ]; then
+  requested=("$@")
+else
+  read -r -a requested <<<"${VORTEX_LIGHTHOUSE_URLS//,/ }"
+fi
+
+for item in ${requested[@]+"${requested[@]}"}; do
+  urls+=("$(resolve_url "${item}")")
+done
+
+if [ -n "${VORTEX_LIGHTHOUSE_SITEMAP}" ]; then
+  sitemap="$(resolve_url "${VORTEX_LIGHTHOUSE_SITEMAP}")"
+  task "Discovering pages from the sitemap ${sitemap}."
+
+  sitemap_pages=()
+  collect_sitemap "${sitemap}" 0
+  urls+=(${sitemap_pages[@]+"${sitemap_pages[@]}"})
+
+  pass "Discovered ${#sitemap_pages[@]} page(s) from the sitemap."
+fi
+
+# Drop repeated URLs, keeping the first occurrence.
+unique=()
+for url in ${urls[@]+"${urls[@]}"}; do
+  seen=0
+  for existing in ${unique[@]+"${unique[@]}"}; do
+    if [ "${existing}" = "${url}" ]; then
+      seen=1
+      break
+    fi
+  done
+
+  if [ "${seen}" = "0" ]; then
+    unique+=("${url}")
+  fi
+done
+
+[ "${#unique[@]}" -eq 0 ] && fail "No pages to audit. Set VORTEX_LIGHTHOUSE_URLS or VORTEX_LIGHTHOUSE_SITEMAP."
+
+note "Pages to audit: ${#unique[@]}"
+note "Form factor: ${VORTEX_LIGHTHOUSE_FORM_FACTOR}"
+note "Reports: ${VORTEX_LIGHTHOUSE_REPORT_DIR}"
+
+# Only the files this script writes are removed, so a report directory shared
+# with other tools keeps their results.
+mkdir -p "${VORTEX_LIGHTHOUSE_REPORT_DIR}"
+rm -f "${VORTEX_LIGHTHOUSE_REPORT_DIR}"/*.report.html "${VORTEX_LIGHTHOUSE_REPORT_DIR}"/*.report.json "${VORTEX_LIGHTHOUSE_REPORT_DIR}/summary.md"
+
+summary="${VORTEX_LIGHTHOUSE_REPORT_DIR}/summary.md"
+{
+  echo "## Lighthouse audit (${VORTEX_LIGHTHOUSE_FORM_FACTOR})"
+  echo
+  echo "| Page | ${titles[0]} | ${titles[1]} | ${titles[2]} | ${titles[3]} |"
+  echo "|---|---|---|---|---|"
+} >"${summary}"
+
+preset=()
+[ "${VORTEX_LIGHTHOUSE_FORM_FACTOR}" = "desktop" ] && preset=(--preset=desktop)
+
+breaches=0
+index=0
+for url in "${unique[@]}"; do
+  index=$((index + 1))
+
+  # The index keeps the names of different pages with similar paths apart, so
+  # the path part can be cut to stay within the 255-byte file name limit.
+  name="$(url_path "${url}" | tr -cs 'A-Za-z0-9' '-')"
+  name="${name#-}"
+  name="${name:0:100}"
+  name="${name%-}"
+  name="$(printf '%02d' "${index}")-${name:-front}"
+
+  task "Auditing ${url}."
+  lighthouse "${url}" --quiet --chrome-flags="${VORTEX_LIGHTHOUSE_CHROME_FLAGS}" --only-categories=performance,accessibility,best-practices,seo --output=json --output=html --output-path="${VORTEX_LIGHTHOUSE_REPORT_DIR}/${name}" ${preset[@]+"${preset[@]}"} || fail "Lighthouse could not audit ${url}."
+
+  report="${VORTEX_LIGHTHOUSE_REPORT_DIR}/${name}.report.json"
+  [ -f "${report}" ] || fail "Lighthouse did not write the report ${report}."
+
+  scores="$(report_scores "${report}")"
+
+  row="| ${url} |"
+  for i in "${!categories[@]}"; do
+    score="$(printf '%s\n' "${scores}" | awk -v id="${categories[${i}]}" '$1 == id { print $2 }')"
+    budget="${budgets[${i}]}"
+    cell="${score:-n/a}"
+    line="${titles[${i}]}: ${score:-n/a}"
+
+    if [ "${budget}" -gt 0 ]; then
+      line="${line} (budget ${budget})"
+      if [ -z "${score}" ] || [ "${score}" -lt "${budget}" ]; then
+        breaches=$((breaches + 1))
+        line="${line} - below budget"
+        cell="${cell} (below ${budget})"
+      fi
+    fi
+
+    note "${line}"
+    row="${row} ${cell} |"
+  done
+
+  echo "${row}" >>"${summary}"
+  pass "Audited ${url}."
+done
+
+note "Summary: ${summary}"
+
+[ "${breaches}" -gt 0 ] && fail "Lighthouse found ${breaches} score(s) below the budget."
+
+pass "Finished Lighthouse audit."

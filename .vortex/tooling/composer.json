@@ -29,6 +29,7 @@
         "src/vortex-fetch-files",
         "src/vortex-import-db",
         "src/vortex-info",
+        "src/vortex-lighthouse",
         "src/vortex-login",
         "src/vortex-login-container-registry",
         "src/vortex-logout",
