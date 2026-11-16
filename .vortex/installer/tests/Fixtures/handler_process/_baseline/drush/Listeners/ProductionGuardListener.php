@@ -134,13 +134,7 @@ class ProductionGuardListener implements ConfigAwareInterface, LoggerAwareInterf
   protected function isProductionAlias(string $alias): bool {
     $name = ltrim($alias, '@');
 
-    foreach ($this->productionAliases() as $production_alias) {
-      if ($name === $production_alias || str_ends_with($name, '.' . $production_alias)) {
-        return TRUE;
-      }
-    }
-
-    return FALSE;
+    return array_any($this->productionAliases(), fn(string $production_alias): bool => $name === $production_alias || str_ends_with($name, '.' . $production_alias));
   }
 
   /**
