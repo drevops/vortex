@@ -23,6 +23,15 @@ class PromptManagerTest extends UnitTestCase {
 
   use TuiTrait;
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function tearDown(): void {
+    $this->tuiTeardown();
+
+    parent::tearDown();
+  }
+
   public function testEveryHandlerIsProcessedOnce(): void {
     $manager = $this->manager();
 
@@ -66,9 +75,6 @@ class PromptManagerTest extends UnitTestCase {
       $this->assertInstanceOf(\InvalidArgumentException::class, $exception->getPrevious());
       $this->assertTrue(Tui::isDrawn($exception->getPrevious()));
       $this->assertFalse(Tui::isDrawn($exception), 'The rethrown exception is marked as drawn, so the caller would not print it.');
-    }
-    finally {
-      $this->tuiTeardown();
     }
 
     $this->assertSame($original_verbosity, Tui::output()->getVerbosity(), 'Verbosity is not restored after a rejected answer.');
