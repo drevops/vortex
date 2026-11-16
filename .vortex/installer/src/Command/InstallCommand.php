@@ -263,7 +263,12 @@ EOF
     }
     catch (\Exception $exception) {
       Tui::output()->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
-      Tui::error('Installation failed with an error: ' . $exception->getMessage());
+
+      // A failed task and a rejected answer are already drawn with their
+      // message.
+      if (!Tui::isDrawn($exception)) {
+        Tui::error('Installation failed with an error: ' . $exception->getMessage());
+      }
 
       return Command::FAILURE;
     }

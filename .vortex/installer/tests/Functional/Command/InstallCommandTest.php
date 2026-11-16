@@ -46,7 +46,10 @@ class InstallCommandTest extends FunctionalTestCase {
     bool $expect_failure,
     array $output_assertions,
     bool $download_should_fail = FALSE,
+    array $env = [],
   ): void {
+    static::envSetMultiple($env);
+
     // 1. Mock ExecutableFinder for InstallCommand (requirements checking).
     $executable_finder = $this->createStub(ExecutableFinder::class);
     $executable_finder->method('find')
@@ -135,7 +138,7 @@ class InstallCommandTest extends FunctionalTestCase {
   /**
    * Data provider for testInstallCommand.
    *
-   * @return \Iterator<string, array{command_inputs: array<string, mixed>, install_executable_finder_find_callback: \Closure, build_runner_exit_callback: \Closure, check_requirements_runner_exit_callback: \Closure, expect_failure: bool, output_assertions: array<string>, download_should_fail?: bool}>
+   * @return \Iterator<string, array{command_inputs: array<string, mixed>, install_executable_finder_find_callback: \Closure, build_runner_exit_callback: \Closure, check_requirements_runner_exit_callback: \Closure, expect_failure: bool, output_assertions: array<string>, download_should_fail?: bool, env?: array<string, string>}>
    */
   public static function dataProviderInstallCommand(): \Iterator {
     yield 'Install without build flag, skips build' => [
@@ -322,11 +325,31 @@ class InstallCommandTest extends FunctionalTestCase {
           TuiOutput::INSTALL_ERROR_DOWNLOAD_FAILED,
         ]),
         ...TuiOutput::absent([
+          TuiOutput::INSTALL_ERROR_PREFIX,
           TuiOutput::INSTALL_CUSTOMIZING,
           TuiOutput::INSTALL_PREPARING_DESTINATION,
         ]),
       ],
       'download_should_fail' => TRUE,
+    ];
+    yield 'Rejected environment answer' => [
+      'command_inputs' => self::tuiOptions([
+        InstallCommand::OPTION_NO_INTERACTION => TRUE,
+      ]),
+      'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
+      'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+      'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+      'expect_failure' => TRUE,
+      'output_assertions' => [
+        ...TuiOutput::present([
+          TuiOutput::INSTALL_ERROR_PREFIX,
+          TuiOutput::INSTALL_ERROR_MACHINE_NAME_REJECTED,
+        ]),
+        ...TuiOutput::absent([
+          TuiOutput::INSTALL_STARTING,
+        ]),
+      ],
+      'env' => ['VORTEX_INSTALLER_PROMPT_MACHINE_NAME' => 'Not Valid'],
     ];
     // -----------------------------------------------------------------------
     // Sub-commands: build with check-requirements.

@@ -63,6 +63,10 @@ class Tui {
     Prompty::note($message, type: 'error');
   }
 
+  public static function isDrawn(\Throwable $throwable): bool {
+    return Prompty::isDrawn($throwable);
+  }
+
   public static function confirm(string $label, bool $default = TRUE, ?string $hint = NULL): bool {
     if (!self::$isInteractive) {
       return $default;
