@@ -210,10 +210,12 @@ hand.
 
 ### Release cooldown
 
-`composer update` and `composer require` skip any package version published
+`composer update` and `composer require` skip any tagged release published
 less than 7 days ago. A compromised release is often detected and pulled
-within days, so the delay keeps it out of your project. `composer install`
-installs what `composer.lock` pins, so the cooldown doesn't affect it.
+within days, so the delay keeps it out of your project. Branch versions
+such as `dev-main` change with every commit, so the cooldown leaves them
+alone. With a `composer.lock`, `composer install` installs what the lock
+pins, so the cooldown doesn't affect it.
 
 **Vortex** sets the delay in the `cooldown` section of
 [`config.policy`](https://getcomposer.org/doc/06-config.md#policy):
