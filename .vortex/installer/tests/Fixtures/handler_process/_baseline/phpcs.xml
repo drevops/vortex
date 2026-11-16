@@ -16,6 +16,7 @@
     <file>web/themes/custom</file>
     <file>web/sites/default/settings.php</file>
     <file>web/sites/default/includes</file>
+    <file>drush/Listeners</file>
     <file>tests</file>
     <file>scripts</file>
 
