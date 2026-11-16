@@ -25,8 +25,6 @@ require_once __DIR__ . '/../../../drush/Listeners/ProductionGuardListener.php';
  * Class ProductionGuardListenerTest.
  *
  * Tests for the Drush production guard listener.
- *
- * phpcs:disable Drupal.NamingConventions.ValidVariableName.LowerCamelName
  */
 #[Group('drush')]
 class ProductionGuardListenerTest extends TestCase {
