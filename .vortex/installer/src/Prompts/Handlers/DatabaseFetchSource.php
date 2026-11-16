@@ -134,9 +134,12 @@ class DatabaseFetchSource extends AbstractHandler {
       self::S3,
     ];
 
+    // The store reads the connection settings of the source type it names.
+    $store = in_array($v, DatabaseFetchStore::SOURCES, TRUE) ? ($this->responses[DatabaseFetchStore::id()] ?? NULL) : NULL;
+
     foreach ($types as $type) {
       $token = 'DB_FETCH_SOURCE_' . strtoupper($type);
-      if ($v === $type) {
+      if ($v === $type || $store === $type) {
         File::removeTokenAsync('!' . $token);
       }
       else {
@@ -149,12 +152,6 @@ class DatabaseFetchSource extends AbstractHandler {
     $is_migration_in_image = ($this->responses[Migration::id()] ?? NULL) === TRUE && ($this->responses[MigrationFetchSource::id()] ?? NULL) === MigrationFetchSource::CONTAINER_REGISTRY;
     if ($v !== self::CONTAINER_REGISTRY && !$is_migration_in_image) {
       File::removeTokenAsync('DB_IN_IMAGE');
-    }
-
-    // DB_PUSH wraps the upstream source of a dump store, which only an
-    // 'ftp' or 's3' source can be.
-    if (!in_array($v, [self::FTP, self::S3], TRUE)) {
-      File::removeTokenAsync('DB_PUSH');
     }
   }
 

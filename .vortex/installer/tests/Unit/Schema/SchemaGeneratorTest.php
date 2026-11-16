@@ -8,11 +8,13 @@ use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeInstructions;
 use DrevOps\VortexInstaller\Prompts\Handlers\AiCodeReview;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchStore;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProjectName;
 use DrevOps\VortexInstaller\Prompts\Handlers\HostingProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchStore;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\Name;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProfileCustom;
@@ -78,6 +80,8 @@ class SchemaGeneratorTest extends UnitTestCase {
     yield 'ci_provider' => [CiProvider::id(), 'select'];
     yield 'migration' => [Migration::id(), 'confirm'];
     yield 'database_image' => [DatabaseImage::id(), 'text'];
+    yield 'database_fetch_store' => [DatabaseFetchStore::id(), 'select'];
+    yield 'migration_fetch_store' => [MigrationFetchStore::id(), 'select'];
     yield 'ai_code_instructions' => [AiCodeInstructions::id(), 'confirm'];
     yield 'ai_code_review' => [AiCodeReview::id(), 'confirm'];
   }
@@ -118,8 +122,10 @@ class SchemaGeneratorTest extends UnitTestCase {
     yield 'theme_custom' => [ThemeCustom::id()];
     yield 'database_fetch_source' => [DatabaseFetchSource::id()];
     yield 'database_image' => [DatabaseImage::id()];
+    yield 'database_fetch_store' => [DatabaseFetchStore::id()];
     yield 'migration_fetch_source' => [MigrationFetchSource::id()];
     yield 'migration_image' => [MigrationImage::id()];
+    yield 'migration_fetch_store' => [MigrationFetchStore::id()];
   }
 
   public function testUtilityHandlersExcluded(): void {

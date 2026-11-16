@@ -10,6 +10,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\AssignAuthorPr;
 use DrevOps\VortexInstaller\Prompts\Handlers\CiProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchStore;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesAutomerge;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
@@ -41,6 +42,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass(CiProvider::class)]
 #[CoversClass(CodeProvider::class)]
 #[CoversClass(DatabaseFetchSource::class)]
+#[CoversClass(DatabaseFetchStore::class)]
 #[CoversClass(DatabaseImage::class)]
 #[CoversClass(DependencyUpdatesAutomerge::class)]
 #[CoversClass(DependencyUpdatesProvider::class)]

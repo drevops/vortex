@@ -6,10 +6,12 @@ namespace DrevOps\VortexInstaller\Tests\Functional\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchStore;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 #[CoversClass(MigrationFetchSource::class)]
+#[CoversClass(MigrationFetchStore::class)]
 class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestCase {
 
   public static function dataProviderHandlerProcess(): \Iterator {
@@ -27,9 +29,22 @@ class MigrationFetchSourceHandlerProcessTest extends AbstractHandlerProcessTestC
           $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'VORTEX_DB_INDEX=2 ./vendor/bin/vortex-refresh-db');
           $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'VORTEX_DB_IMAGE_BASE');
           $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'Deploy DB image');
-          // Any migration source can push to its own destinations.
           $test->assertFileContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db');
-          $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_REFRESH_DB2_SOURCE=url');
+          $test->assertFileContainsString(static::$sut . '/.env', "VORTEX_FETCH_DB2_STORE=\n");
+      }),
+    ];
+    yield 'migration_fetch_store_ftp' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Migration::id()] = TRUE;
+          $test->prompts[MigrationFetchSource::id()] = MigrationFetchSource::URL;
+          $test->prompts[MigrationFetchStore::id()] = MigrationFetchStore::FTP;
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE=url');
+          $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_STORE=ftp');
+          $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_URL=');
+          $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_FTP_HOST=');
+          $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_S3_BUCKET');
       }),
     ];
     yield 'migration_fetch_source_ftp' => [
