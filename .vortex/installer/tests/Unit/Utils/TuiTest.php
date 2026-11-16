@@ -364,7 +364,7 @@ EXPECTED,
     $thrown = new \RuntimeException('Task failed.');
 
     try {
-      Prompty::task('Failing task', action: fn() => throw $thrown);
+      Prompty::task('Failing task', action: fn(): never => throw $thrown);
     }
     catch (\RuntimeException) {
       // The task rethrows the exception after drawing its failure line.
