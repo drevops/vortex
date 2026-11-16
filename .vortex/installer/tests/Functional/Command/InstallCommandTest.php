@@ -332,6 +332,22 @@ class InstallCommandTest extends FunctionalTestCase {
       ],
       'download_should_fail' => TRUE,
     ];
+    yield 'Download fails, quiet' => [
+      'command_inputs' => self::tuiOptions([
+        InstallCommand::OPTION_NO_INTERACTION => TRUE,
+        'quiet' => TRUE,
+      ]),
+      'install_executable_finder_find_callback' => fn(string $command): string => '/usr/bin/' . $command,
+      'build_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+      'check_requirements_runner_exit_callback' => fn(string $command): int => RunnerInterface::EXIT_SUCCESS,
+      'expect_failure' => TRUE,
+      'output_assertions' => [
+        ...TuiOutput::present([
+          TuiOutput::INSTALL_ERROR_PREFIX . ' ' . TuiOutput::INSTALL_ERROR_DOWNLOAD_FAILED,
+        ]),
+      ],
+      'download_should_fail' => TRUE,
+    ];
     yield 'Rejected environment answer' => [
       'command_inputs' => self::tuiOptions([
         InstallCommand::OPTION_NO_INTERACTION => TRUE,
