@@ -208,6 +208,57 @@ closely at the scaffold files that core updates, such as `web/index.php` and
 overwrites it. When a core release changes `.htaccess`, port the change by
 hand.
 
+### Release cooldown
+
+`composer update` and `composer require` skip any package version published
+less than 7 days ago. A compromised release is often detected and pulled
+within days, so the delay keeps it out of your project. `composer install`
+installs what `composer.lock` pins, so the cooldown doesn't affect it.
+
+**Vortex** sets the delay in the `cooldown` section of
+[`config.policy`](https://getcomposer.org/doc/06-config.md#policy):
+
+```json
+"cooldown": {
+    "period": "7 days",
+    "ignore": {
+        "drupal/core": "Drupal core security releases need to be applied immediately.",
+        "drupal/core-*": "Drupal core security releases need to be applied immediately."
+    }
+}
+```
+
+The `ignore` entries exempt the Drupal core packages, so a core security
+release installs on the day it's published. `drupal/core-recommended` pins
+exact versions of the packages core depends on, such as Symfony. The
+cooldown still holds back a pinned version younger than 7 days. Composer
+then resolves the older core release, or fails when your constraint needs
+the new one. It reports the versions it holds back:
+
+```text
+3 package version(s) withheld by the cooldown policy (run with -vv to list them).
+```
+
+To install a release before it's 7 days old, such as an urgent security
+fix, add `--no-cooldown` to the update command:
+
+<Tabs>
+  <TabItem value="ahoy" label="Ahoy" default>
+    ```shell
+    ahoy composer update "drupal/core-*" --with-dependencies --no-cooldown
+    ```
+  </TabItem>
+  <TabItem value="docker-compose" label="Docker Compose">
+    ```shell
+    docker compose exec cli composer update "drupal/core-*" \
+      --with-dependencies --no-cooldown
+    ```
+  </TabItem>
+</Tabs>
+
+To change the delay, edit `period`, such as `"3 days"`. Set it to `null` to
+turn the cooldown off. The cooldown requires Composer 2.11 or later.
+
 ### Dependency bumping
 
 [Dependency bumping](https://getcomposer.org/doc/03-cli.md#bump) raises the
@@ -751,7 +802,9 @@ following keys:
   vulnerabilities stay visible without breaking reproducible builds.
   Abandoned packages show up in the report without failing it. ➡️ See
   [Dependency audit](security/dependency-audit.mdx) for the option values,
-  how to ignore advisories and the CI integration.
+  how to ignore advisories and the CI integration. The `cooldown` section
+  holds back releases younger than 7 days, except Drupal core. ➡️ See
+  [Release cooldown](#release-cooldown).
 - [`bump-after-update`][bump-after-update]:
   Runs `composer bump` after every `composer update`, which raises the
   version constraints in `composer.json` to the installed versions.

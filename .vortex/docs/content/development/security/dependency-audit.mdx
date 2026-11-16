@@ -124,7 +124,8 @@ rest, including the `malware` and `cooldown` policies and the per-entry
 :::note Composer 2.10+
 
 `config.policy` requires Composer 2.10 or newer, which ships in the
-**Vortex** container images. On older Composer versions, use the legacy
+**Vortex** container images. The `cooldown` section requires Composer 2.11
+or newer. On older Composer versions, use the legacy
 `config.audit` keys (`block-insecure`, `abandoned`) instead. Composer 2.10
 and newer still read those keys, but only when the matching `config.policy`
 section is absent.
