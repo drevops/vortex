@@ -1,4 +1,4 @@
-@@ -96,11 +96,11 @@
+@@ -97,11 +97,11 @@
      $prod = ['prod'];
  
      yield 'sql:sync, production target' => ['sql:sync', ['source' => '@self', 'target' => '@prod'], '@self', $prod, NULL, FALSE, [static::blocked('sql:sync', '@prod')]];

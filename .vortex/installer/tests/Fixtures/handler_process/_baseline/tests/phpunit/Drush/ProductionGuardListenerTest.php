@@ -86,6 +86,7 @@ class ProductionGuardListenerTest extends TestCase {
     $listener($event);
 
     $this->assertSame($expected_run, $event->commandShouldRun());
+    $this->assertSame(!$expected_run, $event->isPropagationStopped());
     $this->assertSame($expected_messages, $messages);
   }
 
