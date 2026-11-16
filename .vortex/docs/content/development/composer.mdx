@@ -258,11 +258,12 @@ fix, add `--no-cooldown` to the update command:
   </TabItem>
 </Tabs>
 
-The cooldown applies again on your next full `composer update`. For 7 days,
-that update can move an indirect dependency from the new release back to
-an older one. [Dependency bumping](#dependency-bumping) raises the
-constraint of each package you require directly, so those stay on the new
-release. Add `--no-cooldown` to each full update in that window.
+The cooldown applies again on your next full `composer update`. Until the
+releases you installed are 7 days old, that update can move an indirect
+dependency back to an older release. [Dependency
+bumping](#dependency-bumping) raises the constraint of each package you
+require directly, so those packages keep the release you installed. Add
+`--no-cooldown` to each full update until then.
 
 To change the delay, edit `period`, such as `"3 days"`. Set it to `null` to
 turn the cooldown off. The cooldown requires Composer 2.11 or later.
