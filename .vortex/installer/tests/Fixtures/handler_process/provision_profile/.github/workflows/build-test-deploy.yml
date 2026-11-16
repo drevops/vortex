@@ -207,11 +207,13 @@
        - name: Login to container registry
          run: ./vendor/bin/vortex-login-container-registry
  
-@@ -593,7 +421,6 @@
+@@ -593,9 +421,6 @@
    deploy:
      runs-on: ubuntu-latest
      needs: [build, lint]
--    if: ${{ !cancelled() && (inputs.deploy_target || (success() && !inputs.refresh_db && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
+-    if: >-
+-      ${{ !cancelled() && (inputs.deploy_target || (success() && !inputs.refresh_db && github.event_name != 'schedule'
+-      && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
  
      permissions:
        contents: read
