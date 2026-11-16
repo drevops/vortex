@@ -150,7 +150,7 @@ class ProductionGuardListener implements ConfigAwareInterface, LoggerAwareInterf
    *   The production alias names without the leading '@'.
    */
   protected function productionAliases(): array {
-    $value = $this->getConfig()->get(self::CONFIG_KEY, []);
+    $value = $this->getConfig()->get(self::CONFIG_KEY) ?? [];
     $values = is_array($value) ? $value : [$value];
 
     $aliases = [];
