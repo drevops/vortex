@@ -1,4 +1,4 @@
-@@ -113,17 +113,6 @@
+@@ -118,17 +118,6 @@
        - name: Login to container registry
          run: ./vendor/bin/vortex-login-container-registry
  

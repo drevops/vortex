@@ -9,6 +9,13 @@
 # The "runner" container uses Docker client to control the remote Docker server.
 version: '2.1'
 
+parameters:
+  # Refresh the database as on the nightly run, without building or deploying.
+  # Set it when triggering a pipeline from the CircleCI UI or API.
+  refresh_db:
+    type: boolean
+    default: false
+
 aliases:
   # SSH key fingerprint to fetch the database.
   # Replace this key fingerprint with your own and remove this comment.
@@ -317,7 +324,7 @@ jobs:
       VORTEX_DEPLOY_SSH_FINGERPRINT: *deploy_ssh_fingerprint
       # Enforce fresh DB build (do not rely on fallback caches).
       VORTEX_CI_DB_CACHE_FALLBACK: 'no'
-      # Refresh the database dumps in the fetch sources that are dump stores.
+      # Push the sanitized database dump to the database store and destinations.
       VORTEX_PUSH_DB_PROCEED: 1
       # Do not build the Drupal front-end.
       VORTEX_FRONTEND_BUILD_SKIP: 1
@@ -580,6 +587,8 @@ jobs:
 workflows:
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
+    when:
+      not: << pipeline.parameters.refresh_db >>
     jobs:
       - database:
           filters:
@@ -653,5 +662,12 @@ workflows:
             branches:
               only:
                 - develop
+    jobs:
+      - database-nightly
+
+  # Database refresh workflow runs the nightly database job on demand, when a
+  # pipeline is triggered with the "refresh_db" parameter.
+  refresh-db:
+    when: << pipeline.parameters.refresh_db >>
     jobs:
       - database-nightly

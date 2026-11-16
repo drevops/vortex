@@ -1,4 +1,4 @@
-@@ -191,6 +191,8 @@
+@@ -196,6 +196,8 @@
          VORTEX_CI_DB_CACHE_FALLBACK: "yes"
          # Which branch to use as a source of DB caches.
          VORTEX_CI_DB_CACHE_BRANCH: "develop"

@@ -1,4 +1,4 @@
-@@ -241,6 +241,10 @@
+@@ -246,6 +246,10 @@
            {
              echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
              echo "VORTEX_FRONTEND_BUILD_SKIP=1"
@@ -6,10 +6,10 @@
 +            echo "VORTEX_DB_IMAGE_BASE=drevops/db-data-mysql-8.4:__VERSION__"
 +            # Deploy container image.
 +            echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
-             # Refresh the database dumps in the fetch sources that are dump stores.
+             # Push the sanitized database dump to the database store and destinations.
              echo "VORTEX_PUSH_DB_PROCEED=1"
            } >> "$GITHUB_ENV"
-@@ -272,9 +276,13 @@
+@@ -277,9 +281,13 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
@@ -23,7 +23,7 @@
            ./vendor/bin/vortex-refresh-db
          timeout-minutes: 30
  
-@@ -287,6 +295,14 @@
+@@ -292,6 +300,14 @@
            ./vendor/bin/vortex-push-db
          timeout-minutes: 30
  
@@ -38,7 +38,7 @@
        # Save cache per default branch and the timestamp.
        # The cache will not be saved if it already exists.
        # Note that the cache fallback flag is enabled for this case in order
-@@ -442,6 +458,11 @@
+@@ -447,6 +463,11 @@
              docker compose exec cli mkdir -p .data
              docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
              rm -f .data/db.sql
