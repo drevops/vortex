@@ -12,6 +12,15 @@
 #; and will be removed during installation or update of Vortex.
 version: '2.1'
 
+#;< !PROVISION_TYPE_PROFILE
+parameters:
+  # Refresh the database as on the nightly run, without building or deploying.
+  # Set it when triggering a pipeline from the CircleCI UI or API.
+  refresh_db:
+    type: boolean
+    default: false
+#;> !PROVISION_TYPE_PROFILE
+
 aliases:
   #;< !PROVISION_TYPE_PROFILE
   # SSH key fingerprint to fetch the database.
@@ -408,7 +417,7 @@ jobs:
       # Deploy container image.
       VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED: 1
       #;> DB_IN_IMAGE
-      # Refresh the database dumps in the fetch sources that are dump stores.
+      # Push the sanitized database dump to the database store and destinations.
       VORTEX_PUSH_DB_PROCEED: 1
       #;< VORTEX_DEV
       # Tell this provider's demo database dumps apart on the test FTP server
@@ -791,6 +800,10 @@ jobs:
 workflows:
   # Commit workflow. Runs for every commit push to the remote repository.
   commit:
+    #;< !PROVISION_TYPE_PROFILE
+    when:
+      not: << pipeline.parameters.refresh_db >>
+    #;> !PROVISION_TYPE_PROFILE
     jobs:
       #;< !PROVISION_TYPE_PROFILE
       - database:
@@ -889,6 +902,13 @@ workflows:
             branches:
               only:
                 - develop
+    jobs:
+      - database-nightly
+
+  # Database refresh workflow runs the nightly database job on demand, when a
+  # pipeline is triggered with the "refresh_db" parameter.
+  refresh-db:
+    when: << pipeline.parameters.refresh_db >>
     jobs:
       - database-nightly
   #;> !PROVISION_TYPE_PROFILE

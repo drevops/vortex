@@ -246,7 +246,7 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "refresh-db: Sanitizes the database for a dump store source with a push requested" {
+@test "refresh-db: Sanitizes the database for a store with a push requested" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mkdir -p .data
@@ -259,8 +259,8 @@ load ../_helper.bash
   stub_sibling "vortex-fetch-db" "Fetched the dump file."
   stub_sibling "vortex-export-db" 'Exported the database to ${1}.'
 
-  export VORTEX_FETCH_DB_SOURCE="ftp"
-  export VORTEX_REFRESH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_STORE="ftp"
 
   mock_command "sleep" >/dev/null
   mock_docker=$(mock_command "docker")
@@ -273,7 +273,7 @@ load ../_helper.bash
 
   run .vortex/tooling/src/vortex-refresh-db
   assert_success
-  # The fetch step already fetched the dump from the upstream source.
+  # The fetch step already fetched the dump from the source.
   assert_output_not_contains "Fetched the dump file."
   assert_output_contains "[ OK ] Copied database dump file ./.data/db.sql into the cli container."
   assert_output_contains "Sanitized the database."
@@ -290,15 +290,15 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "refresh-db: Exports the dump store database unsanitized when a push is not requested" {
+@test "refresh-db: Exports the store database unsanitized when a push is not requested" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mkdir -p .data
   echo "store" >.data/db.sql
 
   unset VORTEX_DB_IMAGE VORTEX_DB_IMAGE_BASE VORTEX_PUSH_DB_PROCEED
-  export VORTEX_FETCH_DB_SOURCE="ftp"
-  export VORTEX_REFRESH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_STORE="ftp"
 
   stub_sibling "vortex-login-container-registry" "Logged in to the registry."
   stub_sibling "vortex-export-db" 'Exported the database to ${1}.'
@@ -324,7 +324,7 @@ load ../_helper.bash
   mkdir -p .data
   echo "upstream" >.data/db.sql
 
-  unset VORTEX_DB_IMAGE VORTEX_DB_IMAGE_BASE VORTEX_REFRESH_DB_SOURCE
+  unset VORTEX_DB_IMAGE VORTEX_DB_IMAGE_BASE VORTEX_FETCH_DB_STORE
   export VORTEX_FETCH_DB_SOURCE="lagoon"
   export VORTEX_PUSH_DB_PROCEED=1
   export VORTEX_PUSH_DB_DESTINATIONS="ftp,s3"
@@ -345,13 +345,13 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "refresh-db: Exports an ftp source database unsanitized without a refresh source" {
+@test "refresh-db: Exports the database unsanitized without a store or destinations" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mkdir -p .data
   echo "upstream" >.data/db.sql
 
-  unset VORTEX_DB_IMAGE VORTEX_DB_IMAGE_BASE VORTEX_REFRESH_DB_SOURCE
+  unset VORTEX_DB_IMAGE VORTEX_DB_IMAGE_BASE VORTEX_FETCH_DB_STORE VORTEX_PUSH_DB_DESTINATIONS
   export VORTEX_FETCH_DB_SOURCE="ftp"
   export VORTEX_PUSH_DB_PROCEED=1
 
@@ -365,18 +365,18 @@ load ../_helper.bash
   assert_success
   assert_output_contains "[ OK ] Finished database refresh."
 
-  # Without a refresh source, the ftp source is not a dump store.
+  # Nothing is pushed, so the database is not sanitized.
   assert_equal "5" "$(mock_get_call_num "${mock_docker}")"
 
   popd >/dev/null
 }
 
-@test "refresh-db: Fails when the sanitization is skipped for a dump store source with a push requested" {
+@test "refresh-db: Fails when the sanitization is skipped for a store with a push requested" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   unset VORTEX_DB_IMAGE VORTEX_DB_IMAGE_BASE
-  export VORTEX_FETCH_DB_SOURCE="ftp"
-  export VORTEX_REFRESH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_STORE="ftp"
   export VORTEX_PUSH_DB_PROCEED=1
   export VORTEX_PROVISION_SANITIZE_DB_SKIP=1
 
@@ -393,15 +393,15 @@ load ../_helper.bash
   popd >/dev/null
 }
 
-@test "refresh-db: Fails when the sanitization fails for a dump store source" {
+@test "refresh-db: Fails when the sanitization fails for a store" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   mkdir -p .data
   echo "upstream" >.data/db.sql
 
   unset VORTEX_DB_IMAGE VORTEX_DB_IMAGE_BASE
-  export VORTEX_FETCH_DB_SOURCE="s3"
-  export VORTEX_REFRESH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_STORE="s3"
   export VORTEX_PUSH_DB_PROCEED=1
 
   stub_sibling "vortex-login-container-registry" "Logged in to the registry."

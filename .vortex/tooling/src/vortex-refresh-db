@@ -15,10 +15,10 @@
 # the service is exported and pushed as VORTEX_DB2_IMAGE, without
 # provisioning. This runs only when VORTEX_REFRESH_DB2_PROCEED is set to 1.
 #
-# With VORTEX_PUSH_DB_PROCEED set to 1 and a push destination, either in
-# VORTEX_PUSH_DB_DESTINATIONS or an 'ftp' or 's3' fetch source with an
-# upstream source in VORTEX_REFRESH_DB_SOURCE (a dump store), the database is
-# sanitized after provisioning, so 'vortex-push-db' pushes a sanitized dump.
+# With VORTEX_PUSH_DB_PROCEED set to 1 and a push destination, either the
+# database store in VORTEX_FETCH_DB_STORE or a destination in
+# VORTEX_PUSH_DB_DESTINATIONS, the database is sanitized after provisioning,
+# so 'vortex-push-db' pushes a sanitized dump.
 #
 # Every variable of the calling environment is passed to the provisioning in
 # the 'cli' container, so the script is intended to run in CI.
@@ -50,11 +50,6 @@ VORTEX_DB_IMAGE_BASE="${VORTEX_DB_IMAGE_BASE:-}"
 # set: the database image is built from a dump file, so it needs a dump file
 # source such as 'url', 'ftp', 'acquia', 'lagoon' or 's3'. An indexed
 # database uses VORTEX_REFRESH_DB2_SOURCE.
-#
-# With an 'ftp' or 's3' fetch source, setting this value makes the fetch
-# source a dump store: with VORTEX_PUSH_DB_PROCEED set to 1, 'vortex-fetch-db'
-# fetches the dump from this source and 'vortex-push-db' pushes the exported
-# dump to the store.
 _v="VORTEX_REFRESH_DB${_db_index}_SOURCE"
 VORTEX_REFRESH_DB_SOURCE="${!_v:-}"
 
@@ -112,12 +107,8 @@ rebuild_image=0
 # requested the exported dump must be sanitized.
 refresh_store=0
 if [ -z "${_db_index}" ] && [ -z "${db_image}" ] && [ "${VORTEX_PUSH_DB_PROCEED:-}" = "1" ]; then
-  if [ -n "${VORTEX_PUSH_DB_DESTINATIONS:-}" ]; then
+  if [ -n "${VORTEX_FETCH_DB_STORE:-}" ] || [ -n "${VORTEX_PUSH_DB_DESTINATIONS:-}" ]; then
     refresh_store=1
-  elif [ -n "${VORTEX_REFRESH_DB_SOURCE}" ]; then
-    case "${fetch_source}" in
-      ftp | s3) refresh_store=1 ;;
-    esac
   fi
 fi
 

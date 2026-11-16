@@ -37,26 +37,26 @@ stub_push_scripts() {
   popd >/dev/null
 }
 
-@test "push-db: Push to the dump store fetch source by default" {
+@test "push-db: Push to the store by default" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   stub_push_scripts
 
   export VORTEX_PUSH_DB_PROCEED=1
-  export VORTEX_REFRESH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_SOURCE="lagoon"
   unset VORTEX_PUSH_DB_DESTINATIONS
 
-  for db_source in ftp s3; do
-    export VORTEX_FETCH_DB_SOURCE="${db_source}"
+  for db_store in ftp s3; do
+    export VORTEX_FETCH_DB_STORE="${db_store}"
 
     run .vortex/tooling/src/vortex-push-db
     assert_success
-    assert_output_contains "Pushed to ${db_source} with index []."
+    assert_output_contains "Pushed to ${db_store} with index []."
     assert_output_contains "[ OK ] Finished database push."
 
-    for other_source in ftp s3; do
-      [ "${other_source}" = "${db_source}" ] && continue
-      assert_output_not_contains "Pushed to ${other_source}"
+    for other_store in ftp s3; do
+      [ "${other_store}" = "${db_store}" ] && continue
+      assert_output_not_contains "Pushed to ${other_store}"
     done
   done
 
@@ -70,7 +70,6 @@ stub_push_scripts() {
 
   export VORTEX_PUSH_DB_PROCEED=1
   export VORTEX_FETCH_DB_SOURCE="lagoon"
-  unset VORTEX_REFRESH_DB_SOURCE
 
   for destinations in "ftp,s3" "ftp s3" " ftp , s3 "; do
     export VORTEX_PUSH_DB_DESTINATIONS="${destinations}"
@@ -87,20 +86,21 @@ stub_push_scripts() {
   popd >/dev/null
 }
 
-@test "push-db: Push to the dump store fetch source and another destination" {
+@test "push-db: Push to the store and another destination" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   stub_push_scripts
 
   export VORTEX_PUSH_DB_PROCEED=1
-  export VORTEX_FETCH_DB_SOURCE="ftp"
-  export VORTEX_REFRESH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_STORE="ftp"
   export VORTEX_PUSH_DB_DESTINATIONS="ftp,s3"
 
   run .vortex/tooling/src/vortex-push-db
   assert_success
-  assert_output_contains "Pushed to ftp with index []."
   assert_output_contains "Pushed to s3 with index []."
+  # The store listed as a destination too is pushed to once.
+  assert_equal "1" "$(grep -c "Pushed to ftp with index \[\]." <<<"${output}")"
 
   popd >/dev/null
 }
@@ -113,7 +113,8 @@ stub_push_scripts() {
   export VORTEX_DB_INDEX=2
   export VORTEX_PUSH_DB_PROCEED=1
   export VORTEX_FETCH_DB2_SOURCE="url"
-  export VORTEX_PUSH_DB2_DESTINATIONS="s3"
+  export VORTEX_FETCH_DB2_STORE="s3"
+  export VORTEX_FETCH_DB_STORE="ftp"
   export VORTEX_PUSH_DB_DESTINATIONS="ftp"
   # The indexed database is pushed as fetched, so the sanitization setting
   # does not apply to it.
@@ -126,6 +127,13 @@ stub_push_scripts() {
   assert_output_not_contains "Pushed to ftp"
   assert_output_contains "[ OK ] Finished database 2 push."
 
+  export VORTEX_PUSH_DB2_DESTINATIONS="ftp"
+
+  run .vortex/tooling/src/vortex-push-db
+  assert_success
+  assert_output_contains "Pushed to s3 with index [2]."
+  assert_output_contains "Pushed to ftp with index [2]."
+
   popd >/dev/null
 }
 
@@ -135,17 +143,14 @@ stub_push_scripts() {
   stub_push_scripts
 
   export VORTEX_PUSH_DB_PROCEED=1
-  unset VORTEX_PUSH_DB_DESTINATIONS
+  unset VORTEX_PUSH_DB_DESTINATIONS VORTEX_FETCH_DB_STORE
 
-  # A fetch source that is not a dump store, or a dump store source with no
-  # upstream source, gives no destination.
-  for case in "url:lagoon" "lagoon:lagoon" "container_registry:lagoon" "ftp:" "s3:"; do
-    export VORTEX_FETCH_DB_SOURCE="${case%%:*}"
-    export VORTEX_REFRESH_DB_SOURCE="${case#*:}"
+  for db_source in url lagoon container_registry ftp s3; do
+    export VORTEX_FETCH_DB_SOURCE="${db_source}"
 
     run .vortex/tooling/src/vortex-push-db
     assert_success
-    assert_output_contains "[ OK ] Skipped database push as VORTEX_PUSH_DB_DESTINATIONS is empty and the \"${case%%:*}\" fetch source is not a dump store."
+    assert_output_contains "[ OK ] Skipped database push as VORTEX_FETCH_DB_STORE and VORTEX_PUSH_DB_DESTINATIONS are empty."
     assert_output_not_contains "Pushed to"
     assert_output_not_contains "Finished database push."
   done
@@ -163,7 +168,7 @@ stub_push_scripts() {
 
   run .vortex/tooling/src/vortex-push-db
   assert_success
-  assert_output_contains '[ OK ] Skipped database push as VORTEX_PUSH_DB_DESTINATIONS is empty and the "url" fetch source is not a dump store.'
+  assert_output_contains '[ OK ] Skipped database push as VORTEX_FETCH_DB_STORE and VORTEX_PUSH_DB_DESTINATIONS are empty.'
   assert_output_not_contains "Pushed to"
 
   popd >/dev/null
@@ -180,26 +185,25 @@ stub_push_scripts() {
 
   run .vortex/tooling/src/vortex-push-db
   assert_failure
-  assert_output_contains '[FAIL] Unsupported database push destination "gdrive" in VORTEX_PUSH_DB_DESTINATIONS. Use one or more of: ftp, s3.'
+  assert_output_contains '[FAIL] Unsupported database push destination "gdrive" in VORTEX_FETCH_DB_STORE or VORTEX_PUSH_DB_DESTINATIONS. Use one or more of: ftp, s3.'
   # Every destination is checked before the first push.
   assert_output_not_contains "Pushed to"
 
   popd >/dev/null
 }
 
-@test "push-db: Refuse to push to the fetch source without an upstream source" {
+@test "push-db: Refuse to push to the fetch source" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   stub_push_scripts
 
   export VORTEX_PUSH_DB_PROCEED=1
   export VORTEX_FETCH_DB_SOURCE="ftp"
-  export VORTEX_REFRESH_DB_SOURCE=""
   export VORTEX_PUSH_DB_DESTINATIONS="s3,ftp"
 
   run .vortex/tooling/src/vortex-push-db
   assert_failure
-  assert_output_contains '[FAIL] Refused to push the database to the "ftp" fetch source as VORTEX_REFRESH_DB_SOURCE is not set, so the push would replace the dump it fetched.'
+  assert_output_contains '[FAIL] Refused to push the database to the "ftp" fetch source, as the push would replace the dump the database was fetched from.'
   assert_output_not_contains "Pushed to"
 
   popd >/dev/null
