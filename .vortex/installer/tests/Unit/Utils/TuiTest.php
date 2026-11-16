@@ -357,6 +357,24 @@ EXPECTED,
     $this->assertStringContainsString('     Test line', $actual);
   }
 
+  public function testIsDrawn(): void {
+    $output = new BufferedOutput();
+    Tui::init($output, FALSE);
+
+    $thrown = new \RuntimeException('Task failed.');
+
+    try {
+      Prompty::task('Failing task', action: fn(): never => throw $thrown);
+    }
+    catch (\RuntimeException) {
+      // The task rethrows the exception after drawing its failure line.
+    }
+
+    $this->assertStringContainsString('Task failed.', $output->fetch());
+    $this->assertTrue(Tui::isDrawn($thrown));
+    $this->assertFalse(Tui::isDrawn(new \RuntimeException('Not drawn.')));
+  }
+
   public function testConfirmNonInteractive(): void {
     $output = new BufferedOutput();
     Tui::init($output, FALSE);

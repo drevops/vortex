@@ -114,7 +114,7 @@ class PromptManager {
     $h = $this->handlers;
 
     // phpcs:disable Drupal.WhiteSpace.ObjectOperatorIndent -- Indentation follows the nesting of the steps.
-    $responses = Prompty::flow()
+    $flow = Prompty::flow()
       ->section('General information')
         ->add($h[Name::id()])
         ->add($h[MachineName::id()])
@@ -185,11 +185,24 @@ class PromptManager {
         ->add($h[PreserveDocsProject::id()])
       ->section('AI')
         ->add($h[AiCodeInstructions::id()])
-        ->add($h[AiCodeReview::id()])
-      ->run(numbering: 'total', env_prefix: 'VORTEX_INSTALLER_PROMPT_');
+        ->add($h[AiCodeReview::id()]);
     // phpcs:enable Drupal.WhiteSpace.ObjectOperatorIndent
 
-    Tui::output()->setVerbosity($original_verbosity);
+    try {
+      $responses = $flow->run(numbering: 'total', env_prefix: 'VORTEX_INSTALLER_PROMPT_');
+    }
+    catch (\Exception $exception) {
+      // A rejected answer is drawn to the quieted output, so it is rethrown
+      // undrawn for the caller to print.
+      if ($this->config->getNoInteraction() && Tui::isDrawn($exception)) {
+        throw new \RuntimeException($exception->getMessage(), (int) $exception->getCode(), $exception);
+      }
+
+      throw $exception;
+    }
+    finally {
+      Tui::output()->setVerbosity($original_verbosity);
+    }
 
     // The flow answers NULL only when the user cancels a step.
     if ($responses === NULL) {

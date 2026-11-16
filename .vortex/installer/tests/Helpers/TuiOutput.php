@@ -134,7 +134,11 @@ class TuiOutput {
 
   const INSTALL_ERROR_MISSING_COMPOSER = 'Installation failed with an error: Missing required command: "composer".';
 
-  const INSTALL_ERROR_DOWNLOAD_FAILED = 'Installation failed with an error: Failed to download Vortex.';
+  const INSTALL_ERROR_PREFIX = 'Installation failed with an error:';
+
+  const INSTALL_ERROR_DOWNLOAD_FAILED = 'Failed to download Vortex.';
+
+  const INSTALL_ERROR_MACHINE_NAME_REJECTED = 'Discovered value "Not Valid"';
 
   const BUILD_CHECKING_REQUIREMENTS = 'Checking requirements';
 

@@ -262,8 +262,14 @@ EOF
       );
     }
     catch (\Exception $exception) {
+      $is_quiet = Tui::output()->isQuiet();
       Tui::output()->setVerbosity(OutputInterface::VERBOSITY_NORMAL);
-      Tui::error('Installation failed with an error: ' . $exception->getMessage());
+
+      // A failed task and a rejected answer are already drawn with their
+      // message, unless the output was quiet.
+      if (!Tui::isDrawn($exception) || $is_quiet) {
+        Tui::error('Installation failed with an error: ' . $exception->getMessage());
+      }
 
       return Command::FAILURE;
     }

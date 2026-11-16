@@ -9,8 +9,10 @@ use DrevOps\VortexInstaller\Prompts\Handlers\HandlerInterface;
 use DrevOps\VortexInstaller\Prompts\Handlers\Internal;
 use DrevOps\VortexInstaller\Prompts\Handlers\Webroot;
 use DrevOps\VortexInstaller\Prompts\PromptManager;
+use DrevOps\VortexInstaller\Tests\Traits\TuiTrait;
 use DrevOps\VortexInstaller\Tests\Unit\UnitTestCase;
 use DrevOps\VortexInstaller\Utils\Config;
+use DrevOps\VortexInstaller\Utils\Tui;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
@@ -18,6 +20,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
  */
 #[CoversClass(PromptManager::class)]
 class PromptManagerTest extends UnitTestCase {
+
+  use TuiTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function tearDown(): void {
+    $this->tuiTeardown();
+
+    parent::tearDown();
+  }
 
   public function testEveryHandlerIsProcessedOnce(): void {
     $manager = $this->manager();
@@ -42,6 +55,29 @@ class PromptManagerTest extends UnitTestCase {
     $this->assertSame(Dotenv::id(), $ids[0], 'Dotenv is not processed first.');
     $this->assertSame(Webroot::id(), $ids[1], 'Webroot is not processed second.');
     $this->assertSame(Internal::id(), end($ids), 'Internal is not processed last.');
+  }
+
+  public function testRunPromptsRejectedAnswerNonInteractive(): void {
+    static::envUnsetProjectVars();
+    static::tuiSetUp();
+    static::envSet('VORTEX_INSTALLER_PROMPT_MACHINE_NAME', 'Not Valid');
+
+    $config = new Config(static::$sut);
+    $config->setNoInteraction();
+    $original_verbosity = Tui::output()->getVerbosity();
+
+    try {
+      (new PromptManager($config))->runPrompts();
+      $this->fail('A rejected answer did not throw.');
+    }
+    catch (\RuntimeException $exception) {
+      $this->assertStringContainsString('Please enter a valid machine name', $exception->getMessage());
+      $this->assertInstanceOf(\InvalidArgumentException::class, $exception->getPrevious());
+      $this->assertTrue(Tui::isDrawn($exception->getPrevious()));
+      $this->assertFalse(Tui::isDrawn($exception), 'The rethrown exception is marked as drawn, so the caller would not print it.');
+    }
+
+    $this->assertSame($original_verbosity, Tui::output()->getVerbosity(), 'Verbosity is not restored after a rejected answer.');
   }
 
   protected function manager(): PromptManager {
