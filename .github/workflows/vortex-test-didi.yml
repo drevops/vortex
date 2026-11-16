@@ -150,7 +150,7 @@ jobs:
         run: ./scripts/vortex-tooling.sh
 
       - name: Adjust variables for a scheduled run
-        if: github.event_name == 'schedule' || inputs.refresh_db
+        if: github.event_name == 'schedule' || github.event.inputs.refresh_db == 'true'
         run: |
           {
             echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
@@ -724,7 +724,7 @@ jobs:
         run: ./scripts/vortex-tooling.sh
 
       - name: Adjust variables for a scheduled run
-        if: github.event_name == 'schedule' || inputs.refresh_db
+        if: github.event_name == 'schedule' || github.event.inputs.refresh_db == 'true'
         run: |
           {
             echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
