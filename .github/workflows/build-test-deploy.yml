@@ -64,7 +64,7 @@ on:
       #;< !PROVISION_TYPE_PROFILE
       refresh_db:
         type: boolean
-        description: 'Refresh the database as on the nightly run, without building or deploying'
+        description: 'Refresh the database only'
         required: false
         default: false
       #;> !PROVISION_TYPE_PROFILE
