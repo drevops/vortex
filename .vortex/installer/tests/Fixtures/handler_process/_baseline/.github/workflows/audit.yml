@@ -181,3 +181,63 @@ jobs:
           path: .logs/audit
           include-hidden-files: true
           if-no-files-found: ignore
+
+  # The CodeQL action runs on the runner itself rather than in the CI runner
+  # container.
+  sast:
+    runs-on: ubuntu-latest
+
+    permissions:
+      # The code scanning upload reads the workflow run in a private repository.
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@__HASH__ # __VERSION__
+        with:
+          persist-credentials: false
+
+      - name: Create the directory for the scan reports
+        run: mkdir -p .logs/audit
+
+      # CodeQL on a private repository requires a GitHub Code Security license.
+      - name: Initialize CodeQL
+        if: ${{ vars.VORTEX_CI_CODEQL_SKIP != '1' }}
+        uses: github/codeql-action/init@__HASH__ # __VERSION__
+        with:
+          languages: actions,javascript-typescript
+          build-mode: none
+
+      - name: Scan code for vulnerabilities with CodeQL
+        if: ${{ !cancelled() && vars.VORTEX_CI_CODEQL_SKIP != '1' }}
+        uses: github/codeql-action/analyze@__HASH__ # __VERSION__
+        # CodeQL reports its findings only to code scanning, and the upload fails
+        # without a code scanning entitlement and on fork pull requests.
+        continue-on-error: true
+        with:
+          output: .logs/audit/codeql
+
+      # CodeQL has no PHP analyzer.
+      - name: Scan PHP code for vulnerabilities with Semgrep
+        if: ${{ !cancelled() }}
+        run: docker run --rm -v "${GITHUB_WORKSPACE}:/src" -w /src semgrep/semgrep:__VERSION__ semgrep scan --config p/php --metrics=off --error --sarif-output=.logs/audit/semgrep.sarif
+        continue-on-error: ${{ vars.VORTEX_CI_SEMGREP_IGNORE_FAILURE == '1' }}
+
+      - name: Upload Semgrep findings to code scanning
+        if: ${{ !cancelled() && hashFiles('.logs/audit/semgrep.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@__HASH__ # __VERSION__
+        continue-on-error: true
+        with:
+          sarif_file: .logs/audit/semgrep.sarif
+          category: semgrep
+
+      - name: Upload code scanning findings as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@__HASH__ # __VERSION__
+        with:
+          name: sast-findings
+          path: .logs/audit
+          include-hidden-files: true
+          if-no-files-found: ignore

@@ -177,7 +177,6 @@ jobs:
     steps:
       - checkout
       - *load_variables_from_dotenv
-
       - *step_setup_remote_docker
 
       - run:
@@ -187,6 +186,14 @@ jobs:
 
       # The remote Docker engine has no access to the checkout, so the files
       # are copied into the container.
+      - run:
+          name: Scan PHP code for vulnerabilities with Semgrep
+          when: always
+          command: |
+            container="$(docker create --rm -w /src semgrep/semgrep:__VERSION__ semgrep scan --config p/php --metrics=off --error)"
+            docker cp ./. "${container}:/src"
+            docker start --attach "${container}" || [ "${VORTEX_CI_SEMGREP_IGNORE_FAILURE:-0}" -eq 1 ]
+
       - run:
           name: Scan for committed secrets with Gitleaks
           when: always
