@@ -219,10 +219,13 @@ jobs:
         with:
           output: .logs/audit/codeql
 
-      # CodeQL has no PHP analyzer.
+      # CodeQL has no PHP analyzer. Semgrep detects PHP by the '.php' extension
+      # only, so Drupal PHP files with other extensions are passed explicitly.
       - name: Scan PHP code for vulnerabilities with Semgrep
         if: ${{ !cancelled() }}
-        run: docker run --rm -v "${GITHUB_WORKSPACE}:/src" -w /src semgrep/semgrep:__VERSION__ semgrep scan --config p/php --metrics=off --error --sarif-output=.logs/audit/semgrep.sarif
+        run: |
+          mapfile -t files < <(git ls-files '*.module' '*.install' '*.theme' '*.inc' '*.profile' '*.engine' ':(exclude,glob)**/tests/**')
+          docker run --rm -v "${GITHUB_WORKSPACE}:/src" -w /src semgrep/semgrep:__VERSION__ semgrep scan --config p/php --metrics=off --error --sarif-output=.logs/audit/semgrep.sarif --scan-unknown-extensions . "${files[@]}"
         continue-on-error: ${{ vars.VORTEX_CI_SEMGREP_IGNORE_FAILURE == '1' }}
 
       - name: Upload Semgrep findings to code scanning
