@@ -61,9 +61,9 @@ as described in [Dismiss a finding](#dismiss-a-finding).
 ## Continuous integration
 
 The scanners run in the [security audit
-workflow](../../continuous-integration/README.mdx#security-audit). In
-GitHub Actions, they run in the workflow's `sast` job, next to the `audit`
-job. In CircleCI, Semgrep runs in the `audit` job.
+workflow](../../continuous-integration/README.mdx#security-audit). Semgrep
+runs in the workflow's `audit` job on both providers. In GitHub Actions,
+CodeQL runs in its own `codeql` job.
 
 A Semgrep finding fails the workflow. CodeQL reports its findings to code
 scanning only, so a CodeQL finding leaves the workflow passing.
@@ -82,7 +82,7 @@ failures](../../continuous-integration/README.mdx#ignore-tool-failures).
 
 CodeQL on a private repository requires a GitHub Code Security license. To
 turn CodeQL off, set the `VORTEX_CI_CODEQL_SKIP` repository variable to `1`.
-Semgrep keeps running.
+The `codeql` job then shows as skipped, and Semgrep keeps running.
 
 ### Where findings appear
 
@@ -93,7 +93,7 @@ In GitHub Actions, the findings reach the repository's
   `/language:actions` and `/language:javascript-typescript`.
 - Semgrep findings go under the `semgrep` category.
 
-The `sast` job also attaches every report to the run as the `sast-findings`
+The Semgrep report is also attached to the run in the `security-findings`
 artifact. In CircleCI, the findings appear only in the job log.
 
 ➡️ See [Code

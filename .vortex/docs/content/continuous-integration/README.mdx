@@ -158,8 +158,8 @@ lock files, so the audit never waits for a build:
   Actions workflows and the JavaScript code for vulnerabilities. It runs on
   GitHub Actions only.
 
-On GitHub Actions, Semgrep and CodeQL run in a separate `sast` job of the
-same workflow.
+On GitHub Actions, CodeQL runs in a separate `codeql` job of the same
+workflow. The other checks run in the `audit` job.
 
 The Composer, Semgrep and CodeQL checks are always present. The root npm
 check ships when your project keeps ESLint, Stylelint or Jest. The theme
@@ -234,8 +234,8 @@ Without code scanning, and on pull requests from forks where the workflow
 token is read-only, the upload step fails and the workflow carries on. The
 checks still report their findings in the job log and still fail the
 workflow. CodeQL is the exception: its findings appear only in code
-scanning and in the reports. Every report is also attached to the run as
-the `security-findings` or `sast-findings` artifact.
+scanning. Every other report is also attached to the run as the
+`security-findings` artifact.
 
 CircleCI has no code scanning destination. On CircleCI, every check except
 CodeQL runs and fails the `audit` workflow, and the findings appear only in

@@ -68,9 +68,8 @@ repository's branch protection rules as a required status check.
 In GitHub Actions, every check also uploads its findings to the
 repository's **Security > Code scanning** tab, which keeps an inventory of
 the open findings. The GitHub Actions workflow also attaches every report
-to the run as the `security-findings` and `sast-findings` artifacts.
-CircleCI has no code scanning destination, so its findings stay in the job
-log.
+to the run as the `security-findings` artifact. CircleCI has no code
+scanning destination, so its findings stay in the job log.
 
 ➡️ See [Code
 scanning](../../continuous-integration/README.mdx#code-scanning).
