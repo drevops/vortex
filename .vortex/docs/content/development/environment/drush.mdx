@@ -342,7 +342,9 @@ The guard's logic lives in the
 `DrevOps\VortexTooling\Drush\ProductionGuardListener` class of
 `drevops/vortex-tooling`, so tooling updates bring fixes to your project.
 Drush finds the guard through `drush/Listeners/ProductionGuardListener.php`,
-which extends that class and adds nothing else.
+which extends that class and adds nothing else. With a tooling version that
+doesn't ship the class, the file declares nothing and the guard stays off
+until you update `drevops/vortex-tooling`.
 
 To change a rule for your project, override the matching method in
 `drush/Listeners/ProductionGuardListener.php`. For example, to also guard
