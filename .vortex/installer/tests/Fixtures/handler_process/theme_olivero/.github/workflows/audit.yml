@@ -32,5 +32,5 @@
 -          sarif_file: .logs/audit/npm-audit-theme.sarif
 -          category: npm-audit-theme
  
-       - name: Scan for committed secrets with Gitleaks
-         if: ${{ !cancelled() }}
+       # Semgrep detects PHP by the '.php' extension only, so Drupal PHP files
+       # with other extensions are passed explicitly.

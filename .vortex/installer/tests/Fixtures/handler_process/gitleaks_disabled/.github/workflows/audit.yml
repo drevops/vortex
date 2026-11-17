@@ -1,6 +1,6 @@
-@@ -160,19 +160,6 @@
-           sarif_file: .logs/audit/npm-audit-theme.sarif
-           category: npm-audit-theme
+@@ -177,19 +177,6 @@
+           sarif_file: .logs/audit/semgrep.sarif
+           category: semgrep
  
 -      - name: Scan for committed secrets with Gitleaks
 -        if: ${{ !cancelled() }}
