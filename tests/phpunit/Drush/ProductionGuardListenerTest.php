@@ -7,7 +7,6 @@ namespace Drush\Listeners;
 use Consolidation\Config\Config;
 use Consolidation\SiteAlias\SiteAlias;
 use Consolidation\SiteAlias\SiteAliasManager;
-use Consolidation\SiteAlias\SiteAliasManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -90,7 +89,7 @@ class ProductionGuardListenerTest extends TestCase {
     $logger = static::createLogger($messages);
 
     $self_alias = new SiteAlias([], $self);
-    $alias_manager = $this->createStub(SiteAliasManagerInterface::class);
+    $alias_manager = $this->createStub(SiteAliasManager::class);
     $alias_manager->method('getSelf')->willReturn($self_alias);
     $records = ['@self' => $self_alias] + array_map(fn(string $resolved_name): SiteAlias => new SiteAlias([], $resolved_name), $resolved);
     $alias_manager->method('get')->willReturnCallback(fn(string $name): SiteAlias|false => $records[$name] ?? FALSE);
