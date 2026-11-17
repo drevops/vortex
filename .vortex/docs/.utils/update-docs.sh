@@ -35,7 +35,7 @@ done
   exit 1
 }
 
-table="$(docker run -v "${ROOT_DIR}:/app" drevops/shellvar:1.7.0 extract \
+table="$(docker run --rm -v "${ROOT_DIR}:/app" drevops/shellvar:1.7.0 extract \
   --skip-text="@docs:skip" \
   --skip-description-prefix=";<" \
   --skip-description-prefix=";>" \
