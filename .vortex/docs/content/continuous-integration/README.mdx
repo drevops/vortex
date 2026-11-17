@@ -163,8 +163,8 @@ workflow. The other checks run in the `audit` job.
 
 The Composer, Semgrep and CodeQL checks are always present. The root npm
 check ships when your project keeps ESLint, Stylelint or Jest. The theme
-check ships with a custom theme. The Gitleaks check ships when you turn on secret scanning at
-install time.
+check ships with a custom theme. The Gitleaks check ships when you turn on
+secret scanning at install time.
 
 Every check runs even if an earlier check failed, so a single run reports
 all the findings. The workflow fails if any check failed, unless that
@@ -205,8 +205,9 @@ Code scanning keeps a history of every finding and tracks whether it's open
 or fixed. When you dismiss a false positive, the alert stores the reason,
 so the repository needs no ignore entry for it.
 
-Gitleaks, Semgrep and CodeQL write SARIF themselves. `composer audit` and `npm audit` have no
-SARIF formatter, so each of those checks runs once in JSON format. It pipes
+Gitleaks, Semgrep and CodeQL write SARIF themselves. `composer audit` and
+`npm audit` have no SARIF formatter, so each of those checks runs once in
+JSON format. It pipes
 its output through `tee`, which feeds the job log and a report file in
 `.logs/audit/` from the same run. The npm checks pass
 `--output-format json --report-type full` to `audit-ci`, so `audit-ci`
