@@ -210,3 +210,68 @@ jobs:
           path: .logs/audit
           include-hidden-files: true
           if-no-files-found: ignore
+
+  # The CodeQL action runs on the runner itself rather than in the CI runner
+  # container.
+  sast:
+    runs-on: ubuntu-latest
+
+    permissions:
+      # The code scanning upload reads the workflow run in a private repository.
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Create the directory for the scan reports
+        run: mkdir -p .logs/audit
+
+      # CodeQL on a private repository requires a GitHub Code Security license.
+      - name: Initialize CodeQL
+        if: ${{ vars.VORTEX_CI_CODEQL_SKIP != '1' }}
+        uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        with:
+          languages: actions,javascript-typescript
+          build-mode: none
+          #;< VORTEX_DEV
+          config: |
+            paths-ignore:
+              - .vortex/installer/tests/Fixtures
+          #;> VORTEX_DEV
+
+      - name: Scan code for vulnerabilities with CodeQL
+        if: ${{ !cancelled() && vars.VORTEX_CI_CODEQL_SKIP != '1' }}
+        uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        # CodeQL reports its findings only to code scanning, and the upload fails
+        # without a code scanning entitlement and on fork pull requests.
+        continue-on-error: true
+        with:
+          output: .logs/audit/codeql
+
+      # CodeQL has no PHP analyzer.
+      - name: Scan PHP code for vulnerabilities with Semgrep
+        if: ${{ !cancelled() }}
+        run: docker run --rm -v "${GITHUB_WORKSPACE}:/src" -w /src semgrep/semgrep:1.185.0 semgrep scan --config p/php --metrics=off --error --sarif-output=.logs/audit/semgrep.sarif
+        continue-on-error: ${{ vars.VORTEX_CI_SEMGREP_IGNORE_FAILURE == '1' }}
+
+      - name: Upload Semgrep findings to code scanning
+        if: ${{ !cancelled() && hashFiles('.logs/audit/semgrep.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        continue-on-error: true
+        with:
+          sarif_file: .logs/audit/semgrep.sarif
+          category: semgrep
+
+      - name: Upload code scanning findings as an artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: sast-findings
+          path: .logs/audit
+          include-hidden-files: true
+          if-no-files-found: ignore
