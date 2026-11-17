@@ -7,6 +7,12 @@ namespace Drush\Listeners;
 use DrevOps\VortexTooling\Drush\ProductionGuardListener as VortexProductionGuardListener;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
+// Releases of 'drevops/vortex-tooling' before the guard do not ship the
+// parent class; declaring the subclass then would break every Drush command.
+if (!class_exists(VortexProductionGuardListener::class)) {
+  return;
+}
+
 /**
  * Refuses destructive Drush commands that target a production site alias.
  *
