@@ -7,6 +7,7 @@ namespace Drush\Listeners;
 use Consolidation\Config\Config;
 use Consolidation\SiteAlias\SiteAlias;
 use Consolidation\SiteAlias\SiteAliasManager;
+use Consolidation\SiteAlias\SiteAliasManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -30,10 +31,26 @@ require_once __DIR__ . '/../../../drush/Listeners/ProductionGuardListener.php';
 class ProductionGuardListenerTest extends TestCase {
 
   /**
+   * The skip variable value before the test, or FALSE if it was unset.
+   */
+  protected string|false $skipVariableOriginal;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp(): void {
+    parent::setUp();
+
+    // An inherited value would bypass the guard in every case.
+    $this->skipVariableOriginal = getenv(ProductionGuardListener::SKIP_VARIABLE);
+    putenv(ProductionGuardListener::SKIP_VARIABLE);
+  }
+
+  /**
    * {@inheritdoc}
    */
   protected function tearDown(): void {
-    putenv(ProductionGuardListener::SKIP_VARIABLE);
+    putenv($this->skipVariableOriginal === FALSE ? ProductionGuardListener::SKIP_VARIABLE : ProductionGuardListener::SKIP_VARIABLE . '=' . $this->skipVariableOriginal);
 
     parent::tearDown();
   }
@@ -56,9 +73,12 @@ class ProductionGuardListenerTest extends TestCase {
    *   Whether the command is expected to run.
    * @param string[] $expected_messages
    *   The expected log messages.
+   * @param array<string, string> $resolved
+   *   Alias records the alias manager returns, keyed by the requested name.
+   *   Any other name besides '@self' has no record.
    */
   #[DataProvider('dataProviderInvoke')]
-  public function testInvoke(string $command, array $arguments, string $self, mixed $production_aliases, ?string $skip, bool $expected_run, array $expected_messages = []): void {
+  public function testInvoke(string $command, array $arguments, string $self, mixed $production_aliases, ?string $skip, bool $expected_run, array $expected_messages = [], array $resolved = []): void {
     if ($skip !== NULL) {
       putenv(ProductionGuardListener::SKIP_VARIABLE . '=' . $skip);
     }
@@ -67,8 +87,14 @@ class ProductionGuardListenerTest extends TestCase {
     $messages = [];
     $logger = static::createLogger($messages);
 
-    $alias_manager = new SiteAliasManager();
-    $alias_manager->setSelf(new SiteAlias([], $self));
+    $self_alias = new SiteAlias([], $self);
+    $alias_manager = $this->createStub(SiteAliasManagerInterface::class);
+    $alias_manager->method('getSelf')->willReturn($self_alias);
+    $alias_manager->method('get')->willReturnCallback(fn(string $name): SiteAlias|false => match (TRUE) {
+      $name === '@self' => $self_alias,
+      isset($resolved[$name]) => new SiteAlias([], $resolved[$name]),
+      default => FALSE,
+    });
 
     $listener = new ProductionGuardListener();
     $listener->setConfig(new Config($config));
@@ -102,9 +128,13 @@ class ProductionGuardListenerTest extends TestCase {
     yield 'sql:sync, environment ending with the production name' => ['sql:sync', ['source' => '@self', 'target' => '@star_wars.preprod'], '@self', $prod, NULL, TRUE];
     yield 'sql:sync, environment starting with the production name' => ['sql:sync', ['source' => '@self', 'target' => '@production'], '@self', $prod, NULL, TRUE];
     yield 'sql:sync, site named as the production environment' => ['sql:sync', ['source' => '@self', 'target' => '@prod.stage'], '@self', $prod, NULL, TRUE];
+    yield 'sql:sync, production target resolved to a default environment' => ['sql:sync', ['source' => '@self', 'target' => '@prod'], '@self', $prod, NULL, FALSE, [static::blocked('sql:sync', '@prod')], ['@prod' => '@prod.live']];
+    yield 'sql:sync, target resolved to a production environment' => ['sql:sync', ['source' => '@self', 'target' => '@live'], '@self', $prod, NULL, FALSE, [static::blocked('sql:sync', '@star_wars.prod')], ['@live' => '@star_wars.prod']];
+    yield 'sql:sync, non-production target resolved to a default environment' => ['sql:sync', ['source' => '@self', 'target' => '@stage'], '@self', $prod, NULL, TRUE, [], ['@stage' => '@stage.live']];
 
     yield 'core:rsync, production target' => ['core:rsync', ['source' => '@self:%files', 'target' => '@prod:%files'], '@self', $prod, NULL, FALSE, [static::blocked('core:rsync', '@prod')]];
     yield 'core:rsync, production target without a path' => ['core:rsync', ['source' => '@self', 'target' => '@prod'], '@self', $prod, NULL, FALSE, [static::blocked('core:rsync', '@prod')]];
+    yield 'core:rsync, production target resolved to a default environment' => ['core:rsync', ['source' => '@self:%files', 'target' => '@prod:%files'], '@self', $prod, NULL, FALSE, [static::blocked('core:rsync', '@prod')], ['@prod' => '@prod.live']];
     yield 'core:rsync, production source' => ['core:rsync', ['source' => '@prod:%files', 'target' => '@self:%files'], '@self', $prod, NULL, TRUE];
     yield 'core:rsync, path target' => ['core:rsync', ['source' => '@self:%files', 'target' => '/var/backups/files'], '@prod', $prod, NULL, TRUE];
     yield 'core:rsync, remote path target' => ['core:rsync', ['source' => '@self:%files', 'target' => 'user@prod:/var/www'], '@self', $prod, NULL, TRUE];
