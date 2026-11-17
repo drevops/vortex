@@ -161,11 +161,12 @@ jobs:
           category: npm-audit-theme
 
       # Semgrep detects PHP by the '.php' extension only, so Drupal PHP files
-      # with other extensions are passed explicitly.
+      # with other extensions are passed explicitly. Explicit targets skip
+      # Semgrep's ignore rules, so test directories are excluded here.
       - name: Scan PHP code for vulnerabilities with Semgrep
         if: ${{ !cancelled() }}
         run: |
-          mapfile -t files < <(git ls-files '*.module' '*.install' '*.theme' '*.inc' '*.profile' '*.engine' ':(exclude,glob)**/tests/**')
+          mapfile -t files < <(git ls-files '*.module' '*.install' '*.theme' '*.inc' '*.profile' '*.engine' ':(exclude,glob)**/tests/**' ':(exclude,glob)**/test/**')
           docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" semgrep/semgrep:__VERSION__ semgrep scan --config p/php --metrics=off --error --sarif-output=.logs/audit/semgrep.sarif --scan-unknown-extensions . "${files[@]}"
         continue-on-error: ${{ vars.VORTEX_CI_SEMGREP_IGNORE_FAILURE == '1' }}
 

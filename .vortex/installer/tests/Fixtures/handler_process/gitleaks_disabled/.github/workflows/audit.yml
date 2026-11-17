@@ -1,4 +1,4 @@
-@@ -177,19 +177,6 @@
+@@ -178,19 +178,6 @@
            sarif_file: .logs/audit/semgrep.sarif
            category: semgrep
  

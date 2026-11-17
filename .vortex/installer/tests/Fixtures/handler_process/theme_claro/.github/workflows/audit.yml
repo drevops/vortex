@@ -33,4 +33,4 @@
 -          category: npm-audit-theme
  
        # Semgrep detects PHP by the '.php' extension only, so Drupal PHP files
-       # with other extensions are passed explicitly.
+       # with other extensions are passed explicitly. Explicit targets skip
