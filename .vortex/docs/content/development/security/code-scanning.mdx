@@ -26,12 +26,17 @@ CodeQL has no PHP analyzer, so Semgrep covers the PHP code.
 the project root, with the same version and flags as CI:
 
 ```shell
-docker run --rm -v "${PWD}:/src" -w /src semgrep/semgrep:1.185.0 semgrep scan --config p/php --metrics=off --error
+docker run --rm -v "${PWD}:/src" -w /src semgrep/semgrep:1.185.0 semgrep scan --config p/php --metrics=off --error --scan-unknown-extensions . $(git ls-files '*.module' '*.install' '*.theme' '*.inc' '*.profile' '*.engine' ':(exclude,glob)**/tests/**')
 ```
 
-Semgrep scans only the files tracked by Git. It skips test directories,
-dependency directories and the other paths in its [default ignore
+Semgrep scans the files tracked by Git and the untracked files that
+`.gitignore` doesn't exclude. It skips test directories, dependency
+directories and the other paths in its [default ignore
 list](https://semgrep.dev/docs/ignoring-files-folders-code#understand-semgrep-defaults).
+
+Semgrep detects PHP by the `.php` extension only. The `git ls-files` list
+passes the Drupal PHP files with other extensions, such as `.module` and
+`.theme`, and `--scan-unknown-extensions` makes Semgrep scan them as PHP.
 `--error` makes the command exit with `1` when it finds a vulnerability. On
 a clean codebase, the scan ends with `0 findings`.
 
