@@ -67,9 +67,10 @@ Work through each checklist item from the release process doc:
    unchecked.
 2. **Container images** - Check current versions in CI configs, verify if
    latest.
-   - **CI tool images** - `hadolint`, `dclint`, `gitleaks` and `actionlint`
-     are invoked as `docker run <image>:<tag>` inside `.github/workflows/**`
-     and `.circleci/config.yml`. The `customManagers` regex in
+   - **CI tool images** - `hadolint`, `dclint`, `gitleaks`, `semgrep` and
+     `actionlint` are invoked as `docker run <image>:<tag>` or
+     `docker create <image>:<tag>` inside `.github/workflows/**` and
+     `.circleci/config.yml`. The `customManagers` regex in
      `renovate.json` tracks them, so this is a verification step, not a
      manual bump: confirm no open Renovate PR is bumping them and that both
      CI providers carry the same tag for the same tool. Bump by hand only
