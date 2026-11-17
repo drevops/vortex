@@ -65,7 +65,8 @@ The shipped Drush configuration lives in the `drush/` directory:
   file also adds `--no-tablespaces` to `sql:dump` and lists the production
   site aliases. See [Production guard](#production-guard).
 - [`drush/Listeners/ProductionGuardListener.php`](https://github.com/drevops/vortex/blob/main/drush/Listeners/ProductionGuardListener.php)
-  blocks destructive commands that target a production site alias.
+  registers the production guard, whose logic ships in
+  `drevops/vortex-tooling`. See [Production guard](#production-guard).
 - [`drush/sites/lagoon.site.yml`](https://github.com/drevops/vortex/blob/main/drush/sites/lagoon.site.yml)
   defines the site aliases for Lagoon-hosted environments. See
   [Aliases](#aliases).
@@ -334,3 +335,36 @@ warning that names the variable, then runs the command:
 
 Set the variable on the command line only. An `export` in your shell turns
 off the guard for every command that follows.
+
+### Change the guard
+
+The guard's logic lives in the
+`DrevOps\VortexTooling\Drush\ProductionGuardListener` class of
+`drevops/vortex-tooling`, so tooling updates bring fixes to your project.
+Drush finds the guard through `drush/Listeners/ProductionGuardListener.php`,
+which extends that class and adds nothing else.
+
+To change a rule for your project, override the matching method in
+`drush/Listeners/ProductionGuardListener.php`. For example, to also guard
+`sql:create` against the selected site:
+
+```php
+use Symfony\Component\Console\Input\InputInterface;
+
+#[AsEventListener(priority: 100)]
+class ProductionGuardListener extends VortexProductionGuardListener {
+
+  protected function resolveTargetAliases(string $command, InputInterface $input): array {
+    if ($command === 'sql:create') {
+      return [$this->siteAliasManager()->getSelf()->name()];
+    }
+
+    return parent::resolveTargetAliases($command, $input);
+  }
+
+}
+```
+
+Keep the `#[AsEventListener(priority: 100)]` line. Drush registers the guard
+only when the class in `drush/Listeners/` declares it, and the priority runs
+the guard before `core:rsync` connects to the target.

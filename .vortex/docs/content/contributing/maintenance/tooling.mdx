@@ -7,7 +7,8 @@ sidebar_position: 4
 
 `.vortex/tooling/` holds the shell scripts that consumer projects run for
 provisioning, database work, deployment, notifications and helpers such as
-`doctor` and `info`. This page is for contributors who change the scripts:
+`doctor` and `info`, and the PHP classes behind the project's Drush
+listeners. This page is for contributors who change the scripts:
 it covers the package layout, the script conventions, the test levels and
 how the package gets published. To use the scripts in a project, see
 [Architecture > Automation
@@ -27,16 +28,20 @@ The following table lists the contents of `.vortex/tooling/`:
 | Path | Purpose |
 |------|---------|
 | `src/` | The shipped scripts; the only directory in the published archive |
-| `composer.json` | The package definition, with the user-facing scripts under `bin` and no `version` field |
+| `src/Drush/` | PHP classes in the `DrevOps\VortexTooling\Drush` namespace, which Composer loads through PSR-4 |
+| `composer.json` | The package definition, with the user-facing scripts under `bin`, the PSR-4 autoload, the PHP development dependencies and no `version` field |
 | `tests/unit/` | BATS unit tests covering the shipped scripts and a few template scripts outside the package |
 | `tests/_helper.bash`, `tests/fixtures/` | The shared BATS setup and the fixture files the tests read |
+| `tests/Drush/` | PHPUnit tests covering the classes in `src/Drush/` |
+| `phpcs.xml`, `phpstan.neon`, `rector.php`, `phpunit.xml` | The PHP lint and test configuration, scoped to `src/Drush/` and `tests/Drush/` |
 | `package.json`, `yarn.lock` | The `bats-helpers` library that the BATS tests load; `ahoy test-bats` installs it on first run |
 | `playground/` | Manual scripts that hit live services (email, GitHub, Jira, New Relic, Slack, webhooks and S3); not automated |
 | `README.md`, `LICENSE` | The package readme and license, which ship with the scripts |
 | `.gitattributes`, `.gitignore` | The Git settings, which stay out of the published archive |
 
-`.gitattributes` marks only `.gitattributes`, `.gitignore`, `playground/`
-and `tests/` as `export-ignore`. The published archive holds the rest:
+`.gitattributes` marks `.gitattributes`, `.gitignore`, `playground/`,
+`tests/` and the PHP lint and test configuration files as `export-ignore`.
+The published archive holds the rest:
 
 - `src/`
 - `composer.json`
@@ -110,9 +115,28 @@ Composer creates a `vendor/bin` entry only for the scripts in that list.
 Leave helper scripts off it: `vortex-notify`, for example, runs each
 `vortex-notify-*` channel script by path from `src/`.
 
+## Add a Drush listener
+
+Drush discovers listeners only in a project's `drush/Listeners/` directory,
+so a listener class in `vendor/` never runs on its own. Each listener
+therefore has 2 parts:
+
+1. The logic, as a class in `src/Drush/` with its PHPUnit tests in
+   `tests/Drush/`. Make every method `protected`, so a project can override
+   any of them.
+2. A class in the template's `drush/Listeners/` directory that extends the
+   tooling class and declares `#[AsEventListener]`. PHP doesn't inherit
+   attributes, so Drush reads the attribute from this class.
+
+A listener must not have a static `create()` method. Drush registers such a
+listener only after a full Drupal bootstrap, which doesn't happen for a
+command against a remote alias. Set services through the Drush
+`*AwareInterface` inflection instead, as
+`src/Drush/ProductionGuardListener.php` does.
+
 ## Test the tooling
 
-Tests cover the scripts at 3 levels:
+Tests cover the tooling at 4 levels:
 
 - **Unit** - BATS tests in `tooling/tests/unit/` cover the shipped scripts
   with external commands mocked. The same suite also covers a few template
@@ -148,6 +172,25 @@ Tests cover the scripts at 3 levels:
   which runs BATS on `.vortex/tooling/tests/unit`. The job also sets
   `VORTEX_DEV_TEST_COVERAGE_DIR`, so the script runs BATS through `kcov`
   and writes the scripts' code coverage to that directory.
+
+- **PHP unit** - PHPUnit tests in `tooling/tests/Drush/` cover the classes
+  in `src/Drush/`. Lint and test them from `.vortex/`:
+
+  ```shell
+  cd .vortex
+
+  # Run the PHPUnit tests.
+  ahoy test-tooling
+
+  # Run PHP_CodeSniffer, PHPStan and Rector.
+  ahoy lint-tooling
+
+  # Fix the issues that Rector and PHP_CodeSniffer can fix.
+  ahoy lint-tooling-fix
+  ```
+
+  Each command installs the tooling's Composer dependencies on first run.
+  The `vortex-test-common` job runs the same lint and tests.
 
 - **Integration** - the template's PHPUnit functional tests in
   `.vortex/tests/` run the scripts end-to-end. See
