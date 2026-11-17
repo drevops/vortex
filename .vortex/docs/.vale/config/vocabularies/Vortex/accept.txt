@@ -4,6 +4,7 @@ Behat
 CircleCI
 ClamAV
 Codecov
+CodeQL
 CodeRabbit
 Composer
 DCLint
@@ -30,6 +31,7 @@ Prompty
 Pygmy
 Rector
 Renovate
+Semgrep
 Solr
 Storybook
 Stylelint

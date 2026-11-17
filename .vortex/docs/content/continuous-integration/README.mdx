@@ -138,8 +138,8 @@ provider defines the workflow in its own file:
 | GitHub Actions | The `Security audit` workflow in `.github/workflows/audit.yml` |
 | CircleCI | The `audit` workflow in `.circleci/config.yml` |
 
-The workflow runs the same 4 checks on both providers. The checks read only
-the codebase and its lock files, so the audit never waits for a build:
+The workflow runs the following checks. They read only the codebase and its
+lock files, so the audit never waits for a build:
 
 - `composer audit --locked` checks the packages pinned in `composer.lock`
   against published security advisories.
@@ -152,10 +152,18 @@ the codebase and its lock files, so the audit never waits for a build:
   `package-lock.json`, with the theme's own `package-audit.jsonc`.
 - [Gitleaks](../development/security/secret-scanning.mdx) scans the codebase
   for committed secrets.
+- [Semgrep](../development/security/code-scanning.mdx) scans the PHP code
+  for vulnerabilities.
+- [CodeQL](../development/security/code-scanning.mdx) scans the GitHub
+  Actions workflows and the JavaScript code for vulnerabilities. It runs on
+  GitHub Actions only.
 
-Only the Composer check is always present. The root npm check ships when
-your project keeps ESLint, Stylelint or Jest. The theme check ships with a
-custom theme. The Gitleaks check ships when you turn on secret scanning at
+On GitHub Actions, Semgrep and CodeQL run in a separate `sast` job of the
+same workflow.
+
+The Composer, Semgrep and CodeQL checks are always present. The root npm
+check ships when your project keeps ESLint, Stylelint or Jest. The theme
+check ships with a custom theme. The Gitleaks check ships when you turn on secret scanning at
 install time.
 
 Every check runs even if an earlier check failed, so a single run reports
@@ -189,12 +197,15 @@ repository's **Security > Code scanning** tab, each under its own category:
 | `npm-audit` | `npm audit` advisories for the root `package-lock.json` |
 | `npm-audit-theme` | `npm audit` advisories for the custom theme's `package-lock.json` |
 | `gitleaks` | Committed secrets |
+| `semgrep` | Semgrep vulnerabilities in the PHP code |
+| `/language:actions` | CodeQL vulnerabilities in the GitHub Actions workflows |
+| `/language:javascript-typescript` | CodeQL vulnerabilities in the JavaScript and TypeScript code |
 
 Code scanning keeps a history of every finding and tracks whether it's open
 or fixed. When you dismiss a false positive, the alert stores the reason,
 so the repository needs no ignore entry for it.
 
-Gitleaks writes SARIF itself. `composer audit` and `npm audit` have no
+Gitleaks, Semgrep and CodeQL write SARIF themselves. `composer audit` and `npm audit` have no
 SARIF formatter, so each of those checks runs once in JSON format. It pipes
 its output through `tee`, which feeds the job log and a report file in
 `.logs/audit/` from the same run. The npm checks pass
@@ -222,17 +233,20 @@ it, and private repositories need a GitHub Code Security license.
 Without code scanning, and on pull requests from forks where the workflow
 token is read-only, the upload step fails and the workflow carries on. The
 checks still report their findings in the job log and still fail the
-workflow. Every report is also attached to the run as the
-`security-findings` artifact.
+workflow. CodeQL is the exception: its findings appear only in code
+scanning and in the reports. Every report is also attached to the run as
+the `security-findings` or `sast-findings` artifact.
 
-CircleCI has no code scanning destination. On CircleCI, the same checks run
-and fail the `audit` workflow, and their findings appear only in the job
-log.
+CircleCI has no code scanning destination. On CircleCI, every check except
+CodeQL runs and fails the `audit` workflow, and the findings appear only in
+the job log.
 
 ➡️ See [Dependency audit > Dismissing a
-finding](../development/security/dependency-audit.mdx#dismiss-a-finding)
-and [Secret scanning > Dismissing a
+finding](../development/security/dependency-audit.mdx#dismiss-a-finding),
+[Secret scanning > Dismissing a
 finding](../development/security/secret-scanning.mdx#dismiss-a-finding)
+and [Code vulnerability scanning > Dismissing a
+finding](../development/security/code-scanning.mdx#dismiss-a-finding)
 for what dismissing a finding does and doesn't change.
 
 ## Working tree check
@@ -847,6 +861,7 @@ The following table lists the variable for each tool:
 | [PHPStan](../development/code-quality/phpstan.mdx)           | Analyze PHP code statically             | `VORTEX_CI_PHPSTAN_IGNORE_FAILURE`            |
 | [PHPUnit](../development/testing/phpunit.mdx)                | Run unit, kernel and functional tests   | `VORTEX_CI_PHPUNIT_IGNORE_FAILURE`            |
 | [Rector](../development/code-quality/rector.mdx)             | Check for automated refactoring rules   | `VORTEX_CI_RECTOR_IGNORE_FAILURE`             |
+| [Semgrep](../development/security/code-scanning.mdx)         | Scan PHP code for vulnerabilities       | `VORTEX_CI_SEMGREP_IGNORE_FAILURE`            |
 | [SDC Devel](../development/code-quality/sdc-devel.mdx)       | Validate Single Directory Components    | `VORTEX_CI_SDC_DEVEL_IGNORE_FAILURE`          |
 | [Twig CS Fixer](../development/code-quality/twig-cs-fixer.mdx) | Lint Twig templates                   | `VORTEX_CI_TWIG_CS_FIXER_IGNORE_FAILURE`      |
 | [Working tree check](#working-tree-check)                     | Check for files left behind by the build | `VORTEX_CI_WORKTREE_CHANGES_IGNORE_FAILURE`          |
