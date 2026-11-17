@@ -187,6 +187,24 @@ jobs:
           category: npm-audit-theme
       #;> DRUPAL_THEME
 
+      # Semgrep detects PHP by the '.php' extension only, so Drupal PHP files
+      # with other extensions are passed explicitly. Explicit targets skip
+      # Semgrep's ignore rules, so test directories are excluded here.
+      - name: Scan PHP code for vulnerabilities with Semgrep
+        if: ${{ !cancelled() }}
+        run: |
+          mapfile -t files < <(git ls-files '*.module' '*.install' '*.theme' '*.inc' '*.profile' '*.engine' ':(exclude,glob)**/tests/**' ':(exclude,glob)**/test/**')
+          docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" semgrep/semgrep:1.185.0 semgrep scan --config p/php --metrics=off --error --sarif-output=.logs/audit/semgrep.sarif --scan-unknown-extensions . "${files[@]}"
+        continue-on-error: ${{ vars.VORTEX_CI_SEMGREP_IGNORE_FAILURE == '1' }}
+
+      - name: Upload Semgrep findings to code scanning
+        if: ${{ !cancelled() && hashFiles('.logs/audit/semgrep.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        continue-on-error: true
+        with:
+          sarif_file: .logs/audit/semgrep.sarif
+          category: semgrep
+
       #;< CI_GITLEAKS
       - name: Scan for committed secrets with Gitleaks
         if: ${{ !cancelled() }}
@@ -210,3 +228,39 @@ jobs:
           path: .logs/audit
           include-hidden-files: true
           if-no-files-found: ignore
+
+  # The CodeQL action runs on the runner itself rather than in the CI runner
+  # container. CodeQL on a private repository requires a GitHub Code Security
+  # license.
+  codeql:
+    runs-on: ubuntu-latest
+    if: ${{ vars.VORTEX_CI_CODEQL_SKIP != '1' }}
+
+    permissions:
+      # The code scanning upload reads the workflow run in a private repository.
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        with:
+          languages: actions,javascript-typescript
+          build-mode: none
+          #;< VORTEX_DEV
+          config: |
+            paths-ignore:
+              - .vortex/installer/tests/Fixtures
+          #;> VORTEX_DEV
+
+      - name: Scan code for vulnerabilities with CodeQL
+        uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        # CodeQL reports its findings only to code scanning, and the upload fails
+        # without a code scanning entitlement and on fork pull requests.
+        continue-on-error: true

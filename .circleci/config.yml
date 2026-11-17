@@ -219,10 +219,7 @@ jobs:
     steps:
       - checkout
       - *load_variables_from_dotenv
-
-      #;< CI_GITLEAKS
       - *step_setup_remote_docker
-      #;> CI_GITLEAKS
 
       #;< VORTEX_DEV
       #; Vortex does not track 'composer.lock', so resolve dependencies to give
@@ -261,9 +258,21 @@ jobs:
             npx --yes audit-ci@7.1.0 --high --extra-args=--package-lock-only --directory "${dir}" "${config[@]}" || [ "${VORTEX_CI_NPM_AUDIT_IGNORE_FAILURE:-0}" -eq 1 ]
       #;> DRUPAL_THEME
 
-      #;< CI_GITLEAKS
       # The remote Docker engine has no access to the checkout, so the files
-      # are copied into the container.
+      # are copied into the container. Semgrep detects PHP by the '.php'
+      # extension only, so Drupal PHP files with other extensions are passed
+      # explicitly. Explicit targets skip Semgrep's ignore rules, so test
+      # directories are excluded here.
+      - run:
+          name: Scan PHP code for vulnerabilities with Semgrep
+          when: always
+          command: |
+            mapfile -t files < <(git ls-files '*.module' '*.install' '*.theme' '*.inc' '*.profile' '*.engine' ':(exclude,glob)**/tests/**' ':(exclude,glob)**/test/**')
+            container="$(docker create --rm -w /src semgrep/semgrep:1.185.0 semgrep scan --config p/php --metrics=off --error --scan-unknown-extensions . "${files[@]}")"
+            docker cp ./. "${container}:/src"
+            docker start --attach "${container}" || [ "${VORTEX_CI_SEMGREP_IGNORE_FAILURE:-0}" -eq 1 ]
+
+      #;< CI_GITLEAKS
       - run:
           name: Scan for committed secrets with Gitleaks
           when: always

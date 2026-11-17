@@ -282,7 +282,7 @@
                 "/^\\.github/workflows/.+\\.yml$/"
             ],
             "matchStrings": [
-                "docker run[^\\n]*?\\s(?<depName>[a-z0-9][a-z0-9._\\-]*(?:/[a-z0-9._\\-]+)+):(?<currentValue>v?[0-9][\\w.\\-]*)"
+                "docker (?:run|create)[^\\n]*?\\s(?<depName>[a-z0-9][a-z0-9._\\-]*(?:/[a-z0-9._\\-]+)+):(?<currentValue>v?[0-9][\\w.\\-]*)"
             ],
             "datasourceTemplate": "docker",
             "versioningTemplate": "docker"

@@ -1,0 +1,116 @@
+---
+sidebar_label: Code vulnerability scanning
+sidebar_position: 4
+---
+
+# Code vulnerability scanning
+
+Code your team writes can carry a vulnerability that no linter flags, such
+as a file path built from request input. This page is for developers and
+leads on a project built from **Vortex**. It shows what the vulnerability
+scanners check, how to run Semgrep locally, how to ignore a false positive
+and where the findings appear in continuous integration (CI).
+
+2 static analysis tools read the code without running it:
+
+| Tool | Code it scans | Providers |
+|------|---------------|-----------|
+| [CodeQL](https://codeql.github.com/) | GitHub Actions workflows, JavaScript and TypeScript | GitHub Actions |
+| [Semgrep](https://semgrep.dev/) | PHP, with the [`p/php`](https://semgrep.dev/p/php) rule set | GitHub Actions and CircleCI |
+
+CodeQL has no PHP analyzer, so Semgrep covers the PHP code.
+
+## Usage
+
+**Vortex** doesn't install Semgrep locally. Run it from its Docker image in
+the project root, with the same version and flags as CI:
+
+```shell
+docker run --rm -v "${PWD}:/src" -w /src semgrep/semgrep:1.185.0 semgrep scan --config p/php --metrics=off --error --scan-unknown-extensions . $(git ls-files --cached --others --exclude-standard '*.module' '*.install' '*.theme' '*.inc' '*.profile' '*.engine' ':(exclude,glob)**/tests/**' ':(exclude,glob)**/test/**')
+```
+
+Semgrep scans the files tracked by Git and the untracked files that
+`.gitignore` doesn't exclude. It skips test directories, dependency
+directories and the other paths in its [default ignore
+list](https://semgrep.dev/docs/ignoring-files-folders-code#understand-semgrep-defaults).
+
+Semgrep detects PHP by the `.php` extension only. The `git ls-files` list
+passes the Drupal PHP files with other extensions, such as `.module` and
+`.theme`, and `--scan-unknown-extensions` makes Semgrep scan them as PHP.
+The list includes untracked files and leaves out `tests/` and `test/`
+directories.
+`--error` makes the command exit with `1` when it finds a vulnerability. On
+a clean codebase, the scan ends with `0 findings`.
+
+CodeQL runs only in GitHub Actions.
+
+## Ignore findings
+
+To ignore a Semgrep finding on a line you've assessed, add a `nosemgrep`
+comment with the rule ID from the finding to that line:
+
+```php
+phpinfo(); // nosemgrep: php.lang.security.phpinfo-use.phpinfo-use
+```
+
+To skip a path, list it in a `.semgrepignore` file at the project root.
+That file replaces Semgrep's default ignore list, so also add the default
+paths you still want skipped, such as `tests/`.
+
+Semgrep scans every file passed by name, even when `.semgrepignore` lists
+it. The Drupal files in the `git ls-files` list are passed by name, so
+ignore their findings with `nosemgrep` comments.
+
+CodeQL findings have no in-code exception. Dismiss them in code scanning,
+as described in [Dismiss a finding](#dismiss-a-finding).
+
+## Continuous integration
+
+The scanners run in the [security audit
+workflow](../../continuous-integration/README.mdx#security-audit). Semgrep
+runs in the workflow's `audit` job on both providers. In GitHub Actions,
+CodeQL runs in its own `codeql` job.
+
+A Semgrep finding fails the workflow. CodeQL reports its findings to code
+scanning only, so a CodeQL finding leaves the workflow passing.
+
+### Ignore failures
+
+Set `VORTEX_CI_SEMGREP_IGNORE_FAILURE` to `1` to let the workflow pass
+despite Semgrep findings. In GitHub Actions, set it as a repository
+variable. In CircleCI, set it as an environment variable. Semgrep still
+runs and prints every finding in the job log.
+
+➡️ See [Ignore tool
+failures](../../continuous-integration/README.mdx#ignore-tool-failures).
+
+### Skip CodeQL
+
+CodeQL on a private repository requires a GitHub Code Security license. To
+turn CodeQL off, set the `VORTEX_CI_CODEQL_SKIP` repository variable to `1`.
+The `codeql` job then shows as skipped, and Semgrep keeps running.
+
+### Where findings appear
+
+In GitHub Actions, the findings reach the repository's
+**Security > Code scanning** tab:
+
+- CodeQL uploads its findings under 1 category per language,
+  `/language:actions` and `/language:javascript-typescript`.
+- Semgrep findings go under the `semgrep` category.
+
+The Semgrep report is also attached to the run in the `security-findings`
+artifact. In CircleCI, the findings appear only in the job log.
+
+➡️ See [Code
+scanning](../../continuous-integration/README.mdx#code-scanning).
+
+### Dismiss a finding
+
+Dismissing an alert in the **Security > Code scanning** tab records a reason
+against that finding and removes it from the open list. For a CodeQL
+finding, dismissing is the way to record a false positive.
+
+A dismissed Semgrep alert still fails the workflow. To stop the failure,
+add a `nosemgrep` comment as described in
+[Ignore findings](#ignore-findings).

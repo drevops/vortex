@@ -36,7 +36,7 @@ of each:
 | **Drupal core** | `drupal/core-recommended`, `drupal/core-composer-scaffold`, `drupal/core-project-message` and `drupal/core-dev` | Minor, patch | Daily before 2 AM UTC | None |
 | **Drupal contrib and PHP packages (non-core)** | All Drupal contrib modules and non-Drupal Packagist packages | Minor, patch | Weekly, Sunday before 2 AM UTC | 14 days for Packagist packages |
 | **JS packages** | All npm packages (root `package.json` only) | Minor, patch | Weekly, Sunday before 2 AM UTC | 14 days |
-| **Container images** | Images in `.docker/` and `docker-compose.yml`, and the images CI starts with `docker run` | Major, minor, patch | Daily before 3 AM UTC | 14 days for Docker Hub images |
+| **Container images** | Images in `.docker/` and `docker-compose.yml`, and the images CI starts with `docker run` or `docker create` | Major, minor, patch | Daily before 3 AM UTC | 14 days for Docker Hub images |
 | **CI tools** | npm packages that CI runs at a pinned version through `npx` | Major, minor, patch | Daily before 3 AM UTC | 14 days |
 | **Renovate version** | The `renovate/renovate` image in `.circleci/update-dependencies.yml`, and the `renovate-version` and `validator_version` inputs in `.github/workflows/` | Major, minor, patch | Weekly, Sunday before 3 AM UTC | 14 days |
 | **GitHub Actions** | All actions, and the container images that the jobs in `.github/workflows/` run in, all pinned to digests | Major, minor, patch | Daily before 3 AM UTC | 14 days |
@@ -440,8 +440,9 @@ Renovate reads only the files that the managers in `enabledManagers` cover:
 - `docker-compose` for `docker-compose.yml`
 - `github-actions` for the workflows in `.github/workflows/`
 - `custom.regex` for 5 custom managers: the `IMAGE` build argument in
-  `docker-compose.yml`, the `docker run` and `npx --yes` lines in
-  `.circleci/config.yml` and `.github/workflows/`, the `renovate/renovate`
+  `docker-compose.yml`, the `docker run`, `docker create` and `npx --yes`
+  lines in `.circleci/config.yml` and `.github/workflows/`, the
+  `renovate/renovate`
   image in `.circleci/update-dependencies.yml`, and the `renovate-version`
   and `validator_version` inputs in `.github/workflows/`
 

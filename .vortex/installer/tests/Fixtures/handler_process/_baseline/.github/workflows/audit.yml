@@ -160,6 +160,24 @@ jobs:
           sarif_file: .logs/audit/npm-audit-theme.sarif
           category: npm-audit-theme
 
+      # Semgrep detects PHP by the '.php' extension only, so Drupal PHP files
+      # with other extensions are passed explicitly. Explicit targets skip
+      # Semgrep's ignore rules, so test directories are excluded here.
+      - name: Scan PHP code for vulnerabilities with Semgrep
+        if: ${{ !cancelled() }}
+        run: |
+          mapfile -t files < <(git ls-files '*.module' '*.install' '*.theme' '*.inc' '*.profile' '*.engine' ':(exclude,glob)**/tests/**' ':(exclude,glob)**/test/**')
+          docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" semgrep/semgrep:__VERSION__ semgrep scan --config p/php --metrics=off --error --sarif-output=.logs/audit/semgrep.sarif --scan-unknown-extensions . "${files[@]}"
+        continue-on-error: ${{ vars.VORTEX_CI_SEMGREP_IGNORE_FAILURE == '1' }}
+
+      - name: Upload Semgrep findings to code scanning
+        if: ${{ !cancelled() && hashFiles('.logs/audit/semgrep.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@__HASH__ # __VERSION__
+        continue-on-error: true
+        with:
+          sarif_file: .logs/audit/semgrep.sarif
+          category: semgrep
+
       - name: Scan for committed secrets with Gitleaks
         if: ${{ !cancelled() }}
         run: docker run --rm --volumes-from "${HOSTNAME}" -w "${PWD}" ghcr.io/gitleaks/gitleaks:__VERSION__ dir . --no-banner --report-format sarif --report-path .logs/audit/gitleaks.sarif
@@ -181,3 +199,34 @@ jobs:
           path: .logs/audit
           include-hidden-files: true
           if-no-files-found: ignore
+
+  # The CodeQL action runs on the runner itself rather than in the CI runner
+  # container. CodeQL on a private repository requires a GitHub Code Security
+  # license.
+  codeql:
+    runs-on: ubuntu-latest
+    if: ${{ vars.VORTEX_CI_CODEQL_SKIP != '1' }}
+
+    permissions:
+      # The code scanning upload reads the workflow run in a private repository.
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@__HASH__ # __VERSION__
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@__HASH__ # __VERSION__
+        with:
+          languages: actions,javascript-typescript
+          build-mode: none
+
+      - name: Scan code for vulnerabilities with CodeQL
+        uses: github/codeql-action/analyze@__HASH__ # __VERSION__
+        # CodeQL reports its findings only to code scanning, and the upload fails
+        # without a code scanning entitlement and on fork pull requests.
+        continue-on-error: true
