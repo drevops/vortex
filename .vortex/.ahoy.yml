@@ -12,6 +12,8 @@ commands:
       yarn --cwd=tests install --frozen-lockfile
       [ -d ./tooling/node_modules ] && rm -rf ./tooling/node_modules
       yarn --cwd=tooling install --frozen-lockfile
+      [ -d ./tooling/vendor ] && rm -rf ./tooling/vendor
+      composer --working-dir tooling install
       [ -d ./installer/vendor ] && rm -rf ./installer/vendor
       composer --working-dir installer install
       [ -d ./docs/node_modules ] && rm -rf ./docs/node_modules
@@ -122,6 +124,24 @@ commands:
     cmd: |
       [ ! -d tooling/node_modules ] && yarn --cwd=tooling install --frozen-lockfile
       tooling/node_modules/.bin/bats --no-tempdir-cleanup --tap "$@"
+
+  lint-tooling:
+    usage: Lint tooling PHP code.
+    cmd: |
+      [ ! -d tooling/vendor ] && composer --working-dir tooling install
+      composer --working-dir tooling lint
+
+  lint-tooling-fix:
+    usage: Fix tooling PHP code.
+    cmd: |
+      [ ! -d tooling/vendor ] && composer --working-dir tooling install
+      composer --working-dir tooling lint-fix
+
+  test-tooling:
+    usage: Run tooling PHPUnit tests.
+    cmd: |
+      [ ! -d tooling/vendor ] && composer --working-dir tooling install
+      composer --working-dir tooling test "$@"
 
   test-common:
     cmd: ./tests/test.common.sh

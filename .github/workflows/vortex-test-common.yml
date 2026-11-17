@@ -89,6 +89,18 @@ jobs:
           ./tests/lint.ci.sh
         working-directory: .vortex
 
+      - name: Install tooling PHP dependencies
+        run: composer --working-dir=tooling install
+        working-directory: .vortex
+
+      - name: Lint tooling PHP code
+        run: composer --working-dir=tooling lint
+        working-directory: .vortex
+
+      - name: Test tooling PHP code
+        run: composer --working-dir=tooling test
+        working-directory: .vortex
+
       # Special case to validate Renovate  configuration with the same action
       # as used in the Renovate workflow to ensure that they both use the same
       # version.

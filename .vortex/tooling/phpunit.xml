@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.4/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         cacheDirectory=".phpunit.cache"
+         executionOrder="depends,defects"
+         requireCoverageMetadata="false"
+         beStrictAboutCoverageMetadata="false"
+         beStrictAboutOutputDuringTests="true"
+         failOnSkipped="true"
+         failOnWarning="true"
+         stopOnError="true"
+         stopOnFailure="true"
+         stopOnRisky="true"
+         stopOnWarning="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnPhpunitDeprecations="true">
+    <testsuites>
+        <testsuite name="default">
+            <directory>tests/Drush</directory>
+        </testsuite>
+    </testsuites>
+    <source restrictNotices="true"
+            restrictWarnings="true"
+            ignoreIndirectDeprecations="true">
+        <include>
+            <directory>src/Drush</directory>
+        </include>
+    </source>
+    <coverage pathCoverage="false"
+              includeUncoveredFiles="true"
+              ignoreDeprecatedCodeUnits="true"
+              disableCodeCoverageIgnore="false">
+        <report>
+            <html outputDirectory=".logs/.coverage-html" lowUpperBound="50" highLowerBound="90"/>
+            <cobertura outputFile=".logs/cobertura.xml"/>
+            <text outputFile=".logs/coverage.txt"/>
+        </report>
+    </coverage>
+    <logging>
+        <junit outputFile=".logs/junit.xml"/>
+    </logging>
+</phpunit>

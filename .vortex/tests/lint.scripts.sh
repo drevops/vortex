@@ -58,10 +58,12 @@ done < <(
     -print0
 
   # Tooling scripts in '.vortex/tooling/src/' are extensionless executables;
-  # include them unconditionally.
+  # include them unconditionally. PHP classes there are linted by the tooling
+  # Composer 'lint' script.
   find \
     "${ROOT_DIR}"/.vortex/tooling/src \
     -type f \
+    -not -name "*.php" \
     -print0
 )
 

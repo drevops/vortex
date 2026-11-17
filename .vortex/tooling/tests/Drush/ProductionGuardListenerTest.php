@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Drush\Listeners;
+namespace DrevOps\VortexTooling\Tests\Drush;
 
 use Consolidation\Config\Config;
 use Consolidation\SiteAlias\SiteAlias;
 use Consolidation\SiteAlias\SiteAliasManager;
+use DrevOps\VortexTooling\Drush\ProductionGuardListener;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -18,14 +20,10 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\NullOutput;
 
-// Drush loads site-wide listeners itself, so they are not in the autoloader.
-require_once __DIR__ . '/../../../drush/Listeners/ProductionGuardListener.php';
-
 /**
- * Class ProductionGuardListenerTest.
- *
  * Tests for the Drush production guard listener.
  */
+#[CoversClass(ProductionGuardListener::class)]
 #[Group('drush')]
 class ProductionGuardListenerTest extends TestCase {
 
@@ -227,10 +225,10 @@ class ProductionGuardListenerTest extends TestCase {
         $replacements = [];
 
         foreach ($context as $key => $value) {
-          $replacements['{' . $key . '}'] = (string) $value;
+          $replacements['{' . $key . '}'] = is_scalar($value) ? (string) $value : '';
         }
 
-        $this->messages[] = $level . ': ' . strtr((string) $message, $replacements);
+        $this->messages[] = (is_string($level) ? $level : '') . ': ' . strtr((string) $message, $replacements);
       }
 
     };
