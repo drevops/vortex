@@ -61,9 +61,9 @@ class ProductionGuardListener implements ConfigAwareInterface, LoggerAwareInterf
       return;
     }
 
-    $alias = $this->resolveTargetAlias($command, $event->getInput());
+    $alias = array_find($this->resolveTargetAliases($command, $event->getInput()), $this->isProductionAlias(...));
 
-    if ($alias === NULL || !$this->isProductionAlias($alias)) {
+    if ($alias === NULL) {
       return;
     }
 
@@ -81,45 +81,48 @@ class ProductionGuardListener implements ConfigAwareInterface, LoggerAwareInterf
   }
 
   /**
-   * Resolves the alias that a guarded command writes to.
+   * Resolves the alias names that a guarded command writes to.
    *
    * @param string $command
    *   The command name.
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *   The command input.
    *
-   * @return string|null
-   *   The alias name, or NULL if the command is not guarded or its target is
-   *   not an alias.
+   * @return string[]
+   *   The alias names, or an empty array if the command is not guarded or its
+   *   target is not an alias.
    */
-  protected function resolveTargetAlias(string $command, InputInterface $input): ?string {
+  protected function resolveTargetAliases(string $command, InputInterface $input): array {
     return match ($command) {
-      'sql:sync' => $this->resolveAlias((string) $input->getArgument('target')),
+      'sql:sync' => $this->resolveAliases((string) $input->getArgument('target')),
       // The target is '@alias:path' or a plain path.
-      'core:rsync' => $this->resolveAlias(explode(':', (string) $input->getArgument('target'), 2)[0]),
-      'sql:drop', 'site:install' => $this->siteAliasManager()->getSelf()->name(),
-      default => NULL,
+      'core:rsync' => $this->resolveAliases(explode(':', (string) $input->getArgument('target'), 2)[0]),
+      'sql:drop', 'site:install' => [$this->siteAliasManager()->getSelf()->name()],
+      default => [],
     };
   }
 
   /**
-   * Resolves an alias argument to the name of its alias record.
+   * Resolves an alias argument to the requested and the resolved alias names.
+   *
+   * '@self' resolves to the alias selected on the command line, and a site
+   * name resolves to its default environment, such as '@prod' to '@prod.live'.
    *
    * @param string $name
    *   The argument value.
    *
-   * @return string|null
-   *   The alias name, or NULL if the value is not an alias.
+   * @return string[]
+   *   The requested name, followed by the resolved name if it differs, or an
+   *   empty array if the value is not an alias.
    */
-  protected function resolveAlias(string $name): ?string {
+  protected function resolveAliases(string $name): array {
     if (!str_starts_with($name, '@')) {
-      return NULL;
+      return [];
     }
 
-    // '@self' resolves to the alias selected on the command line.
     $record = $this->siteAliasManager()->get($name);
 
-    return $record instanceof SiteAlias ? $record->name() : $name;
+    return $record instanceof SiteAlias && $record->name() !== $name ? [$name, $record->name()] : [$name];
   }
 
   /**
