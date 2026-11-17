@@ -26,7 +26,7 @@ CodeQL has no PHP analyzer, so Semgrep covers the PHP code.
 the project root, with the same version and flags as CI:
 
 ```shell
-docker run --rm -v "${PWD}:/src" -w /src semgrep/semgrep:1.185.0 semgrep scan --config p/php --metrics=off --error --scan-unknown-extensions . $(git ls-files '*.module' '*.install' '*.theme' '*.inc' '*.profile' '*.engine' ':(exclude,glob)**/tests/**')
+docker run --rm -v "${PWD}:/src" -w /src semgrep/semgrep:1.185.0 semgrep scan --config p/php --metrics=off --error --scan-unknown-extensions . $(git ls-files --cached --others --exclude-standard '*.module' '*.install' '*.theme' '*.inc' '*.profile' '*.engine' ':(exclude,glob)**/tests/**' ':(exclude,glob)**/test/**')
 ```
 
 Semgrep scans the files tracked by Git and the untracked files that
@@ -37,6 +37,8 @@ list](https://semgrep.dev/docs/ignoring-files-folders-code#understand-semgrep-de
 Semgrep detects PHP by the `.php` extension only. The `git ls-files` list
 passes the Drupal PHP files with other extensions, such as `.module` and
 `.theme`, and `--scan-unknown-extensions` makes Semgrep scan them as PHP.
+The list includes untracked files and leaves out `tests/` and `test/`
+directories.
 `--error` makes the command exit with `1` when it finds a vulnerability. On
 a clean codebase, the scan ends with `0 findings`.
 
@@ -54,6 +56,10 @@ phpinfo(); // nosemgrep: php.lang.security.phpinfo-use.phpinfo-use
 To skip a path, list it in a `.semgrepignore` file at the project root.
 That file replaces Semgrep's default ignore list, so also add the default
 paths you still want skipped, such as `tests/`.
+
+Semgrep scans every file passed by name, even when `.semgrepignore` lists
+it. The Drupal files in the `git ls-files` list are passed by name, so
+ignore their findings with `nosemgrep` comments.
 
 CodeQL findings have no in-code exception. Dismiss them in code scanning,
 as described in [Dismiss a finding](#dismiss-a-finding).

@@ -35,7 +35,7 @@ if ($target !== FALSE && is_file($target)) {
 
 $index = $target === FALSE ? FALSE : realpath($target . '/index.html');
 
-if ($index !== FALSE && is_file($index)) {
+if ($index !== FALSE && str_starts_with($index, $doc_root . DIRECTORY_SEPARATOR) && is_file($index)) {
   header('Content-Type: text/html; charset=UTF-8');
   readfile($index);
 
