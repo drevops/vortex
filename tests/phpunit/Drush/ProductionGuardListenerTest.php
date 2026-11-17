@@ -32,8 +32,10 @@ class ProductionGuardListenerTest extends TestCase {
 
   /**
    * The skip variable value before the test, or FALSE if it was unset.
+   *
+   * @var string|false
    */
-  protected string|false $skipVariableOriginal;
+  protected $skipVariableOriginal;
 
   /**
    * {@inheritdoc}
@@ -90,11 +92,8 @@ class ProductionGuardListenerTest extends TestCase {
     $self_alias = new SiteAlias([], $self);
     $alias_manager = $this->createStub(SiteAliasManagerInterface::class);
     $alias_manager->method('getSelf')->willReturn($self_alias);
-    $alias_manager->method('get')->willReturnCallback(fn(string $name): SiteAlias|false => match (TRUE) {
-      $name === '@self' => $self_alias,
-      isset($resolved[$name]) => new SiteAlias([], $resolved[$name]),
-      default => FALSE,
-    });
+    $records = ['@self' => $self_alias] + array_map(fn(string $resolved_name): SiteAlias => new SiteAlias([], $resolved_name), $resolved);
+    $alias_manager->method('get')->willReturnCallback(fn(string $name): SiteAlias|false => $records[$name] ?? FALSE);
 
     $listener = new ProductionGuardListener();
     $listener->setConfig(new Config($config));
