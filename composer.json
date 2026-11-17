@@ -120,6 +120,13 @@
             },
             "abandoned": {
                 "audit": "report"
+            },
+            "cooldown": {
+                "period": "7 days",
+                "ignore": {
+                    "drupal/core": "Drupal core security releases need to be applied immediately.",
+                    "drupal/core-*": "Drupal core security releases need to be applied immediately."
+                }
             }
         },
         "sort-packages": true

@@ -127,6 +127,9 @@ after.
 
 Drupal core has no delay, so a core security release is proposed on the next
 daily run. Its rule in `renovate.json` carries a `description` that says so.
+Composer's [release cooldown](composer.mdx#release-cooldown) exempts the
+core packages too. Renovate's update of `composer.lock` then fails only
+when the release pins a dependency younger than 7 days.
 
 #### Registries without release dates
 
@@ -169,6 +172,13 @@ Renovate raises a PR for a published security advisory on its next run
 after it reads the advisory. The PR skips the minimum release age, the
 group's schedule and the limit on open PRs. It updates the affected
 dependency to the lowest release that fixes the advisory.
+
+Composer's [release cooldown](composer.mdx#release-cooldown) still applies
+when Renovate updates `composer.lock`. When the fix, or a dependency it
+pins, is younger than 7 days, the lock update fails. Renovate then reports
+an artifact update problem on the PR. To apply the fix, check out the PR
+branch, run `ahoy composer update` for the package with
+`--with-dependencies --no-cooldown` and push the result.
 
 Advisory PRs carry the `Dependencies` and `Security` labels, so they stand
 apart from routine updates. The `vulnerabilityAlerts` setting in
