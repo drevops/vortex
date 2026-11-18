@@ -1,6 +1,6 @@
 {
     "name": "drevops/vortex-tooling",
-    "description": "Shell scripts for Vortex-based Drupal projects (deploy, notify, provision, fetch/export DB, fetch files, etc.).",
+    "description": "Shell scripts and Drush listeners for Vortex-based Drupal projects (deploy, notify, provision, fetch/export DB, fetch files, production guard, etc.).",
     "license": "GPL-3.0-or-later",
     "type": "library",
     "authors": [
@@ -18,6 +18,25 @@
     },
     "require": {
         "php": ">=8.2"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.2.1",
+        "drevops/phpcs-standard": "^1.1.0",
+        "drupal/coder": "^9.0.1",
+        "drush/drush": "^13.8.0",
+        "phpstan/phpstan": "^2.3.2",
+        "phpunit/phpunit": "^12.5.40",
+        "rector/rector": "^2.7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "DrevOps\\VortexTooling\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DrevOps\\VortexTooling\\Tests\\": "tests/"
+        }
     },
     "bin": [
         "src/vortex-check-worktree-changes",
@@ -43,7 +62,23 @@
         "src/vortex-update"
     ],
     "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        },
         "process-timeout": 0,
         "sort-packages": true
+    },
+    "scripts": {
+        "lint": [
+            "phpcs",
+            "phpstan --memory-limit=2G",
+            "rector --dry-run"
+        ],
+        "lint-fix": [
+            "rector",
+            "phpcbf"
+        ],
+        "test": "phpunit --no-coverage",
+        "test-coverage": "php -d pcov.directory=. vendor/bin/phpunit"
     }
 }

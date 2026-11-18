@@ -105,6 +105,7 @@
             <directory>web/themes/custom</directory>
             <directory>web/sites/default/includes</directory>
             <directory>web/sites/default/settings.php</directory>
+            <directory>drush/Listeners</directory>
         </include>
         <exclude>
             <directory suffix="Test.php">web/modules/custom</directory>

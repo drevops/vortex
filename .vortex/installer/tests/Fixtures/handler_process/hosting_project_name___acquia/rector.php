@@ -10,10 +10,10 @@
 +    __DIR__ . '/docroot/themes/custom',
 +    __DIR__ . '/docroot/sites/default/settings.php',
 +    __DIR__ . '/docroot/sites/default/includes',
+     __DIR__ . '/drush/Listeners',
      __DIR__ . '/tests',
    ])
-   ->withSkip([
-@@ -55,12 +55,12 @@
+@@ -56,12 +56,12 @@
      PrivatizeLocalGetterToPropertyRector::class,
      RemoveAlwaysTrueIfConditionRector::class,
      RemoveUnusedPublicMethodParameterRector::class => [

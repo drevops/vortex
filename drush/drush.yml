@@ -1,3 +1,12 @@
+vortex:
+  # Site aliases that 'sql:sync', 'sql:drop', 'site:install' and 'core:rsync'
+  # refuse to target. An entry matches the alias with that name and any alias
+  # whose environment has that name: 'prod' matches '@prod' and '@site.prod'.
+  # Set VORTEX_DRUSH_PRODUCTION_GUARD_SKIP=1 to bypass the guard.
+  # @see drush/Listeners/ProductionGuardListener.php
+  production_aliases:
+    - prod
+
 command:
   sql:
     cli:

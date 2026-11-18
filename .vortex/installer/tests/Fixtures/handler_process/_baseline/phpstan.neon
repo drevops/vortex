@@ -22,6 +22,7 @@ parameters:
     - web/themes/custom
     - web/sites/default/settings.php
     - web/sites/default/includes
+    - drush/Listeners
     - tests
     - scripts
 

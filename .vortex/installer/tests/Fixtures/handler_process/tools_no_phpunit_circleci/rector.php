@@ -6,7 +6,7 @@
  use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
  use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
  use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
-@@ -83,9 +82,5 @@
+@@ -84,9 +83,5 @@
    // carry the autoload paths and the file extensions Drupal executes PHP
    // from, so this file declares neither.
    ->withComposerBased(drupal: TRUE)

@@ -39,6 +39,7 @@ return RectorConfig::configure()
     __DIR__ . '/web/themes/custom',
     __DIR__ . '/web/sites/default/settings.php',
     __DIR__ . '/web/sites/default/includes',
+    __DIR__ . '/drush/Listeners',
     __DIR__ . '/tests',
   ])
   ->withSkip([

@@ -10,10 +10,10 @@
 +    - docroot/themes/custom
 +    - docroot/sites/default/settings.php
 +    - docroot/sites/default/includes
+     - drush/Listeners
      - tests
      - scripts
- 
-@@ -39,12 +39,12 @@
+@@ -40,12 +40,12 @@
        # parameters or return values in iterable type arrays.
        message: '#.*no value type specified in iterable type array#'
        paths:
@@ -29,7 +29,7 @@
        reportUnmatched: false
      - # Since tests and data providers do not have to have parameter docblocks,
        # it is not possible to specify the type of the parameter, so we ignore
-@@ -51,7 +51,7 @@
+@@ -52,7 +52,7 @@
        # this error.
        message: '#.*no value type specified in iterable type array.#'
        paths:

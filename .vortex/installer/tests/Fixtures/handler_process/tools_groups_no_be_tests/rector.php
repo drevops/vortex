@@ -6,7 +6,7 @@
  use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
  use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
  use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
-@@ -69,8 +68,6 @@
+@@ -70,8 +69,6 @@
    // PHP version upgrade sets. Called without an argument, the target version
    // comes from `composer.json`, so the sets follow the project's PHP version.
    ->withPhpSets()
@@ -15,7 +15,7 @@
    // Code quality improvement sets.
    ->withPreparedSets(
      codeQuality: TRUE,
-@@ -83,9 +80,5 @@
+@@ -84,9 +81,5 @@
    // carry the autoload paths and the file extensions Drupal executes PHP
    // from, so this file declares neither.
    ->withComposerBased(drupal: TRUE)

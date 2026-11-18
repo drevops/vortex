@@ -1,2 +1,5 @@
+/.logs
+/.phpunit.cache
+/composer.lock
 /node_modules
 /vendor

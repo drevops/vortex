@@ -5,8 +5,8 @@
 -    - web/themes/custom
      - web/sites/default/settings.php
      - web/sites/default/includes
-     - tests
-@@ -40,7 +39,6 @@
+     - drush/Listeners
+@@ -41,7 +40,6 @@
        message: '#.*no value type specified in iterable type array#'
        paths:
          - web/modules/custom/*
@@ -14,7 +14,7 @@
      - # Included settings files are not aware about global variables.
        message: '#Variable .* might not be defined.#'
        paths:
-@@ -52,6 +50,5 @@
+@@ -53,6 +51,5 @@
        message: '#.*no value type specified in iterable type array.#'
        paths:
          - web/modules/custom/*/tests/*

@@ -29,7 +29,7 @@ vortex/
 | `docs/`      | Docusaurus, Jest         | vortextemplate.com            |
 | `installer/` | Symfony Console, PHPUnit | Template customization        |
 | `tests/`     | PHPUnit                  | Template integration testing  |
-| `tooling/`   | Bash, BATS               | 'drevops/vortex-tooling' pkg  |
+| `tooling/`   | Bash, BATS, PHP, PHPUnit | 'drevops/vortex-tooling' pkg  |
 
 Each subsystem has its own CLAUDE.md - read it when working there:
 
@@ -58,6 +58,15 @@ projects install it and run the shipped scripts from `vendor/bin/vortex-*`.
 - **Manual** - `tooling/playground/` holds scripts that hit live services
   (Slack, JIRA, New Relic). Not automated; see
   `tooling/playground/README.md`.
+- **PHP unit** - PHPUnit tests in `tooling/tests/Drush/` cover the PHP
+  classes in `tooling/src/Drush/`. Run with `ahoy test-tooling`, lint with
+  `ahoy lint-tooling` from `.vortex/`.
+
+**Drush listeners**: Drush discovers listeners only in a project's
+`drush/Listeners/` directory, never in `vendor/`. A listener's logic lives
+in `tooling/src/Drush/` (all methods `protected`, no static `create()`),
+and the template's `drush/Listeners/` holds a class that extends it and
+declares `#[AsEventListener]`, which PHP does not inherit.
 
 **Script pattern**: the structure, the variable block and the five output
 helpers live in the boilerplate at
@@ -115,6 +124,8 @@ ahoy install          # Install all dependencies
 ahoy update-snapshots # Update fixtures (see Snapshots below)
 ahoy lint-scripts     # Lint scripts
 ahoy test-bats        # Run BATS unit tests
+ahoy test-tooling     # Run tooling PHPUnit tests
+ahoy lint-tooling     # Lint tooling PHP code
 ahoy update-docs      # Regenerate docs variables from scripts
 ahoy lint-markdown    # Lint markdown files
 ```

@@ -26,8 +26,8 @@
 -            <directory>web/themes/custom</directory>
              <directory>web/sites/default/includes</directory>
              <directory>web/sites/default/settings.php</directory>
-         </include>
-@@ -111,8 +106,6 @@
+             <directory>drush/Listeners</directory>
+@@ -112,8 +107,6 @@
              <directory suffix=".deploy.php">web/modules/custom</directory>
              <directory suffix=".api.php">web/modules/custom</directory>
              <directory>web/modules/custom/**/node_modules</directory>
