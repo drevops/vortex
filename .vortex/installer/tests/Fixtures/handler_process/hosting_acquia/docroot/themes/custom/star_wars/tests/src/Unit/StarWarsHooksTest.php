@@ -31,7 +31,7 @@ class StarWarsHooksTest extends StarWarsUnitTestBase {
       ],
     ];
 
-    (new StarWarsHooks())->preprocessHtml($variables);
+    new StarWarsHooks()->preprocessHtml($variables);
 
     $this->assertSame($expected, array_keys($variables['page_top']));
   }

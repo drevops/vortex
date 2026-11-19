@@ -31,7 +31,7 @@ class LightSaberHooksTest extends LightSaberUnitTestBase {
       ],
     ];
 
-    (new LightSaberHooks())->preprocessHtml($variables);
+    new LightSaberHooks()->preprocessHtml($variables);
 
     $this->assertSame($expected, array_keys($variables['page_top']));
   }
