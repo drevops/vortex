@@ -10,8 +10,8 @@ next to the repository and its pull requests. **Vortex** offers it for
 projects hosted on GitHub and ships the pipeline in
 `.github/workflows/build-test-deploy.yml`, the nightly database refresh in
 `.github/workflows/database-nightly.yml` and the security checks in
-`.github/workflows/audit.yml`. Both the pipeline and the nightly refresh run
-the `database` job from the reusable `.github/workflows/database.yml`.
+`.github/workflows/audit.yml`. The nightly refresh carries a copy of the
+pipeline's `database` job, so make every change to that job in both files.
 
 This page is for the lead or DevOps engineer who maintains a **Vortex**
 project's pipeline on GitHub Actions. It shows how to change the parts of
@@ -133,7 +133,8 @@ To refresh the database outside the schedule, use
 
 ### Change runner size
 
-Every job in `build-test-deploy.yml`, `database.yml` and `audit.yml` runs on
+Every job in `build-test-deploy.yml`, `database-nightly.yml` and `audit.yml`
+runs on
 `ubuntu-latest`. For faster builds, switch a job to a [larger
 runner](https://docs.github.com/en/actions/using-github-hosted-runners/using-larger-runners)
 by changing its `runs-on` value. A larger runner might raise your GitHub
@@ -203,9 +204,9 @@ shrunk, revisit the path list.
 With `VORTEX_CI_FREE_DISK_SPACE` turned on, the Android SDK is the largest
 remaining tree, at about 10 GB. Removing it takes around 50 seconds, so it
 ships commented out in the workflow. To turn it on, uncomment the following
-line in the **Free up disk space on the runner** step of the `build` job in
-`.github/workflows/build-test-deploy.yml` and the `database` job in
-`.github/workflows/database.yml`:
+line in the **Free up disk space on the runner** step of the `build` and
+`database` jobs in `.github/workflows/build-test-deploy.yml` and the
+`database` job in `.github/workflows/database-nightly.yml`:
 
 ```yaml
 set -- "$@" /host/usr/local/lib/android

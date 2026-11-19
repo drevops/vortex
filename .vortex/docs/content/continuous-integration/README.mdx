@@ -383,7 +383,7 @@ To pull a new database dump outside the regular schedule, force a fresh
 cache. Increment the last segment of the version prefix in the cache keys.
 The `database` and `build` jobs both use the prefix, so change
 every occurrence in `.github/workflows/build-test-deploy.yml` and
-`.github/workflows/database.yml`, or in `.circleci/config.yml`:
+`.github/workflows/database-nightly.yml`, or in `.circleci/config.yml`:
 
 ```yaml
 # Before
@@ -729,9 +729,9 @@ To pin the host keys:
    - On GitHub Actions, add a repository variable with 1 entry per line.
      The shipped workflow doesn't pass it to the jobs. Add
      `VORTEX_SSH_KNOWN_HOSTS: ${{ vars.VORTEX_SSH_KNOWN_HOSTS }}` to the
-     `container.env` block of the `build` and `deploy` jobs in
+     `container.env` block of the `database`, `build` and `deploy` jobs in
      `.github/workflows/build-test-deploy.yml` and the `database` job in
-     `.github/workflows/database.yml`, next to
+     `.github/workflows/database-nightly.yml`, next to
      `VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING`.
    - On CircleCI, add it as an environment variable, with multiple entries
      joined with `\n`.
@@ -801,9 +801,9 @@ fixes the exact image.
 To update the image, change the tag and its `@sha256:` digest together,
 everywhere the image appears:
 
-- Each job in `.github/workflows/build-test-deploy.yml`
-- The jobs in `.github/workflows/database.yml` and
-  `.github/workflows/audit.yml`
+- Each job in `.github/workflows/build-test-deploy.yml` and
+  `.github/workflows/database-nightly.yml`
+- The job in `.github/workflows/audit.yml`
 - The shared `runner_config` block in `.circleci/config.yml`
 
 Confirm that a search for `drevops/ci-runner:` in those files finds only the
