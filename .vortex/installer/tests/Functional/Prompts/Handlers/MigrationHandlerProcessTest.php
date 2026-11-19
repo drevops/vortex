@@ -30,7 +30,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'fetch-db2');
           $test->assertFileContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE');
           $test->assertFileContainsString(static::$sut . '/web/sites/default/settings.php', 'settings.migration.php');
-          $test->assertFileContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'Fetch migration DB');
+          $test->assertFileContainsString(static::$sut . '/.github/workflows/database.yml', 'Fetch migration DB');
           $test->assertFileContainsString(static::$sut . '/tests/phpunit/Drupal/SettingsTestCase.php', 'DATABASE2_');
       }),
     ];
@@ -65,7 +65,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileNotContainsString(static::$sut . '/.ahoy.yml', 'fetch-db2');
           $test->assertFileNotContainsString(static::$sut . '/.env', 'VORTEX_FETCH_DB2_SOURCE');
           $test->assertFileNotContainsString(static::$sut . '/web/sites/default/settings.php', 'settings.migration.php');
-          $test->assertFileNotContainsString(static::$sut . '/.github/workflows/build-test-deploy.yml', 'Fetch migration DB');
+          $test->assertFileNotContainsString(static::$sut . '/.github/workflows/database.yml', 'Fetch migration DB');
           $test->assertFileNotContainsString(static::$sut . '/tests/phpunit/Drupal/SettingsTestCase.php', 'DATABASE2_');
       }),
     ];
