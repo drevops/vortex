@@ -1,4 +1,4 @@
-@@ -246,6 +246,10 @@
+@@ -100,6 +100,10 @@
            {
              echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
              echo "VORTEX_FRONTEND_BUILD_SKIP=1"
@@ -9,7 +9,7 @@
              # Push the sanitized database dump to the database store and destinations.
              echo "VORTEX_PUSH_DB_PROCEED=1"
            } >> "$GITHUB_ENV"
-@@ -281,6 +285,15 @@
+@@ -135,6 +139,15 @@
          run: |
            if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
            ./vendor/bin/vortex-refresh-db
