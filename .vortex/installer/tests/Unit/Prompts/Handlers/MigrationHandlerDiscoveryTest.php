@@ -6,6 +6,7 @@ namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchStore;
 use DrevOps\VortexInstaller\Prompts\Handlers\Services;
 use DrevOps\VortexInstaller\Utils\Config;
 use DrevOps\VortexInstaller\Utils\File;
@@ -26,14 +27,16 @@ class MigrationHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [
         Migration::id() => self::KEY_LEFT . self::KEY_ENTER,
         MigrationFetchSource::id() => self::KEY_ENTER,
+        MigrationFetchStore::id() => self::KEY_ENTER,
       ],
-      [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::URL] + $expected_defaults,
+      [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::URL, MigrationFetchStore::id() => MigrationFetchStore::NONE] + $expected_defaults,
     ];
     yield 'migration - discovery - database2 exists' => [
       [
         MigrationFetchSource::id() => self::KEY_ENTER,
+        MigrationFetchStore::id() => self::KEY_ENTER,
       ],
-      [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::URL] + $expected_installed,
+      [Migration::id() => TRUE, MigrationFetchSource::id() => MigrationFetchSource::URL, MigrationFetchStore::id() => MigrationFetchStore::NONE] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
         File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database2' => [], Services::CLAMAV => [], Services::REDIS => [], Services::SOLR => []]]));

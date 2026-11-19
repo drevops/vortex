@@ -61,6 +61,13 @@ on:
         description: 'Enable terminal session for CI jobs'
         required: false
         default: false
+      #;< !PROVISION_TYPE_PROFILE
+      refresh_db:
+        type: boolean
+        description: 'Refresh the database only'
+        required: false
+        default: false
+      #;> !PROVISION_TYPE_PROFILE
   #;< !PROVISION_TYPE_PROFILE
   schedule:
     - cron: '0 18 * * *'
@@ -84,7 +91,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     #;< !PROVISION_TYPE_PROFILE
-    if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
+    if: ${{ !inputs.deploy_target && !inputs.refresh_db && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
     #;> !PROVISION_TYPE_PROFILE
 
     container:
@@ -225,6 +232,38 @@ jobs:
         VORTEX_CI_DB_CACHE_FALLBACK: "yes"
         # Which branch to use as a source of DB caches.
         VORTEX_CI_DB_CACHE_BRANCH: "develop"
+        #;< DB_FETCH_SOURCE_FTP
+        VORTEX_FETCH_DB_FTP_USER: ${{ secrets.VORTEX_FETCH_DB_FTP_USER }}
+        VORTEX_FETCH_DB_FTP_PASS: ${{ secrets.VORTEX_FETCH_DB_FTP_PASS }}
+        #;> DB_FETCH_SOURCE_FTP
+        #;< DB_FETCH_SOURCE_S3
+        VORTEX_FETCH_DB_S3_ACCESS_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_ACCESS_KEY }}
+        VORTEX_FETCH_DB_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_SECRET_KEY }}
+        #;> DB_FETCH_SOURCE_S3
+        #;< MIGRATION_DB_FETCH_SOURCE_FTP
+        VORTEX_FETCH_DB2_FTP_USER: ${{ secrets.VORTEX_FETCH_DB2_FTP_USER }}
+        VORTEX_FETCH_DB2_FTP_PASS: ${{ secrets.VORTEX_FETCH_DB2_FTP_PASS }}
+        #;> MIGRATION_DB_FETCH_SOURCE_FTP
+        #;< MIGRATION_DB_FETCH_SOURCE_S3
+        VORTEX_FETCH_DB2_S3_ACCESS_KEY: ${{ secrets.VORTEX_FETCH_DB2_S3_ACCESS_KEY }}
+        VORTEX_FETCH_DB2_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB2_S3_SECRET_KEY }}
+        #;> MIGRATION_DB_FETCH_SOURCE_S3
+        #;< VORTEX_DEV
+        # Push destinations of the demo databases on the nightly run. Empty
+        # repository variables skip the push.
+        VORTEX_PUSH_DB_DESTINATIONS: ${{ vars.VORTEX_PUSH_DB_DESTINATIONS }}
+        VORTEX_PUSH_DB2_DESTINATIONS: ${{ vars.VORTEX_PUSH_DB2_DESTINATIONS }}
+        # FTP server that receives both demo databases, in a directory that
+        # tells this provider's dumps apart, with a timestamped copy of each
+        # push.
+        VORTEX_PUSH_DB_FTP_HOST: ${{ secrets.VORTEX_PUSH_DB_FTP_HOST }}
+        VORTEX_PUSH_DB_FTP_PORT: ${{ secrets.VORTEX_PUSH_DB_FTP_PORT }}
+        VORTEX_PUSH_DB_FTP_USER: ${{ secrets.VORTEX_PUSH_DB_FTP_USER }}
+        VORTEX_PUSH_DB_FTP_PASS: ${{ secrets.VORTEX_PUSH_DB_FTP_PASS }}
+        VORTEX_PUSH_DB_FTP_DIR: ${{ vars.VORTEX_PUSH_DB_FTP_DIR || 'gha' }}
+        VORTEX_PUSH_DB_FTP_FILE: ${{ vars.VORTEX_PUSH_DB_FTP_FILE || 'db.sql' }}
+        VORTEX_PUSH_DB_TIMESTAMPED_COPY: 1
+        #;> VORTEX_DEV
 
     steps:
       # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
@@ -270,7 +309,7 @@ jobs:
         run: ./scripts/vortex-tooling.sh
 
       - name: Adjust variables for a scheduled run
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' || github.event.inputs.refresh_db == 'true'
         run: |
           {
             echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
@@ -281,6 +320,8 @@ jobs:
             # Deploy container image.
             echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
             #;> DB_IN_IMAGE
+            # Push the sanitized database dump to the database store and destinations.
+            echo "VORTEX_PUSH_DB_PROCEED=1"
           } >> "$GITHUB_ENV"
 
       - name: Create cache keys files for database caching
@@ -343,6 +384,25 @@ jobs:
         timeout-minutes: 30
       #;> DB_FETCH_SOURCE_CONTAINER_REGISTRY
 
+      # Push the freshly-exported sanitized database dump to the push
+      # destinations. No-op unless a fresh DB was fetched (the fetch semaphore) and
+      # the push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
+      - name: Push DB
+        run: |
+          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
+          ./vendor/bin/vortex-push-db
+        timeout-minutes: 30
+
+      #;< MIGRATION
+      # Push the freshly-fetched migration database dump to its push destinations,
+      # next to the primary dump. No-op unless the push was requested.
+      - name: Push migration DB
+        run: |
+          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
+          VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db
+        timeout-minutes: 30
+      #;> MIGRATION
+
       # Save cache per default branch and the timestamp.
       # The cache will not be saved if it already exists.
       # Note that the cache fallback flag is enabled for this case in order
@@ -359,7 +419,7 @@ jobs:
     runs-on: ubuntu-latest
     #;< !PROVISION_TYPE_PROFILE
     needs: database
-    if: ${{ !inputs.deploy_target && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
+    if: ${{ !inputs.deploy_target && !inputs.refresh_db && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
     #;> !PROVISION_TYPE_PROFILE
 
     permissions:
@@ -717,7 +777,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, lint]
     #;< !PROVISION_TYPE_PROFILE
-    if: ${{ !cancelled() && (inputs.deploy_target || (success() && github.event_name != 'schedule' && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
+    if: >-
+      ${{ !cancelled() && (inputs.deploy_target || (success() && !inputs.refresh_db && github.event_name != 'schedule'
+      && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
     #;> !PROVISION_TYPE_PROFILE
 
     permissions:

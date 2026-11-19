@@ -134,9 +134,12 @@ class DatabaseFetchSource extends AbstractHandler {
       self::S3,
     ];
 
+    // The store reads the connection settings of the source type it names.
+    $store = in_array($v, DatabaseFetchStore::SOURCES, TRUE) ? ($this->responses[DatabaseFetchStore::id()] ?? NULL) : NULL;
+
     foreach ($types as $type) {
       $token = 'DB_FETCH_SOURCE_' . strtoupper($type);
-      if ($v === $type) {
+      if ($v === $type || $store === $type) {
         File::removeTokenAsync('!' . $token);
       }
       else {

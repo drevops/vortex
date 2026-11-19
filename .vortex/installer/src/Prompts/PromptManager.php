@@ -14,6 +14,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CodeCoverageProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchStore;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesAutomerge;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
@@ -29,6 +30,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Lighthouse;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchStore;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Modules;
@@ -157,6 +159,7 @@ class PromptManager {
             ->add($h[DatabaseFetchSource::id()])
               ->children()
                 ->add($h[DatabaseImage::id()])
+                ->add($h[DatabaseFetchStore::id()])
               ->end()
           ->end()
         ->add($h[Migration::id()])
@@ -164,6 +167,7 @@ class PromptManager {
             ->add($h[MigrationFetchSource::id()])
               ->children()
                 ->add($h[MigrationImage::id()])
+                ->add($h[MigrationFetchStore::id()])
               ->end()
           ->end()
       ->section('Notifications')
@@ -255,6 +259,7 @@ class PromptManager {
 
     if (isset($responses[ProvisionType::id()]) && $responses[ProvisionType::id()] === ProvisionType::PROFILE) {
       $responses[DatabaseFetchSource::id()] = DatabaseFetchSource::NONE;
+      $responses[DatabaseFetchStore::id()] = NULL;
     }
 
     // Handle Starter when the installer is running in update mode.
@@ -414,6 +419,10 @@ class PromptManager {
       if ($responses[DatabaseFetchSource::id()] === DatabaseFetchSource::CONTAINER_REGISTRY) {
         $values['Database container image'] = $responses[DatabaseImage::id()];
       }
+
+      if (isset($responses[DatabaseFetchStore::id()])) {
+        $values['Database store'] = $responses[DatabaseFetchStore::id()];
+      }
     }
 
     if (isset($responses[Migration::id()])) {
@@ -423,6 +432,10 @@ class PromptManager {
 
         if ($responses[MigrationFetchSource::id()] === MigrationFetchSource::CONTAINER_REGISTRY && isset($responses[MigrationImage::id()])) {
           $values['Migration database container image'] = $responses[MigrationImage::id()];
+        }
+
+        if (isset($responses[MigrationFetchStore::id()])) {
+          $values['Migration database store'] = $responses[MigrationFetchStore::id()];
         }
       }
     }

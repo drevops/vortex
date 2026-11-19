@@ -1,4 +1,4 @@
-@@ -120,10 +120,6 @@
+@@ -125,10 +125,6 @@
            done
          continue-on-error: ${{ vars.VORTEX_CI_HADOLINT_IGNORE_FAILURE == '1' }}
  

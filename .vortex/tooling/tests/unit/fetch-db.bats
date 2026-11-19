@@ -325,6 +325,153 @@ EOF
   popd >/dev/null
 }
 
+@test "fetch-db: Fetch from the store without a push requested" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  stub_fetch_scripts
+
+  export VORTEX_FETCH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  unset VORTEX_PUSH_DB_PROCEED
+
+  for db_store in ftp s3; do
+    export VORTEX_FETCH_DB_STORE="${db_store}"
+
+    run .vortex/tooling/src/vortex-fetch-db
+    assert_success
+    assert_output_contains "Fetching from the ${db_store} store in VORTEX_FETCH_DB_STORE."
+    assert_output_contains "Fetched from ${db_store}."
+    assert_output_not_contains "Fetched from lagoon."
+    assert_output_not_contains "last refresh"
+    assert_output_contains "Finished database fetch."
+  done
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Fetch from the source to refresh the store with a push requested" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  stub_fetch_scripts
+
+  export VORTEX_FETCH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_PUSH_DB_PROCEED="1"
+
+  for db_store in ftp s3; do
+    export VORTEX_FETCH_DB_STORE="${db_store}"
+
+    run .vortex/tooling/src/vortex-fetch-db
+    assert_success
+    assert_output_contains "Fetching from the lagoon source to refresh the ${db_store} store as VORTEX_PUSH_DB_PROCEED is set to 1."
+    assert_output_contains "Fetched from lagoon."
+    assert_output_not_contains "Fetched from ${db_store}."
+    assert_output_contains "Finished database fetch."
+  done
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Fetch an indexed database from its own store" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  stub_fetch_scripts
+
+  export VORTEX_DB_INDEX=3
+  export VORTEX_FETCH_DB3_SOURCE="url"
+  export VORTEX_FETCH_DB3_STORE="s3"
+  export VORTEX_FETCH_DB3_PROCEED="1"
+  export VORTEX_FETCH_DB3_DIR="${BUILD_DIR}/db3"
+  export VORTEX_FETCH_DB_STORE="ftp"
+  unset VORTEX_PUSH_DB_PROCEED
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_success
+  assert_output_contains "Fetching from the s3 store in VORTEX_FETCH_DB3_STORE."
+  assert_output_contains "Fetched from s3."
+  assert_output_not_contains "Fetched from ftp."
+  assert_output_not_contains "Fetched from url."
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Point a fresh fetch from the store to the refresh in CI" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  stub_fetch_scripts
+
+  export VORTEX_FETCH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_STORE="ftp"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_FRESH="1"
+  unset VORTEX_PUSH_DB_PROCEED
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_success
+  assert_output_contains "The ftp store holds the database from its last refresh. Run the database refresh in CI to store a fresh database first."
+  assert_output_contains "Fetched from ftp."
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Fetch from the source without a store" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  stub_fetch_scripts
+
+  export VORTEX_FETCH_DB_SOURCE="ftp"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_PUSH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_STORE=""
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_success
+  assert_output_not_contains "Fetching from the"
+  assert_output_contains "Fetched from ftp."
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Fail with an unsupported store" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  stub_fetch_scripts
+
+  export VORTEX_FETCH_DB_SOURCE="lagoon"
+  export VORTEX_FETCH_DB_STORE="gdrive"
+  export VORTEX_FETCH_DB_PROCEED="1"
+
+  run .vortex/tooling/src/vortex-fetch-db
+  assert_failure
+  assert_output_contains '[FAIL] Unsupported database store "gdrive" in VORTEX_FETCH_DB_STORE. Use one of: ftp, s3.'
+  assert_output_not_contains "Fetched from"
+
+  popd >/dev/null
+}
+
+@test "fetch-db: Fail when the store cannot be refreshed from the source" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  stub_fetch_scripts
+
+  export VORTEX_FETCH_DB_STORE="ftp"
+  export VORTEX_FETCH_DB_PROCEED="1"
+  export VORTEX_FETCH_DB_SEMAPHORE="${BUILD_DIR}/fetch-db-fresh"
+
+  for db_source in ftp container_registry none; do
+    export VORTEX_FETCH_DB_SOURCE="${db_source}"
+
+    run .vortex/tooling/src/vortex-fetch-db
+    assert_failure
+    assert_output_contains "[FAIL] The database store in VORTEX_FETCH_DB_STORE is refreshed from a database dump file, but VORTEX_FETCH_DB_SOURCE is \"${db_source}\". Set the source to another source of the dump file: url, ftp, acquia, lagoon or s3."
+    assert_output_not_contains "Fetched from"
+    assert_output_not_contains "Finished database fetch."
+    assert_file_not_exists "${BUILD_DIR}/fetch-db-fresh"
+  done
+
+  popd >/dev/null
+}
+
 @test "fetch-db: Fetch nothing with the none source" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

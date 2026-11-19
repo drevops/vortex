@@ -14,6 +14,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\CodeCoverageProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CodeProvider;
 use DrevOps\VortexInstaller\Prompts\Handlers\CustomModules;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchStore;
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesAutomerge;
 use DrevOps\VortexInstaller\Prompts\Handlers\DependencyUpdatesProvider;
@@ -28,6 +29,7 @@ use DrevOps\VortexInstaller\Prompts\Handlers\Lighthouse;
 use DrevOps\VortexInstaller\Prompts\Handlers\MachineName;
 use DrevOps\VortexInstaller\Prompts\Handlers\Migration;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\MigrationFetchStore;
 use DrevOps\VortexInstaller\Prompts\Handlers\MigrationImage;
 use DrevOps\VortexInstaller\Prompts\Handlers\ModulePrefix;
 use DrevOps\VortexInstaller\Prompts\Handlers\Modules;
@@ -159,9 +161,11 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       ProvisionType::id() => ProvisionType::DATABASE,
       DatabaseFetchSource::id() => DatabaseFetchSource::URL,
       DatabaseImage::id() => NULL,
+      DatabaseFetchStore::id() => DatabaseFetchStore::NONE,
       Migration::id() => FALSE,
       MigrationFetchSource::id() => NULL,
       MigrationImage::id() => NULL,
+      MigrationFetchStore::id() => NULL,
       CiProvider::id() => CiProvider::GITHUB_ACTIONS,
       VisualRegression::id() => FALSE,
       Lighthouse::id() => FALSE,
@@ -246,9 +250,11 @@ abstract class AbstractHandlerDiscoveryTestCase extends UnitTestCase {
       ProvisionType::id() => static::TUI_DEFAULT,
       DatabaseFetchSource::id() => static::TUI_DEFAULT,
       DatabaseImage::id() => static::TUI_SKIP,
+      DatabaseFetchStore::id() => static::TUI_DEFAULT,
       Migration::id() => static::TUI_DEFAULT,
       MigrationFetchSource::id() => static::TUI_SKIP,
       MigrationImage::id() => static::TUI_SKIP,
+      MigrationFetchStore::id() => static::TUI_SKIP,
       NotificationChannels::id() => static::TUI_DEFAULT,
       CiProvider::id() => static::TUI_DEFAULT,
       VisualRegression::id() => static::TUI_DEFAULT,

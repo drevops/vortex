@@ -1,4 +1,4 @@
-@@ -241,6 +241,10 @@
+@@ -246,6 +246,10 @@
            {
              echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
              echo "VORTEX_FRONTEND_BUILD_SKIP=1"
@@ -6,10 +6,10 @@
 +            echo "VORTEX_DB_IMAGE_BASE=drevops/db-data-mysql-8.4:__VERSION__"
 +            # Deploy container image.
 +            echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
+             # Push the sanitized database dump to the database store and destinations.
+             echo "VORTEX_PUSH_DB_PROCEED=1"
            } >> "$GITHUB_ENV"
- 
-       - name: Create cache keys files for database caching
-@@ -270,9 +274,13 @@
+@@ -277,9 +281,13 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
@@ -23,7 +23,22 @@
            ./vendor/bin/vortex-refresh-db
          timeout-minutes: 30
  
-@@ -431,6 +439,11 @@
+@@ -292,6 +300,14 @@
+           ./vendor/bin/vortex-push-db
+         timeout-minutes: 30
+ 
++      # Push the freshly-fetched migration database dump to its push destinations,
++      # next to the primary dump. No-op unless the push was requested.
++      - name: Push migration DB
++        run: |
++          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
++          VORTEX_DB_INDEX=2 ./vendor/bin/vortex-push-db
++        timeout-minutes: 30
++
+       # Save cache per default branch and the timestamp.
+       # The cache will not be saved if it already exists.
+       # Note that the cache fallback flag is enabled for this case in order
+@@ -447,6 +463,11 @@
              docker compose exec cli mkdir -p .data
              docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
              rm -f .data/db.sql

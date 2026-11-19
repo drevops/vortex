@@ -120,7 +120,13 @@ setup() {
   unset VORTEX_FETCH_DB_SOURCE
   unset VORTEX_DB_IMAGE
   unset VORTEX_FETCH_DB_FORCE
+  unset VORTEX_FETCH_DB_FRESH
+  unset VORTEX_FETCH_DB_STORE
   unset VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED
+  unset VORTEX_PUSH_DB_PROCEED
+  unset VORTEX_PUSH_DB_DESTINATIONS
+  unset VORTEX_PUSH_DB_FILE_SUFFIX
+  unset VORTEX_PUSH_DB_TIMESTAMPED_COPY
 
   # Isolate ambient credentials from the scripts under test. Scripts fall back
   # to these unprefixed values whenever their own variable is unset or empty,

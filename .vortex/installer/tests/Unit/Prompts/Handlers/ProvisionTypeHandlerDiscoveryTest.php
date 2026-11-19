@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Tests\Unit\Prompts\Handlers;
 
 use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchSource;
+use DrevOps\VortexInstaller\Prompts\Handlers\DatabaseFetchStore;
 use DrevOps\VortexInstaller\Prompts\Handlers\ProvisionType;
 use DrevOps\VortexInstaller\Utils\Config;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -27,7 +28,7 @@ class ProvisionTypeHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase
     ];
     yield 'provision type - discovery - profile' => [
       [],
-      [ProvisionType::id() => ProvisionType::PROFILE, DatabaseFetchSource::id() => DatabaseFetchSource::NONE] + $expected_defaults,
+      [ProvisionType::id() => ProvisionType::PROFILE, DatabaseFetchSource::id() => DatabaseFetchSource::NONE, DatabaseFetchStore::id() => NULL] + $expected_defaults,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubDotenvValue('VORTEX_PROVISION_TYPE', ProvisionType::PROFILE);
       },

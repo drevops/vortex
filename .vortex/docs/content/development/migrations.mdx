@@ -32,7 +32,10 @@ When you run the **Vortex** installer, answer **Yes** at the
 **Use a second database for migrations?** prompt. Then choose where the
 migration dump comes from at the **Migration database source** prompt. The
 source defaults to your hosting provider, `acquia` or `lagoon`, and to
-`url` without a hosting provider.
+`url` without a hosting provider. To fetch the migration dump from an FTP
+or S3 store that the nightly CI run refreshes, choose it at the
+**Migration database store** prompt. See [Database
+storage](database-storage.mdx#multiple-databases).
 
 ### Manual setup
 

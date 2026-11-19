@@ -23,9 +23,21 @@ _db_index="${VORTEX_DB_INDEX:-}"
 _v="VORTEX_FETCH_DB${_db_index}_SOURCE"
 VORTEX_FETCH_DB_SOURCE="${!_v:-url}"
 
+# Sanitized store of the database dump file: 'ftp' or 's3'.
+#
+# When set, the database is fetched from the store instead of the source. The
+# nightly CI job fetches from the source, sanitizes the database and pushes
+# the dump to the store. Leave empty to fetch from the source.
+_v="VORTEX_FETCH_DB${_db_index}_STORE"
+VORTEX_FETCH_DB_STORE="${!_v:-}"
+
 # Force DB fetch even if the cache exists.
 _v="VORTEX_FETCH_DB${_db_index}_FORCE"
 VORTEX_FETCH_DB_FORCE="${!_v:-}"
+
+# Fetch a fresh database backup from the source.
+_v="VORTEX_FETCH_DB${_db_index}_FRESH"
+VORTEX_FETCH_DB_FRESH="${!_v:-}"
 
 # Proceed with fetch.
 _v="VORTEX_FETCH_DB${_db_index}_PROCEED"
@@ -54,6 +66,30 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 info "Started database${_db_index:+ ${_db_index}} fetch."
 
 [ "${VORTEX_FETCH_DB_PROCEED}" != "1" ] && pass "Skipped database fetch as VORTEX_FETCH_DB_PROCEED is not set to 1." && exit 0
+
+# A push refreshes the store from the source, so with a push requested the
+# database is fetched from the source. The store may hold no dump yet on the
+# first push.
+if [ -n "${VORTEX_FETCH_DB_STORE}" ]; then
+  case "${VORTEX_FETCH_DB_STORE}" in
+    ftp | s3) ;;
+    *) fail "Unsupported database store \"${VORTEX_FETCH_DB_STORE}\" in VORTEX_FETCH_DB${_db_index}_STORE. Use one of: ftp, s3." ;;
+  esac
+
+  case "${VORTEX_FETCH_DB_SOURCE}" in
+    "${VORTEX_FETCH_DB_STORE}" | container_registry | none) fail "The database store in VORTEX_FETCH_DB${_db_index}_STORE is refreshed from a database dump file, but VORTEX_FETCH_DB${_db_index}_SOURCE is \"${VORTEX_FETCH_DB_SOURCE}\". Set the source to another source of the dump file: url, ftp, acquia, lagoon or s3." ;;
+  esac
+
+  if [ "${VORTEX_PUSH_DB_PROCEED:-}" = "1" ]; then
+    note "Fetching from the ${VORTEX_FETCH_DB_SOURCE} source to refresh the ${VORTEX_FETCH_DB_STORE} store as VORTEX_PUSH_DB_PROCEED is set to 1."
+  else
+    note "Fetching from the ${VORTEX_FETCH_DB_STORE} store in VORTEX_FETCH_DB${_db_index}_STORE."
+    # The store holds the dump of its last refresh, so a fresh backup needs
+    # a refresh of the store first.
+    [ "${VORTEX_FETCH_DB_FRESH}" = "1" ] && note "The ${VORTEX_FETCH_DB_STORE} store holds the database from its last refresh. Run the database refresh in CI to store a fresh database first."
+    VORTEX_FETCH_DB_SOURCE="${VORTEX_FETCH_DB_STORE}"
+  fi
+fi
 
 # The fetch script is resolved before the existing dump check, so an
 # unsupported source fails even when a cached dump would be reused.

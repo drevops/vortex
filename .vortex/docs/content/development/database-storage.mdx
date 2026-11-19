@@ -1,0 +1,321 @@
+---
+sidebar_label: Database storage
+sidebar_position: 6
+---
+
+# Database storage
+
+Your site's database reaches a developer's machine and CI in 1 of 3 ways.
+`VORTEX_FETCH_DB_SOURCE` sets where the database comes from, such as your
+production environment. `VORTEX_FETCH_DB_STORE` adds an optional sanitized
+store on an FTP server or in an S3 bucket, so developers get a sanitized
+database without access to production. This page shows how fetching,
+refreshing and pushing the database work in each case.
+
+The page covers these commands:
+
+- `ahoy fetch-db` (`vortex-fetch-db`) downloads a dump into `.data`
+- `vortex-refresh-db` provisions a site from the fetched dump in CI and
+  exports it again
+- `vortex-push-db` uploads the exported dump to the store on the nightly
+  CI run
+
+## Fetch from the source
+
+Without a store, every environment downloads the dump from the `url`,
+`ftp`, `acquia`, `lagoon` or `s3` source. Developers need credentials for
+it, and `ahoy fetch-db --fresh` asks a hosting source for a new backup.
+
+```text
+  Developer                          CI (every run with no cached dump)
+  ─────────                          ──────────────────────────────────
+  ahoy fetch-db                      Fetch DB
+       │                                  │
+       ▼                                  ▼
+  .data/db.sql  ◀── source ──▶       .data/db.sql
+       │                                  │
+       ▼                                  ▼
+  ahoy provision                     Export DB (vortex-refresh-db)
+                                          │  provisions the dump and exports
+                                          │  it as fetched
+                                          ▼
+                                     cache ──▶ build job
+```
+
+## Fetch a database image
+
+With the `container_registry` source, the database lives in a container
+image. Developers and CI pull the image. The nightly CI run rebuilds the
+image from a dump file and pushes it back. See [Dump file source for a
+database
+image](../continuous-integration/README.mdx#dump-file-source-for-a-database-image).
+
+```text
+  Nightly CI
+  ──────────
+  Fetch DB ── VORTEX_REFRESH_DB_SOURCE (for example, lagoon)
+       │
+       ▼
+  Export DB (vortex-refresh-db)
+       │  imports the dump into a clean base image
+       ▼
+  Deploy DB image (vortex-push-db-image) ──▶ container registry
+```
+
+## Fetch from a store
+
+With `VORTEX_FETCH_DB_STORE` set to `ftp` or `s3`, the nightly CI run is
+the only place that fetches from the source. It sanitizes the database
+and pushes the dump to the store:
+
+```text
+  Nightly CI (VORTEX_PUSH_DB_PROCEED=1)
+  ─────────────────────────────────────
+  Fetch DB
+       │  fetches from VORTEX_FETCH_DB_SOURCE, for example lagoon
+       ▼
+  Export DB (vortex-refresh-db)
+       │  provisions the dump, sanitizes it and exports it
+       ▼
+  Push DB (vortex-push-db)
+       │  1. replaces db.sql with the new dump
+       │  2. with VORTEX_PUSH_DB_TIMESTAMPED_COPY=1, adds a timestamped copy
+       ▼
+  FTP server or S3 bucket (VORTEX_FETCH_DB_STORE)
+  ├── db.sql                    ◀── ahoy fetch-db, CI without a cached dump
+  ├── db_20261110-180000.sql    timestamped copies, opt-in
+  └── db_20261111-180000.sql
+```
+
+Every other environment reads from the store:
+
+| Who | Fetches from |
+|---|---|
+| Developer running `ahoy fetch-db` | The store |
+| CI build during the day | The CI cache, or the store when the cache is empty |
+| Nightly or manual refresh in CI | The source, then pushes to the store |
+
+Only the refresh needs the credentials of the source, so production
+access stays in CI.
+
+`db.sql` always holds the latest dump, and fetching downloads it. With a
+file suffix, the latest dump is the suffixed file, such as `db_gha.sql`
+(see [Tell pushes apart](#tell-pushes-apart)). By default, it's the only
+file a push creates. To keep a history of the pushed dumps, set
+`VORTEX_PUSH_DB_TIMESTAMPED_COPY=1` in `.env`. Each push then also creates
+a copy named with its UTC time, identical to `db.sql` at that moment.
+Nothing removes the copies, so clear out the old ones yourself.
+
+The pushed dump leaves your hosting and CI, so it's always sanitized. The
+refresh stops with an error when `VORTEX_PROVISION_SANITIZE_DB_SKIP` is
+`1`.
+
+### Refresh the store on demand
+
+The store holds the database from its last refresh, which is usually the
+nightly run. When you need today's database, run the refresh in CI. It
+fetches from the source, sanitizes the database and pushes it to the
+store, without building or deploying.
+
+- On GitHub Actions, open the **Database, Build, Test and Deploy**
+  workflow, click **Run workflow**, select **Refresh the database only**
+  and click **Run workflow**.
+- On CircleCI, click **Trigger Pipeline** on the project, add the
+  `refresh_db` boolean parameter set to `true` and click
+  **Trigger Pipeline**.
+
+After the run finishes, download the new dump:
+
+```shell
+ahoy fetch-db --fresh
+```
+
+### Fetch from the source directly
+
+If you have access to the source, you can skip the store. Clear
+`VORTEX_FETCH_DB_STORE` for 1 run:
+
+```shell
+VORTEX_FETCH_DB_STORE= ahoy fetch-db --fresh
+```
+
+The fetch then reads the source variables and credentials, the same as
+without a store. The database isn't sanitized, so keep it on your machine.
+
+### Multiple databases
+
+The migration database reads its own store in `VORTEX_FETCH_DB2_STORE`.
+Its files sit next to the primary dump in the same store:
+
+```text
+  FTP server or S3 bucket
+  ├── db.sql                     primary database (VORTEX_FETCH_DB_FTP_FILE)
+  ├── db_20261111-180000.sql
+  ├── db2.sql                    migration database (VORTEX_FETCH_DB2_FTP_FILE)
+  └── db2_20261111-180000.sql
+```
+
+The **Push migration DB** step pushes the migration dump as fetched,
+because **Vortex** sanitizes only the Drupal database.
+
+### Push to several destinations
+
+The database is always fetched from 1 place, but the refresh can push it
+to more destinations than the store. List them in
+`VORTEX_PUSH_DB_DESTINATIONS`, separated by commas or spaces:
+
+```shell
+VORTEX_PUSH_DB_DESTINATIONS=ftp,s3
+```
+
+Each destination reads its own push variables, such as
+`VORTEX_PUSH_DB_FTP_HOST` or `VORTEX_PUSH_DB_S3_BUCKET`, which fall back to
+the fetch values. A destination can be pushed to from any source, so a
+project without a store can still keep sanitized copies on FTP and S3.
+The push refuses a destination that's also the source, because the push
+would replace the dump the database was fetched from.
+
+The migration database reads its own list in
+`VORTEX_PUSH_DB2_DESTINATIONS`. Its connection values, such as
+`VORTEX_PUSH_DB2_FTP_HOST`, fall back to the primary push values, so both
+databases can share 1 server or bucket. Each database keeps its own
+filename.
+
+## Set up an FTP store
+
+Before you begin, create an FTP account that can write to a directory on
+the server. The push uploads the dump under a temporary name, then renames
+it into place, so a failed upload keeps the latest dump. The server must
+allow the `DELE`, `RNFR` and `RNTO` commands, which standard FTP servers
+do.
+
+1. In `.env`, set the store and the server. Keep the source of your
+   database in `VORTEX_FETCH_DB_SOURCE`:
+
+   ```shell
+   VORTEX_FETCH_DB_SOURCE=lagoon
+   VORTEX_FETCH_DB_STORE=ftp
+   VORTEX_FETCH_DB_FTP_HOST=ftp.example.com
+   VORTEX_FETCH_DB_FTP_PORT=21
+   VORTEX_FETCH_DB_FTP_DIR=your_site
+   VORTEX_FETCH_DB_FTP_FILE=db.sql
+   ```
+
+   `VORTEX_FETCH_DB_FTP_DIR` is the directory on the server, relative to
+   the FTP account. Leading and trailing slashes are optional. Leave it
+   empty for the root directory.
+
+2. Add `VORTEX_FETCH_DB_FTP_USER` and `VORTEX_FETCH_DB_FTP_PASS` as CI
+   secrets. GitHub Actions passes them to the `database` job. CircleCI
+   reads them from the project environment variables.
+3. Ask each developer to set `VORTEX_FETCH_DB_FTP_USER` and
+   `VORTEX_FETCH_DB_FTP_PASS` in `.env.local`.
+4. After the next nightly run, confirm that the **Push DB** step ends with
+   `Finished database push.` and that the server holds `db.sql`.
+
+The installer sets up steps 1 and 2 when you select **FTP server** at the
+**Database store** prompt.
+
+To give CI an account with write access and developers a read-only one,
+set the CI account in `VORTEX_PUSH_DB_FTP_USER` and
+`VORTEX_PUSH_DB_FTP_PASS`. On GitHub Actions, map those 2 secrets in the
+`env` block of the `database` job.
+
+FTP sends the credentials and the dump unencrypted. Use a server on a
+network you trust, or the S3 store.
+
+## Set up an S3 store
+
+Before you begin, create a private S3 bucket with public access blocked.
+
+1. Create an IAM user for CI with this policy. Replace `your-bucket` with
+   your bucket name:
+
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Action": ["s3:GetObject", "s3:PutObject"],
+         "Resource": "arn:aws:s3:::your-bucket/*"
+       }
+     ]
+   }
+   ```
+
+2. In `.env`, set the store and the bucket. Keep the source of your
+   database in `VORTEX_FETCH_DB_SOURCE`:
+
+   ```shell
+   VORTEX_FETCH_DB_SOURCE=lagoon
+   VORTEX_FETCH_DB_STORE=s3
+   VORTEX_FETCH_DB_S3_BUCKET=your-bucket
+   VORTEX_FETCH_DB_S3_REGION=ap-southeast-2
+   VORTEX_FETCH_DB_S3_PREFIX=your_site
+   ```
+
+3. Add the access key of the IAM user as the
+   `VORTEX_FETCH_DB_S3_ACCESS_KEY` and `VORTEX_FETCH_DB_S3_SECRET_KEY` CI
+   secrets.
+4. Create a second IAM user for developers with `s3:GetObject` only. Ask
+   each developer to set its keys in `.env.local`.
+5. After the next nightly run, confirm that the **Push DB** step ends with
+   `Finished database push.` and that the bucket holds `db.sql`.
+
+S3 makes the timestamped copy on its side, so the dump is uploaded once.
+S3 copies a dump of up to 5 GB in 1 request, so the timestamped copy
+fails for a larger dump. On FTP, the timestamped copy is a second upload.
+
+## Tell pushes apart
+
+When several places push to the same store, such as GitHub Actions and
+CircleCI, give each its own directory. The push directory falls back to the
+fetch directory:
+
+| Store | Push directory | Fetch directory |
+|---|---|---|
+| FTP | `VORTEX_PUSH_DB_FTP_DIR` | `VORTEX_FETCH_DB_FTP_DIR` |
+| S3 | `VORTEX_PUSH_DB_S3_PREFIX` | `VORTEX_FETCH_DB_S3_PREFIX` |
+
+For example, set `VORTEX_PUSH_DB_FTP_DIR=gha` in GitHub Actions and
+`VORTEX_PUSH_DB_FTP_DIR=circleci` in CircleCI. Each provider then keeps its
+own `db.sql`. A developer fetches from 1 of them with
+`VORTEX_FETCH_DB_FTP_DIR` in `.env.local`.
+
+### Use a file suffix
+
+`VORTEX_PUSH_DB_FILE_SUFFIX` adds a suffix before the extension of the
+pushed files, such as `db_gha.sql` and `db_gha_20261111-180000.sql`. It
+keeps the pushes in 1 directory.
+
+The push takes its remote filename from the fetch, then adds the suffix. To
+fetch a suffixed dump from an FTP store, set both filenames, so the suffix
+appears once:
+
+```shell
+# The push adds the suffix to this name.
+VORTEX_PUSH_DB_FTP_FILE=your_site/db.sql
+# The fetch reads the suffixed name.
+VORTEX_FETCH_DB_FTP_FILE=your_site/db_gha.sql
+```
+
+The S3 fetch names the local dump after the remote file. To fetch a
+suffixed dump from an S3 store, rename the dump everywhere with
+`VORTEX_DB_FILE`, which the fetch, the refresh and the import all read.
+Then set the push remote filename to the name without the suffix:
+
+```shell
+# The fetch, the refresh and the import use the suffixed name.
+VORTEX_DB_FILE=db_gha.sql
+# The push adds the suffix to this name.
+VORTEX_PUSH_DB_S3_REMOTE_FILE=db.sql
+```
+
+## What's next
+
+- [Variables reference](variables.mdx) lists every `VORTEX_PUSH_DB_`
+  variable
+- [Provisioning](provision.mdx) covers importing the fetched dump
+- [Continuous integration](../continuous-integration/README.mdx) covers
+  the `database` job and its caching
