@@ -11,7 +11,8 @@ projects hosted on GitHub and ships the pipeline in
 `.github/workflows/build-test-deploy.yml`, the nightly database refresh in
 `.github/workflows/database-nightly.yml` and the security checks in
 `.github/workflows/audit.yml`. The nightly refresh carries a copy of the
-pipeline's `database` job, so make every change to that job in both files.
+pipeline's `database` job. Keep the steps of the 2 jobs identical; each job
+keeps its own condition and container environment.
 
 This page is for the lead or DevOps engineer who maintains a **Vortex**
 project's pipeline on GitHub Actions. It shows how to change the parts of
