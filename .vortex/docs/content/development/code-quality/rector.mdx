@@ -127,6 +127,88 @@ To clear the cache and apply changes, run 1 of the following commands:
   </TabItem>
 </Tabs>
 
+### Convert procedural hooks to hook classes
+
+Drupal runs hooks implemented as methods of a class in a module's or
+theme's `src/Hook` directory. A `#[Hook]` attribute on each method names
+the hook it implements. The `ys_demo` module and the custom theme that
+**Vortex** ships already use these classes.
+
+Drupal Rector's `HookConvertRector` rule moves procedural hook functions
+into these classes. `rector.php` leaves the rule out because the rule
+writes each class straight to disk. A dry run writes nothing, so
+`ahoy lint-be` would never show the new class. Run the conversion once,
+as its own Rector pass.
+
+The rule converts a function only when its docblock reads
+`Implements hook_...`. Install-time hooks, such as `hook_install()` and
+`hook_schema()`, stay as functions.
+
+To convert the hooks in your custom modules and themes:
+
+1. In each hook function's docblock, replace
+   `Implements template_preprocess_` with `Implements hook_preprocess_`.
+   For example, `Implements template_preprocess_html().` becomes
+   `Implements hook_preprocess_html().`.
+
+2. Fix the deprecations in your code:
+
+   ```shell
+   ahoy lint-be-fix
+   ```
+
+   Rector doesn't process the new class in the run that writes it. Fix
+   the deprecations first, or the deprecated calls move into the class
+   unfixed.
+
+3. Convert the hooks with the configuration that Drupal Rector ships:
+
+   <Tabs>
+     <TabItem value="ahoy" label="Ahoy" default>
+       ```shell
+       ahoy cli vendor/bin/rector process \
+         --config=vendor/palantirnet/drupal-rector/rector-hook-convert.php \
+         web/modules/custom web/themes/custom
+       ```
+     </TabItem>
+     <TabItem value="docker-compose" label="Docker Compose">
+       ```shell
+       docker compose exec cli vendor/bin/rector process \
+         --config=vendor/palantirnet/drupal-rector/rector-hook-convert.php \
+         web/modules/custom web/themes/custom
+       ```
+     </TabItem>
+   </Tabs>
+
+   For each `.module`, `.theme` or `.inc` file with hooks, Rector writes a
+   class to `src/Hook`, such as `src/Hook/YsDemoHooks.php` for
+   `ys_demo.module`.
+
+4. Reformat the new classes to the project's coding standards:
+
+   ```shell
+   ahoy lint-be-fix
+   ```
+
+5. Delete the code that Rector leaves behind:
+
+   - Each function marked `#[LegacyHook]`. It calls the new method for
+     Drupal versions before 11.1, and **Vortex** requires Drupal 11.4.
+   - Each `.module` or `.theme` file left with no functions.
+   - The hook class entries that Rector adds to `<module>.services.yml`,
+     and the `<theme>.services.yml` file it creates in a theme. Drupal
+     registers every hook class as an autowired service.
+
+6. Move each helper function that a hook calls, such as
+   `_your_site_theme_preprocess_navigation()`, into the hook class as a
+   `protected` method.
+
+7. Run `ahoy lint-be` and fix what it reports.
+
+Rector keeps the `\Drupal::service()` calls inside the moved methods. To
+inject the services instead, add them as type-hinted constructor
+arguments.
+
 ## Configuration
 
 See the [Rector documentation](https://getrector.com/documentation).
