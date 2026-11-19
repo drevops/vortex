@@ -95,7 +95,6 @@ DOC;
     if ($v === self::PROFILE) {
       File::removeTokenAsync('!PROVISION_TYPE_PROFILE');
       // A site installed from a profile has no database to fetch.
-      File::remove($t . '/.github/workflows/database.yml');
       File::remove($t . '/.github/workflows/database-nightly.yml');
     }
     else {
