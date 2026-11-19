@@ -190,20 +190,29 @@ To convert the hooks in your custom modules and themes:
    ahoy lint-be-fix
    ```
 
-5. Delete the code that Rector leaves behind:
+5. Move each helper function that a hook calls, such as
+   `_your_site_theme_preprocess_navigation()`, into the hook class as a
+   `protected` method.
+
+6. Delete the code that Rector leaves behind:
 
    - Each function marked `#[LegacyHook]`. It calls the new method for
      Drupal versions before 11.1, and **Vortex** requires Drupal 11.4.
-   - Each `.module` or `.theme` file left with no functions.
+   - Each `.module` or `.theme` file that holds only its `@file` docblock
+     and `use` statements. Move any constant or `include` it still holds
+     before you delete it.
    - The hook class entries that Rector adds to `<module>.services.yml`,
      and the `<theme>.services.yml` file it creates in a theme. Drupal
      registers every hook class as an autowired service.
 
-6. Move each helper function that a hook calls, such as
-   `_your_site_theme_preprocess_navigation()`, into the hook class as a
-   `protected` method.
+7. Rebuild the caches, so Drupal registers the hook classes in place of
+   the deleted functions:
 
-7. Run `ahoy lint-be` and fix what it reports.
+   ```shell
+   ahoy drush cr
+   ```
+
+8. Run `ahoy lint-be` and fix what it reports.
 
 Rector keeps the `\Drupal::service()` calls inside the moved methods. To
 inject the services instead, add them as type-hinted constructor
