@@ -84,6 +84,11 @@ Errors fail the run and CI; warnings are advisory. Lint a single page with
 - `.vale.ini` selects the rules. The `Google` and `write-good` packages are
   pinned there by release URL and downloaded into the git-ignored part of
   `.vale/` by `vale sync`, which runs on `yarn install`.
+- CI installs dependencies with `--ignore-scripts` and installs the Vale
+  binary itself from the public release, because the `@vvago/vale`
+  postinstall downloads through the rate-limited GitHub API. When
+  `@vvago/vale` changes version, update `VALE_VERSION` and `VALE_SHA256` in
+  `.github/workflows/vortex-test-docs.yml`; CI fails until they match.
 - `.vale/Vortex/` is the committed house style. A rule that adjusts an
   upstream rule inherits it with `extends: Google.<Rule>` and edits its
   lists with `exceptions+`, `tokens-` or `swap-`; the upstream rule is then
