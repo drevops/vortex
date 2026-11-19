@@ -31,7 +31,7 @@ class YourSiteThemeHooksTest extends YourSiteThemeUnitTestBase {
       ],
     ];
 
-    (new YourSiteThemeHooks())->preprocessHtml($variables);
+    new YourSiteThemeHooks()->preprocessHtml($variables);
 
     $this->assertSame($expected, array_keys($variables['page_top']));
   }
