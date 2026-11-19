@@ -190,7 +190,7 @@ To convert the hooks in your custom modules and themes:
    ahoy lint-be-fix
    ```
 
-5. Move each helper function that a hook calls, such as
+5. Move each helper function that only hook methods call, such as
    `_your_site_theme_preprocess_navigation()`, into the hook class as a
    `protected` method. Change each call in the hook method to the new
    method, such as `$this->preprocessNavigation($variables)`.
