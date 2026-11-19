@@ -117,9 +117,8 @@ nightly run. When you need today's database, run the refresh in CI. It
 fetches from the source, sanitizes the database and pushes it to the
 store, without building or deploying.
 
-- On GitHub Actions, open the **Database, Build, Test and Deploy**
-  workflow, click **Run workflow**, select **Refresh the database only**
-  and click **Run workflow**.
+- On GitHub Actions, open the **Database nightly** workflow and click
+  **Run workflow**.
 - On CircleCI, click **Trigger Pipeline** on the project, add the
   `refresh_db` boolean parameter set to `true` and click
   **Trigger Pipeline**.

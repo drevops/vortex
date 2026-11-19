@@ -1,0 +1,24 @@
+# GitHub Actions workflow that refreshes the database every night.
+#
+# Fetches a fresh database from the source and caches it for the builds of the
+# next day. Also pushes it to the database store and destinations when they
+# are set. Run it manually to refresh the database on demand.
+#;
+#; Comments starting with '#;<' and '#;>' are internal Vortex comments
+#; and will be removed during installation or update of Vortex.
+name: Database nightly
+
+on:
+  schedule:
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  database:
+    uses: ./.github/workflows/database.yml
+    with:
+      refresh: true
+    secrets: inherit
