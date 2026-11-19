@@ -572,7 +572,8 @@ trait SutTrait {
     // Site demo module created.
     $this->assertDirectoryExists($webroot . '/modules/custom/sw_demo');
     $this->assertFileExists($webroot . '/modules/custom/sw_demo/sw_demo.info.yml');
-    $this->assertFileExists($webroot . '/modules/custom/sw_demo/sw_demo.module');
+    $this->assertFileExists($webroot . '/modules/custom/sw_demo/src/Hook/SwDemoHooks.php');
+    $this->assertFileDoesNotExist($webroot . '/modules/custom/sw_demo/sw_demo.module');
     $this->assertFileExists($webroot . '/modules/custom/sw_demo/src/Plugin/Block/CounterBlock.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_demo/tests/src/Unit/CounterBlockTest.php');
     $this->assertFileExists($webroot . '/modules/custom/sw_demo/tests/src/Kernel/CounterBlockTest.php');
@@ -609,7 +610,8 @@ trait SutTrait {
     $this->assertFileExists($webroot . '/themes/custom/star_wars/postcss.config.js');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/star_wars.info.yml');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/star_wars.libraries.yml');
-    $this->assertFileExists($webroot . '/themes/custom/star_wars/star_wars.theme');
+    $this->assertFileExists($webroot . '/themes/custom/star_wars/src/Hook/StarWarsHooks.php');
+    $this->assertFileDoesNotExist($webroot . '/themes/custom/star_wars/star_wars.theme');
 
     $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Functional/ExampleTest.php');
     $this->assertFileExists($webroot . '/themes/custom/star_wars/tests/src/Functional/StarWarsFunctionalTestBase.php');

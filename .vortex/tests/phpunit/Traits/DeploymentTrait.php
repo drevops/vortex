@@ -76,7 +76,7 @@ trait DeploymentTrait {
     $this->assertFileExists($dir . '/' . $webroot . '/themes/custom/star_wars/.gitignore', 'Theme .gitignore should exist');
     $this->assertFileExists($dir . '/' . $webroot . '/themes/custom/star_wars/star_wars.info.yml', 'Theme info file should exist');
     $this->assertFileExists($dir . '/' . $webroot . '/themes/custom/star_wars/star_wars.libraries.yml', 'Theme libraries file should exist');
-    $this->assertFileExists($dir . '/' . $webroot . '/themes/custom/star_wars/star_wars.theme', 'Theme file should exist');
+    $this->assertFileExists($dir . '/' . $webroot . '/themes/custom/star_wars/src/Hook/StarWarsHooks.php', 'Theme hook class should exist');
 
     // Theme development files should not exist.
     $this->assertFileDoesNotExist($dir . '/' . $webroot . '/themes/custom/star_wars/postcss.config.js', 'Theme postcss.config.js should not exist in deployment');
