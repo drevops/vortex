@@ -148,7 +148,7 @@ jobs:
 
       - name: Upload Composer audit findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/composer-audit.sarif') != '' }}
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4
         # The upload fails without a code scanning entitlement, and on fork
         # pull requests where the token is read-only. The audit steps above are
         # what report the findings and fail the workflow.
@@ -165,7 +165,7 @@ jobs:
 
       - name: Upload npm audit findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit.sarif') != '' }}
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4
         continue-on-error: true
         with:
           sarif_file: .logs/audit/npm-audit.sarif
@@ -180,7 +180,7 @@ jobs:
 
       - name: Upload theme npm audit findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/npm-audit-theme.sarif') != '' }}
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4
         continue-on-error: true
         with:
           sarif_file: .logs/audit/npm-audit-theme.sarif
@@ -199,7 +199,7 @@ jobs:
 
       - name: Upload Semgrep findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/semgrep.sarif') != '' }}
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4
         continue-on-error: true
         with:
           sarif_file: .logs/audit/semgrep.sarif
@@ -213,7 +213,7 @@ jobs:
 
       - name: Upload Gitleaks findings to code scanning
         if: ${{ !cancelled() && hashFiles('.logs/audit/gitleaks.sarif') != '' }}
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4
         continue-on-error: true
         with:
           sarif_file: .logs/audit/gitleaks.sarif
@@ -249,7 +249,7 @@ jobs:
           persist-credentials: false
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4
         with:
           languages: actions,javascript-typescript
           build-mode: none
@@ -260,7 +260,7 @@ jobs:
           #;> VORTEX_DEV
 
       - name: Scan code for vulnerabilities with CodeQL
-        uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4
+        uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4
         # CodeQL reports its findings only to code scanning, and the upload fails
         # without a code scanning entitlement and on fork pull requests.
         continue-on-error: true
