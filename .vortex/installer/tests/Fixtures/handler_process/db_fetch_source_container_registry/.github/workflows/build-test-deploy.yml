@@ -1,0 +1,16 @@
+@@ -266,6 +266,15 @@
+           ./vendor/bin/vortex-refresh-db
+         timeout-minutes: 30
+ 
++      # Deploy the freshly-exported database image to the container registry.
++      # No-op unless a fresh DB was fetched (the fetch semaphore) and deployment
++      # was requested (VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED, in the script).
++      - name: Deploy DB image
++        run: |
++          if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB image deployment will not proceed."; exit 0; fi
++          ./vendor/bin/vortex-push-db-image
++        timeout-minutes: 30
++
+       # Push the freshly-exported sanitized database dump to the push
+       # destinations. No-op unless a fresh DB was fetched (the fetch semaphore) and
+       # the push was requested (VORTEX_PUSH_DB_PROCEED, in the script).
