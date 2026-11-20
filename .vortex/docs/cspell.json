@@ -89,6 +89,7 @@
         "phpcbf",
         "phpcodesniffer",
         "phpcompatibility",
+        "phpmyadmin",
         "phpspec",
         "phpstorm",
         "polysite",

@@ -27,6 +27,7 @@ PHPCS
 PHPStan
 PHPUnit
 PhpStorm
+phpMyAdmin
 Prompty
 Pygmy
 Rector

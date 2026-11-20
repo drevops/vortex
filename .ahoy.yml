@@ -43,6 +43,9 @@ commands:
       #;< SERVICE_SOLR
       export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
       #;> SERVICE_SOLR
+      #;< SERVICE_PHPMYADMIN
+      export VORTEX_HOST_PHPMYADMIN_PORT=$(docker compose port phpmyadmin 80 2>/dev/null | cut -d : -f 2)
+      #;> SERVICE_PHPMYADMIN
       #;< STORYBOOK
       export VORTEX_HOST_STORYBOOK_PORT=$(docker compose port cli ${VORTEX_STORYBOOK_PORT:-6006} 2>/dev/null | cut -d : -f 2)
       #;> STORYBOOK
@@ -53,10 +56,18 @@ commands:
   db:
     usage: Open DB in Sequel Ace.
     cmd: |
-      uname -a | grep -i -q darwin && test -d "${VORTEX_HOST_SEQUELACE_PATH:-/Applications/Sequel Ace.app}" && \
-      VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2) && \
-      open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" \
-      || echo "Not a supported OS or Sequel Ace is not installed."
+      if uname -a | grep -i -q darwin && test -d "${VORTEX_HOST_SEQUELACE_PATH:-/Applications/Sequel Ace.app}"; then
+        VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2)
+        open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" && exit 0
+      fi
+      #;< SERVICE_PHPMYADMIN
+      VORTEX_HOST_PHPMYADMIN_PORT=$(docker compose port phpmyadmin 80 2>/dev/null | cut -d : -f 2)
+      if [ -n "${VORTEX_HOST_PHPMYADMIN_PORT}" ]; then
+        echo "Open the database in phpMyAdmin: http://127.0.0.1:${VORTEX_HOST_PHPMYADMIN_PORT}"
+        exit 0
+      fi
+      #;> SERVICE_PHPMYADMIN
+      echo "Not a supported OS or Sequel Ace is not installed."
 
   #;< MIGRATION
   db2:

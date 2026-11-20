@@ -487,6 +487,37 @@
                 }
             ]
         },
+        "phpmyadmin": {
+            "command": null,
+            "depends_on": {
+                "database": {
+                    "condition": "service_started",
+                    "required": true
+                }
+            },
+            "entrypoint": null,
+            "environment": {
+                "PMA_HOST": "database",
+                "PMA_PASSWORD": "drupal",
+                "PMA_PORT": "3306",
+                "PMA_USER": "drupal"
+            },
+            "image": "phpmyadmin:VERSION",
+            "labels": {
+                "lagoon.type": "none"
+            },
+            "networks": {
+                "default": null
+            },
+            "ports": [
+                {
+                    "host_ip": "127.0.0.1",
+                    "mode": "ingress",
+                    "protocol": "tcp",
+                    "target": 80
+                }
+            ]
+        },
         "redis": {
             "command": null,
             "entrypoint": null,

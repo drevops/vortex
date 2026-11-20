@@ -274,6 +274,26 @@ services:
     #;> HOSTING_LAGOON
   #;> SERVICE_CLAMAV
 
+  #;< SERVICE_PHPMYADMIN
+  # Database web UI, used for browsing the local database.
+  phpmyadmin:
+    image: phpmyadmin:5.2.3
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+      # Log in with the local database credentials, so the UI opens without a login screen.
+      PMA_USER: drupal
+      PMA_PASSWORD: drupal
+    depends_on:
+      - database
+    ports:
+      - '127.0.0.1::80' # Bound to the loopback interface only because the UI does not ask for a password. Find port on host with `ahoy info` or `docker compose port phpmyadmin 80`.
+    #;< HOSTING_LAGOON
+    labels:
+      lagoon.type: none # Do not deploy in Lagoon.
+    #;> HOSTING_LAGOON
+  #;> SERVICE_PHPMYADMIN
+
   # Chrome container, used for browser testing.
   chrome:
     image: selenium/standalone-chromium:156.0

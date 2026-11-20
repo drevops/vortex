@@ -39,12 +39,24 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-30-search-index.sh');
       }),
     ];
+    yield 'services_phpmyadmin' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Services::id()] = [Services::CLAMAV, Services::PHPMYADMIN, Services::REDIS, Services::SOLR];
+          $test->prompts[AiCodeInstructions::id()] = TRUE;
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertFileContainsString(static::$sut . '/docker-compose.yml', 'image: phpmyadmin:');
+          $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'VORTEX_HOST_PHPMYADMIN_PORT');
+          $test->assertSutNotContains('SERVICE_PHPMYADMIN');
+      }),
+    ];
     yield 'services_none' => [
       static::cw(fn(AbstractHandlerProcessTestCase $test): array => $test->prompts[Services::id()] = []),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertSutNotContains('clamav');
           $test->assertSutNotContains('solr');
           $test->assertSutNotContains('redis');
+          $test->assertSutNotContains('phpmyadmin');
           $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-30-search-index.sh');
       }),
     ];
