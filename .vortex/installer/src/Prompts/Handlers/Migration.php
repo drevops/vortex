@@ -72,6 +72,7 @@ class Migration extends AbstractHandler {
       File::remove($t . '/' . $w . '/sites/default/settings.migration.php');
       File::remove($t . '/scripts/provision-20-migration.sh');
       File::remove($t . '/' . $w . '/modules/custom/ys_migrate');
+      File::remove($t . '/.claude/skills/create-migration');
 
       JsonManipulator::updateFile($t . '/composer.json', function (JsonManipulator $cj): void {
         $cj->removeSubNode('require', 'drupal/migrate_plus');

@@ -20,6 +20,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileExists(static::$sut . '/web/sites/default/settings.migration.php');
           $test->assertFileExists(static::$sut . '/scripts/provision-20-migration.sh');
           $test->assertDirectoryExists(static::$sut . '/web/modules/custom/ys_migrate');
+          $test->assertFileExists(static::$sut . '/.claude/skills/create-migration/SKILL.md');
 
           // Composer dependencies.
           $test->assertFileContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
@@ -55,6 +56,7 @@ class MigrationHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertFileDoesNotExist(static::$sut . '/web/sites/default/settings.migration.php');
           $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-20-migration.sh');
           $test->assertDirectoryDoesNotExist(static::$sut . '/web/modules/custom/ys_migrate');
+          $test->assertDirectoryDoesNotExist(static::$sut . '/.claude/skills/create-migration');
 
           // Composer dependencies removed.
           $test->assertFileNotContainsString(static::$sut . '/composer.json', 'drupal/migrate_plus');
