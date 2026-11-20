@@ -60,7 +60,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
         $test->runNonInteractiveInstall();
 
         $theme_dir = static::$sut . '/web/themes/custom/star_wars';
-        $test->assertFilesExist($theme_dir, ['star_wars.theme'], 'Vortex template theme files should be present');
+        $test->assertFilesExist($theme_dir, ['src/Hook/StarWarsHooks.php'], 'Vortex template theme files should be present');
 
         // Replace the Vortex-installed theme files with custom
         // non-Vortex theme files (simulating a project that replaced the
@@ -80,7 +80,7 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
         $test->assertStringEqualsFile($theme_dir . '/package.json', "{\"name\": \"star_wars_custom\"}\n");
         $test->assertStringEqualsFile($theme_dir . '/styles.css', ".star-wars { color: blue; }\n");
 
-        $test->assertFilesDoNotExist($theme_dir, ['star_wars.theme'], 'Vortex template theme files should not be present');
+        $test->assertFilesDoNotExist($theme_dir, ['src/Hook/StarWarsHooks.php'], 'Vortex template theme files should not be present');
       }),
     ];
   }

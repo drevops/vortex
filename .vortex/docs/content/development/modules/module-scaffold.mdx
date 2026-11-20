@@ -70,6 +70,10 @@ The demo module ships a pages view at `/pages` and a generated content
 plugin that populates it. Its deploy hooks place a counter block, add the
 `Pages` menu link and register the view with Testmode.
 
+The module implements `hook_theme()` as the `theme()` method of the
+`src/Hook/YsDemoHooks.php` class, marked with the `#[Hook('theme')]`
+attribute. Put your own hooks in a class under `src/Hook` the same way.
+
 The counter block, with its CSS, JavaScript and Twig template, also
 exercises the test tooling. It has the following tests:
 
