@@ -8,8 +8,11 @@ sidebar_position: 2
 integration and delivery service built into GitHub, so your pipeline runs
 next to the repository and its pull requests. **Vortex** offers it for
 projects hosted on GitHub and ships the pipeline in
-`.github/workflows/build-test-deploy.yml` and the security checks in
-`.github/workflows/audit.yml`.
+`.github/workflows/build-test-deploy.yml`, the nightly database refresh in
+`.github/workflows/database-nightly.yml` and the security checks in
+`.github/workflows/audit.yml`. The nightly refresh carries a copy of the
+pipeline's `database` job. Keep the steps of the 2 jobs identical; each job
+keeps its own condition and container environment.
 
 This page is for the lead or DevOps engineer who maintains a **Vortex**
 project's pipeline on GitHub Actions. It shows how to change the parts of
@@ -102,21 +105,20 @@ to make it block merges.
 
 ### Update nightly database schedule
 
-A scheduled run downloads a fresh database dump every day at 18:00 UTC
-(`0 18 * * *`) and caches it, so the next day's builds start from that
-dump. Only the `database` job runs on the schedule, and the `lint`, `build`
-and `deploy` jobs skip it. The scheduled run also turns off the cache
-fallback and the front-end build. For a project that stores its database in
-a container image, it imports the dump into a clean base image, then pushes
+The `Database nightly` workflow downloads a fresh database dump every day at
+18:00 UTC (`0 18 * * *`) and caches it, so the next day's builds start from
+that dump. It runs only the `database` job, with the cache fallback and the
+front-end build turned off. For a project that stores its database in a
+container image, it imports the dump into a clean base image, then pushes
 the result to the registry. The image is always built from a dump file.
 With the `container_registry` source, set `VORTEX_REFRESH_DB_SOURCE` to the
 source of that file, such as `url` or `lagoon`. Then add the variables of
 that source, listed in [Dump file source for a database
 image](./README.mdx#dump-file-source-for-a-database-image).
 
-The schedule ships only when the site provisions from a database dump. To
+The workflow ships only when the site provisions from a database dump. To
 change when it runs, update the `on.schedule.cron` value in
-`.github/workflows/build-test-deploy.yml`
+`.github/workflows/database-nightly.yml`
 ([cron format](https://crontab.guru/#0_18_*_*_*), UTC timezone):
 
 ```yaml
@@ -124,13 +126,16 @@ schedule:
   - cron: '0 18 * * *'  # 6 PM UTC daily
 ```
 
-Confirm that the next scheduled run of the
-`Database, Build, Test and Deploy` workflow starts at the new time and runs
-only the `database` job.
+Confirm that the next run of the `Database nightly` workflow starts at the
+new time.
+
+To refresh the database outside the schedule, use
+**Actions > Database nightly > Run workflow**.
 
 ### Change runner size
 
-Every job in `build-test-deploy.yml` and `audit.yml` runs on
+Every job in `build-test-deploy.yml`, `database-nightly.yml` and `audit.yml`
+runs on
 `ubuntu-latest`. For faster builds, switch a job to a [larger
 runner](https://docs.github.com/en/actions/using-github-hosted-runners/using-larger-runners)
 by changing its `runs-on` value. A larger runner might raise your GitHub
@@ -200,8 +205,9 @@ shrunk, revisit the path list.
 With `VORTEX_CI_FREE_DISK_SPACE` turned on, the Android SDK is the largest
 remaining tree, at about 10 GB. Removing it takes around 50 seconds, so it
 ships commented out in the workflow. To turn it on, uncomment the following
-line in the **Free up disk space on the runner** step of both the `build`
-and `database` jobs in `.github/workflows/build-test-deploy.yml`:
+line in the **Free up disk space on the runner** step of the `build` and
+`database` jobs in `.github/workflows/build-test-deploy.yml` and the
+`database` job in `.github/workflows/database-nightly.yml`:
 
 ```yaml
 set -- "$@" /host/usr/local/lib/android

@@ -1,4 +1,4 @@
-@@ -125,10 +125,6 @@
+@@ -118,10 +118,6 @@
            done
          continue-on-error: ${{ vars.VORTEX_CI_HADOLINT_IGNORE_FAILURE == '1' }}
  
@@ -9,7 +9,7 @@
        - name: Build stack
          run: docker compose up --no-deps --detach cli
  
-@@ -277,6 +273,9 @@
+@@ -260,6 +256,9 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
@@ -19,7 +19,7 @@
        - name: Export DB
          run: |
            if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
-@@ -292,6 +291,14 @@
+@@ -275,6 +274,14 @@
            ./vendor/bin/vortex-push-db
          timeout-minutes: 30
  
@@ -34,7 +34,7 @@
        # Save cache per default branch and the timestamp.
        # The cache will not be saved if it already exists.
        # Note that the cache fallback flag is enabled for this case in order
-@@ -447,6 +454,11 @@
+@@ -430,6 +437,11 @@
              docker compose exec cli mkdir -p .data
              docker compose --progress quiet cp -L .data/db.sql cli:/app/.data/db.sql
              rm -f .data/db.sql

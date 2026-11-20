@@ -30,9 +30,9 @@ fi
 
 echo "Checking that both CI providers use the same database base image."
 circleci_db_image_base="$(sed -n 's/^ *VORTEX_DB_IMAGE_BASE: *\([^ ]*\) *$/\1/p' "${ROOT_DIR}/.circleci/config.yml")"
-gha_db_image_base="$(sed -n 's/.*VORTEX_DB_IMAGE_BASE=\([^" ]*\)".*/\1/p' "${ROOT_DIR}/.github/workflows/build-test-deploy.yml")"
+gha_db_image_base="$(sed -n 's/^ *VORTEX_DB_IMAGE_BASE: *\([^ ]*\) *$/\1/p' "${ROOT_DIR}/.github/workflows/database-nightly.yml")"
 if [ -z "${circleci_db_image_base}" ] || [ "${circleci_db_image_base}" != "${gha_db_image_base}" ]; then
-  echo "VORTEX_DB_IMAGE_BASE differs between .circleci/config.yml (${circleci_db_image_base:-not set}) and .github/workflows/build-test-deploy.yml (${gha_db_image_base:-not set})."
+  echo "VORTEX_DB_IMAGE_BASE differs between .circleci/config.yml (${circleci_db_image_base:-not set}) and .github/workflows/database-nightly.yml (${gha_db_image_base:-not set})."
   exit 1
 fi
 
@@ -40,7 +40,7 @@ echo "Checking that CI steps do not bind-mount the working directory into a cont
 # Every job in these files runs in a container or against a remote Docker
 # engine, so the engine resolves a bind mount of the working directory to an
 # empty directory.
-ci_files=("${ROOT_DIR}/.circleci/config.yml" "${ROOT_DIR}/.github/workflows/build-test-deploy.yml" "${ROOT_DIR}/.github/workflows/audit.yml")
+ci_files=("${ROOT_DIR}/.circleci/config.yml" "${ROOT_DIR}/.github/workflows/build-test-deploy.yml" "${ROOT_DIR}/.github/workflows/database-nightly.yml" "${ROOT_DIR}/.github/workflows/audit.yml")
 mounts="$(grep -n -E '(-v|--volume)[ =]"?[$]([{]?PWD|[(]pwd[)]|[{]?GITHUB_WORKSPACE)' "${ci_files[@]}")" || [ "$?" -eq 1 ]
 if [ -n "${mounts}" ]; then
   echo "${mounts}"

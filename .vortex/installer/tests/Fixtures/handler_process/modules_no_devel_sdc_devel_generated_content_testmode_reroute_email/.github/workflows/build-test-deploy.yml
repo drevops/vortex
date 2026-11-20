@@ -1,4 +1,4 @@
-@@ -328,7 +328,6 @@
+@@ -311,7 +311,6 @@
        VORTEX_CI_RUNNER_TOTAL: ${{ strategy.job-total }}
        VORTEX_CI_IS_JEST_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
        VORTEX_CI_IS_PHPUNIT_RUNNER: ${{ matrix.instance == 0 || strategy.job-total == 1 }}
@@ -6,7 +6,7 @@
        # Runs on every instance, using the `p<instance index - offset>` profile.
        VORTEX_CI_IS_BEHAT_RUNNER: true
        # Subtracted from the instance index to derive the profile number. Raise
-@@ -515,18 +514,6 @@
+@@ -498,18 +497,6 @@
            fi
          env:
            VORTEX_CI_CODE_COVERAGE_THRESHOLD: ${{ vars.VORTEX_CI_CODE_COVERAGE_THRESHOLD || '90' }}

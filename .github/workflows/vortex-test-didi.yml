@@ -149,22 +149,6 @@ jobs:
       - name: Install Vortex tooling
         run: ./scripts/vortex-tooling.sh
 
-      - name: Adjust variables for a scheduled run
-        if: github.event_name == 'schedule' || github.event.inputs.refresh_db == 'true'
-        run: |
-          {
-            echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
-            echo "VORTEX_FRONTEND_BUILD_SKIP=1"
-            #;< DB_IN_IMAGE
-            # Import the fetched database into a clean base image.
-            echo "VORTEX_DB_IMAGE_BASE=drevops/db-data-mysql-8.4:26.11.0"
-            # Deploy container image.
-            echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
-            #;> DB_IN_IMAGE
-            # Push the sanitized database dump to the database store and destinations.
-            echo "VORTEX_PUSH_DB_PROCEED=1"
-          } >> "$GITHUB_ENV"
-
       - name: Create cache keys files for database caching
         run: |
           echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee db_cache_branch
@@ -722,22 +706,6 @@ jobs:
 
       - name: Install Vortex tooling
         run: ./scripts/vortex-tooling.sh
-
-      - name: Adjust variables for a scheduled run
-        if: github.event_name == 'schedule' || github.event.inputs.refresh_db == 'true'
-        run: |
-          {
-            echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
-            echo "VORTEX_FRONTEND_BUILD_SKIP=1"
-            #;< DB_IN_IMAGE
-            # Import the fetched database into a clean base image.
-            echo "VORTEX_DB_IMAGE_BASE=drevops/db-data-mysql-8.4:26.11.0"
-            # Deploy container image.
-            echo "VORTEX_EXPORT_DB_CONTAINER_REGISTRY_PUSH_PROCEED=1"
-            #;> DB_IN_IMAGE
-            # Push the sanitized database dump to the database store and destinations.
-            echo "VORTEX_PUSH_DB_PROCEED=1"
-          } >> "$GITHUB_ENV"
 
       - name: Create cache keys files for database caching
         run: |
