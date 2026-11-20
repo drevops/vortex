@@ -276,7 +276,7 @@ services:
 
   # Chrome container, used for browser testing.
   chrome:
-    image: selenium/standalone-chromium:155.0
+    image: selenium/standalone-chromium:156.0
     environment:
       <<: *default-environment
     <<: *default-volumes
