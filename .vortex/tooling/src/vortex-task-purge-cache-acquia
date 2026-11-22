@@ -49,12 +49,24 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 extract_json_last_value() {
   local key="${1}"
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=is_array(\$data) ? array_pop(\$data) : NULL; isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
 extract_json_value() {
   local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+}
+
+# The token endpoint puts the error detail in 'error_description', the Cloud
+# API puts it in 'message'.
+extract_json_error() {
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); if (!is_array(\$data) || empty(\$data['error'])) { exit(1); } \$detail=\$data['message'] ?? \$data['error_description'] ?? \$data['error']; print is_string(\$detail) ? \$detail : json_encode(\$detail, JSON_UNESCAPED_SLASHES);"
+}
+
+fail_on_api_error() {
+  local error
+  error=$(echo "${1}" | extract_json_error) || return 0
+  fail "${2} Acquia API error: ${error}"
 }
 
 # Wildcard entries are not hostnames, so the purge endpoint cannot take them.
@@ -85,11 +97,9 @@ task "Retrieving authentication token."
 token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Token API response received (token redacted)."
 
-if echo "${token_json}" | grep -q '"error"'; then
-  fail "Authentication failed. Check VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: ${token_json}"
-fi
+fail_on_api_error "${token_json}" "Authentication failed. Check VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
 
-token=$(echo "${token_json}" | extract_json_value "access_token")
+token=$(echo "${token_json}" | extract_json_value "access_token" || true)
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Access token extracted (value redacted)."
 [ -z "${token}" ] && fail "Unable to retrieve a token. API response: ${token_json}"
 pass "Retrieved authentication token."
@@ -98,11 +108,13 @@ task "Retrieving ${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME} application UUID."
 app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME/ /%20}")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Application API response: ${app_uuid_json}"
 
+fail_on_api_error "${app_uuid_json}" "Unable to retrieve ${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME} application UUID."
+
 if echo "${app_uuid_json}" | grep -q '"items":\[\]'; then
   fail "Application \"${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME}\" not found. Check application name and access permissions."
 fi
 
-app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
+app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid" || true)
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted app UUID: ${app_uuid}"
 [ -z "${app_uuid}" ] && fail "Unable to retrieve an application UUID for \"${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME}\". API response: ${app_uuid_json}"
 pass "Retrieved ${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME} application UUID."
@@ -111,11 +123,13 @@ task "Retrieving environment ID."
 envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV}")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Environments API response: ${envs_json}"
 
+fail_on_api_error "${envs_json}" "Unable to retrieve environment ID."
+
 if echo "${envs_json}" | grep -q '"items":\[\]'; then
   fail "Environment \"${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV}\" not found in application \"${VORTEX_TASK_PURGE_CACHE_ACQUIA_APP_NAME}\". Check environment name."
 fi
 
-env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
+env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id" || true)
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted environment ID: ${env_id}"
 [ -z "${env_id}" ] && fail "Unable to retrieve environment ID for \"${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV}\". API response: ${envs_json}"
 pass "Retrieved environment ID."
@@ -129,8 +143,10 @@ while true; do
   domains_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/environments/${env_id}/domains?limit=${domains_limit}&offset=${domains_offset}")
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Domains API response: ${domains_json}"
 
+  fail_on_api_error "${domains_json}" "Unable to retrieve domains attached to ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment."
+
   page_count=$(echo "${domains_json}" | extract_json_items_count) || page_count=""
-  if echo "${domains_json}" | grep -q '"error"' || [ -z "${page_count}" ]; then
+  if [ -z "${page_count}" ]; then
     fail "Unable to retrieve domains attached to ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment. API response: ${domains_json}"
   fi
 
@@ -178,33 +194,37 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
 
     printf "       Checking task status: "
     task_completed=0
+    status_error=""
     # shellcheck disable=SC2034
     for i in $(seq 1 "${VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES}"); do
       echo -n "."
       sleep "${VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_INTERVAL}"
       task_status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "${notification_url}")
-      task_state=$(echo "${task_status_json}" | extract_json_value "status")
+      task_state=$(echo "${task_status_json}" | extract_json_value "status" || true)
       if [ "${task_state}" = "completed" ]; then
         note "Purged cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
         task_completed=1
         break 1
       fi
 
+      status_error=$(echo "${task_status_json}" | extract_json_error || true)
+      [ -n "${status_error}" ] && break 1
+
       token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
       [ "${VORTEX_DEBUG-}" = "1" ] && note "Token API response received (token redacted)."
 
-      if echo "${token_json}" | grep -q '"error"'; then
-        fail "Authentication failed. Check VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: ${token_json}"
-      fi
+      fail_on_api_error "${token_json}" "Authentication failed. Check VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
 
-      token=$(echo "${token_json}" | extract_json_value "access_token")
+      token=$(echo "${token_json}" | extract_json_value "access_token" || true)
       [ "${VORTEX_DEBUG-}" = "1" ] && note "Access token extracted (value redacted)."
       [ -z "${token}" ] && fail "Unable to retrieve a token. API response: ${token_json}"
       note "Refreshed authentication token."
     done
     echo
 
-    if [ "${task_completed}" = "0" ]; then
+    if [ -n "${status_error}" ]; then
+      note "Warning: Unable to purge cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}. Acquia API error: ${status_error}"
+    elif [ "${task_completed}" = "0" ]; then
       note "Warning: Unable to purge cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
     fi
 

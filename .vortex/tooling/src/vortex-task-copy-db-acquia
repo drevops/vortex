@@ -55,12 +55,24 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 extract_json_last_value() {
   local key="${1}"
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=is_array(\$data) ? array_pop(\$data) : NULL; isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
 extract_json_value() {
   local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+}
+
+# The token endpoint puts the error detail in 'error_description', the Cloud
+# API puts it in 'message'.
+extract_json_error() {
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); if (!is_array(\$data) || empty(\$data['error'])) { exit(1); } \$detail=\$data['message'] ?? \$data['error_description'] ?? \$data['error']; print is_string(\$detail) ? \$detail : json_encode(\$detail, JSON_UNESCAPED_SLASHES);"
+}
+
+fail_on_api_error() {
+  local error
+  error=$(echo "${1}" | extract_json_error) || return 0
+  fail "${2} Acquia API error: ${error}"
 }
 
 for cmd in php curl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
@@ -80,11 +92,9 @@ task "Retrieving authentication token."
 token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_COPY_DB_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_COPY_DB_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Token API response received (token redacted)."
 
-if echo "${token_json}" | grep -q '"error"'; then
-  fail "Authentication failed. Check VORTEX_TASK_COPY_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_COPY_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: ${token_json}"
-fi
+fail_on_api_error "${token_json}" "Authentication failed. Check VORTEX_TASK_COPY_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_COPY_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
 
-token=$(echo "${token_json}" | extract_json_value "access_token")
+token=$(echo "${token_json}" | extract_json_value "access_token" || true)
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Access token extracted (value redacted)."
 [ -z "${token}" ] && fail "Unable to retrieve a token. API response: ${token_json}"
 pass "Retrieved authentication token."
@@ -93,11 +103,13 @@ task "Retrieving ${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME} application UUID."
 app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME/ /%20}")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Application API response: ${app_uuid_json}"
 
+fail_on_api_error "${app_uuid_json}" "Unable to retrieve ${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME} application UUID."
+
 if echo "${app_uuid_json}" | grep -q '"items":\[\]'; then
   fail "Application \"${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME}\" not found. Check application name and access permissions."
 fi
 
-app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
+app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid" || true)
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted app UUID: ${app_uuid}"
 [ -z "${app_uuid}" ] && fail "Unable to retrieve an application UUID for \"${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME}\". API response: ${app_uuid_json}"
 pass "Retrieved ${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME} application UUID."
@@ -106,11 +118,13 @@ task "Retrieving source environment ID."
 envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_TASK_COPY_DB_ACQUIA_SRC}")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Environments API response: ${envs_json}"
 
+fail_on_api_error "${envs_json}" "Unable to retrieve source environment ID."
+
 if echo "${envs_json}" | grep -q '"items":\[\]'; then
   fail "Environment \"${VORTEX_TASK_COPY_DB_ACQUIA_SRC}\" not found in application \"${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME}\". Check environment name."
 fi
 
-src_env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
+src_env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id" || true)
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted source environment ID: ${src_env_id}"
 [ -z "${src_env_id}" ] && fail "Unable to retrieve source environment ID for \"${VORTEX_TASK_COPY_DB_ACQUIA_SRC}\". API response: ${envs_json}"
 pass "Retrieved source environment ID."
@@ -119,43 +133,51 @@ task "Retrieving destination environment ID."
 envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_TASK_COPY_DB_ACQUIA_DST}")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Environments API response: ${envs_json}"
 
+fail_on_api_error "${envs_json}" "Unable to retrieve destination environment ID."
+
 if echo "${envs_json}" | grep -q '"items":\[\]'; then
   fail "Environment \"${VORTEX_TASK_COPY_DB_ACQUIA_DST}\" not found in application \"${VORTEX_TASK_COPY_DB_ACQUIA_APP_NAME}\". Check environment name."
 fi
 
-dst_env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id")
+dst_env_id=$(echo "${envs_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "id" || true)
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted destination environment ID: ${dst_env_id}"
 [ -z "${dst_env_id}" ] && fail "Unable to retrieve destination environment ID for \"${VORTEX_TASK_COPY_DB_ACQUIA_DST}\". API response: ${envs_json}"
 pass "Retrieved destination environment ID."
 
 task "Copying database from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment."
 task_status_json=$(curl -X POST -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" -H "Content-Type: application/json" -d "{\"source\":\"${src_env_id}\", \"name\":\"${VORTEX_TASK_COPY_DB_ACQUIA_NAME}\"}" "https://cloud.acquia.com/api/environments/${dst_env_id}/databases")
-notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href")
+fail_on_api_error "${task_status_json}" "Unable to copy database from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment."
+notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | extract_json_value "notification" | extract_json_value "href" || true)
+[ -z "${notification_url}" ] && fail "Unable to copy database from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment. API response: ${task_status_json}"
 
 printf "       Checking task status: "
 task_completed=0
+status_error=""
 # shellcheck disable=SC2034
 for i in $(seq 1 "${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES}"); do
   echo -n "."
   sleep "${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL}"
   task_status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "${notification_url}")
-  task_state=$(echo "${task_status_json}" | extract_json_value "status")
+  task_state=$(echo "${task_status_json}" | extract_json_value "status" || true)
   [ "${task_state}" = "completed" ] && task_completed=1 && break
+
+  status_error=$(echo "${task_status_json}" | extract_json_error || true)
+  [ -n "${status_error}" ] && break
 
   token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_COPY_DB_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_COPY_DB_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Token API response received (token redacted)."
 
-  if echo "${token_json}" | grep -q '"error"'; then
-    fail "Authentication failed. Check VORTEX_TASK_COPY_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_COPY_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: ${token_json}"
-  fi
+  fail_on_api_error "${token_json}" "Authentication failed. Check VORTEX_TASK_COPY_DB_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_COPY_DB_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
 
-  token=$(echo "${token_json}" | extract_json_value "access_token")
+  token=$(echo "${token_json}" | extract_json_value "access_token" || true)
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Access token extracted (value redacted)."
   [ -z "${token}" ] && fail "Unable to retrieve a token. API response: ${token_json}"
   note "Refreshed authentication token."
 done
 
 echo
+
+[ -n "${status_error}" ] && fail "Unable to copy database from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment. Acquia API error: ${status_error}"
 
 if [ "${task_completed}" = "0" ]; then
   fail "Unable to copy database from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment."

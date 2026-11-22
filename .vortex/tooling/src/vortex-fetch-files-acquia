@@ -70,12 +70,24 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 extract_json_last_value() {
   local key="${1}"
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=array_pop(\$data); isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$last=is_array(\$data) ? array_pop(\$data) : NULL; isset(\$last[\"${key}\"]) ? print trim(json_encode(\$last[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
 extract_json_value() {
   local key="${1}"
   php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); isset(\$data[\"${key}\"]) ? print trim(json_encode(\$data[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+}
+
+# The token endpoint puts the error detail in 'error_description', the Cloud
+# API puts it in 'message'.
+extract_json_error() {
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); if (!is_array(\$data) || empty(\$data['error'])) { exit(1); } \$detail=\$data['message'] ?? \$data['error_description'] ?? \$data['error']; print is_string(\$detail) ? \$detail : json_encode(\$detail, JSON_UNESCAPED_SLASHES);"
+}
+
+fail_on_api_error() {
+  local error
+  error=$(echo "${1}" | extract_json_error) || return 0
+  fail "${2} Acquia API error: ${error}"
 }
 
 for cmd in php curl ssh rsync; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
@@ -91,11 +103,9 @@ task "Retrieving authentication token."
 token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_FETCH_FILES_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_FETCH_FILES_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Token API response received (token redacted)."
 
-if echo "${token_json}" | grep -q '"error"'; then
-  fail "Authentication failed. Check VORTEX_FETCH_FILES_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_FETCH_FILES_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: ${token_json}"
-fi
+fail_on_api_error "${token_json}" "Authentication failed. Check VORTEX_FETCH_FILES_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_FETCH_FILES_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET."
 
-token=$(echo "${token_json}" | extract_json_value "access_token")
+token=$(echo "${token_json}" | extract_json_value "access_token" || true)
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Access token extracted (value redacted)."
 [ -z "${token}" ] && fail "Unable to retrieve a token. API response: ${token_json}"
 pass "Retrieved authentication token."
@@ -104,11 +114,13 @@ task "Retrieving ${VORTEX_FETCH_FILES_ACQUIA_APP_NAME} application UUID."
 app_uuid_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications?filter=name%3D${VORTEX_FETCH_FILES_ACQUIA_APP_NAME/ /%20}")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Application API response: ${app_uuid_json}"
 
+fail_on_api_error "${app_uuid_json}" "Unable to retrieve ${VORTEX_FETCH_FILES_ACQUIA_APP_NAME} application UUID."
+
 if echo "${app_uuid_json}" | grep -q '"items":\[\]'; then
   fail "Application \"${VORTEX_FETCH_FILES_ACQUIA_APP_NAME}\" not found. Check application name and access permissions."
 fi
 
-app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid")
+app_uuid=$(echo "${app_uuid_json}" | extract_json_value "_embedded" | extract_json_value "items" | extract_json_last_value "uuid" || true)
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Extracted app UUID: ${app_uuid}"
 [ -z "${app_uuid}" ] && fail "Unable to retrieve an application UUID for \"${VORTEX_FETCH_FILES_ACQUIA_APP_NAME}\". API response: ${app_uuid_json}"
 pass "Retrieved ${VORTEX_FETCH_FILES_ACQUIA_APP_NAME} application UUID."
@@ -116,6 +128,8 @@ pass "Retrieved ${VORTEX_FETCH_FILES_ACQUIA_APP_NAME} application UUID."
 task "Retrieving ${VORTEX_FETCH_FILES_ENVIRONMENT} environment SSH address."
 envs_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "https://cloud.acquia.com/api/applications/${app_uuid}/environments?filter=name%3D${VORTEX_FETCH_FILES_ENVIRONMENT}")
 [ "${VORTEX_DEBUG-}" = "1" ] && note "Environments API response: ${envs_json}"
+
+fail_on_api_error "${envs_json}" "Unable to retrieve ${VORTEX_FETCH_FILES_ENVIRONMENT} environment SSH address."
 
 if echo "${envs_json}" | grep -q '"items":\[\]'; then
   fail "Environment \"${VORTEX_FETCH_FILES_ENVIRONMENT}\" not found in application \"${VORTEX_FETCH_FILES_ACQUIA_APP_NAME}\". Check environment name."

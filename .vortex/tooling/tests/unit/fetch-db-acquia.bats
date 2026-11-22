@@ -373,6 +373,99 @@ bats_require_minimum_version 1.5.0
   popd >/dev/null
 }
 
+@test "fetch-db-acquia: Application lookup fails with an API error response" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    "[INFO] Started database dump fetch from Acquia."
+
+    "Retrieving authentication token."
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token","expires_in":3600}'
+    "[ OK ] Retrieved authentication token."
+
+    "Retrieving testapp application UUID."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"error":"unauthorized","message":"User not found. Please try your request again. If the problem persists, contact Acquia Support. Request ID: v-123."}'
+    '[FAIL] Unable to retrieve testapp application UUID. Acquia API error: User not found. Please try your request again. If the problem persists, contact Acquia Support. Request ID: v-123.'
+
+    "- Fatal error"
+    "- TypeError"
+    "- Retrieving prod environment ID."
+  )
+
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-fetch-db-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null
+}
+
+@test "fetch-db-acquia: Application lookup fails with a non-JSON response" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token","expires_in":3600}'
+
+    "Retrieving testapp application UUID."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # Bad Gateway'
+    '[FAIL] Unable to retrieve an application UUID for "testapp". API response: Bad Gateway'
+
+    "- Fatal error"
+    "- TypeError"
+  )
+
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-fetch-db-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null
+}
+
+@test "fetch-db-acquia: Environment lookup fails with an API error response" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token","expires_in":3600}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123","name":"testapp"}]}}'
+
+    "Retrieving prod environment ID."
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"error":"forbidden","message":"You do not have permission to view environments."}'
+    '[FAIL] Unable to retrieve prod environment ID. Acquia API error: You do not have permission to view environments.'
+
+    "- Fatal error"
+    "- Discovering latest backup ID"
+  )
+
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-fetch-db-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null
+}
+
 @test "fetch-db-acquia: Database not found" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -397,7 +490,7 @@ bats_require_minimum_version 1.5.0
     '@curl --progress-bar -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/nonexistent-db/backups?sort=created # {"error":"Database not found","message":"The specified database does not exist"}'
 
     # Assert database not found failure message
-    '[FAIL] Database "nonexistent-db" not found in environment "prod". Check database name.'
+    '[FAIL] Unable to discover latest backup ID for database "nonexistent-db" in environment "prod". Check database name. Acquia API error: The specified database does not exist'
   )
 
   export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
@@ -675,6 +768,41 @@ bats_require_minimum_version 1.5.0
   popd >/dev/null
 }
 
+@test "fetch-db-acquia: Fresh backup status check fails with an API error" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token","expires_in":3600}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123","name":"testapp"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"_embedded":{"items":[{"id":"env-id-456","name":"prod"}]}}'
+    '@curl -s -L -X POST -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups # {"_links":{"notification":{"href":"https://cloud.acquia.com/api/notifications/notification-uuid-123"}}}'
+
+    "[TASK] Waiting for backup to complete."
+    '@sleep 10 # 0'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/notifications/notification-uuid-123 # {"error":"forbidden","message":"Access denied."}'
+    "[FAIL] Unable to check backup status. Acquia API error: Access denied."
+
+    "- Backup in progress"
+  )
+
+  export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
+  export VORTEX_FETCH_DB_ACQUIA_SECRET="test-secret"
+  export VORTEX_FETCH_DB_ACQUIA_APP_NAME="testapp"
+  export VORTEX_FETCH_DB_ENVIRONMENT="prod"
+  export VORTEX_FETCH_DB_ACQUIA_DB_NAME="testdb"
+  export VORTEX_FETCH_DB_ACQUIA_DB_DIR=".data"
+  export VORTEX_FETCH_DB_ACQUIA_DB_FILE="db.sql"
+  export VORTEX_FETCH_DB_FRESH="1"
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-fetch-db-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null
+}
+
 @test "fetch-db-acquia: Fresh backup times out" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
@@ -896,6 +1024,7 @@ bats_require_minimum_version 1.5.0
     # Mock backup URL curl call returning a JSON error body without a url key
     "Discovering backup URL."
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # {"message":"Resource not found"}'
+    '[FAIL] Unable to discover backup URL for backup ID "backup-id-789". API response: {"message":"Resource not found"}'
   )
 
   export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"
@@ -948,6 +1077,7 @@ bats_require_minimum_version 1.5.0
     # Mock backup URL curl call returning a non-JSON body
     "Discovering backup URL."
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/environments/env-id-456/databases/testdb/backups/backup-id-789/actions/download # Internal Server Error'
+    '[FAIL] Unable to discover backup URL for backup ID "backup-id-789". API response: Internal Server Error'
   )
 
   export VORTEX_FETCH_DB_ACQUIA_KEY="test-key"

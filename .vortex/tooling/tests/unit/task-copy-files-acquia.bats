@@ -114,13 +114,40 @@ setup_variables() {
   popd >/dev/null || exit 1
 }
 
+@test "task-copy-files-acquia: stops polling when the status check returns an API error" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token"}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Ddev # {"_embedded":{"items":[{"id":"src-env-id"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dtest # {"_embedded":{"items":[{"id":"dst-env-id"}]}}'
+    '@curl -X POST -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token -H Content-Type: application/json -d {"source":"src-env-id"} https://cloud.acquia.com/api/environments/dst-env-id/files # {"_links":{"notification":{"href":"https://cloud.acquia.com/api/notifications/notif-123"}}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/notifications/notif-123 # {"error":"forbidden","message":"Access denied."}'
+
+    "- Refreshed authentication token."
+    "[FAIL] Unable to copy files from dev to test environment. Acquia API error: Access denied."
+  )
+
+  setup_variables
+  export VORTEX_TASK_COPY_FILES_ACQUIA_STATUS_RETRIES="3"
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-task-copy-files-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null || exit 1
+}
+
 @test "task-copy-files-acquia: reports the rejected credentials" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
   declare -a STEPS=(
     "Retrieving authentication token."
     '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"error":"invalid_client"}'
-    '[FAIL] Authentication failed. Check VORTEX_TASK_COPY_FILES_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_COPY_FILES_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: {"error":"invalid_client"}'
+    '[FAIL] Authentication failed. Check VORTEX_TASK_COPY_FILES_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_COPY_FILES_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. Acquia API error: invalid_client'
   )
 
   setup_variables
@@ -141,6 +168,76 @@ setup_variables() {
     '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token"}'
     '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[]}}'
     '[FAIL] Application "testapp" not found. Check application name and access permissions.'
+  )
+
+  setup_variables
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-task-copy-files-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null || exit 1
+}
+
+@test "task-copy-files-acquia: reports an API error on the application lookup" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token"}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"error":"unauthorized","message":"User not found."}'
+    '[FAIL] Unable to retrieve testapp application UUID. Acquia API error: User not found.'
+    "- Fatal error"
+    "- Retrieving source environment ID."
+  )
+
+  setup_variables
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-task-copy-files-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null || exit 1
+}
+
+@test "task-copy-files-acquia: reports a rejected copy request" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token"}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Ddev # {"_embedded":{"items":[{"id":"src-env-id"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dtest # {"_embedded":{"items":[{"id":"dst-env-id"}]}}'
+    '@curl -X POST -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token -H Content-Type: application/json -d {"source":"src-env-id"} https://cloud.acquia.com/api/environments/dst-env-id/files # {"error":"forbidden","message":"You do not have permission to copy files."}'
+    '[FAIL] Unable to copy files from dev to test environment. Acquia API error: You do not have permission to copy files.'
+    "- Checking task status"
+  )
+
+  setup_variables
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-task-copy-files-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null || exit 1
+}
+
+@test "task-copy-files-acquia: reports a copy request response without a notification URL" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token"}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Ddev # {"_embedded":{"items":[{"id":"src-env-id"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dtest # {"_embedded":{"items":[{"id":"dst-env-id"}]}}'
+    '@curl -X POST -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token -H Content-Type: application/json -d {"source":"src-env-id"} https://cloud.acquia.com/api/environments/dst-env-id/files # Service Unavailable'
+    '[FAIL] Unable to copy files from dev to test environment. API response: Service Unavailable'
+    "- Checking task status"
   )
 
   setup_variables

@@ -166,6 +166,51 @@ export_required_variables() {
   popd >/dev/null
 }
 
+@test "fetch-files-acquia: Application lookup fails with an API error response" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token","expires_in":3600}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"error":"unauthorized","message":"User not found."}'
+    '[FAIL] Unable to retrieve testapp application UUID. Acquia API error: User not found.'
+    "- Fatal error"
+    "- Retrieving prod environment SSH address."
+  )
+
+  export_required_variables
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-fetch-files-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null
+}
+
+@test "fetch-files-acquia: Environment lookup fails with an API error response" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token","expires_in":3600}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123","name":"testapp"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"error":"forbidden","message":"You do not have permission to view environments."}'
+    '[FAIL] Unable to retrieve prod environment SSH address. Acquia API error: You do not have permission to view environments.'
+    "- Fatal error"
+    "- Fetching files from prod environment."
+  )
+
+  export_required_variables
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-fetch-files-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null
+}
+
 @test "fetch-files-acquia: Environment not found" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
