@@ -84,6 +84,11 @@ Errors fail the run and CI; warnings are advisory. Lint a single page with
 - `.vale.ini` selects the rules. The `Google` and `write-good` packages are
   pinned there by release URL and downloaded into the git-ignored part of
   `.vale/` by `vale sync`, which runs on `yarn install`.
+- `@vvago/vale` installs from a commit on the `AlexSkrypnyk/vale` fork. The
+  npm release downloads the Vale binary through the GitHub API without a
+  token and fails on the rate limit of shared CI runners; the fork sends
+  `GITHUB_TOKEN`, which the docs workflows set. Return to the npm release
+  as tracked in https://github.com/drevops/vortex/issues/3361.
 - `.vale/Vortex/` is the committed house style. A rule that adjusts an
   upstream rule inherits it with `extends: Google.<Rule>` and edits its
   lists with `exceptions+`, `tokens-` or `swap-`; the upstream rule is then
