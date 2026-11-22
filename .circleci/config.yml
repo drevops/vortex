@@ -911,6 +911,10 @@ workflows:
             branches:
               only:
                 - develop
+                #;< VORTEX_DEV
+                # Vortex has no 'develop' branch.
+                - main
+                #;> VORTEX_DEV
     jobs:
       - database-nightly
 
