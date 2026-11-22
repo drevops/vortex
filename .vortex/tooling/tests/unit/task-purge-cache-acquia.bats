@@ -250,7 +250,7 @@ run_purge() {
   declare -a STEPS=()
   steps_lookup "dev" '{"error":"not_found","message":"Domain names do not exist on non-hosted applications."}'
   STEPS+=(
-    '[FAIL] Unable to retrieve domains attached to dev environment. API response: {"error":"not_found","message":"Domain names do not exist on non-hosted applications."}'
+    '[FAIL] Unable to retrieve domains attached to dev environment. Acquia API error: Domain names do not exist on non-hosted applications.'
     "- Purging cache for"
   )
 
@@ -378,7 +378,7 @@ run_purge() {
   declare -a STEPS=(
     "Retrieving authentication token."
     '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"error":"invalid_client"}'
-    '[FAIL] Authentication failed. Check VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. API response: {"error":"invalid_client"}'
+    '[FAIL] Authentication failed. Check VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY or VORTEX_ACQUIA_KEY and VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET or VORTEX_ACQUIA_SECRET. Acquia API error: invalid_client'
   )
 
   export VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY="test-key"
@@ -412,6 +412,43 @@ run_purge() {
   mocks="$(steps_run "setup")"
   run .vortex/tooling/src/vortex-task-purge-cache-acquia
   steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null || exit 1
+}
+
+@test "task-purge-cache-acquia: reports an API error on the application lookup" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token"}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"error":"unauthorized","message":"User not found."}'
+    '[FAIL] Unable to retrieve testapp application UUID. Acquia API error: User not found.'
+    "- Fatal error"
+    "- Retrieving environment ID."
+  )
+
+  run_purge "prod"
+
+  assert_failure
+
+  popd >/dev/null || exit 1
+}
+
+@test "task-purge-cache-acquia: reports an API error on the environment lookup" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token"}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dprod # {"error":"forbidden","message":"You do not have permission to view environments."}'
+    '[FAIL] Unable to retrieve environment ID. Acquia API error: You do not have permission to view environments.'
+    "- Fatal error"
+    "- Retrieving domains attached to prod environment."
+  )
+
+  run_purge "prod"
 
   assert_failure
 
