@@ -255,3 +255,67 @@ Login: %login_url%"
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: jira, transition lookup with a non-JSON response" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" '{"accountId": "123456789020165700ede21g"}' 1
+  mock_set_output "${mock_curl}" '{"id": "1234"}' 2
+  mock_set_output "${mock_curl}" 'Bad Gateway' 3
+
+  export VORTEX_NOTIFY_CHANNELS="jira"
+  export VORTEX_NOTIFY_JIRA_USER_EMAIL="john.doe@example.com"
+  export VORTEX_NOTIFY_JIRA_TOKEN="token12345"
+  export VORTEX_NOTIFY_JIRA_PROJECT="PROJ"
+  export VORTEX_NOTIFY_BRANCH="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOGIN_URL="https://develop.testproject.com/user/login"
+  export VORTEX_NOTIFY_JIRA_TRANSITION="QA"
+  export VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL=""
+
+  run .vortex/tooling/src/vortex-notify
+  assert_failure
+
+  assert_output_contains "Unable to retrieve transition ID."
+  assert_output_not_contains "Fatal error"
+  assert_output_not_contains "Transitioned issue to QA"
+  assert_equal "3" "$(mock_get_call_num "${mock_curl}")"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: jira, assignee lookup with a non-JSON response" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  mock_curl=$(mock_command "curl")
+  mock_set_output "${mock_curl}" '{"accountId": "123456789020165700ede21g"}' 1
+  mock_set_output "${mock_curl}" '{"id": "1234"}' 2
+  mock_set_output "${mock_curl}" 'Bad Gateway' 3
+
+  export VORTEX_NOTIFY_CHANNELS="jira"
+  export VORTEX_NOTIFY_JIRA_USER_EMAIL="john.doe@example.com"
+  export VORTEX_NOTIFY_JIRA_TOKEN="token12345"
+  export VORTEX_NOTIFY_JIRA_PROJECT="PROJ"
+  export VORTEX_NOTIFY_BRANCH="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="feature/proj-1234-some-description"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  export VORTEX_NOTIFY_LOGIN_URL="https://develop.testproject.com/user/login"
+  export VORTEX_NOTIFY_JIRA_TRANSITION=""
+  export VORTEX_NOTIFY_JIRA_ASSIGNEE_EMAIL="jane.doe@example.com"
+
+  run .vortex/tooling/src/vortex-notify
+  assert_failure
+
+  assert_output_contains "Unable to retrieve assignee account ID."
+  assert_output_not_contains "Fatal error"
+  assert_output_not_contains "Assigned issue to jane.doe@example.com"
+
+  # The assignee update must not be sent with an invalid account ID.
+  assert_equal "3" "$(mock_get_call_num "${mock_curl}")"
+
+  popd >/dev/null || exit 1
+}

@@ -330,3 +330,61 @@ load ../_helper.bash
 
   popd >/dev/null || exit 1
 }
+
+@test "Notify: github, post_deployment, failure to get id from a non-JSON response" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    "Started GitHub notification for post_deployment event."
+    "@curl -X GET -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments?ref=existingbranch # Bad Gateway"
+    "Unable to get a deployment ID for a post_deployment operation. Payload: Bad Gateway"
+    "- Fatal error"
+    "- Marked deployment as finished."
+  )
+  mocks="$(steps_run "setup")"
+
+  export VORTEX_NOTIFY_CHANNELS="github"
+  export VORTEX_NOTIFY_EVENT="post_deployment"
+  export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
+  export VORTEX_NOTIFY_GITHUB_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="existingbranch"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="existingbranch"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  run .vortex/tooling/src/vortex-notify
+  assert_failure
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
+
+@test "Notify: github, post_deployment, failure to set status with an error response" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  app_id="12345678987"
+
+  declare -a STEPS=(
+    "Started GitHub notification for post_deployment event."
+    "@curl -X GET -H Authorization: token token12345 -H Accept: application/vnd.github.v3+json -s https://api.github.com/repos/myorg/myrepo/deployments?ref=existingbranch # [{\"id\": \"${app_id}\"}]"
+    "@curl -X POST -H Accept: application/vnd.github.v3+json -H Authorization: token token12345 https://api.github.com/repos/myorg/myrepo/deployments/${app_id}/statuses -s -d {\"state\":\"success\",\"environment_url\":\"https://develop.testproject.com\"} # {\"message\": \"Validation Failed\"}"
+    'Previous deployment was found, but was unable to update the deployment status. Payload: {"message": "Validation Failed"}'
+    "- Marked deployment as finished."
+  )
+  mocks="$(steps_run "setup")"
+
+  export VORTEX_NOTIFY_CHANNELS="github"
+  export VORTEX_NOTIFY_EVENT="post_deployment"
+  export VORTEX_NOTIFY_GITHUB_TOKEN="token12345"
+  export VORTEX_NOTIFY_GITHUB_REPOSITORY="myorg/myrepo"
+  export VORTEX_NOTIFY_BRANCH="existingbranch"
+  export VORTEX_NOTIFY_SHA="abc123def456"
+  export VORTEX_NOTIFY_LABEL="existingbranch"
+  export VORTEX_NOTIFY_ENVIRONMENT_URL="https://develop.testproject.com"
+  run .vortex/tooling/src/vortex-notify
+  assert_failure
+
+  steps_run "assert" "${mocks[@]}"
+
+  popd >/dev/null || exit 1
+}
