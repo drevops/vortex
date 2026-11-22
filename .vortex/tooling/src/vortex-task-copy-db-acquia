@@ -152,6 +152,7 @@ notification_url=$(echo "${task_status_json}" | extract_json_value "_links" | ex
 
 printf "       Checking task status: "
 task_completed=0
+status_error=""
 # shellcheck disable=SC2034
 for i in $(seq 1 "${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES}"); do
   echo -n "."
@@ -159,6 +160,9 @@ for i in $(seq 1 "${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES}"); do
   task_status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "${notification_url}")
   task_state=$(echo "${task_status_json}" | extract_json_value "status" || true)
   [ "${task_state}" = "completed" ] && task_completed=1 && break
+
+  status_error=$(echo "${task_status_json}" | extract_json_error || true)
+  [ -n "${status_error}" ] && break
 
   token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_COPY_DB_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_COPY_DB_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
   [ "${VORTEX_DEBUG-}" = "1" ] && note "Token API response received (token redacted)."
@@ -172,6 +176,8 @@ for i in $(seq 1 "${VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES}"); do
 done
 
 echo
+
+[ -n "${status_error}" ] && fail "Unable to copy database from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment. Acquia API error: ${status_error}"
 
 if [ "${task_completed}" = "0" ]; then
   fail "Unable to copy database from ${VORTEX_TASK_COPY_DB_ACQUIA_SRC} to ${VORTEX_TASK_COPY_DB_ACQUIA_DST} environment."

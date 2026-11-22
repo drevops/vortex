@@ -194,6 +194,7 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
 
     printf "       Checking task status: "
     task_completed=0
+    status_error=""
     # shellcheck disable=SC2034
     for i in $(seq 1 "${VORTEX_TASK_PURGE_CACHE_ACQUIA_STATUS_RETRIES}"); do
       echo -n "."
@@ -205,6 +206,9 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
         task_completed=1
         break 1
       fi
+
+      status_error=$(echo "${task_status_json}" | extract_json_error || true)
+      [ -n "${status_error}" ] && break 1
 
       token_json=$(curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode "client_id=${VORTEX_TASK_PURGE_CACHE_ACQUIA_KEY}" --data-urlencode "client_secret=${VORTEX_TASK_PURGE_CACHE_ACQUIA_SECRET}" --data-urlencode "grant_type=client_credentials")
       [ "${VORTEX_DEBUG-}" = "1" ] && note "Token API response received (token redacted)."
@@ -218,7 +222,9 @@ if [ "${#domain_list[@]}" -gt 0 ]; then
     done
     echo
 
-    if [ "${task_completed}" = "0" ]; then
+    if [ -n "${status_error}" ]; then
+      note "Warning: Unable to purge cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}. Acquia API error: ${status_error}"
+    elif [ "${task_completed}" = "0" ]; then
       note "Warning: Unable to purge cache for ${VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV} environment domain ${domain}."
     fi
 

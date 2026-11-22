@@ -188,6 +188,8 @@ if [ "${VORTEX_FETCH_DB_FRESH}" = "1" ]; then
     status_json=$(curl -s -L -H 'Accept: application/json, version=2' -H "Authorization: Bearer ${token}" "${notification_url}")
     [ "${VORTEX_DEBUG-}" = "1" ] && note "Status check (${elapsed}s): ${status_json}"
 
+    fail_on_api_error "${status_json}" "Unable to check backup status."
+
     status=$(echo "${status_json}" | extract_json_value "status" || true)
 
     if [ "${status}" = "completed" ]; then

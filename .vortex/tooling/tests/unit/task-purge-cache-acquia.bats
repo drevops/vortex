@@ -244,6 +244,33 @@ run_purge() {
   popd >/dev/null || exit 1
 }
 
+@test "task-purge-cache-acquia: continues with the next domain when the status check returns an API error" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=()
+  steps_lookup "dev" "$(domains_json "dev.example.com" "dev.other.example")"
+  STEPS+=(
+    "[ OK ] Retrieved 2 domains attached to dev environment."
+
+    "Purging cache for dev environment domain dev.example.com."
+    '@curl -X POST -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token -H Content-Type: application/json -d {"domains":["dev.example.com"]} https://cloud.acquia.com/api/environments/env-id-456/actions/clear-caches # {"_links":{"notification":{"href":"https://cloud.acquia.com/api/notifications/notif-123"}}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/notifications/notif-123 # {"error":"forbidden","message":"Access denied."}'
+    "- Refreshed authentication token."
+    "Warning: Unable to purge cache for dev environment domain dev.example.com. Acquia API error: Access denied."
+    "[ OK ] Completed cache purging for dev environment domain dev.example.com."
+  )
+  steps_purge "dev" "dev.other.example"
+  STEPS+=(
+    "[ OK ] Finished cache purging in Acquia."
+  )
+
+  run_purge "dev"
+
+  assert_success
+
+  popd >/dev/null || exit 1
+}
+
 @test "task-purge-cache-acquia: reports the failed domain lookup" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

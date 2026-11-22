@@ -115,6 +115,33 @@ setup_variables() {
   popd >/dev/null || exit 1
 }
 
+@test "task-copy-db-acquia: stops polling when the status check returns an API error" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  declare -a STEPS=(
+    '@curl -s -L https://accounts.acquia.com/api/auth/oauth/token --data-urlencode client_id=test-key --data-urlencode client_secret=test-secret --data-urlencode grant_type=client_credentials # {"access_token":"test-token"}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications?filter=name%3Dtestapp # {"_embedded":{"items":[{"uuid":"app-uuid-123"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Ddev # {"_embedded":{"items":[{"id":"src-env-id"}]}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/applications/app-uuid-123/environments?filter=name%3Dtest # {"_embedded":{"items":[{"id":"dst-env-id"}]}}'
+    '@curl -X POST -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token -H Content-Type: application/json -d {"source":"src-env-id", "name":"testdb"} https://cloud.acquia.com/api/environments/dst-env-id/databases # {"_links":{"notification":{"href":"https://cloud.acquia.com/api/notifications/notif-123"}}}'
+    '@curl -s -L -H Accept: application/json, version=2 -H Authorization: Bearer test-token https://cloud.acquia.com/api/notifications/notif-123 # {"error":"forbidden","message":"Access denied."}'
+
+    "- Refreshed authentication token."
+    "[FAIL] Unable to copy database from dev to test environment. Acquia API error: Access denied."
+  )
+
+  setup_variables
+  export VORTEX_TASK_COPY_DB_ACQUIA_STATUS_RETRIES="3"
+
+  mocks="$(steps_run "setup")"
+  run .vortex/tooling/src/vortex-task-copy-db-acquia
+  steps_run "assert" "${mocks[@]}"
+
+  assert_failure
+
+  popd >/dev/null || exit 1
+}
+
 @test "task-copy-db-acquia: reports the rejected credentials" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
