@@ -66,7 +66,7 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 
 extract_json_first_value() {
   local key="${1}"
-  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$first=reset(\$data); isset(\$first[\"${key}\"]) ? print trim(json_encode(\$first[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
+  php -r "\$data=json_decode(file_get_contents('php://stdin'), TRUE); \$first=is_array(\$data) ? reset(\$data) : NULL; isset(\$first[\"${key}\"]) ? print trim(json_encode(\$first[\"${key}\"], JSON_UNESCAPED_SLASHES), '\"') : exit(1);"
 }
 
 extract_json_value() {
@@ -164,7 +164,7 @@ echo json_encode([
     -s \
     -d "${body}")"
 
-  status="$(echo "${payload}" | extract_json_value "state")"
+  status="$(echo "${payload}" | extract_json_value "state" || true)"
 
   if [ "${status}" != "success" ]; then
     fail "Previous deployment was found, but was unable to update the deployment status. Payload: ${payload}"
