@@ -4964,9 +4964,9 @@
     d3-selection "^3.0.0"
     d3-transition "^3.0.1"
 
-"@vvago/vale@github:AlexSkrypnyk/vale#536b60e95bc4bdcc55ce5f544616507dd7fb901c":
+"@vvago/vale@github:AlexSkrypnyk/vale#65f81740d2b062a6167aa28f7e78c14062ad7452":
   version "3.25.1"
-  resolved "https://codeload.github.com/AlexSkrypnyk/vale/tar.gz/536b60e95bc4bdcc55ce5f544616507dd7fb901c"
+  resolved "https://codeload.github.com/AlexSkrypnyk/vale/tar.gz/65f81740d2b062a6167aa28f7e78c14062ad7452"
   dependencies:
     fs-extra "^11.4.0"
     tar "^7.5.15"

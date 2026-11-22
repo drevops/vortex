@@ -86,8 +86,9 @@ Errors fail the run and CI; warnings are advisory. Lint a single page with
   `.vale/` by `vale sync`, which runs on `yarn install`.
 - `@vvago/vale` installs from a commit on the `AlexSkrypnyk/vale` fork. The
   npm release downloads the Vale binary through the GitHub API without a
-  token and fails on shared CI runners; the fork uses the public release
-  URL. Return to the npm release once `zeropaper/vale` ships that fix.
+  token and fails on the rate limit of shared CI runners; the fork sends
+  `GITHUB_TOKEN`, which the docs workflows set. Return to the npm release
+  once `zeropaper/vale` ships that change.
 - `.vale/Vortex/` is the committed house style. A rule that adjusts an
   upstream rule inherits it with `extends: Google.<Rule>` and edits its
   lists with `exceptions+`, `tokens-` or `swap-`; the upstream rule is then

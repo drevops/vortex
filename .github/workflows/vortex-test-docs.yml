@@ -34,6 +34,7 @@ jobs:
       OTHER_MAJOR: ${{ (vars.VORTEX_CURRENT_MAJOR || '1') == '1' && '2' || '1' }}
       # Fork pull requests do not receive secrets, so they are not deployed.
       NETLIFY_DEPLOY: ${{ secrets.DOCS_NETLIFY_AUTH_TOKEN != '' }}
+      GITHUB_TOKEN: ${{ github.token }}
 
     steps:
       - name: Checkout code
