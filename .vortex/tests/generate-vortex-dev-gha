@@ -10,8 +10,9 @@ declare(strict_types=1);
  * GitHub Actions workflow and assembles them into DIDI variant jobs in a
  * single test workflow.
  *
- * Also fails when the steps of the 'database' job in refresh-database.yml
- * differ from the ones in build-test-deploy.yml, as the nightly job is a copy.
+ * Also fails when the steps of the 'refresh-database' job in
+ * refresh-database.yml differ from the ones of the 'database' job in
+ * build-test-deploy.yml, as the nightly job is a copy.
  *
  * Usage:
  *   php .vortex/tests/generate-vortex-dev-gha         # Generate
@@ -32,11 +33,11 @@ $nightly_lines = read_lines($root_dir . '/.github/workflows/refresh-database.yml
 $settings = extract_settings($lines);
 $database_job = extract_workflow_job($lines, '/^  database:/');
 $build_job = extract_workflow_job($lines, '/^  build:/');
-$nightly_database_job = extract_workflow_job($nightly_lines, '/^  database:/');
+$nightly_database_job = extract_workflow_job($nightly_lines, '/^  refresh-database:/');
 $db_image_base = extract_container_env_value(explode("\n", $nightly_database_job), 'VORTEX_DB_IMAGE_BASE');
 
 if (extract_steps($database_job) !== extract_steps($nightly_database_job)) {
-  fwrite(STDERR, "Error: The steps of the 'database' job differ between .github/workflows/build-test-deploy.yml and .github/workflows/refresh-database.yml.\n");
+  fwrite(STDERR, "Error: The steps of the 'database' job in .github/workflows/build-test-deploy.yml and the 'refresh-database' job in .github/workflows/refresh-database.yml differ.\n");
   exit(1);
 }
 

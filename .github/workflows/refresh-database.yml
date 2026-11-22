@@ -4,8 +4,9 @@
 # next day. Also pushes it to the database store and destinations when they
 # are set. Run it manually to refresh the database on demand.
 #
-# The 'database' job is a copy of the 'database' job in build-test-deploy.yml
-# with the refresh variables set. Keep their steps identical.
+# The 'refresh-database' job is a copy of the 'database' job in
+# build-test-deploy.yml with the refresh variables set. Keep their steps
+# identical.
 #;
 #; Comments starting with '#;<' and '#;>' are internal Vortex comments
 #; and will be removed during installation or update of Vortex.
@@ -30,7 +31,7 @@ permissions:
   contents: read
 
 jobs:
-  database:
+  refresh-database:
     runs-on: ubuntu-latest
 
     container:

@@ -730,8 +730,8 @@ To pin the host keys:
      The shipped workflow doesn't pass it to the jobs. Add
      `VORTEX_SSH_KNOWN_HOSTS: ${{ vars.VORTEX_SSH_KNOWN_HOSTS }}` to the
      `container.env` block of the `database`, `build` and `deploy` jobs in
-     `.github/workflows/build-test-deploy.yml` and the `database` job in
-     `.github/workflows/refresh-database.yml`, next to
+     `.github/workflows/build-test-deploy.yml` and the `refresh-database`
+     job in `.github/workflows/refresh-database.yml`, next to
      `VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING`.
    - On CircleCI, add it as an environment variable, with multiple entries
      joined with `\n`.

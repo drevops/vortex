@@ -31,7 +31,7 @@ $lines = explode("\n", $content);
 $aliases = extract_aliases($lines);
 $database_job = extract_job($lines, '/^  database: &job-database/');
 $build_job = extract_job($lines, '/^  build: &job_build/');
-$database_nightly_job = extract_job($lines, '/^  database-nightly:/');
+$database_nightly_job = extract_job($lines, '/^  refresh-database:/');
 $db_image_base = extract_env_value(explode("\n", $database_nightly_job), 'VORTEX_DB_IMAGE_BASE');
 
 $output = implode("\n", [
