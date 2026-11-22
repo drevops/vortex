@@ -507,7 +507,7 @@ trait SubtestAhoyTrait {
 
     $this->logSubstep('Assert that debug calls in custom code fail BE lint as errors');
     $module_file = $webroot . '/modules/custom/sw_base/sw_base.deploy.php';
-    $theme_file = $webroot . '/themes/custom/star_wars/star_wars.theme';
+    $theme_file = $webroot . '/themes/custom/star_wars/src/Hook/StarWarsHooks.php';
     $this->fileAppend($module_file, "\nvar_dump(1);\nprint_r(1);\ndump(1);\ndpm(1);\nkint(1);\n");
     $this->fileAppend($theme_file, "\nvar_dump(1);\n");
     $this->syncToContainer([$module_file, $theme_file]);
@@ -516,7 +516,7 @@ trait SubtestAhoyTrait {
     // prove the ruleset extends that list instead of replacing it.
     $this->cmdFail('ahoy lint-be', [
       '* sw_base.deploy.php',
-      '* star_wars.theme',
+      '* StarWarsHooks.php',
       '* The use of function var_dump() is forbidden',
       '* The use of function print_r() is forbidden',
       '* The use of function dump() is forbidden',
