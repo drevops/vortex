@@ -9,7 +9,7 @@
 #;
 #; Comments starting with '#;<' and '#;>' are internal Vortex comments
 #; and will be removed during installation or update of Vortex.
-name: Database nightly
+name: Refresh database
 
 on:
   schedule:

@@ -10,7 +10,7 @@ declare(strict_types=1);
  * GitHub Actions workflow and assembles them into DIDI variant jobs in a
  * single test workflow.
  *
- * Also fails when the steps of the 'database' job in database-nightly.yml
+ * Also fails when the steps of the 'database' job in refresh-database.yml
  * differ from the ones in build-test-deploy.yml, as the nightly job is a copy.
  *
  * Usage:
@@ -27,7 +27,7 @@ $root_dir = dirname(__DIR__, 2);
 $output_file = $root_dir . '/.github/workflows/vortex-test-didi.yml';
 
 $lines = read_lines($root_dir . '/.github/workflows/build-test-deploy.yml');
-$nightly_lines = read_lines($root_dir . '/.github/workflows/database-nightly.yml');
+$nightly_lines = read_lines($root_dir . '/.github/workflows/refresh-database.yml');
 
 $settings = extract_settings($lines);
 $database_job = extract_workflow_job($lines, '/^  database:/');
@@ -36,7 +36,7 @@ $nightly_database_job = extract_workflow_job($nightly_lines, '/^  database:/');
 $db_image_base = extract_container_env_value(explode("\n", $nightly_database_job), 'VORTEX_DB_IMAGE_BASE');
 
 if (extract_steps($database_job) !== extract_steps($nightly_database_job)) {
-  fwrite(STDERR, "Error: The steps of the 'database' job differ between .github/workflows/build-test-deploy.yml and .github/workflows/database-nightly.yml.\n");
+  fwrite(STDERR, "Error: The steps of the 'database' job differ between .github/workflows/build-test-deploy.yml and .github/workflows/refresh-database.yml.\n");
   exit(1);
 }
 
