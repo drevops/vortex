@@ -52,7 +52,7 @@
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.0.0",
-    "@vvago/vale": "^3.22.0",
+    "@vvago/vale": "github:AlexSkrypnyk/vale#8b7b77ff4039e92a4cb1be39b954dec31605f389",
     "babel-jest": "^30.5.2",
     "cspell": "^9.8.0",
     "eslint": "^9.39.4",
