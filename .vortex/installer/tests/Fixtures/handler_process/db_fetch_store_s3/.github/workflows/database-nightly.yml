@@ -1,9 +1,0 @@
-@@ -52,6 +52,8 @@
-         VORTEX_FRONTEND_BUILD_SKIP: 1
-         # Push the sanitized database dump to the database store and destinations.
-         VORTEX_PUSH_DB_PROCEED: 1
-+        VORTEX_FETCH_DB_S3_ACCESS_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_ACCESS_KEY }}
-+        VORTEX_FETCH_DB_S3_SECRET_KEY: ${{ secrets.VORTEX_FETCH_DB_S3_SECRET_KEY }}
- 
-     steps:
-       # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
