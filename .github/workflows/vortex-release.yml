@@ -208,11 +208,8 @@ jobs:
           git diff --quiet HEAD || { echo "Docs not up-to-date. Run 'cd .vortex && ahoy update-docs' and commit changes."; git diff; exit 1; }
         working-directory: .vortex/docs
 
-      # The '@vvago/vale' postinstall downloads its binary through the GitHub
-      # API without a token, so it fails on the shared per-IP rate limit. This
-      # job does not run Vale.
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
+        run: yarn install --frozen-lockfile
         working-directory: .vortex/docs
 
       # Production (GitHub Pages) serves the same combined site that
@@ -234,6 +231,7 @@ jobs:
           sudo curl -sSL "https://github.com/asciinema/asciinema/releases/download/${ASCIINEMA_VERSION}/asciinema-x86_64-unknown-linux-gnu" -o /usr/local/bin/asciinema
           echo "${ASCIINEMA_SHA256}  /usr/local/bin/asciinema" | sha256sum --check --strict
           sudo chmod +x /usr/local/bin/asciinema
+          yarn install --frozen-lockfile
           php .utils/update-videos.php installer
         working-directory: .vortex/docs
 

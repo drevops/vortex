@@ -86,7 +86,7 @@ jobs:
           sudo curl -sSL "https://github.com/asciinema/asciinema/releases/download/${ASCIINEMA_VERSION}/asciinema-x86_64-unknown-linux-gnu" -o /usr/local/bin/asciinema
           echo "${ASCIINEMA_SHA256}  /usr/local/bin/asciinema" | sha256sum --check --strict
           sudo chmod +x /usr/local/bin/asciinema
-          yarn install --frozen-lockfile --ignore-scripts
+          yarn install --frozen-lockfile
           php .utils/update-videos.php installer
         working-directory: .vortex/docs
 

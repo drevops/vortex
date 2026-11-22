@@ -112,9 +112,7 @@ rsync -a \
   --exclude '/.logs' \
   "${DOCS_DIR}/" "${COMBINED_DIR}/"
 
-# The build needs no install scripts, and the '@vvago/vale' one downloads
-# through the rate-limited GitHub API.
-yarn --cwd="${COMBINED_DIR}" install --frozen-lockfile --ignore-scripts
+yarn --cwd="${COMBINED_DIR}" install --frozen-lockfile
 
 # Snapshot the current major, whose assets stay at the bare static root.
 populate "${COMBINED_DIR}/content" content "${default_ref}"

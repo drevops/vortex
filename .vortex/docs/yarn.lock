@@ -4964,10 +4964,9 @@
     d3-selection "^3.0.0"
     d3-transition "^3.0.1"
 
-"@vvago/vale@^3.22.0":
+"@vvago/vale@github:AlexSkrypnyk/vale#536b60e95bc4bdcc55ce5f544616507dd7fb901c":
   version "3.25.1"
-  resolved "https://registry.yarnpkg.com/@vvago/vale/-/vale-3.25.1.tgz#850567ce374ecc77fad74961754abd7f86d45cf8"
-  integrity sha512-fD0xio58t+dEGpRmILZT3t36H2J3iq0Vw88NYIvxPP51GWzp+miag/rI7F3td0/9YZnlWnd8QoyR3n8PbiuJfw==
+  resolved "https://codeload.github.com/AlexSkrypnyk/vale/tar.gz/536b60e95bc4bdcc55ce5f544616507dd7fb901c"
   dependencies:
     fs-extra "^11.4.0"
     tar "^7.5.15"

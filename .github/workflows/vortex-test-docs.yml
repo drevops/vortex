@@ -77,29 +77,8 @@ jobs:
           git diff --quiet HEAD || { echo "Docs not up-to-date. Run 'cd .vortex && ahoy update-docs' and commit changes."; git diff; exit 1; }
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
-      # The '@vvago/vale' postinstall downloads its binary through the GitHub
-      # API without a token, so it fails on the shared per-IP rate limit.
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
-        working-directory: '${{ github.workspace }}/.vortex/docs'
-
-      # Extract into the directory the '@vvago/vale' launcher runs the binary
-      # from, so 'yarn' scripts and tests use it unchanged.
-      - name: Install Vale
-        env:
-          VALE_VERSION: 3.25.1
-          VALE_SHA256: 4bf5c5176b682b1da0830f471584d3494f1c2e27ee3029e1ad6f6661d4962182
-        run: |
-          locked="$(node -p "require('./node_modules/@vvago/vale/package.json').version")"
-          if [ "${locked%%-*}" != "${VALE_VERSION}" ]; then
-            echo "VALE_VERSION ${VALE_VERSION} does not match the locked '@vvago/vale' ${locked}. Update VALE_VERSION and VALE_SHA256."
-            exit 1
-          fi
-          curl -sSfL "https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz" -o "${RUNNER_TEMP}/vale.tar.gz"
-          echo "${VALE_SHA256}  ${RUNNER_TEMP}/vale.tar.gz" | sha256sum --check --strict
-          mkdir -p node_modules/@vvago/vale/native
-          tar -xzf "${RUNNER_TEMP}/vale.tar.gz" -C node_modules/@vvago/vale/native vale
-          yarn run postinstall
+        run: yarn install --frozen-lockfile
         working-directory: '${{ github.workspace }}/.vortex/docs'
 
       - name: Lint code
