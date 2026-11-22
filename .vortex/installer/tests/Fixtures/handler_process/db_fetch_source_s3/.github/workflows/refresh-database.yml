@@ -1,4 +1,4 @@
-@@ -52,6 +52,8 @@
+@@ -53,6 +53,8 @@
          VORTEX_FRONTEND_BUILD_SKIP: 1
          # Push the sanitized database dump to the database store and destinations.
          VORTEX_PUSH_DB_PROCEED: 1

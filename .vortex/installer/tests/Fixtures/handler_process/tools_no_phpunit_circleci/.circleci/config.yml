@@ -328,7 +328,7 @@ jobs:
 
   # Nightly database job. Same as above, but with additional variables set.
   # Triggered by the "nightly-db" schedule configured in CircleCI UI.
-  database-nightly:
+  refresh-database:
     <<: *job-database
     environment:
       VORTEX_FETCH_DB_SSH_FINGERPRINT: *db_ssh_fingerprint
@@ -641,11 +641,11 @@ workflows:
               only:
                 - develop
     jobs:
-      - database-nightly
+      - refresh-database
 
   # Database refresh workflow runs the nightly database job on demand, when a
   # pipeline is triggered with the "refresh_db" parameter.
   refresh-db:
     when: << pipeline.parameters.refresh_db >>
     jobs:
-      - database-nightly
+      - refresh-database

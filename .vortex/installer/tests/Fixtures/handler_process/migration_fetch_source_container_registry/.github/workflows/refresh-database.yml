@@ -1,4 +1,4 @@
-@@ -50,6 +50,10 @@
+@@ -51,6 +51,10 @@
          VORTEX_CI_DB_CACHE_BRANCH: "develop"
          # Do not build the Drupal front-end.
          VORTEX_FRONTEND_BUILD_SKIP: 1
@@ -9,7 +9,7 @@
          # Push the sanitized database dump to the database store and destinations.
          VORTEX_PUSH_DB_PROCEED: 1
  
-@@ -123,9 +127,13 @@
+@@ -124,9 +128,13 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
@@ -23,7 +23,7 @@
            ./vendor/bin/vortex-refresh-db
          timeout-minutes: 30
  
-@@ -136,6 +144,14 @@
+@@ -137,6 +145,14 @@
          run: |
            if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
            ./vendor/bin/vortex-push-db

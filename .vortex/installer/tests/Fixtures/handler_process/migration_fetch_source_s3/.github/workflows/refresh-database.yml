@@ -1,4 +1,4 @@
-@@ -52,6 +52,8 @@
+@@ -53,6 +53,8 @@
          VORTEX_FRONTEND_BUILD_SKIP: 1
          # Push the sanitized database dump to the database store and destinations.
          VORTEX_PUSH_DB_PROCEED: 1
@@ -7,7 +7,7 @@
  
      steps:
        # Frees disk space by removing preinstalled toolchains unused by this project. Steps run in a container, so the host is reached via the Docker socket.
-@@ -123,6 +125,9 @@
+@@ -124,6 +126,9 @@
            echo "db_hash=${{ hashFiles('.data') }}" >> "$GITHUB_ENV"
          timeout-minutes: 30
  
@@ -17,7 +17,7 @@
        - name: Export DB
          run: |
            if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> Database fetch semaphore file is missing. DB export will not proceed."; exit 0; fi
-@@ -136,6 +141,14 @@
+@@ -137,6 +142,14 @@
          run: |
            if [ ! -f /tmp/fetch-db-fresh ]; then echo "==> No freshly fetched database. DB push will not proceed."; exit 0; fi
            ./vendor/bin/vortex-push-db
