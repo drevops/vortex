@@ -6,7 +6,7 @@
 #
 # The 'database' job is a copy of the 'database' job in build-test-deploy.yml
 # with the refresh variables set. Keep their steps identical.
-name: Database nightly
+name: Refresh database
 
 on:
   schedule:
