@@ -44,7 +44,7 @@ commands:
       export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
       #;> SERVICE_SOLR
       #;< SERVICE_PHPMYADMIN
-      export VORTEX_HOST_PHPMYADMIN_PORT=$(docker compose port phpmyadmin 80 2>/dev/null | cut -d : -f 2)
+      export VORTEX_HOST_DATABASE_UI_PORT=$(docker compose port database-ui 80 2>/dev/null | cut -d : -f 2)
       #;> SERVICE_PHPMYADMIN
       #;< STORYBOOK
       export VORTEX_HOST_STORYBOOK_PORT=$(docker compose port cli ${VORTEX_STORYBOOK_PORT:-6006} 2>/dev/null | cut -d : -f 2)
@@ -62,13 +62,13 @@ commands:
       fi
       #;< SERVICE_PHPMYADMIN
       if [ "${VORTEX_DB_CLIENT:-phpmyadmin}" = "phpmyadmin" ]; then
-        VORTEX_HOST_PHPMYADMIN_PORT=$(docker compose port phpmyadmin 80 2>/dev/null | cut -d : -f 2)
-        if [ -n "${VORTEX_HOST_PHPMYADMIN_PORT}" ]; then
-          echo "Open the database in phpMyAdmin: http://127.0.0.1:${VORTEX_HOST_PHPMYADMIN_PORT}"
+        VORTEX_HOST_DATABASE_UI_PORT=$(docker compose port database-ui 80 2>/dev/null | cut -d : -f 2)
+        if [ -n "${VORTEX_HOST_DATABASE_UI_PORT}" ]; then
+          echo "Open the database in phpMyAdmin: http://127.0.0.1:${VORTEX_HOST_DATABASE_UI_PORT}"
           exit 0
         fi
         if [ "${VORTEX_DB_CLIENT:-}" = "phpmyadmin" ]; then
-          echo "The phpmyadmin container is not running."
+          echo "The database-ui container is not running."
           exit 1
         fi
       fi

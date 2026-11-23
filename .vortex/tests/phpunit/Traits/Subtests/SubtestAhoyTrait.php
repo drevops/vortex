@@ -1148,7 +1148,7 @@ trait SubtestAhoyTrait {
     $this->cmd('ahoy db', ['* Not a supported OS or Sequel Ace is not installed.', '! phpMyAdmin'], '`ahoy db` should skip phpMyAdmin when Sequel Ace is selected', env: ['VORTEX_DB_CLIENT' => 'sequelace', 'VORTEX_HOST_SEQUELACE_PATH' => '/nonexistent']);
 
     $this->logSubstep('Assert that phpMyAdmin opens the project database without a login');
-    $this->cmd('docker compose exec -T cli curl -sf', ['* users_field_data', '! pma_username'], 'phpMyAdmin should list the tables of the project database', arg: ['http://phpmyadmin/index.php?route=/database/structure&db=drupal']);
+    $this->cmd('docker compose exec -T cli curl -sf', ['* users_field_data', '! pma_username'], 'phpMyAdmin should list the tables of the project database', arg: ['http://database-ui/index.php?route=/database/structure&db=drupal']);
 
     $this->logStepFinish();
   }

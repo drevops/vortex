@@ -49,7 +49,7 @@ class ServicesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Services::id() => [Services::PHPMYADMIN]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::PHPMYADMIN => []]]));
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['database-ui' => []]]));
       },
     ];
     yield 'services - discovery - all' => [
@@ -59,7 +59,7 @@ class ServicesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       ] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => [], Services::PHPMYADMIN => [], Services::REDIS => [], Services::SOLR => []]]));
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => [], 'database-ui' => [], Services::REDIS => [], Services::SOLR => []]]));
       },
     ];
     yield 'services - discovery - none' => [

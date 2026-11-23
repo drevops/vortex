@@ -46,7 +46,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileContainsString(static::$sut . '/docker-compose.yml', 'image: phpmyadmin:');
-          $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'VORTEX_HOST_PHPMYADMIN_PORT');
+          $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'VORTEX_HOST_DATABASE_UI_PORT');
           $test->assertSutNotContains('SERVICE_PHPMYADMIN');
       }),
     ];
@@ -57,6 +57,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertSutNotContains('solr');
           $test->assertSutNotContains('redis');
           $test->assertSutNotContains('phpmyadmin');
+          $test->assertSutNotContains('database-ui');
           $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-30-search-index.sh');
       }),
     ];
