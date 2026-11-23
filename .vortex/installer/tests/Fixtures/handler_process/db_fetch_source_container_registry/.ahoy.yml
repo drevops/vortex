@@ -1,4 +1,4 @@
-@@ -140,6 +140,7 @@
+@@ -139,6 +139,7 @@
      usage: Provision a site from the database dump or profile.
      cmd: |
        ahoy confirm "Running this command will remove your current database. Are you sure?" || exit 0
@@ -6,7 +6,7 @@
        ahoy cli ./vendor/bin/vortex-provision
        [ "${VORTEX_SHOW_LOGIN:-1}" = "1" ] && ahoy login || true
  
-@@ -155,6 +156,10 @@
+@@ -154,6 +155,10 @@
      cmd: |
        ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
        ./vendor/bin/vortex-import-db "$@"
