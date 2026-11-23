@@ -110,6 +110,7 @@
         "seckit",
         "semgrep",
         "semgrepignore",
+        "sequelace",
         "shellvar",
         "shortlink",
         "simpletest",
