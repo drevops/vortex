@@ -22,20 +22,20 @@ answer yes to that question.
 
 ## How it works
 
-The audit runs in a `lighthouse` container built from the official
+The audit runs in an `audit` container built from the official
 [Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci) image, which
-bundles Chrome and Lighthouse. The container belongs to the `lighthouse`
-Docker Compose profile, so `ahoy up` skips it. Docker Compose starts it for
-each audit and removes it afterward.
+bundles Chrome and Lighthouse. The container belongs to the `audit` Docker
+Compose profile, so `ahoy up` skips it. Docker Compose starts it for each
+audit and removes it afterward.
 
 ```text
 ┌─ ahoy test-lighthouse or the CI step ───────┐
 │                                             │
-│   docker compose run --rm lighthouse        │
+│   docker compose run --rm audit             │
 │                                             │
 └──────────────────┬──────────────────────────┘
                    ▼
-┌─ lighthouse container ──────────────────────┐
+┌─ audit container ───────────────────────────┐
 │                                             │
 │   Collect the pages from the arguments,     │
 │   the page list and the sitemap             │
@@ -215,7 +215,7 @@ The audit reads the following variables:
 
 | Variable                                  | Default                                               | Purpose                                                    |
 |-------------------------------------------|-------------------------------------------------------|------------------------------------------------------------|
-| `VORTEX_LIGHTHOUSE_BASE_URL`              | `http://nginx:8080`                                   | Site address, as the `lighthouse` container reaches it     |
+| `VORTEX_LIGHTHOUSE_BASE_URL`              | `http://nginx:8080`                                   | Site address, as the `audit` container reaches it          |
 | `VORTEX_LIGHTHOUSE_URLS`                  | `/`                                                   | Comma- or space-separated paths or URLs to audit           |
 | `VORTEX_LIGHTHOUSE_SITEMAP`               | None                                                  | Sitemap path or URL to add pages from                      |
 | `VORTEX_LIGHTHOUSE_SITEMAP_LIMIT`         | `10`                                                  | Maximum number of pages to add from the sitemap            |
@@ -235,7 +235,7 @@ The audit reads the following variables:
 
 To remove the audit, delete the following from your project:
 
-- The `lighthouse` service in `docker-compose.yml`
+- The `audit` service in `docker-compose.yml`
 - The `test-lighthouse` command in `.ahoy.yml`
 - The **Audit with Lighthouse** step in your CI configuration
 

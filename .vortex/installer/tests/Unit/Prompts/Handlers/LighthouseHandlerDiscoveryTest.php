@@ -29,7 +29,7 @@ class LighthouseHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
       [Lighthouse::id() => TRUE] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        File::dump(static::$sut . '/.ahoy.yml', "commands:\n  test-lighthouse:\n    cmd: docker compose run --rm lighthouse ./vendor/bin/vortex-lighthouse\n");
+        File::dump(static::$sut . '/.ahoy.yml', "commands:\n  test-lighthouse:\n    cmd: docker compose run --rm audit ./vendor/bin/vortex-lighthouse\n");
       },
     ];
     yield 'lighthouse - discovery - command absent' => [

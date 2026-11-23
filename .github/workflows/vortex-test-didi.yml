@@ -540,7 +540,7 @@ jobs:
         if: ${{ env.VORTEX_CI_IS_LIGHTHOUSE_RUNNER == 'true' && vars.VORTEX_CI_LIGHTHOUSE_SKIP != '1' }}
         run: |
           status=0
-          docker compose run --rm -T lighthouse ./vendor/bin/vortex-lighthouse || status=$?
+          docker compose run --rm -T audit ./vendor/bin/vortex-lighthouse || status=$?
           docker compose exec -T cli cat "${VORTEX_LIGHTHOUSE_REPORT_DIR:-.logs/lighthouse}/summary.md" >> "${GITHUB_STEP_SUMMARY}" 2>/dev/null || true
           exit "${status}"
         continue-on-error: ${{ vars.VORTEX_CI_LIGHTHOUSE_IGNORE_FAILURE != '0' }}
@@ -1117,7 +1117,7 @@ jobs:
         if: ${{ env.VORTEX_CI_IS_LIGHTHOUSE_RUNNER == 'true' && vars.VORTEX_CI_LIGHTHOUSE_SKIP != '1' }}
         run: |
           status=0
-          docker compose run --rm -T lighthouse ./vendor/bin/vortex-lighthouse || status=$?
+          docker compose run --rm -T audit ./vendor/bin/vortex-lighthouse || status=$?
           docker compose exec -T cli cat "${VORTEX_LIGHTHOUSE_REPORT_DIR:-.logs/lighthouse}/summary.md" >> "${GITHUB_STEP_SUMMARY}" 2>/dev/null || true
           exit "${status}"
         continue-on-error: ${{ vars.VORTEX_CI_LIGHTHOUSE_IGNORE_FAILURE != '0' }}

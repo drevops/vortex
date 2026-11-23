@@ -5,7 +5,7 @@
 # Usage:
 #   vortex-lighthouse [<path or URL> ...]
 #
-# Runs inside the 'lighthouse' container, which provides Lighthouse and
+# Runs inside the 'audit' container, which provides Lighthouse and
 # Chrome. Paths and URLs passed as arguments replace VORTEX_LIGHTHOUSE_URLS.
 #
 # Writes an HTML and a JSON report for every audited page, and a Markdown
@@ -19,7 +19,7 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
 
-# URL of the site to audit, as reachable from the Lighthouse container.
+# URL of the site to audit, as reachable from the 'audit' container.
 VORTEX_LIGHTHOUSE_BASE_URL="${VORTEX_LIGHTHOUSE_BASE_URL:-http://nginx:8080}"
 
 # Comma- or space-separated list of paths or URLs to audit.

@@ -657,7 +657,7 @@ jobs:
           command: |
             [ "${VORTEX_CI_IS_LIGHTHOUSE_RUNNER:-1}" = "1" ] || exit 0
             [ "${VORTEX_CI_LIGHTHOUSE_SKIP:-0}" = "1" ] && exit 0
-            docker compose run --rm -T lighthouse ./vendor/bin/vortex-lighthouse || [ "${VORTEX_CI_LIGHTHOUSE_IGNORE_FAILURE:-1}" -eq 1 ]
+            docker compose run --rm -T audit ./vendor/bin/vortex-lighthouse || [ "${VORTEX_CI_LIGHTHOUSE_IGNORE_FAILURE:-1}" -eq 1 ]
           no_output_timeout: 30m
       #;> LIGHTHOUSE
 
