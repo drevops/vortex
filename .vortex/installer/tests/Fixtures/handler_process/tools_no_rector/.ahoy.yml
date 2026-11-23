@@ -1,4 +1,4 @@
-@@ -201,7 +201,6 @@
+@@ -197,7 +197,6 @@
      cmd: |
        ahoy cli vendor/bin/phpcs
        ahoy cli vendor/bin/phpstan
@@ -6,7 +6,7 @@
  
    lint-be-baseline:
      usage: Record the current PHPStan violations in the baseline to onboard an existing codebase.
-@@ -236,7 +235,6 @@
+@@ -232,7 +231,6 @@
    lint-be-fix:
      usage: Fix lint issues of back-end code.
      cmd: |

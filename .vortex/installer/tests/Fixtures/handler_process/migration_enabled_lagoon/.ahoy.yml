@@ -6,22 +6,18 @@
        export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
        export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2)
        export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
-@@ -45,6 +46,14 @@
-       open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" && exit 0
-       echo "Not a supported OS or Sequel Ace is not installed."
+@@ -41,6 +42,10 @@
+     usage: Browse the database in a GUI client.
+     cmd: ./vendor/bin/vortex-dbui
  
 +  db2:
-+    usage: Open DB2 in Sequel Ace.
-+    cmd: |
-+      [ "${VORTEX_DBUI_CLIENT:-sequelace}" = "sequelace" ] && uname -a | grep -i -q darwin && test -d "${VORTEX_HOST_SEQUELACE_PATH:-/Applications/Sequel Ace.app}" && \
-+      VORTEX_HOST_DB2_PORT=$(docker compose port database2 3306 2>/dev/null | cut -d : -f 2) && \
-+      open "mysql://${DATABASE2_USERNAME:-drupal}:${DATABASE2_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB2_PORT}/drupal" -a "Sequel Ace" && exit 0
-+      echo "Not a supported OS or Sequel Ace is not installed."
++    usage: Browse the migration database in a GUI client.
++    cmd: VORTEX_DB_INDEX=2 ./vendor/bin/vortex-dbui
 +
    # ----------------------------------------------------------------------------
    # Container commands.
    # ----------------------------------------------------------------------------
-@@ -122,6 +131,13 @@
+@@ -118,6 +123,13 @@
        case " $* " in *" --fresh "*) export VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1;; esac
        ./vendor/bin/vortex-fetch-db
  
@@ -35,7 +31,7 @@
    fetch-files:
      usage: Fetch public files.
      aliases: [download-files, files-download, files-fetch]
-@@ -134,6 +150,13 @@
+@@ -130,6 +142,13 @@
        docker compose rm --force --stop --volumes database
        docker compose build database
        ahoy up

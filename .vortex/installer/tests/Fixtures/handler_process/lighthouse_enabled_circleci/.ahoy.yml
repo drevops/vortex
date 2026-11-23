@@ -1,4 +1,4 @@
-@@ -276,6 +276,11 @@
+@@ -272,6 +272,11 @@
      aliases: [test-behat]
      cmd: ahoy cli php -d memory_limit=-1 vendor/bin/behat --colors "$@"
  
