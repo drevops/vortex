@@ -33,8 +33,8 @@
 +            "automerge": false
          },
          {
-             "description": "npm packages that CI runs at a pinned version through 'npx'.",
-@@ -221,7 +221,7 @@
+             "description": "Lagoon images are published by the hosting platform, so their releases are proposed without the minimum release age.",
+@@ -231,7 +231,7 @@
                  "before 3am"
              ],
              "minimumReleaseAge": "14 days",
@@ -43,7 +43,7 @@
          },
          {
              "description": "Renovate publishes several releases a day, so the Renovate version that CI runs and validates with is proposed weekly in a group of its own.",
-@@ -237,7 +237,7 @@
+@@ -247,7 +247,7 @@
                  "before 3am on Sunday"
              ],
              "minimumReleaseAge": "14 days",
@@ -52,7 +52,7 @@
          },
          {
              "description": "The 'renovate-version' input is tracked by the custom manager above, so it moves with the rest of the Renovate group.",
-@@ -260,7 +260,7 @@
+@@ -270,7 +270,7 @@
              ],
              "pinDigests": true,
              "minimumReleaseAge": "14 days",
