@@ -4,9 +4,9 @@
  
 +  # Lighthouse container, used for performance, accessibility, best practices and SEO audits.
 +  # Started on demand with `ahoy test-lighthouse`, so `ahoy up` does not pull or start it.
-+  lighthouse:
++  audit:
 +    image: patrickhulce/lhci-client:__VERSION__
-+    profiles: [lighthouse]
++    profiles: [audit]
 +    environment:
 +      <<: *default-environment
 +    <<: *default-volumes
