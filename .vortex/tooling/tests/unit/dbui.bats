@@ -18,6 +18,7 @@ load ../_helper.bash
     "@docker compose port database 3306 # 0.0.0.0:33060"
     "@open mysql://drupal:drupal@127.0.0.1:33060/drupal -a Sequel Ace # 0"
     "Opening the database in Sequel Ace."
+    "Opened the database in Sequel Ace."
     "- phpMyAdmin"
   )
 
@@ -43,6 +44,7 @@ load ../_helper.bash
     "@docker compose port database2 3306 # 0.0.0.0:33061"
     "@open mysql://user2:pass2@127.0.0.1:33061/drupal -a Sequel Ace # 0"
     "Opening the database 2 in Sequel Ace."
+    "Opened the database 2 in Sequel Ace."
   )
 
   mocks="$(steps_run "setup")"
@@ -62,7 +64,8 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "@docker compose port dbui 80 # 127.0.0.1:8080"
-    "Open the database in phpMyAdmin: http://127.0.0.1:8080/index.php?server=1"
+    "Open the database in phpMyAdmin:"
+    "http://127.0.0.1:8080/index.php?server=1"
   )
 
   mocks="$(steps_run "setup")"
@@ -82,7 +85,8 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "@docker compose port dbui 80 # 127.0.0.1:8080"
-    "Open the database 2 in phpMyAdmin: http://127.0.0.1:8080/index.php?server=2"
+    "Open the database 2 in phpMyAdmin:"
+    "http://127.0.0.1:8080/index.php?server=2"
   )
 
   mocks="$(steps_run "setup")"
@@ -103,7 +107,8 @@ load ../_helper.bash
 
   declare -a STEPS=(
     "@docker compose port dbui 80 # 127.0.0.1:8080"
-    "Open the database in phpMyAdmin: http://127.0.0.1:8080/index.php?server=1"
+    "Open the database in phpMyAdmin:"
+    "http://127.0.0.1:8080/index.php?server=1"
     "- Sequel Ace"
   )
 

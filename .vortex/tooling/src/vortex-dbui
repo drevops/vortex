@@ -45,8 +45,9 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 if [ "${VORTEX_DBUI_CLIENT}" != "phpmyadmin" ]; then
   if [ -d "${VORTEX_HOST_SEQUELACE_PATH}" ]; then
     port="$(docker compose port "database${_db_index}" 3306 2>/dev/null | cut -d : -f 2)"
-    info "Opening the database${_db_index:+ ${_db_index}} in Sequel Ace."
+    task "Opening the database${_db_index:+ ${_db_index}} in Sequel Ace."
     open "mysql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@127.0.0.1:${port}/drupal" -a "Sequel Ace"
+    pass "Opened the database${_db_index:+ ${_db_index}} in Sequel Ace."
     exit 0
   fi
 
@@ -56,7 +57,8 @@ fi
 port="$(docker compose port dbui 80 2>/dev/null | cut -d : -f 2)"
 
 if [ -n "${port}" ]; then
-  info "Open the database${_db_index:+ ${_db_index}} in phpMyAdmin: http://127.0.0.1:${port}/index.php?server=${_db_index:-1}"
+  info "Open the database${_db_index:+ ${_db_index}} in phpMyAdmin:"
+  note "http://127.0.0.1:${port}/index.php?server=${_db_index:-1}"
   exit 0
 fi
 
