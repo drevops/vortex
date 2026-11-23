@@ -156,15 +156,15 @@ class AhoyWorkflowTest extends FunctionalTestCase {
   }
 
   #[Group('p4')]
-  public function testAhoyWorkflowPhpmyadmin(): void {
+  public function testAhoyWorkflowDbui(): void {
     static::$sutInstallerEnv = ['VORTEX_INSTALLER_IS_DEMO' => '1'];
-    static::$sutInstallerPrompts = ['services' => ['clamav', 'phpmyadmin', 'redis', 'solr']];
+    static::$sutInstallerPrompts = ['services' => ['clamav', 'dbui', 'redis', 'solr']];
     $this->prepareSut();
     $this->adjustAhoyForUnmountedVolumes();
 
     $this->subtestAhoyBuild();
 
-    $this->subtestAhoyPhpmyadmin();
+    $this->subtestAhoyDbui();
   }
 
   #[Group('p4')]

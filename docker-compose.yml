@@ -274,7 +274,7 @@ services:
     #;> HOSTING_LAGOON
   #;> SERVICE_CLAMAV
 
-  #;< SERVICE_PHPMYADMIN
+  #;< SERVICE_DBUI
   # Database web UI, used for browsing the local database.
   dbui:
     image: phpmyadmin:5.2.3
@@ -292,7 +292,7 @@ services:
     labels:
       lagoon.type: none # Do not deploy in Lagoon.
     #;> HOSTING_LAGOON
-  #;> SERVICE_PHPMYADMIN
+  #;> SERVICE_DBUI
 
   # Chrome container, used for browser testing.
   chrome:

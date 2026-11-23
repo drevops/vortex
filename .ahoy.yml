@@ -43,9 +43,9 @@ commands:
       #;< SERVICE_SOLR
       export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
       #;> SERVICE_SOLR
-      #;< SERVICE_PHPMYADMIN
+      #;< SERVICE_DBUI
       export VORTEX_HOST_DBUI_PORT=$(docker compose port dbui 80 2>/dev/null | cut -d : -f 2)
-      #;> SERVICE_PHPMYADMIN
+      #;> SERVICE_DBUI
       #;< STORYBOOK
       export VORTEX_HOST_STORYBOOK_PORT=$(docker compose port cli ${VORTEX_STORYBOOK_PORT:-6006} 2>/dev/null | cut -d : -f 2)
       #;> STORYBOOK
@@ -60,7 +60,7 @@ commands:
         VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2)
         open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" && exit 0
       fi
-      #;< SERVICE_PHPMYADMIN
+      #;< SERVICE_DBUI
       if [ "${VORTEX_DB_CLIENT:-phpmyadmin}" = "phpmyadmin" ]; then
         VORTEX_HOST_DBUI_PORT=$(docker compose port dbui 80 2>/dev/null | cut -d : -f 2)
         if [ -n "${VORTEX_HOST_DBUI_PORT}" ]; then
@@ -72,7 +72,7 @@ commands:
           exit 1
         fi
       fi
-      #;> SERVICE_PHPMYADMIN
+      #;> SERVICE_DBUI
       echo "Not a supported OS or Sequel Ace is not installed."
 
   #;< MIGRATION

@@ -1135,7 +1135,7 @@ trait SubtestAhoyTrait {
     $this->fail(sprintf('Compiled stories in %s should contain the "%s" story with a server ID', $stories_file, $story_name));
   }
 
-  protected function subtestAhoyPhpmyadmin(): void {
+  protected function subtestAhoyDbui(): void {
     $this->logStepStart();
 
     $this->cmd('ahoy info', ['* phpMyAdmin URL on host      : http://127.0.0.1:', '! Containers are not running.'], '`ahoy info` should show the phpMyAdmin URL');

@@ -44,22 +44,22 @@ class ServicesHandlerDiscoveryTest extends AbstractHandlerDiscoveryTestCase {
         File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => []]]));
       },
     ];
-    yield 'services - discovery - phpmyadmin' => [
+    yield 'services - discovery - dbui' => [
       [],
-      [Services::id() => [Services::PHPMYADMIN]] + $expected_installed,
+      [Services::id() => [Services::DBUI]] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => ['dbui' => []]]));
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::DBUI => []]]));
       },
     ];
     yield 'services - discovery - all' => [
       [],
       [
-        Services::id() => [Services::CLAMAV, Services::PHPMYADMIN, Services::REDIS, Services::SOLR],
+        Services::id() => [Services::CLAMAV, Services::DBUI, Services::REDIS, Services::SOLR],
       ] + $expected_installed,
       function (AbstractHandlerDiscoveryTestCase $test, Config $config): void {
         $test->stubVortexProject($config);
-        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => [], 'dbui' => [], Services::REDIS => [], Services::SOLR => []]]));
+        File::dump(static::$sut . '/docker-compose.yml', Yaml::dump(['services' => [Services::CLAMAV => [], Services::DBUI => [], Services::REDIS => [], Services::SOLR => []]]));
       },
     ];
     yield 'services - discovery - none' => [
