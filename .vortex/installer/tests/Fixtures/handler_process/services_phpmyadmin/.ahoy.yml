@@ -2,7 +2,7 @@
        export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}}
        export VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2)
        export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
-+      export VORTEX_HOST_PHPMYADMIN_PORT=$(docker compose port phpmyadmin 80 2>/dev/null | cut -d : -f 2)
++      export VORTEX_HOST_DATABASE_UI_PORT=$(docker compose port database-ui 80 2>/dev/null | cut -d : -f 2)
        export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2)
        export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
        ahoy cli ./vendor/bin/vortex-info "$@"
@@ -12,13 +12,13 @@
          open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" && exit 0
 +      fi
 +      if [ "${VORTEX_DB_CLIENT:-phpmyadmin}" = "phpmyadmin" ]; then
-+        VORTEX_HOST_PHPMYADMIN_PORT=$(docker compose port phpmyadmin 80 2>/dev/null | cut -d : -f 2)
-+        if [ -n "${VORTEX_HOST_PHPMYADMIN_PORT}" ]; then
-+          echo "Open the database in phpMyAdmin: http://127.0.0.1:${VORTEX_HOST_PHPMYADMIN_PORT}"
++        VORTEX_HOST_DATABASE_UI_PORT=$(docker compose port database-ui 80 2>/dev/null | cut -d : -f 2)
++        if [ -n "${VORTEX_HOST_DATABASE_UI_PORT}" ]; then
++          echo "Open the database in phpMyAdmin: http://127.0.0.1:${VORTEX_HOST_DATABASE_UI_PORT}"
 +          exit 0
 +        fi
 +        if [ "${VORTEX_DB_CLIENT:-}" = "phpmyadmin" ]; then
-+          echo "The phpmyadmin container is not running."
++          echo "The database-ui container is not running."
 +          exit 1
 +        fi
        fi
