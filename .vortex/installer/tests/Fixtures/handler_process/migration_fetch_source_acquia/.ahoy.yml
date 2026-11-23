@@ -13,10 +13,10 @@
 +  db2:
 +    usage: Open DB2 in Sequel Ace.
 +    cmd: |
-+      uname -a | grep -i -q darwin && test -d "${VORTEX_HOST_SEQUELACE_PATH:-/Applications/Sequel Ace.app}" && \
++      [ "${VORTEX_DBUI_CLIENT:-sequelace}" = "sequelace" ] && uname -a | grep -i -q darwin && test -d "${VORTEX_HOST_SEQUELACE_PATH:-/Applications/Sequel Ace.app}" && \
 +      VORTEX_HOST_DB2_PORT=$(docker compose port database2 3306 2>/dev/null | cut -d : -f 2) && \
-+      open "mysql://${DATABASE2_USERNAME:-drupal}:${DATABASE2_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB2_PORT}/drupal" -a "Sequel Ace" \
-+      || echo "Not a supported OS or Sequel Ace is not installed."
++      open "mysql://${DATABASE2_USERNAME:-drupal}:${DATABASE2_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB2_PORT}/drupal" -a "Sequel Ace" && exit 0
++      echo "Not a supported OS or Sequel Ace is not installed."
 +
    # ----------------------------------------------------------------------------
    # Container commands.
