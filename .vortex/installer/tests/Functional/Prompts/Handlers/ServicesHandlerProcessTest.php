@@ -73,7 +73,6 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertSutNotContains('phpmyadmin');
           $test->assertFileNotContainsString(static::$sut . '/docker-compose.yml', 'dbui');
           $test->assertSutNotContains('VORTEX_HOST_DBUI_PORT');
-          $test->assertSutNotContains('aliases: [dbui]');
           $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-30-search-index.sh');
       }),
     ];

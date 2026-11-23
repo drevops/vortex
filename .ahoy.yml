@@ -55,17 +55,13 @@ commands:
 
   db:
     usage: Browse the database in a GUI client.
-    #;< SERVICE_DBUI
     aliases: [dbui]
-    #;> SERVICE_DBUI
     cmd: ./vendor/bin/vortex-dbui
 
   #;< MIGRATION
   db2:
     usage: Browse the migration database in a GUI client.
-    #;< SERVICE_DBUI
     aliases: [db2ui, dbui2]
-    #;> SERVICE_DBUI
     cmd: VORTEX_DB_INDEX=2 ./vendor/bin/vortex-dbui
   #;> MIGRATION
 
