@@ -87,7 +87,7 @@ class Services extends AbstractHandler {
       $services[] = self::REDIS;
     }
 
-    if (isset($dc['services']['database-ui'])) {
+    if (isset($dc['services']['dbui'])) {
       $services[] = self::PHPMYADMIN;
     }
 

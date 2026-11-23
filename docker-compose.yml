@@ -276,7 +276,7 @@ services:
 
   #;< SERVICE_PHPMYADMIN
   # Database web UI, used for browsing the local database.
-  database-ui:
+  dbui:
     image: phpmyadmin:5.2.3
     environment:
       PMA_HOST: database
@@ -287,7 +287,7 @@ services:
     depends_on:
       - database
     ports:
-      - '127.0.0.1::80' # Bound to the loopback interface only because the UI does not ask for a password. Find port on host with `ahoy info` or `docker compose port database-ui 80`.
+      - '127.0.0.1::80' # Bound to the loopback interface only because the UI does not ask for a password. Find port on host with `ahoy info` or `docker compose port dbui 80`.
     #;< HOSTING_LAGOON
     labels:
       lagoon.type: none # Do not deploy in Lagoon.
