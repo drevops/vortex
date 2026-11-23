@@ -60,7 +60,7 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->assertFileContainsString(static::$sut . '/docker-compose.yml', 'PMA_HOSTS: database,database2');
-          $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'index.php?server=2');
+          $test->assertFileContainsString(static::$sut . '/.ahoy.yml', 'aliases: [db2ui, dbui2]');
           $test->assertSutNotContains('SERVICE_DBUI');
       }),
     ];
@@ -71,7 +71,9 @@ class ServicesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->assertSutNotContains('solr');
           $test->assertSutNotContains('redis');
           $test->assertSutNotContains('phpmyadmin');
-          $test->assertSutNotContains('dbui');
+          $test->assertFileNotContainsString(static::$sut . '/docker-compose.yml', 'dbui');
+          $test->assertSutNotContains('VORTEX_HOST_DBUI_PORT');
+          $test->assertSutNotContains('aliases: [dbui]');
           $test->assertFileDoesNotExist(static::$sut . '/scripts/provision-30-search-index.sh');
       }),
     ];
