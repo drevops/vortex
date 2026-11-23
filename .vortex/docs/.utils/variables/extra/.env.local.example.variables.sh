@@ -22,3 +22,7 @@ AHOY_CONFIRM_RESPONSE=
 # will wait for 3 seconds before proceeding.
 # Set this variable to "1" to skip the wait.
 AHOY_CONFIRM_WAIT_SKIP=1
+
+# Database client that `ahoy db` opens: `sequelace` or `phpmyadmin`.
+# When not set, Sequel Ace opens if installed, otherwise phpMyAdmin.
+VORTEX_DB_CLIENT=

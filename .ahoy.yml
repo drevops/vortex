@@ -56,15 +56,21 @@ commands:
   db:
     usage: Open DB in Sequel Ace.
     cmd: |
-      if uname -a | grep -i -q darwin && test -d "${VORTEX_HOST_SEQUELACE_PATH:-/Applications/Sequel Ace.app}"; then
+      if [ "${VORTEX_DB_CLIENT:-sequelace}" = "sequelace" ] && uname -a | grep -i -q darwin && test -d "${VORTEX_HOST_SEQUELACE_PATH:-/Applications/Sequel Ace.app}"; then
         VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2)
         open "mysql://${DATABASE_USERNAME:-drupal}:${DATABASE_PASSWORD:-drupal}@127.0.0.1:${VORTEX_HOST_DB_PORT}/drupal" -a "Sequel Ace" && exit 0
       fi
       #;< SERVICE_PHPMYADMIN
-      VORTEX_HOST_PHPMYADMIN_PORT=$(docker compose port phpmyadmin 80 2>/dev/null | cut -d : -f 2)
-      if [ -n "${VORTEX_HOST_PHPMYADMIN_PORT}" ]; then
-        echo "Open the database in phpMyAdmin: http://127.0.0.1:${VORTEX_HOST_PHPMYADMIN_PORT}"
-        exit 0
+      if [ "${VORTEX_DB_CLIENT:-phpmyadmin}" = "phpmyadmin" ]; then
+        VORTEX_HOST_PHPMYADMIN_PORT=$(docker compose port phpmyadmin 80 2>/dev/null | cut -d : -f 2)
+        if [ -n "${VORTEX_HOST_PHPMYADMIN_PORT}" ]; then
+          echo "Open the database in phpMyAdmin: http://127.0.0.1:${VORTEX_HOST_PHPMYADMIN_PORT}"
+          exit 0
+        fi
+        if [ "${VORTEX_DB_CLIENT:-}" = "phpmyadmin" ]; then
+          echo "The phpmyadmin container is not running."
+          exit 1
+        fi
       fi
       #;> SERVICE_PHPMYADMIN
       echo "Not a supported OS or Sequel Ace is not installed."
