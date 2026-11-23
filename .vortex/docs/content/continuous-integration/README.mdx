@@ -81,9 +81,9 @@ site from:
   image, pushes the refreshed image to the registry
 - On the nightly run of a project with a database store or push
   destinations, pushes the sanitized dump to the FTP server or S3 bucket.
-  A manual run with the `refresh_db` option does the same on demand (see
+  A manual run of the nightly refresh does the same on demand (see
   [Database
-  storage](../development/database-storage.mdx#fetch-from-a-store))
+  storage](../development/database-storage.mdx#refresh-the-store-on-demand))
 
 The job exists only when the site provisions from a database dump. With the
 `profile` provision type, the pipeline has no `database` job and no nightly
@@ -382,8 +382,8 @@ import step.
 To pull a new database dump outside the regular schedule, force a fresh
 cache. Increment the last segment of the version prefix in the cache keys.
 The `database` and `build` jobs both use the prefix, so change
-every occurrence in `.github/workflows/build-test-deploy.yml` or
-`.circleci/config.yml`:
+every occurrence in `.github/workflows/build-test-deploy.yml` and
+`.github/workflows/refresh-database.yml`, or in `.circleci/config.yml`:
 
 ```yaml
 # Before
@@ -730,7 +730,8 @@ To pin the host keys:
      The shipped workflow doesn't pass it to the jobs. Add
      `VORTEX_SSH_KNOWN_HOSTS: ${{ vars.VORTEX_SSH_KNOWN_HOSTS }}` to the
      `container.env` block of the `database`, `build` and `deploy` jobs in
-     `.github/workflows/build-test-deploy.yml`, next to
+     `.github/workflows/build-test-deploy.yml` and the `refresh-database`
+     job in `.github/workflows/refresh-database.yml`, next to
      `VORTEX_SSH_DISABLE_STRICT_HOST_KEY_CHECKING`.
    - On CircleCI, add it as an environment variable, with multiple entries
      joined with `\n`.
@@ -800,7 +801,8 @@ fixes the exact image.
 To update the image, change the tag and its `@sha256:` digest together,
 everywhere the image appears:
 
-- Each job in `.github/workflows/build-test-deploy.yml`
+- Each job in `.github/workflows/build-test-deploy.yml` and
+  `.github/workflows/refresh-database.yml`
 - The job in `.github/workflows/audit.yml`
 - The shared `runner_config` block in `.circleci/config.yml`
 

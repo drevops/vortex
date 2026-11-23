@@ -10,6 +10,10 @@ declare(strict_types=1);
  * GitHub Actions workflow and assembles them into DIDI variant jobs in a
  * single test workflow.
  *
+ * Also fails when the steps of the 'refresh-database' job in
+ * refresh-database.yml differ from the ones of the 'database' job in
+ * build-test-deploy.yml, as the nightly job is a copy.
+ *
  * Usage:
  *   php .vortex/tests/generate-vortex-dev-gha         # Generate
  *   php .vortex/tests/generate-vortex-dev-gha --check  # Check
@@ -21,21 +25,21 @@ const VARIANT_JOB_CONDITION = '${{ github.event_name == \'push\' || github.event
 $check_mode = in_array('--check', $argv ?? []);
 
 $root_dir = dirname(__DIR__, 2);
-$source_file = $root_dir . '/.github/workflows/build-test-deploy.yml';
 $output_file = $root_dir . '/.github/workflows/vortex-test-didi.yml';
 
-$content = file_get_contents($source_file);
-if ($content === FALSE) {
-  fwrite(STDERR, sprintf("Error: Cannot read %s\n", $source_file));
-  exit(1);
-}
-
-$lines = explode("\n", $content);
+$lines = read_lines($root_dir . '/.github/workflows/build-test-deploy.yml');
+$nightly_lines = read_lines($root_dir . '/.github/workflows/refresh-database.yml');
 
 $settings = extract_settings($lines);
 $database_job = extract_workflow_job($lines, '/^  database:/');
 $build_job = extract_workflow_job($lines, '/^  build:/');
-$db_image_base = extract_github_env_value(explode("\n", $database_job), 'VORTEX_DB_IMAGE_BASE');
+$nightly_database_job = extract_workflow_job($nightly_lines, '/^  refresh-database:/');
+$db_image_base = extract_container_env_value(explode("\n", $nightly_database_job), 'VORTEX_DB_IMAGE_BASE');
+
+if (extract_steps($database_job) !== extract_steps($nightly_database_job)) {
+  fwrite(STDERR, "Error: The steps of the 'database' job in .github/workflows/build-test-deploy.yml and the 'refresh-database' job in .github/workflows/refresh-database.yml differ.\n");
+  exit(1);
+}
 
 $db_image = 'drevops/vortex-dev-mariadb-drupal-data-demo-destination-11.x';
 $db2_image = 'drevops/vortex-dev-mariadb-drupal-data-demo-migration-11.x';
@@ -215,20 +219,49 @@ function extract_workflow_job(array $lines, string $pattern): string {
 }
 
 /**
- * Extract the value a job step writes to $GITHUB_ENV for a variable.
+ * Read a file into lines.
+ *
+ * @return list<string>
+ *   File lines.
+ */
+function read_lines(string $file): array {
+  $content = file_get_contents($file);
+  if ($content === FALSE) {
+    fwrite(STDERR, sprintf("Error: Cannot read %s\n", $file));
+    exit(1);
+  }
+
+  return explode("\n", $content);
+}
+
+/**
+ * Extract the value of a variable in the container 'env' block of a job.
  *
  * @param list<string> $lines
  *   Job block lines.
  */
-function extract_github_env_value(array $lines, string $name): string {
+function extract_container_env_value(array $lines, string $name): string {
   foreach ($lines as $line) {
-    if (preg_match('/echo "' . preg_quote($name, '/') . '=([^"]+)"/', $line, $matches)) {
+    if (preg_match('/^        ' . preg_quote($name, '/') . ': *(\S+)$/', $line, $matches)) {
       return $matches[1];
     }
   }
 
-  fwrite(STDERR, sprintf("Error: Could not find %s written to \$GITHUB_ENV.\n", $name));
+  fwrite(STDERR, sprintf("Error: Could not find %s in the container environment.\n", $name));
   exit(1);
+}
+
+/**
+ * Extract the 'steps' block of a job block.
+ */
+function extract_steps(string $job): string {
+  $position = strpos($job, "\n    steps:\n");
+  if ($position === FALSE) {
+    fwrite(STDERR, "Error: Could not find the job steps.\n");
+    exit(1);
+  }
+
+  return substr($job, $position);
 }
 
 /**

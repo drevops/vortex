@@ -1,4 +1,4 @@
-@@ -137,7 +137,6 @@
+@@ -130,7 +130,6 @@
            docker compose exec $(env | cut -f1 -d= | sed 's/^/-e /') -T cli bash -c " \
              if [ -n \"\${PACKAGE_TOKEN:-}\" ]; then composer config --global --auth github-oauth.github.com \"\${PACKAGE_TOKEN}\"; fi && \
              COMPOSER_MEMORY_LIMIT=-1 composer --ansi install --prefer-dist"
@@ -6,7 +6,7 @@
  
        - name: Validate Composer configuration is normalized
          run: docker compose exec -T cli composer normalize --dry-run
-@@ -162,15 +161,6 @@
+@@ -155,15 +154,6 @@
        - name: Lint code with Gherkin Lint
          run: docker compose exec -T cli vendor/bin/gherkinlint lint tests/behat/features
          continue-on-error: ${{ vars.VORTEX_CI_GHERKIN_LINT_IGNORE_FAILURE == '1' }}

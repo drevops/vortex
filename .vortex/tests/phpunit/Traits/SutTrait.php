@@ -413,6 +413,7 @@ trait SutTrait {
     $this->assertFileDoesNotExist('.ahoy.yml');
     $this->assertFileDoesNotExist('.circleci/config.yml');
     $this->assertFileDoesNotExist('.github/workflows/build-test-deploy.yml');
+    $this->assertFileDoesNotExist('.github/workflows/refresh-database.yml');
     $this->assertFileDoesNotExist('README.md');
     $this->assertFileDoesNotExist('docs/faqs.md');
 

@@ -52,13 +52,6 @@ on:
         description: 'Enable terminal session for CI jobs'
         required: false
         default: false
-      refresh_db:
-        type: boolean
-        description: 'Refresh the database only'
-        required: false
-        default: false
-  schedule:
-    - cron: '0 18 * * *'
 
 defaults:
   run:
@@ -77,7 +70,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    if: ${{ !inputs.deploy_target && !inputs.refresh_db && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
+    if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
 
     container:
       # https://hub.docker.com/r/drevops/ci-runner
@@ -240,16 +233,6 @@ jobs:
       - name: Install Vortex tooling
         run: ./scripts/vortex-tooling.sh
 
-      - name: Adjust variables for a scheduled run
-        if: github.event_name == 'schedule' || github.event.inputs.refresh_db == 'true'
-        run: |
-          {
-            echo "VORTEX_CI_DB_CACHE_FALLBACK=no"
-            echo "VORTEX_FRONTEND_BUILD_SKIP=1"
-            # Push the sanitized database dump to the database store and destinations.
-            echo "VORTEX_PUSH_DB_PROCEED=1"
-          } >> "$GITHUB_ENV"
-
       - name: Create cache keys files for database caching
         run: |
           echo "${VORTEX_CI_DB_CACHE_BRANCH}" | tee db_cache_branch
@@ -306,7 +289,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: database
-    if: ${{ !inputs.deploy_target && !inputs.refresh_db && github.event_name != 'schedule' && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
+    if: ${{ !inputs.deploy_target && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')) }}
 
     permissions:
       contents: read
@@ -593,9 +576,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [build, lint]
-    if: >-
-      ${{ !cancelled() && (inputs.deploy_target || (success() && !inputs.refresh_db && github.event_name != 'schedule'
-      && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
+    if: ${{ !cancelled() && (inputs.deploy_target || (success() && !startsWith(github.head_ref || github.ref_name, 'deps/') && (github.event_name == 'push' || !startsWith(github.head_ref, 'project/')))) }}
 
     permissions:
       contents: read

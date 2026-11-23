@@ -95,7 +95,7 @@ To change which branches deploy:
 
 ### Update nightly database schedule
 
-The `nightly-db` workflow runs the `database-nightly` job: the regular
+The `nightly-db` workflow runs the `refresh-database` job: the regular
 `database` job with the cache fallback turned off, so it always downloads a
 fresh dump. It also skips the front-end build. For a project that stores
 its database in a container image, it imports the dump into a clean base
@@ -126,7 +126,12 @@ file that the workflow's trigger reuses
 ```
 
 Confirm that the next `nightly-db` workflow starts at the new time and runs
-only the `database-nightly` job.
+only the `refresh-database` job.
+
+To refresh the database outside the schedule, click **Trigger Pipeline** on
+the project, add the `refresh_db` boolean parameter set to `true` and click
+**Trigger Pipeline**. The `refresh-db` workflow then runs the
+`refresh-database` job without building or deploying.
 
 ### Change runner resource class
 
