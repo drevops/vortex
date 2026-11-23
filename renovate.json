@@ -211,6 +211,16 @@
             "automerge": true
         },
         {
+            "description": "Lagoon images are published by the hosting platform, so their releases are proposed without the minimum release age.",
+            "matchDatasources": [
+                "docker"
+            ],
+            "matchPackageNames": [
+                "uselagoon/**"
+            ],
+            "minimumReleaseAge": "0 days"
+        },
+        {
             "description": "npm packages that CI runs at a pinned version through 'npx'.",
             "groupName": "CI tools - All - Major, minor and patch",
             "groupSlug": "ci-tools-all-major-minor-patch",

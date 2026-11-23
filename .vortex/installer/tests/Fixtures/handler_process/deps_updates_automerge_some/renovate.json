@@ -24,4 +24,4 @@
 +            "automerge": false
          },
          {
-             "description": "npm packages that CI runs at a pinned version through 'npx'.",
+             "description": "Lagoon images are published by the hosting platform, so their releases are proposed without the minimum release age.",

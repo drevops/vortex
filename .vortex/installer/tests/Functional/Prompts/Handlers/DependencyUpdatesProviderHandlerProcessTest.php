@@ -58,6 +58,8 @@ class DependencyUpdatesProviderHandlerProcessTest extends AbstractHandlerProcess
             'ci-tools-renovate-major-minor-patch' => FALSE,
             'github-actions-all-major-minor-patch' => FALSE,
           ], array_column($config['packageRules'], 'automerge', 'groupSlug'));
+
+          $groups = array_filter($config['packageRules'], fn(array $rule): bool => isset($rule['groupSlug']));
           $test->assertSame([
             'php-all-except-core-minor-patch' => '14 days',
             'js-all-minor-patch' => '14 days',
@@ -65,7 +67,12 @@ class DependencyUpdatesProviderHandlerProcessTest extends AbstractHandlerProcess
             'ci-tools-all-major-minor-patch' => '14 days',
             'ci-tools-renovate-major-minor-patch' => '14 days',
             'github-actions-all-major-minor-patch' => '14 days',
-          ], array_column($config['packageRules'], 'minimumReleaseAge', 'groupSlug'));
+          ], array_column($groups, 'minimumReleaseAge', 'groupSlug'));
+
+          $lagoon = array_values(array_filter($config['packageRules'], fn(array $rule): bool => ($rule['matchPackageNames'] ?? []) === ['uselagoon/**']));
+          $test->assertCount(1, $lagoon);
+          $test->assertSame('0 days', $lagoon[0]['minimumReleaseAge']);
+          $test->assertArrayNotHasKey('automerge', $lagoon[0]);
       }),
     ];
   }
