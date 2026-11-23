@@ -72,6 +72,7 @@ class Migration extends AbstractHandler {
       File::remove($t . '/' . $w . '/sites/default/settings.migration.php');
       File::remove($t . '/scripts/provision-20-migration.sh');
       File::remove($t . '/' . $w . '/modules/custom/ys_migrate');
+      File::replaceContentInFile($t . '/docker-compose.yml', 'PMA_HOSTS: database,database2', 'PMA_HOSTS: database');
 
       JsonManipulator::updateFile($t . '/composer.json', function (JsonManipulator $cj): void {
         $cj->removeSubNode('require', 'drupal/migrate_plus');

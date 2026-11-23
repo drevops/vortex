@@ -365,10 +365,11 @@ there only when you enable the matching feature in the installer:
   which Drupal uses to scan uploaded files for viruses.
 - `dbui` - an optional container that runs
   [phpMyAdmin](https://www.phpmyadmin.net/), a web interface for the
-  `database` container. phpMyAdmin logs in with the local database
-  credentials, so you skip the login screen. You reach it from your host on
-  a random port bound to `127.0.0.1`, which `ahoy info` shows. Lagoon
-  doesn't deploy this container.
+  `database` container. With migration enabled, it lists `database2` as a
+  second server, which `ahoy db2` opens. phpMyAdmin logs in with the local
+  database credentials, so you skip the login screen. You reach it from your
+  host on a random port bound to `127.0.0.1`, which `ahoy info` shows.
+  Lagoon doesn't deploy this container.
 - `chrome` - runs Chromium, the open source browser that Chrome is built
   from, for the Behat tests. It's based on the official Selenium image,
   which comes with the extra tools a browser needs in a container, such as a

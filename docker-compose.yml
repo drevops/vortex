@@ -279,13 +279,18 @@ services:
   dbui:
     image: phpmyadmin:5.2.3
     environment:
-      PMA_HOST: database
-      PMA_PORT: 3306
+      #;< MIGRATION
+      # Server 2 is the migration database, opened by `ahoy db2`.
+      #;> MIGRATION
+      PMA_HOSTS: database,database2
       # Log in with the local database credentials, so the UI opens without a login screen.
       PMA_USER: drupal
       PMA_PASSWORD: drupal
     depends_on:
       - database
+      #;< MIGRATION
+      - database2
+      #;> MIGRATION
     ports:
       - '127.0.0.1::80' # Bound to the loopback interface only because the UI does not ask for a password. Find port on host with `ahoy info` or `docker compose port dbui 80`.
     #;< HOSTING_LAGOON
