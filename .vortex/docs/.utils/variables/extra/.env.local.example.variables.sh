@@ -24,5 +24,6 @@ AHOY_CONFIRM_RESPONSE=
 AHOY_CONFIRM_WAIT_SKIP=1
 
 # Database client that `ahoy db` opens: `sequelace` or `phpmyadmin`.
-# When not set, Sequel Ace opens if installed, otherwise phpMyAdmin.
+# When not set, Sequel Ace opens if installed, otherwise phpMyAdmin if the
+# `phpmyadmin` service is installed.
 VORTEX_DB_CLIENT=
