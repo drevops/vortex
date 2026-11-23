@@ -7,7 +7,7 @@
        VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
  
-@@ -161,30 +159,6 @@
+@@ -162,30 +160,6 @@
          bash ./vendor/bin/vortex-reset "$@"
        fi
  
@@ -38,7 +38,7 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
-@@ -207,8 +181,6 @@
+@@ -208,8 +182,6 @@
      usage: Lint front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
@@ -47,7 +47,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -215,14 +187,6 @@
+@@ -216,14 +188,6 @@
      cmd: |
        ahoy cli vendor/bin/gherkinlint lint tests/behat/features
  
@@ -62,7 +62,7 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
-@@ -239,8 +203,6 @@
+@@ -240,8 +204,6 @@
      usage: Fix lint issues of front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
@@ -71,7 +71,7 @@
  
    test:
      usage: Run all PHPUnit tests.
-@@ -262,10 +224,6 @@
+@@ -263,10 +225,6 @@
    test-functional-javascript:
      usage: Run PHPUnit functional JavaScript tests.
      cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"

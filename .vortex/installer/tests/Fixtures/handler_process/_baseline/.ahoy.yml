@@ -39,6 +39,7 @@ commands:
 
   db:
     usage: Browse the database in a GUI client.
+    aliases: [dbui]
     cmd: ./vendor/bin/vortex-dbui
 
   # ----------------------------------------------------------------------------

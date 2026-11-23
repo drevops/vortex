@@ -6,18 +6,19 @@
        export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
        export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2)
        export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
-@@ -41,6 +42,10 @@
-     usage: Browse the database in a GUI client.
+@@ -42,6 +43,11 @@
+     aliases: [dbui]
      cmd: ./vendor/bin/vortex-dbui
  
 +  db2:
 +    usage: Browse the migration database in a GUI client.
++    aliases: [db2ui, dbui2]
 +    cmd: VORTEX_DB_INDEX=2 ./vendor/bin/vortex-dbui
 +
    # ----------------------------------------------------------------------------
    # Container commands.
    # ----------------------------------------------------------------------------
-@@ -118,6 +123,13 @@
+@@ -119,6 +125,13 @@
        case " $* " in *" --fresh "*) export VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1;; esac
        ./vendor/bin/vortex-fetch-db
  
@@ -31,7 +32,7 @@
    fetch-files:
      usage: Fetch public files.
      aliases: [download-files, files-download, files-fetch]
-@@ -130,6 +142,13 @@
+@@ -131,6 +144,13 @@
        docker compose rm --force --stop --volumes database
        docker compose build database
        ahoy up
