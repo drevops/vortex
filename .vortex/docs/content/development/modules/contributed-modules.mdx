@@ -147,8 +147,9 @@ No settings override.
 to the module. Entity Usage 5.0.1 fails with a `TypeError` when Drupal
 saves an entity without a request, for example while
 `./vendor/bin/dr recipe` applies a recipe. The patch skips the site URL
-lookup in that case. Remove it from `extra.patches` once a fixed Entity
-Usage release is out.
+lookup in that case. Remove it from `extra.patches` after Entity Usage
+releases a fix for the [upstream
+issue](https://git.drupalcode.org/project/entity_usage/-/work_items/3633572).
 
 ## Environment Indicator
 
