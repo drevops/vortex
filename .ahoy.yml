@@ -72,7 +72,7 @@ commands:
   up:
     usage: Build and start containers.
     cmd: |
-      docker compose up --detach "$@"
+      ./scripts/vortex-stack.sh up "$@"
       if docker compose logs | grep -q "\[Error\]"; then exit 1; fi
 
   down:
@@ -83,8 +83,8 @@ commands:
       if [ -f "docker-compose.yml" ]; then docker compose down --remove-orphans --volumes > /dev/null 2>&1; fi
 
   start:
-    usage: Start existing containers.
-    cmd: docker compose start "$@"
+    usage: Start existing containers, or create them if there are none.
+    cmd: ./scripts/vortex-stack.sh start "$@"
 
   stop:
     usage: Stop running containers.
