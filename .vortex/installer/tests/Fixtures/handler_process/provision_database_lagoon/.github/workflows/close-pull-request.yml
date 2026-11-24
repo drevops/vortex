@@ -39,8 +39,15 @@ jobs:
             "${LAGOON_WEBHOOK_ENDPOINT:-https://webhook.amazeeio.cloud/}")" || status=$?
           echo "${response}"
 
+          if [ "${status}" != "0" ]; then exit 1; fi
+
+          # Lagoon returns this generic error when it removes nothing, which
+          # includes a pull request that never had an environment. The
+          # misspelling is Lagoon's own.
+          if echo "${response}" | grep -q '"error":"invalid resquest payload"'; then echo "::notice::Lagoon removed no environment for this pull request."; exit 0; fi
+
           # Lagoon answers a rejected webhook with HTTP 200 and an error body.
-          if [ "${status}" != "0" ] || echo "${response}" | grep -q '"error"'; then exit 1; fi
+          if echo "${response}" | grep -q '"error"'; then exit 1; fi
         env:
           LAGOON_WEBHOOK_ENDPOINT: ${{ vars.LAGOON_WEBHOOK_ENDPOINT }}
           LAGOON_WEBHOOK_TOKEN: ${{ secrets.LAGOON_WEBHOOK_TOKEN }}
