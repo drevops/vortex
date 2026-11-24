@@ -4,10 +4,11 @@ sidebar_position: 4
 
 # Routine operations
 
-Follow this page to run the day-to-day operations on Lagoon environments:
-log in, run Drush, fetch databases and files, run tasks and take an
-environment offline. It's for the developer or DevOps engineer who
-maintains a site built from **Vortex** on Lagoon.
+Follow this page to run the day-to-day operations on Lagoon environments.
+It covers logging in, running Drush, fetching databases and files, running
+tasks, taking an environment offline and moving the login page. It's for
+the developer or DevOps engineer who maintains a site built from **Vortex**
+on Lagoon.
 
 ## Log in to an environment
 
@@ -204,3 +205,36 @@ with inline styles and images. To preview your changes locally:
    ```shell
    ahoy up nginx
    ```
+
+## Move the login page
+
+[Rename Admin Paths](../../development/modules/contributed-modules.mdx#rename-admin-paths)
+moves every `/user` route, including `/user/login`, to the path in
+`DRUPAL_USER_PATH`. The repository holds no value for the variable, so the
+path stays private. Set it on each environment that needs it, here on the
+`main` production environment with the path `staff`:
+
+1. Set `DRUPAL_USER_PATH` on the environment:
+
+   ```shell
+   lagoon add variable --project your_site --environment main \
+     --scope runtime --name DRUPAL_USER_PATH --value staff
+   ```
+
+2. Redeploy the environment, so provisioning rebuilds the routes with the
+   new path:
+
+   ```shell
+   lagoon deploy latest --project your_site --environment main
+   ```
+
+3. Confirm that `/user/login` answers with `404`:
+
+   ```shell
+   curl -s -o /dev/null -w "%{http_code}\n" https://www.your-site-domain.example/user/login
+   ```
+
+   The login form is at `/staff/login`.
+
+To move the login page back to `/user/login`, delete the variable with
+`lagoon delete variable` and redeploy the environment.

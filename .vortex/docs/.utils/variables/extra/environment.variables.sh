@@ -25,3 +25,11 @@ ENVIRONMENT_TYPE=
 #
 # @see https://www.vortextemplate.com/docs/development/settings
 DRUPAL_HASH_SALT="<generated from database host>"
+
+# Path that replaces '/user' in every user route, such as '/user/login'.
+#
+# Set it as a platform variable on the hosting environment, so the path is not
+# committed to the repository. Unset or empty keeps '/user'.
+#
+# @see https://www.vortextemplate.com/docs/development/modules/contributed-modules#rename-admin-paths
+DRUPAL_USER_PATH=

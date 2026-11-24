@@ -450,10 +450,23 @@ The following table shows where the login page is served:
 | Unset or empty     | `/user/login`                                 |
 | `staff`            | `/staff/login`, and `/user/login` returns 404 |
 
-Set the variable in the hosting environment, so the path stays out of the
-repository. Then deploy or run `drush cr`, so the router rebuilds with the
-new path. One-time login links and password reset emails follow the new
-path, because Drupal builds them from routes.
+The path stays out of the repository, so `.env` and `docker-compose.yml`
+don't set the variable. Set it on the hosting environment, then rebuild
+the caches so Drupal rebuilds the routes with the new path. See Move the
+login page on
+[Acquia](../../hosting/acquia/operations.mdx#move-the-login-page) or
+[Lagoon](../../hosting/lagoon/operations.mdx#move-the-login-page).
+One-time login links and password reset emails follow the new path,
+because Drupal builds them from routes.
+
+To try a path locally, pass the variable to the cache rebuild:
+
+```shell
+DRUPAL_USER_PATH=staff ahoy drush cache:rebuild
+```
+
+The next cache rebuild without the variable moves the login page back to
+`/user/login`.
 
 ## Reroute Email
 
