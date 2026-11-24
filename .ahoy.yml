@@ -437,10 +437,11 @@ commands:
 
   # Internal utility command to run the Doctor pre-flight checks before the
   # containers start. Set VORTEX_DOCTOR_CHECK_PREFLIGHT to '0' to skip them.
-  # Skipped while the tooling is not installed, for example right after a reset.
+  # Skipped on hosts without Pygmy, and while the tooling is not installed, for
+  # example right after a reset.
   preflight:
     cmd: |
-      if [ "${VORTEX_DOCTOR_CHECK_PREFLIGHT:-1}" = "0" ] || [ ! -f ./vendor/bin/vortex-doctor ]; then exit 0; fi
+      if [ "${VORTEX_DOCTOR_CHECK_PREFLIGHT:-1}" = "0" ] || ! command -v pygmy >/dev/null || [ ! -f ./vendor/bin/vortex-doctor ]; then exit 0; fi
       VORTEX_DOCTOR_CHECK_PREFLIGHT=1 VORTEX_DOCTOR_CHECK_TOOLS="${VORTEX_DOCTOR_CHECK_TOOLS:-0}" VORTEX_DOCTOR_CHECK_PORT="${VORTEX_DOCTOR_CHECK_PORT:-0}" ./vendor/bin/vortex-doctor
     hide: true
 

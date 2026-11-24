@@ -40,8 +40,8 @@ exist before Docker Compose creates `nginx` and `cli`, so start Pygmy before
 `ahoy up`, `ahoy start` and `ahoy build` run the Doctor pre-flight check
 before they start any container. The check fails when the network is
 missing or the agent container isn't running, and the message suggests
-`pygmy up`. To skip the check, set `VORTEX_DOCTOR_CHECK_PREFLIGHT=0` in
-`.env.local`.
+`pygmy up`. The check runs only when the `pygmy` command is installed. To
+skip it, set `VORTEX_DOCTOR_CHECK_PREFLIGHT=0` in `.env.local`.
 
 [`ahoy doctor`](doctor.mdx) also checks the other Pygmy services. It asks
 Docker for the `amazeeio-network` and for these 4 containers, which run
