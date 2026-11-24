@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+##
+# Open the database in a GUI client: Sequel Ace or the phpMyAdmin service.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Database index suffix. When set (e.g., "2"), the indexed database service
+# and credentials are used (e.g., 'database2' and DATABASE2_USERNAME).
+_db_index="${VORTEX_DB_INDEX:-}"
+
+# Database client to open: 'sequelace' or 'phpmyadmin'.
+#
+# When not set, Sequel Ace opens if installed, otherwise the phpMyAdmin URL
+# is printed if the 'dbui' service is running.
+VORTEX_DBUI_CLIENT="${VORTEX_DBUI_CLIENT:-}"
+
+# Path to the Sequel Ace application on the host.
+VORTEX_HOST_SEQUELACE_PATH="${VORTEX_HOST_SEQUELACE_PATH:-/Applications/Sequel Ace.app}"
+
+# Database username.
+_v="DATABASE${_db_index}_USERNAME"
+DATABASE_USERNAME="${!_v:-drupal}"
+
+# Database password.
+_v="DATABASE${_db_index}_PASSWORD"
+DATABASE_PASSWORD="${!_v:-drupal}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+if [ "${VORTEX_DBUI_CLIENT}" != "phpmyadmin" ]; then
+  if [ -d "${VORTEX_HOST_SEQUELACE_PATH}" ]; then
+    port="$(docker compose port "database${_db_index}" 3306 2>/dev/null | cut -d : -f 2)"
+    task "Opening the database${_db_index:+ ${_db_index}} in Sequel Ace."
+    open "mysql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@127.0.0.1:${port}/drupal" -a "Sequel Ace"
+    pass "Opened the database${_db_index:+ ${_db_index}} in Sequel Ace."
+    exit 0
+  fi
+
+  [ "${VORTEX_DBUI_CLIENT}" = "sequelace" ] && fail "Sequel Ace is not installed."
+fi
+
+port="$(docker compose port dbui 80 2>/dev/null | cut -d : -f 2)"
+
+if [ -n "${port}" ]; then
+  info "Open the database${_db_index:+ ${_db_index}} in phpMyAdmin:"
+  note "http://127.0.0.1:${port}/index.php?server=${_db_index:-1}"
+  exit 0
+fi
+
+[ "${VORTEX_DBUI_CLIENT}" = "phpmyadmin" ] && fail "The dbui container is not running."
+
+fail "Sequel Ace is not installed and the dbui container is not running."

@@ -12,6 +12,8 @@ class Services extends AbstractHandler {
 
   const CLAMAV = 'clamav';
 
+  const DBUI = 'dbui';
+
   const REDIS = 'redis';
 
   const SOLR = 'solr';
@@ -45,6 +47,7 @@ class Services extends AbstractHandler {
       self::CLAMAV => 'ClamAV',
       self::SOLR => 'Solr',
       self::REDIS => 'Redis',
+      self::DBUI => 'DB web UI (phpMyAdmin)',
     ];
   }
 
@@ -84,6 +87,10 @@ class Services extends AbstractHandler {
       $services[] = self::REDIS;
     }
 
+    if (isset($dc['services']['dbui'])) {
+      $services[] = self::DBUI;
+    }
+
     sort($services);
 
     return $services;
@@ -116,6 +123,13 @@ class Services extends AbstractHandler {
     }
     else {
       File::removeTokenAsync('SERVICE_REDIS');
+    }
+
+    if (in_array(self::DBUI, $v)) {
+      File::removeTokenAsync('!SERVICE_DBUI');
+    }
+    else {
+      File::removeTokenAsync('SERVICE_DBUI');
     }
 
     if (!in_array(self::CLAMAV, $v)) {

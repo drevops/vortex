@@ -1,4 +1,4 @@
-@@ -219,14 +219,6 @@
+@@ -216,14 +216,6 @@
      cmd: |
        ahoy cli vendor/bin/gherkinlint lint tests/behat/features
  

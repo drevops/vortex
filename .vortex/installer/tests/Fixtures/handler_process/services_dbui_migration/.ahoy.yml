@@ -1,0 +1,50 @@
+@@ -32,7 +32,9 @@
+     cmd: |
+       export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-${PWD##*/}}
+       export VORTEX_HOST_DB_PORT=$(docker compose port database 3306 2>/dev/null | cut -d : -f 2)
++      export VORTEX_HOST_DB2_PORT=$(docker compose port database2 3306 2>/dev/null | cut -d : -f 2)
+       export VORTEX_HOST_SOLR_PORT=$(docker compose port solr 8983 2>/dev/null | cut -d : -f 2)
++      export VORTEX_HOST_DBUI_PORT=$(docker compose port dbui 80 2>/dev/null | cut -d : -f 2)
+       export VORTEX_HOST_SELENIUM_VNC_PORT=$(docker compose port chrome 7900 2>/dev/null | cut -d : -f 2)
+       export VORTEX_HOST_HAS_SEQUELACE=$(uname -a | grep -i -q darwin && mdfind -name 'Sequel Ace' 2>/dev/null | grep -q "Ace" && echo 1 || true)
+       ahoy cli ./vendor/bin/vortex-info "$@"
+@@ -42,6 +44,11 @@
+     aliases: [dbui]
+     cmd: ./vendor/bin/vortex-dbui
+ 
++  db2:
++    usage: Browse the migration database in a GUI client.
++    aliases: [db2ui, dbui2]
++    cmd: VORTEX_DB_INDEX=2 ./vendor/bin/vortex-dbui
++
+   # ----------------------------------------------------------------------------
+   # Container commands.
+   # ----------------------------------------------------------------------------
+@@ -119,6 +126,13 @@
+       case " $* " in *" --fresh "*) export VORTEX_FETCH_DB_FRESH=1 VORTEX_FETCH_DB_FORCE=1;; esac
+       ./vendor/bin/vortex-fetch-db
+ 
++  fetch-db2:
++    usage: Fetch second database (migration). Run with "--fresh" to force.
++    aliases: [download-db2, db2-download, db2-fetch]
++    cmd: |
++      case " $* " in *" --fresh "*) export VORTEX_FETCH_DB2_FRESH=1 VORTEX_FETCH_DB2_FORCE=1;; esac
++      VORTEX_DB_INDEX=2 ./vendor/bin/vortex-fetch-db
++
+   fetch-files:
+     usage: Fetch public files.
+     aliases: [download-files, files-download, files-fetch]
+@@ -131,6 +145,13 @@
+       docker compose rm --force --stop --volumes database
+       docker compose build database
+       ahoy up
++
++  reload-db2:
++    usage: Reload the migration database container using local database image.
++    cmd: |
++      ahoy confirm "Running this command will replace your current database. Are you sure?" || exit 0
++      docker compose rm --force --stop --volumes database2
++      ahoy up -- --build database2
+ 
+   provision:
+     usage: Provision a site from the database dump or profile.

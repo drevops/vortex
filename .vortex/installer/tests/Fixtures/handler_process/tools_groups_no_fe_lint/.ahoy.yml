@@ -1,4 +1,4 @@
-@@ -169,7 +169,6 @@
+@@ -166,7 +166,6 @@
      usage: Install front-end assets.
      aliases: [fe-install]
      cmd: |
@@ -6,7 +6,7 @@
        ahoy cli "npm --prefix=${WEBROOT}/themes/custom/${DRUPAL_THEME} ci"
  
    fe:
-@@ -211,8 +210,6 @@
+@@ -208,8 +207,6 @@
      usage: Lint front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
@@ -15,7 +15,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -243,8 +240,6 @@
+@@ -240,8 +237,6 @@
      usage: Fix lint issues of front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
@@ -24,7 +24,7 @@
  
    test:
      usage: Run all PHPUnit tests.
-@@ -266,10 +261,6 @@
+@@ -263,10 +258,6 @@
    test-functional-javascript:
      usage: Run PHPUnit functional JavaScript tests.
      cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"

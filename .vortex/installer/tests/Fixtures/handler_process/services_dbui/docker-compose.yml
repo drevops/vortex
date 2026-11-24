@@ -1,0 +1,20 @@
+@@ -180,6 +180,19 @@
+     networks:
+       - default
+ 
++  # Database web UI, used for browsing the local database.
++  dbui:
++    image: phpmyadmin:__VERSION__
++    environment:
++      PMA_HOSTS: database
++      # Log in with the local database credentials, so the UI opens without a login screen.
++      PMA_USER: drupal
++      PMA_PASSWORD: drupal
++    depends_on:
++      - database
++    ports:
++      - '127.0.0.1::80' # Bound to the loopback interface only because the UI does not ask for a password. Find port on host with `ahoy info` or `docker compose port dbui 80`.
++
+   # Chrome container, used for browser testing.
+   chrome:
+     image: selenium/standalone-chromium:__VERSION__

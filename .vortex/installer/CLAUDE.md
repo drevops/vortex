@@ -117,7 +117,7 @@ Content removed if feature not selected
 | Category | Tokens                                                                             |
 |----------|------------------------------------------------------------------------------------|
 | Theme    | `DRUPAL_THEME`, `STORYBOOK`                                                        |
-| Services | `SERVICE_CLAMAV`, `SERVICE_SOLR`, `SERVICE_REDIS`                                  |
+| Services | `SERVICE_CLAMAV`, `SERVICE_SOLR`, `SERVICE_REDIS`, `SERVICE_DBUI`                  |
 | CI       | `CI_PROVIDER_GHA`, `CI_PROVIDER_CIRCLECI`                                          |
 | Hosting  | `HOSTING_LAGOON`, `HOSTING_ACQUIA`                                                 |
 | Deploy   | `DEPLOY_TYPES_WEBHOOK`, `DEPLOY_TYPES_ARTIFACT`                                    |

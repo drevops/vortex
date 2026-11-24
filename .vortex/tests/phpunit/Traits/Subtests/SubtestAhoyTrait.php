@@ -231,6 +231,7 @@ trait SubtestAhoyTrait {
         '* DB port                     : 3306',
         '* DB port on host             :',
         '* Solr URL on host            :',
+        '! phpMyAdmin URL on host',
         '! Storybook library URL',
         '* Selenium VNC URL on host    :',
         '* Mailhog URL                 : http://mailhog.docker.amazee.io/',
@@ -1132,6 +1133,24 @@ trait SubtestAhoyTrait {
     }
 
     $this->fail(sprintf('Compiled stories in %s should contain the "%s" story with a server ID', $stories_file, $story_name));
+  }
+
+  protected function subtestAhoyDbui(): void {
+    $this->logStepStart();
+
+    $this->cmd('ahoy info', ['* phpMyAdmin URL on host      : http://127.0.0.1:', '! Containers are not running.'], '`ahoy info` should show the phpMyAdmin URL');
+
+    // A path that does not exist hides Sequel Ace on macOS hosts.
+    $this->cmd('ahoy db', ['* Open the database in phpMyAdmin:', '* http://127.0.0.1:', '! Sequel Ace is not installed'], '`ahoy db` should fall back to the phpMyAdmin URL', env: ['VORTEX_HOST_SEQUELACE_PATH' => '/nonexistent']);
+
+    $this->logSubstep('Assert that VORTEX_DBUI_CLIENT selects the database client');
+    $this->cmd('ahoy db', ['* Open the database in phpMyAdmin:', '* /index.php?server=1', '! Sequel Ace'], '`ahoy db` should print the phpMyAdmin URL when phpMyAdmin is selected', env: ['VORTEX_DBUI_CLIENT' => 'phpmyadmin']);
+    $this->cmdFail('ahoy db', ['* Sequel Ace is not installed.', '! phpMyAdmin'], '`ahoy db` should skip phpMyAdmin when Sequel Ace is selected', env: ['VORTEX_DBUI_CLIENT' => 'sequelace', 'VORTEX_HOST_SEQUELACE_PATH' => '/nonexistent']);
+
+    $this->logSubstep('Assert that phpMyAdmin opens the project database without a login');
+    $this->cmd('docker compose exec -T cli curl -sf', ['* users_field_data', '! pma_username'], 'phpMyAdmin should list the tables of the project database', arg: ['http://dbui/index.php?route=/database/structure&db=drupal']);
+
+    $this->logStepFinish();
   }
 
   protected function subtestAhoyLighthouse(): void {

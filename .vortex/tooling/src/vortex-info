@@ -38,12 +38,15 @@ note "DB host                     : ${DATABASE_HOST}"
 note "DB username                 : ${DATABASE_USERNAME}"
 note "DB password                 : ${DATABASE_PASSWORD}"
 note "DB port                     : ${DATABASE_PORT}"
-note "DB port on host             : ${VORTEX_HOST_DB_PORT} ${sequelace}"
+note "DB port on host             : ${VORTEX_HOST_DB_PORT:-} ${sequelace}"
 if [ -n "${VORTEX_DB_IMAGE:-}" ]; then
   note "DB-in-image                 : ${VORTEX_DB_IMAGE}"
 fi
 if [ -n "${VORTEX_HOST_SOLR_PORT:-}" ]; then
   note "Solr URL on host            : http://127.0.0.1:${VORTEX_HOST_SOLR_PORT}"
+fi
+if [ -n "${VORTEX_HOST_DBUI_PORT:-}" ]; then
+  note "phpMyAdmin URL on host      : http://127.0.0.1:${VORTEX_HOST_DBUI_PORT}"
 fi
 if [ -n "${VORTEX_HOST_STORYBOOK_PORT:-}" ]; then
   note "Storybook library URL       : http://${LOCALDEV_URL}/storybook"

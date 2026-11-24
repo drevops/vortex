@@ -1,4 +1,4 @@
-@@ -211,8 +211,6 @@
+@@ -208,8 +208,6 @@
      usage: Lint front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
@@ -7,7 +7,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -243,8 +241,6 @@
+@@ -240,8 +238,6 @@
      usage: Fix lint issues of front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
