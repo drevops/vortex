@@ -1,4 +1,4 @@
-@@ -42,7 +42,6 @@
+@@ -44,7 +44,6 @@
          "drupal/stage_file_proxy": "__VERSION__",
          "drupal/testmode": "__VERSION__",
          "drupal/views_bulk_operations": "__VERSION__",

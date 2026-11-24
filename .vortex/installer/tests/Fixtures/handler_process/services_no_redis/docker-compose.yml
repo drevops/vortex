@@ -1,13 +1,13 @@
-@@ -55,8 +55,6 @@
-   # Drupal Shield credentials.
-   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
+@@ -57,8 +57,6 @@
    DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
+   # Path that replaces '/user' in every user route.
+   DRUPAL_USER_PATH: ${DRUPAL_USER_PATH:-}
 -  # Redis integration flag.
 -  DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -155,9 +153,6 @@
+@@ -157,9 +155,6 @@
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -17,7 +17,7 @@
    solr:
      build:
        context: .
-@@ -198,12 +193,10 @@
+@@ -200,12 +195,10 @@
      depends_on:
        - clamav
        - database

@@ -12,9 +12,9 @@
          "drupal/field_group": "__VERSION__",
 -        "drupal/generated_content": "__VERSION__",
          "drupal/gin": "__VERSION__",
+         "drupal/http_response_headers": "__VERSION__",
          "drupal/linkit": "__VERSION__",
-         "drupal/menu_trail_by_path": "__VERSION__",
-@@ -34,7 +32,6 @@
+@@ -36,7 +34,6 @@
          "drupal/robotstxt": "__VERSION__",
          "drupal/scheduled_transitions": "__VERSION__",
          "drupal/schema_metatag": "__VERSION__",

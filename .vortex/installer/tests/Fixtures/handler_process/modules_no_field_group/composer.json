@@ -5,4 +5,4 @@
 -        "drupal/field_group": "__VERSION__",
          "drupal/generated_content": "__VERSION__",
          "drupal/gin": "__VERSION__",
-         "drupal/linkit": "__VERSION__",
+         "drupal/http_response_headers": "__VERSION__",

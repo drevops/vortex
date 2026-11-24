@@ -1,4 +1,4 @@
-@@ -40,6 +40,7 @@
+@@ -42,6 +42,7 @@
          "drupal/seckit": "__VERSION__",
          "drupal/shield": "__VERSION__",
          "drupal/stage_file_proxy": "__VERSION__",
