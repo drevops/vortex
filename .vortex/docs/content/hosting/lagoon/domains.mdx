@@ -67,6 +67,11 @@ new domain:
    then deploy the environment again. Lagoon requests the certificate
    during that deployment.
 
+Between the DNS switch and that deployment, the domain has no valid
+certificate, so HTTPS visitors get a certificate error. To launch with no
+gap, have your hosting provider install a certificate for the domain
+before the DNS switch, as described next.
+
 To use a certificate of your own, keep `tls-acme` at `'false'` on each
 domain it covers, then ask your hosting provider to install the
 certificate. The shipped `.lagoon.yml` holds this block as a comment under

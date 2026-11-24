@@ -35,7 +35,8 @@ Make sure you have the following:
   steps](/docs/installation#install-vortex-into-an-existing-project).
 - An Acquia application set up as in [Set up the Acquia
   application](setup.mdx), with SSH access to Prod.
-- SSH access to the old host, and permission to run Drush there.
+- SSH access to the old host and permission to run Drush there, or the
+  host's own backup tools.
 - `ssh` and `rsync` on your machine, and your SSH key loaded in your
   `ssh-agent`.
 - Your local environment running.
@@ -55,7 +56,9 @@ The old host keeps serving the site while you work.
 ### 1. Export the database and files from the old host
 
 Bring the old site's data to your machine first, into the paths that
-**Vortex** uses locally:
+**Vortex** uses locally. A host without shell access, such as Pantheon,
+has its own backup tools. Download a database backup and the files with
+them, put them in the same local paths and continue at step 2.
 
 1. Log in to the old host and go to the old site's Drupal root.
 2. Export the production database without cache data to your home
@@ -175,8 +178,8 @@ To replace the Prod database and files with your local copy:
    ```
 
    Replace `/path/to/private` with the private files directory from step
-   4. When that path is relative, it starts in
-   `/var/www/html/yoursite.prod/docroot`.
+   4. When that path is relative, prefix it with
+   `/var/www/html/yoursite.prod/docroot/`. Use an absolute path unchanged.
 
 The uploads add and update files. A file deleted on the old site after an
 earlier copy stays on Acquia until you delete it there.
