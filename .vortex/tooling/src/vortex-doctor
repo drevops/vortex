@@ -3,6 +3,7 @@
 # Check project requirements or print info.
 #
 # vortex-doctor - check project requirements.
+# vortex-doctor preflight - check requirements before the stack starts.
 # vortex-doctor info - show system information.
 #
 # IMPORTANT! This script runs outside the container on the host system.
@@ -13,6 +14,18 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# 'vortex-doctor preflight' runs the pre-flight checks before the stack starts,
+# unless VORTEX_DOCTOR_CHECK_PREFLIGHT is '0' or the host has no Pygmy.
+if [ "${1:-}" = "preflight" ]; then
+  if [ "${VORTEX_DOCTOR_CHECK_PREFLIGHT:-1}" = "0" ] || ! command -v pygmy >/dev/null; then
+    exit 0
+  fi
+
+  VORTEX_DOCTOR_CHECK_PREFLIGHT=1
+  VORTEX_DOCTOR_CHECK_TOOLS="${VORTEX_DOCTOR_CHECK_TOOLS:-0}"
+  VORTEX_DOCTOR_CHECK_PORT="${VORTEX_DOCTOR_CHECK_PORT:-0}"
+fi
 
 # Check minimal Doctor requirements.
 VORTEX_DOCTOR_CHECK_MINIMAL="${VORTEX_DOCTOR_CHECK_MINIMAL:-0}"

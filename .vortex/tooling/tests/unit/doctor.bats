@@ -187,6 +187,63 @@ fixture_pygmy_variables() {
   popd >/dev/null || exit 1
 }
 
+@test "doctor: preflight runs the pre-flight checks with the tools and port checks off" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_pygmy_variables
+  unset VORTEX_DOCTOR_CHECK_PREFLIGHT VORTEX_DOCTOR_CHECK_TOOLS VORTEX_DOCTOR_CHECK_PORT
+
+  mock_pygmy=$(mock_command "pygmy")
+
+  declare -a STEPS=(
+    "@docker network inspect amazeeio-network # 0"
+    "@docker inspect --format {{.Name}} {{.State.Running}} amazeeio-ssh-agent # /amazeeio-ssh-agent true"
+    "Pygmy network and SSH agent are available."
+    "All required checks have passed."
+    "- All required tools are present."
+    "- Port 80 is available."
+  )
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-doctor preflight
+  assert_success
+  steps_run "assert" "${mocks[@]}"
+  assert_equal "0" "$(mock_get_call_num "${mock_pygmy}")"
+
+  popd >/dev/null || exit 1
+}
+
+@test "doctor: preflight is skipped when VORTEX_DOCTOR_CHECK_PREFLIGHT is 0" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_pygmy_variables
+  export VORTEX_DOCTOR_CHECK_PREFLIGHT=0
+
+  mock_command "pygmy" >/dev/null
+  mock_docker=$(mock_command "docker")
+
+  run .vortex/tooling/src/vortex-doctor preflight
+  assert_success
+  assert_output_not_contains "Checking project requirements."
+  assert_equal "0" "$(mock_get_call_num "${mock_docker}")"
+
+  popd >/dev/null || exit 1
+}
+
+@test "doctor: preflight is skipped on a host without Pygmy" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_pygmy_variables
+  unset VORTEX_DOCTOR_CHECK_PREFLIGHT
+
+  # A minimal PATH hides 'pygmy', which lives outside the system directories.
+  run env PATH="/usr/bin:/bin" .vortex/tooling/src/vortex-doctor preflight
+  assert_success
+  assert_output_not_contains "Checking project requirements."
+
+  popd >/dev/null || exit 1
+}
+
 @test "doctor: missing Pygmy network fails the Pygmy check" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 

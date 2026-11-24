@@ -41,7 +41,7 @@ jobs:
       AHOY_CONFIRM_RESPONSE: y
       AHOY_CONFIRM_WAIT_SKIP: 1
       # Variables passed from Windows into WSL; '/p' converts the path.
-      WSLENV: PACKAGE_TOKEN:VORTEX_CONTAINER_REGISTRY_USER:VORTEX_CONTAINER_REGISTRY_PASS:AHOY_CONFIRM_RESPONSE:AHOY_CONFIRM_WAIT_SKIP:RUNNER_TEMP/p
+      WSLENV: PACKAGE_TOKEN:VORTEX_CONTAINER_REGISTRY_USER:VORTEX_CONTAINER_REGISTRY_PASS:AHOY_CONFIRM_RESPONSE:AHOY_CONFIRM_WAIT_SKIP:RUNNER_TEMP/p:GITHUB_WORKSPACE/p
 
     steps:
       # The installer downloads the template as an archive, which keeps LF line
@@ -107,6 +107,15 @@ jobs:
       - name: Copy the project into WSL2
         shell: wsl-bash {0}
         run: cp -a "${RUNNER_TEMP}/star_wars" /root/star_wars
+
+      # The installed project resolves drevops/vortex-tooling from Packagist, so
+      # the host-side commands would run the released tooling, not the checkout.
+      - name: Install the tooling from the checkout
+        shell: wsl-bash {0}
+        run: |
+          mkdir -p /root/star_wars/vendor/drevops /root/star_wars/vendor/bin
+          cp -a "${GITHUB_WORKSPACE}/.vortex/tooling" /root/star_wars/vendor/drevops/vortex-tooling
+          for bin in /root/star_wars/vendor/drevops/vortex-tooling/src/vortex-*; do ln -s "../drevops/vortex-tooling/src/${bin##*/}" "/root/star_wars/vendor/bin/${bin##*/}"; done
 
       - name: Check the project has no CRLF line endings
         shell: wsl-bash {0}
