@@ -37,9 +37,11 @@ creates, and the `cli` service takes its SSH agent volume from Pygmy's
 exist before Docker Compose creates `nginx` and `cli`, so start Pygmy before
 `ahoy up`.
 
-If the network is missing, `ahoy up` fails, because Docker Compose returns
-an error for a missing external network. If Pygmy's containers exist but
-aren't running, the stack starts without your SSH key in the CLI container.
+If the network or the agent container is missing, `ahoy up` and
+`ahoy start` stop before they create or start any container. They name the
+missing network or container and suggest `pygmy up`. If the agent container
+exists but is stopped, the stack starts without your SSH key in the CLI
+container.
 
 [`ahoy doctor`](doctor.mdx) checks that the 4 Pygmy containers are running:
 the SSH agent, the mail catcher, the proxy and the DNS resolver. It looks
@@ -109,9 +111,10 @@ To reattach the CLI container to the current agent:
    ahoy up --no-deps --force-recreate cli
    ```
 
-   A plain `ahoy up` leaves the CLI container attached to the old agent.
-   Docker Compose leaves a running container alone when its configuration
-   hasn't changed.
+   After `pygmy restart`, `ahoy up` has the same effect, because it
+   recreates a CLI container that still uses the previous agent's volume.
+   When the stack started while the agent was stopped, the volume is
+   unchanged, so run this command.
 
 [`ahoy doctor`](doctor.mdx) checks that the SSH key is available in the CLI
 container and prints the command from step 2 when the key is missing.

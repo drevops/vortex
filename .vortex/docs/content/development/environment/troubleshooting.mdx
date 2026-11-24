@@ -13,6 +13,7 @@ symptoms:
 
 - A site that doesn't load
 - Database connection errors
+- Containers that fail to start with `network <id> not found`
 - Files in the project that end up owned by `root`
 
 For failures in CI or on a hosting environment, see [Continuous
@@ -100,6 +101,28 @@ again. After the Docker Compose commands, provision the site yourself with
 
 Confirm that `docker compose ps` shows the `database` container with a
 status that starts with `Up`.
+
+## Network not found
+
+Docker attaches each container to a network by the network's ID. When a
+network is removed and created again, it gets a new ID. A stopped container
+still points at the old ID, so Docker returns an error when it starts:
+
+```text
+Error response from daemon: failed to set up container networking: network 8002212658b5... not found
+```
+
+`docker network prune` removes the stack's network when the stack is
+stopped. It removes Pygmy's `amazeeio-network` too when Pygmy is stopped.
+
+Run `ahoy start` or `ahoy up`. Both commands recreate the containers that
+point at a removed network, then start the stack. The database keeps its
+data, because the new `database` container mounts the same volume. When
+`VORTEX_DB_IMAGE` is set, the data lives in the image, so the recreated
+`database` container starts with the database from the image.
+
+Confirm that `docker compose ps` shows the `cli`, `php`, `nginx` and
+`database` containers with a status that starts with `Up`.
 
 ## Permission issues
 
