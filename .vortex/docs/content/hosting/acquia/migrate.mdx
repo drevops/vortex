@@ -93,7 +93,9 @@ Bring the old site's data to your machine first, into the paths that
    ```
 
    Replace `user@old-host.example.com` with your SSH login on the old host.
-   Replace the paths with the directories from step 3.
+   Replace the paths with the directories from step 3. When a path is
+   relative, prefix it with the old Drupal root's absolute path, which
+   `pwd` prints in that directory.
 
 ### 2. Rehearse the provisioning locally
 
@@ -134,10 +136,11 @@ Prod starts with an empty database, so the provisioning hook stops with
 
 To replace the Prod database and files with your local copy:
 
-1. Copy the dump into the environment's `backups` directory:
+1. Copy the dump to the root of the environment's files mount, outside
+   the web root:
 
    ```shell
-   rsync .data/db.sql yoursite.prod@yoursiteprod.ssh.prod.acquia-sites.com:/mnt/files/yoursite.prod/backups/db.sql
+   rsync .data/db.sql yoursite.prod@yoursiteprod.ssh.prod.acquia-sites.com:/mnt/files/yoursite.prod/db.sql
    ```
 
 2. [Log in](operations.mdx#log-in-to-an-environment) to Prod and go to
@@ -146,8 +149,8 @@ To replace the Prod database and files with your local copy:
 
    ```shell
    ./vendor/bin/drush sql:drop -y
-   ./vendor/bin/drush sql:cli < /mnt/files/yoursite.prod/backups/db.sql
-   rm /mnt/files/yoursite.prod/backups/db.sql
+   ./vendor/bin/drush sql:cli < /mnt/files/yoursite.prod/db.sql
+   rm /mnt/files/yoursite.prod/db.sql
    ```
 
 4. Find the environment's public and private files directories:

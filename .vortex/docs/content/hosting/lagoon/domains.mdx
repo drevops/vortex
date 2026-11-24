@@ -40,27 +40,37 @@ hold a `CNAME` record, so ask the provider for an IP address for it.
 
 ## Certificates
 
-Lagoon requests a free Let's Encrypt certificate for each route and renews
-it. Let's Encrypt issues the certificate only after the domain resolves to
-Lagoon, so a new domain serves HTTPS a few minutes after its DNS switch.
-The top-level `routes` key in `.lagoon.yml` sets `insecure` to `Redirect`,
-so every route redirects HTTP requests to HTTPS.
+Lagoon requests and renews a free Let's Encrypt certificate for each
+route whose `tls-acme` setting is `'true'`, the default. Let's Encrypt
+issues the certificate only after the domain resolves to Lagoon. The
+top-level `routes` key in `.lagoon.yml` sets `insecure` to `Redirect`, so
+every route redirects HTTP requests to HTTPS.
 
-To use a certificate of your own, set `tls-acme` to `'false'` on each
+A route that requests a certificate before its domain points at Lagoon
+can fail validation, and Lagoon can then turn the route off. To launch a
+new domain:
+
+1. Before the DNS switch, set `tls-acme` to `'false'` on the domain, then
+   deploy the environment:
+
+   ```yaml title=".lagoon.yml"
+   environments:
+     main:
+       routes:
+         - nginx-php:
+             - www.your-site-domain.example:
+                 tls-acme: 'false'
+   ```
+
+2. [Point the domain's DNS records at Lagoon](#point-dns-at-lagoon).
+3. After the domain resolves to Lagoon, change `tls-acme` to `'true'`,
+   then deploy the environment again. Lagoon requests the certificate
+   during that deployment.
+
+To use a certificate of your own, keep `tls-acme` at `'false'` on each
 domain it covers, then ask your hosting provider to install the
-certificate:
-
-```yaml title=".lagoon.yml"
-environments:
-  main:
-    routes:
-      - nginx-php:
-          - www.your-site-domain.example:
-              tls-acme: 'false'
-```
-
-The shipped `.lagoon.yml` holds this block as a comment under each
-environment.
+certificate. The shipped `.lagoon.yml` holds this block as a comment under
+each environment.
 
 Confirm that a domain serves its certificate. The following command
 prints the certificate's issuer and expiry date:

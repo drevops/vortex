@@ -93,7 +93,9 @@ Bring the old site's data to your machine first, into the paths that
    ```
 
    Replace `user@old-host.example.com` with your SSH login on the old host.
-   Replace the paths with the directories from step 3.
+   Replace the paths with the directories from step 3. When a path is
+   relative, prefix it with the old Drupal root's absolute path, which
+   `pwd` prints in that directory.
 
 On Lagoon, **Vortex** keeps private files in
 `web/sites/default/files/private`, inside the persistent files storage.
@@ -219,8 +221,10 @@ starts.
 
 1. At least 1 day ahead, lower the time to live (TTL) of each domain's DNS
    records to 300 seconds, so the switch reaches visitors within minutes.
-2. Add the production domains to `.lagoon.yml` and deploy them. See [Add
-   the domains](domains.mdx#add-the-domains).
+2. Add the production domains to `.lagoon.yml` with `tls-acme` set to
+   `'false'`, and deploy them. See [Add the
+   domains](domains.mdx#add-the-domains) and
+   [Certificates](domains.mdx#certificates).
 3. Freeze content on the old site. Ask every editor to stop. Then log in
    to the old host and, in the old site's Drupal root, put the site in
    maintenance mode:
@@ -237,18 +241,16 @@ starts.
 5. Point each domain's DNS records at Lagoon. See [Point DNS at
    Lagoon](domains.mdx#point-dns-at-lagoon).
 6. Wait 5 minutes, the TTL you set in the first step of this list, so the
-   domains resolve to Lagoon. Then confirm that Lagoon issued a
-   certificate for each domain. The following command prints the
-   certificate's issuer and expiry date:
+   domains resolve to Lagoon. Then change `tls-acme` to `'true'` on each
+   domain and deploy `main` again, so Lagoon requests the certificates.
+7. Confirm that Lagoon issued a certificate for each domain. The
+   following command prints the certificate's issuer and expiry date:
 
    ```shell
    curl -svI https://www.your-site-domain.example 2>&1 | grep -E "issuer|expire date"
    ```
 
-   Lagoon requests a Let's Encrypt certificate after the domain resolves
-   to Lagoon, which can take a few minutes.
-
-7. Repeat the checks from [Test the site on
+8. Repeat the checks from [Test the site on
    Lagoon](#test-the-site-on-lagoon) on the production domains.
 
 Keep the old site in maintenance mode and its hosting active until you

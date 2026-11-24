@@ -33,10 +33,15 @@ Ask whoever creates the project for the following settings:
 For example, the `^(main|develop)$` branch pattern gives `main` and
 `develop` an environment each.
 
-On another cluster, set the instance values in the
-`VORTEX_DEPLOY_LAGOON_INSTANCE*` variables listed in [Lagoon
-deployment](../../deployment/lagoon.mdx#environment-variables) and in
-`drush/sites/lagoon.site.yml`.
+On another cluster, set the instance values in these places:
+
+- The `VORTEX_DEPLOY_LAGOON_INSTANCE*` variables listed in [Lagoon
+  deployment](../../deployment/lagoon.mdx#environment-variables)
+- `VORTEX_FETCH_DB_LAGOON_SSH_HOST`, `VORTEX_FETCH_DB_LAGOON_SSH_PORT`,
+  `VORTEX_FETCH_FILES_LAGOON_SSH_HOST` and
+  `VORTEX_FETCH_FILES_LAGOON_SSH_PORT` in `.env`, which `ahoy fetch-db`
+  and `ahoy fetch-files` read
+- The host and port in `drush/sites/lagoon.site.yml`
 
 ## Connect the project
 
