@@ -1,4 +1,4 @@
-@@ -21,8 +21,6 @@
+@@ -22,8 +22,6 @@
        ahoy reset                          # Reset the project.
        ahoy up --build --force-recreate    # Start the stack.
        ahoy composer install               # Install Composer dependencies.
@@ -7,7 +7,7 @@
        VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
  
-@@ -162,30 +160,6 @@
+@@ -167,30 +165,6 @@
          bash ./vendor/bin/vortex-reset "$@"
        fi
  
@@ -38,7 +38,7 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
-@@ -208,8 +182,6 @@
+@@ -213,8 +187,6 @@
      usage: Lint front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
@@ -47,7 +47,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -216,14 +188,6 @@
+@@ -221,14 +193,6 @@
      cmd: |
        ahoy cli vendor/bin/gherkinlint lint tests/behat/features
  
@@ -62,7 +62,7 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
-@@ -240,8 +204,6 @@
+@@ -245,8 +209,6 @@
      usage: Fix lint issues of front-end code.
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
@@ -71,7 +71,7 @@
  
    test:
      usage: Run all PHPUnit tests.
-@@ -263,10 +225,6 @@
+@@ -268,10 +230,6 @@
    test-functional-javascript:
      usage: Run PHPUnit functional JavaScript tests.
      cmd: ahoy cli vendor/bin/phpunit --testsuite=functional-javascript "$@"
