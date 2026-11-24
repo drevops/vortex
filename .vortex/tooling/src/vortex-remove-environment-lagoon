@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+##
+# Remove an environment from Lagoon by calling its webhook.
+#
+# Sends a GitHub "pull_request" event payload to the Lagoon webhook endpoint,
+# signed with the webhook token. Lagoon removes the 'pr-<N>' environment of a
+# closed pull request.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Token used to sign the webhook payload.
+VORTEX_REMOVE_ENVIRONMENT_LAGOON_WEBHOOK_TOKEN="${VORTEX_REMOVE_ENVIRONMENT_LAGOON_WEBHOOK_TOKEN:-}"
+
+# Lagoon webhook endpoint.
+VORTEX_REMOVE_ENVIRONMENT_LAGOON_WEBHOOK_ENDPOINT="${VORTEX_REMOVE_ENVIRONMENT_LAGOON_WEBHOOK_ENDPOINT:-https://webhook.amazeeio.cloud/}"
+
+# Path to the file with the GitHub "pull_request" event payload.
+VORTEX_REMOVE_ENVIRONMENT_LAGOON_PAYLOAD_FILE="${VORTEX_REMOVE_ENVIRONMENT_LAGOON_PAYLOAD_FILE:-${GITHUB_EVENT_PATH:-}}"
+
+# Unique ID of the webhook delivery.
+#
+# Defaults to the GitHub Actions runner tracking ID without its 'github_'
+# prefix.
+_runner_tracking_id="${RUNNER_TRACKING_ID:-}"
+VORTEX_REMOVE_ENVIRONMENT_LAGOON_DELIVERY_ID="${VORTEX_REMOVE_ENVIRONMENT_LAGOON_DELIVERY_ID:-${_runner_tracking_id:7}}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+for cmd in curl openssl; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
+
+info "Started Lagoon environment removal."
+
+[ -z "${VORTEX_REMOVE_ENVIRONMENT_LAGOON_WEBHOOK_TOKEN}" ] && fail "Missing required value for VORTEX_REMOVE_ENVIRONMENT_LAGOON_WEBHOOK_TOKEN."
+[ -z "${VORTEX_REMOVE_ENVIRONMENT_LAGOON_WEBHOOK_ENDPOINT}" ] && fail "Missing required value for VORTEX_REMOVE_ENVIRONMENT_LAGOON_WEBHOOK_ENDPOINT."
+[ -z "${VORTEX_REMOVE_ENVIRONMENT_LAGOON_PAYLOAD_FILE}" ] && fail "Missing required value for VORTEX_REMOVE_ENVIRONMENT_LAGOON_PAYLOAD_FILE."
+[ ! -f "${VORTEX_REMOVE_ENVIRONMENT_LAGOON_PAYLOAD_FILE}" ] && fail "Payload file ${VORTEX_REMOVE_ENVIRONMENT_LAGOON_PAYLOAD_FILE} does not exist."
+
+task "Calling Lagoon webhook to remove the environment."
+
+# Lagoon verifies the signature as GitHub webhooks do, so sign the exact bytes
+# sent as the body.
+signature_sha256="$(openssl dgst -sha256 -hmac "${VORTEX_REMOVE_ENVIRONMENT_LAGOON_WEBHOOK_TOKEN}" "${VORTEX_REMOVE_ENVIRONMENT_LAGOON_PAYLOAD_FILE}" | sed 's/^.* //')"
+signature_sha1="$(openssl dgst -sha1 -hmac "${VORTEX_REMOVE_ENVIRONMENT_LAGOON_WEBHOOK_TOKEN}" "${VORTEX_REMOVE_ENVIRONMENT_LAGOON_PAYLOAD_FILE}" | sed 's/^.* //')"
+
+status=0
+response="$(curl \
+  --silent \
+  --show-error \
+  --fail-with-body \
+  -X POST \
+  --header "Content-Type: application/json" \
+  --header "X-GitHub-Delivery: ${VORTEX_REMOVE_ENVIRONMENT_LAGOON_DELIVERY_ID}" \
+  --header "X-GitHub-Event: pull_request" \
+  --header "X-Hub-Signature-256: sha256=${signature_sha256}" \
+  --header "X-Hub-Signature: sha1=${signature_sha1}" \
+  --data-binary @"${VORTEX_REMOVE_ENVIRONMENT_LAGOON_PAYLOAD_FILE}" \
+  "${VORTEX_REMOVE_ENVIRONMENT_LAGOON_WEBHOOK_ENDPOINT}")" || status=$?
+
+note "Lagoon response: ${response}"
+
+[ "${status}" != "0" ] && fail "Unable to call Lagoon webhook."
+
+# Lagoon returns this generic error when it removes nothing, which includes a
+# pull request that never had an environment. The misspelling is Lagoon's own.
+if echo "${response}" | grep -q '"error":"invalid resquest payload"'; then
+  pass "Lagoon removed no environment."
+  info "Finished Lagoon environment removal."
+  exit 0
+fi
+
+# Lagoon answers a rejected webhook with HTTP 200 and an error body.
+if echo "${response}" | grep -q '"error"'; then
+  fail "Lagoon rejected the environment removal."
+fi
+
+pass "Called Lagoon webhook to remove the environment."
+
+info "Finished Lagoon environment removal."

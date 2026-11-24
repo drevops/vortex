@@ -166,10 +166,12 @@ environment, their types and the pull request (ephemeral) environments. See
 types](https://docs.lagoon.sh/concepts-advanced/environment-types/).
 
 On GitHub, the shipped `.github/workflows/close-pull-request.yml` workflow
-runs when a pull request closes. The workflow forwards the event to the
-Lagoon webhook endpoint, so Lagoon removes the pull request's environment.
-Lagoon accepts only webhooks signed with the project's webhook token. The
-workflow signs the event with the `LAGOON_WEBHOOK_TOKEN` repository secret.
+runs when a pull request closes. It runs
+`vendor/bin/vortex-remove-environment` with `VORTEX_PLATFORM` set to
+`lagoon`. The script forwards the event to the Lagoon webhook endpoint, so
+Lagoon removes the pull request's environment. Lagoon accepts only webhooks
+signed with the project's webhook token. The script signs the event with
+the `LAGOON_WEBHOOK_TOKEN` repository secret.
 
 To add the secret:
 
@@ -180,14 +182,16 @@ To add the secret:
    **Settings > Secrets and variables > Actions** as the
    `LAGOON_WEBHOOK_TOKEN` repository secret.
 
-When the secret is missing, the workflow fails with
-`LAGOON_WEBHOOK_TOKEN secret is not set.`. The workflow also fails when
-Lagoon rejects the request, and it prints Lagoon's response on every run.
+When the secret is missing, the workflow fails with `Missing required value
+for VORTEX_REMOVE_ENVIRONMENT_LAGOON_WEBHOOK_TOKEN.`. The workflow also
+fails when Lagoon rejects the request, and it prints Lagoon's response on
+every run.
 
 The workflow passes when the pull request has no `pr-<N>` environment,
 for example when the pull request closed before its deployment. Lagoon
 answers with `{"error":"invalid resquest payload"}`, its error for any
-removal it can't do. The workflow reports that answer as a notice.
+removal it can't do. The script reports that answer as
+`Lagoon removed no environment.`.
 
 The endpoint defaults to `https://webhook.amazeeio.cloud/`. To use another
 Lagoon instance, set the `LAGOON_WEBHOOK_ENDPOINT` repository variable.
