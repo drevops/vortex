@@ -3,6 +3,7 @@
 # Check project requirements or print info.
 #
 # vortex-doctor - check project requirements.
+# vortex-doctor preflight - check requirements before the stack starts.
 # vortex-doctor info - show system information.
 #
 # IMPORTANT! This script runs outside the container on the host system.
@@ -13,6 +14,21 @@ t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]
 
 set -eu
 [ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# 'vortex-doctor preflight' runs the pre-flight checks before the stack starts,
+# unless VORTEX_DOCTOR_CHECK_PREFLIGHT is '0' or the host has no Pygmy.
+if [ "${1:-}" = "preflight" ]; then
+  if [ "${VORTEX_DOCTOR_CHECK_PREFLIGHT:-1}" = "0" ] || ! command -v pygmy >/dev/null; then
+    exit 0
+  fi
+
+  # @docs:skip
+  VORTEX_DOCTOR_CHECK_PREFLIGHT=1
+  # @docs:skip
+  VORTEX_DOCTOR_CHECK_TOOLS="${VORTEX_DOCTOR_CHECK_TOOLS:-0}"
+  # @docs:skip
+  VORTEX_DOCTOR_CHECK_PORT="${VORTEX_DOCTOR_CHECK_PORT:-0}"
+fi
 
 # Check minimal Doctor requirements.
 VORTEX_DOCTOR_CHECK_MINIMAL="${VORTEX_DOCTOR_CHECK_MINIMAL:-0}"
@@ -73,7 +89,9 @@ fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\03
 warn() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[33m[WARN] %s\033[0m\n" "${1}" || printf "[WARN] %s\n" "${1}"; }
 # @formatter:on
 
-for cmd in docker pygmy ahoy; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
+required_commands=(docker ahoy)
+[ "${VORTEX_DOCTOR_CHECK_PREFLIGHT}" != "1" ] && required_commands+=(pygmy)
+for cmd in "${required_commands[@]}"; do command -v "${cmd}" >/dev/null || fail "Command ${cmd} is not available."; done
 
 main() {
   [ "${1:-}" = "info" ] && system_info && exit
@@ -96,20 +114,35 @@ main() {
   fi
 
   if [ "${VORTEX_DOCTOR_CHECK_PYGMY}" = "1" ]; then
-    pygmy_status="$(pygmy status | tr -d '\000')"
+    if ! docker network inspect amazeeio-network >/dev/null 2>&1; then
+      fail "Pygmy network amazeeio-network does not exist. Run 'pygmy up' to fix."
+    fi
 
     pygmy_services=()
     pygmy_services+=("amazeeio-ssh-agent")
-    pygmy_services+=("amazeeio-mailhog")
-    pygmy_services+=("amazeeio-haproxy")
-    pygmy_services+=("amazeeio-dnsmasq")
+    # The pre-flight check covers only what Docker Compose needs to start the
+    # stack: the network and the SSH agent container.
+    if [ "${VORTEX_DOCTOR_CHECK_PREFLIGHT}" != "1" ]; then
+      pygmy_services+=("amazeeio-mailhog")
+      pygmy_services+=("amazeeio-haproxy")
+      pygmy_services+=("amazeeio-dnsmasq")
+    fi
+
+    # Docker is queried directly because 'pygmy status' also probes the URL of
+    # every known site, which takes seconds per site.
+    pygmy_status="$(docker inspect --format '{{.Name}} {{.State.Running}}' "${pygmy_services[@]}" 2>/dev/null || true)"
 
     for pygmy_service in "${pygmy_services[@]}"; do
-      if ! echo "${pygmy_status}" | grep -q "${pygmy_service}: Running"; then
+      if ! echo "${pygmy_status}" | grep -q "^/${pygmy_service} true$"; then
         fail "Pygmy service ${pygmy_service} is not running. Run 'pygmy up' or 'pygmy restart' to fix."
       fi
     done
-    pass "Pygmy is running."
+
+    if [ "${VORTEX_DOCTOR_CHECK_PREFLIGHT}" = "1" ]; then
+      pass "Pygmy network and SSH agent are available."
+    else
+      pass "Pygmy is running."
+    fi
   fi
 
   if [ "${VORTEX_DOCTOR_CHECK_CONTAINERS}" = "1" ]; then

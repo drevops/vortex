@@ -81,71 +81,14 @@ trait SutTrait {
   }
 
   /**
-   * Inject a path repository for drevops/vortex-tooling into the SUT.
+   * Point the SUT at the in-tree drevops/vortex-tooling package.
    *
-   * The installer strips '.vortex/tooling' and the path repository from the
-   * SUT's composer.json so consumer sites resolve drevops/vortex-tooling
-   * from packagist. Until the package is published, the SUT cannot resolve
-   * it, so the workflow tests would fail at the Dockerfile's composer
-   * install step.
-   *
-   * The method copies the in-tree tooling into the SUT at '.tooling-source',
-   * outside '.vortex/' so the SUT keeps no '.vortex/' directory at runtime.
-   * It re-injects the path repository into composer.json and the COPY into
-   * cli.dockerfile. It adjusts '.dockerignore' and '.gitignore.artifact' so
-   * the tooling source enters the build context but never the deployment
-   * artifact.
+   * @see .vortex/tests/inject-tooling
    *
    * @todo Remove once drevops/vortex-tooling is published to packagist.
    */
   protected function injectTestingTooling(): void {
-    $sut_root = static::locationsSut();
-    $source_tooling = static::locationsRoot() . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
-    $target_tooling = $sut_root . DIRECTORY_SEPARATOR . '.tooling-source';
-
-    if (is_dir($source_tooling)) {
-      File::copy($source_tooling, $target_tooling);
-    }
-
-    $composer_json_path = $sut_root . DIRECTORY_SEPARATOR . 'composer.json';
-    if (file_exists($composer_json_path)) {
-      $composer = json_decode((string) file_get_contents($composer_json_path), TRUE);
-      if (is_array($composer)) {
-        $repositories = isset($composer['repositories']) && is_array($composer['repositories']) ? $composer['repositories'] : [];
-        $repositories[] = [
-          'type' => 'path',
-          'url' => '.tooling-source',
-          'options' => [
-            'symlink' => FALSE,
-            'versions' => [
-              'drevops/vortex-tooling' => '1.5.1',
-            ],
-          ],
-        ];
-        $composer['repositories'] = $repositories;
-        file_put_contents($composer_json_path, json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
-      }
-    }
-
-    $dockerfile_path = $sut_root . DIRECTORY_SEPARATOR . '.docker' . DIRECTORY_SEPARATOR . 'cli.dockerfile';
-    if (file_exists($dockerfile_path)) {
-      $content = (string) file_get_contents($dockerfile_path);
-      $needle = 'COPY composer.json composer.* patches.lock.* .env* /app/';
-      $replacement = $needle . "\n\n# Test-only: enables path-repo resolution.\nCOPY .tooling-source /app/.tooling-source";
-      file_put_contents($dockerfile_path, str_replace($needle, $replacement, $content));
-    }
-
-    $dockerignore_path = $sut_root . DIRECTORY_SEPARATOR . '.dockerignore';
-    if (file_exists($dockerignore_path)) {
-      file_put_contents($dockerignore_path, file_get_contents($dockerignore_path) . "\n# Test-only: allow tooling source in build context.\n!.tooling-source\n.tooling-source/tests\n.tooling-source/playground\n.tooling-source/node_modules\n");
-    }
-
-    $gitignore_artifact_path = $sut_root . DIRECTORY_SEPARATOR . '.gitignore.artifact';
-    if (file_exists($gitignore_artifact_path)) {
-      file_put_contents($gitignore_artifact_path, file_get_contents($gitignore_artifact_path) . "\n# Test-only: exclude tooling source from the deployment artifact.\n/.tooling-source\n");
-    }
-
-    $this->reinstallToolingToVendor();
+    $this->cmd('php', txt: 'Inject the in-tree tooling into the SUT', arg: [static::locationsRoot() . '/.vortex/tests/inject-tooling', static::locationsSut()]);
   }
 
   /**
@@ -155,65 +98,12 @@ trait SutTrait {
    * running a full Composer install (e.g. after 'ahoy reset' has wiped
    * vendor and the next step depends on a shipped script).
    *
+   * @see .vortex/tests/inject-tooling
+   *
    * @todo Remove once drevops/vortex-tooling is published to packagist.
    */
   protected function reinstallToolingToVendor(): void {
-    $sut_root = static::locationsSut();
-    $sut_source = $sut_root . DIRECTORY_SEPARATOR . '.tooling-source';
-    $repo_source = static::locationsRoot() . DIRECTORY_SEPARATOR . '.vortex' . DIRECTORY_SEPARATOR . 'tooling';
-    $target = $sut_root . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'drevops' . DIRECTORY_SEPARATOR . 'vortex-tooling';
-
-    // Prefer the in-SUT copy (injected by injectTestingTooling); fall back
-    // to the template-root copy for tests that bypass injectTestingTooling.
-    $source = is_dir($sut_source) ? $sut_source : $repo_source;
-
-    if (!is_dir($source)) {
-      return;
-    }
-
-    File::copy($source, $target);
-
-    // Copying the package skips Composer, so the 'vendor/bin/vortex-*' proxies
-    // it generates from the package 'bin' array are absent. Host-side recipes
-    // invoke those binaries (e.g. 'ahoy reset' guards on
-    // 'vendor/bin/vortex-reset'), so recreate them here.
-    $this->linkToolingBinaries($target, $sut_root . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'bin');
-  }
-
-  /**
-   * Generate Composer-style bin proxies for the copied tooling package.
-   *
-   * Each proxy resolves its own real location and execs the matching script in
-   * the package 'src/', so the script's own sibling dispatch keeps working.
-   */
-  protected function linkToolingBinaries(string $package_dir, string $bin_dir): void {
-    $composer_file = $package_dir . DIRECTORY_SEPARATOR . 'composer.json';
-
-    if (!file_exists($composer_file)) {
-      return;
-    }
-
-    $composer = json_decode((string) file_get_contents($composer_file), TRUE);
-    $bins = is_array($composer) && isset($composer['bin']) && is_array($composer['bin']) ? $composer['bin'] : [];
-
-    if ($bins === []) {
-      return;
-    }
-
-    if (!is_dir($bin_dir)) {
-      mkdir($bin_dir, 0755, TRUE);
-    }
-
-    foreach ($bins as $bin) {
-      if (!is_string($bin)) {
-        continue;
-      }
-
-      $proxy = $bin_dir . DIRECTORY_SEPARATOR . basename($bin);
-      $body = "#!/usr/bin/env sh\n" . 'dir=$(cd "$(dirname "$0")/../drevops/vortex-tooling" && pwd)' . "\n" . 'exec "${dir}/' . $bin . '" "$@"' . "\n";
-      file_put_contents($proxy, $body);
-      chmod($proxy, 0755);
-    }
+    $this->cmd('php', txt: 'Copy the in-tree tooling into the SUT vendor directory', arg: [static::locationsRoot() . '/.vortex/tests/inject-tooling', '--vendor', static::locationsSut()]);
   }
 
   protected function runInstaller(array $arguments = []): void {

@@ -82,6 +82,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyNginxMaintenance();
 
+    $this->subtestAhoyStartRecovery();
+
     $this->subtestAhoyReset();
 
     $this->subtestAhoyResetHard();

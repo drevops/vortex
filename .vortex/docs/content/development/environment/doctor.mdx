@@ -56,8 +56,9 @@ Doctor runs these checks, in this order:
 1. **Tools** - the `docker`, `pygmy` and `ahoy` commands are installed.
 2. **Port** - port 80 on the host is either free or held by Docker (Doctor
    skips this check on Linux).
-3. **Pygmy** - all 4 Pygmy services are running: the SSH agent, the mail
-   catcher, the proxy and the DNS server. For the container names Doctor
+3. **Pygmy** - the `amazeeio-network` exists and all 4 Pygmy services are
+   running: the SSH agent, the mail catcher, the proxy and the DNS server.
+   For the container names Doctor
    looks for, see [Pygmy](pygmy.mdx).
 4. **Containers** - the `cli`, `php`, `nginx` and `database` containers are
    running.
@@ -122,6 +123,11 @@ defaults to `${HOME}/.ssh/id_rsa`.
 - `VORTEX_DOCTOR_CHECK_PREFLIGHT=1` - turns the tools, port and Pygmy
   checks on and the rest off, to validate a machine before the stack is up.
   With this preset, a check variable you set yourself still wins.
+  With this preset, the Pygmy check covers only the `amazeeio-network` and
+  the SSH agent container, and Doctor runs without the `pygmy` command.
+  `ahoy up`, `ahoy start` and `ahoy build` run `vortex-doctor preflight`,
+  which applies this preset with the tools and port checks off by default,
+  when the `pygmy` command is installed. Set it to `0` to skip that check.
 
 ## Print a system report
 

@@ -18,6 +18,7 @@ commands:
     aliases: [rebuild]
     cmd: |
       ahoy confirm "All containers, build files and database will be removed. Proceed?" && export AHOY_CONFIRM_RESPONSE=y && export AHOY_CONFIRM_WAIT_SKIP=1 || exit 0
+      ahoy preflight                      # Check the host before the reset removes the tooling.
       ahoy reset                          # Reset the project.
       ahoy up --build --force-recreate    # Start the stack.
       ahoy composer install               # Install Composer dependencies.
@@ -49,7 +50,9 @@ commands:
   up:
     usage: Build and start containers.
     cmd: |
-      docker compose up --detach "$@"
+      ahoy preflight
+      # A container attached to a removed network starts only after it is recreated.
+      docker compose up --detach "$@" || { echo "Starting containers failed. Recreating them and trying again."; docker compose up --detach --force-recreate "$@"; }
       if docker compose logs | grep -q "\[Error\]"; then exit 1; fi
 
   down:
@@ -60,8 +63,10 @@ commands:
       if [ -f "docker-compose.yml" ]; then docker compose down --remove-orphans --volumes > /dev/null 2>&1; fi
 
   start:
-    usage: Start existing containers.
-    cmd: docker compose start "$@"
+    usage: Start existing containers, or create them if there are none.
+    cmd: |
+      ahoy preflight
+      docker compose up --detach --no-recreate "$@" || { echo "Starting containers failed. Recreating them and trying again."; docker compose up --detach --force-recreate "$@"; }
 
   stop:
     usage: Stop running containers.
@@ -329,6 +334,13 @@ commands:
           sleep 3
         fi
       fi
+    hide: true
+
+  # Internal utility command to run the Doctor pre-flight checks before the
+  # containers start. Skipped while the tooling is not installed, for example
+  # right after a reset.
+  preflight:
+    cmd: if [ -f ./vendor/bin/vortex-doctor ]; then ./vendor/bin/vortex-doctor preflight; fi
     hide: true
 
 # Override entrypoint to alter default behavior of Ahoy.

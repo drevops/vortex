@@ -1,4 +1,4 @@
-@@ -22,7 +22,6 @@
+@@ -23,7 +23,6 @@
        ahoy up --build --force-recreate    # Start the stack.
        ahoy composer install               # Install Composer dependencies.
        ahoy fei                            # Install front-end dependencies.
@@ -6,7 +6,7 @@
        VORTEX_SHOW_LOGIN=0 ahoy provision  # Provision the site.
        VORTEX_SHOW_LOGIN=1 ahoy info       # Show information and a login link.
  
-@@ -167,25 +166,7 @@
+@@ -172,25 +171,7 @@
      aliases: [fe-install]
      cmd: |
        ahoy cli "npm ci"
@@ -32,7 +32,7 @@
    lint:
      usage: Lint back-end and front-end code.
      cmd: |
-@@ -209,7 +190,6 @@
+@@ -214,7 +195,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint
        ahoy cli "npm run lint"
@@ -40,7 +40,7 @@
  
    lint-tests:
      usage: Lint tests code.
-@@ -216,14 +196,6 @@
+@@ -221,14 +201,6 @@
      cmd: |
        ahoy cli vendor/bin/gherkinlint lint tests/behat/features
  
@@ -55,7 +55,7 @@
    lint-fix:
      usage: Fix lint issues of back-end and front-end code.
      cmd: |
-@@ -241,7 +213,6 @@
+@@ -246,7 +218,6 @@
      cmd: |
        ahoy cli vendor/bin/twig-cs-fixer lint --fix
        ahoy cli "npm run lint-fix"

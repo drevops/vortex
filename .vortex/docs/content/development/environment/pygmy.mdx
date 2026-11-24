@@ -37,13 +37,15 @@ creates, and the `cli` service takes its SSH agent volume from Pygmy's
 exist before Docker Compose creates `nginx` and `cli`, so start Pygmy before
 `ahoy up`.
 
-If the network is missing, `ahoy up` fails, because Docker Compose returns
-an error for a missing external network. If Pygmy's containers exist but
-aren't running, the stack starts without your SSH key in the CLI container.
+`ahoy up`, `ahoy start` and `ahoy build` run the Doctor pre-flight check
+before they start any container. The check fails when the network is
+missing or the agent container isn't running, and the message suggests
+`pygmy up`. The check runs only when the `pygmy` command is installed. To
+skip it, set `VORTEX_DOCTOR_CHECK_PREFLIGHT=0` in `.env.local`.
 
-[`ahoy doctor`](doctor.mdx) checks that the 4 Pygmy containers are running:
-the SSH agent, the mail catcher, the proxy and the DNS resolver. It looks
-for their names in the output of `pygmy status`:
+[`ahoy doctor`](doctor.mdx) also checks the other Pygmy services. It asks
+Docker for the `amazeeio-network` and for these 4 containers, which run
+the SSH agent, the mail catcher, the proxy and the DNS resolver:
 
 ```text
 amazeeio-ssh-agent

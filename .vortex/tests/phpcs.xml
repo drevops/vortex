@@ -33,6 +33,7 @@
     <file>phpunit</file>
     <file>generate-vortex-dev-circleci</file>
     <file>generate-vortex-dev-gha</file>
+    <file>inject-tooling</file>
 
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
