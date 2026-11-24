@@ -25,8 +25,8 @@ FORMAT_MOUNTS='{{range .Mounts}}{{.Name}} {{end}}'
 
   declare -a STEPS=(
     "@docker compose config # ${CONFIG_PYGMY}"
-    "@docker network inspect amazeeio-network # 0"
     "@docker inspect --format {{.State.Running}} amazeeio-ssh-agent # true"
+    "@docker network inspect amazeeio-network # 0"
     "@docker compose ps --all --format {{.Service}}:{{.ID}} # cli:c1\nnginx:n1"
     "@docker inspect --format ${FORMAT_CONTAINER} c1 # net-default |vol-agent-1"
     "@docker network inspect net-default # 0"
@@ -98,8 +98,8 @@ FORMAT_MOUNTS='{{range .Mounts}}{{.Name}} {{end}}'
 
   declare -a STEPS=(
     "@docker compose config # ${CONFIG_PYGMY}"
-    "@docker network inspect amazeeio-network # 1"
     "@docker inspect --format {{.State.Running}} amazeeio-ssh-agent # true"
+    "@docker network inspect amazeeio-network # 1"
 
     "Network 'amazeeio-network' is declared as external but does not exist."
     "Required Docker resources are missing. Start the tool that provides them, such as Pygmy with 'pygmy up', and run this command again."
@@ -142,8 +142,8 @@ FORMAT_MOUNTS='{{range .Mounts}}{{.Name}} {{end}}'
 
   declare -a STEPS=(
     "@docker compose config # ${CONFIG_PYGMY}"
-    "@docker network inspect amazeeio-network # 0"
     "@docker inspect --format {{.State.Running}} amazeeio-ssh-agent # 1"
+    "@docker network inspect amazeeio-network # 0"
 
     "Container 'amazeeio-ssh-agent' that provides volumes to service 'cli' does not exist."
     "Required Docker resources are missing. Start the tool that provides them, such as Pygmy with 'pygmy up', and run this command again."
@@ -165,8 +165,8 @@ FORMAT_MOUNTS='{{range .Mounts}}{{.Name}} {{end}}'
 
   declare -a STEPS=(
     "@docker compose config # ${CONFIG_PYGMY}"
-    "@docker network inspect amazeeio-network # 0"
     "@docker inspect --format {{.State.Running}} amazeeio-ssh-agent # false"
+    "@docker network inspect amazeeio-network # 0"
     "@docker compose ps --all --format {{.Service}}:{{.ID}} # 0"
     "@docker compose up --detach # 0"
 
@@ -189,8 +189,8 @@ FORMAT_MOUNTS='{{range .Mounts}}{{.Name}} {{end}}'
 
   declare -a STEPS=(
     "@docker compose config # ${CONFIG_PYGMY}"
-    "@docker network inspect amazeeio-network # 0"
     "@docker inspect --format {{.State.Running}} amazeeio-ssh-agent # true"
+    "@docker network inspect amazeeio-network # 0"
     "@docker compose ps --all --format {{.Service}}:{{.ID}} # cli:c1\nnginx:n1"
     "@docker inspect --format ${FORMAT_CONTAINER} c1 # net-default |vol-agent-1"
     "@docker network inspect net-default # 0"
@@ -222,8 +222,8 @@ FORMAT_MOUNTS='{{range .Mounts}}{{.Name}} {{end}}'
 
   declare -a STEPS=(
     "@docker compose config # ${CONFIG_PYGMY}"
-    "@docker network inspect amazeeio-network # 0"
     "@docker inspect --format {{.State.Running}} amazeeio-ssh-agent # true"
+    "@docker network inspect amazeeio-network # 0"
     "@docker compose ps --all --format {{.Service}}:{{.ID}} # cli:c1\nnginx:n1"
     "@docker inspect --format ${FORMAT_CONTAINER} c1 # net-default |  vol-agent-old "
     "@docker network inspect net-default # 0"
@@ -255,8 +255,8 @@ FORMAT_MOUNTS='{{range .Mounts}}{{.Name}} {{end}}'
 
   declare -a STEPS=(
     "@docker compose config # ${CONFIG_PYGMY}"
-    "@docker network inspect amazeeio-network # 0"
     "@docker inspect --format {{.State.Running}} amazeeio-ssh-agent # true"
+    "@docker network inspect amazeeio-network # 0"
     "@docker compose ps --all --format {{.Service}}:{{.ID}} # cli:c1\nnginx:n1"
     "@docker compose up --detach --build --force-recreate # 0"
 
