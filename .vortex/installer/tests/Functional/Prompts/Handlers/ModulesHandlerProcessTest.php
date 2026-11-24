@@ -55,7 +55,12 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('entity_usage');
       }),
-      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('entity_usage')),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertSutNotContains('entity_usage');
+        $test->assertFileDoesNotExist(static::$sut . '/patches/entity_usage-site-domains-null-base-url.patch');
+        $test->assertFileContainsString(static::$sut . '/composer.json', '"patches": {}');
+        $test->assertFileContainsString(static::$sut . '/composer.json', '"web/core": [' . "\n");
+      }),
     ];
     yield 'modules_no_environment_indicator' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {

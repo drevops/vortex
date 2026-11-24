@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use AlexSkrypnyk\File\Replacer\Replacement;
+use Composer\Json\JsonFile;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\JsonManipulator;
 
@@ -134,9 +135,10 @@ class Modules extends AbstractHandler {
           // Discovery reads both sections, so removal has to cover both.
           $cj->removeSubNode('require', $removed_package);
           $cj->removeSubNode('require-dev', $removed_package);
-          $cj->removeSubNode('extra', 'patches.' . $removed_package);
         }
       });
+
+      $this->removePatches($t . '/composer.json', $removed_packages);
     }
 
     // The only scenario in the demo pages feature asserts Testmode filtering,
@@ -245,6 +247,40 @@ class Modules extends AbstractHandler {
     }
 
     return $modules;
+  }
+
+  /**
+   * Remove the patch entries of removed packages from a composer.json file.
+   *
+   * Removing a nested 'extra' entry through the manipulator re-encodes the
+   * whole 'extra' node and collapses its arrays, so the file is decoded and
+   * encoded instead. The encoder output matches a normalized composer.json.
+   *
+   * @param string $composer_file
+   *   Path to the composer.json file.
+   * @param string[] $packages
+   *   Package names whose patch entries are removed.
+   */
+  protected function removePatches(string $composer_file, array $packages): void {
+    $data = json_decode(File::read($composer_file), FALSE);
+
+    if (!is_object($data) || !isset($data->extra->patches) || !is_object($data->extra->patches)) {
+      return;
+    }
+
+    $patches = $data->extra->patches;
+    $found = FALSE;
+
+    foreach ($packages as $package) {
+      if (isset($patches->{$package})) {
+        unset($patches->{$package});
+        $found = TRUE;
+      }
+    }
+
+    if ($found) {
+      File::dump($composer_file, JsonFile::encode($data) . "\n");
+    }
   }
 
 }
