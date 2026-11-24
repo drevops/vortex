@@ -15,13 +15,16 @@ class ThemeHandlerProcessTest extends AbstractHandlerProcessTestCase {
   public static function dataProviderHandlerProcess(): \Iterator {
     yield 'theme_olivero' => [
       static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[Theme::id()] = Theme::OLIVERO),
-      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
-        '.gitignore',
-        'scripts/vortex',
-        'composer.json',
-        'AGENTS.md',
-        'CLAUDE.md',
-      ])),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->assertDirectoryNotContainsString(static::$sut, 'themes/custom', [
+            '.gitignore',
+            'scripts/vortex',
+            'composer.json',
+            'AGENTS.md',
+            'CLAUDE.md',
+          ]);
+          $test->assertDirectoryDoesNotExist(static::$sut . '/.claude/skills/create-component');
+      }),
     ];
     yield 'theme_claro' => [
       static::cw(fn(AbstractHandlerProcessTestCase $test): string => $test->prompts[Theme::id()] = Theme::CLARO),

@@ -142,6 +142,7 @@ class Theme extends AbstractHandler {
       }
 
       File::removeTokenAsync('DRUPAL_THEME');
+      File::remove($t . '/.claude/skills/create-component');
 
       Env::writeValueDotenv('DRUPAL_THEME', $v, $t . '/.env');
       Env::writeValueDotenv('DRUPAL_MAINTENANCE_THEME', $v, $t . '/.env');
