@@ -25,7 +25,7 @@
 +`VORTEX_WEBSERVER_MAINTENANCE_MODE` variable to `1` on the environment and
 +redeploy it. The `nginx` container then answers every request with the page
 +in `.docker/config/nginx/maintenance.html`. See [Serve a maintenance
-+page](https://www.vortextemplate.com/docs/hosting/lagoon#serve-a-maintenance-page).
++page](https://www.vortextemplate.com/docs/hosting/lagoon/operations#serve-a-maintenance-page).
 +
  ## Project-specific configuration
  

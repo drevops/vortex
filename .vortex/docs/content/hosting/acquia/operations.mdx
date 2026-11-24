@@ -1,0 +1,186 @@
+---
+sidebar_position: 4
+---
+
+# Routine operations
+
+Follow this page to run the day-to-day operations on Acquia environments:
+log in, run Drush, fetch databases and files, run hosting tasks and take
+the site offline. It's for the developer or DevOps engineer who maintains a
+site built from **Vortex** on Acquia.
+
+## Log in to an environment
+
+To run commands in an environment, log in to it over SSH. Your Acquia
+user's SSH key must be loaded in your `ssh-agent`.
+
+1. In the Acquia Cloud UI, copy the SSH URL from the environment's
+   **Overview** page.
+2. Log in with that URL:
+
+   ```shell
+   ssh yoursite.dev@yoursitedev.ssh.prod.acquia-sites.com
+   ```
+
+3. Go to the application directory:
+
+   ```shell
+   cd /var/www/html/yoursite.dev
+   ```
+
+   The SSH user is the application's machine name and the environment
+   name joined with a dot. The application directory takes the same name.
+
+Confirm that you're logged in. Run `./vendor/bin/drush status`, and the
+output shows the environment's site URI and database.
+
+## Run Drush
+
+Log in to the environment, then run the project's own Drush from the
+application directory, for example:
+
+```shell
+./vendor/bin/drush cron
+```
+
+The global `drush` command on Acquia defaults to Drush 8, so use the
+project's `./vendor/bin/drush`.
+
+To run a single command from your machine, download your Drush aliases
+from the Acquia Cloud UI instead. See [Using Drush
+aliases](https://docs.acquia.com/acquia-cloud-platform/using-drush-aliases).
+
+## Fetch database
+
+To fetch a database backup from your Acquia environment for local
+development or CI builds, run the following command:
+
+```shell
+ahoy fetch-db
+```
+
+When the database source (`VORTEX_FETCH_DB_SOURCE`) is `acquia`, the
+installer's default for Acquia projects, the command downloads the latest
+Acquia backup. The command takes the `VORTEX_FETCH_DB_ACQUIA_DB_NAME`
+database from the `VORTEX_FETCH_DB_ENVIRONMENT` environment, which is
+`prod` in the shipped `.env`. It reuses an existing local dump. To create a
+new backup and download it, add `--fresh`.
+
+## Fetch files
+
+To copy the public files of your Acquia environment into
+`docroot/sites/default/files`, run the following command:
+
+```shell
+ahoy fetch-files
+```
+
+For Acquia projects, the installer sets the files source
+(`VORTEX_FETCH_FILES_SOURCE`) to `acquia` and the web root to `docroot`.
+The command looks up the SSH address of the environment through the
+Acquia Cloud API. It then copies the files over SSH with `rsync`, adding
+new files and updating changed ones. The environment comes from
+`VORTEX_FETCH_FILES_ENVIRONMENT`, or from `VORTEX_FETCH_DB_ENVIRONMENT`
+when the first variable is empty. See [Fetch the
+files](../../development/provision.mdx#fetch-the-files) for the
+directories it skips.
+
+## Run a hosting task
+
+The `vortex-task` runner copies databases and files between environments
+and purges the edge cache. It passes each operation to the script for the
+configured hosting platform:
+
+```shell
+./vendor/bin/vortex-task <operation>
+```
+
+The following table lists the operations that Acquia supports:
+
+| Operation     | Description                            |
+|---------------|----------------------------------------|
+| `copy-db`     | Copy the database between environments |
+| `copy-files`  | Copy files between environments        |
+| `purge-cache` | Purge the edge (Varnish) cache         |
+
+The runner also accepts a fourth operation, `custom`, which only Lagoon
+implements.
+
+The runner reads the platform from `VORTEX_PLATFORM`, or from
+`VORTEX_TASK_PLATFORM` to override it for a single task. The Acquia hooks
+export `VORTEX_PLATFORM` themselves. To run an operation manually, for
+example from your local machine, set it yourself:
+
+```shell
+VORTEX_PLATFORM=acquia ./vendor/bin/vortex-task copy-db
+```
+
+Each operation reads the application name and API credentials from your
+`.env` and `.env.local` files. Outside the hooks, the operations have no
+default environments, so set them for a manual run:
+
+- `copy-db`: `VORTEX_TASK_COPY_DB_ACQUIA_SRC`,
+  `VORTEX_TASK_COPY_DB_ACQUIA_DST` and `VORTEX_TASK_COPY_DB_ACQUIA_NAME`
+  (the database name).
+- `copy-files`: `VORTEX_TASK_COPY_FILES_ACQUIA_SRC` and
+  `VORTEX_TASK_COPY_FILES_ACQUIA_DST`.
+- `purge-cache`: `VORTEX_TASK_PURGE_CACHE_ACQUIA_ENV`.
+
+For example, to copy the production database into `dev`, run the following
+command from the project root:
+
+```shell
+VORTEX_PLATFORM=acquia \
+VORTEX_TASK_COPY_DB_ACQUIA_SRC=prod \
+VORTEX_TASK_COPY_DB_ACQUIA_DST=dev \
+VORTEX_TASK_COPY_DB_ACQUIA_NAME=your_site \
+./vendor/bin/vortex-task copy-db
+```
+
+Replace `your_site` with the name of the Acquia database to copy.
+
+Each operation also takes its own `VORTEX_TASK_<OPERATION>_ACQUIA_KEY`,
+`_SECRET` and `_APP_NAME`, where `<OPERATION>` is `COPY_DB`, `COPY_FILES`
+or `PURGE_CACHE`. They default to `VORTEX_ACQUIA_KEY`,
+`VORTEX_ACQUIA_SECRET` and `VORTEX_ACQUIA_APP_NAME`.
+
+After Acquia starts the copy or the purge, the operation checks its status
+every 10 seconds, up to 600 times. To change those numbers, set
+`VORTEX_TASK_<OPERATION>_ACQUIA_STATUS_INTERVAL` and
+`VORTEX_TASK_<OPERATION>_ACQUIA_STATUS_RETRIES`, for example
+`VORTEX_TASK_COPY_DB_ACQUIA_STATUS_INTERVAL`. When the checks run out,
+`copy-db` and `copy-files` fail. `purge-cache` prints a warning and moves
+on to the next domain.
+
+Confirm that a manual run finished. The last line of its output starts with
+`[ OK ] Finished`. For a database copy, the line reads
+`[ OK ] Finished database copying between environments in Acquia.` A failed
+run stops at a line that starts with `[FAIL]` and names the problem, for
+example `[FAIL] Unable to copy database from prod to dev environment.`
+
+## Take the site offline
+
+Acquia serves the site through Apache, so the static maintenance page that
+**Vortex** ships for Lagoon's `nginx` container doesn't apply on Acquia.
+Use Drupal's [maintenance
+mode](../../development/provision.mdx#maintenance-mode) instead:
+
+1. [Log in](#log-in-to-an-environment) to the environment.
+2. Turn maintenance mode on:
+
+   ```shell
+   ./vendor/bin/drush maint:set 1
+   ```
+
+3. Purge the edge cache, so visitors stop getting cached pages. See [Run a
+   hosting task](#run-a-hosting-task).
+
+To bring the site back, log in again and turn maintenance mode off:
+
+```shell
+./vendor/bin/drush maint:set 0
+```
+
+Users with the **Use the site in maintenance mode** permission can still
+use the site. Drupal needs a working database to serve the maintenance
+page.

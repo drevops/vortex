@@ -1,0 +1,64 @@
+---
+sidebar_position: 2
+---
+
+# Set up the Lagoon project
+
+Follow this page to get a Lagoon project ready for the first deployment of
+a site built from **Vortex**. It's for the lead or DevOps engineer who
+requests the project from the hosting provider or creates it.
+
+A Lagoon project holds the settings Lagoon uses to build and deploy your
+repository. On a managed Lagoon service, such as amazee.io, the hosting
+provider creates the project. On a self-hosted Lagoon, a Lagoon
+administrator creates it.
+
+## Request the project
+
+Ask whoever creates the project for the following settings:
+
+| Setting | What **Vortex** expects |
+|---------|-------------------------|
+| Project name | The value of `LAGOON_PROJECT` in `.env` |
+| Git URL | The SSH URL of your repository, such as `git@github.com:your_org/your_site.git` |
+| Deploy key | The public key of the SSH key pair Lagoon generates for the project. Add it to the repository as a deploy key without write access, in GitHub under **Settings > Deploy keys** |
+| Production environment | `main`, the value of `VORTEX_LAGOON_PRODUCTION_BRANCH` in `.env` |
+| Branches | A regular expression for the branches that get an environment |
+| Pull requests | Turned on, so each pull request gets an environment |
+| Repository webhook | None. CI requests every deployment through the Lagoon CLI, so a webhook would deploy each push before its tests pass |
+| Users and SSH keys | A Lagoon user with an SSH key for each person who logs in to environments, fetches databases or runs Drush, in a group with access to the project |
+| Lagoon instance | The SSH host and port and the API endpoint, on a cluster other than amazee.io's |
+| Webhook token | The project's webhook token, for the workflow that removes pull request environments. See [Lagoon deployment](../../deployment/lagoon.mdx#environments) |
+
+For example, the `^(main|develop)$` branch pattern gives `main` and
+`develop` an environment each.
+
+On another cluster, set the instance values in these places:
+
+- The `VORTEX_DEPLOY_LAGOON_INSTANCE*` variables listed in [Lagoon
+  deployment](../../deployment/lagoon.mdx#environment-variables)
+- `VORTEX_FETCH_DB_LAGOON_SSH_HOST`, `VORTEX_FETCH_DB_LAGOON_SSH_PORT`,
+  `VORTEX_FETCH_FILES_LAGOON_SSH_HOST` and
+  `VORTEX_FETCH_FILES_LAGOON_SSH_PORT` in `.env`, which `ahoy fetch-db`
+  and `ahoy fetch-files` read
+- The host and port in `drush/sites/lagoon.site.yml`
+
+## Connect the project
+
+After the project exists, add the SSH key that CI uses and the
+environment variables. See [Set up
+hosting](/docs/installation?hosting-provider=lagoon#6-set-up-hosting) in the
+Installation guide and select **Lagoon**.
+
+Confirm that you can reach the project. After the first deployment of
+`main`, [log in to the
+environment](operations.mdx#log-in-to-an-environment).
+
+## What's next
+
+The following pages cover the next steps:
+
+- [Migrate a site to Lagoon](migrate.mdx) - move a live site from another
+  host
+- [Domains and certificates](domains.mdx) - serve production on your own
+  domains

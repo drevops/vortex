@@ -1,0 +1,116 @@
+---
+sidebar_label: Overview
+sidebar_position: 1
+---
+
+# Lagoon
+
+[Lagoon](https://lagoon.sh/) is an open source container-based hosting
+platform that provides automated deployments for Drupal applications using
+Docker and Kubernetes.
+
+A site built from **Vortex** gets the following on Lagoon:
+
+- Each change goes live automatically after its tests pass.
+- Each branch and pull request can get its own environment with a copy of
+  the production content. Reviewers test a change there before it goes
+  live, and user emails and passwords in the copy are replaced.
+- The production database is backed up before every deployment.
+- Every domain serves HTTPS with a free certificate that Lagoon renews.
+- Drupal's scheduled tasks (cron) run every 15 minutes.
+- A static maintenance page can take the site offline.
+
+The rest of this section is for the lead or DevOps engineer who runs a
+project built from **Vortex** on Lagoon. This page explains what happens on
+Lagoon during a deployment and how the site detects its environment. For
+general Lagoon documentation, see the [Lagoon
+documentation](https://docs.lagoon.sh/).
+
+After CI asks Lagoon to deploy, Lagoon pulls and builds your code itself.
+[Lagoon deployment](../../deployment/lagoon.mdx) covers that part.
+
+## Onboarding
+
+Pick the guide that matches where the site runs now:
+
+- For a new site, follow [Set up the Lagoon project](setup.mdx), then [Set
+  up hosting](/docs/installation?hosting-provider=lagoon#6-set-up-hosting)
+  in the Installation guide.
+- For a live site on another host, follow [Migrate a site to
+  Lagoon](migrate.mdx).
+
+The other pages in this section cover the site after it runs on Lagoon:
+
+- [Domains and certificates](domains.mdx) - serve production on your own
+  domains over HTTPS
+- [Routine operations](operations.mdx) - log in to environments, fetch
+  databases and files, run tasks and serve a maintenance page
+
+## Integration
+
+The following sections describe what the integration does on Lagoon.
+
+### Tasks
+
+**Vortex** gives you the following tasks on Lagoon:
+
+- Fetch a database from a Lagoon environment for local development or CI
+- Trigger deployments to Lagoon environments (see [Lagoon
+  deployment](../../deployment/lagoon.mdx))
+- Run custom commands on Lagoon environments
+
+These tasks read the project name (`LAGOON_PROJECT`) from your `.env` file
+and the SSH key settings, such as `VORTEX_FETCH_DB_SSH_FILE`, from
+`.env.local`.
+
+### Deployment automation
+
+On each deployment, **Vortex** runs these steps on Lagoon:
+
+1. Notifies configured channels that the deployment is starting
+2. In production, backs up the database to
+   `web/sites/default/files/private/pre_deployment_backups`
+3. In every other environment, fetches the database dump that provisioning
+   imports into a new environment, or into an existing environment when
+   `VORTEX_PROVISION_OVERRIDE_DB` is `1`
+4. Provisions the site: runs database updates, imports configuration,
+   rebuilds caches and runs Drupal's deploy hooks (`drush deploy:hook`)
+5. Notifies configured channels about the finished deployment
+
+Sites that install from a profile skip step 3. Projects with a migration
+source database also fetch that database before provisioning.
+
+In production, provisioning never sanitizes the database. With the default
+`database` provision type, it keeps the existing production database.
+
+Lagoon runs these steps as the post-rollout tasks defined in
+[`.lagoon.yml`](https://github.com/drevops/vortex/blob/main/.lagoon.yml).
+The same file defines a `drush cron` job that runs every 15 minutes in the
+`main` and `develop` environments. It also defines monitoring URLs for
+both. Other environments get no cron job.
+
+### Environment detection
+
+**Vortex** detects Lagoon by its `LAGOON_KUBERNETES` variable and then
+applies the settings in
+[`web/sites/default/includes/providers/settings.lagoon.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/providers/settings.lagoon.php).
+That file applies the following settings:
+
+- It maps the environment to an environment type.
+- It sets `reverse_proxy` to `TRUE` and `reverse_proxy_header` to
+  `HTTP_TRUE_CLIENT_IP`.
+- It gives each branch its own cache prefix, made of the project name and
+  the branch.
+- It trusts the hostnames of the environment's Lagoon routes, the internal
+  `nginx-php` hostname and any `amazee.io` subdomain.
+- It defines the `LAGOON_VERSION` constant as `1` when no other code has
+  defined it.
+
+An environment is production when Lagoon sets its `LAGOON_ENVIRONMENT_TYPE`
+variable to `production`, or when its branch name equals
+`VORTEX_LAGOON_PRODUCTION_BRANCH` exactly. That variable lives in `.env`
+and is `main` by default. Otherwise, `main`, `master`, `release/*` and
+`hotfix/*` branches count as staging. Every other branch counts as
+development. The production check comes first, so with the default
+settings `main` is production. The production steps in `.lagoon.yml` check
+the same 2 things: the environment type and the branch name.

@@ -1,0 +1,75 @@
+---
+sidebar_position: 2
+---
+
+# Set up the Acquia application
+
+Follow this page to get an Acquia application ready for the first
+deployment of a site built from **Vortex**. It's for the lead or DevOps
+engineer who requests the application or creates it.
+
+An Acquia application holds the Git repository and the environments that
+run your site. It comes with 3 environments: Dev, Stage and Prod. Their
+machine names, `dev`, `test` and `prod`, appear in SSH logins and in the
+`hooks/` directories.
+
+## Request the application
+
+Who creates the application depends on the subscription:
+
+- On a Professional subscription, an organization Owner or Administrator
+  adds it. On the **Applications** page, they click **Add Application**,
+  enter the **Application name** and click **Add**.
+- On an Enterprise subscription, Acquia creates it. Ask for it in a
+  support ticket.
+
+Set up the following for the application:
+
+| Setting | What **Vortex** expects |
+|---------|-------------------------|
+| Application name | The value of `VORTEX_ACQUIA_APP_NAME` in `.env`. Acquia accepts 4 to 21 lowercase letters and digits, starting with a letter |
+| Git URL | The application's Git repository URL, which CI pushes the built code to as `VORTEX_DEPLOY_ARTIFACT_GIT_REMOTE` |
+| Automation user | An Acquia user for CI, in a team role with the **Add SSH key to Git repository** permission. Add the CI public key under **Account Settings > SSH Keys** |
+| API token | A Cloud API token, created under **Account Settings > API Tokens** while signed in as the automation user. Acquia shows the **API Key** and **API secret** once, so save both |
+| Hook variables | `VORTEX_ACQUIA_KEY` and `VORTEX_ACQUIA_SECRET`, set to the token's API key and API secret under **Variables** for every environment. The cache purge and copy hooks require them, so set them before the first code switch |
+| Team members | A user with an SSH key for each person who logs in to environments, in a team role with the **Add SSH key to non-Production environments** permission. People who work in Prod also need **Add SSH key to the Production environment** |
+
+Acquia accepts RSA keys of at least 4,096 bits. The key that the
+Installation guide creates meets that requirement.
+
+## Connect the application
+
+After the application exists, add the SSH key and the API token to CI.
+See [Set up
+hosting](/docs/installation?hosting-provider=acquia#6-set-up-hosting) in the
+Installation guide and select **Acquia**.
+
+## Assign code to environments
+
+CI pushes each branch to a branch of the same name in Acquia's repository.
+A tag release arrives as a branch named like `deployment/1.2.3`. Each
+environment runs the branch or tag that you assign to it.
+
+After CI pushes a branch for the first time, assign it to an environment:
+
+1. In the Acquia Cloud UI, open the environment's **Overview** page.
+2. In the **Code** section, click **Switch**.
+3. In the **Switch code** dialog, select the branch in the **Select
+   branch** menu, then click **Continue**.
+4. Click **Switch** to confirm.
+
+For example, assign `develop` to Dev and a `deployment/1.2.3` release
+branch to Prod. Acquia runs the `post-code-deploy` hooks after the switch,
+so the site provisions against the new code.
+
+Confirm that the switch worked. The environment's task log shows the
+hooks' output, ending with the provisioning and cache purge steps.
+
+## What's next
+
+The following pages cover the next steps:
+
+- [Migrate a site to Acquia](migrate.mdx) - move a live site from another
+  host
+- [Domains and certificates](domains.mdx) - serve production on your own
+  domains

@@ -1,0 +1,292 @@
+---
+sidebar_position: 5
+---
+
+# Migrate a site to Acquia
+
+Follow this page to move a live Drupal site from another host, such as
+Lagoon, Pantheon or a virtual machine, onto Acquia. It's for the lead or
+DevOps engineer who runs the move. At the end, the site runs in the Acquia
+Prod environment and its domains point there.
+
+The move runs in 3 stages:
+
+```text
+Copy the site to Acquia
+  │  database and files from the old host, while it stays live
+  ▼
+Test it on Acquia
+  │  repeat the copy as often as you need
+  ▼
+Go live
+     content freeze, final copy, DNS switch, checks
+```
+
+The old host keeps serving the site until the DNS switch, so you can
+repeat the first 2 stages until the copy on Acquia works.
+
+## Before you begin
+
+Make sure you have the following:
+
+- The site's codebase on **Vortex**, with **Acquia** as the hosting
+  provider. To add **Vortex** to the codebase, follow the [existing
+  project
+  steps](/docs/installation#install-vortex-into-an-existing-project).
+- An Acquia application set up as in [Set up the Acquia
+  application](setup.mdx), with SSH access to Prod.
+- SSH access to the old host and permission to run Drush there, or the
+  host's own backup tools.
+- `ssh` and `rsync` on your machine, and your SSH key loaded in your
+  `ssh-agent`.
+- Your local environment running.
+
+The commands on this page use the application machine name `yoursite`
+and the Prod environment, `prod`. Replace
+`yoursite.prod@yoursiteprod.ssh.prod.acquia-sites.com` with the SSH URL
+from the environment's **Overview** page. [Log in to an
+environment](operations.mdx#log-in-to-an-environment) shows how to open a
+session in an environment.
+
+## Copy the site to Acquia
+
+Copy the production database and files into the Acquia Prod environment.
+The old host keeps serving the site while you work.
+
+### 1. Export the database and files from the old host
+
+Bring the old site's data to your machine first, into the paths that
+**Vortex** uses locally. A host without shell access, such as Pantheon,
+has its own backup tools. Download a database backup and the files with
+them. Save the database backup as plain SQL in `.data/db.sql`, and
+decompress a `.gz` backup first. Put the files in the same local paths,
+then continue at step 2.
+
+1. Log in to the old host and go to the old site's Drupal root.
+2. Export the production database without cache data to your home
+   directory, outside the web root:
+
+   ```shell
+   drush sql:dump --structure-tables-list='cache*' > ~/db.sql
+   ```
+
+3. Find the old site's public and private files directories:
+
+   ```shell
+   drush status --fields=files,private
+   ```
+
+4. On your machine, copy the dump into `.data/db.sql`:
+
+   ```shell
+   rsync user@old-host.example.com:db.sql .data/db.sql
+   ```
+
+   Then delete `~/db.sql` on the old host.
+
+5. Copy the old site's public files into `docroot/sites/default/files`:
+
+   ```shell
+   rsync -rltz user@old-host.example.com:/path/to/files/ docroot/sites/default/files/
+   ```
+
+6. Copy the old site's private files into
+   `docroot/sites/default/files/private`:
+
+   ```shell
+   rsync -rltz user@old-host.example.com:/path/to/private/ docroot/sites/default/files/private/
+   ```
+
+   Replace `user@old-host.example.com` with your SSH login on the old host.
+   Replace the paths with the directories from step 3. When a path is
+   relative, prefix it with the old Drupal root's absolute path, which
+   `pwd` prints in that directory.
+
+### 2. Rehearse the provisioning locally
+
+Run the old database through the same provisioning steps that Acquia runs
+on each code deployment, so you fix failures before they reach Acquia:
+
+1. Import `.data/db.sql` into your local database:
+
+   ```shell
+   ahoy import-db
+   ```
+
+2. Provision the imported database:
+
+   ```shell
+   ahoy cli ./vendor/bin/vortex-provision
+   ```
+
+   The command runs the provisioning script directly, so a project that
+   stores its database in a container image keeps the imported database.
+   It runs database updates, imports configuration, rebuilds caches and
+   runs deploy hooks. Fix the codebase until the command finishes with no
+   `[FAIL]` line.
+
+Step 4 uploads the `.data/db.sql` file, so changes to your local database
+stay local.
+
+### 3. Deploy the code to Prod
+
+Push the codebase so CI deploys it to Acquia, then assign the branch to
+Prod. See [Assign code to
+environments](setup.mdx#assign-code-to-environments).
+
+Prod starts with an empty database, so the provisioning hook stops with
+`Unable to import database from file.` The next step fills the database.
+
+### 4. Upload the database and files
+
+To replace the Prod database and files with your local copy:
+
+1. Copy the dump to the root of the environment's files mount, outside
+   the web root:
+
+   ```shell
+   rsync .data/db.sql yoursite.prod@yoursiteprod.ssh.prod.acquia-sites.com:/mnt/files/yoursite.prod/db.sql
+   ```
+
+2. [Log in](operations.mdx#log-in-to-an-environment) to Prod and go to
+   the application directory, `/var/www/html/yoursite.prod`.
+3. Replace the database with the dump, then delete the dump:
+
+   ```shell
+   ./vendor/bin/drush sql:drop -y
+   ./vendor/bin/drush sql:cli < /mnt/files/yoursite.prod/db.sql
+   rm /mnt/files/yoursite.prod/db.sql
+   ```
+
+4. Find the environment's public and private files directories:
+
+   ```shell
+   ./vendor/bin/drush status --fields=files,private
+   ```
+
+5. On your machine, upload the public files:
+
+   ```shell
+   rsync -rltz --exclude /css --exclude /js --exclude /php --exclude /styles --exclude /private docroot/sites/default/files/ yoursite.prod@yoursiteprod.ssh.prod.acquia-sites.com:/mnt/files/yoursite.prod/sites/default/files/
+   ```
+
+   The `--exclude` options skip the directories that Drupal regenerates on
+   demand, and the private files that the next step uploads.
+
+6. Upload the private files:
+
+   ```shell
+   rsync -rltz docroot/sites/default/files/private/ yoursite.prod@yoursiteprod.ssh.prod.acquia-sites.com:/path/to/private/
+   ```
+
+   Replace `/path/to/private` with the private files directory from step
+   4. When that path is relative, prefix it with
+   `/var/www/html/yoursite.prod/docroot/`. Use an absolute path unchanged.
+
+The uploads add and update files. A file deleted on the old site after an
+earlier copy stays on Acquia until you delete it there.
+
+### 5. Provision the site again
+
+Provisioning on Acquia runs from the code deployment hooks. To run it
+again against the imported database, log in to Prod and run the
+provisioning hook from `/var/www/html/yoursite.prod`:
+
+```shell
+hooks/library/provision.sh yoursite prod
+```
+
+Provisioning finds the existing site and keeps its content. It runs
+database updates, imports configuration, rebuilds caches, runs deploy
+hooks and turns maintenance mode off. Confirm that the output ends with
+an `[ OK ]` line and has no `[FAIL]` line.
+
+## Test the site on Acquia
+
+Test the site on its Acquia domain before any of your domains point at
+it. The environment's **Overview** page lists the domain, such as
+`https://yoursiteprod.prod.acquia-sites.com`.
+
+Check the parts of the site that depend on the host:
+
+- Pages, images and documents load.
+- You can log in, and editors can save content.
+- A private file downloads for a user with access to it.
+- Forms send email.
+- Cron runs. **Vortex** adds no cron job on Acquia, so set up the job in
+  the Acquia Cloud UI. Under **Reports > Status report**, the **Cron
+  maintenance tasks** row shows the last run.
+- Search returns results. If the site uses Search API, reindex it first.
+
+To fix a problem, change the codebase, then repeat the copy from [step
+1](#1-export-the-database-and-files-from-the-old-host) as often as you
+need.
+
+To give Dev and Stage a copy of the production content, copy the
+database with the `copy-db` operation. See [Run a hosting
+task](operations.mdx#run-a-hosting-task).
+
+## Go live
+
+Plan the switch for a quiet time, and tell editors when the content freeze
+starts.
+
+1. At least 1 day ahead, lower the time to live (TTL) of each domain's DNS
+   records to 300 seconds, so the switch reaches visitors within minutes.
+2. Add the production domains to Prod and install their certificate. See
+   [Domains and certificates](domains.mdx).
+3. Freeze content on the old site. Ask every editor to stop. Then log in
+   to the old host and, in the old site's Drupal root, put the site in
+   maintenance mode:
+
+   ```shell
+   drush state:set system.maintenance_mode 1 --input-format=integer
+   ```
+
+4. Repeat [step 1](#1-export-the-database-and-files-from-the-old-host),
+   [step 4](#4-upload-the-database-and-files) and [step
+   5](#5-provision-the-site-again) to copy the final content. The dump
+   keeps the old site's maintenance mode, and provisioning turns it off on
+   Acquia.
+5. Point each domain's DNS records at Acquia. See [Point DNS at
+   Acquia](domains.mdx#point-dns-at-acquia).
+6. Wait 5 minutes, the TTL you set in the first step of this list, so the
+   domains resolve to Acquia. Then confirm that each domain serves your
+   certificate:
+
+   ```shell
+   curl -svI https://www.your-site-domain.example 2>&1 | grep -E "issuer|expire date"
+   ```
+
+7. Repeat the checks from [Test the site on
+   Acquia](#test-the-site-on-acquia) on the production domains.
+
+Keep the old site in maintenance mode and its hosting active until you
+no longer need to roll back. To roll back:
+
+1. Ask every editor to stop, including users who can access the site in
+   maintenance mode. Then log in to Prod and put the site in maintenance
+   mode:
+
+   ```shell
+   ./vendor/bin/drush maint:set 1
+   ```
+
+2. Copy the content that editors created on Acquia after the switch to
+   the old site by hand.
+3. Point the DNS records back at the old host.
+4. Log in to the old host and, in the old site's Drupal root, turn
+   maintenance mode off:
+
+   ```shell
+   drush state:set system.maintenance_mode 0 --input-format=integer
+   ```
+
+## What's next
+
+The following pages cover running the site on Acquia:
+
+- [Routine operations](operations.mdx) - log in, fetch databases and
+  files or run hosting tasks
+- [Artifact deployment](../../deployment/artifact.mdx) - how CI pushes the
+  built code to Acquia
