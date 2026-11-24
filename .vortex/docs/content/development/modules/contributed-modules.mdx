@@ -249,12 +249,14 @@ HTTP Response Headers**.
 
 - **Installed:** During demo provisioning by
   [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh),
-  which also configures the headers.
+  which applies the
+  [`recipes/http_response_headers`](https://github.com/drevops/vortex/blob/main/recipes/http_response_headers/recipe.yml)
+  recipe.
 
 ### Configuration
 
-No settings override. On every demo provisioning run, the script adds the
-following headers when they don't exist yet:
+No settings override. The recipe installs the module and creates the
+following headers from its `config` directory:
 
 | Header                              | Value                                      |
 |-------------------------------------|--------------------------------------------|
@@ -263,9 +265,13 @@ following headers when they don't exist yet:
 | `Cross-Origin-Resource-Policy`      | `same-origin`                              |
 | `X-Permitted-Cross-Domain-Policies` | `none`                                     |
 
-The module installs sample headers when it's enabled. The script deletes
-4 of them while they still hold their shipped value, so a sample you've
-edited stays:
+The module ships sample headers. A recipe that installs a module creates
+only the configuration entities it imports, so the recipe imports 6 of the
+samples. They set `X-Frame-Options`, `X-Content-Type-Options`,
+`Referrer-Policy` and `Strict-Transport-Security`, and remove the
+`X-Generator` and `X-Powered-By` headers.
+
+The recipe leaves out the other samples:
 
 - `Content-Security-Policy` has an empty value, and an empty value removes
   the header. It would strip the policy that
@@ -273,9 +279,8 @@ edited stays:
 - `Access-Control-Allow-Origin: *` lets any origin read every response.
 - `Public-Key-Pins` and `X-Xss-Protection` are obsolete in browsers.
 
-The samples that stay set `X-Frame-Options`, `X-Content-Type-Options`,
-`Referrer-Policy` and `Strict-Transport-Security`. They also remove the
-`X-Generator` and `X-Powered-By` headers.
+Provisioning applies the recipe on every run. It creates only the headers
+that don't exist yet, so headers you've edited keep your values.
 
 ## Linkit
 

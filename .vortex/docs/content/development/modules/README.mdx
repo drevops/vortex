@@ -28,6 +28,7 @@ Deselecting 1 removes the following in a single pass:
 
 - Its Composer requirement
 - Its settings override
+- Its recipe in `recipes/`, when it has one
 - Its provisioning steps
 - Its Behat feature
 - Its assertions in the settings tests
@@ -62,7 +63,7 @@ project:
 | Composer requirement | `require` in [`composer.json`](https://github.com/drevops/vortex/blob/main/composer.json) | Makes the module available to the site. ➡️ See [`composer.json`](../composer.mdx#require) |
 | Settings override | `web/sites/default/includes/modules/settings.<module>.php` | Applies configuration for the detected environment, reading values from environment variables. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
 | Config export exclusion | `$settings['config_exclude_modules']` in a settings override | Keeps a module that never reaches production out of the exported configuration, so enabling it locally leaves the config unchanged. ➡️ See [Settings](../settings.mdx#per-module-overrides) |
-| Provisioning | [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh) | Builds the demo site in the `local`, `ci`, `dev` and `stage` environments. Applies the `recipes/page` content model, sets the site name and replaces core's `toolbar` with core's `navigation` as the administration interface. Installs the contrib, service and custom site modules, including core's `media`, then runs their deploy hooks. ➡️ See [Provision](../provision.mdx#demo-modules) |
+| Provisioning | [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh) | Builds the demo site in the `local`, `ci`, `dev` and `stage` environments. Applies the `recipes/page` content model and the `recipes/http_response_headers` security headers, sets the site name and replaces core's `toolbar` with core's `navigation` as the administration interface. Installs the contrib, service and custom site modules, including core's `media`, then runs their deploy hooks. ➡️ See [Provision](../provision.mdx#demo-modules) |
 | Development provisioning | [`scripts/provision-10-enable-dev-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-10-enable-dev-modules.sh) | Installs the modules that never reach production in the same 4 environments: the development tools and the email rerouting safety net. Also installs the Storybook module when Storybook is selected. ➡️ See [Provision](../provision.mdx#development-modules) |
 | Migration provisioning | [`scripts/provision-20-migration.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-20-migration.sh) | Installs the `ys_migrate` demo migration module, and with it Migrate Plus and Migrate Tools, in every environment except `prod`. Skips the install when `DRUPAL_MIGRATION_SKIP` is set to `1`. Ships only with the migration feature. ➡️ See [Migrations](../migrations.mdx) |
 | Module dependency | [`ys_demo.info.yml`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_demo/ys_demo.info.yml) | Installs Drupal helpers and Testmode as dependencies of the demo module. ➡️ See [Demo module](module-scaffold.mdx#demo-module) |

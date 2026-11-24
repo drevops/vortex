@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies: {  }
+id: cross_origin_opener_policy
+label: Cross-Origin-Opener-Policy
+description: 'Isolates the browsing context from windows on other origins.'
+name: Cross-Origin-Opener-Policy
+value: same-origin
+visibility: {  }

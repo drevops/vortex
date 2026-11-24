@@ -103,7 +103,8 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
       }),
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
         $test->assertSutNotContains('http_response_headers');
-        $test->assertFileNotContainsString(static::$sut . '/scripts/provision-00-enable-demo-modules.sh', 'response_header');
+        $test->assertDirectoryDoesNotExist(static::$sut . '/recipes/http_response_headers');
+        $test->assertFileNotContainsString(static::$sut . '/scripts/provision-00-enable-demo-modules.sh', 'HTTP response headers');
       }),
     ];
     yield 'modules_no_linkit' => [

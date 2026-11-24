@@ -719,8 +719,10 @@ script that sets up the demo site. It does the following, in order:
 2. Sets the site name
 3. Switches the administration interface to the core Navigation module and
    uninstalls Toolbar
-4. Installs the contrib, service and custom site modules
-5. Runs their deployment hooks
+4. Installs the contrib modules, then the HTTP Response Headers module and
+   its headers from the `recipes/http_response_headers` recipe
+5. Installs the service and custom site modules
+6. Runs their deployment hooks
 
 The content model comes first because the site modules attach behavior to
 the `page` content type, and their deployment hooks need it. When the site
