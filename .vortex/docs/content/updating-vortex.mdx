@@ -223,7 +223,10 @@ To adopt a module that a release adds:
 1. Run the update with `ahoy update-vortex --interactive`, and select the
    module at the **Modules** question.
 2. Reconcile `composer.json` and run `ahoy composer update`, as in steps 6
-   and 7 of the [update process](#update-process).
+   and 7 of the [update process](#update-process). When the update adds an
+   entry to `extra.patches`, run `ahoy composer patches-relock` and
+   `ahoy composer patches-repatch` too, so an installed package gets the
+   patch. See [Add a patch](development/composer.mdx#add-a-patch).
 3. Install the module on your local site the same way
    `scripts/provision-00-enable-demo-modules.sh` does. Most modules install
    with `ahoy drush pm:install`. A module that ships a recipe in `recipes/`
