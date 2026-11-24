@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+##
+# Remove an environment from the hosting platform.
+#
+# This is a router script that dispatches the removal to the implementation for
+# the configured hosting platform: it runs the 'remove-environment-<platform>'
+# sibling script.
+#
+# The platform is read from VORTEX_REMOVE_ENVIRONMENT_PLATFORM, falling back to
+# VORTEX_PLATFORM.
+#
+# IMPORTANT! This script runs outside the container on the host system.
+#
+# shellcheck disable=SC1090,SC1091
+
+t=$(mktemp) && export -p >"${t}" && set -a && . ./.env && if [ -f ./.env.local ]; then . ./.env.local; fi && set +a && . "${t}" && rm "${t}" && unset t
+
+set -eu
+[ "${VORTEX_DEBUG-}" = "1" ] && set -x
+
+# Hosting platform to remove the environment from.
+#
+# Values can be one of: lagoon.
+VORTEX_REMOVE_ENVIRONMENT_PLATFORM="${VORTEX_REMOVE_ENVIRONMENT_PLATFORM:-${VORTEX_PLATFORM:-}}"
+
+# ------------------------------------------------------------------------------
+
+# @formatter:off
+info() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[36m[INFO] %s\033[0m\n" "${1}" || printf "[INFO] %s\n" "${1}"; }
+note() { printf "       %s\n" "${1}"; }
+task() { _TASK_START=$(date +%s); [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[34m[TASK] %s\033[0m\n" "${1}" || printf "[TASK] %s\n" "${1}"; }
+pass() { _d=""; [ -n "${_TASK_START:-}" ] && _d=" ($(($(date +%s) - _TASK_START))s)" && unset _TASK_START; [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[32m[ OK ] %s%s\033[0m\n" "${1}" "${_d}" || printf "[ OK ] %s%s\n" "${1}" "${_d}"; }
+fail() { [ "${TERM:-}" != "dumb" ] && tput colors >/dev/null 2>&1 && printf "\033[31m[FAIL] %s\033[0m\n" "${1}" || printf "[FAIL] %s\n" "${1}"; exit "${2:-1}"; }
+# @formatter:on
+
+[ -z "${VORTEX_REMOVE_ENVIRONMENT_PLATFORM}" ] && fail "Missing hosting platform. Set VORTEX_PLATFORM or VORTEX_REMOVE_ENVIRONMENT_PLATFORM."
+
+case "${VORTEX_REMOVE_ENVIRONMENT_PLATFORM}" in
+  lagoon) ;;
+  *) fail "Unsupported hosting platform \"${VORTEX_REMOVE_ENVIRONMENT_PLATFORM}\". Use one of: lagoon." ;;
+esac
+
+"$(dirname "${BASH_SOURCE[0]}")/vortex-remove-environment-${VORTEX_REMOVE_ENVIRONMENT_PLATFORM}" "$@"

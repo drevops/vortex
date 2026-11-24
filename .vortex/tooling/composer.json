@@ -58,6 +58,7 @@
         "src/vortex-push-db",
         "src/vortex-push-db-image",
         "src/vortex-refresh-db",
+        "src/vortex-remove-environment",
         "src/vortex-reset",
         "src/vortex-storybook",
         "src/vortex-task",
