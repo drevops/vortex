@@ -1,0 +1,160 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Point an installed project at the in-tree drevops/vortex-tooling package.
+ *
+ * The installer removes the '.vortex/tooling' path repository, so an installed
+ * project resolves drevops/vortex-tooling from Packagist and runs the released
+ * tooling. This script makes the project run the tooling under test instead:
+ *
+ * - Copies '.vortex/tooling' into the project as '.tooling-source', outside
+ *   '.vortex/' so the project keeps no '.vortex/' directory.
+ * - Adds a path repository for it to 'composer.json' and a COPY of it to
+ *   'cli.dockerfile', so the Composer install in the container uses it.
+ * - Lets it into the Docker build context and keeps it out of the deployment
+ *   artifact.
+ * - Copies it into 'vendor/' with the 'vendor/bin/vortex-*' proxies, so the
+ *   host-side commands use it before a Composer install runs.
+ *
+ * The script uses no Composer dependencies, so it also runs where the test
+ * suite is not installed.
+ *
+ * Usage:
+ *   php .vortex/tests/inject-tooling <project_dir>
+ *   php .vortex/tests/inject-tooling --vendor <project_dir>
+ *
+ * '--vendor' only copies the tooling into 'vendor/', for example after
+ * 'ahoy reset' removed it.
+ */
+
+$args = array_slice($argv ?? [], 1);
+$vendor_only = in_array('--vendor', $args, TRUE);
+$args = array_values(array_diff($args, ['--vendor']));
+
+$project_dir = $args[0] ?? '';
+if ($project_dir === '' || !is_dir($project_dir)) {
+  fwrite(STDERR, "Error: Provide an existing project directory.\n");
+  exit(1);
+}
+
+$project_dir = rtrim($project_dir, '/\\');
+$repo_tooling = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'tooling';
+$project_tooling = $project_dir . DIRECTORY_SEPARATOR . '.tooling-source';
+
+if (!$vendor_only) {
+  inject_source($repo_tooling, $project_tooling, $project_dir);
+}
+
+// A project prepared earlier carries its own copy, which survives a reset.
+$source = is_dir($project_tooling) ? $project_tooling : $repo_tooling;
+$vendor_dir = $project_dir . DIRECTORY_SEPARATOR . 'vendor';
+copy_dir($source, $vendor_dir . DIRECTORY_SEPARATOR . 'drevops' . DIRECTORY_SEPARATOR . 'vortex-tooling');
+link_binaries($source, $vendor_dir . DIRECTORY_SEPARATOR . 'bin');
+
+/**
+ * Copy the tooling into the project and wire Composer and Docker to it.
+ */
+function inject_source(string $repo_tooling, string $project_tooling, string $project_dir): void {
+  copy_dir($repo_tooling, $project_tooling);
+
+  $composer_json_path = $project_dir . DIRECTORY_SEPARATOR . 'composer.json';
+  if (file_exists($composer_json_path)) {
+    $composer = json_decode((string) file_get_contents($composer_json_path), TRUE);
+    if (is_array($composer)) {
+      $repositories = isset($composer['repositories']) && is_array($composer['repositories']) ? $composer['repositories'] : [];
+      $repositories[] = [
+        'type' => 'path',
+        'url' => '.tooling-source',
+        'options' => [
+          'symlink' => FALSE,
+          'versions' => [
+            'drevops/vortex-tooling' => '1.5.1',
+          ],
+        ],
+      ];
+      $composer['repositories'] = $repositories;
+      file_put_contents($composer_json_path, json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+    }
+  }
+
+  $dockerfile_path = $project_dir . DIRECTORY_SEPARATOR . '.docker' . DIRECTORY_SEPARATOR . 'cli.dockerfile';
+  if (file_exists($dockerfile_path)) {
+    $needle = 'COPY composer.json composer.* patches.lock.* .env* /app/';
+    $replacement = $needle . "\n\n# Test-only: enables path-repo resolution.\nCOPY .tooling-source /app/.tooling-source";
+    file_put_contents($dockerfile_path, str_replace($needle, $replacement, (string) file_get_contents($dockerfile_path)));
+  }
+
+  $dockerignore_path = $project_dir . DIRECTORY_SEPARATOR . '.dockerignore';
+  if (file_exists($dockerignore_path)) {
+    file_put_contents($dockerignore_path, "\n# Test-only: allow tooling source in build context.\n!.tooling-source\n.tooling-source/tests\n.tooling-source/playground\n.tooling-source/node_modules\n", FILE_APPEND);
+  }
+
+  $gitignore_artifact_path = $project_dir . DIRECTORY_SEPARATOR . '.gitignore.artifact';
+  if (file_exists($gitignore_artifact_path)) {
+    file_put_contents($gitignore_artifact_path, "\n# Test-only: exclude tooling source from the deployment artifact.\n/.tooling-source\n", FILE_APPEND);
+  }
+}
+
+/**
+ * Copy a directory recursively, without its 'node_modules' test dependencies.
+ */
+function copy_dir(string $source, string $destination): void {
+  if (!is_dir($destination)) {
+    mkdir($destination, 0755, TRUE);
+  }
+
+  $items = new RecursiveIteratorIterator(
+    new RecursiveCallbackFilterIterator(
+      new RecursiveDirectoryIterator($source, FilesystemIterator::SKIP_DOTS),
+      fn(SplFileInfo $item): bool => $item->getFilename() !== 'node_modules',
+    ),
+    RecursiveIteratorIterator::SELF_FIRST,
+  );
+
+  foreach ($items as $item) {
+    if (!$item instanceof SplFileInfo) {
+      continue;
+    }
+
+    $target = $destination . DIRECTORY_SEPARATOR . substr($item->getPathname(), strlen($source) + 1);
+
+    if ($item->isDir()) {
+      if (!is_dir($target)) {
+        mkdir($target, 0755, TRUE);
+      }
+
+      continue;
+    }
+
+    copy($item->getPathname(), $target);
+    chmod($target, $item->getPerms() & 0777);
+  }
+}
+
+/**
+ * Generate Composer-style bin proxies for the package 'bin' entries.
+ *
+ * Each proxy resolves the package from its own location and runs the matching
+ * script in the package, so the script's own sibling dispatch keeps working.
+ */
+function link_binaries(string $package_dir, string $bin_dir): void {
+  $composer = json_decode((string) file_get_contents($package_dir . DIRECTORY_SEPARATOR . 'composer.json'), TRUE);
+  $bins = is_array($composer) && isset($composer['bin']) && is_array($composer['bin']) ? $composer['bin'] : [];
+
+  if (!is_dir($bin_dir)) {
+    mkdir($bin_dir, 0755, TRUE);
+  }
+
+  foreach ($bins as $bin) {
+    if (!is_string($bin)) {
+      continue;
+    }
+
+    $proxy = $bin_dir . DIRECTORY_SEPARATOR . basename($bin);
+    file_put_contents($proxy, "#!/usr/bin/env sh\n" . 'dir=$(cd "$(dirname "$0")/../drevops/vortex-tooling" && pwd)' . "\n" . 'exec "${dir}/' . $bin . '" "$@"' . "\n");
+    chmod($proxy, 0755);
+  }
+}

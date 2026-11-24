@@ -33,6 +33,7 @@
     <file>phpunit</file>
     <file>generate-vortex-dev-circleci</file>
     <file>generate-vortex-dev-gha</file>
+    <file>inject-tooling</file>
 
     <!-- Allow long array lines in tests. -->
     <rule ref="Drupal.Arrays.Array.LongLineDeclaration">
@@ -45,6 +46,7 @@
     <rule ref="Drupal.Commenting.FileComment.Missing">
         <exclude-pattern>generate-vortex-dev-circleci</exclude-pattern>
         <exclude-pattern>generate-vortex-dev-gha</exclude-pattern>
+        <exclude-pattern>inject-tooling</exclude-pattern>
     </rule>
 
     <!-- Allow missing class description in tests. -->

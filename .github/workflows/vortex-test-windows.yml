@@ -73,6 +73,9 @@ jobs:
       - name: Install Vortex from the checkout on Windows
         run: php .vortex/installer/installer.php --no-interaction --uri="$env:GITHUB_WORKSPACE" --destination="$env:RUNNER_TEMP\star_wars"
 
+      - name: Prepare the project for testing
+        run: php .vortex/tests/inject-tooling "$env:RUNNER_TEMP\star_wars"
+
       - name: Setup WSL2
         uses: Vampire/setup-wsl@4c48163d9f981914dd8caa0fc335fe19cca5bff4 # v7.2.0
         with:

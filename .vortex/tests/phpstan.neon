@@ -10,6 +10,7 @@ parameters:
     - phpunit
     - generate-vortex-dev-circleci
     - generate-vortex-dev-gha
+    - inject-tooling
 
   excludePaths:
     - vendor/*
