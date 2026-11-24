@@ -11,7 +11,7 @@ module, and what the installer removes when you leave a module out. For
 what each module does, see [Contributed modules](contributed-modules.mdx).
 For the custom modules, see [Module scaffold](module-scaffold.mdx).
 
-**Vortex** ships up to 26 contributed modules, depending on your installer
+**Vortex** ships up to 37 contributed modules, depending on your installer
 answers, each already wired into the environment-aware
 [settings](../settings.mdx) and, where it needs installing, the
 [provisioning](../provision.mdx) scripts. You add the rest of your modules
@@ -23,7 +23,7 @@ ships is `recipes/page`, which creates the demo content model during
 provisioning.
 
 The installer can remove every shipped module except Search API. The
-installer's **Modules** question lists 19 of the shipped modules.
+installer's **Modules** question lists 30 of the shipped modules.
 Deselecting 1 removes the following in a single pass:
 
 - Its Composer requirement
@@ -49,7 +49,7 @@ The remaining 7 modules sit outside the **Modules** question:
 
 The **Modules** and **Services** questions select every option by default.
 The migration and Storybook questions default to No. A run with every
-default answer therefore keeps 23 modules and removes Migrate Plus, Migrate
+default answer therefore keeps 34 modules and removes Migrate Plus, Migrate
 Tools and Storybook.
 
 ## How modules are configured

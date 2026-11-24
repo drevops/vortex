@@ -97,6 +97,15 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
         $test->assertFileNotContainsString(static::$sut . '/scripts/provision-00-enable-demo-modules.sh', 'system.theme admin gin');
       }),
     ];
+    yield 'modules_no_http_response_headers' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('http_response_headers');
+      }),
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+        $test->assertSutNotContains('http_response_headers');
+        $test->assertFileNotContainsString(static::$sut . '/web/modules/custom/ys_base/ys_base.deploy.php', 'response_header');
+      }),
+    ];
     yield 'modules_no_linkit' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {
           $test->prompts[Modules::id()] = static::getModulesExcept('linkit');
@@ -138,6 +147,12 @@ class ModulesHandlerProcessTest extends AbstractHandlerProcessTestCase {
           $test->prompts[Modules::id()] = static::getModulesExcept('redirect');
       }),
       static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains('drupal/redirect')),
+    ];
+    yield 'modules_no_rename_admin_paths' => [
+      static::cw(function (AbstractHandlerProcessTestCase $test): void {
+          $test->prompts[Modules::id()] = static::getModulesExcept('rename_admin_paths');
+      }),
+      static::cw(fn(AbstractHandlerProcessTestCase $test) => $test->assertSutNotContains(['rename_admin_paths', 'DRUPAL_USER_PATH'])),
     ];
     yield 'modules_no_reroute_email' => [
       static::cw(function (AbstractHandlerProcessTestCase $test): void {

@@ -689,6 +689,7 @@ The following table describes each package in `require`:
 | [`drupal/field_group`](https://www.drupal.org/project/field_group) | Groups fields into tabs, fieldsets and details elements on entity forms and displays. | None |
 | [`drupal/generated_content`](https://www.drupal.org/project/generated_content) | Generates deterministic placeholder content from declarative definitions for development and testing. | [Generated Content](modules/generated-content.mdx), [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/gin`](https://www.drupal.org/project/gin) | An administration theme built on Claro. Provisioning sets it as the administration theme. | None |
+| [`drupal/http_response_headers`](https://www.drupal.org/project/http_response_headers) | Adds, replaces or removes HTTP headers on every Drupal response, such as `Permissions-Policy` and the cross-origin policies. | [Contributed modules](modules/contributed-modules.mdx#http-response-headers) |
 | [`drupal/linkit`](https://www.drupal.org/project/linkit) | Adds autocomplete for site content to the CKEditor 5 link dialog. | None |
 | [`drupal/menu_trail_by_path`](https://www.drupal.org/project/menu_trail_by_path) | Sets the active menu trail from the URL path, so a parent menu item stays active on pages that have no menu link. | None |
 | [`drupal/metatag`](https://www.drupal.org/project/metatag) | Manages meta tags, such as the canonical URL and the page description, with defaults per entity type. | None |
@@ -698,6 +699,7 @@ The following table describes each package in `require`:
 | [`drupal/pathauto`](https://www.drupal.org/project/pathauto) | Automatically generates URL aliases for content based on configurable patterns. | None |
 | [`drupal/redirect`](https://www.drupal.org/project/redirect) | Manages URL redirects and creates them automatically when content URLs change. | None |
 | [`drupal/redis`](https://www.drupal.org/project/redis) | Integrates Drupal with the Redis in-memory store for cache and lock backends. | [Settings](settings.mdx#per-module-overrides) |
+| [`drupal/rename_admin_paths`](https://www.drupal.org/project/rename_admin_paths) | Moves the `/user` routes, including the login page, to the path set in `DRUPAL_USER_PATH`. | [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/reroute_email`](https://www.drupal.org/project/reroute_email) | Reroutes all outbound email to a configured address on non-production environments to avoid emailing real users. | [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/robotstxt`](https://www.drupal.org/project/robotstxt) | Manages the `robots.txt` file from the admin UI, useful when it can't be placed on disk (for example, in multisite setups). **Vortex** leaves core's `robots.txt` out of scaffolding, so this module serves the file. | [Settings](settings.mdx#per-module-overrides) |
 | [`drupal/scheduled_transitions`](https://www.drupal.org/project/scheduled_transitions) | Schedules a revision to change its moderation state, such as publishing at a set date and time. | None |

@@ -24,6 +24,7 @@ exceptions+:
   - Git
   - GitFlow
   - GPG
+  - HTTP Response Headers
   - JavaScript
   - Menu Trail By Path
   - Migrate Plus
@@ -34,6 +35,7 @@ exceptions+:
   - PHP Code Sniffer
   - PR
   - PRs
+  - Rename Admin Paths
   - Reroute Email
   - RobotsTxt
   - Scheduled Transitions
