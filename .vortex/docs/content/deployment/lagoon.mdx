@@ -184,6 +184,11 @@ When the secret is missing, the workflow fails with
 `LAGOON_WEBHOOK_TOKEN secret is not set.`. The workflow also fails when
 Lagoon rejects the request, and it prints Lagoon's response on every run.
 
+The workflow passes when the pull request has no `pr-<N>` environment,
+for example when the pull request closed before its deployment. Lagoon
+answers with `{"error":"invalid resquest payload"}`, its error for any
+removal it can't do. The workflow reports that answer as a notice.
+
 The endpoint defaults to `https://webhook.amazeeio.cloud/`. To use another
 Lagoon instance, set the `LAGOON_WEBHOOK_ENDPOINT` repository variable.
 
