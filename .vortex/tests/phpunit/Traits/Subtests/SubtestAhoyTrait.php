@@ -1392,6 +1392,40 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyRenameUserPath(): void {
+    $this->logStepStart();
+
+    $status = 'docker compose exec -T cli curl -sS -o /dev/null -w "%{http_code}"';
+
+    $this->logSubstep('Assert that the login form is served from the default user path');
+    $this->cmd($status . ' http://nginx:8080/user/login', '200', 'Default login path should be answered with a 200 status');
+
+    $this->logSubstep('Override the user path');
+    $this->fileAddVar('.env', 'DRUPAL_USER_PATH', '/staff/');
+    $this->syncToContainer('.env');
+    $this->substepRecreateContainers();
+    // The user path is applied to the routes when the router is rebuilt.
+    $this->cmd('ahoy drush cr');
+
+    $this->logSubstep('Assert that the login form is served from the overridden user path');
+    $this->cmd($status . ' http://nginx:8080/user/login', '404', 'Default login path should be answered with a 404 status');
+    $this->cmd($status . ' http://nginx:8080/staff/login', '200', 'Overridden login path should be answered with a 200 status');
+    $this->assertWebpageContains('/staff/login', 'user-login-form', 'Overridden login path should show the login form');
+    $this->cmd('ahoy drush user:login --no-browser', '* /staff/reset/', 'One-time login link should use the overridden user path');
+
+    $this->logSubstep('Restore the default user path');
+    $this->fileRestore('.env');
+    $this->syncToContainer('.env');
+    $this->substepRecreateContainers();
+    $this->cmd('ahoy drush cr');
+
+    $this->logSubstep('Assert that the login form is served from the default user path again');
+    $this->cmd($status . ' http://nginx:8080/user/login', '200', 'Default login path should be answered with a 200 status');
+    $this->cmd($status . ' http://nginx:8080/staff/login', '404', 'Overridden login path should be answered with a 404 status');
+
+    $this->logStepFinish();
+  }
+
   protected function subtestAhoyNginxMaintenance(): void {
     $this->logStepStart();
 
@@ -1451,6 +1485,13 @@ trait SubtestAhoyTrait {
     $this->cmd('ahoy start', '! Starting containers failed.', '`ahoy start` should not recreate healthy containers');
 
     $this->logStepFinish();
+  }
+
+  protected function substepRecreateContainers(): void {
+    $this->logNote('Recreating containers with the changed environment');
+    $this->cmd('ahoy up', txt: 'Containers should be recreated');
+    $this->cmd('docker compose exec -T cli wait-for nginx:8080', txt: 'Wait for nginx to accept connections', tio: 60);
+    $this->cmd('docker compose exec -T cli wait-for php:9000', txt: 'Wait for PHP to accept connections', tio: 60);
   }
 
   protected function substepWarmCaches(): void {
