@@ -216,6 +216,10 @@ platform. For Acquia or Lagoon, pick the tab for your hosting provider:
 <Tabs queryString="hosting-provider" groupId="hosting-provider">
 <TabItem value="acquia" label="Acquia" default>
 
+Your Acquia application must exist before these steps. [Set up the Acquia
+application](/docs/hosting/acquia/setup) lists what to create or ask Acquia
+for.
+
 To set up Acquia:
 
 1. Add the public key from [step 5](#5-create-an-ssh-key-for-deployments)
@@ -227,10 +231,10 @@ To set up Acquia:
    machine name.
 3. If your Acquia application name (machine name) differs, correct the value
    in `.env`, then commit and push the change.
-4. Under **Account > API tokens** in the Acquia Cloud UI, create an Acquia
-   Cloud API token for the account that runs the automation. The token
-   gives you an API key and secret, and the pipeline downloads database
-   backups with them. Keep both values and your application's Git
+4. Under **Account Settings > API Tokens** in the Acquia Cloud UI, create
+   an Acquia Cloud API token for the account that runs the automation. The
+   token gives you an API key and secret, and the pipeline downloads
+   database backups with them. Keep both values and your application's Git
    repository URL for the next step.
 
 On Acquia, leave `DRUPAL_HASH_SALT` unset. The platform's settings file
@@ -241,9 +245,9 @@ automatically (see
 </TabItem>
 <TabItem value="lagoon" label="Lagoon">
 
-Your Lagoon project must exist before these steps. [Before the first
-deployment](/docs/hosting/lagoon#before-the-first-deployment) lists the
-settings to ask your hosting provider for.
+Your Lagoon project must exist before these steps. [Set up the Lagoon
+project](/docs/hosting/lagoon/setup) lists the settings to ask your
+hosting provider for.
 
 To set up Lagoon:
 
@@ -371,8 +375,9 @@ Confirm that the first build passed:
 
 The installer can't predict what state your project is in, so you install
 **Vortex** into a clean working copy, then merge your existing project back
-into it. To move the site to Lagoon as well, follow [Migrate a site to
-Lagoon](/docs/hosting/migrate-to-lagoon) after these steps.
+into it. To move the site to a new host as well, follow [Migrate a site to
+Acquia](/docs/hosting/acquia/migrate) or [Migrate a site to
+Lagoon](/docs/hosting/lagoon/migrate) after these steps.
 
 :::warning
 

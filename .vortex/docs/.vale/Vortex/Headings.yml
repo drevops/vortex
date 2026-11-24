@@ -12,6 +12,7 @@ exceptions+:
   - Config Split
   - Config Update
   - CSS
+  - DNS
   - DOM
   - Drupal Helpers
   - Entity Usage

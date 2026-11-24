@@ -425,8 +425,8 @@ and the workflow skips the run.
 On Acquia, the notification hook reports
 `https://<site>.<realm>.acquia-sites.com`, or the custom domain in
 `VORTEX_NOTIFY_ENVIRONMENT_DOMAIN` (see
-[Acquia](../hosting/acquia.mdx#deployment-automation)). A deployment there
-resolves to a PR only when that URL contains the segment.
+[Acquia](../hosting/acquia/README.mdx#deployment-automation)). A
+deployment there resolves to a PR only when that URL contains the segment.
 
 A target URL with no `pr-<number>` segment, such as a deploy to `dev`,
 `test` or `prod`, counts as a non-PR deployment. The workflow then runs

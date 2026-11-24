@@ -38,6 +38,7 @@
         "clamav",
         "cobertura",
         "codeql",
+        "docroot",
         "coderabbit",
         "commandfiles",
         "containerisation",
@@ -136,7 +137,8 @@
         "worktree",
         "xmlsitemap",
         "yourorg",
-        "yoursite"
+        "yoursite",
+        "yoursiteprod"
     ],
     "overrides": [
         {

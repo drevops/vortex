@@ -1,0 +1,70 @@
+---
+sidebar_position: 3
+---
+
+# Domains and certificates
+
+Follow this page to serve the Lagoon production environment on your own
+domains over HTTPS. It's for the lead or DevOps engineer who prepares a
+site's launch.
+
+## Add the domains
+
+Each Lagoon environment gets an automatic route, such as
+`https://nginx-php.main.your_site.au2.amazee.io`. To serve production on
+your own domains, add a `routes` key to the `main` environment in
+`.lagoon.yml` and list the domains under the `nginx-php` service. Set
+`monitoring_urls` to your main domain:
+
+```yaml title=".lagoon.yml"
+environments:
+  main:
+    # Keep the shipped cronjobs key here.
+    routes:
+      - nginx-php:
+          - www.your-site-domain.example
+          - your-site-domain.example
+    monitoring_urls:
+      - www.your-site-domain.example
+```
+
+Lagoon adds the routes on the environment's next deployment. **Vortex**
+reads the routes from `LAGOON_ROUTES`, so Drupal trusts each domain's
+hostname.
+
+## Point DNS at Lagoon
+
+Point each domain's DNS records at the address that your hosting provider
+gives you for the cluster. An apex domain, such as `example.com`, can't
+hold a `CNAME` record, so ask the provider for an IP address for it.
+
+## Certificates
+
+Lagoon requests a free Let's Encrypt certificate for each route and renews
+it. Let's Encrypt issues the certificate only after the domain resolves to
+Lagoon, so a new domain serves HTTPS a few minutes after its DNS switch.
+The top-level `routes` key in `.lagoon.yml` sets `insecure` to `Redirect`,
+so every route redirects HTTP requests to HTTPS.
+
+To use a certificate of your own, set `tls-acme` to `'false'` on each
+domain it covers, then ask your hosting provider to install the
+certificate:
+
+```yaml title=".lagoon.yml"
+environments:
+  main:
+    routes:
+      - nginx-php:
+          - www.your-site-domain.example:
+              tls-acme: 'false'
+```
+
+The shipped `.lagoon.yml` holds this block as a comment under each
+environment.
+
+Confirm that a domain serves its certificate. The following command
+prints the certificate's issuer and expiry date:
+
+```shell
+curl -svI https://www.your-site-domain.example 2>&1 | grep -E "issuer|expire date"
+```

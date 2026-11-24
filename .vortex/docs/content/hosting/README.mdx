@@ -7,18 +7,18 @@ sidebar_position: 1
 
 This section covers where your site _runs_. It's for the lead or DevOps
 engineer who hosts a project built from **Vortex**, and for anyone choosing
-where to host it. Each provider page explains what the integration does and
-how **Vortex** detects the environment. It also covers the routine
-operations on that platform: fetching and copying databases, purging caches
-and running custom commands.
+where to host it.
 
-**Vortex** integrates with 2 hosting providers:
+**Vortex** integrates with 2 hosting providers, [Acquia](acquia/README.mdx)
+and [Lagoon](lagoon/README.mdx). Each provider has the same set of pages:
 
-- [Acquia](acquia.mdx)
-- [Lagoon](lagoon.mdx)
-
-To move a live site from another host onto Lagoon, follow [Migrate a site
-to Lagoon](migrate-to-lagoon.mdx).
+| Page | Covers | Acquia | Lagoon |
+|------|--------|--------|--------|
+| Overview | What a site gets on the platform, what runs on each deployment and how the site detects its environment | [Overview](acquia/README.mdx) | [Overview](lagoon/README.mdx) |
+| Setup | What must exist on the platform before the first deployment | [Set up the Acquia application](acquia/setup.mdx) | [Set up the Lagoon project](lagoon/setup.mdx) |
+| Domains | Production domains, DNS and certificates | [Domains and certificates](acquia/domains.mdx) | [Domains and certificates](lagoon/domains.mdx) |
+| Operations | Logging in, Drush, databases, files, tasks and taking the site offline | [Routine operations](acquia/operations.mdx) | [Routine operations](lagoon/operations.mdx) |
+| Migration | Moving a live site from another host | [Migrate a site to Acquia](acquia/migrate.mdx) | [Migrate a site to Lagoon](lagoon/migrate.mdx) |
 
 For any other provider, choose **Other** or **None** at the installer's
 **Hosting provider** prompt. With either answer, the installer leaves out

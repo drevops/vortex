@@ -1,0 +1,78 @@
+---
+sidebar_position: 3
+---
+
+# Domains and certificates
+
+Follow this page to serve an Acquia environment on your own domains over
+HTTPS. It's for the lead or DevOps engineer who prepares a site's launch.
+
+## Add the domains
+
+Each Acquia environment gets an Acquia domain, such as
+`yoursiteprod.prod.acquia-sites.com`. To serve an environment on your own
+domains, add each domain in the Acquia Cloud UI:
+
+1. Open the environment, then open its **Domains** page.
+2. Click **Add Domain**.
+3. In the **Domain to add** field, enter the domain without the protocol,
+   such as `www.your-site-domain.example`.
+4. Click **Add domain**.
+
+A domain can hold 1 `*` wildcard, such as `*.your-site-domain.example`,
+which matches 1 level of sub-domain.
+
+Each deployment's cache purge covers every domain of the environment,
+custom domains included. See [Deployment
+automation](README.mdx#deployment-automation) for the domains it skips.
+To make deployment notifications link to your main domain, set
+`VORTEX_NOTIFY_ENVIRONMENT_DOMAIN` under **Variables** for the
+environment.
+
+If Drupal answers a new domain with
+`The provided host name is not valid for this server.`, add the domain to
+`DRUPAL_TRUSTED_HOSTS` under **Variables**. The variable takes a
+comma-separated list of domains.
+
+## Point DNS at Acquia
+
+The **DNS information** card on the **Domains** page lists the records to
+create:
+
+- When the card shows a `CNAME` target, point each sub-domain, such as
+  `www`, at it with a `CNAME` record. Point an apex domain, such as
+  `example.com`, at it only when your DNS provider supports a `CNAME`
+  there.
+- For every other domain, create an `A` record for each IP address the
+  card lists.
+
+Point domains only at the targets the card lists. Confirm each domain with
+the **Status** link on the **Domains** page. It reports
+**DNS resolves to Acquia** when the records work.
+
+## Certificates
+
+Acquia's default certificate covers only `*.acquia-sites.com`. For your
+own domains, get a certificate from a certificate authority and install
+it. Acquia doesn't issue certificates itself.
+
+To create a certificate signing request (CSR), use the **Certificate
+signing requests** section of the environment's **SSL** page, or create
+it yourself. To install the certificate:
+
+1. Open the environment's **SSL** page.
+2. Click **Install SSL certificate**.
+3. Fill in the **Label**, **SSL Certificate**, **SSL private key** and
+   **CA intermediate certificates** fields.
+4. Click **Install**, then click **Activate**.
+
+On the Platform CDN, the certificate needs a 2048-bit RSA key and the full
+chain. A certificate doesn't renew on Acquia, so install a new one before
+the current one expires.
+
+Confirm that a domain serves your certificate. The following command
+prints the certificate's issuer and expiry date:
+
+```shell
+curl -svI https://www.your-site-domain.example 2>&1 | grep -E "issuer|expire date"
+```
