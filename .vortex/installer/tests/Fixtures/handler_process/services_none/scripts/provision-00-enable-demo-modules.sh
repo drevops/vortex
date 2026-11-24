@@ -1,4 +1,4 @@
-@@ -83,19 +83,6 @@
+@@ -81,19 +81,6 @@
  drush config:set system.theme admin gin
  pass "Set Gin as the administration theme."
  
@@ -18,7 +18,7 @@
  # Enable custom site module and run its deployment hooks.
  #
  # Note that deployment hooks for already enabled modules have run in the
-@@ -102,8 +89,6 @@
+@@ -100,8 +87,6 @@
  # parent "vortex-provision" script.
  task "Installing custom site modules."
  drush pm:install sw_base
