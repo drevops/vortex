@@ -1,4 +1,4 @@
-@@ -81,10 +81,6 @@
+@@ -82,10 +82,6 @@
  drush config:set system.theme admin gin
  pass "Set Gin as the administration theme."
  

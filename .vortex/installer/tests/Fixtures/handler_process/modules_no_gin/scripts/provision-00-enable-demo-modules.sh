@@ -1,6 +1,6 @@
-@@ -76,11 +76,6 @@
- drush php:eval "\Drupal\Core\Recipe\RecipeRunner::processRecipe(\Drupal\Core\Recipe\Recipe::createFromDirectory(DRUPAL_ROOT . '/../recipes/http_response_headers'));"
- pass "Installed HTTP response headers."
+@@ -77,11 +77,6 @@
+   pass "Skipped installing HTTP response headers: Drupal CLI is not available."
+ fi
  
 -task "Setting Gin as the administration theme."
 -drush theme:install gin

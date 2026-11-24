@@ -178,6 +178,10 @@
         "patchLevel": {
             "drupal/core": "-p2"
         },
-        "patches": {}
+        "patches": {
+            "drupal/entity_usage": {
+                "Skip site base URL discovery when there is no request context": "patches/entity_usage-site-domains-null-base-url.patch"
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-@@ -62,25 +62,6 @@
+@@ -62,26 +62,6 @@
  fi
  pass "Set up the administration navigation."
  
@@ -6,15 +6,16 @@
 -drush pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect rename_admin_paths robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap
 -pass "Installed contrib modules."
 -
--# The recipe installs the module, so only the sample headers it imports are
--# created. The others include an empty 'Content-Security-Policy', which strips
--# the policy another module sends.
--#
--# Applied through Drush because './vendor/bin/dr' has no request context, and
--# Entity Usage fails on the config entities the recipe creates without one.
+-# The recipe creates only the sample headers it imports, so the module's unsafe
+-# samples are never installed.
 -task "Installing HTTP response headers."
--drush php:eval "\Drupal\Core\Recipe\RecipeRunner::processRecipe(\Drupal\Core\Recipe\Recipe::createFromDirectory(DRUPAL_ROOT . '/../recipes/http_response_headers'));"
--pass "Installed HTTP response headers."
+-# Guard against environments where the Drupal CLI is not available.
+-if [ -x ./vendor/bin/dr ]; then
+-  ./vendor/bin/dr recipe "$(pwd)/recipes/http_response_headers" --no-interaction
+-  pass "Installed HTTP response headers."
+-else
+-  pass "Skipped installing HTTP response headers: Drupal CLI is not available."
+-fi
 -
 -task "Setting Gin as the administration theme."
 -drush theme:install gin
