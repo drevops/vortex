@@ -1,4 +1,4 @@
-@@ -93,7 +93,6 @@
+@@ -106,7 +106,6 @@
  
  drush pm:install sw_search
  

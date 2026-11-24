@@ -1,6 +1,6 @@
-@@ -66,11 +66,6 @@
- drush pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group http_response_headers linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect rename_admin_paths robotstxt scheduled_transitions schema_metatag shield stage_file_proxy views_bulk_operations xmlsitemap
- pass "Installed contrib modules."
+@@ -79,11 +79,6 @@
+ drush php:eval "${headers_php}"
+ pass "Configured HTTP response headers."
  
 -task "Setting Gin as the administration theme."
 -drush theme:install gin

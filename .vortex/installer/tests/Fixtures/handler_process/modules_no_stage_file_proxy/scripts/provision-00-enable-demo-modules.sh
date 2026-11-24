@@ -6,4 +6,4 @@
 +drush pm:install coffee config_split config_update media diff entity_usage environment_indicator field_group http_response_headers linkit menu_trail_by_path metatag navigation_extra_tools pathauto redirect rename_admin_paths robotstxt scheduled_transitions schema_metatag shield views_bulk_operations xmlsitemap
  pass "Installed contrib modules."
  
- task "Setting Gin as the administration theme."
+ # The module's samples include an empty 'Content-Security-Policy', which strips
