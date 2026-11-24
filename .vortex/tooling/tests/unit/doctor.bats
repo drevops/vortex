@@ -162,6 +162,31 @@ fixture_pygmy_variables() {
   popd >/dev/null || exit 1
 }
 
+@test "doctor: pre-flight Pygmy check covers only the network and the SSH agent" {
+  pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
+
+  fixture_pygmy_variables
+  export VORTEX_DOCTOR_CHECK_PREFLIGHT=1
+
+  mock_pygmy=$(mock_command "pygmy")
+
+  declare -a STEPS=(
+    "@docker network inspect amazeeio-network # 0"
+    "@docker inspect --format {{.Name}} {{.State.Running}} amazeeio-ssh-agent # /amazeeio-ssh-agent true"
+    "Pygmy network and SSH agent are available."
+    "- Pygmy is running."
+    "All required checks have passed."
+  )
+  mocks="$(steps_run "setup")"
+
+  run .vortex/tooling/src/vortex-doctor
+  assert_success
+  steps_run "assert" "${mocks[@]}"
+  assert_equal "0" "$(mock_get_call_num "${mock_pygmy}")"
+
+  popd >/dev/null || exit 1
+}
+
 @test "doctor: missing Pygmy network fails the Pygmy check" {
   pushd "${LOCAL_REPO_DIR}" >/dev/null || exit 1
 
