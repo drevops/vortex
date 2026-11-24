@@ -1,5 +1,5 @@
-@@ -59,6 +59,16 @@
-   DRUPAL_USER_PATH: ${DRUPAL_USER_PATH:-}
+@@ -57,6 +57,16 @@
+   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
    # Redis integration flag.
    DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}
 +  # Local migration database host (not used in production).
@@ -15,7 +15,7 @@
  
  # The default user under which the containers should run.
  x-user: &default-user
-@@ -157,6 +167,20 @@
+@@ -155,6 +165,20 @@
      ports:
        - '3306' # Database port in a container. Find port on host with `ahoy info` or `docker compose port database 3306`.
  
@@ -36,7 +36,7 @@
    redis:
      image: uselagoon/valkey-8:__VERSION__
  
-@@ -182,6 +206,21 @@
+@@ -180,6 +204,21 @@
      networks:
        - default
  
@@ -58,7 +58,7 @@
    # Chrome container, used for browser testing.
    chrome:
      image: selenium/standalone-chromium:__VERSION__
-@@ -200,11 +239,13 @@
+@@ -198,11 +237,13 @@
      depends_on:
        - clamav
        - database
