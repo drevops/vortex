@@ -103,6 +103,10 @@ class Modules extends AbstractHandler {
 
         File::remove($t . '/recipes/' . $module_name);
 
+        foreach (glob($t . '/patches/' . $module_name . '-*.patch') ?: [] as $patch) {
+          File::remove($patch);
+        }
+
         File::replaceContentInFile($t . '/scripts/provision-00-enable-demo-modules.sh', Replacement::create('module', function (string $content) use ($module_name): string {
           $pattern = '/^(\s*)(drush\s+pm:install.*\b' . preg_quote($module_name, '/') . '\b.*)$/m';
           $content = preg_replace_callback($pattern, function (array $matches) use ($module_name): string {
@@ -130,6 +134,7 @@ class Modules extends AbstractHandler {
           // Discovery reads both sections, so removal has to cover both.
           $cj->removeSubNode('require', $removed_package);
           $cj->removeSubNode('require-dev', $removed_package);
+          $cj->removeSubNode('extra', 'patches.' . $removed_package);
         }
       });
     }
