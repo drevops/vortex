@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies: {  }
+id: permissions_policy
+label: Permissions-Policy
+description: 'Browser features pages may use.'
+name: Permissions-Policy
+value: 'camera=(), microphone=(), geolocation=()'
+visibility: {  }

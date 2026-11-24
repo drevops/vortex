@@ -7,7 +7,7 @@
  pass "Set site name."
  
  # Use the core Navigation module as the administration interface and remove
-@@ -102,11 +102,11 @@
+@@ -101,11 +101,11 @@
  # Note that deployment hooks for already enabled modules have run in the
  # parent "vortex-provision" script.
  task "Installing custom site modules."

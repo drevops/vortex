@@ -1,6 +1,6 @@
-@@ -34,12 +34,6 @@
- recipes/*
+@@ -35,12 +35,6 @@
  !recipes/page
+ !recipes/http_response_headers
  
 -# Claude writes machine-local state into '.claude/', so it stays an allow
 -# list: un-ignore only the files shared with the team.

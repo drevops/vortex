@@ -1,6 +1,6 @@
-@@ -79,11 +79,6 @@
- drush php:eval "${headers_php}"
- pass "Configured HTTP response headers."
+@@ -78,11 +78,6 @@
+   pass "Skipped installing HTTP response headers: Drupal CLI is not available."
+ fi
  
 -task "Setting Gin as the administration theme."
 -drush theme:install gin
