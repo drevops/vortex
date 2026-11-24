@@ -5,7 +5,7 @@ index f45d9d3..368a47a 100644
 @@ -46,11 +46,16 @@ readonly final class SiteDomains {
        $site_domains = self::stringsToConfig($site_domains);
      }
-
+ 
 -    // Auto-discover the site base URL from the current request context.
 -    $base_url = rtrim(mb_strtolower($requestContext->getCompleteBaseUrl()), '/');
 -    foreach (self::stringsToConfig([$base_url]) as $entry) {
@@ -23,3 +23,4 @@ index f45d9d3..368a47a 100644
 +        }
        }
      }
+ 
