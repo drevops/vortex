@@ -21,6 +21,7 @@ commands:
     aliases: [rebuild]
     cmd: |
       ahoy confirm "All containers, build files and database will be removed. Proceed?" && export AHOY_CONFIRM_RESPONSE=y && export AHOY_CONFIRM_WAIT_SKIP=1 || exit 0
+      ahoy preflight                      # Check the host before the reset removes the tooling.
       ahoy reset                          # Reset the project.
       ahoy up --build --force-recreate    # Start the stack.
       ahoy composer install               # Install Composer dependencies.
@@ -72,7 +73,9 @@ commands:
   up:
     usage: Build and start containers.
     cmd: |
-      ./scripts/vortex-stack.sh up "$@"
+      ahoy preflight
+      # A container attached to a removed network starts only after it is recreated.
+      docker compose up --detach "$@" || { echo "Starting containers failed. Recreating them and trying again."; docker compose up --detach --force-recreate "$@"; }
       if docker compose logs | grep -q "\[Error\]"; then exit 1; fi
 
   down:
@@ -84,7 +87,9 @@ commands:
 
   start:
     usage: Start existing containers, or create them if there are none.
-    cmd: ./scripts/vortex-stack.sh start "$@"
+    cmd: |
+      ahoy preflight
+      docker compose up --detach --no-recreate "$@" || { echo "Starting containers failed. Recreating them and trying again."; docker compose up --detach --force-recreate "$@"; }
 
   stop:
     usage: Stop running containers.
@@ -428,6 +433,15 @@ commands:
           sleep 3
         fi
       fi
+    hide: true
+
+  # Internal utility command to run the Doctor pre-flight checks before the
+  # containers start. Set VORTEX_DOCTOR_CHECK_PREFLIGHT to '0' to skip them.
+  # Skipped while the tooling is not installed, for example right after a reset.
+  preflight:
+    cmd: |
+      if [ "${VORTEX_DOCTOR_CHECK_PREFLIGHT:-1}" = "0" ] || [ ! -f ./vendor/bin/vortex-doctor ]; then exit 0; fi
+      VORTEX_DOCTOR_CHECK_PREFLIGHT=1 VORTEX_DOCTOR_CHECK_TOOLS="${VORTEX_DOCTOR_CHECK_TOOLS:-0}" VORTEX_DOCTOR_CHECK_PORT="${VORTEX_DOCTOR_CHECK_PORT:-0}" ./vendor/bin/vortex-doctor
     hide: true
 
 # Override entrypoint to alter default behavior of Ahoy.
