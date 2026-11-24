@@ -248,14 +248,13 @@ header is a configuration entity, managed at **Configuration > System >
 HTTP Response Headers**.
 
 - **Installed:** During demo provisioning by
-  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh),
+  which also configures the headers.
 
 ### Configuration
 
-No settings override. The `ys_base_deploy_configure_response_headers()`
-deploy hook in
-[`ys_base.deploy.php`](https://github.com/drevops/vortex/blob/main/web/modules/custom/ys_base/ys_base.deploy.php)
-adds the following headers:
+No settings override. On every demo provisioning run, the script adds the
+following headers when they don't exist yet:
 
 | Header                              | Value                                      |
 |-------------------------------------|--------------------------------------------|
@@ -264,8 +263,9 @@ adds the following headers:
 | `Cross-Origin-Resource-Policy`      | `same-origin`                              |
 | `X-Permitted-Cross-Domain-Policies` | `none`                                     |
 
-The module installs sample headers when it's enabled. The deploy hook
-deletes 4 of them:
+The module installs sample headers when it's enabled. The script deletes
+4 of them while they still hold their shipped value, so a sample you've
+edited stays:
 
 - `Content-Security-Policy` has an empty value, and an empty value removes
   the header. It would strip the policy that
