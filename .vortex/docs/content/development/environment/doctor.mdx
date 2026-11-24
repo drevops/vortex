@@ -123,6 +123,8 @@ defaults to `${HOME}/.ssh/id_rsa`.
 - `VORTEX_DOCTOR_CHECK_PREFLIGHT=1` - turns the tools, port and Pygmy
   checks on and the rest off, to validate a machine before the stack is up.
   With this preset, a check variable you set yourself still wins.
+  With this preset, the Pygmy check covers only the `amazeeio-network` and
+  the SSH agent container, and Doctor runs without the `pygmy` command.
   `ahoy up`, `ahoy start` and `ahoy build` run this preset with the tools
   and port checks off by default. Set it to `0` to skip that check.
 
