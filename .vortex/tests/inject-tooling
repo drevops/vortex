@@ -1,9 +1,8 @@
 #!/usr/bin/env php
 <?php
 
-declare(strict_types=1);
-
 /**
+ * @file
  * Point an installed project at the in-tree drevops/vortex-tooling package.
  *
  * The installer removes the '.vortex/tooling' path repository, so an installed
@@ -29,6 +28,8 @@ declare(strict_types=1);
  * '--vendor' only copies the tooling into 'vendor/', for example after
  * 'ahoy reset' removed it.
  */
+
+declare(strict_types=1);
 
 $args = array_slice($argv ?? [], 1);
 $vendor_only = in_array('--vendor', $args, TRUE);
