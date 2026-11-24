@@ -142,6 +142,14 @@ before they change or delete it.
 
 No settings override.
 
+`composer.json` applies
+[`patches/entity_usage-site-domains-null-base-url.patch`](https://github.com/drevops/vortex/blob/main/patches/entity_usage-site-domains-null-base-url.patch)
+to the module. Entity Usage 5.0.1 fails with a `TypeError` when Drupal
+saves an entity without a request, for example while
+`./vendor/bin/dr recipe` applies a recipe. The patch skips the site URL
+lookup in that case. Remove it from `extra.patches` once a fixed Entity
+Usage release is out.
+
 ## Environment Indicator
 
 [Environment

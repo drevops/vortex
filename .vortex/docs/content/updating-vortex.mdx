@@ -203,6 +203,64 @@ Confirm that the update is complete:
 - Every entry this update added to `.logs/vortex-update.md` is resolved and
   deleted.
 
+## What an update changes
+
+An update changes your project's files. It never changes your site's
+database or the configuration you've exported to `config/default`. An
+installed module or new configuration reaches your environments only after
+you install it locally, export the configuration and deploy it.
+
+### Modules a release adds
+
+The update reapplies your project's current answers. For the **Modules**
+question, your answer is the shipped modules that your `composer.json`
+already requires. A module that a newer release adds to the list isn't in
+your `composer.json` yet, so the update leaves it out. Its settings
+override, recipe, provisioning step and tests stay out too.
+
+To adopt a module that a release adds:
+
+1. Run the update with `ahoy update-vortex --interactive`, and select the
+   module at the **Modules** question.
+2. Reconcile `composer.json` and run `ahoy composer update`, as in steps 6
+   and 7 of the [update process](#update-process).
+3. Install the module on your local site the same way
+   `scripts/provision-00-enable-demo-modules.sh` does. Most modules install
+   with `ahoy drush pm:install`. A module that ships a recipe in `recipes/`
+   installs by applying it:
+
+   ```shell title="Apply a module's recipe"
+   ahoy cli ./vendor/bin/dr recipe recipes/http_response_headers --no-interaction
+   ```
+
+   Replace `http_response_headers` with the module's directory in
+   `recipes/`.
+
+4. Export the configuration, and commit it in the same pull request as the
+   update:
+
+   ```shell title="Export configuration"
+   ahoy drush config:export
+   ```
+
+   Provisioning imports configuration before it runs the custom provision
+   scripts. Until `config/default` lists the module, every provision
+   uninstalls it again.
+
+5. Set any environment variables the module's documentation lists on your
+   hosting environments.
+
+Production gets the module through configuration import when you deploy.
+The demo provisioning script doesn't run in production.
+
+### How a new site gets the same modules
+
+On a new site, `scripts/provision-00-enable-demo-modules.sh` installs the
+shipped modules and applies their recipes in the `local`, `ci`, `dev` and
+`stage` environments. After you export the configuration, configuration
+import keeps those modules installed. Replace the script's operations after
+the site stops relying on the demo content.
+
 ## Best practices
 
 Follow these practices:

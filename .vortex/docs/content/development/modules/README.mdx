@@ -29,10 +29,15 @@ Deselecting 1 removes the following in a single pass:
 - Its Composer requirement
 - Its settings override
 - Its recipe in `recipes/`, when it has one
+- Its patches in `patches/` and their `extra.patches` entry
 - Its provisioning steps
 - Its Behat feature
 - Its assertions in the settings tests
 - Any other block the template marks for it, such as its variables in `.env`
+
+An update keeps your current selection, so a module that a newer release
+adds reaches an existing project only when you select it. See [Modules a
+release adds](../../updating-vortex.mdx#modules-a-release-adds).
 
 If you keep the demo module, keep Drupal helpers selected too: `ys_demo`
 declares it as a dependency and calls it in its deploy hooks, so `ys_demo`
