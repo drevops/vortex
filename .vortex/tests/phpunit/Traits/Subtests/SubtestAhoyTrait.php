@@ -1430,6 +1430,33 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyStartRecovery(): void {
+    $this->logStepStart();
+
+    $status = 'docker compose exec -T cli curl -sS -o /dev/null -w "%{http_code}"';
+
+    $this->logSubstep('Stop the stack and remove its network');
+    $this->cmd('ahoy stop', txt: 'Stack should be stopped');
+    $this->cmd('docker network prune --force --filter label=com.docker.compose.project=' . basename((string) static::$sut), '* _default', 'Project network should be removed while its containers are stopped');
+
+    $this->logSubstep('Assert that the stack starts again');
+    $this->cmd('ahoy start', [
+      "* Service 'database' is attached to a network that no longer exists.",
+      "* Service 'nginx' is attached to a network that no longer exists.",
+      '* Recreated containers for services:',
+    ], '`ahoy start` should recreate the containers attached to the removed network', tio: 300);
+    $this->cmd('docker compose exec -T cli wait-for nginx:8080', txt: 'Wait for nginx to accept connections', tio: 60);
+
+    $this->logSubstep('Assert that the site and its database survived the recreation');
+    $this->cmd($status . ' http://nginx:8080/', '200', 'Homepage should be answered with a 200 status');
+    $this->assertWebpageContains('/', 'drupal-settings-json', 'Homepage should be rendered by Drupal');
+
+    $this->logSubstep('Assert that a repeated start leaves the containers alone');
+    $this->cmd('ahoy start', '! Recreated containers', '`ahoy start` should not recreate healthy containers');
+
+    $this->logStepFinish();
+  }
+
   protected function substepWarmCaches(): void {
     $this->logNote('Warming up caches');
     $this->cmd('ahoy drush cr');
