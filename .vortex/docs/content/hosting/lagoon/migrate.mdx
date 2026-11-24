@@ -58,7 +58,9 @@ environment. The old host keeps serving the site while you work.
 Bring the old site's data to your machine first, into the paths that
 **Vortex** uses locally. A host without shell access, such as Pantheon,
 has its own backup tools. Download a database backup and the files with
-them, put them in the same local paths and continue at step 2.
+them. Save the database backup as plain SQL in `.data/db.sql`, and
+decompress a `.gz` backup first. Put the files in the same local paths,
+then continue at step 2.
 
 1. Log in to the old host and go to the old site's Drupal root.
 2. Export the production database without cache data to your home
