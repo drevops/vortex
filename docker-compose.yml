@@ -65,10 +65,6 @@ x-environment: &default-environment
   DRUPAL_SHIELD_USER: ${DRUPAL_SHIELD_USER:-}
   DRUPAL_SHIELD_PASS: ${DRUPAL_SHIELD_PASS:-}
   #;> MODULE_SHIELD
-  #;< MODULE_RENAME_ADMIN_PATHS
-  # Path that replaces '/user' in every user route.
-  DRUPAL_USER_PATH: ${DRUPAL_USER_PATH:-}
-  #;> MODULE_RENAME_ADMIN_PATHS
   #;< SERVICE_REDIS
   # Redis integration flag.
   DRUPAL_REDIS_ENABLED: ${DRUPAL_REDIS_ENABLED:-}

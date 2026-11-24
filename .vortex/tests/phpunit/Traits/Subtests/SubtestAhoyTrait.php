@@ -1401,11 +1401,10 @@ trait SubtestAhoyTrait {
     $this->cmd($status . ' http://nginx:8080/user/login', '200', 'Default login path should be answered with a 200 status');
 
     $this->logSubstep('Override the user path');
-    $this->fileAddVar('.env', 'DRUPAL_USER_PATH', '/staff/');
-    $this->syncToContainer('.env');
-    $this->substepRecreateContainers();
-    // The user path is applied to the routes when the router is rebuilt.
-    $this->cmd('ahoy drush cr');
+    // The module renames the routes only when the router is rebuilt, so the
+    // variable is needed only by the cache rebuild. 'ahoy cli' forwards
+    // 'DRUPAL_*' variables into the container.
+    $this->cmd('ahoy drush cr', env: ['DRUPAL_USER_PATH' => '/staff/'], txt: 'Router should be rebuilt with the overridden user path');
 
     $this->logSubstep('Assert that the login form is served from the overridden user path');
     $this->cmd($status . ' http://nginx:8080/user/login', '404', 'Default login path should be answered with a 404 status');
@@ -1414,10 +1413,7 @@ trait SubtestAhoyTrait {
     $this->cmd('ahoy drush user:login --no-browser', '* /staff/reset/', 'One-time login link should use the overridden user path');
 
     $this->logSubstep('Restore the default user path');
-    $this->fileRestore('.env');
-    $this->syncToContainer('.env');
-    $this->substepRecreateContainers();
-    $this->cmd('ahoy drush cr');
+    $this->cmd('ahoy drush cr', txt: 'Router should be rebuilt with the default user path');
 
     $this->logSubstep('Assert that the login form is served from the default user path again');
     $this->cmd($status . ' http://nginx:8080/user/login', '200', 'Default login path should be answered with a 200 status');
@@ -1485,13 +1481,6 @@ trait SubtestAhoyTrait {
     $this->cmd('ahoy start', '! Starting containers failed.', '`ahoy start` should not recreate healthy containers');
 
     $this->logStepFinish();
-  }
-
-  protected function substepRecreateContainers(): void {
-    $this->logNote('Recreating containers with the changed environment');
-    $this->cmd('ahoy up', txt: 'Containers should be recreated');
-    $this->cmd('docker compose exec -T cli wait-for nginx:8080', txt: 'Wait for nginx to accept connections', tio: 60);
-    $this->cmd('docker compose exec -T cli wait-for php:9000', txt: 'Wait for PHP to accept connections', tio: 60);
   }
 
   protected function substepWarmCaches(): void {
