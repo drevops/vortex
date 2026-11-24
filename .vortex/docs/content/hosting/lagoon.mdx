@@ -8,14 +8,62 @@ sidebar_position: 3
 platform that provides automated deployments for Drupal applications using
 Docker and Kubernetes.
 
-This page is for the lead or DevOps engineer who runs a project built from
-**Vortex** on Lagoon. It explains what happens on Lagoon during a
-deployment, how the site detects its environment and how to run the
-routine operations. For general Lagoon documentation, see the [Lagoon
+A site built from **Vortex** gets the following on Lagoon:
+
+- Each change goes live automatically after its tests pass.
+- Each branch and pull request can get its own environment with a copy of
+  the production content. Reviewers test a change there before it goes
+  live, and user emails and passwords in the copy are replaced.
+- The production database is backed up before every deployment.
+- Every domain serves HTTPS with a free certificate that Lagoon renews.
+- Drupal's scheduled tasks (cron) run every 15 minutes.
+- A static maintenance page can take the site offline.
+
+To move a site that runs on another host, follow [Migrate a site to
+Lagoon](migrate-to-lagoon.mdx).
+
+The rest of this page is for the lead or DevOps engineer who runs a
+project built from **Vortex** on Lagoon. It explains what happens on Lagoon
+during a deployment, how the site detects its environment and how to run
+the routine operations. For general Lagoon documentation, see the [Lagoon
 documentation](https://docs.lagoon.sh/).
 
 After CI asks Lagoon to deploy, Lagoon pulls and builds your code itself.
 [Lagoon deployment](../deployment/lagoon.mdx) covers that part.
+
+## Before the first deployment
+
+A Lagoon project holds the settings Lagoon uses to build and deploy your
+repository. On a managed Lagoon service, such as amazee.io, the hosting
+provider creates the project. On a self-hosted Lagoon, a Lagoon
+administrator creates it. Ask whoever creates the project for the
+following settings:
+
+| Setting | What **Vortex** expects |
+|---------|-------------------------|
+| Project name | The value of `LAGOON_PROJECT` in `.env` |
+| Git URL | The SSH URL of your repository, such as `git@github.com:your_org/your_site.git` |
+| Deploy key | The public key of the SSH key pair Lagoon generates for the project. Add it to the repository as a deploy key without write access, in GitHub under **Settings > Deploy keys** |
+| Production environment | `main`, the value of `VORTEX_LAGOON_PRODUCTION_BRANCH` in `.env` |
+| Branches | A regular expression for the branches that get an environment |
+| Pull requests | Turned on, so each pull request gets an environment |
+| Repository webhook | None. CI requests every deployment through the Lagoon CLI, so a webhook would deploy each push before its tests pass |
+| Users and SSH keys | A Lagoon user with an SSH key for each person who fetches databases or runs Drush, in a group with access to the project |
+| Lagoon instance | The SSH host and port and the API endpoint, on a cluster other than amazee.io's |
+| Webhook token | The project's webhook token, for the workflow that removes pull request environments. See [Lagoon deployment](../deployment/lagoon.mdx#environments) |
+
+For example, the `^(main|develop)$` branch pattern gives `main` and
+`develop` an environment each.
+
+On another cluster, set the instance values in the
+`VORTEX_DEPLOY_LAGOON_INSTANCE*` variables listed in [Lagoon
+deployment](../deployment/lagoon.mdx#environment-variables) and in
+`drush/sites/lagoon.site.yml`.
+
+After the project exists, add the SSH key that CI uses and the
+environment variables. See [Set up
+hosting](/docs/installation?hosting-provider=lagoon#6-set-up-hosting) in the
+Installation guide and select **Lagoon**.
 
 ## Integration
 
@@ -86,11 +134,55 @@ development. The production check comes first, so with the default
 settings `main` is production. The production steps in `.lagoon.yml` check
 the same 2 things: the environment type and the branch name.
 
-## Onboarding
+## Domains and certificates
 
-Lagoon onboarding is part of the project setup flow. See [Set up
-hosting](/docs/installation?hosting-provider=lagoon#6-set-up-hosting) in the
-Installation guide and select **Lagoon**.
+Each Lagoon environment gets an automatic route, such as
+`https://nginx-php.main.your_site.au2.amazee.io`. To serve production on
+your own domains, add a `routes` key to the `main` environment in
+`.lagoon.yml` and list the domains under the `nginx-php` service. Set
+`monitoring_urls` to your main domain:
+
+```yaml title=".lagoon.yml"
+environments:
+  main:
+    # Keep the shipped cronjobs key here.
+    routes:
+      - nginx-php:
+          - www.your-site-domain.example
+          - your-site-domain.example
+    monitoring_urls:
+      - www.your-site-domain.example
+```
+
+Lagoon adds the routes on the
+environment's next deployment. **Vortex** reads the routes from
+`LAGOON_ROUTES`, so Drupal trusts each domain's hostname.
+
+Point each domain's DNS records at the address that your hosting provider
+gives you for the cluster. An apex domain, such as `example.com`, can't
+hold a `CNAME` record, so ask the provider for an IP address for it.
+
+Lagoon requests a free Let's Encrypt certificate for each route and renews
+it. Let's Encrypt issues the certificate only after the domain resolves to
+Lagoon, so a new domain serves HTTPS a few minutes after its DNS switch.
+The top-level `routes` key in `.lagoon.yml` sets `insecure` to `Redirect`,
+so every route redirects HTTP requests to HTTPS.
+
+To use a certificate of your own, set `tls-acme` to `'false'` on each
+domain it covers, then ask your hosting provider to install the
+certificate:
+
+```yaml title=".lagoon.yml"
+environments:
+  main:
+    routes:
+      - nginx-php:
+          - www.your-site-domain.example:
+              tls-acme: 'false'
+```
+
+The shipped `.lagoon.yml` holds this block as a comment under each
+environment.
 
 ## Routine operations
 

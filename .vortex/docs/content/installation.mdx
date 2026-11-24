@@ -241,6 +241,10 @@ automatically (see
 </TabItem>
 <TabItem value="lagoon" label="Lagoon">
 
+Your Lagoon project must exist before these steps. [Before the first
+deployment](/docs/hosting/lagoon#before-the-first-deployment) lists the
+settings to ask your hosting provider for.
+
 To set up Lagoon:
 
 1. Add the public key from [step 5](#5-create-an-ssh-key-for-deployments)
@@ -367,7 +371,8 @@ Confirm that the first build passed:
 
 The installer can't predict what state your project is in, so you install
 **Vortex** into a clean working copy, then merge your existing project back
-into it.
+into it. To move the site to Lagoon as well, follow [Migrate a site to
+Lagoon](/docs/hosting/migrate-to-lagoon) after these steps.
 
 :::warning
 

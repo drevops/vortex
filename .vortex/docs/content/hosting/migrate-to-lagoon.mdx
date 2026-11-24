@@ -1,0 +1,251 @@
+---
+sidebar_position: 4
+---
+
+# Migrate a site to Lagoon
+
+Follow this page to move a live Drupal site from another host, such as
+Acquia, Pantheon or a virtual machine, onto Lagoon. It's for the lead or
+DevOps engineer who runs the move. At the end, the site runs in the Lagoon
+production environment and its domains point there.
+
+The move runs in 3 stages:
+
+```text
+Copy the site to Lagoon
+  │  database and files from the old host, while it stays live
+  ▼
+Test it on Lagoon
+  │  repeat the copy as often as you need
+  ▼
+Go live
+     content freeze, final copy, DNS switch, checks
+```
+
+The old host keeps serving the site until the DNS switch, so you can
+repeat the first 2 stages until the copy on Lagoon works.
+
+## Before you begin
+
+Make sure you have the following:
+
+- The site's codebase on **Vortex**, with **Lagoon** as the hosting
+  provider. To add **Vortex** to the codebase, follow the [existing
+  project
+  steps](/docs/installation#install-vortex-into-an-existing-project).
+- A Lagoon project with everything in [Before the first
+  deployment](lagoon.mdx#before-the-first-deployment) in place.
+- SSH access to the old host, and permission to run Drush there.
+- `ssh`, `rsync` and the [Lagoon
+  CLI](https://github.com/uselagoon/lagoon-cli) on your machine, and your
+  SSH key loaded in your `ssh-agent`.
+
+The commands on this page use the project name `your_site`, the
+production branch `main` and the SSH endpoint of the amazee.io cluster,
+`ssh.lagoon.amazeeio.cloud` on port `32222`. Replace them with your
+project's values. The SSH user is the project name and the environment
+name joined with a hyphen, such as `your_site-main`.
+
+## Copy the site to Lagoon
+
+Copy the production database and files into the Lagoon production
+environment. The old host keeps serving the site while you work.
+
+### 1. Export the database and files from the old host
+
+Bring the old site's data to your machine first, into the paths that
+**Vortex** uses locally:
+
+1. In the old site's Drupal root on the old host, export the production
+   database without cache data:
+
+   ```shell
+   drush sql:dump --structure-tables-list='cache*' > db.sql
+   ```
+
+2. Copy `db.sql` from the old host to `.data/db.sql` in your project.
+
+3. Copy the old site's public files into `web/sites/default/files`:
+
+   ```shell
+   rsync -rltz user@old-host.example.com:/path/to/files/ web/sites/default/files/
+   ```
+
+4. Copy the old site's private files into
+   `web/sites/default/files/private`:
+
+   ```shell
+   rsync -rltz user@old-host.example.com:/path/to/private/ web/sites/default/files/private/
+   ```
+
+   Replace `user@old-host.example.com` with your SSH login on the old host.
+   Replace the paths with the old site's public and private files
+   directories.
+
+On Lagoon, **Vortex** keeps private files in
+`web/sites/default/files/private`, inside the persistent files storage.
+That keeps the `private://` files the database refers to working after
+the copy.
+
+### 2. Rehearse the provisioning locally
+
+Run the old database through the same provisioning steps that Lagoon runs
+on each deployment, so you fix failures before they reach Lagoon. With
+your local environment running:
+
+1. Import `.data/db.sql` into your local database:
+
+   ```shell
+   ahoy import-db
+   ```
+
+2. Provision the site:
+
+   ```shell
+   ahoy provision
+   ```
+
+   The command runs database updates, imports configuration, rebuilds
+   caches and runs deploy hooks. Fix the codebase until the command
+   finishes with no `[FAIL]` line.
+
+Step 4 uploads the `.data/db.sql` file, so changes to your local database
+stay local.
+
+### 3. Create the production environment
+
+Deploy the production branch to create the Lagoon environment:
+
+```shell
+lagoon deploy branch --project your_site --branch main
+```
+
+If CI already deployed `main`, skip this command. The new environment
+starts with an empty database. The production
+deployment never fetches a database, so its provisioning step stops with
+`Unable to import database from file.` The next step fills the database.
+
+### 4. Upload the database and files
+
+To replace the production database and files on Lagoon with your local
+copy:
+
+1. Drop the tables in the production database:
+
+   ```shell
+   ssh -p 32222 your_site-main@ssh.lagoon.amazeeio.cloud service=cli container=cli drush sql:drop -y
+   ```
+
+2. Import the database dump:
+
+   ```shell
+   ssh -p 32222 your_site-main@ssh.lagoon.amazeeio.cloud service=cli container=cli drush sql:cli < .data/db.sql
+   ```
+
+3. Upload the files:
+
+   ```shell
+   rsync -rltz --exclude /css --exclude /js --exclude /php --exclude /styles -e "ssh -p 32222" web/sites/default/files/ your_site-main@ssh.lagoon.amazeeio.cloud:/app/web/sites/default/files/
+   ```
+
+   The `--exclude` options skip the directories that Drupal regenerates on
+   demand. The upload adds and updates files. It deletes nothing on
+   Lagoon.
+
+### 5. Redeploy production
+
+Redeploy the environment, so provisioning runs against the imported
+database:
+
+```shell
+lagoon deploy latest --project your_site --environment main
+```
+
+Provisioning finds the existing site and keeps its content. It runs
+database updates, imports configuration, rebuilds caches, runs deploy
+hooks and turns maintenance mode off. Confirm that the deployment shows as
+complete in the Lagoon UI.
+
+## Test the site on Lagoon
+
+Test the site on its Lagoon route before any domain points at it. The
+Lagoon UI lists the route of each environment, such as
+`https://nginx-php.main.your_site.au2.amazee.io`.
+
+Check the parts of the site that depend on the host:
+
+- Pages, images and documents load.
+- You can log in, and editors can save content.
+- A private file downloads for a user with access to it.
+- Forms send email.
+- Cron runs. Under **Reports > Status report**, the **Cron maintenance
+  tasks** row shows a run within the last 15 minutes, the interval set in
+  `.lagoon.yml`.
+- Search returns results. If the site uses Search API, reindex it first.
+
+To fix a problem, change the codebase, then repeat the copy from [step
+1](#1-export-the-database-and-files-from-the-old-host) as often as you
+need.
+
+Other environments copy their database from production on each
+deployment, so deploy `develop` and pull request branches only after
+step 5. [Lagoon
+hosting](lagoon.mdx#deployment-automation) lists the steps.
+
+## Go live
+
+Plan the switch for a quiet time, and tell editors when the content freeze
+starts.
+
+1. At least 1 day ahead, lower the time to live (TTL) of each domain's DNS
+   records to 300 seconds, so the switch reaches visitors within minutes.
+2. Declare the production domains in `.lagoon.yml` and deploy them. See
+   [Domains and certificates](lagoon.mdx#domains-and-certificates).
+3. Freeze content on the old site. Ask editors to stop, then put the old
+   site in maintenance mode:
+
+   ```shell
+   drush state:set system.maintenance_mode 1 --input-format=integer
+   ```
+
+4. Repeat [step 1](#1-export-the-database-and-files-from-the-old-host),
+   [step 4](#4-upload-the-database-and-files) and [step
+   5](#5-redeploy-production) to copy the final content. The dump keeps
+   the old site's maintenance mode, and the redeployment turns it off on
+   Lagoon.
+5. Point each domain's DNS records at the address your hosting provider
+   gives you for the production environment.
+6. Confirm that Lagoon issued a certificate for each domain. The following
+   command prints the certificate's issuer and expiry date:
+
+   ```shell
+   curl -svI https://www.your-site-domain.example 2>&1 | grep -E "issuer|expire date"
+   ```
+
+   Lagoon requests a Let's Encrypt certificate after the domain resolves
+   to Lagoon, which can take a few minutes.
+
+7. Repeat the checks from [Test the site on
+   Lagoon](#test-the-site-on-lagoon) on the production domains.
+
+Keep the old site in maintenance mode and its hosting active until you
+no longer need to roll back. To roll back, point the DNS records back at
+the old host and turn its maintenance mode off:
+
+```shell
+drush state:set system.maintenance_mode 0 --input-format=integer
+```
+
+Content that editors created on Lagoon after the switch stays on Lagoon.
+Copy it to the old site by hand before you roll back.
+
+## What's next
+
+The following pages cover running the site on Lagoon:
+
+- [Lagoon hosting](lagoon.mdx) - deployment steps, environment detection
+  and routine operations
+- [Lagoon deployment](../deployment/lagoon.mdx) - how CI triggers
+  deployments
+- [Serve a maintenance page](lagoon.mdx#serve-a-maintenance-page) - take
+  an environment offline without Drupal

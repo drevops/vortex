@@ -150,7 +150,9 @@ sets up the environments with the following settings:
 - A `drush cron` job every 15 minutes and monitoring URLs for the `main` and
   `develop` branches.
 - A redirect from HTTP to HTTPS on every route (the `routes` key sets
-  `insecure` to `Redirect`).
+  `insecure` to `Redirect`). [Domains and
+  certificates](../hosting/lagoon.mdx#domains-and-certificates) shows how
+  to add your production domains as routes.
 - The deployed Git SHA as an environment variable (`git_sha: 'true'`),
   which the notifications use.
 - Commented-out blocks for a custom SSL certificate and for private
@@ -205,6 +207,8 @@ config has no step that removes pull request environments.
 
 The following pages cover the rest of the Lagoon setup:
 
-- [Lagoon hosting](../hosting/lagoon.mdx) - platform integration,
-  environment detection and routine operations
+- [Lagoon hosting](../hosting/lagoon.mdx) - project prerequisites,
+  platform integration, domains and routine operations
+- [Migrate a site to Lagoon](../hosting/migrate-to-lagoon.mdx) - move a
+  live site from another host
 - [Lagoon documentation](https://docs.lagoon.sh/) - official Lagoon docs
