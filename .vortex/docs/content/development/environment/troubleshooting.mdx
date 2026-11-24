@@ -115,11 +115,15 @@ Error response from daemon: failed to set up container networking: network 80022
 `docker network prune` removes the stack's network when the stack is
 stopped. It removes Pygmy's `amazeeio-network` too when Pygmy is stopped.
 
-Run `ahoy start` or `ahoy up`. Both commands recreate the containers that
-point at a removed network, then start the stack. The database keeps its
-data, because the new `database` container mounts the same volume. When
-`VORTEX_DB_IMAGE` is set, the data lives in the image, so the recreated
-`database` container starts with the database from the image.
+Run `ahoy start` or `ahoy up`. When starting the containers fails, both
+commands print `Starting containers failed. Recreating them and trying
+again.`, then recreate every container and start the stack. Without Ahoy,
+run `docker compose up -d --force-recreate`.
+
+The database keeps its data, because the new `database` container mounts
+the same volume. When `VORTEX_DB_IMAGE` is set, the data lives in the
+image, so the recreated `database` container starts with the database from
+the image.
 
 Confirm that `docker compose ps` shows the `cli`, `php`, `nginx` and
 `database` containers with a status that starts with `Up`.
