@@ -6,7 +6,7 @@ sidebar_position: 2
 # Contributed modules
 
 This reference is for developers and leads on a project built from
-**Vortex**. It lists all 35 contributed modules and the 1 contributed theme
+**Vortex**. It lists all 37 contributed modules and the 1 contributed theme
 the template can ship, in alphabetical order: what each does, how it's
 installed and how it's configured. Use it to check what a module does in
 each environment and which variables change that.
@@ -142,6 +142,15 @@ before they change or delete it.
 
 No settings override.
 
+`composer.json` applies
+[`patches/entity_usage-site-domains-null-base-url.patch`](https://github.com/drevops/vortex/blob/main/patches/entity_usage-site-domains-null-base-url.patch)
+to the module. Entity Usage 5.0.1 fails with a `TypeError` when Drupal
+saves an entity without a request, for example while
+`./vendor/bin/dr recipe` applies a recipe. The patch skips the site URL
+lookup in that case. Remove it from `extra.patches` after Entity Usage
+releases a fix for the [upstream
+issue](https://git.drupalcode.org/project/entity_usage/-/work_items/3633572).
+
 ## Environment Indicator
 
 [Environment
@@ -239,6 +248,48 @@ Navigation module for the administration menu.
 ### Configuration
 
 No settings override. The maintenance theme stays Claro.
+
+## HTTP Response Headers
+
+[HTTP Response Headers](https://www.drupal.org/project/http_response_headers)
+adds, replaces or removes HTTP headers on every Drupal response. Each
+header is a configuration entity, managed at **Configuration > System >
+HTTP Response Headers**.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh),
+  which applies the
+  [`recipes/http_response_headers`](https://github.com/drevops/vortex/blob/main/recipes/http_response_headers/recipe.yml)
+  recipe.
+
+### Configuration
+
+No settings override. The recipe installs the module and creates the
+following headers from its `config` directory:
+
+| Header                              | Value                                      |
+|-------------------------------------|--------------------------------------------|
+| `Permissions-Policy`                | `camera=(), microphone=(), geolocation=()` |
+| `Cross-Origin-Opener-Policy`        | `same-origin`                              |
+| `Cross-Origin-Resource-Policy`      | `same-origin`                              |
+| `X-Permitted-Cross-Domain-Policies` | `none`                                     |
+
+The module ships sample headers. A recipe that installs a module creates
+only the configuration entities it imports, so the recipe imports 6 of the
+samples. They set `X-Frame-Options`, `X-Content-Type-Options`,
+`Referrer-Policy` and `Strict-Transport-Security`, and remove the
+`X-Generator` and `X-Powered-By` headers.
+
+The recipe leaves out the other samples:
+
+- `Content-Security-Policy` has an empty value, and an empty value removes
+  the header. It would strip the policy that
+  [Security Kit](#security-kit) sends.
+- `Access-Control-Allow-Origin: *` lets any origin read every response.
+- `Public-Key-Pins` and `X-Xss-Protection` are obsolete in browsers.
+
+Provisioning applies the recipe on every run. It creates only the headers
+that don't exist yet, so headers you've edited keep your values.
 
 ## Linkit
 
@@ -390,6 +441,46 @@ the override sets only the connection. It reads the following variables:
 | `DRUPAL_REDIS_ENABLED`             | Applies the override when set to `1` and the module's code is on disk |
 | `REDIS_HOST`, `REDIS_SERVICE_PORT` | Connection host and port, `redis:6379` by default |
 | `VORTEX_REDIS_EXTENSION_LOADED`    | When set to `1`, applies the cache backend, the container YAML files and the bootstrap container switch without the `redis` PHP extension |
+
+## Rename Admin Paths
+
+[Rename Admin Paths](https://www.drupal.org/project/rename_admin_paths)
+moves the `/admin` and `/user` routes to other paths. A login page away
+from `/user/login` draws fewer automated password guessing attempts.
+
+- **Installed:** During demo provisioning by
+  [`scripts/provision-00-enable-demo-modules.sh`](https://github.com/drevops/vortex/blob/main/scripts/provision-00-enable-demo-modules.sh).
+
+### Configuration
+
+[`settings.rename_admin_paths.php`](https://github.com/drevops/vortex/blob/main/web/sites/default/includes/modules/settings.rename_admin_paths.php)
+moves every `/user` route to the path in `DRUPAL_USER_PATH`, with leading
+and trailing slashes trimmed. The `/admin` routes stay at `/admin`.
+
+The following table shows where the login page is served:
+
+| `DRUPAL_USER_PATH` | Login page                                    |
+|--------------------|-----------------------------------------------|
+| Unset or empty     | `/user/login`                                 |
+| `staff`            | `/staff/login`, and `/user/login` returns 404 |
+
+The path stays out of the repository, so `.env` and `docker-compose.yml`
+don't set the variable. Set it on the hosting environment, then rebuild
+the caches so Drupal rebuilds the routes with the new path. See Move the
+login page on
+[Acquia](../../hosting/acquia/operations.mdx#move-the-login-page) or
+[Lagoon](../../hosting/lagoon/operations.mdx#move-the-login-page).
+One-time login links and password reset emails follow the new path,
+because Drupal builds them from routes.
+
+To try a path locally, pass the variable to the cache rebuild:
+
+```shell
+DRUPAL_USER_PATH=staff ahoy drush cache:rebuild
+```
+
+The next cache rebuild without the variable moves the login page back to
+`/user/login`.
 
 ## Reroute Email
 

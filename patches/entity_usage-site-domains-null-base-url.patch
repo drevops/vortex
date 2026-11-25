@@ -1,0 +1,26 @@
+diff --git a/src/SiteDomains.php b/src/SiteDomains.php
+index f45d9d3..368a47a 100644
+--- a/src/SiteDomains.php
++++ b/src/SiteDomains.php
+@@ -46,11 +46,16 @@ readonly final class SiteDomains {
+       $site_domains = self::stringsToConfig($site_domains);
+     }
+ 
+-    // Auto-discover the site base URL from the current request context.
+-    $base_url = rtrim(mb_strtolower($requestContext->getCompleteBaseUrl()), '/');
+-    foreach (self::stringsToConfig([$base_url]) as $entry) {
+-      if (!in_array($entry, $site_domains, TRUE)) {
+-        $site_domains[] = $entry;
++    // Auto-discover the site base URL from the current request context. The
++    // context has no base URL when Drupal runs without a request, for example
++    // when a recipe is applied from the command line.
++    $complete_base_url = $requestContext->getCompleteBaseUrl();
++    if ($complete_base_url !== NULL) {
++      $base_url = rtrim(mb_strtolower($complete_base_url), '/');
++      foreach (self::stringsToConfig([$base_url]) as $entry) {
++        if (!in_array($entry, $site_domains, TRUE)) {
++          $site_domains[] = $entry;
++        }
+       }
+     }
+ 

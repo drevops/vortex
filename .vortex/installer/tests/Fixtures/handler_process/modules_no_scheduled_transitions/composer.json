@@ -1,5 +1,5 @@
-@@ -32,7 +32,6 @@
-         "drupal/redis": "__VERSION__",
+@@ -34,7 +34,6 @@
+         "drupal/rename_admin_paths": "__VERSION__",
          "drupal/reroute_email": "__VERSION__",
          "drupal/robotstxt": "__VERSION__",
 -        "drupal/scheduled_transitions": "__VERSION__",

@@ -1,4 +1,4 @@
-@@ -33,7 +33,6 @@
+@@ -35,7 +35,6 @@
          "drupal/reroute_email": "__VERSION__",
          "drupal/robotstxt": "__VERSION__",
          "drupal/scheduled_transitions": "__VERSION__",

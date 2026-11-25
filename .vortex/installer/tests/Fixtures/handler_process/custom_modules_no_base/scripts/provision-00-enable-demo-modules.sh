@@ -1,4 +1,4 @@
-@@ -89,7 +89,6 @@
+@@ -100,7 +100,6 @@
  # Note that deployment hooks for already enabled modules have run in the
  # parent "vortex-provision" script.
  task "Installing custom site modules."

@@ -37,6 +37,9 @@ recipes/*
 #;< CONTENT_MODEL
 !recipes/page
 #;> CONTENT_MODEL
+#;< MODULE_HTTP_RESPONSE_HEADERS
+!recipes/http_response_headers
+#;> MODULE_HTTP_RESPONSE_HEADERS
 
 #;< AI_CODE_INSTRUCTIONS
 # Claude writes machine-local state into '.claude/', so it stays an allow

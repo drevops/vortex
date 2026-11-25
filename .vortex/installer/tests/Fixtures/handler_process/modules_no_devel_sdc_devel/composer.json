@@ -6,7 +6,7 @@
          "drupal/diff": "__VERSION__",
          "drupal/drupal_helpers": "__VERSION__",
          "drupal/entity_usage": "__VERSION__",
-@@ -34,7 +33,6 @@
+@@ -36,7 +35,6 @@
          "drupal/robotstxt": "__VERSION__",
          "drupal/scheduled_transitions": "__VERSION__",
          "drupal/schema_metatag": "__VERSION__",

@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies: {  }
+id: x_permitted_cross_domain_policies
+label: X-Permitted-Cross-Domain-Policies
+description: 'No cross-domain policy files for Flash and PDF clients.'
+name: X-Permitted-Cross-Domain-Policies
+value: none
+visibility: {  }

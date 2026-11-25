@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DrevOps\VortexInstaller\Prompts\Handlers;
 
 use AlexSkrypnyk\File\Replacer\Replacement;
+use Composer\Json\JsonFile;
 use DrevOps\VortexInstaller\Utils\File;
 use DrevOps\VortexInstaller\Utils\JsonManipulator;
 
@@ -101,6 +102,12 @@ class Modules extends AbstractHandler {
 
         File::remove($t . '/' . $w . '/sites/default/includes/modules/settings.' . $module_name . '.php');
 
+        File::remove($t . '/recipes/' . $module_name);
+
+        foreach (glob($t . '/patches/' . $module_name . '-*.patch') ?: [] as $patch) {
+          File::remove($patch);
+        }
+
         File::replaceContentInFile($t . '/scripts/provision-00-enable-demo-modules.sh', Replacement::create('module', function (string $content) use ($module_name): string {
           $pattern = '/^(\s*)(drush\s+pm:install.*\b' . preg_quote($module_name, '/') . '\b.*)$/m';
           $content = preg_replace_callback($pattern, function (array $matches) use ($module_name): string {
@@ -130,6 +137,8 @@ class Modules extends AbstractHandler {
           $cj->removeSubNode('require-dev', $removed_package);
         }
       });
+
+      $this->removePatches($t . '/composer.json', $removed_packages);
     }
 
     // The only scenario in the demo pages feature asserts Testmode filtering,
@@ -172,12 +181,14 @@ class Modules extends AbstractHandler {
       'field_group' => 'Field group',
       'generated_content' => 'Generated content',
       'gin' => 'Gin admin theme',
+      'http_response_headers' => 'HTTP response headers',
       'linkit' => 'Linkit',
       'menu_trail_by_path' => 'Menu trail by path',
       'metatag' => 'Metatag',
       'navigation_extra_tools' => 'Navigation extra tools',
       'pathauto' => 'Pathauto',
       'redirect' => 'Redirect',
+      'rename_admin_paths' => 'Rename admin paths',
       'reroute_email' => 'Reroute email',
       'robotstxt' => 'Robots.txt',
       'scheduled_transitions' => 'Scheduled transitions',
@@ -236,6 +247,40 @@ class Modules extends AbstractHandler {
     }
 
     return $modules;
+  }
+
+  /**
+   * Remove the patch entries of removed packages from a composer.json file.
+   *
+   * Removing a nested 'extra' entry through the manipulator re-encodes the
+   * whole 'extra' node and collapses its arrays, so the file is decoded and
+   * encoded instead. The encoder output matches a normalized composer.json.
+   *
+   * @param string $composer_file
+   *   Path to the composer.json file.
+   * @param string[] $packages
+   *   Package names whose patch entries are removed.
+   */
+  protected function removePatches(string $composer_file, array $packages): void {
+    $data = json_decode(File::read($composer_file), FALSE);
+
+    if (!is_object($data) || !isset($data->extra->patches) || !is_object($data->extra->patches)) {
+      return;
+    }
+
+    $patches = $data->extra->patches;
+    $found = FALSE;
+
+    foreach ($packages as $package) {
+      if (isset($patches->{$package})) {
+        unset($patches->{$package});
+        $found = TRUE;
+      }
+    }
+
+    if ($found) {
+      File::dump($composer_file, JsonFile::encode($data) . "\n");
+    }
   }
 
 }

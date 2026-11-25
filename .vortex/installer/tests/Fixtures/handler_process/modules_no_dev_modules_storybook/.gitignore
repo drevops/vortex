@@ -1,4 +1,4 @@
-@@ -48,6 +48,10 @@
+@@ -49,6 +49,10 @@
  # Theme build assets.
  web/themes/**/build
  

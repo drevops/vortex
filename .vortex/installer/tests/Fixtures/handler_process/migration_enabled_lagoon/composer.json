@@ -1,7 +1,7 @@
-@@ -23,9 +23,12 @@
-         "drupal/field_group": "__VERSION__",
+@@ -24,9 +24,12 @@
          "drupal/generated_content": "__VERSION__",
          "drupal/gin": "__VERSION__",
+         "drupal/http_response_headers": "__VERSION__",
 +        "drupal/lagoon_logs": "__VERSION__",
          "drupal/linkit": "__VERSION__",
          "drupal/menu_trail_by_path": "__VERSION__",

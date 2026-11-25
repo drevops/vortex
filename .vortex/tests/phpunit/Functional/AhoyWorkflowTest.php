@@ -80,6 +80,8 @@ class AhoyWorkflowTest extends FunctionalTestCase {
 
     $this->subtestAhoyFast404();
 
+    $this->subtestAhoyRenameUserPath();
+
     $this->subtestAhoyNginxMaintenance();
 
     $this->subtestAhoyStartRecovery();

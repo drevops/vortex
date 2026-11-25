@@ -33,6 +33,7 @@ web/sites/simpletest
 # so recipes stay an allow list: un-ignore custom recipes explicitly.
 recipes/*
 !recipes/page
+!recipes/http_response_headers
 
 # Claude writes machine-local state into '.claude/', so it stays an allow
 # list: un-ignore only the files shared with the team.

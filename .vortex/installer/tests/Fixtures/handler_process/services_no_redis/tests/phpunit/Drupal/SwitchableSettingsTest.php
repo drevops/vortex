@@ -81,6 +81,6 @@
 -  }
 -
 -  /**
-    * Test Shield config.
+    * Test Rename Admin Paths config.
     */
-   #[DataProvider('dataProviderShield')]
+   #[DataProvider('dataProviderRenameAdminPaths')]

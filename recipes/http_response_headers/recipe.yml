@@ -1,0 +1,15 @@
+name: 'HTTP response headers'
+description: 'Installs HTTP Response Headers with the cross-origin and browser feature headers, and without the module sample headers that weaken a response.'
+type: 'Security'
+install:
+  - http_response_headers
+config:
+  strict: false
+  import:
+    http_response_headers:
+      - http_response_headers.response_header.referrer_policy
+      - http_response_headers.response_header.strict_transport_security
+      - http_response_headers.response_header.x_content_type_options
+      - http_response_headers.response_header.x_frame_options
+      - http_response_headers.response_header.x_generator
+      - http_response_headers.response_header.x_powered_by

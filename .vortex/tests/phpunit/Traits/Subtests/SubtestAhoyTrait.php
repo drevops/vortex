@@ -1392,6 +1392,36 @@ trait SubtestAhoyTrait {
     $this->logStepFinish();
   }
 
+  protected function subtestAhoyRenameUserPath(): void {
+    $this->logStepStart();
+
+    $status = 'docker compose exec -T cli curl -sS -o /dev/null -w "%{http_code}"';
+
+    $this->logSubstep('Assert that the login form is served from the default user path');
+    $this->cmd($status . ' http://nginx:8080/user/login', '200', 'Default login path should be answered with a 200 status');
+
+    $this->logSubstep('Override the user path');
+    // The module renames the routes only when the router is rebuilt, so the
+    // variable is needed only by the cache rebuild. 'ahoy cli' forwards
+    // 'DRUPAL_*' variables into the container.
+    $this->cmd('ahoy drush cr', env: ['DRUPAL_USER_PATH' => '/staff/'], txt: 'Router should be rebuilt with the overridden user path');
+
+    $this->logSubstep('Assert that the login form is served from the overridden user path');
+    $this->cmd($status . ' http://nginx:8080/user/login', '404', 'Default login path should be answered with a 404 status');
+    $this->cmd($status . ' http://nginx:8080/staff/login', '200', 'Overridden login path should be answered with a 200 status');
+    $this->assertWebpageContains('/staff/login', 'user-login-form', 'Overridden login path should show the login form');
+    $this->cmd('ahoy drush user:login --no-browser', '* /staff/reset/', 'One-time login link should use the overridden user path');
+
+    $this->logSubstep('Restore the default user path');
+    $this->cmd('ahoy drush cr', txt: 'Router should be rebuilt with the default user path');
+
+    $this->logSubstep('Assert that the login form is served from the default user path again');
+    $this->cmd($status . ' http://nginx:8080/user/login', '200', 'Default login path should be answered with a 200 status');
+    $this->cmd($status . ' http://nginx:8080/staff/login', '404', 'Overridden login path should be answered with a 404 status');
+
+    $this->logStepFinish();
+  }
+
   protected function subtestAhoyNginxMaintenance(): void {
     $this->logStepStart();
 

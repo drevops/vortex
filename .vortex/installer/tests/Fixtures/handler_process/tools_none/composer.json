@@ -1,4 +1,4 @@
-@@ -46,26 +46,10 @@
+@@ -48,26 +48,10 @@
          "drush/drush": "__VERSION__"
      },
      "require-dev": {
@@ -26,7 +26,7 @@
      },
      "conflict": {
          "drupal/drupal": "*"
-@@ -78,20 +62,13 @@
+@@ -80,20 +64,13 @@
      ],
      "minimum-stability": "stable",
      "prefer-stable": true,

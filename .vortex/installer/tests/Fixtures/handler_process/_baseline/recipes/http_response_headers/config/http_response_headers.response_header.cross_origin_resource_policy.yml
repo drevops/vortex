@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies: {  }
+id: cross_origin_resource_policy
+label: Cross-Origin-Resource-Policy
+description: 'Only this origin may load responses served by Drupal.'
+name: Cross-Origin-Resource-Policy
+value: same-origin
+visibility: {  }

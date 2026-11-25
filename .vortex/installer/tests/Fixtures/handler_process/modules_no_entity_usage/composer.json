@@ -6,3 +6,15 @@
          "drupal/environment_indicator": "__VERSION__",
          "drupal/fast_404": "__VERSION__",
          "drupal/field_group": "__VERSION__",
+@@ -178,10 +177,6 @@
+         "patchLevel": {
+             "drupal/core": "-p2"
+         },
+-        "patches": {
+-            "drupal/entity_usage": {
+-                "Skip site base URL discovery when there is no request context": "patches/entity_usage-site-domains-null-base-url.patch"
+-            }
+-        }
++        "patches": {}
+     }
+ }
