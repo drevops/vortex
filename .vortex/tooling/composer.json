@@ -26,7 +26,7 @@
         "drush/drush": "^13.8.0",
         "phpstan/phpstan": "^2.3.2",
         "phpunit/phpunit": "^12.5.40",
-        "rector/rector": "^2.7.0"
+        "rector/rector": "^2.9.2"
     },
     "autoload": {
         "psr-4": {
